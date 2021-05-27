@@ -1,0 +1,7 @@
+*.asv
+*.bak
+~*.docx
+SANDBOX/
+limbo/
+*.slxc
+slprj/
