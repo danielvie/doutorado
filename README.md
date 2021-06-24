@@ -27,3 +27,16 @@
 ## 27/05
 
 - [ ] documentar trabalhos
+
+## 01/06
+
+Ultrafast PDFLaTeX with precompiling
+
+	http://www.stackprinter.com/export?service=tex.stackexchange&question=79493&printer=false&linktohome=true
+
+	https://web.archive.org/web/20160912114941/http://www.howtotex.com:80/tips-tricks/faster-latex-part-iv-use-a-precompiled-preamble/
+
+
+export_fig -transparent -painters nome.pdf
+
+- [ ] expandir equacao linearizada
