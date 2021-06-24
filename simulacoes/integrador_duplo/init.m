@@ -37,10 +37,10 @@ c  = [
     -dtr(4) + t_off;
 ];
 
-[Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,ur);
+[Phi, Gamma] = mpc.construcao_modelo_instantes(Ac,Bc,tr,ur);
 
 [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = ...
-    matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c);
+    mpc.matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c);
 
 
 % SIMULACAO
@@ -52,7 +52,6 @@ x0_3 = [-5.1; 0.4];
 
 x_target = x0;
 y1 = run_simulink(x0);
-
 y2 = run_simulink(x0_3);
 
 figure(1)

@@ -54,7 +54,11 @@ Pf = dlyap(Phib',Phib'*Q*Phib + K'*R*K);
 sys = LTISystem('A',Phib);
 Hmpt = [L*K  -c];
 X = Polyhedron('H',Hmpt);
+
+warning off;
 S = sys.invariantSet('X',X);
+warning on;
+
 aux = S.H;
 Sf = aux(:,1:(end-1));
 bf = aux(:,end);
