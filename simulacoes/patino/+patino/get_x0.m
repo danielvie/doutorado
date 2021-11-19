@@ -37,5 +37,6 @@ function x0 = get_x0(config)
 
     % calculando x0
     I  = eye(size(FF));
-    x0 = (I - FF)\c;
+    x0 = ((I - FF)\c)';    
+    
 end

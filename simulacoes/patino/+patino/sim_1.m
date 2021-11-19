@@ -1,4 +1,4 @@
-function [y,t,u,m] = sim_1(config)
+function [y,t,u,m,xr] = sim_1(config)
 
     % lendo configuracoes
     Cc    = config.Cc;
@@ -21,6 +21,10 @@ function [y,t,u,m] = sim_1(config)
     % calculando simulacao
     xi0  = x0;
     cont = 0;
+    
+    xr   = zeros(n_modes, numel(x0));
+    xr(1,:) = x0;
+    
     for i = 1:n_modes
         % lendo modo de operacao (indice do modo inicia em `0`)
         imode = config.modes(i) + 1;
@@ -46,6 +50,8 @@ function [y,t,u,m] = sim_1(config)
         m(cont+1:cont+nti)   = mi(:);
 
         cont = cont + nti;
+        
+        xr(i+1,:) = xi0;
     end
     
     % removendo pontos nao usados da alocacao

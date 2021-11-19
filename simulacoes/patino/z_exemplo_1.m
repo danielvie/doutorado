@@ -26,6 +26,16 @@ beq    = [];
 
 [x, fval] = fmincon(@(x) patino.fun_custo_patino(config, x), x0, A, b, Aeq, beq, lb, ub, [], opt);
 
+% atualizando valores
+dT = x;
+config.Ts = patino.get_ts(dT);
+config.x0 = patino.get_x0(config);
+% Xr        = get_xr(config);
+Xr        = patino.get_xr_1();
+
+% calculando `xr`
+[~,~,~,~,xr] = patino.sim_1(config);
+
 % --------------------------------------
 % RESULTADOS
 % --------------------------------------
