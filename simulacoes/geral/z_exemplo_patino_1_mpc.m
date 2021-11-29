@@ -39,7 +39,6 @@ c  = [
 [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = ...
     mpc.matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c);
 
-
 nsim = 35;
 
 c = config;
@@ -61,13 +60,13 @@ c.mpc.bf       = bf;
 c.mpc.PhiNp    = PhiNp;
 c.mpc.p        = p;
 
+%% RODANDO SIMULACAO
 c.x0 = c.x0 + [0.1; 0.5];
 
 c.mpc.on = 0;
 [y_,t_,u_,~] = engine.sim_n(c, nsim);
 c.mpc.on = 1;
 [y,t,u,~, dtk] = engine.sim_n(c, nsim);
-
 
 figure(2);
 clf();

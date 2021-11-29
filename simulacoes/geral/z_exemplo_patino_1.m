@@ -6,6 +6,7 @@ clear all
 config = engine.init_sim_patino_1();
 
 %% Otimizacao
+
 [config, x, fval] = engine.otmin(config);
 
 % --------------------------------------

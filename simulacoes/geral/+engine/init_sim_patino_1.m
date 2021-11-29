@@ -34,6 +34,7 @@ function config = init_sim_patino_1()
       r     = 1;
       % r: 
 
+      % montando `config`
       config.modes  = [0, 1]; % modo de operacao
       config.ur     = [1, 0]; % controle associado com modo
       
@@ -52,4 +53,14 @@ function config = init_sim_patino_1()
       
       config.Ts    = [0., 0.2514520, 0.5014520];
       config.x0    = [1.870801; -1.119853];
+      
+      % config OTMIN
+      config.otmin     = struct();
+      config.otmin.x0  = [0.25, 0.25];
+      config.otmin.lb  = [0.25, 0.25];
+      config.otmin.ub  = [1.50, 1.50];
+      config.otmin.A   = [];
+      config.otmin.b   = [];
+      config.otmin.Aeq = [];
+      config.otmin.beq = [];
 end

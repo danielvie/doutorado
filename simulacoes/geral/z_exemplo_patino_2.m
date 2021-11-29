@@ -2,7 +2,7 @@
 % --------------------------------------
 % CONFIG INICIAL
 % --------------------------------------
-% clear all
+clear all;
 config = engine.init_sim_patino_2();
 config.tstep = 1e-7;
 
@@ -18,26 +18,11 @@ opt.Display = 'iter';
 opt.ConstraintTolerance = 1e-4;
 opt.PlotFcn = 'optimplotfvalconstr';
 
-ndt    = numel(config.Ts) - 1;
-
-% tmin   = 0.022*1e-3;
-% tmax   = 0.400*1e-3;
-% x0     = [diff(config.Ts), config.x0];
-% lb     = [ones(1, ndt)*0.022*1e-3, config.x0 - [1, 1, 0.1]];
-% ub     = [ones(1, ndt)*0.088*1e-3, config.x0 + [1, 1, 0.1]];
-x0     = diff(config.Ts);
-lb     = ones(1, ndt)*0.022*1e-3;
-ub     = ones(1, ndt)*0.088*1e-3;
-A      = [];
-b      = [];
-Aeq    = [];
-beq    = [];
-
-
 figure(5);
 clf();
 
-[x, fval] = fmincon(@(x) engine.fun_custo_patino(config, x), x0, A, b, Aeq, beq, lb, ub, [], opt);
+% [x, fval] = fmincon(@(x) engine.fun_custo_patino(config, x), x0, A, b, Aeq, beq, lb, ub, [], opt);
+[config, x, fval] = engine.otmin(config, opt);
 
 % atualizando valores
 dT = x;
@@ -56,7 +41,6 @@ config_ = config;
 % [y,t,u] = sim_1(config_);
 
 [y, t] = engine.sim_n(config_, nsim);
-
 
 figure(1);
 plot(t, y(:,1));

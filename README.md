@@ -2,8 +2,8 @@
 
 ## 19/11/21
 
-- [ ] organizar codigo
-- [ ] commit github
+- [x] organizar codigo
+- [x] commit github
 - [ ] fazer caso para exemplo 2 patino
 
 - [ ] gerar modelo latex qualificacao

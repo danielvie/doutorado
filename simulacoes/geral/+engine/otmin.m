@@ -11,16 +11,13 @@ function [c, x, fval] = otmin(config, opt)
         opt.PlotFcn = 'optimplotfvalconstr';
     end
     
-    % x0     = [0.25, 0.25, config.x0];
-    % lb     = [0.25, 0.25, config.x0 - 2.0];
-    % ub     = [1.50, 1.50, config.x0 + 2.0];
-    x0     = [0.25, 0.25];
-    lb     = [0.25, 0.25];
-    ub     = [1.50, 1.50];
-    A      = [];
-    b      = [];
-    Aeq    = [];
-    beq    = [];
+    x0     = config.otmin.x0;
+    lb     = config.otmin.lb;
+    ub     = config.otmin.ub;
+    A      = config.otmin.A;
+    b      = config.otmin.b;
+    Aeq    = config.otmin.Aeq;
+    beq    = config.otmin.beq;
     
     [x, fval] = fmincon(@(x) engine.fun_custo_patino(c, x), x0, A, b, Aeq, beq, lb, ub, [], opt);
     

@@ -114,4 +114,20 @@ function config = init_sim_patino_2()
     config.Ts    = [0.000, 0.066, 0.088, 0.110, 0.132, 0.154, 0.220, 0.242, 0.264, 0.286]*1e-3;
 	config.x0    = [9.9247; 19.2928; 0.9823];
 			
+	% config OTMIN
+	% tmin   = 0.022*1e-3;
+	% tmax   = 0.400*1e-3;
+	% x0     = [diff(config.Ts), config.x0];
+	% lb     = [ones(1, ndt)*0.022*1e-3, config.x0 - [1, 1, 0.1]];
+	% ub     = [ones(1, ndt)*0.088*1e-3, config.x0 + [1, 1, 0.1]];
+	Ndt              = numel(config.Ts) - 1; % nro de elementos dt
+	
+	config.otmin     = struct();
+	config.otmin.x0  = diff(config.Ts);
+	config.otmin.lb  = ones(1, Ndt)*0.022*1e-3;
+	config.otmin.ub  = ones(1, Ndt)*0.088*1e-3;
+	config.otmin.A   = [];
+	config.otmin.b   = [];
+	config.otmin.Aeq = [];
+	config.otmin.beq = [];
 end
