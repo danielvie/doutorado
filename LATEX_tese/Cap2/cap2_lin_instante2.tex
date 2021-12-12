@@ -1,0 +1,98 @@
+% ========================= INSTANDE DE TEMPO 2 =========================
+% =======================================================================
+Solucao no dominio do tempo para o instante de chaveamento 2
+
+\begin{align}
+	\label{eq_cap2_lin_x2}
+	x(t_2)  &= e^{A_1(t_2-t_1)}x(t_1) + \intlinAA{1}{2}{}{} \\
+	\label{eq_cap2_lin_xr2}
+	x(t_{r_2}) &= e^{A_1(t_{r_2}-t_{r_1})}x(t_{r_1}) + \intlinA{1}{2}{r}{r}
+\end{align}
+
+subtraindo \ref{eq_cap2_lin_x2} e \ref{eq_cap2_lin_xr2} temos
+
+\begin{equation}
+	\label{eq_cap2_lin_erro_x1x2}
+	\begin{split}
+		x(t_2) - x(t_{r_2}) = \green{e^{A_1(t_2-t_1)}x(t_1) - e^{A_1(t_{r_2}-t_{r_1})}x(t_{r_1})} \\ 
+		+ \orange{\intlinAA{1}{2}{}{} - \intlinA{1}{2}{r}{r}}
+	\end{split}
+\end{equation}
+
+Desenvolvendo o destaque em \green{verde}
+
+% 2.10
+\begin{align}
+	\green{ \square } &=
+	\green{
+		e^{A_1(t_{r_2} + \delta t_2 - t_{r_1} - \delta t_1)} x(t_1)
+		- e^{A_1(t_{r_2} - t_{r_1})} x_r(t_{r_1})
+	} \nonumber \\
+	&= \green{
+		\blue{\Fri{1}{2}} \purple{e^{A_1(\delta t_2 - \delta t_1)}} x(t_1)
+		- \blue{\Fri{1}{2}} x_r(t_{r_1})
+	} \nonumber \\
+	&= \green{
+		\blue{F_{r_1}} \purple{[I + A_1(\delta t_2 - \delta t_1)]} x(t_1)
+		- \blue{F_{r_1}} x_r(t_{r_1})
+	} \nonumber \\
+	\label{eq_cap2_lin_x2_green}
+	&= \green{
+		F_{r_1} [x(t_1) - x_r(t_{r_1})] + F_{r_1} A_1 x(t_1) \delta t_2
+		- F_{r_1} A_1 x(t_1) \delta t_1
+	}
+\end{align}
+
+Desenvolvendo o destaque em \orange{laranja}
+
+% 2.11
+\begin{align}
+	\orange{ \square } 	&= \orange{\intlinAA{1}{2}{}{} - \intlinA{1}{2}{r}{r}} \nonumber \\
+					   	&= \orange{ \intlinC{t_{r_1}+\delta t_1}{t_{r_2}+\delta t_2}{1}{2} - \intlinA{1}{2}{r}{r}} \nonumber \\
+						\begin{split}
+							&= \orange{ \purple{ e^{A_1 \delta t_2} }
+								\bigg[
+									\blue{\intlinA{1}{2}{r}{r}} - \intlinB{t_{r_1}}{t_{r_1} + \delta t_1}{1}{2} + \intlinB{t_{r_2}}{t_{r_2} + \delta t_2}{1}{2} \bigg] } \\
+							& \qquad \orange{ - \blue{\intlinA{1}{2}{r}{r}} }
+						\end{split} \nonumber \\
+						&= \orange{ \purple{(I + A_1 \delta t_2)}
+							\bigg[
+								\blue{G_{r_1}} - \pink{\intlinB{t_{r_1}}{t_{r_1} + \delta t_1}{1}{2}} + \brown{\intlinB{t_{r_2}}{t_{r_2} + \delta t_2}{1}{2}}
+							\bigg] - \blue{G_{r_1}}
+						} \nonumber \\
+						&= \orange{ (I + A_1 \delta t_2)
+							\bigg[
+								G_{r_1} - \pink{e^{A_1(t_{r_2} - t_{r_1})} B_1 \delta t_1} + \brown{B_1 \delta t_2}
+							\bigg] - G_{r_1}
+						} \nonumber \\
+						&= \orange{ (I + A_1 \delta t_2)
+							\bigg[
+								G_{r_1} - \pink{F_{r_1} B_1 \delta t_1} + B_1 \delta t_2
+							\bigg] - G_{r_1}
+						} \nonumber \\
+						&= \orange{ \cancel{G_{r_1}} - F_{r_1} B_1 \delta t_1 + B_1 \delta t_2 + A_1 G_{r_1} \delta t_2 - \cancel{G_{r_1}} } \nonumber \\
+						\label{eq_cap2_lin_x2_orange}
+						&= \orange{ A_1 G_{r_1} \delta t_2 + B_1 \delta t_2 - F_{r_1} B_1 \delta t_1 }
+\end{align}
+
+substituindo (\ref{eq_cap2_lin_x2_green}) e (\ref{eq_cap2_lin_x2_orange}) de volta na equação (\ref{eq_cap2_lin_erro_x1x2})
+
+\begin{align}
+	\begin{split}
+		x(t_2) - x_r(t_{r_2}) =  & F_{r_1} [\green{x(t_1) - x_{r_1}(t_{r_1})}] \\
+							     & \quad - F_{r_1} [A_1 \blue{x(t_1)} + B_1] \delta t_1 \\
+							     & \quad + [ F_{r_1} A_1 \blue{x(t_1)} + A_1 G_{r_1} + B_1] \delta t_2
+	\end{split} \nonumber \\ \nonumber \\
+	\begin{split}
+		x(t_2) - x_r(t_{r_2}) =  & F_{r_1} \{\green{
+										F_{r_0} [x(t_0) - x_r(t_0) + [F_{r_0} A_0 x(t_0) + A_0 G_{r_0} + B_0] \delta t_1]
+								 }\} \\
+							     & \quad - F_{r_1} [A_1 \blue{x_r(t_1)} + B_1] \delta t_1 \\
+							     & \quad + [ F_{r_1} A_1 \blue{x_r(t_1)} + A_1 G_{r_1} + B_1] \delta t_2
+	\end{split} \nonumber \\ \nonumber \\
+	\begin{split}
+		x(t_2) - x_r(t_{r_2}) =  & F_{r_1} F_{r_0} [x(t_0) - x_r(t_0)] \\
+							     & \quad + F_{r_1} [F_{r_0} A_0 x(t_0) + A_0 G_{r_0} - A_1 x_r(t_{r_1}) + B_0 - B_1] \delta t_1 \\
+							     & \quad + [F_{r_1} A_1 x_r(t_{r_1}) + A_1 G_{r_1} + B_1] \delta t_2
+	\end{split}
+\end{align}

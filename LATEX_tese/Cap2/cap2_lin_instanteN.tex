@@ -1,0 +1,79 @@
+% ========================= INSTANDE DE TEMPO i =========================
+% =======================================================================
+
+Solucao no dominio do tempo para o instante de chaveamento i
+
+% 2.21
+\begin{align}
+	\begin{split}
+		x(t_i) - x_r(t_{r_i}) =  & F_{r_{i-1}}F_{r_{i-2}} \ldots F_{r_0} [x(t_0) - x_r(t_0)] \\
+								 & + F_{r_{i-1}}F_{r_{i-2}} \ldots F_{r_1} [F_{r_0} A_0 x(t_0) + A_0 G_{r_0} - A_1 x_r(t_{r_1}) + B_0 - B_1] \delta t_1 \\
+								 & + F_{r_{i-1}}F_{r_{i-2}} \ldots F_{r_2} [F_{r_1} A_1 x(t_1) + A_1 G_{r_1} - A_2 x_r(t_{r_2}) + B_1 - B_2] \delta t_2 \\
+								 & \qquad \vdots \\
+								 & + F_{r_{i-1}}[F_{r_{i-2}} A_{i-2} x_r(t_{i-2}) + A_{i-2} G_{r_{i-2}} - A_{i-1} x_r(t_{r_{i-1}}) + B_{i-2} - B_{i-1} ] \delta t_{i-1} \\
+							     & + [F_{r_{i-1}} A_{i-1} x_r(t_{i-1}) + A_{i-1} G_{r_{i-1}} + B_{i-1}] \delta t_i
+	\end{split}
+\end{align}
+
+% ========================= INSTANDE DE TEMPO N =========================
+% =======================================================================
+
+Solucao no dominio do tempo para o instante de chaveamento N
+
+% 2.22
+\begin{align}
+		x(t_N) - x_r(t_{r_N}) =  & F_{r_{N-1}}F_{r_{N-2}} \ldots F_{r_0} [x(t_0) - x_r(t_0)] \nonumber \\
+								 & + F_{r_{N-1}}F_{r_{N-2}} \ldots F_{r_1} [\green{F_{r_0} A_0 x(t_0) + A_0 G_{r_0} - A_1 x_r(t_{r_1}) + B_0 - B_1}] \delta t_1 \nonumber \\
+								 & + F_{r_{N-1}}F_{r_{N-2}} \ldots F_{r_2} [\green{F_{r_1} A_1 x(t_1) + A_1 G_{r_1} - A_2 x_r(t_{r_2}) + B_1 - B_2}] \delta t_2 \nonumber \\
+								 & \qquad \vdots \nonumber \\
+								 \begin{split}
+									& + F_{r_{N-1}}[\green{F_{r_{N-2}} A_{N-2} x_r(t_{N-2}) + A_{N-2} G_{r_{N-2}} - A_{N-1} x_r(t_{r_{N-1}})} \\ 
+									& \qquad \qquad \qquad \green{+ B_{N-2} - B_{N-1}} ] \delta t_{N-1}
+								 \end{split} \nonumber \\
+							     & + [\orange{F_{r_{N-1}} A_{N-1} x_r(t_{N-1}) + A_{N-1} G_{r_{N-1}} + B_{N-1}}] \delta t_N
+\end{align}
+
+% 2.23
+\begin{align}
+	\green{\square} &= \green{F_{r_0} A_0 x(t_0) + A_0 G_{r_0} - A_1 x_r(t_{r_1}) + B_0 - B_1} \nonumber \\
+					&= \green{A_0 \purple{F_{r_0} x(t_0)} + A_0 G_{r_0} - A_1 x_r(t_{r_1}) + B_0 - B_1} \nonumber \\
+					&= \green{A_0 \purple{[x_r(t_{r_1}) - G_{r_0}]} + A_0 G_{r_0} - A_1 x_r(t_{r_1}) + B_0 - B_1} \nonumber \\
+					&= \green{A_0 x_r(t_{r_1}) - \cancel{A_0 G_{r_0}} + \cancel{A_0 G_{r_0}} - A_1 x_r(t_{r_1}) + B_0 - B_1} \nonumber \\
+					&= \green{(A_0 - A_1) x_r(t_{r_1}) + B_0 - B_1}
+\end{align}
+
+% 2.24
+\begin{align}
+	\orange{\square} &= \orange{F_{r_{N-1}} A_{N-1} x_r(t_{N-1}) + A_{N-1} G_{r_{N-1}} + B_{N-1}} \nonumber \\
+					 &= \orange{A_{N-1} \purple{F_{r_{N-1}} x_r(t_{N-1})} + A_{N-1} G_{r_{N-1}} + B_{N-1}} \nonumber \\
+					 &= \orange{A_{N-1} \purple{[x_r(t_{r_N}) - G_{r_{N-1}}]} + A_{N-1} G_{r_{N-1}} + B_{N-1}} \nonumber \\
+					 &= \orange{A_{N-1} x_r(t_{r_N}) - \cancel{A_{N-1} G_{r_{N-1}}} + \cancel{A_{N-1} G_{r_{N-1}}} + B_{N-1}} \nonumber \\
+					 &= \orange{A_{N-1} x_r(t_{r_N}) + B_{N-1}}
+\end{align}
+
+\begin{align}
+	\begin{split}
+		x(t_N) - x_r(t_{r_N}) =  & \quad F_{r_{N-1}}F_{r_{N-2}} \ldots F_{r_0} [x(t_0) - x_r(t_0)] \\
+								 & + F_{r_{N-1}}F_{r_{N-2}} \ldots F_{r_1} [\green{(A_0 - A_1) x_r(t_{r_1}) + B_0 - B_1}] \delta t_1 \\
+								 & + F_{r_{N-1}}F_{r_{N-2}} \ldots F_{r_2} [\green{(A_1 - A_2) x_r(t_{r_2}) + B_1 - B_2}] \delta t_2 \\
+								 & \qquad \vdots \\
+								 & + F_{r_{N-1}}[\green{(A_{N-2} - A_{N-1}) x_r(t_{r_{N-1}}) + B_{N-2} - B_{N-1}}] \delta t_{N-1} \\
+							     & + [\orange{A_{N-1} x_r(t_{r_N}) + B_{N-1}}] \delta t_N
+	\end{split}
+\end{align}
+
+\begin{align}
+	e(t) &= x(t) - x_r(t_r) \\ \nonumber \\
+	\Phi &= F_{r_{N-1}} F_{r_{N-2}} \ldots F_{r_0} \\ \nonumber \\
+	\begin{split}
+		\Gamma &= \Big[ F_{r_{N-1}}F_{r_{N-2}} \ldots F_{r_1} [(A_0 - A_1) x_r(t_{r_1}) + B_0 - B_1], \\
+		& \qquad F_{r_{N-1}}F_{r_{N-2}} \ldots F_{r_2} [(A_1 - A_2) x_r(t_{r_2}) + B_1 - B_2], \\
+		& \qquad \qquad \vdots \\
+		& \qquad F_{r_{N-1}}[(A_{N-2} - A_{N-1}) x_r(t_{r_{N-1}}) + B_{N-2} - B_{N-1}]\Big]
+	\end{split} \\ \nonumber \\
+	\delta t &= [\delta t_1, \delta t_2, \ldots, \delta t_N]^T
+\end{align}
+
+\begin{equation}
+	e(t_N) = \Phi e(t_0) + \Gamma \delta t
+\end{equation}

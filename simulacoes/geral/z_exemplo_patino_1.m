@@ -3,7 +3,7 @@
 % CONFIG INICIAL
 % --------------------------------------
 clear all
-config = engine.init_sim_patino_1();
+config = engine.get_config_sim_patino_1();
 
 %% Otimizacao
 
