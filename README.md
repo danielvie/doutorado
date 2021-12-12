@@ -1,5 +1,16 @@
 # DOUTORADO DANIEL VIEIRA
 
+* [tese.pdf](LATEX_tese/tese.pdf)
+
+
+
+## 13/12/21
+- [x] adicionar arquivos LATEX no github
+- [x] escrever equacao linearizacao
+- [x] escrever equacionamento  `get_x0()`
+- [ ] escrever equacionamento  `get_xr()`
+
+
 ## 19/11/21
 
 - [x] organizar codigo
