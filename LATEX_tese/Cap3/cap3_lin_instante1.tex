@@ -15,8 +15,8 @@ subtraindo \ref{eq_cap2_lin_x1} e \ref{eq_cap2_lin_xr1} temos
 \begin{equation}
 	\label{eq_cap2_lin_erro_x0x1}
 	\begin{split}
-		x(t_1) - x(t_{r_1}) = \green{e^{A_0(t_1-t_0)}x(t_0) - e^{A_0(t_{r_1}-t_{r_0})}x(t_{r_0})} \\
-		+ \orange{\int_{t_0}^{t_1} e^{A_0(t_1 - \tau)}B_0\partial\tau - \int_{t_{r_0}}^{t_{r_1}} e^{A_0(t_{r_1} - \tau)}B_0\partial\tau}
+		x(t_1) - x(t_{r_1}) = \overbrace{\green{e^{A_0(t_1-t_0)}x(t_0) - e^{A_0(t_{r_1}-t_{r_0})}x(t_{r_0})}}^{\text{teste texto acima}} \\
+		+ \underbrace{\orange{\intlinAA{0}{1}{}{} - \intlinA{0}{1}{r}{r}}}_{\text{teste texto abaixo}}
 	\end{split}
 \end{equation}
 

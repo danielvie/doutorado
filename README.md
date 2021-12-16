@@ -3,13 +3,35 @@
 * [tese.pdf](LATEX_tese/tese.pdf)
 
 
+## 16/12/21
+* [x] escrever titulo
+* [ ] perguntar sobre o titulo, se eh isso mesmo
+* [x] escrever resumo
+* [x] escrever equacoes de `get_xr`
+* [x] escrever equacoes de `get_x0`
+* [x] mudar os textos auxiliares da Tese para ingles
+* [x] colocar LATEX no GITHUB
+- [ ] ajustar textos no equacionamento de linearizacao
+	- [ ] mudar texto para ingles
+	- [ ] colocar *underbrace* e *overbrace*
+
 
 ## 13/12/21
 - [x] adicionar arquivos LATEX no github
 - [x] escrever equacao linearizacao
-- [x] escrever equacionamento  `get_x0()`
+* [ ] ~~escrever equacionamento  `get_x0()`~~
 - [ ] escrever equacionamento  `get_xr()`
 
+- Notas:
+	- plugin LaTeX para melhorar visualização MATLAB (*matlab-prettifier*):
+		- https://ctan.org/pkg/matlab-prettifier?lang=en
+
+	- criar comando LaTeX para facilitar uso de instruções (cores por exemplo) :	
+		```latex
+		\newcommand{\red}[1]{{\color{red}#1}}
+		\red{Texto ou equação}
+		```
+	
 
 ## 19/11/21
 
@@ -17,10 +39,10 @@
 - [x] commit github
 - [ ] fazer caso para exemplo 2 patino
 
-- [ ] gerar modelo latex qualificacao
-	- [ ] documentar `get_xr`
-	- [ ] documentar programa de otimizacao (`get_x0`)
-	- [ ] documentar equacionamento
+* [x] gerar modelo latex qualificacao
+- [ ] ~~documentar programa de otimizacao (`get_xr`)~~
+- [ ] ~~documentar programa de otimizacao (`get_x0`)~~
+* [x] documentar equacionamento de linearizacao
 	
 
 ## 14/04

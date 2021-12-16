@@ -6,7 +6,7 @@ function FF = get_config(nome)
 % 
 % In          : nome - nome do caso que se deseja simular
 % 
-% Out         : config - structura de dados do caso a simular
+% Out         : config - estrutura de dados do caso a simular
 % 
 % Pre. Cond   : nenhuma
 % 
@@ -20,10 +20,10 @@ function FF = get_config(nome)
 % 
 % --------------------------------------------------------------------------------
 %
-% Author : Daniel Vieira
+% Author : Daniel Vieira {dvieira}
 % 
 % History
-% 2021-11-30: 1 dvieira - inicio da funcao
+% 2021-11-30: 1 - dvieira - inicio da funcao
 
     if nargin == 0
         nome = '';

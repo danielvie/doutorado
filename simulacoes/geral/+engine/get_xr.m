@@ -1,4 +1,39 @@
 function Xr = get_xr(config)
+    % get_xr - calcula valores de `xr`
+    % 
+    % Prototype   : Xr = get_xr(config)
+    % Description : propaga os estados da trajetoria de referencia calculando as matrizes de dinamica discretas usando  `c2dm`
+    %               xr_1 = F_0*xr_0 + G_0;
+    %               xr_2 = F_1*xr_1 + G_1;
+    %               ...
+    %               xr_N = F_{N-1}*xr_{N-1} + G_{N-1};
+    %               
+    %               [F_i, G_i] = c2dm(Ai, Bi, [], [], dti, 'zoh')
+    %               Ai : matrix A da dinamica no modo de operacao `i`
+    %               Bi : matrix B da dinamica no modo de operacao `i`
+    %               dti: intervalo de tempo entre xr_i e xr_{i+ 1}
+    % 
+    % 
+    % In          : config - estrutura de dados do caso a simular
+    % 
+    % Out         : Xr - estados da trajetoria de referencia em cada instante de chaveamento nominal
+    % 
+    % Pre. Cond   : nenhuma
+    % 
+    % Post. Cond. : nenhuma
+    %
+    % Notes       : nenuma
+    % 
+    % --------------------------------------------------------------------------------
+    % 
+    %           MATLAB Module
+    % 
+    % --------------------------------------------------------------------------------
+    %
+    % Author : Daniel Vieira {dvieira}
+    % 
+    % History
+    % 2021-12-15: 1 - dvieira -  init
 
     A  = config.Ac;
     B  = config.Bc;
@@ -6,10 +41,6 @@ function Xr = get_xr(config)
 
     M  = config.modes;
     
-    % x1 = F1*X0 + G1;
-    % x2 = F2*X1 + G2;
-    % ...
-
     Xr = reshape(config.x0, [1, numel(config.x0)]);
     for i = 1:numel(M)
         mi  = M(i) + 1;

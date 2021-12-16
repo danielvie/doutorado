@@ -38,7 +38,7 @@
 %   \documentclass[dsc, eng]{ita}
 %		\documentclass[dsc, eng, dv]{ita}
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-\documentclass[dsc]{ita}    % ITA.cls based on standard book.cls 
+\documentclass[dsc, eng]{ita}    % ITA.cls based on standard book.cls 
 % Quando alterar a classe, por exemplo de [msc] para [msc, eng]) rode mais uma vez o botão BUILD OUTPUT caso haja erro
 \usepackage{ae}
 \usepackage{graphicx}
@@ -145,7 +145,8 @@
 \itaauthoraddress{Pca Romao Gomes, 98}{12.233-066}{São José dos Campos--SP}
 
 % Titulo da Tese/Dissertação
-\title{Controle robusto de sistemas utilizando atuadores chaveados com restrições temporais}
+% \title{Controle robusto de sistemas utilizando atuadores chaveados com restrições temporais}
+\title{Robust control of linear systems with Switched Actuators Subjected to Dwell-Time Constraints}
 
 % Orientador
 \advisorgender{masc}                    % masc ou fem
@@ -244,17 +245,14 @@ Aos amigos da Graduação e Pós-Graduação do ITA por motivarem tanto a criação des
 \mainmatter
 % Os capitulos comecam aqui
 
-\chapter{Introdução}
+\chapter{Introduction}
 \input{Cap1/cap1}
 
-\chapter{Otimização e Linearização}
+\chapter{Determination of Target Periodic Trajectories}
 \input{Cap2/cap2}
 
-\chapter{Modelo de simulação}
+\chapter{Predictive Control for Stabilization of Periodic Trajectories}
 \input{Cap3/cap3}
-
-\chapter{Casos de uso}
-\input{Cap4/cap4}
 
 \chapter{Conclusão}
 \input{Cap5/cap5}

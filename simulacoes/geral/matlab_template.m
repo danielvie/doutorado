@@ -1,5 +1,5 @@
 function [arg3, arg4] = CCBB_your_fucntion(arg1, arg2)
-% CCBB_your_fucntion - command to do something
+% CCBB_your_fucntion - simple description of the function
 % 
 % Prototype   : [arg3, arg4] = CCBB_your_fucntion(arg1, arg2)
 % Description : more detailed description
@@ -25,7 +25,7 @@ function [arg3, arg4] = CCBB_your_fucntion(arg1, arg2)
 % Author : <author's name>
 % 
 % History
-% yyyy-mm-dd: <change-id> <author> <change description>
+% yyyy-mm-dd: <change-id> - <author> - <change description>
 
     <put your code here>
 

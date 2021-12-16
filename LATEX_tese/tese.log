@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.5.25)  12 DEC 2021 22:41
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.5.25)  16 DEC 2021 01:15
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**c:/Users/Daniel/Home/Documents/DOUTORADO/LATEX/TeseDaniel/tese.tex
-(c:/Users/Daniel/Home/Documents/DOUTORADO/LATEX/TeseDaniel/tese.tex
+**c:/Users/Daniel/Home/Documents/DOUTORADO/LATEX_tese/tese.tex
+(c:/Users/Daniel/Home/Documents/DOUTORADO/LATEX_tese/tese.tex
 LaTeX2e <2020-10-01> patch level 4
 L3 programming layer <2021-05-11> (./ita.cls
 Document Class: ita 2006/03/10 v2.0 Classe de documento com padr\GenericError {(inputenc)                }{Package inputenc Error: Invalid UTF-8 byte "F5}{See the inputenc package documentation for explanation.}{The document does not appear to be in UTF-8 encoding.\MessageBreak Try adding \UseRawInputEncoding as the first line of the file\MessageBreak or specify an encoding such as \usepackage [latin1]{inputenc}\MessageBreak in the document preamble.\MessageBreak Alternatively, save the file in UTF-8 using your editor or another tool}es do ITA
@@ -62,14 +62,7 @@ Package babel Info: Hyphen rules for 'australian' set to \l@ukenglish
 (babel)             (\language21). Reported on input line 105.
 Package babel Info: Hyphen rules for 'newzealand' set to \l@ukenglish
 (babel)             (\language21). Reported on input line 108.
-) (c:/texlive/2021/texmf-dist/tex/generic/babel-portuges/portuges.ldf
-Language: portuges 2021/02/04 v1.2s Portuguese support from the babel system
-Package babel Info: Making " an active character on input line 143.
-) (c:/texlive/2021/texmf-dist/tex/generic/babel-portuges/brazil.ldf
-Language: portuges 2021/02/04 v1.2s Portuguese support from the babel system
-Package babel Info: Hyphen rules for 'brazil' set to \l@portuguese
-(babel)             (\language70). Reported on input line 111.
-)) (./itabr.babel) (c:/texlive/2021/texmf-dist/tex/latex/base/inputenc.sty
+)) (./itaeng.babel) (c:/texlive/2021/texmf-dist/tex/latex/base/inputenc.sty
 Package: inputenc 2020/08/01 v1.3d Input encoding file
 \inpenc@prehook=\toks15
 \inpenc@posthook=\toks16
@@ -461,7 +454,7 @@ Package: cancel 2013/04/12 v2.2 Cancel math terms
 
 
 Writing glossary file tese.glo 
-LaTeX Font Info:    Trying to load font information for T1+aer on input line 189.
+LaTeX Font Info:    Trying to load font information for T1+aer on input line 190.
 (c:/texlive/2021/texmf-dist/tex/latex/ae/t1aer.fd
 File: t1aer.fd 1997/11/16 Font definitions for T1/aer.
 ) (c:/texlive/2021/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
@@ -471,27 +464,27 @@ File: l3backend-pdftex.def 2021-05-07 L3 backend support: PDF output (pdfTeX)
 ) (./tese.aux)
 \openout1 = `tese.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 189.
-LaTeX Font Info:    ... okay on input line 189.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 189.
-LaTeX Font Info:    ... okay on input line 189.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 189.
-LaTeX Font Info:    ... okay on input line 189.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 189.
-LaTeX Font Info:    ... okay on input line 189.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 189.
-LaTeX Font Info:    ... okay on input line 189.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 189.
-LaTeX Font Info:    ... okay on input line 189.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 189.
-LaTeX Font Info:    ... okay on input line 189.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 189.
-LaTeX Font Info:    ... okay on input line 189.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 189.
-LaTeX Font Info:    ... okay on input line 189.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 190.
+LaTeX Font Info:    ... okay on input line 190.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 190.
+LaTeX Font Info:    ... okay on input line 190.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 190.
+LaTeX Font Info:    ... okay on input line 190.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 190.
+LaTeX Font Info:    ... okay on input line 190.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 190.
+LaTeX Font Info:    ... okay on input line 190.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 190.
+LaTeX Font Info:    ... okay on input line 190.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 190.
+LaTeX Font Info:    ... okay on input line 190.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 190.
+LaTeX Font Info:    ... okay on input line 190.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 190.
+LaTeX Font Info:    ... okay on input line 190.
 Package lastpage Info: Please have a look at the pageslts package at
 (lastpage)             https://www.ctan.org/pkg/pageslts
-(lastpage)             ! on input line 189.
+(lastpage)             ! on input line 190.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: subfig package v1.3 is loaded.
 Package caption Info: float package is loaded.
@@ -520,7 +513,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
  (c:/texlive/2021/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-Package hyperref Info: Link coloring ON on input line 189.
+Package hyperref Info: Link coloring ON on input line 190.
  (c:/texlive/2021/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2021-04-02 v2.47 Cross-referencing by name of section
  (c:/texlive/2021/texmf-dist/tex/latex/refcount/refcount.sty
@@ -530,14 +523,14 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
 \c@section@level=\count316
 )
-LaTeX Info: Redefining \ref on input line 189.
-LaTeX Info: Redefining \pageref on input line 189.
-LaTeX Info: Redefining \nameref on input line 189.
+LaTeX Info: Redefining \ref on input line 190.
+LaTeX Info: Redefining \pageref on input line 190.
+LaTeX Info: Redefining \nameref on input line 190.
  (./tese.out) (./tese.out)
 \@outlinefile=\write4
 \openout4 = `tese.out'.
 
-Package hyperref Info: Anchor `Doc-Start' on input line 189.
+Package hyperref Info: Anchor `Doc-Start' on input line 190.
 
 *geometry* detected driver: pdftex
 *geometry* verbose mode - [ preamble ] result:
@@ -573,100 +566,95 @@ Package hyperref Info: Anchor `Doc-Start' on input line 189.
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 \c@butlastpage=\count317
-Package hyperref Info: Anchor `titulo.0' on input line 191.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 191.
+Package hyperref Info: Anchor `titulo.0' on input line 192.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 192.
 (c:/texlive/2021/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 191.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 192.
  (c:/texlive/2021/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Package hyperref Info: Anchor `page.i' on input line 191.
+Package hyperref Info: Anchor `page.i' on input line 192.
  [1
 
 
 
 {c:/texlive/2021/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-Package hyperref Info: Anchor `cip.0' on input line 191.
+Package hyperref Info: Anchor `cip.0' on input line 192.
 
-Underfull \hbox (badness 10000) in paragraph at lines 191--191
+Underfull \hbox (badness 10000) in paragraph at lines 192--192
 
  []
 
-Package hyperref Info: Anchor `page.ii' on input line 191.
+Package hyperref Info: Anchor `page.ii' on input line 192.
 [2]
-Package hyperref Info: Anchor `aprovacao.0' on input line 191.
+Package hyperref Info: Anchor `aprovacao.0' on input line 192.
+Package hyperref Info: Anchor `page.iii' on input line 192.
+ [3]
+Package hyperref Info: Anchor `dedication.0' on input line 195.
 
-Overfull \hbox (7.98744pt too wide) in paragraph at lines 191--191
-[][] 
+Underfull \hbox (badness 4660) in paragraph at lines 196--197
+[]\T1/aer/m/n/12 Aos ami-gos da Grad-u-ação e Pós-
  []
 
-Package hyperref Info: Anchor `page.iii' on input line 191.
-[3]
-Package hyperref Info: Anchor `dedication.0' on input line 194.
-
-Underfull \hbox (badness 4660) in paragraph at lines 195--196
-[]\T1/aer/m/n/12 Aos ami-gos da Gra-du-a-ção e Pós-
- []
-
-Package hyperref Info: Anchor `page.iv' on input line 196.
+Package hyperref Info: Anchor `page.iv' on input line 197.
 [4]
-Package hyperref Info: Anchor `chapter*.1' on input line 200.
-Package hyperref Info: Anchor `acknowledgment.0' on input line 200.
+Package hyperref Info: Anchor `chapter*.1' on input line 201.
+Package hyperref Info: Anchor `acknowledgment.0' on input line 201.
  (./Cap0/agradecimentos.tex)
-Package hyperref Info: Anchor `page.v' on input line 201.
+Package hyperref Info: Anchor `page.v' on input line 202.
  [5
 
 ]
-Package hyperref Info: Anchor `epigrafe.0' on input line 205.
-LaTeX Font Info:    Trying to load font information for T1+aess on input line 209.
+Package hyperref Info: Anchor `epigrafe.0' on input line 206.
+LaTeX Font Info:    Trying to load font information for T1+aess on input line 210.
  (c:/texlive/2021/texmf-dist/tex/latex/ae/t1aess.fd
 File: t1aess.fd 1997/11/16 Font definitions for T1/aess.
 )
 LaTeX Font Info:    Font shape `T1/aess/m/it' in size <12> not available
-(Font)              Font shape `T1/aess/m/sl' tried instead on input line 209.
-Package hyperref Info: Anchor `page.vi' on input line 216.
+(Font)              Font shape `T1/aess/m/sl' tried instead on input line 210.
+Package hyperref Info: Anchor `page.vi' on input line 217.
  [6]
-Package hyperref Info: Anchor `chapter*.2' on input line 216.
-Package hyperref Info: Anchor `resumo.0' on input line 216.
+Package hyperref Info: Anchor `chapter*.2' on input line 217.
+Package hyperref Info: Anchor `resumo.0' on input line 217.
  (./Cap0/resumo.tex)
-Package hyperref Info: Anchor `page.vii' on input line 222.
+Package hyperref Info: Anchor `page.vii' on input line 223.
  [7
 
 ]
-Package hyperref Info: Anchor `chapter*.3' on input line 222.
-Package hyperref Info: Anchor `abstract.0' on input line 222.
+Package hyperref Info: Anchor `chapter*.3' on input line 223.
+Package hyperref Info: Anchor `abstract.0' on input line 223.
  (./Cap0/abstract.tex)
-Package hyperref Info: Anchor `page.viii' on input line 228.
+Package hyperref Info: Anchor `page.viii' on input line 229.
  [8
 
 ]
-Package hyperref Info: Anchor `chapter*.4' on input line 228.
-Package hyperref Info: Anchor `listafiguras.0' on input line 228.
+Package hyperref Info: Anchor `chapter*.4' on input line 229.
+Package hyperref Info: Anchor `listafiguras.0' on input line 229.
  (./tese.lof
-Package hyperref Info: Reference (link) `figure.caption.9' on input line 4.
+Package hyperref Info: Reference (link) `figure.caption.9' on input line 5.
 )
 \tf@lof=\write5
 \openout5 = `tese.lof'.
 
-Package hyperref Info: Anchor `page.ix' on input line 231.
+Package hyperref Info: Anchor `page.ix' on input line 232.
  [9
 
-Package `hyperref' Info: End of reference (link) `figure.caption.9', line 4.
+Package `hyperref' Info: End of reference (link) `figure.caption.9', line 5.
 ]
-Package hyperref Info: Anchor `chapter*.5' on input line 231.
-Package hyperref Info: Anchor `listatabelas.0' on input line 231.
+Package hyperref Info: Anchor `chapter*.5' on input line 232.
+Package hyperref Info: Anchor `listatabelas.0' on input line 232.
  (./tese.lot)
 \tf@lot=\write6
 \openout6 = `tese.lot'.
 
-Package hyperref Info: Anchor `page.x' on input line 234.
+Package hyperref Info: Anchor `page.x' on input line 235.
  [10
 
 ]
-Package hyperref Info: Anchor `chapter*.6' on input line 234.
-Package hyperref Info: Anchor `listaabreviaturas.0' on input line 234.
+Package hyperref Info: Anchor `chapter*.6' on input line 235.
+Package hyperref Info: Anchor `listaabreviaturas.0' on input line 235.
  (./tese.lof)
 \tf@lof=\write7
 \openout7 = `tese.lof'.
@@ -674,12 +662,12 @@ Package hyperref Info: Anchor `listaabreviaturas.0' on input line 234.
  (./Cap0/listaabreviaturas.tex
 Package hyperref Info: Anchor `table.0.1' on input line 15.
 )
-Package hyperref Info: Anchor `page.xi' on input line 238.
+Package hyperref Info: Anchor `page.xi' on input line 239.
  [11
 
 ]
-Package hyperref Info: Anchor `chapter*.7' on input line 238.
-Package hyperref Info: Anchor `listasimbolos.0' on input line 238.
+Package hyperref Info: Anchor `chapter*.7' on input line 239.
+Package hyperref Info: Anchor `listasimbolos.0' on input line 239.
  (./tese.lof)
 \tf@lof=\write8
 \openout8 = `tese.lof'.
@@ -687,12 +675,12 @@ Package hyperref Info: Anchor `listasimbolos.0' on input line 238.
  (./Cap0/listasimbolos.tex
 Package hyperref Info: Anchor `table.0.2' on input line 9.
 )
-Package hyperref Info: Anchor `page.xii' on input line 242.
+Package hyperref Info: Anchor `page.xii' on input line 243.
  [12
 
 ]
-Package hyperref Info: Anchor `chapter*.8' on input line 242.
-Package hyperref Info: Anchor `contents.0' on input line 242.
+Package hyperref Info: Anchor `chapter*.8' on input line 243.
+Package hyperref Info: Anchor `contents.0' on input line 243.
  (./tese.toc
 Underfull \hbox (badness 10000) in paragraph at lines 2--2
  []  
@@ -702,15 +690,17 @@ Package hyperref Info: Reference (link) `chapter.1' on input line 2.
 Package hyperref Info: Reference (link) `section.1.1' on input line 3.
 Package hyperref Info: Reference (link) `section.1.2' on input line 4.
 Package hyperref Info: Reference (link) `section.1.3' on input line 5.
-Package hyperref Info: Reference (link) `subsection.1.3.1' on input line 6.
 
-Underfull \hbox (badness 10000) in paragraph at lines 9--9
+Underfull \hbox (badness 10000) in paragraph at lines 6--6
  []  
  []
 
-Package hyperref Info: Reference (link) `chapter.2' on input line 9.
-Package hyperref Info: Reference (link) `section.2.1' on input line 10.
-Package hyperref Info: Reference (link) `section.2.2' on input line 11.
+Package hyperref Info: Reference (link) `chapter.2' on input line 6.
+Package hyperref Info: Reference (link) `section.2.1' on input line 7.
+Package hyperref Info: Reference (link) `section.2.2' on input line 8.
+Package hyperref Info: Reference (link) `section.2.3' on input line 9.
+Package hyperref Info: Reference (link) `section.2.4' on input line 10.
+Package hyperref Info: Reference (link) `section.2.5' on input line 11.
 
 Underfull \hbox (badness 10000) in paragraph at lines 12--12
  []  
@@ -718,128 +708,160 @@ Underfull \hbox (badness 10000) in paragraph at lines 12--12
 
 Package hyperref Info: Reference (link) `chapter.3' on input line 12.
 Package hyperref Info: Reference (link) `section.3.1' on input line 13.
-Package hyperref Info: Reference (link) `subsection.3.1.1' on input line 14.
-Package hyperref Info: Reference (link) `subsection.3.1.2' on input line 15.
-Package hyperref Info: Reference (link) `subsection.3.1.3' on input line 16.
-
-Underfull \hbox (badness 10000) in paragraph at lines 17--17
- []  
- []
-
-Package hyperref Info: Reference (link) `chapter.4' on input line 17.
-Package hyperref Info: Reference (link) `section.4.1' on input line 18.
-
-Underfull \hbox (badness 10000) in paragraph at lines 19--19
- []  
- []
-
-Package hyperref Info: Reference (link) `chapter.5' on input line 19.
-
-Underfull \hbox (badness 10000) in paragraph at lines 20--20
- []  
- []
-
-Package hyperref Info: Reference (link) `chapter.6' on input line 20.
-
-Underfull \hbox (badness 10000) in paragraph at lines 22--22
- []  
- []
-
-Package hyperref Info: Reference (link) `appendix.A' on input line 22.
-Package hyperref Info: Reference (link) `section.A.1' on input line 23.
-Package hyperref Info: Reference (link) `subsection.A.1.1' on input line 24.
-Package hyperref Info: Reference (link) `subsection.A.1.2' on input line 25.
-Package hyperref Info: Anchor `page.xiii' on input line 27.
+Package hyperref Info: Reference (link) `section.3.2' on input line 14.
+Package hyperref Info: Reference (link) `section.3.3' on input line 15.
+Package hyperref Info: Reference (link) `subsection.3.3.1' on input line 16.
+Package hyperref Info: Reference (link) `subsection.3.3.2' on input line 17.
+Package hyperref Info: Reference (link) `subsection.3.3.3' on input line 18.
+Package hyperref Info: Reference (link) `subsection.3.3.4' on input line 19.
+Package hyperref Info: Reference (link) `section.3.4' on input line 20.
+Package hyperref Info: Reference (link) `subsection.3.4.1' on input line 21.
+Package hyperref Info: Reference (link) `subsection.3.4.2' on input line 22.
+Package hyperref Info: Reference (link) `subsection.3.4.3' on input line 23.
+Package hyperref Info: Anchor `page.xiii' on input line 24.
 [13
 
 Package `hyperref' Info: End of reference (link) `chapter.1', line 2.
 Package `hyperref' Info: End of reference (link) `section.1.1', line 3.
 Package `hyperref' Info: End of reference (link) `section.1.2', line 4.
 Package `hyperref' Info: End of reference (link) `section.1.3', line 5.
-Package `hyperref' Info: End of reference (link) `subsection.1.3.1', line 6.
-Package `hyperref' Info: End of reference (link) `chapter.2', line 9.
-Package `hyperref' Info: End of reference (link) `section.2.1', line 10.
-Package `hyperref' Info: End of reference (link) `section.2.2', line 11.
+Package `hyperref' Info: End of reference (link) `chapter.2', line 6.
+Package `hyperref' Info: End of reference (link) `section.2.1', line 7.
+Package `hyperref' Info: End of reference (link) `section.2.2', line 8.
+Package `hyperref' Info: End of reference (link) `section.2.3', line 9.
+Package `hyperref' Info: End of reference (link) `section.2.4', line 10.
+Package `hyperref' Info: End of reference (link) `section.2.5', line 11.
 Package `hyperref' Info: End of reference (link) `chapter.3', line 12.
 Package `hyperref' Info: End of reference (link) `section.3.1', line 13.
-Package `hyperref' Info: End of reference (link) `subsection.3.1.1', line 14.
-Package `hyperref' Info: End of reference (link) `subsection.3.1.2', line 15.
-Package `hyperref' Info: End of reference (link) `subsection.3.1.3', line 16.
-Package `hyperref' Info: End of reference (link) `chapter.4', line 17.
-Package `hyperref' Info: End of reference (link) `section.4.1', line 18.
-Package `hyperref' Info: End of reference (link) `chapter.5', line 19.
-Package `hyperref' Info: End of reference (link) `chapter.6', line 20.
-Package `hyperref' Info: End of reference (link) `appendix.A', line 22.
-Package `hyperref' Info: End of reference (link) `section.A.1', line 23.
-Package `hyperref' Info: End of reference (link) `subsection.A.1.1', line 24.
+Package `hyperref' Info: End of reference (link) `section.3.2', line 14.
+Package `hyperref' Info: End of reference (link) `section.3.3', line 15.
+Package `hyperref' Info: End of reference (link) `subsection.3.3.1', line 16.
+Package `hyperref' Info: End of reference (link) `subsection.3.3.2', line 17.
+Package `hyperref' Info: End of reference (link) `subsection.3.3.3', line 18.
+Package `hyperref' Info: End of reference (link) `subsection.3.3.4', line 19.
+Package `hyperref' Info: End of reference (link) `section.3.4', line 20.
+Package `hyperref' Info: End of reference (link) `subsection.3.4.1', line 21.
+Package `hyperref' Info: End of reference (link) `subsection.3.4.2', line 22.
 ]
+Underfull \hbox (badness 10000) in paragraph at lines 24--24
+ []  
+ []
+
+Package hyperref Info: Reference (link) `chapter.4' on input line 24.
+
+Underfull \hbox (badness 10000) in paragraph at lines 25--25
+ []  
+ []
+
+Package hyperref Info: Reference (link) `chapter.5' on input line 25.
+
 Underfull \hbox (badness 10000) in paragraph at lines 27--27
  []  
  []
 
-Package hyperref Info: Reference (link) `annex.a' on input line 27.
-Package hyperref Info: Reference (link) `section.a.1' on input line 28.
+Package hyperref Info: Reference (link) `appendix.A' on input line 27.
+Package hyperref Info: Reference (link) `section.A.1' on input line 28.
+Package hyperref Info: Reference (link) `subsection.A.1.1' on input line 29.
+Package hyperref Info: Reference (link) `subsection.A.1.2' on input line 30.
+
+Underfull \hbox (badness 10000) in paragraph at lines 32--32
+ []  
+ []
+
+Package hyperref Info: Reference (link) `annex.a' on input line 32.
+Package hyperref Info: Reference (link) `section.a.1' on input line 33.
 )
 \tf@toc=\write9
 \openout9 = `tese.toc'.
 
-Package hyperref Info: Anchor `page.xiv' on input line 244.
+Package hyperref Info: Anchor `page.xiv' on input line 245.
  [14
-Package `hyperref' Info: End of reference (link) `subsection.A.1.2', line 25.
-Package `hyperref' Info: End of reference (link) `annex.a', line 27.
-Package `hyperref' Info: End of reference (link) `section.a.1', line 28.
+Package `hyperref' Info: End of reference (link) `subsection.3.4.3', line 23.
+Package `hyperref' Info: End of reference (link) `chapter.4', line 24.
+Package `hyperref' Info: End of reference (link) `chapter.5', line 25.
+Package `hyperref' Info: End of reference (link) `appendix.A', line 27.
+Package `hyperref' Info: End of reference (link) `section.A.1', line 28.
+Package `hyperref' Info: End of reference (link) `subsection.A.1.1', line 29.
+Package `hyperref' Info: End of reference (link) `subsection.A.1.2', line 30.
+Package `hyperref' Info: End of reference (link) `annex.a', line 32.
+Package `hyperref' Info: End of reference (link) `section.a.1', line 33.
 ]
-Package hyperref Info: Anchor `chapter.1' on input line 247.
+Package hyperref Info: Anchor `chapter.1' on input line 248.
 
-Cap\'{\i }tulo 1.
-pdftex: bookmark at 247: {1} {\numberline{1}Introdu\c c\~ao} {chapter.1}{0}{toc}
+Chapter 1.
+pdftex: bookmark at 248: {1} {\numberline{1}Introduction} {chapter.1}{0}{toc}
 (./Cap1/cap1.tex
 Package hyperref Info: Anchor `section.1.1' on input line 1.
 
-pdftex: bookmark at 1: {1.1} {\numberline{1.1}Objetivo} {section.1.1}{1}{toc}
+pdftex: bookmark at 1: {1.1} {\numberline{1.1}Motivation} {section.1.1}{1}{toc}
 Package hyperref Info: Anchor `section.1.2' on input line 5.
-pdftex: bookmark at 5: {1.2} {\numberline{1.2}Motiva\c c\~ao} {section.1.2}{1}{toc}
-Package hyperref Info: Anchor `section.1.3' on input line 9.
-pdftex: bookmark at 9: {1.3} {\numberline{1.3}Organiza\c c\~ao do trabalho} {section.1.3}{1}{toc}
-Package hyperref Info: Anchor `subsection.1.3.1' on input line 11.
-pdftex: bookmark at 11: {1.3.1} {\numberline{1.3.1}Sub-organiza\c c\~ao} {subsection.1.3.1}{2}{toc}
-Package hyperref Info: Anchor `subsubsection.1.3.1.1' on input line 15.
-pdftex: bookmark at 15: {1.3.1.1} {\numberline{1.3.1.1}SubSub-organiza\c c\~ao} {subsubsection.1.3.1.1}{3}{toc}
-Package hyperref Info: Anchor `subsubsection.1.3.1.2' on input line 19.
-pdftex: bookmark at 19: {1.3.1.2} {\numberline{1.3.1.2}Outra subsub-organizacao} {subsubsection.1.3.1.2}{3}{toc}
+pdftex: bookmark at 5: {1.2} {\numberline{1.2}Contributions of the present work} {section.1.2}{1}{toc}
+Package hyperref Info: Anchor `section.1.3' on input line 7.
+pdftex: bookmark at 7: {1.3} {\numberline{1.3}Outline of the remaining chapters} {section.1.3}{1}{toc}
 )
-Package hyperref Info: Anchor `page.15' on input line 250.
+Package hyperref Info: Anchor `page.15' on input line 251.
  [15
 
 
 ]
-Package hyperref Info: Anchor `chapter.2' on input line 250.
+Package hyperref Info: Anchor `chapter.2' on input line 251.
 
-Cap\'{\i }tulo 2.
-pdftex: bookmark at 250: {2} {\numberline{2}Otimiza\c c\~ao e Lineariza\c c\~ao} {chapter.2}{0}{toc}
+Chapter 2.
+pdftex: bookmark at 251: {2} {\numberline{2}Determination of Target Periodic Trajectories} {chapter.2}{0}{toc}
 (./Cap2/cap2.tex
 Package hyperref Info: Anchor `section.2.1' on input line 1.
 
-pdftex: bookmark at 1: {2.1} {\numberline{2.1}Otimiza\c c\~ao} {section.2.1}{1}{toc}
+pdftex: bookmark at 1: {2.1} {\numberline{2.1}Statement of the problem} {section.2.1}{1}{toc}
+Package hyperref Info: Anchor `section.2.2' on input line 3.
+pdftex: bookmark at 3: {2.2} {\numberline{2.2}Proposed codification for the switching constraints} {section.2.2}{1}{toc}
+Package hyperref Info: Anchor `section.2.3' on input line 5.
+pdftex: bookmark at 5: {2.3} {\numberline{2.3}Optimization} {section.2.3}{1}{toc}
+Package hyperref Info: Anchor `section.2.4' on input line 9.
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 9.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `subscript' on input line 9.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 9.
+
+pdftex: bookmark at 9: {2.4} {\numberline{2.4}Calculating $x_r$} {section.2.4}{1}{toc}
 (./Cap2/cap2_otim_get_x0.tex
-Package hyperref Info: Anchor `equation.2.1.1' on input line 3.
-Package hyperref Info: Anchor `equation.2.1.2' on input line 13.
-Package hyperref Info: Anchor `equation.2.1.3' on input line 21.
-Package hyperref Info: Anchor `equation.2.1.4' on input line 28.
-Package hyperref Info: Anchor `equation.2.1.5' on input line 28.
-Package hyperref Info: Anchor `equation.2.1.6' on input line 28.
-Package hyperref Info: Anchor `equation.2.1.7' on input line 39.
-Package hyperref Info: Anchor `page.16' on input line 39.
+Package hyperref Info: Anchor `equation.2.4.1' on input line 3.
+Package hyperref Info: Anchor `equation.2.4.2' on input line 13.
+Package hyperref Info: Anchor `equation.2.4.3' on input line 21.
+Package hyperref Info: Anchor `page.16' on input line 21.
  [16
 
 ]
-Package hyperref Info: Anchor `equation.2.1.8' on input line 47.
-Package hyperref Info: Anchor `equation.2.1.9' on input line 50.
+Package hyperref Info: Anchor `equation.2.4.4' on input line 28.
+Package hyperref Info: Anchor `equation.2.4.5' on input line 28.
+Package hyperref Info: Anchor `equation.2.4.6' on input line 28.
+Package hyperref Info: Anchor `equation.2.4.7' on input line 39.
+Package hyperref Info: Anchor `equation.2.4.8' on input line 47.
+Package hyperref Info: Anchor `equation.2.4.9' on input line 50.
 )
-Package hyperref Info: Anchor `section.2.2' on input line 5.
+Package hyperref Info: Anchor `section.2.5' on input line 13.
 
-pdftex: bookmark at 5: {2.2} {\numberline{2.2}Lineariza\c c\~ao} {section.2.2}{1}{toc}
-Package hyperref Info: Anchor `figure.caption.9' on input line 6.
+pdftex: bookmark at 13: {2.5} {\numberline{2.5}Application Examples} {section.2.5}{1}{toc}
+)
+Package hyperref Info: Anchor `page.17' on input line 254.
+ [17]
+Package hyperref Info: Anchor `chapter.3' on input line 254.
+
+Chapter 3.
+pdftex: bookmark at 254: {3} {\numberline{3}Predictive Control for Stabilization of Periodic Trajectories} {chapter.3}{0}{toc}
+(./Cap3/cap3.tex
+Package hyperref Info: Anchor `section.3.1' on input line 18.
+
+pdftex: bookmark at 18: {3.1} {\numberline{3.1}Statement of the problem} {section.3.1}{1}{toc}
+Package hyperref Info: Anchor `section.3.2' on input line 21.
+pdftex: bookmark at 21: {3.2} {\numberline{3.2}Linearization procedure} {section.3.2}{1}{toc}
+Package hyperref Info: Anchor `figure.caption.9' on input line 22.
 Package epstopdf Info: Source file: <Cap2/.fig/linearizacao_1.eps>
 (epstopdf)                    date: 2021-12-07 15:07:21
 (epstopdf)                    size: 18187 bytes
@@ -847,185 +869,278 @@ Package epstopdf Info: Source file: <Cap2/.fig/linearizacao_1.eps>
 (epstopdf)                    date: 2021-12-07 15:07:46
 (epstopdf)                    size: 8531 bytes
 (epstopdf)             Command: <repstopdf --outfile=Cap2/.fig/linearizacao_1-eps-converted-to.pdf Cap2/.fig/linearizacao_1.eps>
-(epstopdf)             \includegraphics on input line 8.
+(epstopdf)             \includegraphics on input line 24.
 Package epstopdf Info: Output file is already uptodate.
-<Cap2/.fig/linearizacao_1-eps-converted-to.pdf, id=277, 435.6275pt x 171.64125pt>
+<Cap2/.fig/linearizacao_1-eps-converted-to.pdf, id=319, 435.6275pt x 171.64125pt>
 File: Cap2/.fig/linearizacao_1-eps-converted-to.pdf Graphic file (type pdf)
 <use Cap2/.fig/linearizacao_1-eps-converted-to.pdf>
-Package pdftex.def Info: Cap2/.fig/linearizacao_1-eps-converted-to.pdf  used on input line 8.
+Package pdftex.def Info: Cap2/.fig/linearizacao_1-eps-converted-to.pdf  used on input line 24.
 (pdftex.def)             Requested size: 435.62643pt x 171.64081pt.
-pdftex: bookmark at 9: {2.1} {\numberline{2.1}{\ignorespaces Instantes de chaveamento\relax }} {figure.caption.9}{0}{lof}
-(./Cap2/cap2_lin_instante1.tex
-Package hyperref Info: Anchor `equation.2.2.10' on input line 11.
-Package hyperref Info: Anchor `equation.2.2.11' on input line 11.
-Package hyperref Info: Anchor `page.17' on input line 11.
- [17 <./Cap2/.fig/linearizacao_1-eps-converted-to.pdf>]
-Package hyperref Info: Reference (link) `equation.2.2.10' on input line 13.
-Package hyperref Info: Reference (link) `equation.2.2.11' on input line 13.
-Package hyperref Info: Anchor `equation.2.2.12' on input line 15.
-Package hyperref Info: Anchor `equation.2.2.13' on input line 34.
-Package hyperref Info: Anchor `equation.2.2.14' on input line 49.
-Package hyperref Info: Reference (link) `equation.2.2.13' on input line 51.
-Package hyperref Info: Reference (link) `equation.2.2.14' on input line 51.
-Package hyperref Info: Reference (link) `equation.2.2.12' on input line 51.
-Package hyperref Info: Anchor `equation.2.2.15' on input line 53.
-Package hyperref Info: Anchor `page.18' on input line 53.
+pdftex: bookmark at 25: {3.1} {\numberline{3.1}{\ignorespaces Instantes de chaveamento\relax }} {figure.caption.9}{0}{lof}
+(./Cap3/cap3_lin_instante1.tex
+Package hyperref Info: Anchor `equation.3.2.1' on input line 11.
+Package hyperref Info: Anchor `equation.3.2.2' on input line 11.
+Package hyperref Info: Reference (link) `equation.3.2.1' on input line 13.
+Package hyperref Info: Reference (link) `equation.3.2.2' on input line 13.
+Package hyperref Info: Anchor `equation.3.2.3' on input line 15.
+Package hyperref Info: Anchor `page.18' on input line 21.
  [18
-Package `hyperref' Info: End of reference (link) `equation.2.2.10', line 13.
-Package `hyperref' Info: End of reference (link) `equation.2.2.11', line 13.
-]) (./Cap2/cap2_lin_instante2.tex
-Package hyperref Info: Anchor `equation.2.2.16' on input line 10.
-Package hyperref Info: Anchor `equation.2.2.17' on input line 10.
-Package hyperref Info: Reference (link) `equation.2.2.16' on input line 12.
-Package hyperref Info: Reference (link) `equation.2.2.17' on input line 12.
-Package hyperref Info: Anchor `equation.2.2.18' on input line 14.
-Package hyperref Info: Anchor `equation.2.2.19' on input line 44.
-Package hyperref Info: Anchor `equation.2.2.20' on input line 76.
-Package hyperref Info: Anchor `page.19' on input line 76.
- [19
-Package `hyperref' Info: End of reference (link) `equation.2.2.13', line 51.
-Package `hyperref' Info: End of reference (link) `equation.2.2.14', line 51.
-Package `hyperref' Info: End of reference (link) `equation.2.2.12', line 51.
-Package `hyperref' Info: End of reference (link) `equation.2.2.16', line 12.
-Package `hyperref' Info: End of reference (link) `equation.2.2.17', line 12.
+
+Package `hyperref' Info: End of reference (link) `equation.3.2.1', line 13.
+Package `hyperref' Info: End of reference (link) `equation.3.2.2', line 13.
+ <./Cap2/.fig/linearizacao_1-eps-converted-to.pdf>]
+Package hyperref Info: Anchor `equation.3.2.4' on input line 34.
+Package hyperref Info: Anchor `equation.3.2.5' on input line 49.
+Package hyperref Info: Reference (link) `equation.3.2.4' on input line 51.
+Package hyperref Info: Reference (link) `equation.3.2.5' on input line 51.
+Package hyperref Info: Reference (link) `equation.3.2.3' on input line 51.
+Package hyperref Info: Anchor `equation.3.2.6' on input line 53.
+) (./Cap3/cap3_lin_instante2.tex
+Package hyperref Info: Anchor `equation.3.2.7' on input line 10.
+Package hyperref Info: Anchor `equation.3.2.8' on input line 10.
+
+
+Package fancyhdr Warning: \headheight is too small (15.93347pt): 
+(fancyhdr)                Make it at least 27.11194pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11194pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
+
+Package hyperref Info: Anchor `page.19' on input line 10.
+[19
+Package `hyperref' Info: End of reference (link) `equation.3.2.4', line 51.
+Package `hyperref' Info: End of reference (link) `equation.3.2.5', line 51.
+Package `hyperref' Info: End of reference (link) `equation.3.2.3', line 51.
 ]
-Package hyperref Info: Reference (link) `equation.2.2.19' on input line 78.
-Package hyperref Info: Reference (link) `equation.2.2.20' on input line 78.
-Package hyperref Info: Reference (link) `equation.2.2.18' on input line 78.
-Package hyperref Info: Anchor `equation.2.2.21' on input line 98.
-) (./Cap2/cap2_lin_instante3.tex
-Package hyperref Info: Anchor `equation.2.2.22' on input line 12.
-Package hyperref Info: Anchor `equation.2.2.23' on input line 12.
-Package hyperref Info: Anchor `page.20' on input line 12.
- [20
-Package `hyperref' Info: End of reference (link) `equation.2.2.19', line 78.
-Package `hyperref' Info: End of reference (link) `equation.2.2.20', line 78.
-Package `hyperref' Info: End of reference (link) `equation.2.2.18', line 78.
+Package hyperref Info: Reference (link) `equation.3.2.7' on input line 12.
+Package hyperref Info: Reference (link) `equation.3.2.8' on input line 12.
+Package hyperref Info: Anchor `equation.3.2.9' on input line 14.
+Package hyperref Info: Anchor `equation.3.2.10' on input line 44.
+Package hyperref Info: Anchor `equation.3.2.11' on input line 76.
+
+
+Package fancyhdr Warning: \headheight is too small (15.93347pt): 
+(fancyhdr)                Make it at least 27.11194pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11194pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
+
+Package hyperref Info: Anchor `page.20' on input line 76.
+[20
+Package `hyperref' Info: End of reference (link) `equation.3.2.7', line 12.
+Package `hyperref' Info: End of reference (link) `equation.3.2.8', line 12.
 ]
-Package hyperref Info: Reference (link) `equation.2.2.22' on input line 14.
-Package hyperref Info: Reference (link) `equation.2.2.23' on input line 14.
-Package hyperref Info: Anchor `equation.2.2.24' on input line 16.
-Package hyperref Info: Anchor `equation.2.2.25' on input line 46.
-Package hyperref Info: Anchor `equation.2.2.26' on input line 78.
-Package hyperref Info: Anchor `page.21' on input line 78.
- [21
-Package `hyperref' Info: End of reference (link) `equation.2.2.22', line 14.
-Package `hyperref' Info: End of reference (link) `equation.2.2.23', line 14.
+Package hyperref Info: Reference (link) `equation.3.2.10' on input line 78.
+Package hyperref Info: Reference (link) `equation.3.2.11' on input line 78.
+Package hyperref Info: Reference (link) `equation.3.2.9' on input line 78.
+Package hyperref Info: Anchor `equation.3.2.12' on input line 98.
+) (./Cap3/cap3_lin_instante3.tex
+Package hyperref Info: Anchor `equation.3.2.13' on input line 12.
+Package hyperref Info: Anchor `equation.3.2.14' on input line 12.
+
+
+Package fancyhdr Warning: \headheight is too small (15.93347pt): 
+(fancyhdr)                Make it at least 27.11194pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11194pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
+
+Package hyperref Info: Anchor `page.21' on input line 12.
+[21
+Package `hyperref' Info: End of reference (link) `equation.3.2.10', line 78.
+Package `hyperref' Info: End of reference (link) `equation.3.2.11', line 78.
+Package `hyperref' Info: End of reference (link) `equation.3.2.9', line 78.
 ]
-Package hyperref Info: Reference (link) `equation.2.2.25' on input line 80.
-Package hyperref Info: Reference (link) `equation.2.2.26' on input line 80.
-Package hyperref Info: Reference (link) `equation.2.2.24' on input line 80.
-Package hyperref Info: Anchor `equation.2.2.27' on input line 89.
-Package hyperref Info: Anchor `equation.2.2.28' on input line 99.
-Package hyperref Info: Anchor `equation.2.2.29' on input line 108.
-Package hyperref Info: Anchor `page.22' on input line 108.
- [22
-Package `hyperref' Info: End of reference (link) `equation.2.2.25', line 80.
-Package `hyperref' Info: End of reference (link) `equation.2.2.26', line 80.
-Package `hyperref' Info: End of reference (link) `equation.2.2.24', line 80.
-]) (./Cap2/cap2_lin_instanteN.tex
-Package hyperref Info: Anchor `equation.2.2.30' on input line 16.
+Package hyperref Info: Reference (link) `equation.3.2.13' on input line 14.
+Package hyperref Info: Reference (link) `equation.3.2.14' on input line 14.
+Package hyperref Info: Anchor `equation.3.2.15' on input line 16.
+Package hyperref Info: Anchor `equation.3.2.16' on input line 46.
+Package hyperref Info: Anchor `equation.3.2.17' on input line 78.
+
+
+Package fancyhdr Warning: \headheight is too small (15.93347pt): 
+(fancyhdr)                Make it at least 27.11194pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11194pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
+
+Package hyperref Info: Anchor `page.22' on input line 78.
+[22
+Package `hyperref' Info: End of reference (link) `equation.3.2.13', line 14.
+Package `hyperref' Info: End of reference (link) `equation.3.2.14', line 14.
+]
+Package hyperref Info: Reference (link) `equation.3.2.16' on input line 80.
+Package hyperref Info: Reference (link) `equation.3.2.17' on input line 80.
+Package hyperref Info: Reference (link) `equation.3.2.15' on input line 80.
+Package hyperref Info: Anchor `equation.3.2.18' on input line 89.
+Package hyperref Info: Anchor `equation.3.2.19' on input line 99.
+Package hyperref Info: Anchor `equation.3.2.20' on input line 108.
+
+
+Package fancyhdr Warning: \headheight is too small (15.93347pt): 
+(fancyhdr)                Make it at least 27.11194pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11194pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
+
+Package hyperref Info: Anchor `page.23' on input line 108.
+[23
+Package `hyperref' Info: End of reference (link) `equation.3.2.16', line 80.
+Package `hyperref' Info: End of reference (link) `equation.3.2.17', line 80.
+Package `hyperref' Info: End of reference (link) `equation.3.2.15', line 80.
+]) (./Cap3/cap3_lin_instanteN.tex
+Package hyperref Info: Anchor `equation.3.2.21' on input line 16.
 
 Overfull \hbox (2.28185pt too wide) detected at line 16
 []
  []
 
-Package hyperref Info: Anchor `equation.2.2.31' on input line 34.
-Package hyperref Info: Anchor `equation.2.2.32' on input line 43.
-Package hyperref Info: Anchor `page.23' on input line 43.
-[23]
-Package hyperref Info: Anchor `equation.2.2.33' on input line 52.
-Package hyperref Info: Anchor `equation.2.2.34' on input line 63.
-Package hyperref Info: Anchor `equation.2.2.35' on input line 75.
-Package hyperref Info: Anchor `equation.2.2.36' on input line 75.
-Package hyperref Info: Anchor `equation.2.2.37' on input line 75.
-Package hyperref Info: Anchor `equation.2.2.38' on input line 75.
-Package hyperref Info: Anchor `page.24' on input line 75.
- [24]
-Package hyperref Info: Anchor `equation.2.2.39' on input line 77.
+Package hyperref Info: Anchor `equation.3.2.22' on input line 34.
+Package hyperref Info: Anchor `equation.3.2.23' on input line 43.
+
+Package fancyhdr Warning: \headheight is too small (15.93347pt): 
+(fancyhdr)                Make it at least 27.11194pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11194pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
+
+Package hyperref Info: Anchor `page.24' on input line 43.
+[24]
+Package hyperref Info: Anchor `equation.3.2.24' on input line 52.
+Package hyperref Info: Anchor `equation.3.2.25' on input line 63.
+Package hyperref Info: Anchor `equation.3.2.26' on input line 76.
+Package hyperref Info: Anchor `equation.3.2.27' on input line 76.
+Package hyperref Info: Anchor `equation.3.2.28' on input line 76.
+Package hyperref Info: Anchor `equation.3.2.29' on input line 76.
+Package hyperref Info: Anchor `equation.3.2.30' on input line 76.
+
+
+Package fancyhdr Warning: \headheight is too small (15.93347pt): 
+(fancyhdr)                Make it at least 27.11194pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11194pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
+
+Package hyperref Info: Anchor `page.25' on input line 76.
+[25]
+Package hyperref Info: Anchor `equation.3.2.31' on input line 85.
+Package hyperref Info: Anchor `equation.3.2.32' on input line 85.
+Package hyperref Info: Anchor `equation.3.2.33' on input line 85.
+Package hyperref Info: Anchor `equation.3.2.34' on input line 89.
+)
+Package hyperref Info: Anchor `section.3.3' on input line 33.
+
+pdftex: bookmark at 33: {3.3} {\numberline{3.3}Optimal control problem} {section.3.3}{1}{toc}
+Package hyperref Info: Anchor `subsection.3.3.1' on input line 34.
+pdftex: bookmark at 34: {3.3.1} {\numberline{3.3.1}{Cost function}} {subsection.3.3.1}{2}{toc}
+Package hyperref Info: Anchor `subsection.3.3.2' on input line 35.
+pdftex: bookmark at 35: {3.3.2} {\numberline{3.3.2}{Prediction equation}} {subsection.3.3.2}{2}{toc}
+Package hyperref Info: Anchor `subsection.3.3.3' on input line 36.
+pdftex: bookmark at 36: {3.3.3} {\numberline{3.3.3}{Constraints}} {subsection.3.3.3}{2}{toc}
+Package hyperref Info: Anchor `subsection.3.3.4' on input line 37.
+pdftex: bookmark at 37: {3.3.4} {\numberline{3.3.4}{Feasibility region}} {subsection.3.3.4}{2}{toc}
+Package hyperref Info: Anchor `section.3.4' on input line 39.
+pdftex: bookmark at 39: {3.4} {\numberline{3.4}Application Examples} {section.3.4}{1}{toc}
+(./Cap3/cap3_application_examples.tex
+Package hyperref Info: Anchor `subsection.3.4.1' on input line 1.
+
+pdftex: bookmark at 1: {3.4.1} {\numberline{3.4.1}Integrador duplo} {subsection.3.4.1}{2}{toc}
+Package hyperref Info: Anchor `subsection.3.4.2' on input line 2.
+pdftex: bookmark at 2: {3.4.2} {\numberline{3.4.2}Patino 1} {subsection.3.4.2}{2}{toc}
+Package hyperref Info: Anchor `subsection.3.4.3' on input line 3.
+pdftex: bookmark at 3: {3.4.3} {\numberline{3.4.3}Patino 2} {subsection.3.4.3}{2}{toc}
+Package hyperref Info: Anchor `equation.3.4.35' on input line 7.
+
+Package fancyhdr Warning: \headheight is too small (15.93347pt): 
+(fancyhdr)                Make it at least 27.11194pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11194pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
+
+Package hyperref Info: Anchor `page.26' on input line 7.
+[26]
+Package hyperref Info: Anchor `equation.3.4.36' on input line 32.
+Package hyperref Info: Anchor `equation.3.4.37' on input line 43.
+
+
+Package fancyhdr Warning: \headheight is too small (15.93347pt): 
+(fancyhdr)                Make it at least 27.11194pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11194pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
+
+Package hyperref Info: Anchor `page.27' on input line 94.
+[27]
+Package hyperref Info: Anchor `equation.3.4.38' on input line 97.
+Package hyperref Info: Anchor `equation.3.4.39' on input line 108.
+Package hyperref Info: Anchor `equation.3.4.40' on input line 119.
+Package hyperref Info: Anchor `equation.3.4.41' on input line 130.
+Package hyperref Info: Anchor `equation.3.4.42' on input line 141.
+Package hyperref Info: Anchor `equation.3.4.43' on input line 152.
+Package hyperref Info: Anchor `equation.3.4.44' on input line 163.
+
+
+Package fancyhdr Warning: \headheight is too small (15.93347pt): 
+(fancyhdr)                Make it at least 27.11194pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11194pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
+
+Package hyperref Info: Anchor `page.28' on input line 172.
+[28]
+Package hyperref Info: Anchor `equation.3.4.45' on input line 174.
+Package hyperref Info: Anchor `equation.3.4.46' on input line 186.
+Package hyperref Info: Anchor `equation.3.4.47' on input line 214.
+Package hyperref Info: Anchor `equation.3.4.48' on input line 242.
+Package hyperref Info: Anchor `equation.3.4.49' on input line 270.
+Package hyperref Info: Anchor `equation.3.4.50' on input line 298.
+Package hyperref Info: Anchor `equation.3.4.51' on input line 326.
+Package hyperref Info: Anchor `equation.3.4.52' on input line 354.
+Package hyperref Info: Anchor `equation.3.4.53' on input line 382.
 ))
-Package hyperref Info: Anchor `page.25' on input line 253.
- [25]
-Package hyperref Info: Anchor `chapter.3' on input line 253.
 
-Cap\'{\i }tulo 3.
-pdftex: bookmark at 253: {3} {\numberline{3}Modelo de simula\c c\~ao} {chapter.3}{0}{toc}
-(./Cap3/cap3.tex
-Package hyperref Info: Anchor `section.3.1' on input line 2.
+Package fancyhdr Warning: \headheight is too small (15.93347pt): 
+(fancyhdr)                Make it at least 27.11194pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11194pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
 
-pdftex: bookmark at 2: {3.1} {\numberline{3.1}Simula\c c\~oes e Resultados} {section.3.1}{1}{toc}
-Package hyperref Info: Anchor `subsection.3.1.1' on input line 5.
-pdftex: bookmark at 5: {3.1.1} {\numberline{3.1.1}Integrador duplo} {subsection.3.1.1}{2}{toc}
-Package hyperref Info: Anchor `subsection.3.1.2' on input line 9.
-pdftex: bookmark at 9: {3.1.2} {\numberline{3.1.2}Patino 1} {subsection.3.1.2}{2}{toc}
-Package hyperref Info: Anchor `subsection.3.1.3' on input line 13.
-pdftex: bookmark at 13: {3.1.3} {\numberline{3.1.3}Patino 2} {subsection.3.1.3}{2}{toc}
-)
-Package hyperref Info: Anchor `page.26' on input line 256.
- [26
+Package hyperref Info: Anchor `page.29' on input line 257.
+[29]
 
-]
-Package hyperref Info: Anchor `chapter.4' on input line 256.
+Package fancyhdr Warning: \headheight is too small (15.93347pt): 
+(fancyhdr)                Make it at least 27.11194pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11194pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
 
-Cap\'{\i }tulo 4.
-pdftex: bookmark at 256: {4} {\numberline{4}Casos de uso} {chapter.4}{0}{toc}
-(./Cap4/cap4.tex
-Package hyperref Info: Anchor `section.4.1' on input line 1.
+Package hyperref Info: Anchor `page.30' on input line 257.
+[30]
+Package hyperref Info: Anchor `chapter.4' on input line 257.
 
-pdftex: bookmark at 1: {4.1} {\numberline{4.1}Controle combinado} {section.4.1}{1}{toc}
-Package hyperref Info: Anchor `equation.4.1.1' on input line 6.
-Package hyperref Info: Anchor `equation.4.1.2' on input line 31.
-Package hyperref Info: Anchor `equation.4.1.3' on input line 42.
-Package hyperref Info: Anchor `equation.4.1.4' on input line 96.
-Package hyperref Info: Anchor `page.27' on input line 105.
-[27
-
-]
-Package hyperref Info: Anchor `equation.4.1.5' on input line 107.
-Package hyperref Info: Anchor `equation.4.1.6' on input line 118.
-Package hyperref Info: Anchor `equation.4.1.7' on input line 129.
-Package hyperref Info: Anchor `equation.4.1.8' on input line 140.
-Package hyperref Info: Anchor `equation.4.1.9' on input line 151.
-Package hyperref Info: Anchor `equation.4.1.10' on input line 162.
-Package hyperref Info: Anchor `equation.4.1.11' on input line 173.
-Package hyperref Info: Anchor `equation.4.1.12' on input line 185.
-Package hyperref Info: Anchor `equation.4.1.13' on input line 213.
-Package hyperref Info: Anchor `equation.4.1.14' on input line 241.
-Package hyperref Info: Anchor `page.28' on input line 266.
- [28]
-Package hyperref Info: Anchor `equation.4.1.15' on input line 269.
-Package hyperref Info: Anchor `equation.4.1.16' on input line 297.
-Package hyperref Info: Anchor `equation.4.1.17' on input line 325.
-Package hyperref Info: Anchor `equation.4.1.18' on input line 353.
-Package hyperref Info: Anchor `equation.4.1.19' on input line 381.
-)
-Package hyperref Info: Anchor `page.29' on input line 259.
- [29]
-Package hyperref Info: Anchor `chapter.5' on input line 259.
-
-Cap\'{\i }tulo 5.
-pdftex: bookmark at 259: {5} {\numberline{5}Conclus\~ao} {chapter.5}{0}{toc}
+Chapter 4.
+pdftex: bookmark at 257: {4} {\numberline{4}Conclus\~ao} {chapter.4}{0}{toc}
 (./Cap5/cap5.tex) (./tese.bbl (./tese.brf)
 \tf@brf=\write10
 \openout10 = `tese.brf'.
 
-Package hyperref Info: Anchor `page.30' on input line 3.
- [30
-
-]
-Package hyperref Info: Anchor `chapter*.10' on input line 3.
-Package hyperref Info: Anchor `chapter.6' on input line 3.
-
-pdftex: bookmark at 3: {6} {Refer\^encias} {chapter.6}{0}{toc}
-)
-Package hyperref Info: Anchor `page.31' on input line 267.
+Package hyperref Info: Anchor `page.31' on input line 3.
  [31
 
 ]
-Package hyperref Info: Anchor `appendix.A' on input line 268.
+Package hyperref Info: Anchor `chapter*.10' on input line 3.
+Package hyperref Info: Anchor `chapter.5' on input line 3.
 
-Ap\^endice A.
-pdftex: bookmark at 268: {A} {\numberline{A}T\'opicos de Dilema Linear} {appendix.A}{0}{toc}
+pdftex: bookmark at 3: {5} {Bibliography} {chapter.5}{0}{toc}
+)
+Package hyperref Info: Anchor `page.32' on input line 265.
+ [32
+
+]
+Package hyperref Info: Anchor `appendix.A' on input line 266.
+
+Appendix A.
+pdftex: bookmark at 266: {A} {\numberline{A}T\'opicos de Dilema Linear} {appendix.A}{0}{toc}
 (./ApeA/apendiceA.tex
 Package hyperref Info: Anchor `section.A.1' on input line 2.
 
@@ -1040,60 +1155,60 @@ pdftex: bookmark at 26: {A.1.1} {\numberline{A.1.1}get\_x0} {subsection.A.1.1}{2
 Package hyperref Info: Anchor `subsection.A.1.2' on input line 30.
 pdftex: bookmark at 30: {A.1.2} {\numberline{A.1.2}get\_xf} {subsection.A.1.2}{2}{toc}
 )
-Package hyperref Info: Anchor `page.32' on input line 272.
- [32
+Package hyperref Info: Anchor `page.33' on input line 270.
+ [33
 
 
 ]
-Package hyperref Info: Anchor `annex.a' on input line 273.
+Package hyperref Info: Anchor `annex.a' on input line 271.
 
-Anexo A.
-pdftex: bookmark at 273: {A} {\numberline{A}Exemplo de um Primeiro Anexo} {annex.a}{0}{toc}
+Annex A.
+pdftex: bookmark at 271: {A} {\numberline{A}Exemplo de um Primeiro Anexo} {annex.a}{0}{toc}
 (./AneA/anexoA.tex
 Package hyperref Info: Anchor `section.a.1' on input line 2.
 
 pdftex: bookmark at 2: {A.1} {\numberline{A.1}Uma Se\c c\~ao do Primeiro Anexo} {section.a.1}{1}{toc}
 )
-Package hyperref Info: Anchor `page.33' on input line 297.
- [33
+Package hyperref Info: Anchor `page.34' on input line 295.
+ [34
 
 
 ]
 \bottommargin=\skip82
 \rightmarginn=\skip83
-Package hyperref Info: Anchor `bla.0' on input line 297.
+Package hyperref Info: Anchor `bla.0' on input line 295.
  (./Cap0/resumo.tex) (./Cap0/resumo.tex) (./Cap0/resumo.tex)
-Overfull \hbox (74.53033pt too wide) in paragraph at lines 297--297
+Overfull \hbox (74.53033pt too wide) in paragraph at lines 295--295
 [][] 
  []
 
 
 AED: lastpage setting LastPage
-Package hyperref Info: Anchor `page.34' on input line 299.
-[34
+Package hyperref Info: Anchor `page.35' on input line 297.
+[35
 
 ] (./tese.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 Package rerunfilecheck Info: File `tese.out' has not changed.
-(rerunfilecheck)             Checksum: 7C43656022EAE3D06B7433C0172600C0;5360.
+(rerunfilecheck)             Checksum: 1F72CC4E88B398E286D6849E3427FE80;7437.
 Package rerunfilecheck Info: File `tese.brf' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 14251 strings out of 478836
- 210572 string characters out of 5859622
- 554490 words of memory out of 5000000
- 31318 multiletter control sequences out of 15000+600000
- 456706 words of font info for 124 fonts, out of 8000000 for 9000
+ 14215 strings out of 478836
+ 209933 string characters out of 5859622
+ 561015 words of memory out of 5000000
+ 31277 multiletter control sequences out of 15000+600000
+ 458252 words of font info for 130 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 102i,25n,105p,1139b,566s stack positions out of 5000i,500n,10000p,200000b,80000s
-{c:/texlive/2021/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}<c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmb10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi12.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/latxfont/line10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/cm-super/sfrm0800.pfb>
-Output written on tese.pdf (34 pages, 305784 bytes).
+ 102i,25n,105p,678b,564s stack positions out of 5000i,500n,10000p,200000b,80000s
+{c:/texlive/2021/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}<c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmb10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi12.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/latxfont/line10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/cm-super/sfrm0800.pfb>
+Output written on tese.pdf (35 pages, 303417 bytes).
 PDF statistics:
- 542 PDF objects out of 1000 (max. 8388607)
- 475 compressed objects within 5 object streams
- 144 named destinations out of 1000 (max. 500000)
- 302 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 584 PDF objects out of 1000 (max. 8388607)
+ 516 compressed objects within 6 object streams
+ 154 named destinations out of 1000 (max. 500000)
+ 358 words of extra memory for PDF output out of 10000 (max. 10000000)
 

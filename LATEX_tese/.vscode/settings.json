@@ -1,3 +1,27 @@
 {
-    "files.encoding": "windows1252"
+    "files.encoding": "windows1252",
+    "files.exclude": {
+        "**.tps": true,
+        "**.sty": true,
+        "**.def": true,
+        "**.bak": true,
+        "**.aux": true,
+        "**.dvi": true,
+        "**.glo": true,
+        "**.lof": true,
+        "**.fls": true,
+        "**.brf": true,
+        "**.fdb*": true,
+        "**.ps": true,
+        "**.gz": true,
+        "**.tcp": true,
+        "**.toc": true,
+        "**.ist": true,
+        "**.blg": true,
+        "**.bbl": true,
+        "**.sc": true,
+        "**.cls": true,
+        "**.lot": true,
+        "**.out": true,
+      },
 }

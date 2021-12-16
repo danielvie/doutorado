@@ -71,9 +71,21 @@ Solucao no dominio do tempo para o instante de chaveamento N
 		& \qquad \qquad \vdots \\
 		& \qquad F_{r_{N-1}}[(A_{N-2} - A_{N-1}) x_r(t_{r_{N-1}}) + B_{N-2} - B_{N-1}]\Big]
 	\end{split} \\ \nonumber \\
-	\delta t &= [\delta t_1, \delta t_2, \ldots, \delta t_N]^T
+	\delta t &= [\delta t_1, \delta t_2, \ldots, \delta t_N]^T \\ \nonumber \\
+	e(t_N) &= \Phi e(t_0) + \Gamma \delta t
 \end{align}
 
+where $x_r$ is calculated as
+
+\begin{align}
+	x_r(t_{r_1}) &= F_0 x_r(t_{r_0}) + G_0 \\
+    x_r(t_{r_2}) &= F_1 x_r(t_{r_1}) + G_1 \\
+    &\vdots \nonumber \\
+    x_r(t_{r_N}) &= F_{N-1} x_r(t_{r_{N-1}}) + G_{N-1}
+\end{align}
+
+and $F_i$ and $G_i$ are calculated as
+
 \begin{equation}
-	e(t_N) = \Phi e(t_0) + \Gamma \delta t
+	[F_i, G_i] = c2dm(Ai, Bi, [], [], dti, `zoh`)
 \end{equation}
