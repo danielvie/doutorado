@@ -1,7 +1,7 @@
 % ========================= INSTANDE DE TEMPO 1 =========================
 % =======================================================================
 
-Solucao no dominio do tempo para o instante de chaveamento 1
+The solution fo the state equation (\ref{eq_continuous_time_dynamics}) at time $t_N$, starting from the initial condition $x(t_0)$, is of the form
 
 \begin{align}
 	\label{eq_cap2_lin_x1}
@@ -10,17 +10,17 @@ Solucao no dominio do tempo para o instante de chaveamento 1
 	x(t_{r_1}) &= e^{A_0(t_{r_1}-t_{r_0})}x(t_{r_0}) + \intlinA{0}{1}{r}{r}
 \end{align}
 
-subtraindo \ref{eq_cap2_lin_x1} e \ref{eq_cap2_lin_xr1} temos
+subtracting \ref{eq_cap2_lin_x1} and \ref{eq_cap2_lin_xr1} we get
 
 \begin{equation}
 	\label{eq_cap2_lin_erro_x0x1}
 	\begin{split}
-		x(t_1) - x(t_{r_1}) = \overbrace{\green{e^{A_0(t_1-t_0)}x(t_0) - e^{A_0(t_{r_1}-t_{r_0})}x(t_{r_0})}}^{\text{teste texto acima}} \\
-		+ \underbrace{\orange{\intlinAA{0}{1}{}{} - \intlinA{0}{1}{r}{r}}}_{\text{teste texto abaixo}}
+		x(t_1) - x(t_{r_1}) = \overbrace{\green{e^{A_0(t_1-t_0)}x(t_0) - e^{A_0(t_{r_1}-t_{r_0})}x(t_{r_0})}}^{\green{\square}} \\
+		+ \underbrace{\orange{\intlinAA{0}{1}{}{} - \intlinA{0}{1}{r}{r}}}_{\orange{\bigcirc}}
 	\end{split}
 \end{equation}
 
-Desenvolvendo o destaque em \green{verde}
+expanding $\green{\square}$
 
 % 2.4
 \begin{align}
@@ -33,11 +33,11 @@ Desenvolvendo o destaque em \green{verde}
 				  &= \green{F_{r_0} [x(t_0) - x_r(t_0)] + F_{r_0} A_0 \delta t_1}
 \end{align}
 
-Desenvolvendo o destaque em \orange{laranja}
+expanding $\orange{\bigcirc}$
 
 % 2.5
 \begin{align}
-  \orange{\square} 	&= \orange{ \intlinAA{0}{1}{}{} - \intlinA{0}{1}{r}{r} } \nonumber \\ 
+  \orange{\bigcirc} 	&= \orange{ \intlinAA{0}{1}{}{} - \intlinA{0}{1}{r}{r} } \nonumber \\ 
 				   	&= \orange{ \intlinC{t_0}{t_{r_1}+\delta t_1}{0}{1} - \intlinA{0}{1}{}{r} } \nonumber \\
 				   	&= \orange{ e^{A_0 \delta t_1} \bigg[ \blue{\intlinA{0}{1}{}{r}} + \purple{\intlinB{t_{r_1}}{t_{r_1} + \delta t_1}{0}{1}} \bigg] }
 				   	   \orange{ -\blue{\intlinA{0}{1}{}{r}} } \nonumber \\
@@ -48,7 +48,7 @@ Desenvolvendo o destaque em \orange{laranja}
 				   	&= \orange{ A_0 G_{r_0} \delta t_1 + B_0 \delta t_1 }
 \end{align}
 
-substituindo (\ref{eq_cap2_lin_erro_x0x1_green}) e (\ref{eq_cap2_lin_erro_x0x1_orange}) de volta na equação \ref{eq_cap2_lin_erro_x0x1}
+and replacing (\ref{eq_cap2_lin_erro_x0x1_green}) and (\ref{eq_cap2_lin_erro_x0x1_orange}) into equation \ref{eq_cap2_lin_erro_x0x1} we get to a equation that computes $x(t_1) - x_r(t_{r_1})$ from $x(t_0) - x_r(t_{r_0})$
 
 \begin{equation}
 	\label{eq_cap2_lin_erro_x0x1_resultado}

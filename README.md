@@ -3,17 +3,23 @@
 * [tese.pdf](LATEX_tese/tese.pdf)
 
 
+## 04/01/21
+* [ ] como fazer para escrever um texto e ainda manter as equacoes alinhadas (equacao 3.13)
+* [ ] converter codigo para C++ e calcular tempo de cada ciclo de computacao para resolver o controle preditivo 
+
+
+
 ## 16/12/21
 * [x] escrever titulo
-* [ ] perguntar sobre o titulo, se eh isso mesmo
+* [x] perguntar sobre o titulo, se eh isso mesmo
 * [x] escrever resumo
 * [x] escrever equacoes de `get_xr`
 * [x] escrever equacoes de `get_x0`
 * [x] mudar os textos auxiliares da Tese para ingles
 * [x] colocar LATEX no GITHUB
 - [ ] ajustar textos no equacionamento de linearizacao
-	- [ ] mudar texto para ingles
-	- [ ] colocar *underbrace* e *overbrace*
+	- [x] mudar texto para ingles
+	- [x] colocar *underbrace* e *overbrace*
 
 
 ## 13/12/21
