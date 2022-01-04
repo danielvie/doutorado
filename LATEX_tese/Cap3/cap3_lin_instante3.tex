@@ -1,7 +1,7 @@
 % ========================= INSTANDE DE TEMPO 3 =========================
 % =======================================================================
 
-Solucao no dominio do tempo para o instante de chaveamento 3
+Now, repeating the proceadure for $x(t_3)$ we have
 
 
 \begin{align}
@@ -11,17 +11,17 @@ Solucao no dominio do tempo para o instante de chaveamento 3
 	x(t_{r_3}) &= e^{A_2(t_{r_3}-t_{r_2})}x(t_{r_2}) + \intlinA{2}{3}{r}{r}
 \end{align}
 
-subtraindo \ref{eq_cap2_lin_x3} e \ref{eq_cap2_lin_xr3} temos
+subtracting \ref{eq_cap2_lin_x3} and \ref{eq_cap2_lin_xr3} 
 
 \begin{equation}
 	\label{eq_cap2_lin_erro_x2x3}
 	\begin{split}
-		x(t_3) - x(t_{r_3}) = \overbrace{\green{e^{A_2(t_3-t_2)}x(t_2) - e^{A_2(t_{r_3}-t_{r_2})}x(t_{r_2})}}^{\text{teste texto aqui em cima}} \\ 
-		+ \underbrace{\orange{\intlinAA{2}{3}{}{} - \intlinA{2}{3}{r}{r}}}_{\text{teste texto aqui em baixo}}
+		x(t_3) - x(t_{r_3}) = \overbrace{\green{e^{A_2(t_3-t_2)}x(t_2) - e^{A_2(t_{r_3}-t_{r_2})}x(t_{r_2})}}^{\green{\square}} \\ 
+		+ \underbrace{\orange{\intlinAA{2}{3}{}{} - \intlinA{2}{3}{r}{r}}}_{\orange{\bigcirc}}
 	\end{split}
 \end{equation}
 
-Desenvolvendo o destaque em \green{verde}
+expanding $\green{\square}$
 
 % 2.16
 \begin{align}
@@ -45,11 +45,11 @@ Desenvolvendo o destaque em \green{verde}
 	}
 \end{align}
 
-Desenvolvendo o destaque em \orange{laranja}
+expanding $\orange{\bigcirc}$
 
 % 2.17
 \begin{align}
-	\orange{ \square } 	&= \orange{\intlinAA{2}{3}{}{} - \intlinA{2}{3}{r}{r}} \nonumber \\
+	\orange{\bigcirc} 	&= \orange{ \intlinAA{2}{3}{}{} - \intlinA{2}{3}{r}{r} } \nonumber \\
 					   	&= \orange{ \intlinC{t_{r_2}+\delta t_2}{t_{r_3}+\delta t_3}{2}{3} - \intlinA{2}{3}{r}{r}} \nonumber \\
 						\begin{split}
 							&= \orange{ \purple{ e^{A_2 \delta t_3} }
@@ -59,7 +59,7 @@ Desenvolvendo o destaque em \orange{laranja}
 						\end{split} \nonumber \\
 						&= \orange{ \purple{(I + A_2 \delta t_3)}
 							\bigg[
-								\blue{G_{r_2}} - \pink{\intlinB{t_{r_2}}{t_{r_2} + \delta t_2}{2}{3}} + \brown{\intlinB{t_{r_3}}{t_{r_3} + \delta t_3}{2}{3}}
+								\blue{ G_{r_2} } - \pink{\intlinB{t_{r_2}}{t_{r_2} + \delta t_2}{2}{3}} + \brown{\intlinB{t_{r_3}}{t_{r_3} + \delta t_3}{2}{3}}
 							\bigg] - \blue{G_{r_2}}
 						} \nonumber \\
 						&= \orange{ (I + A_2 \delta t_3)
@@ -77,8 +77,7 @@ Desenvolvendo o destaque em \orange{laranja}
 						&= \orange{ A_2 G_{r_2} \delta t_3 + B_2 \delta t_3 - F_{r_2} B_2 \delta t_2 }
 \end{align}
 
-substituindo (\ref{eq_cap2_lin_x3_green}) e (\ref{eq_cap2_lin_x3_orange}) de volta na equação (\ref{eq_cap2_lin_erro_x2x3})
-
+replacing (\ref{eq_cap2_lin_x3_green}) in (\ref{eq_cap2_lin_x3_orange}) back in eq. (\ref{eq_cap2_lin_erro_x2x3})
 
 \begin{align}
 	\begin{split}
@@ -86,6 +85,7 @@ substituindo (\ref{eq_cap2_lin_x3_green}) e (\ref{eq_cap2_lin_x3_orange}) de vol
 							     & - F_{r_2} [A_2 \blue{x(t_2)} + B_2] \delta t_2 \\
 							     & + [ F_{r_2} A_2 \blue{x(t_2)} + A_2 G_{r_2} + B_2] \delta t_3
 	\end{split}
+	\nonumber
 \end{align}
 
 \begin{align}
@@ -96,6 +96,7 @@ substituindo (\ref{eq_cap2_lin_x3_green}) e (\ref{eq_cap2_lin_x3_orange}) de vol
 							     & - F_{r_2} [A_2 \blue{x_r(t_2)} + B_2] \delta t_2 \\
 							     & + [ F_{r_2} A_2 \blue{x_r(t_2)} + A_2 G_{r_2} + B_2] \delta t_3
 	\end{split}
+	\nonumber
 \end{align}
 
 \begin{align}

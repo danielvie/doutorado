@@ -5,6 +5,7 @@
 
 ## 04/01/21
 * [ ] como fazer para escrever um texto e ainda manter as equacoes alinhadas (equacao 3.13)
+* [ ] tem como agrupar um texto com equacao para que eles nao fiquem em paginas separadas?
 * [ ] converter codigo para C++ e calcular tempo de cada ciclo de computacao para resolver o controle preditivo 
 
 

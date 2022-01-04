@@ -1,8 +1,7 @@
 % ========================= INSTANDE DE TEMPO i =========================
 % =======================================================================
 
-Solucao no dominio do tempo para o instante de chaveamento i
-
+Continuing on expanding the propagation of the system further more we can deduce the equation for $x(t_i)$ as
 % 2.21
 \begin{align}
 	\begin{split}
@@ -18,23 +17,25 @@ Solucao no dominio do tempo para o instante de chaveamento i
 % ========================= INSTANDE DE TEMPO N =========================
 % =======================================================================
 
-Solucao no dominio do tempo para o instante de chaveamento N
+and then, for $x(t_N)$ we have 
 
 % 2.22
 \begin{align}
+	\label{eq_xN_propagation}
 		x(t_N) - x_r(t_{r_N}) =  & F_{r_{N-1}}F_{r_{N-2}} \ldots F_{r_0} [x(t_0) - x_r(t_0)] \nonumber \\
-								 & + F_{r_{N-1}}F_{r_{N-2}} \ldots F_{r_1} [\green{F_{r_0} A_0 x(t_0) + A_0 G_{r_0} - A_1 x_r(t_{r_1}) + B_0 - B_1}] \delta t_1 \nonumber \\
+								 & + F_{r_{N-1}}F_{r_{N-2}} \ldots F_{r_1} [\overbrace{\green{F_{r_0} A_0 x(t_0) + A_0 G_{r_0} - A_1 x_r(t_{r_1}) + B_0 - B_1}}^{\green{\square}}] \delta t_1 \nonumber \\
 								 & + F_{r_{N-1}}F_{r_{N-2}} \ldots F_{r_2} [\green{F_{r_1} A_1 x(t_1) + A_1 G_{r_1} - A_2 x_r(t_{r_2}) + B_1 - B_2}] \delta t_2 \nonumber \\
 								 & \qquad \vdots \nonumber \\
 								 \begin{split}
 									& + F_{r_{N-1}}[\green{F_{r_{N-2}} A_{N-2} x_r(t_{N-2}) + A_{N-2} G_{r_{N-2}} - A_{N-1} x_r(t_{r_{N-1}})} \\ 
 									& \qquad \qquad \qquad \green{+ B_{N-2} - B_{N-1}} ] \delta t_{N-1}
 								 \end{split} \nonumber \\
-							     & + [\orange{F_{r_{N-1}} A_{N-1} x_r(t_{N-1}) + A_{N-1} G_{r_{N-1}} + B_{N-1}}] \delta t_N
+							     & + [\underbrace{\orange{F_{r_{N-1}} A_{N-1} x_r(t_{N-1}) + A_{N-1} G_{r_{N-1}} + B_{N-1}}}_{\orange{\bigcirc}}] \delta t_N
 \end{align}
 
 % 2.23
 \begin{align}
+	\label{eq_square_xN}
 	\green{\square} &= \green{F_{r_0} A_0 x(t_0) + A_0 G_{r_0} - A_1 x_r(t_{r_1}) + B_0 - B_1} \nonumber \\
 					&= \green{A_0 \purple{F_{r_0} x(t_0)} + A_0 G_{r_0} - A_1 x_r(t_{r_1}) + B_0 - B_1} \nonumber \\
 					&= \green{A_0 \purple{[x_r(t_{r_1}) - G_{r_0}]} + A_0 G_{r_0} - A_1 x_r(t_{r_1}) + B_0 - B_1} \nonumber \\
@@ -44,12 +45,15 @@ Solucao no dominio do tempo para o instante de chaveamento N
 
 % 2.24
 \begin{align}
-	\orange{\square} &= \orange{F_{r_{N-1}} A_{N-1} x_r(t_{N-1}) + A_{N-1} G_{r_{N-1}} + B_{N-1}} \nonumber \\
+	\label{eq_circle_xN}
+	\orange{\bigcirc} &= \orange{F_{r_{N-1}} A_{N-1} x_r(t_{N-1}) + A_{N-1} G_{r_{N-1}} + B_{N-1}} \nonumber \\
 					 &= \orange{A_{N-1} \purple{F_{r_{N-1}} x_r(t_{N-1})} + A_{N-1} G_{r_{N-1}} + B_{N-1}} \nonumber \\
 					 &= \orange{A_{N-1} \purple{[x_r(t_{r_N}) - G_{r_{N-1}}]} + A_{N-1} G_{r_{N-1}} + B_{N-1}} \nonumber \\
 					 &= \orange{A_{N-1} x_r(t_{r_N}) - \cancel{A_{N-1} G_{r_{N-1}}} + \cancel{A_{N-1} G_{r_{N-1}}} + B_{N-1}} \nonumber \\
 					 &= \orange{A_{N-1} x_r(t_{r_N}) + B_{N-1}}
 \end{align}
+
+replacing \ref{eq_square_xN} and \ref{eq_circle_xN} in \ref{eq_xN_propagation}
 
 \begin{align}
 	\begin{split}
@@ -76,7 +80,6 @@ Solucao no dominio do tempo para o instante de chaveamento N
 \end{align}
 
 where $x_r$ is calculated as
-
 \begin{align}
 	x_r(t_{r_1}) &= F_0 x_r(t_{r_0}) + G_0 \\
     x_r(t_{r_2}) &= F_1 x_r(t_{r_1}) + G_1 \\
