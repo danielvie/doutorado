@@ -1,4 +1,12 @@
-config = engine.init_sim_matheus();
+%%
+% --------------------------------------
+% CONFIG INICIAL
+% --------------------------------------
+clear all
+config = engine.get_config_sim_matheus();
+
+%% CONDICOES INICIAIS
+
 
 % xr = [-0.5, -1.0
 %       -0.5,  1.0
@@ -8,7 +16,8 @@ config = engine.init_sim_matheus();
 
 xr = engine.get_xr(config);
 
-% controlador
+%% CONSTRUINDO MPC
+
 tr = config.Ts(2:end);
 [Phi, Gamma] = mpc.construcao_modelo_instantes(config.Ac,config.Bc,tr,xr);
 
@@ -50,8 +59,11 @@ config.mpc.bf       = bf;
 config.mpc.PhiNp    = PhiNp;
 config.mpc.p        = p;
 
-% config.x0 = config.x0 + [-1; .1];
+%% RODANDO SIMULACAO
+nsim      = 10;
+
 config.x0 = config.x0 + [-1; .5];
-[y,t,u,m] = engine.sim_n(config, 10);
+[y,t,u,m] = engine.sim_n(config, nsim);
 
 plot(y(:,1), y(:,2));
+grid on;

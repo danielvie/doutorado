@@ -3,7 +3,7 @@
 % CONFIG INICIAL
 % --------------------------------------
 clear all
-config = engine.init_sim_patino_1();
+config = engine.get_config_sim_patino_1();
 
 %% CONDICOES INICIAIS
 config.x0   = [1.8662830; -1.1178948,];
@@ -39,8 +39,6 @@ c  = [
 [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = ...
     mpc.matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c);
 
-nsim = 35;
-
 c = config;
 
 c.mpc          = struct();
@@ -63,6 +61,7 @@ c.mpc.p        = p;
 %% RODANDO SIMULACAO
 c.x0 = c.x0 + [0.1; 0.5];
 
+nsim = 35;
 c.mpc.on = 0;
 [y_,t_,u_,~] = engine.sim_n(c, nsim);
 c.mpc.on = 1;
@@ -73,6 +72,9 @@ clf();
 hold on;
 
 plot(y(:,1), y(:,2));
+
+plot(y_(:,1), y_(:,2));
+
 plot(c.xref(1), c.xref(2), '+', 'linew', 2, 'markersize', 10, 'color', engine.CORES.VERMELHO);
 
 % ultimo ciclo
