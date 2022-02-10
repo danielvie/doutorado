@@ -21,7 +21,7 @@ Iniciando o MATLAB Coder:
 
 Esse comando deve abrir a interface grafica, nela colocamos o nome da nossa funcao:
 
-![alt text](.fig\coder_1.png)
+![alt text](.fig/coder_1.png)
 
 Em seguida, escolhemos o nome do nosso projeto, serA gerado um arquivo `.prj` com esse nome com as configuracoes de geracao de codigo.
 
@@ -158,4 +158,5 @@ E, para que o `MATLAB` tambEm encontre o `MINGW64`. Eh necessArio criar uma vari
 ![alt text](.fig\z_enviroment_4.png)
 
 ![alt text](.fig\z_enviroment_5.png)
+
 
