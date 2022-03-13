@@ -2,12 +2,182 @@
 
 * [tese.pdf](LATEX_tese/tese.pdf)
 
+## 11/03/21
+
+* [ ] Escrever motivaCAo e contribuiCAo
+
+sistemas lineares chaveados sao muito importantes na engenharia
+
+uma dificultade em particular suge quando estabilizar conduzir para uma trajetoria ciclic, nao esta muito explorado
+
+diferentes modelos afins
+
+baminou
+
+marcio, abordou classe particular de sisteas afins
+
+mateus, 
+
+ideia chave
+- sistemas chaveados importantes
+- controle traj ciclica nao explorada
+- otimalidade buscando preditivo, mas ha limitacoes
+- mexer nos instantes de chaveamento, explorando um modelo linearizado
+
+linearizacao dos instantes de chaveamo
+
+a relacao entre instantes de chaveamento e o estado resultante eh nao linear. 
+
+generalizar o traablho do mateus, que trabalha uma classe particular
+
+lineariza o modelo discreto
+
+colocar eq (1) benmiloud
+
+* [ ] fazer caixinhas
+
+p q eh importante estudar sistemas chaveados?
+p q eh importante explorar trajetorias ciclicas?
+q trabalhos foram feitos?
+
+
+[benmiloud2018]
+However, the proposed controllers are developed by a deep analysis of the converter dynamics and the possibility of generalisation is not straightforward.
+
+Eh aqui a nossa contribuicao??
+
+---
+In addition, a predictive approach has been proposed in [15]
+(Patino)
+
+Melhor ler isso tambem
+
+Uai, já li!
+
+---
+
+
+Q:
+Como definir Switched affine systems
+Sempre entendi affine systems como sistemas lineares, Switched nao torna ele nao linear?
+
+Sistemas afins sao sistemas na forma: A.X + B
+
+
+
+## 17/02/21
+
+
+* [ ] ComeCar a escrever um Pre-escrita
+
+	TITULO: ROBUST CONTROL OF LINEAR SYSTEMS WITH SWITCHED ACTUATORS SUBJECTED TO DWELL-TIME CONSTRAINTS	
+
+	REFERENCIAS:
+
+		-> Márcio Santos Vieira
+			- [2013] :: Controle Preditivo de Sistemas com Atuadores Sujeitos a Restrições temporais de Chaveamento
+			
+			* Inicio da linha de estudos, preditivo calculado a cada iteracao para encontrar uma solução atraves de uma otimizacao sujeita a restricoes temporais com MILP (Mixed Integer Linear Programming)
+
+		-> Matheus Henrique Marcolino
+			- [2018] :: Stabilization of Periodic Trajectories Through Recending Horizon Optimization of Switching Times
+			- [2020] :: Predictive Control of Linear Systems with Switched Actuators Subject to Dwell-Time Constraints
+
+			* Separacao do problema em 2 etapas: 
+    			* uma primeira como um problema de otimizacao para calcular uma trajetória ciclica que respeita as restricoes de tempo do sistema
+    			* uma segunda como um problema de controle preditivo que calcula perturbacoes de tempo nos instantes de chaveamento para levar o sistema controlado para a trajetoria ciclica encontrada inicialmente.
+
+			
+		-> D. Patino
+			- [2010] :: A predictive control approach for DC-DC power converters and cyclic switched systems
+
+			* Estou usando, em especial, a maneira que o autor desse arquigo calcula a trajetoria de referencia
+
+		-> Mohammed Benmiloud,
+			- [2019] :: On the Local Stabilization of Hybrid Limit Cycles in Switched Affine Systems
+
+	CONTRIBUICAO:
+
+		-> Generalizacao do problema de controle, possibilitando o uso do controlador em sistemas nao lineares, com restricao temporais que estabilizam em uma trajetoria ciclica e que possuam comportamento dinamico variante no tempo.
+		
+		Extender o trabalho do Matheus para `Switched Affine Systems`
+
+	COMO VOU APRESENTAR ISSO?
+
+		{palta de discussao da reuniao}
+
+
+
+
+	bad practice ::
+		-> Use of nouns instead of verbs
+		-> Use of big words (vague words)
+		-> Too much distance between the subject and the main verb of the sentence
+
+	good practice ::
+		-> Use the active voice
+		-> Write with verbs
+		-> Eliminate negatives
+			- She was not often right => She was usually wrong  
+			- She did not want to perform the experiment incorrectly => She wanted to perform the experiment correctly
+		-> Eliminate `there are` / `there is`
+			- There are several mechanisms that could explain the findings => Several mechanisms could explaind the findings
+
+			She planned to take the test on Tuesday
+
+
+	Common clutter ::
+		-> Dead weight words and phrases
+			- As it is well known
+			- As it has been shown
+			- It can be regarded that
+			- It should be emphasized that
+
+		-> Empty words and phrases
+			- basic tnets of
+			- methodologic
+			- important
+
+		-> Long words or phrases that coud be short
+			- muscular and cardiorespiratory performance
+
+		-> Unnecessary jargon and acronyms
+			- muscular and cardiorespiratory performance
+		
+		-> repetitive words or phrases
+			- studies/examples
+			- illustratre/demonstrate
+			- challengs/difficulties
+			- succesful solutions
+
+		-> Adverbs
+			- very, really, quite, basically, generally, ...
+
+
+	Long phrases that could be short ::
+
+		- Are of the same opinion => agree
+		- Less frequently occurring => rare
+		- All three of the => the three
+		- Give rise to => cause
+		- Due to the fact that => because
+		- Have an effect on => affect
+
+
+	(entender o que vc quer escrever, qual o objectivo)
+	(escrever com verbos)
+
+
+- Notas:
+  - Texto cientIfico: https://www.coursera.org/learn/sciwrite
+    - pre-escrita (70%)
+    - redacao (10%)
+    - revisao (20%)
 
 ## 04/01/21
 * [ ] como fazer para escrever um texto e ainda manter as equacoes alinhadas (equacao 3.13)
 * [ ] tem como agrupar um texto com equacao para que eles nao fiquem em paginas separadas?
 * [ ] converter codigo para C++ e calcular tempo de cada ciclo de computacao para resolver o controle preditivo 
-
 
 
 ## 16/12/21
@@ -92,3 +262,4 @@ Ultrafast PDFLaTeX with precompiling
 export_fig -transparent -painters nome.pdf
 
 - [ ] expandir equacao linearizada
+
