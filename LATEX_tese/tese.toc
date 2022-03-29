@@ -1,36 +1,36 @@
 \babel@toc {english}{}
 \contentsline {chapter}{\numberline {1}Introduction}{15}{chapter.1}
 \contentsline {section}{\numberline {1.1}Motivation}{15}{section.1.1}
-\contentsline {section}{\numberline {1.2}Contributions of the present work}{15}{section.1.2}
-\contentsline {section}{\numberline {1.3}Outline of the remaining chapters}{15}{section.1.3}
-\contentsline {chapter}{\numberline {2}Determination of Target Periodic Trajectories}{16}{chapter.2}
-\contentsline {section}{\numberline {2.1}Statement of the problem}{16}{section.2.1}
-\contentsline {section}{\numberline {2.2}Proposed codification for the switching constraints}{16}{section.2.2}
-\contentsline {section}{\numberline {2.3}Optimization}{16}{section.2.3}
-\contentsline {section}{\numberline {2.4}Calculating $x_r$}{16}{section.2.4}
-\contentsline {section}{\numberline {2.5}Application Examples}{18}{section.2.5}
-\contentsline {subsection}{\numberline {2.5.1}Double Integrator}{18}{subsection.2.5.1}
-\contentsline {subsection}{\numberline {2.5.2}Variant Dynamic Circuit 1}{18}{subsection.2.5.2}
-\contentsline {subsection}{\numberline {2.5.3}Variant Dynamic Circuit 2}{18}{subsection.2.5.3}
-\contentsline {chapter}{\numberline {3}Predictive Control for Stabilization of Periodic Trajectories}{19}{chapter.3}
-\contentsline {section}{\numberline {3.1}Statement of the problem}{19}{section.3.1}
-\contentsline {section}{\numberline {3.2}Linearization procedure}{19}{section.3.2}
-\contentsline {section}{\numberline {3.3}Optimal control problem}{28}{section.3.3}
-\contentsline {subsection}{\numberline {3.3.1}{Cost function}}{28}{subsection.3.3.1}
-\contentsline {subsection}{\numberline {3.3.2}{Prediction equation}}{28}{subsection.3.3.2}
-\contentsline {subsection}{\numberline {3.3.3}{Constraints}}{28}{subsection.3.3.3}
-\contentsline {subsection}{\numberline {3.3.4}{Feasibility region}}{28}{subsection.3.3.4}
-\contentsline {section}{\numberline {3.4}Application Examples}{28}{section.3.4}
-\contentsline {subsection}{\numberline {3.4.1}Integrador duplo}{28}{subsection.3.4.1}
-\contentsline {subsection}{\numberline {3.4.2}Patino 1}{28}{subsection.3.4.2}
-\contentsline {subsection}{\numberline {3.4.3}Patino 2}{28}{subsection.3.4.3}
-\contentsline {chapter}{\numberline {4}Conclus\~ao}{32}{chapter.4}
-\contentsline {chapter}{Bibliography}{33}{chapter.5}
+\contentsline {section}{\numberline {1.2}Contributions of the present work}{16}{section.1.2}
+\contentsline {section}{\numberline {1.3}Outline of the remaining chapters}{16}{section.1.3}
+\contentsline {chapter}{\numberline {2}Determination of Target Periodic Trajectories}{17}{chapter.2}
+\contentsline {section}{\numberline {2.1}Statement of the problem}{17}{section.2.1}
+\contentsline {section}{\numberline {2.2}Proposed codification for the switching constraints}{17}{section.2.2}
+\contentsline {section}{\numberline {2.3}Optimization}{17}{section.2.3}
+\contentsline {section}{\numberline {2.4}Calculating $x_r$}{17}{section.2.4}
+\contentsline {section}{\numberline {2.5}Application Examples}{19}{section.2.5}
+\contentsline {subsection}{\numberline {2.5.1}Double Integrator}{19}{subsection.2.5.1}
+\contentsline {subsection}{\numberline {2.5.2}Variant Dynamic Circuit 1}{19}{subsection.2.5.2}
+\contentsline {subsection}{\numberline {2.5.3}Variant Dynamic Circuit 2}{19}{subsection.2.5.3}
+\contentsline {chapter}{\numberline {3}Predictive Control for Stabilization of Periodic Trajectories}{20}{chapter.3}
+\contentsline {section}{\numberline {3.1}Statement of the problem}{20}{section.3.1}
+\contentsline {section}{\numberline {3.2}Linearization procedure}{20}{section.3.2}
+\contentsline {section}{\numberline {3.3}Optimal control problem}{29}{section.3.3}
+\contentsline {subsection}{\numberline {3.3.1}{Cost function}}{29}{subsection.3.3.1}
+\contentsline {subsection}{\numberline {3.3.2}{Prediction equation}}{29}{subsection.3.3.2}
+\contentsline {subsection}{\numberline {3.3.3}{Constraints}}{29}{subsection.3.3.3}
+\contentsline {subsection}{\numberline {3.3.4}{Feasibility region}}{29}{subsection.3.3.4}
+\contentsline {section}{\numberline {3.4}Application Examples}{29}{section.3.4}
+\contentsline {subsection}{\numberline {3.4.1}Integrador duplo}{29}{subsection.3.4.1}
+\contentsline {subsection}{\numberline {3.4.2}Patino 1}{29}{subsection.3.4.2}
+\contentsline {subsection}{\numberline {3.4.3}Patino 2}{29}{subsection.3.4.3}
+\contentsline {chapter}{\numberline {4}Conclus\~ao}{33}{chapter.4}
+\contentsline {chapter}{Bibliography}{34}{chapter.5}
 \SetAppendixTocName {Appendix}
-\contentsline {chapter}{\numberline {A}T\'opicos de Dilema Linear}{34}{appendix.A}
-\contentsline {section}{\numberline {A.1}Modelo de simula\c c\~ao}{34}{section.A.1}
-\contentsline {subsection}{\numberline {A.1.1}get\_x0}{34}{subsection.A.1.1}
-\contentsline {subsection}{\numberline {A.1.2}get\_xf}{34}{subsection.A.1.2}
+\contentsline {chapter}{\numberline {A}T\'opicos de Dilema Linear}{35}{appendix.A}
+\contentsline {section}{\numberline {A.1}Modelo de simula\c c\~ao}{35}{section.A.1}
+\contentsline {subsection}{\numberline {A.1.1}get\_x0}{35}{subsection.A.1.1}
+\contentsline {subsection}{\numberline {A.1.2}get\_xf}{35}{subsection.A.1.2}
 \SetAppendixTocName {Annex}
-\contentsline {chapter}{\numberline {A}Exemplo de um Primeiro Anexo}{35}{annex.a}
-\contentsline {section}{\numberline {A.1}Uma Se\c c\~ao do Primeiro Anexo}{35}{section.a.1}
+\contentsline {chapter}{\numberline {A}Exemplo de um Primeiro Anexo}{36}{annex.a}
+\contentsline {section}{\numberline {A.1}Uma Se\c c\~ao do Primeiro Anexo}{36}{section.a.1}

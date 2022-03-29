@@ -2,6 +2,10 @@
 
 * [tese.pdf](LATEX_tese/tese.pdf)
 
+## 17/03/21
+
+* [ ] plano de trabalho e cronograma na qualificacao
+
 ## 11/03/21
 
 * [ ] Escrever motivaCAo e contribuiCAo
