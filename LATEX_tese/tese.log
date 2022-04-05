@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.5.25)  30 MAR 2022 00:52
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.5.25)  5 APR 2022 00:22
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -822,54 +822,57 @@ Package hyperref Info: Anchor `chapter.2' on input line 252.
 Chapter 2.
 pdftex: bookmark at 252: {2} {\numberline{2}Determination of Target Periodic Trajectories} {chapter.2}{0}{toc}
 (./Cap2/cap2.tex
-Package hyperref Info: Anchor `section.2.1' on input line 1.
-
-pdftex: bookmark at 1: {2.1} {\numberline{2.1}Statement of the problem} {section.2.1}{1}{toc}
-Package hyperref Info: Anchor `section.2.2' on input line 3.
-pdftex: bookmark at 3: {2.2} {\numberline{2.2}Proposed codification for the switching constraints} {section.2.2}{1}{toc}
-Package hyperref Info: Anchor `section.2.3' on input line 5.
-pdftex: bookmark at 5: {2.3} {\numberline{2.3}Optimization} {section.2.3}{1}{toc}
-Package hyperref Info: Anchor `section.2.4' on input line 9.
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 9.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 9.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 9.
-
-pdftex: bookmark at 9: {2.4} {\numberline{2.4}Calculating $x_r$} {section.2.4}{1}{toc}
-(./Cap2/cap2_otim_get_x0.tex
-Package hyperref Info: Anchor `equation.2.4.1' on input line 3.
-Package hyperref Info: Anchor `equation.2.4.2' on input line 13.
-Package hyperref Info: Anchor `equation.2.4.3' on input line 21.
-Package hyperref Info: Anchor `page.17' on input line 21.
+Package hyperref Info: Anchor `equation.2.0.1' on input line 30.
+Package hyperref Info: Anchor `equation.2.0.2' on input line 38.
+Package hyperref Info: Anchor `equation.2.0.3' on input line 42.
+Package hyperref Info: Anchor `page.17' on input line 44.
  [17
 
 ]
-Package hyperref Info: Anchor `equation.2.4.4' on input line 28.
-Package hyperref Info: Anchor `equation.2.4.5' on input line 28.
-Package hyperref Info: Anchor `equation.2.4.6' on input line 28.
-Package hyperref Info: Anchor `equation.2.4.7' on input line 39.
-Package hyperref Info: Anchor `equation.2.4.8' on input line 47.
-Package hyperref Info: Anchor `equation.2.4.9' on input line 50.
-)
-Package hyperref Info: Anchor `section.2.5' on input line 13.
+Package hyperref Info: Anchor `section.2.1' on input line 50.
 
-pdftex: bookmark at 13: {2.5} {\numberline{2.5}Application Examples} {section.2.5}{1}{toc}
-Package hyperref Info: Anchor `subsection.2.5.1' on input line 15.
-pdftex: bookmark at 15: {2.5.1} {\numberline{2.5.1}Double Integrator} {subsection.2.5.1}{2}{toc}
-Package hyperref Info: Anchor `subsection.2.5.2' on input line 17.
-pdftex: bookmark at 17: {2.5.2} {\numberline{2.5.2}Variant Dynamic Circuit 1} {subsection.2.5.2}{2}{toc}
-Package hyperref Info: Anchor `subsection.2.5.3' on input line 19.
-pdftex: bookmark at 19: {2.5.3} {\numberline{2.5.3}Variant Dynamic Circuit 2} {subsection.2.5.3}{2}{toc}
-)
-Package hyperref Info: Anchor `page.18' on input line 255.
+pdftex: bookmark at 50: {2.1} {\numberline{2.1}Statement of the problem} {section.2.1}{1}{toc}
+Package hyperref Info: Anchor `section.2.2' on input line 52.
+pdftex: bookmark at 52: {2.2} {\numberline{2.2}Proposed codification for the switching constraints} {section.2.2}{1}{toc}
+Package hyperref Info: Anchor `section.2.3' on input line 54.
+pdftex: bookmark at 54: {2.3} {\numberline{2.3}Optimization} {section.2.3}{1}{toc}
+Package hyperref Info: Anchor `section.2.4' on input line 58.
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 58.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `subscript' on input line 58.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 58.
+
+pdftex: bookmark at 58: {2.4} {\numberline{2.4}Calculating $x_r$} {section.2.4}{1}{toc}
+(./Cap2/cap2_otim_get_x0.tex
+Package hyperref Info: Anchor `equation.2.4.4' on input line 3.
+Package hyperref Info: Anchor `equation.2.4.5' on input line 13.
+Package hyperref Info: Anchor `equation.2.4.6' on input line 21.
+Package hyperref Info: Anchor `equation.2.4.7' on input line 28.
+Package hyperref Info: Anchor `equation.2.4.8' on input line 28.
+Package hyperref Info: Anchor `equation.2.4.9' on input line 28.
+Package hyperref Info: Anchor `page.18' on input line 28.
  [18]
+Package hyperref Info: Anchor `equation.2.4.10' on input line 39.
+Package hyperref Info: Anchor `equation.2.4.11' on input line 47.
+Package hyperref Info: Anchor `equation.2.4.12' on input line 50.
+)
+Package hyperref Info: Anchor `section.2.5' on input line 62.
+
+pdftex: bookmark at 62: {2.5} {\numberline{2.5}Application Examples} {section.2.5}{1}{toc}
+Package hyperref Info: Anchor `subsection.2.5.1' on input line 64.
+pdftex: bookmark at 64: {2.5.1} {\numberline{2.5.1}Double Integrator} {subsection.2.5.1}{2}{toc}
+Package hyperref Info: Anchor `subsection.2.5.2' on input line 66.
+pdftex: bookmark at 66: {2.5.2} {\numberline{2.5.2}Variant Dynamic Circuit 1} {subsection.2.5.2}{2}{toc}
+Package hyperref Info: Anchor `subsection.2.5.3' on input line 68.
+pdftex: bookmark at 68: {2.5.3} {\numberline{2.5.3}Variant Dynamic Circuit 2} {subsection.2.5.3}{2}{toc}
+)
 Package hyperref Info: Anchor `page.19' on input line 255.
  [19]
 Package hyperref Info: Anchor `chapter.3' on input line 255.
@@ -893,7 +896,7 @@ Package epstopdf Info: Source file: <Cap2/.fig/linearizacao_1.eps>
 (epstopdf)             Command: <repstopdf --outfile=Cap2/.fig/linearizacao_1-eps-converted-to.pdf Cap2/.fig/linearizacao_1.eps>
 (epstopdf)             \includegraphics on input line 14.
 Package epstopdf Info: Output file is already uptodate.
-<Cap2/.fig/linearizacao_1-eps-converted-to.pdf, id=343, 435.6275pt x 171.64125pt>
+<Cap2/.fig/linearizacao_1-eps-converted-to.pdf, id=346, 435.6275pt x 171.64125pt>
 File: Cap2/.fig/linearizacao_1-eps-converted-to.pdf Graphic file (type pdf)
 <use Cap2/.fig/linearizacao_1-eps-converted-to.pdf>
 Package pdftex.def Info: Cap2/.fig/linearizacao_1-eps-converted-to.pdf  used on input line 14.
@@ -1257,18 +1260,18 @@ Package rerunfilecheck Info: File `tese.brf' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 14289 strings out of 478836
- 210991 string characters out of 5859622
+ 14292 strings out of 478836
+ 211036 string characters out of 5859622
  563005 words of memory out of 5000000
  31342 multiletter control sequences out of 15000+600000
  458252 words of font info for 130 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  102i,25n,105p,678b,564s stack positions out of 5000i,500n,10000p,200000b,80000s
 {c:/texlive/2021/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}<c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmb10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi12.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/latxfont/line10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb><c:/texlive/2021/texmf-dist/fonts/type1/public/cm-super/sfrm0800.pfb>
-Output written on tese.pdf (37 pages, 310127 bytes).
+Output written on tese.pdf (37 pages, 314392 bytes).
 PDF statistics:
- 621 PDF objects out of 1000 (max. 8388607)
- 551 compressed objects within 6 object streams
- 160 named destinations out of 1000 (max. 500000)
+ 625 PDF objects out of 1000 (max. 8388607)
+ 555 compressed objects within 6 object streams
+ 163 named destinations out of 1000 (max. 500000)
  382 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -2,6 +2,43 @@
 
 * [tese.pdf](LATEX_tese/tese.pdf)
 
+## 30/03/21
+
+* [ ] perguntar sobre referencias e material para estudar otimizacao
+
+* [ ] algum material fala sobre as diferenças entre tipo de metodos `quadprog`?
+	* trust-region-reflective
+	* interior-point-convex
+	* active-set
+
+* [ ] pedir dicas para capitulo 2
+
+	* descricao do problema
+	* calculo da condicao inicial
+	* sequencia de modos predefinida (falar sobre a otimizacao para encontrar modos aqui?)
+	* calculo dos estados Xr nominal, dado o instante de chaveamento e sequencia de modos
+	* descricao da funcao custo
+	* montar solucao com fmincon
+	* usar exemplos `integrador`, `patino_1` e `patino_2`
+	* conclusoes capitulo 2
+
+* [ ] capitulo 3
+
+	* descricao do controle preditivo
+	* explicar porque precisamos linearizar o problema 
+	* apresentar procedimento de linearizacao
+	* problema de controle
+    	* funcao custo
+    	* equacao de predicao
+		* restricoes
+	* aplicacao com `integrador`, `patino_1` e `patino_2`
+	* conclusoes dos resultados da aplicacao da lei de controle
+
+* [ ] capitulo 4
+
+	* cronograma
+	* conclusoes gerais do trabalho
+
 ## 17/03/21
 
 * [ ] plano de trabalho e cronograma na qualificacao

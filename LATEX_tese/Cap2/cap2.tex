@@ -1,3 +1,52 @@
+
+    No modelo do Matheus, a trajetoria de referencia é a mesma do trabalho dele, para comparar os resultados.
+
+    Patino, aqui estou usando um otimizador para encontrar a trajetoria de referencia.
+
+    As entradas para a otimizacao são:
+
+    - Lista de modos de operacao
+
+    - Lista de matriz A associada ao modo de operacao
+
+    - Lista de matriz B associada ao modo de operacao
+
+    - Matriz C
+
+    - Matriz D
+
+    - Lista de valores de controle em cada modo
+
+    - Valor de referencia dos estados (xref)
+
+    - Tempo maximo de trajetoria ciclica (Tpmax)
+
+    - Numero maximo de estaods
+
+    - Peso dos estados na funcao custo (Q)
+
+    Funcao custo:
+
+    \begin{equation}
+        J(\tau^{\infty} ,\Omega^{\infty} ,s^{\infty}) = \min_{\tau, \Omega, s} \int_0^{T_p} [x(t) - \bar{x}^{\infty}]^T Q [x(t) - \bar{x}^{\infty}] dt
+    \end{equation}
+
+    Em que $Q = Q^T > 0$ e $T_p$ é o periodo do ciclo.
+
+    A condição inicial é determinada de forma que o ultimo ponto é coincidente com o primeiro ponto (dada a sequencia de modos e instantes de chaveamento)
+
+    \begin{equation}
+        x(0) = (I - F_N F_{N-1} \ldots F_1)^{-1} c
+    \end{equation}
+    
+    \begin{equation}
+        c = F_N F_{N-1} \ldots F_2 G_1 u_1 + F_N F_{N-1} \ldots F_3 G_2 u_2 + \ldots + F_N G_{N-1} + G_N u_N
+    \end{equation}
+
+    O resultado da otimizacao é $T_s$ e $x_0$
+
+    \red{TODO: FAZER SIMULACAO COMPLETA DE CADA CASO}
+
 \section{Statement of the problem}
 
 \section{Proposed codification for the switching constraints}

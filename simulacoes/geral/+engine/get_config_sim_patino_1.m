@@ -30,8 +30,8 @@ function config = get_config_sim_patino_1()
 
       Q     = diag([1,1]);
       Tpmax = 1;
-      smax  = 2;
-      r     = 1;
+      % smax  = 2;
+      % r     = 1;
       % r: 
 
       % montando `config`
@@ -48,8 +48,8 @@ function config = get_config_sim_patino_1()
       config.tmin  = tmin;
       config.Q     = Q;
       config.Tpmax = Tpmax;
-      config.smax  = smax;
-      config.r     = r;
+      % config.smax  = smax;
+      % config.r     = r;
       
       config.Ts    = [0., 0.2514520, 0.5014520];
       config.x0    = [1.870801; -1.119853];
