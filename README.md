@@ -2,7 +2,23 @@
 
 * [tese.pdf](LATEX_tese/tese.pdf)
 
+
+
+## 14/04/21
+
+pre-escrita Controle preditivo
+
+* [ ] convencao de escrita vetores / matrizes nas equacoes (negrito, UPPER, ...)
+
+matrizes: italico e UPPER
+negritos: matrizes formatas por combinacao de outras matrizes
+vetores : italico
+
 ## 30/03/21
+
+
+luenberg -> programacao linear / nao linear
+
 
 * [ ] perguntar sobre referencias e material para estudar otimizacao
 
