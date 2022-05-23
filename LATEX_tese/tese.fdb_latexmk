@@ -1,13 +1,13 @@
 # Fdb version 3
-["bibtex tese"] 1652808875 "tese.aux" "tese.bbl" "tese" 1653342630
+["bibtex tese"] 1652808875 "tese.aux" "tese.bbl" "tese" 1653343349
   "./abnt-alf.bst" 1099412264 60101 003f65fc9adebf0a393717a2d6a19106 ""
   "Referencias/referencias.bib" 1417842070 5012 44142f6996cd196e9333e3537a4853e0 ""
   "abnt-options.bib" 1058892088 5396 4eb260dac60f150ae608d45252853090 ""
-  "tese.aux" 1653342629 7031 9d31c7b99e0a6664193ddf3593a12d82 "pdflatex"
+  "tese.aux" 1653343349 7031 9d31c7b99e0a6664193ddf3593a12d82 "pdflatex"
   (generated)
   "tese.bbl"
   "tese.blg"
-["pdflatex"] 1653342627 "c:/Users/Daniel/Documents/DOUTORADO/LATEX_tese/tese.tex" "tese.pdf" "tese" 1653342630
+["pdflatex"] 1653343347 "c:/Users/Daniel/Documents/DOUTORADO/LATEX_tese/tese.tex" "tese.pdf" "tese" 1653343349
   "AneA/anexoA.tex" 1139335620 158 6ad4a8970f6eea023a1bcd7f71e0e17e ""
   "ApeA/apendiceA.tex" 1638886646 594 ae3aebb831f043616a6f60ae713c9b8d ""
   "Cap0/abstract.tex" 1639607762 818 b81198dfaf4054e39a3fa8d94d3ede4e ""
@@ -15,7 +15,7 @@
   "Cap0/listaabreviaturas.tex" 1420774324 458 f6dd874aece4f4cd40ece118ffd516b5 ""
   "Cap0/listasimbolos.tex" 1428545230 308 3746b0dc2a4d7b12d0bd7e87994727c3 ""
   "Cap0/resumo.tex" 1639607762 786 aeee9874fef967b8b39485541a6f133c ""
-  "Cap1/cap1.tex" 1653342625 4155 4daaa44ebf29236f3241f1237368bdcc ""
+  "Cap1/cap1.tex" 1653343347 4209 2f7bd597946e615238efb5b335437aec ""
   "Cap2/.fig/linearizacao_1.eps" 1638886042 18187 409fc4f6f84707dce4eb17d3511624ac ""
   "Cap2/cap2.tex" 1649805922 2852 a84061f3ffac5593024c36305f6d43f1 ""
   "Cap2/cap2_otim_get_x0.tex" 1639345134 1723 1f18b6669d8651629d0b145419b9fe09 ""
@@ -224,14 +224,14 @@
   "makeglo.sty" 1159742256 3307 a9cbaa9a6aa9e4313d3f8790ad4cadf3 ""
   "nbr10520-2002.def" 1099412720 748 b3a64e6861d8e6f4d5a027668b61b6da ""
   "nbr10522-1988.def" 1066038134 2033 2640f31db66d54c88372a64ed1ddf7cb ""
-  "tese.aux" 1653342629 7031 9d31c7b99e0a6664193ddf3593a12d82 "pdflatex"
+  "tese.aux" 1653343349 7031 9d31c7b99e0a6664193ddf3593a12d82 "pdflatex"
   "tese.bbl" 1652808875 228 734fa92002fe13e3f67a1bb32b4f5d97 "bibtex tese"
   "tese.brf" 0 -1 0 "pdflatex"
-  "tese.lof" 1653342629 261 aa5ac7b882f2d17a8edc78194e122a2b "pdflatex"
-  "tese.lot" 1653342629 150 7460b00ca4c2d98f724b7acc062e00fd "pdflatex"
-  "tese.out" 1653342629 7546 99e71053f827fd3c5615fdf6a77f6d17 "pdflatex"
+  "tese.lof" 1653343349 261 aa5ac7b882f2d17a8edc78194e122a2b "pdflatex"
+  "tese.lot" 1653343349 150 7460b00ca4c2d98f724b7acc062e00fd "pdflatex"
+  "tese.out" 1653343349 7546 99e71053f827fd3c5615fdf6a77f6d17 "pdflatex"
   "tese.tex" 1652808871 10302 67598b62505f10344a897f4a6aad6c68 ""
-  "tese.toc" 1653342629 2670 23836a1d4fb052ab1fca1ccd1f688147 "pdflatex"
+  "tese.toc" 1653343349 2670 23836a1d4fb052ab1fca1ccd1f688147 "pdflatex"
   (generated)
   "tese.aux"
   "tese.brf"
