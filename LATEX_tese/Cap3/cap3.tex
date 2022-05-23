@@ -26,7 +26,7 @@ em que $Q = Q^T > 0$, $\rho > 0$
 \textbf{EQUACAO DE PRECIÇÃO}
 
 \begin{equation}
-	\boldmath{\hat{x}} = G \boldmath{\hat{\delta t}} + \boldmath{f}
+	\bm{\hat{x}} = G \bm{\hat{\delta t}} + \bm{f}
 \end{equation}
 
 \begin{equation}
@@ -64,6 +64,26 @@ em que $Q = Q^T > 0$, $\rho > 0$
 		G_{N,1} & G_{N,2} & G_{N,3} & \ldots & G_{N,N} \\
 	\end{array} \right]
 \end{equation}
+
+
+Now, let $\boldmath{x^r}$ be the vector of target values defined as 
+
+\begin{equation}
+	\bm{x^r} = \left[ \begin{array}{ccccc}
+		x_r(t_{r_{k+1}}) \\
+		x_r(t_{r_{k+2}}) \\
+		\vdots  \\
+		x_r(t_{r_{k+N}}) \\
+	\end{array} \right]
+\end{equation}
+
+In view of \red{completar texto aqui}, the cost function is rewritten as 
+
+\begin{equation}
+	J = (\bm{\hat{x}} - \bm{x_r})^T \bm{Q} (\bm{\hat{x}} - \bm{x_r}) + \rho \bm{\hat{\delta}t}^T \bm{\hat{\delta}t}
+\end{equation}
+
+where $\bm{Q} = \bm{Q}^T > 0$ is an $nN x nN$ block-diagonal matrix defined as $\bm{Q} = diag(Q,Q,...,Q)$.
 
 \textbf{CONSTRAINTS}
 

@@ -10,3 +10,6 @@ materias/
 video/
 reunioes/
 codegen/
+
+.vscode
+*.log

@@ -2,9 +2,41 @@
 
 * [tese.pdf](LATEX_tese/tese.pdf)
 
+## 17/15/22
+
+	[ ] como colocar negrito apenas em uma \mathbf 
+		tentar usar:: \boldsymbol
+		pacote `bm`
+
+	[ ] perguntar sobre cronograma
+
+		[ ] quais sao as etapas agora e prazos?
+			- extensao (generalizacao) de caso tempo final livre na otimizacao
+				1 semestre
+			- elaboracao de um artigo com resultados ateh o momento
+				.5 semestre (elaboracao e submissao)
+			- aplicacao que envolvesse numero maior de estados de chaveamento 
+				// talvez um novo circuito 
+				1 semestre
+			- ?? experimental nao precisa prometer
+
+			- elaboracao da tese final (defesa)
+				1 semestre
+
+			tabela com colunas em semestre
+
+		[ ] como funciona o processo de qualificacao?
+
+			[ ] o que eu tenho que mostrar nesse texto? 
+				- apresentar o problema e relevancia, 
+				- trabalhos previos, 
+				- formulacao matematica
 
 
-## 14/04/21
+
+	[ ] terminar prediction equation
+
+## 14/04/22
 
 pre-escrita Controle preditivo
 
@@ -14,20 +46,18 @@ matrizes: italico e UPPER
 negritos: matrizes formatas por combinacao de outras matrizes
 vetores : italico
 
-## 30/03/21
-
+## 30/03/22
 
 luenberg -> programacao linear / nao linear
 
+* [ok] perguntar sobre referencias e material para estudar otimizacao
 
-* [ ] perguntar sobre referencias e material para estudar otimizacao
-
-* [ ] algum material fala sobre as diferenças entre tipo de metodos `quadprog`?
+* [ok] algum material fala sobre as diferenças entre tipo de metodos `quadprog`?
 	* trust-region-reflective
 	* interior-point-convex
 	* active-set
 
-* [ ] pedir dicas para capitulo 2
+* [ok] pedir dicas para capitulo 2
 
 	* descricao do problema
 	* calculo da condicao inicial
@@ -38,7 +68,7 @@ luenberg -> programacao linear / nao linear
 	* usar exemplos `integrador`, `patino_1` e `patino_2`
 	* conclusoes capitulo 2
 
-* [ ] capitulo 3
+* [ok] capitulo 3
 
 	* descricao do controle preditivo
 	* explicar porque precisamos linearizar o problema 
@@ -50,16 +80,16 @@ luenberg -> programacao linear / nao linear
 	* aplicacao com `integrador`, `patino_1` e `patino_2`
 	* conclusoes dos resultados da aplicacao da lei de controle
 
-* [ ] capitulo 4
+* [ok] capitulo 4
 
 	* cronograma
 	* conclusoes gerais do trabalho
 
-## 17/03/21
+## 17/03/22
 
 * [ ] plano de trabalho e cronograma na qualificacao
 
-## 11/03/21
+## 11/03/22
 
 * [ ] Escrever motivaCAo e contribuiCAo
 
@@ -122,7 +152,7 @@ Sistemas afins sao sistemas na forma: A.X + B
 
 
 
-## 17/02/21
+## 17/02/22
 
 
 * [ ] ComeCar a escrever um Pre-escrita
@@ -231,7 +261,7 @@ Sistemas afins sao sistemas na forma: A.X + B
     - redacao (10%)
     - revisao (20%)
 
-## 04/01/21
+## 04/01/22
 * [ ] como fazer para escrever um texto e ainda manter as equacoes alinhadas (equacao 3.13)
 * [ ] tem como agrupar um texto com equacao para que eles nao fiquem em paginas separadas?
 * [ ] converter codigo para C++ e calcular tempo de cada ciclo de computacao para resolver o controle preditivo 
@@ -320,3 +350,10 @@ export_fig -transparent -painters nome.pdf
 
 - [ ] expandir equacao linearizada
 
+
+
+## REQUIREMENTS
+
+### Multi-Parametric Toolbox 3
+
+https://www.mpt3.org/
