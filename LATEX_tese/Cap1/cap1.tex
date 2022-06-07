@@ -1,31 +1,31 @@
 \section{Motivation}
 
-    There are several problems in engineering that can be represented in the form of a swiched systems. 
 
-    \red{testando atualizacao do arquivo tese.pdf}
+    Switched affine systems, $\dot{x}(t) = A \sigma(t) x(t) + B \sigma(t)$, can descrive several problems in modern engineering over many different areas. Most of the proposed controllers solve this by driving the system states to a region close to the target state and, for a affine switched system, this means that the system will find stability in a periodic trajectory near the target but never reaching the exactly desired states.
+    Very often, the form of this periodic trajectory relates to the performance of the system, but this is something that is not addressed with the simpler approaches of controllers.
 
-    Existem problemas na engenharia que podem ser representados na forma de sistemas chaveados, é comúm que nesse tipo de problema que o sistema não encontre estabilidade em um ponto, 
-    mas em uma trajetória cíclica, essa trajetória cíclica estável é conhecida como ciclo limite.
-    Muitos estudos exploram o controle de sistemas chaveados levando o sistema para uma região pequena próxima de um ponto desejado, mas o comportamento da trajetória do sistema quando está nessa
-    região não é usualmente considerado na lei de controle e isso pode fazer com que o sistema tenha uma performance abaixo do desejado.
+    % ok \red{introduzir sistemas chaveados afins e dificuldade de um sistema chaveado afim de conduzir a trajetoria para um ponto}
+
+    \red{referencias do problema na literatura}
+
+    Some research studies investigated the solution of the problem addressing the target cyclic trajectory \cite{benmiloud2018}. 
+    In this work, the author proproses a control design that transitates between successive dicrete modes inside the limit cycle.
     
-    Um exemplo de um sistema em que o seu desempenho é fortemente ligado com o comportamento em ciclo limite é o conversor DC-DC. Há restricoes tecnológicas que devem 
-    ser consideradas, como a máxima taxa de chaveamento e as restrições temporais entre um chaveamento e outro. Esse exemplo apresenta também diversas soluções de trajetórias cíclicas válidas
-    e cada uma pode ter uma caracteristica de desempenho mais favorável para o tipo de aplicação.
-
-    Alguns trabalhos já foram feitos nessa linha de estudo. \red{[Banmiloud2018]} trabalha com Switched affine systems $\dot{x}(t) = A_\sigma(t) x(t) + B_\sigma(t)$ e \red{trabalha uma lei de controle}
-    para levar os estados do sistema em sequência para os pontos de chaveamento.
-    
-    \red{[Marcio]} abordou uma classe particular de sistemas afins, o trabalho propos um controlador que tinha o objetivo de atingir um ponto e a trajetória cíclica era uma
-    concequencia de como o sistema se aproximava da referencia. Marcio usou programacao MILP (mixed-integer linear programming).
+    \cite{marcio2013} solved the problem for a particular class of affine systems. Here the controller drived the system to a target state using MILP (Mixed-Integer Linear Programming) and the cyclic trajectory was a consequence of the states as the system approached the target.
 
     $\dot{x}(t) = A_c x(t) + B_c u(t)$
 
-    \red{[Mateus]} explorou o problema de estabilizar o sistema em uma trajetória cíclica. Isso foi feito em duas etapas: uma primeira que calcula a trajetória cíclica com 
-    o uso de otimização, o resultado da otimização é um par de trajetória dos estados e o comando de controle associado para manter essa trajetória em 
-    uma condição nominal; e uma segunda etapa que usa controle preditivo para inserir perturbações nos instantes de chaveamento do sinal de controle nominal, de modo
-    que o sistema seja levado para a trajtória cíclica. Uma grande contribuição desse trabalho foi elaborar um equacionamento linearizado para trabalhar a relação
-    não linear entre os instantes de chaveamento e o estado resultante do sistema ao final de um ciclo.
+    \red{patino, entre marcio e mateus. Falar sobre o trabalho do patino aqui}
+
+    \cite[]{matheus2018} proposed a solution with a controller law that drives the system to a target cyclic trajectory. 
+    In this work, the problem was divided in two parts: first there is a stage that uses otimization to find a targed ideal cyclic trajectory, 
+    then a second part that uses that target trajectory as input and applies pertubation on the instants of switching of the control signal using predictive control. 
+    
+    % \red{[Mateus]} explorou o problema de estabilizar o sistema em uma trajetória cíclica. Isso foi feito em duas etapas: uma primeira que calcula a trajetória cíclica com 
+    % o uso de otimização, o resultado da otimização é um par de trajetória dos estados e o comando de controle associado para manter essa trajetória em 
+    % uma condição nominal; e uma segunda etapa que usa controle preditivo para inserir perturbações nos instantes de chaveamento do sinal de controle nominal, de modo
+    % que o sistema seja levado para a trajtória cíclica. Uma grande contribuição desse trabalho foi elaborar um equacionamento linearizado para trabalhar a relação
+    % não linear entre os instantes de chaveamento e o estado resultante do sistema ao final de um ciclo.
 
 
 %   \red{\framebox(10cm, 3cm){\red{testando texto aqui com mais coisa dentro dele}}}
@@ -38,13 +38,11 @@
 
 \section{Contributions of the present work}
 
-    Esse trabalho propoe expandir o estudo do \red{[Mateus]}, criando um equacionamento mais geral que comporte problemas de sistemas que têm sua dinamica modificada no tempo.
-    Exemplos de sistemas dessa categoria: circuitos chaveados em que cara modo de controle muda a dinamica de resposta da planta para uma mesma entrada.
-    \red{(referenciar a equacao do Benmiloud)}
+    This present work proposes to expand the solution from \cite{matheus2018} and provide a broader solution that can be used for systems 
+    that have their dynamics changing over time.
+
+    Examples of this kind of system is: switched circuits that behaves with a different dynamics after each switching atuation. 
 
 \section{Outline of the remaining chapters}
     
-    O restante desse texto é organizado da seguinte forma. O capitulo 2 descreve o problema de encontrar
-    a trajetória periódica alvo dos SISTEMAS CHAVEADOS AFINS. O capitulo 3 apresenta uma proposta de 
-    lei de controle preditivo que leva o sistema para a trajetórica cíclica. Finalmente, o capitulo 4
-    apresenta as considerações finais do trabalho.
+    The remaining of this text is organized as follows. Chapter 2 describes the problem of finding a target periodic trajectory for the given switched affine system. Chapter 3 proposes then a predictive control law that drives the system to the target cyclic trajectory. Finally, chapter 4 brings some remarks and considerations of the work.

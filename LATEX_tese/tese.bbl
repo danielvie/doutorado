@@ -5,4 +5,27 @@
 \providecommand{\abntbstabout}[1]{}
 \abntbstabout{1.45.2.1 }
 
+\bibitem[Benmiloud \textit{et al.} 2019]{benmiloud2018}
+\abntrefinfo{Benmiloud \textit{et al.}}{BENMILOUD \textit{et al.}}{2019}
+{BENMILOUD, M.; BENALIA, A.; DJEMAI, M.; DEFOORT, M. On the local stabilization
+  of hybrid limit cycles in switched affine systems.
+\textbf{IEEE Transactions on Automatic Control}, v.~64, n.~2, p. 841--846,
+  2019.}
+
+\bibitem[Marcolino 2018]{matheus2018}
+\abntrefinfo{Marcolino}{MARCOLINO}{2018}
+{MARCOLINO, M.~H.
+\textbf{Stabilization of Periodic trajectorories through receding horizon
+  optimization of switching times}.
+2018. 79~f. Tese (Doutorado em Sistemas de Controle) --- Instituto Tecnológico
+  de Aeronáutica, São José dos Campos, 2018.}
+
+\bibitem[Vieira 2013]{marcio2013}
+\abntrefinfo{Vieira}{VIEIRA}{2013}
+{VIEIRA, M.~S.
+\textbf{Controle Preditivo de sistemas com atuadores sujeitos a restroções
+  temporais de chaveamento}.
+2013. 119~f. Dissertação (Mestrado em Sistemas de Controle) --- Instituto
+  Tecnológico de Aeronáutica, São José dos Campos, 2013.}
+
 \end{thebibliography}

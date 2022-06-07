@@ -1174,6 +1174,10 @@ INPUT Cap1/cap1.tex
 INPUT ./Cap1/cap1.tex
 INPUT ./Cap1/cap1.tex
 INPUT Cap1/cap1.tex
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/ae/aeti12.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/vf/public/ae/aeti12.vf
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmti12.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/cm/cmsl12.tfm
 INPUT ./Cap2/cap2.tex
 INPUT ./Cap2/cap2.tex
 INPUT ./Cap2/cap2.tex
@@ -1256,6 +1260,11 @@ INPUT Cap4/cap4.tex
 INPUT ./Cap4/cap4.tex
 INPUT ./Cap4/cap4.tex
 INPUT Cap4/cap4.tex
+INPUT ./Cap4/cronograma.pdf
+INPUT ./Cap4/cronograma.pdf
+INPUT Cap4/cronograma.pdf
+INPUT ./Cap4/cronograma.pdf
+INPUT ./Cap4/cronograma.pdf
 INPUT ./tese.bbl
 INPUT tese.bbl
 INPUT ./tese.bbl
@@ -1340,6 +1349,7 @@ INPUT c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi12.pfb
 INPUT c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb
 INPUT c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb
 INPUT c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb
+INPUT c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb
 INPUT c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb
 INPUT c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/latxfont/line10.pfb
 INPUT c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb

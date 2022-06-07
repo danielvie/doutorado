@@ -2,39 +2,47 @@
 
 * [tese.pdf](LATEX_tese/tese.pdf)
 
-## 17/15/22
-
-	[ ] como colocar negrito apenas em uma \mathbf 
-		tentar usar:: \boldsymbol
-		pacote `bm`
-
-	[ ] perguntar sobre cronograma
-
-		[ ] quais sao as etapas agora e prazos?
-			- extensao (generalizacao) de caso tempo final livre na otimizacao
-				1 semestre
-			- elaboracao de um artigo com resultados ateh o momento
-				.5 semestre (elaboracao e submissao)
-			- aplicacao que envolvesse numero maior de estados de chaveamento 
-				// talvez um novo circuito 
-				1 semestre
-			- ?? experimental nao precisa prometer
-
-			- elaboracao da tese final (defesa)
-				1 semestre
-
-			tabela com colunas em semestre
-
-		[ ] como funciona o processo de qualificacao?
-
-			[ ] o que eu tenho que mostrar nesse texto? 
-				- apresentar o problema e relevancia, 
-				- trabalhos previos, 
-				- formulacao matematica
+## 07/06/22
 
 
+* Escrever `Motivation`, `Contributions of the present work` e `Outline of the remaining chapters`
 
-	[ ] terminar prediction equation
+	* [ok] Introduzir sistemas chaveados afins e dificultade de um sistema chaveado afim de conduzir a trajetoria para um ponto
+
+	* Referencias do problema na literatura
+
+
+## 17/05/22
+
+* [ok] como colocar negrito apenas em uma \mathbf 
+	tentar usar:: \boldsymbol
+	pacote `bm`
+
+* [ok] perguntar sobre cronograma
+
+	* [ok] quais sao as etapas agora e prazos?
+		- extensao (generalizacao) de caso tempo final livre na otimizacao
+			1 semestre
+		- elaboracao de um artigo com resultados ateh o momento
+			.5 semestre (elaboracao e submissao)
+		- aplicacao que envolvesse numero maior de estados de chaveamento 
+			// talvez um novo circuito 
+			1 semestre
+		- ?? experimental nao precisa prometer
+
+		- elaboracao da tese final (defesa)
+			1 semestre
+
+		tabela com colunas em semestre
+
+	* [ok] como funciona o processo de qualificacao?
+
+		* o que eu tenho que mostrar nesse texto? 
+			- apresentar o problema e relevancia, 
+			- trabalhos previos, 
+			- formulacao matematica
+
+* terminar prediction equation
 
 ## 14/04/22
 
@@ -357,3 +365,8 @@ export_fig -transparent -painters nome.pdf
 ### Multi-Parametric Toolbox 3
 
 https://www.mpt3.org/
+
+
+## INSTALL TEXLIVE PACKAGES
+
+	>> tlmgr install natbib
