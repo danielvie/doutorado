@@ -4,6 +4,46 @@
 
 ## 07/06/22
 
+[ ] matriz A1x + B1*u1
+
+	mudar B1*u1 -> b_{\sigma(t)}
+
+	b_1 = Bu_1
+
+[ ] referencias na literatura
+
+	google scholar :: switched affine systems
+
+	campos de aplicacao (tempo continuo)
+
+	3 é um numero bom
+
+
+[ ] reacoes bioquimicas
+
+
+[ ] Por que eh importante estudar esse assunto? nao somos os unicos etudando isso, outros estudam em varias areas?
+
+
+[ ] O que falar sobre o patino?
+
+	definiu uma trajetoria alvo usando programacao nao linear, usou esse alvo no custo de controle preditivo em termos de um erro.
+
+
+[ ] Matheus chega em um problema de otimizacao que eh convexo
+
+
+[ ] Matheus estava trabalhando ocm caso particular do modelo afim em que a matriz A eh constante
+
+	A constante
+	b_{\sigma(t)} = Bu_{\sigma(t)}
+
+
+[ ] Passar linearizacao para antes do controle preditivo
+
+
+[ ] pode haver repeticao das matrizes
+
 
 * Escrever `Motivation`, `Contributions of the present work` e `Outline of the remaining chapters`
 
