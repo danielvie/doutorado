@@ -2,6 +2,14 @@
 
 * [tese.pdf](LATEX_tese/tese.pdf)
 
+## 23/06/22
+
+- [x] Qual um bom programa pra fazer anotacoes? Voce conhece algum?
+
+- [x] Falar sobre as citacoes: 
+	tenho: biochemical reactions, urban traffic e power converters
+
+
 ## 07/06/22
 
 [ ] matriz A1x + B1*u1
@@ -33,7 +41,7 @@
 [ ] Matheus chega em um problema de otimizacao que eh convexo
 
 
-[ ] Matheus estava trabalhando ocm caso particular do modelo afim em que a matriz A eh constante
+[ ] Matheus estava trabalhando com o caso particular do modelo afim em que a matriz A eh constante
 
 	A constante
 	b_{\sigma(t)} = Bu_{\sigma(t)}

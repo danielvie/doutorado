@@ -1,48 +1,51 @@
 \section{Motivation}
 
 
-    Switched affine systems, $\dot{x}(t) = A_{\sigma(t)} x(t) + B_{\sigma(t)}$, can descrive several problems in modern engineering over many different areas. Most of the proposed controllers solve this by driving the system states to a region close to the target state and, for a affine switched system, this means that the system will find stability in a periodic trajectory near the target but never reaching the exactly desired states.
-    Very often, the form of this periodic trajectory relates to the performance of the system, but this is something that is not addressed with the simpler approaches of controllers.
+    Switched affine systems, $\dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}$, can descrive several problems in modern engineering 
+    over many different areas. Most of the proposed controllers solve this by driving the system states to a region close to the 
+    target state and, for a affine switched system, this means that the system will find stability in a periodic trajectory near 
+    the target but never reaching the exactly desired states.
+    Very often, the form of this periodic trajectory relates to the performance of the system, but this is something that is not 
+    addressed with the simpler approaches of controllers.
 
     % ok \red{introduzir sistemas chaveados afins e dificuldade de um sistema chaveado afim de conduzir a trajetoria para um ponto}
 
-    \red{referencias do problema na literatura}
+    The use of switched affine systems to solve problems in engineering can be seeing in fields like: biochemical reactions, where 
+    \citeonline{reference_biochemical_reaction} uses switched affine systems to represent the moments of evolution in a generic biochemical 
+    reaction network; urban traffic, where \citeonline{reference_urban_traffic_control} approaches the urban traffic control; power converters, 
+    where \citeonline{benmiloud2018} also uses this approach and other areas where the behavior of the system can be described as a switched 
+    affine system.
 
-    Some research studies investigated the solution of the problem addressing the target cyclic trajectory \cite{benmiloud2018}. 
-    In this work, the author proproses a control design that transitates between successive dicrete modes inside the limit cycle.
+    There are some studies that forms the basis for the present work: 
+
+    \citeonline{marcio2013} solved the problem for a particular class of affine systems. Here the controller drived the system to a 
+    target state using MILP (Mixed-Integer Linear Programming) and the cyclic trajectory was a consequence of the states as the system 
+    approached the target.
+
+    \citeonline{patino2010predictive} defined the target trajectory using non linear programming and used this target trajectory in the predictive 
+    control in terms of errors.
+
+    \citeonline{matheus2018} proposed a solution with a controller law that drives the system to a target cyclic trajectory. 
+    In this work, the problem is addressed in two stages: first, the problem is interpreted as a convex otimization where the author is able to 
+    find a targed cyclic trajectory that minimizes a cost function associated with the system performance; then a second part that uses the 
+    target trajectory as input and applies pertubation on the instants of switching of the control signal using predictive control. 
     
-    \cite{marcio2013} solved the problem for a particular class of affine systems. Here the controller drived the system to a target state using MILP (Mixed-Integer Linear Programming) and the cyclic trajectory was a consequence of the states as the system approached the target.
-
-    $\dot{x}(t) = A_c x(t) + B_c u(t)$
-
-    \red{patino, entre marcio e mateus. Falar sobre o trabalho do patino aqui}
-
-    \cite[]{matheus2018} proposed a solution with a controller law that drives the system to a target cyclic trajectory. 
-    In this work, the problem was divided in two parts: first there is a stage that uses otimization to find a targed ideal cyclic trajectory, 
-    then a second part that uses that target trajectory as input and applies pertubation on the instants of switching of the control signal using predictive control. 
-    
-    % \red{[Mateus]} explorou o problema de estabilizar o sistema em uma trajetória cíclica. Isso foi feito em duas etapas: uma primeira que calcula a trajetória cíclica com 
-    % o uso de otimização, o resultado da otimização é um par de trajetória dos estados e o comando de controle associado para manter essa trajetória em 
-    % uma condição nominal; e uma segunda etapa que usa controle preditivo para inserir perturbações nos instantes de chaveamento do sinal de controle nominal, de modo
-    % que o sistema seja levado para a trajtória cíclica. Uma grande contribuição desse trabalho foi elaborar um equacionamento linearizado para trabalhar a relação
-    % não linear entre os instantes de chaveamento e o estado resultante do sistema ao final de um ciclo.
-
-
-%   \red{\framebox(10cm, 3cm){\red{testando texto aqui com mais coisa dentro dele}}}
-%     depois de framebox: 
-%     ===================
-%     "A switched system consists of a family of continuous-time subsystems and a rule that orchestrates the switching among them [2]. 
-%      The stabilizing switching law design for such a class of systems represents a challenging issue notably in the case where the trajectory 
-%      of the system has to be driven to the desired point, which does not belong to the set of subsystem equilibria. In this case, 
-%      the switching law compels the system trajectory to converge to a neighborhood of the desired state and remains there."
-
 \section{Contributions of the present work}
 
-    This present work proposes to expand the solution from \cite{matheus2018} and provide a broader solution that can be used for systems 
+    This present work proposes to expand the solution from \citeonline{}{matheus2018} and provide a broader solution that can be used for systems 
     that have their dynamics changing over time.
 
-    Examples of this kind of system is: switched circuits that behaves with a different dynamics after each switching atuation. 
+    In a system that can be represented by a switched affine system with the form 
+
+    $ \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)} $
+
+    there are cases in which dynamic response of the system can changedepending on the operation mode. This can be represented in 
+    switched affine systems with proper matrices $A_{\sigma(t)}$ and $b_{\sigma(t)}$ for each operation mode. With the current implementation
+    of \citeonline{matheus2018} considering a invariant system during its operation, there is a need for expanding the solution so it can represent
+    more systems and solve more engineering problems that can be expressed as switched affine systems.
 
 \section{Outline of the remaining chapters}
     
-    The remaining of this text is organized as follows. Chapter 2 describes the problem of finding a target periodic trajectory for the given switched affine system. Chapter 3 proposes then a predictive control law that drives the system to the target cyclic trajectory. Finally, chapter 4 brings some remarks and considerations of the work.
+    The remaining of this text is organized as follows. Chapter 2 describes the problem of finding a target periodic trajectory for the 
+    given switched affine system. Chapter 3 proposes then a predictive control law that drives the system to the target cyclic trajectory. 
+    Finally, chapter 4 brings some remarks and considerations of the work.
