@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.5.6)  30 JUN 2022 20:25
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.5.6)  7 JUL 2022 19:47
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -807,47 +807,47 @@ pdftex: bookmark at 254: {1} {\numberline{1}Introduction} {chapter.1}{0}{toc}
 Package hyperref Info: Anchor `section.1.1' on input line 1.
 
 pdftex: bookmark at 1: {1.1} {\numberline{1.1}Motivation} {section.1.1}{1}{toc}
-Package hyperref Info: Reference (cite) `cite.reference_biochemical_reaction' on input line 14.
-Package hyperref Info: Reference (cite) `cite.reference_biochemical_reaction' on input line 14.
-Package hyperref Info: Reference (cite) `cite.reference_urban_traffic_control' on input line 15.
-Package hyperref Info: Reference (cite) `cite.reference_urban_traffic_control' on input line 15.
-Package hyperref Info: Reference (cite) `cite.benmiloud2018' on input line 16.
-Package hyperref Info: Reference (cite) `cite.benmiloud2018' on input line 16.
-Package hyperref Info: Reference (cite) `cite.marcio2013' on input line 21.
-Package hyperref Info: Reference (cite) `cite.marcio2013' on input line 21.
-Package hyperref Info: Reference (cite) `cite.patino2010predictive' on input line 25.
-Package hyperref Info: Reference (cite) `cite.patino2010predictive' on input line 25.
-Package hyperref Info: Reference (cite) `cite.matheus2018' on input line 28.
-Package hyperref Info: Reference (cite) `cite.matheus2018' on input line 28.
-Package hyperref Info: Anchor `section.1.2' on input line 33.
-pdftex: bookmark at 33: {1.2} {\numberline{1.2}Contributions of the present work} {section.1.2}{1}{toc}
-Package hyperref Info: Anchor `page.15' on input line 37.
+Package hyperref Info: Reference (cite) `cite.reference_biochemical_reaction' on input line 20.
+Package hyperref Info: Reference (cite) `cite.reference_biochemical_reaction' on input line 20.
+Package hyperref Info: Reference (cite) `cite.reference_urban_traffic_control' on input line 21.
+Package hyperref Info: Reference (cite) `cite.reference_urban_traffic_control' on input line 21.
+Package hyperref Info: Reference (cite) `cite.benmiloud2018' on input line 22.
+Package hyperref Info: Reference (cite) `cite.benmiloud2018' on input line 22.
+Package hyperref Info: Reference (cite) `cite.marcio2013' on input line 27.
+Package hyperref Info: Reference (cite) `cite.marcio2013' on input line 27.
+Package hyperref Info: Reference (cite) `cite.patino2010predictive' on input line 31.
+Package hyperref Info: Reference (cite) `cite.patino2010predictive' on input line 31.
+Package hyperref Info: Reference (cite) `cite.matheus2018' on input line 34.
+Package hyperref Info: Reference (cite) `cite.matheus2018' on input line 34.
+Package hyperref Info: Anchor `page.15' on input line 38.
 [15
 
 
-Package `hyperref' Info: End of reference (cite) `cite.reference_biochemical_reaction', line 14.
-Package `hyperref' Info: End of reference (cite) `cite.reference_biochemical_reaction', line 14.
-Package `hyperref' Info: End of reference (cite) `cite.reference_urban_traffic_control', line 15.
-Package `hyperref' Info: End of reference (cite) `cite.reference_urban_traffic_control', line 15.
-Package `hyperref' Info: End of reference (cite) `cite.benmiloud2018', line 16.
-Package `hyperref' Info: End of reference (cite) `cite.benmiloud2018', line 16.
-Package `hyperref' Info: End of reference (cite) `cite.marcio2013', line 21.
-Package `hyperref' Info: End of reference (cite) `cite.marcio2013', line 21.
-Package `hyperref' Info: End of reference (cite) `cite.patino2010predictive', line 25.
-Package `hyperref' Info: End of reference (cite) `cite.patino2010predictive', line 25.
-Package `hyperref' Info: End of reference (cite) `cite.matheus2018', line 28.
-Package `hyperref' Info: End of reference (cite) `cite.matheus2018', line 28.
+Package `hyperref' Info: End of reference (cite) `cite.reference_biochemical_reaction', line 20.
+Package `hyperref' Info: End of reference (cite) `cite.reference_biochemical_reaction', line 20.
+Package `hyperref' Info: End of reference (cite) `cite.reference_urban_traffic_control', line 21.
+Package `hyperref' Info: End of reference (cite) `cite.reference_urban_traffic_control', line 21.
+Package `hyperref' Info: End of reference (cite) `cite.benmiloud2018', line 22.
+Package `hyperref' Info: End of reference (cite) `cite.benmiloud2018', line 22.
+Package `hyperref' Info: End of reference (cite) `cite.marcio2013', line 27.
+Package `hyperref' Info: End of reference (cite) `cite.marcio2013', line 27.
+Package `hyperref' Info: End of reference (cite) `cite.patino2010predictive', line 31.
+Package `hyperref' Info: End of reference (cite) `cite.patino2010predictive', line 31.
+Package `hyperref' Info: End of reference (cite) `cite.matheus2018', line 34.
+Package `hyperref' Info: End of reference (cite) `cite.matheus2018', line 34.
 ]
-Package hyperref Info: Reference (cite) `cite.matheus2018' on input line 44.
-Package hyperref Info: Reference (cite) `cite.matheus2018' on input line 44.
-Package hyperref Info: Anchor `section.1.3' on input line 47.
+Package hyperref Info: Anchor `section.1.2' on input line 39.
 
-pdftex: bookmark at 47: {1.3} {\numberline{1.3}Outline of the remaining chapters} {section.1.3}{1}{toc}
+pdftex: bookmark at 39: {1.2} {\numberline{1.2}Contributions of the present work} {section.1.2}{1}{toc}
+Package hyperref Info: Reference (cite) `cite.matheus2018' on input line 50.
+Package hyperref Info: Reference (cite) `cite.matheus2018' on input line 50.
+Package hyperref Info: Anchor `section.1.3' on input line 53.
+pdftex: bookmark at 53: {1.3} {\numberline{1.3}Outline of the remaining chapters} {section.1.3}{1}{toc}
 )
 Package hyperref Info: Anchor `page.16' on input line 257.
  [16
-Package `hyperref' Info: End of reference (cite) `cite.matheus2018', line 44.
-Package `hyperref' Info: End of reference (cite) `cite.matheus2018', line 44.
+Package `hyperref' Info: End of reference (cite) `cite.matheus2018', line 50.
+Package `hyperref' Info: End of reference (cite) `cite.matheus2018', line 50.
 ]
 Package hyperref Info: Anchor `chapter.2' on input line 257.
 
@@ -1028,7 +1028,7 @@ Package epstopdf Info: Source file: <Cap2/.fig/linearizacao_1.eps>
 (epstopdf)             Command: <repstopdf --outfile=Cap2/.fig/linearizacao_1-eps-converted-to.pdf Cap2/.fig/linearizacao_1.eps>
 (epstopdf)             \includegraphics on input line 142.
 Package epstopdf Info: Output file is already uptodate.
-<Cap2/.fig/linearizacao_1-eps-converted-to.pdf, id=386, 435.6275pt x 171.64125pt>
+<Cap2/.fig/linearizacao_1-eps-converted-to.pdf, id=387, 435.6275pt x 171.64125pt>
 File: Cap2/.fig/linearizacao_1-eps-converted-to.pdf Graphic file (type pdf)
 <use Cap2/.fig/linearizacao_1-eps-converted-to.pdf>
 Package pdftex.def Info: Cap2/.fig/linearizacao_1-eps-converted-to.pdf  used on input line 142.
@@ -1454,7 +1454,7 @@ Package hyperref Info: Anchor `chapter.4' on input line 263.
 Chapter 4.
 pdftex: bookmark at 263: {4} {\numberline{4}Conclus\~ao} {chapter.4}{0}{toc}
 (./Cap4/cap4.tex
-<Cap4/cronograma.pdf, id=526, 133.2177pt x 40.7121pt>
+<Cap4/cronograma.pdf, id=527, 133.2177pt x 40.7121pt>
 File: Cap4/cronograma.pdf Graphic file (type pdf)
 <use Cap4/cronograma.pdf>
 Package pdftex.def Info: Cap4/cronograma.pdf  used on input line 9.
@@ -1550,16 +1550,16 @@ Package rerunfilecheck Info: File `tese.brf' has not changed.
 Here is how much of TeX's memory you used:
  15389 strings out of 480260
  246657 string characters out of 5894735
- 569157 words of memory out of 5000000
+ 568157 words of memory out of 5000000
  32700 multiletter control sequences out of 15000+600000
  529647 words of font info for 144 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  102i,25n,105p,673b,572s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <c:/Users/Daniel/.texlive2022/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm0800.600pk> <c:/Users/Daniel/.texlive2022/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1200.600pk><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmb10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmbsy8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx6.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib6.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/latxfont/line10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
-Output written on tese.pdf (40 pages, 380285 bytes).
+ <c:/Users/Daniel/.texlive2022/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm0800.600pk> <c:/Users/Daniel/.texlive2022/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1200.600pk><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmb10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmbsy8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx6.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib6.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/latxfont/line10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on tese.pdf (40 pages, 384689 bytes).
 PDF statistics:
- 721 PDF objects out of 1000 (max. 8388607)
- 610 compressed objects within 7 object streams
+ 726 PDF objects out of 1000 (max. 8388607)
+ 613 compressed objects within 7 object streams
  178 named destinations out of 1000 (max. 500000)
  371 words of extra memory for PDF output out of 10000 (max. 10000000)
 

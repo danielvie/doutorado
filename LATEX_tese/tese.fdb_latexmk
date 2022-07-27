@@ -1,13 +1,13 @@
 # Fdb version 3
-["bibtex tese"] 1656613078 "tese.aux" "tese.bbl" "tese" 1656613531
+["bibtex tese"] 1657215958 "tese.aux" "tese.bbl" "tese" 1657216039
   "./abnt-alf.bst" 1099412264 60101 003f65fc9adebf0a393717a2d6a19106 ""
   "Referencias/referencias.bib" 1656008267 2271 695dbdbea6e4b0735bcbe00531e71476 ""
   "abnt-options.bib" 1058892088 5396 4eb260dac60f150ae608d45252853090 ""
-  "tese.aux" 1656613530 8493 08d89c5eeabacce35629769f8fb5cf60 "pdflatex"
+  "tese.aux" 1657216038 8493 08d89c5eeabacce35629769f8fb5cf60 "pdflatex"
   (generated)
   "tese.bbl"
   "tese.blg"
-["pdflatex"] 1656613527 "c:/Users/Daniel/Documents/DOUTORADO/LATEX_tese/tese.tex" "tese.pdf" "tese" 1656613531
+["pdflatex"] 1657216037 "c:/Users/Daniel/Documents/DOUTORADO/LATEX_tese/tese.tex" "tese.pdf" "tese" 1657216039
   "AneA/anexoA.tex" 1139335620 158 6ad4a8970f6eea023a1bcd7f71e0e17e ""
   "ApeA/apendiceA.tex" 1638886646 594 ae3aebb831f043616a6f60ae713c9b8d ""
   "Cap0/abstract.tex" 1639607762 818 b81198dfaf4054e39a3fa8d94d3ede4e ""
@@ -15,7 +15,7 @@
   "Cap0/listaabreviaturas.tex" 1420774324 458 f6dd874aece4f4cd40ece118ffd516b5 ""
   "Cap0/listasimbolos.tex" 1428545230 308 3746b0dc2a4d7b12d0bd7e87994727c3 ""
   "Cap0/resumo.tex" 1639607762 786 aeee9874fef967b8b39485541a6f133c ""
-  "Cap1/cap1.tex" 1656613094 3838 7b7fcaf9b23628f2d031657257f8d4a5 ""
+  "Cap1/cap1.tex" 1657216036 4239 d21ec6ea4ea0c3469dd820a9d9775742 ""
   "Cap2/.fig/linearizacao_1.eps" 1638886042 18187 409fc4f6f84707dce4eb17d3511624ac ""
   "Cap2/cap2.tex" 1649805922 2852 a84061f3ffac5593024c36305f6d43f1 ""
   "Cap2/cap2_otim_get_x0.tex" 1639345134 1723 1f18b6669d8651629d0b145419b9fe09 ""
@@ -120,6 +120,7 @@
   "c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb" 1651866530 35479 2cca68718f15872e7cce1a8f6033b99b ""
   "c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/latxfont/line10.pfb" 1651866530 11493 4f5ed183a47d3197cf8cd322325db6de ""
   "c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb" 1651866530 31764 459c573c03a4949a528c2cc7f557e217 ""
+  "c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb" 1651866530 34694 870c211f62cb72718a00e353f14f254d ""
   "c:/texlive/2022/texmf-dist/fonts/vf/public/ae/aeb10.vf" 1651866526 3204 33087d8d1b5ca03fcc323578bd8c2ab9 ""
   "c:/texlive/2022/texmf-dist/fonts/vf/public/ae/aecsc10.vf" 1651866526 3368 9fa78448ed544539264bbe54f1d59266 ""
   "c:/texlive/2022/texmf-dist/fonts/vf/public/ae/aer10.vf" 1651866526 3160 99d961359fad2b22331b477acf927f3b ""
@@ -230,14 +231,14 @@
   "makeglo.sty" 1159742256 3307 a9cbaa9a6aa9e4313d3f8790ad4cadf3 ""
   "nbr10520-2002.def" 1099412720 748 b3a64e6861d8e6f4d5a027668b61b6da ""
   "nbr10522-1988.def" 1066038134 2033 2640f31db66d54c88372a64ed1ddf7cb ""
-  "tese.aux" 1656613530 8493 08d89c5eeabacce35629769f8fb5cf60 "pdflatex"
-  "tese.bbl" 1656613078 2426 986b706551ddc8d71881c6ca14c026c5 "bibtex tese"
+  "tese.aux" 1657216038 8493 08d89c5eeabacce35629769f8fb5cf60 "pdflatex"
+  "tese.bbl" 1657215958 2426 986b706551ddc8d71881c6ca14c026c5 "bibtex tese"
   "tese.brf" 0 -1 0 "pdflatex"
-  "tese.lof" 1656613530 261 aa5ac7b882f2d17a8edc78194e122a2b "pdflatex"
-  "tese.lot" 1656613530 150 7460b00ca4c2d98f724b7acc062e00fd "pdflatex"
-  "tese.out" 1656613530 7546 99e71053f827fd3c5615fdf6a77f6d17 "pdflatex"
+  "tese.lof" 1657216038 261 aa5ac7b882f2d17a8edc78194e122a2b "pdflatex"
+  "tese.lot" 1657216038 150 7460b00ca4c2d98f724b7acc062e00fd "pdflatex"
+  "tese.out" 1657216038 7546 99e71053f827fd3c5615fdf6a77f6d17 "pdflatex"
   "tese.tex" 1656612978 10372 7434bc4893e6aad8dd3c743a0aa1b4a9 ""
-  "tese.toc" 1656613530 2670 23836a1d4fb052ab1fca1ccd1f688147 "pdflatex"
+  "tese.toc" 1657216038 2670 23836a1d4fb052ab1fca1ccd1f688147 "pdflatex"
   (generated)
   "tese.aux"
   "tese.brf"
