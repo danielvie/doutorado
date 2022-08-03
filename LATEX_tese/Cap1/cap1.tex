@@ -1,12 +1,29 @@
 \section{Motivation}
 
+    \red{
+        The dynamics of switched affine systems can be described by a state equation of the form 
+        $\dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}, t \in \mathbb{R}_+$. Where $x(t) \in \mathbb{R}^n$ is the state vector and $\sigma(t) \in \{1, 2, ..., N\}$ is the switching state, 
+        which is associated to the matrix $A_{\sigma(t)} \in \mathbb{R}^{n \times n}$ and the 
+        vector $b_{\sigma(t)} \in \mathbb{R}^{n}$ at each time $t$.
+    }
 
-    Switched affine systems, $\dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}$, can descrive several problems in modern engineering 
-    over many different areas. Most of the proposed controllers solve this by driving the system states to a region close to the 
-    target state and, for a affine switched system, this means that the system will find stability in a periodic trajectory near 
-    the target but never reaching the exactly desired states.
-    Very often, the form of this periodic trajectory relates to the performance of the system, but this is something that is not 
-    addressed with the simpler approaches of controllers.
+    \purple{ 
+        Some work have been done in controlling a system that can be expressed as a switched affine system. In \citeonline{zhu2020} the author proposes 
+        controlling the switching time of the system submited to minimal dwell-time restriction between two consecutive switchings and apply his 
+        work in a pneumatic artificial muscle system to satisfy the high-performacne requirements in a highly nonlinear nature system.
+
+        \citeonline{sanchez2019} also investigates the problem of a switched affine system submited to dwell-time constraint, in this work he uses
+        two different solutions using hybrid lyapunov theory control law and proposes two provied tuning knobs to separately adjust the swithing 
+        frequency during transients and at the steady state in a silulated boost converter.
+
+        \citeonline{{xu2022}} proposes a $H\infty$ control of limit cycle to increase the performance of the system by 
+        controlling the trajetory to a desired limit cycle instead of a small neighborhood. He demonstrates the results in a numerical example
+        and also in a practical example using a boost converter.
+    }
+
+    Most of the proposed controllers solve this type of problem by driving the system states to the neighborhood of the 
+    target states and, in continuous=time switched affine systems, this means that the system will find stability in a periodic trajectory near 
+    the target but, without further consideration of this resulting periodic trajetory, we can experience performance degradation in the system.
 
     The dynamics of switched affine systems can be described by a state equation of the form $t \in \mathbb{R}_+$
     where x(t) $\in \mathbb{R}^n$ is the state vector and $\sigma(t)$ $\in$ $\{1, 2, ..., N\}$ is the switching state, 

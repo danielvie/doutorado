@@ -1,20 +1,20 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.5.6)  7 JUL 2022 19:47
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.7.27)  4 AUG 2022 00:25
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**c:/Users/Daniel/Documents/DOUTORADO/LATEX_tese/tese.tex
-(c:/Users/Daniel/Documents/DOUTORADO/LATEX_tese/tese.tex
+**/Users/danielvieira/Documents/Doutorado/LATEX_tese/tese.tex
+(/Users/danielvieira/Documents/Doutorado/LATEX_tese/tese.tex
 LaTeX2e <2021-11-15> patch level 1
-L3 programming layer <2022-05-04> (./ita.cls
+L3 programming layer <2022-02-24> (./ita.cls
 Document Class: ita 2006/03/10 v2.0 Classe de documento com padr\GenericError {               }{LaTeX Error: Invalid UTF-8 byte "F5}{See the LaTeX manual or LaTeX Companion for explanation.}{The document does not appear to be in UTF-8 encoding.\MessageBreak Try adding \UseRawInputEncoding as the first line of the file\MessageBreak or specify an encoding such as \usepackage [latin1]{inputenc}\MessageBreak in the document preamble.\MessageBreak Alternatively, save the file in UTF-8 using your editor or another tool}es do ITA
-(c:/texlive/2022/texmf-dist/tex/generic/iftex/ifpdf.sty
+(/usr/local/texlive/2022/texmf-dist/tex/generic/iftex/ifpdf.sty
 Package: ifpdf 2019/10/25 v3.4 ifpdf legacy package. Use iftex instead.
- (c:/texlive/2022/texmf-dist/tex/generic/iftex/iftex.sty
+ (/usr/local/texlive/2022/texmf-dist/tex/generic/iftex/iftex.sty
 Package: iftex 2022/02/03 v1.0f TeX engine tests
-)) (./defaults.def) (./dsc.def) (c:/texlive/2022/texmf-dist/tex/latex/base/book.cls
+)) (./defaults.def) (./dsc.def) (/usr/local/texlive/2022/texmf-dist/tex/latex/base/book.cls
 Document Class: book 2021/10/04 v1.4n Standard LaTeX document class
-(c:/texlive/2022/texmf-dist/tex/latex/base/bk12.clo
+(/usr/local/texlive/2022/texmf-dist/tex/latex/base/bk12.clo
 File: bk12.clo 2021/10/04 v1.4n Standard LaTeX file (size option)
 )
 \c@part=\count185
@@ -29,7 +29,7 @@ File: bk12.clo 2021/10/04 v1.4n Standard LaTeX file (size option)
 \abovecaptionskip=\skip47
 \belowcaptionskip=\skip48
 \bibindent=\dimen138
-) (c:/texlive/2022/texmf-dist/tex/latex/tools/calc.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/tools/calc.sty
 Package: calc 2017/05/25 v4.3 Infix arithmetic (KKT,FJ)
 \calc@Acount=\count194
 \calc@Bcount=\count195
@@ -41,37 +41,33 @@ LaTeX Info: Redefining \setlength on input line 80.
 LaTeX Info: Redefining \addtolength on input line 81.
 \calc@Ccount=\count196
 \calc@Cskip=\skip51
-) (c:/texlive/2022/texmf-dist/tex/latex/base/ifthen.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/base/ifthen.sty
 Package: ifthen 2020/11/24 v1.1c Standard LaTeX ifthen package (DPC)
-) (c:/texlive/2022/texmf-dist/tex/generic/babel/babel.sty
-Package: babel 2022/04/30 3.74 The Babel package
+) (/usr/local/texlive/2022/texmf-dist/tex/generic/babel/babel.sty
+Package: babel 2022/02/26 3.73 The Babel package
 \babel@savecnt=\count197
 \U@D=\dimen141
-\l@unhyphenated=\language3
- (c:/texlive/2022/texmf-dist/tex/generic/babel/txtbabel.def)
+\l@unhyphenated=\language87
+ (/usr/local/texlive/2022/texmf-dist/tex/generic/babel/txtbabel.def)
 \bbl@readstream=\read2
 \bbl@dirlevel=\count198
- (c:/texlive/2022/texmf-dist/tex/generic/babel-english/english.ldf
+ (/usr/local/texlive/2022/texmf-dist/tex/generic/babel-english/english.ldf
 Language: english 2017/06/06 v3.3r English support from the babel system
-Package babel Info: Hyphen rules for 'british' set to \l@english
-(babel)             (\language0). Reported on input line 82.
-Package babel Info: Hyphen rules for 'UKenglish' set to \l@english
-(babel)             (\language0). Reported on input line 83.
 Package babel Info: Hyphen rules for 'canadian' set to \l@english
 (babel)             (\language0). Reported on input line 102.
-Package babel Info: Hyphen rules for 'australian' set to \l@english
-(babel)             (\language0). Reported on input line 105.
-Package babel Info: Hyphen rules for 'newzealand' set to \l@english
-(babel)             (\language0). Reported on input line 108.
-)) (./itaeng.babel) (c:/texlive/2022/texmf-dist/tex/latex/base/inputenc.sty
+Package babel Info: Hyphen rules for 'australian' set to \l@ukenglish
+(babel)             (\language21). Reported on input line 105.
+Package babel Info: Hyphen rules for 'newzealand' set to \l@ukenglish
+(babel)             (\language21). Reported on input line 108.
+)) (./itaeng.babel) (/usr/local/texlive/2022/texmf-dist/tex/latex/base/inputenc.sty
 Package: inputenc 2021/02/14 v1.3d Input encoding file
 \inpenc@prehook=\toks16
 \inpenc@posthook=\toks17
- (c:/texlive/2022/texmf-dist/tex/latex/base/latin1.def
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/base/latin1.def
 File: latin1.def 2021/02/14 v1.3d Input encoding file
-)) (c:/texlive/2022/texmf-dist/tex/latex/setspace/setspace.sty
+)) (/usr/local/texlive/2022/texmf-dist/tex/latex/setspace/setspace.sty
 Package: setspace 2011/12/19 v6.7a set line spacing
-) (c:/texlive/2022/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
 Package: fancyhdr 2021/01/28 v4.0.1 Extensive control of page headers and footers
 \f@nch@headwidth=\skip52
 \f@nch@O@elh=\skip53
@@ -82,7 +78,7 @@ Package: fancyhdr 2021/01/28 v4.0.1 Extensive control of page headers and footer
 \f@nch@O@erf=\skip58
 \f@nch@O@olf=\skip59
 \f@nch@O@orf=\skip60
-) (c:/texlive/2022/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/amsfonts/amsfonts.sty
 Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
 \@emptytoks=\toks18
 \symAMSa=\mathgroup4
@@ -90,15 +86,15 @@ Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
 LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
 LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 (Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
-) (c:/texlive/2022/texmf-dist/tex/latex/lastpage/lastpage.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/lastpage/lastpage.sty
 Package: lastpage 2021/09/03 v1.2n Refers to last page's name (HMM; JPG)
-) (c:/texlive/2022/texmf-dist/tex/latex/tools/indentfirst.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/tools/indentfirst.sty
 Package: indentfirst 1995/11/23 v1.03 Indent first paragraph (DPC)
-) (c:/texlive/2022/texmf-dist/tex/latex/caption/caption.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/caption/caption.sty
 Package: caption 2022/03/01 v3.6b Customizing captions (AR)
- (c:/texlive/2022/texmf-dist/tex/latex/caption/caption3.sty
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/caption/caption3.sty
 Package: caption3 2022/03/17 v2.3b caption3 kernel (AR)
- (c:/texlive/2022/texmf-dist/tex/latex/graphics/keyval.sty
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/graphics/keyval.sty
 Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
 \KV@toks@=\toks19
 )
@@ -114,7 +110,7 @@ Package caption Info: Standard document class detected.
 )
 \c@caption@flags=\count199
 \c@continuedfloat=\count266
-) (c:/texlive/2022/texmf-dist/tex/latex/tools/longtable.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/tools/longtable.sty
 Package: longtable 2021-09-01 v4.17 Multi-page Table package (DPC)
 \LTleft=\skip61
 \LTright=\skip62
@@ -132,7 +128,7 @@ Package: longtable 2021-09-01 v4.17 Multi-page Table package (DPC)
 \c@LT@tables=\count270
 \c@LT@chunks=\count271
 \LT@p@ftn=\toks20
-) (c:/texlive/2022/texmf-dist/tex/latex/tools/array.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/tools/array.sty
 Package: array 2021/10/04 v2.5f Tabular extension package (FMi)
 \col@sep=\dimen151
 \ar@mcellbox=\box55
@@ -141,7 +137,7 @@ Package: array 2021/10/04 v2.5f Tabular extension package (FMi)
 \extratabsurround=\skip65
 \backup@length=\skip66
 \ar@cellbox=\box56
-) (c:/texlive/2022/texmf-dist/tex/latex/tools/tabularx.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/tools/tabularx.sty
 Package: tabularx 2020/01/15 v2.11c `tabularx' package (DPC)
 \TX@col@width=\dimen153
 \TX@old@table=\dimen154
@@ -153,61 +149,61 @@ Package: tabularx 2020/01/15 v2.11c `tabularx' package (DPC)
 ) (./makeglo.sty
 Package: makeglo 
 \glossentrylen=\skip67
-) (c:/texlive/2022/texmf-dist/tex/latex/graphics/color.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/graphics/color.sty
 Package: color 2021/12/07 v1.3c Standard LaTeX Color (DPC)
- (c:/texlive/2022/texmf-dist/tex/latex/graphics-cfg/color.cfg
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/graphics-cfg/color.cfg
 File: color.cfg 2016/01/02 v1.6 sample color configuration
 )
 Package color Info: Driver file: pdftex.def on input line 149.
- (c:/texlive/2022/texmf-dist/tex/latex/graphics-def/pdftex.def
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/graphics-def/pdftex.def
 File: pdftex.def 2020/10/05 v1.2a Graphics/color driver for pdftex
-)) (c:/texlive/2022/texmf-dist/tex/latex/hyphenat/hyphenat.sty
+)) (/usr/local/texlive/2022/texmf-dist/tex/latex/hyphenat/hyphenat.sty
 Package: hyphenat 2009/09/02 v2.3c hyphenation utilities
-\langwohyphens=\language4
+\langwohyphens=\language88
 LaTeX Info: Redefining \_ on input line 43.
-) (c:/texlive/2022/texmf-dist/tex/latex/base/makeidx.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/base/makeidx.sty
 Package: makeidx 2021/10/04 v1.0m Standard LaTeX package
-) (c:/texlive/2022/texmf-dist/tex/latex/hyperref/hyperref.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/hyperref/hyperref.sty
 Package: hyperref 2022-02-21 v7.00n Hypertext links for LaTeX
- (c:/texlive/2022/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
+ (/usr/local/texlive/2022/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
 Package: ltxcmds 2020-05-10 v1.25 LaTeX kernel commands for general use (HO)
-) (c:/texlive/2022/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
 Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO)
- (c:/texlive/2022/texmf-dist/tex/generic/infwarerr/infwarerr.sty
+ (/usr/local/texlive/2022/texmf-dist/tex/generic/infwarerr/infwarerr.sty
 Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
 )
 Package pdftexcmds Info: \pdf@primitive is available.
 Package pdftexcmds Info: \pdf@ifprimitive is available.
 Package pdftexcmds Info: \pdfdraftmode found.
-) (c:/texlive/2022/texmf-dist/tex/generic/kvsetkeys/kvsetkeys.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/generic/kvsetkeys/kvsetkeys.sty
 Package: kvsetkeys 2019/12/15 v1.18 Key value parser (HO)
-) (c:/texlive/2022/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty
 Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
-) (c:/texlive/2022/texmf-dist/tex/generic/pdfescape/pdfescape.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/generic/pdfescape/pdfescape.sty
 Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
-) (c:/texlive/2022/texmf-dist/tex/latex/hycolor/hycolor.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/hycolor/hycolor.sty
 Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
-) (c:/texlive/2022/texmf-dist/tex/latex/letltxmacro/letltxmacro.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/letltxmacro/letltxmacro.sty
 Package: letltxmacro 2019/12/03 v1.6 Let assignment for LaTeX macros (HO)
-) (c:/texlive/2022/texmf-dist/tex/latex/auxhook/auxhook.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/auxhook/auxhook.sty
 Package: auxhook 2019-12-17 v1.6 Hooks for auxiliary files (HO)
-) (c:/texlive/2022/texmf-dist/tex/latex/kvoptions/kvoptions.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/kvoptions/kvoptions.sty
 Package: kvoptions 2020-10-07 v3.14 Key value format for package options (HO)
 )
 \@linkdim=\dimen158
 \Hy@linkcounter=\count273
 \Hy@pagecounter=\count274
- (c:/texlive/2022/texmf-dist/tex/latex/hyperref/pd1enc.def
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/hyperref/pd1enc.def
 File: pd1enc.def 2022-02-21 v7.00n Hyperref: PDFDocEncoding definition (HO)
 Now handling font encoding PD1 ...
 ... no UTF-8 mapping file for font encoding PD1
-) (c:/texlive/2022/texmf-dist/tex/generic/intcalc/intcalc.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/generic/intcalc/intcalc.sty
 Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
-) (c:/texlive/2022/texmf-dist/tex/generic/etexcmds/etexcmds.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/generic/etexcmds/etexcmds.sty
 Package: etexcmds 2019/12/15 v1.7 Avoid name clashes with e-TeX commands (HO)
 )
 \Hy@SavedSpaceFactor=\count275
- (c:/texlive/2022/texmf-dist/tex/latex/hyperref/puenc.def
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/hyperref/puenc.def
 File: puenc.def 2022-02-21 v7.00n Hyperref: PDF Unicode definition (HO)
 Now handling font encoding PU ...
 ... no UTF-8 mapping file for font encoding PU
@@ -230,28 +226,28 @@ Package hyperref Info: Plain pages OFF on input line 4152.
 Package hyperref Info: Backreferencing ON on input line 4155.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
 Package hyperref Info: Bookmarks ON on input line 4390.
-(c:/texlive/2022/texmf-dist/tex/latex/hyperref/backref.sty
+(/usr/local/texlive/2022/texmf-dist/tex/latex/hyperref/backref.sty
 Package: backref 2021/02/04 v1.41 Bibliographical back referencing
- (c:/texlive/2022/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
 Package: rerunfilecheck 2019/12/05 v1.9 Rerun checks for auxiliary files (HO)
- (c:/texlive/2022/texmf-dist/tex/latex/base/atveryend-ltx.sty
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/base/atveryend-ltx.sty
 Package: atveryend-ltx 2020/08/19 v1.0a Emulation of the original atveryend package
 with kernel methods
-) (c:/texlive/2022/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty
 Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
- (c:/texlive/2022/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty
+ (/usr/local/texlive/2022/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty
 Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO)
 ))
 Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 286.
 ))
 \c@Hy@tempcnt=\count276
- (c:/texlive/2022/texmf-dist/tex/latex/url/url.sty
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/url/url.sty
 \Urlmuskip=\muskip16
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
 LaTeX Info: Redefining \url on input line 4749.
 \XeTeXLinkMargin=\dimen159
- (c:/texlive/2022/texmf-dist/tex/generic/bitset/bitset.sty
+ (/usr/local/texlive/2022/texmf-dist/tex/generic/bitset/bitset.sty
 Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
 )
 \Fld@menulength=\count277
@@ -266,7 +262,7 @@ Package hyperref Info: Link coloring with OCG OFF on input line 6052.
 Package hyperref Info: PDF/A mode OFF on input line 6057.
 LaTeX Info: Redefining \ref on input line 6097.
 LaTeX Info: Redefining \pageref on input line 6101.
- (c:/texlive/2022/texmf-dist/tex/latex/base/atbegshi-ltx.sty
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/base/atbegshi-ltx.sty
 Package: atbegshi-ltx 2021/01/10 v1.0c Emulation of the original atbegshi
 package with kernel methods
 )
@@ -275,31 +271,31 @@ package with kernel methods
 \c@Hfootnote=\count280
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
- (c:/texlive/2022/texmf-dist/tex/latex/hyperref/hpdftex.def
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/hyperref/hpdftex.def
 File: hpdftex.def 2022-02-21 v7.00n Hyperref driver for pdfTeX
 \Fld@listcount=\count281
 \c@bookmark@seq@number=\count282
 \Hy@SectionHShift=\skip68
-) (c:/texlive/2022/texmf-dist/tex/latex/ae/ae.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/ae/ae.sty
 Package: ae 2001/02/12 1.3 Almost European Computer Modern
- (c:/texlive/2022/texmf-dist/tex/latex/base/fontenc.sty
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/base/fontenc.sty
 Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
-)) (c:/texlive/2022/texmf-dist/tex/latex/graphics/graphicx.sty
+)) (/usr/local/texlive/2022/texmf-dist/tex/latex/graphics/graphicx.sty
 Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
- (c:/texlive/2022/texmf-dist/tex/latex/graphics/graphics.sty
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/graphics/graphics.sty
 Package: graphics 2021/03/04 v1.4d Standard LaTeX Graphics (DPC,SPQR)
- (c:/texlive/2022/texmf-dist/tex/latex/graphics/trig.sty
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/graphics/trig.sty
 Package: trig 2021/08/11 v1.11 sin cos tan (DPC)
-) (c:/texlive/2022/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
 File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
 Package graphics Info: Driver file: pdftex.def on input line 107.
 )
 \Gin@req@height=\dimen162
 \Gin@req@width=\dimen163
-) (c:/texlive/2022/texmf-dist/tex/latex/geometry/geometry.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/geometry/geometry.sty
 Package: geometry 2020/01/02 v5.9 Page Geometry
- (c:/texlive/2022/texmf-dist/tex/generic/iftex/ifvtex.sty
+ (/usr/local/texlive/2022/texmf-dist/tex/generic/iftex/ifvtex.sty
 Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
 )
 \Gm@cnth=\count283
@@ -329,6 +325,9 @@ File: nbr10520-2002.def 2003/10/13 v1.2 Definicoes para abntcite (NBR10520:2002)
 \ABCIauxlen=\skip70
 \c@ABCIaux=\count286
 \c@ABCImax=\count287
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/relsize/relsize.sty
+Package: relsize 2013/03/29 ver 4.1
+)
 \biblabelsep=\skip71
 LaTeX Info: Redefining \newblock on input line 562.
 LaTeX Info: Redefining \cite on input line 589.
@@ -336,26 +335,26 @@ LaTeX Info: Redefining \cite on input line 589.
 )
 \c@mecounter=\count288
 \c@kwcipcounter=\count289
-\nohyphen=\language5
-) (c:/texlive/2022/texmf-dist/tex/latex/graphics/epsfig.sty
+\nohyphen=\language89
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/graphics/epsfig.sty
 Package: epsfig 2017/06/25 v1.7b (e)psfig emulation (SPQR)
 \epsfxsize=\dimen172
 \epsfysize=\dimen173
-) (c:/texlive/2022/texmf-dist/tex/latex/amsmath/amsmath.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/amsmath/amsmath.sty
 Package: amsmath 2021/10/15 v2.17l AMS math features
 \@mathmargin=\skip72
 
 For additional information on amsmath, use the `?' option.
-(c:/texlive/2022/texmf-dist/tex/latex/amsmath/amstext.sty
+(/usr/local/texlive/2022/texmf-dist/tex/latex/amsmath/amstext.sty
 Package: amstext 2021/08/26 v2.01 AMS text
- (c:/texlive/2022/texmf-dist/tex/latex/amsmath/amsgen.sty
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/amsmath/amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0 generic functions
 \@emptytoks=\toks25
 \ex@=\dimen174
-)) (c:/texlive/2022/texmf-dist/tex/latex/amsmath/amsbsy.sty
+)) (/usr/local/texlive/2022/texmf-dist/tex/latex/amsmath/amsbsy.sty
 Package: amsbsy 1999/11/29 v1.2d Bold Symbols
 \pmbraise@=\dimen175
-) (c:/texlive/2022/texmf-dist/tex/latex/amsmath/amsopn.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/amsmath/amsopn.sty
 Package: amsopn 2021/08/26 v2.02 operator names
 )
 \inf@bad=\count290
@@ -395,9 +394,9 @@ LaTeX Font Info:    Redeclaring font encoding OMS on input line 744.
 \mathdisplay@stack=\toks29
 LaTeX Info: Redefining \[ on input line 2938.
 LaTeX Info: Redefining \] on input line 2939.
-) (c:/texlive/2022/texmf-dist/tex/latex/amsfonts/amssymb.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/amsfonts/amssymb.sty
 Package: amssymb 2013/01/14 v3.01 AMS font symbols
-) (c:/texlive/2022/texmf-dist/tex/latex/subfig/subfig.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/subfig/subfig.sty
 Package: subfig 2005/06/28 ver: 1.3 subfig package
 \c@KVtest=\count302
 \sf@farskip=\skip75
@@ -412,22 +411,22 @@ Package: subfig 2005/06/28 ver: 1.3 subfig package
 \c@lotdepth=\count308
 \sf@top=\skip78
 \sf@bottom=\skip79
-) (c:/texlive/2022/texmf-dist/tex/latex/multirow/multirow.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/multirow/multirow.sty
 Package: multirow 2021/03/15 v2.8 Span multiple rows of a table
 \multirow@colwidth=\skip80
 \multirow@cntb=\count309
 \multirow@dima=\skip81
 \bigstrutjot=\dimen184
-) (c:/texlive/2022/texmf-dist/tex/latex/float/float.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \c@float@type=\count310
 \float@exts=\toks30
 \float@box=\box59
 \@float@everytoks=\toks31
 \@floatcapt=\box60
-) (c:/texlive/2022/texmf-dist/tex/generic/dirtree/dirtree.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/generic/dirtree/dirtree.sty
 Package: dirtree 2012/12/11 v0.32 package wrapper for dirtree
- (c:/texlive/2022/texmf-dist/tex/generic/dirtree/dirtree.tex `dirtree' v0.32, 2012/12/11 (jcc)
+ (/usr/local/texlive/2022/texmf-dist/tex/generic/dirtree/dirtree.tex `dirtree' v0.32, 2012/12/11 (jcc)
 \DT@offset=\dimen185
 \DT@width=\dimen186
 \DT@sep=\dimen187
@@ -444,10 +443,10 @@ Package: dirtree 2012/12/11 v0.32 package wrapper for dirtree
 \DT@baselineskip=\dimen194
 )
 File: dirtree.tex 2012/12/11 v0.32 `dirtree' (jcc)
-) (c:/texlive/2022/texmf-dist/tex/latex/picture/picture.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/picture/picture.sty
 Package: picture 2020-04-22 v1.6 Dimens for picture macros (HO)
 Package picture Info: Calculation method: calc.
-) (c:/texlive/2022/texmf-dist/tex/latex/tools/bm.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/tools/bm.sty
 Package: bm 2021/04/25 v1.2e Bold Symbol Support (DPC/FMi)
 \symboldoperators=\mathgroup6
 \symboldletters=\mathgroup7
@@ -456,7 +455,7 @@ Package bm Info: No bold for \OMX/cmex/m/n, using \pmb.
 Package bm Info: No bold for \U/msa/m/n, using \pmb.
 Package bm Info: No bold for \U/msb/m/n, using \pmb.
 LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 149.
-) (c:/texlive/2022/texmf-dist/tex/latex/cancel/cancel.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/cancel/cancel.sty
 Package: cancel 2013/04/12 v2.2 Cancel math terms
 )
 \@glossaryfile=\write3
@@ -465,10 +464,10 @@ Package: cancel 2013/04/12 v2.2 Cancel math terms
 
 Writing glossary file tese.glo 
 LaTeX Font Info:    Trying to load font information for T1+aer on input line 196.
-(c:/texlive/2022/texmf-dist/tex/latex/ae/t1aer.fd
+(/usr/local/texlive/2022/texmf-dist/tex/latex/ae/t1aer.fd
 File: t1aer.fd 1997/11/16 Font definitions for T1/aer.
-) (c:/texlive/2022/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
-File: l3backend-pdftex.def 2022-04-20 L3 backend support: PDF output (pdfTeX)
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+File: l3backend-pdftex.def 2022-02-07 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count315
 \l__pdf_internal_box=\box61
 ) (./tese.aux)
@@ -500,11 +499,11 @@ Package caption Info: subfig package v1.3 is loaded.
 Package caption Info: float package is loaded.
 Package caption Info: hyperref package is loaded.
 Package caption Info: longtable package is loaded.
- (c:/texlive/2022/texmf-dist/tex/latex/caption/ltcaption.sty
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/caption/ltcaption.sty
 Package: ltcaption 2021/01/08 v1.4c longtable captions (AR)
 )
 Package caption Info: End \AtBeginDocument code.
- (c:/texlive/2022/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+ (/usr/local/texlive/2022/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count316
 \scratchdimen=\dimen195
@@ -517,18 +516,18 @@ Package caption Info: End \AtBeginDocument code.
 \MPnumerator=\count320
 \makeMPintoPDFobject=\count321
 \everyMPtoPDFconversion=\toks33
-) (c:/texlive/2022/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
- (c:/texlive/2022/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
 Package hyperref Info: Link coloring ON on input line 196.
- (c:/texlive/2022/texmf-dist/tex/latex/hyperref/nameref.sty
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2021-04-02 v2.47 Cross-referencing by name of section
- (c:/texlive/2022/texmf-dist/tex/latex/refcount/refcount.sty
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/refcount/refcount.sty
 Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
-) (c:/texlive/2022/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
+) (/usr/local/texlive/2022/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
 Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
 \c@section@level=\count322
@@ -578,11 +577,11 @@ Package hyperref Info: Anchor `Doc-Start' on input line 196.
 \c@butlastpage=\count323
 Package hyperref Info: Anchor `titulo.0' on input line 198.
 LaTeX Font Info:    Trying to load font information for U+msa on input line 198.
-(c:/texlive/2022/texmf-dist/tex/latex/amsfonts/umsa.fd
+(/usr/local/texlive/2022/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
 LaTeX Font Info:    Trying to load font information for U+msb on input line 198.
- (c:/texlive/2022/texmf-dist/tex/latex/amsfonts/umsb.fd
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 Package hyperref Info: Anchor `page.i' on input line 198.
@@ -590,7 +589,7 @@ Package hyperref Info: Anchor `page.i' on input line 198.
 
 
 
-{c:/texlive/2022/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+{/usr/local/texlive/2022/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 Package hyperref Info: Anchor `cip.0' on input line 198.
 
 Underfull \hbox (badness 10000) in paragraph at lines 198--198
@@ -619,7 +618,7 @@ Package hyperref Info: Anchor `page.v' on input line 208.
 ]
 Package hyperref Info: Anchor `epigrafe.0' on input line 212.
 LaTeX Font Info:    Trying to load font information for T1+aess on input line 216.
- (c:/texlive/2022/texmf-dist/tex/latex/ae/t1aess.fd
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/ae/t1aess.fd
 File: t1aess.fd 1997/11/16 Font definitions for T1/aess.
 )
 LaTeX Font Info:    Font shape `T1/aess/m/it' in size <12> not available
@@ -807,48 +806,62 @@ pdftex: bookmark at 254: {1} {\numberline{1}Introduction} {chapter.1}{0}{toc}
 Package hyperref Info: Anchor `section.1.1' on input line 1.
 
 pdftex: bookmark at 1: {1.1} {\numberline{1.1}Motivation} {section.1.1}{1}{toc}
-Package hyperref Info: Reference (cite) `cite.reference_biochemical_reaction' on input line 20.
-Package hyperref Info: Reference (cite) `cite.reference_biochemical_reaction' on input line 20.
-Package hyperref Info: Reference (cite) `cite.reference_urban_traffic_control' on input line 21.
-Package hyperref Info: Reference (cite) `cite.reference_urban_traffic_control' on input line 21.
-Package hyperref Info: Reference (cite) `cite.benmiloud2018' on input line 22.
-Package hyperref Info: Reference (cite) `cite.benmiloud2018' on input line 22.
-Package hyperref Info: Reference (cite) `cite.marcio2013' on input line 27.
-Package hyperref Info: Reference (cite) `cite.marcio2013' on input line 27.
-Package hyperref Info: Reference (cite) `cite.patino2010predictive' on input line 31.
-Package hyperref Info: Reference (cite) `cite.patino2010predictive' on input line 31.
-Package hyperref Info: Reference (cite) `cite.matheus2018' on input line 34.
-Package hyperref Info: Reference (cite) `cite.matheus2018' on input line 34.
-Package hyperref Info: Anchor `page.15' on input line 38.
+Package hyperref Info: Reference (cite) `cite.zhu2020' on input line 22.
+Package hyperref Info: Reference (cite) `cite.zhu2020' on input line 22.
+Package hyperref Info: Reference (cite) `cite.sanchez2019' on input line 22.
+Package hyperref Info: Reference (cite) `cite.sanchez2019' on input line 22.
+Package hyperref Info: Reference (cite) `cite.xu2022' on input line 22.
+Package hyperref Info: Reference (cite) `cite.xu2022' on input line 22.
+Package hyperref Info: Reference (cite) `cite.reference_biochemical_reaction' on input line 37.
+Package hyperref Info: Reference (cite) `cite.reference_biochemical_reaction' on input line 37.
+Package hyperref Info: Reference (cite) `cite.reference_urban_traffic_control' on input line 38.
+Package hyperref Info: Reference (cite) `cite.reference_urban_traffic_control' on input line 38.
+Package hyperref Info: Reference (cite) `cite.benmiloud2018' on input line 39.
+Package hyperref Info: Reference (cite) `cite.benmiloud2018' on input line 39.
+Package hyperref Info: Anchor `page.15' on input line 41.
 [15
 
 
-Package `hyperref' Info: End of reference (cite) `cite.reference_biochemical_reaction', line 20.
-Package `hyperref' Info: End of reference (cite) `cite.reference_biochemical_reaction', line 20.
-Package `hyperref' Info: End of reference (cite) `cite.reference_urban_traffic_control', line 21.
-Package `hyperref' Info: End of reference (cite) `cite.reference_urban_traffic_control', line 21.
-Package `hyperref' Info: End of reference (cite) `cite.benmiloud2018', line 22.
-Package `hyperref' Info: End of reference (cite) `cite.benmiloud2018', line 22.
-Package `hyperref' Info: End of reference (cite) `cite.marcio2013', line 27.
-Package `hyperref' Info: End of reference (cite) `cite.marcio2013', line 27.
-Package `hyperref' Info: End of reference (cite) `cite.patino2010predictive', line 31.
-Package `hyperref' Info: End of reference (cite) `cite.patino2010predictive', line 31.
-Package `hyperref' Info: End of reference (cite) `cite.matheus2018', line 34.
-Package `hyperref' Info: End of reference (cite) `cite.matheus2018', line 34.
+Package `hyperref' Info: End of reference (cite) `cite.zhu2020', line 22.
+Package `hyperref' Info: End of reference (cite) `cite.zhu2020', line 22.
+Package `hyperref' Info: End of reference (cite) `cite.sanchez2019', line 22.
+Package `hyperref' Info: End of reference (cite) `cite.sanchez2019', line 22.
+Package `hyperref' Info: End of reference (cite) `cite.xu2022', line 22.
+Package `hyperref' Info: End of reference (cite) `cite.xu2022', line 22.
 ]
-Package hyperref Info: Anchor `section.1.2' on input line 39.
+Package hyperref Info: Reference (cite) `cite.marcio2013' on input line 44.
+Package hyperref Info: Reference (cite) `cite.marcio2013' on input line 44.
+Package hyperref Info: Reference (cite) `cite.patino2010predictive' on input line 48.
+Package hyperref Info: Reference (cite) `cite.patino2010predictive' on input line 48.
+Package hyperref Info: Reference (cite) `cite.matheus2018' on input line 51.
+Package hyperref Info: Reference (cite) `cite.matheus2018' on input line 51.
+Package hyperref Info: Anchor `section.1.2' on input line 56.
 
-pdftex: bookmark at 39: {1.2} {\numberline{1.2}Contributions of the present work} {section.1.2}{1}{toc}
-Package hyperref Info: Reference (cite) `cite.matheus2018' on input line 50.
-Package hyperref Info: Reference (cite) `cite.matheus2018' on input line 50.
-Package hyperref Info: Anchor `section.1.3' on input line 53.
-pdftex: bookmark at 53: {1.3} {\numberline{1.3}Outline of the remaining chapters} {section.1.3}{1}{toc}
+pdftex: bookmark at 56: {1.2} {\numberline{1.2}Contributions of the present work} {section.1.2}{1}{toc}
+Package hyperref Info: Reference (cite) `cite.matheus2018' on input line 67.
+Package hyperref Info: Reference (cite) `cite.matheus2018' on input line 67.
+Package hyperref Info: Anchor `section.1.3' on input line 70.
+pdftex: bookmark at 70: {1.3} {\numberline{1.3}Outline of the remaining chapters} {section.1.3}{1}{toc}
 )
-Package hyperref Info: Anchor `page.16' on input line 257.
+Package hyperref Info: Anchor `page.16' on input line 256.
  [16
-Package `hyperref' Info: End of reference (cite) `cite.matheus2018', line 50.
-Package `hyperref' Info: End of reference (cite) `cite.matheus2018', line 50.
+Package `hyperref' Info: End of reference (cite) `cite.reference_biochemical_reaction', line 37.
+Package `hyperref' Info: End of reference (cite) `cite.reference_biochemical_reaction', line 37.
+Package `hyperref' Info: End of reference (cite) `cite.reference_urban_traffic_control', line 38.
+Package `hyperref' Info: End of reference (cite) `cite.reference_urban_traffic_control', line 38.
+Package `hyperref' Info: End of reference (cite) `cite.benmiloud2018', line 39.
+Package `hyperref' Info: End of reference (cite) `cite.benmiloud2018', line 39.
+Package `hyperref' Info: End of reference (cite) `cite.marcio2013', line 44.
+Package `hyperref' Info: End of reference (cite) `cite.marcio2013', line 44.
+Package `hyperref' Info: End of reference (cite) `cite.patino2010predictive', line 48.
+Package `hyperref' Info: End of reference (cite) `cite.patino2010predictive', line 48.
+Package `hyperref' Info: End of reference (cite) `cite.matheus2018', line 51.
+Package `hyperref' Info: End of reference (cite) `cite.matheus2018', line 51.
+Package `hyperref' Info: End of reference (cite) `cite.matheus2018', line 67.
+Package `hyperref' Info: End of reference (cite) `cite.matheus2018', line 67.
 ]
+Package hyperref Info: Anchor `page.17' on input line 257.
+ [17]
 Package hyperref Info: Anchor `chapter.2' on input line 257.
 
 Chapter 2.
@@ -874,8 +887,8 @@ Package hyperref Info: Anchor `equation.2.0.3' on input line 51.
 Package hyperref Info: Anchor `equation.2.0.3' on input line 51.
 Package hyperref Info: Anchor `equation.2.0.3' on input line 51.
 Package hyperref Info: Anchor `equation.2.0.3' on input line 51.
-Package hyperref Info: Anchor `page.17' on input line 53.
-[17
+Package hyperref Info: Anchor `page.18' on input line 53.
+[18
 
 ]
 Package hyperref Info: Anchor `section.2.1' on input line 71.
@@ -904,8 +917,8 @@ Package hyperref Info: Anchor `equation.2.3.4' on input line 3.
 Package hyperref Info: Anchor `equation.2.3.4' on input line 3.
 Package hyperref Info: Anchor `equation.2.3.5' on input line 13.
 Package hyperref Info: Anchor `equation.2.3.6' on input line 21.
-Package hyperref Info: Anchor `page.18' on input line 21.
- [18]
+Package hyperref Info: Anchor `page.19' on input line 21.
+ [19]
 Package hyperref Info: Anchor `equation.2.3.7' on input line 28.
 Package hyperref Info: Anchor `equation.2.3.8' on input line 28.
 Package hyperref Info: Anchor `equation.2.3.9' on input line 28.
@@ -924,10 +937,10 @@ pdftex: bookmark at 83: {2.4.1} {\numberline{2.4.1}Variant Dynamic Circuit 1} {s
 Package hyperref Info: Anchor `subsection.2.4.2' on input line 85.
 pdftex: bookmark at 85: {2.4.2} {\numberline{2.4.2}Variant Dynamic Circuit 2} {subsection.2.4.2}{2}{toc}
 )
-Package hyperref Info: Anchor `page.19' on input line 260.
- [19]
 Package hyperref Info: Anchor `page.20' on input line 260.
  [20]
+Package hyperref Info: Anchor `page.21' on input line 260.
+ [21]
 Package hyperref Info: Anchor `chapter.3' on input line 260.
 
 Chapter 3.
@@ -958,8 +971,8 @@ LaTeX Font Warning: Command \boldmath invalid in math mode on input line 33.
 
 LaTeX Font Warning: Command \mathversion invalid in math mode on input line 33.
 
-Package hyperref Info: Anchor `page.21' on input line 39.
-[21
+Package hyperref Info: Anchor `page.22' on input line 39.
+[22
 
 ]
 Package hyperref Info: Anchor `equation.3.1.5' on input line 41.
@@ -1013,22 +1026,22 @@ Package fancyhdr Warning: \headheight is too small (15.93347pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
 
-Package hyperref Info: Anchor `page.22' on input line 97.
-[22]
+Package hyperref Info: Anchor `page.23' on input line 97.
+[23]
 Package hyperref Info: Anchor `section.3.2' on input line 139.
 
 pdftex: bookmark at 139: {3.2} {\numberline{3.2}Linearization procedure} {section.3.2}{1}{toc}
 Package hyperref Info: Anchor `figure.caption.9' on input line 140.
 Package epstopdf Info: Source file: <Cap2/.fig/linearizacao_1.eps>
-(epstopdf)                    date: 2021-12-07 16:07:22
+(epstopdf)                    date: 2022-07-27 21:22:31
 (epstopdf)                    size: 18187 bytes
 (epstopdf)             Output file: <Cap2/.fig/linearizacao_1-eps-converted-to.pdf>
-(epstopdf)                    date: 2021-12-07 16:07:48
+(epstopdf)                    date: 2022-07-27 21:22:31
 (epstopdf)                    size: 8531 bytes
 (epstopdf)             Command: <repstopdf --outfile=Cap2/.fig/linearizacao_1-eps-converted-to.pdf Cap2/.fig/linearizacao_1.eps>
 (epstopdf)             \includegraphics on input line 142.
 Package epstopdf Info: Output file is already uptodate.
-<Cap2/.fig/linearizacao_1-eps-converted-to.pdf, id=387, 435.6275pt x 171.64125pt>
+<Cap2/.fig/linearizacao_1-eps-converted-to.pdf, id=400, 435.6275pt x 171.64125pt>
 File: Cap2/.fig/linearizacao_1-eps-converted-to.pdf Graphic file (type pdf)
 <use Cap2/.fig/linearizacao_1-eps-converted-to.pdf>
 Package pdftex.def Info: Cap2/.fig/linearizacao_1-eps-converted-to.pdf  used on input line 142.
@@ -1039,7 +1052,7 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 (./Cap3/cap3_lin_instante1.tex
 
-LaTeX Warning: Reference `eq_continuous_time_dynamics' on page 23 undefined on input line 4.
+LaTeX Warning: Reference `eq_continuous_time_dynamics' on page 24 undefined on input line 4.
 
 Package hyperref Info: Anchor `equation.3.2.10' on input line 11.
 Package hyperref Info: Anchor `equation.3.2.11' on input line 11.
@@ -1050,8 +1063,8 @@ Package fancyhdr Warning: \headheight is too small (15.93347pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
 
-Package hyperref Info: Anchor `page.23' on input line 11.
-[23]
+Package hyperref Info: Anchor `page.24' on input line 11.
+[24]
 Package hyperref Info: Reference (link) `equation.3.2.10' on input line 13.
 Package hyperref Info: Reference (link) `equation.3.2.11' on input line 13.
 Package hyperref Info: Anchor `equation.3.2.12' on input line 15.
@@ -1068,8 +1081,8 @@ Package fancyhdr Warning: \headheight is too small (15.93347pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
 
-Package hyperref Info: Anchor `page.24' on input line 49.
-[24
+Package hyperref Info: Anchor `page.25' on input line 49.
+[25
 Package `hyperref' Info: End of reference (link) `equation.3.2.10', line 13.
 Package `hyperref' Info: End of reference (link) `equation.3.2.11', line 13.
  <./Cap2/.fig/linearizacao_1-eps-converted-to.pdf>]
@@ -1098,8 +1111,8 @@ Package fancyhdr Warning: \headheight is too small (15.93347pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
 
-Package hyperref Info: Anchor `page.25' on input line 45.
-[25
+Package hyperref Info: Anchor `page.26' on input line 45.
+[26
 Package `hyperref' Info: End of reference (link) `equation.3.2.13', line 51.
 Package `hyperref' Info: End of reference (link) `equation.3.2.14', line 51.
 Package `hyperref' Info: End of reference (link) `equation.3.2.12', line 51.
@@ -1128,8 +1141,8 @@ Package fancyhdr Warning: \headheight is too small (15.93347pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
 
-Package hyperref Info: Anchor `page.26' on input line 97.
-[26
+Package hyperref Info: Anchor `page.27' on input line 97.
+[27
 Package `hyperref' Info: End of reference (link) `equation.3.2.19', line 79.
 Package `hyperref' Info: End of reference (link) `equation.3.2.20', line 79.
 Package `hyperref' Info: End of reference (link) `equation.3.2.18', line 79.
@@ -1220,8 +1233,8 @@ Package fancyhdr Warning: \headheight is too small (15.93347pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
 
-Package hyperref Info: Anchor `page.27' on input line 46.
-[27
+Package hyperref Info: Anchor `page.28' on input line 46.
+[28
 Package `hyperref' Info: End of reference (link) `equation.3.2.21', line 96.
 Package `hyperref' Info: End of reference (link) `equation.3.2.15', line 109.
 Package `hyperref' Info: End of reference (link) `equation.3.2.22', line 109.
@@ -1247,8 +1260,8 @@ Package fancyhdr Warning: \headheight is too small (15.93347pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
 
-Package hyperref Info: Anchor `page.28' on input line 100.
-[28
+Package hyperref Info: Anchor `page.29' on input line 100.
+[29
 Package `hyperref' Info: End of reference (link) `equation.3.2.27', line 80.
 Package `hyperref' Info: End of reference (link) `equation.3.2.28', line 80.
 Package `hyperref' Info: End of reference (link) `equation.3.2.26', line 80.
@@ -1269,8 +1282,8 @@ Package fancyhdr Warning: \headheight is too small (15.93347pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
 
-Package hyperref Info: Anchor `page.29' on input line 34.
-[29]
+Package hyperref Info: Anchor `page.30' on input line 34.
+[30]
 Package hyperref Info: Anchor `equation.3.2.32' on input line 44.
 Package hyperref Info: Anchor `equation.3.2.33' on input line 54.
 Package hyperref Info: Reference (link) `equation.3.2.32' on input line 56.
@@ -1285,8 +1298,8 @@ Package fancyhdr Warning: \headheight is too small (15.93347pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
 
-Package hyperref Info: Anchor `page.30' on input line 67.
-[30
+Package hyperref Info: Anchor `page.31' on input line 67.
+[31
 Package `hyperref' Info: End of reference (link) `equation.3.2.32', line 56.
 Package `hyperref' Info: End of reference (link) `equation.3.2.33', line 56.
 Package `hyperref' Info: End of reference (link) `equation.3.2.31', line 56.
@@ -1332,30 +1345,30 @@ Package fancyhdr Warning: \headheight is too small (15.93347pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
 
-Package hyperref Info: Anchor `page.31' on input line 7.
-[31]
-Package hyperref Info: Anchor `equation.3.4.44' on input line 7.
-Package hyperref Info: Anchor `equation.3.4.44' on input line 7.
-Package hyperref Info: Anchor `equation.3.4.44' on input line 7.
-Package hyperref Info: Anchor `equation.3.4.44' on input line 7.
-Package hyperref Info: Anchor `equation.3.4.45' on input line 32.
-Package hyperref Info: Anchor `equation.3.4.45' on input line 32.
-Package hyperref Info: Anchor `equation.3.4.45' on input line 32.
-Package hyperref Info: Anchor `equation.3.4.45' on input line 32.
-Package hyperref Info: Anchor `equation.3.4.46' on input line 43.
-Package hyperref Info: Anchor `equation.3.4.46' on input line 43.
-Package hyperref Info: Anchor `equation.3.4.46' on input line 43.
-Package hyperref Info: Anchor `equation.3.4.46' on input line 43.
-
-
-Package fancyhdr Warning: \headheight is too small (15.93347pt): 
-(fancyhdr)                Make it at least 27.11194pt, for example:
-(fancyhdr)                \setlength{\headheight}{27.11194pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-(fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
-
-Package hyperref Info: Anchor `page.32' on input line 94.
+Package hyperref Info: Anchor `page.32' on input line 7.
 [32]
+Package hyperref Info: Anchor `equation.3.4.44' on input line 7.
+Package hyperref Info: Anchor `equation.3.4.44' on input line 7.
+Package hyperref Info: Anchor `equation.3.4.44' on input line 7.
+Package hyperref Info: Anchor `equation.3.4.44' on input line 7.
+Package hyperref Info: Anchor `equation.3.4.45' on input line 32.
+Package hyperref Info: Anchor `equation.3.4.45' on input line 32.
+Package hyperref Info: Anchor `equation.3.4.45' on input line 32.
+Package hyperref Info: Anchor `equation.3.4.45' on input line 32.
+Package hyperref Info: Anchor `equation.3.4.46' on input line 43.
+Package hyperref Info: Anchor `equation.3.4.46' on input line 43.
+Package hyperref Info: Anchor `equation.3.4.46' on input line 43.
+Package hyperref Info: Anchor `equation.3.4.46' on input line 43.
+
+
+Package fancyhdr Warning: \headheight is too small (15.93347pt): 
+(fancyhdr)                Make it at least 27.11194pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11194pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
+
+Package hyperref Info: Anchor `page.33' on input line 94.
+[33]
 Package hyperref Info: Anchor `equation.3.4.47' on input line 97.
 Package hyperref Info: Anchor `equation.3.4.47' on input line 97.
 Package hyperref Info: Anchor `equation.3.4.47' on input line 97.
@@ -1392,8 +1405,8 @@ Package fancyhdr Warning: \headheight is too small (15.93347pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
 
-Package hyperref Info: Anchor `page.33' on input line 172.
-[33]
+Package hyperref Info: Anchor `page.34' on input line 172.
+[34]
 Package hyperref Info: Anchor `equation.3.4.54' on input line 174.
 Package hyperref Info: Anchor `equation.3.4.54' on input line 174.
 Package hyperref Info: Anchor `equation.3.4.54' on input line 174.
@@ -1438,8 +1451,8 @@ Package fancyhdr Warning: \headheight is too small (15.93347pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
 
-Package hyperref Info: Anchor `page.34' on input line 263.
-[34]
+Package hyperref Info: Anchor `page.35' on input line 263.
+[35]
 
 Package fancyhdr Warning: \headheight is too small (15.93347pt): 
 (fancyhdr)                Make it at least 27.11194pt, for example:
@@ -1447,14 +1460,14 @@ Package fancyhdr Warning: \headheight is too small (15.93347pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-11.17847pt}.
 
-Package hyperref Info: Anchor `page.35' on input line 263.
-[35]
+Package hyperref Info: Anchor `page.36' on input line 263.
+[36]
 Package hyperref Info: Anchor `chapter.4' on input line 263.
 
 Chapter 4.
 pdftex: bookmark at 263: {4} {\numberline{4}Conclus\~ao} {chapter.4}{0}{toc}
 (./Cap4/cap4.tex
-<Cap4/cronograma.pdf, id=527, 133.2177pt x 40.7121pt>
+<Cap4/cronograma.pdf, id=540, 133.2177pt x 40.7121pt>
 File: Cap4/cronograma.pdf Graphic file (type pdf)
 <use Cap4/cronograma.pdf>
 Package pdftex.def Info: Cap4/cronograma.pdf  used on input line 9.
@@ -1463,8 +1476,8 @@ Package pdftex.def Info: Cap4/cronograma.pdf  used on input line 9.
 \tf@brf=\write10
 \openout10 = `tese.brf'.
 
-Package hyperref Info: Anchor `page.36' on input line 3.
- [36
+Package hyperref Info: Anchor `page.37' on input line 3.
+ [37
 
  <./Cap4/cronograma.pdf>]
 Package hyperref Info: Anchor `chapter*.10' on input line 3.
@@ -1476,10 +1489,13 @@ Package hyperref Info: Anchor `cite.reference_urban_traffic_control' on input li
 Package hyperref Info: Anchor `cite.matheus2018' on input line 30.
 Package hyperref Info: Anchor `cite.reference_biochemical_reaction' on input line 38.
 Package hyperref Info: Anchor `cite.patino2010predictive' on input line 45.
-Package hyperref Info: Anchor `cite.marcio2013' on input line 53.
+Package hyperref Info: Anchor `cite.sanchez2019' on input line 53.
+Package hyperref Info: Anchor `cite.marcio2013' on input line 61.
+Package hyperref Info: Anchor `cite.xu2022' on input line 71.
+Package hyperref Info: Anchor `cite.zhu2020' on input line 78.
 )
-Package hyperref Info: Anchor `page.37' on input line 273.
- [37
+Package hyperref Info: Anchor `page.38' on input line 273.
+ [38
 
 ]
 Package hyperref Info: Anchor `appendix.A' on input line 274.
@@ -1491,7 +1507,7 @@ Package hyperref Info: Anchor `section.A.1' on input line 2.
 
 pdftex: bookmark at 2: {A.1} {\numberline{A.1}Modelo de simula\c c\~ao} {section.A.1}{1}{toc}
 LaTeX Font Info:    Trying to load font information for T1+aett on input line 24.
-(c:/texlive/2022/texmf-dist/tex/latex/ae/t1aett.fd
+(/usr/local/texlive/2022/texmf-dist/tex/latex/ae/t1aett.fd
 File: t1aett.fd 1997/11/16 Font definitions for T1/aett.
 )
 Package hyperref Info: Anchor `subsection.A.1.1' on input line 26.
@@ -1500,8 +1516,8 @@ pdftex: bookmark at 26: {A.1.1} {\numberline{A.1.1}get\_x0} {subsection.A.1.1}{2
 Package hyperref Info: Anchor `subsection.A.1.2' on input line 30.
 pdftex: bookmark at 30: {A.1.2} {\numberline{A.1.2}get\_xf} {subsection.A.1.2}{2}{toc}
 )
-Package hyperref Info: Anchor `page.38' on input line 278.
- [38
+Package hyperref Info: Anchor `page.39' on input line 278.
+ [39
 
 
 ]
@@ -1514,8 +1530,8 @@ Package hyperref Info: Anchor `section.a.1' on input line 2.
 
 pdftex: bookmark at 2: {A.1} {\numberline{A.1}Uma Se\c c\~ao do Primeiro Anexo} {section.a.1}{1}{toc}
 )
-Package hyperref Info: Anchor `page.39' on input line 303.
- [39
+Package hyperref Info: Anchor `page.40' on input line 303.
+ [40
 
 
 ]
@@ -1529,8 +1545,8 @@ Overfull \hbox (74.53033pt too wide) in paragraph at lines 303--303
 
 
 AED: lastpage setting LastPage
-Package hyperref Info: Anchor `page.40' on input line 305.
-[40
+Package hyperref Info: Anchor `page.41' on input line 305.
+[41
 
 ] (./tese.aux)
 
@@ -1548,18 +1564,18 @@ Package rerunfilecheck Info: File `tese.brf' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 15389 strings out of 480260
- 246657 string characters out of 5894735
- 568157 words of memory out of 5000000
- 32700 multiletter control sequences out of 15000+600000
+ 15456 strings out of 478268
+ 249189 string characters out of 5846347
+ 575128 words of memory out of 5000000
+ 33045 multiletter control sequences out of 15000+600000
  529647 words of font info for 144 fonts, out of 8000000 for 9000
- 14 hyphenation exceptions out of 8191
- 102i,25n,105p,673b,572s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <c:/Users/Daniel/.texlive2022/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm0800.600pk> <c:/Users/Daniel/.texlive2022/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1200.600pk><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmb10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmbsy8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx6.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib6.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/latxfont/line10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on tese.pdf (40 pages, 384689 bytes).
+ 1141 hyphenation exceptions out of 8191
+ 102i,25n,105p,677b,572s stack positions out of 10000i,1000n,20000p,200000b,200000s
+{/usr/local/texlive/2022/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}</usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmb10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmbsy8.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx6.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib6.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/latxfont/line10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/cm-super/sfrm0800.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb>
+Output written on tese.pdf (41 pages, 410497 bytes).
 PDF statistics:
- 726 PDF objects out of 1000 (max. 8388607)
- 613 compressed objects within 7 object streams
- 178 named destinations out of 1000 (max. 500000)
+ 742 PDF objects out of 1000 (max. 8388607)
+ 626 compressed objects within 7 object streams
+ 182 named destinations out of 1000 (max. 500000)
  371 words of extra memory for PDF output out of 10000 (max. 10000000)
 
