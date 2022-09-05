@@ -25,10 +25,10 @@
 \contentsline {chapter}{\numberline {4}Conclus\~ao}{37}{chapter.4}
 \contentsline {chapter}{Bibliography}{38}{chapter.5}
 \SetAppendixTocName {Appendix}
-\contentsline {chapter}{\numberline {A}T\'opicos de Dilema Linear}{39}{appendix.A}
-\contentsline {section}{\numberline {A.1}Modelo de simula\c c\~ao}{39}{section.A.1}
-\contentsline {subsection}{\numberline {A.1.1}get\_x0}{39}{subsection.A.1.1}
-\contentsline {subsection}{\numberline {A.1.2}get\_xf}{39}{subsection.A.1.2}
+\contentsline {chapter}{\numberline {A}T\'opicos de Dilema Linear}{40}{appendix.A}
+\contentsline {section}{\numberline {A.1}Modelo de simula\c c\~ao}{40}{section.A.1}
+\contentsline {subsection}{\numberline {A.1.1}get\_x0}{40}{subsection.A.1.1}
+\contentsline {subsection}{\numberline {A.1.2}get\_xf}{40}{subsection.A.1.2}
 \SetAppendixTocName {Annex}
-\contentsline {chapter}{\numberline {A}Exemplo de um Primeiro Anexo}{40}{annex.a}
-\contentsline {section}{\numberline {A.1}Uma Se\c c\~ao do Primeiro Anexo}{40}{section.a.1}
+\contentsline {chapter}{\numberline {A}Exemplo de um Primeiro Anexo}{41}{annex.a}
+\contentsline {section}{\numberline {A.1}Uma Se\c c\~ao do Primeiro Anexo}{41}{section.a.1}

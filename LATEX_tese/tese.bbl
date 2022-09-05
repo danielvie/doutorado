@@ -12,6 +12,19 @@
 \textbf{IEEE Transactions on Automatic Control}, v.~64, n.~2, p. 841--846,
   2019.}
 
+\bibitem[Egidio \textit{et al.} 2020]{egidio36_continuo}
+\abntrefinfo{Egidio \textit{et al.}}{EGIDIO \textit{et al.}}{2020a}
+{EGIDIO, L.; DEAECTO, G.; GEROMEL, J. Limit cycle global asymptotic stability
+  of continuous-time switched affine systems.
+\textbf{IFAC-PapersOnLine}, v.~53, p. 6121--6126, 01 2020.}
+
+\bibitem[Egidio \textit{et al.} 2020]{egidio37_discreto}
+\abntrefinfo{Egidio \textit{et al.}}{EGIDIO \textit{et al.}}{2020b}
+{EGIDIO, L.~N.; DAIHA, H.~R.; DEAECTO, G.~S. Global asymptotic stability of
+  limit cycle and h2/h? performance of discrete-time switched affine systems.
+\textbf{Automatica}, v.~116, p. 108927, 2020.
+ISSN 0005-1098.}
+
 \bibitem[Hajiahmadi \textit{et al.} 2016]{reference_urban_traffic_control}
 \abntrefinfo{Hajiahmadi \textit{et al.}}{HAJIAHMADI \textit{et al.}}{2016}
 {HAJIAHMADI, M.; SCHUTTER, B. D.; HELLENDOORN, H. Robust h? switching control
@@ -68,12 +81,5 @@
 ISSN 0096-3003.
 Dispon{\'\i}vel em:
   $<$https:\-/\-/www\-.sciencedirect\-.com\-/science\-/article\-/pii\-/S0096300321008894$>$.}
-
-\bibitem[Zhu e Zheng 2020]{zhu2020}
-\abntrefinfo{Zhu e Zheng}{ZHU; ZHENG}{2020}
-{ZHU, Y.; ZHENG, W.~X. Multiple lyapunov functions analysis approach for
-  discrete-time-switched piecewise-affine systems under dwell-time constraints.
-\textbf{IEEE Transactions on Automatic Control}, v.~65, n.~5, p. 2177--2184,
-  2020.}
 
 \end{thebibliography}

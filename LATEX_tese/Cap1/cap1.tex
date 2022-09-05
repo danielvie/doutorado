@@ -8,17 +8,21 @@
     }
 
     \purple{ 
-        Some work have been done in controlling a system that can be expressed as a switched affine system. In \citeonline{zhu2020} the author proposes 
-        controlling the switching time of the system submited to minimal dwell-time restriction between two consecutive switchings and apply his 
-        work in a pneumatic artificial muscle system to satisfy the high-performacne requirements in a highly nonlinear nature system.
 
+        \citeonline{egidio36_continuo}, \citeonline{egidio37_discreto}
         \citeonline{sanchez2019} also investigates the problem of a switched affine system submited to dwell-time constraint, in this work he uses
         two different solutions using hybrid lyapunov theory control law and proposes two provied tuning knobs to separately adjust the swithing 
-        frequency during transients and at the steady state in a silulated boost converter.
-
+        frequency during transients and at the steady state in a simulated boost converter.
+        
+        Objetivo é de controlar para uma regiao proxima ao alvo
+        
         \citeonline{{xu2022}} proposes a $H\infty$ control of limit cycle to increase the performance of the system by 
         controlling the trajetory to a desired limit cycle instead of a small neighborhood. He demonstrates the results in a numerical example
-        and also in a practical example using a boost converter.
+        and also in a simulated example using a boost converter.
+        
+        Objetivo é de controlar para uma trajetoria periodica desejada
+        
+        Ver `time dependent` trajectory
     }
 
     Most of the proposed controllers solve this type of problem by driving the system states to the neighborhood of the 
@@ -38,7 +42,7 @@
     reaction network; urban traffic, where \citeonline{reference_urban_traffic_control} approaches the urban traffic control; power converters, 
     where \citeonline{benmiloud2018} also uses this approach and other areas where the behavior of the system can be described as a switched 
     affine system.
-
+    
     There are some studies that forms the basis for the present work: 
 
     \citeonline{marcio2013} solved the problem for a particular class of affine systems. Here the controller drived the system to a 
