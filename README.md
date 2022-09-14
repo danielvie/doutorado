@@ -2,6 +2,29 @@
 
 * [tese.pdf](LATEX_tese/tese.pdf)
 
+## 15/09/22
+
+  * [ ] Passar linearizacao para antes do controle preditivo
+  
+  * [ ] Pode haver repeticao das matrizes
+  
+  * [ ] Trabalhar o capitulo 3.
+      - [x] descricao do problema
+      - [ ] referencias na literatura
+        - [x] egidio 37 -> tempo discreto, mas vai para um ciclo limite buscando desempenho
+        - [x] egidio 36 -> segundo artigo, ja trabalha no tempo continuo
+          - [x] estudar teorema 2 ? 
+        - ~~[.] pequena discussao sobre controle por estados e time-dependent~~
+      - [x] citar trabalhos anteriores:
+        - [x] marcio
+        - [x] patino
+        - [x] benmiloud
+        - [x] matheus
+      - [x] contribuicoes do trabalho atual
+      - [x] falar que o problema de controle é dificultado pela presenca de dwell-time consttraints.
+
+  * [ ] removi referencia de `sanchez2019` e `xu2024`
+
 ## 23/06/22
 
 - [x] Qual um bom programa pra fazer anotacoes? Voce conhece algum?

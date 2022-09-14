@@ -45,4 +45,10 @@
         "commandCenter.border": "#e7e7e799"
       },
       "peacock.color": "#832561",
+      "grammarly.selectors": [
+        {
+          "language": "latex",
+          "scheme": "file"
+        }
+      ],
 }

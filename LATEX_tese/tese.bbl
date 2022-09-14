@@ -56,14 +56,6 @@ ISSN 0005-1098.}
   International Conference on Industrial Technology}. [S.l.], 2010. p.
   1259--1264.}
 
-\bibitem[Sanchez \textit{et al.} 2019]{sanchez2019}
-\abntrefinfo{Sanchez \textit{et al.}}{SANCHEZ \textit{et al.}}{2019}
-{SANCHEZ, C.~A.; GARCIA, G.; HADJERAS, S.; HEEMELS, W. P. M.~H.; ZACCARIAN, L.
-  Practical stabilization of switched affine systems with dwell-time
-  guarantees.
-\textbf{IEEE Transactions on Automatic Control}, v.~64, n.~11, p. 4811--4817,
-  2019.}
-
 \bibitem[Vieira 2013]{marcio2013}
 \abntrefinfo{Vieira}{VIEIRA}{2013}
 {VIEIRA, M.~S.
@@ -71,15 +63,5 @@ ISSN 0005-1098.}
   temporais de chaveamento}.
 2013. 119~f. Dissertação (Mestrado em Sistemas de Controle) --- Instituto
   Tecnológico de Aeronáutica, São José dos Campos, 2013.}
-
-\bibitem[Xu \textit{et al.} 2022]{xu2022}
-\abntrefinfo{Xu \textit{et al.}}{XU \textit{et al.}}{2022}
-{XU, X.; ZHANG, H.; ZHENG, Q.; CHEN, W. Global exponential stability and h?
-  control of limit cycle for switched affine systems under time-dependent
-  switching signal.
-\textbf{Applied Mathematics and Computation}, v.~423, p. 126807, 2022.
-ISSN 0096-3003.
-Dispon{\'\i}vel em:
-  $<$https:\-/\-/www\-.sciencedirect\-.com\-/science\-/article\-/pii\-/S0096300321008894$>$.}
 
 \end{thebibliography}

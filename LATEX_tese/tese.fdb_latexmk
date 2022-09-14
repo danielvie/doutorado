@@ -1,13 +1,13 @@
 # Fdb version 3
-["bibtex tese"] 1661967728 "tese.aux" "tese.bbl" "tese" 1661967729
+["bibtex tese"] 1663188032 "tese.aux" "tese.bbl" "tese" 1663188934
   "./abnt-alf.bst" 1658949751 60101 003f65fc9adebf0a393717a2d6a19106 ""
   "Referencias/referencias.bib" 1661967705 7130 d9f61940894f2d8a5f5e7e3755a9aacc ""
   "abnt-options.bib" 1658949751 5396 4eb260dac60f150ae608d45252853090 ""
-  "tese.aux" 1661967728 9369 62f1b502f4d60a3727ea94a6cff7a23a "pdflatex"
+  "tese.aux" 1663188934 9004 903acd75c8a39a5edd364428e8fc2b36 "pdflatex"
   (generated)
   "tese.bbl"
   "tese.blg"
-["pdflatex"] 1661967728 "/Users/danielvieira/Documents/Doutorado/LATEX_tese/tese.tex" "tese.pdf" "tese" 1661967729
+["pdflatex"] 1663188933 "/Users/danielvieira/Documents/Doutorado/LATEX_tese/tese.tex" "tese.pdf" "tese" 1663188934
   "/Users/danielvieira/Documents/Doutorado/LATEX_tese/tese.tex" 1658949751 10066 7434bc4893e6aad8dd3c743a0aa1b4a9 ""
   "/usr/local/texlive/2022/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2022/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -211,7 +211,7 @@
   "Cap0/listaabreviaturas.tex" 1658949751 458 f6dd874aece4f4cd40ece118ffd516b5 ""
   "Cap0/listasimbolos.tex" 1658949751 308 3746b0dc2a4d7b12d0bd7e87994727c3 ""
   "Cap0/resumo.tex" 1658949751 780 aeee9874fef967b8b39485541a6f133c ""
-  "Cap1/cap1.tex" 1661967725 5440 7072688dc2859555679924a5cafa0aba ""
+  "Cap1/cap1.tex" 1663188933 5219 21891a53f3bd7b761d4c4ad52c210f21 ""
   "Cap2/.fig/linearizacao_1.eps" 1658949751 18187 409fc4f6f84707dce4eb17d3511624ac ""
   "Cap2/cap2.tex" 1658949751 2768 a84061f3ffac5593024c36305f6d43f1 ""
   "Cap2/cap2_otim_get_x0.tex" 1658949751 1668 1f18b6669d8651629d0b145419b9fe09 ""
@@ -234,14 +234,14 @@
   "makeglo.sty" 1658949751 3307 a9cbaa9a6aa9e4313d3f8790ad4cadf3 ""
   "nbr10520-2002.def" 1658949751 748 b3a64e6861d8e6f4d5a027668b61b6da ""
   "nbr10522-1988.def" 1658949751 2033 2640f31db66d54c88372a64ed1ddf7cb ""
-  "tese.aux" 1661967728 9369 62f1b502f4d60a3727ea94a6cff7a23a "pdflatex"
-  "tese.bbl" 1661967728 3923 16bd512fb75ee52634597b39f1f7b296 "bibtex tese"
+  "tese.aux" 1663188934 9004 903acd75c8a39a5edd364428e8fc2b36 "pdflatex"
+  "tese.bbl" 1663188032 3079 3b0e24b69e0c9e73464400b012a680ab "bibtex tese"
   "tese.brf" 0 -1 0 "pdflatex"
-  "tese.lof" 1661967728 261 cf44386e930bf50b969dff10f39d82a6 "pdflatex"
-  "tese.lot" 1661967728 150 7460b00ca4c2d98f724b7acc062e00fd "pdflatex"
-  "tese.out" 1661967728 7546 99e71053f827fd3c5615fdf6a77f6d17 "pdflatex"
+  "tese.lof" 1663188934 261 aa5ac7b882f2d17a8edc78194e122a2b "pdflatex"
+  "tese.lot" 1663188934 150 7460b00ca4c2d98f724b7acc062e00fd "pdflatex"
+  "tese.out" 1663188934 7546 99e71053f827fd3c5615fdf6a77f6d17 "pdflatex"
   "tese.tex" 1658949751 10066 7434bc4893e6aad8dd3c743a0aa1b4a9 ""
-  "tese.toc" 1661967728 2670 27e1fcf48b107daa803916566110a5eb "pdflatex"
+  "tese.toc" 1663188934 2670 23836a1d4fb052ab1fca1ccd1f688147 "pdflatex"
   (generated)
   "tese.aux"
   "tese.brf"

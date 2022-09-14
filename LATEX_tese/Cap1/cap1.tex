@@ -1,61 +1,55 @@
 \section{Motivation}
 
-    \red{
-        The dynamics of switched affine systems can be described by a state equation of the form 
-        $\dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}, t \in \mathbb{R}_+$. Where $x(t) \in \mathbb{R}^n$ is the state vector and $\sigma(t) \in \{1, 2, ..., N\}$ is the switching state, 
-        which is associated to the matrix $A_{\sigma(t)} \in \mathbb{R}^{n \times n}$ and the 
-        vector $b_{\sigma(t)} \in \mathbb{R}^{n}$ at each time $t$.
-    }
+    % pontos para a motivacao:
+    % [x] descricao do problema
+    % [ ] referencias na literatura
+    %   [x] egidio 37 -> tempo discreto, mas vai para um ciclo limite buscando desempenho
+    %   [x] egidio 36 -> segundo artigo, ja trabalha no tempo continuo
+    %     [ ] estudar teorema 2 ? 
+    %   [ ] pequena discussao sobre controle por estados e time-dependent 
+    % [ ] citar trabalhos anteriores:
+    %   [x] marcio
+    %   [x] patino
+    %   [ ] benmiloud
+    %   [x] matheus
+    % [ ] contribuicoes do trabalho atual
+    % [ ] falar que o problema de controle é dificultado pela presenca de dwell-time consttraints.
+    %     
 
-    \purple{ 
-
-        \citeonline{egidio36_continuo}, \citeonline{egidio37_discreto}
-        \citeonline{sanchez2019} also investigates the problem of a switched affine system submited to dwell-time constraint, in this work he uses
-        two different solutions using hybrid lyapunov theory control law and proposes two provied tuning knobs to separately adjust the swithing 
-        frequency during transients and at the steady state in a simulated boost converter.
-        
-        Objetivo é de controlar para uma regiao proxima ao alvo
-        
-        \citeonline{{xu2022}} proposes a $H\infty$ control of limit cycle to increase the performance of the system by 
-        controlling the trajetory to a desired limit cycle instead of a small neighborhood. He demonstrates the results in a numerical example
-        and also in a simulated example using a boost converter.
-        
-        Objetivo é de controlar para uma trajetoria periodica desejada
-        
-        Ver `time dependent` trajectory
-    }
-
-    Most of the proposed controllers solve this type of problem by driving the system states to the neighborhood of the 
-    target states and, in continuous=time switched affine systems, this means that the system will find stability in a periodic trajectory near 
-    the target but, without further consideration of this resulting periodic trajetory, we can experience performance degradation in the system.
-
-    The dynamics of switched affine systems can be described by a state equation of the form $t \in \mathbb{R}_+$
-    where x(t) $\in \mathbb{R}^n$ is the state vector and $\sigma(t)$ $\in$ $\{1, 2, ..., N\}$ is the switching state, 
-    which is associated to the matrix $A_{\sigma(t)} \in \mathbb{R}^{n \times n}$ and the vector $b_{\sigma(t)} \in \mathbb{R}^{n}$ 
-    at each time $t$.
-
+    The dynamics of switched affine systems can be described by a state equation of the form $\dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}, t \in \mathbb{R}_+$. 
+    Where $x(t) \in \mathbb{R}^n$ is the state vector and $\sigma(t) \in \{1, 2, ..., N\}$ is the switching state, which is associated to the matrix 
+    $A_{\sigma(t)} \in \mathbb{R}^{n \times n}$ and the vector $b_{\sigma(t)} \in \mathbb{R}^{n}$ at each time $t$.
     
-    % ok \red{introduzir sistemas chaveados afins e dificuldade de um sistema chaveado afim de conduzir a trajetoria para um ponto}
-
-    The use of switched affine systems to solve problems in engineering can be seeing in fields like: biochemical reactions, where 
+    The use of switched affine systems to solve problems in engineering can be seen in fields like biochemical reactions, where 
     \citeonline{reference_biochemical_reaction} uses switched affine systems to represent the moments of evolution in a generic biochemical 
     reaction network; urban traffic, where \citeonline{reference_urban_traffic_control} approaches the urban traffic control; power converters, 
     where \citeonline{benmiloud2018} also uses this approach and other areas where the behavior of the system can be described as a switched 
     affine system.
-    
-    There are some studies that forms the basis for the present work: 
 
-    \citeonline{marcio2013} solved the problem for a particular class of affine systems. Here the controller drived the system to a 
+    There is extensive research in this class of controllers, and most of them solve the problem by driving the system states to the neighborhood
+    of the target states, not considering the trajectory behavior of the system. This can reduce the performance of the system when the system is 
+    affected by the trajectory of the limit cycle in steady operation.
+
+    This problem has been the target of many studies, \citeonline{benmiloud2018} uses a hybrid Poincaré map approach to stabilize a switched affine system
+    into the desired limit cycle and uses as an example a DC-DC converter. by \citeonline{egidio37_discreto}, which proposes a control design of a 
+    state-dependent switching function for discrete-time switched affine systems to drive the system to the desired limit cycle that is defined by 
+    design associated with the expected performance of the system. The solution was applied in an academic numerical example and a theoretical 
+    DC-DC converter. In \citeonline{egidio36_continuo} the author expanded the work to continuous-time switched affine systems.
+    
+    Some studies form the basis for the present work: 
+
+    \citeonline{marcio2013} solved the problem for a particular class of affine systems. Here the controller drove the system to a 
     target state using MILP (Mixed-Integer Linear Programming) and the cyclic trajectory was a consequence of the states as the system 
     approached the target.
 
-    \citeonline{patino2010predictive} defined the target trajectory using non linear programming and used this target trajectory in the predictive 
+    \citeonline{patino2010predictive} defined the target trajectory using nonlinear programming and used this target trajectory in the predictive 
     control in terms of errors.
 
-    \citeonline{matheus2018} proposed a solution with a controller law that drives the system to a target cyclic trajectory. 
-    In this work, the problem is addressed in two stages: first, the problem is interpreted as a convex otimization where the author is able to 
-    find a targed cyclic trajectory that minimizes a cost function associated with the system performance; then a second part that uses the 
-    target trajectory as input and applies pertubation on the instants of switching of the control signal using predictive control. 
+    \citeonline{matheus2018} proposed a solution with a controller law that drives the switched affine system with dwell-time constraints 
+    to a target cyclic trajectory. In this work, the problem is addressed in two stages: first, the problem is interpreted as a 
+    convex optimization where the author can find a targeted cyclic trajectory that minimizes a cost function associated with the system 
+    performance; then a second part that uses the target trajectory as input and computes perturbation at the switching instants of the 
+    reference control signal using predictive control. 
     
 \section{Contributions of the present work}
 
@@ -66,9 +60,9 @@
 
     $ \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)} $
 
-    there are cases in which dynamic response of the system can changedepending on the operation mode. This can be represented in 
+    there are cases in which the dynamic response of the system can change depending on the operation mode. This can be represented in 
     switched affine systems with proper matrices $A_{\sigma(t)}$ and $b_{\sigma(t)}$ for each operation mode. With the current implementation
-    of \citeonline{matheus2018} considering a invariant system during its operation, there is a need for expanding the solution so it can represent
+    of \citeonline{matheus2018} considering an invariant system during its operation, there is a need for expanding the solution so it can represent
     more systems and solve more engineering problems that can be expressed as switched affine systems.
 
 \section{Outline of the remaining chapters}
