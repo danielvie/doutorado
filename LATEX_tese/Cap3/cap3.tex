@@ -1,3 +1,25 @@
+\section{Linearization procedure}
+
+\red{
+	O problema a ser resolvido é controlar um continuous-time switched affine system no formato:
+	\begin{equation}
+		\label{eq_continuous_time_dynamics}
+		\dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)} 
+	\end{equation}
+	e o controle atua sobre o instante de atuacao do sinal de controle referencia, fazendo com que o sistema passe a ser não linear.
+}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[]{Cap2/.fig/linearizacao_1.eps}
+	\caption{Instantes de chaveamento}\label{cap2_linearizacao}
+\end{figure}
+
+\input{Cap3/cap3_lin_instante1}
+\input{Cap3/cap3_lin_instante2}
+\input{Cap3/cap3_lin_instante3}
+\input{Cap3/cap3_lin_instanteN}
+
 \section{Statement of the problem}
 
 considerando a planta de um sistema chaveado afim descrito por:
@@ -12,7 +34,6 @@ A ação de controle aplicada no sistema é na forma de perturbacoes no tempo de ch
 e, para podermos controlar o sistema com controle preditivo, precisamos encontrar uma equacao linear para trabalhar a relação
 entre os instantes de chaveamento e o estado resultante do sistema ao final de um ciclo.
 
-
 \textbf{PROBLEMA DE CONTROLE ÓTIMO}
 
 funcao custo
@@ -23,7 +44,7 @@ funcao custo
 
 em que $Q = Q^T > 0$, $\rho > 0$
 
-\textbf{EQUACAO DE PRECIÇÃO}
+\textbf{EQUACAO DE PREDIÇÃO}
 
 \begin{equation}
 	\bm{\hat{x}} = G \bm{\hat{\delta t}} + \bm{f}
@@ -136,17 +157,6 @@ para mais proximo da referencia.
 	mostrar o modelo em malha aberta indo para a sua trajetoria ciclica estavel junto com o modelo com controle ativo 
 	mostrando a convergencia mais rapida
 
-\section{Linearization procedure}
-\begin{figure}[h]
-	\centering
-	\includegraphics[]{Cap2/.fig/linearizacao_1.eps}
-	\caption{Instantes de chaveamento}\label{cap2_linearizacao}
-\end{figure}
-
-\input{Cap3/cap3_lin_instante1}
-\input{Cap3/cap3_lin_instante2}
-\input{Cap3/cap3_lin_instante3}
-\input{Cap3/cap3_lin_instanteN}
 
 \section{Optimal control problem}
 \subsection{{Cost function}}

@@ -1,9 +1,6 @@
-*.asv
-*.bak
-~*.docx
+# PASTAS
 SANDBOX/
 limbo/
-*.slxc
 slprj/
 LATEX_exemplo/
 materias/
@@ -12,6 +9,31 @@ reunioes/
 codegen/
 
 .vscode
+.DS_Store
+
+# LOGS E ARQUIVOS AUXILIARES LATEX
+
+# geral
+*.asv
+*.bak
+~*.docx
+*.slxc
 *.log
 
-.DS_Store
+# latex
+*.aux
+*.bbl
+*.blg
+*.brf
+*.dvi
+*.fdb_latexmk
+*.fls
+*.glo
+*.lof
+*.lot
+*.out
+*.ps
+*.synctex.gz
+*.tcp
+*.toc
+*.tps
