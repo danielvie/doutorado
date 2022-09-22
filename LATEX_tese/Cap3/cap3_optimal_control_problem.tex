@@ -1,6 +1,108 @@
 
 \section{Optimal control problem}
-\subsection{{Cost function}}
+
 \subsection{{Prediction equation}}
+
+\begin{equation}
+	\bm{\hat{x}} = G \bm{\hat{\delta t}} + \bm{f}
+\end{equation}
+
+\begin{equation}
+	\boldmath{\hat{x}} = \left[ \begin{array}{c}
+		\hat{x}(t_{r_{k + 1}} + \hat{\delta t}_{k + 1 | k}) \\
+		\hat{x}(t_{r_{k + 2}} + \hat{\delta t}_{k + 1 | k} + \hat{\delta t}_{k + 2 | k} ) \\
+		\vdots \\
+		\hat{x}(t_{r_{k + N}} + \hat{\delta t}_{k + 1 | k} + \ldots + \hat{\delta t}_{k + N | k} ) \\
+	\end{array} \right]
+\end{equation}
+
+\begin{equation}
+	\boldmath{\hat{\delta t}} = \left[ \begin{array}{c}
+		\hat{\delta t}_{k + 1 | k} \\
+		\hat{\delta t}_{k + 2 | k} \\
+		\vdots \\
+		\hat{\delta t}_{k + N | k}
+	\end{array} \right]
+\end{equation}
+
+\begin{equation}
+	\boldmath{f} = \left[ \begin{array}{c}
+		f_{k + 1 | k} \\
+		f_{k + 2 | k} \\
+		\vdots \\
+		f_{k + N | k}
+	\end{array} \right]
+\end{equation}
+
+\begin{equation}
+	G = \left[ \begin{array}{ccccc}
+		G_{1,1} & 0 & 0 & \ldots & 0 \\
+		G_{2,1} & G_{2,2} & 0 & \ldots & 0 \\
+		\vdots & \vdots & \vdots & \vdots & \vdots \\
+		G_{N,1} & G_{N,2} & G_{N,3} & \ldots & G_{N,N} \\
+	\end{array} \right]
+\end{equation}
+
+
+Now, let $\boldmath{x^r}$ be the vector of target values defined as 
+
+\begin{equation}
+	\bm{x^r} = \left[ \begin{array}{ccccc}
+		x_r(t_{r_{k+1}}) \\
+		x_r(t_{r_{k+2}}) \\
+		\vdots  \\
+		x_r(t_{r_{k+N}}) \\
+	\end{array} \right]
+\end{equation}
+
+\begin{equation}
+	J = (\bm{\hat{x}} - \bm{x_r})^T \bm{Q} (\bm{\hat{x}} - \bm{x_r}) + \rho \bm{\hat{\delta}t}^T \bm{\hat{\delta}t}
+\end{equation}
+
+where $\bm{Q} = \bm{Q}^T > 0$ is an $nN x nN$ block-diagonal matrix defined as $\bm{Q} = diag(Q,Q,...,Q)$.
+
 \subsection{{Constraints}}
+
+As restricoes do controlador devem descrever os limites de operacao da dinamica do modelo e ainda encontrar uma solução que leve o sistema
+para mais proximo da referencia.
+
+\red{ESCREVER EQUACOES DE RESTRICAO}
+
+\red{descrever que a trajetoria deve ser admissivel e forma com que o sistema calcula o controle tambem deve ser admissivel}
+
+\red{fazer um rapido comentario sobre a forma que essa restricao é trabalhada no capitulo 2}
+
 \subsection{{Feasibility region}}
+
+\red{nao aplicavel ????}
+
+\red{como calcular ???}
+	restricoes do problem de prog quad
+
+	sobre o controle
+
+	variacoes do instante de chaveadmento
+
+	mas envolvem o estado inicial do ciclo
+
+	sea dependencia das restricoes com respeito ao estao inicial for linear
+
+	entao podemos encarar o x0 como uma variavel junto com as variaveis de controle
+
+	com isso as restricoes descrevem um polietro aumenta do de controle e estado inicial
+
+	geometria computacional mpttoolbox
+
+	projeta a geometria no subespaco
+
+\red{pode haver melhoria com o ponto final livre}
+
+\red{interessante para avaliar o desempenho do controlador na regiao de factibilidade}
+
+\textbf{APPLICATION EXAMPLES}
+
+\begin{itemize}
+	\item Integrador duplo( matheus )
+	\item Patino 1
+	\item Patino 2
+\end{itemize}
