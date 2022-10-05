@@ -3,6 +3,7 @@
 considerando a planta de um sistema chaveado afim descrito por:
 
 \begin{equation}
+	\label{eq_continuous_time_dynamics}
 	\dot{x}(t) = A_\sigma(t) x(t) + B_\sigma(t)
 \end{equation}
 
@@ -15,21 +16,18 @@ entre os instantes de chaveamento e o estado resultante do sistema ao final de u
 \subsection{Funcao Custo}
 
 \begin{equation}
-	J = \sum_{i=1}^N \hat{e}_{k+i|k} Q \hat{e}^T_{k+i|k} + \rho \hat{\delta t}^2_{k+i|k}
+	J = \Vert e(N_pT) \Vert^2_{P_f} \\
+	+ \sum^{N_p - 1}_{j=0}\Vert e(jT)\Vert ^2_Q + \Vert \delta t[j]\Vert ^2_R
 \end{equation}
-	
-\red{
-	\begin{equation}
-		J = \Vert \hat{e}[k + N_p|k]\Vert ^2_{P_f} \\
-		+ \sum_{N_p}^{j=1}\Vert \hat{e}[k + j|k]\Vert ^2_Q + \Vert \hat{\delta t}[k + j - 1 | k]\Vert ^2_R
-	\end{equation}
-}
-
-\blue{
-	\begin{equation}
-		J = \Vert e[k + N_p] \Vert^2_{P_f} \\
-		+ \sum_{N_p}^{j=1}\Vert e[k + j]\Vert ^2_Q + \Vert \delta t[k + j - 1]\Vert ^2_R
-	\end{equation}
-}
 
 em que $Q = Q^T > 0$, $\rho > 0$
+
+\begin{equation}
+	\delta t = [t_{j,1} - \bar{t}_{j,1}, t_{j,2} - \bar{t}_{j,2}, ...]^T
+\end{equation}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[]{Cap3/fig/desenho_cap3.eps}
+	\caption{Instantes de chaveamento}\label{cap2_linearizacao}
+\end{figure}

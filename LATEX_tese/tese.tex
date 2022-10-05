@@ -85,6 +85,29 @@
 %
 % ex: \intlinA{1}{2}{r}{r}
 
+
+\newcommand{\intlinAbtt}[2]
+{
+    \int_{\bar{t}_#1}^{\bar{t}_#2}
+    {e^{A_#1(\bar{t}_#2 - \tau)} B_#1 d \tau}
+}
+% #1: idx parte de baixo da integral
+% #2: idx parte de cima da integral
+%
+% ex: \intlinAb11{1}{2}
+% integral barra true true
+
+\newcommand{\intlinAbft}[2]
+{
+    \int_{t_#1}^{\bar{t}_#2}
+    {e^{A_#1(\bar{t}_#2 - \tau)} B_#1 d \tau}
+}
+% #1: idx parte de baixo da integral
+% #2: idx parte de cima da integral
+%
+% ex: \intlinAb11{1}{2}
+% integral barra false true
+
 \newcommand{\intlinAA}[4]
 {
     \int_{t_{#3_#1}}^{t_{#4_#2}}
@@ -105,10 +128,32 @@
 %
 % ex: \intlinB{t_{r_1}}{t_{r_1}+\delta t_1}{1}{2}
 
+\newcommand{\intlinBb}[4]
+{
+    \int_{#1}^{#2}
+    {e^{A_#3(\bar{t}_#4 - \tau)} B_#3 d \tau}
+}
+% #1: parte de baixo da integral
+% #2: parte de cima da integral
+% #3, #4: idx -> exp(A#3(Tr#4 - tau)) B#3
+%
+% ex: \intlinB{t_{r_1}}{t_{r_1}+\delta t_1}{1}{2}
+
 \newcommand{\intlinC}[4]
 {
     \int_{#1}^{#2}
     {e^{A_#3(t_{r_#4} + \delta t_#4 - \tau)} B_#3 d \tau}
+}
+% #1: parte de baixo da integral
+% #2: parte de cima da integral
+% #3, #4: idx -> exp(A#3(Tr#4 + \delta#4 - tau)) B#3
+%
+% ex: \intlinC{t_{r_1}}{t_{r_1}+\delta t_1}{1}{2}
+
+\newcommand{\intlinCb}[4]
+{
+    \int_{#1}^{#2}
+    {e^{A_#3(\bar{t}_#4 + \delta t_#4 - \tau)} B_#3 d \tau}
 }
 % #1: parte de baixo da integral
 % #2: parte de cima da integral
@@ -127,7 +172,7 @@
 % _#4: nro de Ai e Bi
 % exemplo: \intlinG{0}{t}{t}{_0}
 
-\newcommand{\Fri}[2]{e^{A_#1(t_{r_#2} - t_{r_#1})}}
+\newcommand{\Fri}[2]{e^{A_#1(\bar{t}_#2 - \bar{t}_#1)}}
 
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 % Espaçamento padrão de todo o documento
