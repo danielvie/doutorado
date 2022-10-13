@@ -4,7 +4,7 @@ considerando a planta de um sistema chaveado afim descrito por:
 
 \begin{equation}
 	\label{eq_continuous_time_dynamics}
-	\dot{x}(t) = A_\sigma(t) x(t) + B_\sigma(t)
+	\dot{x}(t) = A_{\sigma_t} x(t) + B_{\sigma_t}
 \end{equation}
 
 submetido a restrições de tempo de chaveamento. 
@@ -20,6 +20,17 @@ entre os instantes de chaveamento e o estado resultante do sistema ao final de u
 	+ \sum^{N_p - 1}_{j=0}\Vert e(jT)\Vert ^2_Q + \Vert \delta t[j]\Vert ^2_R
 \end{equation}
 
+\red{
+	\begin{equation}
+		J = \Vert e[N_p] \Vert^2_{P_f} \\
+		+ \sum^{N_p - 1}_{j=0}\Vert e[j]\Vert ^2_Q + \Vert \delta t[j]\Vert ^2_R
+	\end{equation}
+
+
+	\begin{equation}
+		e(t_{j,N}) = \Phi e(t_{j,0}) + \Gamma \delta t[j]
+	\end{equation}
+}
 em que $Q = Q^T > 0$, $\rho > 0$
 
 \begin{equation}
