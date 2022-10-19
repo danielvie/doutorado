@@ -1,24 +1,26 @@
 \section{Statement of the problem}
 
-considerando a planta de um sistema chaveado afim descrito por:
+considering a plant of an affine switched system described by: 
 
 \begin{equation}
 	\label{eq_continuous_time_dynamics}
 	\dot{x}(t) = A_{\sigma_t} x(t) + B_{\sigma_t}
 \end{equation}
 
-submetido a restrições de tempo de chaveamento. 
+The control action applied in the system is in the form of perturbations in each operation mode switching time. By allowing the control the 
+system using predictive control, we need to find a linear equation that relates the switching times and the resulting system at the end of 
+one cycle.  
 
-A ação de controle aplicada no sistema é na forma de perturbações no tempo de chaveamento de cada modo de operação, 
-e, para podermos controlar o sistema com controle preditivo, precisamos encontrar uma equacao linear para trabalhar a relação
-entre os instantes de chaveamento e o estado resultante do sistema ao final de um ciclo.
-
-\subsection{Funcao Custo}
+\subsection{Cost Function}
 
 \begin{equation}
 	J = \Vert e(N_pT) \Vert^2_{P_f} \\
 	+ \sum^{N_p - 1}_{j=0}\Vert e(jT)\Vert ^2_Q + \Vert \delta t[j]\Vert ^2_R
 \end{equation}
+
+\red{
+	descrever a funcao custo
+}
 
 \red{
 	\begin{equation}
@@ -31,7 +33,10 @@ entre os instantes de chaveamento e o estado resultante do sistema ao final de u
 		e(t_{j,N}) = \Phi e(t_{j,0}) + \Gamma \delta t[j]
 	\end{equation}
 }
-em que $Q = Q^T > 0$, $\rho > 0$
+
+\red{
+	em que $Q = Q^T > 0$, $\rho > 0$
+}
 
 \begin{equation}
 	\delta t = [t_{j,1} - \bar{t}_{j,1}, t_{j,2} - \bar{t}_{j,2}, ...]^T
