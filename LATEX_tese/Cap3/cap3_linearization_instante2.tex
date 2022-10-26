@@ -2,27 +2,31 @@
 % =======================================================================
 Repeating the procedure for $x(t_2)$ we have
 
+\noindent
 \begin{align}
-	\label{eq_cap2_lin_x2}
+	\label{eq_cap3_lin_x2}
 	x(t_2)  &= e^{A_1(t_2-t_1)}x(t_1) + \intlinAA{1}{2}{}{} \\
-	\label{eq_cap2_lin_xr2}
-	x(\bar{t}_2) &= e^{A_1(\bar{t}_2-\bar{t}_1)}x(\bar{t}_1) + \intlinAbtt{1}{2}
+	\label{eq_cap3_lin_xr2}
+	\bar{x}(\bar{t}_2) &= e^{A_1(\bar{t}_2-\bar{t}_1)}\bar{x}(\bar{t}_1) + \intlinAbtt{1}{2}
 \end{align}
 
-subtracting \ref{eq_cap2_lin_x2} and \ref{eq_cap2_lin_xr2} 
+\noindent 
+subtracting \eqref{eq_cap3_lin_xr2} from \eqref{eq_cap3_lin_x2} 
 
 \begin{equation}
-	\label{eq_cap2_lin_erro_x1x2}
+	\label{eq_cap3_lin_erro_x1x2}
 	\begin{split}
-		x(t_2) - x(\bar{t}_2) = 
-		\overbrace{\green{e^{A_1(t_2-t_1)}x(t_1) - e^{A_1(\bar{t}_2-\bar{t}_1)}x(\bar{t}_1)}}^{\green{\square}} \\ 
+		x(t_2) - \bar{x}(\bar{t}_2) = 
+		\overbrace{\green{e^{A_1(t_2-t_1)}x(t_1) - e^{A_1(\bar{t}_2-\bar{t}_1)}\bar{x}(\bar{t}_1)}}^{\green{\square}} \\ 
 		+ \underbrace{\orange{\intlinAA{1}{2}{}{} - \intlinAbtt{1}{2}}}_{\orange{\bigcirc}}
 	\end{split}
 \end{equation}
 
-expanding $\green{\square}$
+\noindent 
+expanding $\green{\square}$ in \eqref{eq_cap3_lin_erro_x1x2}:
 
 % 2.10
+\noindent
 \begin{align}
 	\green{ \square } &=
 	\green{
@@ -37,16 +41,18 @@ expanding $\green{\square}$
 		\blue{\bar{F}_1} \purple{[I + A_1(\delta t_2 - \delta t_1)]} x(t_1)
 		- \blue{\bar{F}_1} \bar{x}(\bar{t}_1)
 	} \nonumber \\
-	\label{eq_cap2_lin_x2_green}
+	\label{eq_cap3_lin_x2_green}
 	&= \green{
 		\bar{F}_1 [x(t_1) - \bar{x}(\bar{t}_1)] + \bar{F}_1 A_1 x(t_1) \delta t_2
 		- \bar{F}_1 A_1 x(t_1) \delta t_1
 	}
 \end{align}
 
-expanding $\orange{\bigcirc}$
+\noindent 
+and expanding $\orange{\bigcirc}$:
 
 % 2.11
+\noindent
 \begin{align}
 	\orange{\bigcirc} 	&= \orange{\intlinAA{1}{2}{}{} - \intlinAbtt{1}{2}} \nonumber \\
 					   	&= \orange{ \intlinCb{\bar{t}_1+\delta t_1}{\bar{t}_2+\delta t_2}{1}{2} - \intlinAbtt{1}{2}} \nonumber \\
@@ -72,41 +78,55 @@ expanding $\orange{\bigcirc}$
 							\bigg] - \bar{G}_1
 						} \nonumber \\
 						&= \orange{ \cancel{\bar{G}_1} - \bar{F}_1 B_1 \delta t_1 + B_1 \delta t_2 + A_1 \bar{G}_1 \delta t_2 - \cancel{\bar{G}_1} } \nonumber \\
-						\label{eq_cap2_lin_x2_orange}
+						\label{eq_cap3_lin_x2_orange}
 						&= \orange{ A_1 \bar{G}_1 \delta t_2 + B_1 \delta t_2 - \bar{F}_1 B_1 \delta t_1 }
 \end{align}
 
-\noindent replacing (\ref{eq_cap2_lin_x2_green}) and (\ref{eq_cap2_lin_x2_orange}) into equation (\ref{eq_cap2_lin_erro_x1x2})
+\noindent 
+and then replacing (\eqref{eq_cap3_lin_x2_green}) and (\eqref{eq_cap3_lin_x2_orange}) back into equation (\eqref{eq_cap3_lin_erro_x1x2}) we get to the difference equation for 
+$x(t_2) - \bar{x}(\bar{t}_2)$
+
+\noindent
 \begin{equation}
 	\label{eq_xt2_xt1_0}
 	\begin{split}
-		x(t_2) - \bar{x}(\bar{t}_2) =  & \bar{F}_1 [\green{x(t_1) - x_{r_1}(\bar{t}_1)}] \\
+		x(t_2) - \bar{x}(\bar{t}_2) =  & \bar{F}_1 [\green{x(t_1) - \bar{x}_1(\bar{t}_1)}] \\
 							     & \quad - \bar{F}_1 [A_1 \blue{x(t_1)} + B_1] \delta t_1 \\
 							     & \quad + [ \bar{F}_1 A_1 \underbrace{\blue{x(t_1)}}_{\blue{\triangle}} + A_1 \bar{G}_1 + B_1] \delta t_2
 	\end{split} 
 \end{equation}
 
-\noindent expanding $\blue{\triangle}$ from \ref{eq_cap2_lin_erro_x0x1_resultado}
+\noindent 
+from \eqref{eq_xt2_xt1_0}, $\blue{\triangle}$ can be expanded by replacing the resulting equation of \eqref{eq_cap3_lin_erro_x0x1_resultado}
 
+\noindent
 \begin{equation}
+	\label{cap3_triangle_x2_xr2}
 	\blue{\triangle} = x(t_1) = \bar{x}(\bar{t}_1) + \bar{F}_0 [ x(t_0) - \bar{x}(t_0) ] + [ \bar{F}_0 A_0 x(t_0) + A_0 \bar{G}_0 + B_0 ] \delta t_1 
-	\nonumber
 \end{equation}
 
-note that when $\blue{\triangle}$ is replaced in eq. \ref{eq_xt2_xt1_0} it will produce a product with $\delta t_1$ and $\delta t_2$ like
+\noindent 
+note that when $\blue{\triangle}$ is replaced in eq. \eqref{eq_xt2_xt1_0} it will produce a product with $\delta t_1$ and $\delta t_2$ like
+
+\noindent
 \begin{equation}
 	x(t_1)\delta t_1 = \bar{x}(\bar{t}_1)\delta t_1 + \bar{F}_0 \red{\overbrace{ [ x(t_0) - \bar{x}(t_0) ]\delta t_1 }^{\square}} + [ \bar{F}_0 A_0 x(t_0) + A_0 \bar{G}_0 + B_0 ] \purple{\overbrace{\delta t_1\delta t_1}^{\bigcirc}} 
 	\nonumber
 \end{equation}
 
+\noindent 
 both $\red{\square}$ and $\purple{\bigcirc}$ are products of differences that produces a smaller number and they will be neglected in the first order aproximations
 
+\noindent
 \begin{equation}
 	\label{eq_xt1_deltat1_aprox}
 	x(t_1)\delta t_1 \doteq \bar{x}(\bar{t}_1)\delta t_1 
 \end{equation}
 
-replacing equation \ref{eq_cap2_lin_erro_x0x1_resultado} and \ref{eq_xt1_deltat1_aprox} in \ref{eq_xt2_xt1_0}
+\noindent 
+replacing \eqref{eq_cap3_lin_erro_x0x1_resultado} and \eqref{cap3_triangle_x2_xr2} in \eqref{eq_xt2_xt1_0} it follows that
+
+\noindent
 \begin{equation}
 	\begin{split}
 		x(t_2) - \bar{x}(\bar{t}_2) =  & \bar{F}_1 \{\green{

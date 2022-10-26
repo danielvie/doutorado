@@ -1,8 +1,9 @@
 % ========================= INSTANDE DE TEMPO i =========================
 % =======================================================================
 
-Continuing on expanding the propagation of the system furthermore, we can deduce the equation for $x(t_i)$ as
+Continuing expanding the propagation of the system furthermore, we can deduce the equation for $x(t_i)$ as
 % 2.21
+\noindent
 \begin{align}
 	\begin{split}
 		x(t_i) - \bar{x}(\bar{t}_i) =  & \bar{F}_{i-1}\bar{F}_{i-2} \ldots \bar{F}_0 [x(t_0) - \bar{x}(t_0)] \\
@@ -17,9 +18,11 @@ Continuing on expanding the propagation of the system furthermore, we can deduce
 % ========================= INSTANDE DE TEMPO N =========================
 % =======================================================================
 
+\noindent 
 and then, for $x(t_N)$ we have 
 
 % 2.22
+\noindent
 \begin{align}
 	\label{eq_xN_propagation}
 		x(t_N) - \bar{x}(\bar{t}_N) =  & \bar{F}_{N-1}\bar{F}_{N-2} \ldots \bar{F}_{0} [x(t_0) - \bar{x}(t_0)] \nonumber \\
@@ -34,6 +37,7 @@ and then, for $x(t_N)$ we have
 \end{align}
 
 % 2.23
+\noindent
 \begin{align}
 	\label{eq_square_xN}
 	\green{\square} &= \green{\bar{F}_{0} A_0 x(t_0) + A_0 \bar{G}_0 - A_1 \bar{x}(\bar{t}_1) + B_0 - B_1} \nonumber \\
@@ -44,6 +48,7 @@ and then, for $x(t_N)$ we have
 \end{align}
 
 % 2.24
+\noindent
 \begin{align}
 	\label{eq_circle_xN}
 	\orange{\bigcirc} &= \orange{\bar{F}_{N-1} A_{N-1} \bar{x}(t_{N-1}) + A_{N-1} \bar{G}_{N-1} + B_{N-1}} \nonumber \\
@@ -53,8 +58,10 @@ and then, for $x(t_N)$ we have
 					 &= \orange{A_{N-1} \bar{x}(\bar{t}_N) + B_{N-1}}
 \end{align}
 
-replacing \ref{eq_square_xN} and \ref{eq_circle_xN} in \ref{eq_xN_propagation}
+\noindent 
+replacing \eqref{eq_square_xN} and \eqref{eq_circle_xN} in \eqref{eq_xN_propagation}
 
+\noindent
 \begin{align}
 	\begin{split}
 		x(t_N) - \bar{x}(\bar{t}_N) =  & \quad \bar{F}_{N-1}\bar{F}_{N-2} \ldots \bar{F}_{0} [x(t_0) - \bar{x}(t_0)] \\
@@ -66,6 +73,7 @@ replacing \ref{eq_square_xN} and \ref{eq_circle_xN} in \ref{eq_xN_propagation}
 	\end{split}
 \end{align}
 
+\noindent
 \begin{align}
 	e(t) &= x(t) - \bar{x}(\bar{t}) \\ \nonumber \\
 	\Phi &= \bar{F}_{N-1} \bar{F}_{N-2} \ldots \bar{F}_{0} \\ \nonumber \\
@@ -79,6 +87,7 @@ replacing \ref{eq_square_xN} and \ref{eq_circle_xN} in \ref{eq_xN_propagation}
 	e(t_N) &= \Phi e(t_0) + \Gamma \delta t
 \end{align}
 
+\noindent
 \begin{equation}
 	e(t_{j,N}) = \Phi e(t_{j,0}) + \Gamma \delta t[j]
 \end{equation}
@@ -87,8 +96,10 @@ replacing \ref{eq_square_xN} and \ref{eq_circle_xN} in \ref{eq_xN_propagation}
 	TODO: voltar para o problema inicial em que queriamos encontrar os tj,n
 }
 
+\noindent 
 where $\bar{x}$ is calculated as
 
+\noindent
 \begin{align}
 	\bar{x}(\bar{t}_1) &= F_0 \bar{x}(\bar{t}_0) + G_0 \\
     \bar{x}(\bar{t}_2) &= F_1 \bar{x}(\bar{t}_1) + G_1 \\
@@ -96,8 +107,10 @@ where $\bar{x}$ is calculated as
     \bar{x}(\bar{t}_N) &= F_{N-1} \bar{x}(\bar{t}_{N-1}) + G_{N-1}
 \end{align}
 
+\noindent
 and $F_i$ and $G_i$ are calculated as
 
+\noindent
 \begin{equation}
 	[F_i, G_i] = c2dm(Ai, Bi, [], [], dti, `zoh`)
 \end{equation}

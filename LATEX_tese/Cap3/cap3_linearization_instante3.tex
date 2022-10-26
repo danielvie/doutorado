@@ -1,29 +1,31 @@
 % ========================= INSTANDE DE TEMPO 3 =========================
 % =======================================================================
 
-Now, repeating the proceadure for $x(t_3)$ we have
+Now, repeating the procedure for $x(t_3)$ we have
 
-
+\noindent
 \begin{align}
 	\label{eq_cap2_lin_x3}
 	x(t_3)  &= e^{A_2(t_3-t_2)}x(t_2) + \intlinAA{2}{3}{}{} \\
 	\label{eq_cap2_lin_xr3}
-	x(\bar{t}_3) &= e^{A_2(\bar{t}_3-\bar{t}_2)}x(\bar{t}_2) + \intlinAbtt{2}{3}
+	\bar{x}(\bar{t}_3) &= e^{A_2(\bar{t}_3-\bar{t}_2)}\bar{x}(\bar{t}_2) + \intlinAbtt{2}{3}
 \end{align}
 
-subtracting \ref{eq_cap2_lin_x3} and \ref{eq_cap2_lin_xr3} 
+subtracting \eqref{eq_cap2_lin_x3} and \eqref{eq_cap2_lin_xr3} 
 
 \begin{equation}
 	\label{eq_cap2_lin_erro_x2x3}
 	\begin{split}
-		x(t_3) - x(\bar{t}_3) = \overbrace{\green{e^{A_2(t_3-t_2)}x(t_2) - e^{A_2(\bar{t}_3-\bar{t}_2)}x(\bar{t}_2)}}^{\green{\square}} \\ 
+		x(t_3) - \bar{x}(\bar{t}_3) = \overbrace{\green{e^{A_2(t_3-t_2)}x(t_2) - e^{A_2(\bar{t}_3-\bar{t}_2)}\bar{x}(\bar{t}_2)}}^{\green{\square}} \\ 
 		+ \underbrace{\orange{\intlinAA{2}{3}{}{} - \intlinAbtt{2}{3}}}_{\orange{\bigcirc}}
 	\end{split}
 \end{equation}
 
+\noindent 
 expanding $\green{\square}$
 
 % 2.16
+\noindent
 \begin{align}
 	\green{ \square } &=
 	\green{
@@ -45,9 +47,11 @@ expanding $\green{\square}$
 	} 
 \end{align}
 
+\noindent 
 expanding $\orange{\bigcirc}$
 
 % 2.17
+\noindent
 \begin{align}
 	\orange{\bigcirc} 	&= \orange{ \intlinAA{2}{3}{}{} - \intlinAbtt{2}{3} } \nonumber \\
 					   	&= \orange{ \intlinCb{\bar{t}_2+\delta t_2}{\bar{t}_3+\delta t_3}{2}{3} - \intlinAbtt{2}{3}} \nonumber \\
@@ -77,8 +81,10 @@ expanding $\orange{\bigcirc}$
 						&= \orange{ A_2 \bar{G}_2 \delta t_3 + B_2 \delta t_3 - \bar{F}_2 B_2 \delta t_2 }
 \end{align}
 
-replacing (\ref{eq_cap2_lin_x3_green}) in (\ref{eq_cap2_lin_x3_orange}) back in eq. (\ref{eq_cap2_lin_erro_x2x3})
+\noindent 
+replacing (\eqref{eq_cap2_lin_x3_green}) in (\eqref{eq_cap2_lin_x3_orange}) back in eq. (\eqref{eq_cap2_lin_erro_x2x3})
 
+\noindent
 \begin{align}
 	\begin{split}
 		x(t_3) - \bar{x}(\bar{t}_3) =  & \bar{F}_2 [\green{x(t_2) - \bar{x}_2(\bar{t}_2)}] \\
@@ -88,6 +94,7 @@ replacing (\ref{eq_cap2_lin_x3_green}) in (\ref{eq_cap2_lin_x3_orange}) back in 
 	\nonumber
 \end{align}
 
+\noindent
 \begin{align}
 	\begin{split}
 		x(t_3) - \bar{x}(\bar{t}_3) =  & \bar{F}_2 \{\green{\bar{F}_1\bar{F}_0[x(t_0) - \bar{x}(t_0)]} \\
@@ -99,6 +106,7 @@ replacing (\ref{eq_cap2_lin_x3_green}) in (\ref{eq_cap2_lin_x3_orange}) back in 
 	\nonumber
 \end{align}
 
+\noindent
 \begin{align}
 	\begin{split}
 		x(t_3) - \bar{x}(\bar{t}_3) =  & \bar{F}_2\bar{F}_1\bar{F}_0 [x(t_0) - \bar{x}(t_0)] \\

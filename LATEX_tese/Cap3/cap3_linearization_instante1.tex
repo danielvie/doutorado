@@ -3,54 +3,63 @@
 
 The solution for the state equation \eqref{eq_continuous_time_dynamics} at time $t_N$, starting from the initial condition $x(t_0)$, is of the form
 
+\noindent
 \begin{align}
-	\label{eq_cap2_lin_x1}
+	\label{eq_cap3_lin_x1}
 	x(t_1)  &= e^{A_0(t_1-t_0)}x(t_0) + \intlinAA{0}{1}{}{} \\
-	\label{eq_cap2_lin_xr1}
-	x(\bar{t}_1) &= e^{A_0(\bar{t}_1-\bar{t}_0)}x(\bar{t}_0) + \intlinAbtt{0}{1}
+	\label{eq_cap3_lin_xr1}
+	\bar{x}(\bar{t}_1) &= e^{A_0(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0) + \intlinAbtt{0}{1}
 \end{align}
 
-subtracting \eqref{eq_cap2_lin_x1} and \eqref{eq_cap2_lin_xr1} we get
+\noindent
+subtracting \eqref{eq_cap3_lin_xr1} from \eqref{eq_cap3_lin_x1} we get
 
+\noindent
 \begin{equation}
-	\label{eq_cap2_lin_erro_x0x1}
+	\label{eq_cap3_lin_erro_x0x1}
 	\begin{split}
-		x(t_1) - x(\bar{t}_1) = \overbrace{\green{e^{A_0(t_1-t_0)}x(t_0) - e^{A_0(\bar{t}_1-\bar{t}_0)}x(\bar{t}_0)}}^{\green{\square}} \\
+		x(t_1) - \bar{x}(\bar{t}_1) = \overbrace{\green{e^{A_0(t_1-t_0)}x(t_0) - e^{A_0(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)}}^{\green{\square}} \\
 		+ \underbrace{\orange{\intlinAA{0}{1}{}{} - \intlinAbtt{0}{1}}}_{\orange{\bigcirc}}
 	\end{split}
 \end{equation}
 
-expanding $\green{\square}$
+\noindent
+for a clear expansion of \eqref{eq_cap3_lin_erro_x0x1}, this equation can be developed in two parts, one part indicated in $\green{\square}$:
 
 % 2.4
+\noindent
 \begin{align}
-  \green{\square} &= \green{e^{A_0(t_1-t_0)}x(t_0) - e^{A_0(\bar{t}_1-\bar{t}_0)}x(\bar{t}_0)} \nonumber \\
-				  &= \green{e^{A_0(\bar{t}_1 + \delta t_1 - t_0)}x(t_0) - e^{A_0(\bar{t}_1-\bar{t}_0)}x(\bar{t}_0)} \nonumber \\
-				  &= \blue{e^{A_0(\bar{t}_1 - t_0)}} \green{e^{\delta t_1} x(t_0)} \green{-} \blue{e^{A_0(\bar{t}_1-\bar{t}_0)}}\green{x(\bar{t}_0)} \nonumber \\
-				  &= \blue{\bar{F}_0} \purple{e^{\delta t_1}} \green{x(t_0)} \green{-} \blue{\bar{F}_0}\green{x(\bar{t}_0)} \nonumber \\
-				  &= \green{\bar{F}_0} \purple{(I + A_0 \delta t_1)} \green{x(t_0)} \green{-} \green{\bar{F}_0}\green{x(\bar{t}_0)} \nonumber \\ 
-				  \label{eq_cap2_lin_erro_x0x1_green}
+	\label{eq_cap3_lin_erro_x0x1_green}
+	\green{\square} &= \green{e^{A_0(t_1-t_0)}x(t_0) - e^{A_0(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)} \nonumber \\
+				  &= \green{e^{A_0(\bar{t}_1 + \delta t_1 - t_0)}x(t_0) - e^{A_0(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)} \nonumber \\
+				  &= \blue{e^{A_0(\bar{t}_1 - t_0)}} \green{e^{\delta t_1} x(t_0)} \green{-} \blue{e^{A_0(\bar{t}_1-\bar{t}_0)}}\green{\bar{x}(\bar{t}_0)} \nonumber \\
+				  &= \blue{\bar{F}_0} \purple{e^{\delta t_1}} \green{x(t_0)} \green{-} \blue{\bar{F}_0}\green{\bar{x}(\bar{t}_0)} \nonumber \\
+				  &= \green{\bar{F}_0} \purple{(I + A_0 \delta t_1)} \green{x(t_0)} \green{-} \green{\bar{F}_0}\green{\bar{x}(\bar{t}_0)} \nonumber \\ 
 				  &= \green{\bar{F}_0 [x(t_0) - \bar{x}(t_0)] + \bar{F}_0 A_0 \delta t_1}
 \end{align}
 
-expanding $\orange{\bigcirc}$
+\noindent
+and one part indicated in $\orange{\bigcirc}$:
 
 % 2.5
+\noindent
 \begin{align}
-  \orange{\bigcirc} 	&= \orange{ \intlinAA{0}{1}{}{} - \intlinAbtt{0}{1} } \nonumber \\ 
+	\label{eq_cap3_lin_erro_x0x1_orange}
+	\orange{\bigcirc} 	&= \orange{ \intlinAA{0}{1}{}{} - \intlinAbtt{0}{1} } \nonumber \\ 
 				   	&= \orange{ \intlinCb{t_0}{\bar{t}_1+\delta t_1}{0}{1} - \intlinAbft{0}{1} } \nonumber \\
 				   	&= \orange{ e^{A_0 \delta t_1} \bigg[ \blue{\intlinAbft{0}{1}} + \purple{\intlinB{\bar{t}_1}{\bar{t}_1 + \delta t_1}{0}{1}} \bigg] }
 				   	   \orange{ -\blue{\intlinAbft{0}{1}} } \nonumber \\
 				   	&= \orange{ \pink{e^{A_0 \delta t_1}} [ \blue{\bar{G}_0} + \purple{B_0 \delta t_1} ] - \blue{\bar{G}_0} } \nonumber \\
 				   	&= \orange{ \pink{(I + A_0 \delta t_1)}[ \bar{G}_0 + B_0 \delta t_1 ] - \bar{G}_0 } \nonumber \\
 				   	&= \orange{ \cancel{\bar{G}_0} + B_0 \delta t_1 + A_0 \bar{G}_0 \delta t_1 + \cancel{A_0 B_0 \delta t_1 \delta t_1} - \cancel{\bar{G}_0} } \nonumber \\
-					\label{eq_cap2_lin_erro_x0x1_orange}
 				   	&= \orange{ A_0 \bar{G}_0 \delta t_1 + B_0 \delta t_1 }
 \end{align}
 
-and replacing \eqref{eq_cap2_lin_erro_x0x1_green} and \eqref{eq_cap2_lin_erro_x0x1_orange} into equation \eqref{eq_cap2_lin_erro_x0x1} we get to a equation that computes $x(t_1) - \bar{x}(\bar{t}_1)$ from $x(t_0) - \bar{x}(t_{r_0})$
+The resulting equations \eqref{eq_cap3_lin_erro_x0x1_green} and \eqref{eq_cap3_lin_erro_x0x1_orange} are then replaced back in \eqref{eq_cap3_lin_erro_x0x1} to complete the difference equation
 
+%
+\noindent
 \begin{equation}
-	\label{eq_cap2_lin_erro_x0x1_resultado}
-	x(t_1) - \bar{x}(t_{r_1}) = \bar{F}_0 [ x(t_0) - \bar{x}(t_0) ] + [ \bar{F}_0 A_0 x(t_0) + A_0 \bar{G}_0 + B_0 ] \delta t_1
+	\label{eq_cap3_lin_erro_x0x1_resultado}
+	x(t_1) - \bar{x}(\bar{t}_1) = \bar{F}_0 [ x(t_0) - \bar{x}(t_0) ] + [ \bar{F}_0 A_0 x(t_0) + A_0 \bar{G}_0 + B_0 ] \delta t_1
 \end{equation}
