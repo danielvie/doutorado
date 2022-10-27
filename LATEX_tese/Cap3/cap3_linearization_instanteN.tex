@@ -1,7 +1,7 @@
 % ========================= INSTANDE DE TEMPO i =========================
 % =======================================================================
 
-Continuing expanding the propagation of the system furthermore, we can deduce the equation for $x(t_i)$ as
+Now, there are enough iterations to deduce a pattern on each increment of the equation, so the equation for $x(t_i)$ can be deduced as
 % 2.21
 \noindent
 \begin{align}
@@ -19,7 +19,7 @@ Continuing expanding the propagation of the system furthermore, we can deduce th
 % =======================================================================
 
 \noindent 
-and then, for $x(t_N)$ we have 
+and then, for $x(t_N)$ the equation is as follows
 
 % 2.22
 \noindent
@@ -35,6 +35,8 @@ and then, for $x(t_N)$ we have
 								 \end{split} \nonumber \\
 							     & + [\underbrace{\orange{\bar{F}_{N-1} A_{N-1} \bar{x}(t_{N-1}) + A_{N-1} \bar{G}_{N-1} + B_{N-1}}}_{\orange{\bigcirc}}] \delta t_N
 \end{align}
+
+The equation \eqref{eq_xN_propagation} can be developed further to remove the dependencies on the intermediary states $x(t_0), x(t_1), ..., x(t_{N-2})$. By expanding $\green{\square}$ and $\orange{\bigcirc}$, the following identity holds
 
 % 2.23
 \noindent
@@ -63,6 +65,7 @@ replacing \eqref{eq_square_xN} and \eqref{eq_circle_xN} in \eqref{eq_xN_propagat
 
 \noindent
 \begin{align}
+	\label{eq_cap3_lin_erro_xNx0_resultado}
 	\begin{split}
 		x(t_N) - \bar{x}(\bar{t}_N) =  & \quad \bar{F}_{N-1}\bar{F}_{N-2} \ldots \bar{F}_{0} [x(t_0) - \bar{x}(t_0)] \\
 								 & + \bar{F}_{N-1}\bar{F}_{N-2} \ldots \bar{F}_{1} [\green{(A_0 - A_1) \bar{x}(\bar{t}_1) + B_0 - B_1}] \delta t_1 \\
@@ -72,6 +75,8 @@ replacing \eqref{eq_square_xN} and \eqref{eq_circle_xN} in \eqref{eq_xN_propagat
 							     & + [\orange{A_{N-1} \bar{x}(\bar{t}_N) + B_{N-1}}] \delta t_N
 	\end{split}
 \end{align}
+
+and renaming the terms of \eqref{eq_cap3_lin_erro_xNx0_resultado} to
 
 \noindent
 \begin{align}

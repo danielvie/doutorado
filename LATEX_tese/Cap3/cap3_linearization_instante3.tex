@@ -5,16 +5,18 @@ Now, repeating the procedure for $x(t_3)$ we have
 
 \noindent
 \begin{align}
-	\label{eq_cap2_lin_x3}
+	\label{eq_cap3_lin_x3}
 	x(t_3)  &= e^{A_2(t_3-t_2)}x(t_2) + \intlinAA{2}{3}{}{} \\
-	\label{eq_cap2_lin_xr3}
+	\label{eq_cap3_lin_xr3}
 	\bar{x}(\bar{t}_3) &= e^{A_2(\bar{t}_3-\bar{t}_2)}\bar{x}(\bar{t}_2) + \intlinAbtt{2}{3}
 \end{align}
 
-subtracting \eqref{eq_cap2_lin_x3} and \eqref{eq_cap2_lin_xr3} 
+\noindent
+subtracting \eqref{eq_cap3_lin_x3} from \eqref{eq_cap3_lin_xr3} 
 
+\noindent
 \begin{equation}
-	\label{eq_cap2_lin_erro_x2x3}
+	\label{eq_cap3_lin_erro_x2x3}
 	\begin{split}
 		x(t_3) - \bar{x}(\bar{t}_3) = \overbrace{\green{e^{A_2(t_3-t_2)}x(t_2) - e^{A_2(\bar{t}_3-\bar{t}_2)}\bar{x}(\bar{t}_2)}}^{\green{\square}} \\ 
 		+ \underbrace{\orange{\intlinAA{2}{3}{}{} - \intlinAbtt{2}{3}}}_{\orange{\bigcirc}}
@@ -22,9 +24,8 @@ subtracting \eqref{eq_cap2_lin_x3} and \eqref{eq_cap2_lin_xr3}
 \end{equation}
 
 \noindent 
-expanding $\green{\square}$
+expanding $\green{\square}$ in \eqref{eq_cap3_lin_erro_x2x3}:
 
-% 2.16
 \noindent
 \begin{align}
 	\green{ \square } &=
@@ -40,7 +41,7 @@ expanding $\green{\square}$
 		\blue{\bar{F}_2} \purple{[I + A_2(\delta t_3 - \delta t_2)]} x(t_2)
 		- \blue{\bar{F}_2} \bar{x}(\bar{t}_2)
 	} \nonumber \\
-	\label{eq_cap2_lin_x3_green}
+	\label{eq_cap3_lin_x3_green}
 	&= \green{
 		\bar{F}_2 [x(t_2) - \bar{x}(\bar{t}_2)] + \bar{F}_2 A_2 x(t_2) \delta t_3
 		- \bar{F}_2 A_2 x(t_2) \delta t_2
@@ -48,7 +49,7 @@ expanding $\green{\square}$
 \end{align}
 
 \noindent 
-expanding $\orange{\bigcirc}$
+and expanding $\orange{\bigcirc}$:
 
 % 2.17
 \noindent
@@ -77,22 +78,26 @@ expanding $\orange{\bigcirc}$
 							\bigg] - \bar{G}_2
 						} \nonumber \\
 						&= \orange{ \cancel{\bar{G}_2} - \bar{F}_2 B_2 \delta t_2 + B_2 \delta t_3 + A_2 \bar{G}_2 \delta t_3 - \cancel{\bar{G}_2} } \nonumber \\
-						\label{eq_cap2_lin_x3_orange}
+						\label{eq_cap3_lin_x3_orange}
 						&= \orange{ A_2 \bar{G}_2 \delta t_3 + B_2 \delta t_3 - \bar{F}_2 B_2 \delta t_2 }
 \end{align}
 
 \noindent 
-replacing (\eqref{eq_cap2_lin_x3_green}) in (\eqref{eq_cap2_lin_x3_orange}) back in eq. (\eqref{eq_cap2_lin_erro_x2x3})
+and then replacing \eqref{eq_cap3_lin_x3_green} in \eqref{eq_cap3_lin_x3_orange} back in eq. \eqref{eq_cap3_lin_erro_x2x3} we get to the difference equation
+for $x(t_3) - \bar{x}(\bar{t}_3)$
 
 \noindent
 \begin{align}
+	\label{eq_xt3_xt2_1_0}
 	\begin{split}
 		x(t_3) - \bar{x}(\bar{t}_3) =  & \bar{F}_2 [\green{x(t_2) - \bar{x}_2(\bar{t}_2)}] \\
 							     & - \bar{F}_2 [A_2 \blue{x(t_2)} + B_2] \delta t_2 \\
 							     & + [ \bar{F}_2 A_2 \blue{x(t_2)} + A_2 \bar{G}_2 + B_2] \delta t_3
 	\end{split}
-	\nonumber
 \end{align}
+
+\noindent 
+from \eqref{eq_cap3_lin_erro_x2x1_resultado}, $\blue{\triangle}$ can be expanded the same way as in the past iteration and $x(t_2)-\bar{x}(\bar{t}_2)$ can be replaced in \eqref{eq_xt3_xt2_1_0} 
 
 \noindent
 \begin{align}
@@ -107,7 +112,11 @@ replacing (\eqref{eq_cap2_lin_x3_green}) in (\eqref{eq_cap2_lin_x3_orange}) back
 \end{align}
 
 \noindent
+after rearranging the terms, one arrives at
+
+\noindent
 \begin{align}
+	\label{eq_cap3_lin_erro_x3x2_resultado}
 	\begin{split}
 		x(t_3) - \bar{x}(\bar{t}_3) =  & \bar{F}_2\bar{F}_1\bar{F}_0 [x(t_0) - \bar{x}(t_0)] \\
 								 & + \bar{F}_2\bar{F}_1[\bar{F}_0 A_0 x(t_0) + A_0 \bar{G}_0 - A_1 \bar{x}(\bar{t}_1) + B_0 - B_1] \delta t_1 \\
