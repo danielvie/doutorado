@@ -1,7 +1,7 @@
 % ========================= INSTANDE DE TEMPO 1 =========================
 % =======================================================================
 
-The solution for the state equation \eqref{eq_continuous_time_dynamics} at time $t_N$, starting from the initial condition $x(t_0)$, is of the form
+The solution for the state equation \eqref{eq_continuous_time_dynamics} at time $t_1$, starting from the initial condition $x(t_0)$, is of the form
 
 \noindent
 \begin{align}
@@ -24,7 +24,7 @@ subtracting \eqref{eq_cap3_lin_xr1} from \eqref{eq_cap3_lin_x1} we get
 \end{equation}
 
 \noindent
-for a clear expansion of \eqref{eq_cap3_lin_erro_x0x1}, this equation can be developed in two parts, one part indicated in $\green{\square}$:
+expanding \eqref{eq_cap3_lin_erro_x0x1} first in $\green{\square}$:
 
 % 2.4
 \noindent
@@ -39,7 +39,7 @@ for a clear expansion of \eqref{eq_cap3_lin_erro_x0x1}, this equation can be dev
 \end{align}
 
 \noindent
-and one part indicated in $\orange{\bigcirc}$:
+and then in $\orange{\bigcirc}$:
 
 % 2.5
 \noindent
@@ -55,11 +55,12 @@ and one part indicated in $\orange{\bigcirc}$:
 				   	&= \orange{ A_0 \bar{G}_0 \delta t_1 + B_0 \delta t_1 }
 \end{align}
 
-The resulting equations \eqref{eq_cap3_lin_erro_x0x1_green} and \eqref{eq_cap3_lin_erro_x0x1_orange} are then replaced back in \eqref{eq_cap3_lin_erro_x0x1} to complete the difference equation
+\noindent
+the resulting equations \eqref{eq_cap3_lin_erro_x0x1_green} and \eqref{eq_cap3_lin_erro_x0x1_orange} are replaced back in \eqref{eq_cap3_lin_erro_x0x1} to complete the difference equation
 
 %
 \noindent
-\begin{equation}
+\begin{tcolorbox}[ams align,colback=white]
 	\label{eq_cap3_lin_erro_x1x0_resultado}
 	x(t_1) - \bar{x}(\bar{t}_1) = \bar{F}_0 [ x(t_0) - \bar{x}(t_0) ] + [ \bar{F}_0 A_0 x(t_0) + A_0 \bar{G}_0 + B_0 ] \delta t_1
-\end{equation}
+\end{tcolorbox}

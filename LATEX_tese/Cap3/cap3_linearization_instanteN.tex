@@ -4,7 +4,7 @@
 Now, there are enough iterations to deduce a pattern on each increment of the equation, so the equation for $x(t_i)$ can be deduced as
 % 2.21
 \noindent
-\begin{align}
+\begin{tcolorbox}[ams align,colback=white]
 	\begin{split}
 		x(t_i) - \bar{x}(\bar{t}_i) =  & \bar{F}_{i-1}\bar{F}_{i-2} \ldots \bar{F}_0 [x(t_0) - \bar{x}(t_0)] \\
 								 & + \bar{F}_{i-1}\bar{F}_{i-2} \ldots \bar{F}_{1} [\bar{F}_0 A_0 x(t_0) + A_0 \bar{G}_0 - A_1 \bar{x}(\bar{t}_1) + B_0 - B_1] \delta t_1 \\
@@ -13,7 +13,7 @@ Now, there are enough iterations to deduce a pattern on each increment of the eq
 								 & + \bar{F}_{i-1}[\bar{F}_{i-2} A_{i-2} \bar{x}(t_{i-2}) + A_{i-2} \bar{G}_{i-2} - A_{i-1} \bar{x}(\bar{t}_{i-1}) + B_{i-2} - B_{i-1} ] \delta t_{i-1} \\
 							     & + [\bar{F}_{i-1} A_{i-1} \bar{x}(t_{i-1}) + A_{i-1} \bar{G}_{i-1} + B_{i-1}] \delta t_i
 	\end{split}
-\end{align}
+\end{tcolorbox}
 
 % ========================= INSTANDE DE TEMPO N =========================
 % =======================================================================
@@ -64,7 +64,7 @@ The equation \eqref{eq_xN_propagation} can be developed further to remove the de
 replacing \eqref{eq_square_xN} and \eqref{eq_circle_xN} in \eqref{eq_xN_propagation}
 
 \noindent
-\begin{align}
+\begin{tcolorbox}[ams align,colback=white]
 	\label{eq_cap3_lin_erro_xNx0_resultado}
 	\begin{split}
 		x(t_N) - \bar{x}(\bar{t}_N) =  & \quad \bar{F}_{N-1}\bar{F}_{N-2} \ldots \bar{F}_{0} [x(t_0) - \bar{x}(t_0)] \\
@@ -74,7 +74,7 @@ replacing \eqref{eq_square_xN} and \eqref{eq_circle_xN} in \eqref{eq_xN_propagat
 								 & + \bar{F}_{N-1}[\green{(A_{N-2} - A_{N-1}) \bar{x}(\bar{t}_{N-1}) + B_{N-2} - B_{N-1}}] \delta t_{N-1} \\
 							     & + [\orange{A_{N-1} \bar{x}(\bar{t}_N) + B_{N-1}}] \delta t_N
 	\end{split}
-\end{align}
+\end{tcolorbox}
 
 and renaming the terms of \eqref{eq_cap3_lin_erro_xNx0_resultado} to
 
@@ -95,10 +95,10 @@ and renaming the terms of \eqref{eq_cap3_lin_erro_xNx0_resultado} to
 we get to the affine equation
 
 \noindent
-\begin{equation}
+\begin{tcolorbox}[ams align,colback=white]
 	\label{eq_eNe0_result}
 	e(t_N) = \Phi e(t_0) + \Gamma \delta t
-\end{equation}
+\end{tcolorbox}
 
 % NOTE: como falar que chegamos no final?
 \purple{

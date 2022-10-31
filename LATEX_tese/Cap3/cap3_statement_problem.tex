@@ -4,11 +4,15 @@ Considering a plant of an affine switched system described by:
 
 \begin{equation}
 	\label{eq_continuous_time_dynamics}
-	\dot{x}(t) = A_{\sigma_t} x(t) + B_{\sigma_t}
+	\dot{x}(t) = A_{\sigma(t)} x(t) + B_{\sigma(t)}
 \end{equation}
 
+\red{
+    $ \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)} $
+}
+
 The control action applied in the system is in the form of perturbations in each operation mode switching time. By allowing the control the 
-system using predictive control, we need to find a linear equation that relates the switching times and the resulting system at the end of 
+a system using predictive control, we need to find a linear equation that relates the switching times and the resulting system at the end of 
 one cycle.  
 
 
