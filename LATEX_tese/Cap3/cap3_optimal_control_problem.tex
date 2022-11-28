@@ -55,11 +55,15 @@ Now, let $\boldmath{x^r}$ be the vector of target values defined as
 	\end{array} \right]
 \end{equation}
 
-\begin{equation}
-	J = (\bm{\hat{x}} - \bm{x_r})^T \bm{Q} (\bm{\hat{x}} - \bm{x_r}) + \rho \bm{\hat{\delta}t}^T \bm{\hat{\delta}t}
-\end{equation}
-
+\red {
+	In view of (??), (??), (??) and (??), the cost function \eqref{eq_cost_funcion} is rewritten as
+	\begin{equation}
+		J = (\bm{\hat{x}} - \bm{x_r})^T \bm{Q} (\bm{\hat{x}} - \bm{x_r}) + \rho \bm{\hat{\delta}t}^T \bm{\hat{\delta}t}
+	\end{equation}
+\noindent
 where $\bm{Q} = \bm{Q}^T > 0$ is an $nN x nN$ block-diagonal matrix defined as $\bm{Q} = diag(Q,Q,...,Q)$.
+}
+	
 
 \subsection{{Constraints}}
 

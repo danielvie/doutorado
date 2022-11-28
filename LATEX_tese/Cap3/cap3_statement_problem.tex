@@ -4,21 +4,17 @@ Considering a plant of an affine switched system described by:
 
 \begin{equation}
 	\label{eq_continuous_time_dynamics}
-	\dot{x}(t) = A_{\sigma(t)} x(t) + B_{\sigma(t)}
+	\dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}
 \end{equation}
-
-\red{
-    $ \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)} $
-}
 
 The control action applied in the system is in the form of perturbations in each operation mode switching time. By allowing the control the 
 a system using predictive control, we need to find a linear equation that relates the switching times and the resulting system at the end of 
 one cycle.  
 
-
 \subsection{Cost Function}
 
 \begin{equation}
+	\label{eq_cost_funcion}
 	J = \Vert e(N_pT) \Vert^2_{P_f} \\
 	+ \sum^{N_p - 1}_{j=0}\Vert e(jT)\Vert ^2_Q + \Vert \delta t[j]\Vert ^2_R
 \end{equation}
@@ -43,16 +39,11 @@ one cycle.
 	em que $Q = Q^T > 0$, $\rho > 0$
 }
 
-\purple{
-	TODO: colocar as Dwell-time Constraints (3.1.2), dwell time
-}
-
 \begin{equation}
 	\delta t = [t_{j,1} - \bar{t}_{j,1}, t_{j,2} - \bar{t}_{j,2}, ...]^T
 \end{equation}
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[]{Cap3/fig/desenho_cap3.eps}
-	\caption{Instantes de chaveamento}\label{cap2_linearizacao}
-\end{figure}
+\subsection{Dwell-time Constraints}
+\purple{
+	// TODO: colocar as Dwell-time Constraints (3.1.2), dwell time
+}

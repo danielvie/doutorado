@@ -1,6 +1,12 @@
 % ========================= INSTANDE DE TEMPO 1 =========================
 % =======================================================================
 
+\begin{figure}[h]
+	\centering
+	\includegraphics[]{Cap3/fig/desenho_cap3.eps}
+	\caption{Instantes de chaveamento}\label{cap2_linearizacao}
+\end{figure}
+
 The solution for the state equation \eqref{eq_continuous_time_dynamics} at time $t_1$, starting from the initial condition $x(t_0)$, is of the form
 
 \noindent
@@ -58,9 +64,8 @@ and then in $\orange{\bigcirc}$:
 \noindent
 the resulting equations \eqref{eq_cap3_lin_erro_x0x1_green} and \eqref{eq_cap3_lin_erro_x0x1_orange} are replaced back in \eqref{eq_cap3_lin_erro_x0x1} to complete the difference equation
 
-%
 \noindent
-\begin{tcolorbox}[ams align,colback=white]
-	\label{eq_cap3_lin_erro_x1x0_resultado}
+\boxeq{eq_cap3_lin_erro_x1x0_resultado}
+{
 	x(t_1) - \bar{x}(\bar{t}_1) = \bar{F}_0 [ x(t_0) - \bar{x}(t_0) ] + [ \bar{F}_0 A_0 x(t_0) + A_0 \bar{G}_0 + B_0 ] \delta t_1
-\end{tcolorbox}
+}
