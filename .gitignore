@@ -8,7 +8,6 @@ video/
 reunioes/
 codegen/
 
-.vscode
 .DS_Store
 
 # LOGS E ARQUIVOS AUXILIARES LATEX

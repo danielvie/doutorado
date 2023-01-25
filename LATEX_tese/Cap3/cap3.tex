@@ -3,6 +3,462 @@
 
 \subsection{{Prediction equation}}
 
+
+\noindent
+\purple{=================================}
+
+\purple{INICIO escrevendo aula7}
+
+\noindent
+\purple{=================================}
+
+dinamica a tempo discreto
+
+\begin{equation}
+	x(k + 1) = Ax(k) + Bu(k)
+\end{equation}
+
+com entrada u(k) $\in \mathbb{R}^p$ e estado $x(k) \in \mathbb{R}$ sujeitos aas seguintes restricoes:
+
+\begin{equation}
+	u(k) \in \mathcal{U}, x(k) \in \mathcal{X}, \forall k \geq 0
+\end{equation}
+
+\begin{equation}
+	\mathcal{U} = { u \in \mathbb{r}^p : S_u u \leq b_u }, \mathcal{X} = { x \in \mathbb{R}^n : S_x x \leq b_x}
+\end{equation}
+
+deseja-se conduzir o estado para um ponto de equilibrio $\bar{x} \in int(\mathcal{X})$, associado a um valor de equilibrio $\bar{u} \in int(\mathcal{U})$.
+
+Suponha que, sob a acao de uma dada lei de controle estabilizante da forma
+
+\begin{equation}
+	u(k) = -K [x(k) - \bar{x}] + \bar{u}
+\end{equation}
+
+o maximo conjunto admissivel quanto aas restricoes de estado e controle seja descrito por
+
+\begin{equation}
+	\mathcal{X}_f = \{ x \in \mathbb{r}^n : S_f x \leq b_f \}
+\end{equation}
+
+Se o estado inicial $x(0)$ estiver em $\mathcal{X}_f$, a lei de controle (*) podera ser aplicada a partir de $k = 0$ e o estado sera conduzido ao ponto de 
+equilibrio desejado, sem que as restricoes sejam violadas
+
+\fbox{\begin{minipage}{15em}
+	O que fazer se $x(0) \notin \mathcal{X}_f$ ?
+\end{minipage}}
+
+\noindent
+ROTEIRO
+
+\begin{itemize}
+	\item Conducao do estado a um conjunto alvo $\mathcal{X}_f$
+	\item Custo terminal e custo de trajetoria
+	\item Expressao do custoe das restricoes emprgando notacao mais concisa
+	\item Formulacao do problema de otimizacao na forma de programacao quadratica
+	\item Programacao quadratica: Existencia de solucao otima. Convexidade
+	\item Solucao de problemas de programacao quadratica no Matlab
+\end{itemize}
+
+CONDUCAO DO ESTADO AO CONJUNTO $\mathcal{X}_f$
+
+Dado um estado inicial $x(0) \notin \mathcal{X}_f$ gostariamos de obter uma sequencia de $N$ acoes de controle de modo que
+
+\begin{equation}
+	\begin{split}
+		u(0) \in \mathcal{U} \\
+		u(1) \in \mathcal{U} \\
+		\vdots \\
+		u(N - 1) \in \mathcal{U}
+	\end{split}
+\end{equation}
+
+de modo que 
+
+\begin{equation}
+	\begin{split}
+		u(1) \in \mathcal{X} \\
+		u(2) \in \mathcal{X} \\
+		\vdots \\
+		u(N - 1) \in \mathcal{X} \\
+		u(N) \in \mathcal{X}
+	\end{split}
+\end{equation}
+
+de maneira geral, a solucao (se existir) nao sera unica. portanto, eh necessario adotar um criterio que permita escolher a 
+melhor sequencia de acoes de controle para realizar a tarefa
+
+para isso, empregaremos um custo da forma
+
+\begin{equation}
+	J = \blue{\Vert x(N) -\bar{x} \Vert^2_{P_f}} + \red{\sum^{N-1}_{k=0} \Big[ \Vert x(k) - \bar{x} \Vert^2_Q +  \Vert u(k) - \bar{u} \Vert^2_R \Big]}
+\end{equation}
+
+sendo $P_f$, $Q$, $R$ matrizes de peso simetricas e positivo-definidas
+
+A exmpressao de J envolve uma parcela de \blue{custo terminal} e outra de \red{custo de trejetoria}
+
+Consideremos inicialmente $\bar{x} = 0$ e $\bar{u} = 0$.
+
+\begin{equation}
+	J = \Vert x(N) \Vert^2_{P_f} + \sum^{N-1}_{k=0} \Big[ \Vert x(k) \Vert^2_Q +  \Vert u(k) \Vert^2_R \Big]
+\end{equation}
+
+a expressao para o custo pose ser reescrita empregando a seguinte notacao:
+
+\begin{equation}
+	\mathbf{u} = 
+	\left[
+		\begin{matrix}
+			u(0) \\		
+			u(1) \\		
+			\vdots \\
+			u(N-1)
+		\end{matrix}
+	\right]
+	\in \mathbb{R}^{pN},
+	\mathbf{x} = 
+	\left[
+		\begin{matrix}
+			x(1) \\ 
+			x(2) \\ 
+			\vdots \\
+			x(N)
+		\end{matrix}
+	\right]
+	\in \mathbb{R}^{nN}
+\end{equation}
+
+lembrando que o estado inicial $x(0)$ foi fixado na formulacao do problema.
+
+com isso, a somatoria
+
+\begin{equation}
+	\sum^{N-1}_{k=0} \Vert u(k) \Vert^2_R = u^T(0) R u(0) + u^t(1)Ru(1) + \dotsm + u^T (N-1) R u(N-1)
+\end{equation}
+
+fica na forma
+
+\begin{equation}
+	\underbrace{
+		\left[
+			\begin{matrix}
+				u^T(0) & u^T(1) & \dotsi & u^T(N - 1) 
+			\end{matrix}
+		\right]
+	}_{\mathbf{u}^T}
+	\left[
+		\begin{matrix}
+			R & 0 & \dotsi & 0 \\
+			0 & R & \dotsi & 0 \\
+			\vdots & \vdots & \ddots & \vdots \\
+			0 & 0 & \dotsi & R \\
+		\end{matrix}
+	\right]
+	\underbrace{
+		\left[
+			\begin{matrix}
+				u(0) \\
+				u(1) \\
+				\vdots \\
+				u(N - 1)
+			\end{matrix}
+		\right]
+	}_{\mathbf{u}}
+\end{equation}
+
+tendo-se omitido a dimensao ($p \times p$) das submatrizes de zeros, por brevidade.
+
+Conventionando ainda a notacao
+
+\begin{equation}
+	\mathbf{R} = \left[
+		\begin{matrix}
+			R & 0 & \dotsi & 0 \\
+			0 & R & \dotsi & 0 \\
+			\vdots & \vdots & \ddots & \vdots \\
+			0 & 0 & \dotsi & R 
+		\end{matrix}
+	\right]
+\end{equation}
+
+ou, de forma abreviada:
+
+\begin{equation}
+	\mathbf{R} = diag_N(R)
+\end{equation}
+
+pode-se escrever
+
+\begin{equation}
+	\sum_{k=0}^{N-1} \Vert u(k) \Vert^2_R = \Vert \mathbf{u} \Vert^2_{\mathbf{R}}
+\end{equation}
+
+De forma similar, pode-se escrever
+
+\begin{equation}
+	\begin{gathered}
+		\Vert x(N) \Vert^2_{P_f} + \sum_{k=0}^{N-1} \Vert x(k) \Vert^2_Q = x^T(0) Q x(0) \\
+		+ x^T(1)Qx(1) + \dotsi + x^T(N-1)Qx(N-1) + x^T(N)P_fx(N) \\
+		= x^T(0)Qx(0) +  \\
+		\underbrace{
+			\left[
+				\begin{matrix}
+					x^T(1) & x^T(2) & \dotsi & x^T(N)		
+				\end{matrix}
+			\right]
+		}_{\mathbf{x}^T}
+		\left[
+			\begin{matrix}
+				Q & 0 & \dotsi & 0 \\
+				0 & Q & \dotsi & 0 \\
+				\vdots & \vdots & \ddots & \vdots \\
+				0 & 0 & \dotsi & P_f
+			\end{matrix}
+		\right]
+		\underbrace{
+			\left[
+				\begin{matrix}
+					x(1) \\
+					x(2) \\
+					\vdots \\
+					x(N)
+				\end{matrix}
+			\right]
+		}_{\mathbf{x}}
+	\end{gathered}
+\end{equation}
+
+Adotando a notação
+
+\begin{equation}
+	Q = 
+	\left[
+		\begin{matrix}
+			Q & 0 & \dotsi & 0 \\
+			0 & Q & \dotsi & 0 \\
+			\vdots & \vdots & \ddots & \vdots \\
+			0 & 0 & \dotsi & P_f
+		\end{matrix}
+	\right]
+	\in \mathbb{R}^{nN \times nN}
+\end{equation}
+
+ou, de forma abreviada:
+
+\begin{equation}
+	Q = 
+	\left[
+		\begin{matrix}
+			diag_{N-1}(Q) & 0 \\
+			0 & P_f
+		\end{matrix}
+	\right]
+\end{equation}
+
+pode-se escrever
+
+\begin{equation}
+	\Vert x(N) \Vert^2_{P_f} + \sum_{k=0}^{N-1} \Vert x(k) \Vert^2_Q + \Vert \mathbf{x} \Vert^2_{\mathbf{Q}}
+\end{equation}
+
+Em resumo, o custo pode ser reescrito como
+
+\begin{equation}
+	J(\mathbf{x}, \mathbf{u}) = \Vert x(0) \Vert^2_Q + \Vert \mathbf{x} \Vert^2_{\mathbf{Q}} + \Vert \mathbf{u} \Vert^2_{\mathbf{R}}
+\end{equation}
+
+Vamos agora expressar as restrições em termos de $\mathbf{x}$, $\mathbf{u}$.
+
+As restrições podem ser escritas como
+
+\begin{equation}
+	\mathbf{u} = \left[
+		\begin{matrix}
+			u(0) \\
+			u(1) \\
+			\vdots \\
+			u(N-1)
+		\end{matrix}
+	\right]
+	\in \mathcal{U} \times  \mathcal{U} \times \dotsi \times \mathcal{U} = \mathcal{U}^N
+\end{equation}
+
+\begin{equation}
+	\mathbf{x} = \left[
+		\begin{matrix}
+			x(1) \\
+			x(2) \\
+			\vdots \\
+			x(N)
+		\end{matrix}
+	\right]
+	\in \mathcal{X} \times  \mathcal{X} \times \dotsi \times \mathcal{X} = \mathcal{X}^{N-1} \times \mathcal{X}_f
+\end{equation}
+
+Lembrando que
+
+\begin{equation}
+	\mathcal{U} = \left\{
+		\mathbf{u} \in \mathbb{R}^p : S_u u \leq b_u	
+	\right\}
+\end{equation}
+
+a restrição sobre $\mathbf{u}$ pode ser expressa como
+\begin{equation}
+	\left[
+		\begin{matrix}
+			S_u & 0 & \dotsi & 0 \\
+			0 & S_u & \dotsi & 0 \\
+			\vdots & \vdots & \ddots & \vdots \\
+			0 & 0 & \dotsi & S_u
+		\end{matrix}
+	\right]
+	\left[
+		\begin{matrix}
+			u(0) \\
+			u(1) \\
+			\vdots \\
+			u(N-1)
+		\end{matrix}
+	\right]
+	\leq
+	\left[
+		\begin{matrix}
+			b_u \\
+			b_u \\
+			\vdots \\
+			b_u
+		\end{matrix}
+	\right]
+\end{equation}
+
+ou, de forma mais concisa:
+
+\begin{equation}
+	\mathbf{S_u u} \leq \mathbf{b_u}
+\end{equation}
+
+sendo
+
+\begin{equation}
+	\mathbf{S_u} = diag_N(S_u), \mathbf{b_u} = col_N(b_u)
+\end{equation}
+
+De forma similar, lembrando que
+
+\begin{equation}
+	\mathcal{X} = \left\{
+		x \in \mathbb{R}^n : S_x x \leq b_x
+	\right\}
+	, \mathcal{X}_f = 
+	\left\{
+		x \in \mathbb{R}^n : S_f x \leq b_f
+	\right\}
+\end{equation}
+
+ou, de forma mais concisa
+
+\begin{equation}
+	\mathbf{S_x x} \leq \mathbf{b_x}
+\end{equation}
+
+sendo
+
+\begin{equation}
+	\mathbf{S_x} = 
+	\left[
+		\begin{matrix}
+			diag_{N-1}(S_x) & 0 \\
+			0 & S_f
+		\end{matrix}
+	\right], \mathbf{b_x} = 
+	\left[
+		\begin{matrix}
+			col_{N-1}(b_x) \\
+			b_f
+		\end{matrix}
+	\right]
+\end{equation}
+
+No caso geral em que $\bar{x} \ne 0, \bar{u} \ne 0$
+
+\begin{equation}
+	J = \Vert x(N) - \bar{x} \Vert^2_{P_f} + \sum_{k=0}^{N-1} \left[
+		\norma{x(k) - \bar{x}}{Q} + \norma{u(k) - \bar{u}}{R}
+	\right]
+\end{equation}
+
+torna-se
+
+\begin{equation}
+	J(\mathbf{x}, \mathbf{u}) = \norma{x(0) - \bar{x}}{P_f} + \norma{\mathbf{x}-col_N(\bar{x})}{\mathbf{Q}}
+		+ \norma{\mathbf{u} - col_N(\bar{u})}{\mathbf{R}}
+\end{equation}
+
+O problema de otimização a ser resolvido pode ser expresso como
+
+\begin{equation}
+	\min_{\mathbf{x} \in \mathbb{R}^{nN}, \mathbf{u} \in \mathbb{R}^{pN}} J(x,u)
+\end{equation}
+
+sendo
+
+\begin{equation}
+	J(\mathbf{x}, \mathbf{u}) = \norma{x(0) - \bar{x}}{Q} + \norma{\mathbf{x} - col_N(\bar{x})}{\mathbf{Q}} + \norma{\mathbf{u} - col_N(\bar{u})}{\mathbf{R}}
+\end{equation}
+
+com $\mathbf{u}$, $\mathbf{u}$ sujeitas a
+
+\begin{equation}
+	\mathbf{S_x x} \leq \mathbf{b_x}
+\end{equation}
+
+\begin{equation}
+	\mathbf{S_u u} \leq \mathbf{b_u}
+\end{equation}
+
+Vamos expressar o vinculo entre os vetores
+
+\begin{equation}
+	\mathbf{u} = \left[
+		\begin{matrix}
+			u(0) \\ 
+			u(1) \\ 
+			\vdots \\ 
+			u(N-1)
+		\end{matrix}
+	\right],
+	\mathbf{x} = \left[
+		\begin{matrix}
+			x(1) \\ 
+			x(2) \\ 
+			\vdots \\ 
+			x(N)
+		\end{matrix}
+	\right]
+\end{equation}
+
+com base na equação de estado
+
+\begin{equation}
+	x(k+1) = Ax(k) + Bu(k)
+\end{equation}
+
+e na condição inicial $x(0)$.
+
+// PAGINA 18/78
+
+\noindent
+\purple{=================================}
+
+\purple{FIM escrevendo aula7}
+
+\noindent
+\purple{=================================}
+
+
 \purple{INICIO referencia nova}
 
 \purple{INICIO referencia nova}
@@ -354,7 +810,6 @@ De forma similar:
 \begin{equation}
     -\mathbf{u}^T\mathbf{R}[col_N(\bar{u})] - [col_N(\bar{u})]^T\mathbf{R}\mathbf{u} = -2[col_N(\bar{u})]^T\mathbf{R}\mathbf{u}
 \end{equation}
-
 
 Finalmente, pode-se escrever
 
