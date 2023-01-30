@@ -97,7 +97,7 @@ para isso, empregaremos um custo da forma
 
 sendo $P_f$, $Q$, $R$ matrizes de peso simetricas e positivo-definidas
 
-A exmpressao de J envolve uma parcela de \blue{custo terminal} e outra de \red{custo de trejetoria}
+A expressao de J envolve uma parcela de \blue{custo terminal} e outra de \red{custo de trejetoria}
 
 Consideremos inicialmente $\bar{x} = 0$ e $\bar{u} = 0$.
 
@@ -448,7 +448,313 @@ com base na equação de estado
 
 e na condição inicial $x(0)$.
 
-// PAGINA 18/78
+Neste ponto, vale lembrar a solução da equação de estado:
+
+\begin{equation}
+	x(k) = A^kx(0) + \sum_{i=0}^{k-1} A^{k-1-i} B u(i)
+\end{equation}
+
+que pose ser escrita para $k = 1,2,...,N$ como
+
+\begin{align}
+	x(1) &= A x(0) + Bu(0) \\
+	x(2) &= A^2 x(0) + ABu(0) + Bu(1) \\
+	&\vdots \\
+	x(N) &= A^N x(0) A^{N - 1}Bu(0) + \dotsi + ABu(N - 2) + Bu(N - 1)
+\end{align}
+
+ou ainda
+
+\begin{equation}
+	\left[
+		\begin{matrix}
+			x(1) \\
+			x(2) \\
+			\vdots \\
+			x(N) \\
+		\end{matrix}
+	\right] = 
+	\left[
+		\begin{matrix}
+			A \\
+			A^2 \\
+			\vdots \\
+			A^N
+		\end{matrix}
+	\right]
+	x(0) + 
+	\left[
+		\begin{matrix}
+			B & 0 & \dotsi & 0 \\
+			0 & B & \dotsi & 0 \\
+			\vdots & \vdots & \ddots & \vdots \\
+			A^{N-1}B & A^{N-2}B & \dotsi & B
+		\end{matrix}
+	\right]
+	\left[
+		\begin{matrix}
+			u(0) \\
+			u(1)\\
+			\vdots \\
+			u(N-1)
+		\end{matrix}
+	\right]
+\end{equation}
+
+De forma mais concisa, vamos escrever
+
+\begin{equation}
+	\mathbf{x} = \mathbf{A}x(0) + \mathbf{Bu}
+\end{equation}
+
+com 
+
+\begin{equation}
+	\mathbf{A} = \left[
+		\begin{matrix}
+			A \\
+			A^2 \\
+			\vdots \\
+			A^N
+		\end{matrix}
+	\right]
+	, 
+	\mathbf{B} = \left[
+		\begin{matrix}
+			B & 0 & \dotsi & 0 \\
+			0 & B & \dotsi & 0 \\
+			\vdots & \vdots & \ddots & \vdots \\
+			A^{N-1}B & A^{N-2}B & \dotsi & B
+		\end{matrix}
+	\right]
+\end{equation}
+
+Tendo em vista o vínculo
+
+\begin{equation}
+	\mathbf{x} = \mathbf{A}x(0) + \mathbf{Bu}
+\end{equation}
+
+pode-se reescrever a função de custo como
+
+\begin{equation}
+	\begin{gathered}
+		J(\mathbf{x}, \mathbf{u}) = \norma{x(0) - \bar{x}}{Q} + \norma{\mathbf{x} - col_N(\bar{x})}{\mathbf{Q}} + 
+		\norma{\mathbf{u} - col_N(\bar{u})}{\mathbf{R}} \\
+		= \norma{x(0) - \bar{x}}{Q} \\
+		+ \left[ \mathbf{A} x(0) + \mathbf{Bu} - col_N(\bar{x})\right]^T \mathbf{Q}
+		\left[ \mathbf{A} x(0) + \mathbf{Bu} - col_N(\bar{x})\right] \\
+		+ \left[\mathbf{u} - col_N(\bar{u})\right]^T \mathbf{R}
+		\left[\mathbf{u} - col_N(\bar{u})\right] \\
+		J(\mathbf{x}, \mathbf{u}) = \norma{x(0) - \bar{x}}{Q} \\
+		+ \left[\mathbf{A}x(0) - col_N(\bar{x}) \mathbf{Bu}\right]^T \mathbf{Q}
+		\left[\mathbf{A}x(0) - col_N(\bar{x}) \mathbf{Bu}\right] \\
+		+ \mathbf{u}^T \mathbf{Ru} - \mathbf{u}^T\mathbf{R} \left[col_N(\bar{u})\right]
+		- \left[col_N(\bar{u}) \right]^T \mathbf{Ru} + \norma{col_N(\bar{u})}{\mathbf{R}}
+	\end{gathered}
+\end{equation}
+
+\begin{equation}
+	\begin{gathered}
+		J(\mathbf{x}, \mathbf{u}) = 
+		\blue{ \norma{x(0) - \bar{x}}{Q} +  + \norma{col_N(\bar{u})}{\mathbf{R}} } \\
+		\green{ \left[\mathbf{A}x(0) - col_N(\bar{x})\right]^T \mathbf{QBu} + y} \\
+		-\mathbf{u}^T\mathbf{R} \left[col_N(\bar{u})\right] - \left[col_N(\bar{u})\right]^T \mathbf{Ru} + \mathbf{u}^T (\mathbf{R} + \mathbf{B}^T \mathbf{QB})\mathbf{u}
+	\end{gathered}
+\end{equation}
+
+Observacoes:
+
+% O \blue{termo constante} será denotado por \blue{c_0}
+
+O \blue{termo constante} será denotado por \blue{$c_0$}
+
+Lembrando que a matriz $\mathbf{Q}$ é simétrica, tem-se
+
+\begin{equation}
+	\green{ \left[\mathbf{A}x(0) - col_N(\bar{x})\right]^T \mathbf{QBu} } 
+	= 
+	\left\{
+	\green{ \mathbf{u}^T \mathbf{B}^T \mathbf{Q} \left[\mathbf{A}x(0) - col_N(\bar{x})\right] }
+	\right\}^T \\
+\end{equation}
+
+Como esses termos são escalares, conclui-se que são iguais entre si. Logo:
+
+\begin{equation}
+	\begin{gathered}
+		\green{ \left[\mathbf{A}x(0) - col_N(\bar{x})\right]^T \mathbf{QBu} }
+		+ \green{ \mathbf{u}^T \mathbf{B}^T \mathbf{Q} \left[\mathbf{A}x(0) - col_N(\bar{x})\right] } \\
+		= \green{ 2 \left[\mathbf{A}x(0) - col_N(\bar{x})\right]^T \mathbf{QBu} }
+	\end{gathered}
+\end{equation}
+
+De forma similar:
+
+\begin{equation}
+	- \mathbf{u}^T \mathbf{R} \left[col_N(\bar{u})\right] - \left[col_N(\bar{u})\right]^T \mathbf{Ru} = 
+	-2 \left[col_N(\bar{u})\right]^T \mathbf{Ru}
+\end{equation}
+
+Finalmente, pode-se escrever
+
+\begin{equation}
+	\begin{gathered}
+		J(\mathbf{u}) = \mathbf{u}^T (\mathbf{B}^T \mathbf{Q} \mathbf{B} + \mathbf{R}) \mathbf{u} \\
+		+ 2 \left\{
+			\left[
+				\mathbf{A}x(0) - col_N(\bar{x})
+			\right]^T \mathbf{QB} - \left[col_N(\bar{u})\right]^T \mathbf{R}
+		\right\} \mathbf{u} = c_0
+	\end{gathered}
+\end{equation}
+
+com 
+
+\begin{equation}
+	c_0 = \norma{x(0) - \bar{x}}{Q} + \norma{\mathbf{A}x(0) - col_N(\bar{x})}{\mathbf{R}} + \norma{col_N(\bar{u})}{\mathbf{R}}
+\end{equation}
+
+Note-se que passaremos a usar a notação $J(\mathbf{u})$ em lugar de $J(\mathbf{x}, \mathbf{u})$, uma vez que $\mathbf{x}$ foi eliminada da expressão do custo.
+
+Para terminar a reformulação do problema de otimização em termos de $\mathbf{u}$, deve-se considerar o vínculo entre $\mathbf{x}$ e $\mathbf{u}$ nas \textbf{restrições} 
+
+Considerando novamente o vínculo
+
+\begin{equation}
+	\mathbf{x} = \mathbf{A} x(0) + \mathbf{Bu}
+\end{equation}
+
+a restrição 
+
+\begin{equation}
+	\mathbf{S_x x} \leq \mathbf{b_x}
+\end{equation}
+
+pode ser reformulada como
+
+\begin{equation}
+	\mathbf{S_x B u} \leq \mathbf{b_x} - \mathbf{S_x A} x(0)
+\end{equation}
+
+Em conjunto com $\mathbf{S_u u} \leq \mathbf{b_u}$, pode-se então expressar as restrições na forma
+
+\begin{equation}
+	\left[
+		\begin{matrix}
+			\mathbf{S_xB} \\
+			\mathbf{S_u}
+		\end{matrix}
+	\right] \mathbf{u} \leq
+	\left[
+		\begin{matrix}
+			\mathbf{b_x} - \mathbf{S_x A} x(0) \\
+			\mathbf{b_u}
+		\end{matrix}
+	\right]
+\end{equation}
+
+ou, de maneira mais sucinta:
+
+\begin{equation}
+	\mathbf{Su} \leq \mathbf{b}
+\end{equation}
+
+com
+
+\begin{equation}
+	\mathbf{S} = \left[
+		\begin{matrix}
+			\mathbf{S_xB} \\
+			\mathbf{S_u}
+		\end{matrix}
+	\right],
+	\mathbf{b} = \left[
+		\begin{matrix}
+			\mathbf{b_x} - \mathbf{S_x A} x(0) \\
+			\mathbf{b_u}
+		\end{matrix}
+	\right]
+\end{equation}
+
+Em resumo, o problema de otimização passa a ser expresso como
+
+\begin{equation}
+	\min_{\mathbf{u} \in^{pN}} J(\mathbf{u}) s.a. \mathbf{Su} \leq \mathbf{b}
+\end{equation}
+
+sendo
+
+\begin{equation}
+	\begin{gathered}
+		J(\mathbf{u}) \mathbf{u^T} (\mathbf{B}^T \mathbf{Q} \mathbf{B} + \mathbf{R})\mathbf{u} \\
+		+ 2 \Big\{
+			[\mathbf{A} x(0) - col_N(\bar{x})]^T \mathbf{Q} \mathbf{B} - [col_N(\bar{u})]^T \mathbf{R}
+		\Big\} \mathbf{u} + c_0
+	\end{gathered}
+\end{equation}
+
+Trata-se da minimização de um \textbf{custo quadrático} sujeito a \textbf{restrições lineares}:
+
+\textbf{PROBLEMA DE PROGRAMACAO QUADATICA}
+
+Para facilitar a análise do problema de programação quadrática, passaremos a escrever o custo
+
+\begin{equation}
+	\begin{gathered}
+		J(\mathbf{u}) = \mathbf{u}^T (\mathbf{B}^T \mathbf{Q} \mathbf{B} + \mathbf{R}) \mathbf{u} + \\
+		2 \Big\{
+			[\mathbf{A} x(0) - col_N(\bar{x})]^T \mathbf{Q} \mathbf{B} - [col_N(\bar{u})]^T \mathbf{R}
+		\Big\} \mathbf{u} + c_0
+	\end{gathered}
+\end{equation}
+
+nesta forma padronizada:
+
+\begin{equation}
+	J(\mathbf{u}) = \frac{1}{2} \mathbf{u}^T J_{\boldmath{uu}}\mathbf{u} f^T \mathbf{u} + c_0
+\end{equation}
+
+com 
+
+\begin{equation}
+	J(\mathbf{u}) = 2 (\mathbf{B}^T \mathbf{Q} \mathbf{B} + \mathbf{R}), f = 2 
+	\Big\{
+		\mathbf{B}^T \mathbf{Q} [ \mathbf{A} x(0) - col_N(\bar{x}) ] - \mathbf{R} col_N(\bar{u})
+	\Big\}
+\end{equation}
+
+lembrando que $\mathbf{Q}$ e $\mathbf{R}$ são simétricas.
+
+TERMINOLOGIA E NOTACAO
+
+\begin{equation}
+	J(\mathbf{u}) \frac{1}{2} \mathbf{u}^T J_{\mathbf{uu}u} + f^T\mathbf{u} = c_0
+\end{equation}
+
+1) A matriz $J_{\mathbf{uu}}$ corresponde à chamada \textbf{Hessiana} do custo, que é definica como
+
+\begin{equation}
+	J_{\mathbf{uu}} = 
+	\left[
+		\begin{matrix}
+			\frac{\partial^2 J}{\partial u^2_1} & \frac{\partial^2 J}{\partial u_1 \partial u_2} & \dotsi & \frac{\partial^2 J}{\partial u_1 \partial u_N} \\ 
+			\frac{\partial^2 J}{\partial u_2 \partial u_1} & \frac{\partial^2 J}{\partial u^2_2} & \dotsi & \frac{\partial^2 J}{\partial u_2 \partial u_N} \\ 
+			\vdots & \vdots & \ddots & \vdots \\ 
+			\frac{\partial^2 J}{\partial u_N \partial u_1} & \frac{\partial^2 J}{\partial u_N \partial u_2} & \dotsi & \frac{\partial^2 J}{\partial u^2_N} \\ 
+		\end{matrix}
+	\right]
+\end{equation}
+
+sendo $u_1, u_2, \dotso, u_N$ como componentes de $\mathbf{u}$. Vide \textbf{material suplementar 1} ao final dos slides para mais detalhes.
+
+Vale notar que $J_{ \mathbf{uu} } = 2(\mathbf{B}^T \mathbf{Q} \mathbf{B} + \mathbf{R})$ é simétrica e positivo definida, pois $\mathbf{Q}$ e $\mathbf{R}$ 
+são simétricas e positivo definidas.
+
+\subsection{FIM}
+
+// PAGINA 31/78
+// tese pag 31
 
 \noindent
 \purple{=================================}
