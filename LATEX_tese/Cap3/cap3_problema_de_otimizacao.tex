@@ -1,0 +1,249 @@
+\section{Retornando à função de custo}
+
+Tendo em vista o vínculo
+
+\begin{equation}
+	\mathbf{x} = \mathbf{A}x(0) + \mathbf{Bu}
+\end{equation}
+
+pode-se reescrever a função de custo como
+
+\begin{equation}
+		J(\mathbf{x}, \mathbf{u}) = \norma{x(0) - \bar{x}}{Q} 
+		+ \green{\overbrace{\norma{\mathbf{x} - col_N(\bar{x})}{\mathbf{Q}}}^\square} 
+		+ \blue{\overbrace{\norma{\mathbf{u} - col_N(\bar{u})}{\mathbf{R}}}^\bigcirc}
+\end{equation}
+
+\noindent
+\begin{align}
+	\green{\square} &= \green{\norma{\mathbf{x} - col_N(\bar{x})}{\mathbf{Q}}} \\
+	&= \green{
+		\Big[
+			\mathbf{A}x(0) + \mathbf{Bu} - col_N(\bar{x})
+		\Big]^T \mathbf{Q}
+		\Big[
+			\mathbf{A}x(0) + \mathbf{Bu} - col_N(\bar{x})
+		\Big]
+	} \\
+	&= \green{
+		\Big[
+			\mathbf{A}x(0) - col_N(\bar{x}) + \mathbf{Bu}
+		\Big]^T \mathbf{Q}
+		\Big[
+			\mathbf{A}x(0) - col_N(\bar{x}) + \mathbf{Bu}
+		\Big]
+	} \\
+	\begin{split}
+		&= \green{
+			\norma{\mathbf{A}x(0) - col_N(\bar{x})}{\mathbf{Q}}
+		} \green{ + 
+			\Big[
+				\mathbf{A}x(0) - col_N(\bar{x})
+			\Big]^T \mathbf{Q} \mathbf{Bu}
+		} \\
+		&\qquad \green{ + 
+			\mathbf{u}^T \mathbf{B}^T \mathbf{Q}
+			\Big[
+				\mathbf{A}x(0) - col_N(\bar{x})
+			\Big] 
+		} \green{ + 
+			\mathbf{u}^T \mathbf{B}^T \mathbf{Q} \mathbf{Bu}
+		}
+	\end{split}
+\end{align}
+
+\noindent
+\begin{align}
+	\blue{\bigcirc} &= \blue{
+		\norma{\mathbf{u} - col_N(\bar{u})}{\mathbf{R}}
+	} \\
+	&= \blue{
+		\Big[
+			\mathbf{u} - col_N(\bar{u})
+		\Big]^T \mathbf{R}
+		\Big[
+			\mathbf{u} - col_N(\bar{u})
+		\Big]
+	} \\
+	&= \blue{
+		\mathbf{u}^T \mathbf{R} \mathbf{u} 
+		- \mathbf{u}^T \mathbf{R} \Big[ col_N(\bar{u}) \Big]
+		- \Big[ col_N(\bar{u}) \Big]^T \mathbf{Ru}
+		+ \norma{col_N(\bar{u})}{\mathbf{R}}
+	}
+\end{align}
+
+substituindo $\green{\square}$ and $\blue{\bigcirc}$ de volta na equacao de custo e reorganizando os termos
+
+\noindent
+\begin{align}
+	J(\mathbf{x}, \mathbf{u}) 
+	&= \purple{
+		\norma{x(0) - \bar{x}}{Q} 
+		+ \norma{\mathbf{A} x(0) - col_N(\bar{x})}{\mathbf{Q}}
+		+ \norma{col_N(\bar{u})}{\mathbf{R}}
+	} \\
+	&\quad + \orange{
+		\Big[ \mathbf{A} x(0) - col_N(\bar{x}) \Big]^T \mathbf{QBu}
+		+ \mathbf{u}^T \mathbf{B}^T \mathbf{Q} \Big[ \mathbf{A} x(0) - col_N(\bar{x}) \Big]
+	} \\
+	&\quad 
+		- \mathbf{u}^T \mathbf{R} \Big[ col_N(\bar{u}) \Big] - \Big[ col_N(\bar{u}) \Big]^T \mathbf{Ru}
+		+ \mathbf{u}^T (\mathbf{R} + \mathbf{B}^T \mathbf{Q} \mathbf{B}) \mathbf{u}
+\end{align}
+
+O \purple{termo constante} será denotado por \purple{$c_0$}
+
+Lembrando que a matriz $\mathbf{Q}$ é simétrica, tem-se
+
+\begin{equation}
+	\orange{ \left[\mathbf{A}x(0) - col_N(\bar{x})\right]^T \mathbf{QBu} } 
+	= 
+	\Big\{
+	\orange{ \mathbf{u}^T \mathbf{B}^T \mathbf{Q} \left[\mathbf{A}x(0) - col_N(\bar{x})\right] }
+	\Big\}^T \\
+\end{equation}
+
+Como esses termos são escalares, conclui-se que são iguais entre si. Logo:
+
+\begin{equation}
+	\begin{gathered}
+		\orange{ \left[\mathbf{A}x(0) - col_N(\bar{x})\right]^T \mathbf{QBu} }
+		+ \orange{ \mathbf{u}^T \mathbf{B}^T \mathbf{Q} \left[\mathbf{A}x(0) - col_N(\bar{x})\right] } \\
+		= \orange{ 2 \left[\mathbf{A}x(0) - col_N(\bar{x})\right]^T \mathbf{QBu} }
+	\end{gathered}
+\end{equation}
+
+De forma similar:
+
+\noindent
+\begin{equation}
+	- \mathbf{u}^T \mathbf{R} \left[col_N(\bar{u})\right] - \left[col_N(\bar{u})\right]^T \mathbf{Ru} = 
+	-2 \left[col_N(\bar{u})\right]^T \mathbf{Ru}
+\end{equation}
+
+Finalmente, pode-se escrever
+
+\noindent
+\begin{equation}
+	\begin{gathered}
+		J(\mathbf{u}) = \mathbf{u}^T (\mathbf{B}^T \mathbf{Q} \mathbf{B} + \mathbf{R}) \mathbf{u} \\
+		+ 2 \left\{
+			\left[
+				\mathbf{A}x(0) - col_N(\bar{x})
+			\right]^T \mathbf{QB} - \left[col_N(\bar{u})\right]^T \mathbf{R}
+		\right\} \mathbf{u} = c_0
+	\end{gathered}
+\end{equation}
+
+com 
+
+\noindent
+\begin{equation}
+	c_0 = \norma{x(0) - \bar{x}}{Q} + \norma{\mathbf{A}x(0) - col_N(\bar{x})}{\mathbf{R}} + \norma{col_N(\bar{u})}{\mathbf{R}}
+\end{equation}
+
+Note-se que passaremos a usar a notação $J(\mathbf{u})$ em lugar de $J(\mathbf{x}, \mathbf{u})$, uma vez que $\mathbf{x}$ foi eliminada da expressão do custo.
+
+Para terminar a reformulação do problema de otimização em termos de $\mathbf{u}$, deve-se considerar o vínculo entre $\mathbf{x}$ e $\mathbf{u}$ nas \textbf{restrições} 
+
+
+\section{Problema de Otimização}
+
+O problema de otimização a ser resolvido pode ser expresso como
+
+\begin{equation}
+	\min_{\mathbf{x} \in \mathbb{R}^{nN}, \mathbf{u} \in \mathbb{R}^{pN}} J(x,u)
+\end{equation}
+
+sendo
+
+\begin{equation}
+	J(\mathbf{x}, \mathbf{u}) = \norma{x(0) - \bar{x}}{Q} + \norma{\mathbf{x} - col_N(\bar{x})}{\mathbf{Q}} + \norma{\mathbf{u} - col_N(\bar{u})}{\mathbf{R}}
+\end{equation}
+
+com
+
+\begin{equation}
+    \mathbf{u}(k) = \left[
+        \begin{matrix}
+            u(k|k) \\
+            u(k + 1|k) \\
+            \vdots \\ 
+            u(k + N - 1|k)
+        \end{matrix}
+    \right] \in \mathbb{R}^{pN},
+    \mathbf{x}(k) = \left[
+        \begin{matrix}
+            x(k + 1|k) \\
+            x(k + 2|k) \\
+            \vdots \\ 
+            x(k + N|k)
+        \end{matrix}
+    \right] \in \mathbb{R}^{nN},
+\end{equation}
+
+sujeitas a
+
+\begin{equation}
+	\mathbf{S_x} \mathbf{x}(k) \leq \mathbf{b_x}
+\end{equation}
+
+\begin{equation}
+	\mathbf{S_u} \mathbf{u}(k) \leq \mathbf{b_u}
+\end{equation}
+
+Os vetores $\mathbf{x}(k)$ e $\mathbf{u}(k)$ estão vinculados pela seguinte \textbf{equação de precição}:
+
+\begin{equation}
+    \mathbf{x}(k) = \mathbf{A} x(k) + \mathbf{B} \mathbf{u}(k)
+\end{equation}
+
+Com isso, o custo pode ser reescrito como
+
+\begin{gather}
+        J(\mathbf{u}(k)) = \mathbf{u}(k)^T(\mathbf{B}^T \mathbf{Q} \mathbf{B} + \mathbf{R})\mathbf{u}(k) \nonumber \\
+        2 \Bigg\{
+            [ \mathbf{A} x(k) - col_N(\bar{x}) ]^T \mathbf{Q} \mathbf{B} - [col_N(\bar{u})]^T \mathbf{R}
+        \Bigg\} \mathbf{u}(k) + c_0
+         \nonumber
+\end{gather}
+
+com
+
+\begin{equation}
+    c_0 = \norma{x(k) - \bar{x}}{Q} + \norma{\mathbf{A} x(k) - col_N(\bar{x})}{\mathbf{Q}} + \norma{col_N(\bar{u})}{\mathbf{R}}
+    \nonumber
+\end{equation}
+
+e as restrições passam a ser expressas na forma
+
+\begin{equation}
+    \mathbf{S} \mathbf{u}(k) \leq \mathbf{b}
+    \nonumber
+\end{equation}
+
+com 
+
+\begin{equation}
+    \mathbf{S} = \left[
+        \begin{matrix}
+            \mathbf{S_x} \mathbf{B} \\
+            \mathbf{S_u}
+        \end{matrix}
+    \right], \mathbf{b} = \left[
+        \begin{matrix}
+            \mathbf{b_x} - \mathbf{S_x} \mathbf{A} x(k) \\
+            \mathbf{b_u}
+        \end{matrix}
+    \right]
+    \nonumber
+\end{equation}
+
+Tendo-se obtido a soluçao $\mathbf{u}(k)$ para o problema $\mathbb{P}\Big(x(k)\Big)$, o controle a ser aplicado à planta é dado por
+
+\begin{equation}
+    u(k) = \hat{u}^*(k|k)
+\end{equation}
+
+com $\hat{u}^*(k|k)$ correspondendo aos $p$ primeiros elementos de $\mathbf{\hat{u}}^*(k)$ 

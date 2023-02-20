@@ -1,0 +1,188 @@
+\section{Custo terminal e custo de trajetoria}
+
+De maneira geral, a solução (se existir) não será única. Portanto, é necessário adotar um critério que permita escolher a melhor 
+sequencia de acoes de controle para realizar a tarefa.
+
+Para isso, empregaremos um custo da forma
+
+\begin{equation}
+	J = \blue{\norma{x(N) - \bar{x}}{P_f}} + \orange{\sum^{N-1}_{k=0} \Big[ \norma{x(k) - \bar{x}}{Q} + \norma{u(k) - \bar{u}}{R} \Big]}
+\end{equation}
+
+com $P_f$, $Q$, $R$ simétricas e positivo-definidas, sendo $P_f$ escolhida de modo que a parcela de custo terminal $\norma{\hat{x}(k + N|k) - \bar{x}}{P_f}$ 
+corresponda à função valor do DLQR (Discrete-Time Linear Quadratic Regulator) de horizonte infinito.
+
+
+A expressao de J envolve uma parcela de \blue{custo terminal} e outra de \orange{custo de trajetoria}
+
+Consideremos inicialmente $\bar{x} = 0$ e $\bar{u} = 0$.
+
+\begin{equation}
+	J = \Vert x(N) \Vert^2_{P_f} + \sum^{N-1}_{k=0} \Big[ \Vert x(k) \Vert^2_Q +  \Vert u(k) \Vert^2_R \Big]
+\end{equation}
+
+a expressao para o custo pose ser reescrita empregando a seguinte notacao:
+
+\begin{equation}
+	\mathbf{u} = 
+	\left[
+		\begin{matrix}
+			u(0) \\		
+			u(1) \\		
+			\vdots \\
+			u(N-1)
+		\end{matrix}
+	\right]
+	\in \mathbb{R}^{pN},
+	\mathbf{x} = 
+	\left[
+		\begin{matrix}
+			x(1) \\ 
+			x(2) \\ 
+			\vdots \\
+			x(N)
+		\end{matrix}
+	\right]
+	\in \mathbb{R}^{nN}
+\end{equation}
+
+lembrando que o estado inicial $x(0)$ foi fixado na formulacao do problema.
+
+com isso, a somatoria
+
+\begin{equation}
+	\sum^{N-1}_{k=0} \Vert u(k) \Vert^2_R = u^T(0) R u(0) + u^t(1)Ru(1) + \dotsm + u^T (N-1) R u(N-1)
+\end{equation}
+
+fica na forma
+
+\begin{equation}
+	\underbrace{
+		\left[
+			\begin{matrix}
+				u^T(0) & u^T(1) & \dotsi & u^T(N - 1) 
+			\end{matrix}
+		\right]
+	}_{\mathbf{u}^T}
+	\left[
+		\begin{matrix}
+			R & 0 & \dotsi & 0 \\
+			0 & R & \dotsi & 0 \\
+			\vdots & \vdots & \ddots & \vdots \\
+			0 & 0 & \dotsi & R \\
+		\end{matrix}
+	\right]
+	\underbrace{
+		\left[
+			\begin{matrix}
+				u(0) \\
+				u(1) \\
+				\vdots \\
+				u(N - 1)
+			\end{matrix}
+		\right]
+	}_{\mathbf{u}}
+\end{equation}
+
+tendo-se omitido a dimensao ($p \times p$) das submatrizes de zeros, por brevidade.
+
+Conventionando ainda a notacao
+
+\begin{equation}
+	\mathbf{R} = \left[
+		\begin{matrix}
+			R & 0 & \dotsi & 0 \\
+			0 & R & \dotsi & 0 \\
+			\vdots & \vdots & \ddots & \vdots \\
+			0 & 0 & \dotsi & R 
+		\end{matrix}
+	\right]
+\end{equation}
+ou, de forma abreviada:
+
+\begin{equation}
+	\mathbf{R} = diag_N(R)
+\end{equation}
+
+pode-se escrever
+
+\begin{equation}
+	\sum_{k=0}^{N-1} \norma{u(k)}{R} = \norma{\mathbf{u}}{\mathbf{R}}
+\end{equation}
+
+De forma similar, pode-se escrever
+
+\begin{equation}
+	\begin{gathered}
+		\norma{x(N)}{P_f} + \sum_{k=0}^{N-1} \norma{x(k)}{Q} = x^T(0) Q x(0) \\
+		+ x^T(1)Qx(1) + \dotsi + x^T(N-1)Qx(N-1) + x^T(N)P_fx(N) \\
+		= x^T(0)Qx(0) +  \\
+		\underbrace{
+			\left[
+				\begin{matrix}
+					x^T(1) & x^T(2) & \dotsi & x^T(N)		
+				\end{matrix}
+			\right]
+		}_{\mathbf{x}^T}
+		\left[
+			\begin{matrix}
+				Q & 0 & \dotsi & 0 \\
+				0 & Q & \dotsi & 0 \\
+				\vdots & \vdots & \ddots & \vdots \\
+				0 & 0 & \dotsi & P_f
+			\end{matrix}
+		\right]
+		\underbrace{
+			\left[
+				\begin{matrix}
+					x(1) \\
+					x(2) \\
+					\vdots \\
+					x(N)
+				\end{matrix}
+			\right]
+		}_{\mathbf{x}}
+	\end{gathered}
+\end{equation}
+
+Adotando a notação
+
+\begin{equation}
+	Q = 
+	\left[
+		\begin{matrix}
+			Q & 0 & \dotsi & 0 \\
+			0 & Q & \dotsi & 0 \\
+			\vdots & \vdots & \ddots & \vdots \\
+			0 & 0 & \dotsi & P_f
+		\end{matrix}
+	\right]
+	\in \mathbb{R}^{nN \times nN}
+\end{equation}
+
+ou, de forma abreviada:
+
+\begin{equation}
+	Q = 
+	\left[
+		\begin{matrix}
+			diag_{N-1}(Q) & 0 \\
+			0 & P_f
+		\end{matrix}
+	\right]
+\end{equation}
+
+\noindent
+pode-se escrever
+
+\noindent
+\begin{equation}
+	\norma{x(N)}{{_f}} + \sum^{N - 1}_{k=0} \norma{x(k)}{Q} = \norma{x(0)}{Q} + \norma{\mathbf{x}}{\mathbf{Q}} 
+\end{equation}
+
+Em resumo, o custo pode ser escrito com 
+
+\noindent
+\begin{equation}
+	J(\mathbf{x}, \mathbf{u}) = \norma{x(0)}{Q} + \norma{\mathbf{x}}{\mathbf{Q}} + \norma{\mathbf{u}}{\mathbf{R}}
+\end{equation}

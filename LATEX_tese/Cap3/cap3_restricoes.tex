@@ -1,0 +1,159 @@
+
+\section{Restrições}
+
+\begin{align}
+	\mathbf{u} &= \left[
+		\begin{matrix}
+			u(0) \\
+			u(1) \\
+			\vdots \\
+			u(N-1)
+		\end{matrix}
+	\right]
+	\in \mathcal{U} \times  \mathcal{U} \times \dotsi \times \mathcal{U} = \mathcal{U}^N \\
+	\mathbf{x} &= \left[
+		\begin{matrix}
+			x(1) \\
+			x(2) \\
+			\vdots \\
+			x(N)
+		\end{matrix}
+	\right]
+	\in \mathcal{X} \times  \mathcal{X} \times \dotsi \times \mathcal{X} = \mathcal{X}^{N-1} \times \mathcal{X}_f
+\end{align}
+
+Lembrando que
+
+\begin{equation}
+	\mathcal{U} = \left\{
+		\mathbf{u} \in \mathbb{R}^p : S_u u \leq b_u	
+	\right\}
+\end{equation}
+
+a restrição sobre $\mathbf{u}$ pode ser expressa como
+\begin{equation}
+	\left[
+		\begin{matrix}
+			S_u & 0 & \dotsi & 0 \\
+			0 & S_u & \dotsi & 0 \\
+			\vdots & \vdots & \ddots & \vdots \\
+			0 & 0 & \dotsi & S_u
+		\end{matrix}
+	\right]
+	\left[
+		\begin{matrix}
+			u(0) \\
+			u(1) \\
+			\vdots \\
+			u(N-1)
+		\end{matrix}
+	\right]
+	\leq
+	\left[
+		\begin{matrix}
+			b_u \\
+			b_u \\
+			\vdots \\
+			b_u
+		\end{matrix}
+	\right]
+\end{equation}
+
+ou, de forma mais concisa:
+
+\begin{equation}
+	\mathbf{S_u u} \leq \mathbf{b_u}
+\end{equation}
+
+sendo
+
+\begin{equation}
+	\mathbf{S_u} = diag_N(S_u), \mathbf{b_u} = col_N(b_u)
+\end{equation}
+
+De forma similar, lembrando que
+
+\begin{equation}
+	\mathcal{X} = \left\{
+		x \in \mathbb{R}^n : S_x x \leq b_x
+	\right\}
+	, \mathcal{X}_f = 
+	\left\{
+		x \in \mathbb{R}^n : S_f x \leq b_f
+	\right\}
+\end{equation}
+
+Xf é o máximo conjunto invariante e admissível (MAS) com respeito às restrições de estado e controle terminal sobre acao de uma 
+forca de controle terminal
+
+\begin{equation}
+    u(k) = -K \Big[ x(k) - \bar{x} \Big] + \bar{u}
+\end{equation}
+
+a restrição sobre $\mathbf{x}$ pode ser expressa como
+
+\begin{equation}
+	\left[
+		\begin{matrix}
+			S_x & 0 & \dotsi & 0 \\
+			0 & S_x & \dotsi & 0 \\
+			\vdots & \vdots & \ddots & \vdots \\
+			0 & 0 & \dotsi & S_x
+		\end{matrix}
+	\right]
+	\left[
+		\begin{matrix}
+			x(1) \\
+			x(2) \\
+			\vdots \\
+			x(N)
+		\end{matrix}
+	\right]
+	\leq
+	\left[
+		\begin{matrix}
+			b_x \\
+			b_x \\
+			\vdots \\
+			b_x
+		\end{matrix}
+	\right]
+\end{equation}
+
+ou, de forma mais concisa
+
+\begin{equation}
+	\mathbf{S_x x} \leq \mathbf{b_x}
+\end{equation}
+
+sendo
+
+\begin{equation}
+	\mathbf{S_x} = 
+	\left[
+		\begin{matrix}
+			diag_{N-1}(S_x) & 0 \\
+			0 & S_f
+		\end{matrix}
+	\right], \mathbf{b_x} = 
+	\left[
+		\begin{matrix}
+			col_{N-1}(b_x) \\
+			b_f
+		\end{matrix}
+	\right]
+\end{equation}
+
+No caso geral em que $\bar{x} \ne 0, \bar{u} \ne 0$
+
+\begin{equation}
+	J = \norma{x(N) - \bar{x}}{P_f} + \sum_{k=0}^{N-1} 
+			\left[ \norma{x(k) - \bar{x}}{Q} + \norma{u(k) - \bar{u}}{R} \right]
+\end{equation}
+
+torna-se
+
+\begin{equation}
+	J(\mathbf{x}, \mathbf{u}) = \norma{x(0) - \bar{x}}{P_f} + \norma{\mathbf{x}-col_N(\bar{x})}{\mathbf{Q}}
+		+ \norma{\mathbf{u} - col_N(\bar{u})}{\mathbf{R}}
+\end{equation}

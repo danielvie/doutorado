@@ -1,0 +1,111 @@
+\section{Equação de Predição}
+
+Vamos expressar o vinculo entre os vetores
+
+\begin{equation}
+	\mathbf{u} = \left[
+		\begin{matrix}
+			u(0) \\ 
+			u(1) \\ 
+			\vdots \\ 
+			u(N-1)
+		\end{matrix}
+	\right],
+	\mathbf{x} = \left[
+		\begin{matrix}
+			x(1) \\ 
+			x(2) \\ 
+			\vdots \\ 
+			x(N)
+		\end{matrix}
+	\right]
+\end{equation}
+
+com base na equação de estado
+
+\begin{equation}
+	x(k+1) = Ax(k) + Bu(k)
+\end{equation}
+
+e na condição inicial $x(0)$.
+
+Neste ponto, vale lembrar a solução da equação de estado:
+
+\begin{equation}
+	x(k) = A^kx(0) + \sum_{i=0}^{k-1} A^{k-1-i} B u(i)
+\end{equation}
+
+que pose ser escrita para $k = 1,2,...,N$ como
+
+\begin{align}
+	x(1) &= A x(0) + Bu(0) \\
+	x(2) &= A^2 x(0) + ABu(0) + Bu(1) \\
+	&\vdots \\
+	x(N) &= A^N x(0) A^{N - 1}Bu(0) + \dotsi + ABu(N - 2) + Bu(N - 1)
+\end{align}
+
+ou ainda
+
+\begin{equation}
+	\left[
+		\begin{matrix}
+			x(1) \\
+			x(2) \\
+			\vdots \\
+			x(N) \\
+		\end{matrix}
+	\right] = 
+	\left[
+		\begin{matrix}
+			A \\
+			A^2 \\
+			\vdots \\
+			A^N
+		\end{matrix}
+	\right]
+	x(0) + 
+	\left[
+		\begin{matrix}
+			B & 0 & \dotsi & 0 \\
+			AB & B & \dotsi & 0 \\
+			\vdots & \vdots & \ddots & \vdots \\
+			A^{N-1}B & A^{N-2}B & \dotsi & B
+		\end{matrix}
+	\right]
+	\left[
+		\begin{matrix}
+			u(0) \\
+			u(1)\\
+			\vdots \\
+			u(N-1)
+		\end{matrix}
+	\right]
+\end{equation}
+
+De forma mais concisa, vamos escrever
+
+\begin{equation}
+	\mathbf{x} = \mathbf{A}x(0) + \mathbf{Bu}
+\end{equation}
+
+com 
+
+\begin{equation}
+	\mathbf{A} = \left[
+		\begin{matrix}
+			A \\
+			A^2 \\
+			\vdots \\
+			A^N
+		\end{matrix}
+	\right]
+	, 
+	\mathbf{B} = \left[
+		\begin{matrix}
+			B & 0 & \dotsi & 0 \\
+			AB & B & \dotsi & 0 \\
+			\vdots & \vdots & \ddots & \vdots \\
+			A^{N-1}B & A^{N-2}B & \dotsi & B
+		\end{matrix}
+	\right]
+\end{equation}
