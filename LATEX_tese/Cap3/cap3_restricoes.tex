@@ -1,6 +1,9 @@
 
-\section{Restrições}
+\section{Restrictions}
 
+As restrições podem ser escritas como
+
+\noindent
 \begin{align}
 	\mathbf{u} &= \left[
 		\begin{matrix}
@@ -19,7 +22,7 @@
 			x(N)
 		\end{matrix}
 	\right]
-	\in \mathcal{X} \times  \mathcal{X} \times \dotsi \times \mathcal{X} = \mathcal{X}^{N-1} \times \mathcal{X}_f
+	\in \mathcal{X} \times  \mathcal{X} \times \dotsi \times \mathcal{X}_f = \mathcal{X}^{N-1} \times \mathcal{X}_f
 \end{align}
 
 Lembrando que
@@ -83,7 +86,7 @@ De forma similar, lembrando que
 	\right\}
 \end{equation}
 
-Xf é o máximo conjunto invariante e admissível (MAS) com respeito às restrições de estado e controle terminal sobre acao de uma 
+$X_f$ é o máximo conjunto invariante e admissível (MAS) com respeito às restrições de estado e controle terminal sobre acao de uma 
 forca de controle terminal
 
 \begin{equation}
@@ -146,6 +149,7 @@ sendo
 
 No caso geral em que $\bar{x} \ne 0, \bar{u} \ne 0$
 
+\noindent
 \begin{equation}
 	J = \norma{x(N) - \bar{x}}{P_f} + \sum_{k=0}^{N-1} 
 			\left[ \norma{x(k) - \bar{x}}{Q} + \norma{u(k) - \bar{u}}{R} \right]
@@ -153,7 +157,27 @@ No caso geral em que $\bar{x} \ne 0, \bar{u} \ne 0$
 
 torna-se
 
+\noindent
 \begin{equation}
 	J(\mathbf{x}, \mathbf{u}) = \norma{x(0) - \bar{x}}{P_f} + \norma{\mathbf{x}-col_N(\bar{x})}{\mathbf{Q}}
 		+ \norma{\mathbf{u} - col_N(\bar{u})}{\mathbf{R}}
 \end{equation}
+
+O problema de otimização a ser resolvido pode ser expresso como 
+
+\begin{equation}
+	\min_{\mathbf{x} \in \mathbb{R}^{nN}, \mathbf{u} \in \mathbb{R}^{pN}}{\mathbf{J(x,u)}}
+\end{equation}
+
+sendo
+
+\begin{equation}
+	\mathbf{J(x, u)} = \norma{x(0) - \bar{x}}{Q} + \norma{\mathbf{x} - col_N(\bar{x})}{\mathbf{Q}} + \norma{\mathbf{u} - col_N(\bar{u})}{\mathbf{R}}
+\end{equation}
+
+com $\mathbf{x, u}$ sujeitas a
+
+\begin{gather}
+	\mathbf{S_x x} \leq \mathbf{b_x} \\
+	\mathbf{S_u u} \leq \mathbf{b_u}
+\end{gather}
