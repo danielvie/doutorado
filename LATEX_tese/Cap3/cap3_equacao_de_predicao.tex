@@ -1,6 +1,6 @@
-\section{Equação de Predição}
+\section{Prediction Equation}
 
-Vamos expressar o vinculo entre os vetores
+Let's express the relationship between the vectors
 
 \begin{equation}
 	\mathbf{u} = \left[
@@ -21,22 +21,26 @@ Vamos expressar o vinculo entre os vetores
 	\right]
 \end{equation}
 
-com base na equação de estado
+\noindent
+based on the state equation
 
 \begin{equation}
 	x(k+1) = Ax(k) + Bu(k)
 \end{equation}
 
-e na condição inicial $x(0)$.
+\noindent
+and initial condition $x(0)$.
 
-Neste ponto, vale lembrar a solução da equação de estado:
+The solution for the state equation is:
 
 \begin{equation}
 	x(k) = A^kx(0) + \sum_{i=0}^{k-1} A^{k-1-i} B u(i)
 \end{equation}
 
-que pose ser escrita para $k = 1,2,...,N$ como
+\noindent
+and it can be written for $k = 1,2,...,N$ as
 
+\noindent
 \begin{align}
 	x(1) &= A x(0) + Bu(0) \\
 	x(2) &= A^2 x(0) + ABu(0) + Bu(1) \\
@@ -44,7 +48,8 @@ que pose ser escrita para $k = 1,2,...,N$ como
 	x(N) &= A^N x(0) A^{N - 1}Bu(0) + \dotsi + ABu(N - 2) + Bu(N - 1)
 \end{align}
 
-ou ainda
+\noindent
+or
 
 \begin{equation}
 	\left[
@@ -82,13 +87,14 @@ ou ainda
 	\right]
 \end{equation}
 
-De forma mais concisa, vamos escrever
+This can be written in a shorter form as
 
 \begin{equation}
 	\mathbf{x} = \mathbf{A}x(0) + \mathbf{Bu}
 \end{equation}
 
-com 
+\noindent
+with 
 
 \begin{equation}
 	\mathbf{A} = \left[
@@ -109,3 +115,160 @@ com
 		\end{matrix}
 	\right]
 \end{equation}
+
+\purple{
+	
+================================
+
+// NOTE: mudar funcao custo para `$\bar{x}$ = 0` 
+
+================================
+
+}
+
+Tendo em vista o vínculo
+
+\begin{equation}
+	\mathbf{x} = \mathbf{A}x(0) + \mathbf{Bu}
+\end{equation}
+
+pode-se reescrever a função de custo como
+
+\begin{equation}
+		J(\mathbf{x}, \mathbf{u}) = \norma{x(0) - \bar{x}}{Q} 
+		+ \green{\overbrace{\norma{\mathbf{x} - col_N(\bar{x})}{\mathbf{Q}}}^\square} 
+		+ \blue{\overbrace{\norma{\mathbf{u} - col_N(\bar{u})}{\mathbf{R}}}^\bigcirc}
+\end{equation}
+
+\noindent
+\begin{align}
+	\green{\square} &= \green{\norma{\mathbf{x} - col_N(\bar{x})}{\mathbf{Q}}} \\
+	&= \green{
+		\Big[
+			\mathbf{A}x(0) + \mathbf{Bu} - col_N(\bar{x})
+		\Big]^T \mathbf{Q}
+		\Big[
+			\mathbf{A}x(0) + \mathbf{Bu} - col_N(\bar{x})
+		\Big]
+	} \\
+	&= \green{
+		\Big[
+			\mathbf{A}x(0) - col_N(\bar{x}) + \mathbf{Bu}
+		\Big]^T \mathbf{Q}
+		\Big[
+			\mathbf{A}x(0) - col_N(\bar{x}) + \mathbf{Bu}
+		\Big]
+	} \\
+	\begin{split}
+		&= \green{
+			\norma{\mathbf{A}x(0) - col_N(\bar{x})}{\mathbf{Q}}
+		} \green{ + 
+			\Big[
+				\mathbf{A}x(0) - col_N(\bar{x})
+			\Big]^T \mathbf{Q} \mathbf{Bu}
+		} \\
+		&\qquad \green{ + 
+			\mathbf{u}^T \mathbf{B}^T \mathbf{Q}
+			\Big[
+				\mathbf{A}x(0) - col_N(\bar{x})
+			\Big] 
+		} \green{ + 
+			\mathbf{u}^T \mathbf{B}^T \mathbf{Q} \mathbf{Bu}
+		}
+	\end{split}
+\end{align}
+
+\noindent
+\begin{align}
+	\blue{\bigcirc} &= \blue{
+		\norma{\mathbf{u} - col_N(\bar{u})}{\mathbf{R}}
+	} \\
+	&= \blue{
+		\Big[
+			\mathbf{u} - col_N(\bar{u})
+		\Big]^T \mathbf{R}
+		\Big[
+			\mathbf{u} - col_N(\bar{u})
+		\Big]
+	} \\
+	&= \blue{
+		\mathbf{u}^T \mathbf{R} \mathbf{u} 
+		- \mathbf{u}^T \mathbf{R} \Big[ col_N(\bar{u}) \Big]
+		- \Big[ col_N(\bar{u}) \Big]^T \mathbf{Ru}
+		+ \norma{col_N(\bar{u})}{\mathbf{R}}
+	}
+\end{align}
+
+substituindo $\green{\square}$ and $\blue{\bigcirc}$ de volta na equacao de custo e reorganizando os termos
+
+\noindent
+\begin{align}
+	J(\mathbf{x}, \mathbf{u}) 
+	&= \purple{
+		\norma{x(0) - \bar{x}}{Q} 
+		+ \norma{\mathbf{A} x(0) - col_N(\bar{x})}{\mathbf{Q}}
+		+ \norma{col_N(\bar{u})}{\mathbf{R}}
+	} \\
+	&\quad + \orange{
+		\Big[ \mathbf{A} x(0) - col_N(\bar{x}) \Big]^T \mathbf{QBu}
+		+ \mathbf{u}^T \mathbf{B}^T \mathbf{Q} \Big[ \mathbf{A} x(0) - col_N(\bar{x}) \Big]
+	} \\
+	&\quad 
+		- \mathbf{u}^T \mathbf{R} \Big[ col_N(\bar{u}) \Big] - \Big[ col_N(\bar{u}) \Big]^T \mathbf{Ru}
+		+ \mathbf{u}^T (\mathbf{R} + \mathbf{B}^T \mathbf{Q} \mathbf{B}) \mathbf{u}
+\end{align}
+
+O \purple{termo constante} será denotado por \purple{$c_0$}
+
+Lembrando que a matriz $\mathbf{Q}$ é simétrica, tem-se
+
+\begin{equation}
+	\orange{ \left[\mathbf{A}x(0) - col_N(\bar{x})\right]^T \mathbf{QBu} } 
+	= 
+	\Big\{
+	\orange{ \mathbf{u}^T \mathbf{B}^T \mathbf{Q} \left[\mathbf{A}x(0) - col_N(\bar{x})\right] }
+	\Big\}^T \\
+\end{equation}
+
+Como esses termos são escalares, conclui-se que são iguais entre si. Logo:
+
+\begin{equation}
+	\begin{gathered}
+		\orange{ \left[\mathbf{A}x(0) - col_N(\bar{x})\right]^T \mathbf{QBu} }
+		+ \orange{ \mathbf{u}^T \mathbf{B}^T \mathbf{Q} \left[\mathbf{A}x(0) - col_N(\bar{x})\right] } \\
+		= \orange{ 2 \left[\mathbf{A}x(0) - col_N(\bar{x})\right]^T \mathbf{QBu} }
+	\end{gathered}
+\end{equation}
+
+De forma similar:
+
+\noindent
+\begin{equation}
+	- \mathbf{u}^T \mathbf{R} \left[col_N(\bar{u})\right] - \left[col_N(\bar{u})\right]^T \mathbf{Ru} = 
+	-2 \left[col_N(\bar{u})\right]^T \mathbf{Ru}
+\end{equation}
+
+Finalmente, pode-se escrever
+
+\noindent
+\begin{equation}
+	\begin{gathered}
+		J(\mathbf{u}) = \mathbf{u}^T (\mathbf{B}^T \mathbf{Q} \mathbf{B} + \mathbf{R}) \mathbf{u} \\
+		+ 2 \left\{
+			\left[
+				\mathbf{A}x(0) - col_N(\bar{x})
+			\right]^T \mathbf{QB} - \left[col_N(\bar{u})\right]^T \mathbf{R}
+		\right\} \mathbf{u} = c_0
+	\end{gathered}
+\end{equation}
+
+com 
+
+\noindent
+\begin{equation}
+	c_0 = \norma{x(0) - \bar{x}}{Q} + \norma{\mathbf{A}x(0) - col_N(\bar{x})}{\mathbf{R}} + \norma{col_N(\bar{u})}{\mathbf{R}}
+\end{equation}
+
+Note-se que passaremos a usar a notação $J(\mathbf{u})$ em lugar de $J(\mathbf{x}, \mathbf{u})$, uma vez que $\mathbf{x}$ foi eliminada da expressão do custo.
+
+Para terminar a reformulação do problema de otimização em termos de $\mathbf{u}$, deve-se considerar o vínculo entre $\mathbf{x}$ e $\mathbf{u}$ nas \textbf{restrições} 

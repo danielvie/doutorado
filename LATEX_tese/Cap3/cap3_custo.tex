@@ -1,27 +1,49 @@
+
+\purple{Assumesse que o controle e estados têm que pertencer ao seguinte conjuntos}
+
+\begin{equation}
+	\mathcal{U} = \left\{
+		\mathbf{u} \in \mathbb{R}^p : S_u u \leq b_u	
+	\right\}
+\end{equation}
+
+\noindent
+and
+
+\begin{equation}
+	\mathcal{X} = \left\{
+		x \in \mathbb{R}^n : S_x x \leq b_x
+	\right\}
+	, \mathcal{X}_f = 
+	\left\{
+		x \in \mathbb{R}^n : S_f x \leq b_f
+	\right\}
+\end{equation}
+
+
+$X_f$ é o máximo conjunto invariante e admissível (MAS) com respeito às restrições de estado e controle terminal sobre acao de uma 
+forca de controle terminal
+
+
+
 \section{Cost Function}
 
-De maneira geral, a solução (se existir) não será única. Portanto, é necessário adotar um critério que permita escolher a melhor 
-sequencia de acoes de controle para realizar a tarefa.
-
-Para isso, empregaremos um custo da forma
-
-\begin{equation}
-	J = \blue{\norma{x(N) - \bar{x}}{P_f}} + \orange{\sum^{N-1}_{k=0} \Big[ \norma{x(k) - \bar{x}}{Q} + \norma{u(k) - \bar{u}}{R} \Big]}
-\end{equation}
-
-com $P_f$, $Q$, $R$ simétricas e positivo-definidas, sendo $P_f$ escolhida de modo que a parcela de custo terminal $\norma{\hat{x}(k + N|k) - \bar{x}}{P_f}$ 
-corresponda à função valor do DLQR (Discrete-Time Linear Quadratic Regulator) de horizonte infinito.
+The solution, if it exists, will not be unique. Therefore, it is necessary to adopt a criterion that allows for choosing the best sequence of control 
+actions to perform the task.
 
 
-A expressao de J envolve uma parcela de \blue{custo terminal} e outra de \orange{custo de trajetoria}
-
-Consideremos inicialmente $\bar{x} = 0$ e $\bar{u} = 0$.
+The control problem consists of bringing the states to the origin, so we will employ a cost in the form
 
 \begin{equation}
-	J = \Vert x(N) \Vert^2_{P_f} + \sum^{N-1}_{k=0} \Big[ \Vert x(k) \Vert^2_Q +  \Vert u(k) \Vert^2_R \Big]
+	J = \blue{\Vert x(N) \Vert^2_{P_f}} + \orange{\sum^{N-1}_{k=0} \Big[ \Vert x(k) \Vert^2_Q +  \Vert u(k) \Vert^2_R \Big]}
 \end{equation}
 
-a expressao para o custo pose ser reescrita empregando a seguinte notacao:
+The expression for $J$ consists of a \blue{terminal cost} term and a trajectory \orange{cost term}. 
+
+With $P_f$, $Q$, $R$ being symmetric and positive-definite, with $P_f$ chosen so that the terminal cost term $\norma{\hat{x}(k + N|k) - \bar{x}}{P_f}$ corresponds 
+to the value function of the infinite horizon Discrete-Time Linear Quadratic Regulator (DLQR).
+
+The cost function can be rewritten using the notation:
 
 \begin{equation}
 	\mathbf{u} = 
@@ -46,15 +68,15 @@ a expressao para o custo pose ser reescrita empregando a seguinte notacao:
 	\in \mathbb{R}^{nN}
 \end{equation}
 
-lembrando que o estado inicial $x(0)$ foi fixado na formulacao do problema.
-
-com isso, a somatoria
+\noindent
+and then the sum equation
 
 \begin{equation}
 	\sum^{N-1}_{k=0} \Vert u(k) \Vert^2_R = u^T(0) R u(0) + u^t(1)Ru(1) + \dotsm + u^T (N-1) R u(N-1)
 \end{equation}
 
-fica na forma
+\noindent
+becomes
 
 \begin{equation}
 	\underbrace{
@@ -84,9 +106,7 @@ fica na forma
 	}_{\mathbf{u}}
 \end{equation}
 
-tendo-se omitido a dimensao ($p \times p$) das submatrizes de zeros, por brevidade.
-
-Conventionando ainda a notacao
+Using the notation
 
 \begin{equation}
 	\mathbf{R} = \left[
@@ -96,21 +116,17 @@ Conventionando ainda a notacao
 			\vdots & \vdots & \ddots & \vdots \\
 			0 & 0 & \dotsi & R 
 		\end{matrix}
-	\right]
-\end{equation}
-ou, de forma abreviada:
-
-\begin{equation}
-	\mathbf{R} = diag_N(R)
+	\right] = diag_N(R)
 \end{equation}
 
-pode-se escrever
+\noindent
+we get to 
 
 \begin{equation}
 	\sum_{k=0}^{N-1} \norma{u(k)}{R} = \norma{\mathbf{u}}{\mathbf{R}}
 \end{equation}
 
-De forma similar, pode-se escrever
+In a similar way, we can write
 
 \begin{equation}
 	\begin{gathered}
@@ -145,7 +161,8 @@ De forma similar, pode-se escrever
 	\end{gathered}
 \end{equation}
 
-Adotando a notação
+\noindent
+with the notation
 
 \begin{equation}
 	Q = 
@@ -157,30 +174,25 @@ Adotando a notação
 			0 & 0 & \dotsi & P_f
 		\end{matrix}
 	\right]
-	\in \mathbb{R}^{nN \times nN}
-\end{equation}
-
-ou, de forma abreviada:
-
-\begin{equation}
-	Q = 
+	= 
 	\left[
 		\begin{matrix}
 			diag_{N-1}(Q) & 0 \\
 			0 & P_f
 		\end{matrix}
 	\right]
+	\in \mathbb{R}^{nN \times nN}
 \end{equation}
 
 \noindent
-pode-se escrever
+as
 
 \noindent
 \begin{equation}
 	\norma{x(N)}{{_f}} + \sum^{N - 1}_{k=0} \norma{x(k)}{Q} = \norma{x(0)}{Q} + \norma{\mathbf{x}}{\mathbf{Q}} 
 \end{equation}
 
-Em resumo, o custo pode ser escrito com 
+So, the cost function can be written in the form
 
 \noindent
 \begin{equation}
