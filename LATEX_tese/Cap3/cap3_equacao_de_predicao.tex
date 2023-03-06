@@ -126,51 +126,63 @@ with
 
 }
 
-Tendo em vista o vínculo
+The relation
 
 \begin{equation}
 	\mathbf{x} = \mathbf{A}x(0) + \mathbf{Bu}
 \end{equation}
 
-pode-se reescrever a função de custo como
+can be rewritten as
 
 \begin{equation}
-		J(\mathbf{x}, \mathbf{u}) = \norma{x(0) - \bar{x}}{Q} 
+		J(\mathbf{x}, \mathbf{u}) = \norma{x(0) - \bar{x}}{P} 
 		+ \green{\overbrace{\norma{\mathbf{x} - col_N(\bar{x})}{\mathbf{Q}}}^\square} 
 		+ \blue{\overbrace{\norma{\mathbf{u} - col_N(\bar{u})}{\mathbf{R}}}^\bigcirc}
 \end{equation}
 
+\purple{
+	===============================
+
+	ajustar nomenclatura e organizar termos
+
+	===============================
+}
+
+\begin{equation}
+	J = \blue{\Vert x(N) \Vert^2_{P_f}} + \orange{\sum^{N-1}_{k=0} \Big[ \Vert x(k) \Vert^2_Q +  \Vert u(k) \Vert^2_R \Big]}
+\end{equation}
+
 \noindent
 \begin{align}
-	\green{\square} &= \green{\norma{\mathbf{x} - col_N(\bar{x})}{\mathbf{Q}}} \\
+	\green{\square} &= \green{\norma{\mathbf{x}}{\mathbf{Q}}} \\
 	&= \green{
 		\Big[
-			\mathbf{A}x(0) + \mathbf{Bu} - col_N(\bar{x})
+			\mathbf{A}x(0) + \mathbf{Bu})
 		\Big]^T \mathbf{Q}
 		\Big[
-			\mathbf{A}x(0) + \mathbf{Bu} - col_N(\bar{x})
+			\mathbf{A}x(0) + \mathbf{Bu})
 		\Big]
 	} \\
 	&= \green{
 		\Big[
-			\mathbf{A}x(0) - col_N(\bar{x}) + \mathbf{Bu}
+			\mathbf{A}x(0) + \mathbf{Bu}
 		\Big]^T \mathbf{Q}
 		\Big[
-			\mathbf{A}x(0) - col_N(\bar{x}) + \mathbf{Bu}
+			\mathbf{A}x(0) + \mathbf{Bu}
 		\Big]
 	} \\
 	\begin{split}
 		&= \green{
-			\norma{\mathbf{A}x(0) - col_N(\bar{x})}{\mathbf{Q}}
+			\norma{\mathbf{A}x(0)}{\mathbf{Q}}
 		} \green{ + 
 			\Big[
-				\mathbf{A}x(0) - col_N(\bar{x})
+				\mathbf{A}x(0)
 			\Big]^T \mathbf{Q} \mathbf{Bu}
 		} \\
 		&\qquad \green{ + 
 			\mathbf{u}^T \mathbf{B}^T \mathbf{Q}
 			\Big[
-				\mathbf{A}x(0) - col_N(\bar{x})
+				\mathbf{A}x(0)
 			\Big] 
 		} \green{ + 
 			\mathbf{u}^T \mathbf{B}^T \mathbf{Q} \mathbf{Bu}
@@ -199,7 +211,7 @@ pode-se reescrever a função de custo como
 	}
 \end{align}
 
-substituindo $\green{\square}$ and $\blue{\bigcirc}$ de volta na equacao de custo e reorganizando os termos
+replacing $\green{\square}$ and $\blue{\bigcirc}$ back in the cost equation and reordering the elements 
 
 \noindent
 \begin{align}
@@ -218,9 +230,9 @@ substituindo $\green{\square}$ and $\blue{\bigcirc}$ de volta na equacao de cust
 		+ \mathbf{u}^T (\mathbf{R} + \mathbf{B}^T \mathbf{Q} \mathbf{B}) \mathbf{u}
 \end{align}
 
-O \purple{termo constante} será denotado por \purple{$c_0$}
+The \purple{constant part} will be denoted by \purple{$c_0$}
 
-Lembrando que a matriz $\mathbf{Q}$ é simétrica, tem-se
+Recalling that the matrix $\mathbf{Q}$ is symmetric, we have:
 
 \begin{equation}
 	\orange{ \left[\mathbf{A}x(0) - col_N(\bar{x})\right]^T \mathbf{QBu} } 
@@ -230,7 +242,7 @@ Lembrando que a matriz $\mathbf{Q}$ é simétrica, tem-se
 	\Big\}^T \\
 \end{equation}
 
-Como esses termos são escalares, conclui-se que são iguais entre si. Logo:
+As these terms are scalars, it can be concluded that they are equal to each other, therefore:
 
 \begin{equation}
 	\begin{gathered}
@@ -240,7 +252,7 @@ Como esses termos são escalares, conclui-se que são iguais entre si. Logo:
 	\end{gathered}
 \end{equation}
 
-De forma similar:
+Similarly:
 
 \noindent
 \begin{equation}
@@ -248,7 +260,7 @@ De forma similar:
 	-2 \left[col_N(\bar{u})\right]^T \mathbf{Ru}
 \end{equation}
 
-Finalmente, pode-se escrever
+Finally, it can be written
 
 \noindent
 \begin{equation}
@@ -262,13 +274,15 @@ Finalmente, pode-se escrever
 	\end{gathered}
 \end{equation}
 
-com 
+with
 
 \noindent
 \begin{equation}
 	c_0 = \norma{x(0) - \bar{x}}{Q} + \norma{\mathbf{A}x(0) - col_N(\bar{x})}{\mathbf{R}} + \norma{col_N(\bar{u})}{\mathbf{R}}
 \end{equation}
 
-Note-se que passaremos a usar a notação $J(\mathbf{u})$ em lugar de $J(\mathbf{x}, \mathbf{u})$, uma vez que $\mathbf{x}$ foi eliminada da expressão do custo.
+Note that we will now use the notation $J(\mathbf{u})$ instead of $J(\mathbf{x}, \mathbf{u})$, since $\mathbf{x}$ has been eliminated from 
+the cost expression. 
 
-Para terminar a reformulação do problema de otimização em termos de $\mathbf{u}$, deve-se considerar o vínculo entre $\mathbf{x}$ e $\mathbf{u}$ nas \textbf{restrições} 
+To complete the reformulation of the optimization problem in terms of $\mathbf{u}$, the constraint between $\mathbf{x}$ and $\mathbf{u}$ in the 
+\textbf{restrições} must be considered

@@ -1,5 +1,24 @@
 
-\purple{Assumesse que o controle e estados têm que pertencer ao seguinte conjuntos}
+Consider a system with dynamics described by
+
+\begin{equation}
+    \mathbf{x}(k) = \mathbf{A} x(k) + \mathbf{B} \mathbf{u}(k)
+\end{equation}
+
+deseja-se conduzir o estado $x(k)$ para a origem a partir de uma dada condicao inicial respeitando restricoes de 
+estado de controle na forma 
+
+The objective is to drive the state $x(K)$ to the origin from a given initial condition while respecting
+state and control constraints in the form
+
+\begin{equation}
+	\mathbf{x}(k) \in \mathcal{X}
+\end{equation}
+	
+\begin{equation}
+	\mathbf{u}(k) \in \mathcal{U}
+\end{equation}
+
 
 \begin{equation}
 	\mathcal{U} = \left\{
@@ -14,6 +33,16 @@ and
 	\mathcal{X} = \left\{
 		x \in \mathbb{R}^n : S_x x \leq b_x
 	\right\}
+\end{equation}
+
+\purple{
+	
+// NOTE: colocar na sessao 3.2
+
+\begin{equation}
+	\mathcal{X} = \left\{
+		x \in \mathbb{R}^n : S_x x \leq b_x
+	\right\}
 	, \mathcal{X}_f = 
 	\left\{
 		x \in \mathbb{R}^n : S_f x \leq b_f
@@ -21,9 +50,10 @@ and
 \end{equation}
 
 
-$X_f$ é o máximo conjunto invariante e admissível (MAS) com respeito às restrições de estado e controle terminal sobre acao de uma 
-forca de controle terminal
+$X_f$ is the maximum invariant and admissible set (MAS) with respect to the terminal state and control
+constraints under the action of a terminal control force.
 
+}
 
 
 \section{Cost Function}

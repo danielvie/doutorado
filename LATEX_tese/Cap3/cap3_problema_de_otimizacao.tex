@@ -1,40 +1,40 @@
 
-\section{Problema de Otimização}
+\section{Optimization Problem}
 
-O problema de otimização a ser resolvido pode ser expresso como
+The optimization problem can be expressed as
 
 \begin{equation}
 	\min_{\mathbf{x} \in \mathbb{R}^{nN}, \mathbf{u} \in \mathbb{R}^{pN}} J(x,u)
 \end{equation}
 
-sendo
+where
 
 \begin{equation}
 	J(\mathbf{x}, \mathbf{u}) = \norma{x(0) - \bar{x}}{Q} + \norma{\mathbf{x} - col_N(\bar{x})}{\mathbf{Q}} + \norma{\mathbf{u} - col_N(\bar{u})}{\mathbf{R}}
 \end{equation}
 
-com
+with
 
 \begin{equation}
-    \mathbf{u}(k) = \left[
+    \mathbf{\hat{u}}(k) = \left[
         \begin{matrix}
-            u(k|k) \\
-            u(k + 1|k) \\
+            \hat{u}(k|k) \\
+            \hat{u}(k + 1|k) \\
             \vdots \\ 
-            u(k + N - 1|k)
+            \hat{u}(k + N - 1|k)
         \end{matrix}
     \right] \in \mathbb{R}^{pN},
-    \mathbf{x}(k) = \left[
+    \mathbf{\hat{x}}(k) = \left[
         \begin{matrix}
-            x(k + 1|k) \\
-            x(k + 2|k) \\
+            \hat{x}(k + 1|k) \\
+            \hat{x}(k + 2|k) \\
             \vdots \\ 
-            x(k + N|k)
+            \hat{x}(k + N|k)
         \end{matrix}
     \right] \in \mathbb{R}^{nN},
 \end{equation}
 
-sujeitas a
+subject to
 
 \begin{equation}
 	\mathbf{S_x} \mathbf{x}(k) \leq \mathbf{b_x}
@@ -44,13 +44,18 @@ sujeitas a
 	\mathbf{S_u} \mathbf{u}(k) \leq \mathbf{b_u}
 \end{equation}
 
-Os vetores $\mathbf{x}(k)$ e $\mathbf{u}(k)$ estão vinculados pela seguinte \textbf{equação de precição}:
+\purple{
+    // NOTE: colocar na sessao 3.1
+
+    Os vetores $\mathbf{x}(k)$ e $\mathbf{u}(k)$ estão vinculados pela seguinte \textbf{equação de precição}:
 
 \begin{equation}
     \mathbf{x}(k) = \mathbf{A} x(k) + \mathbf{B} \mathbf{u}(k)
 \end{equation}
 
-Com isso, o custo pode ser reescrito como
+}
+
+Thus, the cost can be rewritten as
 
 \begin{gather}
         J(\mathbf{u}(k)) = \mathbf{u}(k)^T(\mathbf{B}^T \mathbf{Q} \mathbf{B} + \mathbf{R})\mathbf{u}(k) \nonumber \\
@@ -60,21 +65,21 @@ Com isso, o custo pode ser reescrito como
          \nonumber
 \end{gather}
 
-com
+with
 
 \begin{equation}
     c_0 = \norma{x(k) - \bar{x}}{Q} + \norma{\mathbf{A} x(k) - col_N(\bar{x})}{\mathbf{Q}} + \norma{col_N(\bar{u})}{\mathbf{R}}
     \nonumber
 \end{equation}
 
-e as restrições passam a ser expressas na forma
+and the constraints can be expressed as
 
 \begin{equation}
     \mathbf{S} \mathbf{u}(k) \leq \mathbf{b}
     \nonumber
 \end{equation}
 
-com 
+with
 
 \begin{equation}
     \mathbf{S} = \left[
@@ -91,10 +96,10 @@ com
     \nonumber
 \end{equation}
 
-Tendo-se obtido a soluçao $\mathbf{u}(k)$ para o problema $\mathbb{P}\Big(x(k)\Big)$, o controle a ser aplicado à planta é dado por
+Having obtained the solution $\mathbf{u}(k)$ for the problem $\mathbb{P}\Big(x(k)\Big)$, the control to be applied to the plant is given by
 
 \begin{equation}
     u(k) = \hat{u}^*(k|k)
 \end{equation}
 
-com $\hat{u}^*(k|k)$ correspondendo aos $p$ primeiros elementos de $\mathbf{\hat{u}}^*(k)$ 
+where $\hat{u}^*(k|k)$ corresponds to the first $p$ elements of $\mathbf{\hat{u}}^*(k)$.
