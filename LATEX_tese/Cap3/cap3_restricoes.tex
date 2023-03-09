@@ -1,8 +1,12 @@
 
 \section{Restrictions}
 
+
+
+
 The restrictions are introduced aiming to drive the states of the system to the origin while solving
 
+\noindent
 \begin{equation}
 	\min_{\mathbf{x} \in \mathbb{R}^{nN}, \mathbf{u} \in \mathbb{R}^{pN}}{\mathbf{J(x,u)}}
 \end{equation}
@@ -32,9 +36,20 @@ respecting constraints applied on
 	\in \mathcal{X} \times  \mathcal{X} \times \dotsi \times \mathcal{X}_f = \mathcal{X}^{N-1} \times \mathcal{X}_f
 \end{align}
 
-\noindent
+$\mathcal{X}_f$ is the maximum invariant and admissible set (MAS) with respect to the terminal state and control
+constraints under the action of a terminal control force.
 
+\noindent
+\begin{equation}
+	\left\{
+		x \in \mathbb{R}^n : S_f x \leq b_f
+	\right\}
+\end{equation}
+
+\noindent
 The constraint on $\mathbf{u}$ can be  written as
+
+\noindent
 \begin{equation}
 	\left[
 		\begin{matrix}
@@ -66,6 +81,7 @@ The constraint on $\mathbf{u}$ can be  written as
 \noindent
 or, in a shorter form
 
+\noindent
 \begin{equation}
 	\mathbf{S_u u} \leq \mathbf{b_u}
 \end{equation}
@@ -73,6 +89,7 @@ or, in a shorter form
 \noindent
 with
 
+\noindent
 \begin{equation}
 	\mathbf{S_u} = diag_N(S_u), \mathbf{b_u} = col_N(b_u)
 \end{equation}
@@ -110,6 +127,7 @@ Similarly, the constraints on $\mathbf{x}$ can be written as
 \noindent
 or, in short
 
+\noindent
 \begin{equation}
 	\mathbf{S_x x} \leq \mathbf{b_x}
 \end{equation}
@@ -117,6 +135,7 @@ or, in short
 \noindent
 with
 
+\noindent
 \begin{equation}
 	\mathbf{S_x} = 
 	\left[

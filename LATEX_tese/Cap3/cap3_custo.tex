@@ -5,9 +5,6 @@ Consider a system with dynamics described by
     \mathbf{x}(k) = \mathbf{A} x(k) + \mathbf{B} \mathbf{u}(k)
 \end{equation}
 
-deseja-se conduzir o estado $x(k)$ para a origem a partir de uma dada condicao inicial respeitando restricoes de 
-estado de controle na forma 
-
 The objective is to drive the state $x(K)$ to the origin from a given initial condition while respecting
 state and control constraints in the form
 
@@ -34,26 +31,6 @@ and
 		x \in \mathbb{R}^n : S_x x \leq b_x
 	\right\}
 \end{equation}
-
-\purple{
-	
-// NOTE: colocar na sessao 3.2
-
-\begin{equation}
-	\mathcal{X} = \left\{
-		x \in \mathbb{R}^n : S_x x \leq b_x
-	\right\}
-	, \mathcal{X}_f = 
-	\left\{
-		x \in \mathbb{R}^n : S_f x \leq b_f
-	\right\}
-\end{equation}
-
-
-$X_f$ is the maximum invariant and admissible set (MAS) with respect to the terminal state and control
-constraints under the action of a terminal control force.
-
-}
 
 
 \section{Cost Function}

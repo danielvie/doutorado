@@ -148,8 +148,11 @@ can be rewritten as
 	===============================
 }
 
+\noindent
 \begin{equation}
-	J = \blue{\Vert x(N) \Vert^2_{P_f}} + \orange{\sum^{N-1}_{k=0} \Big[ \Vert x(k) \Vert^2_Q +  \Vert u(k) \Vert^2_R \Big]}
+	J = \Vert x(0) \Vert^2_{P} 
+		+ \green{\overbrace{\norma{\mathbf{x}}{\mathbf{Q}}}^{\square}} 
+		+ \norma{\mathbf{u}}{\mathbf{R}}
 \end{equation}
 
 \noindent
@@ -181,53 +184,30 @@ can be rewritten as
 		} \\
 		&\qquad \green{ + 
 			\mathbf{u}^T \mathbf{B}^T \mathbf{Q}
-			\Big[
-				\mathbf{A}x(0)
-			\Big] 
+			\mathbf{A}x(0)
 		} \green{ + 
 			\mathbf{u}^T \mathbf{B}^T \mathbf{Q} \mathbf{Bu}
 		}
 	\end{split}
 \end{align}
 
-\noindent
-\begin{align}
-	\blue{\bigcirc} &= \blue{
-		\norma{\mathbf{u} - col_N(\bar{u})}{\mathbf{R}}
-	} \\
-	&= \blue{
-		\Big[
-			\mathbf{u} - col_N(\bar{u})
-		\Big]^T \mathbf{R}
-		\Big[
-			\mathbf{u} - col_N(\bar{u})
-		\Big]
-	} \\
-	&= \blue{
-		\mathbf{u}^T \mathbf{R} \mathbf{u} 
-		- \mathbf{u}^T \mathbf{R} \Big[ col_N(\bar{u}) \Big]
-		- \Big[ col_N(\bar{u}) \Big]^T \mathbf{Ru}
-		+ \norma{col_N(\bar{u})}{\mathbf{R}}
-	}
-\end{align}
-
-replacing $\green{\square}$ and $\blue{\bigcirc}$ back in the cost equation and reordering the elements 
+replacing $\green{\square}$ back in the cost equation and reordering the elements 
 
 \noindent
 \begin{align}
 	J(\mathbf{x}, \mathbf{u}) 
-	&= \purple{
-		\norma{x(0) - \bar{x}}{Q} 
-		+ \norma{\mathbf{A} x(0) - col_N(\bar{x})}{\mathbf{Q}}
-		+ \norma{col_N(\bar{u})}{\mathbf{R}}
-	} \\
+	&= \purple{ 
+			\norma{x(0)}{P} 
+			+ \norma{\mathbf{A}x(0)}{\mathbf{Q}} 
+		} \\
 	&\quad + \orange{
-		\Big[ \mathbf{A} x(0) - col_N(\bar{x}) \Big]^T \mathbf{QBu}
-		+ \mathbf{u}^T \mathbf{B}^T \mathbf{Q} \Big[ \mathbf{A} x(0) - col_N(\bar{x}) \Big]
-	} \\
-	&\quad 
-		- \mathbf{u}^T \mathbf{R} \Big[ col_N(\bar{u}) \Big] - \Big[ col_N(\bar{u}) \Big]^T \mathbf{Ru}
-		+ \mathbf{u}^T (\mathbf{R} + \mathbf{B}^T \mathbf{Q} \mathbf{B}) \mathbf{u}
+			\Big[\mathbf{A}x(0)\Big]^T \mathbf{Q} \mathbf{B} \mathbf{u}	
+			+ \mathbf{u}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x(0)
+		} \\
+	&\quad + \blue{
+			\mathbf{u}^T \mathbf{R} \mathbf{u} 
+			+ \mathbf{u}^T \mathbf{B}^T \mathbf{Q} \mathbf{B} \mathbf{u}
+		}
 \end{align}
 
 The \purple{constant part} will be denoted by \purple{$c_0$}
@@ -235,29 +215,27 @@ The \purple{constant part} will be denoted by \purple{$c_0$}
 Recalling that the matrix $\mathbf{Q}$ is symmetric, we have:
 
 \begin{equation}
-	\orange{ \left[\mathbf{A}x(0) - col_N(\bar{x})\right]^T \mathbf{QBu} } 
-	= 
-	\Big\{
-	\orange{ \mathbf{u}^T \mathbf{B}^T \mathbf{Q} \left[\mathbf{A}x(0) - col_N(\bar{x})\right] }
-	\Big\}^T \\
+	\orange{
+		\Big[ \mathbf{A}x(0)  \Big]^T \mathbf{Q} \mathbf{B} \mathbf{u} 
+	} = \Big\{ 
+	\orange{
+		\mathbf{u}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x(0) 
+	} \Big\}^T
 \end{equation}
 
 As these terms are scalars, it can be concluded that they are equal to each other, therefore:
 
-\begin{equation}
-	\begin{gathered}
-		\orange{ \left[\mathbf{A}x(0) - col_N(\bar{x})\right]^T \mathbf{QBu} }
-		+ \orange{ \mathbf{u}^T \mathbf{B}^T \mathbf{Q} \left[\mathbf{A}x(0) - col_N(\bar{x})\right] } \\
-		= \orange{ 2 \left[\mathbf{A}x(0) - col_N(\bar{x})\right]^T \mathbf{QBu} }
-	\end{gathered}
-\end{equation}
-
-Similarly:
-
 \noindent
 \begin{equation}
-	- \mathbf{u}^T \mathbf{R} \left[col_N(\bar{u})\right] - \left[col_N(\bar{u})\right]^T \mathbf{Ru} = 
-	-2 \left[col_N(\bar{u})\right]^T \mathbf{Ru}
+	\begin{gathered}
+		\orange{
+			\Big[ \mathbf{A}x(0)  \Big]^T \mathbf{Q} \mathbf{B} \mathbf{u} + \mathbf{u}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x(0) }
+		\\
+		=
+		\orange{
+			2\Big[ \mathbf{A}x(0)  \Big]^T \mathbf{Q} \mathbf{B} \mathbf{u} 
+		}
+	\end{gathered}
 \end{equation}
 
 Finally, it can be written
@@ -265,12 +243,16 @@ Finally, it can be written
 \noindent
 \begin{equation}
 	\begin{gathered}
-		J(\mathbf{u}) = \mathbf{u}^T (\mathbf{B}^T \mathbf{Q} \mathbf{B} + \mathbf{R}) \mathbf{u} \\
-		+ 2 \left\{
-			\left[
-				\mathbf{A}x(0) - col_N(\bar{x})
-			\right]^T \mathbf{QB} - \left[col_N(\bar{u})\right]^T \mathbf{R}
-		\right\} \mathbf{u} = c_0
+		J(\mathbf{u}) = 
+			\blue{
+				\mathbf{u}^T (\mathbf{R} \mathbf{B}^T \mathbf{Q} \mathbf{B}) \mathbf{u}
+			}
+			+ \orange{
+				2 \Big[ \mathbf{A}x(0) \Big]^T \mathbf{Q} \mathbf{B} \mathbf{u}
+			}
+			+ \purple{
+				c_0
+			}
 	\end{gathered}
 \end{equation}
 
@@ -278,11 +260,16 @@ with
 
 \noindent
 \begin{equation}
-	c_0 = \norma{x(0) - \bar{x}}{Q} + \norma{\mathbf{A}x(0) - col_N(\bar{x})}{\mathbf{R}} + \norma{col_N(\bar{u})}{\mathbf{R}}
+	\purple{
+		c_0
+	} = 
+	\purple{
+		\norma{x(0)}{P} + \norma{\mathbf{A} x(0)}{\mathbf{Q}}
+	}
 \end{equation}
 
 Note that we will now use the notation $J(\mathbf{u})$ instead of $J(\mathbf{x}, \mathbf{u})$, since $\mathbf{x}$ has been eliminated from 
 the cost expression. 
 
-To complete the reformulation of the optimization problem in terms of $\mathbf{u}$, the constraint between $\mathbf{x}$ and $\mathbf{u}$ in the 
-\textbf{restrições} must be considered
+To complete the reformulation of the optimization problem in terms of $\mathbf{u}$, the relation between $\mathbf{x}$ and $\mathbf{u}$ in the 
+\textbf{restrictions} must be considered.
