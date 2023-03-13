@@ -3,20 +3,20 @@
 Let's express the relationship between the vectors
 
 \begin{equation}
-	\mathbf{u} = \left[
+	\mathbf{\hat{u}} = \left[
 		\begin{matrix}
-			u(0) \\ 
-			u(1) \\ 
+			\hat{u}(0) \\ 
+			\hat{u}(1) \\ 
 			\vdots \\ 
-			u(N-1)
+			\hat{u}(N-1)
 		\end{matrix}
 	\right],
-	\mathbf{x} = \left[
+	\mathbf{\hat{x}} = \left[
 		\begin{matrix}
-			x(1) \\ 
-			x(2) \\ 
+			\hat{x}(1) \\ 
+			\hat{x}(2) \\ 
 			\vdots \\ 
-			x(N)
+			\hat{x}(N)
 		\end{matrix}
 	\right]
 \end{equation}
@@ -25,7 +25,7 @@ Let's express the relationship between the vectors
 based on the state equation
 
 \begin{equation}
-	x(k+1) = Ax(k) + Bu(k)
+	\hat{x}(k+1) = A\hat{x}(k) + B \hat{u}(k)
 \end{equation}
 
 \noindent
@@ -34,7 +34,7 @@ and initial condition $x(0)$.
 The solution for the state equation is:
 
 \begin{equation}
-	x(k) = A^kx(0) + \sum_{i=0}^{k-1} A^{k-1-i} B u(i)
+	\hat{x}(k) = A^kx(0) + \sum_{i=0}^{k-1} A^{k-1-i} B \hat{u}(i)
 \end{equation}
 
 \noindent
@@ -42,10 +42,10 @@ and it can be written for $k = 1,2,...,N$ as
 
 \noindent
 \begin{align}
-	x(1) &= A x(0) + Bu(0) \\
-	x(2) &= A^2 x(0) + ABu(0) + Bu(1) \\
+	\hat{x}(1) &= A x(0) +  B \hat{u}(0) \\
+	\hat{x}(2) &= A^2 x(0) + A B \hat{u}(0) +  B \hat{u}(1) \\
 	&\vdots \\
-	x(N) &= A^N x(0) A^{N - 1}Bu(0) + \dotsi + ABu(N - 2) + Bu(N - 1)
+	\hat{x}(N) &= A^N x(0) A^{N - 1} B \hat{u}(0) + \dotsi + A B \hat{u}(N - 2) +  B \hat{u}(N - 1)
 \end{align}
 
 \noindent
@@ -54,10 +54,10 @@ or
 \begin{equation}
 	\left[
 		\begin{matrix}
-			x(1) \\
-			x(2) \\
+			\hat{x}(1) \\
+			\hat{x}(2) \\
 			\vdots \\
-			x(N) \\
+			\hat{x}(N) \\
 		\end{matrix}
 	\right] = 
 	\left[
@@ -79,10 +79,10 @@ or
 	\right]
 	\left[
 		\begin{matrix}
-			u(0) \\
-			u(1)\\
+			\hat{u}(0) \\
+			\hat{u}(1)\\
 			\vdots \\
-			u(N-1)
+			\hat{u}(N-1)
 		\end{matrix}
 	\right]
 \end{equation}
@@ -90,7 +90,7 @@ or
 This can be written in a shorter form as
 
 \begin{equation}
-	\mathbf{x} = \mathbf{A}x(0) + \mathbf{Bu}
+	\mathbf{\hat{x}} = \mathbf{A}x(0) + \mathbf{B \hat{u}}
 \end{equation}
 
 \noindent
@@ -116,62 +116,38 @@ with
 	\right]
 \end{equation}
 
-\purple{
-	
-================================
-
-// NOTE: mudar funcao custo para `$\bar{x}$ = 0` 
-
-================================
-
-}
-
 The relation
 
 \begin{equation}
-	\mathbf{x} = \mathbf{A}x(0) + \mathbf{Bu}
+	\mathbf{\hat{x}} = \mathbf{A}x(0) + \mathbf{B \hat{u}}
 \end{equation}
 
 can be rewritten as
 
-\begin{equation}
-		J(\mathbf{x}, \mathbf{u}) = \norma{x(0) - \bar{x}}{P} 
-		+ \green{\overbrace{\norma{\mathbf{x} - col_N(\bar{x})}{\mathbf{Q}}}^\square} 
-		+ \blue{\overbrace{\norma{\mathbf{u} - col_N(\bar{u})}{\mathbf{R}}}^\bigcirc}
-\end{equation}
-
-\purple{
-	===============================
-
-	ajustar nomenclatura e organizar termos
-
-	===============================
-}
-
 \noindent
 \begin{equation}
 	J = \Vert x(0) \Vert^2_{P} 
-		+ \green{\overbrace{\norma{\mathbf{x}}{\mathbf{Q}}}^{\square}} 
-		+ \norma{\mathbf{u}}{\mathbf{R}}
+		+ \green{\overbrace{\norma{\mathbf{\hat{x}}}{\mathbf{Q}}}^{\square}} 
+		+ \norma{\mathbf{\hat{u}}}{\mathbf{R}}
 \end{equation}
 
 \noindent
 \begin{align}
-	\green{\square} &= \green{\norma{\mathbf{x}}{\mathbf{Q}}} \\
+	\green{\square} &= \green{\norma{\mathbf{\hat{x}}}{\mathbf{Q}}} \\
 	&= \green{
 		\Big[
-			\mathbf{A}x(0) + \mathbf{Bu})
+			\mathbf{A}x(0) + \mathbf{B \hat{u}})
 		\Big]^T \mathbf{Q}
 		\Big[
-			\mathbf{A}x(0) + \mathbf{Bu})
+			\mathbf{A}x(0) + \mathbf{B \hat{u}})
 		\Big]
 	} \\
 	&= \green{
 		\Big[
-			\mathbf{A}x(0) + \mathbf{Bu}
+			\mathbf{A}x(0) + \mathbf{B \hat{u}}
 		\Big]^T \mathbf{Q}
 		\Big[
-			\mathbf{A}x(0) + \mathbf{Bu}
+			\mathbf{A}x(0) + \mathbf{B \hat{u}}
 		\Big]
 	} \\
 	\begin{split}
@@ -180,13 +156,13 @@ can be rewritten as
 		} \green{ + 
 			\Big[
 				\mathbf{A}x(0)
-			\Big]^T \mathbf{Q} \mathbf{Bu}
+			\Big]^T \mathbf{Q} \mathbf{B \hat{u}}
 		} \\
 		&\qquad \green{ + 
-			\mathbf{u}^T \mathbf{B}^T \mathbf{Q}
+			\mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q}
 			\mathbf{A}x(0)
 		} \green{ + 
-			\mathbf{u}^T \mathbf{B}^T \mathbf{Q} \mathbf{Bu}
+			\mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{B \hat{u}}
 		}
 	\end{split}
 \end{align}
@@ -195,18 +171,18 @@ replacing $\green{\square}$ back in the cost equation and reordering the element
 
 \noindent
 \begin{align}
-	J(\mathbf{x}, \mathbf{u}) 
+	J(\mathbf{\hat{x}}, \mathbf{\hat{u}}) 
 	&= \purple{ 
 			\norma{x(0)}{P} 
 			+ \norma{\mathbf{A}x(0)}{\mathbf{Q}} 
 		} \\
 	&\quad + \orange{
-			\Big[\mathbf{A}x(0)\Big]^T \mathbf{Q} \mathbf{B} \mathbf{u}	
-			+ \mathbf{u}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x(0)
+			\Big[\mathbf{A}x(0)\Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}	
+			+ \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x(0)
 		} \\
 	&\quad + \blue{
-			\mathbf{u}^T \mathbf{R} \mathbf{u} 
-			+ \mathbf{u}^T \mathbf{B}^T \mathbf{Q} \mathbf{B} \mathbf{u}
+			\mathbf{\hat{u}}^T \mathbf{R} \mathbf{\hat{u}} 
+			+ \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}
 		}
 \end{align}
 
@@ -216,10 +192,10 @@ Recalling that the matrix $\mathbf{Q}$ is symmetric, we have:
 
 \begin{equation}
 	\orange{
-		\Big[ \mathbf{A}x(0)  \Big]^T \mathbf{Q} \mathbf{B} \mathbf{u} 
+		\Big[ \mathbf{A}x(0)  \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}} 
 	} = \Big\{ 
 	\orange{
-		\mathbf{u}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x(0) 
+		\mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x(0) 
 	} \Big\}^T
 \end{equation}
 
@@ -229,11 +205,11 @@ As these terms are scalars, it can be concluded that they are equal to each othe
 \begin{equation}
 	\begin{gathered}
 		\orange{
-			\Big[ \mathbf{A}x(0)  \Big]^T \mathbf{Q} \mathbf{B} \mathbf{u} + \mathbf{u}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x(0) }
+			\Big[ \mathbf{A}x(0)  \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}} + \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x(0) }
 		\\
 		=
 		\orange{
-			2\Big[ \mathbf{A}x(0)  \Big]^T \mathbf{Q} \mathbf{B} \mathbf{u} 
+			2\Big[ \mathbf{A}x(0)  \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}} 
 		}
 	\end{gathered}
 \end{equation}
@@ -243,12 +219,12 @@ Finally, it can be written
 \noindent
 \begin{equation}
 	\begin{gathered}
-		J(\mathbf{u}) = 
+		J(\mathbf{\hat{u}}) = 
 			\blue{
-				\mathbf{u}^T (\mathbf{R} \mathbf{B}^T \mathbf{Q} \mathbf{B}) \mathbf{u}
+				\mathbf{\hat{u}}^T (\mathbf{R} + \mathbf{B}^T \mathbf{Q} \mathbf{B}) \mathbf{\hat{u}}
 			}
 			+ \orange{
-				2 \Big[ \mathbf{A}x(0) \Big]^T \mathbf{Q} \mathbf{B} \mathbf{u}
+				2 \Big[ \mathbf{A}x(0) \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}
 			}
 			+ \purple{
 				c_0
@@ -268,8 +244,8 @@ with
 	}
 \end{equation}
 
-Note that we will now use the notation $J(\mathbf{u})$ instead of $J(\mathbf{x}, \mathbf{u})$, since $\mathbf{x}$ has been eliminated from 
+Note that we will now use the notation $J(\mathbf{\hat{u}})$ instead of $J(\mathbf{\hat{x}}, \mathbf{\hat{u}})$, since $\mathbf{\hat{x}}$ has been eliminated from 
 the cost expression. 
 
-To complete the reformulation of the optimization problem in terms of $\mathbf{u}$, the relation between $\mathbf{x}$ and $\mathbf{u}$ in the 
+To complete the reformulation of the optimization problem in terms of $\mathbf{\hat{u}}$, the relation between $\mathbf{\hat{x}}$ and $\mathbf{\hat{u}}$ in the 
 \textbf{restrictions} must be considered.

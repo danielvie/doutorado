@@ -1,14 +1,11 @@
 
 \section{Restrictions}
 
-
-
-
 The restrictions are introduced aiming to drive the states of the system to the origin while solving
 
 \noindent
 \begin{equation}
-	\min_{\mathbf{x} \in \mathbb{R}^{nN}, \mathbf{u} \in \mathbb{R}^{pN}}{\mathbf{J(x,u)}}
+	\min_{\mathbf{\hat{x}} \in \mathbb{R}^{nN}, \mathbf{\hat{u}} \in \mathbb{R}^{pN}}{\mathbf{J(\hat{x},\hat{u})}}
 \end{equation}
 
 \noindent
@@ -16,21 +13,21 @@ respecting constraints applied on
 
 \noindent
 \begin{align}
-	\mathbf{u} &= \left[
+	\mathbf{\hat{u}} &= \left[
 		\begin{matrix}
-			u(0) \\
-			u(1) \\
+			\hat{u}(0) \\
+			\hat{u}(1) \\
 			\vdots \\
-			u(N-1)
+			\hat{u}(N-1)
 		\end{matrix}
 	\right]
 	\in \mathcal{U} \times  \mathcal{U} \times \dotsi \times \mathcal{U} = \mathcal{U}^N \\
-	\mathbf{x} &= \left[
+	\mathbf{\hat{x}} &= \left[
 		\begin{matrix}
-			x(1) \\
-			x(2) \\
+			\hat{x}(1) \\
+			\hat{x}(2) \\
 			\vdots \\
-			x(N)
+			\hat{x}(N)
 		\end{matrix}
 	\right]
 	\in \mathcal{X} \times  \mathcal{X} \times \dotsi \times \mathcal{X}_f = \mathcal{X}^{N-1} \times \mathcal{X}_f
@@ -42,12 +39,12 @@ constraints under the action of a terminal control force.
 \noindent
 \begin{equation}
 	\left\{
-		x \in \mathbb{R}^n : S_f x \leq b_f
+		\hat{x} \in \mathbb{R}^n : S_f \hat{x} \leq b_f
 	\right\}
 \end{equation}
 
 \noindent
-The constraint on $\mathbf{u}$ can be  written as
+The constraint on $\mathbf{\hat{u}}$ can be  written as
 
 \noindent
 \begin{equation}
@@ -61,10 +58,10 @@ The constraint on $\mathbf{u}$ can be  written as
 	\right]
 	\left[
 		\begin{matrix}
-			u(0) \\
-			u(1) \\
+			\hat{u}(0) \\
+			\hat{u}(1) \\
 			\vdots \\
-			u(N-1)
+			\hat{u}(N-1)
 		\end{matrix}
 	\right]
 	\leq
@@ -83,7 +80,7 @@ or, in a shorter form
 
 \noindent
 \begin{equation}
-	\mathbf{S_u u} \leq \mathbf{b_u}
+	\mathbf{S_u \hat{u}} \leq \mathbf{b_u}
 \end{equation}
 
 \noindent
@@ -94,7 +91,7 @@ with
 	\mathbf{S_u} = diag_N(S_u), \mathbf{b_u} = col_N(b_u)
 \end{equation}
 
-Similarly, the constraints on $\mathbf{x}$ can be written as
+Similarly, the constraints on $\mathbf{\hat{x}}$ can be written as
 
 \begin{equation}
 	\left[
@@ -107,10 +104,10 @@ Similarly, the constraints on $\mathbf{x}$ can be written as
 	\right]
 	\left[
 		\begin{matrix}
-			x(1) \\
-			x(2) \\
+			\hat{x}(1) \\
+			\hat{x}(2) \\
 			\vdots \\
-			x(N)
+			\hat{x}(N)
 		\end{matrix}
 	\right]
 	\leq
@@ -129,7 +126,7 @@ or, in short
 
 \noindent
 \begin{equation}
-	\mathbf{S_x x} \leq \mathbf{b_x}
+	\mathbf{S_x \hat{x}} \leq \mathbf{b_x}
 \end{equation}
 
 \noindent

@@ -4,13 +4,13 @@
 The optimization problem can be expressed as
 
 \begin{equation}
-	\min_{\mathbf{x} \in \mathbb{R}^{nN}, \mathbf{u} \in \mathbb{R}^{pN}} J(x,u)
+	\min_{\mathbf{\hat{x}} \in \mathbb{R}^{nN}, \mathbf{\hat{u}} \in \mathbb{R}^{pN}} J(\hat{x},\hat{u})
 \end{equation}
 
 where
 
 \begin{equation}
-	J(\mathbf{x}, \mathbf{u}) = \norma{x(0) - \bar{x}}{Q} + \norma{\mathbf{x} - col_N(\bar{x})}{\mathbf{Q}} + \norma{\mathbf{u} - col_N(\bar{u})}{\mathbf{R}}
+	J(\mathbf{\hat{x}}, \mathbf{\hat{u}}) = \norma{x(0)}{P} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} + \norma{\mathbf{\hat{u}}}{\mathbf{R}}
 \end{equation}
 
 with
@@ -37,54 +37,55 @@ with
 subject to
 
 \begin{equation}
-	\mathbf{S_x} \mathbf{x}(k) \leq \mathbf{b_x}
+	\mathbf{S_x} \mathbf{\hat{x}}(k) \leq \mathbf{b_x}
 \end{equation}
 
 \begin{equation}
-	\mathbf{S_u} \mathbf{u}(k) \leq \mathbf{b_u}
+	\mathbf{S_u} \mathbf{\hat{u}}(k) \leq \mathbf{b_u}
 \end{equation}
 
-\purple{
-    // NOTE: colocar na sessao 3.1
 
-    Os vetores $\mathbf{x}(k)$ e $\mathbf{u}(k)$ estão vinculados pela seguinte \textbf{equação de precição}:
+The vectors $\mathbf{\hat{x}}(k)$ and $\mathbf{\hat{u}}(k)$ are linked by the following \textbf{prediction equation}:
 
+\noindent
 \begin{equation}
-    \mathbf{x}(k) = \mathbf{A} x(k) + \mathbf{B} \mathbf{u}(k)
+    \mathbf{\hat{x}}(k) = \mathbf{A} \hat{x}(k) + \mathbf{B} \mathbf{\hat{u}}(k)
 \end{equation}
-
-}
-
-\orange{
-    // NOTE: atualizar equacao de custo
 
 Thus, the cost can be rewritten as
 
+\noindent
 \begin{gather}
-        J(\mathbf{u}(k)) = \mathbf{u}(k)^T(\mathbf{B}^T \mathbf{Q} \mathbf{B} + \mathbf{R})\mathbf{u}(k) \nonumber \\
-        2 \Bigg\{
-            [ \mathbf{A} x(k) - col_N(\bar{x}) ]^T \mathbf{Q} \mathbf{B} - [col_N(\bar{u})]^T \mathbf{R}
-        \Bigg\} \mathbf{u}(k) + c_0
+        J(\mathbf{\hat{u}}(k)) = \mathbf{\hat{u}}(k)^T(\mathbf{R} + \mathbf{B}^T \mathbf{Q} \mathbf{B} )\mathbf{\hat{u}}(k) \nonumber \\
+        2 \Big[ 
+            \mathbf{A} \hat{x}(k) 
+        \Big]^T \mathbf{Q} \mathbf{B} 
+        \mathbf{\hat{u}}(k) + c_0
          \nonumber
 \end{gather}
 
+\noindent
 with
 
+\noindent
 \begin{equation}
-    c_0 = \norma{x(k) - \bar{x}}{Q} + \norma{\mathbf{A} x(k) - col_N(\bar{x})}{\mathbf{Q}} + \norma{col_N(\bar{u})}{\mathbf{R}}
+    c_0 = \norma{\hat{x}(k) }{P} + \norma{\mathbf{A} \hat{x}(k) }{\mathbf{Q}} 
     \nonumber
 \end{equation}
 
-}
+\noindent
 and the constraints can be expressed as
 
+\noindent
 \begin{equation}
-    \mathbf{S} \mathbf{u}(k) \leq \mathbf{b}
+    \mathbf{S} \mathbf{\hat{u}}(k) \leq \mathbf{b}
     \nonumber
 \end{equation}
 
+\noindent
 with
 
+\noindent
 \begin{equation}
     \mathbf{S} = \left[
         \begin{matrix}
@@ -93,17 +94,19 @@ with
         \end{matrix}
     \right], \mathbf{b} = \left[
         \begin{matrix}
-            \mathbf{b_x} - \mathbf{S_x} \mathbf{A} x(k) \\
+            \mathbf{b_x} - \mathbf{S_x} \mathbf{A} \hat{x}(k) \\
             \mathbf{b_u}
         \end{matrix}
     \right]
     \nonumber
 \end{equation}
 
-Having obtained the solution $\mathbf{u}(k)$ for the problem $\mathbb{P}\Big(x(k)\Big)$, the control to be applied to the plant is given by
+Having obtained the solution $\mathbf{\hat{u}}(k)$ for the problem $\mathbb{P}\Big(\hat{x}(k)\Big)$, the control to be applied to the plant is given by
 
+\noindent
 \begin{equation}
-    u(k) = \hat{u}^*(k|k)
+    \hat{u}(k) = \hat{u}^*(k|k)
 \end{equation}
 
+\noindent
 where $\hat{u}^*(k|k)$ corresponds to the first $p$ elements of $\mathbf{\hat{u}}^*(k)$.

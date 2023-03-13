@@ -2,34 +2,34 @@
 Consider a system with dynamics described by
 
 \begin{equation}
-    \mathbf{x}(k) = \mathbf{A} x(k) + \mathbf{B} \mathbf{u}(k)
+    \hat{x}(k) = A x(k) + B \hat{u}(k)
 \end{equation}
 
-The objective is to drive the state $x(K)$ to the origin from a given initial condition while respecting
+The objective is to drive the state $\hat{x}(K)$ to the origin from a given initial condition while respecting
 state and control constraints in the form
 
 \begin{equation}
-	\mathbf{x}(k) \in \mathcal{X}
+    \hat{x}(k) \in \mathcal{X}
 \end{equation}
-	
+    
 \begin{equation}
-	\mathbf{u}(k) \in \mathcal{U}
+    \hat{u}(k) \in \mathcal{U}
 \end{equation}
 
 
 \begin{equation}
-	\mathcal{U} = \left\{
-		\mathbf{u} \in \mathbb{R}^p : S_u u \leq b_u	
-	\right\}
+    \mathcal{U} = \left\{
+        \hat{u} \in \mathbb{R}^p : S_u \hat{u} \leq b_u	
+    \right\}
 \end{equation}
 
 \noindent
 and
 
 \begin{equation}
-	\mathcal{X} = \left\{
-		x \in \mathbb{R}^n : S_x x \leq b_x
-	\right\}
+    \mathcal{X} = \left\{
+        \hat{x} \in \mathbb{R}^n : S_x \hat{x} \leq b_x
+    \right\}
 \end{equation}
 
 
@@ -42,7 +42,7 @@ actions to perform the task.
 The control problem consists of bringing the states to the origin, so we will employ a cost in the form
 
 \begin{equation}
-	J = \blue{\Vert x(N) \Vert^2_{P_f}} + \orange{\sum^{N-1}_{k=0} \Big[ \Vert x(k) \Vert^2_Q +  \Vert u(k) \Vert^2_R \Big]}
+    J = \blue{\Vert \hat{x}(N) \Vert^2_{P_f}} + \orange{\sum^{N-1}_{k=0} \Big[ \Vert \hat{x}(k) \Vert^2_Q +  \Vert \hat{u}(k) \Vert^2_R \Big]}
 \end{equation}
 
 The expression for $J$ consists of a \blue{terminal cost} term and a trajectory \orange{cost term}. 
@@ -53,142 +53,142 @@ to the value function of the infinite horizon Discrete-Time Linear Quadratic Reg
 The cost function can be rewritten using the notation:
 
 \begin{equation}
-	\mathbf{u} = 
-	\left[
-		\begin{matrix}
-			u(0) \\		
-			u(1) \\		
-			\vdots \\
-			u(N-1)
-		\end{matrix}
-	\right]
-	\in \mathbb{R}^{pN},
-	\mathbf{x} = 
-	\left[
-		\begin{matrix}
-			x(1) \\ 
-			x(2) \\ 
-			\vdots \\
-			x(N)
-		\end{matrix}
-	\right]
-	\in \mathbb{R}^{nN}
+    \mathbf{\hat{u}} = 
+    \left[
+        \begin{matrix}
+            \hat{u}(0) \\		
+            \hat{u}(1) \\		
+            \vdots \\
+            \hat{u}(N-1)
+        \end{matrix}
+    \right]
+    \in \mathbb{R}^{pN},
+    \mathbf{\hat{x}} = 
+    \left[
+        \begin{matrix}
+            \hat{x}(1) \\ 
+            \hat{x}(2) \\ 
+            \vdots \\
+            \hat{x}(N)
+        \end{matrix}
+    \right]
+    \in \mathbb{R}^{nN}
 \end{equation}
 
 \noindent
 and then the sum equation
 
 \begin{equation}
-	\sum^{N-1}_{k=0} \Vert u(k) \Vert^2_R = u^T(0) R u(0) + u^t(1)Ru(1) + \dotsm + u^T (N-1) R u(N-1)
+    \sum^{N-1}_{k=0} \Vert \hat{u}(k) \Vert^2_R = \hat{u}^T(0) R \hat{u}(0) + \hat{u}^t(1)R\hat{u}(1) + \dotsm + \hat{u}^T (N-1) R \hat{u}(N-1)
 \end{equation}
 
 \noindent
 becomes
 
 \begin{equation}
-	\underbrace{
-		\left[
-			\begin{matrix}
-				u^T(0) & u^T(1) & \dotsi & u^T(N - 1) 
-			\end{matrix}
-		\right]
-	}_{\mathbf{u}^T}
-	\left[
-		\begin{matrix}
-			R & 0 & \dotsi & 0 \\
-			0 & R & \dotsi & 0 \\
-			\vdots & \vdots & \ddots & \vdots \\
-			0 & 0 & \dotsi & R \\
-		\end{matrix}
-	\right]
-	\underbrace{
-		\left[
-			\begin{matrix}
-				u(0) \\
-				u(1) \\
-				\vdots \\
-				u(N - 1)
-			\end{matrix}
-		\right]
-	}_{\mathbf{u}}
+    \underbrace{
+        \left[
+            \begin{matrix}
+                \hat{u}^T(0) & \hat{u}^T(1) & \dotsi & \hat{u}^T(N - 1) 
+            \end{matrix}
+        \right]
+    }_{\mathbf{\hat{u}}^T}
+    \left[
+        \begin{matrix}
+            R & 0 & \dotsi & 0 \\
+            0 & R & \dotsi & 0 \\
+            \vdots & \vdots & \ddots & \vdots \\
+            0 & 0 & \dotsi & R \\
+        \end{matrix}
+    \right]
+    \underbrace{
+        \left[
+            \begin{matrix}
+                \hat{u}(0) \\
+                \hat{u}(1) \\
+                \vdots \\
+                \hat{u}(N - 1)
+            \end{matrix}
+        \right]
+    }_{\mathbf{\hat{u}}}
 \end{equation}
 
 Using the notation
 
 \begin{equation}
-	\mathbf{R} = \left[
-		\begin{matrix}
-			R & 0 & \dotsi & 0 \\
-			0 & R & \dotsi & 0 \\
-			\vdots & \vdots & \ddots & \vdots \\
-			0 & 0 & \dotsi & R 
-		\end{matrix}
-	\right] = diag_N(R)
+    \mathbf{R} = \left[
+        \begin{matrix}
+            R & 0 & \dotsi & 0 \\
+            0 & R & \dotsi & 0 \\
+            \vdots & \vdots & \ddots & \vdots \\
+            0 & 0 & \dotsi & R 
+        \end{matrix}
+    \right] = diag_N(R)
 \end{equation}
 
 \noindent
 we get to 
 
 \begin{equation}
-	\sum_{k=0}^{N-1} \norma{u(k)}{R} = \norma{\mathbf{u}}{\mathbf{R}}
+    \sum_{k=0}^{N-1} \norma{\hat{u}(k)}{R} = \norma{\mathbf{\hat{u}}}{\mathbf{R}}
 \end{equation}
 
 In a similar way, we can write
 
 \begin{equation}
-	\begin{gathered}
-		\norma{x(N)}{P_f} + \sum_{k=0}^{N-1} \norma{x(k)}{Q} = x^T(0) Q x(0) \\
-		+ x^T(1)Qx(1) + \dotsi + x^T(N-1)Qx(N-1) + x^T(N)P_fx(N) \\
-		= x^T(0)Qx(0) +  \\
-		\underbrace{
-			\left[
-				\begin{matrix}
-					x^T(1) & x^T(2) & \dotsi & x^T(N)		
-				\end{matrix}
-			\right]
-		}_{\mathbf{x}^T}
-		\left[
-			\begin{matrix}
-				Q & 0 & \dotsi & 0 \\
-				0 & Q & \dotsi & 0 \\
-				\vdots & \vdots & \ddots & \vdots \\
-				0 & 0 & \dotsi & P_f
-			\end{matrix}
-		\right]
-		\underbrace{
-			\left[
-				\begin{matrix}
-					x(1) \\
-					x(2) \\
-					\vdots \\
-					x(N)
-				\end{matrix}
-			\right]
-		}_{\mathbf{x}}
-	\end{gathered}
+    \begin{gathered}
+        \norma{\hat{x}(N)}{P_f} + \sum_{k=0}^{N-1} \norma{\hat{x}(k)}{Q} = \hat{x}^T(0) Q x(0) \\
+        + \hat{x}^T(1)Q\hat{x}(1) + \dotsi + \hat{x}^T(N-1)Q\hat{x}(N-1) + \hat{x}^T(N)P_f\hat{x}(N) \\
+        = \hat{x}^T(0)Qx(0) +  \\
+        \underbrace{
+            \left[
+                \begin{matrix}
+                    \hat{x}^T(1) & \hat{x}^T(2) & \dotsi & \hat{x}^T(N)		
+                \end{matrix}
+            \right]
+        }_{\mathbf{\hat{x}}^T}
+        \left[
+            \begin{matrix}
+                Q & 0 & \dotsi & 0 \\
+                0 & Q & \dotsi & 0 \\
+                \vdots & \vdots & \ddots & \vdots \\
+                0 & 0 & \dotsi & P_f
+            \end{matrix}
+        \right]
+        \underbrace{
+            \left[
+                \begin{matrix}
+                    \hat{x}(1) \\
+                    \hat{x}(2) \\
+                    \vdots \\
+                    \hat{x}(N)
+                \end{matrix}
+            \right]
+        }_{\mathbf{\hat{x}}}
+    \end{gathered}
 \end{equation}
 
 \noindent
 with the notation
 
 \begin{equation}
-	Q = 
-	\left[
-		\begin{matrix}
-			Q & 0 & \dotsi & 0 \\
-			0 & Q & \dotsi & 0 \\
-			\vdots & \vdots & \ddots & \vdots \\
-			0 & 0 & \dotsi & P_f
-		\end{matrix}
-	\right]
-	= 
-	\left[
-		\begin{matrix}
-			diag_{N-1}(Q) & 0 \\
-			0 & P_f
-		\end{matrix}
-	\right]
-	\in \mathbb{R}^{nN \times nN}
+    Q = 
+    \left[
+        \begin{matrix}
+            Q & 0 & \dotsi & 0 \\
+            0 & Q & \dotsi & 0 \\
+            \vdots & \vdots & \ddots & \vdots \\
+            0 & 0 & \dotsi & P_f
+        \end{matrix}
+    \right]
+    = 
+    \left[
+        \begin{matrix}
+            diag_{N-1}(Q) & 0 \\
+            0 & P_f
+        \end{matrix}
+    \right]
+    \in \mathbb{R}^{nN \times nN}
 \end{equation}
 
 \noindent
@@ -196,12 +196,12 @@ as
 
 \noindent
 \begin{equation}
-	\norma{x(N)}{{_f}} + \sum^{N - 1}_{k=0} \norma{x(k)}{Q} = \norma{x(0)}{Q} + \norma{\mathbf{x}}{\mathbf{Q}} 
+    \norma{\hat{x}(N)}{{_f}} + \sum^{N - 1}_{k=0} \norma{\hat{x}(k)}{Q} = \norma{x(0)}{Q} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} 
 \end{equation}
 
 So, the cost function can be written in the form
 
 \noindent
 \begin{equation}
-	J(\mathbf{x}, \mathbf{u}) = \norma{x(0)}{Q} + \norma{\mathbf{x}}{\mathbf{Q}} + \norma{\mathbf{u}}{\mathbf{R}}
+    J(\mathbf{\hat{x}}, \mathbf{\hat{u}}) = \norma{x(0)}{Q} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} + \norma{\mathbf{\hat{u}}}{\mathbf{R}}
 \end{equation}
