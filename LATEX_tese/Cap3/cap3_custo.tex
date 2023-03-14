@@ -42,7 +42,7 @@ actions to perform the task.
 The control problem consists of bringing the states to the origin, so we will employ a cost in the form
 
 \begin{equation}
-    J = \blue{\Vert \hat{x}(N) \Vert^2_{P_f}} + \orange{\sum^{N-1}_{k=0} \Big[ \Vert \hat{x}(k) \Vert^2_Q +  \Vert \hat{u}(k) \Vert^2_R \Big]}
+    J = \blue{\Vert \hat{x}(k + N | k) \Vert^2_{P_f}} + \orange{\sum^{N-1}_{i=0} \Big[ \Vert \hat{x}(k + i | k) \Vert^2_Q +  \Vert \hat{u}(k + i | k) \Vert^2_R \Big]}
 \end{equation}
 
 The expression for $J$ consists of a \blue{terminal cost} term and a trajectory \orange{cost term}. 
@@ -137,7 +137,7 @@ In a similar way, we can write
 
 \begin{equation}
     \begin{gathered}
-        \norma{\hat{x}(N)}{P_f} + \sum_{k=0}^{N-1} \norma{\hat{x}(k)}{Q} = \hat{x}^T(0) Q x(0) \\
+        \norma{\hat{x}(N)}{P_f} + \sum_{k=0}^{N-1} \norma{\hat{x}(k)}{Q} = x^T(0) Q x(0) \\
         + \hat{x}^T(1)Q\hat{x}(1) + \dotsi + \hat{x}^T(N-1)Q\hat{x}(N-1) + \hat{x}^T(N)P_f\hat{x}(N) \\
         = \hat{x}^T(0)Qx(0) +  \\
         \underbrace{

@@ -7,14 +7,18 @@ The optimization problem can be expressed as
 	\min_{\mathbf{\hat{x}} \in \mathbb{R}^{nN}, \mathbf{\hat{u}} \in \mathbb{R}^{pN}} J(\hat{x},\hat{u})
 \end{equation}
 
+\noindent
 where
 
+\noindent
 \begin{equation}
-	J(\mathbf{\hat{x}}, \mathbf{\hat{u}}) = \norma{x(0)}{P} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} + \norma{\mathbf{\hat{u}}}{\mathbf{R}}
+	J(\mathbf{\hat{x}}, \mathbf{\hat{u}}) = \norma{x(k)}{P} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} + \norma{\mathbf{\hat{u}}}{\mathbf{R}}
 \end{equation}
 
+\noindent
 with
 
+\noindent
 \begin{equation}
     \mathbf{\hat{u}}(k) = \left[
         \begin{matrix}
@@ -34,16 +38,18 @@ with
     \right] \in \mathbb{R}^{nN},
 \end{equation}
 
+\noindent
 subject to
 
+\noindent
 \begin{equation}
 	\mathbf{S_x} \mathbf{\hat{x}}(k) \leq \mathbf{b_x}
 \end{equation}
 
+\noindent
 \begin{equation}
 	\mathbf{S_u} \mathbf{\hat{u}}(k) \leq \mathbf{b_u}
 \end{equation}
-
 
 The vectors $\mathbf{\hat{x}}(k)$ and $\mathbf{\hat{u}}(k)$ are linked by the following \textbf{prediction equation}:
 
