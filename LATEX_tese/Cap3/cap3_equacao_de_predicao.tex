@@ -21,6 +21,28 @@ Let's express the relationship between the vectors
 	\right]
 \end{equation}
 
+\purple{
+	\begin{equation}
+		\mathbf{\hat{u}} = \left[
+			\begin{matrix}
+				\hat{u}(k | k) \\ 
+				\hat{u}(k + 1 | k) \\ 
+				\vdots \\ 
+				\hat{u}(k + N-1 | k)
+			\end{matrix}
+		\right],
+		\mathbf{\hat{x}} = \left[
+			\begin{matrix}
+				\hat{x}(k + 1 | k) \\ 
+				\hat{x}(k + 2 | k) \\ 
+				\vdots \\ 
+				\hat{x}(k + N | k)
+			\end{matrix}
+		\right]
+		\nonumber
+	\end{equation}
+}
+
 \noindent
 based on the state equation
 
@@ -31,10 +53,15 @@ based on the state equation
 \noindent
 and initial condition $x(0)$.
 
+\purple{
+	\noindent
+	and initial condition $x(k)$.
+}
+
 The solution for the state equation is:
 
 \begin{equation}
-	\hat{x}(k) = A^kx(0) + \sum_{i=0}^{k-1} A^{k-1-i} B \hat{u}(i)
+	\hat{x}(k) = A^kx(k) + \sum_{i=0}^{k-1} A^{k-1-i} B \hat{u}(i)
 \end{equation}
 
 \noindent
@@ -126,7 +153,7 @@ can be rewritten as
 
 \noindent
 \begin{equation}
-	J = \Vert x(0) \Vert^2_{P} 
+	J = \norma{x(0)}{P}
 		+ \green{\overbrace{\norma{\mathbf{\hat{x}}}{\mathbf{Q}}}^{\square}} 
 		+ \norma{\mathbf{\hat{u}}}{\mathbf{R}}
 \end{equation}

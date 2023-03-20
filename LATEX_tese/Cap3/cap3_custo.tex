@@ -1,9 +1,36 @@
 
+\purple{
+    indice do vetor:
+    \begin{equation}
+        x[k] \nonumber 
+    \end{equation}
+}
+
+\purple{
+    \begin{equation}
+        x(k) \nonumber
+    \end{equation}
+}
+
+\purple{
+    iteracao k+1 a partir de k
+    \begin{equation}
+        x(k+1|k) \nonumber
+    \end{equation}
+}
+
 Consider a system with dynamics described by
 
 \begin{equation}
     \hat{x}(k) = A x(k) + B \hat{u}(k)
 \end{equation}
+
+\purple{
+    \begin{equation}
+        \hat{x}(k + 1) = A x(k) + B \hat{u}(k)
+        \nonumber
+    \end{equation}
+}
 
 The objective is to drive the state $\hat{x}(K)$ to the origin from a given initial condition while respecting
 state and control constraints in the form
@@ -42,7 +69,7 @@ actions to perform the task.
 The control problem consists of bringing the states to the origin, so we will employ a cost in the form
 
 \begin{equation}
-    J = \blue{\Vert \hat{x}(k + N | k) \Vert^2_{P_f}} + \orange{\sum^{N-1}_{i=0} \Big[ \Vert \hat{x}(k + i | k) \Vert^2_Q +  \Vert \hat{u}(k + i | k) \Vert^2_R \Big]}
+    J = \blue{\norma{\hat{x}(k + N | k)}{P_f}} + \orange{\sum^{N-1}_{i=0} \Big[ \norma{\hat{x}(k + i | k)}{Q} + \norma{\hat{u}(k + i | k)}{R} \Big]}
 \end{equation}
 
 The expression for $J$ consists of a \blue{terminal cost} term and a trajectory \orange{cost term}. 
@@ -75,12 +102,45 @@ The cost function can be rewritten using the notation:
     \in \mathbb{R}^{nN}
 \end{equation}
 
+\purple{
+    \begin{equation}
+        \mathbf{\hat{u}}(k) = 
+        \left[
+            \begin{matrix}
+                \hat{u}(k | k) \\		
+                \hat{u}(k + 1 | k) \\		
+                \vdots \\
+                \hat{u}(k + N-1 | k)
+            \end{matrix}
+        \right]
+        \in \mathbb{R}^{pN},
+        \mathbf{\hat{x}}(k) = 
+        \left[
+            \begin{matrix}
+                \hat{x}(k + 1| k) \\ 
+                \hat{x}(k + 2| k) \\ 
+                \vdots \\
+                \hat{x}(k + N | k)
+            \end{matrix}
+        \right]
+        \in \mathbb{R}^{nN}
+        \nonumber
+    \end{equation}
+}
+
 \noindent
 and then the sum equation
 
 \begin{equation}
-    \sum^{N-1}_{k=0} \Vert \hat{u}(k) \Vert^2_R = \hat{u}^T(0) R \hat{u}(0) + \hat{u}^t(1)R\hat{u}(1) + \dotsm + \hat{u}^T (N-1) R \hat{u}(N-1)
+    \sum^{N-1}_{k=0} \norma{\hat{u}(k)}{R} = \hat{u}^T(0) R \hat{u}(0) + \hat{u}^t(1)R\hat{u}(1) + \dotsm + \hat{u}^T (N-1) R \hat{u}(N-1)
 \end{equation}
+
+\purple{
+    \begin{equation}
+        \sum^{N-1}_{j=0} \norma{\hat{u}(j + k | k)}{R} = \hat{u}^T(k|k) R \hat{u}(k|k) + \hat{u}^t(k+1|k)R\hat{u}(k+1|k) + \dotsm + \hat{u}^T (k+N-1|k) R \hat{u}(k+N-1|k)
+    \nonumber
+    \end{equation}
+}
 
 \noindent
 becomes
@@ -113,6 +173,37 @@ becomes
     }_{\mathbf{\hat{u}}}
 \end{equation}
 
+\purple{
+    \begin{equation}
+        \underbrace{
+            \left[
+                \begin{matrix}
+                    \hat{u}^T(k|k) & \hat{u}^T(k + 1|k) & \dotsi & \hat{u}^T(k + N - 1|k) 
+                \end{matrix}
+            \right]
+        }_{\mathbf{\hat{u}}^T}
+        \left[
+            \begin{matrix}
+                R & 0 & \dotsi & 0 \\
+                0 & R & \dotsi & 0 \\
+                \vdots & \vdots & \ddots & \vdots \\
+                0 & 0 & \dotsi & R \\
+            \end{matrix}
+        \right]
+        \underbrace{
+            \left[
+                \begin{matrix}
+                    \hat{u}(k|k) \\
+                    \hat{u}(k + 1|k) \\
+                    \vdots \\
+                    \hat{u}(k + N - 1|k)
+                \end{matrix}
+            \right]
+        }_{\mathbf{\hat{u}}}
+    \nonumber
+    \end{equation}
+}
+
 Using the notation
 
 \begin{equation}
@@ -133,7 +224,18 @@ we get to
     \sum_{k=0}^{N-1} \norma{\hat{u}(k)}{R} = \norma{\mathbf{\hat{u}}}{\mathbf{R}}
 \end{equation}
 
+\purple{
+    \begin{equation}
+        \sum_{j=0}^{N-1} \norma{\hat{u}[j]}{R} = \norma{\mathbf{\hat{u}}}{\mathbf{R}}
+    \nonumber
+    \end{equation}
+}
+
 In a similar way, we can write
+
+\purple{
+    // NOTE: rever essa parte
+}
 
 \begin{equation}
     \begin{gathered}
@@ -168,6 +270,43 @@ In a similar way, we can write
     \end{gathered}
 \end{equation}
 
+
+\purple{
+    \begin{equation}
+        \begin{gathered}
+            \norma{\hat{x}[N]}{P_f} + \sum_{j=0}^{N-1} \norma{\hat{x}[j]}{Q} = x^T(k) Q x(k) \\
+            + \hat{x}^T(k + 1 | k)Q\hat{x}(k + 1 | k) + \dotsi + \hat{x}^T(k + N - 1|k)Q\hat{x}(k + N - 1|k) + \hat{x}^T[N]P_f\hat{x}[N] \\
+            = \hat{x}^T(k|k)Q \hat{x}(k|k) +  \\
+            \underbrace{
+                \left[
+                    \begin{matrix}
+                        \hat{x}^T(k + 1 | k) & \hat{x}^T(k + 2 | k) & \dotsi & \hat{x}^T(k + N | k)		
+                    \end{matrix}
+                \right]
+            }_{\mathbf{\hat{x}}^T}
+            \left[
+                \begin{matrix}
+                    Q & 0 & \dotsi & 0 \\
+                    0 & Q & \dotsi & 0 \\
+                    \vdots & \vdots & \ddots & \vdots \\
+                    0 & 0 & \dotsi & P_f
+                \end{matrix}
+            \right]
+            \underbrace{
+                \left[
+                    \begin{matrix}
+                        \hat{x}(k + 1 | k) \\
+                        \hat{x}(k + 2 | k) \\
+                        \vdots \\
+                        \hat{x}(k + N | k)
+                    \end{matrix}
+                \right]
+            }_{\mathbf{\hat{x}}}
+        \end{gathered}
+    \nonumber
+    \end{equation}
+}
+
 \noindent
 with the notation
 
@@ -199,9 +338,25 @@ as
     \norma{\hat{x}(N)}{{_f}} + \sum^{N - 1}_{k=0} \norma{\hat{x}(k)}{Q} = \norma{x(0)}{Q} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} 
 \end{equation}
 
+\purple{
+    \noindent
+    \begin{equation}
+        \norma{\hat{x}(k + N | k)}{P} + \sum^{N - 1}_{j=0} \norma{\hat{x}(j)}{Q} = \norma{x(k)}{Q} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} 
+    \nonumber
+    \end{equation}
+}
+
 So, the cost function can be written in the form
 
 \noindent
 \begin{equation}
     J(\mathbf{\hat{x}}, \mathbf{\hat{u}}) = \norma{x(0)}{Q} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} + \norma{\mathbf{\hat{u}}}{\mathbf{R}}
 \end{equation}
+
+\purple{
+    \noindent
+    \begin{equation}
+        J(\mathbf{\hat{x}}, \mathbf{\hat{u}}) = \norma{x(k)}{Q} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} + \norma{\mathbf{\hat{u}}}{\mathbf{R}}
+    \nonumber
+    \end{equation}
+}
