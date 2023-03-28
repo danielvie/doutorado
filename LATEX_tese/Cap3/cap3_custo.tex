@@ -1,52 +1,31 @@
-
-\purple{
-    indice do vetor:
-    \begin{equation}
-        x[k] \nonumber 
-    \end{equation}
-}
-
-\purple{
-    \begin{equation}
-        x(k) \nonumber
-    \end{equation}
-}
-
-\purple{
-    iteracao k+1 a partir de k
-    \begin{equation}
-        x(k+1|k) \nonumber
-    \end{equation}
-}
-
 Consider a system with dynamics described by
 
 \begin{equation}
-    \hat{x}(k) = A x(k) + B \hat{u}(k)
+  \hat{x}(k) = A x(k) + B \hat{u}(k)
 \end{equation}
 
 \purple{
     \begin{equation}
-        \hat{x}(k + 1) = A x(k) + B \hat{u}(k)
+        x[k + 1] = A x[k] + B u[k]
         \nonumber
     \end{equation}
 }
 
-The objective is to drive the state $\hat{x}(K)$ to the origin from a given initial condition while respecting
+The objective is to drive the state $x[k]$ to the origin from a given initial condition while respecting
 state and control constraints in the form
 
 \begin{equation}
-    \hat{x}(k) \in \mathcal{X}
+    x[k] \in \mathcal{X}
 \end{equation}
     
 \begin{equation}
-    \hat{u}(k) \in \mathcal{U}
+    u[k] \in \mathcal{U}
 \end{equation}
 
 
 \begin{equation}
     \mathcal{U} = \left\{
-        \hat{u} \in \mathbb{R}^p : S_u \hat{u} \leq b_u	
+        u \in \mathbb{R}^p : S_u u \leq b_u	
     \right\}
 \end{equation}
 
@@ -55,7 +34,7 @@ and
 
 \begin{equation}
     \mathcal{X} = \left\{
-        \hat{x} \in \mathbb{R}^n : S_x \hat{x} \leq b_x
+        x \in \mathbb{R}^n : S_x x \leq b_x
     \right\}
 \end{equation}
 
@@ -69,7 +48,7 @@ actions to perform the task.
 The control problem consists of bringing the states to the origin, so we will employ a cost in the form
 
 \begin{equation}
-    J = \blue{\norma{\hat{x}(k + N | k)}{P_f}} + \orange{\sum^{N-1}_{i=0} \Big[ \norma{\hat{x}(k + i | k)}{Q} + \norma{\hat{u}(k + i | k)}{R} \Big]}
+    J = \blue{\norma{\hat{x}[k + N | k]}{P_f}} + \orange{\sum^{N-1}_{i=0} \Big[ \norma{\hat{x}[k + i | k]}{Q} + \norma{\hat{u}[k + i | k]}{R} \Big]}
 \end{equation}
 
 The expression for $J$ consists of a \blue{terminal cost} term and a trajectory \orange{cost term}. 
@@ -132,12 +111,16 @@ The cost function can be rewritten using the notation:
 and then the sum equation
 
 \begin{equation}
-    \sum^{N-1}_{k=0} \norma{\hat{u}(k)}{R} = \hat{u}^T(0) R \hat{u}(0) + \hat{u}^t(1)R\hat{u}(1) + \dotsm + \hat{u}^T (N-1) R \hat{u}(N-1)
+    \sum^{N-1}_{k=0} \norma{\hat{u}(k)}{R} = \hat{u}^T(0) R \hat{u}(0) + \hat{u}^t(1)R\hat{u}(1) + \cdots + \hat{u}^T (N-1) R \hat{u}(N-1)
 \end{equation}
+
 
 \purple{
     \begin{equation}
-        \sum^{N-1}_{j=0} \norma{\hat{u}(j + k | k)}{R} = \hat{u}^T(k|k) R \hat{u}(k|k) + \hat{u}^t(k+1|k)R\hat{u}(k+1|k) + \dotsm + \hat{u}^T (k+N-1|k) R \hat{u}(k+N-1|k)
+        \begin{split}
+            \sum^{N-1}_{j=0} \norma{\hat{u}[j + k | k]}{R} &= \hat{u}^T[k|k] R \hat{u}[k|k] + \hat{u}^t[k+1|k]R\hat{u}[k+1|k] + \cdots \\
+            &\qquad+ \hat{u}^T [k+N-1|k] R \hat{u}[k+N-1|k]
+        \end{split}
     \nonumber
     \end{equation}
 }
@@ -149,16 +132,19 @@ becomes
     \underbrace{
         \left[
             \begin{matrix}
-                \hat{u}^T(0) & \hat{u}^T(1) & \dotsi & \hat{u}^T(N - 1) 
+                \hat{u}^T(0) & 
+                \hat{u}^T(1) & 
+                \cdots & 
+                \hat{u}^T(N - 1) 
             \end{matrix}
         \right]
     }_{\mathbf{\hat{u}}^T}
     \left[
         \begin{matrix}
-            R & 0 & \dotsi & 0 \\
-            0 & R & \dotsi & 0 \\
+            R & 0 & \cdots & 0 \\
+            0 & R & \cdots & 0 \\
             \vdots & \vdots & \ddots & \vdots \\
-            0 & 0 & \dotsi & R \\
+            0 & 0 & \cdots & R \\
         \end{matrix}
     \right]
     \underbrace{
@@ -178,16 +164,16 @@ becomes
         \underbrace{
             \left[
                 \begin{matrix}
-                    \hat{u}^T(k|k) & \hat{u}^T(k + 1|k) & \dotsi & \hat{u}^T(k + N - 1|k) 
+                    \hat{u}^T(k|k) & \hat{u}^T(k + 1|k) & \cdots & \hat{u}^T(k + N - 1|k) 
                 \end{matrix}
             \right]
         }_{\mathbf{\hat{u}}^T}
         \left[
             \begin{matrix}
-                R & 0 & \dotsi & 0 \\
-                0 & R & \dotsi & 0 \\
+                R & 0 & \cdots & 0 \\
+                0 & R & \cdots & 0 \\
                 \vdots & \vdots & \ddots & \vdots \\
-                0 & 0 & \dotsi & R \\
+                0 & 0 & \cdots & R \\
             \end{matrix}
         \right]
         \underbrace{
@@ -209,10 +195,10 @@ Using the notation
 \begin{equation}
     \mathbf{R} = \left[
         \begin{matrix}
-            R & 0 & \dotsi & 0 \\
-            0 & R & \dotsi & 0 \\
+            R & 0 & \cdots & 0 \\
+            0 & R & \cdots & 0 \\
             \vdots & \vdots & \ddots & \vdots \\
-            0 & 0 & \dotsi & R 
+            0 & 0 & \cdots & R 
         \end{matrix}
     \right] = diag_N(R)
 \end{equation}
@@ -231,7 +217,7 @@ we get to
     \end{equation}
 }
 
-In a similar way, we can write
+Similarly, we can write
 
 \purple{
     // NOTE: rever essa parte
@@ -240,21 +226,21 @@ In a similar way, we can write
 \begin{equation}
     \begin{gathered}
         \norma{\hat{x}(N)}{P_f} + \sum_{k=0}^{N-1} \norma{\hat{x}(k)}{Q} = x^T(0) Q x(0) \\
-        + \hat{x}^T(1)Q\hat{x}(1) + \dotsi + \hat{x}^T(N-1)Q\hat{x}(N-1) + \hat{x}^T(N)P_f\hat{x}(N) \\
+        + \hat{x}^T(1)Q\hat{x}(1) + \cdots + \hat{x}^T(N-1)Q\hat{x}(N-1) + \hat{x}^T(N)P_f\hat{x}(N) \\
         = \hat{x}^T(0)Qx(0) +  \\
         \underbrace{
             \left[
                 \begin{matrix}
-                    \hat{x}^T(1) & \hat{x}^T(2) & \dotsi & \hat{x}^T(N)		
+                    \hat{x}^T(1) & \hat{x}^T(2) & \cdots & \hat{x}^T(N)		
                 \end{matrix}
             \right]
         }_{\mathbf{\hat{x}}^T}
         \left[
             \begin{matrix}
-                Q & 0 & \dotsi & 0 \\
-                0 & Q & \dotsi & 0 \\
+                Q & 0 & \cdots & 0 \\
+                0 & Q & \cdots & 0 \\
                 \vdots & \vdots & \ddots & \vdots \\
-                0 & 0 & \dotsi & P_f
+                0 & 0 & \cdots & P_f
             \end{matrix}
         \right]
         \underbrace{
@@ -275,21 +261,21 @@ In a similar way, we can write
     \begin{equation}
         \begin{gathered}
             \norma{\hat{x}[N]}{P_f} + \sum_{j=0}^{N-1} \norma{\hat{x}[j]}{Q} = x^T(k) Q x(k) \\
-            + \hat{x}^T(k + 1 | k)Q\hat{x}(k + 1 | k) + \dotsi + \hat{x}^T(k + N - 1|k)Q\hat{x}(k + N - 1|k) + \hat{x}^T[N]P_f\hat{x}[N] \\
+            + \hat{x}^T(k + 1 | k)Q\hat{x}(k + 1 | k) + \cdots + \hat{x}^T(k + N - 1|k)Q\hat{x}(k + N - 1|k) + \hat{x}^T[N]P_f\hat{x}[N] \\
             = \hat{x}^T(k|k)Q \hat{x}(k|k) +  \\
             \underbrace{
                 \left[
                     \begin{matrix}
-                        \hat{x}^T(k + 1 | k) & \hat{x}^T(k + 2 | k) & \dotsi & \hat{x}^T(k + N | k)		
+                        \hat{x}^T(k + 1 | k) & \hat{x}^T(k + 2 | k) & \cdots & \hat{x}^T(k + N | k)		
                     \end{matrix}
                 \right]
             }_{\mathbf{\hat{x}}^T}
             \left[
                 \begin{matrix}
-                    Q & 0 & \dotsi & 0 \\
-                    0 & Q & \dotsi & 0 \\
+                    Q & 0 & \cdots & 0 \\
+                    0 & Q & \cdots & 0 \\
                     \vdots & \vdots & \ddots & \vdots \\
-                    0 & 0 & \dotsi & P_f
+                    0 & 0 & \cdots & P_f
                 \end{matrix}
             \right]
             \underbrace{
@@ -314,10 +300,10 @@ with the notation
     Q = 
     \left[
         \begin{matrix}
-            Q & 0 & \dotsi & 0 \\
-            0 & Q & \dotsi & 0 \\
+            Q & 0 & \cdots & 0 \\
+            0 & Q & \cdots & 0 \\
             \vdots & \vdots & \ddots & \vdots \\
-            0 & 0 & \dotsi & P_f
+            0 & 0 & \cdots & P_f
         \end{matrix}
     \right]
     = 
@@ -335,13 +321,13 @@ as
 
 \noindent
 \begin{equation}
-    \norma{\hat{x}(N)}{{_f}} + \sum^{N - 1}_{k=0} \norma{\hat{x}(k)}{Q} = \norma{x(0)}{Q} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} 
+    \norma{\hat{x}(N)}{{_f}} + \sum_{k=0}^{N - 1} \norma{\hat{x}(k)}{Q} = \norma{x(0)}{Q} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} 
 \end{equation}
 
 \purple{
     \noindent
     \begin{equation}
-        \norma{\hat{x}(k + N | k)}{P} + \sum^{N - 1}_{j=0} \norma{\hat{x}(j)}{Q} = \norma{x(k)}{Q} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} 
+        \norma{\hat{x}(k + N | k)}{P} + \sum_{j=0}^{N - 1} \norma{\hat{x}(j)}{Q} = \norma{x(k)}{Q} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} 
     \nonumber
     \end{equation}
 }

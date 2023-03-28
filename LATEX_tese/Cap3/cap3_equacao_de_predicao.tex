@@ -23,20 +23,20 @@ Let's express the relationship between the vectors
 
 \purple{
 	\begin{equation}
-		\mathbf{\hat{u}} = \left[
+		\mathbf{\hat{u}}[k] = \left[
 			\begin{matrix}
-				\hat{u}(k | k) \\ 
-				\hat{u}(k + 1 | k) \\ 
+				\hat{u}[k | k] \\ 
+				\hat{u}[k + 1 | k] \\ 
 				\vdots \\ 
-				\hat{u}(k + N-1 | k)
+				\hat{u}[k + N-1 | k]
 			\end{matrix}
 		\right],
-		\mathbf{\hat{x}} = \left[
+		\mathbf{\hat{x}}[k] = \left[
 			\begin{matrix}
-				\hat{x}(k + 1 | k) \\ 
-				\hat{x}(k + 2 | k) \\ 
+				\hat{x}[k + 1 | k] \\ 
+				\hat{x}[k + 2 | k] \\ 
 				\vdots \\ 
-				\hat{x}(k + N | k)
+				\hat{x}[k + N | k]
 			\end{matrix}
 		\right]
 		\nonumber
@@ -47,21 +47,31 @@ Let's express the relationship between the vectors
 based on the state equation
 
 \begin{equation}
-	\hat{x}(k+1) = A\hat{x}(k) + B \hat{u}(k)
+	\hat{x}[k + i +1|k] = A\hat{x}[k|k] + B \hat{u}[k|k]
 \end{equation}
 
 \noindent
 and initial condition $x(0)$.
 
 \purple{
+  and initial condition $x[0]$.
+}
+
+\purple{
+	// NOTE: colocar numero na equacao
+
 	\noindent
-	and initial condition $x(k)$.
+	and initial condition 
+	\begin{equation}
+		\hat{x}[k|k] = x[k]
+		\nonumber
+	\end{equation}	
 }
 
 The solution for the state equation is:
 
 \begin{equation}
-	\hat{x}(k) = A^kx(k) + \sum_{i=0}^{k-1} A^{k-1-i} B \hat{u}(i)
+	\hat{x}[k+i|k] = A^i\hat{x}[k|k] + \sum_{j=0}^{i-1} A^{i - 1 -j} B \hat{u}[k+j|k]
 \end{equation}
 
 \noindent
@@ -69,22 +79,25 @@ and it can be written for $k = 1,2,...,N$ as
 
 \noindent
 \begin{align}
-	\hat{x}(1) &= A x(0) +  B \hat{u}(0) \\
-	\hat{x}(2) &= A^2 x(0) + A B \hat{u}(0) +  B \hat{u}(1) \\
+	\hat{x}[k+1|k] &= A x[k] +  B \hat{u}[k|k] \\
+	\hat{x}[k+2|k] &= A^2 x[k] + A B \hat{u}[k|k] +  B \hat{u}[k+1|k] \\
 	&\vdots \\
-	\hat{x}(N) &= A^N x(0) A^{N - 1} B \hat{u}(0) + \dotsi + A B \hat{u}(N - 2) +  B \hat{u}(N - 1)
+	\hat{x}[k+N|k] &= A^N x[k] + A^{N - 1} B \hat{u}[k|k] + \cdots + A B \hat{u}[k +N - 2|k] +  B \hat{u}[k + N - 1|k]
 \end{align}
 
 \noindent
 or
 
+\purple{
+	// NOTE: mudar notacao
+}
 \begin{equation}
 	\left[
 		\begin{matrix}
-			\hat{x}(1) \\
-			\hat{x}(2) \\
+			\hat{x}[1] \\
+			\hat{x}[2] \\
 			\vdots \\
-			\hat{x}(N) \\
+			\hat{x}[N] \\
 		\end{matrix}
 	\right] = 
 	\left[
@@ -98,18 +111,18 @@ or
 	x(0) + 
 	\left[
 		\begin{matrix}
-			B & 0 & \dotsi & 0 \\
-			AB & B & \dotsi & 0 \\
+			B & 0 & \cdots & 0 \\
+			AB & B & \cdots & 0 \\
 			\vdots & \vdots & \ddots & \vdots \\
-			A^{N-1}B & A^{N-2}B & \dotsi & B
+			A^{N-1}B & A^{N-2}B & \cdots & B
 		\end{matrix}
 	\right]
 	\left[
 		\begin{matrix}
-			\hat{u}(0) \\
-			\hat{u}(1)\\
+			\hat{u}[0] \\
+			\hat{u}[1]\\
 			\vdots \\
-			\hat{u}(N-1)
+			\hat{u}[N-1]
 		\end{matrix}
 	\right]
 \end{equation}
@@ -119,6 +132,12 @@ This can be written in a shorter form as
 \begin{equation}
 	\mathbf{\hat{x}} = \mathbf{A}x(0) + \mathbf{B \hat{u}}
 \end{equation}
+
+\purple{
+  \begin{equation}
+    \mathbf{\hat{x}} = \mathbf{A}x[0] + \mathbf{B \hat{u}}
+  \end{equation}
+}
 
 \noindent
 with 
@@ -135,10 +154,10 @@ with
 	, 
 	\mathbf{B} = \left[
 		\begin{matrix}
-			B & 0 & \dotsi & 0 \\
-			AB & B & \dotsi & 0 \\
+			B & 0 & \cdots & 0 \\
+			AB & B & \cdots & 0 \\
 			\vdots & \vdots & \ddots & \vdots \\
-			A^{N-1}B & A^{N-2}B & \dotsi & B
+			A^{N-1}B & A^{N-2}B & \cdots & B
 		\end{matrix}
 	\right]
 \end{equation}
@@ -148,6 +167,12 @@ The relation
 \begin{equation}
 	\mathbf{\hat{x}} = \mathbf{A}x(0) + \mathbf{B \hat{u}}
 \end{equation}
+
+\purple{
+  \begin{equation}
+    \mathbf{\hat{x}} = \mathbf{A}x(0) + \mathbf{B \hat{u}}
+  \end{equation}
+}
 
 can be rewritten as
 

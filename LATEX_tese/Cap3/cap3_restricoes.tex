@@ -21,7 +21,7 @@ respecting constraints applied on
 			\hat{u}(N-1)
 		\end{matrix}
 	\right]
-	\in \mathcal{U} \times  \mathcal{U} \times \dotsi \times \mathcal{U} = \mathcal{U}^N \\
+	\in \mathcal{U} \times  \mathcal{U} \times \cdots \times \mathcal{U} = \mathcal{U}^N \\
 	\mathbf{\hat{x}} &= \left[
 		\begin{matrix}
 			\hat{x}(1) \\
@@ -30,7 +30,7 @@ respecting constraints applied on
 			\hat{x}(N)
 		\end{matrix}
 	\right]
-	\in \mathcal{X} \times  \mathcal{X} \times \dotsi \times \mathcal{X}_f = \mathcal{X}^{N-1} \times \mathcal{X}_f
+	\in \mathcal{X} \times  \mathcal{X} \times \cdots \times \mathcal{X}_f = \mathcal{X}^{N-1} \times \mathcal{X}_f
 \end{align}
 
 \purple{
@@ -44,7 +44,7 @@ respecting constraints applied on
 				\hat{u}(k + N-1 | k)
 			\end{matrix}
 		\right]
-		\in \mathcal{U} \times  \mathcal{U} \times \dotsi \times \mathcal{U} = \mathcal{U}^N 
+		\in \mathcal{U} \times  \mathcal{U} \times \cdots \times \mathcal{U} = \mathcal{U}^N 
 		\nonumber \\
 		\mathbf{\hat{x}} &= \left[
 			\begin{matrix}
@@ -54,7 +54,7 @@ respecting constraints applied on
 				\hat{x}(k + N | k)
 			\end{matrix}
 		\right]
-		\in \mathcal{X} \times  \mathcal{X} \times \dotsi \times \mathcal{X}_f = \mathcal{X}^{N-1} \times \mathcal{X}_f
+		\in \mathcal{X} \times  \mathcal{X} \times \cdots \times \mathcal{X}_f = \mathcal{X}^{N-1} \times \mathcal{X}_f
 		\nonumber
 	\end{align}
 }
@@ -77,10 +77,10 @@ The constraint on $\mathbf{\hat{u}}$ can be  written as
 \begin{equation}
 	\left[
 		\begin{matrix}
-			S_u & 0 & \dotsi & 0 \\
-			0 & S_u & \dotsi & 0 \\
+			S_u & 0 & \cdots & 0 \\
+			0 & S_u & \cdots & 0 \\
 			\vdots & \vdots & \ddots & \vdots \\
-			0 & 0 & \dotsi & S_u
+			0 & 0 & \cdots & S_u
 		\end{matrix}
 	\right]
 	\left[
@@ -107,10 +107,10 @@ The constraint on $\mathbf{\hat{u}}$ can be  written as
 	\begin{equation}
 		\left[
 			\begin{matrix}
-				S_u & 0 & \dotsi & 0 \\
-				0 & S_u & \dotsi & 0 \\
+				S_u & 0 & \cdots & 0 \\
+				0 & S_u & \cdots & 0 \\
 				\vdots & \vdots & \ddots & \vdots \\
-				0 & 0 & \dotsi & S_u
+				0 & 0 & \cdots & S_u
 			\end{matrix}
 		\right]
 		\left[
@@ -156,10 +156,10 @@ Similarly, the constraints on $\mathbf{\hat{x}}$ can be written as
 \begin{equation}
 	\left[
 		\begin{matrix}
-			S_x & 0 & \dotsi & 0 \\
-			0 & S_x & \dotsi & 0 \\
+			S_x & 0 & \cdots & 0 \\
+			0 & S_x & \cdots & 0 \\
 			\vdots & \vdots & \ddots & \vdots \\
-			0 & 0 & \dotsi & S_x
+			0 & 0 & \cdots & S_x
 		\end{matrix}
 	\right]
 	\left[
@@ -186,10 +186,10 @@ Similarly, the constraints on $\mathbf{\hat{x}}$ can be written as
 	\begin{equation}
 		\left[
 			\begin{matrix}
-				S_x & 0 & \dotsi & 0 \\
-				0 & S_x & \dotsi & 0 \\
+				S_x & 0 & \cdots & 0 \\
+				0 & S_x & \cdots & 0 \\
 				\vdots & \vdots & \ddots & \vdots \\
-				0 & 0 & \dotsi & S_x
+				0 & 0 & \cdots & S_x
 			\end{matrix}
 		\right]
 		\left[
