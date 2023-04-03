@@ -36,22 +36,22 @@ respecting constraints applied on
 \purple{
 	\noindent
 	\begin{align}
-		\mathbf{\hat{u}} &= \left[
+		\mathbf{\hat{u}}[k]&= \left[
 			\begin{matrix}
-				\hat{u}(k | k) \\
-				\hat{u}(k + 1 | k) \\
+				\hat{u}[k | k] \\
+				\hat{u}[k + 1 | k] \\
 				\vdots \\
-				\hat{u}(k + N-1 | k)
+				\hat{u}[k + N-1 | k]
 			\end{matrix}
 		\right]
 		\in \mathcal{U} \times  \mathcal{U} \times \cdots \times \mathcal{U} = \mathcal{U}^N 
 		\nonumber \\
-		\mathbf{\hat{x}} &= \left[
+			\mathbf{\hat{x}}[k] &= \left[
 			\begin{matrix}
-				\hat{x}(k + 1 | k) \\
-				\hat{x}(k + 2 | k) \\
+				\hat{x}[k + 1 | k] \\
+				\hat{x}[k + 2 | k] \\
 				\vdots \\
-				\hat{x}(k + N | k)
+				\hat{x}[k + N | k]
 			\end{matrix}
 		\right]
 		\in \mathcal{X} \times  \mathcal{X} \times \cdots \times \mathcal{X}_f = \mathcal{X}^{N-1} \times \mathcal{X}_f
@@ -115,10 +115,10 @@ The constraint on $\mathbf{\hat{u}}$ can be  written as
 		\right]
 		\left[
 			\begin{matrix}
-				\hat{u}(k | k) \\
-				\hat{u}(k + 1 | k) \\
+				\hat{u}[k | k] \\
+				\hat{u}[k + 1 | k] \\
 				\vdots \\
-				\hat{u}(k + N-1 | k)
+				\hat{u}[k + N-1 | k]
 			\end{matrix}
 		\right]
 		\leq
@@ -194,10 +194,10 @@ Similarly, the constraints on $\mathbf{\hat{x}}$ can be written as
 		\right]
 		\left[
 			\begin{matrix}
-				\hat{x}(k + 1 | k) \\
-				\hat{x}(k + 2 | k) \\
+				\hat{x}[k + 1 | k] \\
+				\hat{x}[k + 2 | k] \\
 				\vdots \\
-				\hat{x}(k + N | k)
+				\hat{x}[k + N | k]
 			\end{matrix}
 		\right]
 		\leq

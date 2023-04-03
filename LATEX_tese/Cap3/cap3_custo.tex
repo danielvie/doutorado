@@ -83,23 +83,23 @@ The cost function can be rewritten using the notation:
 
 \purple{
     \begin{equation}
-        \mathbf{\hat{u}}(k) = 
+        \mathbf{\hat{u}}[k] = 
         \left[
             \begin{matrix}
-                \hat{u}(k | k) \\		
-                \hat{u}(k + 1 | k) \\		
+                \hat{u}[k | k] \\		
+                \hat{u}[k + 1 | k] \\		
                 \vdots \\
-                \hat{u}(k + N-1 | k)
+                \hat{u}[k + N-1 | k]
             \end{matrix}
         \right]
         \in \mathbb{R}^{pN},
-        \mathbf{\hat{x}}(k) = 
+        \mathbf{\hat{x}}[k] = 
         \left[
             \begin{matrix}
-                \hat{x}(k + 1| k) \\ 
-                \hat{x}(k + 2| k) \\ 
+                \hat{x}[k + 1| k] \\ 
+                \hat{x}[k + 2| k] \\ 
                 \vdots \\
-                \hat{x}(k + N | k)
+                \hat{x}[k + N | k]
             \end{matrix}
         \right]
         \in \mathbb{R}^{nN}
@@ -162,11 +162,9 @@ becomes
 \purple{
     \begin{equation}
         \underbrace{
-            \left[
-                \begin{matrix}
-                    \hat{u}^T(k|k) & \hat{u}^T(k + 1|k) & \cdots & \hat{u}^T(k + N - 1|k) 
-                \end{matrix}
-            \right]
+            \left[ \begin{matrix}
+                \hat{u}^T[k|k] & \hat{u}^T[k + 1|k] & \cdots & \hat{u}^T[k + N - 1|k] 
+            \end{matrix} \right]
         }_{\mathbf{\hat{u}}^T}
         \left[
             \begin{matrix}
@@ -179,10 +177,10 @@ becomes
         \underbrace{
             \left[
                 \begin{matrix}
-                    \hat{u}(k|k) \\
-                    \hat{u}(k + 1|k) \\
+                    \hat{u}[k|k] \\
+                    \hat{u}[k + 1|k] \\
                     \vdots \\
-                    \hat{u}(k + N - 1|k)
+                    \hat{u}[k + N - 1|k]
                 \end{matrix}
             \right]
         }_{\mathbf{\hat{u}}}
@@ -219,10 +217,6 @@ we get to
 
 Similarly, we can write
 
-\purple{
-    // NOTE: rever essa parte
-}
-
 \begin{equation}
     \begin{gathered}
         \norma{\hat{x}(N)}{P_f} + \sum_{k=0}^{N-1} \norma{\hat{x}(k)}{Q} = x^T(0) Q x(0) \\
@@ -256,17 +250,16 @@ Similarly, we can write
     \end{gathered}
 \end{equation}
 
-
 \purple{
     \begin{equation}
         \begin{gathered}
-            \norma{\hat{x}[N]}{P_f} + \sum_{j=0}^{N-1} \norma{\hat{x}[j]}{Q} = x^T(k) Q x(k) \\
-            + \hat{x}^T(k + 1 | k)Q\hat{x}(k + 1 | k) + \cdots + \hat{x}^T(k + N - 1|k)Q\hat{x}(k + N - 1|k) + \hat{x}^T[N]P_f\hat{x}[N] \\
-            = \hat{x}^T(k|k)Q \hat{x}(k|k) +  \\
+            \norma{\hat{x}[N]}{P_f} + \sum_{j=0}^{N-1} \norma{\hat{x}[j]}{Q} = x^T[k] Q x[k] \\
+            + \hat{x}^T[k + 1 | k]Q\hat{x}[k + 1 | k] + \cdots + \hat{x}^T[k + N - 1|k]Q\hat{x}[k + N - 1|k] + \hat{x}^T[N]P_f\hat{x}[N] \\
+            = \hat{x}^T[k|k]Q \hat{x}[k|k] +  \\
             \underbrace{
                 \left[
                     \begin{matrix}
-                        \hat{x}^T(k + 1 | k) & \hat{x}^T(k + 2 | k) & \cdots & \hat{x}^T(k + N | k)		
+                        \hat{x}^T[k + 1 | k] & \hat{x}^T[k + 2 | k] & \cdots & \hat{x}^T[k + N | k]		
                     \end{matrix}
                 \right]
             }_{\mathbf{\hat{x}}^T}
@@ -281,10 +274,10 @@ Similarly, we can write
             \underbrace{
                 \left[
                     \begin{matrix}
-                        \hat{x}(k + 1 | k) \\
-                        \hat{x}(k + 2 | k) \\
+                        \hat{x}[k + 1 | k] \\
+                        \hat{x}[k + 2 | k] \\
                         \vdots \\
-                        \hat{x}(k + N | k)
+                        \hat{x}[k + N | k]
                     \end{matrix}
                 \right]
             }_{\mathbf{\hat{x}}}
@@ -327,7 +320,7 @@ as
 \purple{
     \noindent
     \begin{equation}
-        \norma{\hat{x}(k + N | k)}{P} + \sum_{j=0}^{N - 1} \norma{\hat{x}(j)}{Q} = \norma{x(k)}{Q} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} 
+        \norma{\hat{x}[k + N | k]}{P} + \sum_{j=0}^{N - 1} \norma{\hat{x}[j]}{Q} = \norma{x[k]}{Q} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} 
     \nonumber
     \end{equation}
 }
@@ -342,7 +335,7 @@ So, the cost function can be written in the form
 \purple{
     \noindent
     \begin{equation}
-        J(\mathbf{\hat{x}}, \mathbf{\hat{u}}) = \norma{x(k)}{Q} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} + \norma{\mathbf{\hat{u}}}{\mathbf{R}}
+        J(\mathbf{\hat{x}}, \mathbf{\hat{u}}) = \norma{x[k]}{Q} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} + \norma{\mathbf{\hat{u}}}{\mathbf{R}}
     \nonumber
     \end{equation}
 }
