@@ -51,6 +51,17 @@ The control problem consists of bringing the states to the origin, so we will em
     J = \blue{\norma{\hat{x}[k + N | k]}{P_f}} + \orange{\sum^{N-1}_{i=0} \Big[ \norma{\hat{x}[k + i | k]}{Q} + \norma{\hat{u}[k + i | k]}{R} \Big]}
 \end{equation}
 
+\purple{
+    // NOTE: retornar o numero da equacao
+
+	\noindent
+	and initial condition 
+	\begin{equation}
+		\hat{x}[k|k] = x[k]
+        \nonumber
+	\end{equation}	
+}
+
 The expression for $J$ consists of a \blue{terminal cost} term and a trajectory \orange{cost term}. 
 
 With $P_f$, $Q$, $R$ being symmetric and positive-definite, with $P_f$ chosen so that the terminal cost term $\norma{\hat{x}(k + N|k) - \bar{x}}{P_f}$ corresponds 
@@ -253,34 +264,12 @@ Similarly, we can write
 \purple{
     \begin{equation}
         \begin{gathered}
-            \norma{\hat{x}[N]}{P_f} + \sum_{j=0}^{N-1} \norma{\hat{x}[j]}{Q} = x^T[k] Q x[k] \\
-            + \hat{x}^T[k + 1 | k]Q\hat{x}[k + 1 | k] + \cdots + \hat{x}^T[k + N - 1|k]Q\hat{x}[k + N - 1|k] + \hat{x}^T[N]P_f\hat{x}[N] \\
+            \norma{\hat{x}[k+N|k]}{P_f} + \sum_{j=0}^{N-1} \norma{\hat{x}[k+j|k]}{Q} = x^T[k|k] Q x[k|k] \\
+            + \hat{x}^T[k + 1 | k]Q\hat{x}[k + 1 | k] + \cdots + \hat{x}^T[k + N - 1|k]Q\hat{x}[k + N - 1|k] + \hat{x}^T[k+N|k]P_f\hat{x}[k+N|k] \\
             = \hat{x}^T[k|k]Q \hat{x}[k|k] +  \\
-            \underbrace{
-                \left[
-                    \begin{matrix}
-                        \hat{x}^T[k + 1 | k] & \hat{x}^T[k + 2 | k] & \cdots & \hat{x}^T[k + N | k]		
-                    \end{matrix}
-                \right]
-            }_{\mathbf{\hat{x}}^T}
-            \left[
-                \begin{matrix}
-                    Q & 0 & \cdots & 0 \\
-                    0 & Q & \cdots & 0 \\
-                    \vdots & \vdots & \ddots & \vdots \\
-                    0 & 0 & \cdots & P_f
-                \end{matrix}
-            \right]
-            \underbrace{
-                \left[
-                    \begin{matrix}
-                        \hat{x}[k + 1 | k] \\
-                        \hat{x}[k + 2 | k] \\
-                        \vdots \\
-                        \hat{x}[k + N | k]
-                    \end{matrix}
-                \right]
-            }_{\mathbf{\hat{x}}}
+            \underbrace{ \left[ \begin{matrix} \hat{x}^T[k + 1 | k] & \hat{x}^T[k + 2 | k] & \cdots & \hat{x}^T[k + N | k]		\end{matrix} \right] }_{\mathbf{\hat{x}}[k]^T}
+            \left[ \begin{matrix} Q & 0 & \cdots & 0 \\ 0 & Q & \cdots & 0 \\ \vdots & \vdots & \ddots & \vdots \\ 0 & 0 & \cdots & P_f \end{matrix} \right]
+            \underbrace{ \left[ \begin{matrix} \hat{x}[k + 1 | k] \\ \hat{x}[k + 2 | k] \\ \vdots \\ \hat{x}[k + N | k] \end{matrix} \right] }_{\mathbf{\hat{x}}[k]}
         \end{gathered}
     \nonumber
     \end{equation}
@@ -320,7 +309,7 @@ as
 \purple{
     \noindent
     \begin{equation}
-        \norma{\hat{x}[k + N | k]}{P} + \sum_{j=0}^{N - 1} \norma{\hat{x}[j]}{Q} = \norma{x[k]}{Q} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} 
+        \norma{\hat{x}[k + N | k]}{P} + \sum_{j=0}^{N - 1} \norma{\hat{x}[k+j|k]}{Q} = \norma{x[k]}{Q} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} 
     \nonumber
     \end{equation}
 }
