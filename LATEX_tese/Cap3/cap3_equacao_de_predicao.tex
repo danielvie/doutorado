@@ -2,48 +2,25 @@
 
 Let's express the relationship between the vectors
 
-
 \begin{equation}
-	\mathbf{\hat{u}} = \left[
+	\mathbf{\hat{u}}[k] = \left[
 		\begin{matrix}
-			\hat{u}(0) \\ 
-			\hat{u}(1) \\ 
+			\hat{u}[k | k] \\ 
+			\hat{u}[k + 1 | k] \\ 
 			\vdots \\ 
-			\hat{u}(N-1)
+			\hat{u}[k + N-1 | k]
 		\end{matrix}
 	\right],
-	\mathbf{\hat{x}} = \left[
+	\mathbf{\hat{x}}[k] = 
+		\left[
 		\begin{matrix}
-      \hat{x}(1) \\ 
-			\hat{x}(2) \\ 
+			\hat{x}[k + 1 | k] \\ 
+			\hat{x}[k + 2 | k] \\ 
 			\vdots \\ 
-			\hat{x}(N)
+			\hat{x}[k + N | k]
 		\end{matrix}
 	\right]
 \end{equation}
-
-\purple{
-  \begin{equation}
-      \mathbf{\hat{u}}[k] = \left[
-          \begin{matrix}
-              \hat{u}[k | k] \\ 
-              \hat{u}[k + 1 | k] \\ 
-              \vdots \\ 
-              \hat{u}[k + N-1 | k]
-          \end{matrix}
-      \right],
-      \mathbf{\hat{x}}[k] = 
-          \left[
-          \begin{matrix}
-              \hat{x}[k + 1 | k] \\ 
-              \hat{x}[k + 2 | k] \\ 
-              \vdots \\ 
-              \hat{x}[k + N | k]
-          \end{matrix}
-        \right]
-    \nonumber
-  \end{equation}
-}
 
 \noindent
 based on the state equation
@@ -54,16 +31,6 @@ based on the state equation
 
 \noindent
 and initial condition $x[k]$.
-
-\purple{
-	// NOTE: remover aqui
-
-	\noindent
-	and initial condition 
-	\begin{equation}
-		\hat{x}[k|k] = x[k]
-	\end{equation}	
-}
 
 The solution for the state equation is:
 
@@ -88,10 +55,10 @@ or
 \begin{equation}
 	\left[
 		\begin{matrix}
-			\hat{x}[1] \\
-			\hat{x}[2] \\
+			\hat{x}[k+1|k] \\
+			\hat{x}[k+2|k] \\
 			\vdots \\
-			\hat{x}[N] \\
+			\hat{x}[k+N|k] \\
 		\end{matrix}
 	\right] = 
 	\left[
@@ -113,65 +80,19 @@ or
 	\right]
 	\left[
 		\begin{matrix}
-			\hat{u}[0] \\
-			\hat{u}[1]\\
+			\hat{u}[k|k] \\
+			\hat{u}[k+1|k]\\
 			\vdots \\
-			\hat{u}[N-1]
+			\hat{u}[k+N-1|k]
 		\end{matrix}
 	\right]
 \end{equation}
 
-\purple{
-	\begin{equation}
-		\left[
-			\begin{matrix}
-				\hat{x}[k+1|k] \\
-				\hat{x}[k+2|k] \\
-				\vdots \\
-				\hat{x}[k+N|k] \\
-			\end{matrix}
-		\right] = 
-		\left[
-			\begin{matrix}
-				A \\
-				A^2 \\
-				\vdots \\
-				A^N
-			\end{matrix}
-		\right]
-		x(0) + 
-		\left[
-			\begin{matrix}
-				B & 0 & \cdots & 0 \\
-				AB & B & \cdots & 0 \\
-				\vdots & \vdots & \ddots & \vdots \\
-				A^{N-1}B & A^{N-2}B & \cdots & B
-			\end{matrix}
-		\right]
-		\left[
-			\begin{matrix}
-				\hat{u}[k|k] \\
-				\hat{u}[k+1|k]\\
-				\vdots \\
-				\hat{u}[k+N-1|k]
-			\end{matrix}
-		\right]
-	\nonumber
-	\end{equation}
-}
-
 This can be written in a shorter form as
 
 \begin{equation}
-	\mathbf{\hat{x}} = \mathbf{A}x(0) + \mathbf{B \hat{u}}
+\mathbf{\hat{x}} = \mathbf{A}x[k|k] + \mathbf{B \hat{u}}
 \end{equation}
-
-\purple{
-  \begin{equation}
-    \mathbf{\hat{x}} = \mathbf{A}x[k|k] + \mathbf{B \hat{u}}
-	\nonumber
-  \end{equation}
-}
 
 \noindent
 with 
@@ -199,154 +120,56 @@ with
 The relation
 
 \begin{equation}
-	\mathbf{\hat{x}} = \mathbf{A}x(0) + \mathbf{B \hat{u}}
+\mathbf{\hat{x}} = \mathbf{A}x[k|k] + \mathbf{B \hat{u}}
 \end{equation}
-
-\purple{
-  \begin{equation}
-    \mathbf{\hat{x}} = \mathbf{A}x[k|k] + \mathbf{B \hat{u}}
-  \end{equation}
-}
 
 can be rewritten as
 
 \noindent
 \begin{equation}
-	J = \norma{x(0)}{P}
-		+ \green{\overbrace{\norma{\mathbf{\hat{x}}}{\mathbf{Q}}}^{\square}} 
-		+ \norma{\mathbf{\hat{u}}}{\mathbf{R}}
+	J = \norma{x[k|k]}{P} + \green{\overbrace{\norma{\mathbf{\hat{x}}}{\mathbf{Q}}}^{\square}} + \norma{\mathbf{\hat{u}}}{\mathbf{R}}
 \end{equation}
 
 \noindent
 \begin{align}
-	\green{\square} &= \green{\norma{\mathbf{\hat{x}}}{\mathbf{Q}}} \\
-	&= \green{
-		\Big[
-			\mathbf{A}x(0) + \mathbf{B \hat{u}}
-		\Big]^T \mathbf{Q}
-		\Big[
-			\mathbf{A}x(0) + \mathbf{B \hat{u}}
-		\Big]
-	} \\
-	&= \green{
-		\Big[
-			\mathbf{A}x(0) + \mathbf{B \hat{u}}
-		\Big]^T \mathbf{Q}
-		\Big[
-			\mathbf{A}x(0) + \mathbf{B \hat{u}}
-		\Big]
-	} \\
+	\green{\square} 
+	&= \green{\norma{\mathbf{\hat{x}}}{\mathbf{Q}}} \\
+	&= \green{\Big[ \mathbf{A}x[k|k] + \mathbf{B \hat{u}} \Big]^T \mathbf{Q} \Big[ \mathbf{A}x[k|k] + \mathbf{B \hat{u}} \Big]} \\
+	&= \green{\Big[ \mathbf{A}x[k|k] + \mathbf{B \hat{u}} \Big]^T \mathbf{Q} \Big[ \mathbf{A}x[k|k] + \mathbf{B \hat{u}} \Big]} \\
 	\begin{split}
-		&= \green{
-			\norma{\mathbf{A}x(0)}{\mathbf{Q}}
-		} \green{ + 
-			\Big[
-				\mathbf{A}x(0)
-			\Big]^T \mathbf{Q} \mathbf{B \hat{u}}
-		} \\
-		&\qquad \green{ + 
-			\mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q}
-			\mathbf{A}x(0)
-		} \green{ + 
-			\mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{B \hat{u}}
-		}
+		&= \green{\norma{\mathbf{A}x[k|k]}{\mathbf{Q}} + \Big[ \mathbf{A}x[k|k] \Big]^T \mathbf{Q} \mathbf{B \hat{u}}} \\
+		&\qquad \green{ + \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{A}x[k|k] + \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{B \hat{u}}}
 	\end{split}
 \end{align}
-
-\purple{
-	\noindent
-	\begin{equation}
-		J = \norma{x[k|k]}{P} + \overbrace{\norma{\mathbf{\hat{x}}}{\mathbf{Q}}}^{\square} + \norma{\mathbf{\hat{u}}}{\mathbf{R}} \nonumber
-	\end{equation}
-
-	\noindent
-	\begin{align}
-		\square &= \norma{\mathbf{\hat{x}}}{\mathbf{Q}} \nonumber \\
-		&= \Big[ \mathbf{A}x[k|k] + \mathbf{B \hat{u}} \Big]^T \mathbf{Q} \Big[ \mathbf{A}x[k|k] + \mathbf{B \hat{u}} \Big] \nonumber \\
-		&= \Big[ \mathbf{A}x[k|k] + \mathbf{B \hat{u}} \Big]^T \mathbf{Q} \Big[ \mathbf{A}x[k|k] + \mathbf{B \hat{u}} \Big] \nonumber \\
-		\begin{split}
-			&= \norma{\mathbf{A}x[k|k]}{\mathbf{Q}} + \Big[ \mathbf{A}x[k|k] \Big]^T \mathbf{Q} \mathbf{B \hat{u}} \nonumber \\
-			&\qquad + \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{A}x[k|k] + \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{B \hat{u}}
-		\end{split}
-	\nonumber
-	\end{align}
-}
 
 replacing $\green{\square}$ back in the cost equation and reordering the elements 
 
 \noindent
 \begin{align}
 	J(\mathbf{\hat{x}}, \mathbf{\hat{u}}) 
-	&= \purple{ 
-			\norma{x(0)}{P} 
-			+ \norma{\mathbf{A}x(0)}{\mathbf{Q}} 
-		} \\
-	&\quad + \orange{
-			\Big[\mathbf{A}x(0)\Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}	
-			+ \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x(0)
-		} \\
-	&\quad + \blue{
-			\mathbf{\hat{u}}^T \mathbf{R} \mathbf{\hat{u}} 
-			+ \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}
-		}
+	&= \purple{ \norma{x[k|k]}{P} + \norma{\mathbf{A}x[k|k]}{\mathbf{Q}} } \\
+	&\quad + \orange{\Big[\mathbf{A}x[k|k]\Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}	+ \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x[k|k]} \\
+	&\quad + \blue{\mathbf{\hat{u}}^T \mathbf{R} \mathbf{\hat{u}} + \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}}
 \end{align}
-
-\purple{
-	\noindent
-	\begin{align}
-		J(\mathbf{\hat{x}}, \mathbf{\hat{u}}) 
-		&= \purple{ \norma{x[k|k]}{P} + \norma{\mathbf{A}x[k|k]}{\mathbf{Q}} } \nonumber \\
-		&\quad + \Big[\mathbf{A}x[k|k]\Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}	+ \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x[k|k] \nonumber \\
-		&\quad + \mathbf{\hat{u}}^T \mathbf{R} \mathbf{\hat{u}} + \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}} \nonumber
-	\end{align}
-}
 
 The \purple{constant part} will be denoted by \purple{$c_0$}
 
 Recalling that the matrix $\mathbf{Q}$ is symmetric, we have:
 
 \begin{equation}
-	\orange{
-		\Big[ \mathbf{A}x(0)  \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}} 
-	} = \Big\{ 
-	\orange{
-		\mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x(0) 
-	} \Big\}^T
+	\Big[ \orange{\mathbf{A}x[k|k]} \Big]^T \orange{\mathbf{Q} \mathbf{B} \mathbf{\hat{u}}} = 
+	\Big\{ \orange{\mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x[k|k] \Big\} }^T
 \end{equation}
-
-\purple{
-	\begin{equation}
-		\Big[ \mathbf{A}x[k|k]  \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}} = \Big\{ 
-		\mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x[k|k] \Big\}^T
-		\nonumber
-	\end{equation}
-}
 
 As these terms are scalars, it can be concluded that they are equal to each other, therefore:
 
 \noindent
 \begin{equation}
 	\begin{gathered}
-		\orange{
-			\Big[ \mathbf{A}x(0)  \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}} + \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x(0) }
-		\\
-		=
-		\orange{
-			2\Big[ \mathbf{A}x(0)  \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}} 
-		}
+		\Big[ \orange{\mathbf{A}x[k|k]} \Big]^T \orange{\mathbf{Q} \mathbf{B} \mathbf{\hat{u}} + \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x(0)} \\
+		= \orange{2}\Big[ \orange{\mathbf{A}x[k|k]} \Big]^T \orange{\mathbf{Q} \mathbf{B} \mathbf{\hat{u}}}
 	\end{gathered}
 \end{equation}
-
-\purple{
-	\noindent
-	\begin{equation}
-		\begin{gathered}
-			\Big[ \mathbf{A}x[k|k]  \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}} + \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x(0) \\
-			= 2\Big[ \mathbf{A}x[k|k]  \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}
-		\end{gathered}
-		\nonumber
-	\end{equation}
-}
 
 Finally, it can be written
 
@@ -354,25 +177,11 @@ Finally, it can be written
 \begin{equation}
 	\begin{gathered}
 		J(\mathbf{\hat{u}}) = 
-			\blue{ \mathbf{\hat{u}}^T (\mathbf{R} + \mathbf{B}^T \mathbf{Q} \mathbf{B}) \mathbf{\hat{u}} } + 
-			\orange{ 2 \Big[ \mathbf{A}x(0) \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}} } + 
-			\purple{ c_0 }
+			\blue{\mathbf{\hat{u}}^T (\mathbf{R} + \mathbf{B}^T \mathbf{Q} \mathbf{B}) \mathbf{\hat{u}}} + 
+			\orange{2} \Big[ \orange{\mathbf{A}x[k|k]} \Big]^T \orange{\mathbf{Q} \mathbf{B} \mathbf{\hat{u}}} + 
+			\purple{c_0}
 	\end{gathered}
 \end{equation}
-
-\purple{
-	\noindent
-	\begin{equation}
-		\begin{gathered}
-			J(\mathbf{\hat{u}}) = 
-				\mathbf{\hat{u}}^T (\mathbf{R} + \mathbf{B}^T \mathbf{Q} \mathbf{B}) \mathbf{\hat{u}} + 
-				2 \Big[ \mathbf{A}x[k|k] \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}} + 
-				c_0
-				\nonumber
-		\end{gathered}
-	\nonumber
-	\end{equation}
-}
 
 with
 

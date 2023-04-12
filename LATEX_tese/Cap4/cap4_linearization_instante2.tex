@@ -21,8 +21,8 @@ subtracting \eqref{eq_cap3_lin_xr2} from \eqref{eq_cap3_lin_x2}
 	\label{eq_cap3_lin_erro_x1x2}
 	\begin{split}
 		x(t_2) - \bar{x}(\bar{t}_2) = 
-		\overbrace{\green{e^{A_1(t_2-t_1)}x(t_1) - e^{A_1(\bar{t}_2-\bar{t}_1)}\bar{x}(\bar{t}_1)}}^{\green{\square}} \\ 
-		+ \underbrace{\orange{\intlinAA{1}{2}{}{} - \intlinAbtt{1}{2}}}_{\orange{\bigcirc}}
+		\green{\overbrace{e^{A_1(t_2-t_1)}x(t_1) - e^{A_1(\bar{t}_2-\bar{t}_1)}\bar{x}(\bar{t}_1)}^{\square}} \\ 
+		+ \orange{\underbrace{\intlinAA{1}{2}{}{} - \intlinAbtt{1}{2}}_{\bigcirc}}
 	\end{split}
 \end{equation}
 
@@ -96,7 +96,7 @@ $x(t_2) - \bar{x}(\bar{t}_2)$
 	\begin{split}
 		x(t_2) - \bar{x}(\bar{t}_2) =  & \bar{F}_1 [\green{x(t_1) - \bar{x}_1(\bar{t}_1)}] \\
 							     & \quad - \bar{F}_1 [A_1 \blue{x(t_1)} + B_1] \delta t_1 \\
-							     & \quad + [ \bar{F}_1 A_1 \underbrace{\blue{x(t_1)}}_{\blue{\triangle}} + A_1 \bar{G}_1 + B_1] \delta t_2
+							     & \quad + [ \bar{F}_1 A_1 \blue{\underbrace{x(t_1)}_{\triangle}} + A_1 \bar{G}_1 + B_1] \delta t_2
 	\end{split} 
 \end{equation}
 

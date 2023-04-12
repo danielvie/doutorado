@@ -12,135 +12,62 @@ where
 
 \noindent
 \begin{equation}
-	J(\mathbf{\hat{x}}, \mathbf{\hat{u}}) = \norma{x(k)}{P} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} + \norma{\mathbf{\hat{u}}}{\mathbf{R}}
+    J(\mathbf{\hat{x}}, \mathbf{\hat{u}}) = \norma{x[k|k]}{P} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} + \norma{\mathbf{\hat{u}}}{\mathbf{R}}
 \end{equation}
-
-
-\purple{
-    \noindent
-    \begin{equation}
-        J(\mathbf{\hat{x}}, \mathbf{\hat{u}}) = \norma{x[k|k]}{P} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} + \norma{\mathbf{\hat{u}}}{\mathbf{R}}
-    \nonumber
-    \end{equation}
-}
-
 
 \noindent
 with
 
 \noindent
 \begin{equation}
-    \mathbf{\hat{u}}(k) = \left[ \begin{matrix} \hat{u}(k|k) \\ \hat{u}(k + 1|k) \\ \vdots \\ \hat{u}(k + N - 1|k) \end{matrix} \right] \in \mathbb{R}^{pN},
-    \mathbf{\hat{x}}(k) = \left[ \begin{matrix} \hat{x}(k + 1|k) \\ \hat{x}(k + 2|k) \\ \vdots \\ \hat{x}(k + N|k) \end{matrix} \right] \in \mathbb{R}^{nN},
+    \mathbf{\hat{u}}[k] = \left[ \begin{matrix} \hat{u}[k|k] \\ \hat{u}[k + 1|k] \\ \vdots \\ \hat{u}[k + N - 1|k] \end{matrix} \right] \in \mathbb{R}^{pN},
+    \mathbf{\hat{x}}[k] = \left[ \begin{matrix} \hat{x}[k + 1|k] \\ \hat{x}[k + 2|k] \\ \vdots \\ \hat{x}[k + N|k] \end{matrix} \right] \in \mathbb{R}^{nN},
 \end{equation}
-
-
-\purple{
-    \noindent
-    \begin{equation}
-        \mathbf{\hat{u}}[k] = \left[ \begin{matrix} \hat{u}[k|k] \\ \hat{u}[k + 1|k] \\ \vdots \\ \hat{u}[k + N - 1|k] \end{matrix} \right] \in \mathbb{R}^{pN},
-        \mathbf{\hat{x}}[k] = \left[ \begin{matrix} \hat{x}[k + 1|k] \\ \hat{x}[k + 2|k] \\ \vdots \\ \hat{x}[k + N|k] \end{matrix} \right] \in \mathbb{R}^{nN},
-    \nonumber
-    \end{equation}
-}
-
 
 \noindent
 subject to
 
 \noindent
 \begin{equation}
-	\mathbf{S_x} \mathbf{\hat{x}}(k) \leq \mathbf{b_x}
+    \mathbf{S_x} \mathbf{\hat{x}}[k] \leq \mathbf{b_x}
 \end{equation}
-
 
 \noindent
 \begin{equation}
-	\mathbf{S_u} \mathbf{\hat{u}}(k) \leq \mathbf{b_u}
+    \mathbf{S_u} \mathbf{\hat{u}}[k] \leq \mathbf{b_u}
 \end{equation}
 
-\purple{
-    \noindent
-    \begin{equation}
-        \mathbf{S_x} \mathbf{\hat{x}}[k] \leq \mathbf{b_x}
-        \nonumber
-    \end{equation}
-
-    \noindent
-    \begin{equation}
-        \mathbf{S_u} \mathbf{\hat{u}}[k] \leq \mathbf{b_u}
-        \nonumber
-    \end{equation}
-}
-
-The vectors $\mathbf{\hat{x}}(k)$ and $\mathbf{\hat{u}}(k)$ are linked by the following \textbf{prediction equation}:
+The vectors $\mathbf{\hat{x}}[k|k]$ and $\mathbf{\hat{u}}[k|k]$ are linked by the following \textbf{prediction equation}:
 
 \noindent
 \begin{equation}
-    \mathbf{\hat{x}}(k) = \mathbf{A} \hat{x}(k) + \mathbf{B} \mathbf{\hat{u}}(k)
+    \mathbf{\hat{x}}[k + 1 | k] = \mathbf{A} \hat{x}[k | k] + \mathbf{B} \mathbf{\hat{u}}[k | k]
 \end{equation}
-
-\purple{
-
-    The vectors $\mathbf{\hat{x}}[k|k]$ and $\mathbf{\hat{u}}[k|k]$ are linked by the following \textbf{prediction equation}:
-
-    \noindent
-    \begin{equation}
-        \mathbf{\hat{x}}[k + 1 | k] = \mathbf{A} \hat{x}[k | k] + \mathbf{B} \mathbf{\hat{u}}[k | k]
-        \nonumber
-    \end{equation}
-}
 
 Thus, the cost can be rewritten as
 
-\noindent
-\begin{gather}
-    J(\mathbf{\hat{u}}(k)) = \mathbf{\hat{u}}(k)^T(\mathbf{R} + \mathbf{B}^T \mathbf{Q} \mathbf{B} )\mathbf{\hat{u}}(k) \nonumber \\ 
-    2 \Big[ \mathbf{A} \hat{x}(k) \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}(k) + c_0
-    \nonumber
-\end{gather}
-
-\purple{
     \noindent
     \begin{gather}
         J(\mathbf{\hat{u}}[k]) = \mathbf{\hat{u}}[k]^T(\mathbf{R} + \mathbf{B}^T \mathbf{Q} \mathbf{B} )\mathbf{\hat{u}}[k] \nonumber \\ 
         2 \Big[ \mathbf{A} \hat{x}[k|k] \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}[k] + c_0 \nonumber
     \end{gather}
-}
 
 \noindent
 with
 
 \noindent
 \begin{equation}
-    c_0 = \norma{\hat{x}(k) }{P} + \norma{\mathbf{A} \hat{x}(k) }{\mathbf{Q}} 
+    c_0 = \norma{\hat{x}[k|k] }{P} + \norma{\mathbf{A} \hat{x}[k|k] }{\mathbf{Q}} 
     \nonumber
 \end{equation}
-
-\purple{
-    \noindent
-    \begin{equation}
-        c_0 = \norma{\hat{x}[k|k] }{P} + \norma{\mathbf{A} \hat{x}[k|k] }{\mathbf{Q}} 
-        \nonumber
-    \end{equation}
-}
 
 \noindent
 and the constraints can be expressed as
 
 \noindent
 \begin{equation}
-    \mathbf{S} \mathbf{\hat{u}}(k) \leq \mathbf{b}
-    \nonumber
+    \mathbf{S} \mathbf{\hat{u}}[k] \leq \mathbf{b}
 \end{equation}
-
-\purple{
-    \noindent
-    \begin{equation}
-        \mathbf{S} \mathbf{\hat{u}}[k] \leq \mathbf{b}
-        \nonumber
-    \end{equation}
-}
 
 \noindent
 with
@@ -148,38 +75,16 @@ with
 \noindent
 \begin{equation}
     \mathbf{S} = \left[ \begin{matrix} \mathbf{S_x} \mathbf{B} \\ \mathbf{S_u} \end{matrix} \right], \mathbf{b} = 
-    \left[ \begin{matrix} \mathbf{b_x} - \mathbf{S_x} \mathbf{A} \hat{x}(k) \\ \mathbf{b_u} \end{matrix} \right]
-    \nonumber
+    \left[ \begin{matrix} \mathbf{b_x} - \mathbf{S_x} \mathbf{A} \hat{x}[k|k] \\ \mathbf{b_u} \end{matrix} \right]
 \end{equation}
 
-\purple{
-    \noindent
-    \begin{equation}
-        \mathbf{S} = \left[ \begin{matrix} \mathbf{S_x} \mathbf{B} \\ \mathbf{S_u} \end{matrix} \right], \mathbf{b} = 
-        \left[ \begin{matrix} \mathbf{b_x} - \mathbf{S_x} \mathbf{A} \hat{x}[k|k] \\ \mathbf{b_u} \end{matrix} \right]
-        \nonumber
-    \end{equation}
-}
-
-Having obtained the solution $\mathbf{\hat{u}}(k)$ for the problem $\mathbb{P}\Big(\hat{x}(k)\Big)$, the control to be applied to the plant is given by
+Having obtained the solution $\mathbf{\hat{u}}[k|k]$ for the problem $\mathbb{P}\Big(\hat{x}[k|k]\Big)$, the control to be applied to the plant is given by
 
 \noindent
 \begin{equation}
-    \hat{u}(k) = \hat{u}^*(k|k)
+    \hat{u}[k|k] = \hat{u}^*[k|k]
+    \nonumber
 \end{equation}
 
 \noindent
-where $\hat{u}^*(k|k)$ corresponds to the first $p$ elements of $\mathbf{\hat{u}}^*(k)$.
-
-\purple{
-    Having obtained the solution $\mathbf{\hat{u}}[k|k]$ for the problem $\mathbb{P}\Big(\hat{x}[k|k]\Big)$, the control to be applied to the plant is given by
-
-    \noindent
-    \begin{equation}
-        \hat{u}[k|k] = \hat{u}^*[k|k]
-        \nonumber
-    \end{equation}
-
-    \noindent
-    where $\hat{u}^*[k|k]$ corresponds to the first $p$ elements of $\mathbf{\hat{u}}^*[k|k]$.
-}
+where $\hat{u}^*[k|k]$ corresponds to the first $p$ elements of $\mathbf{\hat{u}}^*[k|k]$.
