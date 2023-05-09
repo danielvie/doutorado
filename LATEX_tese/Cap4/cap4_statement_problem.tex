@@ -1,5 +1,11 @@
 \section{Statement of the problem}
 
+\begin{figure}[h]
+	\centering
+	\includegraphics[]{Cap4/fig/desenho_cap4_2.eps}
+	\caption{Input signals}\label{cap2_linearizacao}
+\end{figure}
+
 Considering a plant of an affine switched system described by: 
 
 \begin{equation}
@@ -31,6 +37,88 @@ em que $Q = Q^T > 0$, $\rho > 0$
 \end{equation}
 
 \subsection{Dwell-time Constraints}
+
+We want to enforce a constraint on the dwell times where the switching times will the subject to the 
+constraints:
+
+\noindent
+\begin{equation}
+    (t_i - t_{i - 1}) \ge \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N
+\end{equation}
+
+\noindent
+using
+
+\noindent
+\begin{equation}
+    \Delta \bar{t}_i = \bar{t}_i - \bar{t}_{i-1}
+\end{equation}
+
+\noindent
+then we can write the restriction as
+
+\noindent
+\begin{align}
+        \delta t_1 &\ge - \Delta \bar{t}_1 + \Delta t_{1,min} \\
+        \delta t_i - \delta t_{i-1} &\ge - \Delta \bar{t}_i + \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N \\
+        \delta t_{N-1} &\ge - \Delta \bar{t}_N + \Delta t_{N,min}
+\end{align}
+
+\begin{verbatim}
+	> artigo mateus: sessao 4 (38)
+	> usar como referencia para escrever as restricoes de dwell time
+	> usando a restricao da 3.4, S_u = -L, B_u = -c
+\end{verbatim}
+
 \purple{
-	// TODO: colocar as Dwell-time Constraints (3.1.2), dwell time
-}
+
+	equacao 3.56:
+
+	\begin{equation*}
+		\mathbf{S} \mathbf{\hat{u}} [k] \le b
+	\end{equation*}
+	
+	equacao marcolino
+	
+	\begin{equation}
+		\mathbf{L} \delta t [k + j - 1 | k] \ge c	
+	\end{equation}
+
+	equacao 3.4
+
+	\begin{equation}
+		\mathcal{U} = \left\{
+			u \in \mathbb{R}^p : S_u u \leq b_u	
+		\right\}
+		\nonumber
+	\end{equation}
+} 
+
+\noindent
+in the matrix form, we have
+
+\begin{equation}
+    \mathbf{L} = 
+    \left[
+        \begin{matrix}
+             1 & 0 & 0 & \dotsi &  0 &  0 \\
+            -1 & 1 & 0 & \dotsi &  0 &  0 \\
+            \vdots & \vdots & \vdots & \ddots & \vdots & \vdots \\
+             0 & 0 & 0 & \dotsi & -1 &  1 \\
+             0 & 0 & 0 & \dotsi &  0 & -1 \\
+        \end{matrix}
+    \right]
+\end{equation}
+
+\begin{equation}
+    c = 
+    \left[
+        \begin{matrix}
+            -\Delta t_{r_1} + -\Delta t_{r_{1, min}} \\
+            -\Delta t_{r_2} + -\Delta t_{r_{2, min}} \\
+            \vdots \\
+            -\Delta t_{r_{N-1}} + -\Delta t_{r_{{N-1}, min}} \\
+            -\Delta t_{r_N} + -\Delta t_{r_{N, min}} \\
+        \end{matrix}
+    \right]
+\end{equation}
