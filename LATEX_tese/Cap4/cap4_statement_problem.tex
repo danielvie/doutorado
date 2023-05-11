@@ -1,16 +1,16 @@
 \section{Statement of the problem}
 
 \begin{figure}[h]
-	\centering
-	\includegraphics[]{Cap4/fig/desenho_cap4_2.eps}
-	\caption{Input signals}\label{cap2_linearizacao}
+    \centering
+    \includegraphics[]{Cap4/fig/desenho_cap4_2.eps}
+    \caption{Input signals}\label{cap2_linearizacao}
 \end{figure}
 
 Considering a plant of an affine switched system described by: 
 
 \begin{equation}
-	\label{eq_continuous_time_dynamics}
-	\dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}
+    \label{eq_continuous_time_dynamics}
+    \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}
 \end{equation}
 
 The control action applied in the system is in the form of perturbations in each operation mode switching time. By allowing the control the 
@@ -21,19 +21,19 @@ one cycle.
 
 \begin{equation}
 \label{eq_cost_funcion}
-	J = \norma{e[N_p]}{P_f} \\
-	+ \sum^{N_p - 1}_{j=0}\norma{e[j]}{Q} + \norma{\delta t[j]}{R} 
+    J = \norma{e[N_p]}{P_f} \\
+    + \sum^{N_p - 1}_{j=0}\norma{e[j]}{Q} + \norma{\delta t[j]}{R} 
 \end{equation}
 
 
 \begin{equation}
-	e(t_{j,N}) = \Phi e(t_{j,0}) + \Gamma \delta t[j]
+    e(t_{j,N}) = \Phi e(t_{j,0}) + \Gamma \delta t[j]
 \end{equation}
 
 em que $Q = Q^T > 0$, $\rho > 0$
 
 \begin{equation}
-	\delta t = [t_{j,1} - \bar{t}_{j,1}, t_{j,2} - \bar{t}_{j,2}, ...]^T
+    \delta t = [t_{j,1} - \bar{t}_{j,1}, t_{j,2} - \bar{t}_{j,2}, ...]^T
 \end{equation}
 
 \subsection{Dwell-time Constraints}
@@ -47,14 +47,6 @@ constraints:
 \end{equation}
 
 \noindent
-using
-
-\noindent
-\begin{equation}
-    \Delta \bar{t}_i = \bar{t}_i - \bar{t}_{i-1}
-\end{equation}
-
-\noindent
 then we can write the restriction as
 
 \noindent
@@ -64,48 +56,42 @@ then we can write the restriction as
         \delta t_{N-1} &\ge - \Delta \bar{t}_N + \Delta t_{N,min}
 \end{align}
 
-\begin{verbatim}
-	> artigo mateus: sessao 4 (38)
-	> usar como referencia para escrever as restricoes de dwell time
-	> usando a restricao da 3.4, S_u = -L, B_u = -c
-\end{verbatim}
-
-\purple{
-
-	equacao 3.56:
-
-	\begin{equation*}
-		\mathbf{S} \mathbf{\hat{u}} [k] \le b
-	\end{equation*}
-	
-	equacao marcolino
-	
-	\begin{equation}
-		\mathbf{L} \delta t [k + j - 1 | k] \ge c	
-	\end{equation}
-
-	equacao 3.4
-
-	\begin{equation}
-		\mathcal{U} = \left\{
-			u \in \mathbb{R}^p : S_u u \leq b_u	
-		\right\}
-		\nonumber
-	\end{equation}
-} 
+\noindent
+\begin{equation}
+    \Delta \bar{t}_i = \bar{t}_i - \bar{t}_{i-1}
+\end{equation}
 
 \noindent
-in the matrix form, we have
+to match the constraint from \eqref{cap3-constraint} 
+
+\begin{equation*}
+    \mathbf{S} \mathbf{\hat{u}} [k] \le b
+    \nonumber
+\end{equation*}
+
+
+\noindent
+the equations can be written as
+
+\noindent
+\begin{align}
+        -\delta t_1 &\le + \Delta \bar{t}_1 - \Delta t_{1,min} \\
+        -\delta t_i + \delta t_{i-1} &\le + \Delta \bar{t}_i - \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N \\
+        -\delta t_{N-1} &\le + \Delta \bar{t}_N - \Delta t_{N,min}
+\end{align}
+
+\noindent
+with 
 
 \begin{equation}
     \mathbf{L} = 
     \left[
         \begin{matrix}
-             1 & 0 & 0 & \dotsi &  0 &  0 \\
-            -1 & 1 & 0 & \dotsi &  0 &  0 \\
+            -1 & 0 & 0 & \dotsi &  0 &  0 \\
+            1 & -1 & 0 & \dotsi &  0 &  0 \\
             \vdots & \vdots & \vdots & \ddots & \vdots & \vdots \\
-             0 & 0 & 0 & \dotsi & -1 &  1 \\
-             0 & 0 & 0 & \dotsi &  0 & -1 \\
+            0 & 0 & 0 & \dotsi & 1 &  -1 \\
+            0 & 0 & 0 & \dotsi &  0 & 1 \\
         \end{matrix}
     \right]
 \end{equation}
@@ -114,11 +100,73 @@ in the matrix form, we have
     c = 
     \left[
         \begin{matrix}
-            -\Delta t_{r_1} + -\Delta t_{r_{1, min}} \\
-            -\Delta t_{r_2} + -\Delta t_{r_{2, min}} \\
+            \Delta t_{r_1} -\Delta t_{r_{1, min}} \\
+            \Delta t_{r_2} -\Delta t_{r_{2, min}} \\
             \vdots \\
-            -\Delta t_{r_{N-1}} + -\Delta t_{r_{{N-1}, min}} \\
-            -\Delta t_{r_N} + -\Delta t_{r_{N, min}} \\
+            \Delta t_{r_{N-1}} -\Delta t_{r_{{N-1}, min}} \\
+            \Delta t_{r_N} -\Delta t_{r_{N, min}} \\
         \end{matrix}
     \right]
 \end{equation}
+
+
+\begin{verbatim}
+    > artigo mateus: sessao 4 (38)
+    > usar como referencia para escrever as restricoes de dwell time
+    > usando a restricao da 3.4, S_u = -L, B_u = -c
+\end{verbatim}
+
+\purple{
+
+    equation 3.56:
+
+    \begin{equation*}
+        \mathbf{S} \mathbf{\hat{u}} [k] \le b
+    \end{equation*}
+    
+    equacao 38 marcolino
+    
+    \begin{equation}
+        \mathbf{L} \delta t [k + j - 1 | k] \ge c	
+    \end{equation}
+
+    equacao 3.4
+
+    \begin{equation}
+        \mathcal{U} = \left\{
+            u \in \mathbb{R}^p : S_u u \leq b_u	
+        \right\}
+        \nonumber
+    \end{equation}
+} 
+
+\purple{
+    \noindent
+    in the matrix form, we havepurple{}
+
+    \begin{equation}
+        \mathbf{L} = 
+        \left[
+            \begin{matrix}
+                1 & 0 & 0 & \dotsi &  0 &  0 \\
+                -1 & 1 & 0 & \dotsi &  0 &  0 \\
+                \vdots & \vdots & \vdots & \ddots & \vdots & \vdots \\
+                0 & 0 & 0 & \dotsi & -1 &  1 \\
+                0 & 0 & 0 & \dotsi &  0 & -1 \\
+            \end{matrix}
+        \right]
+    \end{equation}
+
+    \begin{equation}
+        c = 
+        \left[
+            \begin{matrix}
+                -\Delta t_{r_1} + -\Delta t_{r_{1, min}} \\
+                -\Delta t_{r_2} + -\Delta t_{r_{2, min}} \\
+                \vdots \\
+                -\Delta t_{r_{N-1}} + -\Delta t_{r_{{N-1}, min}} \\
+                -\Delta t_{r_N} + -\Delta t_{r_{N, min}} \\
+            \end{matrix}
+        \right]
+    \end{equation}
+}
