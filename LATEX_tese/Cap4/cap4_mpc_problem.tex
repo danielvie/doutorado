@@ -1,20 +1,5 @@
 \section{MPC Problem}
 
-
-\purple{
-    (3.1)
-    \begin{equation}
-        x[k + 1] = A x[k] + B u[k]
-        \nonumber
-    \end{equation}
-
-    (4.49)
-    \begin{equation}
-        e(t_N) = \Phi e(t_0) + \Gamma \delta t
-        \nonumber
-    \end{equation}
-}
-
 Note that the equation \eqref{eq_eNe0_result} relates to the equation \eqref{cap3-dynamic-equation} as both describe the evolution of a 
 system over time. The equation \eqref{cap3-dynamic-equation} represents the system's state and input at a given time step, 
 and the equation \eqref{eq_eNe0_result} describes the error between the system's predicted and actual values at two different time points.
@@ -22,3 +7,114 @@ and the equation \eqref{eq_eNe0_result} describes the error between the system's
 Referring to equation \eqref{cap3-dynamic-equation}, we can make some substitutions to simplify our discussion. 
 We'll replace variable \green{$x$ with $e$}, and \orange{$u$ with $\delta t$}. Additionally, we'll denote the cycle index with \purple{$k$}. 
 With these substitutions in place, we arrive at equation \eqref{eq_eNe0_result}.
+
+\subsection{Cost Function}
+
+\begin{equation}
+\label{eq_cost_funcion}
+    J = \norma{e[N_p]}{P_f} \\
+    + \sum^{N_p - 1}_{j=0}\norma{e[j]}{Q} + \norma{\delta t[j]}{R} 
+\end{equation}
+
+
+\begin{equation}
+    e(t_{j,N}) = \Phi e(t_{j,0}) + \Gamma \delta t[j]
+\end{equation}
+
+\noindent
+where $Q = Q^T > 0$, $\rho > 0$
+
+\begin{equation}
+    \delta t = [t_{j,1} - \bar{t}_{j,1}, t_{j,2} - \bar{t}_{j,2}, ...]^T
+\end{equation}
+
+\subsection{Dwell-time Constraints}
+
+We want to enforce a constraint on the dwell times where the switching times will the subject to the 
+constraints:
+
+\noindent
+\begin{equation}
+    (t_i - t_{i - 1}) \ge \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N
+\end{equation}
+
+\noindent
+then we can write the restriction as
+
+\noindent
+\begin{align}
+        \delta t_1 &\ge - \Delta \bar{t}_1 + \Delta t_{1,min} \\
+        \delta t_i - \delta t_{i-1} &\ge - \Delta \bar{t}_i + \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N \\
+        \delta t_{N-1} &\ge - \Delta \bar{t}_N + \Delta t_{N,min}
+\end{align}
+
+\noindent
+\begin{equation}
+    \Delta \bar{t}_i = \bar{t}_i - \bar{t}_{i-1}
+\end{equation}
+
+\noindent
+to match the constraint from \eqref{cap3-constraint} 
+
+\begin{equation*}
+    \mathbf{S} \mathbf{\hat{u}} [k] \le b
+    \nonumber
+\end{equation*}
+
+
+\noindent
+the equations can be written as
+
+\noindent
+\begin{align}
+        -\delta t_1 &\le + \Delta \bar{t}_1 - \Delta t_{1,min} \\
+        -\delta t_i + \delta t_{i-1} &\le + \Delta \bar{t}_i - \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N \\
+        -\delta t_{N-1} &\le + \Delta \bar{t}_N - \Delta t_{N,min}
+\end{align}
+
+\noindent
+with 
+
+\begin{equation}
+    \mathbf{L} = 
+    \left[
+        \begin{matrix}
+            -1 & 0 & 0 & \dotsi &  0 &  0 \\
+            1 & -1 & 0 & \dotsi &  0 &  0 \\
+            \vdots & \vdots & \vdots & \ddots & \vdots & \vdots \\
+            0 & 0 & 0 & \dotsi & 1 &  -1 \\
+            0 & 0 & 0 & \dotsi &  0 & 1 \\
+        \end{matrix}
+    \right]
+\end{equation}
+
+\begin{equation}
+    c = 
+    \left[
+        \begin{matrix}
+            \Delta t_{r_1} -\Delta t_{r_{1, min}} \\
+            \Delta t_{r_2} -\Delta t_{r_{2, min}} \\
+            \vdots \\
+            \Delta t_{r_{N-1}} -\Delta t_{r_{{N-1}, min}} \\
+            \Delta t_{r_N} -\Delta t_{r_{N, min}} \\
+        \end{matrix}
+    \right]
+\end{equation}
+
+\subsection{Prediction Equation}
+
+\purple{
+    Prediction Equation placeholder
+}
+
+\subsection{Optimization Problem}
+
+\purple{
+    Optimization Problem placeholder
+}
+
+\subsection{Feasibility Region}
+
+\purple{
+    Feasibility Region placeholder
+}

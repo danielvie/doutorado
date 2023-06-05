@@ -181,12 +181,12 @@ as
 
 \noindent
 \begin{equation}
-    \norma{\hat{x}[k + N | k]}{P} + \sum_{j=0}^{N - 1} \norma{\hat{x}[k+j|k]}{Q} = \norma{x[k]}{Q} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} 
+    \norma{\hat{x}[k + N | k]}{P} + \sum_{j=0}^{N - 1} \norma{\hat{x}[k+j|k]}{Q} = \norma{x[k]}{P} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} 
 \end{equation}
 
 So, the cost function can be written in the form
 
 \noindent
 \begin{equation}
-    J(\mathbf{\hat{x}}, \mathbf{\hat{u}}) = \norma{x[k]}{Q} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} + \norma{\mathbf{\hat{u}}}{\mathbf{R}}
+    J(\mathbf{\hat{x}}, \mathbf{\hat{u}}) = \norma{x[k]}{P} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} + \norma{\mathbf{\hat{u}}}{\mathbf{R}}
 \end{equation}
