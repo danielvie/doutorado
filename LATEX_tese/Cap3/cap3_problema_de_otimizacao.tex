@@ -1,6 +1,94 @@
 
 \section{Optimization Problem}
 
+
+\noindent
+we can rewrite the cost function as
+
+\noindent
+\begin{equation}
+	J = \norma{x[k|k]}{P} + \green{\overbrace{\norma{\mathbf{\hat{x}}}{\mathbf{Q}}}^{\square}} + \norma{\mathbf{\hat{u}}}{\mathbf{R}}
+\end{equation}
+
+\noindent
+\begin{align}
+	\green{\square} 
+	&= \green{\norma{\mathbf{\hat{x}}}{\mathbf{Q}}} \\
+	&= \green{\Big[ \mathbf{A}x[k|k] + \mathbf{B \hat{u}} \Big]^T \mathbf{Q} \Big[ \mathbf{A}x[k|k] + \mathbf{B \hat{u}} \Big]} \\
+	&= \green{\Big[ \mathbf{A}x[k|k] + \mathbf{B \hat{u}} \Big]^T \mathbf{Q} \Big[ \mathbf{A}x[k|k] + \mathbf{B \hat{u}} \Big]} \\
+	\begin{split}
+		&= \green{\norma{\mathbf{A}x[k|k]}{\mathbf{Q}} + \Big[ \mathbf{A}x[k|k] \Big]^T \mathbf{Q} \mathbf{B \hat{u}}} \\
+		&\qquad \green{ + \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{A}x[k|k] + \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{B \hat{u}}}
+	\end{split}
+\end{align}
+
+replacing $\green{\square}$ back in the cost equation and reordering the elements 
+
+\noindent
+\begin{align}
+	J(\mathbf{\hat{x}}, \mathbf{\hat{u}}) 
+	&= \purple{ \norma{x[k|k]}{P} + \norma{\mathbf{A}x[k|k]}{\mathbf{Q}} } \\
+	&\quad + \orange{\Big[\mathbf{A}x[k|k]\Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}	+ \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x[k|k]} \\
+	&\quad + \blue{\mathbf{\hat{u}}^T \mathbf{R} \mathbf{\hat{u}} + \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}}
+\end{align}
+
+The \purple{constant part} will be denoted by \purple{$c_0$}
+
+Recalling that the matrix $\mathbf{Q}$ is symmetric, we have:
+
+\begin{equation}
+	\orange{\Big[ \mathbf{A}x[k|k] \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}} = 
+	\orange{\Big\{ \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x[k|k] \Big\}^T}
+\end{equation}
+
+As these terms are scalars, it can be concluded that they are equal to each other, therefore:
+
+\noindent
+\begin{equation}
+	\begin{gathered}
+		\orange{\Big[ \mathbf{A}x[k|k] \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}} + \mathbf{\hat{u}}^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x(0)} \\
+		= \orange{2\Big[ \mathbf{A}x[k|k] \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}}
+	\end{gathered}
+\end{equation}
+
+Finally, it can be written
+
+\noindent
+\begin{equation}
+	\begin{gathered}
+		J(\mathbf{\hat{u}}) = 
+			\blue{\mathbf{\hat{u}}^T \Big(\mathbf{R} + \mathbf{B}^T \mathbf{Q} \mathbf{B} \Big) \mathbf{\hat{u}}} + 
+			\orange{2 \Big[ \mathbf{A}x[k|k] \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}} + 
+			\purple{c_0}
+	\end{gathered}
+\end{equation}
+
+with
+
+\noindent
+\begin{equation}
+	\purple{ c_0 } = 
+	\purple{ \norma{x(0)}{P} + \norma{\mathbf{A} x(0)}{\mathbf{Q}} }
+\end{equation}
+
+\purple{
+	\noindent
+	\begin{equation}
+		c_0 = 
+		\norma{x[k|k]}{P} + \norma{\mathbf{A} x[k|k]}{\mathbf{Q}}
+		\nonumber
+	\nonumber
+	\end{equation}
+}
+
+Note that we will now use the notation $J(\mathbf{\hat{u}})$ instead of $J(\mathbf{\hat{x}}, \mathbf{\hat{u}})$, since $\mathbf{\hat{x}}$ has been eliminated from 
+the cost expression. 
+
+To complete the reformulation of the optimization problem in terms of $\mathbf{\hat{u}}$, the relation between $\mathbf{\hat{x}}$ and $\mathbf{\hat{u}}$ in the 
+\textbf{restrictions} must be considered.
+
+
+
 The optimization problem can be expressed as
 
 \begin{equation}
