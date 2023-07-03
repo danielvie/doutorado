@@ -2,9 +2,27 @@
 
 \begin{figure}[h]
     \centering
-    \includegraphics[]{Cap4/fig/desenho_cap4_2.eps}
+    \includegraphics[]{Cap4/fig/desenho_cap4_3.eps}
     \caption{Input signals}\label{cap2_linearizacao}
 \end{figure}
+
+We assume the existence of a signal sequence $\sigma(t)$ with switching instants $\bar{t}_{j, i}$, 
+where this periodic switching signal $\sigma(t)$ is associated with a periodic trajectory $\bar{x}(t)$, as obtained in 
+Chapter \ref{cap2-determination-of-target-periodic-traj}. Our objective is to introduce perturbations such that the trajectory 
+converges to the reference trajectory.
+
+In FIGURE \ref{cap2_linearizacao}, we represent a periodic signal where $\bar{t}_{j, i}$ are
+the switching times of the reference trajectory and $t_{j, i}$ are the switching times of the current trajectory of
+the system. The relation between $\bar{t}_{j, i}$ and $t_{j, i}$ is given by
+
+\noindent
+\begin{equation}
+    t_{j, i} = \bar{t}_{j, i} + \delta t_{j, i}
+\end{equation}
+
+The trajectory is represented by 
+FIGURE \ref{cap2_linearizacao} displays the j-th cycle of the trajectory that contains $N$ switching actions.
+
 
 Considering a plant of an affine switched system described by: 
 
@@ -13,6 +31,5 @@ Considering a plant of an affine switched system described by:
     \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}
 \end{equation}
 
-The control action applied in the system is in the form of perturbations in each operation mode switching time. By allowing the control the 
-a system using predictive control, we need to find a linear equation that relates the switching times and the resulting system at the end of 
-one cycle.  
+The goal is to drive the system from $x(t)$ to $\bar{x}(t)$ by injecting perturbations on the switching times $t_{j, i}$.
+To do this using predictive control, we need to find a linear equation that relates the switching times and the resulting system at the end of one cycle.
