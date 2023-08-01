@@ -14,7 +14,7 @@
 	7		1  	1 	1
 %}
 
-function config = get_config_sim_patino_2()
+function config = init_sim_patino_2()
 	% equacoes de estado Buck-Boost converter
 	R  = 10.0; % Ω
 	L  = 10.0*1e-3; % mH
@@ -124,8 +124,8 @@ function config = get_config_sim_patino_2()
 	
 	config.otmin     = struct();
 	config.otmin.x0  = diff(config.Ts);
-	config.otmin.lb  = ones(1, Ndt)*0.022*1e-3;
-	config.otmin.ub  = ones(1, Ndt)*0.088*1e-3;
+	config.otmin.lb  = ones(1, Ndt)*0.022*1e-3; %[22e-6, 22e-6, ..., 22e-6]
+	config.otmin.ub  = ones(1, Ndt)*0.088*1e-3; %[88e-6, 88e-6, ..., 88e-6]
 	config.otmin.A   = [];
 	config.otmin.b   = [];
 	config.otmin.Aeq = [];

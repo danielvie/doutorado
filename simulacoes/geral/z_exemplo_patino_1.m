@@ -7,11 +7,12 @@ config = engine.get_config_sim_patino_1();
 
 %%
 % --------------------------------------
-% OTIMIZACAO
+% OTIMIZACAO - Calculo Trajetoria
 % --------------------------------------
 
 [config, x, fval] = engine.otmin(config);
 
+%%
 % --------------------------------------
 % SIMULACAO COM CONTROLADOR MPC
 % --------------------------------------

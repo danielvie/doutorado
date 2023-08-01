@@ -1,80 +1,79 @@
 
-    Devemos encontrar uma trajetoria ciclica que respeite todos as restricoes do sistema e minimize \red{a distancia em torno do valor de referencia?} 
+The goal is to drive the system to an optimal periodic trajectory, so the first step is to generate this trajectory. This trajectory is 
+submitted to restrictions imposed by the dynamic of the system and also switching time restrictions.
 
-    Funcao custo:
+We must establish a trajectory that yields the optimal time sequence $T^\infty$, the modes sequence $\Omega^\infty$, and its 
+length $s^\infty (1 < s^\infty < s_{max})$. To reduce the oscillations around a desired operation point, we choose an integral 
+quadratic criterion centered on the average reference value $\bar{x}^\infty$:
 
-        \begin{equation}
-            J(\tau^{\infty} ,\Omega^{\infty} ,s^{\infty}) = \min_{\tau, \Omega, s} \int_0^{T_p} [x(t) - \bar{x}^{\infty}]^T Q [x(t) - \bar{x}^{\infty}] dt
-        \end{equation}
+\begin{equation}
+    J(\tau^{\infty} ,\Omega^{\infty} ,s^{\infty}) = \min_{\tau, \Omega, s} \int_0^{T_p} \Big[x(t) - \bar{x}^{\infty}\Big]^T Q \Big[x(t) - \bar{x}^{\infty}\Big] dt
+\end{equation}
 
-    As entradas para a otimizacao são:
+\noindent
+where $Q=Q^T>0$ and $T_p$ is the period of the cycle.
 
-    % Linear and Nonlinear Programming (International Series in Operations Research & Management Science Book 116) (English Edition) 3rd Edição, eBook Kindle
+Since the trajectory is cyclic we can impose the constraint:
 
-    % otimizacao convexa Steven Boit
-
-    % https://web.stanford.edu/~boyd/cvxbook/
-
-    % https://www.amazon.com.br/Practical-Optimization-Cl81-Murray-Wrigh/dp/161197559X/ref=sr_1_1?__mk_pt_BR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=1ILPBAG83XO9U&keywords=practical+optimization+gill+murray&qid=1649269187&sprefix=practical+optimization+gill+murra%2Caps%2C177&sr=8-1&ufe=app_do%3Aamzn1.fos.25548f35-0de7-44b3-b28e-0f56f3f96147
+\begin{equation}
+    x(0) = x(T_p)
+\end{equation}
 
 
-    \begin{itemize}
-        \item Lista de modos de operacao
 
-        \item Lista de matriz A associada ao modo de operacao
+\section{Optimization}
 
-        \item Lista de matriz B associada ao modo de operacao
+    The way we solve this periodic trajectory is, first we create 
+    a list of modes for the system, where each mode has its unique dynamics, 
+    defined by the matrices A, B, C, and D.  
+    Then we set up a sequence of which modes to run in the optimization and 
+    establish constraints for the maximum period of the cycle, along with constraints 
+    for the minimum and maximum time allowed between mode switches
+    Utilizing FMINCON, an optimization is run that generates the switching times, 
+    respecting the imposed constraints, and evaluating them through a specified cost function.
 
-        \item Matriz C
+    The cost function takes the time and the sequence of modes, and computes the 
+    initial condition of the states to that the result is a cyclic trajectory. 
+    Subsequently, the integral of the trajectory around the average reference value $\
+    bar{x}^\infty$ is computed.  This formulation of the cost function 
+    finds a solution that satisfies both the dynamical constraints of the system and 
+    the desired properties of the resulting trajectory.
 
-        \item Matriz D
 
-        \item Lista de valores de controle em cada modo
+    \purple{
+        The way we solve this is by:
 
-        \item Valor de referencia dos estados (xref)
+        \begin{itemize}
 
-        \item Tempo maximo de trajetoria ciclica (Tpmax)
+            \item create a list of the modes for the system, each mode with its own dynamics (matrix A, B, C, D).
+            
+            \item create a vector with the sequence of modes to run on the optimization.
+            
+            \item establishes the constraints of the maximum period for the cycle and also for minimum and maximum time between switches.
+            
+            \item runs an optimization using FMINCON that generates the switches with the constraints and evaluates them with the cost function. 
+            
+            \item the cost function receives the generated switching time and the sequence of modes. 
+            
+            \item then computes the initial condition of the states so that the result is a cyclic trajectory. 
+            
+            \item then it computes the integral of the trajectory around the average reference value $\bar{x}^\infty$.
 
-        \item Numero maximo de estados
+        \end{itemize}
+    }
 
-        \item Peso dos estados na funcao custo (Q)
-    \end{itemize}
+\section{Calculating $x_0$}
 
-    Em que $Q = Q^T > 0$ e $T_p$ é o período do ciclo.
 
     A condição inicial é determinada de forma que o ultimo ponto é coincidente com o primeiro ponto (dada a sequencia de modos e instantes de chaveamento)
 
         \begin{equation}
-            x(0) = (I - F_N F_{N-1} \ldots F_1)^{-1} c
+            x(0) = \Big(I - F_N F_{N-1} \ldots F_1\Big)^{-1} c
         \end{equation}
         
         \begin{equation}
             c = F_N F_{N-1} \ldots F_2 G_1 u_1 + F_N F_{N-1} \ldots F_3 G_2 u_2 + \ldots + F_N G_{N-1} + G_N u_N
         \end{equation}
-
-    O resultado da otimizacao é $\tau^\infty$ e $x_0$
-
-    Exemplos:
-
-        Integrador (Matheus): Nao há otimizacao aqui, usamos a mesma trajetoria do Matheus para que tivessemos uma
-        comparacao entre os resultados das simulacoes.
-
-        Patino, aqui estou usando um otimizador para encontrar a trajetoria de referencia.
-
-    Resultados:
-
-        Descrever resultados trajetorias Patino 1 e 2
-
-
-    \red{TODO: FAZER SIMULACAO COMPLETA DE CADA CASO}
-
-\section{Statement of the problem}
-
-\section{Optimization}
-
-\red{description of the optimization for finding the target trajectory}
-
-\section{Calculating $x_r$}
 
 \input{Cap2/cap2_otim_get_x0}
 
