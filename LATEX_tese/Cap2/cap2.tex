@@ -1,15 +1,14 @@
-
-
-\purple{
-    $ \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)} $
-
-}
-
-
-The goal is to drive the system to an optimal periodic trajectory, so the first step is to generate this trajectory. This trajectory is 
+The goal is to drive a system defined by an affine dynamic equation (eq. \ref{cap2-equacao-dinamica}) 
+to an optimal periodic trajectory, so the first step is to generate this trajectory. This trajectory is 
 submitted to restrictions imposed by the dynamic of the system and also switching time restrictions.
 
-\purple{(following the approach from patino ...)}  We must establish a trajectory that yields the optimal time sequence $T^\infty$, the modes sequence $\Omega^\infty$, and its 
+\noindent
+\begin{equation}
+    \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}
+    \label{cap2-equacao-dinamica}
+\end{equation}
+
+Following the approach from \citeonline{patino2010predictive} we must establish a trajectory that yields the optimal time sequence $T^\infty$, the modes sequence $\Omega^\infty$, and its 
 length $s^\infty (1 < s^\infty < s_{max})$. To reduce the oscillations around a desired operation point, we choose an integral 
 quadratic criterion centered on the average reference value $\bar{x}^\infty$:
 
@@ -26,7 +25,12 @@ Since the trajectory is cyclic we can impose the constraint:
     x(0) = x(T_p)
 \end{equation}
 
-
+\begin{figure}[h]
+    \centering
+    \includegraphics[]{figuras/cap2_grafico_diferentes_dinamicas.eps}
+    \caption{Change in dynamics over trajectory time}
+    \label{cap2_grafico_diferentes_dinamicas}
+\end{figure}
 
 \section{Optimization}
 
@@ -46,28 +50,12 @@ Since the trajectory is cyclic we can impose the constraint:
     finds a solution that satisfies both the dynamical constraints of the system and 
     the desired properties of the resulting trajectory.
 
-    \purple{FMINCON é um metodo de otimizacao das bibliotecas do matlab, mensionar que o fmincon implementa o metodo active-set (sqp) }
-
-    \purple{citar as referencias matlab doc fmincon}
-
-    \purple{referencias f Nocedal and Wright [31]. }
-
-    \purple{[31] Nocedal, J. and S. J. Wright. Numerical Optimization, Second Edition. Springer Series in Operations Research, Springer Verlag, 2006}
-
-\section{Calculating $x_0$}
+    FMINCON is a method of optimization in MATLAB's libraries that implements the method SQP (Sequential Quadratic Programming). 
+    The basic SQP algorithm is described in Chapter 18 of \citeonline{nocedal2006numerical}.
 
 
-    A condição inicial é determinada de forma que o ultimo ponto é coincidente com o primeiro ponto (dada a sequencia de modos e instantes de chaveamento)
-
-        \begin{equation}
-            x(0) = \Big(I - F_N F_{N-1} \ldots F_1\Big)^{-1} c
-        \end{equation}
-        
-        \begin{equation}
-            c = F_N F_{N-1} \ldots F_2 G_1 u_1 + F_N F_{N-1} \ldots F_3 G_2 u_2 + \ldots + F_N G_{N-1} + G_N u_N
-        \end{equation}
-
-\input{Cap2/cap2_otim_get_x0}
+\section{Calculating \texorpdfstring{$x_0$}{x\_0}}
+    \input{Cap2/cap2_otim_get_x0}
 
 \section{Application Examples}
 

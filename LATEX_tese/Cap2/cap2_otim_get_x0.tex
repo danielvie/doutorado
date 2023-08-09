@@ -1,10 +1,21 @@
-$x_0 \in \Re$
+We need to compute the initial condition for the system for each evaluation of the cost function so that we have a periodic trajectory, 
+meaning that the last states of the trajectory we the same as the initial condition.
+
+The solution of the state equation \eqref{cap2-equacao-dinamica} is given by 
+
 
 \begin{equation}
     x(t) = e^{At} x(0) + \int_{0}^{t}{e^{A(t - \tau)} B u(\tau) d\tau}
 \end{equation}
 
-Modos:
+\purple{
+    \begin{equation}
+        x(t) = e^{At} x(0) + \int_{0}^{t}{e^{A(t - \tau)} \mathbf{b} d\tau}
+    \end{equation}
+}
+
+We can have different dynamics for each switching instant, so the system behaves as 
+
 \begin{align}
     [0 - t_1]   &: \dot{x}= A_1 x + B_1 u_1 \nonumber \\
     [t_1 - t_2] &: \dot{x}= A_2 x + B_2 u_2 \nonumber \\
@@ -12,6 +23,9 @@ Modos:
     [t_{N-1} - t_N] &: \dot{x}= A_N x + B_N u_N 
 \end{align}
 
+We can rewrite the solution for the first region as
+
+\noindent
 \begin{align}
     x(t_1) &= e^{A_1 t_1} x(0) + 
             \int_{0}^{t_1}{e^{A_1(t_1 - \tau)} B_1 u_1 d\tau} \nonumber \\
@@ -20,12 +34,19 @@ Modos:
     x(t_1) &= \green{F_1} x(0) + \orange{G_1} u_1
 \end{align}
 
+\noindent
+then the behavior of the other regions of the system is
+
+\noindent
 \begin{align}
-    x(t_1) &= F_1 x(0) + G_1 u_1 \\
-    x(t_2) &= F_2 x(1) + G_2 u_2 \\
+    x(t_1) &= F_1 x(0) + G_1 u_1 \nonumber \\
+    x(t_2) &= F_2 x(1) + G_2 u_2 \nonumber \\
     &\qquad \vdots \nonumber \\ 
     x(t_N) &= F_N x(N-1) + G_N u_N
+    \label{cap2-get-x0-multi-equations}
 \end{align}
+
+From \eqref{cap2-get-x0-multi-equations} we can establish the relation between $x(t_N)$ and $x(t_1)$
 
 \begin{align}
     \begin{split}
@@ -38,15 +59,17 @@ Modos:
     x(t_N) &= F_N F_{N-1} \ldots F_1 x(0) + \green{c}
 \end{align}
 
-Queremos $x(t_N) = x(0) = ?$
+We know that $x(t_N) = x(0)$, so the solution for $x(0)$ is
 
+\noindent
 \begin{align}
     x(0) = F_N F_{N-1} \ldots F_1 x(0) + c \nonumber \\
-    \underbrace{\Big(I - F_N F_{N-1} \ldots F_1\Big)}_{\text{suposta invertível}} x(0) = c \nonumber \\
+    \underbrace{\Big(I - F_N F_{N-1} \ldots F_1\Big)}_{\text{presumed invertible}} x(0) = c \nonumber \\
     x(0) = \Big(I - F_N F_{N-1} \ldots F_1\Big)^{-1} c
 \end{align}
 
-em que 
+\noindent
+where
 \begin{equation}
     \begin{split}
         c &= F_N F_{N-1} \ldots F_2 G_1 x(1) + \\
