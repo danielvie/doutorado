@@ -14,7 +14,7 @@
 	7		1  	1 	1
 %}
 
-function config = init_sim_patino_2()
+function config = get_config_sim_patino_2()
 	% equacoes de estado Buck-Boost converter
 	R  = 10.0; % Ω
 	L  = 10.0*1e-3; % mH

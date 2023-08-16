@@ -8,7 +8,7 @@ submitted to restrictions imposed by the dynamic of the system and also switchin
     \label{cap2-equacao-dinamica}
 \end{equation}
 
-Following the approach from \citeonline{patino2010predictive} we must establish a trajectory that yields the optimal time sequence $T^\infty$, the modes sequence $\Omega^\infty$, and its 
+Following the approach from \citeonline{patino2010predictive} we must establish a trajectory that yields the optimal time sequence $\tau^\infty$, the modes sequence $\Omega^\infty$, and its 
 length $s^\infty (1 < s^\infty < s_{max})$. To reduce the oscillations around a desired operation point, we choose an integral 
 quadratic criterion centered on the average reference value $\bar{x}^\infty$:
 
@@ -34,24 +34,51 @@ Since the trajectory is cyclic we can impose the constraint:
 
 \section{Optimization}
 
-    The way we solve this periodic trajectory is, first we create 
-    a list of modes for the system, where each mode has its unique dynamics, 
-    defined by the matrices A, B, C, and D.  
-    Then we set up a sequence of which modes to run in the optimization and 
-    establish constraints for the maximum period of the cycle, along with constraints 
-    for the minimum and maximum time allowed between mode switches
-    utilizing FMINCON, an optimization is run that generates the switching times, 
-    respecting the imposed constraints, and evaluating them through a specified cost function.
+\subsection{System Dynamics and Sequence}
 
-    The cost function takes the time and the sequence of modes, and computes the 
-    initial condition of the states to that the result is a cyclic trajectory. 
-    Subsequently, the integral of the trajectory around the average reference value $\
-    \bar{x}^\infty$ is computed.  This formulation of the cost function 
-    finds a solution that satisfies both the dynamical constraints of the system and 
-    the desired properties of the resulting trajectory.
+    To begin, we create a list where each of its elements signifies the dynamics of 
+    the system. This is exemplified by the matrices A, B, C, and D. The order in which 
+    the elements appear in this list is defined by the sequence of modes. In simpler 
+    terms, the positioning of these elements signifies the order they will be executed in.
 
-    FMINCON is a method of optimization in MATLAB's libraries that implements the method SQP (Sequential Quadratic Programming). 
+    In Figure \refeq{cap2_grafico_diferentes_dinamicas}, we see a trajectory example. 
+    For this illustration, the system's list of dynamics is $\Big\{\{A0,b0\}, \{A1,b1\}, \{A2,b2\}, \{A3,b3\}\Big\}$,
+    and the sequence of modes is $\big[4,2,1,2,3\big]$. It's worth noting that a particular system 
+    dynamic can be employed multiple times or might not be used at all, depending on 
+    the desired target trajectory. The goal is to achieve the best trajectory 
+    that minimizes the cost function.
+
+
+\subsection{Constraints Definition}
+
+    Once the list and sequence have been established, we need to apply the constraints. 
+    These constraints dictate the cycle's maximum duration, as well as the minimum 
+    and the maximum time permitted between switches in modes.
+
+\subsection{Optimization with FMINCON}
+
+    For optimization purposes, the function FMINCON is employed. This function works 
+    in conjunction with a cost function. The cost function is designed to accept switching 
+    times generated from the optimization process. Its primary goal is to evaluate and 
+    discern the most cost-effective result that respects the imposed constraints.
+
+    FMINCON is a method of optimization in MATLAB's libraries that implements the method 
+    SQP (Sequential Quadratic Programming). 
     The basic SQP algorithm is described in Chapter 18 of \citeonline{nocedal2006numerical}.
+
+\subsection{Cost Function and Trajectory Simulation}
+
+    Taking a closer look at the cost function, its role is to simulate the trajectory using 
+    the dynamics taken from the previously defined list, all in line with the mode sequence. 
+    This trajectory is cyclic and to enforce this cyclic nature, the initial state's condition 
+    is calculated in such a way that the end product is a cyclic trajectory.
+
+\subsection{Cost Computation}
+
+    The method of determining the cost is by computing the integral of the trajectory, 
+    centered around the average reference value, denoted as $\bar{x}^\infty$. The result 
+    is compliant with the system's dynamic constraints and also matches the properties 
+    of the final trajectory.
 
 
 \section{Calculating \texorpdfstring{$x_0$}{x\_0}}
