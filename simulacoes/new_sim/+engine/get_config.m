@@ -66,7 +66,7 @@ function FF = get_config(nome)
         end
 
         % eval funcao
-        fun = str2func(['engine.' FF{op}])
+        fun = str2func(['engine.' FF{op}]);
         config = fun();
         disp(config);
     end

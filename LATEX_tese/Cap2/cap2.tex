@@ -42,7 +42,7 @@ Since the trajectory is cyclic we can impose the constraint:
     terms, the positioning of these elements signifies the order they will be executed in.
 
     In Figure \refeq{cap2_grafico_diferentes_dinamicas}, we see a trajectory example. 
-    For this illustration, the system's list of dynamics is $\Big\{\{A0,b0\}, \{A1,b1\}, \{A2,b2\}, \{A3,b3\}\Big\}$,
+    For this illustration, the system's list of dynamics is $\Big\{\{A_1,b_1\}, \{A_2,b_2\}, \{A_3,b_3\}, \{A_4,b_4\}\Big\}$,
     and the sequence of modes is $\big[4,2,1,2,3\big]$. It's worth noting that a particular system 
     dynamic can be employed multiple times or might not be used at all, depending on 
     the desired target trajectory. The goal is to achieve the best trajectory 
@@ -86,6 +86,63 @@ Since the trajectory is cyclic we can impose the constraint:
 
 \section{Application Examples}
 
-\subsection{Variant Dynamic Circuit 1}
+\subsection{Buck-boost converter}
+    Considering a Buck-Boost converter in a Continuous Conduction Mode (CCM) 
+    whose topology is shown in Figure  \cite{patino2010predictive}. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[]{Cap2/fig/ex_1.png} 
+    \caption{Buck-Boos converter}
+\end{figure}
+
+The state variables are the capacitor voltage $v_c$ and the inductor current $i_L$. Its dynamics is given by the equation:
+
+\begin{equation}
+    \dot{x} = \begin{cases}
+        A_1 x + b_1\text{, for u = 1 (closed switch - Mode 1)} \\
+        A_2 x + b_2\text{, for u = 0 (open switch - Mode 2)} 
+    \end{cases}
+\end{equation}
+
+\noindent
+where
+
+\begin{equation}
+    \begin{matrix}
+        A_1 = \left[ \begin{matrix} 0 & 0 \\ 0 & -\frac{1}{RC} \\ \end{matrix} \right] & 
+        A_2 = \left[ \begin{matrix} 0 & \frac{1}{L_1} \\ -\frac{1}{C} & -\frac{1}{RC} \\ \end{matrix} \right] \\
+        \\
+        b_1 = \left[ \begin{matrix} \frac{E}{L} & 0 \end{matrix} \right]^T & 
+        b_2 = \left[ \begin{matrix} 0 & 0 \end{matrix} \right]^T \\
+    \end{matrix}
+\end{equation}
+
+\noindent
+where $R = L = C = E = 1$. 
+
+The reference value to minimize the oscillations around is $\Big[2,-1\Big]$
+
+The weight matrix is $Q = diag\Big[1,1\Big]$
+
+$T_{p,max} = 1s$
+
+$s_{max} = 2$
+
+$t_{min} = 0.25s$
+
+$r = 1$
+
+solution:
+
+$\tau^\infty = \Big\{0, 0.2509, 0.5 \Big\}$
+
+$\Omega^\infty = \Big\{1, 2 \Big\}$
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Cap2/fig/ex_res_1.pdf}
+\end{figure}
 
 \subsection{Variant Dynamic Circuit 2}

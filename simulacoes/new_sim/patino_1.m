@@ -13,9 +13,17 @@ disp(fval);
 %% rodando simulacao como resultado da trajetoria
 c = config;
 
-c.x0 = c.x0 + [0.1; 0.5];
-nsim = 35;
+c.x0 = c.x0;
+nsim = 30;
 [y,t,u,~] = engine.sim_n(c, nsim);
 
 % plot dos resultados
-plot(y(:,1), y(:,2));
+hold off;
+f = plot(y(:,1), y(:,2), 'LineWidth', 2);
+hold on;
+plot(c.xref(1), c.xref(2), 'rx');
+axis equal;
+grid on;
+xlabel('x1 - Capacitor voltage');
+ylabel('x2 - Inductor current');
+set(gca,'fontsize', 15);
