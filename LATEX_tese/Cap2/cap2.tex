@@ -88,12 +88,13 @@ Since the trajectory is cyclic we can impose the constraint:
 
 \subsection{Buck-boost converter}
     Considering a Buck-Boost converter in a Continuous Conduction Mode (CCM) 
-    whose topology is shown in Figure  \cite{patino2010predictive}. 
+    whose topology is shown in Figure \refeq{cap2-circuit-ex-1}. 
 
 \begin{figure}[H]
     \centering
     \includegraphics[]{Cap2/fig/ex_1.png} 
     \caption{Buck-Boos converter}
+    \label{cap2-circuit-ex-1}
 \end{figure}
 
 The state variables are the capacitor voltage $v_c$ and the inductor current $i_L$. Its dynamics is given by the equation:
@@ -121,24 +122,18 @@ where
 \noindent
 where $R = L = C = E = 1$. 
 
-The reference value to minimize the oscillations around is $\Big[2,-1\Big]$
+The criterion for the optimization is to compute the trajectory to minimize oscillation around the average value 
+$\big[2,-1\big]$, with the weight matrix $Q = diag\big[1,1\big]$, the maximum cycle period of $T_{p,max} = 1s$ and minimum 
+dwell time of $t_{min} = 0.25s$
 
-The weight matrix is $Q = diag\Big[1,1\Big]$
+\purple{
+    SOLUTION:
 
-$T_{p,max} = 1s$
+    $\tau^\infty = \Big\{0, 0.2509, 0.5 \Big\}$
 
-$s_{max} = 2$
+    $\Omega^\infty = \Big\{1, 2 \Big\}$
 
-$t_{min} = 0.25s$
-
-$r = 1$
-
-solution:
-
-$\tau^\infty = \Big\{0, 0.2509, 0.5 \Big\}$
-
-$\Omega^\infty = \Big\{1, 2 \Big\}$
-
+}
 
 \begin{figure}[H]
     \centering
