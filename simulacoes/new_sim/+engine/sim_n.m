@@ -10,10 +10,10 @@ function [y,t,u,m, dtk_out] = sim_n(config, nsim)
     t0  = 0.0;
     x0  = config_.x0;
     
-    mpc_on = 0;
+    mpc_on = false;
     if isfield(config_, 'mpc')
         if config_.mpc.on == 1
-            mpc_on = 1;
+            mpc_on = true;
         end
     end
     
