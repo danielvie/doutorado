@@ -1,0 +1,220 @@
+\section{Application Examples}
+
+\subsection{Buck-boost converter}
+    Considering a Buck-Boost converter in a Continuous Conduction Mode (CCM) 
+    whose topology is shown in Figure \refeq{cap2-circuit-ex-1}. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=10cm]{Cap2/fig/figura_circuito_ex_1.eps} 
+    \caption{Buck-Boost converter}
+    \label{cap2-circuit-ex-1}
+\end{figure}
+
+The state variables are the capacitor voltage $v_c$ and the inductor current $i_L$. Its dynamics are given by the equation:
+
+\begin{equation}
+    \dot{x} = \begin{cases}
+        A_1 x + b_1\text{, for u = 1 (closed switch - Mode 1)} \\
+        A_2 x + b_2\text{, for u = 0 (open switch - Mode 2)} 
+    \end{cases}
+\end{equation}
+
+\noindent
+where
+
+\begin{equation}
+    \begin{matrix}
+        A_1 = \left[ \begin{matrix} 0 & 0 \\ 0 & -\frac{1}{RC} \\ \end{matrix} \right] & 
+        A_2 = \left[ \begin{matrix} 0 & \frac{1}{L_1} \\ -\frac{1}{C} & -\frac{1}{RC} \\ \end{matrix} \right] \\
+        \\
+        b_1 = \left[ \begin{matrix} \frac{E}{L} & 0 \end{matrix} \right]^T & 
+        b_2 = \left[ \begin{matrix} 0 & 0 \end{matrix} \right]^T \\
+    \end{matrix}
+\end{equation}
+
+\noindent
+where $R = L = C = E = 1$. 
+
+The list of dynamics for this example is
+
+\noindent
+\begin{equation}
+    \Big\{\big[A_1,b_1\big], \big[A_2,b_2\big]\Big\}
+\end{equation}
+
+\noindent
+where
+
+\noindent
+\begin{align}
+    A_1 &= \left[
+        \begin{matrix}
+            0 & 0 \\ 
+            0 & 1 \\ 
+        \end{matrix}
+    \right],
+    b_1 = \left[
+        \begin{matrix}
+            0 \\ 
+            1 \\ 
+        \end{matrix}
+    \right], \\
+    A_2 &= \left[
+        \begin{matrix}
+            0 & 1 \\ 
+            -1 & -1 \\ 
+        \end{matrix}
+    \right],
+    b_2 = \left[
+        \begin{matrix}
+            0 \\ 
+            0 \\ 
+        \end{matrix}
+    \right]
+\end{align}
+
+The criteria for the optimization is to compute the trajectory to minimize oscillation around the average value 
+$\big[2,-1\big]$ with the weight matrix $Q = diag\big[1,1\big]$, the maximum cycle period of $T_{p,max} = 1s$ and minimum 
+dwell time of $t_{min} = 0.25s$.
+
+The cost function takes a vector representing the \( dt \) for each switching moment as its 
+input. For instance, with two switching instances, the vector could be \(\big[ 0.25, 0.35\big]\). 
+This implies the signal begins at time \(0.0\), transitions to the next dynamic at \(0.0 + 0.25 
+= 0.25\), and then switches again at \(0.25 + 0.35 = 0.6\). This gives us the signal sequence 
+\(\big[0.0, 0.25, 0.6\big]\).
+
+In the Buck-Boost converter example, the initial values for the switching vector are represented 
+by \([0.25, 0.25]\). The lower bounds are defined as \([0.25, 0.25]\) and the upper bounds 
+are set to \([1.5, 1.5]\). The solution provided by the FMINCON optimization yields 
+\(\tau^\infty = \{0, 0.2509, 0.5\}\) and \(\Omega^\infty = \{1, 2\}\).
+
+The outcome under this condition is displayed in Figure \eqref{cap2-circuit-ex-1}, showcasing 
+the cyclic trajectory around the average value \([2, -1]\). The corresponding command signal 
+can be seen in Figure \eqref{cap2-graf-ex1-2}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{Cap2/fig/graf_ex1_1.pdf}
+    \caption{Buck-Boost converter: State trajectory}
+    \label{cap2-graf-ex1-1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=14cm]{Cap2/fig/graf_ex1_2.pdf}
+    \caption{Buck-Boost converter: Command signal}
+    \label{cap2-graf-ex1-2}
+\end{figure}
+
+\subsection{Variant Dynamic Circuit 2}
+
+\purple{
+    Considering a Buck-Boost converter in a Continuous Conduction Mode (CCM) 
+    whose topology is shown in Figure \refeq{cap2-circuit-ex-1}. 
+}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=10cm]{Cap2/fig/figura_circuito_ex_2.eps} 
+    \caption{Four-level three-cell converter}
+    \label{cap2-circuit-ex-2}
+\end{figure}
+
+\purple{
+    The state variables are the capacitor voltage $v_c$ and the inductor current $i_L$. Its dynamics are given by the equation:
+}
+
+\begin{equation}
+    \dot{x} = \begin{cases}
+        A_1 x + b_1\text{, for u = 1 (closed switch - Mode 1)} \\
+        A_2 x + b_2\text{, for u = 0 (open switch - Mode 2)} 
+    \end{cases}
+\end{equation}
+
+\noindent
+where
+
+\begin{equation}
+    \begin{matrix}
+        A_1 = \left[ \begin{matrix} 0 & 0 \\ 0 & -\frac{1}{RC} \\ \end{matrix} \right] & 
+        A_2 = \left[ \begin{matrix} 0 & \frac{1}{L_1} \\ -\frac{1}{C} & -\frac{1}{RC} \\ \end{matrix} \right] \\
+        \\
+        b_1 = \left[ \begin{matrix} \frac{E}{L} & 0 \end{matrix} \right]^T & 
+        b_2 = \left[ \begin{matrix} 0 & 0 \end{matrix} \right]^T \\
+    \end{matrix}
+\end{equation}
+
+\noindent
+where $R = L = C = E = 1$. 
+
+The list of dynamics for this example is
+
+\noindent
+\begin{equation}
+    \Big\{\big[A_1,b_1\big], \big[A_2,b_2\big]\Big\}
+\end{equation}
+
+\noindent
+where
+
+\noindent
+\begin{align}
+    A_1 &= \left[
+        \begin{matrix}
+            0 & 0 \\ 
+            0 & 1 \\ 
+        \end{matrix}
+    \right],
+    b_1 = \left[
+        \begin{matrix}
+            0 \\ 
+            1 \\ 
+        \end{matrix}
+    \right], \\
+    A_2 &= \left[
+        \begin{matrix}
+            0 & 1 \\ 
+            -1 & -1 \\ 
+        \end{matrix}
+    \right],
+    b_2 = \left[
+        \begin{matrix}
+            0 \\ 
+            0 \\ 
+        \end{matrix}
+    \right]
+\end{align}
+
+The criteria for the optimization is to compute the trajectory to minimize oscillation around the average value 
+$\big[2,-1\big]$ with the weight matrix $Q = diag\big[1,1\big]$, the maximum cycle period of $T_{p,max} = 1s$ and minimum 
+dwell time of $t_{min} = 0.25s$.
+
+The cost function takes a vector representing the \( dt \) for each switching moment as its 
+input. For instance, with two switching instances, the vector could be \(\big[ 0.25, 0.35\big]\). 
+This implies the signal begins at time \(0.0\), transitions to the next dynamic at \(0.0 + 0.25 
+= 0.25\), and then switches again at \(0.25 + 0.35 = 0.6\). This gives us the signal sequence 
+\(\big[0.0, 0.25, 0.6\big]\).
+
+In the Buck-Boost converter example, the initial values for the switching vector are represented 
+by \([0.25, 0.25]\). The lower bounds are defined as \([0.25, 0.25]\) and the upper bounds 
+are set to \([1.5, 1.5]\). The solution provided by the FMINCON optimization yields 
+\(\tau^\infty = \{0, 0.2509, 0.5\}\) and \(\Omega^\infty = \{1, 2\}\).
+
+The outcome under this condition is displayed in Figure \eqref{cap2-circuit-ex-1}, showcasing 
+the cyclic trajectory around the average value \([2, -1]\). The corresponding command signal 
+can be seen in Figure \eqref{cap2-graf-ex1-2}.
+
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=14cm]{Cap2/fig/graf_ex1_1.pdf}
+%     \caption{Buck-Boost converter: State trajectory}
+%     \label{cap2-graf-ex1-1}
+% \end{figure}
+
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=14cm]{Cap2/fig/graf_ex1_2.pdf}
+%     \caption{Buck-Boost converter: Command signal}
+%     \label{cap2-graf-ex1-2}
+% \end{figure}
