@@ -84,7 +84,7 @@ i_l_ = y1(:,3);
 plot3(vc1_, vc2_, i_l_, 'k');
 
 grid on;
-xlabel('V_{c2} [V]');
+xlabel('V_{c1} [V]');
 ylabel('V_{c2} [V]');
 zlabel('i_L [A]');
 set(gca,'fontsize', 15);
