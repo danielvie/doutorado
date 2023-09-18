@@ -112,8 +112,11 @@ function config = get_config_sim_patino_2()
 	config.smax  = 12;
     
     config.Ts    = [0.000, 0.066, 0.088, 0.110, 0.132, 0.154, 0.220, 0.242, 0.264, 0.286]*1e-3;
-	config.x0    = [9.9247; 19.2928; 0.9823];
-			
+	% config.x0    = [9.9247; 19.2928; 0.9823];
+	config.x0    = [19.2928; 9.9247; 0.9823];
+
+
+
 	% config OTMIN
 	% tmin   = 0.022*1e-3;
 	% tmax   = 0.400*1e-3;

@@ -17,12 +17,12 @@ function [y,t,u,m, dtk_out] = sim_n(config, nsim)
         end
     end
     
-    
+    numelx0 = numel(x0);
     for i = 1:nsim
         dtk = zeros([numel(config.modes)-1, 1]);
         if mpc_on
             % calculo `ek`
-            ek  = reshape(x0, [numel(x0),1]) - reshape(config_.mpc.x_target, [2,1]);
+            ek  = reshape(x0, [numelx0,1]) - reshape(config_.mpc.x_target, [numelx0,1]);
 
             % calculo comando `dtk`
             dtk = mpc.mpc_dualmode_switching(ek,config_.mpc.H,config_.mpc.Hf,config_.mpc.Phi1Np,config_.mpc.Qbar,config_.mpc.Rbar,config_.mpc.Lbar,config_.mpc.cbar,config_.mpc.Pf,config_.mpc.Sf,config_.mpc.bf,config_.mpc.PhiNp,config_.mpc.p);

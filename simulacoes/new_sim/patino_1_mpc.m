@@ -5,12 +5,10 @@ clear
 % get configuration
 config = engine.get_config_sim_patino_1();
 
-% calculo da trajetoria
+%% calculo da trajetoria
 [config, x, fval] = engine.otmin(config);
 
 %% construindo MPC
-
-
 % montando valores de referencia
 tr  = config.Ts(2:end);
 ur  = [1, 0];
@@ -21,7 +19,7 @@ xr  = engine.get_xr(config);
 
 N  = numel(tr);
 p  = N - 1;
-Q  = diag([10,1]);
+Q  = diag([10,1]); % por que 10???
 R  = eye(p);
 Np = 2;
 

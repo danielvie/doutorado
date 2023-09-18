@@ -6,7 +6,7 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr)
     
     tr  = reshape(tr, [numel(tr), 1]);
     
-    N   = length(tr);
+    N   = length(Ac);
     T   = tr(N);
     % Dur = diff(ur); % Dur = [Dur1, Dur2, ..., DurN-1 ]
     
