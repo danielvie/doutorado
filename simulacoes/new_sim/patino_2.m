@@ -90,10 +90,10 @@ zlabel('i_L [A]');
 set(gca,'fontsize', 15);
 
 %% saving figures
-save_figure(f1, "graf_ex2_1.pdf")
-save_figure(f2, "graf_ex2_2.pdf")
-save_figure(f3, "graf_ex2_3.pdf")
-save_figure(f4, "graf_ex2_4.pdf")
+% save_figure(f1, "graf_ex2_1.pdf")
+% save_figure(f2, "graf_ex2_2.pdf")
+% save_figure(f3, "graf_ex2_3.pdf")
+% save_figure(f4, "graf_ex2_4.pdf")
 
 %% copy figures
-copyfile('graf_ex2_*.pdf', "../../LATEX_tese/Cap2/fig/");
+% copyfile('graf_ex2_*.pdf', "../../LATEX_tese/Cap2/fig/");
