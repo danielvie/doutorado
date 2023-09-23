@@ -12,11 +12,11 @@ opt = engine.get_otmin_opt(config);
 opt.MaxFunctionEvaluations = 500*12;
 opt.Display = 'iter';
 opt.ConstraintTolerance = 1e-4;
-opt.PlotFcn = 'optimplotfvalconstr';
+% opt.PlotFcn = 'optimplotfvalconstr';
 
 % open figure
-figure(5);
-clf();
+% figure(5);
+% clf();
 
 [config, x, fval] = engine.otmin(config, opt);
 
@@ -74,15 +74,11 @@ mpc.p        = p;
 
 
 
-
-
-
-
-
 %% rodando simulacao como resultado da trajetoria
 cfg = config;
 
 cfg.mpc = mpc;
+cfg.mpc.on = false;
 
 
 dT = x;

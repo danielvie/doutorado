@@ -40,7 +40,7 @@ function [config_new, x, fval] = otmin(config, opt)
     if ~exist('opt', 'var')
         opt    = engine.get_otmin_opt(config_new);
         opt.ConstraintTolerance = 1e-8;
-        opt.PlotFcn = 'optimplotfvalconstr';
+        % opt.PlotFcn = 'optimplotfvalconstr';
     end
     
     x0     = config.otmin.x0;

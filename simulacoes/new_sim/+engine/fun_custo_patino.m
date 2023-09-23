@@ -25,8 +25,8 @@ function J = fun_custo_patino(config, X)
     y  = engine.sim_1(cfg);
         
     % plot se exemplo patino 2 (suporte para monitorar calculo de traj)
-    y_ = y - y(1,:);
-    engine.helpers.plot_if_patino_2(y_);
+    % y_ = y - y(1,:);
+    % engine.helpers.plot_if_patino_2(y_);
     
     % calculando integral erro trajetoria (trapezios)
     ny  = size(y,1);
@@ -34,6 +34,8 @@ function J = fun_custo_patino(config, X)
     I   = 0;
     v_  = 0;
     
+    % garantindo que `xref` tem formato 1x3
+    xref = reshape(xref, [1, 3]);
     for i = 1:ny
         % gerando valor da funcao
         xi = (y(i,:) - xref);
