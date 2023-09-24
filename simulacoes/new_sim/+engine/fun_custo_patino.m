@@ -22,27 +22,20 @@ function J = fun_custo_patino(config, X)
     cfg.x0 = engine.get_x0(cfg);
     
     % calculando trajetoria com configuracao temporaria
-    y  = engine.sim_1(cfg);
-        
-    % plot se exemplo patino 2 (suporte para monitorar calculo de traj)
-    % y_ = y - y(1,:);
-    % engine.helpers.plot_if_patino_2(y_);
-    
-    % calculando integral erro trajetoria (trapezios)
-    ny  = size(y,1);
-    dx  = cfg.tstep;
-    I   = 0;
-    v_  = 0;
-    
-    % garantindo que `xref` tem formato 1x3
+    [y,dt_sim] = engine.sim_1_custo(cfg);
+
+    ny_ = size(y,1);
+    I  = 0;
+    v_ = 0;
+
     xref = reshape(xref, [1, 3]);
-    for i = 1:ny
-        % gerando valor da funcao
+
+    for i = 1:ny_
         xi = (y(i,:) - xref);
         v  = xi*Q*xi';
 
-        % atualizando integrador
-        I  = I + dx*(v + v_)/2;
+        dx = dt_sim(i);
+        I = I + dx*(v + v_)/2;
         v_ = v;
     end
     

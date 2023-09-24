@@ -63,7 +63,7 @@ function config = get_config_sim_patino_2()
 	config.smax  = 12;
     
     config.Ts    = [0.000, 0.066, 0.088, 0.110, 0.132, 0.154, 0.220, 0.242, 0.264, 0.286]*1e-3;
-	config.x0    = [9.9247; 19.2928; 0.9823];
+    config.x0    = [9.9247; 19.2928; 0.9823];
 	% config.x0    = [19.2928; 9.9247; 0.9823];
 
 
@@ -77,7 +77,7 @@ function config = get_config_sim_patino_2()
 	Ndt              = numel(config.Ts) - 1; % nro de elementos dt
 	
 	config.otmin     = struct();
-	config.otmin.x0  = diff(config.Ts);
+	config.otmin.x0  = ones(1, Ndt)*0.044*1e-3;
 	config.otmin.lb  = ones(1, Ndt)*0.022*1e-3; %[22e-6, 22e-6, ..., 22e-6]
 	config.otmin.ub  = ones(1, Ndt)*0.088*1e-3; %[88e-6, 88e-6, ..., 88e-6]
 	config.otmin.A   = [];

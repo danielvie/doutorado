@@ -1,4 +1,4 @@
-function [y,t,u,m,xr] = sim_1(config)
+function [y,t,u,m,xr,yi_, dt_] = sim_1(config)
 
     % lendo configuracoes
     Cc    = config.Cc;
@@ -25,6 +25,8 @@ function [y,t,u,m,xr] = sim_1(config)
     xr   = zeros(n_modes, numel(x0));
     xr(1,:) = x0;
     
+    yi_ = [];
+    dt_ = [];
     for i = 1:n_modes
         % lendo modo de operacao (indice do modo inicia em `0`)
         imode = config.modes(i) + 1;
@@ -40,8 +42,17 @@ function [y,t,u,m,xr] = sim_1(config)
         
         xi0 = reshape(xi0, [numel(xi0), 1]);
         yi  = lsim(Ai,Bi,Cc,Dc,ui,ti-ti(1),xi0);
-        xi0 = yi(end, :);
+                
+        dt = ti(end)-ti(1);
+        Fa  = expm([Ai,Bi;zeros(1,size(Ai,2)),0]*dt);
         
+        yend = Fa*[xi0;1];
+        yi_ = [yi_;yend(1:3)'];
+        dt_ = [dt_;dt];
+        
+        xi0 = yi(end, :);
+
+
         % concatenando resultado da iteraco
         nti  = numel(ti);
  

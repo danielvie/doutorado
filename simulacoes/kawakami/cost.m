@@ -28,7 +28,7 @@ else
 end
 
 % Step 3: Simulation and cost evaluation
-J = 0;
+J = 0; 
 xswitcha = [x0;1];
 xrec = []; % Record of the simulation result
 for j = 1:s

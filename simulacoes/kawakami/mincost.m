@@ -18,6 +18,9 @@ for i = 1:8
     b{i} = [0; 0; (E/L)*u3];
 end
 
+save A A
+save b b
+
 Q = diag([10 5 20000]);
 xref = [E/3; 2*E/3; 1];
 Nsim = 100;
