@@ -77,11 +77,11 @@ function config = get_config_sim_patino_2()
 	Ndt              = numel(config.Ts) - 1; % nro de elementos dt
 	
 	config.otmin     = struct();
-	config.otmin.x0  = ones(1, Ndt)*0.044*1e-3;
-	config.otmin.lb  = ones(1, Ndt)*0.022*1e-3; %[22e-6, 22e-6, ..., 22e-6]
-	config.otmin.ub  = ones(1, Ndt)*0.088*1e-3; %[88e-6, 88e-6, ..., 88e-6]
-	config.otmin.A   = [];
-	config.otmin.b   = [];
+	config.otmin.x0  = ones(Ndt, 1)*0.044*1e-3;
+	config.otmin.lb  = ones(Ndt, 1)*0.022*1e-3; %[22e-6, 22e-6, ..., 22e-6]
+	config.otmin.ub  = ones(Ndt, 1)*config.Tpmax;
+	config.otmin.A   = ones(1, Ndt);
+	config.otmin.b   = config.Tpmax;
 	config.otmin.Aeq = [];
 	config.otmin.beq = [];
 end

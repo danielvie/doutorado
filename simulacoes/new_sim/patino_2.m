@@ -1,5 +1,5 @@
 
-function patino_2(savefig)
+function cfg_out = patino_2(savefig)
     if (nargin == 0)
         savefig = false;
     end
@@ -79,11 +79,15 @@ function patino_2(savefig)
     set(gca,'fontsize', 15);
 
     f4 = figure(4);
-    y1 = engine.sim_n(c, 30);
+    y = engine.sim_n(c, 30);
 
-    vc1_ = y1(:,1);
-    vc2_ = y1(:,2);
-    i_l_ = y1(:,3);
+    vc1_ = y(:,1);
+    vc2_ = y(:,2);
+    i_l_ = y(:,3);
+
+    y1 = engine.sim_1_custo(c);
+
+    assignin('base', 'y1', y1);
 
     % plot3(y1(:,1), y1(:,2), y1(:,3), 'k');
     plot3(vc1_, vc2_, i_l_, 'k');
@@ -105,4 +109,9 @@ function patino_2(savefig)
 
         %% copy figures to latex
         copyfile('graf_ex2_*.pdf', "../../LATEX_tese/Cap2/fig/");
+    end
+
+    % defining output in case it is set by the caller
+    if (nargout == 1)
+        cfg_out = config;
     end
