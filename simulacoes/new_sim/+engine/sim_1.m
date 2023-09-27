@@ -9,6 +9,7 @@ function [y,t,u,m,xr,yi_, dt_] = sim_1(config)
 
     % simulando com parametros flexiveis
     n_modes = numel(config.modes);
+    nstates = size(config.Ac{1}, 2);
     
     % alocando vetores de saida 
     nmax = ceil(config.Tpmax/config.tstep);
@@ -25,8 +26,8 @@ function [y,t,u,m,xr,yi_, dt_] = sim_1(config)
     xr   = zeros(n_modes, numel(x0));
     xr(1,:) = x0;
     
-    yi_ = [];
-    dt_ = [];
+    yi_ = zeros(n_modes, nstates);
+    dt_ = zeros(n_modes, nstates);
     for i = 1:n_modes
         % lendo modo de operacao (indice do modo inicia em `0`)
         imode = config.modes(i) + 1;
@@ -47,11 +48,10 @@ function [y,t,u,m,xr,yi_, dt_] = sim_1(config)
         Fa  = expm([Ai,Bi;zeros(1,size(Ai,2)),0]*dt);
         
         yend = Fa*[xi0;1];
-        yi_ = [yi_;yend(1:3)'];
-        dt_ = [dt_;dt];
+        yi_(i, :) = yend(1:nstates);
+        dt_(i) = dt;
         
         xi0 = yi(end, :);
-
 
         % concatenando resultado da iteraco
         nti  = numel(ti);
