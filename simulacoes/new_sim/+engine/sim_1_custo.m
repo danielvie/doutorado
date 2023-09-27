@@ -37,7 +37,7 @@ function [yi_, dt_] = sim_1_custo(config)
         yi_(i,:) = yend(1:nstates);
         dt_(i) = dt;
         
-        y(i,:) = yend(1:3);
+        y(i,:) = yend(1:nstates);
         dtout(i) = dt;
 
         xi0 = yi_(i, :);

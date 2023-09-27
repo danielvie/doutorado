@@ -24,11 +24,12 @@ function J = fun_custo_patino(config, X)
     % calculando trajetoria com configuracao temporaria
     [y,dt_sim] = engine.sim_1_custo(cfg);
 
-    ny_ = size(y,1);
+    ny_     = size(y,1);
+    nstates = size(y,2);
     I  = 0;
     v_ = 0;
 
-    xref = reshape(xref, [1, 3]);
+    xref = reshape(xref, [1, nstates]);
 
     for i = 1:ny_
         xi = (y(i,:) - xref);
