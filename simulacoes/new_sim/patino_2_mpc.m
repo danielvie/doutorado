@@ -78,12 +78,9 @@ mpc.p        = p;
 cfg = config;
 
 cfg.mpc = mpc;
-cfg.mpc.on = false;
+cfg.mpc.on = true;
 
 
-dT = x;
-cfg.Ts = engine.get_ts(dT);
-cfg.x0 = engine.get_x0(config);
 nsim = 50;
 
 % cfg.x0 = cfg.x0 + [4.5; 1.1; 3.1];
