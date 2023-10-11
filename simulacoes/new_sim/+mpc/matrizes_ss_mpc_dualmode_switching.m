@@ -1,6 +1,16 @@
 function [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c)
 
-    % Restrição (at each cycle): L*dt <= c
+    % Restricaoo (at each cycle): L*dt <= c
+
+    % f = Phi * Xi(k)
+
+    % Phi = 
+    % Gamma = 
+    % Q = 
+    % R = 
+    % Np = 
+    % c = 
+
     
     n = size(Phi,1);
     p = size(Gamma,2);
@@ -35,11 +45,11 @@ function [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = matrizes_ss_mpc_du
     
     PhiNp = Phi^Np;
     
-    % Determinação do ganho terminal K
+    % Determinacao do ganho terminal K
     K = dlqr(Phi,Gamma,Q,R);
     Phib = Phi - Gamma*K;
     
-    % Determinação da matriz de custo terminal Pf
+    % Determinacao da matriz de custo terminal Pf
     % Eq. Laypunov:
     % Phib'*Pf*Phib - Pf + Phib'*Q*Phib + K'*R*K = 0
     %
@@ -49,7 +59,7 @@ function [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = matrizes_ss_mpc_du
     
     Pf = dlyap(Phib',Phib'*Q*Phib + K'*R*K);
     
-    % Determinação do conjunto terminal invariante e admissível
+    % Determinacao do conjunto terminal invariante e admissivel
     % Requer o MPT Toolbox
     sys = LTISystem('A',Phib);
     Hmpt = [L*K  -c];

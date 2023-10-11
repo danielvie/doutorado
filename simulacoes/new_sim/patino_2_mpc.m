@@ -30,25 +30,29 @@ xr  = engine.get_xr(config);
 
 [Phi, Gamma] = mpc.construcao_modelo_instantes(config.Ac, config.Bc, tr, xr);
 
+% f = Phi * Xi(k)
+% Phib = Phi - Gamma*K;
+
+
 N  = numel(config.Ac);
 p  = N - 1;
 Q  = diag([1,1,1]);
 R  = eye(p);
-Np = 2;
+Np = 2; % horizonte de predicao?
 
 % parametros das restricoes de chaveamento
-t_on  = 0.25;
-t_off = 0.25;
+t_min = 20e-6;
 
 c = [
-    -dtr(1) + t_on;
-    -dtr(2) + t_off;
-    -dtr(3) + t_on;
-    -dtr(4) + t_off;
-    -dtr(5) + t_on;
-    -dtr(6) + t_off;
-    -dtr(7) + t_on;
-    -dtr(8) + t_off;
+    -dtr(1) + t_min;
+    -dtr(2) + t_min;
+    -dtr(3) + t_min;
+    -dtr(4) + t_min;
+    -dtr(5) + t_min;
+    -dtr(6) + t_min;
+    -dtr(7) + t_min;
+    -dtr(8) + t_min;
+    -dtr(9) + t_min;
 ];
 
 [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = ...

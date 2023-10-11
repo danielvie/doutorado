@@ -7,9 +7,9 @@ The solution for the state equation \eqref{eq_continuous_time_dynamics} at time 
 \noindent
 \begin{align}
 	\label{eq_cap3_lin_x1}
-	x(t_1)  &= e^{A_0(t_1-t_0)}x(t_0) + \intlinAA{0}{1}{}{} \\
+	x(t_1)  &= e^{A_1(t_1-t_0)}x(t_0) + \intlinAA{0}{1}{}{} \\
 	\label{eq_cap3_lin_xr1}
-	\bar{x}(\bar{t}_1) &= e^{A_0(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0) + \intlinAbtt{0}{1}
+	\bar{x}(\bar{t}_1) &= e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0) + \intlinAbtt{0}{1}
 \end{align}
 
 \noindent
@@ -19,7 +19,7 @@ subtracting \eqref{eq_cap3_lin_xr1} from \eqref{eq_cap3_lin_x1} we get
 \begin{equation}
 	\label{eq_cap3_lin_erro_x0x1}
 	\begin{split}
-		x(t_1) - \bar{x}(\bar{t}_1) = \green{\overbrace{e^{A_0(t_1-t_0)}x(t_0) - e^{A_0(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)}^{\square}} \\
+		x(t_1) - \bar{x}(\bar{t}_1) = \green{\overbrace{e^{A_1(t_1-t_0)}x(t_0) - e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)}^{\square}} \\
 		+ \orange{\underbrace{\intlinAA{0}{1}{}{} - \intlinAbtt{0}{1}}_{\bigcirc}}
 	\end{split}
 \end{equation}
@@ -31,12 +31,12 @@ expanding \eqref{eq_cap3_lin_erro_x0x1} first in $\green{\square}$:
 \noindent
 \begin{align}
 	\label{eq_cap3_lin_erro_x0x1_green}
-	\green{\square} &= \green{e^{A_0(t_1-t_0)}x(t_0) - e^{A_0(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)} \nonumber \\
-				  &= \green{e^{A_0(\bar{t}_1 + \delta t_1 - t_0)}x(t_0) - e^{A_0(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)} \nonumber \\
-				  &= \blue{e^{A_0(\bar{t}_1 - t_0)}} \green{e^{\delta t_1} x(t_0)} \green{-} \blue{e^{A_0(\bar{t}_1-\bar{t}_0)}}\green{\bar{x}(\bar{t}_0)} \nonumber \\
-				  &= \blue{\bar{F}_0} \purple{e^{\delta t_1}} \green{x(t_0)} \green{-} \blue{\bar{F}_0}\green{\bar{x}(\bar{t}_0)} \nonumber \\
-				  &= \green{\bar{F}_0} \purple{(I + A_0 \delta t_1)} \green{x(t_0)} \green{-} \green{\bar{F}_0}\green{\bar{x}(\bar{t}_0)} \nonumber \\ 
-				  &= \green{\bar{F}_0 [x(t_0) - \bar{x}(t_0)] + \bar{F}_0 A_0 \delta t_1}
+	\green{\square} &= \green{e^{A_1(t_1-t_0)}x(t_0) - e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)} \nonumber \\
+				  &= \green{e^{A_1(\bar{t}_1 + \delta t_1 - t_0)}x(t_0) - e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)} \nonumber \\
+				  &= \blue{e^{A_1(\bar{t}_1 - t_0)}} \green{e^{\delta t_1} x(t_0)} \green{-} \blue{e^{A_1(\bar{t}_1-\bar{t}_0)}}\green{\bar{x}(\bar{t}_0)} \nonumber \\
+				  &= \blue{\bar{F}_1} \purple{e^{\delta t_1}} \green{x(t_0)} \green{-} \blue{\bar{F}_1}\green{\bar{x}(\bar{t}_0)} \nonumber \\
+				  &= \green{\bar{F}_1} \purple{(I + A_1 \delta t_1)} \green{x(t_0)} \green{-} \green{\bar{F}_1}\green{\bar{x}(\bar{t}_0)} \nonumber \\ 
+				  &= \green{\bar{F}_1 [x(t_0) - \bar{x}(t_0)] + \bar{F}_1 A_1 \delta t_1}
 \end{align}
 
 \noindent
@@ -48,12 +48,12 @@ and then in $\orange{\bigcirc}$:
 	\label{eq_cap3_lin_erro_x0x1_orange}
 	\orange{\bigcirc} 	&= \orange{ \intlinAA{0}{1}{}{} - \intlinAbtt{0}{1} } \nonumber \\ 
 				   	&= \orange{ \intlinCb{t_0}{\bar{t}_1+\delta t_1}{0}{1} - \intlinAbft{0}{1} } \nonumber \\
-				   	&= \orange{ e^{A_0 \delta t_1} \bigg[ \blue{\intlinAbft{0}{1}} + \purple{\intlinB{\bar{t}_1}{\bar{t}_1 + \delta t_1}{0}{1}} \bigg] }
+				   	&= \orange{ e^{A_1 \delta t_1} \bigg[ \blue{\intlinAbft{0}{1}} + \purple{\intlinB{\bar{t}_1}{\bar{t}_1 + \delta t_1}{0}{1}} \bigg] }
 				   	   \orange{ -\blue{\intlinAbft{0}{1}} } \nonumber \\
-				   	&= \orange{ \pink{e^{A_0 \delta t_1}} [ \blue{\bar{G}_0} + \purple{B_0 \delta t_1} ] - \blue{\bar{G}_0} } \nonumber \\
-				   	&= \orange{ \pink{(I + A_0 \delta t_1)}[ \bar{G}_0 + B_0 \delta t_1 ] - \bar{G}_0 } \nonumber \\
-				   	&= \orange{ \cancel{\bar{G}_0} + B_0 \delta t_1 + A_0 \bar{G}_0 \delta t_1 + \cancel{A_0 B_0 \delta t_1 \delta t_1} - \cancel{\bar{G}_0} } \nonumber \\
-				   	&= \orange{ A_0 \bar{G}_0 \delta t_1 + B_0 \delta t_1 }
+				   	&= \orange{ \pink{e^{A_1 \delta t_1}} [ \blue{\bar{G}_1} + \purple{B_1 \delta t_1} ] - \blue{\bar{G}_1} } \nonumber \\
+				   	&= \orange{ \pink{(I + A_1 \delta t_1)}[ \bar{G}_1 + B_1 \delta t_1 ] - \bar{G}_1 } \nonumber \\
+				   	&= \orange{ \cancel{\bar{G}_1} + B_0 \delta t_1 + A_1 \bar{G}_1 \delta t_1 + \cancel{A_1 B_1 \delta t_1 \delta t_1} - \cancel{\bar{G}_1} } \nonumber \\
+				   	&= \orange{ A_1 \bar{G}_1 \delta t_1 + B_1 \delta t_1 }
 \end{align}
 
 \noindent
@@ -62,5 +62,5 @@ the resulting equations \eqref{eq_cap3_lin_erro_x0x1_green} and \eqref{eq_cap3_l
 \noindent
 \boxeq{eq_cap3_lin_erro_x1x0_resultado}
 {
-	x(t_1) - \bar{x}(\bar{t}_1) = \bar{F}_0 [ x(t_0) - \bar{x}(t_0) ] + [ \bar{F}_0 A_0 x(t_0) + A_0 \bar{G}_0 + B_0 ] \delta t_1
+	x(t_1) - \bar{x}(\bar{t}_1) = \bar{F}_1 [ x(t_0) - \bar{x}(t_0) ] + [ \bar{F}_1 A_1 x(t_0) + A_1 \bar{G}_1 + B_1 ] \delta t_1
 }

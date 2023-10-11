@@ -7,9 +7,9 @@ Repeating the steps for $x(t_2)$ we have
 \noindent
 \begin{align}
 	\label{eq_cap3_lin_x2}
-	x(t_2)  &= e^{A_1(t_2-t_1)}x(t_1) + \intlinAA{1}{2}{}{} \\
+	x(t_2)  &= e^{A_2(t_2-t_1)}x(t_1) + \intlinAA{1}{2}{}{} \\
 	\label{eq_cap3_lin_xr2}
-	\bar{x}(\bar{t}_2) &= e^{A_1(\bar{t}_2-\bar{t}_1)}\bar{x}(\bar{t}_1) + \intlinAbtt{1}{2}
+	\bar{x}(\bar{t}_2) &= e^{A_2(\bar{t}_2-\bar{t}_1)}\bar{x}(\bar{t}_1) + \intlinAbtt{1}{2}
 \end{align}
 
 \noindent 
@@ -19,7 +19,7 @@ subtracting \eqref{eq_cap3_lin_xr2} from \eqref{eq_cap3_lin_x2}
 	\label{eq_cap3_lin_erro_x1x2}
 	\begin{split}
 		x(t_2) - \bar{x}(\bar{t}_2) = 
-		\green{\overbrace{e^{A_1(t_2-t_1)}x(t_1) - e^{A_1(\bar{t}_2-\bar{t}_1)}\bar{x}(\bar{t}_1)}^{\square}} \\ 
+		\green{\overbrace{e^{A_2(t_2-t_1)}x(t_1) - e^{A_2(\bar{t}_2-\bar{t}_1)}\bar{x}(\bar{t}_1)}^{\square}} \\ 
 		+ \orange{\underbrace{\intlinAA{1}{2}{}{} - \intlinAbtt{1}{2}}_{\bigcirc}}
 	\end{split}
 \end{equation}
@@ -32,21 +32,21 @@ expanding $\green{\square}$ in \eqref{eq_cap3_lin_erro_x1x2}:
 \begin{align}
 	\green{ \square } &=
 	\green{
-		e^{A_1(\bar{t}_2 + \delta t_2 - \bar{t}_1 - \delta t_1)} x(t_1)
-		- e^{A_1(\bar{t}_2 - \bar{t}_1)} \bar{x}(\bar{t}_1)
+		e^{A_2(\bar{t}_2 + \delta t_2 - \bar{t}_1 - \delta t_1)} x(t_1)
+		- e^{A_2(\bar{t}_2 - \bar{t}_1)} \bar{x}(\bar{t}_1)
 	} \nonumber \\
 	&= \green{
-		\blue{\Fri{1}{2}} \purple{e^{A_1(\delta t_2 - \delta t_1)}} x(t_1)
+		\blue{\Fri{1}{2}} \purple{e^{A_2(\delta t_2 - \delta t_1)}} x(t_1)
 		- \blue{\Fri{1}{2}} \bar{x}(\bar{t}_1)
 	} \nonumber \\
 	&= \green{
-		\blue{\bar{F}_1} \purple{[I + A_1(\delta t_2 - \delta t_1)]} x(t_1)
-		- \blue{\bar{F}_1} \bar{x}(\bar{t}_1)
+		\blue{\bar{F}_2} \purple{[I + A_2(\delta t_2 - \delta t_1)]} x(t_1)
+		- \blue{\bar{F}_2} \bar{x}(\bar{t}_1)
 	} \nonumber \\
 	\label{eq_cap3_lin_x2_green}
 	&= \green{
-		\bar{F}_1 [x(t_1) - \bar{x}(\bar{t}_1)] + \bar{F}_1 A_1 x(t_1) \delta t_2
-		- \bar{F}_1 A_1 x(t_1) \delta t_1
+		\bar{F}_2 [x(t_1) - \bar{x}(\bar{t}_1)] + \bar{F}_2 A_2 x(t_1) \delta t_2
+		- \bar{F}_2 A_2 x(t_1) \delta t_1
 	}
 \end{align}
 
@@ -59,29 +59,29 @@ and expanding $\orange{\bigcirc}$:
 	\orange{\bigcirc} 	&= \orange{\intlinAA{1}{2}{}{} - \intlinAbtt{1}{2}} \nonumber \\
 					   	&= \orange{ \intlinCb{\bar{t}_1+\delta t_1}{\bar{t}_2+\delta t_2}{1}{2} - \intlinAbtt{1}{2}} \nonumber \\
 						\begin{split}
-							&= \orange{ \purple{ e^{A_1 \delta t_2} }
+							&= \orange{ \purple{ e^{A_2 \delta t_2} }
 								\bigg[
 									\blue{\intlinAbtt{1}{2}} - \intlinBb{\bar{t}_1}{\bar{t}_1 + \delta t_1}{1}{2} + \intlinBb{\bar{t}_2}{\bar{t}_2 + \delta t_2}{1}{2} \bigg] } \\
 							& \qquad \orange{ - \blue{\intlinAbtt{1}{2}} }
 						\end{split} \nonumber \\
-						&= \orange{ \purple{(I + A_1 \delta t_2)}
+						&= \orange{ \purple{(I + A_2 \delta t_2)}
 							\bigg[
-								\blue{\bar{G}_1} - \pink{\intlinBb{\bar{t}_1}{\bar{t}_1 + \delta t_1}{1}{2}} + \brown{\intlinBb{\bar{t}_2}{\bar{t}_2 + \delta t_2}{1}{2}}
-							\bigg] - \blue{\bar{G}_1}
+								\blue{\bar{G}_2} - \pink{\intlinBb{\bar{t}_1}{\bar{t}_1 + \delta t_1}{1}{2}} + \brown{\intlinBb{\bar{t}_2}{\bar{t}_2 + \delta t_2}{1}{2}}
+							\bigg] - \blue{\bar{G}_2}
 						} \nonumber \\
-						&= \orange{ (I + A_1 \delta t_2)
+						&= \orange{ (I + A_2 \delta t_2)
 							\bigg[
-								\bar{G}_1 - \pink{e^{A_1(\bar{t}_2 - \bar{t}_1)} B_1 \delta t_1} + \brown{B_1 \delta t_2}
-							\bigg] - \bar{G}_1
+								\bar{G}_2 - \pink{e^{A_2(\bar{t}_2 - \bar{t}_1)} B_2 \delta t_1} + \brown{B_2 \delta t_2}
+							\bigg] - \bar{G}_2
 						} \nonumber \\
-						&= \orange{ (I + A_1 \delta t_2)
+						&= \orange{ (I + A_2 \delta t_2)
 							\bigg[
-								\bar{G}_1 - \pink{\bar{F}_1 B_1 \delta t_1} + B_1 \delta t_2
-							\bigg] - \bar{G}_1
+								\bar{G}_2 - \pink{\bar{F}_2 B_2 \delta t_1} + B_2 \delta t_2
+							\bigg] - \bar{G}_2
 						} \nonumber \\
-						&= \orange{ \cancel{\bar{G}_1} - \bar{F}_1 B_1 \delta t_1 + B_1 \delta t_2 + A_1 \bar{G}_1 \delta t_2 - \cancel{\bar{G}_1} } \nonumber \\
+						&= \orange{ \cancel{\bar{G}_2} - \bar{F}_2 B_2 \delta t_1 + B_2 \delta t_2 + A_2 \bar{G}_2 \delta t_2 - \cancel{\bar{G}_2} } \nonumber \\
 						\label{eq_cap3_lin_x2_orange}
-						&= \orange{ A_1 \bar{G}_1 \delta t_2 + B_1 \delta t_2 - \bar{F}_1 B_1 \delta t_1 }
+						&= \orange{ A_2 \bar{G}_2 \delta t_2 + B_2 \delta t_2 - \bar{F}_2 B_2 \delta t_1 }
 \end{align}
 
 \noindent 
@@ -92,9 +92,9 @@ $x(t_2) - \bar{x}(\bar{t}_2)$
 \begin{equation}
 	\label{eq_xt2_xt1_0}
 	\begin{split}
-		x(t_2) - \bar{x}(\bar{t}_2) =  & \bar{F}_1 [\green{x(t_1) - \bar{x}_1(\bar{t}_1)}] \\
-							     & \quad - \bar{F}_1 [A_1 \blue{x(t_1)} + B_1] \delta t_1 \\
-							     & \quad + [ \bar{F}_1 A_1 \blue{\underbrace{x(t_1)}_{\triangle}} + A_1 \bar{G}_1 + B_1] \delta t_2
+		x(t_2) - \bar{x}(\bar{t}_2) =  & \bar{F}_2 [\green{x(t_1) - \bar{x}_1(\bar{t}_1)}] \\
+							     & \quad - \bar{F}_2 [A_2 \blue{x(t_1)} + B_2] \delta t_1 \\
+							     & \quad + [ \bar{F}_2 A_2 \blue{\underbrace{x(t_1)}_{\triangle}} + A_2 \bar{G}_2 + B_2] \delta t_2
 	\end{split} 
 \end{equation}
 
@@ -104,7 +104,7 @@ from \eqref{eq_xt2_xt1_0}, $\blue{\triangle}$ can be expanded by replacing the r
 \noindent
 \begin{equation}
 	\label{cap3_triangle_x2_xr2}
-	\blue{\triangle} = x(t_1) = \bar{x}(\bar{t}_1) + \bar{F}_0 [ x(t_0) - \bar{x}(t_0) ] + [ \bar{F}_0 A_0 x(t_0) + A_0 \bar{G}_0 + B_0 ] \delta t_1 
+	\blue{\triangle} = x(t_1) = \bar{x}(\bar{t}_1) + \bar{F}_1 [ x(t_0) - \bar{x}(t_0) ] + [ \bar{F}_1 A_1 x(t_0) + A_1 \bar{G}_1 + B_1 ] \delta t_1 
 \end{equation}
 
 \noindent 
@@ -112,7 +112,7 @@ note that when $\blue{\triangle}$ is replaced in eq. \eqref{eq_xt2_xt1_0} it wil
 
 \noindent
 \begin{equation}
-	x(t_1)\delta t_1 = \bar{x}(\bar{t}_1)\delta t_1 + \bar{F}_0 \red{\overbrace{ [ x(t_0) - \bar{x}(t_0) ]\delta t_1 }^{\square}} + [ \bar{F}_0 A_0 x(t_0) + A_0 \bar{G}_0 + B_0 ] \purple{\overbrace{\delta t_1\delta t_1}^{\bigcirc}} 
+	x(t_1)\delta t_1 = \bar{x}(\bar{t}_1)\delta t_1 + \bar{F}_1 \red{\overbrace{ [ x(t_0) - \bar{x}(t_0) ]\delta t_1 }^{\square}} + [ \bar{F}_1 A_1 x(t_0) + A_1 \bar{G}_1 + B_1 ] \purple{\overbrace{\delta t_1\delta t_1}^{\bigcirc}} 
 	\nonumber
 \end{equation}
 
@@ -131,11 +131,11 @@ replacing \eqref{eq_cap3_lin_erro_x1x0_resultado} and \eqref{cap3_triangle_x2_xr
 \noindent
 \begin{equation}
 	\begin{split}
-		x(t_2) - \bar{x}(\bar{t}_2) =  & \bar{F}_1 \{\green{
-										\bar{F}_0 [x(t_0) - \bar{x}(t_0) + [\bar{F}_0 A_0 x(t_0) + A_0 \bar{G}_0 + B_0] \delta t_1]
+		x(t_2) - \bar{x}(\bar{t}_2) =  & \bar{F}_2 \{\green{
+										\bar{F}_1 [x(t_0) - \bar{x}(t_0) + [\bar{F}_1 A_1 x(t_0) + A_1 \bar{G}_1 + B_1] \delta t_1]
 								 }\} \\
-							     & \quad - \bar{F}_1 [A_1 \blue{\bar{x}(t_1)} + B_1] \delta t_1 \\
-							     & \quad + [ \bar{F}_1 A_1 \blue{\bar{x}(t_1)} + A_1 \bar{G}_1 + B_1] \delta t_2
+							     & \quad - \bar{F}_2 [A_2 \blue{\bar{x}(t_1)} + B_2] \delta t_1 \\
+							     & \quad + [ \bar{F}_2 A_2 \blue{\bar{x}(t_1)} + A_2 \bar{G}_2 + B_2] \delta t_2
 	\end{split}
 	\nonumber
 \end{equation}
@@ -144,8 +144,8 @@ replacing \eqref{eq_cap3_lin_erro_x1x0_resultado} and \eqref{cap3_triangle_x2_xr
 \boxeq{eq_cap3_lin_erro_x2x1_resultado}
 {
 	\begin{split}
-		x(t_2) - \bar{x}(\bar{t}_2) =  & \bar{F}_1 \bar{F}_0 [x(t_0) - \bar{x}(t_0)] \\
-							     & \quad + \bar{F}_1 [\bar{F}_0 A_0 x(t_0) + A_0 \bar{G}_0 - A_1 \bar{x}(\bar{t}_1) + B_0 - B_1] \delta t_1 \\
-							     & \quad + [\bar{F}_1 A_1 \bar{x}(\bar{t}_1) + A_1 \bar{G}_1 + B_1] \delta t_2
+		x(t_2) - \bar{x}(\bar{t}_2) =  & \bar{F}_2 \bar{F}_1 [x(t_0) - \bar{x}(t_0)] \\
+							     & \quad + \bar{F}_2 [\bar{F}_1 A_1 x(t_0) + A_1 \bar{G}_1 - A_2 \bar{x}(\bar{t}_1) + B_1 - B_2] \delta t_1 \\
+							     & \quad + [\bar{F}_2 A_2 \bar{x}(\bar{t}_1) + A_2 \bar{G}_2 + B_2] \delta t_2
 	\end{split}
 }

@@ -6,9 +6,9 @@ Repeating the procedure for $x(t_3)$ we have
 \noindent
 \begin{align}
 	\label{eq_cap3_lin_x3}
-	x(t_3)  &= e^{A_2(t_3-t_2)}x(t_2) + \intlinAA{2}{3}{}{} \\
+	x(t_3)  &= e^{A_3(t_3-t_2)}x(t_2) + \intlinAA{2}{3}{}{} \\
 	\label{eq_cap3_lin_xr3}
-	\bar{x}(\bar{t}_3) &= e^{A_2(\bar{t}_3-\bar{t}_2)}\bar{x}(\bar{t}_2) + \intlinAbtt{2}{3}
+	\bar{x}(\bar{t}_3) &= e^{A_3(\bar{t}_3-\bar{t}_2)}\bar{x}(\bar{t}_2) + \intlinAbtt{2}{3}
 \end{align}
 
 \noindent
@@ -18,7 +18,7 @@ subtracting \eqref{eq_cap3_lin_x3} from \eqref{eq_cap3_lin_xr3}
 \begin{equation}
 	\label{eq_cap3_lin_erro_x2x3}
 	\begin{split}
-		x(t_3) ->  - \bar{x}(\bar{t}_3) = \green{\overbrace{e^{A_2(t_3-t_2)}x(t_2) - e^{A_2(\bar{t}_3-\bar{t}_2)}\bar{x}(\bar{t}_2)}^{\square}} \\ 
+		x(t_3) ->  - \bar{x}(\bar{t}_3) = \green{\overbrace{e^{A_3(t_3-t_2)}x(t_2) - e^{A_3(\bar{t}_3-\bar{t}_2)}\bar{x}(\bar{t}_2)}^{\square}} \\ 
 		+ \orange{\underbrace{\intlinAA{2}{3}{}{} - \intlinAbtt{2}{3}}_{\bigcirc}}
 	\end{split}
 \end{equation}
@@ -30,21 +30,21 @@ expanding $\green{\square}$ in \eqref{eq_cap3_lin_erro_x2x3}:
 \begin{align}
 	\green{ \square } &=
 	\green{
-		e^{A_2(\bar{t}_3 + \delta t_3 - \bar{t}_2 - \delta t_2)} x(t_2)
-		- e^{A_2(\bar{t}_3 - \bar{t}_2)} \bar{x}(\bar{t}_2)
+		e^{A_3(\bar{t}_3 + \delta t_3 - \bar{t}_2 - \delta t_2)} x(t_2)
+		- e^{A_3(\bar{t}_3 - \bar{t}_2)} \bar{x}(\bar{t}_2)
 	} \nonumber \\
 	&= \green{
-		\blue{\Fri{2}{3}} \purple{e^{A_2(\delta t_3 - \delta t_2)}} x(t_2)
+		\blue{\Fri{2}{3}} \purple{e^{A_3(\delta t_3 - \delta t_2)}} x(t_2)
 		- \blue{\Fri{2}{3}} \bar{x}(\bar{t}_2)
 	} \nonumber \\
 	&= \green{
-		\blue{\bar{F}_2} \purple{[I + A_2(\delta t_3 - \delta t_2)]} x(t_2)
-		- \blue{\bar{F}_2} \bar{x}(\bar{t}_2)
+		\blue{\bar{F}_3} \purple{[I + A_3(\delta t_3 - \delta t_2)]} x(t_2)
+		- \blue{\bar{F}_3} \bar{x}(\bar{t}_2)
 	} \nonumber \\
 	\label{eq_cap3_lin_x3_green}
 	&= \green{
-		\bar{F}_2 [x(t_2) - \bar{x}(\bar{t}_2)] + \bar{F}_2 A_2 x(t_2) \delta t_3
-		- \bar{F}_2 A_2 x(t_2) \delta t_2
+		\bar{F}_3 [x(t_2) - \bar{x}(\bar{t}_2)] + \bar{F}_3 A_3 x(t_2) \delta t_3
+		- \bar{F}_3 A_3 x(t_2) \delta t_2
 	} 
 \end{align}
 
@@ -57,29 +57,29 @@ and expanding $\orange{\bigcirc}$:
 	\orange{\bigcirc} 	&= \orange{ \intlinAA{2}{3}{}{} - \intlinAbtt{2}{3} } \nonumber \\
 					   	&= \orange{ \intlinCb{\bar{t}_2+\delta t_2}{\bar{t}_3+\delta t_3}{2}{3} - \intlinAbtt{2}{3}} \nonumber \\
 						\begin{split}
-							&= \orange{ \purple{ e^{A_2 \delta t_3} }
+							&= \orange{ \purple{ e^{A_3 \delta t_3} }
 								\bigg[
 									\blue{\intlinAbtt{2}{3}} - \intlinBb{\bar{t}_2}{\bar{t}_2 + \delta t_2}{2}{3} + \intlinBb{\bar{t}_3}{\bar{t}_3 + \delta t_3}{2}{3} \bigg] } \\
 							& \qquad \orange{ - \blue{\intlinAbtt{2}{3}} }
 						\end{split} \nonumber \\
-						&= \orange{ \purple{(I + A_2 \delta t_3)}
+						&= \orange{ \purple{(I + A_3 \delta t_3)}
 							\bigg[
-								\blue{ \bar{G}_2 } - \pink{\intlinBb{\bar{t}_2}{\bar{t}_2 + \delta t_2}{2}{3}} + \brown{\intlinBb{\bar{t}_3}{\bar{t}_3 + \delta t_3}{2}{3}}
-							\bigg] - \blue{\bar{G}_2}
+								\blue{ \bar{G}_3 } - \pink{\intlinBb{\bar{t}_2}{\bar{t}_2 + \delta t_2}{2}{3}} + \brown{\intlinBb{\bar{t}_3}{\bar{t}_3 + \delta t_3}{2}{3}}
+							\bigg] - \blue{\bar{G}_3}
 						} \nonumber \\
-						&= \orange{ (I + A_2 \delta t_3)
+						&= \orange{ (I + A_3 \delta t_3)
 							\bigg[
-								\bar{G}_2 - \pink{e^{A_2(\bar{t}_3 - \bar{t}_2)} B_2 \delta t_2} + \brown{B_2 \delta t_3}
-							\bigg] - \bar{G}_2
+								\bar{G}_3 - \pink{e^{A_3(\bar{t}_3 - \bar{t}_2)} B_3 \delta t_2} + \brown{B_3 \delta t_3}
+							\bigg] - \bar{G}_3
 						} \nonumber \\
-						&= \orange{ (I + A_2 \delta t_3)
+						&= \orange{ (I + A_3 \delta t_3)
 							\bigg[
-								\bar{G}_2 - \pink{\bar{F}_2 B_2 \delta t_2} + B_2 \delta t_3
-							\bigg] - \bar{G}_2
+								\bar{G}_3 - \pink{\bar{F}_3 B_3 \delta t_2} + B_3 \delta t_3
+							\bigg] - \bar{G}_3
 						} \nonumber \\
-						&= \orange{ \cancel{\bar{G}_2} - \bar{F}_2 B_2 \delta t_2 + B_2 \delta t_3 + A_2 \bar{G}_2 \delta t_3 - \cancel{\bar{G}_2} } \nonumber \\
+						&= \orange{ \cancel{\bar{G}_3} - \bar{F}_3 B_3 \delta t_2 + B_3 \delta t_3 + A_3 \bar{G}_3 \delta t_3 - \cancel{\bar{G}_3} } \nonumber \\
 						\label{eq_cap3_lin_x3_orange}
-						&= \orange{ A_2 \bar{G}_2 \delta t_3 + B_2 \delta t_3 - \bar{F}_2 B_2 \delta t_2 }
+						&= \orange{ A_3 \bar{G}_3 \delta t_3 + B_3 \delta t_3 - \bar{F}_3 B_3 \delta t_2 }
 \end{align}
 
 \noindent 
@@ -90,9 +90,9 @@ for $x(t_3) - \bar{x}(\bar{t}_3)$
 \begin{align}
 	\label{eq_xt3_xt2_1_0}
 	\begin{split}
-		x(t_3) - \bar{x}(\bar{t}_3) =  & \bar{F}_2 [\green{x(t_2) - \bar{x}_2(\bar{t}_2)}] \\
-							     & - \bar{F}_2 [A_2 \blue{x(t_2)} + B_2] \delta t_2 \\
-							     & + [ \bar{F}_2 A_2 \blue{x(t_2)} + A_2 \bar{G}_2 + B_2] \delta t_3
+		x(t_3) - \bar{x}(\bar{t}_3) =  & \bar{F}_3 [\green{x(t_2) - \bar{x}_2(\bar{t}_2)}] \\
+							     & - \bar{F}_3 [A_3 \blue{x(t_2)} + B_3] \delta t_2 \\
+							     & + [ \bar{F}_3 A_3 \blue{x(t_2)} + A_3 \bar{G}_3 + B_3] \delta t_3
 	\end{split}
 \end{align}
 
@@ -102,11 +102,11 @@ from \eqref{eq_cap3_lin_erro_x2x1_resultado}, $\blue{\triangle}$ can be expanded
 \noindent
 \begin{align}
 	\begin{split}
-		x(t_3) - \bar{x}(\bar{t}_3) =  & \bar{F}_2 \{\green{\bar{F}_1\bar{F}_0[x(t_0) - \bar{x}(t_0)]} \\
-								 & \green{ + \bar{F}_1[\bar{F}_0 A_0 x(t_0) + A_0 \bar{G}_0 - A_1 \bar{x}(\bar{t}_1) + B_0 - B_1] \delta t_1 } \\
-								 & \green{ + [\bar{F}_1 A_1 \bar{x}(t_1) + A_1 \bar{G}_1 + B_1 ] \delta t_2 } \} \\
-							     & - \bar{F}_2 [A_2 \blue{\bar{x}(t_2)} + B_2] \delta t_2 \\
-							     & + [ \bar{F}_2 A_2 \blue{\bar{x}(t_2)} + A_2 \bar{G}_2 + B_2] \delta t_3
+		x(t_3) - \bar{x}(\bar{t}_3) =  & \bar{F}_3 \{\green{\bar{F}_2\bar{F}_1[x(t_0) - \bar{x}(t_0)]} \\
+								 & \green{ + \bar{F}_2[\bar{F}_1 A_1 x(t_0) + A_1 \bar{G}_1 - A_2 \bar{x}(\bar{t}_1) + B_1 - B_2] \delta t_1 } \\
+								 & \green{ + [\bar{F}_2 A_2 \bar{x}(t_1) + A_2 \bar{G}_2 + B_2 ] \delta t_2 } \} \\
+							     & - \bar{F}_3 [A_3 \blue{\bar{x}(t_2)} + B_3] \delta t_2 \\
+							     & + [ \bar{F}_3 A_3 \blue{\bar{x}(t_2)} + A_3 \bar{G}_3 + B_3] \delta t_3
 	\end{split}
 	\nonumber
 \end{align}
@@ -118,9 +118,9 @@ after rearranging the terms, one arrives at
 \boxeq{eq_cap3_lin_erro_x3x2_resultado}
 {
 	\begin{split}
-		x(t_3) - \bar{x}(\bar{t}_3) =  & \bar{F}_2\bar{F}_1\bar{F}_0 [x(t_0) - \bar{x}(t_0)] \\
-								 & + \bar{F}_2\bar{F}_1[\bar{F}_0 A_0 x(t_0) + A_0 \bar{G}_0 - A_1 \bar{x}(\bar{t}_1) + B_0 - B_1] \delta t_1 \\
-								 & + \bar{F}_2[\bar{F}_1 A_1 \bar{x}(t_1) + A_1 \bar{G}_1 - A_2 \bar{x}(\bar{t}_2) + B_1 - B_2 ] \delta t_2 \\
-							     & + [\bar{F}_2 A_2 \bar{x}(t_2) + A_2 \bar{G}_2 + B_2] \delta t_3
+		x(t_3) - \bar{x}(\bar{t}_3) =  & \bar{F}_3\bar{F}_2\bar{F}_1 [x(t_0) - \bar{x}(t_0)] \\
+								 & + \bar{F}_3\bar{F}_2[\bar{F}_1 A_1 x(t_0) + A_1 \bar{G}_1 - A_2 \bar{x}(\bar{t}_1) + B_1 - B_2] \delta t_1 \\
+								 & + \bar{F}_3[\bar{F}_2 A_2 \bar{x}(t_1) + A_2 \bar{G}_2 - A_3 \bar{x}(\bar{t}_2) + B_2 - B_3 ] \delta t_2 \\
+							     & + [\bar{F}_3 A_3 \bar{x}(t_2) + A_3 \bar{G}_3 + B_3] \delta t_3
 	\end{split}
 }

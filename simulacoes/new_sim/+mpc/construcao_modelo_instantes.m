@@ -6,12 +6,13 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr)
     
     tr  = reshape(tr, [numel(tr), 1]);
     
-    N   = length(Ac);
-    T   = tr(N);
+    N   = length(tr); % calcular apenas uma vez N
+
+    % T   = tr(N);
     % Dur = diff(ur); % Dur = [Dur1, Dur2, ..., DurN-1 ]
     
     % Phi = expm(Ac*T);
-    tam = N;
+    tam = N-1;
     Phi = eye(size(Ac{1}));
     Ts  = [0; tr];
     Fr  = cell(tam, 1);
@@ -25,10 +26,25 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr)
         Phi   = Phi*Fr{i};
     end
     
+    % FIXME: check de sanidade da equacao e indices
     Xr = xr;
-    for i = 1:(N-1)
-        FF = eye(size(Fr{i}));
-        for j = (N):-1:i+1
+    I  = eye(size(Fr{i}));
+
+
+    p = N-1; % numero de variaveis manipuladas
+    for i = 1:p-1
+
+        % FF_1 = F_{n} * F_{n-1}... F{2}
+        % FF_2 = F_{n} * F_{n-1}... F{3}
+        % ...
+        % FF_2 = F_{n}
+
+        
+        fim = p;
+        ini = i + 1;
+
+        FF = I;
+        for j = fim:-1:ini
             FF = FF*Fr{j};
         end
         
@@ -36,4 +52,7 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr)
         Gamma(:,i) = FF*((Ac{i}-Ac{i+1})*Xr(i,:)' + Bc{i} - Bc{i+1});
     end
 
+    Gamma(:,p) = (Ac{p}*Xr(p,:)' + Bc{p});
+
+    bla = 1;
 end

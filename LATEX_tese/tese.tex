@@ -107,7 +107,7 @@
 \newcommand{\intlinAbtt}[2]
 {
     \int_{\bar{t}_#1}^{\bar{t}_#2}
-    {e^{A_#1(\bar{t}_#2 - \tau)} B_#1 d \tau}
+    {e^{A_#2(\bar{t}_#2 - \tau)} B_#2 d \tau}
 }
 % #1: idx parte de baixo da integral
 % #2: idx parte de cima da integral
@@ -118,7 +118,7 @@
 \newcommand{\intlinAbft}[2]
 {
     \int_{t_#1}^{\bar{t}_#2}
-    {e^{A_#1(\bar{t}_#2 - \tau)} B_#1 d \tau}
+    {e^{A_#2(\bar{t}_#2 - \tau)} B_#2 d \tau}
 }
 % #1: idx parte de baixo da integral
 % #2: idx parte de cima da integral
@@ -129,7 +129,7 @@
 \newcommand{\intlinAA}[4]
 {
     \int_{t_{#3_#1}}^{t_{#4_#2}}
-    {e^{A_#1(t_{#2} - \tau)} B_#1 d \tau}
+    {e^{A_#2(t_{#2} - \tau)} B_#2 d \tau}
 }
 % mesmo que `\intlinAA`, porem com: exp(Ai(ti - tau)) ao inves de exp(Ai(tri - tau))
 %
@@ -138,7 +138,7 @@
 \newcommand{\intlinB}[4]
 {
     \int_{#1}^{#2}
-    {e^{A_#3(t_{r_#4} - \tau)} B_#3 d \tau}
+    {e^{A_#4(t_{r_#4} - \tau)} B_#4 d \tau}
 }
 % #1: parte de baixo da integral
 % #2: parte de cima da integral
@@ -149,7 +149,7 @@
 \newcommand{\intlinBb}[4]
 {
     \int_{#1}^{#2}
-    {e^{A_#3(\bar{t}_#4 - \tau)} B_#3 d \tau}
+    {e^{A_#4(\bar{t}_#4 - \tau)} B_#4 d \tau}
 }
 % #1: parte de baixo da integral
 % #2: parte de cima da integral
@@ -171,7 +171,7 @@
 \newcommand{\intlinCb}[4]
 {
     \int_{#1}^{#2}
-    {e^{A_#3(\bar{t}_#4 + \delta t_#4 - \tau)} B_#3 d \tau}
+    {e^{A_#4(\bar{t}_#4 + \delta t_#4 - \tau)} B_#4 d \tau}
 }
 % #1: parte de baixo da integral
 % #2: parte de cima da integral
@@ -190,7 +190,7 @@
 % _#4: nro de Ai e Bi
 % exemplo: \intlinG{0}{t}{t}{_0}
 
-\newcommand{\Fri}[2]{e^{A_#1(\bar{t}_#2 - \bar{t}_#1)}}
+\newcommand{\Fri}[2]{e^{A_#2(\bar{t}_#2 - \bar{t}_#1)}}
 
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 % Espaçamento padrão de todo o documento
