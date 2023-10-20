@@ -36,7 +36,6 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr)
     Xr = xr;
     I  = eye(size(Fr{i}));
 
-
     p = N-1; % numero de variaveis manipuladas
     for i = 1:p-1
 
@@ -44,13 +43,9 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr)
         % FF_2 = F_{n} * F_{n-1}... F{3}
         % ...
         % FF_2 = F_{n}
-
         
-        fim = p;
-        ini = i + 1;
-
         FF = I;
-        for j = fim:-1:ini
+        for j = p:-1:(i+1)
             FF = FF*Fr{j};
         end
 
