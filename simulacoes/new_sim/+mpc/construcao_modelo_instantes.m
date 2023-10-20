@@ -1,9 +1,15 @@
 function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr)
 
-    % tr = [tr1, tr2, ..., trN]'
-    % Assume-se tr0 = 0 e, portanto, T = trN
-    % ur = [ur(tr0), ur(tr1), ..., ur(trN-1)]
-    
+    % Phi   = F_{N} F_{N-1} ... F_1
+
+    % Gamma = [ 
+    %          F_{N} F_{N-1} ... F_2 [(A_1 - A_2) x_bar(t_1) + B_1 - B_2
+    %          F_{N} F_{N-1} ... F_3 [(A_2 - A_3) x_bar(t_2) + B_2 - B_3
+    %                                     ...
+    %          F_{N} [(A_{N-1} - A_{N}) x_bar(t_{N-1}) + B_{N-1} - B_{N}
+    %          A_N x_bar(t_N) + B_{N}
+    %         ]
+
     tr  = reshape(tr, [numel(tr), 1]);
     
     N   = length(tr); % calcular apenas uma vez N
@@ -47,12 +53,9 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr)
         for j = fim:-1:ini
             FF = FF*Fr{j};
         end
-        
-        % Gamma(:,i) = FF*(Fr{i}*Ac{i}*Xr(i,:)' + Ac{i}*Gri + Bc{i} + Bc{i+1});
+
         Gamma(:,i) = FF*((Ac{i}-Ac{i+1})*Xr(i,:)' + Bc{i} - Bc{i+1});
     end
 
     Gamma(:,p) = (Ac{p}*Xr(p,:)' + Bc{p});
-
-    bla = 1;
 end

@@ -1,11 +1,10 @@
 %% rodando simulacao como resultado da trajetoria
 cfg = config;
 
-cfg.mpc = mpc;
 cfg.mpc.on = true;
 
 
-nsim = 10;
+nsim = 20;
 
 % cfg.x0 = cfg.x0 + [4.5; 1.1; 3.1];
 % cfg.x0 = [0.0, 0.0, 0.0];

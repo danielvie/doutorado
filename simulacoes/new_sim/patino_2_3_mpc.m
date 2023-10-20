@@ -35,7 +35,7 @@ c = [
 
 % criando estrutura com dados MPC
 mpc          = struct();
-mpc.on       = 1;
+mpc.on       = true;
 
 mpc.x_target = config.x0;
 mpc.H        = H;
@@ -50,3 +50,6 @@ mpc.Sf       = Sf;
 mpc.bf       = bf;
 mpc.PhiNp    = PhiNp;
 mpc.p        = p;
+
+mpc.options  = optimoptions('quadprog', 'Algorithm', 'active-set');
+config.mpc   = mpc;
