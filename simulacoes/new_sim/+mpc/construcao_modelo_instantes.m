@@ -1,4 +1,4 @@
-function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr)
+function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr,config)
 
     % Phi   = F_{N} F_{N-1} ... F_1
 
@@ -16,10 +16,12 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr)
 
     % T   = tr(N);
     % Dur = diff(ur); % Dur = [Dur1, Dur2, ..., DurN-1 ]
-    
+
+    Omega = config.modes + 1;
+
     % Phi = expm(Ac*T);
     tam = N-1;
-    Phi = eye(size(Ac{1}));
+    Phi = eye(size(Ac{Omega(1)}));
     Ts  = [0; tr];
     Fr  = cell(tam, 1);
     for i = 1:tam
@@ -28,7 +30,7 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr)
         
         dti   = tti - ti;
         
-        Fr{i} = expm(Ac{i}*dti);
+        Fr{i} = expm(Ac{Omega(i)}*dti);
         Phi   = Phi*Fr{i};
     end
     
@@ -49,8 +51,8 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr)
             FF = FF*Fr{j};
         end
 
-        Gamma(:,i) = FF*((Ac{i}-Ac{i+1})*Xr(i,:)' + Bc{i} - Bc{i+1});
+        Gamma(:,i) = FF*((Ac{Omega(i)}-Ac{Omega(i+1)})*Xr(i,:)' + Bc{Omega(i)} - Bc{Omega(i+1)});
     end
 
-    Gamma(:,p) = (Ac{p}*Xr(p,:)' + Bc{p});
+    Gamma(:,p) = (Ac{Omega(p)}*Xr(p,:)' + Bc{Omega(p)});
 end
