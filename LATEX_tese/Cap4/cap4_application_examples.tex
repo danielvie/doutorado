@@ -1,409 +1,60 @@
 \section{Application Examples}
 
 \subsection{Integrador duplo}
-\subsection{Patino 1}
+\subsection{Buck-boost converter}
+This example
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{Cap4/fig/graf_ex1_1.pdf}
+    \caption{fig 1}
+    \label{cap4-graf-ex1-1}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{Cap4/fig/graf_ex1_2.pdf}
+    \caption{fig 2}
+    \label{cap4-graf-ex1-2}
+\end{figure}
+
+
 \subsection{Patino 2}
 
-Matrizes do artigo patino exemplo 2:
 
-\begin{equation}
-	\left[ \begin{array}{c}
-		\dot{x}_1(t) \\
-		\dot{x}_2(t) \\
-		\dot{x}_3(t)
-	\end{array} \right]
-	=
-	\left[ \begin{array}{ccc}
-		-\frac{x_3(t)}{C_1} & \frac{x_3(t)}{C_1} & 0 \\
-		0 & -\frac{x_3(t)}{C_2} & \frac{x_3(t)}{C_2} \\
-		\frac{x_1(t)}{L} & -\frac{x_2(t) - x_1(t)}{L} & \frac{E - x_2(t)}{L}
-	\end{array} \right]
-	\left[ \begin{array}{c}
-		u_1(t) \\
-		u_2(t) \\
-		u_3(t)
-	\end{array} \right]
-	+
-	\left[ \begin{array}{c}
-		0 \\
-		0 \\
-		-\frac{R}{L}x_3(t)
-	\end{array} \right]
-\end{equation}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{Cap4/fig/graf_ex2_1.pdf}
+    \caption{fig 1}
+    \label{cap4-graf-ex2-1}
+\end{figure}
 
-\begin{equation}
-	A = 
-	\left[
-		\begin{array}{ccc}
-			-\frac{x_3(t)}{C_1} & \frac{x_3(t)}{C_1} & 0 \\
-			0 & -\frac{x_3(t)}{C_2} & \frac{x_3(t)}{C_2} \\
-			\frac{x_1(t)}{L} & \frac{x_2(t) - x_1(t)}{L} & \frac{E-x_2(t)}{L}
-		\end{array}
-	\right]
-\end{equation}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{Cap4/fig/graf_ex2_2.pdf}
+    \caption{fig 2}
+    \label{cap4-graf-ex2-2}
+\end{figure}
 
-\begin{equation}
-	\begin{split}
-		\mathbf{u_0} = 
-		\left[
-			\begin{array}{ccc}
-				0 & 0 & 0
-			\end{array}
-		\right]^T \\
-		\mathbf{u_1} = 
-		\left[
-			\begin{array}{ccc}
-				0 & 0 & 1
-			\end{array}
-		\right]^T \\
-		\mathbf{u_2} = 
-		\left[
-			\begin{array}{ccc}
-				0 & 1 & 0
-			\end{array}
-		\right]^T \\
-		\mathbf{u_3} = 
-		\left[
-			\begin{array}{ccc}
-				0 & 1 & 1
-			\end{array}
-		\right]^T \\
-		\mathbf{u_4} = 
-		\left[
-			\begin{array}{ccc}
-				1 & 0 & 0
-			\end{array}
-		\right]^T \\
-		\mathbf{u_5} = 
-		\left[
-			\begin{array}{ccc}
-				1 & 0 & 1
-			\end{array}
-		\right]^T \\
-		\mathbf{u_6} = 
-		\left[
-			\begin{array}{ccc}
-				1 & 1 & 0
-			\end{array}
-		\right]^T \\
-		\mathbf{u_7} = 
-		\left[
-			\begin{array}{ccc}
-				1 & 1 & 1
-			\end{array}
-		\right]^T \\
-	\end{split}
-\end{equation}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{Cap4/fig/graf_ex2_3.pdf}
+    \caption{fig 3}
+    \label{cap4-graf-ex2-3}
+\end{figure}
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{Cap4/fig/graf_ex2_4.pdf}
+    \caption{fig 4}
+    \label{cap4-graf-ex2-4}
+\end{figure}
 
-\begin{equation}
-	A_{u_0}=A \mathbf{u_0}=
-	\left[
-		\begin{array}{c}
-			0 \\
-			0 \\
-			\frac{-R x_3(t)}{L}
-		\end{array}
-	\right]
-\end{equation}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{Cap4/fig/graf_ex2_5.pdf}
+    \caption{Variant Dynamic Circuit 2: State Trajectory}
+    \label{cap4-graf-ex2-5}
+\end{figure}
 
-\begin{equation}
-	A_{u_1}=A \mathbf{u_1}=
-	\left[
-		\begin{array}{c}
-			0 \\
-			\frac{x_3(t)}{C_2} \\
-			\frac{E-x_2(t)-R x_3(t)}{L}
-		\end{array}
-	\right]
-\end{equation}
-
-\begin{equation}
-	A_{u_2}=A \mathbf{u_2}=
-	\left[
-		\begin{array}{c}
-			\frac{x_3(t)}{C_1} \\
-			\frac{-x_3(t)}{C_2} \\
-			\frac{x_2(t)-x_1(t)-R x_3(t)}{L}
-		\end{array}
-	\right]
-\end{equation}
-
-\begin{equation}
-	A_{u_3}=A \mathbf{u_3}=
-	\left[
-		\begin{array}{c}
-			\frac{x_3(t)}{C_1} \\
-			0 \\
-			\frac{E-x_1(t)-R x_3(t)}{L}
-		\end{array}
-	\right]
-\end{equation}
-
-\begin{equation}
-	A_{u_4}=A \mathbf{u_4}=
-	\left[
-		\begin{array}{c}
-			\frac{-x_3(t)}{C_1} \\
-			0 \\
-			\frac{x_1(t)-R x_3(t)}{L}
-		\end{array}
-	\right]
-\end{equation}
-
-\begin{equation}
-	A_{u_5}=A \mathbf{u_5}=
-	\left[
-		\begin{array}{c}
-			\frac{-x_3(t)}{C_1} \\
-			\frac{x_3(t)}{C_2} \\
-			\frac{E-x_1(t)-x_2(t)-R x_3(t)}{L}
-		\end{array}
-	\right]
-\end{equation}
-
-\begin{equation}
-	A_{u_6}=A \mathbf{u_6}=
-	\left[
-		\begin{array}{c}
-			0 \\
-			\frac{-x_3(t)}{C_2} \\
-			\frac{x_2(t)-R x_3(t)}{L}
-		\end{array}
-	\right]
-\end{equation}
-
-\begin{equation}
-	A_{u_7}=A \mathbf{u_7}=
-	\left[
-		\begin{array}{c}
-			0 \\
-			0 \\
-			\frac{E-R x_3(t)}{L}
-		\end{array}
-	\right]
-\end{equation}
-
-% A_u0
-\begin{equation}
-	\dot{X}=A_{u0}X+B_{0}u=
-	\left[
-		\begin{array}{ccc}
-			0&0&0 \\
-			0&0&0 \\
-			0&0&-\frac{R}{L} 
-		\end{array}
-	\right]
-	\left[
-		\begin{array}{c}
-			x_1(t)\\
-			x_2(t)\\
-			x_3(t)
-		\end{array}
-	\right]
-	+
-	\left[
-		\begin{array}{c}
-			0\\
-			0\\
-			0
-		\end{array}
-	\right]
-	u
-\end{equation}
-
-% A_u1
-\begin{equation}
-	\dot{X}=A_{u1}X+B_{1}u=
-	\left[
-		\begin{array}{ccc}
-			0&0&0 \\
-			0&0&\frac{1}{C_2} \\
-			0&-\frac{1}{L}&-\frac{R}{L} 
-		\end{array}
-	\right]
-	\left[
-		\begin{array}{c}
-			x_1(t)\\
-			x_2(t)\\
-			x_3(t)
-		\end{array}
-	\right]
-	+
-	\left[
-		\begin{array}{c}
-			0\\
-			0\\
-			\frac{E}{L}
-		\end{array}
-	\right]
-	u
-\end{equation}
-
-% A_u2
-\begin{equation}
-	\dot{X}=A_{u2}X+B_{2}u=
-	\left[
-		\begin{array}{ccc}
-			0&0&\frac{1}{C_1} \\
-			0&0&-\frac{1}{C_2} \\
-			-\frac{1}{L}&\frac{1}{L}&-\frac{R}{L} 
-		\end{array}
-	\right]
-	\left[
-		\begin{array}{c}
-			x_1(t)\\
-			x_2(t)\\
-			x_3(t)
-		\end{array}
-	\right]
-	+
-	\left[
-		\begin{array}{c}
-			0\\
-			0\\
-			0
-		\end{array}
-	\right]
-	u
-\end{equation}
-
-% A_u3
-\begin{equation}
-	\dot{X}=A_{u3}X+B_{3}u=
-	\left[
-		\begin{array}{ccc}
-			0&0&\frac{1}{C_1} \\
-			0&0&\frac{1}{C_2} \\
-			-\frac{1}{L}&0&-\frac{R}{L} 
-		\end{array}
-	\right]
-	\left[
-		\begin{array}{c}
-			x_1(t)\\
-			x_2(t)\\
-			x_3(t)
-		\end{array}
-	\right]
-	+
-	\left[
-		\begin{array}{c}
-			0\\
-			0\\
-			\frac{E}{L}
-		\end{array}
-	\right]
-	u
-\end{equation}
-
-% A_u4
-\begin{equation}
-	\dot{X}=A_{u4}X+B_{4}u=
-	\left[
-		\begin{array}{ccc}
-			0&0&\frac{1}{C_1} \\
-			0&0&0 \\
-			-\frac{1}{L}&0&-\frac{R}{L} 
-		\end{array}
-	\right]
-	\left[
-		\begin{array}{c}
-			x_1(t)\\
-			x_2(t)\\
-			x_3(t)
-		\end{array}
-	\right]
-	+
-	\left[
-		\begin{array}{c}
-			0\\
-			0\\
-			0
-		\end{array}
-	\right]
-	u
-\end{equation}
-
-% A_u5
-\begin{equation}
-	\dot{X}=A_{u5}X+B_{5}u=
-	\left[
-		\begin{array}{ccc}
-			0&0&-\frac{1}{C_1} \\
-			0&0&\frac{1}{C_2} \\
-			\frac{1}{L}&-\frac{1}{L}&-\frac{R}{L} 
-		\end{array}
-	\right]
-	\left[
-		\begin{array}{c}
-			x_1(t)\\
-			x_2(t)\\
-			x_3(t)
-		\end{array}
-	\right]
-	+
-	\left[
-		\begin{array}{c}
-			0\\
-			0\\
-			\frac{E}{L}
-		\end{array}
-	\right]
-	u
-\end{equation}
-
-% A_u6
-\begin{equation}
-	\dot{X}=A_{u6}X+B_{6}u=
-	\left[
-		\begin{array}{ccc}
-			0&0&0\\
-			0&0&\frac{1}{C_2} \\
-			0&-\frac{1}{L}&-\frac{R}{L} 
-		\end{array}
-	\right]
-	\left[
-		\begin{array}{c}
-			x_1(t)\\
-			x_2(t)\\
-			x_3(t)
-		\end{array}
-	\right]
-	+
-	\left[
-		\begin{array}{c}
-			0\\
-			0\\
-			0
-		\end{array}
-	\right]
-	u
-\end{equation}
-
-% A_u7
-\begin{equation}
-	\dot{X}=A_{u7}X+B_{7}u=
-	\left[
-		\begin{array}{ccc}
-			0&0&0\\
-			0&0&0\\
-			0&0&-\frac{R}{L} 
-		\end{array}
-	\right]
-	\left[
-		\begin{array}{c}
-			x_1(t)\\
-			x_2(t)\\
-			x_3(t)
-		\end{array}
-	\right]
-	+
-	\left[
-		\begin{array}{c}
-			0\\
-			0\\
-			\frac{E}{L}
-		\end{array}
-	\right]
-	u
-\end{equation}
