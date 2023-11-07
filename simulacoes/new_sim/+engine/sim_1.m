@@ -32,7 +32,7 @@ function [y,t,u,m,xr,yi_, dt_] = sim_1(config)
     dt_ = zeros(n_modes, nstates);
     for i = 1:n_modes
         % lendo modo de operacao (indice do modo inicia em `0`)
-        imode = config_.Omega(i) + 1;
+        imode = config_.Omega(i);
                 
         % lendo matrizes A e B 
         Ai = config_.A{imode};

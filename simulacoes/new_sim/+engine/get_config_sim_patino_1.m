@@ -35,7 +35,7 @@ function config = get_config_sim_patino_1()
       % r: 
 
       % montando `config`
-      config.Omega  = [0, 1]; % modo de operacao
+      config.Omega  = [1, 2]; % modo de operacao
       config.ur     = [1, 0]; % controle associado com modo
       
       config.A = {A1, A2};

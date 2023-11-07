@@ -6,7 +6,7 @@ function x0 = get_x0(config)
     F  = cell(n,1);
     G  = cell(n,1);
     for i = 1:n
-        mi = config.Omega(i) + 1;
+        mi = config.Omega(i);
         Ai = config.A{mi};
         Bi = config.b{mi};
 

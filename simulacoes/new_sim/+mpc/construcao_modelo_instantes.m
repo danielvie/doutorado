@@ -17,7 +17,7 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr,config)
     % T   = tr(N);
     % Dur = diff(ur); % Dur = [Dur1, Dur2, ..., DurN-1 ]
 
-    Omega = config.Omega + 1;
+    Omega = config.Omega;
 
     % Phi = expm(Ac*T);
     tam = N-1;

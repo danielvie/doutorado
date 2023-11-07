@@ -43,7 +43,7 @@ function Xr = get_xr(config)
     
     Xr = reshape(config.x0, [1, numel(config.x0)]);
     for i = 1:numel(M)
-        mi  = M(i) + 1;
+        mi  = M(i);
         Ai  = A{mi};
         Bi  = B{mi};
         dti = Ts(i+1) - Ts(i);

@@ -20,7 +20,7 @@ function [yi_, dt_] = sim_1_custo(config)
     dt_modes = diff(config.Ts);
     for i = 1:n_modes
         % lendo modo de operacao (indice do modo inicia em `0`)
-        imode = config.Omega(i) + 1;
+        imode = config.Omega(i);
                 
         % lendo matrizes A e B 
         Ai = config.A{imode};
