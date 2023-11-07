@@ -43,25 +43,19 @@ zlabel('i_L [A]');
 set(gca,'fontsize', 15);
 
 
-
+% plotando diferencas
 
 mref = config.modes + 1;
 mref = [mref, mref(1)];
 tref = config.Ts;
 
 % t = bla.t;
+m1_off = m_off + 1;
 m1 = m + 1;
 % y = bla.y;
 
-tend = t(end);
-
-while (tref(end) < t(end))
-    tref = [tref, tref + tref(end)];
-    mref = [mref, mref];
-end
-
 f5 = figure();
-stairs(tref, mref, 'linew', 2);
+stairs(t_off, m1_off, 'linew', 2);
 hold on;
 stairs(t, m1, 'linew', 2, 'linestyle', '--');
 hold off;
@@ -72,21 +66,20 @@ ylabel('mode');
 set(gca,'fontsize', 15);
 legend('modes target trajectory', 'modes simulation');
 
-
 %% saving figures
-save_figure(f1, "graf_ex2_1.pdf")
-save_figure(f2, "graf_ex2_2.pdf")
-save_figure(f3, "graf_ex2_3.pdf")
-save_figure(f4, "graf_ex2_4.pdf")
-save_figure(f5, "graf_ex2_5.pdf");
+% save_figure(f1, "graf_ex2_1.pdf")
+% save_figure(f2, "graf_ex2_2.pdf")
+% save_figure(f3, "graf_ex2_3.pdf")
+% save_figure(f4, "graf_ex2_4.pdf")
+% save_figure(f5, "graf_ex2_5.pdf");
 
 %% copy figures
 
 % cap 2
-copyfile("graf_ex2_1.pdf", "../../LATEX_tese/Cap4/fig/");
-copyfile("graf_ex2_2.pdf", "../../LATEX_tese/Cap4/fig/");
-copyfile("graf_ex2_3.pdf", "../../LATEX_tese/Cap4/fig/");
-copyfile("graf_ex2_4.pdf", "../../LATEX_tese/Cap4/fig/");
+% copyfile("graf_ex2_1.pdf", "../../LATEX_tese/Cap4/fig/");
+% copyfile("graf_ex2_2.pdf", "../../LATEX_tese/Cap4/fig/");
+% copyfile("graf_ex2_3.pdf", "../../LATEX_tese/Cap4/fig/");
+% copyfile("graf_ex2_4.pdf", "../../LATEX_tese/Cap4/fig/");
 
 % cap 4
-copyfile("graf_ex2_5.pdf", "../../LATEX_tese/Cap4/fig/");
+% copyfile("graf_ex2_5.pdf", "../../LATEX_tese/Cap4/fig/");

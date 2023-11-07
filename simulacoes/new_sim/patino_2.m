@@ -108,7 +108,7 @@ function cfg_out = patino_2(savefig)
         save_figure(f4, "graf_ex2_4.pdf");
 
         %% copy figures to latex
-        copyfile('graf_ex2_*.pdf', "../../LATEX_tese/Cap2/fig/");
+        % copyfile('graf_ex2_*.pdf', "../../LATEX_tese/Cap2/fig/");
     end
 
     % defining output in case it is set by the caller

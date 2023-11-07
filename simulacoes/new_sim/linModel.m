@@ -10,7 +10,8 @@ function [Phi,Gamma] = linModel(A,b,Omega,xbar0,Dt)
 % xbar0 : Estado inicial do ciclo
 % Dt : Intervalos de tempo entre os instantes de chaveamento
 
-N = length(A); % Number of switchings within a cycle
+% N = length(A); % Number of switchings within a cycle
+N = length(Omega); % Number of switchings within a cycle
 n = size(A{1},1);
 
 % Fa matrices

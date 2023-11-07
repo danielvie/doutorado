@@ -60,10 +60,17 @@ config.mpc.PhiNp    = PhiNp;
 config.mpc.p        = p;
 
 %% RODANDO SIMULACAO
-nsim      = 10;
+nsim      = 30;
 
 config.x0 = config.x0 + [-1; .5];
 [y,t,u,m] = engine.sim_n(config, nsim);
 
+
+
+
 plot(y(:,1), y(:,2));
 grid on;
+hold on;
+plot(y(1,1), y(1,2), 'ro');
+hold off;
+

@@ -3,13 +3,14 @@
 clear
 
 % get configuration
-config = engine.get_config_sim_patino_1();
+config = engine.get_config_sim_intduplo();
 
 %% calculo da trajetoria
-[config, x, fval] = engine.otmin(config);
+% [config, x, fval] = engine.otmin(config);
 
 %% construindo MPC
 % montando valores de referencia
+
 tr  = config.Ts(2:end);
 ur  = [1, 0];
 dtr = diff(config.Ts);
@@ -24,12 +25,14 @@ R  = eye(p);
 Np = 2;
 
 % parametros das restricoes de chaveamento
-t_on  = 0.25;
-t_off = 0.25;
+t_on  = 1.625;
+t_off = 0.635;
 
 c = [
     -dtr(1) + t_on;
     -dtr(2) + t_off;
+    -dtr(3) + t_on;
+    -dtr(4) + t_off;
 ];
 
 [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = ...
@@ -70,8 +73,8 @@ cfg.mpc.on = 0;
 % plot dos resultados
 f1 = figure(1);
 
-plot(y_off(:,1), y_off(:,2), 'linew', 1.2);
-hold on;
+% plot(y_off(:,1), y_off(:,2), 'linew', 1.2);
+% hold on;
 plot(y(:,1), y(:,2), 'linew', 1.2);
 hold off;
 
@@ -91,14 +94,13 @@ f2 = figure(2);
 stairs(t_off, m1_off, 'linew', 2);
 hold on;
 stairs(t, m1, 'linew', 2, 'linestyle', '--');
-hold off;
-xlim([0, 5]);
+hold off;   
+% xlim([0, 5]);
 grid on;
 xlabel('time (s)');
 ylabel('mode');
 set(gca,'fontsize', 15);
 legend('modes target trajectory', 'modes simulation');
-
 
 %% save figures
 save_figure(f1, "graf_ex1_1.pdf")

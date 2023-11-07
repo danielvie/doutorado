@@ -6,9 +6,6 @@
 
 cfg = config;
 
-cfg.mpc.on = true;
-
-
 nsim = 50;
 
 % estados
@@ -16,14 +13,12 @@ nsim = 50;
 % 2. vc2
 % 3. i
 
+% adicionando erros
 cfg.x0  = config.x0 + [-2;1;-1];
-% cfg.x0 = config.x0 + [0.5; 1.1; 3.1];
-% cfg.x0 = [0.0, 0.0, 0.0];
-% cfg.x0 = [19.2928,9.9247,0.9823];
 
 
-% config_.x0 = x0;
-% [y,t,u] = sim_1(config_);
-
+cfg.mpc.on = true;
 [y,t,u,m,dtk_out] = engine.sim_n(cfg, nsim);
 
+cfg.mpc.on = false;
+[y_off,t_off,u_off,m_off,dtk_out_off] = engine.sim_n(cfg, nsim);

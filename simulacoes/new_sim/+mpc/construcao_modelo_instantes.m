@@ -24,11 +24,15 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr,config)
     Phi = eye(size(Ac{Omega(1)}));
     Ts  = [0; tr];
     Fr  = cell(tam, 1);
+    
+    dd = [];
     for i = 1:tam
         tti   = Ts(i+1);
         ti    = Ts(i);
         
         dti   = tti - ti;
+        
+        dd    = [dd,dti];
         
         Fr{i} = expm(Ac{Omega(i)}*dti);
         Phi   = Phi*Fr{i};
@@ -55,4 +59,24 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr,config)
     end
 
     Gamma(:,p) = (Ac{Omega(p)}*Xr(p,:)' + Bc{Omega(p)});
+    
+    if (isfield(config, 'kawa')) 
+        if (config.kawa == 1)
+            disp('USANDO MODELO EXTENDIDO');
+            disp('USANDO MODELO EXTENDIDO');
+            disp('USANDO MODELO EXTENDIDO');
+            disp('USANDO MODELO EXTENDIDO');
+            disp('USANDO MODELO EXTENDIDO');
+            disp('USANDO MODELO EXTENDIDO');
+            disp('USANDO MODELO EXTENDIDO');
+            disp('USANDO MODELO EXTENDIDO');
+            A = config.Ac;
+            b = config.Bc;
+            Omega = config.modes + 1;
+            xbar0 = xr(1,:)';
+            Dt = diff(config.Ts);
+
+            [Phi, Gamma] = linModel(A,b,Omega,xbar0,Dt);
+        end
+    end
 end

@@ -7,6 +7,16 @@ xr  = engine.get_xr(config);
 
 [Phi, Gamma] = mpc.construcao_modelo_instantes(config.Ac, config.Bc, tr, xr, config);
 
+A = config.Ac;
+b = config.Bc;
+Omega = config.modes + 1;
+xbar0 = xr(1,:)';
+Dt = diff(config.Ts);
+
+%[Phi,Gamma] = linModel(A,b,Omega,xbar0,Dt);
+
+
+% Gamma = [Gamma, Gamma_(:, end)];
 
 N  = numel(tr);
 

@@ -3,7 +3,7 @@
 % CONFIG
 % --------------------------------------
 
-function config = get_config_sim_matheus()
+function config = get_config_sim_intduplo()
       % equacoes integrador duplo
       Ac  = [0, 1;0, 0];
       Bc  = [0; 1];
@@ -30,7 +30,7 @@ function config = get_config_sim_matheus()
       config.Cc = Cc;
       config.Dc = Dc;
       
-      config.tstep = 1e-5;
+      config.tstep = 0.01;
       config.xref  = xref;
       config.tmin  = tmin;
       config.Q     = Q;
@@ -40,4 +40,5 @@ function config = get_config_sim_matheus()
       
       config.Ts    = [0, 2, 3, 5, 6];
       config.x0    = [-0.5; -1];
+      
 end
