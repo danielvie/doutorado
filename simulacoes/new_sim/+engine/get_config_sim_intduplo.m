@@ -20,7 +20,7 @@ function config = get_config_sim_intduplo()
       r     = 1;
       % r: 
 
-      config.Omega  = [0, 1, 2, 3]; % modo de operacao
+      config.Omega  = [1, 2, 3, 4]; % modo de operacao
       config.ur     = [1, 0, 1, 0]; % controle associado com modo
       
       config.A = {A, A, A, A};

@@ -16,7 +16,7 @@ ur  = [1, 0];
 dtr = diff(config.Ts);
 xr  = engine.get_xr(config);
 
-[Phi, Gamma] = mpc.construcao_modelo_instantes(config.Ac, config.Bc, tr, xr, config);
+[Phi, Gamma] = mpc.construcao_modelo_instantes(config.A, config.b, tr, xr, config);
 
 N  = numel(tr);
 p  = N - 1;
@@ -78,7 +78,7 @@ f1 = figure(1);
 plot(y(:,1), y(:,2), 'linew', 1.2);
 hold off;
 
-legend('mpc off', 'mpc on');
+% legend('mpc off', 'mpc on');
 grid on;
 axis equal;
 xlabel('v_c');
@@ -87,13 +87,11 @@ set(gca,'fontsize', 15);
 
 
 %% plot
-m1     = m + 1;
-m1_off = m_off + 1;
 
 f2 = figure(2);
-stairs(t_off, m1_off, 'linew', 2);
+stairs(t_off, m_off, 'linew', 2);
 hold on;
-stairs(t, m1, 'linew', 2, 'linestyle', '--');
+stairs(t, m, 'linew', 2, 'linestyle', '--');
 hold off;   
 % xlim([0, 5]);
 grid on;
