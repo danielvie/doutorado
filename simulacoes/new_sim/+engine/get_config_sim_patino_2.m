@@ -44,7 +44,7 @@ function config = get_config_sim_patino_2()
 
 	D = [0;0;0];
 
-	config.Omega = [0, 1, 3, 7, 2, 0, 4, 7, 4];
+	config.Omega = [1, 2, 4, 8, 3, 1, 5, 8, 5];
     config.ur    = [1, 1, 1, 1, 1, 1, 1, 1, 1];
     
 	config.A     = A;

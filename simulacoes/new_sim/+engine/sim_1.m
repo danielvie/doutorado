@@ -41,7 +41,7 @@ function [y,t,u,m,xr,yi_, dt_] = sim_1(config)
         % calculando ciclo
         ti = (Ts(i):tstep:Ts(i+1)-tstep)';
         ui = ones(size(ti))*config_.ur(imode);
-        mi = ones(size(ti))*(imode - 1);
+        mi = ones(size(ti))*imode;
         
         xi0 = reshape(xi0, [numel(xi0), 1]);
         yi  = lsim(Ai,Bi,C,D,ui,ti-ti(1),xi0);

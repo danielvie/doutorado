@@ -27,7 +27,6 @@
 
     A = config.A;
     b = config.b;
-    Omega = config.Omega + 1;
     xbar0 = xr(1,:)';
     Dt = diff(config.Ts);
 
@@ -148,19 +147,10 @@
 
     % plotando diferencas
 
-    mref = config.Omega + 1;
-    mref = [mref, mref(1)];
-    tref = config.Ts;
-
-    % t = bla.t;
-    m1_off = m_off + 1;
-    m1 = m + 1;
-    % y = bla.y;
-
-    f5 = figure();
-    stairs(t_off, m1_off, 'linew', 2);
+    f5 = figure(5);
+    stairs(t_off, m_off, 'linew', 2);
     hold on;
-    stairs(t, m1, 'linew', 2, 'linestyle', '--');
+    stairs(t, m, 'linew', 2, 'linestyle', '--');
     hold off;
     xlim([0, 1.46e-3]);
     grid on;
