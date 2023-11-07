@@ -15,7 +15,7 @@ ur  = [1, 0];
 dtr = diff(config.Ts);
 xr  = engine.get_xr(config);
 
-[Phi, Gamma] = mpc.construcao_modelo_instantes(config.Ac, config.Bc, tr, xr, config);
+[Phi, Gamma] = mpc.construcao_modelo_instantes(config.A, config.b, tr, xr, config);
 
 N  = numel(tr);
 p  = N - 1;
