@@ -3,7 +3,7 @@ function [c,ceq] = nonlincon_patino(config, X)
     % xeq(x)  = 0
     
     % lendo parametros de configuracao
-    nmodes = numel(config.modes);
+    nmodes = numel(config.Omega);
     nstate = numel(config.xref);
     
     dT   = X(1:nmodes);
@@ -31,6 +31,4 @@ function [c,ceq] = nonlincon_patino(config, X)
     c   = [];
     
     ceq = sum(e.^2);
-    
-    bla = 1;
 end

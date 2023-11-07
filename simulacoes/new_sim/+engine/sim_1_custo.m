@@ -4,13 +4,12 @@ function [yi_, dt_] = sim_1_custo(config)
     x0    = config.x0;
 
     % simulando com parametros flexiveis
-    n_modes = numel(config.modes);
+    n_modes = numel(config.Omega);
         
     % calculando simulacao
     xi0  = x0;
         
-    nstates = size(config.Ac{1}, 2);
-
+    nstates = size(config.A{1}, 2);
 
     y     = zeros(n_modes,nstates);
     dtout = zeros(n_modes,1);
@@ -21,11 +20,11 @@ function [yi_, dt_] = sim_1_custo(config)
     dt_modes = diff(config.Ts);
     for i = 1:n_modes
         % lendo modo de operacao (indice do modo inicia em `0`)
-        imode = config.modes(i) + 1;
+        imode = config.Omega(i) + 1;
                 
         % lendo matrizes A e B 
-        Ai = config.Ac{imode};
-        bi = config.Bc{imode};
+        Ai = config.A{imode};
+        bi = config.b{imode};
         
         % calculando ciclo
         dt = dt_modes(i);

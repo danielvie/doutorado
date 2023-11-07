@@ -8,7 +8,7 @@ function J = fun_custo_patino(config, X)
     Q    = cfg.Q;
 
     % computando numero de modos de dinamica
-    nmodes = numel(cfg.modes);
+    nmodes = numel(cfg.Omega);
     
     % vetor de incremento de tempo
     dT   = X(1:nmodes);

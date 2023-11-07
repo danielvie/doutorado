@@ -5,12 +5,10 @@
 
 function config = get_config_sim_intduplo()
       % equacoes integrador duplo
-      Ac  = [0, 1;0, 0];
-      Bc  = [0; 1];
-
-      Cc = eye(2);
-
-      Dc = [0;0];
+      A = [0, 1;0, 0];
+      b = [0; 1];
+      C = eye(2);
+      D = [0;0];
 
       tmin  = 0.25;
       xref  = [2, -1];
@@ -22,13 +20,13 @@ function config = get_config_sim_intduplo()
       r     = 1;
       % r: 
 
-      config.modes  = [0, 1, 2, 3]; % modo de operacao
+      config.Omega  = [0, 1, 2, 3]; % modo de operacao
       config.ur     = [1, 0, 1, 0]; % controle associado com modo
       
-      config.Ac = {Ac, Ac, Ac, Ac};
-      config.Bc = {Bc, Bc*0, -Bc, Bc*0};
-      config.Cc = Cc;
-      config.Dc = Dc;
+      config.A = {A, A, A, A};
+      config.b = {b, b*0, -b, b*0};
+      config.C = C;
+      config.D = D;
       
       config.tstep = 0.01;
       config.xref  = xref;

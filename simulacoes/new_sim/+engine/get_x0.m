@@ -1,14 +1,14 @@
 function x0 = get_x0(config)
     % montando matrizes F e G
     Ts = config.Ts;
-    n  = numel(config.modes);
+    n  = numel(config.Omega);
     ur = config.ur;
     F  = cell(n,1);
     G  = cell(n,1);
     for i = 1:n
-        mi = config.modes(i) + 1;
-        Ai = config.Ac{mi};
-        Bi = config.Bc{mi};
+        mi = config.Omega(i) + 1;
+        Ai = config.A{mi};
+        Bi = config.b{mi};
 
         dt = Ts(i+1) - Ts(i);
         [Fi, Gi] = c2dm(Ai, Bi, [], [], dt, 'zoh');

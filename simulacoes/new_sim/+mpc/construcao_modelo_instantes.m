@@ -17,7 +17,7 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr,config)
     % T   = tr(N);
     % Dur = diff(ur); % Dur = [Dur1, Dur2, ..., DurN-1 ]
 
-    Omega = config.modes + 1;
+    Omega = config.Omega + 1;
 
     % Phi = expm(Ac*T);
     tam = N-1;
@@ -72,7 +72,7 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr,config)
             disp('USANDO MODELO EXTENDIDO');
             A = config.Ac;
             b = config.Bc;
-            Omega = config.modes + 1;
+            Omega = config.Omega + 1;
             xbar0 = xr(1,:)';
             Dt = diff(config.Ts);
 

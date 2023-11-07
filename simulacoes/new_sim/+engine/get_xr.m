@@ -35,11 +35,11 @@ function Xr = get_xr(config)
     % History
     % 2021-12-15: 1 - dvieira -  init
 
-    A  = config.Ac;
-    B  = config.Bc;
+    A  = config.A;
+    B  = config.b;
     Ts = config.Ts;
 
-    M  = config.modes;
+    M  = config.Omega;
     
     Xr = reshape(config.x0, [1, numel(config.x0)]);
     for i = 1:numel(M)

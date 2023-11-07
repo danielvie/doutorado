@@ -21,11 +21,10 @@ function config = get_config_sim_patino_2()
 	C1 = 40.0*1e-6; % μF
 	C2 = 40.0*1e-6; % μF
 	E  = 30.0; % V
-
 	
     % construcao das matrizes dinamica
-    Ac = cell(1,8);
-    Bc = cell(1,8);
+    A = cell(1,8);
+    b = cell(1,8);
     
     for i = 1:8
         ibin = dec2bin(i-1, 3);
@@ -34,24 +33,24 @@ function config = get_config_sim_patino_2()
         u2 = str2double(ibin(2));
         u3 = str2double(ibin(3));
     
-        Ac{i} = [        0,         0, (u2-u1)/C1
+        A{i} = [        0,         0, (u2-u1)/C1
                          0,         0, (u3-u2)/C2
                  (u1-u2)/L, (u2-u3)/L,       -R/L];
 
-        Bc{i} = [0;0;E/L*u3];
+        b{i} = [0;0;E/L*u3];
     end
 		
-	Cc = eye(3);
+	C = eye(3);
 
-	Dc = [0;0;0];
+	D = [0;0;0];
 
-	config.modes = [0, 1, 3, 7, 2, 0, 4, 7, 4];
+	config.Omega = [0, 1, 3, 7, 2, 0, 4, 7, 4];
     config.ur    = [1, 1, 1, 1, 1, 1, 1, 1, 1];
     
-	config.Ac    = Ac;
-	config.Bc    = Bc;
-	config.Cc    = Cc;
-	config.Dc    = Dc;
+	config.A     = A;
+	config.b     = b;
+	config.C     = C;
+	config.D     = D;
 
 	config.tstep = 1e-6;
 	config.xref  = [1/3*E; 2/3*E; 1];
@@ -65,8 +64,6 @@ function config = get_config_sim_patino_2()
     config.Ts    = [0.000, 0.066, 0.088, 0.110, 0.132, 0.154, 0.220, 0.242, 0.264, 0.286]*1e-3;
     config.x0    = [9.9247; 19.2928; 0.9823];
 	% config.x0    = [19.2928; 9.9247; 0.9823];
-
-
 
 	% config OTMIN
 	% tmin   = 0.022*1e-3;

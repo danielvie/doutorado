@@ -3,15 +3,15 @@ function [y,t,u,m,xr,yi_, dt_] = sim_1_dan(config)
     % lendo configuracoes
     config_ = config;
 
-    Cc    = config_.Cc;
-    Dc    = config_.Dc;
+    C     = config_.C;
+    D     = config_.D;
     tstep = config_.tstep;
     x0    = config_.x0;
     Ts    = config_.Ts;
 
     % simulando com parametros flexiveis
-    n_modes = numel(config_.modes);
-    nstates = size(config_.Ac{1}, 2);
+    n_modes = numel(config_.Omega);
+    nstates = size(config_.A{1}, 2);
     
     % alocando vetores de saida 
     nmax = ceil(config_.Tpmax/config_.tstep);
@@ -32,11 +32,11 @@ function [y,t,u,m,xr,yi_, dt_] = sim_1_dan(config)
     dt_ = zeros(n_modes, nstates);
     for i = 1:n_modes
         % lendo modo de operacao (indice do modo inicia em `0`)
-        imode = config_.modes(i) + 1;
+        imode = config_.Omega(i) + 1;
                 
         % lendo matrizes A e B 
-        Ai = config_.Ac{imode};
-        Bi = config_.Bc{imode};
+        Ai = config_.A{imode};
+        Bi = config_.b{imode};
         
         % calculando ciclo
         ti = (Ts(i):tstep:Ts(i+1)-tstep)';
@@ -46,7 +46,7 @@ function [y,t,u,m,xr,yi_, dt_] = sim_1_dan(config)
         tti = [Ts(i); Ts(i+1)] - Ts(i);
         
         xi0 = reshape(xi0, [numel(xi0), 1]);
-        yi  = lsim(Ai,Bi,Cc,Dc,ui,tti,xi0);
+        yi  = lsim(Ai,Bi,C,D,ui,tti,xi0);
                 
         dt = ti(end)-ti(1);
         Fa  = expm([Ai,Bi;zeros(1,size(Ai,2)),0]*dt);

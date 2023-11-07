@@ -20,9 +20,9 @@ function config = get_config_sim_patino_1()
 
       B2 = [0; 0];
 
-      Cc = eye(2);
+      C = eye(2);
 
-      Dc = [0;0];
+      D = [0;0];
 
       tmin  = 0.25;
       xref  = [2, -1];
@@ -35,13 +35,13 @@ function config = get_config_sim_patino_1()
       % r: 
 
       % montando `config`
-      config.modes  = [0, 1]; % modo de operacao
+      config.Omega  = [0, 1]; % modo de operacao
       config.ur     = [1, 0]; % controle associado com modo
       
-      config.Ac = {A1, A2};
-      config.Bc = {B1, B2};
-      config.Cc = Cc;
-      config.Dc = Dc;
+      config.A = {A1, A2};
+      config.b = {B1, B2};
+      config.C = C;
+      config.D = D;
       
       config.tstep = 1e-5;
       config.xref  = xref;

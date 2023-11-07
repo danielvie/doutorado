@@ -19,7 +19,7 @@ function [y,t,u,m,dtk_out] = sim_n(config, nsim)
     
     numelx0 = numel(x0);
     for i = 1:nsim
-        dtk = zeros([numel(cfg.modes)-1, 1]);
+        dtk = zeros([numel(cfg.Omega)-1, 1]);
         if mpc_on
             % calculo `ek`
             ek  = reshape(x0, [numelx0,1]) - reshape(cfg.mpc.x_target, [numelx0,1]);
