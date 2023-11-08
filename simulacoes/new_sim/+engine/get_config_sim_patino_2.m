@@ -64,13 +64,14 @@ function config = get_config_sim_patino_2()
 	% reference state vector (vc1, vc2, i)
 	config.xref  = [1/3*E; 2/3*E; 1];
 	
-	% ???
+	% #FIXME: check if this is still valid
+	% minumum value of the time increament
     % config.tmin  = 0.022*1e-3; % 0.022 ms
 	
 	% weighting matrix for the trajectory computation
 	config.Q     = diag([10, 5, 20000]);
 
-	% ???
+	% max value for the period of the trajectory cycle
 	config.Tpmax = 0.4*1e-3; % 0.400ms
     
 	% time sequence

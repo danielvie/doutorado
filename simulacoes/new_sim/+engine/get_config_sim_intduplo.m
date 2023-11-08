@@ -32,13 +32,14 @@ function config = get_config_sim_intduplo()
       % [pos, vel]
       config.xref  = [2, -1];
 
-      % ???
+	% #FIXME: check if this is still valid
+	% minumum value of the time increament
       config.tmin  = 0.25;
 
       % weighting matrix for the trajectory computation
       config.Q = diag([1,1]);
 
-      % ???
+	% max value for the period of the trajectory cycle
       config.Tpmax = 1;
 
       % time sequence
