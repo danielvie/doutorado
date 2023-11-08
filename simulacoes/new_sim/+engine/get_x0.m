@@ -2,7 +2,7 @@ function x0 = get_x0(config)
     % montando matrizes F e G
     Ts = config.Ts;
     n  = numel(config.Omega);
-    ur = config.ur;
+    % ur = config.ur;
     F  = cell(n,1);
     G  = cell(n,1);
     for i = 1:n
@@ -18,13 +18,15 @@ function x0 = get_x0(config)
     end
     
     % calculando `c`
-    c = G{n}*ur(n);
+    % c = G{n}*ur(n);
+    c = G{n};
     for i = 2:n
         ci = F{n};
         for j = n-1:-1:i
             ci = ci*F{j};
         end        
-        ci = ci*G{i-1}*ur(i-1);
+        % ci = ci*G{i-1}*ur(i-1);
+        ci = ci*G{i-1};
 
         c  = c + ci;
     end

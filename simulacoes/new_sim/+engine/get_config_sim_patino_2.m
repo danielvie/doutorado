@@ -50,9 +50,6 @@ function config = get_config_sim_patino_2()
 	C = eye(3);
 	D = [0;0;0];
 
-	% #FIXME: check if this is beging used
-    % config.ur    = [1, 1, 1, 1, 1, 1, 1, 1, 1];
-    
 	config.A     = A;
 	config.b     = b;
 	config.C     = C;
@@ -63,10 +60,6 @@ function config = get_config_sim_patino_2()
 
 	% reference state vector (vc1, vc2, i)
 	config.xref  = [1/3*E; 2/3*E; 1];
-	
-	% #FIXME: check if this is still valid
-	% minumum value of the time increament
-    % config.tmin  = 0.022*1e-3; % 0.022 ms
 	
 	% weighting matrix for the trajectory computation
 	config.Q     = diag([10, 5, 20000]);

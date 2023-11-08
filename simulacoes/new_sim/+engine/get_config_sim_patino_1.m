@@ -33,28 +33,18 @@ function config = get_config_sim_patino_1()
       config.C = C;
       config.D = D;
 
-      % #FIXME: not sure this is being used
-      % config.ur     = [1, 0]; % controle associado com modo
-
       % time step of the simulation
       config.tstep = 1e-5;
       
       % reference state vector (vc_ref, il_ref)
       config.xref  = [2, -1];
 
-	% #FIXME: check if this is still valid
-	% minumum value of the time increament
-      config.tmin  = 0.25;
-      
       % weighting matrix for the trajectory computation
       config.Q     = diag([1,1]);
 
 	% max value for the period of the trajectory cycle
       config.Tpmax = 1;
 
-      % ??? #FIXME: check if this is still used
-      % config.r     = r;
-      
       % time sequence
       config.Ts    = [0., 0.2514520, 0.5014520];
 
