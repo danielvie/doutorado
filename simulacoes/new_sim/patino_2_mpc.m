@@ -30,7 +30,7 @@
     xbar0 = xr(1,:)';
     Dt = diff(config.Ts);
 
-    %[Phi,Gamma] = linModel(A,b,Omega,xbar0,Dt);
+    % [Phi_,Gamma_] = linModel(A,b,config.Omega,xbar0,Dt);
     % Gamma = [Gamma, Gamma_(:, end)];
 
     N  = numel(tr);
