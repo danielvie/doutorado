@@ -160,19 +160,19 @@
     legend('modes target trajectory', 'modes simulation');
 
     %% saving figures
-    % save_figure(f1, "graf_ex2_1.pdf")
-    % save_figure(f2, "graf_ex2_2.pdf")
-    % save_figure(f3, "graf_ex2_3.pdf")
-    % save_figure(f4, "graf_ex2_4.pdf")
-    % save_figure(f5, "graf_ex2_5.pdf");
+    save_figure(f1, "graf_patino_ex2_1.pdf")
+    save_figure(f2, "graf_patino_ex2_2.pdf")
+    save_figure(f3, "graf_patino_ex2_3.pdf")
+    save_figure(f4, "graf_patino_ex2_4.pdf")
+    save_figure(f5, "graf_patino_ex2_5.pdf");
 
     %% copy figures
 
     % cap 2
-    % copyfile("graf_ex2_1.pdf", "../../LATEX_tese/Cap4/fig/");
-    % copyfile("graf_ex2_2.pdf", "../../LATEX_tese/Cap4/fig/");
-    % copyfile("graf_ex2_3.pdf", "../../LATEX_tese/Cap4/fig/");
-    % copyfile("graf_ex2_4.pdf", "../../LATEX_tese/Cap4/fig/");
+    % copyfile("graf_patino_ex2_1.pdf", "../../LATEX_tese/Cap4/fig/");
+    % copyfile("graf_patino_ex2_2.pdf", "../../LATEX_tese/Cap4/fig/");
+    % copyfile("graf_patino_ex2_3.pdf", "../../LATEX_tese/Cap4/fig/");
+    % copyfile("graf_patino_ex2_4.pdf", "../../LATEX_tese/Cap4/fig/");
 
     % cap 4
-    % copyfile("graf_ex2_5.pdf", "../../LATEX_tese/Cap4/fig/");
+    % copyfile("graf_patino_ex2_5.pdf", "../../LATEX_tese/Cap4/fig/");

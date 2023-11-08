@@ -96,7 +96,7 @@
     hold on;
     stairs(t, m, 'linew', 2, 'linestyle', '--');
     hold off;
-    % xlim([0, 5]);
+    xlim([0, 25]);
     grid on;
     xlabel('time (s)');
     ylabel('mode');
@@ -104,9 +104,9 @@
     legend('modes target trajectory', 'modes simulation');
 
     %% save figures
-    save_figure(f1, "graf_ex1_1.pdf")
-    save_figure(f2, "graf_ex1_2.pdf")
+    save_figure(f1, "graf_patino_ex1_1.pdf")
+    save_figure(f2, "graf_patino_ex1_2.pdf")
 
     %% copy files
-    % copyfile("graf_ex1_1.pdf", "../../LATEX_tese/Cap4/fig/");
-    % copyfile("graf_ex1_2.pdf", "../../LATEX_tese/Cap4/fig/");
+    copyfile("graf_patino_ex1_1.pdf", "../../LATEX_tese/Cap4/fig/");
+    copyfile("graf_patino_ex1_2.pdf", "../../LATEX_tese/Cap4/fig/");

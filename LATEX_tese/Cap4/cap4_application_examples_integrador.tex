@@ -1,71 +1,112 @@
 
-\subsection{Integrador duplo}
+\subsection{Double Integrator}
 
 \subsubsection{init - configuracoes da simulacao}
 
-dynamics of the problem
+The values used to simulate the double integrator example are:
 
+- $\Omega$ represents the operation modes of the system, which are four in this case: 1, 2, 3, and 4.
 
+- $s_{max}$ is the maximum number of operation modes, which is set to 4.
 
-Omega: $\Big[1, 2\Big]$
-
-Time step of 0.01 second.
-
-Xref: $\Big[2, -1\Big]$
-
-Tmin: 0.25
-
-\begin{equation}
-    Q = \left[ \begin{matrix} 1 & 0 \\ 0 & 1 \end{matrix} \right]
-\end{equation}
-
-Tpmax: 1
-
-smax: 2
-
-r: 1
-
-\begin{equation}
-    Ts = \left[ \begin{matrix} 0 & 2 & 3 & 5 & 6 \end{matrix} \right]
-\end{equation}
-
-
-$X_0$: $\Big[-0.5, -1\Big]$
-
-
-
-The double integrator is a simple example where the matrices A and b define the state-space representation of a system.
+- The dynamics of the system are defined by
 
 \begin{equation}
     \begin{matrix}
         A_1 = \left[ \begin{matrix} 0 & 1 \\ 0 & 0 \\ \end{matrix} \right] &
-        A_2 = \left[ \begin{matrix} 0 & 1 \\ 0 & 0 \\ \end{matrix} \right] \\
+        A_2 = \left[ \begin{matrix} 0 & 1 \\ 0 & 0 \\ \end{matrix} \right] &
+        A_3 = \left[ \begin{matrix} 0 & 1 \\ 0 & 0 \\ \end{matrix} \right] &
+        A_4 = \left[ \begin{matrix} 0 & 1 \\ 0 & 0 \\ \end{matrix} \right] \\
         \\
         b_1 = \left[ \begin{matrix} 0 \\ 1 \end{matrix} \right] &
-        b_2 = \left[ \begin{matrix} 0 \\ 0 \end{matrix} \right]
+        b_2 = \left[ \begin{matrix} 0 \\ 0 \end{matrix} \right] &
+        b_3 = \left[ \begin{matrix} 0 \\ -1 \end{matrix} \right] &
+        b_4 = \left[ \begin{matrix} 0 \\ 0 \end{matrix} \right]
     \end{matrix}
 \end{equation}
 
-The minimum switching time is set to 0.25.
+- $t_{step}$ is the time step of the simulation, set to 0.01.
 
-The reference state vector is [2, -1], and the states can be interpreted as position and velocity of the system.
+- $x_{ref}$ is the reference state vector, set to [2, -1].
 
-The variables Tpmax and smax are set to 1 and 2 respectively, but their specific roles are not clear from this context.
+- $Q$ is the weighting matrix for the trajectory computation, which is a diagonal matrix with both diagonal elements equal to 1.
 
-The variable r is set to 1, but its role is also not clear from this context.
+- $T_{p_{max}}$ is the maximum value for the period of the trajectory cycle, set to 1.
 
-The config structure seems to be a configuration for different operating modes of the system.
-It includes fields for operation mode (Omega), associated control (ur), state-space matrices (A, b, C, D),
-time step (tstep), reference state (xref), minimum time step (tmin), state weighting matrix (Q), maximum time period (Tpmax),
-maximum value for s (smax), a variable r, time sequence (Ts), and initial state (x0).
+- $T_{s}$ is the time sequence, defined as [0, 2, 3, 5, 6].
 
-
-
-
-\subsubsection{calculo da trajetoria (optimizacao)}
+- $x_{0}$ is the initial state, set to [-0.5; -1].
 
 \subsubsection{construindo MPC (matrizes PHI e GAMMA)}
 
+\begin{equation}
+    \Phi =
+    \left[
+    \begin{matrix}
+        1 & 5 \\
+        0 & 1
+    \end{matrix}
+    \right]
+\end{equation}
+
+\begin{equation}
+    \Gamma =
+    \left[
+    \begin{matrix}
+        3 & 2 & 1 \\
+        1 & 1 & -1
+    \end{matrix}
+    \right]
+\end{equation}
+
+
 \subsubsection{rodando simulacao}
 
-\subsubsection{resultados}
+time constraints:
+
+\begin{equation}
+    c = 
+    \left[
+        \begin{matrix}
+            \Delta t_{r_1} -\Delta t_{r_{1, min}} \\
+            \Delta t_{r_2} -\Delta t_{r_{2, min}} \\
+            \vdots \\
+            \Delta t_{r_{N-1}} -\Delta t_{r_{{N-1}, min}} \\
+            \Delta t_{r_N} -\Delta t_{r_{N, min}} \\
+        \end{matrix}
+    \right] = 
+    \left[
+        \begin{matrix}
+            - 2 + 1.625 \\
+            - 1 + 0.635 \\
+            - 2 + 1.625 \\
+            - 1 + 0.625 \\
+        \end{matrix}
+    \right] =
+    \left[
+        \begin{matrix}
+            - 0.375 \\
+            - 0.365 \\
+            - 0.375 \\
+            - 0.365 \\
+        \end{matrix}
+    \right]
+\end{equation}
+
+
+\subsubsection{results}
+
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=14cm]{Cap4/fig/graf_ex1_1.pdf}
+    \caption{State Trajectory}
+    \label{cap4-graf-ex1-1}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=14cm]{Cap4/fig/graf_ex1_2.pdf}
+    \caption{Operation mode switch}
+    \label{cap4-graf-ex1-2}
+\end{figure}

@@ -1,0 +1,189 @@
+\subsection{Patino 2}
+
+\subsubsection{init - configuracoes da simulacao}
+
+The values used to simulate the Buck-boost converter example are:
+
+- $\Omega$: $\Big[1, 2, 4, 8, 3, 1, 5, 8, 5\Big]$
+
+- $s_{max}$ is set to 12.
+
+- The dynamics of the system are defined by
+
+\begin{equation}
+    \begin{matrix}
+        A_i = \left[ 
+            \begin{matrix} 
+                0 &       0 & \Big(u_2(i)-u_1(i)\Big)/C1 \\ 
+                0 & 0 & \Big(u_3(i)-u_2(i)\Big)/C2 \\ 
+                \Big(u_1(i)-u_2(i)\Big)/L & \Big(u_2(i)-u_3(i)\Big)/L & -R/L \\ 
+            \end{matrix} \right] \\
+            \\
+        b_i = \left[ \begin{matrix} 0 \\ 0 \\ \Big(E/L\Big) u_3(i) \end{matrix} \right]
+    \end{matrix}
+\end{equation}
+
+\noindent
+where R = 10.0 $\Omega$, L = 10.0 $mH$, $C_1$ = 40.0 $\mu F$, $C_2$ = 40.0*1e-6 $\mu F$, E  = 30.0 $V$
+
+\noindent
+and $u(i)$ is 
+
+\noindent
+\begin{table}[h!]
+    \caption{heading}
+    \label{cap4-table1}
+    \begin{center}
+        \begin{tabular}{|c|c|c|c|}
+            \hline
+                \textbf{mode (i)}   & \boldmath{$u_1$} & \boldmath{$u_2$} & \boldmath{$u_3$} \\
+            \hline
+                1 & 0 & 0 & 0 \\
+                2 & 0 & 0 & 1 \\
+                3 & 0 & 1 & 0 \\
+                4 & 0 & 1 & 1 \\
+                5 & 1 & 0 & 0 \\
+                6 & 1 & 0 & 1 \\
+                7 & 1 & 1 & 0 \\
+                8 & 1 & 1 & 1 \\
+            \hline
+        \end{tabular}
+    \end{center}
+\end{table}
+
+% \noindent
+% where R = 1, L = 1, C = 1, E = 1.
+
+% - $t_{step}$ is set to 1e-5.
+
+% - $x_{ref}$ is set to [2, -1].
+
+% - $Q$ which is a diagonal matrix with both diagonal elements equal to 1.
+
+% - $T_{p_{max}}$ set to 1.
+
+% - $T_{s}$ defined as [0, 0.2513520, 0.5914520].
+
+% - $x_{0}$ set to [1.870801, -1.119853].
+
+
+\subsubsection{calculo da trajetoria (optimizacao)}
+
+\begin{equation}
+    T_{s} = 
+    \left[
+    \begin{matrix}
+        0 & 0.0639 & 0.0878 & 0.1119 & 0.1344 & 0.1567 & 0.2065 & 0.23 & 0.2529 & 0.2756
+    \end{matrix}
+    \right]
+\end{equation}
+
+\subsubsection{construindo MPC (matrizes PHI e GAMMA)}
+
+\begin{equation}
+    \Phi =
+    \left[
+    \begin{matrix}
+       0.999174  &   0.001900 &  0.447676 \\
+      -0.002031  &   0.999915 & -0.000386 \\
+      -0.002208  &  -0.000290 &  0.776298
+    \end{matrix}
+    \right]
+\end{equation}
+
+\begin{equation}
+    \Gamma =
+    \left[
+    \begin{matrix}
+  -0.054681 & -2.586194 & -0.084235 \\
+  -2.480654 &  2.467091 & -0.078111 \\
+   2.419040 &  0.052840 & -0.081930 \\
+  -2.481870 &  2.370819 &  0.179230 \\
+   2.535489 & -2.594318 &  0.099365 \\
+   2.651079 &  0        & -0.096018 \\
+  -2.464881 &  0        & -0.188814 \\
+   0        &  0        &  0.201280
+    \end{matrix}
+    \right]^T
+    * 1e4
+\end{equation}
+
+\subsubsection{rodando simulacao}
+
+\begin{equation}
+    c = 
+    \left[
+        \begin{matrix}
+            \Delta t_{r_1} -\Delta t_{r_{1, min}} \\
+            \Delta t_{r_2} -\Delta t_{r_{2, min}} \\
+            \vdots \\
+            \Delta t_{r_{N-1}} -\Delta t_{r_{{N-1}, min}} \\
+            \Delta t_{r_N} -\Delta t_{r_{N, min}} \\
+        \end{matrix}
+    \right] = 
+    \left[
+        \begin{matrix}
+            -0.638811 + 0.20 \\
+            -0.239318 + 0.20 \\
+            -0.240440 + 0.20 \\
+            -0.225094 + 0.20 \\
+            -0.223339 + 0.20 \\
+            -0.497696 + 0.20 \\
+            -0.235714 + 0.20 \\
+            -0.228086 + 0.20 \\
+            -0.227575 + 0.20
+        \end{matrix}
+    \right] * 1e-4 =
+    \left[
+        \begin{matrix}
+            -0.438811 \\
+            -0.039318 \\
+            -0.040440 \\
+            -0.025094 \\
+            -0.023339 \\
+            -0.297696 \\
+            -0.035714 \\
+            -0.028086 \\
+            -0.027575
+        \end{matrix}
+    \right] * 1e-4
+\end{equation}
+
+
+
+\subsubsection{resultados}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_1.pdf}
+    \caption{fig 1}
+    \label{cap4-graf-ex2-1}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_2.pdf}
+    \caption{fig 2}
+    \label{cap4-graf-ex2-2}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_3.pdf}
+    \caption{fig 3}
+    \label{cap4-graf-ex2-3}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_4.pdf}
+    \caption{fig 4}
+    \label{cap4-graf-ex2-4}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_5.pdf}
+    \caption{Variant Dynamic Circuit 2: State Trajectory}
+    \label{cap4-graf-ex2-5}
+\end{figure}
