@@ -14,7 +14,7 @@ function J = fun_custo_patino(config, X)
     dT   = X(1:nmodes);
 
     % montando vetor de tempo
-    Ts = engine.get_ts(dT);    
+    Ts = engine.get_ts(dT);
     
     % atualizando config temporation para os instantes de chaveamento
     % e calculando a condicao inicial para uma trajetoria ciclica
@@ -41,5 +41,5 @@ function J = fun_custo_patino(config, X)
     end
     
     % saida resultado
-    J = I;    
+    J = I;
 end

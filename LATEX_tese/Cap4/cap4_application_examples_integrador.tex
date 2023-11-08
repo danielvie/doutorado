@@ -1,0 +1,71 @@
+
+\subsection{Integrador duplo}
+
+\subsubsection{init - configuracoes da simulacao}
+
+dynamics of the problem
+
+
+
+Omega: $\Big[1, 2\Big]$
+
+Time step of 0.01 second.
+
+Xref: $\Big[2, -1\Big]$
+
+Tmin: 0.25
+
+\begin{equation}
+    Q = \left[ \begin{matrix} 1 & 0 \\ 0 & 1 \end{matrix} \right]
+\end{equation}
+
+Tpmax: 1
+
+smax: 2
+
+r: 1
+
+\begin{equation}
+    Ts = \left[ \begin{matrix} 0 & 2 & 3 & 5 & 6 \end{matrix} \right]
+\end{equation}
+
+
+$X_0$: $\Big[-0.5, -1\Big]$
+
+
+
+The double integrator is a simple example where the matrices A and b define the state-space representation of a system.
+
+\begin{equation}
+    \begin{matrix}
+        A_1 = \left[ \begin{matrix} 0 & 1 \\ 0 & 0 \\ \end{matrix} \right] &
+        A_2 = \left[ \begin{matrix} 0 & 1 \\ 0 & 0 \\ \end{matrix} \right] \\
+        \\
+        b_1 = \left[ \begin{matrix} 0 \\ 1 \end{matrix} \right] &
+        b_2 = \left[ \begin{matrix} 0 \\ 0 \end{matrix} \right]
+    \end{matrix}
+\end{equation}
+
+The minimum switching time is set to 0.25.
+
+The reference state vector is [2, -1], and the states can be interpreted as position and velocity of the system.
+
+The variables Tpmax and smax are set to 1 and 2 respectively, but their specific roles are not clear from this context.
+
+The variable r is set to 1, but its role is also not clear from this context.
+
+The config structure seems to be a configuration for different operating modes of the system.
+It includes fields for operation mode (Omega), associated control (ur), state-space matrices (A, b, C, D),
+time step (tstep), reference state (xref), minimum time step (tmin), state weighting matrix (Q), maximum time period (Tpmax),
+maximum value for s (smax), a variable r, time sequence (Ts), and initial state (x0).
+
+
+
+
+\subsubsection{calculo da trajetoria (optimizacao)}
+
+\subsubsection{construindo MPC (matrizes PHI e GAMMA)}
+
+\subsubsection{rodando simulacao}
+
+\subsubsection{resultados}

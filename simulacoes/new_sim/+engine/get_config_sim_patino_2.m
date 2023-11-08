@@ -15,7 +15,14 @@
 %}
 
 function config = get_config_sim_patino_2()
-	% equacoes de estado Buck-Boost converter
+
+	% operation modes
+	config.Omega = [1, 2, 4, 8, 3, 1, 5, 8, 5];
+
+	% maximum number of operation modes
+	config.smax  = 12;
+
+	% dynamics of the system (Buck-Boost converter)
 	R  = 10.0; % Ω
 	L  = 10.0*1e-3; % mH
 	C1 = 40.0*1e-6; % μF
@@ -41,29 +48,36 @@ function config = get_config_sim_patino_2()
     end
 		
 	C = eye(3);
-
 	D = [0;0;0];
 
-	config.Omega = [1, 2, 4, 8, 3, 1, 5, 8, 5];
-    config.ur    = [1, 1, 1, 1, 1, 1, 1, 1, 1];
+	% #FIXME: check if this is beging used
+    % config.ur    = [1, 1, 1, 1, 1, 1, 1, 1, 1];
     
 	config.A     = A;
 	config.b     = b;
 	config.C     = C;
 	config.D     = D;
 
+	% time step of the simulation
 	config.tstep = 1e-6;
+
+	% reference state vector (vc1, vc2, i)
 	config.xref  = [1/3*E; 2/3*E; 1];
 	
+	% ???
+    % config.tmin  = 0.022*1e-3; % 0.022 ms
+	
+	% weighting matrix for the trajectory computation
 	config.Q     = diag([10, 5, 20000]);
+
+	% ???
 	config.Tpmax = 0.4*1e-3; % 0.400ms
-%     config.tmin  = 0.022*1e-3; % 0.022 ms
     
-	config.smax  = 12;
-    
+	% time sequence
     config.Ts    = [0.000, 0.066, 0.088, 0.110, 0.132, 0.154, 0.220, 0.242, 0.264, 0.286]*1e-3;
+	
+	% initial state
     config.x0    = [9.9247; 19.2928; 0.9823];
-	% config.x0    = [19.2928; 9.9247; 0.9823];
 
 	% config OTMIN
 	% tmin   = 0.022*1e-3;
