@@ -1,6 +1,6 @@
 \subsection{Patino 2}
 
-\subsubsection{init - configuracoes da simulacao}
+\subsubsection{Parameters of the Simulation}
 
 The values used to simulate the Buck-boost converter example are:
 
@@ -67,7 +67,7 @@ and $u(i)$ is
 % - $x_{0}$ set to [1.870801, -1.119853].
 
 
-\subsubsection{calculo da trajetoria (optimizacao)}
+\subsubsection{Computation of the Target Trajetory}
 
 \begin{equation}
     T_{s} = 
@@ -78,7 +78,7 @@ and $u(i)$ is
     \right]
 \end{equation}
 
-\subsubsection{construindo MPC (matrizes PHI e GAMMA)}
+\subsubsection{Prediction Matrixes}
 
 \begin{equation}
     \Phi =
@@ -108,7 +108,7 @@ and $u(i)$ is
     * \times 10^4
 \end{equation}
 
-\subsubsection{rodando simulacao}
+\subsubsection{Time Constraints}
 
 \begin{equation}
     c = 
@@ -149,9 +149,7 @@ and $u(i)$ is
     \right] \times 10^{ -4 }
 \end{equation}
 
-
-
-\subsubsection{resultados}
+\subsubsection{Results}
 
 \begin{figure}[h]
     \centering

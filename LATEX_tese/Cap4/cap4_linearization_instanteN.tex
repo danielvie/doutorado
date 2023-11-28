@@ -76,12 +76,14 @@ replacing \eqref{eq_square_xN} and \eqref{eq_circle_xN} in \eqref{eq_xN_propagat
     \end{split}
 }
 
+\noindent
 and renaming the terms of \eqref{eq_cap3_lin_erro_xNx0_resultado} to
 
 \noindent
 \begin{align}
     e(t) &= x(t) - \bar{x}(\bar{t}) \\ \nonumber \\
     \Phi &= \bar{F}_{N} \bar{F}_{N-1} \ldots \bar{F_1} \\ \nonumber \\
+    \label{eq_Phi}
     \begin{split}
         \Gamma &= \Big[ \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_2} [(A_1 - A_2) \bar{x}(\bar{t}_1) + B_1 - B_2], \\
         & \qquad \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_3} [(A_2 - A_3) \bar{x}(\bar{t}_2) + B_2 - B_3], \\
@@ -89,10 +91,9 @@ and renaming the terms of \eqref{eq_cap3_lin_erro_xNx0_resultado} to
         & \qquad \bar{F}_{N}[(A_{N-1} - A_{N}) \bar{x}(\bar{t}_{N-1}) + B_{N-1} - B_{N}], \\
         & \qquad A_{N} \bar{x}(\bar{t}_{N}) + B_{N}\Big]
     \end{split} \\ \nonumber \\
+    \label{eq_Gamma}
     \delta t &= [\delta t_1, \delta t_2, \ldots, \delta t_N]^T
 \end{align}
-
-
 
 \noindent
 we get to the affine equation

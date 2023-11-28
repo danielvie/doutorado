@@ -1,15 +1,13 @@
 
 \subsection{Double Integrator}
 
-\subsubsection{init - configuracoes da simulacao}
+\subsubsection{Parameters of the Simulation}
 
-The values used to simulate the double integrator example are:
+- operation modes of the system ($\Omega$): \big[1, 2, 3, 4\big],
 
-- $\Omega$ represents the operation modes of the system, which are four in this case: 1, 2, 3, and 4.
+- maximum number of operation modes ($s_{max}$): 4,
 
-- $s_{max}$ is the maximum number of operation modes, which is set to 4.
-
-- The dynamics of the system are defined by
+- dynamics of the system:
 
 \begin{equation}
     \begin{matrix}
@@ -23,21 +21,34 @@ The values used to simulate the double integrator example are:
         b_3 = \left[ \begin{matrix} 0 \\ -1 \end{matrix} \right] &
         b_4 = \left[ \begin{matrix} 0 \\ 0 \end{matrix} \right]
     \end{matrix}
+    \nonumber
 \end{equation}
 
-- $t_{step}$ is the time step of the simulation, set to 0.01.
+- time step of the simulation ($t_{step}$): set to 0.01,
 
-- $x_{ref}$ is the reference state vector, set to [2, -1].
+- reference state vector ($x_{ref}$): \big[2, -1\big],
 
-- $Q$ is the weighting matrix for the trajectory computation, which is a diagonal matrix with both diagonal elements equal to 1.
+- weighting matrix for the trajectory computation ($Q$): 
 
-- $T_{p_{max}}$ is the maximum value for the period of the trajectory cycle, set to 1.
+\noindent
+\begin{equation}
+    \left[
+        \begin{matrix}
+            1 & 0 \\ 0 & 1
+        \end{matrix}
+    \right]
+    \nonumber
+\end{equation}
 
-- $T_{s}$ is the time sequence, defined as [0, 2, 3, 5, 6].
+- maximum value for the period of the trajectory cycle ($T_{p_{max}}$): 1,
 
-- $x_{0}$ is the initial state, set to [-0.5; -1].
+- time sequence ($T_{s}$): \big[0, 2, 3, 5, 6\big],
 
-\subsubsection{construindo MPC (matrizes PHI e GAMMA)}
+- initial state ($x_{0}$): \big[-0.5; -1\big],
+
+\subsubsection{Prediction Matrixes}
+
+From \eqref{eq_Phi} and \eqref{eq_Gamma} we construct
 
 \begin{equation}
     \Phi =
@@ -47,6 +58,7 @@ The values used to simulate the double integrator example are:
         0 & 1
     \end{matrix}
     \right]
+    \nonumber
 \end{equation}
 
 \begin{equation}
@@ -57,12 +69,10 @@ The values used to simulate the double integrator example are:
         1 & 1 & -1
     \end{matrix}
     \right]
+    \nonumber
 \end{equation}
 
-
-\subsubsection{rodando simulacao}
-
-time constraints:
+\subsubsection{Time Constraints}
 
 \begin{equation}
     c = 
@@ -93,9 +103,9 @@ time constraints:
     \right]
 \end{equation}
 
+\subsubsection{Results}
 
-\subsubsection{results}
-
+Simulating this problem for 50 cycles we have
 
 \begin{figure}[h!]
     \centering
