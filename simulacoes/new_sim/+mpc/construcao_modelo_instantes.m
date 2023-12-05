@@ -20,19 +20,21 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr,config)
     Omega = config.Omega;
 
     % Phi = expm(Ac*T);
-    tam = N-1;
+    tam = N;
     Phi = eye(size(Ac{Omega(1)}));
     Ts  = [0; tr];
     Fr  = cell(tam, 1);
     
-    dd = [];
+    % dd = zeros(numel(Ts), tam);
+    % dd = [];
     for i = 1:tam
         tti   = Ts(i+1);
         ti    = Ts(i);
         
         dti   = tti - ti;
         
-        dd    = [dd,dti];
+        % dd    = [dd,dti];
+        % dd(i,:) = dti;
         
         Fr{i} = expm(Ac{Omega(i)}*dti);
         Phi   = Phi*Fr{i};
@@ -43,22 +45,30 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr,config)
     I  = eye(size(Fr{i}));
 
     p = N-1; % numero de variaveis manipuladas
-    for i = 1:p-1
+    for i = 1:p
 
-        % FF_1 = F_{n} * F_{n-1}... F{2}
-        % FF_2 = F_{n} * F_{n-1}... F{3}
+        % FF_1     = F_{n} * F_{n-1}... F{2}
+        % FF_2     = F_{n} * F_{n-1}... F{3}
         % ...
-        % FF_2 = F_{n}
-        
+        % FF_(N-1) = F_{n} * F_{n-1}
+        % FF_N     = F_{n}
+
         FF = I;
-        for j = p:-1:(i+1)
+        i0 = i + 1;
+        for j = i0:N
             FF = FF*Fr{j};
         end
+        
+        i2 = i + 1;
+        A1 = Ac{Omega(i)};
+        A2 = Ac{Omega(i2)};
+        b1 = Bc{Omega(i)};
+        b2 = Bc{Omega(i2)};
 
-        Gamma(:,i) = FF*((Ac{Omega(i)}-Ac{Omega(i+1)})*Xr(i,:)' + Bc{Omega(i)} - Bc{Omega(i+1)});
+        Gamma(:,i) = FF*((A1 - A2)*Xr(i,:)' + b1 - b2);
     end
 
-    Gamma(:,p) = (Ac{Omega(p)}*Xr(p,:)' + Bc{Omega(p)});
+    % Gamma(:,N) = (A2*Xr(p,:)' + b2);
     
     if (isfield(config, 'kawa')) 
         if (config.kawa == 1)
