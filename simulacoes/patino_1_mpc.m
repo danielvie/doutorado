@@ -1,109 +1,120 @@
 
-%% clear values
-clear
+function var_out = patino_1_mpc(save_fig)
 
-% get configuration
-config = engine.get_config_sim_patino_1();
+    if (nargin == 0)
+        save_fig = false;
+    end
 
-%% calculo da trajetoria
-[config, x, fval] = engine.otmin(config);
+    % get configuration
+    config = engine.get_config_sim_patino_1();
 
-%% construindo MPC
-% montando valores de referencia
-tr  = config.Ts(2:end);
-ur  = [1, 0];
-dtr = diff(config.Ts);
-xr  = engine.get_xr(config);
+    %% calculo da trajetoria
+    [config, x, fval] = engine.otmin(config);
 
-[Phi, Gamma] = mpc.construcao_modelo_instantes(config.A, config.b, tr, xr, config);
+    %% construindo MPC
+    % montando valores de referencia
+    tr  = config.Ts(2:end);
+    ur  = [1, 0];
+    dtr = diff(config.Ts);
+    xr  = engine.get_xr(config);
 
-N  = numel(tr);
-p  = N - 1;
-Q  = diag([10,1]); % por que 10???
-R  = eye(p);
-Np = 2;
+    [Phi, Gamma] = mpc.construcao_modelo_instantes(config.A, config.b, tr, xr, config);
 
-% parametros das restricoes de chaveamento
-t_on  = 0.25;
-t_off = 0.25;
+    N  = numel(tr);
+    p  = N - 1;
+    Q  = diag([10,1]); % por que 10???
+    R  = eye(p);
+    Np = 2;
 
-c = [
-    -dtr(1) + t_on;
-    -dtr(2) + t_off;
-];
+    % parametros das restricoes de chaveamento
+    t_on  = 0.25;
+    t_off = 0.25;
 
-[H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = ...
-    mpc.matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c);
+    c = [
+        -dtr(1) + t_on;
+        -dtr(2) + t_off;
+    ];
 
-% criando estrutura com dados MPC
-mpc          = struct();
-mpc.on       = 1;
+    [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = ...
+        mpc.matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c);
 
-mpc.x_target = config.x0;
-mpc.H        = H;
-mpc.Hf       = Hf;
-mpc.Phi1Np   = Phi1Np;
-mpc.Qbar     = Qbar;
-mpc.Rbar     = Rbar;
-mpc.Lbar     = Lbar;
-mpc.cbar     = cbar;
-mpc.Pf       = Pf;
-mpc.Sf       = Sf;
-mpc.bf       = bf;
-mpc.PhiNp    = PhiNp;
-mpc.p        = p;
+    % criando estrutura com dados MPC
+    mpc_opt          = struct();
+    mpc_opt.on       = 1;
 
-%% rodando simulacao com o resultado da trajetoria
-cfg     = config;
-cfg.mpc = mpc;
-cfg.x0  = config.x0 + [0.2; 0.5];
-nsim    = 40;
+    mpc_opt.x_target = config.x0;
+    mpc_opt.H        = H;
+    mpc_opt.Hf       = Hf;
+    mpc_opt.Phi1Np   = Phi1Np;
+    mpc_opt.Qbar     = Qbar;
+    mpc_opt.Rbar     = Rbar;
+    mpc_opt.Lbar     = Lbar;
+    mpc_opt.cbar     = cbar;
+    mpc_opt.Pf       = Pf;
+    mpc_opt.Sf       = Sf;
+    mpc_opt.bf       = bf;
+    mpc_opt.PhiNp    = PhiNp;
+    mpc_opt.p        = p;
 
-% simulacao com controle mpc
-[y,t,u,m,dtk_out] = engine.sim_n(cfg, nsim);
+    %% rodando simulacao com o resultado da trajetoria
+    cfg     = config;
+    cfg.mpc = mpc_opt;
+    cfg.x0  = config.x0 + [0.2; 0.5];
+    nsim    = 40;
 
-% simulacao sem controle mpc
-cfg.mpc.on = 0;
-[y_off,t_off,u_off,m_off] = engine.sim_n(cfg, nsim);
+    % simulacao com controle mpc
+    [y,t,u,m,dtk_out] = engine.sim_n(cfg, nsim);
 
-
-% plot dos resultados
-f1 = figure(1);
-
-plot(y_off(:,1), y_off(:,2), 'linew', 1.2);
-hold on;
-plot(y(:,1), y(:,2), 'linew', 1.2);
-hold off;
-
-legend('mpc off', 'mpc on');
-grid on;
-axis equal;
-xlabel('v_c');
-ylabel('i_L');
-set(gca,'fontsize', 15);
+    % simulacao sem controle mpc
+    cfg.mpc.on = 0;
+    [y_off,t_off,u_off,m_off] = engine.sim_n(cfg, nsim);
 
 
-%% plot
-m1     = m + 1;
-m1_off = m_off + 1;
+    % plot dos resultados
+    f1 = figure(1);
 
-f2 = figure(2);
-stairs(t_off, m1_off, 'linew', 2);
-hold on;
-stairs(t, m1, 'linew', 2, 'linestyle', '--');
-hold off;
-xlim([0, 5]);
-grid on;
-xlabel('time (s)');
-ylabel('mode');
-set(gca,'fontsize', 15);
-legend('modes target trajectory', 'modes simulation');
+    plot(y_off(:,1), y_off(:,2), 'linew', 1.2);
+    hold on;
+    plot(y(:,1), y(:,2), 'linew', 1.2);
+    hold off;
+
+    legend('mpc off', 'mpc on');
+    grid on;
+    axis equal;
+    xlabel('v_c');
+    ylabel('i_L');
+    set(gca,'fontsize', 15);
 
 
-%% save figures
-% save_figure(f1, "graf_patino_ex1_1.pdf")
-% save_figure(f2, "graf_patino_ex1_2.pdf")
+    %% plot
+    m1     = m + 1;
+    m1_off = m_off + 1;
 
-%% copy files
-% copyfile("graf_patino_ex1_1.pdf", "../../LATEX_tese/Cap4/fig/");
-% copyfile("graf_patino_ex1_2.pdf", "../../LATEX_tese/Cap4/fig/");
+    f2 = figure(2);
+    stairs(t_off, m1_off, 'linew', 2);
+    hold on;
+    stairs(t, m1, 'linew', 2, 'linestyle', '--');
+    hold off;
+    xlim([0, 5]);
+    grid on;
+    xlabel('time (s)');
+    ylabel('mode');
+    set(gca,'fontsize', 15);
+    legend('modes target trajectory', 'modes simulation');
+
+
+    % get values from the function
+    all_variables = who;
+    var_out = [];
+    for i = 1:length(all_variables)
+        var_name           = all_variables{i};
+        var_out.(var_name) = eval(var_name);
+    end
+
+    if (save_fig)
+        %% save figures
+        save_figure(f1, "graf_patino_ex1_1.pdf", "../LATEX_tese/Cap4/fig/");
+        save_figure(f2, "graf_patino_ex1_2.pdf", "../LATEX_tese/Cap4/fig/");
+    end
+
+end

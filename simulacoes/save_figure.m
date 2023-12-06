@@ -1,11 +1,18 @@
-function save_figure(f, name)
+function save_figure(f, name, addr)
 
-    figWidth = 10;  % or any desired width in inches
-    figHeight = 8; % or any desired height in inches
+    fprintf("saving %s\n", name);
+
+    % change fig properties
+    figWidth = 10;
+    figHeight = 8; 
 
     f.PaperSize = [figWidth, figHeight];
     f.PaperPosition = [0 0 figWidth figHeight];
     
+    % saving the file
     saveas(f, name, 'pdf');
+
+    % copying to destination folder
+    copyfile(name, addr);
 
 end
