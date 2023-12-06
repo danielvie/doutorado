@@ -1,3 +1,5 @@
+clear all
+
 % aula 8
 
 % modelo discretizado com T = 0.1s
@@ -26,7 +28,19 @@ N = 10;
 % sendo Sf, bf obtidos na caracterizacao de O_inf com os valores de equilibrio xbar, ubar considerados
 % {aula8, slide 10}
 
-% aux...
+
+
+% retirado do exemplo.m
+[K,P] = dlqr(A,B,Q,R); % Projeto DLQR com pesos unitários
+Af = A-B*K;
+Gamma = [eye(2);-K];
+Spsi = blkdiag(Sx,Su); bpsi = [bx;bu];
+max_iter = 100;
+tol = 0;
+[Sf,bf] = determina_oinf(Af,Gamma,Spsi,bpsi,max_iter,tol);
+
+
+
 Qn = Q; Sxn = Sx;
 for i = 2:N-1
     Qn = blkdiag(Qn, Q);
@@ -43,6 +57,7 @@ for i = 2:N
    Sun = blkdiag(Sun,Su);
 end
 bun = repmat(bu,N,1);
+
 
 
 n = size(B, 1);
@@ -66,6 +81,3 @@ bw = [bxn; bun; bx];
 Pw = Polyhedron('H', [Sw bw]);
 
 D = projection(Pw, p*N+1:p*N+n);
-
-
-
