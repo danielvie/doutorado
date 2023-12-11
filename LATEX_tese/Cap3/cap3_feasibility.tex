@@ -1,73 +1,121 @@
-\section{{Feasibility Region}}
+\section{Feasibility Region}
 
-\comentario{slide: aula 8 slide 30}
-\comentario{
-    
-    \textbf{Pergunta:} Para m dado N, como determinar o conjunto $\mathcal{D} \subset \mathcal{X}$ de condições iniciais
-    $x(0)$ a partir das quais o conjunto alvo $\mathcal{X}_f$ pode ser atingido repeitando as restricoes sobre o estado e o controle ?
-    
-    \textbf{Alternativamente:} Como determinal o conjunto $\mathcal{D}$ de condicoes iniciais $x(0)$ para as quais o 
-    problema de otimizacao e factivel
-    
-    $\mathcal{D}$ é o conjunto (ou regiao) de pontos $x(0) \in \mathcal{X}$ para os quais exist $\mathbf{u} \in \mathbb{R}^{pN}$ 
-    que satisfaz as sequintes restricoes:
-    
-    \begin{equation}
-        \left[ \begin{matrix} \mathbf{S_x} \mathbf{B} \\ \mathbf{S_u} \end{matrix} \right] \mathbf{u} \le
-        \left[ \begin{matrix} \mathbf{b_x - S_xA}x(0) \\ \mathbf{b_u} \end{matrix} \right]
-    \end{equation}
-    
-    Essas restricoes podem ser reescritas como
+We aim to determine the set $\mathcal{D}$ of points $x(0) \in \mathcal{X}$ for which there exists $\mathbf{u} \in \mathbb{R}^{pN}$ satisgying the constraints
 
-    \begin{equation}
-        \left[ \begin{matrix} \mathbf{S_x} \mathbf{B} & \mathbf{S_xA} \\ \mathbf{S_u} & 0 \end{matrix} \right] 
-        \left[ \begin{matrix} \mathbf{u} \\ x(0) \end{matrix} \right] \le
-        \left[ \begin{matrix} \mathbf{b_x} \\ \mathbf{b_u} \end{matrix} \right]
-    \end{equation}
+\noindent
+\begin{equation}
+    \left[
+    \begin{matrix}
+        \mathbf{S_x} \mathbf{B} \\
+        \mathbf{S_u} \\
+    \end{matrix}
+    \right] \mathbf{u} \le
+    \left[
+    \begin{matrix}
+        \mathbf{b_x} - \mathbf{Sx} \mathbf{A} x(0) \\
+        \mathbf{b_u}
+    \end{matrix}
+    \right]
+\end{equation}
 
-    ou ainda, acrescentando-se a restricao $S_x x(0) \le b_x$,
-    ou ainda, acrescentando-se a restricao $S_x x(0) \le b_x$,
+These restrictions can be rewritten as
 
-    \begin{equation}
-        \left[ \begin{matrix} \mathbf{S_x} \mathbf{B} & \mathbf{S_xA} \\ \mathbf{S_u} & 0 \\ 0 & S_x \end{matrix} \right] 
-        \left[ \begin{matrix} \mathbf{u} \\ x(0) \end{matrix} \right] \le
-        \left[ \begin{matrix} \mathbf{b_x} \\ \mathbf{b_u} \\ b_x \end{matrix} \right]
-    \end{equation}
-    
-    De forma resumida, pode-se escrever
-    
-    \begin{equation}
-        S_w w \le b_w
-    \end{equation}
-    
-    com
-    
-    \begin{equation}
-        w = \left[ \begin{matrix} \mathbf{u} \\ x(0) \end{matrix} \right],
-        S_w = \left[ \begin{matrix} \mathbf{S_x} \mathbf{B} & \mathbf{S_xA} \\ \mathbf{S_u} & 0 \\ 0 & S_x \end{matrix} \right],
-        b_w = \left[ \begin{matrix} \mathbf{b_x} \\ \mathbf{b_u} \\ b_x \end{matrix} \right]
-    \end{equation}
+\noindent
+\begin{equation}
+    \left[
+    \begin{matrix}
+        \mathbf{S_x} \mathbf{B} & \mathbf{S_x} \mathbf{A} \\
+        \mathbf{S_u} & x(0) \\
+    \end{matrix}
+    \right] 
+    \left[
+        \begin{matrix}
+            \mathbf{u} \\
+            x(0)
+        \end{matrix}
+    \right]
+    \le
+    \left[
+    \begin{matrix}
+        \mathbf{b_x} \\
+        \mathbf{b_u}
+    \end{matrix}
+    \right]
+\end{equation}
 
-    A restricao $S_w w \le b_w$ define um poliedro $\mathcal{P}_w$ no espaco $\mathbb{R}^{(pN+n)}$ correspondente as variaveis 
-    \textbf{u}, x(0).
-    
-    O conjunto $\mathcal{D}$ e obtido \textbf{projetando-se} $\mathcal{P}_w$ sobre o subespaco de suas ultimas $n$ componentes.
-    
-    \begin{figure}[h]
-        \centering
-        \includegraphics[width=0.7\textwidth]{Cap3/fig/feasability.eps}
-        \caption{Ilustracao para n = 1 estado, p = 1 entrada e N = 1 passo}\label{cap3_feasability}
-    \end{figure}
-    
-    A \textbf{projecao} pose ser realizada empregando a funcao projection do MPT Toolbox:
-    
-    \boxeq{}{Sw = [Sxn*Bn] ... \nonumber}
+\noindent
+adding a restriction $S_x x(0) \le b_x$
 
+\noindent
+\begin{equation}
+    \left[
+    \begin{matrix}
+        \mathbf{S_x} \mathbf{B} & \mathbf{S_x} \mathbf{A} \\
+        \mathbf{S_u} & x(0) \\
+        0 & S_x
+    \end{matrix}
+    \right] 
+    \left[
+        \begin{matrix}
+            \mathbf{u} \\
+            x(0)
+        \end{matrix}
+    \right]
+    \le
+    \left[
+    \begin{matrix}
+        \mathbf{b_x} \\
+        \mathbf{b_u} \\
+        b_x
+    \end{matrix}
+    \right]
+\end{equation}
 
-    \purple{
-        exemplo de projecao: ????
-    }
+This can be written in a shorter form
 
+\noindent
+\begin{equation}
+    S_w w \le b_w
+\end{equation}
 
-}
+\noindent
+with
 
+\noindent
+\begin{equation}
+    w = 
+    \left[
+        \begin{matrix}
+            \mathbf{u} \\
+            x(0)
+        \end{matrix}
+    \right],
+    S_w = 
+    \left[
+        \begin{matrix}
+            \mathbf{S_x} \mathbf{B} & \mathbf{S_x} \mathbf{A} \\
+            \mathbf{S_u} & 0 \\
+            0 & S_x
+        \end{matrix}
+    \right],
+    b_w = 
+    \left[
+        \begin{matrix}
+            \mathbf{b_x} \\
+            \mathbf{b_u} \\
+            b_x \\
+        \end{matrix}
+    \right]
+\end{equation}
+
+The constraint $S_w w \le b_w$ define a polyhedron $\mathcal{P}_w$ in the space $\mathbb{R}^{(pN+n)}$ correspondng to the variables $\mathcal{u}$, $x(0)$.
+
+The set $\mathcal{D}$ is obtained by projection $\mathcal{P}_w$ onto the subspace of its last $n$ components.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Cap3/fig/feasability.eps}
+    \caption{Ilustracao para n = 1 estado, p = 1 entrada e N = 1 passo}\label{cap3_feasability}
+\end{figure}
+
+The \textbf{projection} can be performed using the \textit{projection} function from the \textit{MPT Toolbox}.
