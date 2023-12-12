@@ -18,6 +18,9 @@ function var_out = create_projection(config)
                 N: ?? [default: 10]
     %}
 
+
+    % sistema discretizado
+
     A = config.A;
     B = config.B;
     C = config.C;
@@ -39,8 +42,11 @@ function var_out = create_projection(config)
     end
 
 
+    % // MARKER: entender melhor essa parte do codigo
+    % // MARKER: em particular, o calculo de Sf e bf
     % retirado do exemplo.m
-    [K,P] = dlqr(A,B,Q,R); % Projeto DLQR com pesos unitários
+    % [K,P] = dlqr(A,B,Q,R); % Projeto DLQR com pesos unitários
+    [K,~] = dlqr(A,B,Q,R); % Projeto DLQR com pesos unitários
     Af = A-B*K;
     Gamma = [eye(2);-K];
     Spsi = blkdiag(Sx,Su); bpsi = [bx;bu];
@@ -49,6 +55,7 @@ function var_out = create_projection(config)
     [Sf,bf] = determina_oinf(Af,Gamma,Spsi,bpsi,max_iter,tol);
 
 
+    %% calculando matrizes {}n
     Qn = Q; Sxn = Sx;
     for i = 2:N-1
         Qn = blkdiag(Qn, Q);
@@ -79,9 +86,9 @@ function var_out = create_projection(config)
 
 
     % projection
-    Sw = [Sxn*Bn Sxn*An;
-        Sun zeros(size(Sun, 1), n);
-        zeros(size(Sx,1), p*N) Sx];
+    Sw = [  Sxn*Bn Sxn*An;
+            Sun zeros(size(Sun, 1), n);
+            zeros(size(Sx,1), p*N) Sx];
         
     bw = [bxn; bun; bx];
 

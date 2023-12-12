@@ -14,15 +14,13 @@ function var_out = integrador_duplo(save_fig)
         %% construindo MPC
         % montando valores de referencia
 
-    %% 3 TRAJETORIA
+    %% 4 CONSTRUINDO MPC
         tr  = config.Ts(2:end);
         % ur  = [1, 0];
         dtr = diff(config.Ts);
         xr  = engine.get_xr(config);
 
         [Phi, Gamma] = mpc.construcao_modelo_instantes(config.A, config.b, tr, xr, config);
-
-    %% 4 CONSTRUINDO MPC
 
         N  = numel(tr);
         p  = N - 1;

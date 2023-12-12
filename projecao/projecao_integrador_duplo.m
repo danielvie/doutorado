@@ -1,7 +1,22 @@
+
+% PROJECAO INTEGRADOR DUPLO
+
+% modelo de predicao:
+%{
+    e(tn) = Phi e(t0) + Gamma * dt
+    Phi -> A
+    Gamma -> B
+    dt -> u
+%}
+
+Phi   = [1, 6; 0, 1];
+Gamma = [4, 3, -1; 1, 1, -1];
+
 % modelo discretizado com T = 0.1s
 
-config.A = [0, 1; 0, 0];
-config.B = [0; 1];
+
+config.A = Phi;
+config.B = Gamma;
 config.C = [1, 0];
 
 % ganho de realimentacao K usando DLQR
@@ -10,10 +25,31 @@ config.R = 1;
 config.Pf = diag([1, 1]);
 
 % restricoes
-config.Sx = [1, 0; -1, 0];
-config.bx = [4*pi/6; pi/6];
-config.Su = [1;-1];
-config.bu = [5; 2];
+
+%{
+    L dt <= c 
+%}
+dtr = [2, 3, 5, 6];
+
+t_on  = 1.625;
+t_off = 0.635;
+
+L = [1, 0, 0, 0;
+     -1, 1, 0, 0;
+     0, -1, 1, 0;
+     0, 0, -1, 1];
+
+c = [
+    -dtr(1) + t_on;
+    -dtr(2) + t_off;
+    -dtr(3) + t_on;
+    -dtr(4) + t_off;
+];
+
+% config.Sx = [1, 0; -1, 0];
+% config.bx = [4*pi/6; pi/6];
+config.Su = -L;
+config.bu = -c;
 
 %config.N = 10;
 

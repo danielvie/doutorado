@@ -3,13 +3,13 @@ function [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = matrizes_ss_mpc_du
     % Restricaoo (at each cycle): L*dt <= c
 
     % f = Phi * Xi(k)
-
-    % Phi = 
-    % Gamma = 
-    % Q = 
-    % R = 
-    % Np = 
-    % c = 
+ 
+    % Phi =
+    % Gamma =
+    % Q =
+    % R =
+    % Np =
+    % c =
 
     
     n = size(Phi,1);
