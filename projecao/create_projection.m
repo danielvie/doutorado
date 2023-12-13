@@ -19,33 +19,24 @@ function var_out = create_projection(config)
     %}
 
 
-    % sistema discretizado
-
+    % LENDO PARAMETROS
     A = config.A;
     B = config.B;
-    % C = config.C;
 
     Q = config.Q;
     R = config.R;
-    % Pf = config.Pf;
 
     Sx = config.Sx;
     bx = config.bx;
     Su = config.Su;
     bu = config.bu;
 
-    % create default value for N
-    if isfield(config, 'N')
-        N = config.N;
-    else
-        N = 10;
-    end
+    xbar = config.xbar;
+    ubar = config.ubar;
 
+    N = config.N;
 
-    % // MARKER: entender melhor essa parte do codigo
-    % // MARKER: em particular, o calculo de Sf e bf
-    % retirado do exemplo.m
-    % [K,P] = dlqr(A,B,Q,R); % Projeto DLQR com pesos unitários
+    % CALCULO DA REGIAO DE FACTIBILIDADE
     [K,~] = dlqr(A,B,Q,R); % Projeto DLQR com pesos unitários
     Af = A-B*K;
     Gamma = [eye(2);-K];
@@ -53,41 +44,22 @@ function var_out = create_projection(config)
     max_iter = 100;
     tol = 0;
 
-
-
-    xbar = [-0.5; -1.0];
-    ubar = [0; 0; 0];
-
-    % [Sf,bf_til] = determina_oinf(Af,Gamma,Spsi,bpsi,max_iter,tol);
-    % bf = bf_til + Sf*xbar;
-    
     [Sf,bf_til] = determina_oinf(Af,Gamma,Spsi,bpsi-[Sx*xbar;Su*ubar],max_iter,tol);
     bf = bf_til + Sf*xbar;
 
-
-    %% calculando matrizes {}n
-    Qn = Q; Sxn = Sx;
-    for i = 2:N-1
-        Qn = blkdiag(Qn, Q);
-        Sxn = blkdiag(Sxn, Sx);
-    end
-    
-    % Qn = blkdiag(Qn, Pf);
-    Sxn = blkdiag(Sxn, Sf);
-    bxn = [repmat(bx,N-1,1); bf];
-
-    An = A; Rn = R; Sun = Su;
+    Sun = Su;
+    An = A;
     for i = 2:N
-        An = [An;A^i];
-        Rn = blkdiag(Rn,R);
         Sun = blkdiag(Sun,Su);
+        An = [An;A^i];
     end
     bun = repmat(bu,N,1);
 
+    n = size(B,1);
+    p = size(B,2);
+    % Bn = zeros(n*N,p*N);
 
-    n = size(B, 1);
-    p = size(B, 2);
-    Baux = mat2cell(zeros(n*N, p*N), n*ones(N,1), p*ones(1,N));
+    Baux = mat2cell(zeros(n*N,p*N),n*ones(N,1),p*ones(1,N));
     for i = 1:N
         for j = 1:i
             Baux{i,j} = (A^(i-j))*B;
@@ -95,17 +67,26 @@ function var_out = create_projection(config)
     end
     Bn = cell2mat(Baux);
 
+    if N > 1
+    Sxn = Sx;
+        for i = 2:N-1
+            Sxn = blkdiag(Sxn,Sx);
+        end
+        Sxn = blkdiag(Sxn,Sf);
+    else
+        Sxn = Sf;
+    end
 
-    % projection
-    Sw = [  Sxn*Bn Sxn*An;
-            Sun zeros(size(Sun, 1), n);
-            zeros(size(Sx,1), p*N) Sx];
-        
+    bxn = [repmat(bx,N-1,1);bf];
+
+    Sw = [Sxn*Bn Sxn*An;
+        Sun zeros(size(Sun,1),n);
+        zeros(size(Sx,1),p*N) Sx];
     bw = [bxn; bun; bx];
-
-    Pw = Polyhedron('H', [Sw bw]);
-    D  = projection(Pw, p*N+1:p*N+n);
     
+    Pw = Polyhedron('H',[Sw bw]);
+    D = projection(Pw,p*N+1:p*N+n);
+
     % getting all variables as reponse parameter
     varnames = who;
     var_out = struct();

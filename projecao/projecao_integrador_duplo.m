@@ -56,9 +56,11 @@ config.bx = 0;
 config.Su = -L;
 config.bu = -c;
 
-config.N = 2;
+config.N = 1;
 
 
+config.xbar = [-0.5; -1.0];
+config.ubar = [0; 0; 0];
 
 %{
     do controlador, tenho:
