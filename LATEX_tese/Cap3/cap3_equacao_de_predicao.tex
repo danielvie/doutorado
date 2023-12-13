@@ -27,11 +27,14 @@ based on the state equation
 
 \noindent
 \begin{equation}
-	\hat{x}[k + i +1|k] = A\hat{x}[k|k] + B \hat{u}[k|k]
+	\hat{x}[k + i +1|k] = A\hat{x}[k+i|k] + B \hat{u}[k+i|k], 
+	i = 0, 1, \ldots, N 
 \end{equation}
 
+
+
 \noindent
-and initial condition $x[k]$.
+and initial condition $\hat{x}[k|k] = x[k]$.
 
 The solution for the state equation is:
 
@@ -94,8 +97,22 @@ This can be written in a shorter form as
 
 \noindent
 \begin{equation}
-\mathbf{\hat{x}} = \mathbf{A}x[k|k] + \mathbf{B \hat{u}}
+\mathbf{\hat{x}}[k] = \mathbf{A}x[k] + \mathbf{B \hat{u}}[k]
 \end{equation}
+
+
+\comentario{
+	- ajustar notacao x hat k
+
+	- procurar x[k|k] -> x[k] (negrito)
+
+	- procurar x[k|k] -> x[k] (negrito)
+
+	- procurar u negrito -> u hat negrito [k]
+
+	- conferir duplicidade de notacao
+}
+
 
 \noindent
 with 

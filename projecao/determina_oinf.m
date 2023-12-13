@@ -8,6 +8,7 @@ function [Sf,bf,Si,bi] = determina_oinf(Af,Gamma,Spsi,bpsi,max_iter,tol)
 
 % Inicializacao
 if nargin < 6, tol = 0; end
+
 r = length(bpsi); % No. restricoes
 SpsiGamma = Spsi*Gamma;
 S = SpsiGamma; b = bpsi;

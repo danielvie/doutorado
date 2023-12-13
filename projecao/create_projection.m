@@ -23,11 +23,11 @@ function var_out = create_projection(config)
 
     A = config.A;
     B = config.B;
-    C = config.C;
+    % C = config.C;
 
     Q = config.Q;
     R = config.R;
-    Pf = config.Pf;
+    % Pf = config.Pf;
 
     Sx = config.Sx;
     bx = config.bx;
@@ -52,7 +52,17 @@ function var_out = create_projection(config)
     Spsi = blkdiag(Sx,Su); bpsi = [bx;bu];
     max_iter = 100;
     tol = 0;
-    [Sf,bf] = determina_oinf(Af,Gamma,Spsi,bpsi,max_iter,tol);
+
+
+
+    xbar = [-0.5; -1.0];
+    ubar = [0; 0; 0];
+
+    % [Sf,bf_til] = determina_oinf(Af,Gamma,Spsi,bpsi,max_iter,tol);
+    % bf = bf_til + Sf*xbar;
+    
+    [Sf,bf_til] = determina_oinf(Af,Gamma,Spsi,bpsi-[Sx*xbar;Su*ubar],max_iter,tol);
+    bf = bf_til + Sf*xbar;
 
 
     %% calculando matrizes {}n
@@ -61,15 +71,16 @@ function var_out = create_projection(config)
         Qn = blkdiag(Qn, Q);
         Sxn = blkdiag(Sxn, Sx);
     end
-    Qn = blkdiag(Qn, Pf);
+    
+    % Qn = blkdiag(Qn, Pf);
     Sxn = blkdiag(Sxn, Sf);
     bxn = [repmat(bx,N-1,1); bf];
 
     An = A; Rn = R; Sun = Su;
     for i = 2:N
-    An = [An;A^i];
-    Rn = blkdiag(Rn,R);
-    Sun = blkdiag(Sun,Su);
+        An = [An;A^i];
+        Rn = blkdiag(Rn,R);
+        Sun = blkdiag(Sun,Su);
     end
     bun = repmat(bu,N,1);
 
