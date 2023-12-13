@@ -83,7 +83,7 @@ with
 Note that we will now use the notation $J(\mathbf{\hat{u}})$ instead of $J(\mathbf{\hat{x}}, \mathbf{\hat{u}})$, since $\mathbf{\hat{x}}$ has been eliminated from 
 the cost expression. 
 
-To complete the reformulation of the optimization problem in terms of $\mathbf{\hat{u}}$, the relation between $\mathbf{\hat{x}}$ and $\mathbf{\hat{u}}$ in the 
+To finalize the restructuring of the optimization problem in terms of $\mathbf{\hat{u}}$, the relation between $\mathbf{\hat{x}}$ and $\mathbf{\hat{u}}$ in the 
 \textbf{restrictions} must be considered.
 
 
@@ -124,13 +124,6 @@ subject to
     \mathbf{S_u} \mathbf{\hat{u}}[k] \leq \mathbf{b_u}
 \end{equation}
 
-The vectors $\mathbf{\hat{x}}[k|k]$ and $\mathbf{\hat{u}}[k|k]$ are linked by the following \textbf{prediction equation}:
-
-\noindent
-\begin{equation}
-    \mathbf{\hat{x}}[k + 1 | k] = \mathbf{A} \hat{x}[k | k] + \mathbf{B} \mathbf{\hat{u}}[k | k]
-\end{equation}
-
 Thus, the cost can be rewritten as
 
     \noindent
@@ -155,15 +148,6 @@ and the constraints can be expressed as
 \begin{equation}
     \label{cap3-constraint}
     \mathbf{S} \mathbf{\hat{u}}[k] \leq \mathbf{b}
-\end{equation}
-
-\noindent
-with
-
-\noindent
-\begin{equation}
-    \mathbf{S} = \left[ \begin{matrix} \mathbf{S_x} \mathbf{B} \\ \mathbf{S_u} \end{matrix} \right], \mathbf{b} = 
-    \left[ \begin{matrix} \mathbf{b_x} - \mathbf{S_x} \mathbf{A} \hat{x}[k|k] \\ \mathbf{b_u} \end{matrix} \right]
 \end{equation}
 
 Having obtained the solution $\mathbf{\hat{u}}[k|k]$ for the problem $\mathbb{P}\Big(\hat{x}[k|k]\Big)$, the control to be applied to the plant is given by

@@ -59,6 +59,8 @@
 
 
 \usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tikz}
 
 \definecolor{lightgreen}{HTML}{90EE90}
 \newcommand{\boxeq}[2]{\setlength{\fboxrule}{2pt}\begin{empheq}[box={\fboxsep=8pt\fbox}]{align}\label{#1}#2\end{empheq}}
@@ -87,6 +89,12 @@
 \newcommand{\pink}[1]{{\color{pink_1}#1}}
 
 \newcommand{\comentario}[1]{{\color{purple_1}#1}}
+
+\newcommand{\highlight}[1]{%
+    \tikz[baseline=(X.base)]{\node[rectangle, fill=blue!5, rounded corners, inner sep=2pt] (X) {\textcolor{black}{#1}};}%
+}
+
+\newcommand{\destaque}[1]{\highlight{#1}}
 
 % NOTE: ordem das cores: green, orange, blue, purple
 
