@@ -75,16 +75,18 @@ function var_out = integrador_duplo(save_fig)
 
 
     % PLOT DOS RESULTADOS
-        ncicle = size(y_off, 1) / nsim;
+        ncycle = size(y_off, 1) / nsim;
 
         f1 = figure(1);
-        plot_traj(y_off(1:ncicle*5,:), config.x0, "double integrator MPC off", "v_c", "i_L");
+        plot_traj(y_off(1:ncycle*5,:), config.x0, "double integrator MPC off", "v_c", "i_L");
 
         f2 = figure(2);
         plot_traj(y, config.x0, "double integrator MPC on", "v_c", "i_L");
 
         f3 = figure(3);
-        plot_control_signal(t_off, m_off, t, m, "double integrator Control Signal", "time (s)", "mode");
+        
+        ncycle = ncycle * 8 + 1;
+        plot_control_signal(t_off(1:ncycle), m_off(1:ncycle), t(1:ncycle), m(1:ncycle), "double integrator Control Signal", "time (s)", "mode");
 
         % get values from the function
         all_variables = who;
@@ -108,9 +110,9 @@ function plot_traj(y, x0, tit, x_label, y_label)
     hold on;
 
     % plot marcadores
-    plot(y(1,1), y(1,2), 'ro', 'markers', 8, 'linew', 1.2);
+    plot(y(1,1), y(1,2), 'ro', 'markers', 10, 'linew', 1.2);
     plot(y(end,1), y(end,2), 'k.', 'markers', 30);
-    plot(x0(1), x0(2), 'rx', 'linew', 2, 'markers', 10);
+    plot(x0(1), x0(2), 'rx', 'linew', 2, 'markers', 16);
 
     legend('trajectory', 'start', 'end', 'target x_0', 'location', 'southeast');
 
@@ -128,7 +130,7 @@ function plot_control_signal(t_off, m_off, t, m, tit, x_label, y_label)
     hold on;
     stairs(t, m, 'linew', 2, 'linestyle', '--');
     hold off;
-    xlim([0, 25]);
+    % xlim([0, 25]);
     grid on;
     title(tit);
     xlabel(x_label);

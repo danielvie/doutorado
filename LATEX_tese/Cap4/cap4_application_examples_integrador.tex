@@ -141,11 +141,7 @@ with the switching time constraints
 
 
 \comentario{
-    - colocar aqui a simulacao em malha aberta
-
-    - a regiao de factibilidade
-
-    - a simulacao em malha fechada
+    - FALTA SIMULAR A REGIAO DE FACTIBILIDADE
 }
 
 The simulation uses the system \eqref{cap4-eq-signal-integrador} with the command signal \eqref{cap4-eq-signal-integrador} and with 
@@ -153,14 +149,18 @@ a initial condition \highlight{$x_0 = \big[1.5, -0.5\big]$}.
 Figure \ref{cap4-graf-ex1-1} shows the simulation without the MPC control being applyied running for 5 cycles and we can see that the
 trajectory is diverging from the initial position of the target cyclic trajectory \highlight{$x_{0_{ref}} = \big[-0.5, -1.0\big]$} position.
 
-Simulating this problem for 50 cycles we have
-
 \begin{figure}[h!]
     \centering
     \includegraphics[width=14cm]{Cap4/fig/graf_ex1_1.pdf}
     \caption{State Trajectory MPC off, 4 cicles}
     \label{cap4-graf-ex1-1}
 \end{figure}
+
+
+Now, for the same condition, we can turn on the MPC controller and run the simulation for 50 cycles. Figure \ref{cap4-graf-ex1-2} shows the
+resulting trajectory and Figure \ref{cap4-graf-ex1-3} shows the associated command signal. We can see that the controler drives the trajectory 
+of the system to the target cyclic trajectory, we also that the command signal get in sync with the reference command.
+
 
 \begin{figure}[h!]
     \centering
