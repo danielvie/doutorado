@@ -1,8 +1,8 @@
 \section{Motivation}
 
-    The dynamics of switched affine systems can be described by a state equation of the form $\dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}, t \in \mathbb{R}_+$. 
-    Where $x(t) \in \mathbb{R}^n$ is the state vector and $\sigma(t) \in \{1, 2, ..., M\}$ is the switching state, which is associated to the matrix 
-    $A_{\sigma(t)} \in \mathbb{R}^{n \times n}$ and the vector $b_{\sigma(t)} \in \mathbb{R}^{n}$ at each time $t$.
+    The dynamics of switched affine systems can be described by a state equation of the form \highlight{$\dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}, t \in \mathbb{R}_+$}. 
+    Where \highlight{$x(t) \in \mathbb{R}^n$} is the state vector and \highlight{$\sigma(t) \in \{1, 2, ..., M\}$} is the switching state, which is associated to the matrix 
+    \highlight{$A_{\sigma(t)} \in \mathbb{R}^{n \times n}$} and the vector \highlight{$b_{\sigma(t)} \in \mathbb{R}^{n}$} at each time $t$.
     
     The use of switched affine systems to solve problems in engineering can be seen in fields like biochemical reactions, where 
     \citeonline{reference_biochemical_reaction} uses switched affine systems to represent the moments of evolution in a generic biochemical 
@@ -40,12 +40,9 @@
     This present work proposes to expand the solution from \citeonline{matheus2018} and provide a broader solution that can be used for systems 
     that have their dynamics changing over time.
 
-    In a system that can be represented by a switched affine system with the form 
-
-    $ \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)} $
-
+    In a system that can be represented by a switched affine system with the form \highlight{$ \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)} $}
     there are cases in which the dynamic response of the system can change depending on the operation mode. This can be represented in 
-    switched affine systems with proper matrices $A_{\sigma(t)}$ and $b_{\sigma(t)}$ for each operation mode. With the current implementation
+    switched affine systems with proper matrices \highlight{$A_{\sigma(t)}$} and \highlight{$b_{\sigma(t)}$} for each operation mode. With the current implementation
     of \citeonline{matheus2018} considering an invariant system during its operation, there is a need for expanding the solution so it can represent
     more systems and solve more engineering problems that can be expressed as switched affine systems.
 
