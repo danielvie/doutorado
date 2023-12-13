@@ -75,34 +75,16 @@ function var_out = integrador_duplo(save_fig)
 
 
     % PLOT DOS RESULTADOS
+        ncicle = size(y_off, 1) / nsim;
+
         f1 = figure(1);
-
-        % plot(y_off(:,1), y_off(:,2), 'linew', 1.2);
-        % hold on;
-        plot(y(:,1), y(:,2), 'linew', 1.2);
-        hold off;
-
-        % legend('mpc off', 'mpc on');
-        grid on;
-        axis equal;
-        xlabel('v_c');
-        ylabel('i_L');
-        set(gca,'fontsize', 15);
-
-        %% plot
+        plot_traj(y_off(1:ncicle*5,:), config.x0, "double integrator MPC off", "v_c", "i_L");
 
         f2 = figure(2);
-        stairs(t_off, m_off, 'linew', 2);
-        hold on;
-        stairs(t, m, 'linew', 2, 'linestyle', '--');
-        hold off;
-        xlim([0, 25]);
-        grid on;
-        xlabel('time (s)');
-        ylabel('mode');
-        set(gca,'fontsize', 15);
-        legend('modes target trajectory', 'modes simulation');
+        plot_traj(y, config.x0, "double integrator MPC on", "v_c", "i_L");
 
+        f3 = figure(3);
+        plot_control_signal(t_off, m_off, t, m, "double integrator Control Signal", "time (s)", "mode");
 
         % get values from the function
         all_variables = who;
@@ -116,5 +98,41 @@ function var_out = integrador_duplo(save_fig)
             %% save figures
             save_figure(f1, "graf_ex1_1.pdf", "../LATEX_tese/Cap4/fig/");
             save_figure(f2, "graf_ex1_2.pdf", "../LATEX_tese/Cap4/fig/");
+
+            save_figure(f3, "graf_ex1_3.pdf", "../LATEX_tese/Cap4/fig/");
         end
+end
+
+function plot_traj(y, x0, tit, x_label, y_label)
+    plot(y(:,1), y(:,2), 'linew', 1.2);
+    hold on;
+
+    % plot marcadores
+    plot(y(1,1), y(1,2), 'ro', 'markers', 8, 'linew', 1.2);
+    plot(y(end,1), y(end,2), 'k.', 'markers', 30);
+    plot(x0(1), x0(2), 'rx', 'linew', 2, 'markers', 10);
+
+    legend('trajectory', 'start', 'end', 'target x_0', 'location', 'southeast');
+
+    hold off;
+    grid on;
+    axis equal;
+    title(tit);
+    xlabel(x_label);
+    ylabel(y_label);
+    set(gca,'fontsize', 15);
+end
+
+function plot_control_signal(t_off, m_off, t, m, tit, x_label, y_label)
+    stairs(t_off, m_off, 'linew', 2);
+    hold on;
+    stairs(t, m, 'linew', 2, 'linestyle', '--');
+    hold off;
+    xlim([0, 25]);
+    grid on;
+    title(tit);
+    xlabel(x_label);
+    ylabel(y_label);
+    set(gca,'fontsize', 15);
+    legend('modes target trajectory', 'modes simulation');
 end

@@ -6,7 +6,7 @@
 function config = get_config_sim_intduplo()
 
       % operation modes
-      config.Omega  = [1, 2, 3, 4]; % modo de operacao
+      config.Omega  = [1, 2, 3, 2]; % modo de operacao
 
       % maximum number of operation modes
       config.smax  = 4;
@@ -16,15 +16,14 @@ function config = get_config_sim_intduplo()
       b_1 = [0;  1];
       b_2 = [0;  0];
       b_3 = [0; -1];
-      b_4 = [0;  0];
 
       C = eye(2);
       D = [0;0];
 
       % config.ur     = [1, 0, 1, 0]; % controle associado com modo
       
-      config.A = {A, A, A, A};
-      config.b = {b_1, b_2, b_3, b_4};
+      config.A = {A, A, A};
+      config.b = {b_1, b_2, b_3};
       config.C = C;
       config.D = D;
 
