@@ -23,7 +23,7 @@ while ( (i <= max_iter) && (flag_redund == 0) )
     for j = 1:r % Teste de redundancia de cada restricao
         c = SGAi(j,:)';
         d = bpsi(j);
-        % A restricao eh redundante se e somente se t(j) <= tol
+        % A restricao eh redundante se e somente se t(j) <= tol 5
         t(j) = teste_redundancia(S,b,c,d);
         if t(j) > tol % Se a restricao nao for redundante
             flag_redund = 0; % Pelo menos uma restricao nao foi redundante

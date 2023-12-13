@@ -9,6 +9,10 @@
     dt -> u
 %}
 
+
+% carregando simulacao integ. duplo em var `s`
+load('s', 's');
+
 Phi   = [1, 6; 0, 1];
 Gamma = [4, 3, -1; 1, 1, -1];
 
@@ -20,7 +24,7 @@ config.B = Gamma;
 config.C = [1, 0];
 
 % ganho de realimentacao K usando DLQR
-config.Q = [50, 0; 0, 1];
+config.Q = diag(ones(2,1));
 config.R = 1;
 config.Pf = diag([1, 1]);
 
@@ -29,15 +33,14 @@ config.Pf = diag([1, 1]);
 %{
     L dt <= c 
 %}
-dtr = [2, 3, 5, 6];
+
+Ts = [0, 2, 3, 5, 6];
+dtr = diff(Ts);
 
 t_on  = 1.625;
 t_off = 0.635;
 
-L = [1, 0, 0, 0;
-     -1, 1, 0, 0;
-     0, -1, 1, 0;
-     0, 0, -1, 1];
+L = toeplitz([1, -1, 0, 0], [1, 0, 0]);
 
 c = [
     -dtr(1) + t_on;
@@ -46,8 +49,8 @@ c = [
     -dtr(4) + t_off;
 ];
 
-% config.Sx = [1, 0; -1, 0];
-% config.bx = [4*pi/6; pi/6];
+config.Sx = [];
+config.bx = [];
 config.Su = -L;
 config.bu = -c;
 
