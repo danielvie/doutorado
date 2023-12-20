@@ -3,7 +3,7 @@
 \subsubsection{Parameters of the Simulation}
 
 This example describes the Buck-boost converter model described in session \ref{cap2-session-patino1},
-the associated mode sequence for the target cyclic trajectory is shown in Figure \ref{cap2_fig_seq_ref_patino1}
+the associated mode sequence for the target cyclic trajectory is shown in Figure \ref{cap4_fig_seq_ref_patino1}
 
 
 \begin{figure}[h]
@@ -13,11 +13,12 @@ the associated mode sequence for the target cyclic trajectory is shown in Figure
     \label{cap4_fig_seq_ref_patino1}
 \end{figure}
 
+\noindent
 where
 
 \begin{equation}
     \begin{matrix}
-        A_1 = \left[ \begin{matrix} 0 & 0 \\ 0 & -1/(RC) \\ \end{matrix} \right] &
+        A_1 = \left[ \begin{matrix} 0 & 0 \\ 0 & -1/(RC) \\ \end{matrix} \right], &
         A_2 = \left[ \begin{matrix} 0 & 1/L \\ -1/C & -1/(RC) \\ \end{matrix} \right] \\
         \\
         b_1 = \left[ \begin{matrix} E/L \\ 0 \end{matrix} \right] &
@@ -29,7 +30,7 @@ where
 
 \noindent
 and the operation mode is characterized by the index \highlight{$\Omega = \big[1, 2\big]$}. 
-The time switch values are defined as \highlight{$\big[0, 0.2513, 0.5914 \big]$}, 
+The time switch values are defined as \highlight{$\tau^\infty = \big[0, 0.2513, 0.5914 \big]$}, 
 and the reference state vector for this trajectory is denoted as \highlight{$x_{ ref} = \big[2, -1\big]$}. 
 Additionally, the maximum period value for the trajectory cycle is specified as \highlight{$T_{p_{max}} = 1$}, 
 while the initial state of the nominal target trajectory is given by \highlight{$x_0 = \big[1.8708, -1.1198\big]$}.
@@ -89,7 +90,6 @@ with the switching time constraints
 
 \subsubsection{Results}
 
-The simulation uses the system \eqref{eq_dynamics_patino1} with the signal \eqref{eq_ref_signal_patino1}.
 Figure \ref{cap4_fig_seq_ref_patino1} shows the simulation of the trajectory for the system, \highlightblue{in blue} we see
 the trajectory without using the MPC controller, and \highlightorange{in orange} we see the trajectory using the MPC controller.
 They are both starting from \highlight{$x_0 = \big[2.0493,-0.6108\big]$} and converge to the initial position of the target cyclic trajectory 

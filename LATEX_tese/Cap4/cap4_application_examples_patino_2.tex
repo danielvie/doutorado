@@ -2,13 +2,18 @@
 
 \subsubsection{Parameters of the Simulation}
 
-The values used to simulate the Buck-boost converter example are:
+This example describes the Multilevel converter model described in session \ref{cap2-session-patino2},
+the associated mode sequence for the target cyclic trajectory is shown in Figure \ref{cap4_fig_seq_ref_patino2}.
 
-- $\Omega$: $\Big[1, 2, 4, 8, 3, 1, 5, 8, 5\Big]$
+\begin{figure}[h]
+    \centering
+    \includegraphics[]{figuras/cap4_ref_signal_patino2.eps}
+    \caption{Reference sequence for Multilevel converter}
+    \label{cap4_fig_seq_ref_patino2}
+\end{figure}
 
-- $s_{max}$ is set to 12.
-
-- The dynamics of the system are defined by
+\noindent
+where
 
 \begin{equation}
     \begin{matrix}
@@ -24,14 +29,15 @@ The values used to simulate the Buck-boost converter example are:
 \end{equation}
 
 \noindent
-where R = 10.0 $\Omega$, L = 10.0 $mH$, $C_1$ = 40.0 $\mu F$, $C_2$ = 40.0*1e-6 $\mu F$, E  = 30.0 $V$
+with \highlight{$R = 10.0 \Omega$}, \highlight{$L = 10.0 mH$}, \highlight{$C_1 = 40.0 \mu F$}, 
+\highlight{$C_2 = 40.0 \times 10^{-6} \mu F$}, \highlight{$E  = 30.0 V$}
 
 \noindent
-and $u(i)$ is 
+and \highlight{$u(i)$} is 
 
 \noindent
 \begin{table}[h!]
-    \caption{heading}
+    \caption{Values of $u_i$ for the Multilevel converter}
     \label{cap4-table1}
     \begin{center}
         \begin{tabular}{|c|c|c|c|}
@@ -51,34 +57,21 @@ and $u(i)$ is
     \end{center}
 \end{table}
 
-% \noindent
-% where R = 1, L = 1, C = 1, E = 1.
-
-% - $t_{step}$ is set to 1e-5.
-
-% - $x_{ref}$ is set to [2, -1].
-
-% - $Q$ which is a diagonal matrix with both diagonal elements equal to 1.
-
-% - $T_{p_{max}}$ set to 1.
-
-% - $T_{s}$ defined as [0, 0.2513520, 0.5914520].
-
-% - $x_{0}$ set to [1.870801, -1.119853].
 
 
-\subsubsection{Computation of the Target Trajetory}
-
-\begin{equation}
-    T_{s} = 
-    \left[
-    \begin{matrix}
-        0 & 0.0639 & 0.0878 & 0.1119 & 0.1344 & 0.1567 & 0.2065 & 0.23 & 0.2529 & 0.2756
-    \end{matrix}
-    \right]
-\end{equation}
+\noindent
+and the operation mode is characterized by the index \highlight{$\Omega = \big[1,2,4,8,3,1,5,8,5\big]$}. 
+The time switch values are defined as \highlight{$\tau^\infty = \big[0, 0.0639, 0.0878, 0.1119, 0.1344, 0.1567, 0.2065, $} 
+\highlight{$0.23, 0.2529, 0.2756\big]$}, and the reference state vector for this 
+trajectory is denoted as \highlight{$x_{ref} = \big[10, 20, 1\big]$}. Additionally, the 
+maximum period value for the trajectory cycle is specified as \highlight{$T_{p_{max}} = 4\times 10^{-4} $}, 
+while the initial state of the nominal target trajectory is given by \highlight{$x_0 = \big[9.5143, 19.8211, 1.0314\big]$}. 
+The time step of the simulation if \highlight{$t_{step} = 1 \times 10^{-7}$} and the weight matrix used in the 
+computation of the trajectory is \highlight{$Q = diag([10, 5, 20000])$}.
 
 \subsubsection{Prediction Matrices}
+
+The prediction matrices are constructed using  \eqref{eq_Phi} and \eqref{eq_Gamma}, and the result is
 
 \begin{equation}
     \Phi =
@@ -108,17 +101,18 @@ and $u(i)$ is
     * \times 10^4
 \end{equation}
 
-\subsubsection{Time Constraints}
+\noindent
+with the switching time constraints
 
 \begin{equation}
     c = 
     \left[
         \begin{matrix}
-            \Delta t_{r_1} -\Delta t_{r_{1, min}} \\
-            \Delta t_{r_2} -\Delta t_{r_{2, min}} \\
+            -\Delta t_{r_1} +\Delta t_{r_{1, min}} \\
+            -\Delta t_{r_2} +\Delta t_{r_{2, min}} \\
             \vdots \\
-            \Delta t_{r_{N-1}} -\Delta t_{r_{{N-1}, min}} \\
-            \Delta t_{r_N} -\Delta t_{r_{N, min}} \\
+            -\Delta t_{r_{N-1}} +\Delta t_{r_{{N-1}, min}} \\
+            -\Delta t_{r_N} +\Delta t_{r_{N, min}} \\
         \end{matrix}
     \right] = 
     \left[
@@ -151,37 +145,50 @@ and $u(i)$ is
 
 \subsubsection{Results}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_1.pdf}
-    \caption{fig 1}
-    \label{cap4-graf-ex2-1}
-\end{figure}
+Figure \ref{cap4-graf-patino2-traj} shows the trajectory for the Multilevel converter, 
+\highlightblue{in blue} we see the trajectory without using the MPC controller, and 
+\highlightorange{in orange} we see the trajectory using the MPC controller.
+They are starting from \highlight{$x_0 = \big[7.5143, 20.8211, 0.0314\big]$}, the trajectory
+with the MPC off goes to a point far from the targeted position 
+\highlight{$\bar{x}_0 = \big[9.5143, 19.8211,$} \highlight{$1.0314\big]$}, but the trajectory with the MPC on
+goes drives the system to the desired target.
+
+Figure \ref{cap4-graf-patino2-control-signal} displays the control signal sequence, 
+we can see the difference between the open loop and the controlled signal decreasing
+and getting in sync.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_2.pdf}
-    \caption{fig 2}
-    \label{cap4-graf-ex2-2}
+    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_4.pdf}
+    \caption{State Trajectory for Multilevel converter}
+    \label{cap4-graf-patino2-traj}
 \end{figure}
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_3.pdf}
     \caption{fig 3}
-    \label{cap4-graf-ex2-3}
+    \label{cap4-graf-patino2-x1}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_4.pdf}
-    \caption{fig 4}
-    \label{cap4-graf-ex2-4}
+    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_1.pdf}
+    \caption{fig 1}
+    \label{cap4-graf-patino2-x2}
 \end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_2.pdf}
+    \caption{fig 2}
+    \label{cap4-graf-patino2-x3}
+\end{figure}
+
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_5.pdf}
     \caption{Variant Dynamic Circuit 2: State Trajectory}
-    \label{cap4-graf-ex2-5}
+    \label{cap4-graf-patino2-control-signal}
 \end{figure}
