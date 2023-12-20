@@ -1,24 +1,37 @@
 \section{Motivation}
 
-    The dynamics of switched affine systems can be described by a state equation of the form \highlight{$\dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}, t \in \mathbb{R}_+$}. 
-    Where \highlight{$x(t) \in \mathbb{R}^n$} is the state vector and \highlight{$\sigma(t) \in \{1, 2, ..., M\}$} is the switching state, which is associated to the matrix 
-    \highlight{$A_{\sigma(t)} \in \mathbb{R}^{n \times n}$} and the vector \highlight{$b_{\sigma(t)} \in \mathbb{R}^{n}$} at each time $t$.
+    The dynamics of switched affine systems can be described by a state equation of the form 
+    \highlight{$\dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}, t \in \mathbb{R}_+$}, where 
+    \highlight{$x(t) \in \mathbb{R}^n$} is the state vector and 
+    \highlight{$\sigma(t) \in$} \highlight{$\{1, 2, ..., M\}$} is the switching state associated with the matrices \highlight{$A_{\sigma(t)} \in \mathbb{R}^{n \times n}$} 
+    and the vectors \highlight{$b_{\sigma(t)} \in \mathbb{R}^{n}$} at each time \highlight{$t$}.
+
+    There is extensive research in the synthesis of controllers for switched affine systems. 
+    However, the design procedures are typically concerned with driving the state \highlight{$x(t)$} to 
+    the vicinity of a given target, without considering the subsequent evolution of the 
+    state in that region.  This issue is especially relevant when the switching state \
+    highlight{$\sigma(t)$} is subjected to dwell-time constraints. In that case, rather than 
+    driving the state to an equilibrium point, the design should be aimed at achieving a 
+    suitable limit cycle.
+
+    \comentario{
+        O que esses tres trabalhos nao fizeram, no que diz resppeito ao escopo desse doutorado?
+        ou seja, o que estamos fazendo que eles nao fizeram?
+        eh o tratamento de restricoes de dwell-time?
+
+        A resposta para essa pergunta servira de base para a ligacao do texto com o proximo paragrafo.
+    }
     
-    The use of switched affine systems to solve problems in engineering can be seen in fields like biochemical reactions, where 
-    \citeonline{reference_biochemical_reaction} uses switched affine systems to represent the moments of evolution in a generic biochemical 
-    reaction network; urban traffic, where \citeonline{reference_urban_traffic_control} approaches the urban traffic control; power converters, 
-    where \citeonline{benmiloud2018} also uses this approach and other areas where the behavior of the system can be described as a switched 
-    affine system.
-
-    There is extensive research in this class of controllers, and most of them solve the problem by driving the system states to the neighborhood
-    of the target states, not considering the trajectory behavior of the system. This can reduce the performance of the system when the system is 
-    affected by the trajectory of the limit cycle in steady operation.
-
-    This problem has been the target of many studies, \citeonline{benmiloud2018} uses a hybrid Poincaré map approach to stabilize a switched affine system
-    into the desired limit cycle and uses as an example a DC-DC converter. by \citeonline{egidio37_discreto}, which proposes a control design of a 
-    state-dependent switching function for discrete-time switched affine systems to drive the system to the desired limit cycle that is defined by 
-    design associated with the expected performance of the system. The solution was applied in an academic numerical example and a theoretical 
-    DC-DC converter. In \citeonline{egidio36_continuo} the author expanded the work to continuous-time switched affine systems.
+    This problem has been addressed, for instance, by \citeonline{benmiloud2018} who uses a 
+    hybrid Poincaré map approach to stabilize a switched affine system into the desired 
+    limit cycle and a DC-DC converter was employed as an illustrative example. 
+    \citeonline{egidio37_discreto} proposed the control design of a state-dependent 
+    switching function for discrete-time switched affine systems to stabilize a limit cycle
+    determined according to criteria of interest related to the steady-state behavior.
+    The control design applies a switched rule to orchestrate the state trajectories based on a time-varying 
+    convex Lyapunov function that drives the system from the initial condition toward the desired limit cycle
+    The proposed method uses a voltage regulation of a simulated DC-DC multicellular converter as an illustrative example.
+    This work was extended to continuous time switched-affine systems by \citeonline{egidio36_continuo}
     
     Some studies form the basis for the present work: 
 
@@ -48,6 +61,6 @@
 
 \section{Outline of the remaining chapters}
     
-    The remaining of this text is organized as follows. Chapter 2 describes the problem of finding a target periodic trajectory for the 
-    given switched affine system. Chapter 3 proposes then a predictive control law that drives the system to the target cyclic trajectory. 
+    The remainder of this text is organized as follows. Chapter 2 describes the problem of finding a target periodic trajectory for the 
+    given switched affine system. Chapter 3 proposes a predictive control law that drives the system to the target cyclic trajectory. 
     Finally, chapter 4 brings some remarks and considerations of the work.

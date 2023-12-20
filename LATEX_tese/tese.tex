@@ -77,7 +77,8 @@
 \definecolor{orange_1}{rgb}{0.9373, 0.3725, 0.2000}
 \definecolor{purple_1}{rgb}{0.5490, 0.3294, 0.8157}
 \definecolor{brown_1}{rgb}{0.3961, 0.3137, 0.2627}
-\definecolor{pink_1}{rgb}{0.8156, 0.3294, 0.7804}
+\definecolor{pink_1}{rgb}{0.9, 0.3294, 0.9}
+\definecolor{comment_1}{rgb}{0.65, 0.19, 0.57}
 
 \newcommand{\red}[1]{{\color{red}#1}}
 \newcommand{\green}[1]{{\color{green_1}#1}}
@@ -86,15 +87,21 @@
 \newcommand{\orange}[1]{{\color{orange_1}#1}}
 \newcommand{\purple}[1]{{\color{purple_1}#1}}
 \newcommand{\brown}[1]{{\color{brown_1}#1}}
-\newcommand{\pink}[1]{{\color{pink_1}#1}}
+\newcommand{\pink}[1]{{\color{brown_1}#1}}
 
-\newcommand{\comentario}[1]{{\color{purple_1}#1}}
+\newcommand{\comentario}[1]{{\color{comment_1}#1}}
 
 \newcommand{\highlight}[1]{%
     \tikz[baseline=(X.base)]{\node[rectangle, fill=gray!10, rounded corners, inner sep=3pt] (X) {\textcolor{black}{#1}};}%
 }
 
-\newcommand{\destaque}[1]{\highlight{#1}}
+\newcommand{\highlightblue}[1]{%
+    \tikz[baseline=(X.base)]{\node[rectangle, fill=blue!10, rounded corners, inner sep=3pt] (X) {\textcolor{black}{#1}};}%
+}
+
+\newcommand{\highlightorange}[1]{%
+    \tikz[baseline=(X.base)]{\node[rectangle, fill=orange!10, rounded corners, inner sep=3pt] (X) {\textcolor{black}{#1}};}%
+}
 
 % NOTE: ordem das cores: green, orange, blue, purple
 
@@ -217,13 +224,13 @@
 % Identificacoes (se o trabalho for em inglês, insira os dados em inglês)
 % Para entradas abreviadas de Professora (Profa.) em português escreva: Prof$^\textnormal{a}$.
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-\course{Engenharia Aeronáutica e Mecânica} % Programa de PG ou Curso de Graduação
-\area{Sistemas Aeroespaciais e Mecatrônica} % Área de concentração na PG (Não utilizado no caso de TG)
+\course{Engenharia Eletrônica e Computação} % Programa de PG ou Curso de Graduação
+\area{Sistemas e Controle} % Área de concentração na PG (Não utilizado no caso de TG)
 
 % Autor do trabalho: Nome Sobrenome
 \authorgender{masc}                     %sexo: masc ou fem
 \author{Daniel}{Vieira}
-\itaauthoraddress{Pca Romao Gomes, 98}{12.233-066}{São José dos Campos--SP}
+\itaauthoraddress{Kastanjelaan, 1}{5616LH}{Eindhoven--Netherlands}
 
 % Titulo da Tese/Dissertação
 % \title{Controle robusto de sistemas utilizando atuadores chaveados com restrições temporais}
@@ -236,32 +243,27 @@
 \advisor{Prof.~Dr.}{Roberto Kawakami Harrop Galvão}{ITA}
 
 % Coorientador (Caso não haja coorientador, colocar ambas as variáveis \coadvisorgender e \coadvisor comentadas, com um % na frente)
-\coadvisorgender{fem}									% masc ou fem
-\coadvisor{Prof$^\textnormal{a}$.~Dr$^\textnormal{a}$.}{ZZZZZZZZZZZZZZZZZZ}{OVNI}
+% \coadvisorgender{fem}									% masc ou fem
+% \coadvisor{Prof$^\textnormal{a}$.~Dr$^\textnormal{a}$.}{ZZZZZZZZZZZZZZZZZZ}{OVNI}
 
 % Pró-reitor da Pós-graduação
 \bossgender{masc}												% masc ou fem
-\boss{Prof.~Dr.}{ZZZZZZZZZZZZZZZZZZ}
+\boss{Prof.~Dra.}{Emilia Villani}
 
 %Coordenador do curso no caso de TG
 \bosscoursegender{masc}									% masc ou fem
 \bosscourse{Prof.~Dr.}{ZZZZZZZZZZZZZZZZZZ}
 
-% Palavras-Chaves informadas pela Biblioteca -> utilizada na CIP
-\kwcip{Cupim}
 \kwcip{Dilema}
 \kwcip{Construção}
 
 % membros da banca examinadora
 
-\examiner{Prof. Dr.}{Alan Turing}{Presidente}{ITA}
-\examiner{Prof. Dr.}{Linus Torwald}{}{UXXX}
-\examiner{Prof. Dr.}{Richard Stallman}{}{UYYY}
-\examiner{Prof. Dr.}{Donald Duck}{}{DYSNEY}
-\examiner{Prof. Dr.}{Mickey Mouse}{}{DISNEY}
+\examiner{Prof. Dr.}{Karl Jeinz Kienitz}{}{ITA}
+\examiner{Prof. Dr.}{Rubens Junqueira}{}{ITA}
 
 % Data da defesa (mês em maiúsculo, se trabalho em inglês, e minúsculo se trabalho em português) 
-\date{9}{maio}{2020}
+\date{24}{janeiro}{2024}
 
 % Número CDU - (somente para TG)
 \cdu{621.38}
@@ -276,7 +278,9 @@
 
 % Dedicatoria: Nao esqueca essa secao  ... :-)
 \begin{itadedication}
-Aos amigos da Graduação e Pós-Graduação do ITA por motivarem tanto a criação deste template pelo Fábio Fagundes Silveira quanto por motivarem a mim e outras pessoas a atualizarem e aprimorarem este excelente trabalho.
+    \comentario{
+        escrever texto de dedicatoria
+    }
 \end{itadedication}
 
 % Agradecimentos

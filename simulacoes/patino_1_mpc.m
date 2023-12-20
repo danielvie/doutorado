@@ -71,37 +71,21 @@ function var_out = patino_1_mpc(save_fig)
 
 
     % plot dos resultados
+
     f1 = figure(1);
+    plot_traj(y, y_off, config.x0, "buck-boost MPC", "v_c", "i_L");
 
-    plot(y_off(:,1), y_off(:,2), 'linew', 1.2);
-    hold on;
-    plot(y(:,1), y(:,2), 'linew', 1.2);
-    hold off;
-
-    legend('mpc off', 'mpc on');
-    grid on;
-    axis equal;
-    xlabel('v_c');
-    ylabel('i_L');
-    set(gca,'fontsize', 15);
-
+    % ncycle = size(y_off, 1) / nsim;
+    % ncycle = ncycle * 8 + 1;
+    % plot_control_signal(t_off(1:ncycle), m_off(1:ncycle), t(1:ncycle), m(1:ncycle), "double integrator Control Signal", "time (s)", "mode");
 
     %% plot
-    m1     = m + 1;
-    m1_off = m_off + 1;
-
     f2 = figure(2);
-    stairs(t_off, m1_off, 'linew', 2);
-    hold on;
-    stairs(t, m1, 'linew', 2, 'linestyle', '--');
-    hold off;
-    xlim([0, 5]);
-    grid on;
-    xlabel('time (s)');
-    ylabel('mode');
-    set(gca,'fontsize', 15);
-    legend('modes target trajectory', 'modes simulation');
-
+    ncycle = size(y_off, 1) / nsim;
+    disp(ncycle)
+    ncycle = ncycle * 8 -700;
+    disp(ncycle)
+    plot_control_signal(t_off(1:ncycle), m_off(1:ncycle), t(1:ncycle), m(1:ncycle), "double integrator Control Signal", "time (s)", "mode");
 
     % get values from the function
     all_variables = who;
@@ -116,5 +100,52 @@ function var_out = patino_1_mpc(save_fig)
         save_figure(f1, "graf_patino_ex1_1.pdf", "../LATEX_tese/Cap4/fig/");
         save_figure(f2, "graf_patino_ex1_2.pdf", "../LATEX_tese/Cap4/fig/");
     end
+
+end
+
+function plot_traj(y, y_off, x0, tit, x_label, y_label)
+
+    plot(y_off(:,1), y_off(:,2), 'linew', 1.2);
+    hold on;
+    plot(y(:,1), y(:,2), 'linew', 1.2);
+
+    % plot marcadores
+    plot(y(1,1), y(1,2), 'ro', 'markers', 10, 'linew', 1.2);
+    plot(y(end,1), y(end,2), 'k.', 'markers', 30);
+    plot(x0(1), x0(2), 'rx', 'linew', 2, 'markers', 16);
+
+    legend('trajectory', 'start', 'end', 'target x_0', 'location', 'southeast');
+
+    hold off;
+    grid on;
+    axis equal;
+    title(tit);
+    xlabel(x_label);
+    ylabel(y_label);
+    set(gca,'fontsize', 15);
+    legend('mpc off', 'mpc on')
+end
+
+function plot_control_signal(t_off, m_off, t, m, tit, x_label, y_label)
+    f = stairs(t_off, m_off, 'linew', 2);
+    hold on;
+    stairs(t, m, 'linew', 2, 'linestyle', '--');
+    hold off;
+    
+    grid on;
+    title(tit);
+    xlabel(x_label);
+    ylabel(y_label);
+    set(gca,'fontsize', 15);
+    legend('modes target trajectory', 'modes simulation');
+
+    % removing the values that are not integers in Y axis
+    v = f.Parent.YTick;
+    
+    % indices for integer
+    p = abs(v - floor(v)) < 0.1;
+    
+    % update yticks
+    f.Parent.YTick = v(p);
 
 end

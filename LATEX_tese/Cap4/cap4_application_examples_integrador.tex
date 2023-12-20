@@ -12,6 +12,7 @@ This example describes the double integrator model used in \citeonline{matheus20
 where
 
 \begin{equation}
+    \label{cap4_eq_dynamics_integrador}
     A_c = \left[
         \begin{matrix}
             0 & 1 \\
@@ -26,10 +27,11 @@ where
     \right]
 \end{equation}
 
+\noindent
 and the associated input signal is
 
 \begin{equation}
-    \label{cap4-eq-signal-integrador}
+    \label{cap4_eq_signal_integrador}
     u_r = \left[
         \begin{matrix}
             1 \\
@@ -54,10 +56,10 @@ and the associated input signal is
     \centering
     \includegraphics[]{figuras/cap4_ref_signal_integrador.eps}
     \caption{Reference signal for Double Integrator}
-    \label{cap2_grafico_sig_ref_integrador}
+    \label{cap2_fig_sig_ref_integrador}
 \end{figure}
 
-The original problem has the same dynamics during all operation, so we need to construct the associated \highlight{$A_i, b_i$} for each operation mode. 
+The original problem has the same dynamics during all operations, so we need to construct the associated \highlight{$A_i, b_i$} for each operation mode. 
 One solution is to create 3 unique pairs
 
 \begin{equation}
@@ -77,7 +79,7 @@ One solution is to create 3 unique pairs
 
 \noindent
 and the index for the operation mode \highlight{$\Omega = \big[1, 2, 3, 2\big]$}, with 
-reference state vector for this trajectory is \highlight{$x_{ref} = \big[2, -1\big]$}, 
+reference state vector for this trajectory is \highlight{$\bar{x}_{ref} = \big[2, -1\big]$}, 
 the maximum value for the period of the trajectory cycle \highlight{$T_{p_{max}} = 1$}
 and initial state of the nominal target trajectory \highlight{$x_{0} = \big[1.5, -1\big]$}.
 
@@ -112,11 +114,11 @@ with the switching time constraints
     c = 
     \left[
         \begin{matrix}
-            \Delta t_{r_1} -\Delta t_{r_{1, min}} \\
-            \Delta t_{r_2} -\Delta t_{r_{2, min}} \\
+            -\Delta t_{r_1} + \Delta t_{r_{1, min}} \\
+            -\Delta t_{r_2} + \Delta t_{r_{2, min}} \\
             \vdots \\
-            \Delta t_{r_{N-1}} -\Delta t_{r_{{N-1}, min}} \\
-            \Delta t_{r_N} -\Delta t_{r_{N, min}} \\
+            -\Delta t_{r_{N-1}} + \Delta t_{r_{{N-1}, min}} \\
+            -\Delta t_{r_N} + \Delta t_{r_{N, min}} \\
         \end{matrix}
     \right] = 
     \left[
@@ -144,10 +146,10 @@ with the switching time constraints
     - FALTA SIMULAR A REGIAO DE FACTIBILIDADE
 }
 
-The simulation uses the system \eqref{cap4-eq-signal-integrador} with the command signal \eqref{cap4-eq-signal-integrador} and with 
+The simulation uses the system \eqref{cap4_eq_dynamics_integrador} with the command signal \eqref{cap4_eq_signal_integrador} and with 
 a initial condition \highlight{$x_0 = \big[1.5, -0.5\big]$}.
-Figure \ref{cap4-graf-ex1-1} shows the simulation without the MPC control being applyied running for 5 cycles and we can see that the
-trajectory is diverging from the initial position of the target cyclic trajectory \highlight{$x_{0_{ref}} = \big[-0.5, -1.0\big]$} position.
+Figure \ref{cap4-graf-ex1-1} shows the simulation without the MPC control being applied running for 5 cycles and we can see that the
+trajectory is diverging from the initial position of the target cyclic trajectory \highlight{$\bar{x}_0 = \big[-0.5, -1.0\big]$} position.
 
 \begin{figure}[h!]
     \centering
