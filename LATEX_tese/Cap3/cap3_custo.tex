@@ -5,7 +5,7 @@ Consider a system with dynamics described by
         \label{cap3-dynamic-equation}
     \end{equation}
 
-The objective is to drive the state $x[k]$ to the origin from a given initial condition while respecting
+The objective is to drive the state \highlight{$x[k]$} to the origin from a given initial condition while respecting
 state and control constraints in the form
 
 \begin{equation}
@@ -51,9 +51,9 @@ and initial condition
     \hat{x}[k|k] = x[k]
 \end{equation}	
 
-The expression for $J$ consists of a \blue{terminal cost} term and a trajectory \orange{cost term}. 
+The expression for \highlight{$J$} consists of a \blue{terminal cost} term and a trajectory \orange{cost term}. 
 
-With $P_f$, $Q$, $R$ being symmetric and positive-definite, with $P_f$ chosen so that the terminal cost term $\norma{\hat{x}(k + N|k) - \bar{x}}{P_f}$ corresponds 
+With \highlight{$P_f$}, \highlight{$Q$}, \highlight{$R$} being symmetric and positive-definite, with \highlight{$P_f$} chosen so that the terminal cost term \highlight{$\norma{\hat{x}(k + N|k) - \bar{x}}{P_f}$} corresponds 
 to the value function of the infinite horizon Discrete-Time Linear Quadratic Regulator (DLQR).
 
 The cost function can be rewritten using the notation:

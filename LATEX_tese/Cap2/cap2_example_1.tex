@@ -10,7 +10,7 @@
     \label{cap2-circuit-ex-1}
 \end{figure}
 
-The state variables are the capacitor voltage $v_c$ and the inductor current $i_L$. Its dynamics are given by the equation:
+The state variables are the capacitor voltage \highlight{$v_c$} and the inductor current \highlight{$i_L$}. Its dynamics are given by the equation:
 
 \begin{equation}
     \dot{x} = \begin{cases}
@@ -34,7 +34,7 @@ where
 \end{equation}
 
 \noindent
-where $R = L = C = E = 1$. 
+where \highlight{$R = L = C = E = 1$}. 
 
 The list of dynamics for this example is
 
@@ -75,18 +75,18 @@ where
 \end{align}
 
 The criteria for the optimization is to compute the trajectory to minimize oscillation around the average value 
-$\big[2,-1\big]$ with the weight matrix $Q = diag\big[1,1\big]$, the maximum cycle period of $T_{p,max} = 1s$ and minimum 
-dwell time of $t_{min} = 0.25s$.
+\highlight{$\big[2,-1\big]$} with the weight matrix \highlight{$Q = diag\big[1,1\big]$}, the maximum cycle period of \highlight{$T_{p,max} = 1s$} and minimum 
+dwell time of \highlight{$t_{min} = 0.25s$}.
 
-The cost function takes a vector representing the \( dt \) for each switching moment as its 
-input. For instance, with two switching instances, the vector could be \(\big[ 0.25, 0.35\big]\). 
-This implies the signal begins at time \(0.0\), transitions to the next dynamic at \(0.0 + 0.25 
-= 0.25\), and then switches again at \(0.25 + 0.35 = 0.6\). This gives us the signal sequence 
-\(\big[0.0, 0.25, 0.6\big]\).
+The cost function takes a vector representing the \highlight{$dt$} for each switching moment as its 
+input. For instance, with two switching instances, the vector could be \highlight{$\big[ 0.25, 0.35\big]$}. 
+This implies the signal begins at time \highlight{$0.0$}, transitions to the next 
+dynamic at \highlight{$0.0 + 0.25 = 0.25$}, and then switches again at \highlight{$0.25 + 0.35 = 0.6$}. This gives us the signal sequence 
+\highlight{$\big[0.0, 0.25, 0.6\big]$}.
 
 In the Buck-Boost converter example, the initial values for the switching vector are represented 
-by \([0.25, 0.25]\). The lower bounds are defined as \([0.25, 0.25]\) and the upper bounds 
-are set to \([1.5, 1.5]\). The solution provided by the FMINCON optimization yields 
+by \highlight{$[0.25, 0.25]$}. The lower bounds are defined as \highlight{$[0.25, 0.25]$} and the upper bounds 
+are set to \highlight{$[1.5, 1.5]$}. The solution provided by the \highlight{FMINCON} optimization yields 
 
 \begin{equation}
     \label{eq_ref_signal_patino1}
@@ -98,7 +98,7 @@ are set to \([1.5, 1.5]\). The solution provided by the FMINCON optimization yie
 \end{equation}
 
 The outcome under this condition is displayed in Figure \eqref{cap2-circuit-ex-1}, showcasing 
-the cyclic trajectory around the average value \([2, -1]\). The corresponding command signal 
+the cyclic trajectory around the average value \highlight{$[2, -1]$}. The corresponding command signal 
 can be seen in Figure \eqref{cap2-graf-ex1-2}.
 
 \begin{figure}[h]

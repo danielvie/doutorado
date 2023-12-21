@@ -10,8 +10,8 @@ Considering a Multilevel converter whose topology is shown in Figure \refeq{cap2
     \label{cap2-circuit-ex-2}
 \end{figure}
 
-The state variables are the voltage on the capacitors $x(t) = [v_{c_1}(t), v_{c_2}(t), i_L(t)]$. 
-Where $v_{c_1}$, $v_{c_2}$ are the voltages in each capacitor and $i_L$ is the load current.
+The state variables are the voltage on the capacitors \highlight{$x(t) = [v_{c_1}(t), v_{c_2}(t), i_L(t)]$}. 
+Where \highlight{$v_{c_1}$}, \highlight{$v_{c_2}$} are the voltages in each capacitor and \highlight{$i_L$} is the load current.
 
 The dynamic of this system can be described as
 
@@ -140,14 +140,15 @@ Each combination of the switches determines a different behavior
     b_8 = \left[ \begin{array}{c} 0 \\ 0 \\ \frac{E}{L} \end{array} \right]
 \end{align}
 
-With the detailed dynamic for each switching positions we can define the list of elements for the multilevel converter as 
-$\Bigr\{ A_{1}, A_{2}, A_{3}, A_{4}, A_{5}, A_{6}, A_{7}, A_{8} \Bigr\}$ and $\Bigr\{b_{1}, b_{2}, b_{3}, $ $ b_{4}, b_{5}, b_{6}, b_{7}, b_{8} \Bigr\}$.
+With the detailed dynamic for each switching position, we can define the list of 
+elements for the multilevel converter as \highlight{$\Bigr\{ A_{1}, A_{2}, A_{3}, A_{4}, A_{5}, A_{6}, A_{7}, A_{8} \Bigr\}$} and 
+\highlight{$\Bigr\{b_{1}, b_{2}, b_{3}, $} \highlight{$b_{4}, b_{5}, b_{6}, b_{7}, b_{8} \Bigr\}$}.
 
 
-The criteria for the optimization is to compute the trajectory around the average value $\Big[\frac{2}{3}E, \frac{1}{3}E, 1\Big]$ with $E = 30V$.
-The maximum cycle period is $T_{p,max} = 0.4ms$ and minimum tweel time of $t_{min} = 0.022ms$. 
+The criteria for the optimization is to compute the trajectory around the average value \highlight{$\Big[\frac{2}{3}E, \frac{1}{3}E, 1\Big]$} with \highlight{$E = 30V$}.
+The maximum cycle period is \highlight{$T_{p,max} = 0.4ms$} and minimum tweel time of \highlight{$t_{min} = 0.022ms$}. 
 
-The simulation parameters are $C_1 = 40 \mu F$, $C_2 = 40 \mu F$, $L = 10mH$ and $R = 10 \Omega$ with the weight matrix $Q = diag\big[10,5,20000\big]$.
+The simulation parameters are \highlight{$C_1 = 40 \mu F$}, \highlight{$C_2 = 40 \mu F$}, \highlight{$L = 10mH$} and \highlight{$R = 10 \Omega$} with the weight matrix \highlight{$Q = diag\big[10,5,20000\big]$}.
 
 Using the optimal switching sequence
 \begin{equation}
@@ -162,7 +163,7 @@ The optimal switching instant is
 
 
 \noindent
-with the initial condition $x(0) = \Big[21.71, 3.29, 1.08\Big]^T$.
+with the initial condition \highlight{$x(0) = \Big[21.71, 3.29, 1.08\Big]^T$}.
 
 
 \begin{figure}[h!]

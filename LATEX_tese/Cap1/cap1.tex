@@ -9,19 +9,33 @@
     There is extensive research in the synthesis of controllers for switched affine systems. 
     However, the design procedures are typically concerned with driving the state \highlight{$x(t)$} to 
     the vicinity of a given target, without considering the subsequent evolution of the 
-    state in that region.  This issue is especially relevant when the switching state \
-    highlight{$\sigma(t)$} is subjected to dwell-time constraints. In that case, rather than 
+    state in that region.  This issue is especially relevant when the switching state \highlight{$\sigma(t)$} 
+    is subjected to dwell-time constraints. In that case, rather than 
     driving the state to an equilibrium point, the design should be aimed at achieving a 
     suitable limit cycle.
 
     \comentario{
-        O que esses tres trabalhos nao fizeram, no que diz resppeito ao escopo desse doutorado?
+        O que esses tres trabalhos nao fizeram, no que diz respeito ao escopo desse doutorado?
         ou seja, o que estamos fazendo que eles nao fizeram?
         eh o tratamento de restricoes de dwell-time?
 
         A resposta para essa pergunta servira de base para a ligacao do texto com o proximo paragrafo.
     }
     
+    \comentarioblue{
+        - the work treats the case of changing dynamics
+
+        - computes the dwell-time constraints
+
+        - has the convenience of solving the problem with quadratic programming convex optimization
+    }
+
+    \comentarioblue{
+        The present work extends the problem to work with changing dynamics at switching times and 
+        applies the dwell-time constraints using predictive control. The formulation of the solution also
+        has the convenience of solving the problem with quadratic programming convex optimization. 
+    }
+
     This problem has been addressed, for instance, by \citeonline{benmiloud2018} who uses a 
     hybrid Poincaré map approach to stabilize a switched affine system into the desired 
     limit cycle and a DC-DC converter was employed as an illustrative example. 
@@ -33,6 +47,9 @@
     The proposed method uses a voltage regulation of a simulated DC-DC multicellular converter as an illustrative example.
     This work was extended to continuous time switched-affine systems by \citeonline{egidio36_continuo}
     
+
+
+
     Some studies form the basis for the present work: 
 
     \citeonline{marcio2013} solved the problem for a particular class of affine systems. Here the controller drove the system to a 
