@@ -37,12 +37,33 @@ hold off;
 
 xlim([0, 0.003]);
 
-figure(3)
-plot(t, y(:,1));
+figure(3);
+plot_i(y, t, yy, tt, 1);
 
+figure(4);
+plot_i(y, t, yy, tt, 2);
 
+figure(5);
+plot_i(y, t, yy, tt, 3);
 
+figure(6);
+plot_signal(m, t, mm, tt);
 
 function plot3_(y, varargin)
     plot3(y(:,1), y(:,2), y(:,3), varargin{:});
+end
+
+function plot_i(y, t, yy, tt, i)
+    plot(t,y(:,i))
+    hold on;
+    plot(tt,yy(:,i))
+    hold off;
+end
+
+function plot_signal(m, t, mm, tt)
+    stairs(t,m)
+    hold on;
+    stairs(tt,mm)
+    hold off;
+    title('compare signal');
 end
