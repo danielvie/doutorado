@@ -39,7 +39,7 @@ function var_out = create_projection(config)
     % CALCULO DA REGIAO DE FACTIBILIDADE
     [K,~] = dlqr(A,B,Q,R); % Projeto DLQR com pesos unitários
     Af = A-B*K;
-    Gamma = [eye(2);-K];
+    Gamma = [eye(size(A,2));-K];
     Spsi = blkdiag(Sx,Su); bpsi = [bx;bu];
     max_iter = 100;
     tol = 0;

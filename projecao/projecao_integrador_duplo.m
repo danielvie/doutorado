@@ -10,9 +10,6 @@
 %}
 
 
-% carregando simulacao integ. duplo em var `s`
-load('s', 's');
-
 Phi   = [1, 6;
          0, 1];
 
@@ -87,4 +84,5 @@ config.ubar = [0; 0; 0];
 
 v = create_projection(config);
 
+clf;
 plot(v.D);
