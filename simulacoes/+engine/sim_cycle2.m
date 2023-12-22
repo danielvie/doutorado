@@ -1,4 +1,4 @@
-function [y,t,u,m,xr,yi_, dt_] = sim_1(config)
+function [y,t,u,m,xr, yi_,tt_,mm_] = sim_cycle2(config)
 
     % lendo configuracoes
     config_ = config;
@@ -29,7 +29,8 @@ function [y,t,u,m,xr,yi_, dt_] = sim_1(config)
     xr(1,:) = x0;
     
     yi_ = zeros(n_modes, nstates);
-    dt_ = zeros(n_modes, nstates);
+    tt_ = zeros(n_modes, 1);
+    mm_ = zeros(n_modes, 1);
     for i = 1:n_modes
         % lendo modo de operacao (indice do modo inicia em `0`)
         imode = config_.Omega(i);
@@ -47,12 +48,8 @@ function [y,t,u,m,xr,yi_, dt_] = sim_1(config)
         xi0 = reshape(xi0, [numel(xi0), 1]);
         yi  = lsim(Ai,Bi,C,D,ui,ti-ti(1),xi0);
                 
-        dt = ti(end)-ti(1);
-        Fa  = expm([Ai,Bi;zeros(1,size(Ai,2)),0]*dt);
-        
-        yend = Fa*[xi0;1];
-        yi_(i, :) = yend(1:nstates);
-        dt_(i) = dt;
+
+
         
         xi0 = yi(end, :);
 
@@ -67,7 +64,26 @@ function [y,t,u,m,xr,yi_, dt_] = sim_1(config)
         cont = cont + nti;
         
         xr(i+1,:) = xi0;
+
+
+
+
+
+        % estado extendido
+        xi0       = reshape(xi0, [numel(xi0), 1]);
+
+        dt        = Ts(i+1) - Ts(i);
+        Fa        = expm([Ai,Bi;zeros(1,size(Ai,2)),0]*dt);
+        
+        yend      = Fa*[xi0;1];
+        yi_(i, :) = yend(1:nstates);
+        tt_(i)    = Ts(i);
+        mm_(i)    = imode;
+
     end
+
+    tt_ = [tt_;Ts(end)];
+    mm_ = [mm_;mi(1)];
     
     % removendo pontos nao usados da alocacao
     t = t(1:cont);
