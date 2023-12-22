@@ -82,9 +82,7 @@ function var_out = patino_1_mpc(save_fig)
     %% plot
     f2 = figure(2);
     ncycle = size(y_off, 1) / nsim;
-    disp(ncycle)
     ncycle = ncycle * 8 -700;
-    disp(ncycle)
     plot_control_signal(t_off(1:ncycle), m_off(1:ncycle), t(1:ncycle), m(1:ncycle), "double integrator Control Signal", "time (s)", "mode");
 
     % get values from the function
