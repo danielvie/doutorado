@@ -24,7 +24,7 @@ cfg.mpc.on = true;
 figure(1);
 plot3_(y, 'linew', 2);
 hold on;
-plot3_(yy, '.', 'markers', 20, 'linew', 2);
+plot3_(yy, 'markers', 20, 'linew', 3);
 hold off;
 axis equal;
 grid on;
@@ -36,8 +36,8 @@ stairs(tt,mm, 'linew', 2, 'lines','--');
 hold off;
 
 xlim([0, 0.003]);
-figure(3)
 
+figure(3)
 plot(t, y(:,1));
 
 

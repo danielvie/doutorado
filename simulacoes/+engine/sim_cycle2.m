@@ -23,6 +23,7 @@ function [y,t,u,m,xr, yi_,tt_,mm_] = sim_cycle2(config)
     
     % calculando simulacao
     xi0  = x0;
+    xi0_ = x0;
     cont = 0;
     
     xr   = zeros(n_modes, numel(x0));
@@ -45,11 +46,8 @@ function [y,t,u,m,xr, yi_,tt_,mm_] = sim_cycle2(config)
         ui = ones(size(ti));
         mi = ones(size(ti))*imode;
         
-        xi0 = reshape(xi0, [numel(xi0), 1]);
-        yi  = lsim(Ai,Bi,C,D,ui,ti-ti(1),xi0);
-                
-
-
+        xi0  = reshape(xi0, [numel(xi0), 1]);
+        yi   = lsim(Ai,Bi,C,D,ui,ti-ti(1),xi0);
         
         xi0 = yi(end, :);
 
@@ -68,17 +66,17 @@ function [y,t,u,m,xr, yi_,tt_,mm_] = sim_cycle2(config)
 
 
 
-
-        % estado extendido
-        xi0       = reshape(xi0, [numel(xi0), 1]);
-
-        dt        = Ts(i+1) - Ts(i);
+        % simulando com estado extendido
+        xi0_      = reshape(xi0_, [numel(xi0_), 1]);
+        dt        = ti(end)-ti(1);
         Fa        = expm([Ai,Bi;zeros(1,size(Ai,2)),0]*dt);
         
-        yend      = Fa*[xi0;1];
+        yend      = Fa*[xi0_;1];
         yi_(i, :) = yend(1:nstates);
         tt_(i)    = Ts(i);
         mm_(i)    = imode;
+
+        xi0_      = yend(1:numel(xi0_));
 
     end
 
