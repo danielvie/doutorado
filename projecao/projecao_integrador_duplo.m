@@ -53,7 +53,7 @@ config.bx = 0;
 config.Su = -L;
 config.bu = -c;
 
-config.N = 1;
+config.N = 3;
 
 
 config.xbar = [-0.5; -1.0];
@@ -86,3 +86,5 @@ v = create_projection(config);
 
 clf;
 plot(v.D);
+txt = sprintf("projecao integrador duplo N:%d", config.N);
+title(txt)

@@ -70,3 +70,5 @@ v = create_projection(config);
 
 clf;
 plot(v.D);
+txt = sprintf("projecao patino 2 N:%d", config.N);
+title(txt)
