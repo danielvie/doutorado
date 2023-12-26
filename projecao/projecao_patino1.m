@@ -47,7 +47,7 @@ config.bx = 0;
 config.Su = -L;
 config.bu = -c;
 
-config.N = 1;
+config.N = 3;
 
 config.xbar = [-0.5; -1.0];
 config.ubar = zeros(1, numel_u);
