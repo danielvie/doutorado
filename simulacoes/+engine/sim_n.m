@@ -24,7 +24,13 @@ function [y,t,u,m,dtk_out] = sim_n(config, nsim)
             ek  = reshape(x0, [numelx0,1]) - reshape(cfg.mpc.x_target, [numelx0,1]);
 
             % calculo comando `dtk`
-            dtk = mpc.mpc_dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
+            [dtk, fval, exitflag] = mpc.mpc_dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
+
+
+            % if (exitflag == -2)
+            %     dtk = dtk*0.0;
+            % end
+
 
             % aplicando diferenca de tempo calculada pelo controle em cima
             % da trajetoria de referencia.
@@ -39,7 +45,7 @@ function [y,t,u,m,dtk_out] = sim_n(config, nsim)
         end
         
         % simulando dinamica
-        [y_,t_,u_,m_] = engine.sim_cycle(cfg);
+        [y_,t_,u_,m_] = engine.sim_cycle2(cfg);
         cfg.x0 = y_(end,:)';
 
         y   = [y;y_];

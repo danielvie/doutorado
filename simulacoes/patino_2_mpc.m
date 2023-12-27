@@ -89,7 +89,7 @@ function var_out = patino_2_mpc(save_fig)
     %% rodando simulacao como resultado da trajetoria
 
         cfg = config;
-        nsim = 50;
+        nsim = 30;
 
         % estados
         % 1. vc1
@@ -97,8 +97,9 @@ function var_out = patino_2_mpc(save_fig)
         % 3. i
 
         % adicionando erros
-        %cfg.x0  = config.x0 + [-2;1;-1];
-        cfg.x0  = config.x0 + [-0.1;.1;-.1];
+        cfg.x0  = config.x0 + [-2;1;-1];
+        % cfg.x0  = config.x0 + [-0.1; .1; -.1];
+        % cfg.x0 = [0; 1; 1];
 
         cfg.mpc.on = true;
         [y,t,u,m,dtk_out] = engine.sim_n(cfg, nsim);

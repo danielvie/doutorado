@@ -59,7 +59,7 @@ config.bx = 0;
 config.Su = -L;
 config.bu = -c;
 
-config.N = 1;
+config.N  = 1;
 
 
 config.xbar = [9.501818346682835; 19.837826908429342;  1.034416863494762];
@@ -68,7 +68,14 @@ config.ubar = zeros(numel_u, 1);
 
 v = create_projection(config);
 
+PP = Polyhedron('H',[[eye(3);-eye(3)] 1000*ones(6,1)]);
+PP2 = intersect(v.D,PP);
+% clf, plot(PP2)
+
 clf;
-plot(v.D);
+plot(PP2);
+xlabel('x1');
+ylabel('x2');
+zlabel('x3');
 txt = sprintf("projecao patino 2 N:%d", config.N);
 title(txt)
