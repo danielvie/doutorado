@@ -99,7 +99,7 @@ function var_out = patino_2_mpc(save_fig)
         % adicionando erros
         cfg.x0  = config.x0 + [-2;1;-1];
         % cfg.x0  = config.x0 + [-0.1; .1; -.1];
-        % cfg.x0 = [0; 1; 1];
+        cfg.x0 = [0; 10; 10];
 
         cfg.mpc.on = true;
         [y,t,u,m,dtk_out] = engine.sim_n(cfg, nsim);

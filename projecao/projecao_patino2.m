@@ -55,6 +55,8 @@ c = [
 
 config.Sx = zeros(1, numel_x);
 config.bx = 0;
+% config.Sx = eye(3)
+% config.bx = [30; 20; 20];
 
 config.Su = -L;
 config.bu = -c;

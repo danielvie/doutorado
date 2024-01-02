@@ -11,7 +11,8 @@ if nargin < 6, tol = 0; end
 
 r = length(bpsi); % No. restricoes
 SpsiGamma = Spsi*Gamma;
-S = SpsiGamma; b = bpsi;
+S = SpsiGamma; 
+b = bpsi;
 flag_redund = 0;
 i = 1;
 

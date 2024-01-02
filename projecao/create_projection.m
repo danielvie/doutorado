@@ -37,18 +37,39 @@ function var_out = create_projection(config)
     N = config.N;
 
     % CALCULO DA REGIAO DE FACTIBILIDADE
-    [K,~] = dlqr(A,B,Q,R); % Projeto DLQR com pesos unitários
-    Af = A-B*K;
-    Gamma = [eye(size(A,2));-K];
-    Spsi = blkdiag(Sx,Su); bpsi = [bx;bu];
+    [K,~]    = dlqr(A,B,Q,R); % Projeto DLQR com pesos unitários
+    Af       = A-B*K;
+    Gamma    = [eye(size(A,2));-K];
+    Spsi     = blkdiag(Sx,Su); 
+    bpsi     = [bx;bu];
     max_iter = 100;
-    tol = 0;
+    tol      = 0;
+
+
+    %{
+        Af: ???
+        Gamma: ???
+        Spsi: ???
+        bpsi: ???
+        oinf: maximo conjunto admissivel
+            O_inf = {x \in R^n : S_f x <= b_f}
+        
+        a abordagem considera o controle a ser aplicado a cada instante k sendo obtido
+        resolvendo um problema de otmizacao envolvendo um horizonte de N passos escolhidos 
+        pelo projetista.
+    %}
+
+
+    % [Sf,bf] = determina_oinf(Af,Gamma,Spsi,bpsi,max_iter,tol);
 
     [Sf,bf_til] = determina_oinf(Af,Gamma,Spsi,bpsi-[Sx*xbar;Su*ubar],max_iter,tol);
     bf = bf_til + Sf*xbar;
+    
+    Sf = Sf*1e5;
+    bf = bf*1e5;
 
     Sun = Su;
-    An = A;
+    An  = A;
     for i = 2:N
         Sun = blkdiag(Sun,Su);
         An = [An;A^i];
@@ -59,6 +80,7 @@ function var_out = create_projection(config)
     p = size(B,2);
     % Bn = zeros(n*N,p*N);
 
+
     Baux = mat2cell(zeros(n*N,p*N),n*ones(N,1),p*ones(1,N));
     for i = 1:N
         for j = 1:i
@@ -67,8 +89,9 @@ function var_out = create_projection(config)
     end
     Bn = cell2mat(Baux);
 
+
     if N > 1
-    Sxn = Sx;
+        Sxn = Sx;
         for i = 2:N-1
             Sxn = blkdiag(Sxn,Sx);
         end
@@ -79,17 +102,20 @@ function var_out = create_projection(config)
 
     bxn = [repmat(bx,N-1,1);bf];
 
-    Sw = [Sxn*Bn Sxn*An;
-        Sun zeros(size(Sun,1),n);
-        zeros(size(Sx,1),p*N) Sx];
+    Sw = [
+            Sxn*Bn                  Sxn*An;
+            Sun                     zeros(size(Sun,1),n);
+            zeros(size(Sx,1),p*N)   Sx
+        ];
     bw = [bxn; bun; bx];
     
     Pw = Polyhedron('H',[Sw bw]);
-    D = projection(Pw,p*N+1:p*N+n);
+    D  = projection(Pw,p*N+1: p*N+n);
 
-    % getting all variables as reponse parameter
+
+    % GETTING ALL VARIABLES AS REPONSE PARAMETER
     varnames = who;
-    var_out = struct();
+    var_out  = struct();
     for i = 1:numel(varnames)
         vi = varnames{i};
         
