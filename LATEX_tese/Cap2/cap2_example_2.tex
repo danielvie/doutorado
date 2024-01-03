@@ -1,6 +1,10 @@
 \subsection{Multilevel converter}
 \label{cap2-session-patino2}
 
+\comentarioblue{
+    citar artigo do patino
+}
+
 Considering a Multilevel converter whose topology is shown in Figure \refeq{cap2-circuit-ex-2}. 
 
 \begin{figure}[H]
@@ -10,8 +14,9 @@ Considering a Multilevel converter whose topology is shown in Figure \refeq{cap2
     \label{cap2-circuit-ex-2}
 \end{figure}
 
-The state variables are the voltage on the capacitors \highlight{$x(t) = [v_{c_1}(t), v_{c_2}(t), i_L(t)]$}. 
-Where \highlight{$v_{c_1}$}, \highlight{$v_{c_2}$} are the voltages in each capacitor and \highlight{$i_L$} is the load current.
+The state vector is the voltage on the capacitors \highlight{$x(t) = [v_{c_1}(t), v_{c_2}(t), i_L(t)]$}, 
+where \highlight{$v_{c_1}$}, \highlight{$v_{c_2}$} are the voltages in each capacitor 
+and \highlight{$i_L$} is the load current.
 
 The dynamic of this system can be described as
 
@@ -70,7 +75,7 @@ rearranging the terms we have
     \end{array} \right]
 \end{equation}
 
-Each combination of the switches determines a different behavior 
+Each combination of the switches determines a different behavior:
 
 \noindent
 \begin{align}
@@ -145,10 +150,17 @@ elements for the multilevel converter as \highlight{$\Bigr\{ A_{1}, A_{2}, A_{3}
 \highlight{$\Bigr\{b_{1}, b_{2}, b_{3}, $} \highlight{$b_{4}, b_{5}, b_{6}, b_{7}, b_{8} \Bigr\}$}.
 
 
-The criteria for the optimization is to compute the trajectory around the average value \highlight{$\Big[\frac{2}{3}E, \frac{1}{3}E, 1\Big]$} with \highlight{$E = 30V$}.
-The maximum cycle period is \highlight{$T_{p,max} = 0.4ms$} and minimum tweel time of \highlight{$t_{min} = 0.022ms$}. 
+The criteria for the optimization is to compute the trajectory around the average value 
+\highlight{$\Big[\frac{1}{3}E, \frac{2}{3}E, 1\Big]$} with \highlight{$E = 30 \; \mathrm{V}$}.
+The maximum cycle period is \highlight{$T_{p,max} = 0.4 \; \mathrm{ms}$} and minimum tweel time of \highlight{$t_{min} = 0.022 \; \mathrm{ms}$}. 
 
-The simulation parameters are \highlight{$C_1 = 40 \mu F$}, \highlight{$C_2 = 40 \mu F$}, \highlight{$L = 10mH$} and \highlight{$R = 10 \Omega$} with the weight matrix \highlight{$Q = diag\big[10,5,20000\big]$}.
+\comentariopurple{
+    unidades (como F, J, etc.) devem ser escritas em tipo romano, isto eh, nao italico.
+    deve haver um espaco separando o valor da unidade.
+}
+
+The simulation parameters are \highlight{$C_1 = 40 \; \mathrm{\mu F}$}, 
+\highlight{$C_2 = 40 \; \mathrm{\mu F}$}, \highlight{$L = 10 \; \mathrm{mH}$} and \highlight{$R = 10 \; \mathrm{\Omega}$} with the weight matrix \highlight{$Q = diag\big[10,5,20000\big]$}.
 
 Using the optimal switching sequence
 \begin{equation}
@@ -157,13 +169,21 @@ Using the optimal switching sequence
 
 The optimal switching instant is
 
+\comentarioblue{
+    indicar unidades
+}
+
 \begin{equation}
-    \tau^\infty = \Big\{ 0, 0.088, 0.110, 0.132, 0.154, 0.176, 0.198, 0.220, 0.242, 0.264 \Big\}
+    \tau^\infty = \Big\{ 0, 0.064, 0.088, 0.112, 0.134, 0.157, 0.206, 0.230, 0.253, 0.276 \Big\} \; \mathrm{ms}
 \end{equation}
 
-
 \noindent
-with the initial condition \highlight{$x(0) = \Big[21.71, 3.29, 1.08\Big]^T$}.
+with the initial condition \highlight{$x(0) = \Big[9.514 \; \mathrm{V}, 19.821 \; \mathrm{V},  1.031 \; \mathrm{A}\Big]^T$}.
+
+
+\comentarioblue{
+    citar as figuras
+}
 
 
 \begin{figure}[h!]

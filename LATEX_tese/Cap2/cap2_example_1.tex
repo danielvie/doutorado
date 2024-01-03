@@ -1,7 +1,21 @@
 \subsection{Buck-boost converter}
 \label{cap2-session-patino1}
 
+    \comentarioblue{
+        Atentar para sentencas que comecam com gerundio e nao terminam
+    }
 
+    \comentarioblue{
+        Citar artigo do patino
+    }
+    
+    \comentariopurple{
+        convem que o tamanho e o tipo da font usada na figura seja
+        igual ao do texto principal. Neste caso, seria conveniente 
+        escrever E, L, C, R em italico. Tambem seria bom indicar a tensao
+        vC e a corrent iL no circuito.
+    }
+    
     Considering a Buck-Boost converter in Continuous Conduction Mode (CCM) 
     which the topology is shown in Figure \refeq{cap2-circuit-ex-1}. 
 
@@ -28,7 +42,7 @@
         \label{eq_dynamics_patino1}
         \begin{matrix}
             A_1 = \left[ \begin{matrix} 0 & 0 \\ 0 & -\frac{1}{RC} \\ \end{matrix} \right] & 
-            A_2 = \left[ \begin{matrix} 0 & \frac{1}{L_1} \\ -\frac{1}{C} & -\frac{1}{RC} \\ \end{matrix} \right] \\
+            A_2 = \left[ \begin{matrix} 0 & \frac{1}{L} \\ -\frac{1}{C} & -\frac{1}{RC} \\ \end{matrix} \right] \\
             \\
             b_1 = \left[ \begin{matrix} \frac{E}{L} & 0 \end{matrix} \right]^T & 
             b_2 = \left[ \begin{matrix} 0 & 0 \end{matrix} \right]^T \\
@@ -36,7 +50,7 @@
     \end{equation}
 
     \noindent
-    where \highlight{$R = L = C = E = 1$}. 
+    where (in normalized values) \highlight{$R = L = C = E = 1$}. 
 
     The list of dynamics for this example is
 
@@ -75,9 +89,29 @@
             \end{matrix}
         \right]
     \end{align}
+    
+    \comentarioblue{
+        seria melhor fazer mencao ao custo em (2.2) e indicar que $\bar{x}^\infty = [2, -1]^T$
+    }
 
-    The criteria for the optimization is to compute the trajectory to minimize oscillation around the average value 
-    \highlight{$\big[2,-1\big]$} with the weight matrix \highlight{$Q = diag\big[1,1\big]$}, the maximum cycle period of \highlight{$T_{p,max} = 1s$} and minimum 
+    \comentarioblue{
+        acho que tambem faltou mencionar a restricao de minimum dwell time. ela teria que ser formalizada
+        em termos dos elementos $\tau^\infty$
+    }
+
+    \comentarioblue{
+        acho que ficou faltando mensionar a restricao $T_p <= T_{p, max}$ na formulacao do problema de otimizacao
+    }
+
+    \comentarioblue{
+        o uso de $dt$ ja precisaria ser explicado na formulacao do problema de otimizacao.
+        talvez seja possivel aproveitar a discussar sobre o uso de $dt$ para introduzir a restricao 
+        de minimum dwell time.
+    }
+
+
+    The criteria for the optimization is to compute the trajectory to minimize equation \eqref{cap2_eq_optimization} 
+    with \highlight{$\bar{x}^\infty = \big[2, -1\big]^T$} with the weight matrix \highlight{$Q = diag\big[1,1\big]$}, the maximum cycle period of \highlight{$T_{p,max} = 1s$} and minimum 
     dwell time of \highlight{$t_{min} = 0.25s$}.
 
     The cost function takes a vector representing the \highlight{$dt$} for each switching moment as its 
@@ -99,9 +133,17 @@
         \end{matrix}
     \end{equation}
 
-    The outcome under this condition is displayed in Figure \eqref{cap2-circuit-ex-1}, showcasing 
-    the cyclic trajectory around the average value \highlight{$[2, -1]$}. The corresponding command signal 
-    can be seen in Figure \eqref{cap2-graf-ex1-2}.
+    \comentariopurple{
+        nao usar parenteses na numeracao d figuras
+    }
+
+    The outcome under this condition is displayed in Figure \ref{cap2-graf-ex1-1}, showcasing 
+    the cyclic trajectory around the average value \highlight{$[2, -1]^T$}. The corresponding switch command signal $u$ 
+    can be seen in Figure \ref{cap2-graf-ex1-2}.
+
+    \comentarioblue{
+        usar $x_1$ e $x_2$ nos labels dos eixos da figura
+    }
 
     \begin{figure}[h]
         \centering
@@ -110,9 +152,13 @@
         \label{cap2-graf-ex1-1}
     \end{figure}
 
+    \comentarioblue{
+        xlabel: u - switch command
+    }
+
     \begin{figure}[H]
         \centering
         \includegraphics[width=14cm]{Cap2/fig/graf_ex1_2.pdf}
-        \caption{Buck-Boost converter: Command signal}
+        \caption{Buck-Boost converter: Switch command}
         \label{cap2-graf-ex1-2}
     \end{figure}

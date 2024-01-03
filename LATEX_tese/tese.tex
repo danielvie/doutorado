@@ -91,15 +91,18 @@
 \newcommand{\brown}[1]{{\color{brown_1}#1}}
 \newcommand{\pink}[1]{{\color{brown_1}#1}}
 
-\newcommand{\boxedparagraph}[1]{%
+\newcommand{\boxedparagraph}[1]{
   \begin{center}
-    \fbox{%
+    \setlength{\fboxsep}{5pt}
+    \setlength{\fboxrule}{0.9pt}
+    \fbox{
       \begin{minipage}{0.8\textwidth}
         #1
-      \end{minipage}%
+      \end{minipage}
     }
-  \end{center}%
+  \end{center}
 }
+
 
 \newcommand{\comentario}[1]{{\color{comment_color_purple}\boxedparagraph{#1}}}
 \newcommand{\comentariopurple}[1]{{\color{comment_color_purple}\boxedparagraph{#1}}}
