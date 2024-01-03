@@ -1,24 +1,42 @@
-The goal is to drive a system defined by an affine dynamic equation (eq. \ref{cap2-equacao-dinamica}) 
-to an optimal periodic trajectory, so the first step is to generate this trajectory. This trajectory is 
-submitted to restrictions imposed by the dynamic of the system and also switching time restrictions.
+Consider a switching affine system of the form
 
 \noindent
 \begin{equation}
-    \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}
-    \label{cap2-equacao-dinamica}
+    \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)},
+    \nonumber
 \end{equation}
+
+\noindent
+the goal is to drive a system defined by an affine dynamic equation to an optimal 
+periodic trajectory, so the first step is to generate this trajectory. This trajectory 
+is submitted to restrictions imposed by the dynamic of the system and also switching time restrictions.
+
+
+\section{Optimization}
 
 Following the approach from \citeonline{patino2010predictive} we must establish a 
 trajectory that yields the optimal time sequence \highlight{$\tau^\infty$}, the modes sequence \highlight{$\Omega^\infty$}, and its 
 length \highlight{$s^\infty (1 < s^\infty < s_{max})$}. To reduce the oscillations around a desired operation point, we choose an integral 
 quadratic criterion centered on the average reference value \highlight{$\bar{x}^\infty$}:
 
+\comentarioblue{
+    - seria conveniente tambem incluir x(0) como variavel de optimizacao, pois a 
+    trajetoria x(.) depente de x(0)
+}
+
+\comentariored{
+    - nao eh mais assim, vide a fig 2.1 ???
+}
+
+
 \begin{equation}
-    J(\tau^{\infty} ,\Omega^{\infty} ,s^{\infty}) = \min_{\tau, \Omega, s} \int_0^{T_p} \Big[x(t) - \bar{x}^{\infty}\Big]^T Q \Big[x(t) - \bar{x}^{\infty}\Big] dt
+    J(\tau^{\infty} ,\Omega^{\infty} ,s^{\infty}, x_0) = \min_{\tau, \Omega, s} \int_0^{T_p} \Big[x(t) - \bar{x}^{\infty}\Big]^T Q \Big[x(t) - \bar{x}^{\infty}\Big] dt
 \end{equation}
 
 \noindent
-where \highlight{$Q=Q^T>0$} and \highlight{$T_p$} is the period of the cycle.
+where $\tau^\infty = \big[t_1, t_2, \dotsm, t_{s^\infty}\big]$, 
+$\Omega^\infty = \big[\sigma_1, \sigma_2, \dotsm, \sigma_{s^\infty}\big]$, 
+$Q=Q^T>0$ and $T_p$ is the period of the cycle.
 
 Since the trajectory is cyclic we can impose the constraint:
 
@@ -33,7 +51,6 @@ Since the trajectory is cyclic we can impose the constraint:
     \label{cap2_fig_diferentes_dinamicas}
 \end{figure}
 
-\section{Optimization}
 
 \subsection{System Dynamics and Sequence}
 
@@ -43,8 +60,9 @@ Since the trajectory is cyclic we can impose the constraint:
     terms, the positioning of these elements signifies the order they will be executed.
 
     In Figure \refeq{cap2_fig_diferentes_dinamicas}, we see a trajectory example. 
-    For this illustration, the system's list of dynamics is \highlight{$\Big\{\big[A_1,b_1\big], \big[A_2,b_2\big], \big[A_3,b_3\big], \big[A_4,b_4\big]\Big\}$},
-    and the sequence of modes is \highlight{$\big[4,2,1,2,3\big]$}. It's worth noting that a particular system 
+    For this illustration, the system's list of dynamics is 
+    $\Big\{\big[A_1,b_1\big], \big[A_2,b_2\big], \big[A_3,b_3\big], \big[A_4,b_4\big]\Big\}$,
+    and the sequence of modes is $\big[4,2,1,2,3\big]$. It's worth noting that a particular system 
     dynamic can be employed multiple times or might not be used at all, depending on 
     the desired target trajectory. 
     The sequence of modes and the maximum period for the cycle are predetermined for this problem and
@@ -52,11 +70,29 @@ Since the trajectory is cyclic we can impose the constraint:
     
 \subsection{Constraints Definition}
 
+    \comentarioblue{
+        as restricoes precisam ser apresentacas matematicamente, usando a notacao
+        apresentada na definicao de tau\_inf
+    }
+
     Once the list and sequence have been established, we need to apply the constraints. 
     These constraints dictate the cycle's maximum duration, as well as the minimum 
-    and the maximum time permitted between switches in modes.
+    time permitted between switches in modes.
+
+    \noindent
+    \begin{equation}
+        (t_i - t_{i - 1}) \ge \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N
+    \end{equation}
+    
+    \noindent
+    where $\Delta t_{i,min}$ is the minimum duration time permitted between switch $i$.
 
 \subsection{Optimization with FMINCON}
+    
+    \comentariopurple{
+        precisaria vir depois do desenvolvimento apresentado na secao 2.2, que ainda
+        faz parte da formulacao do problema de otimizacao em si
+    }
 
     For optimization purposes, the function FMINCON is employed. This function works 
     in conjunction with a cost function. The cost function is designed to accept switching 
@@ -73,8 +109,6 @@ Since the trajectory is cyclic we can impose the constraint:
     the dynamics taken from the previously defined list, all in line with the mode sequence. 
     This trajectory is cyclic and to enforce this cyclic nature, the initial state's condition 
     is calculated in such a way that the end product is a cyclic trajectory.
-
-\subsection{Cost Computation}
 
     The method of determining the cost is by computing the integral of the trajectory, 
     centered around the average reference value, denoted as \highlight{$\bar{x}^\infty$}. The result 
