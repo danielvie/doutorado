@@ -1,0 +1,18 @@
+TY  - JOUR
+AU  - Marcolino, Matheus Henrique
+AU  - Galvão, Roberto Kawakami Harrop
+AU  - Kienitz, Karl Heinz
+PY  - 2021
+DA  - 2021/02/01
+TI  - Predictive Control of Linear Systems with Switched Actuators Subject to Dwell-Time Constraints
+JO  - Journal of Control, Automation and Electrical Systems
+SP  - 1
+EP  - 17
+VL  - 32
+IS  - 1
+AB  - This paper is concerned with the control of linear systems with switched actuators subject to lower bounds on dwell times. The problem addressed herein consists of driving the system state to a desired periodic trajectory through suitable perturbations in the switching times. For this purpose, a linearization procedure is derived to describe the relationship between the switching-time perturbations and the resulting state trajectory. This procedure allows the constrained predictive control problem to be cast in the form of a convex quadratic program, which is a key contribution of the present work. Simulation examples with single-input and two-input models are presented for illustration. In all cases, the system state is driven to the desired trajectory with satisfaction of the dwell-time constraints on the switched input signal.
+SN  - 2195-3899
+UR  - https://doi.org/10.1007/s40313-020-00667-9
+DO  - 10.1007/s40313-020-00667-9
+ID  - Marcolino2021
+ER  - 

@@ -48,33 +48,34 @@
     This work was extended to continuous time switched-affine systems by \citeonline{egidio36_continuo}
     
 
-
-
     Some studies form the basis for the present work: 
 
-    \citeonline{marcio2013} solved the problem for a particular class of affine systems. Here the controller drove the system to a 
-    target state using MILP (Mixed-Integer Linear Programming) and the cyclic trajectory was a consequence of the states as the system 
+    \citeonline{marcio2013} solved the problem using predictive control to account for the 
+    dwell-time constraints of switching affine systems. 
+    Here the controller drove the system to a target state using MILP (Mixed-Integer Linear 
+    Programming) and the cyclic trajectory was a consequence of the states as the system 
     approached the target.
 
-    \citeonline{patino2010predictive} defined the target trajectory using nonlinear programming and used this target trajectory in the predictive 
-    control in terms of errors.
+    \citeonline{patino2010predictive} defined the target trajectory using nonlinear 
+    programming and used this target trajectory in the predictive control in terms of errors.
 
-    \citeonline{matheus2018} proposed a solution with a controller law that drives the switched affine system with dwell-time constraints 
-    to a target cyclic trajectory. In this work, the problem is addressed in two stages: first, the problem is interpreted as a 
-    convex optimization where the author can find a targeted cyclic trajectory that minimizes a cost function associated with the system 
-    performance; then a second part that uses the target trajectory as input and computes perturbation at the switching instants of the 
-    reference control signal using predictive control. 
+    \citeonline{matheus2018} proposed a solution with a controller law that drives 
+    the switched affine system with dwell-time constraints to a target cyclic trajectory. In 
+    this work, the problem is addressed in two stages: first, the problem is interpreted as 
+    a convex optimization where the author can find a targeted cyclic trajectory that 
+    minimizes a cost function associated with the system performance; then a second part 
+    that uses the target trajectory as input and computes perturbation at the switching 
+    instants of the reference control signal using predictive control. 
     
 \section{Contributions of the present work}
 
-    This present work proposes to expand the solution from \citeonline{matheus2018} and provide a broader solution that can be used for systems 
-    that have their dynamics changing over time.
-
-    In a system that can be represented by a switched affine system with the form \highlight{$ \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)} $}
-    there are cases in which the dynamic response of the system can change depending on the operation mode. This can be represented in 
-    switched affine systems with proper matrices \highlight{$A_{\sigma(t)}$} and \highlight{$b_{\sigma(t)}$} for each operation mode. With the current implementation
-    of \citeonline{matheus2018} considering an invariant system during its operation, there is a need for expanding the solution so it can represent
-    more systems and solve more engineering problems that can be expressed as switched affine systems.
+    This present work proposes an extension of the solution from \citeonline{matheus2020_artigo} to a general case
+    of switched affine systems. 
+    
+    The work proposed by \citeonline{matheus2020_artigo} has an approach with three basic 
+    elements: the determination of a target cyclic trajectory, a linearization of the cycle-to-cycle
+    dynamics of the system around the target trajectory that applies the control in the switching time perturbation, 
+    the use of the linearized model with predictive formulation to impose the dwell time constraints.
 
 \section{Outline of the remaining chapters}
     
