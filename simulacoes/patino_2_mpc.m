@@ -101,12 +101,24 @@ function var_out = patino_2_mpc(save_fig)
         % cfg.x0  = config.x0 + [-0.1; .1; -.1];
         cfg.x0 = [0; 10; 10];
 
+        cfg.x0  = config.x0 + [-2;1;-1];
         cfg.mpc.on = true;
         [y,t,u,m,dtk_out] = engine.sim_n(cfg, nsim);
 
         cfg.mpc.on = false;
         [y_off,t_off,u_off,m_off,dtk_out_off] = engine.sim_n(cfg, nsim);
+
+        x0_1 = cfg.x0;
+
+
+        cfg.x0  = config.x0 + [-0.2; -.3; -.3];
+        cfg.mpc.on = true;
+        [y2] = engine.sim_n(cfg, nsim);
+
+        cfg.mpc.on = false;
+        [y2_off] = engine.sim_n(cfg, nsim);
         
+        x0_2 = cfg.x0;
     %% 5 PLOTING GRAPHICS
 
         % plot dos resultados
@@ -127,6 +139,11 @@ function var_out = patino_2_mpc(save_fig)
         f4 = figure(4);
         plot_traj(y, y_off, config.x0, "Multilevel Converter Trajectory", "V_{c1} [V]", "V_{c2} [V]", "I_{L} [A]")
 
+        f4_1 = figure(11);
+        plot_traj(y2, y2_off, config.x0, "Multilevel Converter Trajectory", "V_{c1} [V]", "V_{c2} [V]", "I_{L} [A]")
+
+
+
         % control signal
         f5 = figure(5);
         ncycle = size(y_off, 1) / nsim;
@@ -145,11 +162,17 @@ function var_out = patino_2_mpc(save_fig)
         if (save_fig)
             addr_out = "../LATEX_tese/Cap4/fig/";
 
-            save_figure(f1, "graf_patino_ex2_1.pdf", addr_out);
-            save_figure(f2, "graf_patino_ex2_2.pdf", addr_out);
-            save_figure(f3, "graf_patino_ex2_3.pdf", addr_out);
-            save_figure(f4, "graf_patino_ex2_4.pdf", addr_out);
-            save_figure(f5, "graf_patino_ex2_5.pdf", addr_out);
+            % states
+                save_figure(f1, "graf_patino_ex2_1.pdf", addr_out);
+                save_figure(f2, "graf_patino_ex2_2.pdf", addr_out);
+                save_figure(f3, "graf_patino_ex2_3.pdf", addr_out);
+            % trajectory
+                save_figure(f4, "graf_patino_ex2_4.pdf", addr_out);
+            % trajectory 2
+                save_figure(f4_1, "graf_patino_ex2_4_1.pdf", addr_out);
+            % control signal
+                save_figure(f5, "graf_patino_ex2_5.pdf", addr_out);
+
         end
 end
 

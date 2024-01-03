@@ -10,6 +10,11 @@ With these substitutions in place, we arrive at equation \eqref{eq_eNe0_result}.
 
 \subsection{Cost Function}
 
+
+\comentarioblue{
+    as equacoes precisam ser precedidas por um texto explicativo. falta tambem definir $e[j]$ e $N_p$
+}
+
 \begin{equation}
 \label{eq_cost_funcion}
     J = \norma{e[N_p]}{P_f} \\
@@ -22,13 +27,17 @@ With these substitutions in place, we arrive at equation \eqref{eq_eNe0_result}.
 \end{equation}
 
 \noindent
-where $Q = Q^T > 0$, $\rho > 0$
+where $Q = Q^T > 0$, $R = R^T > 0$
 
 \begin{equation}
     \delta t[j] = \Big[t_{j,1} - \bar{t}_{j,1}, t_{j,2} - \bar{t}_{j,2}, ..., t_{j,N-1} - \bar{t}_{j,N-1}\Big]^T
 \end{equation}
 
 \subsection{Dwell-time Constraints}
+
+\comentarioblue{
+    introduzir o indice $j$
+}
 
 We want to enforce a constraint on the dwell times where the switching times will the greater than a minimum value
 
@@ -105,7 +114,7 @@ with
 
 
 \noindent
-To use this with the constraints \highlight{$S \hat{u}[k] \le b$}, this can be reareanged as
+To use this with the constraints \highlight{$S \hat{u}[k] \le b$}, this can be rearranged as
 
 \begin{equation*}
     -L \delta t \le -c

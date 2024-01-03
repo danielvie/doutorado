@@ -1,7 +1,7 @@
 \section{Feasibility Region}
 
 We aim to determine the set \highlight{$\mathcal{D}$} of points \highlight{$x[k] \in \mathcal{X}$} for 
-which there exists \highlight{$\mathbf{u} \in \mathbb{R}^{pN}$} satisfying the constraints
+which there exists \highlight{$\mathbf{\hat{u}[k]} \in \mathbb{R}^{pN}$} satisfying the constraints
 
 \noindent
 \begin{equation}
@@ -26,7 +26,7 @@ These restrictions can be rewritten as
     \left[
     \begin{matrix}
         \mathbf{S_x} \mathbf{B} & \mathbf{S_x} \mathbf{A} \\
-        \mathbf{S_u} & x(0) \\
+        \mathbf{S_u} & 0 \\
     \end{matrix}
     \right] 
     \left[
@@ -52,7 +52,7 @@ adding a restriction \highlight{$S_x x(0) \le b_x$}
     \left[
     \begin{matrix}
         \mathbf{S_x} \mathbf{B} & \mathbf{S_x} \mathbf{A} \\
-        \mathbf{S_u} & x(0) \\
+        \mathbf{S_u} & 0 \\
         0 & S_x
     \end{matrix}
     \right] 
@@ -114,10 +114,14 @@ in the space \highlight{$\mathbb{R}^{(pN+n)}$} corresponding to the variables \h
 
 The set \highlight{$\mathcal{D}$} is obtained by projection \highlight{$\mathcal{P}_w$} onto the subspace of its last \highlight{$n$} components.
 
+\comentariored{
+    acertar a notacao nos eixos
+}
+
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.7\textwidth]{Cap3/fig/feasability.eps}
-    \caption{Ilustracao para n = 1 estado, p = 1 entrada e N = 1 passo}\label{cap3_feasability}
+    \caption{Illustration for n = 1 state, p = 1 input and N = 1 step}\label{cap3_feasability}
 \end{figure}
 
 The \textbf{projection} can be performed using the \textit{projection} function from the \textit{MPT Toolbox}.

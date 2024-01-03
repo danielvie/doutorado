@@ -1,15 +1,7 @@
 
 \section{Constraints}
 
-The constraints are introduced aiming to drive the states of the system to the origin while solving
-
-\noindent
-\begin{equation}
-	\min_{\mathbf{\hat{x}} \in \mathbb{R}^{nN}, \mathbf{\hat{u}} \in \mathbb{R}^{pN}}{\mathbf{J(\hat{x},\hat{u})}}
-\end{equation}
-
-\noindent
-respecting constraints applied on
+In view of \eqref{cap3_x_in_X} and \eqref{cap3_u_in_U}, the constraints on the optimization variables ca be expressed as
 
 \noindent
 \begin{align}
@@ -33,8 +25,15 @@ respecting constraints applied on
 	\in \mathcal{X} \times  \mathcal{X} \times \cdots \times \mathcal{X}_f = \mathcal{X}^{N-1} \times \mathcal{X}_f
 \end{align}
 
-\highlight{\highlight{$\mathcal{X}_f$}} is the maximum invariant and admissible set (MAS) concerning the terminal state and control
-constraints under the action of a terminal control force.
+\noindent
+where
+
+\noindent
+\begin{equation}
+	\mathcal{X}_f = \big\{x \in \mathbb{R}^n : S_f x \le b_f \big\}
+\end{equation}
+is the maximum invariant and admissible set (MAS) concerning the terminal state and control
+constraints under the infinite-horizon DLQR control law.
 
 \noindent
 \begin{equation}
@@ -91,7 +90,7 @@ with
 	\mathbf{S_u} = diag_N(S_u), \mathbf{b_u} = col_N(b_u)
 \end{equation}
 
-Similarly, the constraints on \highlight{$\mathbf{\hat{x}}$} can be written as
+Similarly, in light of \eqref{cap3_eq_Sx_bx}, the constraints on \highlight{$\mathbf{\hat{x}}$} can be written as
 
 \begin{equation}
 	\left[
@@ -149,6 +148,11 @@ with
 	\right]
 \end{equation}
 
+\comentarioblue{
+	essa discussao tem que ser apresentada depois de se deduzir a equacao de predicao
+	na secao 3.3 $\downarrow \downarrow$
+}
+
 The vectors \highlight{$\mathbf{\hat{x}}[k|k]$} and \highlight{$\mathbf{\hat{u}}[k|k]$} are linked by
 
 \begin{equation}
@@ -188,3 +192,8 @@ with
 	\mathbf{S} = \left[ \begin{matrix} \mathbf{S_x} \mathbf{B} \\ \mathbf{S_u} \end{matrix} \right], \mathbf{b} = 
 	\left[ \begin{matrix} \mathbf{b_x} - \mathbf{S_x} \mathbf{A} \hat{x}[k|k] \\ \mathbf{b_u} \end{matrix} \right]
 \end{equation}
+
+\comentarioblue{
+	essa discussao tem que ser apresentada depois de se deduzir a equacao de predicao
+	na secao 3.3 $\uparrow \uparrow$
+}

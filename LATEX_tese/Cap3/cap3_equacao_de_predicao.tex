@@ -23,27 +23,26 @@ Let's express the relationship between the vectors
 \end{equation}
 
 \noindent
-based on the state equation
+based on the prediction equation
 
 \noindent
 \begin{equation}
+	\label{cap3_eq_pred1}
 	\hat{x}[k + i +1|k] = A\hat{x}[k+i|k] + B \hat{u}[k+i|k], 
 	i = 0, 1, \ldots, N 
 \end{equation}
 
-
-
 \noindent
 and initial condition \highlight{$\hat{x}[k|k] = x[k]$}.
 
-The solution for the state equation is:
+From \eqref{cap3_eq_pred1}, it follows that
 
 \begin{equation}
 	\hat{x}[k+i|k] = A^i\hat{x}[k|k] + \sum_{j=0}^{i-1} A^{i - 1 -j} B \hat{u}[k+j|k]
 \end{equation}
 
 \noindent
-and it can be written for \highlight{$k = 1,2,...,N$} as
+which can be written for \highlight{$i = 1,2,...,N$} as
 
 \noindent
 \begin{align}

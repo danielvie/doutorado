@@ -1,20 +1,30 @@
-Consider a system with dynamics described by
+Consider a system with discrete-time dynamics described by
 
     \begin{equation}
         x[k + 1] = A x[k] + B u[k]
         \label{cap3-dynamic-equation}
     \end{equation}
 
-The objective is to drive the state \highlight{$x[k]$} to the origin from a given initial condition while respecting
+\noindent
+where \highlight{$x[k] \in \mathbb{R}^n$} and \highlight{$u[k] \in \mathbb{R}^p$} are 
+the state and control vectors at the $k$th time instant.
+
+The goal is to drive the state \highlight{$x[k]$} to the origin from a given initial condition while respecting
 state and control constraints in the form
 
 \begin{equation}
+    \label{cap3_x_in_X}
     x[k] \in \mathcal{X}
 \end{equation}
     
 \begin{equation}
+    \label{cap3_u_in_U}
     u[k] \in \mathcal{U}
 \end{equation}
+
+\noindent
+where $\mathcal{U}$ and $\mathcal{X}$ are polyhedral sets containing the origin in their interior.
+It is assumed that $\mathcal{U}$ and $\mathcal{X}$ are described in half-space representation as
 
 
 \begin{equation}
@@ -27,36 +37,54 @@ state and control constraints in the form
 and
 
 \begin{equation}
+    \label{cap3_eq_Sx_bx}
     \mathcal{X} = \left\{
         x \in \mathbb{R}^n : S_x x \leq b_x
     \right\}
 \end{equation}
 
+\noindent
+with \highlight{$S_u$, $b_u$} and \highlight{$S_x$, $b_x$} of suitable dimensions.
 
 \section{Cost Function}
 
-The solution, if it exists, will not be unique. Therefore, it is necessary to adopt a criterion that allows for choosing the best sequence of control 
-actions to perform the task.
 
+At each time $k$, the control action $u[k]$ will be determined by solving an 
+an optimization problem with the cost given by
 
-The control problem consists of bringing the states to the origin, so we will employ a cost in the form
 
 \begin{equation}
     J = \blue{\norma{\hat{x}[k + N | k]}{P_f}} + \orange{\sum^{N-1}_{i=0} \Big[ \norma{\hat{x}[k + i | k]}{Q} + \norma{\hat{u}[k + i | k]}{R} \Big]}
 \end{equation}
 
 \noindent
-and initial condition 
+where $\hat{x}[k+i|k]$ are predicted values of the state and control vectors, which are 
+related through the following equations:
+
+\noindent
 \begin{equation}
     \hat{x}[k|k] = x[k]
-\end{equation}	
+\end{equation}
+
+\noindent
+\begin{equation}
+    \hat{x}[k + i + 1|k] = A \hat{x}[k+i|k] + B
+\end{equation}
+
+\noindent
+\begin{equation}
+    \hat{x}[k + i|k], \quad i =  0, 1, \dotsm, N-1
+\end{equation}
+
 
 The expression for \highlight{$J$} consists of a \blue{terminal cost} term and a trajectory \orange{cost term}. 
 
-With \highlight{$P_f$}, \highlight{$Q$}, \highlight{$R$} being symmetric and positive-definite, with \highlight{$P_f$} chosen so that the terminal cost term \highlight{$\norma{\hat{x}(k + N|k) - \bar{x}}{P_f}$} corresponds 
-to the value function of the infinite horizon Discrete-Time Linear Quadratic Regulator (DLQR).
+With \highlight{$P_f$}, \highlight{$Q$}, \highlight{$R$} being symmetric and positive-definite, 
+with \highlight{$P_f$} chosen so that the terminal cost term corresponds 
+to the value function of an infinite horizon Discrete-Time Linear Quadratic Regulator (DLQR) designed width
+weights $Q$, $R$.
 
-The cost function can be rewritten using the notation:
+By using the notation:
 
 \begin{equation}
     \mathbf{\hat{u}}[k] = 
@@ -81,12 +109,22 @@ The cost function can be rewritten using the notation:
     \in \mathbb{R}^{nN}
 \end{equation}
 
+\comentarioblue{
+    colocar a definicao da matriz R negrito aqui
+}
+
 \noindent
-and then the sum equation
+and then the cost term
+
+
+\comentariored{
+    rever essa parte
+}
 
 \begin{equation}
     \begin{split}
-        \sum^{N-1}_{j=0} \norma{\hat{u}[j + k | k]}{R} &= \hat{u}^T[k|k] R \hat{u}[k|k] + \hat{u}^t[k+1|k]R\hat{u}[k+1|k] + \cdots \\
+        \sum^{N-1}_{i=0} \norma{\hat{u}[i + k | k]}{R} &= 
+            \hat{u}^T[k|k] R \hat{u}[k|k] + \hat{u}^t[k+1|k]R\hat{u}[k+1|k] + \cdots \\
         &\qquad+ \hat{u}^T [k+N-1|k] R \hat{u}[k+N-1|k]
     \end{split}
 \end{equation}
@@ -95,69 +133,22 @@ and then the sum equation
 becomes
 
 \begin{equation}
-    \underbrace{
-        \left[ \begin{matrix}
-            \hat{u}^T[k|k] & \hat{u}^T[k + 1|k] & \cdots & \hat{u}^T[k + N - 1|k] 
-        \end{matrix} \right]
-    }_{\mathbf{\hat{u}}^T}
-    \left[
-        \begin{matrix}
-            R & 0 & \cdots & 0 \\
-            0 & R & \cdots & 0 \\
-            \vdots & \vdots & \ddots & \vdots \\
-            0 & 0 & \cdots & R \\
-        \end{matrix}
-    \right]
-    \underbrace{
-        \left[
-            \begin{matrix}
-                \hat{u}[k|k] \\
-                \hat{u}[k + 1|k] \\
-                \vdots \\
-                \hat{u}[k + N - 1|k]
-            \end{matrix}
-        \right]
-    }_{\mathbf{\hat{u}}}
-\end{equation}
-
-Using the notation
-
-\begin{equation}
-    \mathbf{R} = \left[
-        \begin{matrix}
-            R & 0 & \cdots & 0 \\
-            0 & R & \cdots & 0 \\
-            \vdots & \vdots & \ddots & \vdots \\
-            0 & 0 & \cdots & R 
-        \end{matrix}
-    \right] = diag_N(R)
-\end{equation}
-
-\noindent
-we get to 
-
-\begin{equation}
-    \sum_{j=0}^{N-1} \norma{\hat{u}[j]}{R} = \norma{\mathbf{\hat{u}}}{\mathbf{R}}
+    \sum_{i=0}^{N-1} \norma{\hat{u}[i]}{R} = \norma{\mathbf{\hat{u}}}{\mathbf{R}}
 \end{equation}
 
 Similarly, we can write
 
+\noindent
 \begin{equation}
-    \begin{gathered}
-        \norma{\hat{x}[k+N|k]}{P_f} + \sum_{j=0}^{N-1} \norma{\hat{x}[k+j|k]}{Q} = x^T[k|k] Q x[k|k] \\
-        + \hat{x}^T[k + 1 | k]Q\hat{x}[k + 1 | k] + \cdots + \hat{x}^T[k + N - 1|k]Q\hat{x}[k + N - 1|k] + \hat{x}^T[k+N|k]P_f\hat{x}[k+N|k] \\
-        = \hat{x}^T[k|k]Q \hat{x}[k|k] +  \\
-        \underbrace{ \left[ \begin{matrix} \hat{x}^T[k + 1 | k] & \hat{x}^T[k + 2 | k] & \cdots & \hat{x}^T[k + N | k]		\end{matrix} \right] }_{\mathbf{\hat{x}}[k]^T}
-        \left[ \begin{matrix} Q & 0 & \cdots & 0 \\ 0 & Q & \cdots & 0 \\ \vdots & \vdots & \ddots & \vdots \\ 0 & 0 & \cdots & P_f \end{matrix} \right]
-        \underbrace{ \left[ \begin{matrix} \hat{x}[k + 1 | k] \\ \hat{x}[k + 2 | k] \\ \vdots \\ \hat{x}[k + N | k] \end{matrix} \right] }_{\mathbf{\hat{x}}[k]}
-    \end{gathered}
+    \norma{\hat{x}[k + N | k]}{P} + \sum_{j=0}^{N - 1} \norma{\hat{x}[k+j|k]}{Q} = \norma{x[k]}{P} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} 
 \end{equation}
 
+
 \noindent
-with the notation
+where
 
 \begin{equation}
-    Q = 
+    \mathbf{}Q = 
     \left[
         \begin{matrix}
             Q & 0 & \cdots & 0 \\
@@ -179,14 +170,17 @@ with the notation
 \noindent
 as
 
-\noindent
-\begin{equation}
-    \norma{\hat{x}[k + N | k]}{P} + \sum_{j=0}^{N - 1} \norma{\hat{x}[k+j|k]}{Q} = \norma{x[k]}{P} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} 
-\end{equation}
-
 So, the cost function can be written in the form
 
+\comentariored{
+    conferir o indice, troquei \highlight{P} por \highlight{Q}
+}
+
+\comentariopurple{
+    incluir $[k]$ nas demais equacoes daqui em diante, sempre que necessario
+}
 \noindent
 \begin{equation}
-    J(\mathbf{\hat{x}}, \mathbf{\hat{u}}) = \norma{x[k]}{P} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} + \norma{\mathbf{\hat{u}}}{\mathbf{R}}
+    J(\mathbf{\hat{x}}[k], \mathbf{\hat{u}}[k]) = \norma{x[k]}{Q} + 
+    \norma{\mathbf{\hat{x}}[k]}{\mathbf{Q}} + \norma{\mathbf{\hat{u}}[k]}{\mathbf{R}}
 \end{equation}

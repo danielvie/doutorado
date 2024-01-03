@@ -1,6 +1,6 @@
 \section{Statement of the problem}
 
-Considering a plant of an affine switched system described by: 
+Considering a plant with switched-affine dynamics described by: 
 
 \noindent
 \begin{equation}
@@ -8,18 +8,20 @@ Considering a plant of an affine switched system described by:
     \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}
 \end{equation}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[]{Cap4/fig/desenho_cap4_3.eps}
-    \caption{Switching signals}\label{cap2_linearizacao}
-\end{figure}
 
 We assume the existence of a periodic switching signal \highlight{$\bar{\sigma}(t)$}
 associated with a periodic trajectory \highlight{$\bar{x}(t)$}, as obtained in 
 Chapter \ref{cap2-determination-of-target-periodic-traj}. Our objective is to introduce perturbations 
 in the switching instants such that the trajectory \highlight{$x(t)$} converges to the reference trajectory \highlight{$\bar{x}(t)$}.
 
-Figure \ref{cap2_linearizacao} displays the \highlight{$j_{th}$} cycle of the switching signals \highlight{$\bar{\sigma}(t)$} and \highlight{$\sigma(t)$},
+\begin{figure}[h]
+    \centering
+    \includegraphics[]{Cap4/fig/desenho_cap4_3.eps}
+    \caption{Switching signals}\label{cap2_linearizacao}
+\end{figure}
+
+
+Figure \ref{cap2_linearizacao} displays the \highlight{$j$th} cycle of the switching signals \highlight{$\bar{\sigma}(t)$} and \highlight{$\sigma(t)$},
 which comprise \highlight{$N$} switching actions. Within this cycle, the \highlight{$i_{th}$} switching times of \highlight{$\bar{\sigma}(t)$} and 
 \highlight{$\sigma(t)$} are denoted by \highlight{$\bar{t}_{j, i}$} and \highlight{$t_{j, i}$}, respectively.
 The relation between \highlight{$\bar{t}_{j, i}$} and \highlight{$t_{j, i}$} is given by
@@ -29,4 +31,5 @@ The relation between \highlight{$\bar{t}_{j, i}$} and \highlight{$t_{j, i}$} is 
     t_{j, i} = \bar{t}_{j, i} + \delta t_{j, i}
 \end{equation}
 
-To do this using predictive control, we need to find a linear equation that relates the switching times and the resulting system at the end of one cycle.
+In what follows, we derive a linear equation that relates the 
+switching times and the resulting deviation of $x(t)$ with respect to $\hat{x}(t)$ at the end of one cycle.
