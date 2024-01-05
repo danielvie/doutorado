@@ -14,30 +14,6 @@
     driving the state to an equilibrium point, the design should be aimed at achieving a 
     suitable limit cycle.
 
-    \comentarioblue{
-        O que esses tres trabalhos nao fizeram, no que diz respeito ao escopo desse doutorado?
-        ou seja, o que estamos fazendo que eles nao fizeram?
-        eh o tratamento de restricoes de dwell-time?
-
-        A resposta para essa pergunta servira de base para a ligacao do texto com o proximo paragrafo.
-    }
-    
-    \comentarioblue{
-        - the work treats the case of changing dynamics
-
-        - computes the dwell-time constraints
-
-        - has the convenience of solving the problem with quadratic programming convex optimization
-    }
-
-    \comentarioblue{
-        The present work extends the problem to work with changing dynamics at switching times and 
-        applies the dwell-time constraints using predictive control. The formulation of the solution also
-        has the convenience of solving the problem with quadratic programming convex optimization. 
-        
-        dafsdfad
-    }
-    
     This problem has been addressed, for instance, by \citeonline{benmiloud2018} who uses a 
     hybrid Poincaré map approach to stabilize a switched affine system into the desired 
     limit cycle and a DC-DC converter was employed as an illustrative example. 
@@ -68,16 +44,21 @@
     minimizes a cost function associated with the system performance; then a second part 
     that uses the target trajectory as input and computes perturbation at the switching 
     instants of the reference control signal using predictive control. 
-    
+
+
+
+
 \section{Contributions of the present work}
 
-    This present work proposes an extension of the solution from \citeonline{matheus2020_artigo} to a general case
-    of switched affine systems. 
+    The present work proposes an extension of the solution from \citeonline{matheus2020_artigo} to a general case
+    of switched affine systems with changing dynamics at switching times and applies the 
+    dwell-time constraints using predictive control. 
     
     The work proposed by \citeonline{matheus2020_artigo} has an approach with three basic 
     elements: the determination of a target cyclic trajectory, a linearization of the cycle-to-cycle
     dynamics of the system around the target trajectory that applies the control in the switching time perturbation, 
-    the use of the linearized model with predictive formulation to impose the dwell time constraints.
+    the use of the linearized model with predictive formulation to impose the dwell time constraints. This formulation 
+    of the solution also has the convenience of solving the problem with quadratic programming convex optimization.
 
 \section{Outline of the remaining chapters}
     

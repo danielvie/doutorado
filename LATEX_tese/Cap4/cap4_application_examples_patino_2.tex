@@ -28,9 +28,13 @@ where
     \end{matrix}
 \end{equation}
 
+\comentariopurple{
+    conferir unidades dessa parte
+}
+
 \noindent
-with \highlight{$R = 10.0 \Omega$}, \highlight{$L = 10.0 mH$}, \highlight{$C_1 = 40.0 \mu F$}, 
-\highlight{$C_2 = 40.0 \times 10^{-6} \mu F$}, \highlight{$E  = 30.0 V$}
+with \highlight{$R = 10.0 \; \mathrm{\Omega}$}, \highlight{$L = 10.0 \; \mathrm{mH}$}, \highlight{$C_1 = 40.0 \; \mathrm{\mu F}$}, 
+\highlight{$C_2 = 40.0 \; \mathrm{\mu F}$}, \highlight{$E  = 30.0 \; \mathrm{V}$}
 
 \noindent
 and \highlight{$u(i)$} is 
@@ -62,11 +66,11 @@ and \highlight{$u(i)$} is
 \noindent
 and the operation mode is characterized by the index \highlight{$\Omega = \big[1,2,4,8,3,1,5,8,5\big]$}. 
 The time switch values are defined as \highlight{$\tau^\infty = \big[0, 0.0639, 0.0878, 0.1119, 0.1344, 0.1567, 0.2065, $} 
-\highlight{$0.23, 0.2529, 0.2756\big]$}, and the reference state vector for this 
-trajectory is denoted as \highlight{$x_{ref} = \big[10, 20, 1\big]$}. Additionally, the 
+\highlight{$0.23, 0.2529, 0.2756\big] \; \mathrm{ms}$}, and the reference state vector for this 
+trajectory is denoted as \highlight{$x_{ref} = \big[10 \;\mathrm{V}, 20 \;\mathrm{V}, 1 \;\mathrm{A}\big]$}. Additionally, the 
 maximum period value for the trajectory cycle is specified as \highlight{$T_{p_{max}} = 4\times 10^{-4} $}, 
-while the initial state of the nominal target trajectory is given by \highlight{$x_0 = \big[9.5143, 19.8211, 1.0314\big]$}. 
-The time step of the simulation if \highlight{$t_{step} = 1 \times 10^{-7}$} and the weight matrix used in the 
+while the initial state of the nominal target trajectory is given by \highlight{$x_0 = \big[9.5143 \;\mathrm{V}, 19.8211 \;\mathrm{V}, 1.0314 \;\mathrm{A}\big]$}. 
+The time step of the simulation if \highlight{$t_{step} = 1 \times 10^{-7} \;\mathrm{s}$} and the weight matrix used in the 
 computation of the trajectory is \highlight{$Q = diag([10, 5, 20000])$}.
 
 \subsubsection{Prediction Matrices}
@@ -148,9 +152,9 @@ with the switching time constraints
 Figure \ref{cap4-graf-patino2-traj} shows the trajectory for the Multilevel converter, 
 \highlightblue{in blue} we see the trajectory without using the MPC controller, and 
 \highlightorange{in orange} we see the trajectory using the MPC controller.
-They are starting from \highlight{$x_0 = \big[7.5143, 20.8211, 0.0314\big]$}, the trajectory
+They are starting from \highlight{$x_0 = \big[7.5143 \;\mathrm{V}, 20.8211 \;\mathrm{V}, 0.0314 \;\mathrm{A}\big]$}, the trajectory
 with the MPC off goes to a point far from the targeted position 
-\highlight{$\bar{x}_0 = \big[9.5143, 19.8211,$} \highlight{$1.0314\big]$}, but the trajectory with the MPC on
+\highlight{$\bar{x}_0 = \big[9.5143 \;\mathrm{V}, $} \highlight{$19.8211 \;\mathrm{V}, 1.0314 \;\mathrm{A}\big]$}, but the trajectory with the MPC on
 goes drives the system to the desired target.
 
 Figure \ref{cap4-graf-patino2-control-signal} displays the control signal sequence, 

@@ -19,16 +19,6 @@ trajectory that yields the optimal time sequence \highlight{$\tau^\infty$}, the 
 length \highlight{$s^\infty (1 < s^\infty < s_{max})$}. To reduce the oscillations around a desired operation point, we choose an integral 
 quadratic criterion centered on the average reference value \highlight{$\bar{x}^\infty$}:
 
-\comentarioblue{
-    - seria conveniente tambem incluir x(0) como variavel de optimizacao, pois a 
-    trajetoria x(.) depente de x(0)
-}
-
-\comentariored{
-    - nao eh mais assim, vide a fig 2.1 ???
-}
-
-
 \begin{equation}
     \label{cap2_eq_optimization}
     J(\tau^{\infty} ,\Omega^{\infty} ,s^{\infty}, x_0) = \min_{\tau, \Omega, s} \int_0^{T_p} \Big[x(t) - \bar{x}^{\infty}\Big]^T Q \Big[x(t) - \bar{x}^{\infty}\Big] dt
@@ -55,30 +45,17 @@ Since the trajectory is cyclic we can impose the constraint:
 
 \subsection{System Dynamics and Sequence}
 
-    To begin, we create a list where each of its elements signifies the dynamics of 
-    the system. This is exemplified by the matrices A, B, C, and D. The order in which 
-    the elements appear in this list is defined by the sequence of modes. In simpler 
-    terms, the positioning of these elements signifies the order they will be executed.
 
-    In Figure \refeq{cap2_fig_diferentes_dinamicas}, we see a trajectory example. 
-    For this illustration, the system's list of dynamics is 
-    $\Big\{\big[A_1,b_1\big], \big[A_2,b_2\big], \big[A_3,b_3\big], \big[A_4,b_4\big]\Big\}$,
-    and the sequence of modes is $\big[4,2,1,2,3\big]$. It's worth noting that a particular system 
-    dynamic can be employed multiple times or might not be used at all, depending on 
-    the desired target trajectory. 
-    The sequence of modes and the maximum period for the cycle are predetermined for this problem and
-    the goal is to achieve the best trajectory that minimizes the cost function.
-    
+    We are considering that the system dynamics will change after each switch command, this means that each 
+    switching interval will have its dynamics represented by the matrices \highlight{$\big\{A_i, b_i\big\}$}. The same system 
+    dynamic can be used again in different intervals. This is illustrated in figure \ref{cap2_fig_diferentes_dinamicas},
+    where a sequence of dynamics is applied in the sequence of modes \highlight{$\big[4,2,1,2,3\big]$} to generate the cyclic trajectory.
+
 \subsection{Constraints Definition}
-
-    \comentarioblue{
-        as restricoes precisam ser apresentacas matematicamente, usando a notacao
-        apresentada na definicao de tau\_inf
-    }
 
     Once the list and sequence have been established, we need to apply the constraints. 
     These constraints dictate the cycle's maximum duration, as well as the minimum 
-    time permitted between switches in modes.
+    time permitted between switches in modes in the form of
 
     \noindent
     \begin{equation}
@@ -88,12 +65,17 @@ Since the trajectory is cyclic we can impose the constraint:
     \noindent
     where $\Delta t_{i,min}$ is the minimum duration time permitted between switch $i$.
 
-\subsection{Optimization with FMINCON}
-    
+
+\section{Calculating \texorpdfstring{$x_0$}{x\_0}}
+
     \comentariopurple{
-        precisaria vir depois do desenvolvimento apresentado na secao 2.2, que ainda
-        faz parte da formulacao do problema de otimizacao em si
+        ler essa parte novamente e ver se o texto faz sentido
     }
+
+
+    \input{Cap2/cap2_otim_get_x0}
+
+\subsection{Optimization with FMINCON}
 
     For optimization purposes, the function FMINCON is employed. This function works 
     in conjunction with a cost function. The cost function is designed to accept switching 
@@ -116,9 +98,6 @@ Since the trajectory is cyclic we can impose the constraint:
     is compliant with the system's dynamic constraints and also matches the properties 
     of the final trajectory.
 
-
-\section{Calculating \texorpdfstring{$x_0$}{x\_0}}
-    \input{Cap2/cap2_otim_get_x0}
 
 \section{Application Examples}
     \include{Cap2/cap2_example_1}

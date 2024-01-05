@@ -1,52 +1,93 @@
+function var_out = patino_1(save_fig)
+    
+    if (nargin == 0)
+        save_fig = false;
+    end
 
-%% init
-% clear
+    % get configuration
+    config = engine.get_config_sim_patino_1();
 
-% get configuration
-config = engine.get_config_sim_patino_1();
+    %% calculo da trajetoria
+    [config, x, fval] = engine.otmin(config);
+    % disp(x);
+    % disp(fval);
 
-%% calculo da trajetoria
-[config, x, fval] = engine.otmin(config);
-disp(x);
-disp(fval);
+    %% rodando simulacao como resultado da trajetoria
+    c = config;
 
-%% rodando simulacao como resultado da trajetoria
-c = config;
+    c.x0 = c.x0;
+    nsim = 30;
+    [y,t,u,m] = engine.sim_n(c, nsim);
 
-c.x0 = c.x0;
-nsim = 30;
-[y,t,u,~] = engine.sim_n(c, nsim);
+    %% plot dos resultados
 
-%% plot dos resultados
+    % grafico 1
+    f1 = figure(1);
+    plot_trajetory(y, c.xref, "Buck-Boost Conveter: Cyclic Trajectory", "x_1 - Capacitor Voltage", "x_2 - Indutor Current");
 
-% grafico 1
-f1 = figure(1);
-hold off;
+    % grafico 2
+    f2 = figure(2);
 
-plot(y(:,1), y(:,2), 'LineWidth', 2); hold on;
-plot(c.xref(1), c.xref(2), 'rx');
-
-axis equal;
-grid on;
-xlabel('x1 - capacitor voltage');
-ylabel('x2 - inductor current');
-set(gca,'fontsize', 15);
-
-% grafico 2
-f2 = figure(2);
-hold off;
-
-i = t < c.Ts(end);
-plot(t(i), u(i), 'linew', 3); hold on;
-grid on;
-xlabel('t - time(s)');
-ylabel('u - input command');
-set(gca,'fontsize', 15);
+    i = t < c.Ts(end);
+    plot_control_signal(t(i), m(i), "Buck-Boost Converter Signal Command", "t - time (s)", "u - switch command");
 
 
-%% saving figures
-save_figure(f1, "graf_ex1_1.pdf")
-save_figure(f2, "graf_ex1_2.pdf")
+    % get variables
+    all_vars = who;
+    var_out = [];
+    for i = 1:length(all_vars)
+        var_name = all_vars{i};
+        var_out.(var_name) = eval(var_name);
+    end
 
-%% copy figures
-% copyfile('graf_ex1_*.pdf', "../../LATEX_tese/Cap2/fig/");
+    if (save_fig)
+        %% saving figures
+        save_figure(f1, "graf_ex1_1.pdf", "../LATEX_tese/Cap2/fig/");
+        save_figure(f2, "graf_ex1_2.pdf", "../LATEX_tese/Cap2/fig/");
+    end
+
+        %% copy figures
+        % copyfile('graf_ex1_*.pdf', "../../LATEX_tese/Cap2/fig/");
+    
+end
+
+function plot_trajetory(y, xref, tit, x_label, y_label)
+    hold off;
+    plot(y(:,1), y(:,2), 'LineWidth', 2); hold on;
+    plot(xref(1), xref(2), 'rx');
+
+    axis equal;
+    grid on;
+    title(tit);
+    xlabel(x_label);
+    ylabel(y_label);
+    set(gca,'fontsize', 15);
+end
+
+
+
+function plot_control_signal(t, m, tit, x_label, y_label)
+
+    hold off;
+
+    f = stairs(t, m, 'linew', 3); 
+
+    hold on;
+    grid on;
+    title(tit)
+    xlabel(x_label);
+    ylabel(y_label);
+    set(gca,'fontsize', 15);
+
+    % removing the values that are not integers in Y axis
+    v = f.Parent.YTick;
+    
+    % indices for integer
+    p = abs(v - floor(v)) < 0.1;
+    
+    % update yticks
+    f.Parent.YTick = v(p);
+    
+    xlim([t(1), t(end)]);
+end
+

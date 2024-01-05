@@ -1,7 +1,7 @@
 
-function cfg_out = patino_2(savefig)
+function cfg_out = patino_2(save_fig)
     if (nargin == 0)
-        savefig = false;
+        save_fig = false;
     end
 
     % get configuration
@@ -51,27 +51,17 @@ function cfg_out = patino_2(savefig)
 
 
     % plot dos resultados
-    close all;
+    % close all;
 
     f1 = figure(1);
-    plot(t, vc1);
-
-    grid on;
-    xlabel('t - time(s)');
-    ylabel('V_{c1} [V]');
-    set(gca,'fontsize', 15);
+    plot_xi(t, vc1, "Multilevel Converter: X_1", "t - time(s)", "Tension C_1 [V]");
 
 
     f2 = figure(2);
-    plot(t, vc2);
-
-    grid on;
-    xlabel('t - time(s)');
-    ylabel('V_{c2} [V]');
-    set(gca,'fontsize', 15);
+    plot_xi(t, vc2, "Multilevel Converter: X_2", "t - time(s)", "Tension C_2 [V]");
 
     f3 = figure(3);
-    plot(t, i_l);
+    plot_xi(t, i_l, "Multilevel Converter: X_3", "t - time(s)", "Current L [A]");
 
     grid on;
     xlabel('t - time(s)');
@@ -79,33 +69,23 @@ function cfg_out = patino_2(savefig)
     set(gca,'fontsize', 15);
 
     f4 = figure(4);
-    y = engine.sim_n(c, 30);
+    [y,t,u,m,dtk_out] = engine.sim_n(c, 30);
+    plot_trajectory(y, "Multilevel Converter: Trajectory", "X_1: Tension C_1 [V]", "X_2: Tension C_2 [V]", "X_3: Current L [A]")
+    
+    f5 = figure(5);
+    i = t < c.Ts(end);
+    plot_control_signal(t(i), m(i), "Multilevel Conveter: Input Signal", "t - time(s)", "u - switch command");
 
-    vc1_ = y(:,1);
-    vc2_ = y(:,2);
-    i_l_ = y(:,3);
-
-    y1 = engine.sim_1_custo(c);
-
-    assignin('base', 'y1', y1);
-
-    % plot3(y1(:,1), y1(:,2), y1(:,3), 'k');
-    plot3(vc1_, vc2_, i_l_, 'k');
-
-    grid on;
-    xlabel('V_{c1} [V]');
-    ylabel('V_{c2} [V]');
-    zlabel('i_L [A]');
-    set(gca,'fontsize', 15);
-
-    if (savefig)
+    if (save_fig)
         fprintf("salvando figuras\n\n");
 
+        addr = "../LATEX_tese/Cap2/fig/";
         %% saving figures
-        save_figure(f1, "graf_ex2_1.pdf");
-        save_figure(f2, "graf_ex2_2.pdf");
-        save_figure(f3, "graf_ex2_3.pdf");
-        save_figure(f4, "graf_ex2_4.pdf");
+        save_figure(f1, "graf_ex2_1.pdf", addr);
+        save_figure(f2, "graf_ex2_2.pdf", addr);
+        save_figure(f3, "graf_ex2_3.pdf", addr);
+        save_figure(f4, "graf_ex2_4.pdf", addr);
+        save_figure(f5, "graf_ex2_5.pdf", addr);
 
         %% copy figures to latex
         % copyfile('graf_ex2_*.pdf', "../../LATEX_tese/Cap2/fig/");
@@ -115,3 +95,58 @@ function cfg_out = patino_2(savefig)
     if (nargout == 1)
         cfg_out = config;
     end
+end
+
+function plot_xi(t, x, tit, x_la, y_la)
+    plot(t, x);
+
+    grid on;
+    title(tit);
+    xlabel(x_la);
+    ylabel(y_la);
+
+    set(gca,'fontsize', 15);
+end
+
+function plot_trajectory(y, tit, x_la, y_la, z_la)
+
+    vc1_ = y(:,1);
+    vc2_ = y(:,2);
+    i_l_ = y(:,3);
+
+    plot3(vc1_, vc2_, i_l_, 'k');
+
+    grid on;
+
+    title(tit);
+    xlabel(x_la);
+    ylabel(y_la);
+    zlabel(z_la);
+
+    set(gca,'fontsize', 15);
+end
+
+function plot_control_signal(t, m, tit, x_label, y_label)
+
+    hold off;
+
+    f = stairs(t, m, 'linew', 3); 
+
+    hold on;
+    grid on;
+    title(tit)
+    xlabel(x_label);
+    ylabel(y_label);
+    set(gca,'fontsize', 15);
+
+    % removing the values that are not integers in Y axis
+    v = f.Parent.YTick;
+    
+    % indices for integer
+    p = abs(v - floor(v)) < 0.1;
+    
+    % update yticks
+    f.Parent.YTick = v(p);
+    
+    xlim([t(1), t(end)]);
+end
