@@ -30,11 +30,11 @@ where
 
 \noindent
 and the operation mode is characterized by the index \highlight{$\Omega = \big[1, 2\big]$}. 
-The time switch values are defined as \highlight{$\tau^\infty = \big[0, 0.2513, 0.5914 \big]$}, 
-and the reference state vector for this trajectory is denoted as \highlight{$x_{ ref} = \big[2, -1\big]$}. 
-Additionally, the maximum period value for the trajectory cycle is specified as \highlight{$T_{p_{max}} = 1$}, 
-while the initial state of the nominal target trajectory is given by \highlight{$x_0 = \big[1.8708, -1.1198\big]$}.
-The time step of the simulation if \highlight{$t_{step} = 1 \times 10^{-5}$} and the weight matrix used in the 
+The time switch values are defined as \highlight{$\tau^\infty = \big[0, 0.2513, 0.5914 \big] \;\mathrm{s}$}, 
+and the reference state vector for this trajectory is denoted as \highlight{$x_{ ref} = \big[2 \;\mathrm{V}, -1 \;\mathrm{A}\big]$}. 
+Additionally, the maximum period value for the trajectory cycle is specified as \highlight{$T_{p_{max}} = 1 \;\mathrm{s}$}, 
+while the initial state of the nominal target trajectory is given by \highlight{$x_0 = \big[1.8708 \;\mathrm{V}, -1.1198 \;\mathrm{A}\big]$}.
+The time step of the simulation if \highlight{$t_{step} = 1 \times 10^{-5} \;\mathrm{s}$} and the weight matrix used in the 
 computation of the trajectory is \highlight{$Q$} is a diagonal matrix of ones.
 
 \subsubsection{Prediction Matrices}
@@ -92,8 +92,8 @@ with the switching time constraints
 
 Figure \ref{cap4_fig_seq_ref_patino1} shows the simulation of the trajectory for the system, \highlightblue{in blue} we see
 the trajectory without using the MPC controller, and \highlightorange{in orange} we see the trajectory using the MPC controller.
-They are both starting from \highlight{$x_0 = \big[2.0493,-0.6108\big]$} and converge to the initial position of the target cyclic trajectory 
-\highlight{$\bar{x}_0 = \big[1.8493, -1.1108\big]$}. Note that the trajectory with the MPC controller converges faster to the 
+They are both starting from \highlight{$x_0 = \big[2.0493 \;\mathrm{V},-0.6108 \;\mathrm{A}\big]$} and converge to the initial position of the target cyclic trajectory 
+\highlight{$\bar{x}_0 = \big[1.8493 \;\mathrm{V}, -1.1108 \;\mathrm{A}\big]$}. Note that the trajectory with the MPC controller converges faster to the 
 cyclic trajectory.
 
 Figure \ref{cap4-graf-patino-ex1-2} shows the control signal sequence, where we can see that the difference between the nominal 

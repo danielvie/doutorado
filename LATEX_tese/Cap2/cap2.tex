@@ -1,10 +1,15 @@
 Consider a switching affine system of the form
 
+\comentariopurple{
+    nao usar parenteses na numeracao d figuras
+}
+
 \noindent
 \begin{equation}
     \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)},
     \nonumber
 \end{equation}
+
 
 \noindent
 the goal is to drive a system defined by an affine dynamic equation to an optimal 
@@ -53,18 +58,32 @@ Since the trajectory is cyclic we can impose the constraint:
 
 \subsection{Constraints Definition}
 
-    Once the list and sequence have been established, we need to apply the constraints. 
-    These constraints dictate the cycle's maximum duration, as well as the minimum 
-    time permitted between switches in modes in the form of
+    \comentariopurple{
+        isso daqui parece estar fora de ordem, eu deveria falar disso conectado com a funcao custo ?
+    }
 
+
+
+    Once the list and sequence have been established, we need to apply the constraints,
+    these constraints dictate the cycle's maximum duration
+    
     \noindent
     \begin{equation}
-        (t_i - t_{i - 1}) \ge \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N
+        T_p \le T_{p,max}
     \end{equation}
     
     \noindent
-    where $\Delta t_{i,min}$ is the minimum duration time permitted between switch $i$.
+    as well as the minimum time permitted between switches in modes in the form of
 
+    \noindent
+    \begin{equation}
+        \label{cap2_time_constraint}
+        (t_i - t_{i - 1}) \ge \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N
+    \end{equation}
+
+    \noindent
+    where \highlight{$T_p$} is the cycle period, \highlight{$T_{p,max}$} is the maximum cycle period,
+    \highlight{$\Delta t_{i,min}$} is the minimum duration time permitted between switch \highlight{$i$}.
 
 \section{Calculating \texorpdfstring{$x_0$}{x\_0}}
 
@@ -77,26 +96,27 @@ Since the trajectory is cyclic we can impose the constraint:
 
 \subsection{Optimization with FMINCON}
 
+    \comentariopurple{
+        reescrever isso daqui, nao ta bom
+    }
+
     For optimization purposes, the function FMINCON is employed. This function works 
-    in conjunction with a cost function. The cost function is designed to accept switching 
-    times generated from the optimization process. Its primary goal is to evaluate and 
-    discern the most cost-effective result that respects the imposed constraints.
+    in conjunction with a cost function. Its primary goal is to evaluate and 
+    discern the most cost-effective result that respects the imposed constraints in \eqref{cap2_time_constraint}.
+
+    The cost function is designed to accept increments of switching times generated from the 
+    optimization process and then construct the time vector, this way the time constraint for the problem
+    can be described as a lower bounds value on the input to evaluate the trajectory and a maximum total time for the 
+    cycle, this is in the form of
+    
+    \begin{equation}
+        lb > 
+    \end{equation}
+    
 
     FMINCON is a method of optimization in MATLAB's libraries that implements the method 
     SQP (Sequential Quadratic Programming). 
     The basic SQP algorithm is described in Chapter 18 of \citeonline{nocedal2006numerical}.
-
-\subsection{Cost Function and Trajectory Simulation}
-
-    Taking a closer look at the cost function, its role is to simulate the trajectory using 
-    the dynamics taken from the previously defined list, all in line with the mode sequence. 
-    This trajectory is cyclic and to enforce this cyclic nature, the initial state's condition 
-    is calculated in such a way that the end product is a cyclic trajectory.
-
-    The method of determining the cost is by computing the integral of the trajectory, 
-    centered around the average reference value, denoted as \highlight{$\bar{x}^\infty$}. The result 
-    is compliant with the system's dynamic constraints and also matches the properties 
-    of the final trajectory.
 
 
 \section{Application Examples}

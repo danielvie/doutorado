@@ -1,6 +1,11 @@
 \subsection{Multilevel converter}
 \label{cap2-session-patino2}
 
+
+\comentariopurple{
+    usar o buck-boost como referencia para escrever esse capitulo no mesmo estilo
+}
+
 The second application example is also extracted from \citeonline{patino2010predictive}, 
 a Multilevel converter with topology is shown in Figure \refeq{cap2-circuit-ex-2}. 
 
@@ -74,73 +79,93 @@ rearranging the terms we have
 
 Each combination of the switches determines a different behavior:
 
+
 \noindent
-\begin{align}
+\begin{equation}
+    \begin{matrix}
     % 1 
-    \mathbf{u_1} &= \left[ \begin{array}{ccc} 0 \\ 0 \\ 0 \end{array} \right],
-    A_1 = \left[ \begin{array}{ccc} 
-        0 & 0 & 0 \\
-        0 & 0 & 0 \\
-        0 & 0 & \frac{-R}{L} 
-    \end{array} \right],
-    b_1 = \left[ \begin{array}{c} 0 \\ 0 \\ 0 \end{array} \right] \\
+        \mathbf{u_1} &= \left[ \begin{array}{ccc} 0 \\ 0 \\ 0 \end{array} \right],
+        &
+        A_1 = \left[ \begin{array}{ccc} 
+            0 & 0 & 0 \\
+            0 & 0 & 0 \\
+            0 & 0 & \frac{-R}{L} 
+        \end{array} \right],
+        &
+        b_1 = \left[ \begin{array}{c} 0 \\ 0 \\ 0 \end{array} \right] \\
     % 2
-    \mathbf{u_2} &= \left[ \begin{array}{ccc} 0 \\ 0 \\ 1 \end{array} \right],
-    A_2 = \left[ \begin{array}{ccc} 
-        0 & 0 & 0 \\
-        0 & 0 & \frac{1}{C_1} \\
-        0 & \frac{-1}{L} & \frac{-R}{L}
-    \end{array} \right],
-    b_2 = \left[ \begin{array}{c} 0 \\ 0 \\ \frac{E}{L} \end{array} \right] \\
+        \mathbf{u_2} &= \left[ \begin{array}{ccc} 0 \\ 0 \\ 1 \end{array} \right],
+        &
+        A_2 = \left[ \begin{array}{ccc} 
+            0 & 0 & 0 \\
+            0 & 0 & \frac{1}{C_1} \\
+            0 & \frac{-1}{L} & \frac{-R}{L}
+        \end{array} \right],
+        &
+        b_2 = \left[ \begin{array}{c} 0 \\ 0 \\ \frac{E}{L} \end{array} \right] \\
     % 3 
-    \mathbf{u_3} &= \left[ \begin{array}{ccc} 0 \\ 1 \\ 0 \end{array} \right],
-    A_3 = \left[ \begin{array}{ccc} 
-        0 & 0 & \frac{1}{C_1} \\
-        0 & 0 & \frac{-1}{C_2} \\
-        \frac{-1}{L} & \frac{1}{L} & \frac{-R}{L}
-     \end{array} \right],
-    b_3 = \left[ \begin{array}{c} 0 \\ 0 \\ 0 \end{array} \right] \\
+        \mathbf{u_3} &= \left[ \begin{array}{ccc} 0 \\ 1 \\ 0 \end{array} \right],
+        &
+        A_3 = \left[ \begin{array}{ccc} 
+            0 & 0 & \frac{1}{C_1} \\
+            0 & 0 & \frac{-1}{C_2} \\
+            \frac{-1}{L} & \frac{1}{L} & \frac{-R}{L}
+        \end{array} \right],
+        &
+        b_3 = \left[ \begin{array}{c} 0 \\ 0 \\ 0 \end{array} \right] \\
     % 4 
-    \mathbf{u_4} &= \left[ \begin{array}{ccc} 0 \\ 1 \\ 1 \end{array} \right],
-    A_4 = \left[ \begin{array}{ccc} 
-        0 & 0 & \frac{1}{C_1} \\ 
-        0 & 0 & 0 \\ 
-        \frac{-1}{L} & 0 & \frac{-R}{L} 
-    \end{array} \right],
-    b_4 = \left[ \begin{array}{c} 0 \\ 0 \\ \frac{E}{L} \end{array} \right] \\
+        \mathbf{u_4} &= \left[ \begin{array}{ccc} 0 \\ 1 \\ 1 \end{array} \right],
+        &
+        A_4 = \left[ \begin{array}{ccc} 
+            0 & 0 & \frac{1}{C_1} \\ 
+            0 & 0 & 0 \\ 
+            \frac{-1}{L} & 0 & \frac{-R}{L} 
+        \end{array} \right],
+        &
+        b_4 = \left[ \begin{array}{c} 0 \\ 0 \\ \frac{E}{L} \end{array} \right] \\
     % 5 
-    \mathbf{u_5} &= \left[ \begin{array}{ccc} 1 \\ 0 \\ 0 \end{array} \right],
-    A_5 = \left[ \begin{array}{ccc} 
-         0 & 0 & \frac{-1}{C_1} \\
-         0 & 0 & 0 \\
-         \frac{1}{L} & 0 & \frac{-R}{L} 
-    \end{array} \right],
-    b_5 = \left[ \begin{array}{c} 0 \\ 0 \\ 0 \end{array} \right] \\
+        \mathbf{u_5} &= \left[ \begin{array}{ccc} 1 \\ 0 \\ 0 \end{array} \right],
+        &
+        A_5 = \left[ \begin{array}{ccc} 
+            0 & 0 & \frac{-1}{C_1} \\
+            0 & 0 & 0 \\
+            \frac{1}{L} & 0 & \frac{-R}{L} 
+        \end{array} \right],
+        &
+        b_5 = \left[ \begin{array}{c} 0 \\ 0 \\ 0 \end{array} \right] \\
     % 6 
-    \mathbf{u_6} &= \left[ \begin{array}{ccc} 1 \\ 0 \\ 1 \end{array} \right],
-    A_6 = \left[ \begin{array}{ccc} 
-         0 & 0 & \frac{-1}{C_1} \\
-         0 & 0 & \frac{1}{C_2} \\
-         \frac{1}{L} & \frac{-1}{L} & \frac{-R}{L} 
-    \end{array} \right],
-    b_6 = \left[ \begin{array}{c} 0 \\ 0 \\ \frac{E}{L} \end{array} \right] \\
+        \mathbf{u_6} &= \left[ \begin{array}{ccc} 1 \\ 0 \\ 1 \end{array} \right],
+        &
+        A_6 = \left[ \begin{array}{ccc} 
+            0 & 0 & \frac{-1}{C_1} \\
+            0 & 0 & \frac{1}{C_2} \\
+            \frac{1}{L} & \frac{-1}{L} & \frac{-R}{L} 
+        \end{array} \right],
+        &
+        b_6 = \left[ \begin{array}{c} 0 \\ 0 \\ \frac{E}{L} \end{array} \right] \\
     % 7 
-    \mathbf{u_7} &= \left[ \begin{array}{ccc} 1 \\ 1 \\ 0 \end{array} \right],
-    A_7 = \left[ \begin{array}{ccc} 
-         0 & 0 & 0 \\
-         0 & 0 & \frac{-1}{C_1} \\
-         0 & \frac{1}{L} & \frac{-R}{L} 
-    \end{array} \right],
-    b_7 = \left[ \begin{array}{c} 0 \\ 0 \\ 0 \end{array} \right] \\
+        \mathbf{u_7} &= \left[ \begin{array}{ccc} 1 \\ 1 \\ 0 \end{array} \right],
+        &
+        A_7 = \left[ \begin{array}{ccc} 
+            0 & 0 & 0 \\
+            0 & 0 & \frac{-1}{C_1} \\
+            0 & \frac{1}{L} & \frac{-R}{L} 
+        \end{array} \right],
+        &
+        b_7 = \left[ \begin{array}{c} 0 \\ 0 \\ 0 \end{array} \right] \\
     % 8 
-    \mathbf{u_8} &= \left[ \begin{array}{ccc} 1 \\ 1 \\ 1 \end{array} \right],
-    A_8 = \left[ \begin{array}{ccc} 
-         0 & 0 & 0 \\
-         0 & 0 & 0 \\
-         0 & 0 & \frac{-R}{L} 
-    \end{array} \right],
-    b_8 = \left[ \begin{array}{c} 0 \\ 0 \\ \frac{E}{L} \end{array} \right]
-\end{align}
+        \mathbf{u_8} &= \left[ \begin{array}{ccc} 1 \\ 1 \\ 1 \end{array} \right],
+        &
+        A_8 = \left[ \begin{array}{ccc} 
+            0 & 0 & 0 \\
+            0 & 0 & 0 \\
+            0 & 0 & \frac{-R}{L} 
+        \end{array} \right],
+        &
+        b_8 = \left[ \begin{array}{c} 0 \\ 0 \\ \frac{E}{L} \end{array} \right]
+    \end{matrix}
+\end{equation}
+
 
 With the detailed dynamic for each switching position, we can define the list of 
 elements for the multilevel converter as \highlight{$\Bigr\{ A_{1}, A_{2}, A_{3}, A_{4}, A_{5}, A_{6}, A_{7}, A_{8} \Bigr\}$} and 
@@ -149,71 +174,76 @@ elements for the multilevel converter as \highlight{$\Bigr\{ A_{1}, A_{2}, A_{3}
 
 The criteria for the optimization is to compute the trajectory around the average value 
 \highlight{$\Big[\frac{1}{3}E, \frac{2}{3}E, 1\Big]$} with \highlight{$E = 30 \; \mathrm{V}$}.
-The maximum cycle period is \highlight{$T_{p,max} = 0.4 \; \mathrm{ms}$} and minimum tweel time of \highlight{$t_{min} = 0.022 \; \mathrm{ms}$}. 
+The maximum cycle period is \highlight{$T_{p,max} = 0.4 \; \mathrm{ms}$} and minimum dweel time of 
+\highlight{$t_{min} = 0.022 \; \mathrm{ms}$}. 
 
-\comentariopurple{
-    unidades (como F, J, etc.) devem ser escritas em tipo romano, isto eh, nao italico.
-    deve haver um espaco separando o valor da unidade.
-}
+The parameters for the simulation are \highlight{$C_1 = 40 \; \mathrm{\mu F}$}, 
+\highlight{$C_2 = 40 \; \mathrm{\mu F}$}, \highlight{$L = 10 \; \mathrm{mH}$}, 
+\highlight{$R = 10 \; \mathrm{\Omega}$} with the weight matrix \highlight{$Q = diag\big[10,5,20000\big]$}
+end implements the mode sequence from \citeonline{patino2010predictive}
 
-The simulation parameters are \highlight{$C_1 = 40 \; \mathrm{\mu F}$}, 
-\highlight{$C_2 = 40 \; \mathrm{\mu F}$}, \highlight{$L = 10 \; \mathrm{mH}$} and \highlight{$R = 10 \; \mathrm{\Omega}$} with the weight matrix \highlight{$Q = diag\big[10,5,20000\big]$}.
-
-Using the optimal switching sequence
+\noindent
 \begin{equation}
     \Omega^\infty = \Big\{ 1, 2, 4, 8, 3, 1, 5, 8, 5 \Big\} \\
-\end{equation}
-
-The optimal switching instant is
-
-\comentarioblue{
-    indicar unidades
-}
-
-\begin{equation}
-    \tau^\infty = \Big\{ 0, 0.064, 0.088, 0.112, 0.134, 0.157, 0.206, 0.230, 0.253, 0.276 \Big\} \; \mathrm{ms}
+    \nonumber
 \end{equation}
 
 \noindent
-with the initial condition \highlight{$x(0) = \Big[9.514 \; \mathrm{V}, 19.821 \; \mathrm{V},  1.031 \; \mathrm{A}\Big]^T$}.
+and the solution provided by the \highlight{FMINCON} optimization yields
 
+\begin{equation}
+    \tau^\infty = \Big\{ 0, 0.064, 0.088, 0.112, 0.134, 0.157, 0.206, 0.230, 0.253, 0.276 \Big\} \; \mathrm{ms}
+    \nonumber
+\end{equation}
 
-\comentariored{
-    citar as figuras
-}
+\noindent
+with the initial condition of the cyclic trajectory
+
+\begin{equation}
+    x(0) = \Big[9.514 \; \mathrm{V}, 19.821 \; \mathrm{V},  1.031 \; \mathrm{A}\Big]^T
+    \nonumber
+\end{equation}
+
+The cyclic trajectory outcome under this condition is displayed in Figure \ref{cap2-graf-ex2-trajectory}. 
+Figure \ref{cap2-graf-ex2-x1} displays the change of the state $x_1$ (Voltage on $C_1$) over time,  
+Figure \ref{cap2-graf-ex2-x2} displays the state $x_2$ (Voltage on $C_2$) over time and 
+Figure \ref{cap2-graf-ex2-x3} displays the change of the state $x_3$ (Current on $L$) over time.  
+
+Figure \ref{cap2-graf-ex2-signal} shows the resulting input signal for the cyclic trajectory.
 
 
 \begin{figure}[h!]
     \centering
+    \includegraphics[width=14cm]{Cap2/fig/graf_ex2_4.pdf}
+    \caption{Multilevel Converter: State Trajectory}
+    \label{cap2-graf-ex2-trajectory}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
     \includegraphics[width=14cm]{Cap2/fig/graf_ex2_1.pdf}
-    \caption{Variant Dynamic Circuit 2: Voltage $C_1$}
-    \label{cap2-graf-ex2-1}
+    \caption{Multilevel Converter: Voltage $C_1$}
+    \label{cap2-graf-ex2-x1}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=14cm]{Cap2/fig/graf_ex2_2.pdf}
-    \caption{Variant Dynamic Circuit 2: Voltage $C_2$}
-    \label{cap2-graf-ex2-2}
+    \caption{Multilevel Converter: Voltage $C_2$}
+    \label{cap2-graf-ex2-x2}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=14cm]{Cap2/fig/graf_ex2_3.pdf}
-    \caption{Variant Dynamic Circuit 2: Current $L$}
-    \label{cap2-graf-ex2-3}
+    \caption{Multilevel Converter: Current $L$}
+    \label{cap2-graf-ex2-x3}
 \end{figure}
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=14cm]{Cap2/fig/graf_ex2_4.pdf}
-    \caption{Variant Dynamic Circuit 2: State Trajectory}
-    \label{cap2-graf-ex2-4}
-\end{figure}
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=14cm]{Cap2/fig/graf_ex2_5.pdf}
-    \caption{Variant Dynamic Circuit 2: Input Signal}
-    \label{cap2-graf-ex2-5}
+    \caption{Multilevel Converter: Input Signal}
+    \label{cap2-graf-ex2-signal}
 \end{figure}

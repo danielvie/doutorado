@@ -23,7 +23,7 @@ function var_out = patino_1(save_fig)
 
     % grafico 1
     f1 = figure(1);
-    plot_trajetory(y, c.xref, "Buck-Boost Conveter: Cyclic Trajectory", "x_1 - Capacitor Voltage", "x_2 - Indutor Current");
+    plot_trajetory(y, c.xref, "Buck-Boost Conveter: Cyclic Trajectory", "x_1 - Capacitor Voltage", "x_2 - Inductor Current");
 
     % grafico 2
     f2 = figure(2);
@@ -64,10 +64,7 @@ function plot_trajetory(y, xref, tit, x_label, y_label)
     set(gca,'fontsize', 15);
 end
 
-
-
 function plot_control_signal(t, m, tit, x_label, y_label)
-
     hold off;
 
     f = stairs(t, m, 'linew', 3); 
@@ -90,4 +87,3 @@ function plot_control_signal(t, m, tit, x_label, y_label)
     
     xlim([t(1), t(end)]);
 end
-
