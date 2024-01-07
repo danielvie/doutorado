@@ -125,6 +125,7 @@ or, in short
 
 \noindent
 \begin{equation}
+	\label{cap3_sx_x_le_bx}
 	\mathbf{S_x \hat{x}} \leq \mathbf{b_x}
 \end{equation}
 
@@ -147,53 +148,3 @@ with
 		\end{matrix}
 	\right]
 \end{equation}
-
-\comentarioblue{
-	essa discussao tem que ser apresentada depois de se deduzir a equacao de predicao
-	na secao 3.3 $\downarrow \downarrow$
-}
-
-The vectors \highlight{$\mathbf{\hat{x}}[k|k]$} and \highlight{$\mathbf{\hat{u}}[k|k]$} are linked by
-
-\begin{equation}
-	\mathbf{\hat{x}}[k+1|k] = A \mathbf{\hat{x}}[k|k] + B \mathbf{\hat{u}}[k|k]
-\end{equation}
-
-
-
-
-
-
-\noindent
-so the constraint
-
-\begin{equation}
-	\mathbf{S_x} \mathbf{x} \le \mathbf{b_x}
-\end{equation}
-
-\noindent
-can be rewritten as 
-
-
-\begin{equation}
-	\mathbf{S_x} \mathbf{B} \mathbf{u} \le \mathbf{b_x} - \mathbf{S_x} \mathbf{A} x(0)
-\end{equation}
-
-Combined with \highlight{$\mathbf{S_u} \mathbf{u} \le \mathbf{b_u}$}, it can be expressed in the form
-
-\begin{equation}
-	\mathbf{S} \mathbf{u} \le \mathbf{b}
-\end{equation}
-
-\noindent
-with
-
-\begin{equation}
-	\mathbf{S} = \left[ \begin{matrix} \mathbf{S_x} \mathbf{B} \\ \mathbf{S_u} \end{matrix} \right], \mathbf{b} = 
-	\left[ \begin{matrix} \mathbf{b_x} - \mathbf{S_x} \mathbf{A} \hat{x}[k|k] \\ \mathbf{b_u} \end{matrix} \right]
-\end{equation}
-
-\comentarioblue{
-	essa discussao tem que ser apresentada depois de se deduzir a equacao de predicao
-	na secao 3.3 $\uparrow \uparrow$
-}
