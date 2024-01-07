@@ -87,7 +87,8 @@ The cost function to be minimized at the beginning of the kth oscillation cycle 
 
 where $Q = Q_T \in \mathbb{R}^{n \times n}$, $R = R_T \in \mathbb{R}^{(N-1) \times (N-1)}$, $P_f = P_f^T \in \mathbb{R}^{n \times n}$ are positive-definite 
 weight matrices. Following standard predictive control notation, the hat and $[\dot|k]$ symbols are used to indicate that 
-$\hat{\delta t}[k|k], \hat{\delta t}[k+1|k], \hat{\delta t}[k+N_p|k]$ is a sequence of manipulated vectors which are to be optimized over a prediction horizon spanning $N_p$ 
+$\hat{\delta t}[k|k], \hat{\delta t}[k+1|k], \hat{\delta t}[k+N_p|k]$ is a sequence of 
+manipulated vectors which are to be optimized over a prediction horizon spanning $N_p$ 
 oscillation cycles. The relation between these manipulated vectors and the predicted state deviations is given by.
 
 \begin{equation}

@@ -1,5 +1,6 @@
 \subsection{Double Integrator}
 
+
 \subsubsection{Parameters of the Simulation}
 
 This example describes the double integrator model used in \citeonline{matheus2018} of the form
@@ -27,12 +28,8 @@ where
     \right]
 \end{equation}
 
-\noindent
-and the associated input signal is
-
-\comentarioblue{
-    definir $u_r$ e $T_s$
-}
+We are using the associated input signal computed by \citeonline{matheus2020_artigo} and 
+the resulting trajectory is defined by
 
 \begin{equation}
     \label{cap4_eq_signal_integrador}
@@ -55,8 +52,12 @@ and the associated input signal is
     \right]
 \end{equation}
 
+\noindent
+where \highlight{$u_r$} is the control command and \highlight{$T_s$} is the switching time values for the cyclic trajectory
+
+
 \comentariopurple{
-    toda figura tem que ser setada no texto
+    toda figura tem que ser citada no texto
 }
 
 \begin{figure}[h]
@@ -85,9 +86,6 @@ One solution is to create 3 unique pairs
 \end{equation}
 
 
-\comentarioblue{
-    foram usados? foi feita uma otimizacao da trajetoria de referencia?
-}
 
 \noindent
 and the index for the operation mode \highlight{$\Omega = \big[1, 2, 3, 2\big]$}, with 

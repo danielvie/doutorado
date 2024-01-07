@@ -10,10 +10,11 @@ With these substitutions in place, we arrive at equation \eqref{eq_eNe0_result}.
 
 \subsection{Cost Function}
 
-
-\comentarioblue{
-    as equacoes precisam ser precedidas por um texto explicativo. falta tambem definir $e[j]$ e $N_p$
+\comentariopurple{
+    conferir se o $N_p$ realmente representa o horizonte de predicao
 }
+
+The cost function for the MPC problem is given by
 
 \begin{equation}
 \label{eq_cost_funcion}
@@ -21,14 +22,16 @@ With these substitutions in place, we arrive at equation \eqref{eq_eNe0_result}.
     + \sum^{N_p - 1}_{j=0}\norma{e[j]}{Q} + \norma{\delta t[j]}{R}
 \end{equation}
 
+\noindent
+where \highlight{$Q = Q^T > 0$}, \highlight{$R = R^T > 0$}, \highlight{$e[j]$} is the 
+error at cycle \highlight{$j$} and \highlight{$N_p$} is the prediction horizon spanning.
 
-\begin{equation}
-    e(t_{j,N}) = \Phi e(t_{j,0}) + \Gamma \delta t[j]
-\end{equation}
+
+The error $e[j]$ is computed by equation \eqref{cap4_eq_lin_proc_result_j} and the time vector
+$\delta t[j]$ is the difference between the switching times of the cycle and the nominal switching of the 
+target trajectory  
 
 \noindent
-where $Q = Q^T > 0$, $R = R^T > 0$
-
 \begin{equation}
     \delta t[j] = \Big[t_{j,1} - \bar{t}_{j,1}, t_{j,2} - \bar{t}_{j,2}, ..., t_{j,N-1} - \bar{t}_{j,N-1}\Big]^T
 \end{equation}
