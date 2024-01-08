@@ -60,10 +60,10 @@ function var_out = create_projection(config)
     %}
 
 
-    % [Sf,bf] = determina_oinf(Af,Gamma,Spsi,bpsi,max_iter,tol);
+    [Sf,bf] = determina_oinf(Af,Gamma,Spsi,bpsi,max_iter,tol);
 
-    [Sf,bf_til] = determina_oinf(Af,Gamma,Spsi,bpsi-[Sx*xbar;Su*ubar],max_iter,tol);
-    bf = bf_til + Sf*xbar;
+    % [Sf,bf_til] = determina_oinf(Af,Gamma,Spsi,bpsi-[Sx*xbar;Su*ubar],max_iter,tol);
+    % bf = bf_til + Sf*xbar;
     
     Sf = Sf*1e5;
     bf = bf*1e5;

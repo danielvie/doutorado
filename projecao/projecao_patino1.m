@@ -1,13 +1,8 @@
-function vout = projecao_patino1(N_in, savefig_in)
+function vout = projecao_patino1(savefig_in)
 
-    N = 1;
     savefig = false;
-
-    if nargin >= 1
-        N = N_in
-    end
     
-    if nargin >= 2
+    if nargin >= 1
         savefig = savefig_in;
     end
 
@@ -59,18 +54,19 @@ function vout = projecao_patino1(N_in, savefig_in)
     config.Su = -L;
     config.bu = -c;
 
-    config.N = N;
-
     config.xbar = [-0.5; -1.0];
     config.ubar = zeros(1, numel_u);
 
-
-    v = create_projection(config);
+    config.N = 1;
+    v1 = create_projection(config);
+    config.N = 2;
+    v2 = create_projection(config);
+    config.N = 3;
+    v3 = create_projection(config);
 
     f1 = figure(1);
-    plot(v.D);
-    txt = sprintf("projecao patino 1 N:%d", config.N);
-    title(txt)
+
+    plot_proj(f1, v1, v2, v3, config.xbar);
 
     vnames = who;
     vout = {};
@@ -81,8 +77,34 @@ function vout = projecao_patino1(N_in, savefig_in)
 
     if savefig
         disp('salvando figura em pdf');
-        name = sprintf("graf_proj_patino1_N_%d.pdf", config.N);
+        name = sprintf("graf_proj_patino1.pdf", config.N);
         save_figure(f1, name, "../LATEX_tese/Cap4/fig/");
     end
+
+end
+
+function plot_proj(f, v1, v2, v3, xbar)
+
+    clf;
+
+    c1 = [1, 1, 1] * 0.7;
+    c2 = [1, 1, 1] * 0.4;
+    c3 = [1, 1, 1] * 0.2;
+
+    plot(v3.D, 'color', c3);
+    hold on;
+    plot(v2.D, 'color', c2);
+    plot(v1.D, 'color', c1);
+    disp(xbar)
+    plot(xbar(1),xbar(2), 'rx', 'markers', 12);
+    hold off;
+
+    xlabel('x_1: Voltage capacitor C');
+    ylabel('x_2: Current inductor L');
+
+    % ajustar tamanho da fonte
+    ax = gca(f);
+    set(ax,'fontsize', 15);
+    zoom(f, 0.7);
 
 end
