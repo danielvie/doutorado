@@ -112,6 +112,8 @@ function var_out = create_projection(config)
     Pw = Polyhedron('H',[Sw bw]);
     D  = projection(Pw,p*N+1: p*N+n);
 
+    P   = Projecao();
+    P.D = D;
 
     % GETTING ALL VARIABLES AS REPONSE PARAMETER
     varnames = who;
