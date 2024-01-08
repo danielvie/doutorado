@@ -54,7 +54,7 @@ an optimization problem with the cost given by
 
 
 \begin{equation}
-    J = \blue{\norma{\hat{x}[k + N | k]}{P_f}} + \orange{\sum^{N-1}_{i=0} \Big[ \norma{\hat{x}[k + i | k]}{Q} + \norma{\hat{u}[k + i | k]}{R} \Big]}
+    J = \blue{\norma{\hat{x}[k + N | k]}{P_f}} + \orange{\sum^{N-1}_{i=0} \Bigg[ \norma{\hat{x}[k + i | k]}{Q} + \norma{\hat{u}[k + i | k]}{R} \Bigg]}
 \end{equation}
 
 \noindent
@@ -109,13 +109,8 @@ By using the notation:
     \in \mathbb{R}^{nN}
 \end{equation}
 
-\comentarioblue{
-    colocar a definicao da matriz R negrito aqui
-}
-
 \noindent
 and then the cost term
-
 
 \comentariored{
     rever essa parte
@@ -143,12 +138,11 @@ Similarly, we can write
     \norma{\hat{x}[k + N | k]}{P} + \sum_{j=0}^{N - 1} \norma{\hat{x}[k+j|k]}{Q} = \norma{x[k]}{P} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} 
 \end{equation}
 
-
 \noindent
 where
 
 \begin{equation}
-    \mathbf{}Q = 
+    \mathbf{Q} = 
     \left[
         \begin{matrix}
             Q & 0 & \cdots & 0 \\
@@ -168,7 +162,20 @@ where
 \end{equation}
 
 \noindent
-as
+and
+
+\begin{equation}
+    \mathbf{R} = 
+    \left[
+        \begin{matrix}
+        R & 0 & \dotsm & 0 \\
+        0 & R & \dotsm & 0 \\
+        \vdots & \vdots & \ddots & \vdots \\
+        0 & 0 & \dotsm & R
+        \end{matrix}
+    \right] \in \mathbb{R}^{pN \times pN}
+\end{equation}
+
 
 So, the cost function can be written in the form
 
