@@ -23,7 +23,7 @@ function var_out = patino_1(save_fig)
 
     % grafico 1
     f1 = figure(1);
-    plot_trajetory(y, c.xref, "Buck-Boost Conveter: Cyclic Trajectory", "x_1 - Capacitor Voltage", "x_2 - Inductor Current");
+    plot_trajetory(y, c.xref, "Buck-Boost Converter: Cyclic Trajectory", "x_1 - Voltage Capacitor C", "x_2 - Current Inductor L");
 
     % grafico 2
     f2 = figure(2);

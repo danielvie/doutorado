@@ -73,7 +73,7 @@ function var_out = patino_1_mpc(save_fig)
     % plot dos resultados
 
     f1 = figure(1);
-    plot_traj(y, y_off, config.x0, "buck-boost MPC", "v_c", "i_L");
+    plot_traj(y, y_off, config.x0, "Buck-Boost Converter MPC", "x_1 - Voltage Capacitor C", "x_2 - Current Inductor L");
 
     % ncycle = size(y_off, 1) / nsim;
     % ncycle = ncycle * 8 + 1;

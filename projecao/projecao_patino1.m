@@ -99,6 +99,11 @@ function plot_proj(f, v1, v2, v3, xbar)
     plot(xbar(1),xbar(2), 'rx', 'markers', 12);
     hold off;
 
+    % labels
+    legend("N_p = 3", "N_p = 2", "N_p = 1");
+
+
+    title('Buck-Boost Feasibility Region')
     xlabel('x_1: Voltage capacitor C');
     ylabel('x_2: Current inductor L');
 
@@ -106,5 +111,6 @@ function plot_proj(f, v1, v2, v3, xbar)
     ax = gca(f);
     set(ax,'fontsize', 15);
     zoom(f, 0.7);
+    
 
 end
