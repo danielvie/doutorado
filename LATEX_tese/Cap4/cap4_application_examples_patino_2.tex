@@ -145,8 +145,8 @@ with the switching time constraints
 
 \subsubsection{Results}
 
-\comentarioblue{
-    aqui patino2 $\downarrow, \downarrow$
+\comentariopurple{
+    comentar o grafico da regiao de factibilidade
 }
 
 \begin{figure}[h!]
@@ -164,13 +164,7 @@ with the switching time constraints
     \label{cap4-graf-proj-patino2_2}
 \end{figure}
 
-
-\comentarioblue{
-    aqui patino2 $\uparrow, \uparrow$
-}
-
-
-Figure \ref{cap4-graf-patino2-traj} shows the trajectory for the Multilevel converter, 
+Figure \ref{cap4_graf_patino2_traj} shows the trajectory for the Multilevel converter, 
 \highlightblue{in blue} we see the trajectory without using the MPC controller, and 
 \highlightorange{in orange} we see the trajectory using the MPC controller.
 They are starting from \highlight{$x_0 = \big[7.5143 \;\mathrm{V}, 20.8211 \;\mathrm{V}, 0.0314 \;\mathrm{A}\big]$}, the trajectory
@@ -178,55 +172,41 @@ with the MPC off goes to a point far from the targeted position
 \highlight{$\bar{x}_0 = \big[9.5143 \;\mathrm{V}, $} \highlight{$19.8211 \;\mathrm{V}, 1.0314 \;\mathrm{A}\big]$}, but the trajectory with the MPC on
 goes drives the system to the desired target.
 
-Figure \ref{cap4-graf-patino2-control-signal} displays the control signal sequence, 
-we can see the difference between the open loop and the controlled signal decreasing
-and getting in sync.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_4.pdf}
+    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_traj.pdf}
     \caption{Multilevel Converter: State Trajectory, $x_0 = \big[7.51, 20.82, 0.03\big]^T$}
-    \label{cap4-graf-patino2-traj}
+    \label{cap4_graf_patino2_traj}
 \end{figure}
 
-\comentarioblue{
+\comentariopurple{
     adicionar texto para segundo grafico de trajetoria
 }
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_4_1.pdf}
+    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_traj_2.pdf}
     \caption{Multilevel Converter: State Trajectory, $x_0 = \big[9.31, 19.52, 0.73\big]^T$}
-    \label{cap4-graf-patino2-traj2}
+    \label{cap4_graf_patino2_traj2}
 \end{figure}
 
-
+Figure \ref{cap4_graf_patino2_xi} displays the states of the system over time.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_3.pdf}
-    \caption{Multilevel Converter: Current $i_L$}
-    \label{cap4-graf-patino2-x1}
+    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_xi.pdf}
+    \caption{Multilevel Converter: States over time}
+    \label{cap4_graf_patino2_xi}
 \end{figure}
+
+Figure \ref{cap4_graf_patino2_control_u_signal} displays the control signal sequence, 
+we can see the difference between the open loop and the controlled signal decreasing
+and getting in sync.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_1.pdf}
-    \caption{Multilevel Converter: Voltage $C_1$}
-    \label{cap4-graf-patino2-x2}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_2.pdf}
-    \caption{Multilevel Converter: Voltage $C_2$}
-    \label{cap4-graf-patino2-x3}
-\end{figure}
-
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_5.pdf}
+    \includegraphics[width=14cm]{Cap4/fig/graf_patino_ex2_u_signal.pdf}
     \caption{Multilevel Converter: Control Signal}
-    \label{cap4-graf-patino2-control-signal}
+    \label{cap4_graf_patino2_control_u_signal}
 \end{figure}

@@ -45,34 +45,18 @@ function cfg_out = patino_2(save_fig)
     [y, t] = engine.sim_n(c, nsim);
 
     % renomeando variaveis
-    vc1 = y(:,1);
-    vc2 = y(:,2);
-    i_l = y(:,3);
-
 
     % plot dos resultados
     % close all;
 
-    f1 = figure(1);
-    plot_xi(t, vc1, "Multilevel Converter: X_1", "t - time(s)", "Tension C_1 [V]");
+    f1 = figure(13);
+    plot_xi(t, y);
 
-
-    f2 = figure(2);
-    plot_xi(t, vc2, "Multilevel Converter: X_2", "t - time(s)", "Tension C_2 [V]");
-
-    f3 = figure(3);
-    plot_xi(t, i_l, "Multilevel Converter: X_3", "t - time(s)", "Current L [A]");
-
-    grid on;
-    xlabel('t - time(s)');
-    ylabel('i_L [A]');
-    set(gca,'fontsize', 15);
-
-    f4 = figure(4);
+    f2 = figure(4);
     [y,t,u,m,dtk_out] = engine.sim_n(c, 30);
     plot_trajectory(y, "Multilevel Converter: Trajectory", "X_1: Tension C_1 [V]", "X_2: Tension C_2 [V]", "X_3: Current L [A]")
     
-    f5 = figure(5);
+    f3 = figure(5);
     i = t < c.Ts(end);
     plot_control_signal(t(i), m(i), "Multilevel Conveter: Input Signal", "t - time(s)", "u - switch command");
 
@@ -80,12 +64,14 @@ function cfg_out = patino_2(save_fig)
         fprintf("salvando figuras\n\n");
 
         addr = "../LATEX_tese/Cap2/fig/";
-        %% saving figures
-        save_figure(f1, "graf_ex2_1.pdf", addr);
-        save_figure(f2, "graf_ex2_2.pdf", addr);
-        save_figure(f3, "graf_ex2_3.pdf", addr);
-        save_figure(f4, "graf_ex2_4.pdf", addr);
-        save_figure(f5, "graf_ex2_5.pdf", addr);
+        % saving figures
+
+        config.fig_width = 8;
+        config.fig_height = 10;
+        save_figure(f1, "graf_ex2_xi.pdf", addr, config);
+
+        save_figure(f2, "graf_ex2_traj.pdf", addr);
+        save_figure(f3, "graf_ex2_u_signal.pdf", addr);
 
         %% copy figures to latex
         % copyfile('graf_ex2_*.pdf', "../../LATEX_tese/Cap2/fig/");
@@ -97,7 +83,22 @@ function cfg_out = patino_2(save_fig)
     end
 end
 
-function plot_xi(t, x, tit, x_la, y_la)
+function plot_xi(t, y) 
+    vc1 = y(:,1);
+    vc2 = y(:,2);
+    i_l = y(:,3);
+
+    subplot(3, 1, 1);
+    plot_xi_helper(t, vc1, "Multilevel Converter: X_1", "t - time(s)", "Tension C_1 [V]");
+
+    subplot(3, 1, 2);
+    plot_xi_helper(t, vc2, "Multilevel Converter: X_2", "t - time(s)", "Tension C_2 [V]");
+
+    subplot(3, 1, 3);
+    plot_xi_helper(t, i_l, "Multilevel Converter: X_3", "t - time(s)", "Tension L [A]");
+end
+
+function plot_xi_helper(t, x, tit, x_la, y_la)
     plot(t, x);
 
     grid on;

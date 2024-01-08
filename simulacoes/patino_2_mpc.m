@@ -124,28 +124,18 @@ function var_out = patino_2_mpc(save_fig)
         % plot dos resultados
         % close all;
 
-        % state x1
+        % state xi
         f1 = figure(1);
-        plot_y(t, y(:,1), 'Voltage C_1 Multilevel Converter', 't - time(s)', 'V_{c1} [V]')
+        plot_xi(t, y);
 
-        % state x2
-        f2 = figure(2);
-        plot_y(t, y(:,2), 'Voltage C_2 Multilevel Converter', 't - time(s)', 'V_{c2} [V]')
-
-        % state x3
-        f3 = figure(3);
-        plot_y(t, y(:,3), 'Current i_L Multilevel Converter', 't - time(s)', 'i_{L} [A]')
-
-        f4 = figure(4);
+        f2 = figure(4);
         plot_traj(y, y_off, config.x0, "Multilevel Converter Trajectory", "V_{c1} [V]", "V_{c2} [V]", "I_{L} [A]")
 
-        f4_1 = figure(11);
+        f2_1 = figure(11);
         plot_traj(y2, y2_off, config.x0, "Multilevel Converter Trajectory", "V_{c1} [V]", "V_{c2} [V]", "I_{L} [A]")
 
-
-
         % control signal
-        f5 = figure(5);
+        f3 = figure(5);
         ncycle = size(y_off, 1) / nsim;
         ncycle = ncycle * 6 -700;
         plot_control_signal(t_off(1:ncycle), m_off(1:ncycle), t(1:ncycle), m(1:ncycle), "Multilevel Converter Control Signal", "time (s)", "mode")
@@ -162,21 +152,31 @@ function var_out = patino_2_mpc(save_fig)
         if (save_fig)
             addr_out = "../LATEX_tese/Cap4/fig/";
 
+            config.fig_width = 8;
+            config.fig_height = 10;
+
             % states
-                save_figure(f1, "graf_patino_ex2_1.pdf", addr_out);
-                save_figure(f2, "graf_patino_ex2_2.pdf", addr_out);
-                save_figure(f3, "graf_patino_ex2_3.pdf", addr_out);
+                save_figure(f1, "graf_patino_ex2_xi.pdf", addr_out, config);
             % trajectory
-                save_figure(f4, "graf_patino_ex2_4.pdf", addr_out);
+                save_figure(f2, "graf_patino_ex2_traj.pdf", addr_out);
             % trajectory 2
-                save_figure(f4_1, "graf_patino_ex2_4_1.pdf", addr_out);
+                save_figure(f2_1, "graf_patino_ex2_traj_2.pdf", addr_out);
             % control signal
-                save_figure(f5, "graf_patino_ex2_5.pdf", addr_out);
+                save_figure(f3, "graf_patino_ex2_u_signal.pdf", addr_out);
 
         end
 end
 
-function plot_y(t, yi, tit, x_label, y_label)
+function plot_xi(t, y)
+    subplot(3,1,1);
+    plot_y_helper(t, y(:,1), 'Voltage C_1 Multilevel Converter', 't - time(s)', 'V_{c1} [V]')
+    subplot(3,1,2);
+    plot_y_helper(t, y(:,2), 'Voltage C_2 Multilevel Converter', 't - time(s)', 'V_{c2} [V]')
+    subplot(3,1,3);
+    plot_y_helper(t, y(:,3), 'Current i_L Multilevel Converter', 't - time(s)', 'i_{L} [A]')
+end
+
+function plot_y_helper(t, yi, tit, x_label, y_label)
     plot(t, yi);
 
     grid on;
