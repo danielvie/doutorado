@@ -86,7 +86,6 @@ One solution is to create 3 unique pairs
 \end{equation}
 
 
-
 \noindent
 and the index for the operation mode \highlight{$\Omega = \big[1, 2, 3, 2\big]$}, with 
 reference state vector for this trajectory is \highlight{$\bar{x}_{ref} = \big[2, -1\big]$}, 
@@ -154,12 +153,36 @@ with the switching time constraints
 
 \comentario{
     - FALTA SIMULAR A REGIAO DE FACTIBILIDADE
+
+    - MELHORAR TAMANHO FONTE DO GRAFICO
 }
+
+
+\comentarioblue{
+    aqui $\downarrow \downarrow$
+}
+
+
+
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=14cm]{Cap4/fig/graf_proj_integrador_N_1.pdf}
+    \caption{State Trajectory MPC off, 4 cicles}
+    \label{cap4-graf-proj-ex1-1}
+\end{figure}
+
+
+\comentarioblue{
+    aqui $\uparrow \uparrow$
+}
+
+
 
 The simulation uses the system \eqref{cap4_eq_dynamics_integrador} with the command signal \eqref{cap4_eq_signal_integrador} and with 
 a initial condition \highlight{$x_0 = \big[1.5 \; V, -0.5 \; A\big]$}.
 Figure \ref{cap4-graf-ex1-1} shows the simulation without the MPC control being applied running for 5 cycles and we can see that the
-trajectory is diverging from the initial position of the target cyclic trajectory \highlight{$\bar{x}_0 = \big[-0.5 \; V, -1.0 \; A\big]$} position.
+the trajectory is diverging from the initial position of the target cyclic trajectory \highlight{$\bar{x}_0 = \big[-0.5 \; V, -1.0 \; A\big]$} position.
 
 \begin{figure}[h!]
     \centering
@@ -170,8 +193,8 @@ trajectory is diverging from the initial position of the target cyclic trajector
 
 
 Now, for the same condition, we can turn on the MPC controller and run the simulation for 50 cycles. Figure \ref{cap4-graf-ex1-2} shows the
-resulting trajectory and Figure \ref{cap4-graf-ex1-3} shows the associated command signal. We can see that the controler drives the trajectory 
-of the system to the target cyclic trajectory, we also that the command signal get in sync with the reference command.
+resulting trajectory and Figure \ref{cap4-graf-ex1-3} shows the associated command signal. We can see that the controller drives the trajectory 
+of the system to the target cyclic trajectory, we also that the command signal gets in sync with the reference command.
 
 
 \begin{figure}[h!]
