@@ -110,15 +110,15 @@ function vout = projecao_patino2(N_in, savefig_in)
         disp('salvando figura em pdf');
 
         addr = "../LATEX_tese/Cap4/fig/";
-        name = sprintf("graf_patino2_N_%d.pdf", config.N);
+        name = sprintf("graf_proj_patino2_N_%d.pdf", config.N);
 
         % salvando figura view simetrico
         save_figure(f1, name, addr);
 
         % salvando figura view por quadrante
-        name_13 = sprintf("graf_patino2_N_%d_x1x3.pdf", config.N);
-        name_12 = sprintf("graf_patino2_N_%d_x1x2.pdf", config.N);
-        name_23 = sprintf("graf_patino2_N_%d_x2x3.pdf", config.N);
+        name_13 = sprintf("graf_proj_patino2_N_%d_x1x3.pdf", config.N);
+        name_12 = sprintf("graf_proj_patino2_N_%d_x1x2.pdf", config.N);
+        name_23 = sprintf("graf_proj_patino2_N_%d_x2x3.pdf", config.N);
 
         ax = gca(f1);
         view(ax, 0, 0);

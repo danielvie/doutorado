@@ -81,7 +81,7 @@ function vout = projecao_patino1(N_in, savefig_in)
 
     if savefig
         disp('salvando figura em pdf');
-        name = sprintf("graf_patino1_N_%d.pdf", config.N);
+        name = sprintf("graf_proj_patino1_N_%d.pdf", config.N);
         save_figure(f1, name, "../LATEX_tese/Cap4/fig/");
     end
 
