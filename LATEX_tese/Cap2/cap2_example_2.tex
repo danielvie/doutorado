@@ -1,13 +1,8 @@
 \subsection{Multilevel converter}
 \label{cap2-session-patino2}
 
-
-\comentariopurple{
-    usar o buck-boost como referencia para escrever esse capitulo no mesmo estilo
-}
-
 The second application example is also extracted from \citeonline{patino2010predictive}, 
-a Multilevel converter with topology is shown in Figure \refeq{cap2-circuit-ex-2}. 
+a Multilevel converter with topology is shown in Figure \ref{cap2-circuit-ex-2}. 
 
 \begin{figure}[H]
     \centering
@@ -188,8 +183,66 @@ end implements the mode sequence from \citeonline{patino2010predictive}
     \nonumber
 \end{equation}
 
+The constraints of the switching time duration for this example are
+
+\begin{equation}
+    dx = 
+    \left[
+        \begin{matrix}
+            dx_1 \\
+            dx_2 \\
+            \vdots \\
+            dx_9
+        \end{matrix}
+    \right]
+    \ge 
+    \left[
+        \begin{matrix}
+            t_{min} \\
+            t_{min} \\
+            \vdots \\
+            t_{min}
+        \end{matrix}
+    \right]
+    =
+    \left[
+        \begin{matrix}
+            0.022 \\
+            0.022 \\
+            \vdots \\
+            0.022
+        \end{matrix}
+    \right] \;\mathrm{ms}
+\end{equation}
+
 \noindent
-and the solution provided by the \highlight{FMINCON} optimization yields
+for the minimum switching time duration $t_{min}$, and 
+
+\begin{equation}
+    \left[
+        \begin{matrix}
+            1 & 1 & \dotsm & 1
+        \end{matrix}
+    \right]
+    \cdot
+    \left[
+    \begin{matrix}
+        dx_1 \\
+        dx_2 \\
+        \vdots \\
+        dx_9
+    \end{matrix}
+    \right]
+    \le
+    T_{p_{max}}
+    =
+    0.4 \;\mathrm{ms}
+\end{equation}
+
+\noindent
+for the maximum cycle duration $T_{p_{max}}$
+
+The solution provided by the \highlight{FMINCON} optimization yields
 
 \begin{equation}
     \tau^\infty = \Big\{ 0, 0.064, 0.088, 0.112, 0.134, 0.157, 0.206, 0.230, 0.253, 0.276 \Big\} \; \mathrm{ms}
@@ -204,7 +257,7 @@ with the initial condition of the cyclic trajectory
     \nonumber
 \end{equation}
 
-The cyclic trajectory outcome under this condition is displayed in Figure \ref{cap2-graf-ex2-trajectory}. 
+The outcome under this condition is displayed in Figure \ref{cap2-graf-ex2-trajectory}. 
 Figure \ref{cap2-graf-ex2-x1} displays the change of the state $x_1$ (Voltage on $C_1$) over time,  
 Figure \ref{cap2-graf-ex2-x2} displays the state $x_2$ (Voltage on $C_2$) over time and 
 Figure \ref{cap2-graf-ex2-x3} displays the change of the state $x_3$ (Current on $L$) over time.  

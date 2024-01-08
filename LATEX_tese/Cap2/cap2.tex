@@ -1,9 +1,5 @@
 Consider a switching affine system of the form
 
-\comentariopurple{
-    nao usar parenteses na numeracao d figuras
-}
-
 \noindent
 \begin{equation}
     \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)},
@@ -96,29 +92,32 @@ Since the trajectory is cyclic we can impose the constraint:
 
 \subsection{Optimization with FMINCON}
 
-    \comentariopurple{
-        reescrever isso daqui, nao ta bom
-    }
-
     For optimization purposes, the function FMINCON is employed. This function works 
     in conjunction with a cost function. Its primary goal is to evaluate and 
     discern the most cost-effective result that respects the imposed constraints in \eqref{cap2_time_constraint}.
-
-    The cost function is designed to accept increments of switching times generated from the 
-    optimization process and then construct the time vector, this way the time constraint for the problem
-    can be described as a lower bounds value on the input to evaluate the trajectory and a maximum total time for the 
-    cycle, this is in the form of
+    
+    The optimization algorithm solves the problem 
     
     \begin{equation}
-        lb > 
+        \min_x f(x) \;\text{such that} 
+        \begin{cases}
+            c(x) \le 0 \\ 
+            ceq(x) = 0 \\
+            A \cdot x \le B \\
+            Aeq \cdot x = beq \\
+            lb \le x \le ub
+        \end{cases}
+        \nonumber
     \end{equation}
-    
 
     FMINCON is a method of optimization in MATLAB's libraries that implements the method 
     SQP (Sequential Quadratic Programming). 
     The basic SQP algorithm is described in Chapter 18 of \citeonline{nocedal2006numerical}.
 
+    The cost function \highlight{$f(x)$} is designed to accept increments of switching times constrained by 
+    \highlight{$lb \le x$} to evaluate the trajectory with the dwell-time constraints in place.
 
 \section{Application Examples}
-    \include{Cap2/cap2_example_1}
-    \include{Cap2/cap2_example_2}
+
+\input{Cap2/cap2_example_1}
+\input{Cap2/cap2_example_2}

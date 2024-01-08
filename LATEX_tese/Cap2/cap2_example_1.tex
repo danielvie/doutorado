@@ -10,7 +10,7 @@
 
 We are using an application example extracted from \citeonline{patino2010predictive}, 
 a Buck-Boost converter in Continuous Conduction Mode (CCM) 
-with the topology shown in Figure \refeq{cap2-circuit-ex-1}. 
+with the topology shown in Figure \ref{cap2-circuit-ex-1}. 
 
 \begin{figure}[H]
     \centering
@@ -85,7 +85,7 @@ where
 
 
 \comentarioblue{
-    acho que tambem faltou mencionar a restricao de minimum dwell time. ela teria que ser formalizada
+    COMMENTS 2 - acho que tambem faltou mencionar a restricao de minimum dwell time. ela teria que ser formalizada
     em termos dos elementos $\tau^\infty$
 }
 
@@ -95,13 +95,58 @@ with \highlight{$\bar{x}^\infty = \big[2 \;\mathrm{V}, -1 \;\mathrm{A}\big]^T$} 
 \highlight{$Q = diag\big[1,1\big]$}, the maximum cycle period of 
 \highlight{$T_{p,max} = 1 \;\mathrm{s}$} and minimum dwell time of \highlight{$t_{min} = 0.25 \;\mathrm{s}$}.
 
-In the Buck-Boost converter example, the initial values for the switching vector are represented 
-by \highlight{$[0.25, 0.25]$}. The lower bounds are defined as \highlight{$[0.25, 0.25]$},
-which means that each cycle period will last $0.25 \;\mathrm{s}$ and the other optimizer will generate
-values that are always bigger than $0.25 \;\mathrm{s}$. For the maximum cycle period, we 
-use the \highlight{$Ax \le b$} constraint from \highlight{FMINCON} where \highlight{$A$} 
-is a row of ones \highlight{$[1, 1, ...]$} and \highlight{$b$} is \highlight{$T_{p, max}$} 
-so that the sum of all switching periods is less than the maximum cycle period allowed.
+
+The optimization generates the switching time duration and this relates to $\tau^\infty$ as
+
+\noindent
+\begin{equation}
+    \tau^\infty = \Big[t_0, t_1, t_2\Big] = \Big[t_0, t_0 + dx[1], t_1 + dx[2]\Big]
+\end{equation}
+
+\noindent
+where \highlight{$dx$} is the array of switching time duration and it's constrained by
+a lower bound that has to be greater or equal to \highlight{$t_{min}$}
+
+\noindent
+\begin{equation}
+    dx = 
+    \left[\begin{matrix}
+        dx_1 \\
+        dx_2
+    \end{matrix}\right] 
+     \ge 
+    \left[\begin{matrix}
+        t_{min} \\
+        t_{min}
+    \end{matrix}\right] 
+    =
+    \left[\begin{matrix}
+        0.25 \\
+        0.25
+    \end{matrix}\right] 
+\end{equation}
+
+\noindent
+and constrained by a maximum cycle time \highlight{$T_{p_{max}}$}
+
+\noindent
+\begin{equation}
+    \big[1, \dotsm, 1\big] \cdot 
+    \left[
+        \begin{matrix}
+            dx_1 \\
+            dx_2
+        \end{matrix}
+    \right] 
+    \le T_{p_{max}}
+    = 1.0
+\end{equation}
+
+
+
+
+
+
 
 The solution provided by the \highlight{FMINCON} optimization yields 
 
@@ -113,8 +158,6 @@ The solution provided by the \highlight{FMINCON} optimization yields
         \Omega^\infty = \big[1, 2\big].
     \end{matrix}
 \end{equation}
-
-
 
 The outcome under this condition is displayed in Figure \ref{cap2-graf-ex1-1}, showcasing 
 the cyclic trajectory around the average value \highlight{$[2, -1]^T$}. The corresponding switch command signal $u$ 
