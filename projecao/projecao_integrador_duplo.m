@@ -1,17 +1,14 @@
-function vout = projecao_integrador_duplo(N_in, savefig_in)
+function vout = projecao_integrador_duplo(savefig_in)
 
     %{
-        N: nro de steps para a projecao
+        savefig: flag para salvar figuras em pdf
     %}
-    
+
+    savefig = false;
     if nargin >= 1
-        disp(['setting N: ', num2str(N_in)]);
-        N = N_in;
-    else
-        N = 1;
+        savefig = savefig_in;
     end
-
-
+    
     % PROJECAO INTEGRADOR DUPLO
 
     % modelo de predicao:
@@ -66,9 +63,6 @@ function vout = projecao_integrador_duplo(N_in, savefig_in)
     config.Su = -L;
     config.bu = -c;
 
-    config.N = N;
-
-
     config.xbar = [-0.5; -1.0];
     config.ubar = [0; 0; 0];
 
@@ -95,14 +89,23 @@ function vout = projecao_integrador_duplo(N_in, savefig_in)
     %} 
 
 
-    v = create_projection(config);
+    config.N = 1;
+    v1 = create_projection(config);
+    config.N = 2;
+    v2 = create_projection(config);
+    config.N = 3;
+    v3 = create_projection(config);
 
-    f1 = figure();
-    plot(v.D);
-    txt = sprintf("projecao integrador duplo N:%d", config.N);
-    title(txt)
-    xlabel('x_1');
-    ylabel('x_2');
+    f1 = figure(1);
+    clf;
+    
+    plot_projection(f1, v1, v2, v3, config.xbar);
+
+    % plot(v.D);
+    % txt = sprintf("projecao integrador duplo N:%d", config.N);
+    % title(txt)
+    % xlabel('x_1');
+    % ylabel('x_2');
     
     vnames = who;
     vout = {};
@@ -111,18 +114,47 @@ function vout = projecao_integrador_duplo(N_in, savefig_in)
         vout.(vi) = eval(vi);
     end
     
-    
-    if nargin == 2
-        savefig = savefig_in;
-    else
-        savefig = false;
-    end
-    
 
     if savefig
         disp('salvando figura em pdf');
-        name = sprintf("graf_proj_integrador_N_%d.pdf", config.N);
+        name = sprintf("graf_proj_integrador.pdf", config.N);
         save_figure(f1, name, "../LATEX_tese/Cap4/fig/");
     end
     
+end
+
+function plot_projection(f, v1, v2, v3, xbar)
+
+    clf;
+
+    c1 = [1, 1, 1] * 0.7;
+    c2 = [1, 1, 1] * 0.4;
+    c3 = [1, 1, 1] * 0.2;
+
+    % c1 = [0.06, 0.32, 0.69] * 1.3;
+    % c2 = [0.06, 0.32, 0.69] * 0.9;
+    % c3 = [0.06, 0.32, 0.69] * 0.7;
+
+    plot(v3.D, 'color', c3);
+    hold on;
+    plot(v2.D, 'color', c2);
+    plot(v1.D, 'color', c1);
+    disp(xbar)
+    plot(xbar(1),xbar(2), 'rx', 'markers', 12);
+    hold off;
+
+    % labels
+    legend("N_p = 3", "N_p = 2", "N_p = 1");
+
+
+    title('Double Integrator Feasibility Region')
+    xlabel('x_1');
+    ylabel('x_2');
+
+    % ajustar tamanho da fonte
+    ax = gca(f);
+    set(ax,'fontsize', 17);
+    % zoom(f, 0.7);
+    
+
 end

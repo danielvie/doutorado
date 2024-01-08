@@ -6,7 +6,7 @@ This example describes the Buck-boost converter model described in session \ref{
 the associated mode sequence for the target cyclic trajectory is shown in Figure \ref{cap4_fig_seq_ref_patino1}
 
 
-\begin{figure}[h]
+\begin{figure}[h!]
     \centering
     \includegraphics[]{figuras/cap4_ref_signal_patino1.eps}
     \caption{Reference sequence for Buck-boost converter}
@@ -89,6 +89,21 @@ with the switching time constraints
 \end{equation}
 
 \subsubsection{Results}
+
+\comentarioblue{
+    aqui $\downarrow \downarrow$
+}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{Cap4/fig/graf_proj_patino1.pdf}
+    \caption{Buck-Boost Feasibility Region antes}
+    \label{cap4-graf-proj-patino1}
+\end{figure}
+
+\comentarioblue{
+    aqui $\uparrow \uparrow$
+}
 
 Figure \ref{cap4_fig_seq_ref_patino1} shows the simulation of the trajectory for the system, \highlightblue{in blue} we see
 the trajectory without using the MPC controller, and \highlightorange{in orange} we see the trajectory using the MPC controller.

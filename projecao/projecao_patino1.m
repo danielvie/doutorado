@@ -65,8 +65,9 @@ function vout = projecao_patino1(savefig_in)
     v3 = create_projection(config);
 
     f1 = figure(1);
+    clf;
 
-    plot_proj(f1, v1, v2, v3, config.xbar);
+    plot_projection(f1, v1, v2, v3, config.xbar);
 
     vnames = who;
     vout = {};
@@ -83,7 +84,7 @@ function vout = projecao_patino1(savefig_in)
 
 end
 
-function plot_proj(f, v1, v2, v3, xbar)
+function plot_projection(f, v1, v2, v3, xbar)
 
     clf;
 
@@ -110,7 +111,7 @@ function plot_proj(f, v1, v2, v3, xbar)
     % ajustar tamanho da fonte
     ax = gca(f);
     set(ax,'fontsize', 15);
-    zoom(f, 0.7);
+    zoom(f, 0.8);
     
 
 end

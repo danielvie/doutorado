@@ -1,17 +1,12 @@
-function vout = projecao_patino2(N_in, savefig_in)
+function vout = projecao_patino2(savefig_in)
 
     %{
         N: nro de steps para a projecao
     %}
     
-    N = 1;
     savefig = false;
     
     if nargin >= 1
-        N = N_in;
-    end
-
-    if nargin >= 2
         savefig = savefig_in;
     end
 
@@ -77,14 +72,15 @@ function vout = projecao_patino2(N_in, savefig_in)
     config.Su = -L;
     config.bu = -c;
 
-    config.N  = N;
-
-
     config.xbar = [9.501818346682835; 19.837826908429342;  1.034416863494762];
     config.ubar = zeros(numel_u, 1);
 
-
-    v = create_projection(config);
+    config.N  = 1;
+    v1 = create_projection(config);
+    config.N  = 2;
+    v2 = create_projection(config);
+    config.N  = 4;
+    v3 = create_projection(config);
 
     % PP = Polyhedron('H',[[eye(3);-eye(3)] 1000*ones(6,1)]);
     % PP = intersect(v.D,PP);
@@ -92,12 +88,14 @@ function vout = projecao_patino2(N_in, savefig_in)
 
     f1 = figure(1);
     clf;
-    plot(v.D);
-    xlabel('x1');
-    ylabel('x2');
-    zlabel('x3');
-    txt = sprintf("projecao patino 2 N:%d", config.N);
-    title(txt)
+    plot_projection(f1, v1, v2, v3, config.xbar);
+
+    % plot(v.D);
+    % xlabel('x1');
+    % ylabel('x2');
+    % zlabel('x3');
+    % txt = sprintf("projecao patino 2 N:%d", config.N);
+    % title(txt)
     
     vnames = who;
     vout = {};
@@ -110,23 +108,58 @@ function vout = projecao_patino2(N_in, savefig_in)
         disp('salvando figura em pdf');
 
         addr = "../LATEX_tese/Cap4/fig/";
-        name = sprintf("graf_proj_patino2_N_%d.pdf", config.N);
+        name = "graf_proj_patino2.pdf";
 
         % salvando figura view simetrico
         save_figure(f1, name, addr);
 
         % salvando figura view por quadrante
-        name_13 = sprintf("graf_proj_patino2_N_%d_x1x3.pdf", config.N);
-        name_12 = sprintf("graf_proj_patino2_N_%d_x1x2.pdf", config.N);
-        name_23 = sprintf("graf_proj_patino2_N_%d_x2x3.pdf", config.N);
 
-        ax = gca(f1);
-        view(ax, 0, 0);
-        save_figure(f1, name_13, addr);
-        view(ax, 0, 90);
-        save_figure(f1, name_12, addr);
-        view(ax, 90, 0);
-        save_figure(f1, name_23, addr);
+        % ax = gca(f1);
+        % view(ax, 0, 0);
+        % save_figure(f1, name_13, addr);
+        % view(ax, 0, 90);
+        % save_figure(f1, name_12, addr);
+        % view(ax, 90, 0);
+        % save_figure(f1, name_23, addr);
     end
+
+end
+
+function plot_projection(f, v1, v2, v3, xbar)
+
+    clf;
+
+    % c1 = [1, 1, 1] * 0.7;
+    % c2 = [1, 1, 1] * 0.4;
+    % c3 = [1, 1, 1] * 0.2;
+
+    c1 = [0.06, 0.32, 0.69];
+    c2 = [0.69, 0.06, 0.32];
+    c3 = [0.32, 0.69, 0.06];
+
+    ax = gca(f);
+
+    plot(v3.D, 'color', c3);
+    hold on;
+    plot(v2.D, 'color', c2);
+    plot(v1.D, 'color', c1);
+    alpha(ax, 0.4);
+    disp(xbar)
+    plot(xbar(1),xbar(2), 'rx', 'markers', 12);
+    hold off;
+
+    % labels
+    legend("N_p = 3", "N_p = 2", "N_p = 1");
+
+    title('Multilevel Converter Factibility Region');
+    xlabel('x_1: Voltage Capacitor C_1');
+    ylabel('x_2: Voltage Capacitor C_2');
+    zlabel('x_3: Current Inductor L');
+
+    % ajustar tamanho da fonte
+    set(ax,'fontsize', 17);
+    % zoom(f, 0.7);
+    
 
 end
