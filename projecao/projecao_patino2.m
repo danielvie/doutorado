@@ -79,24 +79,21 @@ function vout = projecao_patino2(savefig_in)
     v1 = create_projection(config);
     config.N  = 2;
     v2 = create_projection(config);
-    config.N  = 4;
+    config.N  = 3;
     v3 = create_projection(config);
+    config.N  = 4;
+    v4 = create_projection(config);
 
     % PP = Polyhedron('H',[[eye(3);-eye(3)] 1000*ones(6,1)]);
     % PP = intersect(v.D,PP);
     % clf, plot(PP2)
-
-    f1 = figure(1);
-    clf;
-    plot_projection(f1, v1, v2, v3, config.xbar);
-
-    % plot(v.D);
-    % xlabel('x1');
-    % ylabel('x2');
-    % zlabel('x3');
-    % txt = sprintf("projecao patino 2 N:%d", config.N);
-    % title(txt)
     
+    f1 = figure(1);
+    plot_projection(f1, v1, v2, v3, config.xbar, "N_p = 3", "N_p = 2", "N_p = 1")
+
+    f2 = figure(2);
+    plot_projection(f2, v1, v2, v4, config.xbar, "N_p = 4", "N_p = 2", "N_p = 1")
+
     vnames = who;
     vout = {};
     for i = 1:numel(vnames)
@@ -108,10 +105,10 @@ function vout = projecao_patino2(savefig_in)
         disp('salvando figura em pdf');
 
         addr = "../LATEX_tese/Cap4/fig/";
-        name = "graf_proj_patino2.pdf";
 
         % salvando figura view simetrico
-        save_figure(f1, name, addr);
+        save_figure(f1, "graf_proj_patino2.pdf", addr);
+        save_figure(f2, "graf_proj_patino2_2.pdf", addr);
 
         % salvando figura view por quadrante
 
@@ -126,14 +123,14 @@ function vout = projecao_patino2(savefig_in)
 
 end
 
-function plot_projection(f, v1, v2, v3, xbar)
+function plot_projection(f, v1, v2, v3, xbar, varargin)
 
     clf;
 
+    % colors
     % c1 = [1, 1, 1] * 0.7;
     % c2 = [1, 1, 1] * 0.4;
     % c3 = [1, 1, 1] * 0.2;
-
     c1 = [0.06, 0.32, 0.69];
     c2 = [0.69, 0.06, 0.32];
     c3 = [0.32, 0.69, 0.06];
@@ -144,22 +141,22 @@ function plot_projection(f, v1, v2, v3, xbar)
     hold on;
     plot(v2.D, 'color', c2);
     plot(v1.D, 'color', c1);
-    alpha(ax, 0.4);
     disp(xbar)
     plot(xbar(1),xbar(2), 'rx', 'markers', 12);
     hold off;
 
-    % labels
-    legend("N_p = 3", "N_p = 2", "N_p = 1");
+    alpha(ax, 0.4);
 
+    % labels
+    legend(varargin{:});
     title('Multilevel Converter Factibility Region');
     xlabel('x_1: Voltage Capacitor C_1');
     ylabel('x_2: Voltage Capacitor C_2');
     zlabel('x_3: Current Inductor L');
 
+
     % ajustar tamanho da fonte
     set(ax,'fontsize', 17);
     % zoom(f, 0.7);
     
-
 end
