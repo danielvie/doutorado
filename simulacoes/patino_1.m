@@ -42,8 +42,8 @@ function var_out = patino_1(save_fig)
 
     if (save_fig)
         %% saving figures
-        save_figure(f1, "graf_ex1_1.pdf", "../LATEX_tese/Cap2/fig/");
-        save_figure(f2, "graf_ex1_2.pdf", "../LATEX_tese/Cap2/fig/");
+        save_figure(f1, "graf_patino1_traj.pdf", "../LATEX_tese/Cap2/fig/");
+        save_figure(f2, "graf_patino1_u_signal.pdf", "../LATEX_tese/Cap2/fig/");
     end
 
         %% copy figures
