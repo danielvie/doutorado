@@ -68,10 +68,9 @@ function cfg_out = patino_2(save_fig)
 
         config.fig_width = 8;
         config.fig_height = 10;
-        save_figure(f1, "graf_ex2_xi.pdf", addr, config);
-
-        save_figure(f2, "graf_ex2_traj.pdf", addr);
-        save_figure(f3, "graf_ex2_u_signal.pdf", addr);
+        save_figure(f1, "graf_patino2_xi.pdf", addr, config);
+        save_figure(f2, "graf_patino2_traj.pdf", addr);
+        save_figure(f3, "graf_patino2_u_signal.pdf", addr);
 
         %% copy figures to latex
         % copyfile('graf_ex2_*.pdf', "../../LATEX_tese/Cap2/fig/");
