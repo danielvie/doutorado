@@ -142,7 +142,7 @@ function [FF, c] = calcula_FF_c(config)
     % calculando `c`
     %       c = F(n-1)F(n-2)...F1g0 + F(n-1)F(n-2)...F2g1 + ... + F(n-1)g(n-2) + g(n-1)
     %
-    c = 0;
+    c = g{n};
     for i = 2:n
         FFi = I;
         for j = n:-1:i
@@ -151,7 +151,6 @@ function [FF, c] = calcula_FF_c(config)
         
         c  = c + FFi*g{i-1};
     end
-    c = c + g{n};
 
     % calculando `FF`
     %       FF = F(n-1)F(n-2)...F1
