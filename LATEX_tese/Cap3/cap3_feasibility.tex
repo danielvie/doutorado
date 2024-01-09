@@ -11,7 +11,7 @@ which there exists \highlight{$\mathbf{\hat{u}[k]} \in \mathbb{R}^{pN}$} satisfy
         \mathbf{S_x} \mathbf{B} \\
         \mathbf{S_u} \\
     \end{matrix}
-    \right] \mathbf{u} \le
+    \right] \mathbf{u}[k] \le
     \left[
     \begin{matrix}
         \mathbf{b_x} - \mathbf{Sx} \mathbf{A} x[k] \\
@@ -32,7 +32,7 @@ These restrictions can be rewritten as
     \right] 
     \left[
         \begin{matrix}
-            \mathbf{u} \\
+            \mathbf{u}[k] \\
             x(0)
         \end{matrix}
     \right]
@@ -59,7 +59,7 @@ adding a restriction \highlight{$S_x x(0) \le b_x$}
     \right] 
     \left[
         \begin{matrix}
-            \mathbf{u} \\
+            \mathbf{u}[k] \\
             x(0)
         \end{matrix}
     \right]
@@ -88,7 +88,7 @@ with
     w = 
     \left[
         \begin{matrix}
-            \mathbf{u} \\
+            \mathbf{u}[k] \\
             x(0)
         \end{matrix}
     \right],
@@ -111,7 +111,7 @@ with
 \end{equation}
 
 The constraint \highlight{$S_w w \le b_w$} define a polyhedron \highlight{$\mathcal{P}_w$} 
-in the space \highlight{$\mathbb{R}^{(pN+n)}$} corresponding to the variables \highlight{$\mathbf{u}$}, \highlight{$x(0)$}.
+in the space \highlight{$\mathbb{R}^{(pN+n)}$} corresponding to the variables \highlight{$\mathbf{u}[k]$}, \highlight{$x(0)$}.
 
 The set \highlight{$\mathcal{D}$} is obtained by projection \highlight{$\mathcal{P}_w$} onto the subspace of its last \highlight{$n$} components.
 

@@ -126,17 +126,6 @@ with
 	\right]
 \end{equation}
 
-\comentario{
-	- ajustar notacao x hat k
-
-	- procurar x[k|k] -> x[k] (negrito)
-
-	- procurar u negrito -> u hat negrito [k]
-
-	- conferir duplicidade de notacao
-}
-
-
 The vectors \highlight{$\mathbf{\hat{x}}[k]$} and \highlight{$\mathbf{\hat{u}}[k]$} are linked by 
 \eqref{cap3_eq_predicao_xk}, so the constraint \eqref{cap3_sx_x_le_bx} can be rewritten as
 
@@ -145,11 +134,11 @@ The vectors \highlight{$\mathbf{\hat{x}}[k]$} and \highlight{$\mathbf{\hat{u}}[k
 	\mathbf{S_x} \mathbf{B} \mathbf{u} \le \mathbf{b_x} - \mathbf{S_x} \mathbf{A} x(0)
 \end{equation}
 
-Combined with \highlight{$\mathbf{S_u} \mathbf{u} \le \mathbf{b_u}$}, it can be expressed in the form
+Combined with \highlight{$\mathbf{S_u} \mathbf{u}[k] \le \mathbf{b_u}$}, it can be expressed in the form
 
 \noindent
 \begin{equation}
-	\mathbf{S} \mathbf{u} \le \mathbf{b}
+	\mathbf{S} \mathbf{u}[k] \le \mathbf{b}
 \end{equation}
 
 \noindent
