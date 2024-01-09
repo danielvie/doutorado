@@ -1,36 +1,25 @@
 \chapter{Conclusion}
 
+This work consists of extending the solution of controlling a switched affine system 
+subjected to dwell-time constraints to control this class of systems also with changing 
+dynamics at switching times. This allows the method to be used in more control problems 
+and maintains the convenience of solving the control problem with quadratic programming 
+convex optimization, which is a mature class of optimization problems.
 
-\comentariopurple{
-    CONTRIBUICAO DO TRABALHO
+To test the method, first, a double integrator system with fixed dynamics was implemented in session \ref{cap4_aplication_integrador}
+to validate the new solution. The result shows that the system diverges when not in the cyclic trajectory without the MPC controller and 
+the controller is capable of correcting the trajectory and eventually engaging with the target trajectory.
 
-    esse trabalho contribui com uma extensao na modelagem de sistemas chaveador afim com uso 
-    de formulacao de controle preditivo para tratar os dwell-time constraints
-    
-    isso possibilita o uso do metodo para mais classes de problemas mantendo a conveniencia de resolver o problema de controle
-    com quadratic programming convex optimization que eh uma solucao conhecida.
-}
+The application example in session \ref{cap4_applicaton_patino1} introduces a system with changing dynamics at each switching time. 
+A cyclic trajectory was calculated in session \ref{cap2_application_patino1} to use as an input parameter to implement the control method.
+In this example, the circuit has stable dynamics that converge to the cyclic trajectory. Using the MPC controller reduces the time to converge
+as can be seen in the comparison of the trajectories.
 
-
-\comentariopurple{
-    o exemplo de aplicacao do integrador duplo mostrou consistencia do trabalho atual com o trabalho anterior do mateus
-}
-
-
-\comentariopurple{
-    o exemplo to buck-boost, foi um passo pequeno do integrador duplo e introduz a mudanca de dinamica do sistema com o chaveamento
-}
-
-
-\comentariopurple{
-    o exemplo to multilevel eh mais interessante, nesse exemplo aplicamos um numero maior de mudancas de estados, inclusive com repeticoes de modos de
-    operacao dentro do mesmo ciclo.
-
-    na simulacao desse exemplo vimos um resultado estranho que parece ser atribuido a fatores numericos
-    
-    quando controlado o sistema converge e conseguimos engajar com a trajetoria alvo, quando nao controlado o sistema simulado esta estabilizando em 
-    um ciclo limit deferente do alvo. isso deve ser estudado com mais detalhes.
-}
+The multilevel converter in session \ref{cap4_applicaton_patino2} is a circuit that 
+introduces more complexity, there are more operation modes and even modes that are repeated
+during the same cycle. The simulation without the MPC shows a trajectory that converges to a cyclic limit 
+that is different than the target cyclic trajectory. With the use of the MPC controller, we see that the system 
+is driven to the target trajectory.
 
 
 \comentariopurple{
