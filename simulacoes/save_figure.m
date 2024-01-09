@@ -19,6 +19,8 @@ function save_figure(f, name, addr, config)
     saveas(f, name, 'pdf');
 
     % copying to destination folder
-    copyfile(name, addr);
+    if ~strcmp(addr, "")
+        copyfile(name, addr);
+    end
 
 end

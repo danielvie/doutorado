@@ -1,42 +1,78 @@
 
-% s = patino_2_mpc;
-
 x0_1 = [7.51; 20.82; 0.03];
 x0_2 = [9.31; 19.52; 0.73];
 
 xref = [10; 20; 1];
 
-% Phi   = [ 0.9994663      0.0019766     -0.1457479
-%         -0.0021148      0.9999105      0.0004491
-%         -0.0004916     -0.0002995      0.7483118
-%         ];
+%{
 
-Phi = [
-    0.999539822911633000   0.001900058291920620  -0.124610305129684000
-   -0.002031205112683740   0.999915271427260000   0.000764699433121323
-   -0.000461207091742414  -0.000290538123479302   0.759578775417161000
-];
+    usando equacao 2.10 da tese
 
-Gamma = [
-        77.8458172420765  -24004.103899537600   24778.948977203700  -26027.74395471340   24724.32888596210  27033.282070987300  -23546.59770282180  23544.83794495050
-    -25783.9113530784000   24720.972986799000     423.701774733860   23889.77811230190  -25943.18248700980      0                    0                  0
-      -816.1833679055310    -790.943888816841    -760.508107200764    1715.09439445076    1022.11729090224   -878.284240783275   -1898.65717414765   1999.32919436906
-];
-
+        x(tn) = F(n-1)*F(n-2)*...*F(0) + c
         
-fim = 200;
+    com 
+    
+        c = F(n-1)F(n-2)...F1g0 + F(n-1)F(n-2)...F2g1 + ... + F(n-1)g(n-2) + g(n-1)
+        
+        [Fi, Gi] = c2dm(Ai, Bi, [], [], dt, 'zoh')
 
-X = x0_1;
-for i = 1:fim
-    X = Phi * X;
+%}
+        
+% carregando configuracao para a simulacao
+config = engine.get_config_sim_patino_2();
+
+% inicializando variaveis de apoio
+n = numel(config.Omega);
+F = cell(n, 1);
+g = cell(n, 1);
+I = eye(size(config.A{1}));
+
+% calculando F e g
+for i = 1:n
+    mi = config.Omega(i);
+    Ai = config.A{mi};
+    bi = config.b{mi};
+
+    dt = config.Ts(i+1) - config.Ts(i);
+    [Fi, gi] = c2dm(Ai, bi, [], [], dt, 'zoh');
+    
+    F{i} = Fi;
+    g{i} = gi;
 end
+
+% calculando `c`
+%       c = F(n-1)F(n-2)...F1g0 + F(n-1)F(n-2)...F2g1 + ... + F(n-1)g(n-2) + g(n-1)
+%
+c = 0;
+for i = 2:n
+    FFi = I;
+    for j = n:-1:i
+        FFi = FFi * F{j};
+    end
+    
+    c  = c + FFi*g{i-1};
+end
+c = c + g{n};
+
+% calculando `FF`
+%       FF = F(n-1)F(n-2)...F1
+%
+FF = eye(size(config.A{1}));
+for i = n:-1:1
+    FF = FF * F{i};
+end
+
+fim = 1000;
+X = x0_1;
+
+for i = 1:fim
+    X = FF*X + c;
+end
+
+xbar = engine.get_xr(config);
+xbar = xbar(1,:)';
 
 disp('final do primeiro x0')
 disp(X);
-
-X = x0_2;
-for i = 1:fim
-    X = Phi * X;
-end
-disp('final do segundo x0')
-disp(X);
+disp(xbar);
+disp(X - xbar);
