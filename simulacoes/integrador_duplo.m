@@ -96,12 +96,14 @@ function var_out = integrador_duplo(save_fig)
             var_out.(var_name) = eval(var_name);
         end
 
+
+
         if (save_fig)
             %% save figures
-            save_figure(f1, "graf_ex1_1.pdf", "../LATEX_tese/Cap4/fig/");
-            save_figure(f2, "graf_ex1_2.pdf", "../LATEX_tese/Cap4/fig/");
+            save_figure(f1, "graf_integrador_traj_off.pdf", "../LATEX_tese/Cap4/fig/");
+            save_figure(f2, "graf_integrador_traj_on.pdf", "../LATEX_tese/Cap4/fig/");
 
-            save_figure(f3, "graf_ex1_3.pdf", "../LATEX_tese/Cap4/fig/");
+            save_figure(f3, "graf_integrador_u_signal.pdf", "../LATEX_tese/Cap4/fig/");
         end
 end
 

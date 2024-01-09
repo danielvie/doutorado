@@ -25,27 +25,18 @@ with \highlight{$R = 10.0 \; \mathrm{\Omega}$}, \highlight{$L = 10.0 \; \mathrm{
 \noindent
 and the associated mode sequence for the target cyclic trajectory is shown in Figure \ref{cap4_fig_seq_ref_patino2}.
 
-\comentariopurple{
-    aqui deveria ter a figura de sequencia de modos Fig \ref{cap4_fig_seq_ref_patino2}
-}
-
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=12cm]{figuras/cap4_ref_signal_patino2.eps}
     \caption{Reference sequence for Multilevel converter}
     \label{cap4_fig_seq_ref_patino2}
 \end{figure}
 
-
 \noindent
 with \highlight{$u(i)$} being 
 
-\comentariopurple{
-    aqui deveria ter a tabela \ref{cap4_table_ui}
-}
-
 \noindent
-\begin{table}[h!]
+\begin{table}[H]
     \caption{Values of $u_i$ for the Multilevel converter}
     \label{cap4_table_ui}
     \begin{center}
@@ -154,18 +145,16 @@ with the switching time constraints
 
 \subsubsection{Results}
 
+
+\comentariopurple{
+    DISCUTIR SOBRE \ref{cap4_graf_proj_patino2} E \ref{cap4_graf_proj_patino2_2}
+}
+
 Figure \ref{cap4_graf_proj_patino2} presents the feasibility region $\mathcal{D}$ for three different prediction horizons 
 ($N_p = 1$, $N_p = 2$ and $N_p = 3$) for the Multilevel Converter.
 
-\comentariopurple{
-    discutir sobre \ref{cap4_graf_proj_patino2} e \ref{cap4_graf_proj_patino2_2}
-}
 
-\comentariogreen{
-    proj1
-}
-
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=14cm]{Cap4/fig/graf_proj_patino2.pdf}
     \caption{Multilevel Converter: Feasibility Region}
@@ -173,11 +162,7 @@ Figure \ref{cap4_graf_proj_patino2} presents the feasibility region $\mathcal{D}
 \end{figure}
 
 
-\comentariogreen{
-    proj2
-}
-
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=14cm]{Cap4/fig/graf_proj_patino2_2.pdf}
     \caption{Multilevel Converter: Feasibility Region}
@@ -193,22 +178,14 @@ with the MPC off goes to a point far from the targeted position
 goes drives the system to the desired target.
 
 
-\comentariogreen{
-    traj1
-}
-
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=14cm]{Cap4/fig/graf_patino2_traj.pdf}
     \caption{Multilevel Converter: State Trajectory, $x_0 = \big[7.51, 20.82, 0.03\big]^T$}
     \label{cap4_graf_patino2_traj}
 \end{figure}
 
-\comentariopurple{
-    adicionar texto para segundo grafico de trajetoria
-}
-
-Note that the trajectory of \ref{cap4_graf_patino2_traj} does not converge to the same periodic trajectory.
+Note that the trajectory of Figure \ref{cap4_graf_patino2_traj} does not converge to the same periodic trajectory.
 In Figure \ref{cap4_graf_patino2_traj2} we run the simulation with a different initial condition $x_0$ and we see 
 that the trajectory with the MPC turned off converges to yet another periodic trajectory.
 
@@ -216,12 +193,7 @@ that the trajectory with the MPC turned off converges to yet another periodic tr
     fazer a simulacao para conferir se a trajetoria deveria convergir e isso eh um erro numerico
 }
 
-
-\comentariogreen{
-    traj1
-}
-
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=14cm]{Cap4/fig/graf_patino2_traj_2.pdf}
     \caption{Multilevel Converter: State Trajectory, $x_0 = \big[9.31, 19.52, 0.73\big]^T$}
@@ -230,12 +202,7 @@ that the trajectory with the MPC turned off converges to yet another periodic tr
 
 Figure \ref{cap4_graf_patino2_xi} displays the states of the system over time.
 
-
-\comentariogreen{
-    xi
-}
-
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=14cm]{Cap4/fig/graf_patino2_xi.pdf}
     \caption{Multilevel Converter: States over time}
@@ -246,12 +213,7 @@ Figure \ref{cap4_graf_patino2_control_u_signal} displays the control signal sequ
 we can see the difference between the open loop and the controlled signal decreasing
 and getting in sync.
 
-
-\comentariogreen{
-    u signal
-}
-
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=14cm]{Cap4/fig/graf_patino2_u_signal.pdf}
     \caption{Multilevel Converter: Control Signal}

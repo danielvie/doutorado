@@ -53,14 +53,10 @@ the resulting trajectory is defined by
 \end{equation}
 
 \noindent
-where \highlight{$u_r$} is the control command and \highlight{$T_s$} is the switching time values for the cyclic trajectory
+where \highlight{$u_r$} is the control command and \highlight{$T_s$} is the switching time values for the cyclic trajectory,
+illustrated in Figure \ref{cap2_fig_sig_ref_integrador}.
 
-
-\comentariopurple{
-    COMMENTS 3 - toda figura tem que ser citada no texto
-}
-
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[]{figuras/cap4_ref_signal_integrador.eps}
     \caption{Reference signal for Double Integrator}
@@ -166,32 +162,32 @@ with initial conditions farther from the target.
 
 The simulation uses the system \eqref{cap4_eq_dynamics_integrador} with the command signal \eqref{cap4_eq_signal_integrador} and with 
 a initial condition \highlight{$x_0 = \big[1.5 \; V, -0.5 \; A\big]$}.
-Figure \ref{cap4-graf-ex1-1} shows the simulation without the MPC control being applied running for 5 cycles and we can see that the
+Figure \ref{cap4_graf_integrador_traj_off} shows the simulation without the MPC control being applied running for 5 cycles and we can see that the
 the trajectory is diverging from the initial position of the target cyclic trajectory \highlight{$\bar{x}_0 = \big[-0.5 \; V, -1.0 \; A\big]$} position.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=14cm]{Cap4/fig/graf_ex1_1.pdf}
-    \caption{State Trajectory MPC off, 4 cicles}
-    \label{cap4-graf-ex1-1}
+    \includegraphics[width=14cm]{Cap4/fig/graf_integrador_traj_off.pdf}
+    \caption{State Trajectory MPC off, 4 cycles}
+    \label{cap4_graf_integrador_traj_off}
 \end{figure}
 
 
-Now, for the same condition, we can turn on the MPC controller and run the simulation for 50 cycles. Figure \ref{cap4-graf-ex1-2} shows the
-resulting trajectory and Figure \ref{cap4-graf-ex1-3} shows the associated command signal. We can see that the controller drives the trajectory 
+Now, for the same condition, we can turn on the MPC controller and run the simulation for 50 cycles. Figure \ref{cap4_graf_integrador_traj_on} shows the
+resulting trajectory and Figure \ref{cap4_graf_integrador_u_signal} shows the associated command signal. We can see that the controller drives the trajectory 
 of the system to the target cyclic trajectory, we also that the command signal gets in sync with the reference command.
 
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=14cm]{Cap4/fig/graf_ex1_2.pdf}
+    \includegraphics[width=14cm]{Cap4/fig/graf_integrador_traj_on.pdf}
     \caption{State Trajectory MPC on, 50 cicles}
-    \label{cap4-graf-ex1-2}
+    \label{cap4_graf_integrador_traj_on}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=14cm]{Cap4/fig/graf_ex1_3.pdf}
+    \includegraphics[width=14cm]{Cap4/fig/graf_integrador_u_signal.pdf}
     \caption{Operation mode switch}
-    \label{cap4-graf-ex1-3}
+    \label{cap4_graf_integrador_u_signal}
 \end{figure}
