@@ -80,11 +80,11 @@ related through the following equations:
 The expression for \highlight{$J$} consists of a \blue{terminal cost} term and a trajectory \orange{cost term}. 
 
 With \highlight{$P_f$}, \highlight{$Q$}, \highlight{$R$} being symmetric and positive-definite, 
-with \highlight{$P_f$} chosen so that the terminal cost term corresponds 
+with \highlight{$P_f$} chosen so that the terminal cost \highlight{$\norma{x}{P_f}$} term corresponds 
 to the value function of an infinite horizon Discrete-Time Linear Quadratic Regulator (DLQR) designed width
 weights $Q$, $R$.
 
-By using the notation:
+By using the notation
 
 \begin{equation}
     \mathbf{\hat{u}}[k] = 
@@ -110,33 +110,17 @@ By using the notation:
 \end{equation}
 
 \noindent
-and then the cost term
+the cost function can be written in the form
 
-\comentariored{
-    rever essa parte
+\comentariopurple{
+    COMMENTS 3 - incluir $[k]$ nas demais equacoes daqui em diante, sempre que necessario
 }
-
-\begin{equation}
-    \begin{split}
-        \sum^{N-1}_{i=0} \norma{\hat{u}[i + k | k]}{R} &= 
-            \hat{u}^T[k|k] R \hat{u}[k|k] + \hat{u}^t[k+1|k]R\hat{u}[k+1|k] + \cdots \\
-        &\qquad+ \hat{u}^T [k+N-1|k] R \hat{u}[k+N-1|k]
-    \end{split}
-\end{equation}
-
-\noindent
-becomes
-
-\begin{equation}
-    \sum_{i=0}^{N-1} \norma{\hat{u}[i]}{R} = \norma{\mathbf{\hat{u}}}{\mathbf{R}}
-\end{equation}
-
-Similarly, we can write
-
 \noindent
 \begin{equation}
-    \norma{\hat{x}[k + N | k]}{P} + \sum_{j=0}^{N - 1} \norma{\hat{x}[k+j|k]}{Q} = \norma{x[k]}{P} + \norma{\mathbf{\hat{x}}}{\mathbf{Q}} 
+    J(\mathbf{\hat{x}}[k], \mathbf{\hat{u}}[k]) = \norma{x[k]}{Q} + 
+    \norma{\mathbf{\hat{x}}[k]}{\mathbf{Q}} + \norma{\mathbf{\hat{u}}[k]}{\mathbf{R}}
 \end{equation}
+
 
 \noindent
 where
@@ -174,16 +158,4 @@ and
         0 & 0 & \dotsm & R
         \end{matrix}
     \right] \in \mathbb{R}^{pN \times pN}
-\end{equation}
-
-
-So, the cost function can be written in the form
-
-\comentariopurple{
-    COMMENTS 3 - incluir $[k]$ nas demais equacoes daqui em diante, sempre que necessario
-}
-\noindent
-\begin{equation}
-    J(\mathbf{\hat{x}}[k], \mathbf{\hat{u}}[k]) = \norma{x[k]}{Q} + 
-    \norma{\mathbf{\hat{x}}[k]}{\mathbf{Q}} + \norma{\mathbf{\hat{u}}[k]}{\mathbf{R}}
 \end{equation}

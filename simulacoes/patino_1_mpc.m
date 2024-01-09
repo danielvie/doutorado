@@ -95,8 +95,10 @@ function var_out = patino_1_mpc(save_fig)
 
     if (save_fig)
         %% save figures
-        save_figure(f1, "graf_patino_ex1_1.pdf", "../LATEX_tese/Cap4/fig/");
-        save_figure(f2, "graf_patino_ex1_2.pdf", "../LATEX_tese/Cap4/fig/");
+        % save_figure(f1, "graf_patino_ex1_1.pdf", "../LATEX_tese/Cap4/fig/");
+        % save_figure(f2, "graf_patino_ex1_2.pdf", "../LATEX_tese/Cap4/fig/");
+        save_figure(f1, "graf_patino1_traj.pdf", "../LATEX_tese/Cap4/fig/");
+        save_figure(f2, "graf_patino1_u_signal.pdf", "../LATEX_tese/Cap4/fig/");
     end
 
 end

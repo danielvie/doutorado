@@ -35,15 +35,7 @@ where
 is the maximum invariant and admissible set (MAS) concerning the terminal state and control
 constraints under the infinite-horizon DLQR control law.
 
-\noindent
-\begin{equation}
-	\left\{
-		\hat{x} \in \mathbb{R}^n : S_f \hat{x} \leq b_f
-	\right\}
-\end{equation}
-
-\noindent
-The constraint on \highlight{$\mathbf{\hat{u}}$} can be  written as
+The constraint on \highlight{$\mathbf{\hat{u}}[k]$} can be  written as
 
 \noindent
 \begin{equation}
@@ -79,7 +71,7 @@ or, in a shorter form
 
 \noindent
 \begin{equation}
-	\mathbf{S_u \hat{u}} \leq \mathbf{b_u}
+	\mathbf{S_u \hat{u}[k]} \leq \mathbf{b_u}
 \end{equation}
 
 \noindent
@@ -90,7 +82,7 @@ with
 	\mathbf{S_u} = diag_N(S_u), \mathbf{b_u} = col_N(b_u)
 \end{equation}
 
-Similarly, in light of \eqref{cap3_eq_Sx_bx}, the constraints on \highlight{$\mathbf{\hat{x}}$} can be written as
+Similarly, in light of \eqref{cap3_eq_Sx_bx}, the constraints on \highlight{$\mathbf{\hat{x}[k]}$} can be written as
 
 \begin{equation}
 	\left[
@@ -126,7 +118,7 @@ or, in short
 \noindent
 \begin{equation}
 	\label{cap3_sx_x_le_bx}
-	\mathbf{S_x \hat{x}} \leq \mathbf{b_x}
+	\mathbf{S_x}\mathbf{\hat{x}}[k] \leq \mathbf{b_x}
 \end{equation}
 
 \noindent

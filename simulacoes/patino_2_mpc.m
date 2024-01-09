@@ -156,13 +156,13 @@ function var_out = patino_2_mpc(save_fig)
             config.fig_height = 10;
 
             % states
-                save_figure(f1, "graf_patino_ex2_xi.pdf", addr_out, config);
+                save_figure(f1, "graf_patino2_xi.pdf", addr_out, config);
             % trajectory
-                save_figure(f2, "graf_patino_ex2_traj.pdf", addr_out);
+                save_figure(f2, "graf_patino2_traj.pdf", addr_out);
             % trajectory 2
-                save_figure(f2_1, "graf_patino_ex2_traj_2.pdf", addr_out);
+                save_figure(f2_1, "graf_patino2_traj_2.pdf", addr_out);
             % control signal
-                save_figure(f3, "graf_patino_ex2_u_signal.pdf", addr_out);
+                save_figure(f3, "graf_patino2_u_signal.pdf", addr_out);
 
         end
 end
