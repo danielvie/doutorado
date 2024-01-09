@@ -1,5 +1,5 @@
 
-function cfg_out = patino_2(save_fig)
+function cfg_out = patino2(save_fig)
     if (nargin == 0)
         save_fig = false;
     end
@@ -50,15 +50,15 @@ function cfg_out = patino_2(save_fig)
     % close all;
 
     f1 = figure(13);
-    plot_xi(t, y);
+    plotter.patino2.plot_xi(t, y);
 
     f2 = figure(4);
     [y,t,u,m,dtk_out] = engine.sim_n(c, 30);
-    plot_trajectory(y, "Multilevel Converter: Trajectory", "X_1: Tension C_1 [V]", "X_2: Tension C_2 [V]", "X_3: Current L [A]")
+    plotter.patino2.plot_traj(y, "Multilevel Converter: Trajectory", "X_1: Tension C_1 [V]", "X_2: Tension C_2 [V]", "X_3: Current L [A]")
     
     f3 = figure(5);
     i = t < c.Ts(end);
-    plot_control_signal(t(i), m(i), "Multilevel Conveter: Input Signal", "t - time(s)", "u - switch command");
+    plotter.patino2.plot_control_signal(t(i), m(i), "Multilevel Conveter: Input Signal", "t - time(s)", "u - switch command");
 
     if (save_fig)
         fprintf("salvando figuras\n\n");
@@ -82,71 +82,4 @@ function cfg_out = patino_2(save_fig)
     end
 end
 
-function plot_xi(t, y) 
-    vc1 = y(:,1);
-    vc2 = y(:,2);
-    i_l = y(:,3);
 
-    subplot(3, 1, 1);
-    plot_xi_helper(t, vc1, "Multilevel Converter: X_1", "t - time(s)", "Tension C_1 [V]");
-
-    subplot(3, 1, 2);
-    plot_xi_helper(t, vc2, "Multilevel Converter: X_2", "t - time(s)", "Tension C_2 [V]");
-
-    subplot(3, 1, 3);
-    plot_xi_helper(t, i_l, "Multilevel Converter: X_3", "t - time(s)", "Tension L [A]");
-end
-
-function plot_xi_helper(t, x, tit, x_la, y_la)
-    plot(t, x);
-
-    grid on;
-    title(tit);
-    xlabel(x_la);
-    ylabel(y_la);
-
-    set(gca,'fontsize', 15);
-end
-
-function plot_trajectory(y, tit, x_la, y_la, z_la)
-
-    vc1_ = y(:,1);
-    vc2_ = y(:,2);
-    i_l_ = y(:,3);
-
-    plot3(vc1_, vc2_, i_l_, 'k');
-
-    grid on;
-
-    title(tit);
-    xlabel(x_la);
-    ylabel(y_la);
-    zlabel(z_la);
-
-    set(gca,'fontsize', 15);
-end
-
-function plot_control_signal(t, m, tit, x_label, y_label)
-
-    hold off;
-
-    f = stairs(t, m, 'linew', 3); 
-
-    hold on;
-    grid on;
-    title(tit)
-    xlabel(x_label);
-    ylabel(y_label);
-    set(gca,'fontsize', 15);
-
-    % removing the values that are not integers in Y axis
-    v = f.Parent.YTick;
-    
-    % indices for integer
-    p = abs(v - floor(v)) < 0.1;
-    
-    % update yticks
-    f.Parent.YTick = v(p);
-    
-    xlim([t(1), t(end)]);
-end

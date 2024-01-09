@@ -61,13 +61,18 @@ function vout = projecao_patino1(savefig_in)
     v1 = create_projection(config);
     config.N = 2;
     v2 = create_projection(config);
-    config.N = 3;
-    v3 = create_projection(config);
+    config.N = 4;
+    v4 = create_projection(config);
+
+    % deslocando origem 
+    v1.D = v1.D + config.xbar;
+    v2.D = v2.D + config.xbar;
+    v4.D = v4.D + config.xbar;
 
     f1 = figure(1);
     clf;
 
-    plot_projection(f1, v1, v2, v3, config.xbar);
+    plotter.patino1.plot_projection(f1, v1, v2, v4, config.xbar);
 
     vnames = who;
     vout = {};
@@ -81,37 +86,5 @@ function vout = projecao_patino1(savefig_in)
         name = sprintf("graf_proj_patino1.pdf", config.N);
         save_figure(f1, name, "../LATEX_tese/Cap4/fig/");
     end
-
-end
-
-function plot_projection(f, v1, v2, v3, xbar)
-
-    clf;
-
-    c1 = [1, 1, 1] * 0.7;
-    c2 = [1, 1, 1] * 0.4;
-    c3 = [1, 1, 1] * 0.2;
-
-    plot(v3.D, 'color', c3);
-    hold on;
-    plot(v2.D, 'color', c2);
-    plot(v1.D, 'color', c1);
-    disp(xbar)
-    plot(xbar(1),xbar(2), 'rx', 'markers', 12);
-    hold off;
-
-    % labels
-    legend("N_p = 3", "N_p = 2", "N_p = 1");
-
-
-    title('Buck-Boost Feasibility Region')
-    xlabel('x_1: Voltage capacitor C');
-    ylabel('x_2: Current inductor L');
-
-    % ajustar tamanho da fonte
-    ax = gca(f);
-    set(ax,'fontsize', 15);
-    zoom(f, 0.8);
-    
 
 end

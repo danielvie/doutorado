@@ -1,5 +1,5 @@
 
-function var_out = patino_1_mpc(save_fig)
+function var_out = patino1_mpc(save_fig)
 
     if (nargin == 0)
         save_fig = false;
@@ -73,7 +73,7 @@ function var_out = patino_1_mpc(save_fig)
     % plot dos resultados
 
     f1 = figure(1);
-    plot_traj(y, y_off, config.x0, "Buck-Boost Converter MPC", "x_1 - Voltage Capacitor C", "x_2 - Current Inductor L");
+    plotter.patino1_mpc.plot_traj(y, y_off, config.x0, "Buck-Boost Converter MPC", "x_1 - Voltage Capacitor C", "x_2 - Current Inductor L");
 
     % ncycle = size(y_off, 1) / nsim;
     % ncycle = ncycle * 8 + 1;
@@ -83,7 +83,7 @@ function var_out = patino_1_mpc(save_fig)
     f2 = figure(2);
     ncycle = size(y_off, 1) / nsim;
     ncycle = ncycle * 8 -700;
-    plot_control_signal(t_off(1:ncycle), m_off(1:ncycle), t(1:ncycle), m(1:ncycle), "Buck-Boost Converter: Control Signal", "time (s)", "mode");
+    plotter.patino1_mpc.plot_control_signal(t_off(1:ncycle), m_off(1:ncycle), t(1:ncycle), m(1:ncycle), "Buck-Boost Converter: Control Signal", "time (s)", "mode");
 
     % get values from the function
     all_variables = who;
@@ -100,52 +100,5 @@ function var_out = patino_1_mpc(save_fig)
         save_figure(f1, "graf_patino1_traj.pdf", "../LATEX_tese/Cap4/fig/");
         save_figure(f2, "graf_patino1_u_signal.pdf", "../LATEX_tese/Cap4/fig/");
     end
-
-end
-
-function plot_traj(y, y_off, x0, tit, x_label, y_label)
-
-    plot(y_off(:,1), y_off(:,2), 'linew', 1.2);
-    hold on;
-    plot(y(:,1), y(:,2), 'linew', 1.2);
-
-    % plot marcadores
-    plot(y(1,1), y(1,2), 'ro', 'markers', 10, 'linew', 1.2);
-    plot(y(end,1), y(end,2), 'k.', 'markers', 30);
-    plot(x0(1), x0(2), 'rx', 'linew', 2, 'markers', 16);
-
-    legend('trajectory', 'start', 'end', 'target x_0', 'location', 'southeast');
-
-    hold off;
-    grid on;
-    axis equal;
-    title(tit);
-    xlabel(x_label);
-    ylabel(y_label);
-    set(gca,'fontsize', 15);
-    legend('mpc off', 'mpc on')
-end
-
-function plot_control_signal(t_off, m_off, t, m, tit, x_label, y_label)
-    f = stairs(t_off, m_off, 'linew', 2);
-    hold on;
-    stairs(t, m, 'linew', 2, 'linestyle', '--');
-    hold off;
-    
-    grid on;
-    title(tit);
-    xlabel(x_label);
-    ylabel(y_label);
-    set(gca,'fontsize', 15);
-    legend('modes target trajectory', 'modes simulation');
-
-    % removing the values that are not integers in Y axis
-    v = f.Parent.YTick;
-    
-    % indices for integer
-    p = abs(v - floor(v)) < 0.1;
-    
-    % update yticks
-    f.Parent.YTick = v(p);
 
 end
