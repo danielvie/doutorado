@@ -1,4 +1,17 @@
 function vout =  teste_sanidade(nciclos_in)
+    %{
+        funcao que calcula x(tn) = F(n-1)*F(n-2)*...*F(0) + c
+        para patino1(buck-boost), e patino2(multilevel)
+        
+        como executar:
+            vout = teste_sanidade()
+                :: executa a funcao com 100 ciclos e retorna as variaveis internas em `vout`
+
+            vout = teste_sanidade(nciclos) 
+                :: executa a funcao com `nciclos` ciclos e retorna as variaveis internas em `vout`
+                :: nciclos deve ser um numero inteiro
+                :: ex: vout = teste_sanidade(1000);
+    %}
 
     nciclos = 100;
     if nargin == 1
@@ -24,12 +37,12 @@ function vout =  teste_sanidade(nciclos_in)
     % =====================================================
     
     % carregando configuracao para a simulacao patino 2
-    config = engine.get_config_sim_patino_2();
+    config2 = engine.get_config_sim_patino_2();
     
     % rodando 100 ciclos
     x0 = [7.51; 20.82; 0.03];
     label = sprintf("patino2 (%d ciclos)", nciclos);
-    [X2, xbar2] = roda_propagacao(config, x0, nciclos, label);
+    [X2, xbar2] = roda_propagacao(config2, x0, nciclos, label);
 
     figure(2);
     grafico2(X2, xbar2, label);
@@ -53,8 +66,8 @@ function grafico1(X, xbar, label)
 
     grid on;
     title(label);
-    xlabel('x1');
-    ylabel('x2');
+    xlabel('x_1');
+    ylabel('x_2');
 
     legend('Xi', '$\bar{X}$', 'interpreter', 'latex');
     set(gca,'fontsize', 16);
@@ -69,9 +82,9 @@ function grafico2(X, xbar, label)
 
     grid on;
     title(label);
-    xlabel('x1');
-    ylabel('x2');
-    zlabel('x3');
+    xlabel('x_1');
+    ylabel('x_2');
+    zlabel('x_3');
     
     legend('Xi', '$\bar{X}$', 'interpreter', 'latex');
     set(gca,'fontsize', 16);
@@ -109,9 +122,10 @@ end
 function [FF, c] = calcula_FF_c(config)
     %{
         usando equacao 2.10 da tese
-            x(tn) = F(n-1)*F(n-2)*...*F(0) + c
+            x(tn) = F(n-1)*F(n-2)*...*F(0) + c == FF + c
             
         com 
+            FF = F(n-1)*F(n-2)*...*F(0)
             c = F(n-1)F(n-2)...F1g0 + F(n-1)F(n-2)...F2g1 + ... + F(n-1)g(n-2) + g(n-1)
 
             [Fi, Gi] = c2dm(Ai, Bi, [], [], dt, 'zoh')
