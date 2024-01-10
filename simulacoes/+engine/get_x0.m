@@ -19,18 +19,25 @@ function x0 = get_x0(config)
     n  = numel(cfg.Omega);
     F  = cell(n,1);
     g  = cell(n,1);
-    I  = eye(size(cfg.A{1}));
+    
+    [m_, n_] = size(cfg.A{1});
+    I  = eye(m_, n_);
 
     for i = 1:n
         mi = cfg.Omega(i);
         Ai = cfg.A{mi};
         bi = cfg.b{mi};
 
-        dt = cfg.Ts(i+1) - cfg.Ts(i);
-        [Fi, gi] = c2dm(Ai, bi, [], [], dt, 'zoh');
+        % dt = cfg.Ts(i+1) - cfg.Ts(i);
+        % [Fi, gi] = c2dm(Ai, bi, [], [], dt, 'zoh');
 
-        F{i} = Fi;
-        g{i} = gi;
+        % calculando `Fi` e `gi` por estado aumentado
+        %  Aa = [ Ai, bi
+        %          0,  0]
+        dt   = cfg.Ts(i+1) - cfg.Ts(i);
+        Fa   = expm([Ai, bi;zeros(1, size(Ai, 2)), 0]*dt);
+        F{i} = Fa(1:m_, 1:n_);
+        g{i} = Fa(1:m_, n_+1:end);
     end
     
     % calculando `c`

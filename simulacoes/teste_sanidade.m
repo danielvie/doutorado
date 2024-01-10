@@ -1,6 +1,6 @@
 function vout =  teste_sanidade(nciclos_in)
     %{
-        funcao que calcula x(tn) = F(n-1)*F(n-2)*...*F(0) + c
+        funcao que calcula x(tn) = F(n-1)*F(n-2)*...*F(0)*x_0 + c
         para patino1(buck-boost), e patino2(multilevel)
         
         como executar:
@@ -122,13 +122,13 @@ end
 function [FF, c] = calcula_FF_c(config)
     %{
         usando equacao 2.10 da tese
-            x(tn) = F(n-1)*F(n-2)*...*F(0) + c == FF + c
+            x(tn) = F(n-1)*F(n-2)*...*F(0)*x_0 + c == FF*x_0 + c
             
         com 
             FF = F(n-1)*F(n-2)*...*F(0)
             c = F(n-1)F(n-2)...F1g0 + F(n-1)F(n-2)...F2g1 + ... + F(n-1)g(n-2) + g(n-1)
 
-            [Fi, Gi] = c2dm(Ai, Bi, [], [], dt, 'zoh')
+            [Fi, Gi] = c2dm(Ai, bi, [], [], dt, 'zoh')
     %}
 
     % copiando config para nova var
@@ -138,7 +138,9 @@ function [FF, c] = calcula_FF_c(config)
     n = numel(cfg.Omega);
     F = cell(n, 1);
     g = cell(n, 1);
-    I = eye(size(cfg.A{1}));
+    
+    [m_,n_] = size(cfg.A{1});
+    I = eye(m_,n_);
 
     % calculando F e g
     for i = 1:n
@@ -146,11 +148,13 @@ function [FF, c] = calcula_FF_c(config)
         Ai = cfg.A{mi};
         bi = cfg.b{mi};
 
-        dt = cfg.Ts(i+1) - cfg.Ts(i);
-        [Fi, gi] = c2dm(Ai, bi, [], [], dt, 'zoh');
-        
-        F{i} = Fi;
-        g{i} = gi;
+        % calculando `Fi` e `gi` por estado aumentado
+        %  Aa = [ Ai, bi
+        %          0,  0]
+        dt   = cfg.Ts(i+1) - cfg.Ts(i);
+        Fa   = expm([Ai, bi;zeros(1, size(Ai, 2)), 0]*dt);
+        F{i} = Fa(1:m_, 1:n_);
+        g{i} = Fa(1:m_, n_+1:end);
     end
 
     % calculando `c`
