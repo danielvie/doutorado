@@ -1,5 +1,5 @@
 
-function cfg_out = patino2(save_fig)
+function vout = patino2(save_fig)
     if (nargin == 0)
         save_fig = false;
     end
@@ -77,9 +77,13 @@ function cfg_out = patino2(save_fig)
     end
 
     % defining output in case it is set by the caller
-    if (nargout == 1)
-        cfg_out = config;
+    vout = struct();
+    vnames = who;
+    for i = 1:numel(vnames)
+        vi = vnames{i};
+        vout.(vi) = eval(vi);
     end
+
 end
 
 

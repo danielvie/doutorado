@@ -42,7 +42,7 @@ function vout =  teste_sanidade(nciclos_in)
     % rodando 100 ciclos
     x0 = [7.51; 20.82; 0.03];
     label = sprintf("patino2 (%d ciclos)", nciclos);
-    [X2, xbar2] = roda_propagacao(config2, x0, nciclos, label);
+    [X2, xbar2, FF, c] = roda_propagacao(config2, x0, nciclos, label);
 
     figure(2);
     grafico2(X2, xbar2, label);
@@ -90,13 +90,13 @@ function grafico2(X, xbar, label)
     set(gca,'fontsize', 16);
 end
 
-function [XX, xbar] = roda_propagacao(config, x0, nciclos, label)
+function [XX, xbar, FF, c] = roda_propagacao(config, x0, nciclos, label)
 
     [FF, c] = calcula_FF_c(config);
 
     % calculando x_bar
-    xbar = engine.get_xr(config);
-    xbar = xbar(1,:)';
+    I    = eye(size(FF));
+    xbar = (I - FF)\c;
 
     % rodando ciclos
     X  = x0;

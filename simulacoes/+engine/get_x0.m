@@ -10,6 +10,10 @@ function x0 = get_x0(config)
             c = F(n-1)F(n-2)...F1g0 + F(n-1)F(n-2)...F2g1 + ... + F(n-1)g(n-2) + g(n-1)
 
             [Fi, gi] = c2dm(Ai, bi, [], [], dt, 'zoh')
+            ou
+            usar o estado aumentado Xa = [X0;1] e resolver Xa[k+1] = Aa*Xa[k]
+            com Aa = [ Ai, bi
+                        0,  0]
     %}
 
     % copiando config para nova var
@@ -27,9 +31,6 @@ function x0 = get_x0(config)
         mi = cfg.Omega(i);
         Ai = cfg.A{mi};
         bi = cfg.b{mi};
-
-        % dt = cfg.Ts(i+1) - cfg.Ts(i);
-        % [Fi, gi] = c2dm(Ai, bi, [], [], dt, 'zoh');
 
         % calculando `Fi` e `gi` por estado aumentado
         %  Aa = [ Ai, bi
