@@ -19,13 +19,23 @@ The multilevel converter in session \ref{cap4_applicaton_patino2} is a circuit t
 introduces more complexity, there are more operation modes and even modes that are repeated
 during the same cycle. The simulation without the MPC shows a trajectory that converges to a cyclic limit 
 that is different than the target cyclic trajectory. With the use of the MPC controller, we see that the system 
-is driven to the target trajectory.
-
+is driven to the target trajectory. The limit cycle of this circuit is also changing with different initial conditions,
+in a first analysis this could be due to a numerical error in the simulation given that the numbers for this example 
+are very small and susceptible to float point precision errors, but more work is needed to explain this behavior.
 
 \comentariopurple{
-    PLANO DE TRABALHO
-    
-    - conclusao em 3 semestres
-
-    - deducao alternativa por estado aumentado
+    colocar referencia extado aumentado
 }
+
+Future work will include the reimplementation of the linearization using augmented states, this approach seems to simplify
+the process for getting a linear prediction equation for the cycle error and would add improvement to the current work.
+
+Another important work to do on top of the current state is to implement a physical in-lab multilevel circuit and apply the 
+control solution in an embedded environment, the majority of the references in the topic treated the problem in the simulation domain 
+and a real application would enrich the work. Also on this topic of thinking in real applications, future work contemplates the
+implementation in the simulation of the clock cycles, this means that the instants to switch the operation mode would be multiplies of the
+computer time, in circuits with time constants that are very small like the multilevel converter example this would cause a rounding error
+that would lead to perturbation being injected into the circuit.
+
+We propose the time to finish the project to be in 3 semesters. The first one is to finish the theoretical dependencies and analysis  
+on the digital domain of the work, the second is to implement the real circuit in-lab and the last is to wrap all results in the final work.
