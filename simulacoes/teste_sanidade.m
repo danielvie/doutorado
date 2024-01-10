@@ -169,7 +169,7 @@ function [FF, c] = calcula_FF_c(config)
     % calculando `FF`
     %       FF = F(n-1)F(n-2)...F1
     %
-    FF = eye(size(cfg.A{1}));
+    FF = I;
     for i = n:-1:1
         FF = FF * F{i};
     end

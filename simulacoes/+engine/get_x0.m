@@ -1,44 +1,59 @@
 function x0 = get_x0(config)
-    % montando matrizes F e G
-    Ts = config.Ts;
-    n  = numel(config.Omega);
-    % ur = config.ur;
-    F  = cell(n,1);
-    G  = cell(n,1);
-    for i = 1:n
-        mi = config.Omega(i);
-        Ai = config.A{mi};
-        Bi = config.b{mi};
 
-        dt = Ts(i+1) - Ts(i);
-        [Fi, Gi] = c2dm(Ai, Bi, [], [], dt, 'zoh');
+    %{
+        usando equacao 2.10 da tese
+            x(tn) = F(n-1)*F(n-2)*...*F(0)*x_0 + c == FF*x_0 + c
+            x_0   = (I - FF)\c
+            
+        com 
+            FF = F(n-1)*F(n-2)*...*F(0)
+            c = F(n-1)F(n-2)...F1g0 + F(n-1)F(n-2)...F2g1 + ... + F(n-1)g(n-2) + g(n-1)
+
+            [Fi, gi] = c2dm(Ai, bi, [], [], dt, 'zoh')
+    %}
+
+    % copiando config para nova var
+    cfg = config;
+
+    % inicializando variaveis de apoio
+    n  = numel(cfg.Omega);
+    F  = cell(n,1);
+    g  = cell(n,1);
+    I  = eye(size(cfg.A{1}));
+
+    for i = 1:n
+        mi = cfg.Omega(i);
+        Ai = cfg.A{mi};
+        bi = cfg.b{mi};
+
+        dt = cfg.Ts(i+1) - cfg.Ts(i);
+        [Fi, gi] = c2dm(Ai, bi, [], [], dt, 'zoh');
 
         F{i} = Fi;
-        G{i} = Gi;
+        g{i} = gi;
     end
     
     % calculando `c`
-    % c = G{n}*ur(n);
-    c = G{n};
+    %       c = F(n-1)F(n-2)...F1g0 + F(n-1)F(n-2)...F2g1 + ... + F(n-1)g(n-2) + g(n-1)
+    %
+    c = g{n};
     for i = 2:n
-        ci = F{n};
-        for j = n-1:-1:i
-            ci = ci*F{j};
+        FFi = I;
+        for j = n:-1:i
+            FFi = FFi*F{j};
         end        
-        % ci = ci*G{i-1}*ur(i-1);
-        ci = ci*G{i-1};
 
-        c  = c + ci;
+        c = c + FFi*g{i-1};
     end
     
     % calculando FF
-    FF = F{n};
-    for i = n-1:-1:1
+    %       FF = F(n-1)F(n-2)...F1
+    FF = I;
+    for i = n:-1:1
         FF = FF*F{i};
     end
 
     % calculando x0
-    I  = eye(size(FF));
-    x0 = ((I - FF)\c);    
+    x0 = (I - FF)\c;    
     
 end
