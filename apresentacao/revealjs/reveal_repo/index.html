@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>reveal.js</title>
+
+        <link rel="stylesheet" href="dist/reset.css">
+        <link rel="stylesheet" href="dist/reveal.css">
+        <link rel="stylesheet" href="dist/theme/black.css">
+
+        <!-- Theme used for syntax highlighted code -->
+        <link rel="stylesheet" href="plugin/highlight/monokai.css">
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section>
+                    <h2>The Lorenz Equations</h2>
+
+                    \[\begin{aligned}
+                    \color{#17b2c3}\dot{x} &amp; = \sigma(y-x) \\
+                    \end{aligned} \]
+
+                    <p class="fragment">
+                        \[\begin{aligned}
+                        \dot{x} &amp; = \color{#17b2c3}\sigma(y-x) \\
+                        \dot{y} &amp; = \rho x - y - xz \\
+                        \dot{z} &amp; = -\beta z + xy
+                        \end{aligned} \]
+                    </p>
+
+                </section>
+
+                <section>
+                    <h3>Motivacao / Objetivo do trabalho</h3>
+                    
+                    <section>
+                        explicar porque estamos fazendo
+                    </section>
+                    <section>
+                        adsfasdf
+                    </section>
+                </section>
+
+                <section data-markdown>
+                    ## Trabalhos feitos
+                    apresentar os trabalhos que pesquisamos
+                </section>
+
+                <section data-markdown>
+                    ## Fundamentos
+                    mostrar o desenvolvimento de controle preditivo
+                </section>
+
+                <section data-markdown>
+                    ## Trajetoria Alvo
+                    calculo da trajetoria
+                </section>
+
+                <section data-markdown>
+                    ## Controle Preditivo
+
+                    linearizacao
+
+                    dwell-time
+                </section>
+
+                <section data-markdown>
+                    ## Resultados
+
+                    integrador duplo
+
+                    buck-boost converter
+
+                    multilevel converter
+                </section>
+
+                <section data-markdown>
+                    ## Conclusao
+
+                    discussao dos resultados
+
+                    planejamento de atividades
+                </section>
+
+
+            </div>
+        </div>
+
+        <script src="dist/reveal.js"></script>
+        <script src="plugin/notes/notes.js"></script>
+        <script src="plugin/markdown/markdown.js"></script>
+        <script src="plugin/highlight/highlight.js"></script>
+        <script src="plugin/math/math.js"></script>
+        <script>
+            // More info about initialization & config:
+            // - https://revealjs.com/initialization/
+            // - https://revealjs.com/config/
+            Reveal.initialize({
+                hash: true,
+                slideNumber: 'c/t',
+
+                // mathjax3: {
+                //     mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js',
+                //     tex: {
+                //         inlineMath: [['$', '$'], ['\\(', '\\)']]
+                //     },
+                //     options: {
+                //         skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+                //     },
+                // },
+                katex: {
+                    local: 'node_modules/katex',
+                },
+
+                // Learn about plugins: https://revealjs.com/plugins/
+                // plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, KaTeX ]
+                // plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, RevealMath.MathJax3 ]
+                plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, RevealMath.KaTeX ]
+            });
+        </script>
+    </body>
+</html>
