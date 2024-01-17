@@ -1,0 +1,2 @@
+r:
+	bun run start

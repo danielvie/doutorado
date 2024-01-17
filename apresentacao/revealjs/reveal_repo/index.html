@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-        <title>reveal.js</title>
+        <title>DANIEL VIEIRA - PRESENTATION</title>
 
         <link rel="stylesheet" href="dist/reset.css">
         <link rel="stylesheet" href="dist/reveal.css">
@@ -16,20 +16,60 @@
     <body>
         <div class="reveal">
             <div class="slides">
-                <section>
+
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h2>Auto-Animate</h2>
+                    <h2>Teste Daniel</h2>
+                    <p>Automatically animate matching elements across slides with <a
+                            href="https://revealjs.com/auto-animate/">Auto-Animate</a>.</p>
+                    <div class="r-hstack justify-center">
+                        <div data-id="box1" style="background: #999; width: 50px; height: 50px; margin: 10px; border-radius: 5px;">
+                        </div>
+                        <div data-id="box2" style="background: #999; width: 50px; height: 50px; margin: 10px; border-radius: 5px;">
+                        </div>
+                        <div data-id="box3" style="background: #999; width: 50px; height: 50px; margin: 10px; border-radius: 5px;">
+                        </div>
+                    </div>
+                </section>
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <!-- <h2 style="margin-top: 20px;">Auto-Animate</h2> -->
+                    <h2>Teste Daniel</h2>
+                    <div class="r-hstack justify-center">
+                        <div data-id="box1" data-auto-animate-delay="0"
+                            style="background: cyan; width: 150px; height: 100px; margin: 10px;"></div>
+                        <div data-id="box2" data-auto-animate-delay="0.1"
+                            style="background: magenta; width: 150px; height: 100px; margin: 10px;"></div>
+                        <div data-id="box3" data-auto-animate-delay="0.2"
+                            style="background: yellow; width: 150px; height: 100px; margin: 10px;"></div>
+                    </div>
+                </section>
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <div class="r-stack">
+                        <div data-id="box1" style="background: cyan; width: 800px; height: 300px; border-radius: 200px;"></div>
+                        <div data-id="box2" style="background: magenta; width: 200px; height: 200px; border-radius: 200px;"></div>
+                        <div data-id="box3" style="background: yellow; width: 100px; height: 100px; border-radius: 200px;"></div>
+                    </div>
+                    <h2 style="margin-top: 20px;">Auto-Animate</h2>
+                </section>
+
+                <section r-stack>
                     <h2>The Lorenz Equations</h2>
 
-                    \[\begin{aligned}
-                    \color{#17b2c3}\dot{x} &amp; = \sigma(y-x) \\
-                    \end{aligned} \]
+                    <span class="r-stack">
+                        <p class="fragment fade-in-then-out">
+                            \[\begin{aligned}
+                            \color{#17b2c3}\dot{x} &amp; = \sigma(y-x) \\
+                            \end{aligned} \]
+                        </p>
 
-                    <p class="fragment">
-                        \[\begin{aligned}
-                        \dot{x} &amp; = \color{#17b2c3}\sigma(y-x) \\
-                        \dot{y} &amp; = \rho x - y - xz \\
-                        \dot{z} &amp; = -\beta z + xy
-                        \end{aligned} \]
-                    </p>
+                        <p class="fragment fade-in">
+                            \[\begin{aligned}
+                            \dot{x} &amp; = \color{#17b2c3}\sigma(y-x) \\
+                            \dot{y} &amp; = \rho x - y - xz \\
+                            \dot{z} &amp; = -\beta z + xy
+                            \end{aligned} \]
+                        </p>
+                    </span>
 
                 </section>
 
@@ -94,6 +134,7 @@
         <script src="plugin/markdown/markdown.js"></script>
         <script src="plugin/highlight/highlight.js"></script>
         <script src="plugin/math/math.js"></script>
+        <script src="plugin/zoom/zoom.js"></script>
         <script>
             // More info about initialization & config:
             // - https://revealjs.com/initialization/
@@ -101,16 +142,8 @@
             Reveal.initialize({
                 hash: true,
                 slideNumber: 'c/t',
+                view: "scroll",
 
-                // mathjax3: {
-                //     mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js',
-                //     tex: {
-                //         inlineMath: [['$', '$'], ['\\(', '\\)']]
-                //     },
-                //     options: {
-                //         skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
-                //     },
-                // },
                 katex: {
                     local: 'node_modules/katex',
                 },
@@ -118,7 +151,7 @@
                 // Learn about plugins: https://revealjs.com/plugins/
                 // plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, KaTeX ]
                 // plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, RevealMath.MathJax3 ]
-                plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, RevealMath.KaTeX ]
+                plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, RevealMath.KaTeX, RevealZoom ]
             });
         </script>
     </body>
