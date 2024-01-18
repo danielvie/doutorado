@@ -1,2 +1,5 @@
 r:
-	bun run start
+	npm run start
+
+tw:
+	npm run tw
