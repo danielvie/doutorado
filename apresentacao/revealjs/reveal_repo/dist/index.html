@@ -6,11 +6,11 @@
 
         <title>DANIEL VIEIRA - PRESENTATION</title>
 
-        <link rel="stylesheet" href="dist/reset.css">
-        <link rel="stylesheet" href="dist/reveal.css">
-        <link rel="stylesheet" href="dist/theme/black.css">
+        <link rel="stylesheet" href="reset.css">
+        <link rel="stylesheet" href="reveal.css">
+        <link rel="stylesheet" href="theme/black.css">
         
-        <link rel="stylesheet" href="./dist/tailwind.css">
+        <link rel="stylesheet" href="tailwind.css">
         <!-- <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet"> -->
 
         <!-- Theme used for syntax highlighted code -->
@@ -248,7 +248,7 @@
             </div>
         </div>
 
-        <script src="dist/reveal.js"></script>
+        <script src="reveal.js"></script>
         <script src="plugin/notes/notes.js"></script>
         <script src="plugin/markdown/markdown.js"></script>
         <script src="plugin/highlight/highlight.js"></script>
@@ -263,9 +263,14 @@
                 slideNumber: 'c/t',
                 view: "scroll",
                 // backgroundTransition: 'slide',
+                
+                mathjax2: {
+                    mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js',
+                    config: 'TeX-AMS_HTML-full',
+                },
 
                 katex: {
-                    local: 'node_modules/katex',
+                    // local: 'node_modules/katex',
                     macros: {
                         '\\intlinAA': 
                             '\\int_{t_{#3_#1}}^{t_{#4_#2}} {e^{A_#2(t_{#2} - \\tau)} B_#2 d \\tau}',

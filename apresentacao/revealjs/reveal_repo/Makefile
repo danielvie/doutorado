@@ -1,5 +1,9 @@
 r:
 	npm run start
 
-tw:
+t: tailwind
+
+tw: tailwind
+	
+tailwind:
 	npm run tw
