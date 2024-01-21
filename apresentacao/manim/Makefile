@@ -1,4 +1,4 @@
-all: high
+all: low
 
 # quality: [f|m|h|p|k] 
 
