@@ -1,13 +1,16 @@
+app = bun
+
 r:
-	npm run start
+	$(app) run start
 
 t: tailwind
 
 up: 
 	cp -rf img ../../docs
 	cp -rf videos ../../docs
-	cp -rf plugin ../../docs
+	cp -rf plugin ../../docs/dist
 	cp -rf index.html ../../docs
+	cp -rf dist/tailwind.css ../../docs/dist
 
 down: 
 	cp -rf ../../docs/videos .
@@ -17,4 +20,4 @@ down:
 tw: tailwind
 	
 tailwind:
-	npm run tw
+	$(app) run tw
