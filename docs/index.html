@@ -65,7 +65,7 @@
                 -->
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
                     <h3 data-id="title">introdução</h3>
-                    <div class="text-justify text-3xl text-purple-500">
+                    <div class="text-justify text-3xl gradiente">
                         <!-- o que estamos fazendo aqui? -->
                         <p>Esse trabalho propõe a solução de problemas de controle para sistemas chaveados afins
                             submetidos a restrições de dwell-time
@@ -140,7 +140,7 @@
 
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
                     <h3 data-id="title">introdução - trabalho atual</h3>
-                    <div class="text-2xl text-justify bg-gradient-to-r from-pink-500 to-indigo-400 inline-block text-transparent bg-clip-text">
+                    <div class="text-2xl text-justify gradiente">
                         <!-- o que estamos fazendo aqui? -->
                         <p>Esse trabalho propõe extender ainda mais a solução e resolver o problema de controle para sistemas
                             chaveador afim com restrição de tempo de chaveamento e dinâmica variante com o chaveamento.</p>
@@ -173,16 +173,364 @@
                 -->
 
                 <!-- <section data-background-color="#b5533c" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)"> -->
-                <section data-background-color="hsl(150 50% 10%)" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                <section data-background-color="hsl(230 40% 15%)" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
                     <h3 data-id="title">determinação trajetória alvo</h3>
-                    <p class="text-2xl">
+                    <p class="text-xl text-justify">A determinação da trajetória alvo está sendo feita usando a abordagem de Patino (2010), um sistema na forma</p>
+                    <p class="text-xl">
                         \[\begin{aligned}
-                        J(\tau^{\infty} ,\Omega^{\infty} ,s^{\infty}, x_0) = \min_{\tau, \Omega, s} \int_0^{T_p} \Big[x(t) - \bar{x}^{\infty}\Big]^T Q \Big[x(t) - \bar{x}^{\infty}\Big] dt
+                        \dot{x}(t) &= A_{\sigma(t)} x(t) + b_{\sigma(t)} \\
                         \end{aligned} \]
                     </p>
+                    <p class="text-xl text-justify">é otimizado com a função custo</p>
+                    <p class="text-xl">
+                        \[\begin{aligned}
+                        J(\tau^{\infty} ,\Omega^{\infty} ,s^{\infty}, x_0) &= \min_{\tau, \Omega, s} \int_0^{T_p} \Big[x(t) - \bar{x}^{\infty}\Big]^T Q \Big[x(t) - \bar{x}^{\infty}\Big] dt
+                        \end{aligned} \]
+                    </p>
+                    <p class="text-xl text-justify">
+                        em que $\\\;\\\quad\tau^\infty = \big[t_1, t_2, \dotsm, t_{s^\infty}\big]$, $\Omega^\infty = \big[\sigma_1, \sigma_2, \dotsm, \sigma_{s^\infty}\big]$, 
+                        $\\\;\\\quad Q=Q^T>0,\;$ $T_p$ é o período do ciclo e $x(0) = x(T_p)$
+                    </p>
+                    <p class="text-xl text-justify">
+                        as restrições do problema são
+                        $\\\;\\\quad T_p \le T_{p,max}$
+                    </p>
+                    <p class="text-xl text-justify">
+                        e
+                        $\\\;\\\quad (t_i - t_{i-1}) \ge \Delta t_{i,min}$
+                    </p>
+                    <img src="img/intro_trajetoria_no_tempo.png" class="w-2/5 absolute right-10 -bottom-5">
+                </section>
+
+                <section data-background-color="hsl(230 40% 15%)" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title">determinação trajetória alvo</h3>
+                    <p class="text-xl text-justify">
+                        Como precisamos de uma trajetória cíclica como alvo, calculamos a condição inicial para que isso seja verdade
+                        na avaliação da função custo.
+                    </p>
+                    <p class="text-2xl text-justify">
+                        $[0 \rightarrow t_1]   : \dot{x}= A_{\sigma(0)} x + b_{\sigma(0)}  \\$
+                        $[t_1 \rightarrow t_2] : \dot{x}= A_{\sigma(t_1)} x + b_{\sigma(t_1)} \\$
+                        $\qquad \vdots\\$
+                        $[t_{N-1} \rightarrow t_N] : \dot{x}= A_{\sigma(t_{N-1})} x + b_{\sigma(t_{N-1})}$
+                    </p>
+                    
+                    <img src="img/intro_trajetoria_no_tempo.png" class="w-2/5 absolute right-10 -bottom-5">
+                </section>
+
+                <!-- aplicacao buck-boost -->
+                <section data-background-color="hsl(230 40% 15%)" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title">
+                        <p class="text-4xl">determinação trajetória alvo: Conversor buck-boost</p>
+                    </h3>
+                    <div class="grid grid-cols-12 grid-flow-row gap-0 text-xl text-justify">
+                        <div class="col-span-7 relative">
+                            <img class="w-3/5 relative left-32" src="img/circuito_buck_boost.png">
+                            <p>
+                                $\quad \dot{x} = \begin{cases}
+                                A_1 x + b_1\text{, \;u = 1 (switch fechado - modo 1)} \\
+                                A_2 x + b_2\text{, \;u = 0 (switch aberto - modo 2)} 
+                                \end{cases}$
+                            </p>
+                            <p>
+                            em que
+                            </p>
+                            <p>
+                                $\quad \begin{matrix}
+                                A_1 = \left[ \begin{matrix} 0 & 0 \\ 0 & -\frac{1}{RC} \\ \end{matrix} \right] & 
+                                A_2 = \left[ \begin{matrix} 0 & \frac{1}{L} \\ -\frac{1}{C} & -\frac{1}{RC} \\ \end{matrix} \right] \\
+                                \\
+                                b_1 = \left[ \begin{matrix} \frac{E}{L} & 0 \end{matrix} \right]^T & 
+                                b_2 = \left[ \begin{matrix} 0 & 0 \end{matrix} \right]^T \\
+                                \end{matrix}$
+                            </p>
+                            <p>os valores desse exemplo estão normalizados com</p>
+                            <p>
+                                $\quad R = L = C = E = 1$
+                            </p>
+                        </div>
+                        <div class="col-span-5">
+                            <p>a otimização gera incrementos de tempo de chaveamento de forma que</p>
+                            <p>
+                                $\quad \tau^\infty = \Big[t_0, t_1, t_2\Big] = \Big[t_0, t_0 + dx[1], t_1 + dx[2]\Big]$
+                            </p>
+                            <p>com restrições de tempo</p>
+                            <p>
+                                $\quad dx = 
+                                \left[\begin{matrix} dx_1 \\ dx_2 \end{matrix}\right] 
+                                    \ge 
+                                \left[\begin{matrix} t_{min} \\ t_{min} \end{matrix}\right] 
+                                    =
+                                \left[\begin{matrix} 0.25 \\ 0.25 \end{matrix}\right] 
+                                $
+                            </p>
+                            <p>e</p>
+                            <p>
+                                $
+                                \quad \big[1, \dotsm, 1\big] \cdot 
+                                \left[
+                                    \begin{matrix}
+                                        dx_1 \\
+                                        dx_2
+                                    \end{matrix}
+                                \right] 
+                                \le T_{p_{max}}
+                                = 1.0
+                                $
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <section data-background-color="hsl(230 40% 15%)" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title">
+                        <p class="text-4xl">determinação trajetória alvo: Conversor buck-boost</p>
+                    </h3>
+
+                    <div class="text-xl text-justify">
+                        <p>A solução para esse exemplo é</p>
+                        <p>
+                            $\quad \tau^\infty = \big[0, 0.2513, 0.5914\big],\\$
+                        </p>
+                        <p>
+                            $\quad \Omega^\infty = \big[1, 2\big].$
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-12 gap-1">
+                        <div class="col-span-6"> <img class="h-96" src="img/trajetoria_buck_boost_traj.png"> </div>
+                        <div class="col-span-6"> <img class="h-96" src="img/trajetoria_buck_boost_u.png"> </div>
+                    </div>
+
+                </section>
+
+                <!-- aplicação multilevel -->
+                <section data-background-color="hsl(230 40% 15%)" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title">
+                        <p class="text-4xl">determinação trajetória alvo: Conversor multilevel</p>
+                    </h3>
+                    <div class="text-xl text-justify">
+                        <div class="flex justify-center items-center">
+                            <img class="h-52" src="img/circuito_multilevel.png">
+                        </div>
+                        <p>
+                            \[
+                            \left[ \begin{array}{c}
+                            \dot{x}_1(t) \\
+                            \dot{x}_2(t) \\
+                            \dot{x}_3(t)
+                            \end{array} \right]
+                            =
+                            \left[ \begin{array}{ccc}
+                            -\frac{x_3(t)}{C_1} & \frac{x_3(t)}{C_1} & 0 \\
+                            0 & -\frac{x_3(t)}{C_2} & \frac{x_3(t)}{C_2} \\
+                            \frac{x_1(t)}{L} & \frac{x_2(t) - x_1(t)}{L} & \frac{E - x_2(t)}{L}
+                            \end{array} \right]
+                            \left[ \begin{array}{c}
+                            u_1(t) \\
+                            u_2(t) \\
+                            u_3(t)
+                            \end{array} \right]
+                            +
+                            \left[ \begin{array}{c}
+                            0 \\
+                            0 \\
+                            -\frac{R}{L}x_3(t)
+                            \end{array} \right]
+                            \]
+                        </p>
+                        <p>que pode ser rearranjado como</p>
+                        <p>
+                            \[
+                            \left[ \begin{array}{c}
+                            \dot{x}_1(t) \\
+                            \dot{x}_2(t) \\
+                            \dot{x}_3(t)
+                            \end{array} \right]
+                            =
+                            \left[ \begin{array}{ccc}
+                            0 & 0 & \frac{u_2 - u_1}{C1} \\
+                            0 & 0 & \frac{u_3 - u_2}{C2} \\
+                            \frac{u_1-u_2}{L} & \frac{u_2-u_3}{L} & \frac{-R}{L}
+                            \end{array} \right]
+                            \left[ \begin{array}{c}
+                            x_1(t) \\
+                            x_2(t) \\
+                            x_3(t)
+                            \end{array} \right]
+                            +
+                            \left[ \begin{array}{c}
+                            0 \\
+                            0 \\
+                            -\frac{R}{L}u_3
+                            \end{array} \right]
+                            \]
+                        </p>
+                    </div>
+                </section>
+
+                <section data-background-color="hsl(230 40% 15%)" data-auto-animate
+                    data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title">
+                        <p class="text-4xl">determinação trajetória alvo: Conversor multilevel</p>
+                    </h3>
+                    <div class="text-xl text-justify">
+                        <div class="flex items-center justify-center">
+                            <img class="h-52" src="img/circuito_multilevel.png">
+                        </div>
+                        <p>
+                            \[
+                            \begin{matrix}
+                            % 1 
+                                \mathbf{u_1} &= \left[ \begin{array}{ccc} 0 \\ 0 \\ 0 \end{array} \right],
+                                &
+                                A_1 = \left[ \begin{array}{ccc} 
+                                    0 & 0 & 0 \\
+                                    0 & 0 & 0 \\
+                                    0 & 0 & \frac{-R}{L} 
+                                \end{array} \right],
+                                &
+                                b_1 = \left[ \begin{array}{c} 0 \\ 0 \\ 0 \end{array} \right] \\
+                            % 2
+                                \mathbf{u_2} &= \left[ \begin{array}{ccc} 0 \\ 0 \\ 1 \end{array} \right],
+                                &
+                                A_2 = \left[ \begin{array}{ccc} 
+                                    0 & 0 & 0 \\
+                                    0 & 0 & \frac{1}{C_1} \\
+                                    0 & \frac{-1}{L} & \frac{-R}{L}
+                                \end{array} \right],
+                                &
+                                b_2 = \left[ \begin{array}{c} 0 \\ 0 \\ \frac{E}{L} \end{array} \right] \\
+                            % 3 
+                                \mathbf{u_3} &= \left[ \begin{array}{ccc} 0 \\ 1 \\ 0 \end{array} \right],
+                                &
+                                A_3 = \left[ \begin{array}{ccc} 
+                                    0 & 0 & \frac{1}{C_1} \\
+                                    0 & 0 & \frac{-1}{C_2} \\
+                                    \frac{-1}{L} & \frac{1}{L} & \frac{-R}{L}
+                                \end{array} \right],
+                                &
+                                b_3 = \left[ \begin{array}{c} 0 \\ 0 \\ 0 \end{array} \right] \\
+                            % 4 
+                                \mathbf{u_4} &= \left[ \begin{array}{ccc} 0 \\ 1 \\ 1 \end{array} \right],
+                                &
+                                A_4 = \left[ \begin{array}{ccc} 
+                                    0 & 0 & \frac{1}{C_1} \\ 
+                                    0 & 0 & 0 \\ 
+                                    \frac{-1}{L} & 0 & \frac{-R}{L} 
+                                \end{array} \right],
+                                &
+                                b_4 = \left[ \begin{array}{c} 0 \\ 0 \\ \frac{E}{L} \end{array} \right] \\
+                            \end{matrix}\]
+                        </p>
+                    </div>
+                </section>
+
+                <section data-background-color="hsl(230 40% 15%)" data-auto-animate
+                    data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title">
+                        <p class="text-4xl">determinação trajetória alvo: Conversor multilevel</p>
+                    </h3>
+                    <div class="text-xl text-justify">
+                        <div class="flex items-center justify-center">
+                            <img class="h-52" src="img/circuito_multilevel.png">
+                        </div>
+                        <p>
+                            \[
+                            \begin{matrix}
+                            % 5
+                            \mathbf{u_5} &= \left[ \begin{array}{ccc} 1 \\ 0 \\ 0 \end{array} \right],
+                            &
+                            A_5 = \left[ \begin{array}{ccc}
+                            0 & 0 & \frac{-1}{C_1} \\
+                            0 & 0 & 0 \\
+                            \frac{1}{L} & 0 & \frac{-R}{L}
+                            \end{array} \right],
+                            &
+                            b_5 = \left[ \begin{array}{c} 0 \\ 0 \\ 0 \end{array} \right] \\
+                            % 6
+                            \mathbf{u_6} &= \left[ \begin{array}{ccc} 1 \\ 0 \\ 1 \end{array} \right],
+                            &
+                            A_6 = \left[ \begin{array}{ccc}
+                            0 & 0 & \frac{-1}{C_1} \\
+                            0 & 0 & \frac{1}{C_2} \\
+                            \frac{1}{L} & \frac{-1}{L} & \frac{-R}{L}
+                            \end{array} \right],
+                            &
+                            b_6 = \left[ \begin{array}{c} 0 \\ 0 \\ \frac{E}{L} \end{array} \right] \\
+                            % 7
+                            \mathbf{u_7} &= \left[ \begin{array}{ccc} 1 \\ 1 \\ 0 \end{array} \right],
+                            &
+                            A_7 = \left[ \begin{array}{ccc}
+                            0 & 0 & 0 \\
+                            0 & 0 & \frac{-1}{C_1} \\
+                            0 & \frac{1}{L} & \frac{-R}{L}
+                            \end{array} \right],
+                            &
+                            b_7 = \left[ \begin{array}{c} 0 \\ 0 \\ 0 \end{array} \right] \\
+                            % 8
+                            \mathbf{u_8} &= \left[ \begin{array}{ccc} 1 \\ 1 \\ 1 \end{array} \right],
+                            &
+                            A_8 = \left[ \begin{array}{ccc}
+                            0 & 0 & 0 \\
+                            0 & 0 & 0 \\
+                            0 & 0 & \frac{-R}{L}
+                            \end{array} \right],
+                            &
+                            b_8 = \left[ \begin{array}{c} 0 \\ 0 \\ \frac{E}{L} \end{array} \right]
+                            \end{matrix}\]
+                        </p>
+                    </div>
+                </section>
+
+                <section data-background-color="hsl(230 40% 15%)" data-auto-animate
+                    data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title">
+                        <p class="text-4xl">determinação trajetória alvo: Conversor multilevel</p>
+                    </h3>
+                    <div class="text-xl text-justify">
+                        <div class="flex items-center justify-center">
+                            <img class="h-52" src="img/circuito_multilevel.png">
+                        </div>
+                        <p>
+                            As dinâmicas podem ser organizadas como
+                            $\Bigr\{ A_{1}, A_{2}, A_{3}, A_{4}, A_{5}, A_{6}, A_{7}, A_{8} \Bigr\}$
+                        </p>
+                        <p>
+                            e
+                            $\Bigr\{ b_{1}, b_{2}, b_{3}, b_{4}, b_{5}, b_{6}, b_{7}, b_{8} \Bigr\}$.
+                        </p>
+                        <p>
+                            Os parâmetros de simulação são os mesmo de <i class="italic">Patino (2010)</i>
+                        </p>
+                        <p>
+                            e a sequencia de modos para o calculo da trajetória é
+                            $\Omega^\infty = \Big\{ 1, 2, 4, 8, 3, 1, 5, 8, 5 \Big\}$
+                        </p>
+                    </div>
+                </section>
+
+                <section data-background-color="hsl(230 40% 15%)" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title">
+                        <p class="text-4xl">determinação trajetória alvo: Conversor multilevel</p>
+                    </h3>
+                    <div class="text-xl text-justify">
+                        <p>A solução para esse exemplo é</p>
+                        <p>
+                            $\quad \tau^\infty = \Big\{ 0, 0.064, 0.088, 0.112, 0.134, 0.157, 0.206, 0.230, 0.253, 0.276 \Big\} \; \mathrm{ms}$
+                        </p>
+                        <p>
+                            $x(0) = \Big[9.514 \; \mathrm{V}, 19.821 \; \mathrm{V},  1.031 \; \mathrm{A}\Big]^T$
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-12 gap-1">
+                        <div class="col-span-6"> <img class="h-96" src="img/trajetoria_multilevel_traj.png"> </div>
+                        <div class="col-span-6"> <img class="h-96" src="img/trajetoria_multilevel_u.png"> </div>
+                    </div>
                 </section>
 
                 <!-- 
+                    {{xxx}}
                     controle preditivo para trajetórias periódicas
                     - procedimento de linearização
                     - mpc
