@@ -545,6 +545,18 @@ video {
   right: 2.5rem;
 }
 
+.right-0 {
+  right: 0px;
+}
+
+.-bottom-10 {
+  bottom: -2.5rem;
+}
+
+.top-0 {
+  top: 0px;
+}
+
 .col-span-5 {
   grid-column: span 5 / span 5;
 }
@@ -653,6 +665,21 @@ video {
   line-height: 1.75rem;
 }
 
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.text-base {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
 .italic {
   font-style: italic;
 }
@@ -665,6 +692,16 @@ video {
 .text-sky-400 {
   --tw-text-opacity: 1;
   color: rgb(56 189 248 / var(--tw-text-opacity));
+}
+
+.text-red-500 {
+  --tw-text-opacity: 1;
+  color: rgb(239 68 68 / var(--tw-text-opacity));
+}
+
+.text-sky-500 {
+  --tw-text-opacity: 1;
+  color: rgb(14 165 233 / var(--tw-text-opacity));
 }
 
 .tab1 {

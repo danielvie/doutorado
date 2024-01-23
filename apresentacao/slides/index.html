@@ -578,7 +578,7 @@
                             \[
                             \begin{split}
                             x(t_1) - \bar{x}(\bar{t}_1) = \green{\overbrace{e^{A_1(t_1-t_0)}x(t_0) - e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)}^{\square}} \\
-                            + \color{#ef5f33}{\underbrace{\intlinAA{0}{1}{}{} - \intlinAbtt{0}{1}}_{\bigcirc}}
+                            + \orange{\underbrace{\intlinAA{0}{1}{}{} - \intlinAbtt{0}{1}}_{\bigcirc}}
                             \end{split}
                             \]
                         </p>
@@ -637,7 +637,7 @@
                             \begin{aligned}
                             x(t_1) - \bar{x}(\bar{t}_1) &= \green{\square} + \orange{\bigcirc} \\
                             \\
-                            x(t_1) - \bar{x}(\bar{t}_1) &= \bar{F}_1 [ x(t_0) - \bar{x}(t_0) ] + [ \bar{F}_1 A_1 x(t_0) + A_1 \bar{G}_1 + B_1 ] \delta t_1
+                            x(t_1) - \bar{x}(\bar{t}_1) &= \bar{F}_1 \bigg[ x(t_0) - \bar{x}(t_0) \bigg] + \bigg[ \bar{F}_1 A_1 x(t_0) + A_1 \bar{G}_1 + B_1 \bigg] \delta t_1
                             \end{aligned}
                             \]
                         </p>
@@ -1041,6 +1041,22 @@
                 // plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, RevealMath.MathJax3 ]
                 plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, RevealMath.KaTeX, RevealZoom ]
             });
+            
+            function AddPages() {
+                const secs = document.querySelectorAll('section')
+                for (let i = 1; i < secs.length; i++) {
+                    let si = secs[i]
+                    
+                    // create page div
+                    let div = document.createElement('div')
+                    div.classList = "text-sky-500 absolute right-0 bottom-0 text-xs"
+                    div.innerText = `(${i})`
+                    div.setAttribute('data-id', 'page_number')
+                    
+                    si.appendChild(div)
+                }
+            }
+            AddPages()
         </script>
     </body>
 </html>
