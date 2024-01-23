@@ -530,7 +530,6 @@
                 </section>
 
                 <!-- 
-                    {{xxx}}
                     controle preditivo para trajetórias periódicas
                     - procedimento de linearização
                     - mpc
@@ -538,28 +537,134 @@
                         -> restrições de tempo de chaveamento
                 -->
 
-                <section data-background-color="hsl(11 50% 40%)" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                <!-- <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)"> -->
+
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
                     <h3 data-id="title">
                         <span class="text-4xl">Controle Preditivo: Trajetórias Periódicas</span>
                     </h3>
-                    <span class="r-stack">
-                        <div class="text-xl fragment fade-in-then-out">
+                    <p class="text-3xl">
+                        \[ \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)} \]
+                    </p>
+                    <img src="img/controle_ilustracao_comando.png">
+                </section>
+
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title">
+                        <span class="text-4xl">Controle Preditivo: Trajetórias Periódicas</span>
+                    </h3>
+                    <p class="text-3xl text-sky-400">
+                        \[ \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)} \]
+                    </p>
+                    <p class="text-3xl">
+                        \[\begin{aligned}
+                        x(t_1)  &= e^{A_1(t_1-t_0)}x(t_0) + \intlinAA{0}{1}{}{} \\
+                        \bar{x}(\bar{t}_1) &= e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0) + \intlinAbtt{0}{1} \\
+                        \end{aligned} \]
+                    </p>
+                </section>
+
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title">
+                        <span class="text-4xl">Controle Preditivo: Trajetórias Periódicas</span>
+                    </h3>
+                    <div class="text-3xl">
+                        <p>
                             \[\begin{aligned}
-                            x(t_1)  &= e^{A_1(t_1-t_0)}x(t_0) + \intlinAA{0}{1}{}{} \\
+                            x(t_1) &= e^{A_1(t_1-t_0)}x(t_0) + \intlinAA{0}{1}{}{} \\
                             \bar{x}(\bar{t}_1) &= e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0) + \intlinAbtt{0}{1} \\
                             \end{aligned} \]
-                        </div>
-                        <div class="text-xl fragment fade-in-then-out">
-                            \[\begin{aligned}
-                            x(t_1)  &= e^{A_1(t_1-t_0)}x(t_0) + \intlinAA{0}{1}{}{} \\
-                            \bar{x}(\bar{t}_1) &= e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0) + \intlinAbtt{0}{1} \\
-                            x(t_1) - \bar{x}(\bar{t}_1) &= {\overbrace{e^{A_1(t_1-t_0)}x(t_0) - e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)}^{\square}} \\
-        &+ {\underbrace{\intlinAA{0}{1}{}{} - \intlinAbtt{0}{1}}_{\bigcirc}}
-                            \end{aligned} \]
-                        </div>
-                        <div class="text-xl fragment fade-in-then-out">
-                            \[\begin{aligned}
+                        </p>
+                        <p data-id="fragment">
+                            \[
+                            \begin{split}
+                            x(t_1) - \bar{x}(\bar{t}_1) = \green{\overbrace{e^{A_1(t_1-t_0)}x(t_0) - e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)}^{\square}} \\
+                            + \color{#ef5f33}{\underbrace{\intlinAA{0}{1}{}{} - \intlinAbtt{0}{1}}_{\bigcirc}}
+                            \end{split}
+                            \]
+                        </p>
+                    </div>
+                </section>
+
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title">
+                        <span class="text-4xl">Controle Preditivo: Trajetórias Periódicas</span>
+                    </h3>
+                    <div class="text-3xl">
+                        <p data-id="fragment">
+                            \[
+                            \begin{aligned}
+	\green{\square} &= \green{e^{A_1(t_1-t_0)}x(t_0) - e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)} \nonumber \\
+				  &= \green{e^{A_1(\bar{t}_1 + \delta t_1 - t_0)}x(t_0) - e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)} \nonumber \\
+				  &= \blue{e^{A_1(\bar{t}_1 - t_0)}} \green{e^{\delta t_1} x(t_0)} \green{-} \blue{e^{A_1(\bar{t}_1-\bar{t}_0)}}\green{\bar{x}(\bar{t}_0)} \nonumber \\
+				  &= \blue{\bar{F}_1} \purple{e^{\delta t_1}} \green{x(t_0)} \green{-} \blue{\bar{F}_1}\green{\bar{x}(\bar{t}_0)} \nonumber \\
+				  &= \green{\bar{F}_1} \purple{(I + A_1 \delta t_1)} \green{x(t_0)} \green{-} \green{\bar{F}_1}\green{\bar{x}(\bar{t}_0)} \nonumber \\ 
+				  &= \green{\bar{F}_1 [x(t_0) - \bar{x}(t_0)] + \bar{F}_1 A_1 \delta t_1}
+                            \end{aligned}
+                            \]
+                        </p>
+                    </div>
+                </section>
+
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title">
+                        <span class="text-4xl">Controle Preditivo: Trajetórias Periódicas</span>
+                    </h3>
+                    <div class="text-2xl">
+                        <p data-id="fragment">
+                            \[
+                            \begin{aligned}
+                                \orange{\bigcirc} 	&= \orange{ \intlinAA{0}{1}{}{} - \intlinAbtt{0}{1} } \\ 
+                                &= \orange{ \intlinCb{0}{1} - \intlinAbft{0}{1} } \\
+                                &= \orange{ e^{A_1 \delta t_1} \bigg[ \blue{\intlinAbft{0}{1}} + \purple{\intlinD{1}{1}} \bigg] }
+                                \orange{ -\blue{\intlinAbft{0}{1}} } \nonumber \\
+                                &= \orange{ \pink{e^{A_1 \delta t_1}} [ \blue{\bar{G}_1} + \purple{B_1 \delta t_1} ] - \blue{\bar{G}_1} } \nonumber \\
+                                &= \orange{ \pink{(I + A_1 \delta t_1)}[ \bar{G}_1 + B_1 \delta t_1 ] - \bar{G}_1 } \nonumber \\
+                                &= \orange{ \cancel{\bar{G}_1} + B_0 \delta t_1 + A_1 \bar{G}_1 \delta t_1 + \cancel{A_1 B_1 \delta t_1 \delta t_1} - \cancel{\bar{G}_1} } \nonumber \\
+                                &= \orange{ A_1 \bar{G}_1 \delta t_1 + B_1 \delta t_1 }
+                            \end{aligned}
+                            \]
+                        </p>
+                    </div>
+                </section>
+
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title">
+                        <span class="text-4xl">Controle Preditivo: Trajetórias Periódicas</span>
+                    </h3>
+                    <div class="text-2xl">
+                        <p data-id="fragment">
+                            \[
+                            \begin{aligned}
+                            x(t_1) - \bar{x}(\bar{t}_1) &= \green{\square} + \orange{\bigcirc} \\
+                            \\
+                            x(t_1) - \bar{x}(\bar{t}_1) &= \bar{F}_1 [ x(t_0) - \bar{x}(t_0) ] + [ \bar{F}_1 A_1 x(t_0) + A_1 \bar{G}_1 + B_1 ] \delta t_1
+                            \end{aligned}
+                            \]
+                        </p>
+                    </div>
+                </section>
+
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title">
+                        <span class="text-4xl">Controle Preditivo: Trajetórias Periódicas</span>
+                    </h3>
+                    <div class="text-2xl">
+                        <p data-id="fragment">
+                            \[
+                            \vdots
+                            \]
+                        </p>
+                    </div>
+                </section>
+
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title">
+                        <span class="text-4xl">Controle Preditivo: Trajetórias Periódicas</span>
+                    </h3>
+                    <div class="text-xl">
+                        <p data-id="fragment">
+                            \[
+                            \begin{aligned}
                             e(t) &= x(t) - \bar{x}(\bar{t}) \\ 
                             \Phi &= \bar{F}_{N} \bar{F}_{N-1} \ldots \bar{F_1} \\ 
                                 \Gamma &= \Big[ \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_2} [(A_1 - A_2) \bar{x}(\bar{t}_1) + B_1 - B_2], \\
@@ -568,15 +673,150 @@
                                 & \qquad \bar{F}_{N}[(A_{N-1} - A_{N}) \bar{x}(\bar{t}_{N-1}) + B_{N-1} - B_{N}], \\
                                 & \qquad A_{N} \bar{x}(\bar{t}_{N}) + B_{N}\Big] \\
                             \delta t &= [\delta t_1, \delta t_2, \ldots, \delta t_N]^T
-                            \end{aligned} \]
-                            <p class="r-frame">
-                            \[\begin{aligned}
-                            \color{black}e(t_N) = \Phi e(t_0) + \Gamma \delta t
-                            \end{aligned} \]
+                            \end{aligned}
+                            \]
+                        </p>
+                        <div class="flex items-center justify-center">
+                            <p class="r-frame w-1/2">
+                                \[\begin{aligned}
+                                e(t_N) = \Phi e(t_0) + \Gamma \delta t
+                                \end{aligned} \]
                             </p>
                         </div>
-                    </span>
+                        <div class="flex items-center justify-center">
+                            <p class="r-frame w-1/2">
+                                \[\begin{aligned}
+                                e(t_{j,N}) = \Phi e(t_{j,0}) + \Gamma \delta t[j]
+                                \end{aligned} \]
+                            </p>
+                        </div>
+
+                    </div>
                 </section>
+
+            <!-- {{xxx}}  -->
+            <!-- dwell time constraint  -->
+            <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title">
+                        <span class="text-4xl">Controle Preditivo: Restrições de Tempo</span>
+                    </h3>
+                    <div class="text-3xl text-justify">
+                        <p>Queremos impor a restrição</p>
+                        <p>
+                            \[
+                            (t_i - t_{i - 1}) \ge \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N
+                            \]
+                        </p>
+                        <p>que pode ser escrita como</p>
+                        <p>
+                            \[
+                            \begin{aligned}
+                                \delta t_1 &\ge - \Delta \bar{t}_1 + \Delta t_{1,min} \\
+                                \delta t_i - \delta t_{i-1} &\ge - \Delta \bar{t}_i + \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N \\
+                                \delta t_{N-1} &\ge - \Delta \bar{t}_N + \Delta t_{N,min}
+                            \end{aligned}
+                            \]
+                        </p>
+                        <p>com</p>
+                        <p>
+                            \[
+                            \Delta \bar{t}_i = \bar{t}_i - \bar{t}_{i-1}
+                            \]
+                        </p>
+                    </div>
+                </section>
+
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title">
+                        <span class="text-4xl">Controle Preditivo: Restrições de Tempo</span>
+                    </h3>
+                    <div class="text-3xl text-justify">
+                        <p>Escrevendo a restrição na forma matricial</p>
+                        <p>
+                            \[
+                            L \delta t \ge c
+                            \]
+                        </p>
+                        <p>com</p>
+                        <p class="text-2xl">
+                            \[
+                                L =
+                                \left[
+                                \begin{matrix}
+                                    1 & 0 & 0 & \dotsi & 0 & 0 \\
+                                    -1 & 1 & 0 & \dotsi & 0 & 0 \\
+                                    \vdots & \vdots & \vdots & \ddots & \vdots \\
+                                    0 & 0 & 0 & \dotsi & -1 & 1 \\
+                                    0 & 0 & 0 & \dotsi & 0 & -1 \\
+                                \end{matrix}
+                                \right],\;
+                                \delta t =
+                                \left[
+                                \begin{matrix}
+                                    \delta t_1 \\
+                                    \delta t_2 \\
+                                    \vdots \\
+                                    \delta t_{N-1} \\
+                                    \delta t_N \\
+                                \end{matrix}
+                                \right],\;
+                                c = \left[
+                                \begin{matrix}
+                                    -\Delta \bar{t}_1 + \Delta t_{1,min} \\
+                                    -\Delta \bar{t}_2 + \Delta t_{2,min} \\
+                                    \vdots \\
+                                    -\Delta \bar{t}_{N-1} + \Delta t_{N-1,min} \\
+                                    -\Delta \bar{t}_{N} + \Delta t_{N,min} \\
+                                \end{matrix}
+                                \right]
+                            \]
+                        </p>
+                    </div>
+                </section>
+
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title">
+                        <span class="text-4xl">Controle Preditivo: Restrições de Tempo</span>
+                    </h3>
+                    <div class="text-3xl text-justify">
+                        <p>A restrição é imposta no ciclo $j$, a notação é mais clara como</p>
+                        <p>
+                            \[
+                            \delta t[j] = 
+                            \left[
+                                \begin{matrix}
+                                    \delta t_{j,1} \\
+                                    \delta t_{j,2} \\
+                                    \vdots \\
+                                    \delta t_{j,N-1} \\
+                                    \delta t_{j,N}
+                                \end{matrix}
+                            \right]
+                            \]
+                        </p>
+                        <p>e problema de otimização deve resolver $S\mathbf{\hat{u}}[k] \le b$, então</p>
+                        <p>
+                            \[
+                            -L \delta t[j] \le -c
+                            \]
+                        </p>
+                    </div>
+                </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -787,6 +1027,12 @@
                             '\\int_{t_{#3_#1}}^{t_{#4_#2}} {e^{A_#2(t_{#2} - \\tau)} B_#2 d \\tau}',
                         '\\intlinAbtt': 
                             '\\int_{\\bar{t}_{#1}}^{\\bar{t}_{#2}} {e^{A_{#2}(\\bar{t}_{#2} - \\tau)} B_{#2} d \\tau}',
+                        '\\intlinCb': 
+                            '\\int_{t_{#1}}^{\\bar{t}_{#2} + \\delta t_{#2}} {e^{A_#2(\\bar{t}_{#2} + \\delta t_{#2} - \\tau)} B_#2 d \\tau}',
+                        '\\intlinD': 
+                            '\\int_{\\bar{t}_{#1}}^{\\bar{t}_{#2} + \\delta t_{#2}} {e^{A_#2(\\bar{t}_{#2} + \\delta t_{#2} - \\tau)} B_#2 d \\tau}',
+                        '\\intlinAbft': 
+                            '\\int_{t_#1}^{\\bar{t}_#2} {e^{A_#2(\\bar{t}_#2 - \\tau)} B_#2 d \\tau}',
                     }
                 },
 
