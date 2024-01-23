@@ -8,8 +8,26 @@
 
         <link rel="stylesheet" href="dist/reset.css">
         <link rel="stylesheet" href="dist/reveal.css">
+                
+        <!-- <link rel="stylesheet" href="dist/theme/beige.css"> -->
+        <!-- <link rel="stylesheet" href="dist/theme/black-contrast.css"> -->
         <link rel="stylesheet" href="dist/theme/black.css">
-        
+        <!-- <link rel="stylesheet" href="dist/theme/blood.css"> -->
+        <!-- <link rel="stylesheet" href="dist/theme/dracula.css"> -->
+        <!-- <link rel="stylesheet" href="dist/theme/fonts"> -->
+        <!-- <link rel="stylesheet" href="dist/theme/league.css"> -->
+        <!-- <link rel="stylesheet" href="dist/theme/moon.css"> -->
+        <!-- <link rel="stylesheet" href="dist/theme/night.css"> -->
+        <!-- <link rel="stylesheet" href="dist/theme/serif.css"> -->
+        <!-- <link rel="stylesheet" href="dist/theme/simple.css"> -->
+        <!-- <link rel="stylesheet" href="dist/theme/sky.css"> -->
+        <!-- <link rel="stylesheet" href="dist/theme/solarized.css"> -->
+        <!-- <link rel="stylesheet" href="dist/theme/white-contrast.css"> -->
+        <!-- <link rel="stylesheet" href="dist/theme/white.css"> -->
+        <!-- <link rel="stylesheet" href="dist/theme/white_contrast_compact_verbatim_headers.css"> -->
+
+
+
         <link rel="stylesheet" href="dist/tailwind.css">
 
         <!-- Theme used for syntax highlighted code -->
@@ -30,7 +48,7 @@
                     - ITA?
                  -->
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                    <h3 data-id="title" class="slide_title relative">
                         Predictive Control of Switched affine
                         systems subjected to dwell time constraints
                     </h3>
@@ -64,7 +82,7 @@
                     - contributions of the work
                 -->
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">introdução</h3>
+                    <h3 data-id="title" class="slide_title relative">introdução</h3>
                     <div class="text-justify text-3xl gradiente">
                         <!-- o que estamos fazendo aqui? -->
                         <p>Esse trabalho propõe a solução de problemas de controle para sistemas chaveados afins
@@ -79,7 +97,7 @@
                 </section>
 
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">introdução - trabalhos feitos</h3>
+                    <h3 data-id="title" class="slide_title relative">introdução - trabalhos feitos</h3>
                     <p data-id="title2">Márcio Vieira (2013)</p>
                     <div class="text-justify text-2xl">
                         <!-- o que estamos fazendo aqui? -->
@@ -93,7 +111,7 @@
                 </section>
 
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">introdução - trabalhos feitos</h3>
+                    <h3 data-id="title" class="slide_title relative">introdução - trabalhos feitos</h3>
                     <p data-id="title2">Benmiloud (2019)</p>
                     <div class="text-justify text-2xl">
                         <!-- o que estamos fazendo aqui? -->
@@ -109,7 +127,7 @@
                 </section>
 
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">introdução - trabalhos feitos</h3>
+                    <h3 data-id="title" class="slide_title relative">introdução - trabalhos feitos</h3>
                     <p data-id="title2">Patino (2010)</p>
                     <div class="text-2xl text-justify">
                         <!-- o que estamos fazendo aqui? -->
@@ -120,7 +138,7 @@
                 </section>
 
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">introdução - trabalhos feitos</h3>
+                    <h3 data-id="title" class="slide_title relative">introdução - trabalhos feitos</h3>
                     <p data-id="title2">Marcolino (2018)</p>
                     <div class="text-2xl text-justify">
                         <!-- o que estamos fazendo aqui? -->
@@ -139,7 +157,7 @@
                 </section>
 
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">introdução - trabalho atual</h3>
+                    <h3 data-id="title" class="slide_title relative">introdução - trabalho atual</h3>
                     <div class="text-2xl text-justify gradiente">
                         <!-- o que estamos fazendo aqui? -->
                         <p>Esse trabalho propõe extender ainda mais a solução e resolver o problema de controle para sistemas
@@ -167,14 +185,14 @@
                         -> application examples
                     - apresentar as dinâmicas dos exemplos
                         -> buck-boost converter
-                        -> multilevel converter
+                        -> multinível converter
                         -> cost function ?
                         -> optimization of system dynamics ?
                 -->
 
                 <!-- <section data-background-color="#b5533c" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)"> -->
-                <section data-background-color="hsl(230 40% 15%)" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">determinação trajetória alvo</h3>
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title" class="slide_title relative">determinação trajetória alvo</h3>
                     <p class="text-xl text-justify">A determinação da trajetória alvo está sendo feita usando a abordagem de Patino (2010), um sistema na forma</p>
                     <p class="text-xl">
                         \[\begin{aligned}
@@ -202,8 +220,8 @@
                     <img src="img/intro_trajetoria_no_tempo.png" class="w-2/5 absolute right-10 -bottom-5">
                 </section>
 
-                <section data-background-color="hsl(230 40% 15%)" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">determinação trajetória alvo</h3>
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title" class="slide_title relative">determinação trajetória alvo</h3>
                     <p class="text-xl text-justify">
                         Como precisamos de uma trajetória cíclica como alvo, calculamos a condição inicial para que isso seja verdade
                         na avaliação da função custo.
@@ -219,8 +237,8 @@
                 </section>
 
                 <!-- aplicação buck-boost -->
-                <section data-background-color="hsl(230 40% 15%)" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title" class="slide_title relative">
                         <p class="text-4xl">determinação trajetória alvo: Conversor buck-boost</p>
                     </h3>
                     <div class="grid grid-cols-12 grid-flow-row gap-0 text-xl text-justify">
@@ -282,8 +300,8 @@
                     </div>
                 </section>
 
-                <section data-background-color="hsl(230 40% 15%)" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title" class="slide_title relative">
                         <p class="text-4xl">determinação trajetória alvo: Conversor buck-boost</p>
                     </h3>
 
@@ -304,10 +322,10 @@
 
                 </section>
 
-                <!-- aplicação multilevel -->
-                <section data-background-color="hsl(230 40% 15%)" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
-                        <p class="text-4xl">determinação trajetória alvo: Conversor multilevel</p>
+                <!-- aplicação multinível -->
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title" class="slide_title relative">
+                        <p class="text-4xl">determinação trajetória alvo: Conversor multinível</p>
                     </h3>
                     <div class="text-xl text-justify">
                         <div class="flex justify-center items-center">
@@ -369,10 +387,9 @@
                     </div>
                 </section>
 
-                <section data-background-color="hsl(230 40% 15%)" data-auto-animate
-                    data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
-                        <p class="text-4xl">determinação trajetória alvo: Conversor multilevel</p>
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title" class="slide_title relative">
+                        <p class="text-4xl">determinação trajetória alvo: Conversor multinível</p>
                     </h3>
                     <div class="text-xl text-justify">
                         <div class="flex items-center justify-center">
@@ -426,10 +443,10 @@
                     </div>
                 </section>
 
-                <section data-background-color="hsl(230 40% 15%)" data-auto-animate
+                <section data-auto-animate
                     data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
-                        <p class="text-4xl">determinação trajetória alvo: Conversor multilevel</p>
+                    <h3 data-id="title" class="slide_title relative">
+                        <p class="text-4xl">determinação trajetória alvo: Conversor multinível</p>
                     </h3>
                     <div class="text-xl text-justify">
                         <div class="flex items-center justify-center">
@@ -483,10 +500,10 @@
                     </div>
                 </section>
 
-                <section data-background-color="hsl(230 40% 15%)" data-auto-animate
+                <section data-auto-animate
                     data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
-                        <p class="text-4xl">determinação trajetória alvo: Conversor multilevel</p>
+                    <h3 data-id="title" class="slide_title relative">
+                        <p class="text-4xl">determinação trajetória alvo: Conversor multinível</p>
                     </h3>
                     <div class="text-xl text-justify">
                         <div class="flex items-center justify-center">
@@ -510,9 +527,9 @@
                     </div>
                 </section>
 
-                <section data-background-color="hsl(230 40% 15%)" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
-                        <p class="text-4xl">determinação trajetória alvo: Conversor multilevel</p>
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title" class="slide_title relative">
+                        <p class="text-4xl">determinação trajetória alvo: Conversor multinível</p>
                     </h3>
                     <div class="text-xl text-justify">
                         <p>A solução para esse exemplo é</p>
@@ -539,7 +556,7 @@
 
 
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                    <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Trajetórias Periódicas</span>
                     </h3>
                     <p class="text-3xl">
@@ -549,7 +566,7 @@
                 </section>
 
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                    <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Trajetórias Periódicas</span>
                     </h3>
                     <p class="text-3xl text-sky-400">
@@ -564,7 +581,7 @@
                 </section>
 
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                    <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Trajetórias Periódicas</span>
                     </h3>
                     <div class="text-3xl">
@@ -586,19 +603,19 @@
                 </section>
 
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                    <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Trajetórias Periódicas</span>
                     </h3>
                     <div class="text-3xl">
                         <p data-id="fragment">
                             \[
                             \begin{aligned}
-	\green{\square} &= \green{e^{A_1(t_1-t_0)}x(t_0) - e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)} \\
-				  &= \green{e^{A_1(\bar{t}_1 + \delta t_1 - t_0)}x(t_0) - e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)} \\
-				  &= \blue{e^{A_1(\bar{t}_1 - t_0)}} \green{e^{\delta t_1} x(t_0)} \green{-} \blue{e^{A_1(\bar{t}_1-\bar{t}_0)}}\green{\bar{x}(\bar{t}_0)} \\
-				  &= \blue{\bar{F}_1} \purple{e^{\delta t_1}} \green{x(t_0)} \green{-} \blue{\bar{F}_1}\green{\bar{x}(\bar{t}_0)} \\
-				  &= \green{\bar{F}_1} \purple{(I + A_1 \delta t_1)} \green{x(t_0)} \green{-} \green{\bar{F}_1}\green{\bar{x}(\bar{t}_0)} \\ 
-				  &= \green{\bar{F}_1 [x(t_0) - \bar{x}(t_0)] + \bar{F}_1 A_1 \delta t_1}
+    \green{\square} &= \green{e^{A_1(t_1-t_0)}x(t_0) - e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)} \\
+                  &= \green{e^{A_1(\bar{t}_1 + \delta t_1 - t_0)}x(t_0) - e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)} \\
+                  &= \blue{e^{A_1(\bar{t}_1 - t_0)}} \green{e^{\delta t_1} x(t_0)} \green{-} \blue{e^{A_1(\bar{t}_1-\bar{t}_0)}}\green{\bar{x}(\bar{t}_0)} \\
+                  &= \blue{\bar{F}_1} \purple{e^{\delta t_1}} \green{x(t_0)} \green{-} \blue{\bar{F}_1}\green{\bar{x}(\bar{t}_0)} \\
+                  &= \green{\bar{F}_1} \purple{(I + A_1 \delta t_1)} \green{x(t_0)} \green{-} \green{\bar{F}_1}\green{\bar{x}(\bar{t}_0)} \\ 
+                  &= \green{\bar{F}_1 [x(t_0) - \bar{x}(t_0)] + \bar{F}_1 A_1 \delta t_1}
                             \end{aligned}
                             \]
                         </p>
@@ -606,7 +623,7 @@
                 </section>
 
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                    <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Trajetórias Periódicas</span>
                     </h3>
                     <div class="text-2xl">
@@ -628,7 +645,7 @@
                 </section>
 
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                    <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Trajetórias Periódicas</span>
                     </h3>
                     <div class="text-2xl">
@@ -645,7 +662,7 @@
                 </section>
 
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                    <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Trajetórias Periódicas</span>
                     </h3>
                     <div class="text-2xl">
@@ -658,7 +675,7 @@
                 </section>
 
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                    <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Trajetórias Periódicas</span>
                     </h3>
                     <div class="text-xl">
@@ -696,7 +713,7 @@
 
             <!-- dwell time constraint  -->
             <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                    <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Restrições de Tempo</span>
                     </h3>
                     <div class="text-3xl text-justify">
@@ -726,7 +743,7 @@
                 </section>
 
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                    <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Restrições de Tempo</span>
                     </h3>
                     <div class="text-3xl text-justify">
@@ -774,7 +791,7 @@
                 </section>
 
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                    <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Restrições de Tempo</span>
                     </h3>
                     <div class="text-3xl text-justify">
@@ -802,8 +819,8 @@
                     </div>
                 </section>
 
-                <section data-background-color="white" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Aplicação - Integrador Duplo</span>
                     </h3>
                     <div class="text-xl text-justify">
@@ -832,8 +849,8 @@
                     </div>
                 </section>
 
-                <section data-background-color="white" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Aplicação - Integrador Duplo</span>
                     </h3>
                     <div class="text-xl text-justify">
@@ -871,8 +888,8 @@
                     </div>
                 </section>
 
-                <section data-background-color="white" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Aplicação - Integrador Duplo</span>
                     </h3>
                     <div class="text-xl text-justify">
@@ -915,8 +932,8 @@
                     </div>
                 </section>
 
-                <section data-background-color="white" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Aplicação - Integrador Duplo</span>
                     </h3>
                     <div class="text-xl text-justify">
@@ -929,8 +946,8 @@
                     </div>
                 </section>
 
-                <section data-background-color="white" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Aplicação - Buck-Boost</span>
                     </h3>
                     <div class="text-xl">
@@ -943,9 +960,9 @@
                     </p>
                 </section>
 
-                <section data-background-color="white" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
-                        <span class="text-4xl">Controle Preditivo: Aplicação - Multilevel</span>
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title" class="slide_title relative">
+                        <span class="text-4xl">Controle Preditivo: Aplicação - Multinível</span>
                     </h3>
                     <div class="text-xl">
                         <p>Parâmetros de simulação:</p>
@@ -978,9 +995,9 @@
                     </div>
                 </section>
 
-                <section data-background-color="white" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
-                        <span class="text-4xl">Controle Preditivo: Aplicação - Multilevel</span>
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title" class="slide_title relative">
+                        <span class="text-4xl">Controle Preditivo: Aplicação - Multinível</span>
                     </h3>
                     <div class="text-xl text-justify">
                         <p>Equações de predição</p>
@@ -1019,9 +1036,9 @@
                     </div>
                 </section>
 
-                <section data-background-color="white" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
-                        <span class="text-4xl">Controle Preditivo: Aplicação - Multilevel</span>
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title" class="slide_title relative">
+                        <span class="text-4xl">Controle Preditivo: Aplicação - Multinível</span>
                     </h3>
                     <div class="text-xl text-justify">
                         <div class="grid grid-cols-3 gap-0">
@@ -1034,9 +1051,9 @@
                     </div>
                 </section>
 
-                <section data-background-color="white" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
-                        <span class="text-4xl">Controle Preditivo: Aplicação - Multilevel</span>
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title" class="slide_title relative">
+                        <span class="text-4xl">Controle Preditivo: Aplicação - Multinível</span>
                     </h3>
                     <div class="text-xl text-justify">
                         <div class="grid grid-cols-2 gap-0">
@@ -1045,9 +1062,9 @@
                     </div>
                 </section>
 
-                <section data-background-color="white" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
-                        <span class="text-4xl">Controle Preditivo: Aplicação - Multilevel</span>
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title" class="slide_title relative">
+                        <span class="text-4xl">Controle Preditivo: Aplicação - Multinível</span>
                     </h3>
                     <div class="text-xl text-justify">
                         <div class="grid grid-cols-2 gap-0">
@@ -1057,9 +1074,9 @@
                     </div>
                 </section>
 
-                <section data-background-color="white" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
-                        <span class="text-4xl">Controle Preditivo: Aplicação - Multilevel</span>
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title" class="slide_title relative">
+                        <span class="text-4xl">Controle Preditivo: Aplicação - Multinível</span>
                     </h3>
                     <div class="text-xl text-justify">
                         <div class="grid grid-cols-2 gap-0">
@@ -1069,8 +1086,8 @@
                     </div>
                 </section>
 
-                <section data-background-color="white" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">
+                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                    <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Conclusão</span>
                     </h3>
                     <div class="text-xl text-justify">
@@ -1089,7 +1106,7 @@
                         </p>
 
                         <p>
-                            <span class="gradiente">analise do multilevel</span>
+                            <span class="gradiente">analise do multinível</span>
                         </p>
 
                         <p>
@@ -1100,7 +1117,7 @@
 
                         <p>
                             Outro trabalho importante para complementar o projeto atual é 
-                            implementar um circuito conversor DC-DC multilevel para implementar a técnica.
+                            implementar um circuito conversor DC-DC multinível para implementar a técnica.
                             A maioria dos trabalhos de referência trataram o problema apenas no domínio digital e 
                             uma aplicação real irá enriquecer o trabalho. 
                         </p>
@@ -1137,7 +1154,7 @@
                     application examples 
                     - double integrator
                     - buck-boost converter
-                    - multilevel converter
+                    - multinível converter
                     - resultados
                 -->
 
@@ -1156,14 +1173,14 @@
                             => the third to wrap all results in the final work
                 -->
 
-                <section data-background-color="#b5533c" >
+                <section>
                     {{nothing here}}
                 </section>
 
                 <!-- <section data-background-color="#b5533c" > -->
 
                 <!-- <section data-background-color="hsl(11 50% 10%)" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">predictive control</h3>
+                    <h3 data-id="title" class="slide_title relative">predictive control</h3>
                     <div class="text-left">
                         <p>- cost function</p>
                         <p>- constraints</p>
@@ -1173,7 +1190,7 @@
                 </section> -->
                 
                 <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-                    <h3 data-id="title">video</h3>
+                    <h3 data-id="title" class="slide_title relative">video</h3>
                     <!-- <video data-autoplay src="videos/equation_test.mp4" type="video/mp4" /> -->
                     <video controls src="videos/equation_test.mp4"/>
                 </section>
@@ -1263,23 +1280,18 @@
             });
             
             function AddPages() {
-                const secs = document.querySelectorAll('section')
+                const secs = document.querySelectorAll('.slide_title')
                 for (let i = 1; i < secs.length; i++) {
                     let si = secs[i]
                     
                     // create page div
-                    let div = document.createElement('div')
-                    div.innerText = `(${i})`
-                    div.setAttribute('data-id', 'page_number')
+                    let div = document.createElement('span')
+                    div.innerText = `${i}`
+                    // div.setAttribute('data-id', 'page_number')
 
                     // add class attributes
-                    div.classList = "text-sky-500 absolute right-0 bottom-0 text-xs"
+                    div.classList = "text-white px-2 py-1 rounded-md absolute right-0 top-0 text-base bg-sky-700"
                     
-                    if (si.getAttribute('data-background-color') == 'white')
-                    {
-                        div.classList = "absolute right-0 bottom-0 text-xs"
-                    }
-
                     si.appendChild(div)
                 }
             }
