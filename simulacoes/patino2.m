@@ -54,7 +54,7 @@ function vout = patino2(save_fig)
 
     f2 = figure(4);
     [y,t,u,m,dtk_out] = engine.sim_n(c, 30);
-    plotter.patino2.plot_traj(y, "Multilevel Converter: Trajectory", "X_1: Tension C_1 [V]", "X_2: Tension C_2 [V]", "X_3: Current L [A]")
+    plotter.patino2.plot_traj(y, "Multilevel Converter: Trajectory", "X_1: Voltage C_1 [V]", "X_2: Voltage C_2 [V]", "X_3: Current L [A]")
     
     f3 = figure(5);
     i = t < c.Ts(end);
