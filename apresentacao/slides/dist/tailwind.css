@@ -561,6 +561,10 @@ video {
   bottom: 20rem;
 }
 
+.-bottom-10 {
+  bottom: -2.5rem;
+}
+
 .col-span-5 {
   grid-column: span 5 / span 5;
 }
@@ -663,6 +667,14 @@ video {
 
 .w-\[7em\] {
   width: 7em;
+}
+
+.w-\[70em\] {
+  width: 70em;
+}
+
+.w-\[4em\] {
+  width: 4em;
 }
 
 .min-w-\[2em\] {
