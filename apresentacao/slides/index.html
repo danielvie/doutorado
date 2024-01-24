@@ -799,6 +799,7 @@
                     </h3>
 
                     <div class="r-stack">
+
                         <div class="fragment fade-in-then-out text-xl text-justify">
                             <p>Esse exemplo é usado em Marcolino (2018) e é interessante para validar o método com um problema conhecido
                                 e com uma trajetória alvo calculada.
@@ -894,27 +895,46 @@
                         </div>
 
                         <div class="fragment fade-in-then-out text-xl text-justify">
-                            <div class="grid grid-cols-2 gap-0 items-center text-center">
-                                <div class="flex justify-center"><img class="h-72" src="img/controle_integrador_factibilidade.png">
+                            <div class="grid grid-cols-3 gap-2 items-center text-center">
+                                <div class="flex justify-center"><img class="w-[20em] h-[15em]" src="img/controle_integrador_factibilidade.png">
                                 </div>
-                                <div class="flex justify-center"><img class="h-72" src="img/controle_integrador_trajetoria_off.png">
+                                <div class="flex justify-center"><img class="w-[20em] h-[15em]" src="img/controle_integrador_trajetoria_off.png">
                                 </div>
-                                <div class="flex justify-center"><img class="h-72" src="img/controle_integrador_trajetoria_on.png">
+                                <div class="flex justify-center"><img class="w-[20em] h-[15em]" src="img/controle_integrador_trajetoria_on.png">
                                 </div>
-                                <div class="flex justify-center"><img class="h-72" src="img/controle_integrador_u.png"></div>
+                                <div class="flex justify-center"><img class="w-[20em] h-[15em]" src="img/controle_integrador_u.png"></div>
+                            </div>
+                        </div>
+
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <div class="grid grid-cols-2 gap-2 items-center text-center">
+                                <div class="flex justify-center"><img class="h-[25em]" src="img/controle_integrador_factibilidade.png"> </div>
+                            </div>
+                        </div>
+
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <div class="grid grid-cols-2 gap-2 items-center text-center">
+                                <div class="flex justify-center"><img class="w-[30em] h-[22em]" src="img/controle_integrador_trajetoria_off.png"> </div>
+                                <div class="flex justify-center"><img class="w-[30em] h-[22em]" src="img/controle_integrador_trajetoria_on.png"> </div>
+                            </div>
+                        </div>
+
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <div class="grid grid-cols-2 gap-2 items-center text-center">
+                                <div class="flex justify-center"><img class="h-[25em]" src="img/controle_integrador_u.png"></div>
                             </div>
                         </div>
 
                     </div>
                 </section>
 
-                <!-- {{xxx}}  -->
                 <!-- 11_ Controle Preditivo: Aplicação - Buck-Boost -->
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Aplicação - Buck-Boost</span>
                     </h3>
                     <div class="r-stack">
+
                         <div class="fragment fade-in-then-out text-xl">
                             <p>Parâmetros de simulação:</p>
                             <div class="grid grid-cols-2">
@@ -947,18 +967,77 @@
                             </div>
                         </div>
 
-                        <div class="fragment fade-in-then-out">
-                            <div class="text-xl">
-                                <p>Os parâmetros de simulação desse exemplo são</p>
-                            </div>
-                            <p>
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <p>Equações de predição</p>
+                            <p class="text-sm">
                                 \[
-                                \vdots
+                                \begin{aligned}
+                                \Phi &=
+                                \left[
+                                \begin{matrix}
+                                    0.9713 & 0.2192 \\
+                                    -0.1707 & 0.5857 
+                                \end{matrix}
+                                \right] \\
+                                \Gamma &=
+                                \left[
+                                \begin{matrix}
+                                    2.4556 \\
+                                    0.9280 
+                                \end{matrix}
+                                \right]
+                                \end{aligned}
+                                \]
+                            </p>
+                            <p>e restrições</p>
+                            <p class="text-sm">
+                                \[
+                                c = 
+                                \left[
+                                    \begin{matrix}
+                                        -\Delta t_{r_1} + \Delta t_{r_{1, min}} \\
+                                        -\Delta t_{r_2} + \Delta t_{r_{2, min}} \\
+                                        \vdots \\
+                                        -\Delta t_{r_{N-1}} + \Delta t_{r_{{N-1}, min}} \\
+                                        -\Delta t_{r_N} + \Delta t_{r_{N, min}} \\
+                                    \end{matrix}
+                                \right] = 
+                                \left[
+                                    \begin{matrix}
+                                        - 0.25 + 0.25 \\
+                                        - 0.2504 + 0.25 \\
+                                    \end{matrix}
+                                \right] =
+                                \left[
+                                    \begin{matrix}
+                                        0 \\
+                                        - 0.04 \\
+                                    \end{matrix}
+                                \right]
                                 \]
                             </p>
                         </div>
 
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <div class="grid grid-cols-3 gap-0">
+                                <div><img src="img/controle_patino1_fact.png"></div>
+                                <div><img src="img/controle_patino1_u.png"></div>
+                                <div><img src="img/controle_patino1_traj.png"></div>
+                            </div>
+                        </div>
 
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <div class="grid grid-cols-2 gap-0">
+                                <div><img src="img/controle_patino1_fact.png"></div>
+                            </div>
+                        </div>
+
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <div class="grid grid-cols-2 gap-0">
+                                <div><img src="img/controle_patino1_u.png"></div>
+                                <div><img src="img/controle_patino1_traj.png"></div>
+                            </div>
+                        </div>
 
                     </div>
                 </section>
@@ -970,6 +1049,7 @@
                     </h3>
                 
                     <div class="r-stack">
+
                         <div class="fragment fade-in-then-out text-xl">
                             <p>Parâmetros de simulação:</p>
                             <div class="grid grid-cols-2">
@@ -1012,7 +1092,6 @@
                             </div>
                         </div>
                 
-                
                         <div class="fragment fade-in-then-out text-xl text-justify">
                             <p>Equações de predição</p>
                             <p class="text-sm">
@@ -1053,7 +1132,6 @@
                             </p>
                         </div>
                 
-                
                         <div class="fragment fade-in-then-out text-xl text-justify">
                             <div class="grid grid-cols-3 gap-0">
                                 <div><img src="img/controle_patino2_fact.png"></div>
@@ -1063,8 +1141,6 @@
                                 <div><img src="img/controle_patino2_traj2.png"></div>
                             </div>
                         </div>
-                
-                
                 
                         <div class="fragment fade-in-then-out text-xl text-justify">
                             <div class="grid grid-cols-2 gap-0">
@@ -1088,7 +1164,6 @@
                 
                     </div>
                 </section>
-                <!-- aplicação multinível  -->
 
                 <!-- 13_ conclusão 
                     - contribuição
@@ -1157,7 +1232,7 @@
                 </section>
 
                 <!-- video -->
-                <section data-auto-animate >
+                <section data-auto-animate data-visibility="hidden" >
                     <h3 data-id="title" class="slide_title relative">video</h3>
                     <!-- <video data-autoplay src="videos/equation_test.mp4" type="video/mp4" /> -->
                     <video controls src="videos/equation_test.mp4"/>
