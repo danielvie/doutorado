@@ -17,7 +17,3 @@
 * {
     min-width: 0px;
 }
-
-.slide-number-a {
-    @apply text-base p-2
-}
