@@ -934,142 +934,140 @@
                         <span class="text-4xl">Controle Preditivo: Aplicação - Buck-Boost</span>
                     </h3>
 
-                    <div class="text-xl">
-                        <p>Os parâmetros de simulação desse exemplo são</p>
-                    </div>
-                    <p>
-                        \[
-                        \vdots
-                        \]
-                    </p>
-
-                </section>
-
-                <section data-auto-animate >
-                    <h3 data-id="title" class="slide_title relative">
-                        <span class="text-4xl">Controle Preditivo: Aplicação - Multinível</span>
-                    </h3>
-                    <div class="text-xl">
-                        <p>Parâmetros de simulação:</p>
-                        <div class="grid grid-cols-2">
-                            <img src="img/circuito_multilevel.png">
-                            <p class="text-sm">
+                    <div class="r-stack">
+                        <div class="fragment fade-in-then-out">
+                            <div class="text-xl">
+                                <p>Os parâmetros de simulação desse exemplo são</p>
+                            </div>
+                            <p>
                                 \[
-                                    \begin{matrix}
-                                        A_i = \left[ \begin{matrix} 0 & 0 & \Big(u_2(i)-u_1(i)\Big)/C1 \\ 0 & 0 & \Big(u_3(i)-u_2(i)\Big)/C2 \\ \Big(u_1(i)-u_2(i)\Big)/L & \Big(u_2(i)-u_3(i)\Big)/L & -R/L \\ \end{matrix} \right] \\
-                                        \\
-                                        b_i = \left[ \begin{matrix} 0 \\ 0 \\ \Big(E/L\Big) u_3(i) \end{matrix} \right]
-                                    \end{matrix}
+                                \vdots
                                 \]
                             </p>
-                            <img class="h-72" src="img/controle_multileve_u_ref.png">
-                            <div class="text-justify text-base">
-                                \[
-                                    \begin{aligned}
-                                        \Omega &= \big[1,2,4,8,3,1,5,8,5\big] \\
-                                        \tau^\infty &= \big[0, 0.064, 0.088, 0.112, 0.134, 0.157, 0.206, 0.23, 0.253, 0.276\big] \; \mathrm{ms} \\
-                                        \bar{x}_{ref} &= \big[10 \;\mathrm{V}, 20 \;\mathrm{V}, 1 \;\mathrm{A}\big] \\
-                                        T_{p_{max}} &= 4\times 10^{-4}  \\
-                                        x_0 &= \big[9.5143 \;\mathrm{V}, 19.8211 \;\mathrm{V}, 1.0314 \;\mathrm{A}\big] \\
-                                        t_{step} &= 1 \times 10^{-7} \;\mathrm{s} \\
-                                        Q &= diag([10, 5, 20000])
-                                    \end{aligned}
-                                \]
-                            </div>
                         </div>
                     </div>
+
                 </section>
 
-                <section data-auto-animate >
+                <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Aplicação - Multinível</span>
                     </h3>
-                    <div class="text-xl text-justify">
-                        <p>Equações de predição</p>
-                        <p class="text-sm">
-                            \[
+                
+                    <div class="r-stack">
+                        <div class="fragment fade-in-then-out text-xl">
+                            <p>Parâmetros de simulação:</p>
+                            <div class="grid grid-cols-2">
+                                <img src="img/circuito_multilevel.png">
+                                <p class="text-sm">
+                                    \[
+                                    \begin{matrix}
+                                    A_i = \left[ \begin{matrix} 0 & 0 & \Big(u_2(i)-u_1(i)\Big)/C1 \\ 0 & 0 & \Big(u_3(i)-u_2(i)\Big)/C2
+                                    \\
+                                    \Big(u_1(i)-u_2(i)\Big)/L & \Big(u_2(i)-u_3(i)\Big)/L & -R/L \\ \end{matrix} \right] \\
+                                    \\
+                                    b_i = \left[ \begin{matrix} 0 \\ 0 \\ \Big(E/L\Big) u_3(i) \end{matrix} \right]
+                                    \end{matrix}
+                                    \]
+                                </p>
+                                <img class="h-72" src="img/controle_multileve_u_ref.png">
+                                <div class="text-justify text-base">
+                                    \[
+                                    \begin{aligned}
+                                    \Omega &= \big[1,2,4,8,3,1,5,8,5\big] \\
+                                    \tau^\infty &= \big[0, 0.064, 0.088, 0.112, 0.134, 0.157, 0.206, 0.23, 0.253, 0.276\big] \;
+                                    \mathrm{ms}
+                                    \\
+                                    \bar{x}_{ref} &= \big[10 \;\mathrm{V}, 20 \;\mathrm{V}, 1 \;\mathrm{A}\big] \\
+                                    T_{p_{max}} &= 4\times 10^{-4} \\
+                                    x_0 &= \big[9.5143 \;\mathrm{V}, 19.8211 \;\mathrm{V}, 1.0314 \;\mathrm{A}\big] \\
+                                    t_{step} &= 1 \times 10^{-7} \;\mathrm{s} \\
+                                    Q &= diag([10, 5, 20000])
+                                    \end{aligned}
+                                    \]
+                                </div>
+                            </div>
+                        </div>
+                
+                
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <p>Equações de predição</p>
+                            <p class="text-sm">
+                                \[
                                 \begin{aligned}
-                                \Phi &= \left[ \begin{matrix} 
-                                    0.999539 & 0.001900 & -0.124610 \\ 
-                                    -0.002031 & 0.999915 & 0.000764 \\
-                                    -0.000461 & -0.000290 & 0.759578
-                                \end{matrix} \right] \\ 
+                                \Phi &= \left[ \begin{matrix}
+                                0.999539 & 0.001900 & -0.124610 \\
+                                -0.002031 & 0.999915 & 0.000764 \\
+                                -0.000461 & -0.000290 & 0.759578
+                                \end{matrix} \right] \\
                                 \Gamma &= \left[ \begin{matrix}
-                                    0.007784 & -2.578391 & -0.081618 \\
-                                    -2.400410 & 2.472097 & -0.079094 \\
-                                    2.477894 & 0.042370 & -0.076050 \\
-                                    -2.602774 & 2.388977 & 0.171509 \\
-                                    2.472432 & -2.594318 & 0.102211 \\
-                                    2.703328 & 0 & -0.087828 \\
-                                    -2.354659 & 0 & -0.189865 \\
-                                    2.354483 & 0 & 0.199932
+                                0.007784 & -2.578391 & -0.081618 \\
+                                -2.400410 & 2.472097 & -0.079094 \\
+                                2.477894 & 0.042370 & -0.076050 \\
+                                -2.602774 & 2.388977 & 0.171509 \\
+                                2.472432 & -2.594318 & 0.102211 \\
+                                2.703328 & 0 & -0.087828 \\
+                                -2.354659 & 0 & -0.189865 \\
+                                2.354483 & 0 & 0.199932
                                 \end{matrix}
                                 \right]^T
                                 \times 10^4
                                 \end{aligned}
-                            \]
-                        </p>
-                        <p>e restrições</p>
-                        <p class="text-sm">
-                            \[
-                                c = \left[ \begin{matrix} -\Delta t_{r_1} +\Delta t_{r_{1, min}} \\ -\Delta t_{r_2} 
-                                    +\Delta t_{r_{2, min}} \\ \vdots \\ -\Delta t_{r_{N-1}} +\Delta t_{r_{{N-1}, min}} \\ -\Delta t_{r_N} +\Delta t_{r_{N, min}} \\ \end{matrix} \right] = \left[ \begin{matrix} -0.638811 + 0.20 \\ -0.239318 + 0.20 \\ -0.240440 + 0.20 \\ -0.225094 + 0.20 \\ -0.223339 + 0.20 \\ -0.497696 + 0.20 \\ -0.235714 + 0.20 \\
-                                    -0.228086 + 0.20 \\ -0.227575 + 0.20 \end{matrix} \right] \times 10^{ -4  }= \left[ \begin{matrix} -0.438811 \\ -0.039318 \\ -0.040440 \\ -0.025094 \\ -0.023339 \\
-                                    -0.297696 \\ -0.035714 \\ -0.028086 \\ -0.027575 \end{matrix} \right] \times 10^{ -4 } 
-                            \]
-                        </p>
-                    </div>
-                </section>
-
-                <section data-auto-animate >
-                    <h3 data-id="title" class="slide_title relative">
-                        <span class="text-4xl">Controle Preditivo: Aplicação - Multinível</span>
-                    </h3>
-                    <div class="text-xl text-justify">
-                        <div class="grid grid-cols-3 gap-0">
-                            <div><img src="img/controle_exemplo_patino2_fact.png"></div>
-                            <div><img src="img/controle_exemplo_patino2_u.png"></div>
-                            <div class="row-span-2"><img src="img/controle_exemplo_patino2_xi.png"></div>
-                            <div><img src="img/controle_exemplo_patino2_traj.png"></div>
-                            <div><img src="img/controle_exemplo_patino2_traj2.png"></div>
+                                \]
+                            </p>
+                            <p>e restrições</p>
+                            <p class="text-sm">
+                                \[
+                                c = \left[ \begin{matrix} -\Delta t_{r_1} +\Delta t_{r_{1, min}} \\ -\Delta t_{r_2}
+                                +\Delta t_{r_{2, min}} \\ \vdots \\ -\Delta t_{r_{N-1}} +\Delta t_{r_{{N-1}, min}} \\ -\Delta t_{r_N}
+                                +\Delta t_{r_{N, min}} \\ \end{matrix} \right] = \left[ \begin{matrix} -0.638811 + 0.20 \\ -0.239318 +
+                                0.20 \\ -0.240440 + 0.20 \\ -0.225094 + 0.20 \\ -0.223339 + 0.20 \\ -0.497696 + 0.20 \\ -0.235714 + 0.20
+                                \\
+                                -0.228086 + 0.20 \\ -0.227575 + 0.20 \end{matrix} \right] \times 10^{ -4 }= \left[ \begin{matrix}
+                                -0.438811 \\ -0.039318 \\ -0.040440 \\ -0.025094 \\ -0.023339 \\
+                                -0.297696 \\ -0.035714 \\ -0.028086 \\ -0.027575 \end{matrix} \right] \times 10^{ -4 }
+                                \]
+                            </p>
                         </div>
-                    </div>
-                </section>
-
-                <section data-auto-animate >
-                    <h3 data-id="title" class="slide_title relative">
-                        <span class="text-4xl">Controle Preditivo: Aplicação - Multinível</span>
-                    </h3>
-                    <div class="text-xl text-justify">
-                        <div class="grid grid-cols-2 gap-0">
-                            <div><img src="img/controle_exemplo_patino2_fact.png"></div>
+                
+                
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <div class="grid grid-cols-3 gap-0">
+                                <div><img src="img/controle_exemplo_patino2_fact.png"></div>
+                                <div><img src="img/controle_exemplo_patino2_u.png"></div>
+                                <div class="row-span-2"><img src="img/controle_exemplo_patino2_xi.png"></div>
+                                <div><img src="img/controle_exemplo_patino2_traj.png"></div>
+                                <div><img src="img/controle_exemplo_patino2_traj2.png"></div>
+                            </div>
                         </div>
-                    </div>
-                </section>
-
-                <section data-auto-animate >
-                    <h3 data-id="title" class="slide_title relative">
-                        <span class="text-4xl">Controle Preditivo: Aplicação - Multinível</span>
-                    </h3>
-                    <div class="text-xl text-justify">
-                        <div class="grid grid-cols-2 gap-0">
-                            <div><img src="img/controle_exemplo_patino2_u.png"></div>
-                            <div class="row-span-2"><img src="img/controle_exemplo_patino2_xi.png"></div>
+                
+                
+                
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <div class="grid grid-cols-2 gap-0">
+                                <div><img src="img/controle_exemplo_patino2_fact.png"></div>
+                            </div>
                         </div>
-                    </div>
-                </section>
-
-                <section data-auto-animate >
-                    <h3 data-id="title" class="slide_title relative">
-                        <span class="text-4xl">Controle Preditivo: Aplicação - Multinível</span>
-                    </h3>
-                    <div class="text-xl text-justify">
-                        <div class="grid grid-cols-2 gap-0">
-                            <div><img src="img/controle_exemplo_patino2_traj.png"></div>
-                            <div><img src="img/controle_exemplo_patino2_traj2.png"></div>
+                
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <div class="grid grid-cols-2 gap-0">
+                                <div><img src="img/controle_exemplo_patino2_u.png"></div>
+                                <div class="row-span-2"><img src="img/controle_exemplo_patino2_xi.png"></div>
+                            </div>
                         </div>
+                
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <div class="grid grid-cols-2 gap-0">
+                                <div><img src="img/controle_exemplo_patino2_traj.png"></div>
+                                <div><img src="img/controle_exemplo_patino2_traj2.png"></div>
+                            </div>
+                        </div>
+                
                     </div>
                 </section>
+                <!-- aplicação multinível  -->
+
+
 
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
@@ -1158,11 +1156,11 @@
                             => the third to wrap all results in the final work
                 -->
 
-                <section>
-                    {{nothing here}}
+                <!-- <section> -->
+                <section data-background-color="#b5533c" >
+                    {{fim}}
                 </section>
 
-                <!-- <section data-background-color="#b5533c" > -->
 
                 <!-- <section data-background-color="hsl(11 50% 10%)" data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">predictive control</h3>
@@ -1273,10 +1271,14 @@
                     // create page div
                     let div = document.createElement('span')
                     div.innerText = `${i+1}`
-                    // div.setAttribute('data-id', 'page_number')
 
                     // add class attributes
                     div.classList = "text-white px-2 py-1 rounded-md absolute right-0 bottom-0 text-base bg-sky-700"
+                    
+                    if (si.getAttribute("data-background-color") == "#b5533c")
+                    {
+                        div.classList = "text-white px-2 py-1 rounded-md absolute right-0 bottom-0 text-base bg-gray-800"
+                    }
                     
                     si.appendChild(div)
                 }
