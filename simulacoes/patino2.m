@@ -58,7 +58,7 @@ function vout = patino2(save_fig)
     
     f3 = figure(5);
     i = t < c.Ts(end);
-    plotter.patino2.plot_control_signal(t(i), m(i), "Multilevel Conveter: Input Signal", "t - time(s)", "u - switch command");
+    plotter.patino2.plot_control_signal(t(i), m(i), "Multilevel Converter: Input Signal", "t - time(s)", "u - switch command");
 
     if (save_fig)
         fprintf("salvando figuras\n\n");
