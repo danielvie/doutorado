@@ -51,7 +51,7 @@
                         Predictive Control of Switched affine
                         systems subjected to dwell time constraints
                     </h3>
-                    <img class="absolute bottom-0 right-10 w-40" src="img/ita_logo.png" alt="">
+                    <img class="absolute bottom-90 right-0 w-[7em]" src="img/ita_logo.png" alt="">
                     <div class="text-3xl">
                         <div class="text-left">
                             <p>Orientador:</p>
@@ -80,8 +80,10 @@
                     - contributions of the work
                 -->
                 <section data-auto-animate >
-                    <h3 data-id="title" class="slide_title relative">introdução</h3>
-                    <div class="text-justify text-3xl gradiente">
+                    <h3 data-id="title" class="slide_title relative">
+                        <span class="text-4xl">Introdução</span>
+                    </h3>
+                    <div class="text-justify text-3xl comentario">
                         <!-- o que estamos fazendo aqui? -->
                         <p>Esse trabalho propõe a solução de problemas de controle para sistemas chaveados afins
                             submetidos a restrições de dwell-time
@@ -96,7 +98,9 @@
 
                 <!-- 3_ introducao - trabalhos feitos -->
                 <section data-auto-animate >
-                    <h3 data-id="title" class="slide_title relative">introdução - trabalhos feitos</h3>
+                    <h3 data-id="title" class="slide_title relative">
+                        <span class="text-4xl">Introdução: Trabalhos Feitos</span>
+                    </h3>
 
                     <div class="r-stack">
                         <div class="fragment fade-in-then-out">
@@ -131,8 +135,13 @@
                             <p data-id="title2">Patino (2010)</p>
                             <div class="text-2xl text-justify">
                                 <!-- o que estamos fazendo aqui? -->
-                                <p>Esse trabalho também usa a abordagem de controlar com uma trajetória cíclica alvo e apresenta
+                                <p>Esse trabalho também usa a abordagem de controlar com uma trajetória cíclica de referência e apresenta
                                     um método para determinação da trajetória cíclica alvo por meio de otimização.
+                                </p>
+                                <p>A trajetória de referência é calculada para obter a sequência de chaveamento que minimize
+                                    as oscilações em torno de um ponto de operação. A abordagem calcula várias trajetórias para
+                                    diferentes condições iniciais e isso é usado para treinar uma rede neural que determina os 
+                                    instantes de chaveamento para o sistema.
                                 </p>
                             </div>
                         </div>
@@ -141,8 +150,8 @@
                             <p data-id="title2">Marcolino (2018)</p>
                             <div class="text-2xl text-justify">
                                 <!-- o que estamos fazendo aqui? -->
-                                <p>Esse trabalho resolve o problema de controle em duas etapas, uma fase <i class="italic">offline</i>
-                                    que utiliza um algoritmo de otimização para encontrar uma sequencia de chaveamento que minimiza
+                                <p>Esse trabalho resolve o problema de controle em duas etapas, uma fase <i class="italic">off-line</i>
+                                    que utiliza um algoritmo de otimização para encontrar uma sequência de chaveamento que minimiza
                                     um funcional associado ao desempenho do sistema.</p>
                                 <p>E uma segunda etapa que consome a trajetória resultante como parâmetro de entrada e leva o sistema
                                     à trajetória alvo empregando controle preditivo, controlando o sistema através de perturbações nos
@@ -160,22 +169,49 @@
 
                 <!-- 4_ introducao - trabalho atual -->
                 <section data-auto-animate >
-                    <h3 data-id="title" class="slide_title relative">introdução - trabalho atual</h3>
-                    <div class="text-2xl text-justify gradiente">
-                        <!-- o que estamos fazendo aqui? -->
-                        <p>Esse trabalho propõe extender ainda mais a solução e resolver o problema de controle para sistemas
-                            chaveador afim com restrição de tempo de chaveamento e dinâmica variante com o chaveamento.</p>
+                    <h3 data-id="title" class="slide_title relative">
+                        <span class="text-4xl">Introdução: Trabalho Atual</span>
+                    </h3>
+
+                    <div class="r-stack">
+                        <div class="fragment fade-in-then-out text-2xl text-justify">
+                            <!-- o que estamos fazendo aqui? -->
+                            <p>Esse trabalho propõe extender a solução apresentada por Marcolino e resolver o problema
+                                de controle para sistemas chaveados afim com restrição de tempo de chaveamento para
+                                um caso mais geral.</p>
+                            <p>Sua solução trata o problema de controlar o sistema para um ciclo limite desejado e
+                                está restrita a sistemas que o chaveamento afeta apenas a entrada de controle.
+                            </p>
+                            <p>Nesse trabalho então, a solução deve ser mais geral para cobrir sistemas que a matriz $A$
+                                também muda com o chaveamento.
+                            </p>
+                            <p>Essa abordagem é focada no algoritmo de controle, porém as ações de controle são dependentes
+                                de uma trajetória de referência calculada. Portanto, utilizamos o método de cálculo de trajetória
+                                de Patino e o método deve ser capaz de levar o sistema para a trajetória cíclica alvo.
+                            </p>
+                        </div>
+
+                        <div class="fragment fade-in-then-out">
+                            <p class="text-3xl">
+                                \[\begin{aligned}
+                                \dot{x}(t) &amp; = A_{\sigma(t)} x(t) + b_{\sigma(t)} \\
+                                \end{aligned} \]
+                            </p>
+                            
+                            <ul class="text-2xl">
+                                <li>etapas</li>
+                                <ul>
+                                    <li>1. calcular uma trajetória de referência para o sistema usando o FMINCON</li>
+                                    <li>2. calcular a equacao de predicao e montar as restricoes de tempo</li>
+                                    <li>3. aplicar o MPC com programacao quadratica convexa</li>
+                                </ul>
+                            </ul>
+                            
+                        </div>
+
                     </div>
-                    <div>
-                        <p class="text-3xl">
-                            \[\begin{aligned}
-                            \dot{x}(t) &amp; = A_{\sigma(t)} x(t) + b_{\sigma(t)} \\
-                            \end{aligned} \]
-                        </p>
-                    </div>
-                    <div class="flex justify-center items-center">
-                        <img src="img/intro_trajetoria_no_tempo.png" class="w-1/2">
-                    </div>
+
+
 
                 </section>
 
@@ -191,7 +227,9 @@
                         -> optimization of system dynamics ?
                 -->
                 <section data-auto-animate>
-                    <h3 data-id="title" class="slide_title relative">determinação trajetória alvo</h3>
+                    <h3 data-id="title" class="slide_title relative">
+                        <span class="text-4xl">Trajetória Alvo</span>
+                    </h3>
 
                     <div class="r-stack">
                         <div class="fragment fade-in-then-out">
@@ -246,7 +284,7 @@
                 <!-- 6_ aplicação buck-boost -->
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
-                        <p class="text-4xl">determinação trajetória alvo: Conversor buck-boost</p>
+                        <p class="text-4xl">trajetória: Conversor buck-boost</p>
                     </h3>
 
                     <div class="r-stack">
@@ -330,7 +368,7 @@
                 <!-- 7_ trajetoria multinível -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
-                        <p class="text-4xl">determinação trajetória alvo: Conversor multinível</p>
+                        <p class="text-4xl">trajetória: Conversor multinível</p>
                     </h3>
 
                     <div class="r-stack">
@@ -543,7 +581,7 @@
 
                 </section>
 
-                <!-- 8_ controle preditivo para trajetórias periódicas
+                <!-- 8_ controle preditivo: equação de predição
                     - procedimento de linearização
                     - mpc
                         -> função custo
@@ -551,10 +589,11 @@
                 -->
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
-                        <span class="text-4xl">Controle Preditivo: Trajetórias Periódicas</span>
+                        <span class="text-4xl">Equação de Predição</span>
                     </h3>
                 
                     <div class="r-stack">
+
                         <div class="fragment fade-in-then-out">
                             <p class="text-3xl">
                                 \[ \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)} \]
@@ -689,113 +728,113 @@
                     </div>
                 </section>
 
-                <!-- 9_ Controle Preditivo: Restrições de Tempo -->
+                <!-- 9_ controle preditivo: restrições de tempo -->
                 <section data-auto-animate>
-                        <h3 data-id="title" class="slide_title relative">
-                            <span class="text-4xl">Controle Preditivo: Restrições de Tempo</span>
-                        </h3>
+                    <h3 data-id="title" class="slide_title relative">
+                        <span class="text-4xl">Restrições de Tempo</span>
+                    </h3>
 
-                        <div class="r-stack">
+                    <div class="r-stack">
 
-                            <div class="fragment fade-in-then-out text-3xl text-justify">
-                                <p>Queremos impor a restrição</p>
-                                <p>
-                                    \[
-                                    (t_i - t_{i - 1}) \ge \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N
-                                    \]
-                                </p>
-                                <p>que pode ser escrita como</p>
-                                <p>
-                                    \[
-                                    \begin{aligned}
-                                    \delta t_1 &\ge - \Delta \bar{t}_1 + \Delta t_{1,min} \\
-                                    \delta t_i - \delta t_{i-1} &\ge - \Delta \bar{t}_i + \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N \\
-                                    \delta t_{N-1} &\ge - \Delta \bar{t}_N + \Delta t_{N,min}
-                                    \end{aligned}
-                                    \]
-                                </p>
-                                <p>com</p>
-                                <p>
-                                    \[
-                                    \Delta \bar{t}_i = \bar{t}_i - \bar{t}_{i-1}
-                                    \]
-                                </p>
-                            </div>
-
-                            <div class="fragment fade-in-then-out text-3xl text-justify">
-                                <p>Escrevendo a restrição na forma matricial</p>
-                                <p>
-                                    \[
-                                    L \delta t \ge c
-                                    \]
-                                </p>
-                                <p>com</p>
-                                <p class="text-2xl">
-                                    \[
-                                    L =
-                                    \left[
-                                    \begin{matrix}
-                                    1 & 0 & 0 & \dotsi & 0 & 0 \\
-                                    -1 & 1 & 0 & \dotsi & 0 & 0 \\
-                                    \vdots & \vdots & \vdots & \ddots & \vdots \\
-                                    0 & 0 & 0 & \dotsi & -1 & 1 \\
-                                    0 & 0 & 0 & \dotsi & 0 & -1 \\
-                                    \end{matrix}
-                                    \right],\;
-                                    \delta t =
-                                    \left[
-                                    \begin{matrix}
-                                    \delta t_1 \\
-                                    \delta t_2 \\
-                                    \vdots \\
-                                    \delta t_{N-1} \\
-                                    \delta t_N \\
-                                    \end{matrix}
-                                    \right],\;
-                                    c = \left[
-                                    \begin{matrix}
-                                    -\Delta \bar{t}_1 + \Delta t_{1,min} \\
-                                    -\Delta \bar{t}_2 + \Delta t_{2,min} \\
-                                    \vdots \\
-                                    -\Delta \bar{t}_{N-1} + \Delta t_{N-1,min} \\
-                                    -\Delta \bar{t}_{N} + \Delta t_{N,min} \\
-                                    \end{matrix}
-                                    \right]
-                                    \]
-                                </p>
-                            </div>
-
-                            <div class="fragment fade-in-then-out text-3xl text-justify">
-                                <p>A restrição é imposta no ciclo $j$, a notação é mais clara como</p>
-                                <p>
-                                    \[
-                                    \delta t[j] =
-                                    \left[
-                                    \begin{matrix}
-                                    \delta t_{j,1} \\
-                                    \delta t_{j,2} \\
-                                    \vdots \\
-                                    \delta t_{j,N-1} \\
-                                    \delta t_{j,N}
-                                    \end{matrix}
-                                    \right]
-                                    \]
-                                </p>
-                                <p>e problema de otimização deve resolver $S\mathbf{\hat{u}}[k] \le b$, então</p>
-                                <p>
-                                    \[
-                                    -L \delta t[j] \le -c
-                                    \]
-                                </p>
-                            </div>
-
+                        <div class="fragment fade-in-then-out text-3xl text-justify">
+                            <p>Queremos impor a restrição</p>
+                            <p>
+                                \[
+                                (t_i - t_{i - 1}) \ge \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N
+                                \]
+                            </p>
+                            <p>que pode ser escrita como</p>
+                            <p>
+                                \[
+                                \begin{aligned}
+                                \delta t_1 &\ge - \Delta \bar{t}_1 + \Delta t_{1,min} \\
+                                \delta t_i - \delta t_{i-1} &\ge - \Delta \bar{t}_i + \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N \\
+                                \delta t_{N-1} &\ge - \Delta \bar{t}_N + \Delta t_{N,min}
+                                \end{aligned}
+                                \]
+                            </p>
+                            <p>com</p>
+                            <p>
+                                \[
+                                \Delta \bar{t}_i = \bar{t}_i - \bar{t}_{i-1}
+                                \]
+                            </p>
                         </div>
+
+                        <div class="fragment fade-in-then-out text-3xl text-justify">
+                            <p>Escrevendo a restrição na forma matricial</p>
+                            <p>
+                                \[
+                                L \delta t \ge c
+                                \]
+                            </p>
+                            <p>com</p>
+                            <p class="text-2xl">
+                                \[
+                                L =
+                                \left[
+                                \begin{matrix}
+                                1 & 0 & 0 & \dotsi & 0 & 0 \\
+                                -1 & 1 & 0 & \dotsi & 0 & 0 \\
+                                \vdots & \vdots & \vdots & \ddots & \vdots \\
+                                0 & 0 & 0 & \dotsi & -1 & 1 \\
+                                0 & 0 & 0 & \dotsi & 0 & -1 \\
+                                \end{matrix}
+                                \right],\;
+                                \delta t =
+                                \left[
+                                \begin{matrix}
+                                \delta t_1 \\
+                                \delta t_2 \\
+                                \vdots \\
+                                \delta t_{N-1} \\
+                                \delta t_N \\
+                                \end{matrix}
+                                \right],\;
+                                c = \left[
+                                \begin{matrix}
+                                -\Delta \bar{t}_1 + \Delta t_{1,min} \\
+                                -\Delta \bar{t}_2 + \Delta t_{2,min} \\
+                                \vdots \\
+                                -\Delta \bar{t}_{N-1} + \Delta t_{N-1,min} \\
+                                -\Delta \bar{t}_{N} + \Delta t_{N,min} \\
+                                \end{matrix}
+                                \right]
+                                \]
+                            </p>
+                        </div>
+
+                        <div class="fragment fade-in-then-out text-3xl text-justify">
+                            <p>A restrição é imposta no ciclo $j$, a notação é mais clara como</p>
+                            <p>
+                                \[
+                                \delta t[j] =
+                                \left[
+                                \begin{matrix}
+                                \delta t_{j,1} \\
+                                \delta t_{j,2} \\
+                                \vdots \\
+                                \delta t_{j,N-1} \\
+                                \delta t_{j,N}
+                                \end{matrix}
+                                \right]
+                                \]
+                            </p>
+                            <p>e problema de otimização deve resolver $S\mathbf{\hat{u}}[k] \le b$, então</p>
+                            <p>
+                                \[
+                                -L \delta t[j] \le -c
+                                \]
+                            </p>
+                        </div>
+
+                    </div>
                 </section>
 
                 <!-- 10_ Controle Preditivo: Aplicação - Integrador Duplo -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
-                        <span class="text-4xl">Controle Preditivo: Aplicação - Integrador Duplo</span>
+                        <span class="text-4xl">Controle: Integrador Duplo</span>
                     </h3>
 
                     <div class="r-stack">
@@ -931,7 +970,7 @@
                 <!-- 11_ Controle Preditivo: Aplicação - Buck-Boost -->
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
-                        <span class="text-4xl">Controle Preditivo: Aplicação - Buck-Boost</span>
+                        <span class="text-4xl">Controle: Buck-Boost</span>
                     </h3>
                     <div class="r-stack">
 
@@ -1045,7 +1084,7 @@
                 <!-- 12_ Controle Preditivo: Aplicação - Multinível -->
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
-                        <span class="text-4xl">Controle Preditivo: Aplicação - Multinível</span>
+                        <span class="text-4xl">Controle: Conversor Multinível</span>
                     </h3>
                 
                     <div class="r-stack">
@@ -1182,23 +1221,12 @@
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Conclusão</span>
                     </h3>
+
                     <div class="text-xl text-justify">
                         <p>
                             Este trabalho estende a solução de controle de sistemas chaveados afim,
                             isso permite que o método seja usado em mais problemas de controle e mantém a conveniência de resolver
                             o problema de controle com otimização quadrática convexa.
-                        </p>
-                        
-                        <p>
-                            <span class="gradiente">analise do integrador duplo</span>
-                        </p>
-
-                        <p>
-                            <span class="gradiente">analise do buck-boost</span>
-                        </p>
-
-                        <p>
-                            <span class="gradiente">analise do multinível</span>
                         </p>
 
                         <p>
