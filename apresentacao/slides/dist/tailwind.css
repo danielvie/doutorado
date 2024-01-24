@@ -553,10 +553,6 @@ video {
   right: 2.5rem;
 }
 
-.top-0 {
-  top: 0px;
-}
-
 .col-span-5 {
   grid-column: span 5 / span 5;
 }
@@ -767,4 +763,10 @@ video {
 
 * {
   min-width: 0px;
+}
+
+.slide-number-a {
+  padding: 0.5rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
 }
