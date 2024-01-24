@@ -39,7 +39,7 @@
         <div class="reveal">
             <div class="slides">
 
-                <!-- 1. apresentação
+                <!-- 1_ apresentação
                     - nome
                     - orientador
                     - titulo
@@ -69,7 +69,7 @@
                     </div>
                 </section>
 
-                <!-- 2. introduction
+                <!-- 2_ introduction
                     - motivation: explicar o problema e como propomos resolver
                     - previous works: mostrar trabalhos anteriores
                         -> Benmiloud
@@ -94,7 +94,7 @@
                     </div>
                 </section>
 
-                <!-- 3. introducao - trabalhos feitos -->
+                <!-- 3_ introducao - trabalhos feitos -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">introdução - trabalhos feitos</h3>
 
@@ -158,7 +158,7 @@
                     </div>
                 </section>
 
-                <!-- 4. introducao - trabalho atual -->
+                <!-- 4_ introducao - trabalho atual -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">introdução - trabalho atual</h3>
                     <div class="text-2xl text-justify gradiente">
@@ -179,7 +179,7 @@
 
                 </section>
 
-                <!-- 5. determinação da trajetória alvo 
+                <!-- 5_ determinação da trajetória alvo 
                     - explicar a formulação do problema
                         -> optimization
                         -> calculating x_0
@@ -243,7 +243,7 @@
 
                 </section>
 
-                <!-- 6. aplicação buck-boost -->
+                <!-- 6_ aplicação buck-boost -->
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <p class="text-4xl">determinação trajetória alvo: Conversor buck-boost</p>
@@ -327,7 +327,7 @@
                     </div>
                 </section>
 
-                <!-- 7. trajetoria multinível -->
+                <!-- 7_ trajetoria multinível -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
                         <p class="text-4xl">determinação trajetória alvo: Conversor multinível</p>
@@ -543,7 +543,7 @@
 
                 </section>
 
-                <!-- 8. controle preditivo para trajetórias periódicas
+                <!-- 8_ controle preditivo para trajetórias periódicas
                     - procedimento de linearização
                     - mpc
                         -> função custo
@@ -689,7 +689,7 @@
                     </div>
                 </section>
 
-                <!-- 9. Controle Preditivo: Restrições de Tempo -->
+                <!-- 9_ Controle Preditivo: Restrições de Tempo -->
                 <section data-auto-animate>
                         <h3 data-id="title" class="slide_title relative">
                             <span class="text-4xl">Controle Preditivo: Restrições de Tempo</span>
@@ -792,7 +792,7 @@
                         </div>
                 </section>
 
-                <!-- 10. Controle Preditivo: Aplicação - Integrador Duplo -->
+                <!-- 10_ Controle Preditivo: Aplicação - Integrador Duplo -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Aplicação - Integrador Duplo</span>
@@ -819,7 +819,7 @@
                                     \]
                                 </p>
                                 <div class="flex-1">
-                                    <img data-id="img:dyn" class="h-64 absolute -right-14" src="img/controle_exemplo_integrador.png">
+                                    <img data-id="img:dyn" class="h-64 absolute -right-14" src="img/controle_integrador.png">
                                 </div>
                             </div>
                         </div>
@@ -848,7 +848,7 @@
                                         \]
                                     </p>
                                 </div>
-                                <img data-id="img:dyn" class="h-56 absolute right-0" src="img/controle_exemplo_integrador.png">
+                                <img data-id="img:dyn" class="h-56 absolute right-0" src="img/controle_integrador.png">
                             </div>
                             <p>$\Omega = \big[1, 2, 3, 2\big]$</p>
                             <p>$\bar{x}_{ref} = \big[2, -1\big]$</p>
@@ -895,13 +895,13 @@
 
                         <div class="fragment fade-in-then-out text-xl text-justify">
                             <div class="grid grid-cols-2 gap-0 items-center text-center">
-                                <div class="flex justify-center"><img class="h-72" src="img/controle_exemplo_integrador_factibilidade.png">
+                                <div class="flex justify-center"><img class="h-72" src="img/controle_integrador_factibilidade.png">
                                 </div>
-                                <div class="flex justify-center"><img class="h-72" src="img/controle_exemplo_integrador_trajetoria_off.png">
+                                <div class="flex justify-center"><img class="h-72" src="img/controle_integrador_trajetoria_off.png">
                                 </div>
-                                <div class="flex justify-center"><img class="h-72" src="img/controle_exemplo_integrador_trajetoria_on.png">
+                                <div class="flex justify-center"><img class="h-72" src="img/controle_integrador_trajetoria_on.png">
                                 </div>
-                                <div class="flex justify-center"><img class="h-72" src="img/controle_exemplo_integrador_u.png"></div>
+                                <div class="flex justify-center"><img class="h-72" src="img/controle_integrador_u.png"></div>
                             </div>
                         </div>
 
@@ -909,22 +909,42 @@
                 </section>
 
                 <!-- {{xxx}}  -->
-                <!-- 11. Controle Preditivo: Aplicação - Buck-Boost -->
+                <!-- 11_ Controle Preditivo: Aplicação - Buck-Boost -->
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Aplicação - Buck-Boost</span>
                     </h3>
                     <div class="r-stack">
-
-                        <div class="fragment fade-in-then-out">
-                            <div class="text-xl">
-                                <p>Os parâmetros de simulação desse exemplo são</p>
+                        <div class="fragment fade-in-then-out text-xl">
+                            <p>Parâmetros de simulação:</p>
+                            <div class="grid grid-cols-2">
+                                <img class="w-[100em]" src="img/circuito_buck_boost.png">
+                                <p class="text-sm">
+                                    \[
+                                    \begin{matrix}
+                                    A_1 = \left[ \begin{matrix} 0 & 0 \\ 0 & -1/(RC) \\ \end{matrix} \right], &
+                                    A_2 = \left[ \begin{matrix} 0 & 1/L \\ -1/C & -1/(RC) \\ \end{matrix} \right] \\
+                                    \\
+                                    b_1 = \left[ \begin{matrix} E/L \\ 0 \end{matrix} \right] &
+                                    b_2 = \left[ \begin{matrix} 0 \\ 0 \end{matrix} \right]
+                                    \end{matrix}
+                                    \]
+                                </p>
+                                <img class="w-[100em]" src="img/controle_patino1_u_ref.png">
+                                <div class="text-justify text-base">
+                                    \[
+                                    \begin{aligned}
+                                        \Omega &= \big[1, 2\big] \\
+                                        \tau^\infty &= \big[0, 0.2513, 0.5914 \big] \;\mathrm{s} \\
+                                        \bar{x}_{ref} &= \big[2 \;\mathrm{V}, -1 \;\mathrm{A}\big] \\
+                                        T_{p_{max}} &= 1 \;\mathrm{s} \\
+                                        x_0 &= \big[1.8708 \;\mathrm{V}, -1.1198 \;\mathrm{A}\big]. \\
+                                        t_{step} &= 1 \times 10^{-5} \;\mathrm{s} \\
+                                        Q &= \mathbf{1}
+                                    \end{aligned}
+                                    \]
+                                </div>
                             </div>
-                            <p>
-                                \[
-                                \vdots
-                                \]
-                            </p>
                         </div>
 
                         <div class="fragment fade-in-then-out">
@@ -943,7 +963,7 @@
                     </div>
                 </section>
 
-                <!-- 12. Controle Preditivo: Aplicação - Multinível -->
+                <!-- 12_ Controle Preditivo: Aplicação - Multinível -->
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Aplicação - Multinível</span>
@@ -953,33 +973,41 @@
                         <div class="fragment fade-in-then-out text-xl">
                             <p>Parâmetros de simulação:</p>
                             <div class="grid grid-cols-2">
-                                <img src="img/circuito_multilevel.png">
-                                <p class="text-sm">
-                                    \[
-                                    \begin{matrix}
-                                    A_i = \left[ \begin{matrix} 0 & 0 & \Big(u_2(i)-u_1(i)\Big)/C1 \\ 0 & 0 & \Big(u_3(i)-u_2(i)\Big)/C2
-                                    \\
-                                    \Big(u_1(i)-u_2(i)\Big)/L & \Big(u_2(i)-u_3(i)\Big)/L & -R/L \\ \end{matrix} \right] \\
-                                    \\
-                                    b_i = \left[ \begin{matrix} 0 \\ 0 \\ \Big(E/L\Big) u_3(i) \end{matrix} \right]
-                                    \end{matrix}
-                                    \]
-                                </p>
-                                <img class="h-72" src="img/controle_multileve_u_ref.png">
-                                <div class="text-justify text-base">
-                                    \[
-                                    \begin{aligned}
-                                    \Omega &= \big[1,2,4,8,3,1,5,8,5\big] \\
-                                    \tau^\infty &= \big[0, 0.064, 0.088, 0.112, 0.134, 0.157, 0.206, 0.23, 0.253, 0.276\big] \;
-                                    \mathrm{ms}
-                                    \\
-                                    \bar{x}_{ref} &= \big[10 \;\mathrm{V}, 20 \;\mathrm{V}, 1 \;\mathrm{A}\big] \\
-                                    T_{p_{max}} &= 4\times 10^{-4} \\
-                                    x_0 &= \big[9.5143 \;\mathrm{V}, 19.8211 \;\mathrm{V}, 1.0314 \;\mathrm{A}\big] \\
-                                    t_{step} &= 1 \times 10^{-7} \;\mathrm{s} \\
-                                    Q &= diag([10, 5, 20000])
-                                    \end{aligned}
-                                    \]
+                                <div>
+                                    <img class="w-[20em]" src="img/circuito_multilevel.png">
+                                </div>
+                                <div>
+                                    <p class="text-sm">
+                                        \[
+                                        \begin{matrix}
+                                        A_i = \left[ \begin{matrix} 0 & 0 & \Big(u_2(i)-u_1(i)\Big)/C1 \\ 0 & 0 & \Big(u_3(i)-u_2(i)\Big)/C2
+                                        \\
+                                        \Big(u_1(i)-u_2(i)\Big)/L & \Big(u_2(i)-u_3(i)\Big)/L & -R/L \\ \end{matrix} \right] \\
+                                        \\
+                                        b_i = \left[ \begin{matrix} 0 \\ 0 \\ \Big(E/L\Big) u_3(i) \end{matrix} \right]
+                                        \end{matrix}
+                                        \]
+                                    </p>
+                                </div>
+                                <div>
+                                    <img class="w-[20em]"  src="img/controle_patino2_u_ref.png">
+                                </div>
+                                <div>
+                                    <div class="text-justify text-base">
+                                        \[
+                                        \begin{aligned}
+                                        \Omega &= \big[1,2,4,8,3,1,5,8,5\big] \\
+                                        \tau^\infty &= \big[0, 0.064, 0.088, 0.112, 0.134, 0.157, 0.206, 0.23, 0.253, 0.276\big] \;
+                                        \mathrm{ms}
+                                        \\
+                                        \bar{x}_{ref} &= \big[10 \;\mathrm{V}, 20 \;\mathrm{V}, 1 \;\mathrm{A}\big] \\
+                                        T_{p_{max}} &= 4\times 10^{-4} \\
+                                        x_0 &= \big[9.5143 \;\mathrm{V}, 19.8211 \;\mathrm{V}, 1.0314 \;\mathrm{A}\big] \\
+                                        t_{step} &= 1 \times 10^{-7} \;\mathrm{s} \\
+                                        Q &= diag([10, 5, 20000])
+                                        \end{aligned}
+                                        \]
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1028,11 +1056,11 @@
                 
                         <div class="fragment fade-in-then-out text-xl text-justify">
                             <div class="grid grid-cols-3 gap-0">
-                                <div><img src="img/controle_exemplo_patino2_fact.png"></div>
-                                <div><img src="img/controle_exemplo_patino2_u.png"></div>
-                                <div class="row-span-2"><img src="img/controle_exemplo_patino2_xi.png"></div>
-                                <div><img src="img/controle_exemplo_patino2_traj.png"></div>
-                                <div><img src="img/controle_exemplo_patino2_traj2.png"></div>
+                                <div><img src="img/controle_patino2_fact.png"></div>
+                                <div><img src="img/controle_patino2_u.png"></div>
+                                <div class="row-span-2"><img src="img/controle_patino2_xi.png"></div>
+                                <div><img src="img/controle_patino2_traj.png"></div>
+                                <div><img src="img/controle_patino2_traj2.png"></div>
                             </div>
                         </div>
                 
@@ -1040,21 +1068,21 @@
                 
                         <div class="fragment fade-in-then-out text-xl text-justify">
                             <div class="grid grid-cols-2 gap-0">
-                                <div><img src="img/controle_exemplo_patino2_fact.png"></div>
+                                <div><img src="img/controle_patino2_fact.png"></div>
                             </div>
                         </div>
                 
                         <div class="fragment fade-in-then-out text-xl text-justify">
                             <div class="grid grid-cols-2 gap-0">
-                                <div><img src="img/controle_exemplo_patino2_u.png"></div>
-                                <div class="row-span-2"><img src="img/controle_exemplo_patino2_xi.png"></div>
+                                <div><img src="img/controle_patino2_u.png"></div>
+                                <div class="row-span-2"><img src="img/controle_patino2_xi.png"></div>
                             </div>
                         </div>
                 
                         <div class="fragment fade-in-then-out text-xl text-justify">
                             <div class="grid grid-cols-2 gap-0">
-                                <div><img src="img/controle_exemplo_patino2_traj.png"></div>
-                                <div><img src="img/controle_exemplo_patino2_traj2.png"></div>
+                                <div><img src="img/controle_patino2_traj.png"></div>
+                                <div><img src="img/controle_patino2_traj2.png"></div>
                             </div>
                         </div>
                 
@@ -1062,7 +1090,7 @@
                 </section>
                 <!-- aplicação multinível  -->
 
-                <!-- 13. conclusão 
+                <!-- 13_ conclusão 
                     - contribuição
                         -> projeto de um sistema chaveado afim com dinâmica 
                         variável e podemos complementar ocm testes de laboratório
@@ -1121,7 +1149,7 @@
                     </div>
                 </section>
 
-                <!-- 14. fim -->
+                <!-- 14_ fim -->
                 <section data-background-color="#b5533c" >
                     {{fim}}
                 </section>
@@ -1151,7 +1179,7 @@
                 // minScale: 1,
                 center: false,
                 // disableLayout: false,
-                // margin: 0.1,
+                margin: 0.01,
                 // slideNumber: 'c/t',
                 // slideNumber: 'c',
                 view: "scroll",
