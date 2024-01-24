@@ -39,8 +39,7 @@
         <div class="reveal">
             <div class="slides">
 
-                <!-- 
-                    apresentação
+                <!-- 1. apresentação
                     - nome
                     - orientador
                     - titulo
@@ -70,8 +69,7 @@
                     </div>
                 </section>
 
-                <!-- 
-                    introduction
+                <!-- 2. introduction
                     - motivation: explicar o problema e como propomos resolver
                     - previous works: mostrar trabalhos anteriores
                         -> Benmiloud
@@ -96,6 +94,7 @@
                     </div>
                 </section>
 
+                <!-- 3. introducao - trabalhos feitos -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">introdução - trabalhos feitos</h3>
 
@@ -159,6 +158,7 @@
                     </div>
                 </section>
 
+                <!-- 4. introducao - trabalho atual -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">introdução - trabalho atual</h3>
                     <div class="text-2xl text-justify gradiente">
@@ -179,9 +179,7 @@
 
                 </section>
 
-
-                <!-- 
-                    determinação da trajetória alvo 
+                <!-- 5. determinação da trajetória alvo 
                     - explicar a formulação do problema
                         -> optimization
                         -> calculating x_0
@@ -192,9 +190,7 @@
                         -> cost function ?
                         -> optimization of system dynamics ?
                 -->
-
-                <!-- <section data-background-color="#b5533c" data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)"> -->
-                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">determinação trajetória alvo</h3>
 
                     <div class="r-stack">
@@ -247,8 +243,8 @@
 
                 </section>
 
-                <!-- aplicação buck-boost -->
-                <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+                <!-- 6. aplicação buck-boost -->
+                <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <p class="text-4xl">determinação trajetória alvo: Conversor buck-boost</p>
                     </h3>
@@ -331,7 +327,7 @@
                     </div>
                 </section>
 
-                <!-- aplicação multinível -->
+                <!-- 7. trajetoria multinível -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
                         <p class="text-4xl">determinação trajetória alvo: Conversor multinível</p>
@@ -503,18 +499,6 @@
                             </div>
                         </div>
 
-                    </div>
-
-                </section>
-
-
-                <section data-auto-animate>
-                    <h3 data-id="title" class="slide_title relative">
-                        <p class="text-4xl">determinação trajetória alvo: Conversor multinível</p>
-                    </h3>
-
-                    <div class="r-stack">
-
                         <div class="fragment fade-in-then-out">
                             <div class="text-xl text-justify">
                                 <div class="flex items-center justify-center">
@@ -554,19 +538,17 @@
                                 <div class="col-span-6"> <img class="h-96" src="img/trajetoria_multilevel_u.png"> </div>
                             </div>
                         </div>
-
+                    
                     </div>
 
                 </section>
 
-                <!-- 
-                    controle preditivo para trajetórias periódicas
+                <!-- 8. controle preditivo para trajetórias periódicas
                     - procedimento de linearização
                     - mpc
                         -> função custo
                         -> restrições de tempo de chaveamento
                 -->
-
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Trajetórias Periódicas</span>
@@ -672,7 +654,6 @@
                             </p>
                         </div>
                 
-                
                         <div class="fragment fade-in-then-out text-xl">
                             <p data-id="fragment">
                                 \[
@@ -706,114 +687,112 @@
                         </div>
                 
                     </div>
-                
                 </section>
 
+                <!-- 9. Controle Preditivo: Restrições de Tempo -->
+                <section data-auto-animate>
+                        <h3 data-id="title" class="slide_title relative">
+                            <span class="text-4xl">Controle Preditivo: Restrições de Tempo</span>
+                        </h3>
 
-            <!-- dwell time constraint  -->
-            <section data-auto-animate >
-                    <h3 data-id="title" class="slide_title relative">
-                        <span class="text-4xl">Controle Preditivo: Restrições de Tempo</span>
-                    </h3>
+                        <div class="r-stack">
 
-                    <div class="r-stack">
+                            <div class="fragment fade-in-then-out text-3xl text-justify">
+                                <p>Queremos impor a restrição</p>
+                                <p>
+                                    \[
+                                    (t_i - t_{i - 1}) \ge \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N
+                                    \]
+                                </p>
+                                <p>que pode ser escrita como</p>
+                                <p>
+                                    \[
+                                    \begin{aligned}
+                                    \delta t_1 &\ge - \Delta \bar{t}_1 + \Delta t_{1,min} \\
+                                    \delta t_i - \delta t_{i-1} &\ge - \Delta \bar{t}_i + \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N \\
+                                    \delta t_{N-1} &\ge - \Delta \bar{t}_N + \Delta t_{N,min}
+                                    \end{aligned}
+                                    \]
+                                </p>
+                                <p>com</p>
+                                <p>
+                                    \[
+                                    \Delta \bar{t}_i = \bar{t}_i - \bar{t}_{i-1}
+                                    \]
+                                </p>
+                            </div>
 
-                        <div class="fragment fade-in-then-out text-3xl text-justify">
-                            <p>Queremos impor a restrição</p>
-                            <p>
-                                \[
-                                (t_i - t_{i - 1}) \ge \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N
-                                \]
-                            </p>
-                            <p>que pode ser escrita como</p>
-                            <p>
-                                \[
-                                \begin{aligned}
-                                \delta t_1 &\ge - \Delta \bar{t}_1 + \Delta t_{1,min} \\
-                                \delta t_i - \delta t_{i-1} &\ge - \Delta \bar{t}_i + \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N \\
-                                \delta t_{N-1} &\ge - \Delta \bar{t}_N + \Delta t_{N,min}
-                                \end{aligned}
-                                \]
-                            </p>
-                            <p>com</p>
-                            <p>
-                                \[
-                                \Delta \bar{t}_i = \bar{t}_i - \bar{t}_{i-1}
-                                \]
-                            </p>
+                            <div class="fragment fade-in-then-out text-3xl text-justify">
+                                <p>Escrevendo a restrição na forma matricial</p>
+                                <p>
+                                    \[
+                                    L \delta t \ge c
+                                    \]
+                                </p>
+                                <p>com</p>
+                                <p class="text-2xl">
+                                    \[
+                                    L =
+                                    \left[
+                                    \begin{matrix}
+                                    1 & 0 & 0 & \dotsi & 0 & 0 \\
+                                    -1 & 1 & 0 & \dotsi & 0 & 0 \\
+                                    \vdots & \vdots & \vdots & \ddots & \vdots \\
+                                    0 & 0 & 0 & \dotsi & -1 & 1 \\
+                                    0 & 0 & 0 & \dotsi & 0 & -1 \\
+                                    \end{matrix}
+                                    \right],\;
+                                    \delta t =
+                                    \left[
+                                    \begin{matrix}
+                                    \delta t_1 \\
+                                    \delta t_2 \\
+                                    \vdots \\
+                                    \delta t_{N-1} \\
+                                    \delta t_N \\
+                                    \end{matrix}
+                                    \right],\;
+                                    c = \left[
+                                    \begin{matrix}
+                                    -\Delta \bar{t}_1 + \Delta t_{1,min} \\
+                                    -\Delta \bar{t}_2 + \Delta t_{2,min} \\
+                                    \vdots \\
+                                    -\Delta \bar{t}_{N-1} + \Delta t_{N-1,min} \\
+                                    -\Delta \bar{t}_{N} + \Delta t_{N,min} \\
+                                    \end{matrix}
+                                    \right]
+                                    \]
+                                </p>
+                            </div>
+
+                            <div class="fragment fade-in-then-out text-3xl text-justify">
+                                <p>A restrição é imposta no ciclo $j$, a notação é mais clara como</p>
+                                <p>
+                                    \[
+                                    \delta t[j] =
+                                    \left[
+                                    \begin{matrix}
+                                    \delta t_{j,1} \\
+                                    \delta t_{j,2} \\
+                                    \vdots \\
+                                    \delta t_{j,N-1} \\
+                                    \delta t_{j,N}
+                                    \end{matrix}
+                                    \right]
+                                    \]
+                                </p>
+                                <p>e problema de otimização deve resolver $S\mathbf{\hat{u}}[k] \le b$, então</p>
+                                <p>
+                                    \[
+                                    -L \delta t[j] \le -c
+                                    \]
+                                </p>
+                            </div>
+
                         </div>
-
-                        <div class="fragment fade-in-then-out text-3xl text-justify">
-                            <p>Escrevendo a restrição na forma matricial</p>
-                            <p>
-                                \[
-                                L \delta t \ge c
-                                \]
-                            </p>
-                            <p>com</p>
-                            <p class="text-2xl">
-                                \[
-                                L =
-                                \left[
-                                \begin{matrix}
-                                1 & 0 & 0 & \dotsi & 0 & 0 \\
-                                -1 & 1 & 0 & \dotsi & 0 & 0 \\
-                                \vdots & \vdots & \vdots & \ddots & \vdots \\
-                                0 & 0 & 0 & \dotsi & -1 & 1 \\
-                                0 & 0 & 0 & \dotsi & 0 & -1 \\
-                                \end{matrix}
-                                \right],\;
-                                \delta t =
-                                \left[
-                                \begin{matrix}
-                                \delta t_1 \\
-                                \delta t_2 \\
-                                \vdots \\
-                                \delta t_{N-1} \\
-                                \delta t_N \\
-                                \end{matrix}
-                                \right],\;
-                                c = \left[
-                                \begin{matrix}
-                                -\Delta \bar{t}_1 + \Delta t_{1,min} \\
-                                -\Delta \bar{t}_2 + \Delta t_{2,min} \\
-                                \vdots \\
-                                -\Delta \bar{t}_{N-1} + \Delta t_{N-1,min} \\
-                                -\Delta \bar{t}_{N} + \Delta t_{N,min} \\
-                                \end{matrix}
-                                \right]
-                                \]
-                            </p>
-                        </div>
-
-                        <div class="fragment fade-in-then-out text-3xl text-justify">
-                            <p>A restrição é imposta no ciclo $j$, a notação é mais clara como</p>
-                            <p>
-                                \[
-                                \delta t[j] =
-                                \left[
-                                \begin{matrix}
-                                \delta t_{j,1} \\
-                                \delta t_{j,2} \\
-                                \vdots \\
-                                \delta t_{j,N-1} \\
-                                \delta t_{j,N}
-                                \end{matrix}
-                                \right]
-                                \]
-                            </p>
-                            <p>e problema de otimização deve resolver $S\mathbf{\hat{u}}[k] \le b$, então</p>
-                            <p>
-                                \[
-                                -L \delta t[j] \le -c
-                                \]
-                            </p>
-                        </div>
-
-                    </div>
                 </section>
 
-
+                <!-- 10. Controle Preditivo: Aplicação - Integrador Duplo -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Aplicação - Integrador Duplo</span>
@@ -929,12 +908,14 @@
                     </div>
                 </section>
 
-                <section data-auto-animate >
+                <!-- {{xxx}}  -->
+                <!-- Controle Preditivo: Aplicação - Buck-Boost -->
+                <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Aplicação - Buck-Boost</span>
                     </h3>
-
                     <div class="r-stack">
+
                         <div class="fragment fade-in-then-out">
                             <div class="text-xl">
                                 <p>Os parâmetros de simulação desse exemplo são</p>
@@ -945,10 +926,24 @@
                                 \]
                             </p>
                         </div>
-                    </div>
 
+                        <div class="fragment fade-in-then-out">
+                            <div class="text-xl">
+                                <p>Os parâmetros de simulação desse exemplo são</p>
+                            </div>
+                            <p>
+                                \[
+                                \vdots
+                                \]
+                            </p>
+                        </div>
+
+
+
+                    </div>
                 </section>
 
+                <!--  -->
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle Preditivo: Aplicação - Multinível</span>
@@ -1067,8 +1062,19 @@
                 </section>
                 <!-- aplicação multinível  -->
 
-
-
+                <!-- conclusão 
+                    - contribuição
+                        -> projeto de um sistema chaveado afim com dinâmica 
+                        variável e podemos complementar ocm testes de laboratório
+                        experimentais, contribuição pretendida
+                    - analise dos resultados
+                    - future work
+                        -> we propose the time to finish the project to be in 3 semesters:
+                            => first one to finish the theoretical dependencies 
+                            and analysis in the digital domain
+                            => a second to implement a real circuit in-lab
+                            => the third to wrap all results in the final work
+                -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Conclusão</span>
@@ -1115,63 +1121,12 @@
                     </div>
                 </section>
 
-            <!-- {{xxx}}  -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                <!-- 
-                    application examples 
-                    - double integrator
-                    - buck-boost converter
-                    - multinível converter
-                    - resultados
-                -->
-
-                <!-- 
-                    conclusão 
-                    - contribuição
-                        -> projeto de um sistema chaveado afim com dinâmica 
-                        variável e podemos complementar ocm testes de laboratório
-                        experimentais, contribuição pretendida
-                    - analise dos resultados
-                    - future work
-                        -> we propose the time to finish the project to be in 3 semesters:
-                            => first one to finish the theoretical dependencies 
-                            and analysis in the digital domain
-                            => a second to implement a real circuit in-lab
-                            => the third to wrap all results in the final work
-                -->
-
-                <!-- <section> -->
+                <!-- fim -->
                 <section data-background-color="#b5533c" >
                     {{fim}}
                 </section>
 
-
-                <!-- <section data-background-color="hsl(11 50% 10%)" data-auto-animate >
-                    <h3 data-id="title" class="slide_title relative">predictive control</h3>
-                    <div class="text-left">
-                        <p>- cost function</p>
-                        <p>- constraints</p>
-                        <p>- prediction equation</p>
-                        <p>- optimization problem</p>
-                    </div>
-                </section> -->
-                
+                <!-- video -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">video</h3>
                     <!-- <video data-autoplay src="videos/equation_test.mp4" type="video/mp4" /> -->
