@@ -214,12 +214,27 @@
                             <p>Esse trabalho propõe extender a solução apresentada por Marcolino e resolver o problema
                                 de controle para sistemas chaveados afim com restrição de tempo de chaveamento para
                                 um caso mais geral.</p>
-                            <p>Sua solução trata o problema de controlar o sistema para um ciclo limite desejado e
+
+                            <p>Marcolino trata o problema de controlar o sistema para um ciclo limite desejado e
                                 está restrita a sistemas que o chaveamento afeta apenas a entrada de controle.
                             </p>
+
+                            <p>
+                                \[
+                                    \dot{x}(t) = A_c x(t) + B_c u(t)
+                                \]
+                            </p>
+
                             <p>Nesse trabalho então, a solução deve ser mais geral para cobrir sistemas que a matriz $A$
                                 também muda com o chaveamento.
                             </p>
+
+                            <p>
+                                \[
+                                    \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}
+                                \]
+                            </p>
+
                             <p>Essa abordagem é focada no algoritmo de controle, porém as ações de controle são dependentes
                                 de uma trajetória de referência calculada. Portanto, utilizamos o método de cálculo de trajetória
                                 de Patino e o método deve ser capaz de levar o sistema para a trajetória cíclica alvo.

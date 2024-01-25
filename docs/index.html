@@ -127,15 +127,17 @@
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Introdução: Trabalhos Feitos</span>
+                        <button class="grayscale text-3xl" onclick="return toggleImgRestricoes(this);">📈</button>
                     </h3>
 
                     <div class="r-stack">
+
                         <div class="fragment fade-in-then-out">
                             <p data-id="title">Márcio Vieira (2013)</p>
                             <div class="text-justify text-2xl">
                                 <!-- o que estamos fazendo aqui? -->
                                 <p>Resolveu o problema usando controle preditivo para computar as restrições de tempo de chaveamento. 
-                                O alvo do controlador era um vetor de estados alvo e a ação de controle era computada como um
+                                O alvo do controlador era um vetor de estados alvo e a ação de controle era um conjunto de valores em $\big\{-1, 0, 1\big\}$ computado como um
                                 problema MILP <span class="italic">(Mixed-Integer Linear Programming)</span>.</p>
                                 <p>Uma consequência desse método é que a trajetória cíclica do sistema é efeito de como os estados
                                     se aproximam ao alvo.
@@ -175,19 +177,24 @@
 
                         <div class="fragment fade-in-then-out">
                             <p data-id="title2">Marcolino (2018)</p>
-                            <div class="text-2xl text-justify">
-                                <!-- o que estamos fazendo aqui? -->
-                                <p>Esse trabalho resolve o problema de controle em duas etapas, uma fase <i class="italic">off-line</i>
-                                    que utiliza um algoritmo de otimização para encontrar uma sequência de chaveamento que minimiza
-                                    um funcional associado ao desempenho do sistema.</p>
-                                <p>E uma segunda etapa que consome a trajetória resultante como parâmetro de entrada e leva o sistema
-                                    à trajetória alvo empregando controle preditivo, controlando o sistema através de perturbações nos
-                                    instantes de chaveamento de estados.
-                                </p>
-                                <p>Para isso, o autor desenvolveu um procedimento de linearização para obter a equação de predição
-                                    do sistema para poder resolver o problema de controle com um controle preditivo utilizando
-                                    programação quadrática.
-                                </p>
+                            <div class="r-stack">
+                                <div class="text-2xl text-justify">
+                                    <!-- o que estamos fazendo aqui? -->
+                                    <p>Esse trabalho resolve o problema de controle em duas etapas, uma fase <i class="italic">off-line</i>
+                                        que utiliza um algoritmo de otimização para encontrar uma sequência de chaveamento que minimiza
+                                        um funcional associado ao desempenho do sistema.</p>
+                                    <p>E uma segunda etapa que usa a trajetória resultante como parâmetro de entrada e leva o sistema
+                                        à trajetória alvo empregando controle preditivo, controlando o sistema através de perturbações nos
+                                        instantes de chaveamento de estados.
+                                    </p>
+                                    <p>Para isso, o autor desenvolveu um procedimento de linearização para obter a equação de predição
+                                        do sistema para poder resolver o problema de controle com um controle preditivo utilizando
+                                        programação quadrática.
+                                    </p>
+                                </div>
+                                <div class="flex justify-center">
+                                    <img class="hidden img_hidden" src="img/controle_ilustracao_comando.png" alt="">
+                                </div>
                             </div>
                         </div>
 
@@ -207,12 +214,27 @@
                             <p>Esse trabalho propõe extender a solução apresentada por Marcolino e resolver o problema
                                 de controle para sistemas chaveados afim com restrição de tempo de chaveamento para
                                 um caso mais geral.</p>
-                            <p>Sua solução trata o problema de controlar o sistema para um ciclo limite desejado e
+
+                            <p>Marcolino trata o problema de controlar o sistema para um ciclo limite desejado e
                                 está restrita a sistemas que o chaveamento afeta apenas a entrada de controle.
                             </p>
+
+                            <p>
+                                \[
+                                    \dot{x}(t) = A_c x(t) + B_c u(t)
+                                \]
+                            </p>
+
                             <p>Nesse trabalho então, a solução deve ser mais geral para cobrir sistemas que a matriz $A$
                                 também muda com o chaveamento.
                             </p>
+
+                            <p>
+                                \[
+                                    \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}
+                                \]
+                            </p>
+
                             <p>Essa abordagem é focada no algoritmo de controle, porém as ações de controle são dependentes
                                 de uma trajetória de referência calculada. Portanto, utilizamos o método de cálculo de trajetória
                                 de Patino e o método deve ser capaz de levar o sistema para a trajetória cíclica alvo.
@@ -1040,7 +1062,7 @@
                                 </div>
 
                                 <div>
-                                    <img class="hidden img_restricoes" src="img/controle_ilustracao_comando.png">
+                                    <img class="hidden img_hidden" src="img/controle_ilustracao_comando.png">
                                 </div>
 
                             </div>
@@ -1092,7 +1114,7 @@
                                     </p>
                                 </div>
                                 <div>
-                                    <img class="hidden img_restricoes" src="img/controle_ilustracao_comando.png">
+                                    <img class="hidden img_hidden" src="img/controle_ilustracao_comando.png">
                                 </div>
                             </div>
                         </div>
@@ -1652,7 +1674,7 @@
             
             function toggleImgRestricoes(el)
             {
-                const imgs = document.querySelectorAll('.img_restricoes')
+                const imgs = document.querySelectorAll('.img_hidden')
                 
                 imgs.forEach((img) => {
                     if (img.classList.contains('hidden'))
