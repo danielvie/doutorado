@@ -305,8 +305,6 @@
                                 em que $\\\;\\\quad\tau^\infty = \big[t_1, t_2, \dotsm, t_{s^\infty}\big]$, $\Omega^\infty = \big[\sigma_1,
                                 \sigma_2, \dotsm, \sigma_{s^\infty}\big]$,
                                 $\\\;\\\quad Q=Q^T>0,$ 
-                                $\\\;\\\quad T_p$ é o período do ciclo e 
-                                $\\\;\\\quad x(0) = x(T_p)$
                             </p>
                         </div>
 
@@ -322,9 +320,17 @@
                                 \]
                             </p>
                             <p>
-                                Como precisamos de uma trajetória cíclica como alvo, calculamos a condição inicial para que isso seja verdade
-                                na avaliação da função custo.
+                                <i class="text-sky-400 mr-2">*</i> $T_p$ é o período do ciclo e 
                             </p>
+                            <p>
+                                Precisamos de uma trajetória cíclica como alvo, então calculamos uma condição inicial 
+                                para que, quando a sequência de chaveamento for executada na condição nominal,   
+                                o sistema se encontra no estado inicial.
+                            </p>
+                            <p>
+                                <i class="text-sky-400 mr-2">*</i> $x(t_N) = x(0)$
+                            </p>
+                            <p>Portanto</p>
                             <p>
                                 \[
                                 \begin{aligned}
@@ -415,8 +421,14 @@
 
                         <div class="fragment fade-in-then-out text-xl text-justify">
                             <p>Empregamos o <span class="underline text-sky-500 font-bold">FMINCON</span> para fazer o calculo de otimização com as restrições de tempo da trajetória cíclica</p>
+                            <p>
+                                O resultado do calculo da trajetória são os valores dos instantes de chaveamento
+                            </p>
+                            <p class="tab1">
+                                $\tau^\infty = \big[t_1, t_2, \dotsm, t_{s^\infty}\big]$
+                            </p>
                             <div class="flex justify-center">
-                                <img src="img/intro_trajetoria_no_tempo.png" class="">
+                                <img class="h-[16em]" src="img/intro_trajetoria_no_tempo.png">
                             </div>
                         </div>                       
 
