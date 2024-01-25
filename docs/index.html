@@ -39,13 +39,7 @@
         <div class="reveal">
             <div class="slides">
 
-                <!-- 1_ apresentação
-                    - nome
-                    - orientador
-                    - titulo
-                    - data
-                    - ITA?
-                 -->
+                <!-- 1_ apresentação -->
                 <section data-auto-animate >
                     <div class="relative">
                         <h3 data-id="title" class="slide_title relative">
@@ -71,34 +65,65 @@
                     </div>
                 </section>
 
-                <!-- 2_ introduction
-                    - motivation: explicar o problema e como propomos resolver
-                    - previous works: mostrar trabalhos anteriores
-                        -> Benmiloud
-                        -> Patino
-                        -> Márcio Vieira
-                        -> Matheus Marcolino
-                        (falar do mais geral pro mais especifico)
-                    - contributions of the work
-                -->
+                <!-- 2_ introdução -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Introdução</span>
                     </h3>
-                    <div class="text-justify text-3xl comentario">
+
+                    <div class="text-justify text-3xl">
                         <!-- o que estamos fazendo aqui? -->
-                        <p>Esse trabalho propõe a solução de problemas de controle para sistemas chaveados afins
+                        <!-- <p>Esse trabalho propõe a solução de problemas de controle para sistemas chaveados afins
                             submetidos a restrições de dwell-time
                         </p>
                         <p>Esse tipo de problema tem a característica de estabilizar em um ciclo limite</p>
                         <p>E também possui limitações de tempo em atuação (quando um comando é feito, há um tempo mínimo
                             até que o próximo comando possa ser executado)
                         </p>
-                        <p>- why are we doing this?</p>
+                        <p>- why are we doing this?</p> -->
+
+                        <!-- <p>Esse trabalho propõe extender a solução apresentada por Marcolino e resolver o problema
+                            de controle para sistemas chaveados afim com restrição de tempo de chaveamento para
+                            um caso mais geral.</p>
+                        <p>Sua solução trata o problema de controlar o sistema para um ciclo limite desejado e
+                            está restrita a sistemas que o chaveamento afeta apenas a entrada de controle.
+                        </p>
+                        <p>Nesse trabalho então, a solução deve ser mais geral para cobrir sistemas que a matriz $A$
+                            também muda com o chaveamento.
+                        </p>
+                        <p>Essa abordagem é focada no algoritmo de controle, porém as ações de controle são dependentes
+                            de uma trajetória de referência calculada. Portanto, utilizamos o método de cálculo de trajetória
+                            de Patino e o método deve ser capaz de levar o sistema para a trajetória cíclica alvo.
+                        </p> -->
+
+                        <p>
+                            Esse trabalho propõe uma solução para problemas de controle de sistemas chaveador afins submetidos a 
+                            restrição temporais de chaveamento.
+                        </p>
+                        <p>
+                            \[
+                                \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}
+                            \]
+                        </p>
+                        <p>
+                            Esse tipo de problema tem a característica de estabilizar em um ciclo limite que impacta diretamente
+                            no desempenho do sistema.
+                        </p>
+                        <p class="obs">
+                            ex: chaveamentos em alta frequência pode implicar um aquecimento do sistema.
+                        </p>
+                        <p>
+                            A restrição temporal também pode apresentar desafios na solução do problema, quando há uma ação 
+                            de chaveamento pode ser que o sistema só possa executar um novo chaveamento após um tempo mínimo.
+                        </p>
+                        <p class="obs">
+                            ex: controle por jatos de gás
+                        </p>
                     </div>
+                    
                 </section>
 
-                <!-- 3_ introducao - trabalhos feitos -->
+                <!-- 3_ introdução: trabalhos feitos -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Introdução: Trabalhos Feitos</span>
@@ -169,13 +194,14 @@
                     </div>
                 </section>
 
-                <!-- 4_ introducao - trabalho atual -->
+                <!-- 4_ introdução: trabalho atual -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Introdução: Trabalho Atual</span>
                     </h3>
 
                     <div class="r-stack">
+
                         <div class="fragment fade-in-then-out text-2xl text-justify">
                             <!-- o que estamos fazendo aqui? -->
                             <p>Esse trabalho propõe extender a solução apresentada por Marcolino e resolver o problema
@@ -193,97 +219,189 @@
                             </p>
                         </div>
 
-                        <div class="fragment fade-in-then-out">
-                            <p class="text-3xl">
+                        <div class="fragment fade-in-then-out text-justify text-2xl">
+                            <!-- <p class="text-3xl">
                                 \[\begin{aligned}
                                 \dot{x}(t) &amp; = A_{\sigma(t)} x(t) + b_{\sigma(t)} \\
                                 \end{aligned} \]
+                            </p> -->
+                            
+                            <p>
+                                A maneira que abordamos esse problema é em duas etapas:
                             </p>
-                            
-                            <ul class="text-2xl">
-                                <li>etapas</li>
-                                <ul>
-                                    <li>1. calcular uma trajetória de referência para o sistema usando o FMINCON</li>
-                                    <li>2. calcular a equacao de predicao e montar as restricoes de tempo</li>
-                                    <li>3. aplicar o MPC com programacao quadratica convexa</li>
-                                </ul>
-                            </ul>
-                            
+                            <div class="grid grid-cols-2 gap-20">
+                                <div>
+                                    <p>
+                                        1. Calculamos uma trajetória cíclica para o sistema
+                                    </p>
+                                    <p class="flex justify-center">
+                                        <img class="h-64" src="img/intro_trajetoria_no_tempo.png">
+                                    </p>
+                                </div>
+                                <div class="">
+                                    <p>
+                                        2. Calculamos a equação de predição para o sistema para 
+                                        alimentar o controle MPC
+                                    </p>
+                                    <p>
+                                        <img class="h-64" src="img/controle_ilustracao_comando.png">
+                                    </p>
+                                </div>
+                            </div>
                         </div>
 
                     </div>
-
-
-
                 </section>
 
-                <!-- 5_ determinação da trajetória alvo 
-                    - explicar a formulação do problema
-                        -> optimization
-                        -> calculating x_0
-                        -> application examples
-                    - apresentar as dinâmicas dos exemplos
-                        -> buck-boost converter
-                        -> multinível converter
-                        -> cost function ?
-                        -> optimization of system dynamics ?
-                -->
+                <!-- 5_ trajetória alvo -->
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Trajetória Alvo</span>
                     </h3>
 
                     <div class="r-stack">
-                        <div class="fragment fade-in-then-out">
-                            <p class="text-xl text-justify">A determinação da trajetória alvo está sendo feita usando a abordagem de Patino
-                                (2010), um sistema na forma</p>
-                            <p class="text-xl">
+                        <div class="fragment text-justify text-xl fade-in-then-out">
+                            <p>A determinação da trajetória alvo está sendo feita usando a abordagem de Patino
+                                (2010)
+                            </p>
+                            <p>
+                                Um sistema to tipo:
+                            </p>
+                            <p>
                                 \[\begin{aligned}
                                 \dot{x}(t) &= A_{\sigma(t)} x(t) + b_{\sigma(t)} \\
                                 \end{aligned} \]
                             </p>
-                            <p class="text-xl text-justify">é otimizado com a função custo</p>
-                            <p class="text-xl">
+                            <p>é otimizado com a função custo</p>
+                            <p>
                                 \[\begin{aligned}
                                 J(\tau^{\infty} ,\Omega^{\infty} ,s^{\infty}, x_0) &= \min_{\tau, \Omega, s} \int_0^{T_p} \Big[x(t) -
                                 \bar{x}^{\infty}\Big]^T Q \Big[x(t) - \bar{x}^{\infty}\Big] dt
                                 \end{aligned} \]
                             </p>
-                            <p class="text-xl text-justify">
+                            <p>
                                 em que $\\\;\\\quad\tau^\infty = \big[t_1, t_2, \dotsm, t_{s^\infty}\big]$, $\Omega^\infty = \big[\sigma_1,
                                 \sigma_2, \dotsm, \sigma_{s^\infty}\big]$,
-                                $\\\;\\\quad Q=Q^T>0,\;$ $T_p$ é o período do ciclo e $x(0) = x(T_p)$
+                                $\\\;\\\quad Q=Q^T>0,$ 
+                                $\\\;\\\quad T_p$ é o período do ciclo e 
+                                $\\\;\\\quad x(0) = x(T_p)$
                             </p>
-                            <p class="text-xl text-justify">
-                                as restrições do problema são
-                                $\\\;\\\quad T_p \le T_{p,max}$
-                            </p>
-                            <p class="text-xl text-justify">
-                                e
-                                $\\\;\\\quad (t_i - t_{i-1}) \ge \Delta t_{i,min}$
-                            </p>
-                            <img src="img/intro_trajetoria_no_tempo.png" class="w-2/5 absolute right-10 bottom-0">
                         </div>
 
-                        <div class="fragment fade-in-then-out">
-                            <p class="text-xl text-justify">
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <p>A trajetória calculada deve respeitar as restrições de tempo do problema</p>
+                            <p>
+                                \[
+                                \begin{aligned}
+                                T_p &\le T_{p,max}, \\
+                                \\ 
+                                (t_i - t_{i-1}) &\ge \Delta t_{i,min}
+                                \end{aligned}
+                                \]
+                            </p>
+                            <p>
                                 Como precisamos de uma trajetória cíclica como alvo, calculamos a condição inicial para que isso seja verdade
                                 na avaliação da função custo.
                             </p>
-                            <p class="text-2xl text-justify">
-                                $[0 \rightarrow t_1] : \dot{x}= A_{\sigma(0)} x + b_{\sigma(0)} \\$
-                                $[t_1 \rightarrow t_2] : \dot{x}= A_{\sigma(t_1)} x + b_{\sigma(t_1)} \\$
-                                $\qquad \vdots\\$
-                                $[t_{N-1} \rightarrow t_N] : \dot{x}= A_{\sigma(t_{N-1})} x + b_{\sigma(t_{N-1})}$
+                            <p>
+                                \[
+                                \begin{aligned}
+                                [0 \rightarrow t_1] : \dot{x} &= A_{\sigma(0)} x + b_{\sigma(0)} \\
+                                [t_1 \rightarrow t_2] : \dot{x} &= A_{\sigma(t_1)} x + b_{\sigma(t_1)} \\
+                                \qquad \vdots\\
+                                [t_{N-1} \rightarrow t_N] : \dot{x} &= A_{\sigma(t_{N-1})} x + b_{\sigma(t_{N-1})}
+                                \end{aligned}
+                                \]
                             </p>
-                            <img src="img/intro_trajetoria_no_tempo.png" class="w-2/5 absolute right-10 bottom-0">
                         </div>
+
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <p>A solução da primeira região é:</p>
+                            <p class="tab1">
+                                \[
+                                \begin{aligned}
+                                x(t_1) &= \green{e^{A_{\sigma(0)} t_1}} x(0) + 
+                                \orange{\int_{0}^{t_1}{e^{A_{\sigma(0)}(t_1 - \tau)} b_{\sigma(0)} d\tau}} \\
+                                x(t_1) &= \green{F_0} x(0) + \orange{g_0}
+                                \end{aligned}
+                                \]
+                            </p>
+                            <p>Repetindo isso para as outras regiões</p>
+                            <p>
+                                \[
+                                \begin{aligned}
+                                x(t_1) &= F_0 x(0) + g_0 \\
+                                x(t_2) &= F_1 x(t_1) + g_1 \\
+                                &\qquad \vdots \\ 
+                                x(t_N) &= F_{N-1} x(t_{N-1}) + g_{N-1}
+                                \end{aligned}
+                                \]
+                            </p>
+                            <p>com</p>
+                            <p class="tab1">
+                                \[
+                                \begin{aligned}
+                                F_i &= e^{A_{\sigma(t_i)}(t_{i+1} - t_i)} \\
+                                g_i &= \int_{t_i}^{t_{i+1}}{e^{A_{\sigma(t_i)}(t_{i+1} - \tau)} b_{\sigma(t_i)} d\tau} =
+                                \int_{0}^{t_{i+1} - t_i}{e^{A_{\sigma(t_i)}\tau} b_{\sigma(t_i)} d\tau}
+                                \end{aligned}
+                                \]
+                            </p>
+                        </div>
+
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <p>
+                                Assim, podemos fazer a ligação entre $x(t_N)$ 
+                                e $x(0)$
+                            </p>
+                            <p class="tab1">
+                                \[
+                                \begin{aligned}
+                                x(t_N) &= F_{N-1}F_{N-2} \ldots F_0 x(0) + \\
+                                &\quad\; \green{F_{N-1}F_{N-2} \ldots F_1 g_0 + F_{N-1}F_{N-2} \ldots F_2 g_1 + \ldots +} \green{F_{N-1} g_{N-2} +
+                                g_{N-1}} \\
+                                \\
+                                x(t_N) &= F_{N-1} F_{N-2}\ldots F_0 x(0) + \green{c}
+                                \end{aligned}
+                                \]
+                            </p>
+                            <p>
+                                Para que a trajetória seja cíclica, $x(t_N) = x(0)$ 
+                                e a solução para $x(0)$ é:
+                            </p>
+                            <p>
+                                \[
+                                \begin{aligned}
+                                x(0) = F_{N-1}F_{N-2} \ldots F_0 x(0) + c \\
+                                \Big(I - F_{N-1}F_{N-2} \ldots F_0\Big) x(0) = c \\
+                                \blue{x(0) = \Big(I - F_{N-1}F_{N-2} \ldots F_0\Big)^{-1} c}
+                                \end{aligned}
+                                \]
+                            </p>
+                            <p>em que</p>
+                            <p>
+                                \[
+                                c = F_{N-1}F_{N-2} \ldots F_1 g_0 + F_{N-1}F_{N-2} \ldots F_2 g_1 + \ldots + F_{N-1} g_{N-2} + g_{N-1}
+                                \]
+                            </p>
+                            
+
+
+
+                        </div>
+
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <p>Empregamos o <span class="underline text-sky-500 font-bold">FMINCON</span> para fazer o calculo de otimização com as restrições de tempo da trajetória cíclica</p>
+                            <div class="flex justify-center">
+                                <img src="img/intro_trajetoria_no_tempo.png" class="">
+                            </div>
+                        </div>                       
 
                     </div>
 
                 </section>
 
-                <!-- 6_ aplicação buck-boost -->
+                <!-- 6_ trajetória: conversor buck-boost -->
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <p class="text-4xl">trajetória: Conversor buck-boost</p>
@@ -367,7 +485,7 @@
                     </div>
                 </section>
 
-                <!-- 7_ trajetoria multinível -->
+                <!-- 7_ trajetória: conversor multinível -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
                         <p class="text-4xl">trajetória: Conversor multinível</p>
@@ -583,12 +701,7 @@
 
                 </section>
 
-                <!-- 8_ controle preditivo: equação de predição
-                    - procedimento de linearização
-                    - mpc
-                        -> função custo
-                        -> restrições de tempo de chaveamento
-                -->
+                <!-- 8_ controle: equação de predição -->
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Equação de Predição</span>
@@ -597,32 +710,32 @@
                     <div class="r-stack">
 
                         <div class="fragment fade-in-then-out">
-                            <p class="text-3xl">
+                            <p class="text-2xl">
                                 \[ \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)} \]
                             </p>
-                            <img src="img/controle_ilustracao_comando.png">
+                            <div class="flex justify-center">
+                                <img src="img/controle_ilustracao_comando.png">
+                            </div>
                         </div>
                 
-                        <div class="fragment fade-in-then-out">
-                            <p class="text-3xl text-sky-400">
-                                \[ \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)} \]
-                            </p>
-                            <p class="text-3xl">
-                                \[\begin{aligned}
-                                x(t_1) &= e^{A_1(t_1-t_0)}x(t_0) + \intlinAA{0}{1}{}{} \\
-                                \bar{x}(\bar{t}_1) &= e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0) + \intlinAbtt{0}{1} \\
-                                \end{aligned} \]
-                            </p>
-                        </div>
-                
-                        <div class="fragment fade-in-then-out text-3xl">
+                        <div class="fragment fade-in-then-out text-justify text-xl">
                             <p>
+                                A solução para a equação de estados
+                            </p>
+                            <p class="text-sky-400">
+                                \[ \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)} \]
+                            </p>
+                            <p>
+                                é na forma de
+                            </p>
+                            <p class="tab1">
                                 \[\begin{aligned}
                                 x(t_1) &= e^{A_1(t_1-t_0)}x(t_0) + \intlinAA{0}{1}{}{} \\
                                 \bar{x}(\bar{t}_1) &= e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0) + \intlinAbtt{0}{1} \\
                                 \end{aligned} \]
                             </p>
-                            <p data-id="fragment">
+                            <p>subtraindo os termos</p>
+                            <p class="tab1">
                                 \[
                                 \begin{split}
                                 x(t_1) - \bar{x}(\bar{t}_1) = \green{\overbrace{e^{A_1(t_1-t_0)}x(t_0) -
@@ -634,20 +747,20 @@
                         </div>
                 
                         <div class="fragment fade-in-then-out text-3xl">
-                            <p data-id="fragment">
+                            <p>
                                 \[
                                 \begin{aligned}
                                 \green{\square} &= \green{e^{A_1(t_1-t_0)}x(t_0) - e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)} \\
                                 &= \green{e^{A_1(\bar{t}_1 + \delta t_1 - t_0)}x(t_0) - e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)}
                                 \\
-                                &= \blue{e^{A_1(\bar{t}_1 - t_0)}} \green{e^{\delta t_1} x(t_0)} \green{-}
+                                &= \blue{e^{A_1(\bar{t}_1 - t_0)}} \green{e^{A_1 \delta t_1} x(t_0)} \green{-}
                                 \blue{e^{A_1(\bar{t}_1-\bar{t}_0)}}\green{\bar{x}(\bar{t}_0)} \\
-                                &= \blue{\bar{F}_1} \purple{e^{\delta t_1}} \green{x(t_0)} \green{-}
+                                &= \blue{\bar{F}_1} \purple{e^{A_1 \delta t_1}} \green{x(t_0)} \green{-}
                                 \blue{\bar{F}_1}\green{\bar{x}(\bar{t}_0)}
                                 \\
                                 &= \green{\bar{F}_1} \purple{(I + A_1 \delta t_1)} \green{x(t_0)} \green{-}
                                 \green{\bar{F}_1}\green{\bar{x}(\bar{t}_0)} \\
-                                &= \green{\bar{F}_1 [x(t_0) - \bar{x}(t_0)] + \bar{F}_1 A_1 \delta t_1}
+                                &= \green{\bar{F}_1 [x(t_0) - \bar{x}(t_0)] + \bar{F}_1 A_1 \delta t_1 x(t_0)}
                                 \end{aligned}
                                 \]
                             </p>
@@ -663,13 +776,15 @@
                                 \orange{ -\blue{\intlinAbft{0}{1}} } \\
                                 &= \orange{ \pink{e^{A_1 \delta t_1}} [ \blue{\bar{G}_1} + \purple{B_1 \delta t_1} ] - \blue{\bar{G}_1}
                                 } \\
-                                &= \orange{ \pink{(I + A_1 \delta t_1)}[ \bar{G}_1 + B_1 \delta t_1 ] - \bar{G}_1 } \\
-                                &= \orange{ \cancel{\bar{G}_1} + B_0 \delta t_1 + A_1 \bar{G}_1 \delta t_1 + \cancel{A_1 B_1 \delta t_1
-                                \delta
-                                t_1} - \cancel{\bar{G}_1} } \\
+                                &\approx \orange{ \pink{(I + A_1 \delta t_1)}[ \bar{G}_1 + B_1 \delta t_1 ] - \bar{G}_1 } \\
+                                &= \orange{ \cancel{\bar{G}_1} + B_0 \delta t_1 + A_1 \bar{G}_1 \delta t_1 + \green{\cancel{A_1 B_1 \delta t_1 \delta t_1}} 
+                                - \cancel{\bar{G}_1} } \\
                                 &= \orange{ A_1 \bar{G}_1 \delta t_1 + B_1 \delta t_1 }
                                 \end{aligned}
                                 \]
+                            </p>
+                            <p class="text-green-600">
+                                * desprezando produtos de deltas
                             </p>
                         </div>
                 
@@ -687,50 +802,208 @@
                             </p>
                         </div>
                 
-                        <div class="fragment fade-in-then-out text-2xl">
+                        <div class="fragment fade-in-then-out text-justify text-xl">
                             <p>
-                                \[
-                                \vdots
-                                \]
+                                Da mesma maneira, o segundo intervalo
                             </p>
-                        </div>
-                
-                        <div class="fragment fade-in-then-out text-xl">
-                            <p data-id="fragment">
+                            <p class="tab1">
+                            \[
+                            \begin{aligned}
+                            x(t_2)  &= e^{A_2(t_2-t_1)}x(t_1) + \intlinAA{1}{2}{}{} \\
+                            \bar{x}(\bar{t}_2) &= e^{A_2(\bar{t}_2-\bar{t}_1)}\bar{x}(\bar{t}_1) + \intlinAbtt{1}{2}
+                            \end{aligned}
+                            \]
+                            </p>
+                            <p>com a subtração dos termos</p>
+                            <p class="tab1">
                                 \[
                                 \begin{aligned}
-                                e(t) &= x(t) - \bar{x}(\bar{t}) \\
-                                \Phi &= \bar{F}_{N} \bar{F}_{N-1} \ldots \bar{F_1} \\
-                                \Gamma &= \Big[ \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_2} [(A_1 - A_2) \bar{x}(\bar{t}_1) + B_1 - B_2],
-                                \\
-                                & \qquad \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_3} [(A_2 - A_3) \bar{x}(\bar{t}_2) + B_2 - B_3], \\
-                                & \qquad \qquad \vdots \\
-                                & \qquad \bar{F}_{N}[(A_{N-1} - A_{N}) \bar{x}(\bar{t}_{N-1}) + B_{N-1} - B_{N}], \\
-                                & \qquad A_{N} \bar{x}(\bar{t}_{N}) + B_{N}\Big] \\
-                                \delta t &= [\delta t_1, \delta t_2, \ldots, \delta t_N]^T
+                                x(t_2) - \bar{x}(\bar{t}_2) =
+                                \green{\overbrace{e^{A_2(t_2-t_1)}x(t_1) - e^{A_2(\bar{t}_2-\bar{t}_1)}\bar{x}(\bar{t}_1)}^{\square}} \\
+                                + \orange{\underbrace{\intlinAA{1}{2}{}{} - \intlinAbtt{1}{2}}_{\bigcirc}}
                                 \end{aligned}
                                 \]
                             </p>
-                            <div class="flex items-center justify-center">
-                                <p class="r-frame w-1/2">
-                                    \[\begin{aligned}
-                                    e(t_N) = \Phi e(t_0) + \Gamma \delta t
-                                    \end{aligned} \]
-                                </p>
-                            </div>
-                            <div class="flex items-center justify-center">
-                                <p class="r-frame w-1/2">
-                                    \[\begin{aligned}
-                                    e(t_{j,N}) = \Phi e(t_{j,0}) + \Gamma \delta t[j]
-                                    \end{aligned} \]
-                                </p>
-                            </div>
                         </div>
+
+                        <div class="fragment fade-in-then-out text-justify text-3xl">
+                            <p>
+                                \[
+                                \begin{aligned}
+                                    \green{ \square } &=
+                                    \green{
+                                        e^{A_2(\bar{t}_2 + \delta t_2 - \bar{t}_1 - \delta t_1)} x(t_1)
+                                        - e^{A_2(\bar{t}_2 - \bar{t}_1)} \bar{x}(\bar{t}_1)
+                                    } \\
+                                    &= \green{
+                                        \blue{\Fri{1}{2}} \purple{e^{A_2(\delta t_2 - \delta t_1)}} x(t_1)
+                                        - \blue{\Fri{1}{2}} \bar{x}(\bar{t}_1)
+                                    } \\
+                                    &= \green{
+                                        \blue{\bar{F}_2} \purple{[I + A_2(\delta t_2 - \delta t_1)]} x(t_1)
+                                        - \blue{\bar{F}_2} \bar{x}(\bar{t}_1)
+                                    } \\
+                                    &= \green{
+                                        \bar{F}_2 [x(t_1) - \bar{x}(\bar{t}_1)] + \bar{F}_2 A_2 x(t_1) \delta t_2
+                                        - \bar{F}_2 A_2 x(t_1) \delta t_1
+                                    }
+                                \end{aligned}
+                                \]
+                            </p>
+                        </div>
+
+                        <div class="fragment fade-in-then-out text-justify text-xl">
+                            <p>
+                                \[
+                                    \begin{aligned}
+                                        \orange{\bigcirc} &= \orange{\intlinAA{1}{2}{}{} - \intlinAbtt{1}{2}} \\
+                                        &= \orange{ \intlinCbtt{1}{2} - \intlinAbtt{1}{2}} \\
+
+                                        &= \orange{ \purple{ e^{A_2 \delta t_2} } \bigg[ \blue{\intlinAbtt{1}{2}} - \intlinBb{1}{1} + \intlinBb{2}{2} \bigg] } \\
+                                        &\qquad \orange{ - \blue{\intlinAbtt{1}{2}} } \\
+
+                                        &= \orange{ \purple{(I + A_2 \delta t_2)} \bigg[ \blue{\bar{G}_2} - \pink{\intlinBb{1}{1}} + \pink{\intlinBb{2}{2}} \bigg] } \orange{ - \blue{\bar{G}_2} } \\
+
+                                        &= \orange{ (I + A_2 \delta t_2) \bigg[ \bar{G}_2 - \pink{e^{A_2(\bar{t}_2 - \bar{t}_1)} B_2 \delta t_1} + \pink{B_2 \delta t_2} \bigg] } \orange{ - \bar{G}_2 } \\
+
+                                        &= \orange{ (I + A_2 \delta t_2) \bigg[ \bar{G}_2 - \pink{\bar{F}_2 B_2 \delta t_1} + B_2 \delta t_2 \bigg] } \orange{ - \bar{G}_2 } \\
+
+                                        &= \orange{ \cancel{\bar{G}_2} - \bar{F}_2 B_2 \delta t_1 + B_2 \delta t_2 + A_2 \bar{G}_2 \delta t_2 -
+                                        \cancel{\bar{G}_2} } \\
+                                        &= \orange{ A_2 \bar{G}_2 \delta t_2 + B_2 \delta t_2 - \bar{F}_2 B_2 \delta t_1 }
+
+                                    \end{aligned}
+                                \]
+                            </p>
+                        </div>
+                        
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <p>
+                                substituindo os valores de $\green{\square}$ e $\orange{\bigcirc}$:
+                            </p>
+                            <p>
+                                \[
+                                \begin{aligned}
+                                x(t_2) - \bar{x}(\bar{t}_2) =  &\; \bar{F}_2 [\green{x(t_1) - \bar{x}_1(\bar{t}_1)}] - \bar{F}_2 [A_2 \blue{x(t_1)} + B_2] \delta t_1 \\
+                                & \quad + [ \bar{F}_2 A_2 \blue{\underbrace{x(t_1)}_{\triangle}} + A_2 \bar{G}_2 + B_2] \delta t_2
+                                \end{aligned}
+                                \]
+                            </p>
+                            <p>
+                                com
+                            </p>
+                            <p class="tab1">
+                                \[
+                                \blue{\triangle} = x(t_1) = \bar{x}(\bar{t}_1) + \bar{F}_1 [ x(t_0) - \bar{x}(t_0) ] + [ \bar{F}_1 A_1 x(t_0) + A_1 \bar{G}_1 + B_1 ] \delta t_1 
+                                \]
+                            </p>
+                            <p>
+                                * note que quando $\blue{\triangle}$ for substituído isso produz um produto com $\delta t_1$ e $\delta t_2$ 
+                            </p>
+
+                            <p class="tab1">
+                                \[
+                                x(t_1)\delta t_1 = \bar{x}(\bar{t}_1)\delta t_1 + \bar{F}_1 \red{\overbrace{ [ x(t_0) - \bar{x}(t_0) ]\delta t_1 }^{\square}} + 
+                                [ \bar{F}_1 A_1 x(t_0) + A_1 \bar{G}_1 + B_1 ] \purple{\overbrace{\delta t_1\delta t_1}^{\bigcirc}} 
+                                \]
+                            </p>
+                            <p>
+                                $\red{\square}$ e $\purple{\bigcirc}$ são produtos de diferenças que produzem resultados pequenos e serão
+                                desprezados nesse equacionamento na aproximação de primeira ordem
+                            </p>
+                        </div>
+
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <p>
+                                O resultado da segunda diferença é
+                            </p>
+                            <p class="tab1">
+                                \[
+                                \begin{aligned}
+                                    x(t_2) - \bar{x}(\bar{t}_2) =  & \bar{F}_2 \bar{F}_1 [\blue{x(t_0)} - \blue{\bar{x}(t_0)}] \\
+                                    & \quad + \bar{F}_2 [\bar{F}_1 A_1 \blue{x(t_0)} + A_1 \bar{G}_1 - A_2 \blue{\bar{x}(\bar{t}_1)} + B_1 - B_2] \delta t_1 \\
+                                    & \quad + [\bar{F}_2 A_2 \blue{\bar{x}(\bar{t}_1)} + A_2 \bar{G}_2 + B_2] \delta t_2
+                                \end{aligned}
+                                \]
+                            </p>
+
+                        </div>
+
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <p>Repetindo o procedimento e substituindo os termos anteriores</p>
+
+                            <p class="tab1">
+                                \[
+                                \begin{aligned}
+                                x(t_N) - \bar{x}(\bar{t}_N) &=  \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_1} [x(t_0) - \bar{x}(t_0)] \\
+                                & + \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_2} [\green{\bar{F_1} A_1 x(t_0) + A_1 \bar{G}_1 - A_2 \bar{x}(\bar{t}_1) + B_1 - B_2}] \delta t_1 \\
+                                & + \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_3} [\green{\bar{F_2} A_2 x(t_1) + A_2 \bar{G}_2 - A_3 \bar{x}(\bar{t}_2) + B_2 - B_3}] \delta t_2 \\
+                                & \qquad \vdots \\
+                                & + \bar{F}_{N}[\green{\bar{F}_{N-1} A_{N-1} \bar{x}(t_{N-2}) + A_{N-1} \bar{G}_{N-1} - A_{N} \bar{x}(\bar{t}_{N-1})} \\ 
+                                & \qquad \qquad \qquad \green{+ B_{N-1} - B_{N}} ] \delta t_{N-1} \\
+                                & + [\orange{\bar{F}_{N} A_{N-1} \bar{x}(t_{N-1}) + A_{N} \bar{G}_{N} + B_{N}}] \delta t_N
+                                \end{aligned}
+                                \]
+                            </p>
+                        </div>
+
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <p>E após fazer manipulações algébricas</p>
+
+                            <p class="tab1">
+                                \[
+                                \begin{aligned}
+                                x(t_N) - \bar{x}(\bar{t}_N) =  & \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_1} [x(t_0) - \bar{x}(t_0)] \\
+                                & + \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_2} [\green{\bar{F_1} A_1 x(t_0) + A_1 \bar{G}_1 - A_2 \bar{x}(\bar{t}_1) + B_1 - B_2}] \delta t_1 \\
+                                & + \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_3} [\green{\bar{F_2} A_2 x(t_1) + A_2 \bar{G}_2 - A_3 \bar{x}(\bar{t}_2) + B_2 - B_3}] \delta t_2 \\
+                                & \qquad \vdots \\
+                                   & + \bar{F}_{N}[\green{\bar{F}_{N-1} A_{N-1} \bar{x}(t_{N-2}) + A_{N-1} \bar{G}_{N-1} - A_{N} \bar{x}(\bar{t}_{N-1})} \\ 
+                                   & \qquad \qquad \qquad \green{+ B_{N-1} - B_{N}} ] \delta t_{N-1} \\
+                                & + [\orange{\bar{F}_{N} A_{N-1} \bar{x}(t_{N-1}) + A_{N} \bar{G}_{N} + B_{N}}] \delta t_N
+                                \end{aligned}
+                                \]
+                            </p>
+                        </div>
+
+
+                        <!-- ?div
+                        yat}pO<Esc>j>>.....cit
+                        <Esc>k_ -->
+                        <!-- {xxx} -->
+
+
+
                 
+                        <div class="fragment fade-in-then-out text-xl">
+                            <p>
+                                \[
+                                \begin{aligned}
+
+                                e(t) &= x(t) - \bar{x}(\bar{t}) \\
+
+                                \Phi &= \bar{F}_{N} \bar{F}_{N-1} \ldots \bar{F_1} \\
+
+                                \Gamma &= \Big[ \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_2} [(A_1 - A_2) \blue{\bar{x}(\bar{t}_1)} + B_1 - B_2], \\
+                                & \qquad \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_3} [(A_2 - A_3) \blue{\bar{x}(\bar{t}_2)} + B_2 - B_3], \\
+                                & \qquad \qquad \vdots \\
+                                & \qquad \bar{F}_{N}[(A_{N-1} - A_{N}) \blue{\bar{x}(\bar{t}_{N-1})} + B_{N-1} - B_{N}], \\
+                                & \qquad A_{N} \blue{\bar{x}(\bar{t}_{N})} + B_{N}\Big] \\
+                                \delta t &= [\delta t_1, \delta t_2, \ldots, \delta t_N]^T \\
+
+                                \\
+                                \\
+                                e(t_N) &= \Phi e(t_0) + \Gamma \delta t \\
+                                e(t_{j,N}) &= \Phi e(t_{j,0}) + \Gamma \delta t[j] \\
+
+                                \end{aligned}
+                                \]
+                            </p>
+                        </div>
+
                     </div>
                 </section>
 
-                <!-- 9_ controle preditivo: restrições de tempo -->
+                <!-- 9_ controle: restrições de tempo -->
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Restrições de Tempo</span>
@@ -833,7 +1106,7 @@
                     </div>
                 </section>
 
-                <!-- 10_ Controle Preditivo: Aplicação - Integrador Duplo -->
+                <!-- 10_ controle preditivo: aplicação - integrador duplo -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle: Integrador Duplo</span>
@@ -969,7 +1242,7 @@
                     </div>
                 </section>
 
-                <!-- 11_ Controle Preditivo: Aplicação - Buck-Boost -->
+                <!-- 11_ controle preditivo: aplicação - buck-boost -->
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle: Buck-Boost</span>
@@ -1083,7 +1356,7 @@
                     </div>
                 </section>
 
-                <!-- 12_ Controle Preditivo: Aplicação - Multinível -->
+                <!-- 12_ controle preditivo: aplicação - multinível -->
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle: Conversor Multinível</span>
@@ -1206,19 +1479,7 @@
                     </div>
                 </section>
 
-                <!-- 13_ conclusão 
-                    - contribuição
-                        -> projeto de um sistema chaveado afim com dinâmica 
-                        variável e podemos complementar ocm testes de laboratório
-                        experimentais, contribuição pretendida
-                    - analise dos resultados
-                    - future work
-                        -> we propose the time to finish the project to be in 3 semesters:
-                            => first one to finish the theoretical dependencies 
-                            and analysis in the digital domain
-                            => a second to implement a real circuit in-lab
-                            => the third to wrap all results in the final work
-                -->
+                <!-- 13_ conclusão -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Conclusão</span>
@@ -1304,12 +1565,18 @@
                             '\\int_{t_{#3_#1}}^{t_{#4_#2}} {e^{A_#2(t_{#2} - \\tau)} B_#2 d \\tau}',
                         '\\intlinAbtt': 
                             '\\int_{\\bar{t}_{#1}}^{\\bar{t}_{#2}} {e^{A_{#2}(\\bar{t}_{#2} - \\tau)} B_{#2} d \\tau}',
+                        '\\intlinBb': 
+                            '\\int_{\\bar{t}_{#1}}^{\\bar{t}_{#1} + \\delta t_#1} {e^{A_{#2}(\\bar{t}_{#2} - \\tau)} B_{#2} d \\tau}',
                         '\\intlinCb': 
                             '\\int_{t_{#1}}^{\\bar{t}_{#2} + \\delta t_{#2}} {e^{A_#2(\\bar{t}_{#2} + \\delta t_{#2} - \\tau)} B_#2 d \\tau}',
+                        '\\intlinCbtt': 
+                            '\\int_{t_{#1} + \\delta t_#1}^{\\bar{t}_{#2} + \\delta t_{#2}} {e^{A_#2(\\bar{t}_{#2} + \\delta t_{#2} - \\tau)} B_#2 d \\tau}',
                         '\\intlinD': 
                             '\\int_{\\bar{t}_{#1}}^{\\bar{t}_{#2} + \\delta t_{#2}} {e^{A_#2(\\bar{t}_{#2} + \\delta t_{#2} - \\tau)} B_#2 d \\tau}',
                         '\\intlinAbft': 
                             '\\int_{t_#1}^{\\bar{t}_#2} {e^{A_#2(\\bar{t}_#2 - \\tau)} B_#2 d \\tau}',
+                        '\\Fri': 
+                            'e^{A_#2(\\bar{t}_#2 - \\bar{t}_#1)}',
                     }
                 },
 
@@ -1336,7 +1603,7 @@
                         "rounded-md", 
                         "absolute", 
                         "right-0", 
-                        "bottom-0", 
+                        "bottom-5", 
                         "text-base", 
                         "bg-sky-700",
                         "min-w-[2em]",
