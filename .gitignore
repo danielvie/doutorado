@@ -36,3 +36,9 @@ codegen/
 *.tcp
 *.toc
 *.tps
+
+# worktree
+master/
+
+# temp folders
+temp_*/

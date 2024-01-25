@@ -1,20 +1,24 @@
 % [y,t,u] = sim_n(config, Ts)
-function [y,t,u,m,dtk_out, y2,t2,m2] = sim_n2(config, nsim)
+function [y,t,m,dtk_out] = sim_n2(config, nsim)
+
+
+    % inicializacao variaveis de saida
+    nmodes  = numel(config.Omega);
+    nstates = numel(config.x0);
+
+
+    dtk_out = [];
+
+    y = zeros(nsim*nmodes, nstates); 
+    t = zeros(nsim*nmodes, 1);
+    m = zeros(nsim*nmodes, 1);
+
     
     cfg = config;
-    y   = [];
-    t   = [];
-    u   = [];
-    m   = [];
-    dtk_out = [];
+
+
     t0  = 0.0;
     x0  = cfg.x0;
-
-    y2  = [];
-    t2  = [];
-    m2  = [];
-
-    tt0  = 0.0;
     
     mpc_on = false;
     if isfield(cfg, 'mpc')
@@ -31,10 +35,12 @@ function [y,t,u,m,dtk_out, y2,t2,m2] = sim_n2(config, nsim)
             ek  = reshape(x0, [numelx0,1]) - reshape(cfg.mpc.x_target, [numelx0,1]);
 
             % calculo comando `dtk`
-            dtk = mpc.mpc_dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
+            [dtk, ~, ~] = mpc.mpc_dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
 
-            % aplicando diferenca de tempo calculada pelo controle em cima da trajetoria de referencia.
-            % nota: o tempo eh ajustado a partir de `j+1` porque o primeiro instante eh `0`.
+            % aplicando diferenca de tempo calculada pelo controle em cima
+            % da trajetoria de referencia.
+            % nota: o tempo eh ajustado a partir de `j+1` porque o primeiro
+            % instante eh `0`.
             Ts = config.Ts;
             for j = 1:numel(dtk)
                 Ts(j+1) = Ts(j+1) + dtk(j);
@@ -44,24 +50,21 @@ function [y,t,u,m,dtk_out, y2,t2,m2] = sim_n2(config, nsim)
         end
         
         % simulando dinamica
-        [y_,t_,u_,m_,~, y2_,t2_,m2_] = engine.sim_cycle2(cfg);
-        cfg.x0 = y_(end,:)';
+        [y_,t_,m_,~] = engine.sim_cycle2(cfg);
 
-        y   = [y;y_];
-        t   = [t;t_ + t0];
-        u   = [u;u_];
-        m   = [m;m_];
-        
+        % salvando estados
+        ii = (i-1)*nmodes + 1;
+        y(ii:ii+nmodes-1,:) = y_(1:nmodes,:);
+        t(ii:ii+nmodes-1)   = t_(1:nmodes) + t0;
+        m(ii:ii+nmodes-1)   = m_(1:nmodes);
+
+        % salvando acao de controle
         dtk_out = [dtk_out, dtk];
 
-
-        y2  = [y2; y2_];
-        t2  = [t2; t2_ + tt0];
-        m2  = [m2; m2_];
-
-        t0  = t(end);
+        % atualizando valores do prox ciclo
+        cfg.x0 = y_(end,:)';
+        t0  = t_(end) + t0;
         x0  = cfg.x0;
 
-        tt0 = t2(end);
     end
 end

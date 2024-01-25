@@ -1,21 +1,19 @@
 We need to compute the initial condition for the system for each evaluation of the cost function so that we have a periodic trajectory, 
-meaning that the last states of the trajectory we the same as the initial condition.
+meaning that the last states of the trajectory are the same as the initial condition.
 
 We can have different dynamics for each switching instant, so the system behaves as 
 
 \begin{align}
-    [0 \rightarrow t_1]   &: \dot{x}= A_{\sigma(0)} x + b_{\sigma(0)}  \nonumber \\
-    [t_1 \rightarrow t_2] &: \dot{x}= A_{\sigma(t_1)} x + b_{\sigma(t_1)} \nonumber \\
+    t \in \big[0, t_1\big]   &: \dot{x}= A_{\sigma(0)} x + b_{\sigma(0)}  \nonumber \\
+    t \in \big[t_1, t_2\big] &: \dot{x}= A_{\sigma(t_1)} x + b_{\sigma(t_1)} \nonumber \\
     &\qquad \vdots \nonumber \\
-    [t_{N-1} \rightarrow t_N] &: \dot{x}= A_{\sigma(t_{N-1})} x + b_{\sigma(t_{N-1})}
+    t \in \big[t_{N-1}, t_N\big] &: \dot{x}= A_{\sigma(t_{N-1})} x + b_{\sigma(t_{N-1})}
 \end{align}
 
 We can rewrite the solution for the first region as
 
 \noindent
 \begin{align}
-    x(t_1) &= e^{A_{\sigma(0)} t_1} x(0) + 
-            \int_{0}^{t_1}{e^{A_{\sigma(0)}(t_1 - \tau)} b_{\sigma(0)} d\tau} \nonumber \\
     x(t_1) &= \green{e^{A_{\sigma(0)} t_1}} x(0) + 
             \orange{\int_{0}^{t_1}{e^{A_{\sigma(0)}(t_1 - \tau)} b_{\sigma(0)} d\tau}} \nonumber \\
     x(t_1) &= \green{F_0} x(0) + \orange{g_0}
@@ -27,9 +25,9 @@ then the behavior of the other regions of the system is
 \noindent
 \begin{align}
     x(t_1) &= F_0 x(0) + g_0 \nonumber \\
-    x(t_2) &= F_1 x(1) + g_1 \nonumber \\
+    x(t_2) &= F_1 x(t_1) + g_1 \nonumber \\
     &\qquad \vdots \nonumber \\ 
-    x(t_N) &= F_{N-1} x(N-1) + g_{N-1}
+    x(t_N) &= F_{N-1} x(t_{N-1}) + g_{N-1}
     \label{cap2-get-x0-multi-equations}
 \end{align}
 

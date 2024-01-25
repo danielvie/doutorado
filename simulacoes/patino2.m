@@ -6,7 +6,6 @@ function vout = patino2(save_fig)
 
     % get configuration
     config = engine.get_config_sim_patino_2();
-    config.tstep = 1e-7;
 
     %% calculo da trajetoria
 
@@ -16,10 +15,6 @@ function vout = patino2(save_fig)
     opt.Display = 'iter';
     opt.ConstraintTolerance = 1e-5;
     % opt.PlotFcn = 'optimplotfvalconstr';
-
-    % open figure
-    % figure(5);
-    % clf();
 
     [config, x, ~] = engine.otmin(config, opt);
 
@@ -32,7 +27,7 @@ function vout = patino2(save_fig)
     dT = x;
     c.Ts = engine.get_ts(dT);
     c.x0 = engine.get_x0(config);
-    nsim = 50;
+    nsim = 300;
 
     % c.x0 = c.x0 + [4.5; 1.1; 3.1];
     % c.x0 = [0.0, 0.0, 0.0];
@@ -42,21 +37,19 @@ function vout = patino2(save_fig)
     % config_.x0 = x0;
     % [y,t,u] = sim_1(config_);
 
-    [y, t] = engine.sim_n(c, nsim);
+    [y, t] = engine.sim_n2(c, nsim);
 
     % renomeando variaveis
 
     % plot dos resultados
-    % close all;
-
-    f1 = figure(13);
+    f1 = figure(1);
     plotter.patino2.plot_xi(t, y);
 
-    f2 = figure(4);
-    [y,t,u,m,dtk_out] = engine.sim_n(c, 30);
-    plotter.patino2.plot_traj(y, "Multilevel Converter: Trajectory", "X_1: Voltage C_1 [V]", "X_2: Voltage C_2 [V]", "X_3: Current L [A]")
-    
-    f3 = figure(5);
+    f2 = figure(2);
+    [y,t,m] = engine.sim_n2(c, nsim);
+    plotter.patino2.plot_traj(y, "Multilevel Converter: Trajectory", "X_1: Voltage C_1 [V]", "X_2: Voltage C_2 [V]", "X_3: Current L [A]");
+
+    f3 = figure(3);
     i = t < c.Ts(end);
     plotter.patino2.plot_control_signal(t(i), m(i), "Multilevel Converter: Input Signal", "t - time(s)", "u - switch command");
 

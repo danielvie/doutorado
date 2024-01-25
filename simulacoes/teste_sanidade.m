@@ -33,6 +33,10 @@ function vout =  teste_sanidade(nciclos_in)
     grafico1(X1, xbar1, label);
     
 
+
+
+    
+
     % PATINO 2 :: multilevel converter
     % =====================================================
     
@@ -46,6 +50,12 @@ function vout =  teste_sanidade(nciclos_in)
 
     figure(2);
     grafico2(X2, xbar2, label);
+
+
+
+
+
+
 
     % lendo variaveis do escopo e retornando como uma estrutura
     % =====================================================

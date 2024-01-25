@@ -1,4 +1,7 @@
 function var_out = patino1(save_fig)
+
+    % inicializando variaveis de saida
+    var_out = {};
     
     if (nargin == 0)
         save_fig = false;
@@ -8,16 +11,15 @@ function var_out = patino1(save_fig)
     config = engine.get_config_sim_patino_1();
 
     %% calculo da trajetoria
-    [config, x, fval] = engine.otmin(config);
-    % disp(x);
-    % disp(fval);
+    [config, ~, ~] = engine.otmin(config);
 
     %% rodando simulacao como resultado da trajetoria
     c = config;
 
     c.x0 = c.x0;
     nsim = 30;
-    [y,t,u,m] = engine.sim_n(c, nsim);
+    [y, t, u, m] = engine.sim_n(c, nsim);
+    % [y, t, m] = engine.sim_n(c, nsim);
 
     %% plot dos resultados
 
@@ -29,11 +31,11 @@ function var_out = patino1(save_fig)
     f2 = figure(2);
 
     i = t < c.Ts(end);
-    plotter.patino1.plot_control_signal(t(i), m(i), "Buck-Boost Converter Signal Command", "t - time (s)", "u - switch command");
+    % plotter.patino1.plot_control_signal(t(i), m(i), "Buck-Boost Converter Signal Command", "t - time (s)", "u - switch command");
+    plotter.patino1.plot_control_signal(t, m, "Buck-Boost Converter Signal Command", "t - time (s)", "u - switch command");
 
     % get variables
     all_vars = who;
-    var_out = [];
     for i = 1:length(all_vars)
         var_name = all_vars{i};
         var_out.(var_name) = eval(var_name);

@@ -130,11 +130,11 @@
     \Big\Vert #1 \Big\Vert^2_{#2}
 }
 
-\newcommand{\intlinA}[4]
-{
-    \int_{t_{#3_#1}}^{t_{#4_#2}}
-    {e^{A_#1(t_{r_#2} - \tau)} B_#1 d \tau}
-}
+% \newcommand{\intlinA}[4]
+% {
+%     \int_{t_{#3_#1}}^{t_{#4_#2}}
+%     {e^{A_#1(t_{r_#2} - \tau)} B_#1 d \tau}
+% }
 % #1: idx parte de baixo da integral
 % #2: idx parte de cima da integral
 % #3: 'r' | ''
@@ -177,7 +177,7 @@
 \newcommand{\intlinB}[4]
 {
     \int_{#1}^{#2}
-    {e^{A_#4(t_{r_#4} - \tau)} B_#4 d \tau}
+    {e^{A_#4(\bar{t}_{#4} - \tau)} B_#4 d \tau}
 }
 % #1: parte de baixo da integral
 % #2: parte de cima da integral
@@ -195,17 +195,6 @@
 % #3, #4: idx -> exp(A#3(Tr#4 - tau)) B#3
 %
 % ex: \intlinB{t_{r_1}}{t_{r_1}+\delta t_1}{1}{2}
-
-\newcommand{\intlinC}[4]
-{
-    \int_{#1}^{#2}
-    {e^{A_#3(t_{r_#4} + \delta t_#4 - \tau)} B_#3 d \tau}
-}
-% #1: parte de baixo da integral
-% #2: parte de cima da integral
-% #3, #4: idx -> exp(A#3(Tr#4 + \delta#4 - tau)) B#3
-%
-% ex: \intlinC{t_{r_1}}{t_{r_1}+\delta t_1}{1}{2}
 
 \newcommand{\intlinCb}[4]
 {

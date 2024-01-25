@@ -1,7 +1,12 @@
 app = bun
 
+all: w
+
 r:
 	$(app) run start
+
+w:
+	$(app) run w
 
 t: tailwind
 

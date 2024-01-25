@@ -1,21 +1,21 @@
-function [y,t,u,m,xr,yi_, dt_] = sim_cycle(config)
+function [y,t,u,m,xr, yy,tt,mm] = sim_cycle(config)
 
     % lendo configuracoes
-    config_ = config;
+    cfg = config;
 
-    C     = config_.C;
-    D     = config_.D;
-    tstep = config_.tstep;
-    x0    = config_.x0;
-    Ts    = config_.Ts;
+    C     = cfg.C;
+    D     = cfg.D;
+    tstep = cfg.tstep;
+    x0    = cfg.x0;
+    Ts    = cfg.Ts;
 
     % simulando com parametros flexiveis
-    n_modes = numel(config_.Omega);
-    nstates = size(config_.A{1}, 2);
+    n_modes = numel(cfg.Omega);
+    nstates = size(cfg.A{1}, 2);
     
     % alocando vetores de saida 
-    nmax = ceil(config_.Tpmax/config_.tstep);
-    nvar = numel(config_.xref);
+    nmax = ceil(cfg.Tpmax/cfg.tstep);
+    nvar = numel(cfg.xref);
     t    = zeros(nmax, 1);
     u    = zeros(nmax, 1);
     y    = zeros(nmax, nvar);
@@ -23,36 +23,36 @@ function [y,t,u,m,xr,yi_, dt_] = sim_cycle(config)
     
     % calculando simulacao
     xi0  = x0;
+    xi0_ = x0;
     cont = 0;
     
     xr   = zeros(n_modes, numel(x0));
     xr(1,:) = x0;
     
-    yi_ = zeros(n_modes, nstates);
-    dt_ = zeros(n_modes, nstates);
+    
+    % alocando vetores estado extendido
+    yy = zeros(n_modes, nstates);
+    tt = zeros(n_modes, 1);
+    mm = zeros(n_modes, 1);
+    
+    omega = cfg.Omega;
+
     for i = 1:n_modes
         % lendo modo de operacao (indice do modo inicia em `0`)
-        imode = config_.Omega(i);
+        imode =omega(i);
                 
         % lendo matrizes A e B 
-        Ai = config_.A{imode};
-        Bi = config_.b{imode};
+        Ai = cfg.A{imode};
+        Bi = cfg.b{imode};
         
         % calculando ciclo
         ti = (Ts(i):tstep:Ts(i+1)-tstep)';
-        % ui = ones(size(ti))*config_.ur(imode);
+        % ui = ones(size(ti))*cfg.ur(imode);
         ui = ones(size(ti));
         mi = ones(size(ti))*imode;
         
-        xi0 = reshape(xi0, [numel(xi0), 1]);
-        yi  = lsim(Ai,Bi,C,D,ui,ti-ti(1),xi0);
-                
-        dt = ti(end)-ti(1);
-        Fa  = expm([Ai,Bi;zeros(1,size(Ai,2)),0]*dt);
-        
-        yend = Fa*[xi0;1];
-        yi_(i, :) = yend(1:nstates);
-        dt_(i) = dt;
+        xi0  = reshape(xi0, [numel(xi0), 1]);
+        yi   = lsim(Ai,Bi,C,D,ui,ti-ti(1),xi0);
         
         xi0 = yi(end, :);
 
@@ -67,7 +67,37 @@ function [y,t,u,m,xr,yi_, dt_] = sim_cycle(config)
         cont = cont + nti;
         
         xr(i+1,:) = xi0;
+
+
+
+
+
+        % simulando com estado extendido
+        xi0_ = reshape(xi0_, [numel(xi0_), 1]);
+        dt   = Ts(i+1) - Ts(i);
+        Fa   = expm([Ai,Bi;zeros(1,size(Ai,2)),0]*dt);
+        
+
+        if (i+1 <= n_modes)
+            imode = omega(i+1);
+        else
+            imode = omega(i);
+        end
+
+        yend     = Fa*[xi0_;1];
+        yy(i, :) = yend(1:nstates);
+        tt(i)    = Ts(i+1);
+        mm(i)    = imode;
+
+        xi0_     = yend(1:nstates);
+
     end
+
+    % adicionando primeiros valores
+    x0 = reshape(x0, [1, nstates]);
+    yy = [x0;yy];
+    tt = [Ts(1);tt];
+    mm = [cfg.Omega(1);mm];
     
     % removendo pontos nao usados da alocacao
     t = t(1:cont);

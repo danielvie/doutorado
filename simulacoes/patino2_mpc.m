@@ -1,5 +1,7 @@
-function var_out = patino2_mpc(save_fig)
+function resultados = patino2_mpc(save_fig)
 
+    % inicialiando variaveis de saida
+    % var_out = {};
 
     if (nargin == 0)
         save_fig = false;
@@ -8,7 +10,6 @@ function var_out = patino2_mpc(save_fig)
     %% 1 INIT
         % get configuration
         config = engine.get_config_sim_patino_2();
-        config.tstep = 1e-7;
 
     %% 2 CALCULO DA TRAJETORIA
         % get custom options for the fmincon
@@ -18,25 +19,27 @@ function var_out = patino2_mpc(save_fig)
         opt.ConstraintTolerance = 1e-4;
         % opt.PlotFcn = 'optimplotfvalconstr';
 
-        [config, x, fval] = engine.otmin(config, opt);
+        [config, ~, ~] = engine.otmin(config, opt);
+        
+        % truncando valor da trajetoria
+        resolution = 1e8;
+        Ts = config.Ts;
+        for i = 1:length(Ts)
+            Ts(i) = fix(Ts(i)*resolution)/resolution;
+        end
+        config.Ts = Ts;
+        
+        % calculando x0 para a trajetoria truncada
+        config.x0 = engine.get_x0(config);
 
 
     %% 3 CONSTRUINDO MPC
         % montando valores de referencia
         tr  = config.Ts(2:end);
-        ur  = [1, 0];
         dtr = diff(config.Ts);
         xr  = engine.get_xr(config);
 
         [Phi, Gamma] = mpc.construcao_modelo_instantes(config.A, config.b, tr, xr, config);
-
-        A = config.A;
-        b = config.b;
-        xbar0 = xr(1,:)';
-        Dt = diff(config.Ts);
-
-        % [Phi_,Gamma_] = linModel(A,b,config.Omega,xbar0,Dt);
-        % Gamma = [Gamma, Gamma_(:, end)];
 
         N  = numel(tr);
 
@@ -60,7 +63,7 @@ function var_out = patino2_mpc(save_fig)
             -dtr(9) + t_min;
         ]; % dimensao: Nx1
 
-        [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = ...
+        [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,~] = ...
             mpc.matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c);
 
         % criando estrutura com dados MPC
@@ -89,7 +92,7 @@ function var_out = patino2_mpc(save_fig)
     %% rodando simulacao como resultado da trajetoria
 
         cfg = config;
-        nsim = 30;
+        nsim = 500;
 
         % estados
         % 1. vc1
@@ -103,26 +106,30 @@ function var_out = patino2_mpc(save_fig)
 
         cfg.x0  = config.x0 + [-2;1;-1];
         cfg.mpc.on = true;
-        [y,t,u,m,dtk_out] = engine.sim_n(cfg, nsim);
+        [y,t,m,dtk_out] = engine.sim_n2(cfg, nsim);
+        
+        var_out.dtk_out = dtk_out;
 
         cfg.mpc.on = false;
-        [y_off,t_off,u_off,m_off,dtk_out_off] = engine.sim_n(cfg, nsim);
-
-        x0_1 = cfg.x0;
-
+        [y_off,t_off,m_off,dtk_out_off] = engine.sim_n2(cfg, nsim);
+        
+        var_out.dtk_out_off = dtk_out_off;
 
         cfg.x0  = config.x0 + [-0.2; -.3; -.3];
         cfg.mpc.on = true;
-        [y2] = engine.sim_n(cfg, nsim);
+        y2 = engine.sim_n2(cfg, nsim);
 
         cfg.mpc.on = false;
-        [y2_off] = engine.sim_n(cfg, nsim);
+        y2_off = engine.sim_n2(cfg, nsim);
         
-        x0_2 = cfg.x0;
+        % x0_2 = cfg.x0;
     %% 5 PLOTING GRAPHICS
 
+
+
+
+
         % plot dos resultados
-        % close all;
 
         % state xi
         f1 = figure(1);
@@ -137,16 +144,17 @@ function var_out = patino2_mpc(save_fig)
         % control signal
         f3 = figure(5);
         ncycle = size(y_off, 1) / nsim;
-        ncycle = ncycle * 6 -700;
+        ncycle = ncycle * 10;
         plotter.patino2_mpc.plot_control_signal(t_off(1:ncycle), m_off(1:ncycle), t(1:ncycle), m(1:ncycle), "Multilevel Converter Control Signal", "time (s)", "mode")
+        % plotter.patino2_mpc.plot_control_signal(t_off, m_off, t, m, "Multilevel Converter Control Signal", "time (s)", "mode")
 
         % get values from the function
         all_variables = who;
-        var_out = [];
         for i = 1:length(all_variables)
             var_name           = all_variables{i};
             var_out.(var_name) = eval(var_name);
         end
+        resultados = ResultadoPatino2(var_out);
 
         %% saving figures
         if (save_fig)

@@ -59,6 +59,7 @@ Since the trajectory is cyclic we can impose the constraint:
     
     \noindent
     \begin{equation}
+        \label{cap2_tp_constraint}
         T_p \le T_{p,max}
     \end{equation}
     
@@ -83,7 +84,8 @@ Since the trajectory is cyclic we can impose the constraint:
 
     For optimization purposes, the function FMINCON is employed. This function works 
     in conjunction with a cost function. Its primary goal is to evaluate and 
-    discern the most cost-effective result that respects the imposed constraints in \eqref{cap2_time_constraint}.
+    discern the most cost-effective result that respects the imposed constraints in \eqref{cap2_tp_constraint} and 
+    \eqref{cap2_time_constraint}.
     
     The optimization algorithm solves the problem 
     

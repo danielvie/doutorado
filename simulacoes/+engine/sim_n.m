@@ -45,7 +45,7 @@ function [y,t,u,m,dtk_out] = sim_n(config, nsim)
         end
         
         % simulando dinamica
-        [y_,t_,u_,m_] = engine.sim_cycle2(cfg);
+        [y_,t_,u_,m_] = engine.sim_cycle(cfg);
         cfg.x0 = y_(end,:)';
 
         y   = [y;y_];
