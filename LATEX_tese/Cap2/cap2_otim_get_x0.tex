@@ -14,8 +14,6 @@ We can rewrite the solution for the first region as
 
 \noindent
 \begin{align}
-    x(t_1) &= e^{A_{\sigma(0)} t_1} x(0) + 
-            \int_{0}^{t_1}{e^{A_{\sigma(0)}(t_1 - \tau)} b_{\sigma(0)} d\tau} \nonumber \\
     x(t_1) &= \green{e^{A_{\sigma(0)} t_1}} x(0) + 
             \orange{\int_{0}^{t_1}{e^{A_{\sigma(0)}(t_1 - \tau)} b_{\sigma(0)} d\tau}} \nonumber \\
     x(t_1) &= \green{F_0} x(0) + \orange{g_0}
@@ -27,9 +25,9 @@ then the behavior of the other regions of the system is
 \noindent
 \begin{align}
     x(t_1) &= F_0 x(0) + g_0 \nonumber \\
-    x(t_2) &= F_1 x(1) + g_1 \nonumber \\
+    x(t_2) &= F_1 x(t_1) + g_1 \nonumber \\
     &\qquad \vdots \nonumber \\ 
-    x(t_N) &= F_{N-1} x(N-1) + g_{N-1}
+    x(t_N) &= F_{N-1} x(t_{N-1}) + g_{N-1}
     \label{cap2-get-x0-multi-equations}
 \end{align}
 

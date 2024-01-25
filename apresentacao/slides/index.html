@@ -260,12 +260,12 @@
                     </h3>
 
                     <div class="r-stack">
-                        <div class="fragment text-justify text-2xl fade-in-then-out">
+                        <div class="fragment text-justify text-xl fade-in-then-out">
                             <p>A determinação da trajetória alvo está sendo feita usando a abordagem de Patino
                                 (2010)
                             </p>
                             <p>
-                                Um sistema to tipo
+                                Um sistema to tipo:
                             </p>
                             <p>
                                 \[\begin{aligned}
@@ -282,32 +282,46 @@
                             <p>
                                 em que $\\\;\\\quad\tau^\infty = \big[t_1, t_2, \dotsm, t_{s^\infty}\big]$, $\Omega^\infty = \big[\sigma_1,
                                 \sigma_2, \dotsm, \sigma_{s^\infty}\big]$,
-                                $\\\;\\\quad Q=Q^T>0,\;$ $T_p$ é o período do ciclo e $x(0) = x(T_p)$
+                                $\\\;\\\quad Q=Q^T>0,$ 
+                                $\\\;\\\quad T_p$ é o período do ciclo e 
+                                $\\\;\\\quad x(0) = x(T_p)$
                             </p>
-                            <p>
-                                as restrições do problema são
-                                $\\\;\\\quad T_p \le T_{p,max}$
-                            </p>
-                            <p>
-                                e
-                                $\\\;\\\quad (t_i - t_{i-1}) \ge \Delta t_{i,min}$
-                            </p>
-                            <img src="img/intro_trajetoria_no_tempo.png" class="w-2/5 absolute right-10 bottom-0">
                         </div>
 
-                        <div class="fragment fade-in-then-out">
-                            <p class="text-xl text-justify">
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <p>A trajetória calculada deve respeitar as restrições de tempo do problema</p>
+                            <p>
+                                \[
+                                \begin{aligned}
+                                T_p &\le T_{p,max}, \\
+                                \\ 
+                                (t_i - t_{i-1}) &\ge \Delta t_{i,min}
+                                \end{aligned}
+                                \]
+                            </p>
+                            <p>
                                 Como precisamos de uma trajetória cíclica como alvo, calculamos a condição inicial para que isso seja verdade
                                 na avaliação da função custo.
                             </p>
-                            <p class="text-2xl text-justify">
-                                $[0 \rightarrow t_1] : \dot{x}= A_{\sigma(0)} x + b_{\sigma(0)} \\$
-                                $[t_1 \rightarrow t_2] : \dot{x}= A_{\sigma(t_1)} x + b_{\sigma(t_1)} \\$
-                                $\qquad \vdots\\$
-                                $[t_{N-1} \rightarrow t_N] : \dot{x}= A_{\sigma(t_{N-1})} x + b_{\sigma(t_{N-1})}$
+                            <p>
+                                \[
+                                \begin{aligned}
+                                [0 \rightarrow t_1] : \dot{x} &= A_{\sigma(0)} x + b_{\sigma(0)} \\
+                                [t_1 \rightarrow t_2] : \dot{x} &= A_{\sigma(t_1)} x + b_{\sigma(t_1)} \\
+                                \qquad \vdots\\
+                                [t_{N-1} \rightarrow t_N] : \dot{x} &= A_{\sigma(t_{N-1})} x + b_{\sigma(t_{N-1})}
+                                \end{aligned}
+                                \]
                             </p>
-                            <img src="img/intro_trajetoria_no_tempo.png" class="w-2/5 absolute right-10 bottom-0">
                         </div>
+
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+
+                            <p>Empregamos o <span class="underline text-sky-500 font-bold">FMINCON</span> para fazer o calculo de otimização com as restrições de tempo da trajetória cíclica</p>
+                            <div class="flex justify-center">
+                                <img src="img/intro_trajetoria_no_tempo.png" class="">
+                            </div>
+                        </div>                       
 
                     </div>
 

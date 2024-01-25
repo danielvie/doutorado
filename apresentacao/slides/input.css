@@ -14,12 +14,12 @@
     @apply italic tab1 text-gray-400
 }
 
-.gradiente {
-    @apply bg-gradient-to-r from-pink-500 to-indigo-400 inline-block text-transparent bg-clip-text
+.gradient {
+    @apply bg-gradient-to-r from-pink-400 to-indigo-400 inline-block text-transparent bg-clip-text
 }
 
 .comentario {
-    @apply gradiente
+    @apply gradient
 }
 
 * {
