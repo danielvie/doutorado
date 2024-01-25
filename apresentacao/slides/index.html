@@ -438,7 +438,11 @@
                             <div class="col-span-5">
                                 <p>a otimização gera incrementos de tempo de chaveamento de forma que</p>
                                 <p>
-                                    $\quad \tau^\infty = \Big[t_0, t_1, t_2\Big] = \Big[t_0, t_0 + dx[1], t_1 + dx[2]\Big]$
+                                    \[
+                                    \begin{aligned}
+                                        \quad \tau^\infty = \Big[t_0, t_1, t_2\Big] = \Big[t_0, t_0 + dx[1], t_1 + dx[2]\Big]
+                                    \end{aligned}
+                                    \]
                                 </p>
                                 <p>com restrições de tempo</p>
                                 <p>
@@ -785,7 +789,7 @@
                                 \]
                             </p>
                             <p class="text-green-600">
-                                * desprezando produtos de deltas
+                                * desprezando produtos de $\delta$
                             </p>
                         </div>
                 
@@ -1003,33 +1007,44 @@
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Restrições de Tempo</span>
+                        <button class="grayscale text-3xl" onclick="return toggleImgRestricoes(this);">📈</button>
                     </h3>
 
                     <div class="r-stack">
 
-                        <div class="fragment fade-in-then-out text-3xl text-justify">
-                            <p>Queremos impor a restrição</p>
-                            <p>
-                                \[
-                                (t_i - t_{i - 1}) \ge \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N
-                                \]
-                            </p>
-                            <p>que pode ser escrita como</p>
-                            <p>
-                                \[
-                                \begin{aligned}
-                                \delta t_1 &\ge - \Delta \bar{t}_1 + \Delta t_{1,min} \\
-                                \delta t_i - \delta t_{i-1} &\ge - \Delta \bar{t}_i + \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N \\
-                                \delta t_{N-1} &\ge - \Delta \bar{t}_N + \Delta t_{N,min}
-                                \end{aligned}
-                                \]
-                            </p>
-                            <p>com</p>
-                            <p>
-                                \[
-                                \Delta \bar{t}_i = \bar{t}_i - \bar{t}_{i-1}
-                                \]
-                            </p>
+                        <div class="fragment fade-in-then-out relative text-3xl text-justify">
+                            <div class="r-stack">
+                                <div>
+                                    <p>Queremos impor a restrição</p>
+                                    <p>
+                                        \[
+                                        (t_i - t_{i - 1}) \ge \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N
+                                        \]
+                                    </p>
+                                    <p>que pode ser escrita como</p>
+                                    <p>
+                                        \[
+                                        \begin{aligned}
+                                        \delta t_1 &\ge - \Delta \bar{t}_1 + \Delta t_{1,min} \\
+                                        \delta t_i - \delta t_{i-1} &\ge - \Delta \bar{t}_i + \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N \\
+                                        \delta t_{N-1} &\ge - \Delta \bar{t}_N + \Delta t_{N,min}
+                                        \end{aligned}
+                                        \]
+                                    </p>
+                                    <p>com</p>
+                                    <p>
+                                        \[
+                                        \Delta \bar{t}_i = \bar{t}_i - \bar{t}_{i-1}
+                                        \]
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <img id="img_restricoes" class="hidden" src="img/controle_ilustracao_comando.png">
+                                </div>
+
+                            </div>
+
                         </div>
 
                         <div class="fragment fade-in-then-out text-3xl text-justify">
@@ -1615,6 +1630,22 @@
                 }
             }
             AddPages()
+            
+            function toggleImgRestricoes(el)
+            {
+                const img = document.querySelector('#img_restricoes')
+                console.log(el);
+                if (img.classList.contains('hidden'))
+                {
+                    img.classList.remove('hidden')
+                    el.classList.remove('grayscale')
+                } else
+                {
+                    img.classList.add('hidden')
+                    el.classList.add('grayscale')
+                }
+                return false
+            }
         </script>
     </body>
 </html>
