@@ -1197,6 +1197,7 @@
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle: Integrador Duplo</span>
+                        <button class="grayscale text-3xl" onclick="return toggleImgRestricoes(this);">📈</button>
                     </h3>
 
                     <div class="r-stack">
@@ -1220,42 +1221,45 @@
                                     T_s = \left[ \begin{matrix} 0 & 2 & 3 & 5 & 6 \end{matrix} \right]
                                     \]
                                 </p>
-                                <div class="flex-1">
-                                    <img data-id="img:dyn" class="h-64 absolute -right-14" src="img/controle_integrador.png">
-                                </div>
                             </div>
                         </div>
 
                         <div class="fragment fade-in-then-out text-xl text-justify">
-                            <div class="grid grid-cols-2">
-                                <div>
-                                    <p>
-                                        \[
-                                        A_c = \left[ \begin{matrix} 0 & 1 \\ 0 & 0 \\ \end{matrix} \right],\;
-                                        B_c = \left[ \begin{matrix} 0 \\ 1 \end{matrix} \right]
-                                        \]
-                                    </p>
-                                    <p>
-                                        \[
-                                        \begin{matrix}
-                                        \green{A_1 = \left[ \begin{matrix} 0 & 1 \\ 0 & 0 \\ \end{matrix} \right]} &
-                                        \orange{A_2 = \left[ \begin{matrix} 0 & 1 \\ 0 & 0 \\ \end{matrix} \right]} &
-                                        \blue{A_3 = \left[ \begin{matrix} 0 & 1 \\ 0 & 0 \\ \end{matrix} \right]} &
-                                        \\
-                                        \\
-                                        \green{b_1 = \left[ \begin{matrix} 0 \\ 1 \end{matrix} \right]} &
-                                        \orange{b_2 = \left[ \begin{matrix} 0 \\ 0 \end{matrix} \right]} &
-                                        \blue{b_3 = \left[ \begin{matrix} 0 \\ -1 \end{matrix} \right]} &
-                                        \end{matrix}
-                                        \]
-                                    </p>
-                                </div>
-                                <img data-id="img:dyn" class="h-56 absolute right-0" src="img/controle_integrador.png">
+                            <div>
+                                <p>
+                                    Ajustamos a equação da dinâmica pra deixar compatível com a solução proposta
+                                </p>
+                            
+                                <p>
+                                    \[
+                                    A_c = \left[ \begin{matrix} 0 & 1 \\ 0 & 0 \\ \end{matrix} \right],\;
+                                    B_c = \left[ \begin{matrix} 0 \\ 1 \end{matrix} \right]
+                                    \]
+                                </p>
+                                <p>
+                                    \[
+                                    \begin{matrix}
+                                    \green{A_1 = \left[ \begin{matrix} 0 & 1 \\ 0 & 0 \\ \end{matrix} \right]} &
+                                    \orange{A_2 = \left[ \begin{matrix} 0 & 1 \\ 0 & 0 \\ \end{matrix} \right]} &
+                                    \blue{A_3 = \left[ \begin{matrix} 0 & 1 \\ 0 & 0 \\ \end{matrix} \right]} &
+                                    \\
+                                    \\
+                                    \green{b_1 = \left[ \begin{matrix} 0 \\ 1 \end{matrix} \right]} &
+                                    \orange{b_2 = \left[ \begin{matrix} 0 \\ 0 \end{matrix} \right]} &
+                                    \blue{b_3 = \left[ \begin{matrix} 0 \\ -1 \end{matrix} \right]} &
+                                    \end{matrix}
+                                    \]
+                                </p>
                             </div>
-                            <p>$\Omega = \big[1, 2, 3, 2\big]$</p>
-                            <p>$\bar{x}_{ref} = \big[2, -1\big]$</p>
-                            <p>$T_{p_{max}} = 1$</p>
-                            <p>$x_{0} = \big[1.5, -1\big]$</p>
+                            <p>
+                                com
+                            </p>
+                            <div class="tab1">
+                                <p>$\Omega = \big[1, 2, 3, 2\big]$</p>
+                                <p>$\bar{x}_{ref} = \big[2, -1\big]$</p>
+                                <p>$T_{p_{max}} = 1$</p>
+                                <p>$x_{0} = \big[1.5, -1\big]$</p>
+                            </div>
                         </div>
 
                         <div class="fragment fade-in-then-out text-xl text-justify">
@@ -1324,6 +1328,10 @@
                             <div class="grid grid-cols-1 gap-2 items-center text-center">
                                 <div class="flex justify-center"><img class="h-[25em]" src="img/controle_integrador_u.png"></div>
                             </div>
+                        </div>
+
+                        <div class="flex justify-center">
+                            <img class="h-72 hidden img_hidden" src="img/controle_integrador.png">
                         </div>
 
                     </div>
@@ -1436,18 +1444,6 @@
                         <div class="fragment fade-in-then-out text-xl text-justify">
                             <div class="grid grid-cols-2 gap-0">
                                 <div class="flex justify-center"><img class="h-[25em]" src="img/controle_patino1_traj.png"></div>
-                                <div class="flex justify-center"><img class="h-[25em]" src="img/controle_patino1_u.png"></div>
-                            </div>
-                        </div>
-
-                        <div class="fragment fade-in-then-out text-xl text-justify">
-                            <div class="grid grid-cols-1 gap-0">
-                                <div class="flex justify-center"><img class="h-[25em]" src="img/controle_patino1_traj.png"></div>
-                            </div>
-                        </div>
-
-                        <div class="fragment fade-in-then-out text-xl text-justify">
-                            <div class="grid grid-cols-1 gap-0">
                                 <div class="flex justify-center"><img class="h-[25em]" src="img/controle_patino1_u.png"></div>
                             </div>
                         </div>
