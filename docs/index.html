@@ -306,10 +306,11 @@
                             <p>
                                 \[
                                 \begin{aligned}
-                                [0 \rightarrow t_1] : \dot{x} &= A_{\sigma(0)} x + b_{\sigma(0)} \\
-                                [t_1 \rightarrow t_2] : \dot{x} &= A_{\sigma(t_1)} x + b_{\sigma(t_1)} \\
+                                
+                                t \in \big[0, t_1\big] : \dot{x} &= A_{\sigma(0)} x + b_{\sigma(0)} \\
+                                t \in \big[t_1, t_2\big] : \dot{x} &= A_{\sigma(t_1)} x + b_{\sigma(t_1)} \\
                                 \qquad \vdots\\
-                                [t_{N-1} \rightarrow t_N] : \dot{x} &= A_{\sigma(t_{N-1})} x + b_{\sigma(t_{N-1})}
+                                t \in \big[t_{N-1}, t_N\big] : \dot{x} &= A_{\sigma(t_{N-1})} x + b_{\sigma(t_{N-1})}
                                 \end{aligned}
                                 \]
                             </p>
@@ -437,7 +438,11 @@
                             <div class="col-span-5">
                                 <p>a otimização gera incrementos de tempo de chaveamento de forma que</p>
                                 <p>
-                                    $\quad \tau^\infty = \Big[t_0, t_1, t_2\Big] = \Big[t_0, t_0 + dx[1], t_1 + dx[2]\Big]$
+                                    \[
+                                    \begin{aligned}
+                                        \quad \tau^\infty = \Big[t_0, t_1, t_2\Big] = \Big[t_0, t_0 + dx[1], t_1 + dx[2]\Big]
+                                    \end{aligned}
+                                    \]
                                 </p>
                                 <p>com restrições de tempo</p>
                                 <p>
@@ -784,7 +789,7 @@
                                 \]
                             </p>
                             <p class="text-green-600">
-                                * desprezando produtos de deltas
+                                * desprezando produtos de $\delta$
                             </p>
                         </div>
                 
@@ -1002,76 +1007,94 @@
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Restrições de Tempo</span>
+                        <button class="grayscale text-3xl" onclick="return toggleImgRestricoes(this);">📈</button>
                     </h3>
 
                     <div class="r-stack">
 
-                        <div class="fragment fade-in-then-out text-3xl text-justify">
-                            <p>Queremos impor a restrição</p>
-                            <p>
-                                \[
-                                (t_i - t_{i - 1}) \ge \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N
-                                \]
-                            </p>
-                            <p>que pode ser escrita como</p>
-                            <p>
-                                \[
-                                \begin{aligned}
-                                \delta t_1 &\ge - \Delta \bar{t}_1 + \Delta t_{1,min} \\
-                                \delta t_i - \delta t_{i-1} &\ge - \Delta \bar{t}_i + \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N \\
-                                \delta t_{N-1} &\ge - \Delta \bar{t}_N + \Delta t_{N,min}
-                                \end{aligned}
-                                \]
-                            </p>
-                            <p>com</p>
-                            <p>
-                                \[
-                                \Delta \bar{t}_i = \bar{t}_i - \bar{t}_{i-1}
-                                \]
-                            </p>
+                        <div class="fragment fade-in-then-out relative text-3xl text-justify">
+                            <div class="r-stack">
+                                <div>
+                                    <p>Queremos impor a restrição</p>
+                                    <p>
+                                        \[
+                                        (t_i - t_{i - 1}) \ge \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N
+                                        \]
+                                    </p>
+                                    <p>que pode ser escrita como</p>
+                                    <p>
+                                        \[
+                                        \begin{aligned}
+                                        \delta t_1 &\ge - \Delta \bar{t}_1 + \Delta t_{1,min} \\
+                                        \delta t_i - \delta t_{i-1} &\ge - \Delta \bar{t}_i + \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N \\
+                                        \delta t_{N-1} &\ge - \Delta \bar{t}_N + \Delta t_{N,min}
+                                        \end{aligned}
+                                        \]
+                                    </p>
+                                    <p>com</p>
+                                    <p>
+                                        \[
+                                        \Delta \bar{t}_i = \bar{t}_i - \bar{t}_{i-1}
+                                        \]
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <img class="hidden img_restricoes" src="img/controle_ilustracao_comando.png">
+                                </div>
+
+                            </div>
+
                         </div>
 
                         <div class="fragment fade-in-then-out text-3xl text-justify">
-                            <p>Escrevendo a restrição na forma matricial</p>
-                            <p>
-                                \[
-                                L \delta t \ge c
-                                \]
-                            </p>
-                            <p>com</p>
-                            <p class="text-2xl">
-                                \[
-                                L =
-                                \left[
-                                \begin{matrix}
-                                1 & 0 & 0 & \dotsi & 0 & 0 \\
-                                -1 & 1 & 0 & \dotsi & 0 & 0 \\
-                                \vdots & \vdots & \vdots & \ddots & \vdots \\
-                                0 & 0 & 0 & \dotsi & -1 & 1 \\
-                                0 & 0 & 0 & \dotsi & 0 & -1 \\
-                                \end{matrix}
-                                \right],\;
-                                \delta t =
-                                \left[
-                                \begin{matrix}
-                                \delta t_1 \\
-                                \delta t_2 \\
-                                \vdots \\
-                                \delta t_{N-1} \\
-                                \delta t_N \\
-                                \end{matrix}
-                                \right],\;
-                                c = \left[
-                                \begin{matrix}
-                                -\Delta \bar{t}_1 + \Delta t_{1,min} \\
-                                -\Delta \bar{t}_2 + \Delta t_{2,min} \\
-                                \vdots \\
-                                -\Delta \bar{t}_{N-1} + \Delta t_{N-1,min} \\
-                                -\Delta \bar{t}_{N} + \Delta t_{N,min} \\
-                                \end{matrix}
-                                \right]
-                                \]
-                            </p>
+                            <div class="r-stack">
+                                <div>
+                                    <p>Escrevendo a restrição na forma matricial</p>
+                                    <p>
+                                        \[
+                                        L \delta t \ge c
+                                        \]
+                                    </p>
+                                    <p>com</p>
+                                    <p class="text-2xl">
+                                        \[
+                                        L =
+                                        \left[
+                                        \begin{matrix}
+                                        1 & 0 & 0 & \dotsi & 0 & 0 \\
+                                        -1 & 1 & 0 & \dotsi & 0 & 0 \\
+                                        \vdots & \vdots & \vdots & \ddots & \vdots \\
+                                        0 & 0 & 0 & \dotsi & -1 & 1 \\
+                                        0 & 0 & 0 & \dotsi & 0 & -1 \\
+                                        \end{matrix}
+                                        \right],\;
+                                        \delta t =
+                                        \left[
+                                        \begin{matrix}
+                                        \delta t_1 \\
+                                        \delta t_2 \\
+                                        \vdots \\
+                                        \delta t_{N-1} \\
+                                        \delta t_N \\
+                                        \end{matrix}
+                                        \right],\;
+                                        c = \left[
+                                        \begin{matrix}
+                                        -\Delta \bar{t}_1 + \Delta t_{1,min} \\
+                                        -\Delta \bar{t}_2 + \Delta t_{2,min} \\
+                                        \vdots \\
+                                        -\Delta \bar{t}_{N-1} + \Delta t_{N-1,min} \\
+                                        -\Delta \bar{t}_{N} + \Delta t_{N,min} \\
+                                        \end{matrix}
+                                        \right]
+                                        \]
+                                    </p>
+                                </div>
+                                <div>
+                                    <img class="hidden img_restricoes" src="img/controle_ilustracao_comando.png">
+                                </div>
+                            </div>
                         </div>
 
                         <div class="fragment fade-in-then-out text-3xl text-justify">
@@ -1101,7 +1124,7 @@
                     </div>
                 </section>
 
-                <!-- 10_ controle preditivo: aplicação - integrador duplo -->
+                <!-- 10_ controle: integrador duplo -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle: Integrador Duplo</span>
@@ -1216,7 +1239,7 @@
                         </div>
 
                         <div class="fragment fade-in-then-out text-xl text-justify">
-                            <div class="grid grid-cols-2 gap-2 items-center text-center">
+                            <div class="grid grid-cols-1 gap-2 items-center text-center">
                                 <div class="flex justify-center"><img class="h-[25em]" src="img/controle_integrador_factibilidade.png"> </div>
                             </div>
                         </div>
@@ -1229,7 +1252,7 @@
                         </div>
 
                         <div class="fragment fade-in-then-out text-xl text-justify">
-                            <div class="grid grid-cols-2 gap-2 items-center text-center">
+                            <div class="grid grid-cols-1 gap-2 items-center text-center">
                                 <div class="flex justify-center"><img class="h-[25em]" src="img/controle_integrador_u.png"></div>
                             </div>
                         </div>
@@ -1237,7 +1260,7 @@
                     </div>
                 </section>
 
-                <!-- 11_ controle preditivo: aplicação - buck-boost -->
+                <!-- 11_ controle: buck-boost -->
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle: Buck-Boost</span>
@@ -1276,9 +1299,9 @@
                             </div>
                         </div>
 
-                        <div class="fragment fade-in-then-out text-xl text-justify">
+                        <div class="fragment fade-in-then-out text-2xl text-justify">
                             <p>Equações de predição</p>
-                            <p class="text-sm">
+                            <p class="">
                                 \[
                                 \begin{aligned}
                                 \Phi &=
@@ -1299,7 +1322,7 @@
                                 \]
                             </p>
                             <p>e restrições</p>
-                            <p class="text-sm">
+                            <p class="">
                                 \[
                                 c = 
                                 \left[
@@ -1329,29 +1352,41 @@
 
                         <div class="fragment fade-in-then-out text-xl text-justify">
                             <div class="grid grid-cols-3 gap-0">
-                                <div><img src="img/controle_patino1_fact.png"></div>
-                                <div><img src="img/controle_patino1_u.png"></div>
-                                <div><img src="img/controle_patino1_traj.png"></div>
+                                <div class="flex justify-center"><img class="" src="img/controle_patino1_fact.png"></div>
+                                <div class="flex justify-center"><img class="" src="img/controle_patino1_traj.png"></div>
+                                <div class="flex justify-center"><img class="" src="img/controle_patino1_u.png"></div>
+                            </div>
+                        </div>
+
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <div class="grid grid-cols-1 gap-0">
+                                <div class="flex justify-center"><img class="h-[25em]" src="img/controle_patino1_fact.png"></div>
                             </div>
                         </div>
 
                         <div class="fragment fade-in-then-out text-xl text-justify">
                             <div class="grid grid-cols-2 gap-0">
-                                <div><img src="img/controle_patino1_fact.png"></div>
+                                <div class="flex justify-center"><img class="h-[25em]" src="img/controle_patino1_traj.png"></div>
+                                <div class="flex justify-center"><img class="h-[25em]" src="img/controle_patino1_u.png"></div>
                             </div>
                         </div>
 
                         <div class="fragment fade-in-then-out text-xl text-justify">
-                            <div class="grid grid-cols-2 gap-0">
-                                <div><img src="img/controle_patino1_u.png"></div>
-                                <div><img src="img/controle_patino1_traj.png"></div>
+                            <div class="grid grid-cols-1 gap-0">
+                                <div class="flex justify-center"><img class="h-[25em]" src="img/controle_patino1_traj.png"></div>
+                            </div>
+                        </div>
+
+                        <div class="fragment fade-in-then-out text-xl text-justify">
+                            <div class="grid grid-cols-1 gap-0">
+                                <div class="flex justify-center"><img class="h-[25em]" src="img/controle_patino1_u.png"></div>
                             </div>
                         </div>
 
                     </div>
                 </section>
 
-                <!-- 12_ controle preditivo: aplicação - multinível -->
+                <!-- 12_ controle: conversor multinível -->
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Controle: Conversor Multinível</span>
@@ -1452,8 +1487,8 @@
                         </div>
                 
                         <div class="fragment fade-in-then-out text-xl text-justify">
-                            <div class="grid grid-cols-2 gap-0">
-                                <div><img src="img/controle_patino2_fact.png"></div>
+                            <div class="grid grid-cols-1 gap-0">
+                                <div class="flex justify-center"><img class="h-[25em]" src="img/controle_patino2_fact.png"></div>
                             </div>
                         </div>
                 
@@ -1614,6 +1649,25 @@
                 }
             }
             AddPages()
+            
+            function toggleImgRestricoes(el)
+            {
+                const imgs = document.querySelectorAll('.img_restricoes')
+                
+                imgs.forEach((img) => {
+                    if (img.classList.contains('hidden'))
+                    {
+                        img.classList.remove('hidden')
+                        el.classList.remove('grayscale')
+                    } else
+                    {
+                        img.classList.add('hidden')
+                        el.classList.add('grayscale')
+                    }
+                })
+                
+                return false
+            }
         </script>
     </body>
 </html>
