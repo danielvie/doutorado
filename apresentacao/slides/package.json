@@ -11,7 +11,8 @@
     "test": "gulp test",
     "start": "gulp serve",
     "build": "gulp build",
-    "tw": "npx tailwindcss -i ./input.css -o ./dist/tailwind.css --watch"
+    "tw": "npx tailwindcss -i ./input.css -o ./dist/tailwind.css --watch",
+    "w": "concurrently \"npm run start\" \"npm run tw\""
   },
   "author": {
     "name": "Hakim El Hattab",
@@ -104,6 +105,7 @@
     }
   },
   "dependencies": {
+    "concurrently": "^8.2.2",
     "katex": "^0.16.9"
   }
 }
