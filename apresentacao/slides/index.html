@@ -201,6 +201,7 @@
                     </h3>
 
                     <div class="r-stack">
+
                         <div class="fragment fade-in-then-out text-2xl text-justify">
                             <!-- o que estamos fazendo aqui? -->
                             <p>Esse trabalho propõe extender a solução apresentada por Marcolino e resolver o problema
@@ -218,22 +219,35 @@
                             </p>
                         </div>
 
-                        <div class="fragment fade-in-then-out">
-                            <p class="text-3xl">
+                        <div class="fragment fade-in-then-out text-justify text-2xl">
+                            <!-- <p class="text-3xl">
                                 \[\begin{aligned}
                                 \dot{x}(t) &amp; = A_{\sigma(t)} x(t) + b_{\sigma(t)} \\
                                 \end{aligned} \]
+                            </p> -->
+                            
+                            <p>
+                                A maneira que abordamos esse problema é em duas etapas:
                             </p>
-                            
-                            <ul class="text-2xl">
-                                <li>etapas</li>
-                                <ul>
-                                    <li>1. calcular uma trajetória de referência para o sistema usando o FMINCON</li>
-                                    <li>2. calcular a equação de predição e montar as restrições de tempo</li>
-                                    <li>3. aplicar o MPC com programação quadrática convexa</li>
-                                </ul>
-                            </ul>
-                            
+                            <div class="grid grid-cols-2 gap-20">
+                                <div>
+                                    <p>
+                                        1. Calculamos uma trajetória cíclica para o sistema
+                                    </p>
+                                    <p class="flex justify-center">
+                                        <img class="h-64" src="img/intro_trajetoria_no_tempo.png">
+                                    </p>
+                                </div>
+                                <div class="">
+                                    <p>
+                                        2. Calculamos a equação de predição para o sistema para 
+                                        alimentar o controle MPC
+                                    </p>
+                                    <p>
+                                        <img class="h-64" src="img/controle_ilustracao_comando.png">
+                                    </p>
+                                </div>
+                            </div>
                         </div>
 
                     </div>
@@ -246,31 +260,35 @@
                     </h3>
 
                     <div class="r-stack">
-                        <div class="fragment fade-in-then-out">
-                            <p class="text-xl text-justify">A determinação da trajetória alvo está sendo feita usando a abordagem de Patino
-                                (2010), um sistema na forma</p>
-                            <p class="text-xl">
+                        <div class="fragment text-justify text-2xl fade-in-then-out">
+                            <p>A determinação da trajetória alvo está sendo feita usando a abordagem de Patino
+                                (2010)
+                            </p>
+                            <p>
+                                Um sistema to tipo
+                            </p>
+                            <p>
                                 \[\begin{aligned}
                                 \dot{x}(t) &= A_{\sigma(t)} x(t) + b_{\sigma(t)} \\
                                 \end{aligned} \]
                             </p>
-                            <p class="text-xl text-justify">é otimizado com a função custo</p>
-                            <p class="text-xl">
+                            <p>é otimizado com a função custo</p>
+                            <p>
                                 \[\begin{aligned}
                                 J(\tau^{\infty} ,\Omega^{\infty} ,s^{\infty}, x_0) &= \min_{\tau, \Omega, s} \int_0^{T_p} \Big[x(t) -
                                 \bar{x}^{\infty}\Big]^T Q \Big[x(t) - \bar{x}^{\infty}\Big] dt
                                 \end{aligned} \]
                             </p>
-                            <p class="text-xl text-justify">
+                            <p>
                                 em que $\\\;\\\quad\tau^\infty = \big[t_1, t_2, \dotsm, t_{s^\infty}\big]$, $\Omega^\infty = \big[\sigma_1,
                                 \sigma_2, \dotsm, \sigma_{s^\infty}\big]$,
                                 $\\\;\\\quad Q=Q^T>0,\;$ $T_p$ é o período do ciclo e $x(0) = x(T_p)$
                             </p>
-                            <p class="text-xl text-justify">
+                            <p>
                                 as restrições do problema são
                                 $\\\;\\\quad T_p \le T_{p,max}$
                             </p>
-                            <p class="text-xl text-justify">
+                            <p>
                                 e
                                 $\\\;\\\quad (t_i - t_{i-1}) \ge \Delta t_{i,min}$
                             </p>
