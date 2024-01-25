@@ -470,14 +470,6 @@
                                 </p>
                             </div>
                             <div class="col-span-5">
-                                <p>a otimização gera incrementos de tempo de chaveamento de forma que</p>
-                                <p>
-                                    \[
-                                    \begin{aligned}
-                                        \quad \tau^\infty = \Big[t_0, t_1, t_2\Big] = \Big[t_0, t_0 + dx[1], t_1 + dx[2]\Big]
-                                    \end{aligned}
-                                    \]
-                                </p>
                                 <p>com restrições de tempo</p>
                                 <p>
                                     $\quad dx =
@@ -502,6 +494,20 @@
                                     = 1.0
                                     $
                                 </p>
+                                <p>a otimização gera incrementos de tempo de chaveamento de forma que</p>
+                                <p>
+                                    \[
+                                    \begin{aligned}
+                                        \quad \tau^\infty = \Big[t_0, t_1, t_2\Big] = \Big[t_0, t_0 + dx[1], t_1 + dx[2]\Big]
+                                    \end{aligned}
+                                    \]
+                                </p>
+                                <p>
+                                    usando a sequencia de modos
+                                </p>
+                                <p>
+                                    $\quad \Omega^\infty = \big[1, 2\big].$
+                                </p>
                             </div>
                         </div>
 
@@ -509,10 +515,11 @@
                             <div class="text-xl text-justify">
                                 <p>A solução para esse exemplo é</p>
                                 <p>
-                                    $\quad \tau^\infty = \big[0, 0.2513, 0.5914\big],\\$
+                                    $\quad \tau^\infty = \big\{0, 0.2513, 0.5914\big\} \;\mathrm{s},\\$
+                                    $\\\; \\ \quad x(0) = \big[1.85, -1.11\big]^T,\\$
                                 </p>
                                 <p>
-                                    $\quad \Omega^\infty = \big[1, 2\big].$
+                                    e o resultado da simulação para 30 ciclos é:
                                 </p>
                             </div>
                             <div class="grid grid-cols-12 gap-1">
@@ -531,6 +538,7 @@
                     </h3>
 
                     <div class="r-stack">
+
                         <div class="fragment fade-in-then-out text-xl text-justify">
                             <div class="flex justify-center items-center">
                                 <img class="h-52" src="img/circuito_multilevel.png">
@@ -591,11 +599,8 @@
                         </div>
 
                         <div class="fragment fade-in-then-out">
-                            <div class="text-xl text-justify">
-                                <div class="flex items-center justify-center">
-                                    <img class="h-52" src="img/circuito_multilevel.png">
-                                </div>
-                                <p>
+                            <div class="text-base text-justify grid grid-cols-2">
+                                <p class="border-r-2 border-gray-500 border-solid pr-5 py-7">
                                     \[
                                     \begin{matrix}
                                     % 1
@@ -640,15 +645,7 @@
                                     b_4 = \left[ \begin{array}{c} 0 \\ 0 \\ \frac{E}{L} \end{array} \right] \\
                                     \end{matrix}\]
                                 </p>
-                            </div>
-                        </div>
-
-                        <div class="fragment fade-in-then-out">
-                            <div class="text-xl text-justify">
-                                <div class="flex items-center justify-center">
-                                    <img class="h-52" src="img/circuito_multilevel.png">
-                                </div>
-                                <p>
+                                <p class="pl-5 py-7">
                                     \[
                                     \begin{matrix}
                                     % 5
@@ -693,28 +690,60 @@
                                     b_8 = \left[ \begin{array}{c} 0 \\ 0 \\ \frac{E}{L} \end{array} \right]
                                     \end{matrix}\]
                                 </p>
+
                             </div>
                         </div>
 
                         <div class="fragment fade-in-then-out">
                             <div class="text-xl text-justify">
-                                <div class="flex items-center justify-center">
-                                    <img class="h-52" src="img/circuito_multilevel.png">
-                                </div>
                                 <p>
-                                    As dinâmicas podem ser organizadas como
-                                    $\Bigr\{ A_{1}, A_{2}, A_{3}, A_{4}, A_{5}, A_{6}, A_{7}, A_{8} \Bigr\}$
+                                    com restrições de tempo
+                                </p>
+                                <p>
+                                    \[
+                                    \begin{aligned}
+                                        dx = \left[ \begin{matrix} dx_1 \\ dx_2 \\ \vdots \\ dx_9 \end{matrix} \right]
+                                        \ge 
+                                        \left[ \begin{matrix} t_{min} \\ t_{min} \\ \vdots \\ t_{min} \end{matrix} \right]
+                                        =
+                                        \left[ \begin{matrix} 0.022 \\ 0.022 \\ \vdots \\ 0.022 \end{matrix} \right] \;\mathrm{ms}
+                                    \end{aligned}
+                                    \]
                                 </p>
                                 <p>
                                     e
-                                    $\Bigr\{ b_{1}, b_{2}, b_{3}, b_{4}, b_{5}, b_{6}, b_{7}, b_{8} \Bigr\}$.
                                 </p>
                                 <p>
-                                    Os parâmetros de simulação são os mesmo de <i class="italic">Patino (2010)</i>
+                                    \[
+                                    \begin{aligned}
+                                        \left[
+                                        \begin{matrix}
+                                        1 & 1 & \dotsm & 1
+                                        \end{matrix}
+                                        \right]
+                                        \cdot
+                                        \left[
+                                        \begin{matrix}
+                                        dx_1 \\
+                                        dx_2 \\
+                                        \vdots \\
+                                        dx_9
+                                        \end{matrix}
+                                        \right]
+                                        \le
+                                        T_{p_{max}}
+                                        =
+                                        0.4 \;\mathrm{ms}
+                                    \end{aligned}
+                                    \]
                                 </p>
                                 <p>
-                                    e a sequencia de modos para o calculo da trajetória é
-                                    $\Omega^\infty = \Big\{ 1, 2, 4, 8, 3, 1, 5, 8, 5 \Big\}$
+                                    usando a sequência de modos
+                                    \[
+                                    \begin{aligned}
+                                        \Omega^\infty = \Big\{ 1, 2, 4, 8, 3, 1, 5, 8, 5 \Big\}
+                                    \end{aligned}
+                                    \]
                                 </p>
                             </div>
                         </div>
@@ -744,18 +773,10 @@
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Equação de Predição</span>
+                        <button class="grayscale text-3xl" onclick="return toggleImgRestricoes(this);">📈</button>
                     </h3>
                 
                     <div class="r-stack">
-
-                        <div class="fragment fade-in-then-out">
-                            <p class="text-2xl">
-                                \[ \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)} \]
-                            </p>
-                            <div class="flex justify-center">
-                                <img src="img/controle_ilustracao_comando.png">
-                            </div>
-                        </div>
                 
                         <div class="fragment fade-in-then-out text-justify text-xl">
                             <p>
@@ -1003,7 +1024,6 @@
                             </p>
                         </div>
 
-
                         <div class="fragment fade-in-then-out text-justify text-xl">
                             <p>
                                 renomeando e substituindo os termos
@@ -1031,6 +1051,10 @@
                                 \end{aligned}
                                 \]
                             </p>
+                        </div>
+
+                        <div class="flex justify-center">
+                            <img class="hidden img_hidden" src="img/controle_ilustracao_comando.png">
                         </div>
                         <!-- {{xxx}} -->
 
