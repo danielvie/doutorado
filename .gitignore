@@ -36,3 +36,6 @@ codegen/
 *.tcp
 *.toc
 *.tps
+
+# worktree
+master/

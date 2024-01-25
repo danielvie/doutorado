@@ -39,13 +39,7 @@
         <div class="reveal">
             <div class="slides">
 
-                <!-- 1_ apresentação
-                    - nome
-                    - orientador
-                    - titulo
-                    - data
-                    - ITA?
-                 -->
+                <!-- 1_ apresentação -->
                 <section data-auto-animate >
                     <div class="relative">
                         <h3 data-id="title" class="slide_title relative">
@@ -71,34 +65,65 @@
                     </div>
                 </section>
 
-                <!-- 2_ introduction
-                    - motivation: explicar o problema e como propomos resolver
-                    - previous works: mostrar trabalhos anteriores
-                        -> Benmiloud
-                        -> Patino
-                        -> Márcio Vieira
-                        -> Matheus Marcolino
-                        (falar do mais geral pro mais especifico)
-                    - contributions of the work
-                -->
+                <!-- 2_ introdução -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Introdução</span>
                     </h3>
-                    <div class="text-justify text-3xl comentario">
+
+                    <div class="text-justify text-3xl">
                         <!-- o que estamos fazendo aqui? -->
-                        <p>Esse trabalho propõe a solução de problemas de controle para sistemas chaveados afins
+                        <!-- <p>Esse trabalho propõe a solução de problemas de controle para sistemas chaveados afins
                             submetidos a restrições de dwell-time
                         </p>
                         <p>Esse tipo de problema tem a característica de estabilizar em um ciclo limite</p>
                         <p>E também possui limitações de tempo em atuação (quando um comando é feito, há um tempo mínimo
                             até que o próximo comando possa ser executado)
                         </p>
-                        <p>- why are we doing this?</p>
+                        <p>- why are we doing this?</p> -->
+
+                        <!-- <p>Esse trabalho propõe extender a solução apresentada por Marcolino e resolver o problema
+                            de controle para sistemas chaveados afim com restrição de tempo de chaveamento para
+                            um caso mais geral.</p>
+                        <p>Sua solução trata o problema de controlar o sistema para um ciclo limite desejado e
+                            está restrita a sistemas que o chaveamento afeta apenas a entrada de controle.
+                        </p>
+                        <p>Nesse trabalho então, a solução deve ser mais geral para cobrir sistemas que a matriz $A$
+                            também muda com o chaveamento.
+                        </p>
+                        <p>Essa abordagem é focada no algoritmo de controle, porém as ações de controle são dependentes
+                            de uma trajetória de referência calculada. Portanto, utilizamos o método de cálculo de trajetória
+                            de Patino e o método deve ser capaz de levar o sistema para a trajetória cíclica alvo.
+                        </p> -->
+
+                        <p>
+                            Esse trabalho propõe uma solução para problemas de controle de sistemas chaveador afins submetidos a 
+                            restrição temporais de chaveamento.
+                        </p>
+                        <p>
+                            \[
+                                \dot{x}(t) = A_{\sigma(t)} x(t) + b_{\sigma(t)}
+                            \]
+                        </p>
+                        <p>
+                            Esse tipo de problema tem a característica de estabilizar em um ciclo limite que impacta diretamente
+                            no desempenho do sistema.
+                        </p>
+                        <p class="obs">
+                            ex: chaveamentos em alta frequência pode implicar um aquecimento do sistema.
+                        </p>
+                        <p>
+                            A restrição temporal também pode apresentar desafios na solução do problema, quando há uma ação 
+                            de chaveamento pode ser que o sistema só possa executar um novo chaveamento após um tempo mínimo.
+                        </p>
+                        <p class="obs">
+                            ex: controle por jatos de gás
+                        </p>
                     </div>
+                    
                 </section>
 
-                <!-- 3_ introducao - trabalhos feitos -->
+                <!-- 3_ introdução: trabalhos feitos -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Introdução: Trabalhos Feitos</span>
@@ -169,7 +194,7 @@
                     </div>
                 </section>
 
-                <!-- 4_ introducao - trabalho atual -->
+                <!-- 4_ introdução: trabalho atual -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Introdução: Trabalho Atual</span>
@@ -204,30 +229,17 @@
                                 <li>etapas</li>
                                 <ul>
                                     <li>1. calcular uma trajetória de referência para o sistema usando o FMINCON</li>
-                                    <li>2. calcular a equacao de predicao e montar as restricoes de tempo</li>
-                                    <li>3. aplicar o MPC com programacao quadratica convexa</li>
+                                    <li>2. calcular a equação de predição e montar as restrições de tempo</li>
+                                    <li>3. aplicar o MPC com programação quadrática convexa</li>
                                 </ul>
                             </ul>
                             
                         </div>
 
                     </div>
-
-
-
                 </section>
 
-                <!-- 5_ determinação da trajetória alvo 
-                    - explicar a formulação do problema
-                        -> optimization
-                        -> calculating x_0
-                        -> application examples
-                    - apresentar as dinâmicas dos exemplos
-                        -> buck-boost converter
-                        -> multinível converter
-                        -> cost function ?
-                        -> optimization of system dynamics ?
-                -->
+                <!-- 5_ trajetória alvo -->
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Trajetória Alvo</span>
@@ -367,7 +379,7 @@
                     </div>
                 </section>
 
-                <!-- 7_ trajetoria multinível -->
+                <!-- 7_ trajetória multinível -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
                         <p class="text-4xl">trajetória: Conversor multinível</p>
@@ -583,12 +595,7 @@
 
                 </section>
 
-                <!-- 8_ controle preditivo: equação de predição
-                    - procedimento de linearização
-                    - mpc
-                        -> função custo
-                        -> restrições de tempo de chaveamento
-                -->
+                <!-- 8_ controle preditivo: equação de predição -->
                 <section data-auto-animate>
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Equação de Predição</span>
@@ -1206,19 +1213,7 @@
                     </div>
                 </section>
 
-                <!-- 13_ conclusão 
-                    - contribuição
-                        -> projeto de um sistema chaveado afim com dinâmica 
-                        variável e podemos complementar ocm testes de laboratório
-                        experimentais, contribuição pretendida
-                    - analise dos resultados
-                    - future work
-                        -> we propose the time to finish the project to be in 3 semesters:
-                            => first one to finish the theoretical dependencies 
-                            and analysis in the digital domain
-                            => a second to implement a real circuit in-lab
-                            => the third to wrap all results in the final work
-                -->
+                <!-- 13_ conclusão -->
                 <section data-auto-animate >
                     <h3 data-id="title" class="slide_title relative">
                         <span class="text-4xl">Conclusão</span>
@@ -1336,7 +1331,7 @@
                         "rounded-md", 
                         "absolute", 
                         "right-0", 
-                        "bottom-0", 
+                        "bottom-5", 
                         "text-base", 
                         "bg-sky-700",
                         "min-w-[2em]",
