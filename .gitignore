@@ -39,3 +39,6 @@ codegen/
 
 # worktree
 master/
+
+# temp folders
+temp_*/
