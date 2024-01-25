@@ -935,7 +935,7 @@
                             <p class="tab1">
                                 \[
                                 \begin{aligned}
-                                x(t_N) - \bar{x}(\bar{t}_N) &=  \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_1} [x(t_0) - \bar{x}(t_0)] \\
+                                x(t_N) - \bar{x}(\bar{t}_N) = &\; \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_1} [x(t_0) - \bar{x}(t_0)] \\
                                 & + \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_2} [\green{\bar{F_1} A_1 x(t_0) + A_1 \bar{G}_1 - A_2 \bar{x}(\bar{t}_1) + B_1 - B_2}] \delta t_1 \\
                                 & + \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_3} [\green{\bar{F_2} A_2 x(t_1) + A_2 \bar{G}_2 - A_3 \bar{x}(\bar{t}_2) + B_2 - B_3}] \delta t_2 \\
                                 & \qquad \vdots \\
@@ -953,29 +953,23 @@
                             <p class="tab1">
                                 \[
                                 \begin{aligned}
-                                x(t_N) - \bar{x}(\bar{t}_N) =  & \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_1} [x(t_0) - \bar{x}(t_0)] \\
-                                & + \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_2} [\green{\bar{F_1} A_1 x(t_0) + A_1 \bar{G}_1 - A_2 \bar{x}(\bar{t}_1) + B_1 - B_2}] \delta t_1 \\
-                                & + \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_3} [\green{\bar{F_2} A_2 x(t_1) + A_2 \bar{G}_2 - A_3 \bar{x}(\bar{t}_2) + B_2 - B_3}] \delta t_2 \\
+                                x(t_N) - \bar{x}(\bar{t}_N) =  & \quad \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_1} [x(t_0) - \bar{x}(t_0)] \\
+                                & + \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_2} [\green{(A_1 - A_2) \bar{x}(\bar{t}_1) + B_1 - B_2}] \delta t_1 \\
+                                & + \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_3} [\green{(A_2 - A_3) \bar{x}(\bar{t}_2) + B_2 - B_3}] \delta t_2 \\
                                 & \qquad \vdots \\
-                                   & + \bar{F}_{N}[\green{\bar{F}_{N-1} A_{N-1} \bar{x}(t_{N-2}) + A_{N-1} \bar{G}_{N-1} - A_{N} \bar{x}(\bar{t}_{N-1})} \\ 
-                                   & \qquad \qquad \qquad \green{+ B_{N-1} - B_{N}} ] \delta t_{N-1} \\
-                                & + [\orange{\bar{F}_{N} A_{N-1} \bar{x}(t_{N-1}) + A_{N} \bar{G}_{N} + B_{N}}] \delta t_N
+                                & + \bar{F}_{N}[\green{(A_{N-1} - A_{N}) \bar{x}(\bar{t}_{N-1}) + B_{N-1} - B_{N}}] \delta t_{N-1} \\
+                                & + [\orange{A_{N} \bar{x}(\bar{t}_N) + B_{N}}] \delta t_N
                                 \end{aligned}
                                 \]
                             </p>
                         </div>
 
 
-                        <!-- ?div
-                        yat}pO<Esc>j>>.....cit
-                        <Esc>k_ -->
-                        <!-- {xxx} -->
-
-
-
-                
-                        <div class="fragment fade-in-then-out text-xl">
+                        <div class="fragment fade-in-then-out text-justify text-xl">
                             <p>
+                                renomeando e substituindo os termos
+                            </p>
+                            <p class="tab1">
                                 \[
                                 \begin{aligned}
 
@@ -993,12 +987,13 @@
                                 \\
                                 \\
                                 e(t_N) &= \Phi e(t_0) + \Gamma \delta t \\
-                                e(t_{j,N}) &= \Phi e(t_{j,0}) + \Gamma \delta t[j] \\
+                                e[j](t_N) &= \Phi e[j](t_0) + \Gamma \delta t[j] \\
 
                                 \end{aligned}
                                 \]
                             </p>
                         </div>
+                        <!-- {{xxx}} -->
 
                     </div>
                 </section>
