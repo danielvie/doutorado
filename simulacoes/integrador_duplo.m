@@ -89,13 +89,7 @@ function var_out = integrador_duplo(save_fig)
         plot_control_signal(t_off(1:ncycle), m_off(1:ncycle), t(1:ncycle), m(1:ncycle), "double integrator Control Signal", "time (s)", "mode");
 
         % get values from the function
-        all_variables = who;
-        var_out = [];
-        for i = 1:length(all_variables)
-            var_name           = all_variables{i};
-            var_out.(var_name) = eval(var_name);
-        end
-
+        var_out = utils.getAllVars();
 
 
         if (save_fig)

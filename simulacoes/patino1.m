@@ -1,8 +1,5 @@
 function var_out = patino1(save_fig)
 
-    % inicializando variaveis de saida
-    var_out = {};
-    
     if (nargin == 0)
         save_fig = false;
     end
@@ -30,16 +27,12 @@ function var_out = patino1(save_fig)
     % grafico 2
     f2 = figure(2);
 
-    i = t < c.Ts(end);
+    % i = t < c.Ts(end);
     % plotter.patino1.plot_control_signal(t(i), m(i), "Buck-Boost Converter Signal Command", "t - time (s)", "u - switch command");
     plotter.patino1.plot_control_signal(t, m, "Buck-Boost Converter Signal Command", "t - time (s)", "u - switch command");
 
     % get variables
-    all_vars = who;
-    for i = 1:length(all_vars)
-        var_name = all_vars{i};
-        var_out.(var_name) = eval(var_name);
-    end
+    var_out = utils.getAllVars();
 
     if (save_fig)
         %% saving figures

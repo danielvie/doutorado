@@ -1,8 +1,5 @@
 function resultados = patino2_mpc(save_fig)
 
-    % inicialiando variaveis de saida
-    % var_out = {};
-
     if (nargin == 0)
         save_fig = false;
     end
@@ -107,13 +104,9 @@ function resultados = patino2_mpc(save_fig)
         cfg.x0  = config.x0 + [-2;1;-1];
         cfg.mpc.on = true;
         [y,t,m,dtk_out] = engine.sim_n2(cfg, nsim);
-        
-        var_out.dtk_out = dtk_out;
 
         cfg.mpc.on = false;
         [y_off,t_off,m_off,dtk_out_off] = engine.sim_n2(cfg, nsim);
-        
-        var_out.dtk_out_off = dtk_out_off;
 
         cfg.x0  = config.x0 + [-0.2; -.3; -.3];
         cfg.mpc.on = true;
@@ -149,11 +142,7 @@ function resultados = patino2_mpc(save_fig)
         % plotter.patino2_mpc.plot_control_signal(t_off, m_off, t, m, "Multilevel Converter Control Signal", "time (s)", "mode")
 
         % get values from the function
-        all_variables = who;
-        for i = 1:length(all_variables)
-            var_name           = all_variables{i};
-            var_out.(var_name) = eval(var_name);
-        end
+        var_out = utils.getAllVars();
         resultados = ResultadoPatino2(var_out);
 
         %% saving figures

@@ -69,14 +69,8 @@ function vout = patino2(save_fig)
         % copyfile('graf_ex2_*.pdf', "../../LATEX_tese/Cap2/fig/");
     end
 
-    % defining output in case it is set by the caller
-    vout = struct();
-    vnames = who;
-    for i = 1:numel(vnames)
-        vi = vnames{i};
-        vout.(vi) = eval(vi);
-    end
-
+    % getting vars from the function
+    vout = utils.getAllVars();
 end
 
 

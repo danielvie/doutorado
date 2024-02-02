@@ -29,6 +29,22 @@ classdef ResultadoPatino2
             nelements = nelements * ncycles;
             plotter.patino2_mpc.plot_control_signal(self.vars.t_off(1:nelements), self.vars.m_off(1:nelements), self.vars.t(1:nelements), self.vars.m(1:nelements), "Multilevel Converter Control Signal", "time (s)", "mode");
         end
+        
+        function f = plot(self)
+            f = {};
+
+            f{1} = figure(1);
+            self.plot_xi();
+            
+            f{2} = figure(2);
+            self.plot_traj();
+            
+            f{3} = figure(3);
+            self.plot_traj2();
+            
+            f{4} = figure(4);
+            self.plot_control_signal(10);
+        end
 
     end
 end

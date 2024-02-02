@@ -1,10 +1,16 @@
 
 
+function z_play()
+    a = 1;
+    b = 2;
+    sum = a + b;
 
+    vars = get_vars();
+    disp('vars:');
+    disp(vars);
+    fprintf("the sum of %d and %d is %d\n", a, b, sum);
+end
 
-
-A = zeros(10, 2);
-b = [1,2;3,4];
-
-
-A(1:2, 1:2) = b;
+function vars_out = get_vars()
+    vars_out = evalin('caller', 'who');
+end
