@@ -1,5 +1,5 @@
 
-function var_out = patino1_mpc(save_fig)
+function res = patino1_mpc(save_fig)
 
     if (nargin == 0)
         save_fig = false;
@@ -69,24 +69,19 @@ function var_out = patino1_mpc(save_fig)
     cfg.mpc.on = 0;
     [y_off,t_off,u_off,m_off] = engine.sim_n(cfg, nsim);
 
-
-    % plot dos resultados
-
-    f1 = figure(1);
-    plotter.patino1_mpc.plot_traj(y, y_off, config.x0, "Buck-Boost Converter MPC", "x_1 - Voltage Capacitor C", "x_2 - Current Inductor L");
-
-    % ncycle = size(y_off, 1) / nsim;
-    % ncycle = ncycle * 8 + 1;
-    % plot_control_signal(t_off(1:ncycle), m_off(1:ncycle), t(1:ncycle), m(1:ncycle), "double integrator Control Signal", "time (s)", "mode");
-
-    %% plot
-    f2 = figure(2);
-    ncycle = size(y_off, 1) / nsim;
-    ncycle = ncycle * 8 -700;
-    plotter.patino1_mpc.plot_control_signal(t_off(1:ncycle), m_off(1:ncycle), t(1:ncycle), m(1:ncycle), "Buck-Boost Converter: Control Signal", "time (s)", "mode");
-
     % get values from the function
     var_out = utils.getAllVars();
+    res = resultados.ResPatino1_mpc(var_out);
+
+    % plot dos resultados
+    f1 = figure(1);
+    res.plot_traj();
+
+    f2 = figure(2);
+    res.plot_u_signal();
+    
+    res.data.f1 = f1;
+    res.data.f2 = f2;
 
     if (save_fig)
         %% save figures

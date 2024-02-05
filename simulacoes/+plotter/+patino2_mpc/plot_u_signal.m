@@ -1,4 +1,4 @@
-function plot_control_signal(t_off, m_off, t, m, tit, x_label, y_label)
+function plot_u_signal(t_off, m_off, t, m, tit, x_label, y_label)
 
 
         % stairs(t_off, m_off, 'linew', 2);

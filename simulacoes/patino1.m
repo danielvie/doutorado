@@ -1,4 +1,4 @@
-function var_out = patino1(save_fig)
+function res = patino1(save_fig)
 
     if (nargin == 0)
         save_fig = false;
@@ -18,21 +18,21 @@ function var_out = patino1(save_fig)
     [y, t, u, m] = engine.sim_n(c, nsim);
     % [y, t, m] = engine.sim_n(c, nsim);
 
-    %% plot dos resultados
+    % get variables
+    var_out = utils.getAllVars();
+    res = resultados.ResPatino1(var_out);
 
+    %% plot dos resultados
     % grafico 1
     f1 = figure(1);
-    plotter.patino1.plot_traj(y, c.xref, "Buck-Boost Converter: Cyclic Trajectory", "x_1 - Voltage Capacitor C", "x_2 - Current Inductor L");
+    res.plot_traj();
 
     % grafico 2
     f2 = figure(2);
-
-    % i = t < c.Ts(end);
-    % plotter.patino1.plot_control_signal(t(i), m(i), "Buck-Boost Converter Signal Command", "t - time (s)", "u - switch command");
-    plotter.patino1.plot_control_signal(t, m, "Buck-Boost Converter Signal Command", "t - time (s)", "u - switch command");
-
-    % get variables
-    var_out = utils.getAllVars();
+    res.plot_u_signal();
+    
+    res.data.f1 = f1;
+    res.data.f2 = f2;
 
     if (save_fig)
         %% saving figures

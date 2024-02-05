@@ -1,7 +1,12 @@
-function resultados = patino2_mpc(save_fig)
+function res = patino2_mpc(save_fig, nsim_in)
 
     if (nargin == 0)
         save_fig = false;
+    end
+    
+    nsim = 100;
+    if (nargin >= 1)
+        nsim = nsim_in;
     end
 
     %% 1 INIT
@@ -89,7 +94,7 @@ function resultados = patino2_mpc(save_fig)
     %% rodando simulacao como resultado da trajetoria
 
         cfg = config;
-        nsim = 500;
+        % nsim = 500;
 
         % estados
         % 1. vc1
@@ -104,6 +109,7 @@ function resultados = patino2_mpc(save_fig)
         cfg.x0  = config.x0 + [-2;1;-1];
         cfg.mpc.on = true;
         [y,t,m,dtk_out] = engine.sim_n2(cfg, nsim);
+        x0_1 = cfg.x0;
 
         cfg.mpc.on = false;
         [y_off,t_off,m_off,dtk_out_off] = engine.sim_n2(cfg, nsim);
@@ -118,32 +124,26 @@ function resultados = patino2_mpc(save_fig)
         % x0_2 = cfg.x0;
     %% 5 PLOTING GRAPHICS
 
-
-
-
-
-        % plot dos resultados
-
-        % state xi
-        f1 = figure(1);
-        plotter.patino2_mpc.plot_xi(t, y);
-
-        f2 = figure(4);
-        plotter.patino2_mpc.plot_traj(y, y_off, config.x0, "Multilevel Converter Trajectory", "V_{c1} [V]", "V_{c2} [V]", "I_{L} [A]")
-
-        f2_1 = figure(11);
-        plotter.patino2_mpc.plot_traj(y2, y2_off, config.x0, "Multilevel Converter Trajectory", "V_{c1} [V]", "V_{c2} [V]", "I_{L} [A]")
-
-        % control signal
-        f3 = figure(5);
-        ncycle = size(y_off, 1) / nsim;
-        ncycle = ncycle * 10;
-        plotter.patino2_mpc.plot_control_signal(t_off(1:ncycle), m_off(1:ncycle), t(1:ncycle), m(1:ncycle), "Multilevel Converter Control Signal", "time (s)", "mode")
-        % plotter.patino2_mpc.plot_control_signal(t_off, m_off, t, m, "Multilevel Converter Control Signal", "time (s)", "mode")
-
         % get values from the function
         var_out = utils.getAllVars();
-        resultados = ResultadoPatino2(var_out);
+        res = resultados.ResPatino2_mpc(var_out);
+        
+        f1 = figure(1);
+        res.plot_xi();
+
+        f2 = figure(2);
+        res.plot_traj();
+
+        f2_1 = figure(3);
+        res.plot_traj2();
+
+        f3 = figure(4);
+        res.plot_u_signal();
+        
+        res.data.f1 = f1;
+        res.data.f2 = f2;
+        res.data.f2_1 = f2_1;
+        res.data.f3 = f3;
 
         %% saving figures
         if (save_fig)

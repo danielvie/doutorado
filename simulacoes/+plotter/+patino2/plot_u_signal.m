@@ -1,5 +1,5 @@
+function plot_u_signal(t, m, tit, x_label, y_label)
 
-function plot_control_signal(t, m, tit, x_label, y_label)
     hold off;
 
     f = stairs(t, m, 'linew', 3); 

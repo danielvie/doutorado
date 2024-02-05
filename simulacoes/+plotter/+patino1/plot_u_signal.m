@@ -1,15 +1,15 @@
-function plot_control_signal(t_off, m_off, t, m, tit, x_label, y_label)
-    f = stairs(t_off, m_off, 'linew', 2);
-    hold on;
-    stairs(t, m, 'linew', 2, 'linestyle', '--');
+
+function plot_u_signal(t, m, tit, x_label, y_label)
     hold off;
-    
+
+    f = stairs(t, m, 'linew', 3); 
+
+    hold on;
     grid on;
-    title(tit);
+    title(tit)
     xlabel(x_label);
     ylabel(y_label);
     set(gca,'fontsize', 15);
-    legend('modes target trajectory', 'modes simulation');
 
     % removing the values that are not integers in Y axis
     v = f.Parent.YTick;
@@ -19,5 +19,6 @@ function plot_control_signal(t_off, m_off, t, m, tit, x_label, y_label)
     
     % update yticks
     f.Parent.YTick = v(p);
-
+    
+    xlim([t(1), t(end)]);
 end
