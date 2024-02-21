@@ -128,22 +128,22 @@ function res = patino2_mpc(save_fig, nsim_in)
         var_out = utils.getAllVars();
         res = resultados.ResPatino2_mpc(var_out);
         
-        f1 = figure(1);
-        res.plot_xi();
+        % f1 = figure(1);
+        % res.plot_xi();
 
-        f2 = figure(2);
-        res.plot_traj();
+        % f2 = figure(2);
+        % res.plot_traj();
 
-        f2_1 = figure(3);
-        res.plot_traj2();
+        % f2_1 = figure(3);
+        % res.plot_traj2();
 
-        f3 = figure(4);
-        res.plot_u_signal();
+        % f3 = figure(4);
+        % res.plot_u_signal();
         
-        res.data.f1 = f1;
-        res.data.f2 = f2;
-        res.data.f2_1 = f2_1;
-        res.data.f3 = f3;
+        % res.data.f1 = f1;
+        % res.data.f2 = f2;
+        % res.data.f2_1 = f2_1;
+        % res.data.f3 = f3;
 
         %% saving figures
         if (save_fig)

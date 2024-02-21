@@ -89,4 +89,56 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr,config)
             [Phi, Gamma] = linModel(A,b,Omega,xbar0,Dt);
         end
     end
+    
+    % estado aumentado X = [x(t); 1]
+    % estado aumentado A_tilde = [A_sigma(t), b_sigma(t); 
+    %                                      0,          0]
+
+    % Phi2 = phi(n)*phi(n-1)*...*phi(1)
+    
+    %{
+        % Gamma2 = [
+                F1 * Phi2 * x(t0);
+                F2 * Phi2 * x(t0);
+                ...
+                F_(N) * Phi2 * x(t0);
+            ]
+    %}
+    
+    % F(n) = A_tilde_sigma(t)
+    % phi(n) = expm(F(n)*Dt(N))
+    
+    [a_m, a_n] = size(Ac{Omega(1)});
+    [b_m, b_n] = size(Bc{Omega(1)});
+    
+    F = {};
+    phi = {};
+    for i = 1:N
+        Ai = Ac{Omega(i)};
+        bi = Bc{Omega(i)};
+
+        % computando matriz de estados aumentada
+        F{i} = [Ai, bi; zeros(1, a_n), zeros(1, b_n)];
+        
+        % calculando phi{n}
+        dti    = Ts(i+1) - Ts(i);
+        phi{i} = expm(F{i}*dti);
+    end
+    
+    % calculando Phi2
+    Phi2 = eye(size(F{1}));
+    for i = 1:N
+        Phi2 = Phi2*phi{i};
+    end
+
+    % calculando Gamma2
+    Gamma2 = [];
+    x0 = engine.get_x0(config);
+    Xt0 = [x0; 1];
+    for i = 1:N
+        Gamma2 = [Gamma2, F{i}*Phi2*Xt0];
+    end
+    
+    bla = 1;
+
 end
