@@ -98,10 +98,11 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr,config)
     
     %{
         % Gamma2 = [
-                F1 * Phi2 * x(t0);
-                F2 * Phi2 * x(t0);
+                phi(N) * phi(N-1) * ... * phi(2) * F_(N-1) * phi(1) * x(t0);
+                phi(N) * phi(N-1) * ... * phi(3) * F_(N-1) * phi(2) * phi(1) * x(t0);
                 ...
-                F_(N) * Phi2 * x(t0);
+                phi(N) * F_(N-1) * phi(N-1) * phi(N-2) * ... phi(1) * x(t0);
+                F_(N) * phi(N) * phi(N-1) * ... phi(1) * x(t0);
             ]
     %}
     
@@ -134,9 +135,30 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr,config)
     % calculando Gamma2
     Gamma2 = [];
     x0 = engine.get_x0(config);
-    Xt0 = [x0; 1];
+    xt0 = [x0; 1];
+    I = eye(size(F{1}));
+
     for i = 1:N
-        Gamma2 = [Gamma2, F{i}*Phi2*Xt0];
+        FF = I;
+        for j = 1:N
+            if (i == j)
+                FF = FF*F{j};
+            end
+            FF = FF*phi{j};
+        end
+        FF = FF*xt0;
+
+        Gamma2 = [Gamma2, FF];
     end
+
+    A = Ac;
+    b = Bc;
+    % Omega = config.Omega + 1;
+    xbar0 = xr(1,:)';
+    Dt = diff(config.Ts);
+
+    [Phi3, Gamma3] = linModel(A,b,Omega,xbar0,Dt);
+    
+    bla = 1;
     
 end
