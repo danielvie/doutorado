@@ -139,6 +139,4 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr,config)
         Gamma2 = [Gamma2, F{i}*Phi2*Xt0];
     end
     
-    bla = 1;
-
 end
