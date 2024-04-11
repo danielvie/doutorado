@@ -6,16 +6,13 @@ function [y,t,m,dtk_out] = sim_n2(config, nsim)
     nmodes  = numel(config.Omega);
     nstates = numel(config.x0);
 
-
     dtk_out = [];
 
     y = zeros(nsim*nmodes, nstates); 
     t = zeros(nsim*nmodes, 1);
     m = zeros(nsim*nmodes, 1);
-
     
     cfg = config;
-
 
     t0  = 0.0;
     x0  = cfg.x0;
@@ -42,11 +39,20 @@ function [y,t,m,dtk_out] = sim_n2(config, nsim)
             % nota: o tempo eh ajustado a partir de `j+1` porque o primeiro
             % instante eh `0`.
             Ts = config.Ts;
+            
+            Ts = engine.quantizacao(config, Ts);
+            disp('quantizacao antes:');
+            disp(config.Ts);
+            disp('quantizacao depois:');
+            disp(Ts);
+            fprintf('\n\n');
+
             for j = 1:numel(dtk)
                 Ts(j+1) = Ts(j+1) + dtk(j);
             end
     
             cfg.Ts = Ts;
+            
         end
         
         % simulando dinamica

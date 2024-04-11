@@ -4,7 +4,7 @@ function res = patino2_mpc(save_fig, nsim_in)
         save_fig = false;
     end
     
-    nsim = 100;
+    nsim = 50;
     if (nargin >= 1)
         nsim = nsim_in;
     end
@@ -37,8 +37,14 @@ function res = patino2_mpc(save_fig, nsim_in)
 
     %% 3 CONSTRUINDO MPC
         % montando valores de referencia
-        tr  = config.Ts(2:end);
-        dtr = diff(config.Ts);
+        % tr  = config.Ts(2:end);
+        % dtr = diff(config.Ts);
+        % xr  = engine.get_xr(config);
+
+        % config.quant = 0.022e-3;
+        Ts  = engine.quantizacao(config, config.Ts);
+        tr  = Ts(2:end);
+        dtr = diff(Ts);
         xr  = engine.get_xr(config);
 
         [Phi, Gamma] = mpc.construcao_modelo_instantes(config.A, config.b, tr, xr, config);
@@ -102,11 +108,11 @@ function res = patino2_mpc(save_fig, nsim_in)
         % 3. i
 
         % adicionando erros
-        cfg.x0  = config.x0 + [-2;1;-1];
+        % cfg.x0  = config.x0 + [-2;1;-1];
         % cfg.x0  = config.x0 + [-0.1; .1; -.1];
-        cfg.x0 = [0; 10; 10];
+        % cfg.x0 = [0; 10; 10];
 
-        cfg.x0  = config.x0 + [-2;1;-1];
+        % cfg.x0  = config.x0 + [-2;1;-1];
         cfg.mpc.on = true;
         [y,t,m,dtk_out] = engine.sim_n2(cfg, nsim);
         x0_1 = cfg.x0;
@@ -114,12 +120,16 @@ function res = patino2_mpc(save_fig, nsim_in)
         cfg.mpc.on = false;
         [y_off,t_off,m_off,dtk_out_off] = engine.sim_n2(cfg, nsim);
 
-        cfg.x0  = config.x0 + [-0.2; -.3; -.3];
-        cfg.mpc.on = true;
-        y2 = engine.sim_n2(cfg, nsim);
+        % cfg.x0  = config.x0 + [-0.2; -.3; -.3];
+        % cfg.mpc.on = true;
+        % y2 = engine.sim_n2(cfg, nsim);
 
-        cfg.mpc.on = false;
-        y2_off = engine.sim_n2(cfg, nsim);
+        % cfg.mpc.on = false;
+        % y2_off = engine.sim_n2(cfg, nsim);
+        
+        cfg.mpc.on = true;
+        cfg.quant = 0.022e-3;
+        [y_quant,t_quant,m_quant,dtk_out_quant] = engine.sim_n2(cfg, nsim);
         
         % x0_2 = cfg.x0;
     %% 5 PLOTING GRAPHICS
@@ -127,6 +137,7 @@ function res = patino2_mpc(save_fig, nsim_in)
         % get values from the function
         var_out = utils.getAllVars();
         res = resultados.ResPatino2_mpc(var_out);
+        res.plot();
         
         % f1 = figure(1);
         % res.plot_xi();
