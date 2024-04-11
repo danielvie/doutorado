@@ -4,7 +4,7 @@ function res = patino2_mpc(save_fig, nsim_in)
         save_fig = false;
     end
     
-    nsim = 50;
+    nsim = 100;
     if (nargin >= 1)
         nsim = nsim_in;
     end
@@ -118,6 +118,7 @@ function res = patino2_mpc(save_fig, nsim_in)
         x0_1 = cfg.x0;
 
         cfg.mpc.on = false;
+        cfg.x0  = config.x0 + [-0.2; -.3; -.9];
         [y_off,t_off,m_off,dtk_out_off] = engine.sim_n2(cfg, nsim);
 
         % cfg.x0  = config.x0 + [-0.2; -.3; -.3];
