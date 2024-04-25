@@ -22,6 +22,7 @@ function res = patino2(save_fig, nsim_in)
     opt.ConstraintTolerance = 1e-5;
     % opt.PlotFcn = 'optimplotfvalconstr';
 
+    config.quant = 0.022e-3;
     [config, x, ~] = engine.otmin(config, opt);
 
     % save `config` in WS
@@ -38,7 +39,7 @@ function res = patino2(save_fig, nsim_in)
     % cfg.x0 = cfg.x0 + [4.5; 1.1; 3.1];
     % cfg.x0 = [0.0, 0.0, 0.0];
     % cfg.x0 = [19.2928,9.9247,0.9823];
-    cfg.x0 = [7.6113, 20.8227, 0.0317];
+    % cfg.x0 = [7.6113, 20.8227, 0.0317];
 
 
     % config_.x0 = x0;

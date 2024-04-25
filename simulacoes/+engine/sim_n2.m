@@ -40,12 +40,7 @@ function [y,t,m,dtk_out] = sim_n2(config, nsim)
             % instante eh `0`.
             Ts = config.Ts;
             
-            Ts = engine.quantizacao(config, Ts);
-            disp('quantizacao antes:');
-            disp(config.Ts);
-            disp('quantizacao depois:');
-            disp(Ts);
-            fprintf('\n\n');
+            Ts = engine.quantizacao(config, Ts, engine.QuantType.Sim);
 
             for j = 1:numel(dtk)
                 Ts(j+1) = Ts(j+1) + dtk(j);

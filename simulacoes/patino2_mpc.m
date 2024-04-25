@@ -21,6 +21,8 @@ function res = patino2_mpc(save_fig, nsim_in)
         opt.ConstraintTolerance = 1e-4;
         % opt.PlotFcn = 'optimplotfvalconstr';
 
+        config.quant_traj = 0.022e-3;
+        config.quant_sim = 0.022e-3;
         [config, ~, ~] = engine.otmin(config, opt);
         
         % truncando valor da trajetoria
@@ -41,8 +43,7 @@ function res = patino2_mpc(save_fig, nsim_in)
         % dtr = diff(config.Ts);
         % xr  = engine.get_xr(config);
 
-        % config.quant = 0.022e-3;
-        Ts  = engine.quantizacao(config, config.Ts);
+        Ts  = config.Ts;
         tr  = Ts(2:end);
         dtr = diff(Ts);
         xr  = engine.get_xr(config);
@@ -118,7 +119,7 @@ function res = patino2_mpc(save_fig, nsim_in)
         x0_1 = cfg.x0;
 
         cfg.mpc.on = false;
-        cfg.x0  = config.x0 + [-0.2; -.3; -.9];
+        cfg.x0  = config.x0 + [-1.2; -1.3; -.9];
         [y_off,t_off,m_off,dtk_out_off] = engine.sim_n2(cfg, nsim);
 
         % cfg.x0  = config.x0 + [-0.2; -.3; -.3];
@@ -129,7 +130,6 @@ function res = patino2_mpc(save_fig, nsim_in)
         % y2_off = engine.sim_n2(cfg, nsim);
         
         cfg.mpc.on = true;
-        cfg.quant = 0.022e-3;
         [y_quant,t_quant,m_quant,dtk_out_quant] = engine.sim_n2(cfg, nsim);
         
         % x0_2 = cfg.x0;
