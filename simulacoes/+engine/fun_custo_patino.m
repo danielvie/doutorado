@@ -15,6 +15,9 @@ function J = fun_custo_patino(config, X)
 
     % montando vetor de tempo
     Ts = engine.get_ts(dT);
+
+    % quantizacao
+    Ts = engine.quantizacao(cfg, Ts, engine.QuantType.Traj);
     
     % atualizando config temporation para os instantes de chaveamento
     % e calculando a condicao inicial para uma trajetoria ciclica

@@ -22,7 +22,7 @@ function res = patino2_mpc(save_fig, nsim_in)
         % opt.PlotFcn = 'optimplotfvalconstr';
 
         config.quant_traj = 0.022e-3;
-        config.quant_sim = 0.022e-3;
+        config.quant_sim = 0.022e-2;
         [config, ~, ~] = engine.otmin(config, opt);
         
         % truncando valor da trajetoria
