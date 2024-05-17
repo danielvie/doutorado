@@ -9,6 +9,7 @@
 \smartqed
 %This command right justifies \qed throughout the paper.
 \usepackage{graphicx}
+\usepackage{amsmath}
 %This package is used to insert figures.
 \journalname{JOTA}
 
@@ -52,6 +53,89 @@ The Introduction should contain a summary of the literature that pertains to the
 \section{Statement of Purpose}
 
 This journal publishes carefully selected papers covering mathematical optimization (and related topics) and its application to science and engineering. For a theoretical paper, the analytic treatment is compulsory. For an applications paper, the paper should be as much about a sophisticated application of an optimization method as it is about the solution of a particular problem. Therefore, an applications paper should contain a formal statement of the optimization problem in which the optimization variables, the objective function, and the constraints are clearly identified. If the paper is numerical in nature, the development and application of the numerical method should be discussed. Papers that present the formulation of a very large complex optimization problem with little discussion of optimization will probably be returned to the author with a recommendation to publish it in a journal more specifically related to the problem. It would be better for an author to select the simplest problem that is contained in the complex problem and to present it with its novel solution methodology.
+
+\section{Prediction Equation}
+
+\begin{equation}
+   \dot{x}(t) = A_{\sigma(t)} + b_{\sigma(t)}
+\end{equation}
+
+lets use an augmented state 
+
+\begin{align}
+   \chi 
+      &= \left[ \begin{matrix} x(t) \\ 1 \end{matrix} \right]
+      \\
+   \dot{\chi}(t) 
+      &= \left[ \begin{matrix} \dot{x}(t) \\ \frac{\partial}{\partial t}(1) \end{matrix} \right] 
+      = \left[ \begin{matrix} A x(t) = b_{\sigma(t)} \\ 0 \end{matrix} \right] 
+      \\
+   \dot{\chi}(t) 
+      &= \underbrace{ \left[ \begin{matrix} A_{\sigma(t)} & b_{\sigma(t)} \\ 0 & 0 \end{matrix} \right] }_{\tilde{A}_{\sigma(t)}} \left[ \begin{matrix} x(t) \\ 1 \end{matrix} \right]
+\end{align}
+
+dynamic equation with augmented states
+
+\begin{equation}
+   \chi(t) = \tilde{A}_{\sigma(t)} \chi(t)
+\end{equation}
+
+\begin{equation}
+   \chi(t_N) = 
+      e^{\tilde{A}_{N-1} \Delta t_N}
+      e^{\tilde{A}_{N-2} \Delta t_{N-1}}
+      \dotsm
+      e^{\tilde{A}_{0} \Delta t_{1}}
+      \chi(t_0)
+\end{equation}
+
+let make 
+
+\begin{equation}
+   F_{i+1} = \tilde{A}\sigma(t_i)
+\end{equation}
+
+so
+
+\begin{equation}
+   \label{eq_augstate_1}
+   \chi(t_N) = 
+      e^{F_N \Delta t_N}
+      e^{F_{N-1} \Delta t_{N-1}}
+      \dotsm
+      e^{F_{1} \Delta t_{1}}
+      \chi(t_0)
+\end{equation}
+
+which also results in 
+
+\begin{equation}
+   \label{eq_augstate_2}
+   \tilde{\chi}(t_N) = 
+      e^{F_N \Delta \bar{t}_N}
+      e^{F_{N-1} \Delta \bar{t}_{N-1}}
+      \dotsm
+      e^{F_{1} \Delta \bar{t}_{1}}
+      \bar{\chi}(t_0)
+\end{equation}
+
+computing the error between the equations \eqref{eq_augstate_1} and \eqref{eq_augstate_2}
+
+\begin{equation}
+   e(t) = \chi(t) - \bar{\chi}(t)
+\end{equation}
+
+\begin{align}
+   e(t_N) 
+      &= 
+      e^{F_N \Delta t_N} e^{F_{N-1} \Delta t_{N-1}} \dotsm e^{F_{1} \Delta t_{1}} \chi(t_0) - \\
+      & \quad e^{F_N \Delta \bar{t}_N} e^{F_{N-1} \Delta \bar{t}_{N-1}} \dotsm e^{F_{1} \Delta \bar{t}_{1}} \chi(t_0) \\
+      &= 
+      e^{F_N (\Delta \bar{t}_N + \delta t_N)} e^{F_{N-1} (\Delta \bar{t}_{N-1} + \delta t_{N-1})} \dotsm e^{F_{1} (\Delta \bar{t}_{1} + \delta t_{1})} (\bar{\chi}(t_0) + e(t_0)) - \\
+      & \quad e^{F_N \Delta \bar{t}_N} e^{F_{N-1} \Delta \bar{t}_{N-1}} \dotsm e^{F_{1} \Delta \bar{t}_{1}} \chi(t_0)
+\end{align}
+
+
 
 \section{Submission of a Paper}
 
