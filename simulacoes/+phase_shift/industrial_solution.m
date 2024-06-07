@@ -48,7 +48,7 @@ function [Omega,dtSwitch] = industrial_solution(alpha,nSwitches,T)
     % Step 4: Convert the mode sequence to decimal form
     for i = 1:2*nSwitches
         Omega(i) = 1 + bin2dec(num2str(OmegaBin{i}));
-        [OmegaBin{i} Omega(i)]
+        [OmegaBin{i} Omega(i)];
     end
 
     % Step 5: Convert tSwitch to dtSwitch assuming that the final switching

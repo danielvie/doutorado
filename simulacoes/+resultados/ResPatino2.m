@@ -36,7 +36,7 @@ classdef ResPatino2
             self.plot_xi_helper(t, vc2, "Multilevel Converter: X_2", "t - time(s)", "Voltage C_2 [V]");
 
             subplot(3, 1, 3);
-            self.plot_xi_helper(t, i_l, "Multilevel Converter: X_3", "t - time(s)", "Voltage L [A]");
+            self.plot_xi_helper(t, i_l, "Multilevel Converter: X_3", "t - time(s)", "Current L [A]");
         end
 
         function plot_traj(self)
