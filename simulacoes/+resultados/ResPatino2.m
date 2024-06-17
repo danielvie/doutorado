@@ -41,16 +41,25 @@ classdef ResPatino2
 
         function plot_traj(self)
             y = self.data.y;
+            y_off = self.data.y_off;
+
             tit = "Multilevel Converter: Trajectory";
             x_la = "X_1: Voltage C_1 [V]";
             y_la = "X_2: Voltage C_2 [V]";
             z_la = "X_3: Current L [A]";
 
+            vc1_off = y_off(:,1);
+            vc2_off = y_off(:,2);
+            i_l_off = y_off(:,3);
+
             vc1_ = y(:,1);
             vc2_ = y(:,2);
             i_l_ = y(:,3);
 
-            h = plot3(vc1_, vc2_, i_l_, 'k');
+            h(1) = plot3(vc1_off, vc2_off, i_l_off, 'k');
+            hold on;
+            h(2) = plot3(vc1_, vc2_, i_l_);
+            hold off;
 
             grid on;
 
@@ -60,6 +69,7 @@ classdef ResPatino2
             zlabel(z_la);
 
             set(gca,'fontsize', 15);
+            legend(h, 'MPC_{off}', 'MPC_{on}');
         end
 
         function plot_u_signal(self)

@@ -12,12 +12,12 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr,config)
 
     tr  = reshape(tr, [numel(tr), 1]);
     
-    N   = length(tr); % calcular apenas uma vez N
-
     % T   = tr(N);
     % Dur = diff(ur); % Dur = [Dur1, Dur2, ..., DurN-1 ]
 
     Omega = config.Omega;
+
+    N   = length(Omega); % calcular apenas uma vez N
 
     % Phi = expm(Ac*T);
     tam = N;
