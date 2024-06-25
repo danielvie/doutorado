@@ -11,7 +11,8 @@ function res = patino2_phase_mpc(save_fig, nsim_in)
 
     % get configuration
     config = engine.get_config_sim_patino_2();
-    iref = 1.2; % TODO: colocar `iref` com get_config...
+    iref = 2.65; 
+    % TODO: colocar `iref` com get_config...
 
     cfg = compute_phase(config, iref);
 
@@ -49,8 +50,8 @@ function res = patino2_phase_mpc(save_fig, nsim_in)
     f2 = figure(2);
     res.plot_traj();
 
-    f3 = figure(3);
-    res.plot_u_signal();
+    % f3 = figure(3);
+    %res.plot_u_signal();
     
     % res.data.f1 = f1;
     % res.data.f2 = f2;

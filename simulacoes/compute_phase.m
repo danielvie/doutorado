@@ -22,6 +22,20 @@ function cfg = compute_phase(config, iref)
         [Omega,dT] = phase_shift.industrial_solution(param.alpha,param.n,param.T);
         % [A,b] = phase_shift.modelSwitchedCapacitor(param.n,param.R,param.L,param.C,param.E);
         
+        % removendo elementos com dT muito pequeno (< 1e-16)
+        EPS = 1e-16;
+        I = [];
+        for i = 1:numel(dT)
+            if dT(i) >= EPS
+                I = [I;i];
+            end
+        end
+
+        Omega = Omega(I);
+        dT = dT(I);
+
+
+
         config.Omega = Omega;
 
         cfg = config;
