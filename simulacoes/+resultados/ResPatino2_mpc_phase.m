@@ -1,45 +1,36 @@
-classdef ResPatino2_mpc_phase
+classdef ResPatino2_mpc_phase 
     properties
         data
     end
     
     methods(Static)
-        function plot_xi_helper(t, yi, t_quant, yi_quant, tit, x_label, y_label)
-            disp('dentro de xi_helper');
-            plot(t, yi); hold on;
-            % plot(t_quant, yi_quant); hold off;
+        function plot_xi_helper(t, yi, tit, x_label, y_label)
+            plot(t, yi); 
 
             grid on;
             title(tit)
             xlabel(x_label);
             ylabel(y_label);
             set(gca,'fontsize', 15);
-            disp('fim de xi_helper');
         end
 
-        function plot_traj_helper(Y, Y2, x0, tit, x_label, y_label, z_label, leg)
+        function plot_traj_helper(Y, x0, tit, x_label, y_label, z_label, leg)
             y1 = Y(:,1);
             y2 = Y(:,2);
             y3 = Y(:,3);
 
-            y_1 = Y2(:,1);
-            y_2 = Y2(:,2);
-            y_3 = Y2(:,3);
-
             plot3(y1, y2, y3);
             hold on;
-            plot3(y_1, y_2, y_3);
 
             % plot marcadores
             plot3(y1(1), y2(1), y3(1), 'ro', 'markers', 15, 'linew', 2); % start point
             plot3(y1(end), y2(end), y3(end), 'k.', 'markers', 50); % end point
-            plot3(y_1(end), y_2(end), y_3(end), 'k*', 'markers', 15, 'linew', 2); % end point
             plot3(x0(1), x0(2), x0(3), 'rx', 'markers', 25, 'linew', 3); % target x_0
 
             legend(leg{:});
 
-            hold off;
             grid on;
+            hold off;
             title(tit)
             xlabel(x_label);
             ylabel(y_label);
@@ -54,7 +45,6 @@ classdef ResPatino2_mpc_phase
         end
         
         function plot_xi(self)
-
             t = self.data.t;
             y = self.data.y;
 
@@ -67,17 +57,25 @@ classdef ResPatino2_mpc_phase
 
         end
 
+        function plot_x3(self)
+            t = self.data.t;
+            y = self.data.y;
+
+            self.plot_xi_helper(t, y(:,3), 'Current i_L Multilevel Converter', 't - time(s)', 'i_{L} [A]')
+
+        end
+
+
         function plot_traj(self)
             y = self.data.y;
-            y_off = self.data.y_off;
             x0 = self.data.config.x0;
             tit = "Multilevel Converter Trajectory";
             x_label = "V_{c1} [V]";
             y_label = "V_{c2} [V]";
             z_label = "I_{L} [A]";
-            leg = {'trajectory MPC off', 'trajectory MPC on', 'start', 'end MPC off', 'end MPC on', 'target x_0', 'location', 'southeast'};
+            leg = {'trajectory MPC on', 'start', 'end MPC on', 'target x_0', 'location', 'southeast'};
 
-            self.plot_traj_helper(y_off, y, x0, tit, x_label, y_label, z_label, leg);
+            self.plot_traj_helper(y, x0, tit, x_label, y_label, z_label, leg);
         end
 
         function plot_traj2(self)

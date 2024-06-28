@@ -25,9 +25,34 @@ function [y,t,m,dtk_out] = sim_n2(config, nsim)
     end
     
     numelx0 = numel(x0);
+    i0 = 0;
     for i = 1:nsim
-        dtk = zeros([numel(cfg.Omega)-1, 1]);
+        % dtk = zeros([numel(cfg.Omega)-1, 1]);
         if mpc_on
+            
+            if isfield(cfg, 'iiref')
+                % find value for replacing reference
+                iiref = cfg.iiref;
+                tempos = iiref.time;
+                values = iiref.value;
+                
+                tam = numel(tempos);
+                index = 1;
+                for itempo = 1:tam
+                    if t0 >= tempos(itempo)
+                        index = itempo;
+                    end
+                end
+                
+                if i0 ~= index || 1
+                    i0 = index;
+                    value = values(index);
+                    cfg = compute_phase(cfg, value);
+                end
+
+
+            end
+
             % calculo `ek`
             ek  = reshape(x0, [numelx0,1]) - reshape(cfg.mpc.x_target, [numelx0,1]);
 
@@ -38,9 +63,9 @@ function [y,t,m,dtk_out] = sim_n2(config, nsim)
             % da trajetoria de referencia.
             % nota: o tempo eh ajustado a partir de `j+1` porque o primeiro
             % instante eh `0`.
-            Ts = config.Ts;
+            Ts = cfg.Ts;
             
-            Ts = engine.quantizacao(config, Ts, engine.QuantType.Sim);
+            %Ts = engine.quantizacao(cfg, Ts, engine.QuantType.Sim);
 
             for j = 1:numel(dtk)
                 Ts(j+1) = Ts(j+1) + dtk(j);
@@ -60,7 +85,8 @@ function [y,t,m,dtk_out] = sim_n2(config, nsim)
         m(ii:ii+nmodes-1)   = m_(1:nmodes);
 
         % salvando acao de controle
-        dtk_out = [dtk_out, dtk];
+        % dtk_out = [dtk_out, dtk];
+        dtk_out = [];
 
         % atualizando valores do prox ciclo
         cfg.x0 = y_(end,:)';

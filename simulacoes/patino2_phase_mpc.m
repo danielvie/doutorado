@@ -3,23 +3,28 @@ function res = patino2_phase_mpc(save_fig, nsim_in)
         save_fig = false;
     end
     
-    nsim = 100;
+    nsim = 1000;
     if (nargin >= 1)
         nsim = nsim_in;
     end
 
-
     % get configuration
     config = engine.get_config_sim_patino_2();
-    iref = 2.65; 
+    iref = 1.0; 
     % TODO: colocar `iref` com get_config...
 
     cfg = compute_phase(config, iref);
+    
+    % FIXME: remover esse `iiref`
+
+    iiref.time = [ 0.0, 0.01, 0.02, 0.03 ];
+    iiref.value = [ 0.7, 1.2, 1.5, 2.0 ];
+    cfg.iiref = iiref;
 
     assignin('base', "config", config);
     assignin('base', "cfg", cfg);
 
-    nsim = 40;
+    nsim = 120;
 
     %% SIMULACAO
 
@@ -32,7 +37,6 @@ function res = patino2_phase_mpc(save_fig, nsim_in)
     % config_.x0 = x0;
     % [y,t,u] = sim_1(config_);
 
-
     cfg.mpc.on = true;
     [y, t, m] = engine.sim_n2(cfg, nsim);
     
@@ -41,17 +45,17 @@ function res = patino2_phase_mpc(save_fig, nsim_in)
 
     % getting vars from the function
     vout = utils.getAllVars();
-    res = resultados.ResPatino2(vout);
+    res = resultados.ResPatino2_mpc_phase(vout);
 
     % plot dos resultados
     f1 = figure(1);
-    res.plot_xi();
+    res.plot_x3();
 
     f2 = figure(2);
     res.plot_traj();
 
     % f3 = figure(3);
-    %res.plot_u_signal();
+    % res.plot_u_signal();
     
     % res.data.f1 = f1;
     % res.data.f2 = f2;
