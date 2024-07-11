@@ -15,3 +15,7 @@ Esse eh um programa que (no matlab) envia uma mensagem com o valor do delay do b
 
 Esse eh o programa que eh compilado na IDE do arduino e fica executando na placa. 
 Esse programa confere a cada ciclo se ha uma mensagem nova, se sim ele atualida o delay do blink.
+
+# download arduino IDE
+
+fazer o download no site [https://www.arduino.cc/en/software](https://www.arduino.cc/en/software)

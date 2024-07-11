@@ -5,10 +5,10 @@ clc;
 close all;
 
 ledPin = 'D13';
-time_sec = 0.2;
+time_sec = 0.05;
 
 % use the matlab support package for arduino
-port = "/dev/cu.usbmodem2101";
+port = "COM6";
 board = 'Nano33IoT';
 
 a = arduino(port, board);
