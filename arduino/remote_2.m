@@ -4,5 +4,4 @@ baudRate = 9600;
 
 o = Com(comPort, baudRate);
 
-
-o.listenSerial();
+% o.listenSerial();

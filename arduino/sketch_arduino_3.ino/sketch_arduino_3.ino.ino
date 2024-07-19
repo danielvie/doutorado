@@ -83,12 +83,12 @@ void loop() {
     Serial.println("======= received message [end] ========="); 
 
     // Convert the string to an integer  
-    int newInterval = data.toInt();  
+    // int newInterval = data.toInt();  
   
     // Update the delay interval  
-    if (newInterval > 0) {  
+    // if (newInterval > 0) {  
       // delayInterval = newInterval;  
-    }  
+    // }  
   }  
 
   // Read the analog values for the blink
