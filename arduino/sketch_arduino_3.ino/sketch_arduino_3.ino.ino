@@ -87,7 +87,7 @@ void loop() {
   
     // Update the delay interval  
     if (newInterval > 0) {  
-      delayInterval = newInterval;  
+      // delayInterval = newInterval;  
     }  
   }  
 
@@ -101,7 +101,6 @@ void loop() {
   
   // LOOP DO CICLO DE BLINK
   {
-
     Serial.println("======= time and modes ========="); 
     Serial.println("time:");
     for (int i = 0; i <  4; i++) {
