@@ -8,8 +8,8 @@ ledPin = 'D13';
 time_sec = 0.05;
 
 % use the matlab support package for arduino
-port = "COM6";
-board = 'Nano33IoT';
+port = "COM5";
+board = 'Nano3';
 
 a = arduino(port, board);
 
