@@ -60,7 +60,7 @@ function res = patino2_phase(save_fig, nsim_in)
 
     % getting vars from the function
     vout = utils.getAllVars();
-    res = resultados.ResPatino2(vout);
+    res = resultados.ResPatino2_phase(vout);
 
     % plot dos resultados
     f1 = figure(1);
