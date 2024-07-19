@@ -62,6 +62,27 @@ void GetValues(const char* s, int timeValues[], int modeValues[]) {
     }
 }
 
+void printTimeModes(void) {
+    Serial.println("======= time and modes ========="); 
+    
+    int n = 4;
+
+    Serial.println("time:");
+    for (int i = 0; i < n; i++) {
+      Serial.print(timeValues[i]); 
+      if (i != (n-1)) { Serial.print(","); }
+    }
+    Serial.println(";");
+
+    Serial.println("mode:");
+    for (int i = 0; i < n; i++) {
+      Serial.print(modeValues[i]); 
+      if (i != (n-1)) { Serial.print(","); }
+    }
+    Serial.println(";");
+    Serial.println("======= time and modes [end] ========="); 
+}
+
 void loop() {
   
   // Read the incoming data from the Serial
@@ -74,13 +95,7 @@ void loop() {
     Serial.println("----------------"); 
 
     GetValues(data.c_str(), timeValues, modeValues);
-
-    Serial.println("======= received message ========="); 
-    for (int i = 0; i <  4; i++) {
-      Serial.println(timeValues[i]); 
-      Serial.println(modeValues[i]); 
-    }
-    Serial.println("======= received message [end] ========="); 
+    printTimeModes();
 
     // Convert the string to an integer  
     // int newInterval = data.toInt();  
@@ -101,25 +116,26 @@ void loop() {
   
   // LOOP DO CICLO DE BLINK
   {
-    Serial.println("======= time and modes ========="); 
-    Serial.println("time:");
-    for (int i = 0; i <  4; i++) {
-      Serial.print(timeValues[i]); 
-      Serial.print(" "); 
-    }
-    Serial.println(";");
+    printTimeModes();
+    // Serial.println("======= time and modes ========="); 
+    // Serial.println("time:");
+    // for (int i = 0; i <  4; i++) {
+    //   Serial.print(timeValues[i]); 
+    //   Serial.print(" "); 
+    // }
+    // Serial.println(";");
 
-    Serial.println("mode:");
-    for (int i = 0; i <  4; i++) {
-      Serial.print(modeValues[i]); 
-      Serial.print(" "); 
-    }
-    Serial.println(";");
-    Serial.println("======= time and modes [end] ========="); 
+    // Serial.println("mode:");
+    // for (int i = 0; i <  4; i++) {
+    //   Serial.print(modeValues[i]); 
+    //   Serial.print(" "); 
+    // }
+    // Serial.println(";");
+    // Serial.println("======= time and modes [end] ========="); 
 
 
 
-    Serial.println("======= blink (low) ========="); 
+    // Serial.println("======= blink (low) ========="); 
     digitalWrite(ledPin, LOW);  
     digitalWrite(outputPin_1, LOW); 
     digitalWrite(outputPin_2, LOW); 
@@ -128,16 +144,16 @@ void loop() {
     analogValue_1 = analogRead(analogPin_1); 
     analogValue_2 = analogRead(analogPin_2); 
     analogValue_3 = analogRead(analogPin_3); 
-    Serial.print("a1 (low)  -> "); 
-    Serial.println(analogValue_1); 
-    Serial.print("a2 (low)  -> "); 
-    Serial.println(analogValue_2); 
-    Serial.print("a3 (low)  -> "); 
-    Serial.println(analogValue_3); 
+    // Serial.print("a1 (low)  -> "); 
+    // Serial.println(analogValue_1); 
+    // Serial.print("a2 (low)  -> "); 
+    // Serial.println(analogValue_2); 
+    // Serial.print("a3 (low)  -> "); 
+    // Serial.println(analogValue_3); 
   
     delay(delayInterval);  
   
-    Serial.println("======= blink (high) ========="); 
+    // Serial.println("======= blink (high) ========="); 
 
     // Blink the LED  
     digitalWrite(ledPin, HIGH);  
@@ -148,14 +164,13 @@ void loop() {
     analogValue_1 = analogRead(analogPin_1); 
     analogValue_2 = analogRead(analogPin_2); 
     analogValue_3 = analogRead(analogPin_3); 
-    Serial.print("a1 (high) -> "); 
-    Serial.println(analogValue_1); 
-    Serial.print("a2 (high) -> "); 
-    Serial.println(analogValue_2); 
-    Serial.print("a3 (high) -> "); 
-    Serial.println(analogValue_3); 
+    // Serial.print("a1 (high) -> "); 
+    // Serial.println(analogValue_1); 
+    // Serial.print("a2 (high) -> "); 
+    // Serial.println(analogValue_2); 
+    // Serial.print("a3 (high) -> "); 
+    // Serial.println(analogValue_3); 
 
     delay(delayInterval);  
   }
-
 }
