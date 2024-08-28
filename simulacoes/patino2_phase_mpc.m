@@ -38,10 +38,10 @@ function res = patino2_phase_mpc(save_fig, nsim_in)
     % [y,t,u] = sim_1(config_);
 
     cfg.mpc.on = true;
-    [y, t, m] = engine.sim_n2(cfg, nsim);
+    [y, t, m, ~, log1] = engine.sim_n2(cfg, nsim);
     
     cfg.mpc.on = false;
-    [y_off, t_off, m_off] = engine.sim_n2(cfg, nsim);
+    [y_off, t_off, m_off, ~, log2] = engine.sim_n2(cfg, nsim);
 
     % getting vars from the function
     vout = utils.getAllVars();

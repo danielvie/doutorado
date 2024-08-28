@@ -1,16 +1,35 @@
 
-
 function z_play()
-    a = 1;
-    b = 2;
-    sum = a + b;
+    
+    r = evalin('caller', 'r');
+    l1 = r.data.log1;
+    l2 = r.data.log2;
 
-    vars = get_vars();
-    disp('vars:');
-    disp(vars);
-    fprintf("the sum of %d and %d is %d\n", a, b, sum);
-end
+    nl1 = numel(l1);
+    imax = 1;
+    tmax = -1;
+    tt = [];
+    for i = 1:nl1
+        li = l1{i};
+        
+        tt = [tt; li.time_quadprog];
 
-function vars_out = get_vars()
-    vars_out = evalin('caller', 'who');
+        if i < 3
+            continue;
+        end
+        
+        if li.time_quadprog > tmax
+            tmax = li.time_quadprog;
+            vmax = li;
+        end
+
+    end
+    
+    v = vmax;
+    t = tmax;
+    
+    assignin('caller', 'v', v);
+    assignin('caller', 't', t);
+    assignin('caller', "tt", tt);
+
 end
