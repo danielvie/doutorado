@@ -27,6 +27,11 @@ end
 %msg = join(repmat("a", 1,100), "");
 % disp(msg);
 
-o.send(ref);
-o.send("100");
+%o.send(ref);
+%o.send("100");
+
+o.sendModes( ...
+    [0, 200, 500, 3000, 4000, 5000, 6000], ...
+    [0,    1,    0,    1,    0,    1,     0]);
+
 o.listen();
