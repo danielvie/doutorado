@@ -62,11 +62,23 @@ void TaskBlink(void *pvParameters) {
         digitalWrite(led, 0);
         digitalWrite(di10, 0);
         vTaskDelay(1000 / portTICK_PERIOD_MS);
+        Serial.print("leitura analog1: ");
+        Serial.println(analogRead(ad1));
+        Serial.print("leitura analog2: ");
+        Serial.println(analogRead(ad2));
+        Serial.print("leitura analog3: ");
+        Serial.println(analogRead(ad3));
+        Serial.print("leitura analog4: ");
+        Serial.println(analogRead(ad4));
+        Serial.print("leitura analog5: ");
+        Serial.println(analogRead(ad5));
+        Serial.print("leitura analog6: ");
+        Serial.println(analogRead(ad6));
+        Serial.println("");
 
         digitalWrite(led, 1);
         digitalWrite(di10, 1);
         vTaskDelay(1000 / portTICK_PERIOD_MS);
-        
         Serial.print("leitura analog1: ");
         Serial.println(analogRead(ad1));
         Serial.print("leitura analog2: ");
@@ -159,11 +171,11 @@ void setup() {
   Serial.begin(115200);
 
   pinMode(ad1, INPUT);
-  pinMode(ad2, INPUT);
-  pinMode(ad3, INPUT);
-  pinMode(ad4, INPUT);
-  pinMode(ad5, INPUT);
-  pinMode(ad6, INPUT);
+  // pinMode(ad2, INPUT);
+  // pinMode(ad3, INPUT);
+  // pinMode(ad4, INPUT);
+  // pinMode(ad5, INPUT);
+  // pinMode(ad6, INPUT);
 
   // pinMode(di1, OUTPUT);
   // pinMode(di2, OUTPUT);
