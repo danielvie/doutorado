@@ -5,7 +5,7 @@
 #include <chrono>
 
 
-const int ad1 = 12;
+const int ad1 = 13;
 const int ad2 = 27;
 const int ad3 = 25;
 const int ad4 = 32;
@@ -16,7 +16,7 @@ const int di1 = 4;
 const int di2 = 17;
 const int di3 = 18;
 const int di4 = 21;
-const int di5 = 1;
+const int di5 = 22;
 const int di6 = 23;
 
 const int led = 2;
@@ -57,10 +57,12 @@ void TaskBlink(void *pvParameters) {
     {
       if (!commandON)
       {
+        
+        const int di = di5;
 
         // xxx
         digitalWrite(led, 0);
-        digitalWrite(di10, 0);
+        digitalWrite(di, 0);
         vTaskDelay(1000 / portTICK_PERIOD_MS);
         Serial.print("leitura analog1: ");
         Serial.println(analogRead(ad1));
@@ -77,7 +79,7 @@ void TaskBlink(void *pvParameters) {
         Serial.println("");
 
         digitalWrite(led, 1);
-        digitalWrite(di10, 1);
+        digitalWrite(di, 1);
         vTaskDelay(1000 / portTICK_PERIOD_MS);
         Serial.print("leitura analog1: ");
         Serial.println(analogRead(ad1));
@@ -171,18 +173,18 @@ void setup() {
   Serial.begin(115200);
 
   pinMode(ad1, INPUT);
-  // pinMode(ad2, INPUT);
-  // pinMode(ad3, INPUT);
-  // pinMode(ad4, INPUT);
-  // pinMode(ad5, INPUT);
-  // pinMode(ad6, INPUT);
+  pinMode(ad2, INPUT);
+  pinMode(ad3, INPUT);
+  pinMode(ad4, INPUT);
+  pinMode(ad5, INPUT);
+  pinMode(ad6, INPUT);
 
-  // pinMode(di1, OUTPUT);
-  // pinMode(di2, OUTPUT);
-  // pinMode(di3, OUTPUT);
-  // pinMode(di4, OUTPUT);
-  // pinMode(di5, OUTPUT);
-  // pinMode(di6, OUTPUT);
+  pinMode(di1, OUTPUT);
+  pinMode(di2, OUTPUT);
+  pinMode(di3, OUTPUT);
+  pinMode(di4, OUTPUT);
+  pinMode(di5, OUTPUT);
+  pinMode(di6, OUTPUT);
 
 	pinMode(led, OUTPUT);
   pinMode(di10, OUTPUT);
