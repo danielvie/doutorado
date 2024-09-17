@@ -4,7 +4,6 @@
 #include "helpers.h"
 #include <chrono>
 
-
 const int ad1 = 13;
 const int ad2 = 27;
 const int ad3 = 25;
@@ -118,11 +117,12 @@ void TaskBlink(void *pvParameters) {
 
         Serial.print("; idx: ");
         Serial.println(idx);
-
         
         idx++;
         t = std::chrono::milliseconds(timeV[idx]);
         m = modeV[idx];
+
+        digitalWrite(led, m);
         
       }
       if (timeV[idx] == -1)
@@ -135,10 +135,9 @@ void TaskBlink(void *pvParameters) {
         break;
       }
 
-
-      int read = analogRead(ad1);
-      Serial.print("read: ");
-      Serial.println(read);
+      // int read = analogRead(ad1);
+      // Serial.print("read: ");
+      // Serial.println(read);
       vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 

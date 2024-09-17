@@ -1,5 +1,5 @@
 
-comPort = "COM11"; % Replace with your Arduino's COM port
+comPort = "/dev/tty.usbserial-0001"; % Replace with your Arduino's COM port
 baudRate = 115200;
 
 % ref:  
@@ -30,8 +30,8 @@ end
 %o.send(ref);
 %o.send("100");
 
-% o.sendModes( ...
-%     [0, 100, 500, 1000, 2000, 3000, 6000, 40000], ...
-%     [1,   0,   1,    0,    1,    0,    1,     0]);
+o.sendModes( ...
+    [0, 100, 500, 1000, 2000, 3000, 4000, 5000], ...
+    [1,   0,   1,    0,    1,    0,    1,    0]);
 
 o.listen();
