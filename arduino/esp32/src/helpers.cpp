@@ -2,6 +2,17 @@
 #include <iostream>
 #include "qpOASES.hpp"
 #include <chrono>
+#include "helpers.h"
+
+struct Bin num2bin(int n) {
+    auto b  = Bin();
+    b.b1 = n & 0x1;
+    b.b2 = n & 0x2;
+    b.b3 = n & 0x4;
+    b.b4 = n & 0x8;
+
+    return b;
+};
 
 int qpRun()
 {

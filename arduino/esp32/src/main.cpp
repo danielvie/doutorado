@@ -58,6 +58,14 @@ void TaskBlink(void *pvParameters) {
       {
         
         const int di = di5;
+        
+        for (size_t i = 0; i < 8; i++)
+        {
+          auto n = i;
+          auto b = num2bin(n);
+          printf("n(%d): %d %d %d %d\n", n, b.b4, b.b3, b.b2, b.b1);
+        }
+        printf("\n");
 
         // xxx
         digitalWrite(led, 0);
