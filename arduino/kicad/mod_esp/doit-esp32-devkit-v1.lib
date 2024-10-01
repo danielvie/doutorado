@@ -10,36 +10,36 @@ F2 "" -50 450 50 H I C CNN
 F3 "" -50 450 50 H I C CNN
 DRAW
 S 1300 400 -900 -1900 0 1 0 N
-X EN                                    1 -1000   300 100 R 50 50 1 1 O
-X ADC1_0-GPIO36-SensVP                  2 -1000   150 100 R 50 25 1 1 B
-X ADC1_3-GPIO39-SensVN                  3 -1000     0 100 R 50 25 1 1 B
-X ADC1_6-GPIO34                         4 -1000  -150 100 R 50 31 1 1 B
-X ADC1_7-GPIO35                         5 -1000  -300 100 R 50 31 1 1 B
-X Touch9-ADC1_4-GPIO32-XTAL32           6 -1000  -450 100 R 50 31 1 1 B
-X Touch8-ADC1_5-GPIO33-XTAL32           7 -1000  -600 100 R 50 31 1 1 B
-X DAC1-ADC2_8-GPIO25                    8 -1000  -750 100 R 50 25 1 1 B
-X DAC2-ADC2_9-GPIO26                    9 -1000  -900 100 R 50 25 1 1 B
-X Touch7-ADC2_7-GPIO27                 10 -1000 -1050 100 R 50 31 1 1 B
-X Touch6-HSPI_CLK-ADC2_6-GPIO14        11 -1000 -1200 100 R 50 25 1 1 B
-X Touch5-HSPI_Q-ADC2_5-GPIO12          12 -1000 -1350 100 R 50 25 1 1 B
-X Touch4-HSPI_ID-ADC2_4-GPIO13         13 -1000 -1500 100 R 50 21 1 1 B
-X GND                                  14 -1000 -1650 100 R 50 50 1 1 B
-X VIN                                  15 -1000 -1800 100 R 50 50 1 1 B
-X 3V3                                  16  1400 -1800 100 L 50 50 1 1 O
-X GND                                  17  1400 -1650 100 L 50 50 1 1 B
-X GPIO15-ADC2_3-HSPI_CS0-Touch3        18  1400 -1500 100 L 50 25 1 1 B
-X CS-GPIO02-ADC2_2-HSPI_WP-Touch2      19  1400 -1350 100 L 50 25 1 1 B
-X GPIO04-ADC2_0-HSPI_HD-Touch0         20  1400 -1200 100 L 50 25 1 1 B
-X GPIO16_UART2-RX                      21  1400 -1050 100 L 50 50 1 1 B
-X GPIO17_UART2-TX                      22  1400  -900 100 L 50 50 1 1 B
-X GPIO5_VSPI-CS0                       23  1400  -750 100 L 50 50 1 1 B
-X SCK-GPIO18-V_SPI_CLK                 24  1400  -600 100 L 50 50 1 1 B
-X MISO-GPIO19-V_SPI_Q-U0_CTS           25  1400  -450 100 L 50 50 1 1 B
-X SDA-GPIO21-V_SPI_HD                  26  1400  -300 100 L 50 50 1 1 B
-X CLK3-GPIO3-UART0-RX                  27  1400  -150 100 L 50 50 1 1 B
-X CLK4-GPIO1-UART0-TX                  28  1400     0 100 L 50 50 1 1 B
-X SCL-GPIO22-V_SPI_WP-U0_RTS           29  1400   150 100 L 50 50 1 1 B
-X MOSI-GPIO23_V_SPI_D                  30  1400   300 100 L 50 50 1 1 B
+X EN                                    9 -1000   300 100 R 50 35 1 1 O
+X ADC1_0-GPIO36-SensVP                  5 -1000   150 100 R 50 35 1 1 B
+X ADC1_3-GPIO39-SensVN                  8 -1000     0 100 R 50 35 1 1 B
+X ADC1_6-GPIO34                        10 -1000  -150 100 R 50 35 1 1 B
+X ADC1_7-GPIO35                        11 -1000  -300 100 R 50 35 1 1 B
+X Touch9-ADC1_4-GPIO32-XTAL32          12 -1000  -450 100 R 50 35 1 1 B
+X Touch8-ADC1_5-GPIO33-XTAL32          13 -1000  -600 100 R 50 35 1 1 B
+X DAC1-ADC2_8-GPIO25                   14 -1000  -750 100 R 50 35 1 1 B
+X DAC2-ADC2_9-GPIO26                   15 -1000  -900 100 R 50 35 1 1 B
+X Touch7-ADC2_7-GPIO27                 16 -1000 -1050 100 R 50 35 1 1 B
+X Touch6-HSPI_CLK-ADC2_6-GPIO14        17 -1000 -1200 100 R 50 35 1 1 B
+X Touch5-HSPI_Q-ADC2_5-GPIO12          18 -1000 -1350 100 R 50 35 1 1 B
+X Touch4-HSPI_ID-ADC2_4-GPIO13         20 -1000 -1500 100 R 50 35 1 1 B
+X GND                                   1 -1000 -1650 100 R 50 35 1 1 B
+X VIN                                   2 -1000 -1800 100 R 50 35 1 1 B
+X 3V3                                   3  1400 -1800 100 L 50 35 1 1 O
+X GND                                   4  1400 -1650 100 L 50 35 1 1 B
+X GPIO15-ADC2_3-HSPI_CS0-Touch3        21  1400 -1500 100 L 50 35 1 1 B
+X CS-GPIO02-ADC2_2-HSPI_WP-Touch2      22  1400 -1350 100 L 50 35 1 1 B
+X GPIO04-ADC2_0-HSPI_HD-Touch0         24  1400 -1200 100 L 50 35 1 1 B
+X GPIO16_UART2-RX                      25  1400 -1050 100 L 50 35 1 1 B
+X GPIO17_UART2-TX                      27  1400  -900 100 L 50 35 1 1 B
+X GPIO5_VSPI-CS0                       34  1400  -750 100 L 50 35 1 1 B
+X SCK-GPIO18-V_SPI_CLK                 35  1400  -600 100 L 50 35 1 1 B
+X MISO-GPIO19-V_SPI_Q-U0_CTS           38  1400  -450 100 L 50 35 1 1 B
+X SDA-GPIO21-V_SPI_HD                  42  1400  -300 100 L 50 35 1 1 B
+X CLK3-GPIO3-UART0-RX                  40  1400  -150 100 L 50 35 1 1 B
+X CLK4-GPIO1-UART0-TX                  41  1400     0 100 L 50 35 1 1 B
+X SCL-GPIO22-V_SPI_WP-U0_RTS           39  1400   150 100 L 50 35 1 1 B
+X MOSI-GPIO23_V_SPI_D                  36  1400   300 100 L 50 35 1 1 B
 ENDDRAW
 ENDDEF
 #
