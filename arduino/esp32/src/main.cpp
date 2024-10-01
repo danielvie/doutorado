@@ -61,7 +61,12 @@ void ProcessIncoming(const String &incoming) {
     // Serial.printf("number: %d -> binary: %d %d %d %d\n", value, b.b4, b.b3, b.b2, b.b1);
     
     // command port
-    if (incoming.compareTo("D4") == 0) {
+    if (incoming.compareTo("0") == 0) {
+        Serial.printf("clear commands!\n");
+        digitalWrite(di4, 0);
+        digitalWrite(di5, 0);
+        digitalWrite(di6, 0);
+    } else if (incoming.compareTo("D4") == 0) {
         Serial.printf("command D4!\n");
         digitalWrite(di4, 1);
         digitalWrite(di5, 0);
