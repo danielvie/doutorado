@@ -4,12 +4,14 @@
 #include <chrono>
 #include "helpers.h"
 
-struct Bin num2bin(int n) {
+struct Bin Num2Bin(int num) {
     auto b  = Bin();
-    b.b1 = n & 0x1;
-    b.b2 = n & 0x2;
-    b.b3 = n & 0x4;
-    b.b4 = n & 0x8;
+    b.b1 = num & 0x1;
+    b.b2 = num & 0x2;
+    b.b3 = num & 0x4;
+    b.b4 = num & 0x8;
+    b.b5 = num & 0x16;
+    b.b6 = num & 0x32;
 
     return b;
 };

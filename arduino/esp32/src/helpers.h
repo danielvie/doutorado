@@ -6,9 +6,11 @@ struct Bin {
     bool b2;
     bool b3;
     bool b4;
+    bool b5;
+    bool b6;
 };
 
-struct Bin num2bin(int n);
+struct Bin Num2Bin(int n);
 
 
 int qpRun();
