@@ -2590,7 +2590,7 @@
 	)
 	(symbol
 		(lib_id "doit-esp32-devkit-v1:DOIT-ESP32-DEVKIT-V1")
-		(at 191.77 41.91 0)
+		(at 187.96 53.34 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -2599,7 +2599,7 @@
 		(fields_autoplaced yes)
 		(uuid "697d4060-765f-4c3b-aef3-6e346e9e187e")
 		(property "Reference" "U1"
-			(at 196.85 26.67 0)
+			(at 193.04 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2607,7 +2607,7 @@
 			)
 		)
 		(property "Value" "DOIT-ESP32-DEVKIT-V1"
-			(at 196.85 29.21 0)
+			(at 193.04 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2615,7 +2615,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 190.5 30.48 0)
+			(at 186.69 41.91 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2624,7 +2624,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 190.5 30.48 0)
+			(at 186.69 41.91 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2633,7 +2633,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 191.77 41.91 0)
+			(at 187.96 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)

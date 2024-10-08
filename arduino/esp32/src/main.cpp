@@ -52,15 +52,11 @@ void ProcessBinary(const int &value) {
     Serial.printf("binary: %d %d %d %d\n", b.b1, b.b2, b.b3, b.b4);
 }
 
+
 void ProcessIncoming(const String &incoming) {
-    // convert message to `int`
-    // String str_num = incoming.substring(1);
-    
-    // process binary mask
-    // Bin b = Num2Bin(value);
-    // Serial.printf("number: %d -> binary: %d %d %d %d\n", value, b.b4, b.b3, b.b2, b.b1);
-    
     // command port
+    Serial.printf("eu recebi: %s\n", incoming.c_str());
+
     if (incoming.compareTo("0") == 0) {
         Serial.printf("clear commands!\n");
         digitalWrite(di4, 0);
@@ -84,15 +80,28 @@ void ProcessIncoming(const String &incoming) {
     }
 }
 
-void TaskSerial(void *pvParameters) {
+void TaskSerialBT(void *pvParameters) {
     (void) pvParameters; // To avoid unused parameter warning
 
     while (true) {
         CheckBtConnection();
     
-        // int value = random(0, 100);
         if (SerialBT.available()) {
-            String received = SerialBT.readString();
+            String received = SerialBT.readStringUntil('\n');
+            ProcessIncoming(received);
+        }
+
+        delay(20);
+    }
+}
+
+void TaskSerial(void *pvParameters) {
+    (void) pvParameters; // To avoid unused parameter warning
+
+    while (true) {
+        // int value = random(0, 100);
+        if (Serial.available() > 0) {
+            String received = Serial.readStringUntil('\n');
             
             ProcessIncoming(received);
 
@@ -144,15 +153,26 @@ void setup() {
     //     0                                 // Core idx
     // );
 
-    // Create the Serial task
+    // Create the SerialBT task
     xTaskCreatePinnedToCore(
-        TaskSerial,             // Task function
+        TaskSerialBT,             // Task function
         "Serial",                 // Task name
-        2048*4,                     // Stack size (bytes)
-        NULL,                         // Parameter passed to the task
-        1,                                // Task priority
-        NULL,                         // Task handle
-        1                                 // Core idx
+        2048*4,                   // Stack size (bytes)
+        NULL,                     // Parameter passed to the task
+        2,                        // Task priority
+        NULL,                     // Task handle
+        0                         // Core idx
+    );
+
+    // Create the SerialBT task
+    xTaskCreatePinnedToCore(
+        TaskSerial,               // Task function
+        "Serial",                 // Task name
+        2048*4,                   // Stack size (bytes)
+        NULL,                     // Parameter passed to the task
+        1,                        // Task priority
+        NULL,                     // Task handle
+        1                         // Core idx
     );
 
     // origin = std::chrono::high_resolution_clock::now();
