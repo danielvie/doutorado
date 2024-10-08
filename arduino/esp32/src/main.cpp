@@ -55,43 +55,92 @@ void ProcessBinary(const int &value) {
 
 void ProcessIncoming(const String &incoming) {
     // command port
-    Serial.printf("eu recebi: %s\n", incoming.c_str());
+    // Serial.printf("eu recebi: %s\n", incoming.c_str());
 
     if (incoming.compareTo("0") == 0) {
-        Serial.printf("clear commands!\n");
+        // Serial.printf("clear commands!\n");
         digitalWrite(di4, 0);
         digitalWrite(di5, 0);
         digitalWrite(di6, 0);
     } else if (incoming.compareTo("D4") == 0) {
-        Serial.printf("command D4!\n");
+        // Serial.printf("command D4!\n");
         digitalWrite(di4, 1);
         digitalWrite(di5, 0);
         digitalWrite(di6, 0);
     } else if (incoming.compareTo("D5") == 0) {
-        Serial.printf("command D5!\n");
+        // Serial.printf("command D5!\n");
         digitalWrite(di4, 0);
         digitalWrite(di5, 1);
         digitalWrite(di6, 0);
     } else if (incoming.compareTo("D6") == 0) {
-        Serial.printf("command D6!\n");
+        // Serial.printf("command D6!\n");
         digitalWrite(di4, 0);
         digitalWrite(di5, 0);
         digitalWrite(di6, 1);
     }
 }
 
+// void TaskSerialBT(void *pvParameters) {
+//     (void) pvParameters; // To avoid unused parameter warning
+
+//     while (true) {
+//         CheckBtConnection();
+    
+//         if (SerialBT.available()) {
+//             String received = SerialBT.readStringUntil('\n');
+//             ProcessIncoming(received);
+//         }
+
+//         delay(20);
+//     }
+// }
+
+String message = "";
+unsigned long cont_ = 0;
 void TaskSerialBT(void *pvParameters) {
     (void) pvParameters; // To avoid unused parameter warning
 
     while (true) {
         CheckBtConnection();
-    
+        // read message
         if (SerialBT.available()) {
-            String received = SerialBT.readStringUntil('\n');
-            ProcessIncoming(received);
+            char incomingChar = SerialBT.read();
+            if (incomingChar != '\n') {
+                message += String(incomingChar);
+            }
+            else {
+                message = "";
+            }
+            Serial.write(incomingChar);
         }
 
+        // check received message
+        // ProcessIncoming(message);
+        if (message == "D4") {
+            digitalWrite(di4, 1);
+            digitalWrite(di5, 0);
+            digitalWrite(di6, 0);
+            message = "";
+        } else if (message == "D5") {
+            digitalWrite(di4, 0);
+            digitalWrite(di5, 1);
+            digitalWrite(di6, 0);
+            message = "";
+        } else if (message == "D6") {
+            digitalWrite(di4, 0);
+            digitalWrite(di5, 0);
+            digitalWrite(di6, 1);
+            message = "";
+        } else if (message == "0") {
+            digitalWrite(di4, 0);
+            digitalWrite(di5, 0);
+            digitalWrite(di6, 0);
+            message = "";
+        }
+
+        // Serial.printf("message: %s\n", message.c_str());
         delay(20);
+
     }
 }
 
@@ -102,7 +151,6 @@ void TaskSerial(void *pvParameters) {
         // int value = random(0, 100);
         if (Serial.available() > 0) {
             String received = Serial.readStringUntil('\n');
-            
             ProcessIncoming(received);
 
             // Serial.printf("\nReceived: %s\n", received.c_str());
@@ -159,7 +207,7 @@ void setup() {
         "Serial",                 // Task name
         2048*4,                   // Stack size (bytes)
         NULL,                     // Parameter passed to the task
-        2,                        // Task priority
+        1,                        // Task priority
         NULL,                     // Task handle
         0                         // Core idx
     );

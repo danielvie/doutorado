@@ -79,7 +79,7 @@ function handle_send_command(command)
         % o.send(command);  % Modify this method according to your object definition
 
         write(o, command, 'string');
-        fprintf("command sent: `%s`\n", command);
+        fprintf("command sent (bt): `%s`\n", command);
     else
         disp(command);
     end
@@ -115,8 +115,13 @@ function handle_send_command_serial(command)
         oserial = evalin('base', 'oserial');
 
         oserial.send(command)
-        fprintf("command sent: `%s`\n", command);
+        fprintf("command sent (serial): `%s`\n", command);
     else
         disp(command);
     end
 end
+
+%% botao hello
+uibutton(fig, 'push', 'Text', 'hello', ...
+        'Position', [400, 230, 50, 50], ...
+        'ButtonPushedFcn', @(btn, event) handle_send_command('hello to you'));
