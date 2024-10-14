@@ -1,0 +1,13 @@
+version: '3'
+
+tasks:
+  default:
+    deps: [main]
+    
+  main:
+    cmds:
+      - python python_blue.py
+
+  find:
+    cmds:
+      - python python_find_devices.py
