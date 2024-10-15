@@ -11,3 +11,7 @@ tasks:
   find:
     cmds:
       - python python_find_devices.py
+  
+  multi:
+    cmds:
+      - python python_multi.py

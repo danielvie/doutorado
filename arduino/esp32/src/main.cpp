@@ -121,21 +121,25 @@ void TaskSerialBT(void *pvParameters) {
             digitalWrite(di5, 0);
             digitalWrite(di6, 0);
             message = "";
+            SerialBT.println("got inside D4");
         } else if (message == "D5") {
             digitalWrite(di4, 0);
             digitalWrite(di5, 1);
             digitalWrite(di6, 0);
             message = "";
+            SerialBT.println("got inside D5");
         } else if (message == "D6") {
             digitalWrite(di4, 0);
             digitalWrite(di5, 0);
             digitalWrite(di6, 1);
             message = "";
+            SerialBT.println("got inside D6");
         } else if (message == "0") {
             digitalWrite(di4, 0);
             digitalWrite(di5, 0);
             digitalWrite(di6, 0);
             message = "";
+            SerialBT.println("got inside 0");
         }
 
         // Serial.printf("message: %s\n", message.c_str());
