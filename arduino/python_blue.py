@@ -1,6 +1,7 @@
+import random
 import socket
 import threading
-from time import perf_counter
+from time import perf_counter, sleep
 import msvcrt
 import statistics
 
@@ -15,7 +16,7 @@ time_list = []
 def prompt():
     global start_time
     key = ''
-    while key != 'b':
+    while key != 'q':
         # command = input("> ").strip()
         key = msvcrt.getch().decode('utf-8')
         if key == 'd':
@@ -30,7 +31,33 @@ def prompt():
             # print('send D6')
             server.send(b'D6')
             start_time = perf_counter()
-    server.send(b'0')
+        elif key == 'b':
+            # print('send D6')
+            server.send(b'0')
+            start_time = perf_counter()
+
+def random_messages():
+    global start_time
+    keys = ['D4', 'D5', 'D6']
+    
+    for i in range(1000):
+        print(f'{i:04d} of 1000')
+        key = random.choice(keys)
+        
+        server.send(key.encode('utf-8'))
+        start_time = perf_counter()
+        sleep(0.1)
+    
+    # stats()
+    
+def stats():
+    print('='*30)
+    print('STATS:')
+    print(f'max: {max(time_list):0.5f} sec')
+    print(f'min: {min(time_list):0.5f} sec')
+    print('')
+    print(f'mean: {statistics.mean(time_list):0.5f} sec')
+    print(f'dev : {statistics.stdev(time_list):0.5f} sec')
 
 def listen():
     global start_time
@@ -63,22 +90,25 @@ def main():
         
         # run prompt function
         prompt()
+        # random_messages()
     finally:
+        server.send(b'0')
         server.close()
         print('connection closed')
         
-        print(f'max: {max(time_list)}')
-        print(f'min: {min(time_list)}')
+        stats()
+        # print(f'max: {max(time_list)}')
+        # print(f'min: {min(time_list)}')
 
-        for t in time_list:
-            print(t)
+        # for t in time_list:
+        #     print(t)
 
-        print('')
-        print(f'max: {max(time_list)}')
-        print(f'min: {min(time_list)}')
-        print('')
-        print(f'mean: {statistics.mean(time_list)}')
-        print(f'dev : {statistics.stdev(time_list)}')
+        # print('')
+        # print(f'max: {max(time_list)}')
+        # print(f'min: {min(time_list)}')
+        # print('')
+        # print(f'mean: {statistics.mean(time_list)}')
+        # print(f'dev : {statistics.stdev(time_list)}')
 
 if __name__ == '__main__':
     main()
