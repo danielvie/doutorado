@@ -47,6 +47,13 @@ for i = 4:6
     'ButtonPushedFcn', @(btn, event) handle_send_command_serial(label));
 end
 
+
+%% botao hello
+uibutton(fig, 'push', 'Text', 'hello', ...
+        'Position', [400, 230, 50, 50], ...
+        'ButtonPushedFcn', @(btn, event) handle_send_command('hello to you'));
+
+
 %% HANDLERS BLUETOOTH
 % Callback function for "Connect" button
 function handle_connect()
@@ -55,6 +62,7 @@ function handle_connect()
     assignin('base', 'o', o);  % Register object 'o' in the base workspace
     disp('Connected: Object o registered in workspace.');
 end
+
 
 % Callback function for "Disconnect" button
 function handle_disconnect()
@@ -88,7 +96,8 @@ end
 %% HANDLERS SERIAL
 % Callback function for "Connect" button
 function handle_connect_serial()
-    comPort = "COM11"; % Replace with your Arduino's COM port
+    % comPort = "COM11"; % Replace with your Arduino's COM port
+    comPort = "/dev/tty.usbserial-0001";
     baudRate = 115200;
     oserial = Com(comPort, baudRate);
 
@@ -120,8 +129,3 @@ function handle_send_command_serial(command)
         disp(command);
     end
 end
-
-%% botao hello
-uibutton(fig, 'push', 'Text', 'hello', ...
-        'Position', [400, 230, 50, 50], ...
-        'ButtonPushedFcn', @(btn, event) handle_send_command('hello to you'));
