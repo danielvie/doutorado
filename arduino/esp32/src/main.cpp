@@ -76,7 +76,13 @@ void ProcessMATLAB_GUI() {
 }
 
 void ProcessMATLAB_Command() {
+    // reading message
     String message = SerialBT.readStringUntil('\n');
+
+    // processing arrays
+    // GetValues(message.c_str(), timeValues, modeValues);
+    
+
 }
 
 // .. task functions

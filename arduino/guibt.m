@@ -1,61 +1,78 @@
-% Create a larger figure window
-fig = uifigure('Position', [100, 100, 550, 400]);
+% .. Create figure window
+function guibt()
+    fig = uifigure('Position', [100, 100, 550, 400]);
+    add_btn_connect_bt(fig);
+    add_btn_connect_serial(fig);
+    add_led_buttons(fig);
 
-%% CONNECT BLUETOOTH
-% Create the "Connect" button
-connectBtn = uibutton(fig, 'push', 'Text', 'Connect', ...
-    'Position', [90, 300, 100, 50], ...
-    'ButtonPushedFcn', @(btn, event) handle_connect());
-
-% Create the "Disconnect" button
-disconnectBtn = uibutton(fig, 'push', 'Text', 'Disconnect', ...
-    'Position', [210, 300, 100, 50], ...
-    'ButtonPushedFcn', @(btn, event) handle_disconnect());
-
-%% CONNECT SERIAL
-% Create the "Connect Serial" button
-connectSerial = uibutton(fig, 'push', 'Text', 'Connect Serial', ...
-    'Position', [90, 100, 100, 50], ...
-    'ButtonPushedFcn', @(btn, event) handle_connect_serial());
-
-% Create the "Connect Serial" button
-disconnectSerial = uibutton(fig, 'push', 'Text', 'Disconnect Serial', ...
-    'Position', [210, 100, 150, 50], ...
-    'ButtonPushedFcn', @(btn, event) handle_disconnect_serial());
-
-%% ADD BUTTONS
-% Create D_ buttons to send commands
-label = sprintf("0");
-uibutton(fig, 'push', 'Text', '0', ...
-        'Position', [90, 230, 50, 50], ...
-        'ButtonPushedFcn', @(btn, event) handle_send_command(label));
-
-% Create D_ buttons to send commands SERIAL
-uibutton(fig, 'push', 'Text', '0', ...
-        'Position', [90, 30, 50, 50], ...
-        'ButtonPushedFcn', @(btn, event) handle_send_command_serial(label));
-
-ii = 0;
-for i = 4:6
-    ii = ii + 1;
-    label = sprintf("D%d", i);
-    uibutton(fig, 'push', 'Text', label, ...
-        'Position', [90 + 60*(ii), 230, 50, 50], ...
-        'ButtonPushedFcn', @(btn, event) handle_send_command(label));
-
-    uibutton(fig, 'push', 'Text', label, ...
-    'Position', [90 + 60*(ii), 30, 50, 50], ...
-    'ButtonPushedFcn', @(btn, event) handle_send_command_serial(label));
+    add_btn_signal(fig);
 end
 
+%% .. Add Buttons
+function add_btn_connect_bt(fig)
+    % Create the "Connect" button
+    uibutton(fig, 'push', 'Text', 'Connect', ...
+        'Position', [40, 300, 100, 50], ...
+        'ButtonPushedFcn', @(btn, event) handle_connect());
 
-%% botao hello
-uibutton(fig, 'push', 'Text', 'hello', ...
-        'Position', [400, 230, 50, 50], ...
-        'ButtonPushedFcn', @(btn, event) handle_send_command('hello to you'));
+    % Create the "Disconnect" button
+    uibutton(fig, 'push', 'Text', 'Disconnect', ...
+        'Position', [160, 300, 100, 50], ...
+        'ButtonPushedFcn', @(btn, event) handle_disconnect());
+end
 
+function add_btn_connect_serial(fig)
+    % Create the "Connect Serial" button
+    uibutton(fig, 'push', 'Text', 'Connect Serial', ...
+        'Position', [40, 100, 100, 50], ...
+        'ButtonPushedFcn', @(btn, event) handle_connect_serial());
 
-%% HANDLERS BLUETOOTH
+    % Create the "Connect Serial" button
+    uibutton(fig, 'push', 'Text', 'Disconnect Serial', ...
+        'Position', [160, 100, 150, 50], ...
+        'ButtonPushedFcn', @(btn, event) handle_disconnect_serial());
+end
+
+function add_led_buttons(fig)
+    % Create D_ buttons to send commands
+    label = sprintf("0");
+    uibutton(fig, 'push', 'Text', '0', ...
+            'Position', [40, 230, 50, 50], ...
+            'ButtonPushedFcn', @(btn, event) handle_send_command(label));
+
+    % Create D_ buttons to send commands SERIAL
+    uibutton(fig, 'push', 'Text', '0', ...
+            'Position', [40, 30, 50, 50], ...
+            'ButtonPushedFcn', @(btn, event) handle_send_command_serial(label));
+
+    ii = 0;
+    for i = 4:6
+        ii = ii + 1;
+        label = sprintf("D%d", i);
+        uibutton(fig, 'push', 'Text', label, ...
+            'Position', [40 + 60*(ii), 230, 50, 50], ...
+            'ButtonPushedFcn', @(btn, event) handle_send_command(label));
+
+        uibutton(fig, 'push', 'Text', label, ...
+        'Position', [40 + 60*(ii), 30, 50, 50], ...
+        'ButtonPushedFcn', @(btn, event) handle_send_command_serial(label));
+    end
+
+end
+
+function add_btn_signal(fig)
+    % Create the "Connect Serial" button
+    uibutton(fig, 'push', 'Text', 'Signal 1', ...
+        'Position', [350, 300, 80, 50], ...
+        'ButtonPushedFcn', @(btn, event) handle_signal1());
+
+    % Create the "Connect Serial" button
+    uibutton(fig, 'push', 'Text', 'Signal 2', ...
+        'Position', [450, 300, 80, 50], ...
+        'ButtonPushedFcn', @(btn, event) handle_signal2());
+end
+
+%% .. Handlers Bluetooth
 % Callback function for "Connect" button
 function handle_connect()
     o = bluetooth("ESP32_BT", 1);
@@ -63,7 +80,6 @@ function handle_connect()
     assignin('base', 'o', o);  % Register object 'o' in the base workspace
     disp('Connected: Object o registered in workspace.');
 end
-
 
 % Callback function for "Disconnect" button
 function handle_disconnect()
@@ -97,7 +113,7 @@ function handle_send_command(command)
     end
 end
 
-%% HANDLERS SERIAL
+%% .. Handlers Serial
 % Callback function for "Connect" button
 function handle_connect_serial()
     % comPort = "COM11"; % Replace with your Arduino's COM port
@@ -135,4 +151,29 @@ function handle_send_command_serial(command)
     else
         disp(command);
     end
+end
+
+%% .. Handlers Signals
+function handle_signal1()
+    signal = construct_signal([1,2,3,4,5], [1,0,1,0,1]);
+    fprintf("signal: `%s`\n", signal);
+    % fprintf("sending modes: ""%s""\n", result);
+end
+
+function handle_signal2()
+    signal = construct_signal([1,3,5,7,10], [1,0,1,0,1]);
+    fprintf("signal: `%s`\n", signal);
+end
+
+%% .. Helpers
+function result = construct_signal(time, mode)
+    % convert arrays to strings
+    time_str = sprintf('%d,', time);
+    mode_str = sprintf('%d,', mode);
+
+    % concatenate strings
+    result = strcat(time_str, ";", mode_str, ";");
+
+    % remove trailing commas
+    result = strrep(result, ",;", ";");
 end
