@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Arduino.h>
+#include <iostream>
+#include <chrono>
 
 struct Bin {
     bool b1;

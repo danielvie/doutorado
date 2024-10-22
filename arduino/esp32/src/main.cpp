@@ -7,6 +7,7 @@
 
 BluetoothSerial SerialBT;
 
+// .. naming IO ports
 const int ad6 = 36;
 const int ad5 = 34;
 const int ad4 = 32;
@@ -25,7 +26,7 @@ const int led = 2;
 
 const int di10 = 33;
 
-// put function declarations here:
+// .. initializing variables
 int cont = 0;
 int delay_ms = 500;
 
@@ -39,6 +40,7 @@ int commandON = 0;
 auto origin = std::chrono::high_resolution_clock::now();
 std::chrono::milliseconds duration;
 
+// .. helper functions
 void CheckBtConnection() {
     if (SerialBT.connected()) {
         digitalWrite(2, HIGH);
@@ -52,27 +54,28 @@ void ProcessBinary(const int &value) {
     Serial.printf("binary: %d %d %d %d\n", b.b1, b.b2, b.b3, b.b4);
 }
 
-
-void ProcessIncoming(const String &incoming) {
-    if (incoming.compareTo("0") == 0) {
+void ProcessMATLAB_GUI() {
+    String message = SerialBT.readStringUntil('\n');
+    if (message.compareTo("0") == 0) {
         digitalWrite(di4, 0);
         digitalWrite(di5, 0);
         digitalWrite(di6, 0);
-    } else if (incoming.compareTo("D4") == 0) {
+    } else if (message.compareTo("D4") == 0) {
         digitalWrite(di4, 1);
         digitalWrite(di5, 0);
         digitalWrite(di6, 0);
-    } else if (incoming.compareTo("D5") == 0) {
+    } else if (message.compareTo("D5") == 0) {
         digitalWrite(di4, 0);
         digitalWrite(di5, 1);
         digitalWrite(di6, 0);
-    } else if (incoming.compareTo("D6") == 0) {
+    } else if (message.compareTo("D6") == 0) {
         digitalWrite(di4, 0);
         digitalWrite(di5, 0);
         digitalWrite(di6, 1);
     }
 }
 
+// .. task functions
 void TaskSerialBT(void *pvParameters) {
     (void) pvParameters; // To avoid unused parameter warning
 
@@ -81,8 +84,7 @@ void TaskSerialBT(void *pvParameters) {
 
         // read BT message
         if (SerialBT.available()) {
-            String message = SerialBT.readStringUntil('\n');
-            ProcessIncoming(message);
+            ProcessMATLAB_GUI();
         }
 
         delay(20);
@@ -96,12 +98,13 @@ void TaskSerial(void *pvParameters) {
         // int value = random(0, 100);
         if (Serial.available() > 0) {
             String message = Serial.readStringUntil('\n');
-            ProcessIncoming(message);
+            ProcessMATLAB_GUI();
         }
         delay(20);
     }
 }
 
+// .. setup
 void setup() {
     Serial.begin(115200);
     SerialBT.begin("ESP32_BT"); // Bluetooth name
@@ -112,12 +115,12 @@ void setup() {
     // put your setup code here, to run once:
     // Serial.begin(115200);
 
-    // pinMode(ad1, INPUT);
-    // pinMode(ad2, INPUT);
-    // pinMode(ad3, INPUT);
-    // pinMode(ad4, INPUT);
-    // pinMode(ad5, INPUT);
-    // pinMode(ad6, INPUT);
+    pinMode(ad1, INPUT);
+    pinMode(ad2, INPUT);
+    pinMode(ad3, INPUT);
+    pinMode(ad4, INPUT);
+    pinMode(ad5, INPUT);
+    pinMode(ad6, INPUT);
 
     pinMode(di1, OUTPUT);
     pinMode(di2, OUTPUT);
@@ -126,8 +129,8 @@ void setup() {
     pinMode(di5, OUTPUT);
     pinMode(di6, OUTPUT);
 
-    // pinMode(led, OUTPUT);
-    // pinMode(di10, OUTPUT);
+    pinMode(led, OUTPUT);
+    pinMode(di10, OUTPUT);
     // pinMode(outputPin, OUTPUT);
     // pinMode(adcPin, INPUT);
 

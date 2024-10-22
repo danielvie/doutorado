@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <iostream>
-#include "qpOASES.hpp"
+#include <sstream>
 #include <chrono>
 #include "helpers.h"
 
@@ -16,54 +16,8 @@ struct Bin Num2Bin(int num) {
     return b;
 };
 
-int qpRun()
-{
-  USING_NAMESPACE_QPOASES
-
-  const int nV = 2;
-  const int nC = 3;
-
-  real_t H[nV * nV] = {1, -1,
-                       -1, 2};
-  real_t f[nV] = {-2, -6};
-  real_t A[nV * nC] = {1, 1,
-                       -1, 2,
-                       2, 1};
-  real_t lb[nV] = {-1e20, -1e20};
-  real_t ub[nV] = {1e20, 1e20};
-  real_t lbA[nC] = {-1e20, -1e20, -1e20};
-  real_t ubA[nC] = {2, 2, 3};
-
-  QProblem example(nV, nC);
-
-  Options options;
-  options.printLevel = qpOASES::PL_NONE;
-  example.setOptions(options);
-
-  // initialize QP
-  int_t nWSR = 10; // maximum number of working set recalculations
-  example.init(H, f, A, lb, ub, lbA, ubA, nWSR);
-
-  // solve the QP
-  real_t xOpt[nV];
-  example.getPrimalSolution(xOpt);
-
-  // print the solution
-  Serial.println("Solution:");
-  for (int i = 0; i < nV; ++i)
-  {
-    Serial.print("x["); 
-    Serial.print(i); 
-    Serial.print("]");
-    Serial.println(xOpt[i]);
-  }
-
-  return 0;
-}
-
 void GetValues(const char *s, int timeValues[], int modeValues[])
 {
-
     // Buffer to store the substring parts
     char buffer[20];
     int bufferIndex = 0;
@@ -120,7 +74,6 @@ void SetValues(int timeValuesNew[], int modeValuesNew[], int timeValues[], int m
         modeValuesNew[i] = modeValues[i];
     }
 }
-
 
 void Print_helper(int values[], int N)
 {
