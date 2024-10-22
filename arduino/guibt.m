@@ -25,7 +25,7 @@ disconnectSerial = uibutton(fig, 'push', 'Text', 'Disconnect Serial', ...
 
 %% ADD BUTTONS
 % Create D_ buttons to send commands
-label = sprintf("0\n");
+label = sprintf("0");
 uibutton(fig, 'push', 'Text', '0', ...
         'Position', [90, 230, 50, 50], ...
         'ButtonPushedFcn', @(btn, event) handle_send_command(label));
@@ -38,7 +38,7 @@ uibutton(fig, 'push', 'Text', '0', ...
 ii = 0;
 for i = 4:6
     ii = ii + 1;
-    label = sprintf("D%d\n", i);
+    label = sprintf("D%d", i);
     uibutton(fig, 'push', 'Text', label, ...
         'Position', [90 + 60*(ii), 230, 50, 50], ...
         'ButtonPushedFcn', @(btn, event) handle_send_command(label));
@@ -87,8 +87,11 @@ function handle_send_command(command)
         % Send the command to the object
         % o.send(command);  % Modify this method according to your object definition
 
-        write(o, command, 'string');
-        fprintf("command sent .. (bt): `%s`\n", replace(command, newline, ''));
+        % add terminator "\0" to command
+        command_signal = sprintf("%s\0",command);
+
+        write(o, command_signal, 'string');
+        fprintf("command sent .. (bt): `%s`\n", command);
     else
         disp(command);
     end
@@ -124,8 +127,11 @@ function handle_send_command_serial(command)
         % Retrieve the object 'o' from the base workspace
         oserial = evalin('base', 'oserial');
 
+        % add terminator "\0" to command
+        command = sprintf("%s\0",command);
+
         oserial.send(command)
-        fprintf("command sent (serial): `%s`\n", command);
+        fprintf("command sent (serial): `%s`\0", command);
     else
         disp(command);
     end

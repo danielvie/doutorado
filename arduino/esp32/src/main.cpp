@@ -55,7 +55,7 @@ void ProcessBinary(const int &value) {
 }
 
 void ProcessMATLAB_GUI() {
-    String message = SerialBT.readStringUntil('\n');
+    String message = SerialBT.readStringUntil('\0');
     if (message.compareTo("0") == 0) {
         digitalWrite(di4, 0);
         digitalWrite(di5, 0);
@@ -75,16 +75,21 @@ void ProcessMATLAB_GUI() {
     }
 }
 
+void ProcessMATLAB_Command() {
+    String message = SerialBT.readStringUntil('\n');
+}
+
 // .. task functions
 void TaskSerialBT(void *pvParameters) {
     (void) pvParameters; // To avoid unused parameter warning
 
     while (true) {
-        CheckBtConnection();
+        // CheckBtConnection();
 
         // read BT message
         if (SerialBT.available()) {
             ProcessMATLAB_GUI();
+            // ProcessMATLAB_Command();
         }
 
         delay(20);

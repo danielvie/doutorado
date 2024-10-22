@@ -16,7 +16,7 @@ struct Bin {
 struct Bin Num2Bin(int n);
 
 
-int qpRun();
+// int qpRun();
 
 void GetValues(const char *s, int timeValues[], int modeValues[]);
 void Init(int timeValues[], int modeValues[], int N);
