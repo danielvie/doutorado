@@ -54,26 +54,19 @@ void ProcessBinary(const int &value) {
 
 
 void ProcessIncoming(const String &incoming) {
-    // command port
-    // Serial.printf("eu recebi: %s\n", incoming.c_str());
-
     if (incoming.compareTo("0") == 0) {
-        // Serial.printf("clear commands!\n");
         digitalWrite(di4, 0);
         digitalWrite(di5, 0);
         digitalWrite(di6, 0);
     } else if (incoming.compareTo("D4") == 0) {
-        // Serial.printf("command D4!\n");
         digitalWrite(di4, 1);
         digitalWrite(di5, 0);
         digitalWrite(di6, 0);
     } else if (incoming.compareTo("D5") == 0) {
-        // Serial.printf("command D5!\n");
         digitalWrite(di4, 0);
         digitalWrite(di5, 1);
         digitalWrite(di6, 0);
     } else if (incoming.compareTo("D6") == 0) {
-        // Serial.printf("command D6!\n");
         digitalWrite(di4, 0);
         digitalWrite(di5, 0);
         digitalWrite(di6, 1);
@@ -82,15 +75,12 @@ void ProcessIncoming(const String &incoming) {
 
 // void TaskSerialBT(void *pvParameters) {
 //     (void) pvParameters; // To avoid unused parameter warning
-
 //     while (true) {
 //         CheckBtConnection();
-    
 //         if (SerialBT.available()) {
 //             String received = SerialBT.readStringUntil('\n');
 //             ProcessIncoming(received);
 //         }
-
 //         delay(20);
 //     }
 // }
