@@ -94,14 +94,15 @@ void TaskSerialBT(void *pvParameters) {
         CheckBtConnection();
         // read message
         if (SerialBT.available()) {
-            char incomingChar = SerialBT.read();
-            if (incomingChar != '\n') {
-                message += String(incomingChar);
-            }
-            else {
-                message = "";
-            }
-            Serial.write(incomingChar);
+            message = SerialBT.readStringUntil('\n');
+            // char incomingChar = SerialBT.read();
+            // if (incomingChar != '\n') {
+            //     message += String(incomingChar);
+            // }
+            // else {
+            //     message = "";
+            // }
+            // Serial.write(incomingChar);
         }
 
         // check received message
@@ -130,6 +131,8 @@ void TaskSerialBT(void *pvParameters) {
             digitalWrite(di6, 0);
             message = "";
             SerialBT.println("got inside 0");
+        } else if (message.length() > 2) {
+            message = "";
         }
 
         // Serial.printf("message: %s\n", message.c_str());

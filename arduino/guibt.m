@@ -25,19 +25,20 @@ disconnectSerial = uibutton(fig, 'push', 'Text', 'Disconnect Serial', ...
 
 %% ADD BUTTONS
 % Create D_ buttons to send commands
+label = sprintf("0\n");
 uibutton(fig, 'push', 'Text', '0', ...
         'Position', [90, 230, 50, 50], ...
-        'ButtonPushedFcn', @(btn, event) handle_send_command('0'));
+        'ButtonPushedFcn', @(btn, event) handle_send_command(label));
 
 % Create D_ buttons to send commands SERIAL
 uibutton(fig, 'push', 'Text', '0', ...
         'Position', [90, 30, 50, 50], ...
-        'ButtonPushedFcn', @(btn, event) handle_send_command_serial('0'));
+        'ButtonPushedFcn', @(btn, event) handle_send_command_serial(label));
 
 ii = 0;
 for i = 4:6
     ii = ii + 1;
-    label = sprintf("D%d", i);
+    label = sprintf("D%d\n", i);
     uibutton(fig, 'push', 'Text', label, ...
         'Position', [90 + 60*(ii), 230, 50, 50], ...
         'ButtonPushedFcn', @(btn, event) handle_send_command(label));
@@ -68,7 +69,7 @@ end
 function handle_disconnect()
     % Check if 'o' exists in the workspace and delete it
     if evalin('base', 'exist(''o'', ''var'')')
-        handle_send_command('0');
+        handle_send_command("0");
         evalin('base', 'clear o');  % Deregister object 'o' from the workspace
         disp('Disconnected: Object o removed from workspace.');
     else
@@ -87,7 +88,7 @@ function handle_send_command(command)
         % o.send(command);  % Modify this method according to your object definition
 
         write(o, command, 'string');
-        fprintf("command sent (bt): `%s`\n", command);
+        fprintf("command sent .. (bt): `%s`\n", replace(command, newline, ''));
     else
         disp(command);
     end
