@@ -73,71 +73,19 @@ void ProcessIncoming(const String &incoming) {
     }
 }
 
-// void TaskSerialBT(void *pvParameters) {
-//     (void) pvParameters; // To avoid unused parameter warning
-//     while (true) {
-//         CheckBtConnection();
-//         if (SerialBT.available()) {
-//             String received = SerialBT.readStringUntil('\n');
-//             ProcessIncoming(received);
-//         }
-//         delay(20);
-//     }
-// }
-
-String message = "";
-unsigned long cont_ = 0;
 void TaskSerialBT(void *pvParameters) {
     (void) pvParameters; // To avoid unused parameter warning
 
     while (true) {
         CheckBtConnection();
-        // read message
+
+        // read BT message
         if (SerialBT.available()) {
-            message = SerialBT.readStringUntil('\n');
-            // char incomingChar = SerialBT.read();
-            // if (incomingChar != '\n') {
-            //     message += String(incomingChar);
-            // }
-            // else {
-            //     message = "";
-            // }
-            // Serial.write(incomingChar);
+            String message = SerialBT.readStringUntil('\n');
+            ProcessIncoming(message);
         }
 
-        // check received message
-        // ProcessIncoming(message);
-        if (message == "D4") {
-            digitalWrite(di4, 1);
-            digitalWrite(di5, 0);
-            digitalWrite(di6, 0);
-            message = "";
-            SerialBT.println("got inside D4");
-        } else if (message == "D5") {
-            digitalWrite(di4, 0);
-            digitalWrite(di5, 1);
-            digitalWrite(di6, 0);
-            message = "";
-            SerialBT.println("got inside D5");
-        } else if (message == "D6") {
-            digitalWrite(di4, 0);
-            digitalWrite(di5, 0);
-            digitalWrite(di6, 1);
-            message = "";
-            SerialBT.println("got inside D6");
-        } else if (message == "0") {
-            digitalWrite(di4, 0);
-            digitalWrite(di5, 0);
-            digitalWrite(di6, 0);
-            message = "";
-            SerialBT.println("got inside 0");
-        } else if (message.length() > 2) {
-            message = "";
-        }
-
-        // Serial.printf("message: %s\n", message.c_str());
         delay(20);
-
     }
 }
 
@@ -147,12 +95,8 @@ void TaskSerial(void *pvParameters) {
     while (true) {
         // int value = random(0, 100);
         if (Serial.available() > 0) {
-            String received = Serial.readStringUntil('\n');
-            ProcessIncoming(received);
-
-            // Serial.printf("\nReceived: %s\n", received.c_str());
-            // // You can also send back a response
-            // SerialBT.printf("Sended: Message received: `%s`\n", received.c_str());
+            String message = Serial.readStringUntil('\n');
+            ProcessIncoming(message);
         }
         delay(20);
     }
@@ -224,17 +168,4 @@ void setup() {
 
 }
 
-
-void loop() {
-    // Connection();
-  
-    // // int value = random(0, 100);
-    // if (SerialBT.available()) {
-    //     String received = SerialBT.readString();
-    //     Serial.printf("Received: %s\n", received.c_str());
-
-    //     // You can also send back a response
-    //     SerialBT.printf("Sended: Message received: `%s`\n", received.c_str());
-    // }
-    // delay(20);
-}
+void loop() { }
