@@ -4,6 +4,7 @@
 #include <freertos/task.h>
 #include "helpers.h"
 #include <chrono>
+#include <thread>
 
 BluetoothSerial SerialBT;
 
@@ -31,9 +32,8 @@ int cont = 0;
 int delay_ms = 500;
 
 const int N = 100;
-
-int timeValues[N];
-int modeValues[N];
+int time_values[N];
+int mode_values[N];
 
 int commandON = 0;
 
@@ -43,9 +43,9 @@ std::chrono::milliseconds duration;
 // .. helper functions
 void CheckBtConnection() {
     if (SerialBT.connected()) {
-        digitalWrite(2, HIGH);
+        digitalWrite(di6, HIGH);
     } else {
-        digitalWrite(2, LOW);
+        digitalWrite(di6, LOW);
     }
 }
 
@@ -80,9 +80,11 @@ void ProcessMATLAB_Command() {
     String message = SerialBT.readStringUntil('\n');
 
     // processing arrays
-    // GetValues(message.c_str(), timeValues, modeValues);
+    GetValues(message.c_str(), time_values, mode_values);
     
-
+    // signal command received
+    // digitalWrite(di5, 1);
+    commandON = 1;
 }
 
 // .. task functions
@@ -90,12 +92,12 @@ void TaskSerialBT(void *pvParameters) {
     (void) pvParameters; // To avoid unused parameter warning
 
     while (true) {
-        // CheckBtConnection();
+        CheckBtConnection();
 
         // read BT message
         if (SerialBT.available()) {
-            ProcessMATLAB_GUI();
-            // ProcessMATLAB_Command();
+            // ProcessMATLAB_GUI();
+            ProcessMATLAB_Command();
         }
 
         delay(20);
@@ -113,6 +115,37 @@ void TaskSerial(void *pvParameters) {
         }
         delay(20);
     }
+}
+
+void TaskBlink(void *pvParameters) {
+    // track starting time
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    // current index
+    size_t index = 0;
+    
+    // iterate through arrays
+    while (index < N && commandON) {
+        // calculate elapsed time
+        auto now = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
+        
+        // check if time has reached
+        if (elapsed >= time_values[index]) {
+            // update mode
+            int mode = mode_values[index];
+            digitalWrite(led, mode);
+            
+            // update index
+            ++index;
+            
+            // break if time -1
+            if (time_values[index] == -1) {
+                break;
+            }
+        }
+    }
+    delay(20);
 }
 
 // .. setup
@@ -145,16 +178,33 @@ void setup() {
     // pinMode(outputPin, OUTPUT);
     // pinMode(adcPin, INPUT);
 
-    // // Create the Blink task
-    // xTaskCreatePinnedToCore(
-    //     TaskBlink,                // Task function
-    //     "Blink",                    // Task name
-    //     2048*4,                         // Stack size (bytes)
-    //     NULL,                         // Parameter passed to the task
-    //     1,                                // Task priority
-    //     NULL,                         // Task handle
-    //     0                                 // Core idx
-    // );
+    Init(time_values, mode_values, N);
+    time_values[0] = 0;
+    time_values[1] = 100;
+    time_values[2] = 200;
+    time_values[3] = 300;
+    time_values[4] = 400;
+    time_values[5] = 2000;
+    time_values[6] = 5000;
+    // time_values[7] = 200;
+    mode_values[0] = 0;
+    mode_values[1] = 1;
+    mode_values[2] = 0;
+    mode_values[3] = 1;
+    mode_values[4] = 0;
+    mode_values[5] = 1;
+    mode_values[6] = 0;
+
+    // Create the Blink task
+    xTaskCreatePinnedToCore(
+        TaskBlink,                // Task function
+        "Blink",                  // Task name
+        1024,                     // Stack size (bytes)
+        NULL,                     // Parameter passed to the task
+        1,                        // Task priority
+        NULL,                     // Task handle
+        0                         // Core idx
+    );
 
     // Create the SerialBT task
     xTaskCreatePinnedToCore(
@@ -164,19 +214,19 @@ void setup() {
         NULL,                     // Parameter passed to the task
         1,                        // Task priority
         NULL,                     // Task handle
-        0                         // Core idx
+        1                         // Core idx
     );
 
     // Create the SerialBT task
-    xTaskCreatePinnedToCore(
-        TaskSerial,               // Task function
-        "Serial",                 // Task name
-        2048*4,                   // Stack size (bytes)
-        NULL,                     // Parameter passed to the task
-        1,                        // Task priority
-        NULL,                     // Task handle
-        1                         // Core idx
-    );
+    // xTaskCreatePinnedToCore(
+    //     TaskSerial,               // Task function
+    //     "Serial",                 // Task name
+    //     2048*4,                   // Stack size (bytes)
+    //     NULL,                     // Parameter passed to the task
+    //     1,                        // Task priority
+    //     NULL,                     // Task handle
+    //     1                         // Core idx
+    // );
 
     // origin = std::chrono::high_resolution_clock::now();
 

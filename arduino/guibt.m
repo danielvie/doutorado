@@ -155,13 +155,13 @@ end
 
 %% .. Handlers Signals
 function handle_signal1()
-    signal = construct_signal([1,2,3,4,5], [1,0,1,0,1]);
+    signal = construct_signal([100000], [1,0,1,0,1]);
     fprintf("signal: `%s`\n", signal);
     % fprintf("sending modes: ""%s""\n", result);
 end
 
 function handle_signal2()
-    signal = construct_signal([1,3,5,7,10], [1,0,1,0,1]);
+    signal = construct_signal([1000,3000,5000,7000,10000], [1,0,1,0,1]);
     fprintf("signal: `%s`\n", signal);
 end
 
