@@ -38,7 +38,7 @@ function add_led_buttons(fig)
     label = sprintf("0");
     uibutton(fig, 'push', 'Text', '0', ...
             'Position', [40, 230, 50, 50], ...
-            'ButtonPushedFcn', @(btn, event) handle_send_command(label));
+            'ButtonPushedFcn', @(btn, event) handle_send_command_bt(label));
 
     % Create D_ buttons to send commands SERIAL
     uibutton(fig, 'push', 'Text', '0', ...
@@ -51,7 +51,7 @@ function add_led_buttons(fig)
         label = sprintf("D%d", i);
         uibutton(fig, 'push', 'Text', label, ...
             'Position', [40 + 60*(ii), 230, 50, 50], ...
-            'ButtonPushedFcn', @(btn, event) handle_send_command(label));
+            'ButtonPushedFcn', @(btn, event) handle_send_command_bt(label));
 
         uibutton(fig, 'push', 'Text', label, ...
         'Position', [40 + 60*(ii), 30, 50, 50], ...
@@ -85,7 +85,7 @@ end
 function handle_disconnect()
     % Check if 'o' exists in the workspace and delete it
     if evalin('base', 'exist(''o'', ''var'')')
-        handle_send_command("0");
+        handle_send_command_bt("0");
         evalin('base', 'clear o');  % Deregister object 'o' from the workspace
         disp('Disconnected: Object o removed from workspace.');
     else
@@ -94,7 +94,7 @@ function handle_disconnect()
 end
 
 % Callback function for sending commands via D_ buttons
-function handle_send_command(command)
+function handle_send_command_bt(command)
     % Check if 'o' exists in the workspace
     if evalin('base', 'exist(''o'', ''var'')')
         % Retrieve the object 'o' from the base workspace
@@ -103,8 +103,8 @@ function handle_send_command(command)
         % Send the command to the object
         % o.send(command);  % Modify this method according to your object definition
 
-        % add terminator "\0" to command
-        command_signal = sprintf("%s\0",command);
+        % add terminator "\n" to command
+        command_signal = sprintf("%s\n",command);
 
         write(o, command_signal, 'string');
         fprintf("command sent .. (bt): `%s`\n", command);
@@ -116,8 +116,8 @@ end
 %% .. Handlers Serial
 % Callback function for "Connect" button
 function handle_connect_serial()
-    % comPort = "COM11"; % Replace with your Arduino's COM port
-    comPort = "/dev/tty.usbserial-0001";
+    comPort = "COM11"; % Replace with your Arduino's COM port
+    %comPort = "/dev/tty.usbserial-0001";
     baudRate = 115200;
     oserial = Com(comPort, baudRate);
 
@@ -143,11 +143,13 @@ function handle_send_command_serial(command)
         % Retrieve the object 'o' from the base workspace
         oserial = evalin('base', 'oserial');
 
-        % add terminator "\0" to command
-        command = sprintf("%s\0",command);
+        % add terminator "\n" to command
+        command_signal = sprintf("%s\n",command);
 
-        oserial.send(command)
-        fprintf("command sent (serial): `%s`\0", command);
+        oserial.send(command_signal)
+        %write(oserial, command_signal, 'string');
+        fprintf("command sent (serial): `%s`\n", command);
+
     else
         disp(command);
     end
@@ -155,13 +157,17 @@ end
 
 %% .. Handlers Signals
 function handle_signal1()
-    signal = construct_signal([1,2,3,4,5], [1,0,1,0,1]);
+    signal = construct_signal([100,200,3000,4000,5000], [1,0,1,0,1]);
+
+    handle_send_command_bt(signal);
     fprintf("signal: `%s`\n", signal);
     % fprintf("sending modes: ""%s""\n", result);
 end
 
 function handle_signal2()
-    signal = construct_signal([1,3,5,7,10], [1,0,1,0,1]);
+    signal = construct_signal([3000,4000,5000,7000,10000], [1,0,1,0,1]);
+
+    handle_send_command_bt(signal);
     fprintf("signal: `%s`\n", signal);
 end
 
