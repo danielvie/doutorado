@@ -60,8 +60,10 @@ function add_btn_test_signal(fig)
         'Position', [40 + 100, 30, 90, 50], ...
         'ButtonPushedFcn', @(btn, event) send_command_bt(command));
 
-    time = [ 0, 2000, 4000, 10000, 20000];
-    mode = [ 0,    1,   0,      1,     0];
+    
+    time = [ 0, 2000, 4000, 10000, 12000, 13000, 14000, 15000, 20000];
+    mode = [ 0,    1,   0,      1,     0,     1,     0,     1,     0];
+
     signal = construct_signal(time, mode);
     command = sprintf("SIGNAL:%s", signal);
     uibutton(fig, 'push', 'Text', 'signal 3', ...

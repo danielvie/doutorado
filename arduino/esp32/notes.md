@@ -1,5 +1,7 @@
 
 
+- [ ] make an example of the code using python
+- [ ] implement pooling system com matlab para ler os dados da ESP32
 
 - [x] testar circuito com fonte
     - [x] alimentar com a fonte e comandar sinal usando bluetooth
