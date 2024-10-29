@@ -8,6 +8,14 @@
 #define CORE_0 0  // Communication core
 #define CORE_1 1  // LED control core
 
+// Diginal Pins
+#define DI1 4
+#define DI2 17
+#define DI3 18
+#define DI4 21
+#define DI5 22
+#define DI6 23
+
 // BLE UUIDs
 #define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 #define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
@@ -22,6 +30,9 @@ auto start = std::chrono::high_resolution_clock::now();
 bool signalIsRunning = false;
 std::vector<int32_t> timeValues;
 std::vector<int32_t> modeValues;
+
+// command digital out
+uint16_t digitalOut = 0;
 
 // Task handles
 TaskHandle_t blinkTaskHandle = NULL;
@@ -96,6 +107,22 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
             else if (value == "SIGNAL_OFF") {
                 signalIsRunning = false;
                 Serial.printf("value received: `%s` signalIsRunning: %d\n", value.c_str(), signalIsRunning);
+            }
+            else if (value == "0") {
+                digitalOut = 0;
+                Serial.printf("value received: `%s`\n", value.c_str());
+            }
+            else if (value == "D4") {
+                digitalOut = 4;
+                Serial.printf("value received: `%s`\n", value.c_str());
+            }
+            else if (value == "D5") {
+                digitalOut = 5;
+                Serial.printf("value received: `%s`\n", value.c_str());
+            }
+            else if (value == "D6") {
+                digitalOut = 6;
+                Serial.printf("value received: `%s`\n", value.c_str());
             }
             else if (value.substr(0, 6) == "SIGNAL") {
                 String signal = String(value.c_str()).substring(7);
@@ -173,7 +200,28 @@ void blinkTask(void *parameter) {
             ledState = !ledState;
             digitalWrite(LED_PIN, ledState);
             vTaskDelay(currentInterval / portTICK_PERIOD_MS);
-        } else {
+        }
+        else if (digitalOut == 0) {
+            digitalWrite(DI4, LOW);
+            digitalWrite(DI5, LOW);
+            digitalWrite(DI6, LOW);
+        }
+        else if (digitalOut == 4) {
+            digitalWrite(DI4, HIGH);
+            digitalWrite(DI5, LOW);
+            digitalWrite(DI6, LOW);
+        }
+        else if (digitalOut == 5) {
+            digitalWrite(DI4, LOW);
+            digitalWrite(DI5, HIGH);
+            digitalWrite(DI6, LOW);
+        } 
+        else if (digitalOut == 6) {
+            digitalWrite(DI4, LOW);
+            digitalWrite(DI5, LOW);
+            digitalWrite(DI6, HIGH);
+        } 
+        else {
             digitalWrite(LED_PIN, LOW);
             vTaskDelay(100 / portTICK_PERIOD_MS);
         }
@@ -225,6 +273,13 @@ void bleTask(void *parameter) {
 void setup() {
     Serial.begin(115200);
     pinMode(LED_PIN, OUTPUT);
+
+    pinMode(DI1, OUTPUT);
+    pinMode(DI2, OUTPUT);
+    pinMode(DI3, OUTPUT);
+    pinMode(DI4, OUTPUT);
+    pinMode(DI5, OUTPUT);
+    pinMode(DI6, OUTPUT);
     
     // Create tasks for each core
     xTaskCreatePinnedToCore(
