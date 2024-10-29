@@ -1,280 +1,218 @@
 #include <Arduino.h>
-#include "BluetoothSerial.h"
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
+#include <NimBLEDevice.h>
+#include <NimBLEServer.h>
 #include "helpers.h"
-#include <chrono>
 
-BluetoothSerial SerialBT;
+// Pin definitions
+#define LED_PIN 2
+#define CORE_0 0  // Communication core
+#define CORE_1 1  // LED control core
 
-// .. naming IO ports
-const int ad6 = 36;
-const int ad5 = 34;
-const int ad4 = 32;
-const int ad3 = 25;
-const int ad2 = 27;
-const int ad1 = 13;
+// BLE UUIDs
+#define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
+#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
-const int di6 = 23;
-const int di5 = 22;
-const int di4 = 21;
-const int di3 = 18;
-const int di2 = 17;
-const int di1 = 4;
+// Shared variables between cores
+bool deviceConnected = false;
+bool isBlinking = false;
+int blinkInterval = 500;
 
-const int led = 2;
+// time and mode variables
+bool signalIsRunning = false;
+std::vector<int32_t> timeValues;
+std::vector<int32_t> modeValues;
 
-const int di10 = 33;
+// Task handles
+TaskHandle_t blinkTaskHandle = NULL;
+TaskHandle_t bleTaskHandle = NULL;
 
-// .. initializing variables
-int cont = 0;
-int delay_ms = 500;
+// Mutex for shared variables
+portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
 
-const int N = 10;
 
-int timeValues[N];
-int modeValues[N];
-
-// track starting time
-auto start = std::chrono::high_resolution_clock::now();
-bool commandON = false;
-
-std::chrono::milliseconds duration;
-
-// .. helper functions
-void CheckBtConnection() {
-    if (SerialBT.connected()) {
-        digitalWrite(2, HIGH);
-    } else {
-        digitalWrite(2, LOW);
+// .. helpers
+void blink_n(const int& n) {
+    for(int i = 0; i < n; i++) {
+        digitalWrite(LED_PIN, HIGH);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        digitalWrite(LED_PIN, LOW);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
 
-void ProcessBinary(const int &value) {
-    Bin b = Num2Bin(value);
-    Serial.printf("binary: %d %d %d %d\n", b.b1, b.b2, b.b3, b.b4);
-}
+// .. connect events
+class ServerCallbacks: public NimBLEServerCallbacks {
+    void onConnect(NimBLEServer* pServer) {
+        portENTER_CRITICAL(&mux);
+        deviceConnected = true;
+        portEXIT_CRITICAL(&mux);
+        Serial.println("MATLAB Connnnected!");
 
-void ProcessMATLAB_GUI(const String& message) {
-    // String message = SerialBT.readStringUntil('\0');
-    if (message.compareTo("0") == 0) {
-        digitalWrite(di4, 0);
-        digitalWrite(di5, 0);
-        digitalWrite(di6, 0);
-    } else if (message.compareTo("D4") == 0) {
-        digitalWrite(di4, 1);
-        digitalWrite(di5, 0);
-        digitalWrite(di6, 0);
-    } else if (message.compareTo("D5") == 0) {
-        digitalWrite(di4, 0);
-        digitalWrite(di5, 1);
-        digitalWrite(di6, 0);
-    } else if (message.compareTo("D6") == 0) {
-        digitalWrite(di4, 0);
-        digitalWrite(di5, 0);
-        digitalWrite(di6, 1);
+        // signal connection on LED2
+        blink_n(3);
     }
-}
+    void onDisconnect(NimBLEServer* pServer) {
+        portENTER_CRITICAL(&mux);
+        deviceConnected = false;
+        portEXIT_CRITICAL(&mux);
+        Serial.println("MATLAB Disconnected!");
+        pServer->startAdvertising();
 
-void ProcessMATLAB_Command(String& message) {
-    // reading message
-    // String message = SerialBT.readStringUntil('\n');
+        // signal disconnection on LED2
+        blink_n(2);
+    }
+};
 
-    // processing arrays
-    Init(timeValues, modeValues, 4);
-    GetValues(message.c_str(), timeValues, modeValues);
+// .. command handlers
+class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
+    void onWrite(NimBLECharacteristic* pCharacteristic) {
+        std::string value = pCharacteristic->getValue();
+        
+        if (value.length() > 0) {
+            Serial.print("\nReceived command: ");
+            Serial.println(value.c_str());
+            
+            portENTER_CRITICAL(&mux);
+            if (value == "START") {
+                isBlinking = true;
+                Serial.println("LED Blinking Started");
+            }
+            else if (value == "STOP") {
+                isBlinking = false;
+                digitalWrite(LED_PIN, LOW);
+                Serial.println("LED Blinking Stopped");
+            }
+            else if (value.substr(0, 8) == "INTERVAL") {
+                String intervalStr = String(value.c_str()).substring(9);
+                blinkInterval = intervalStr.toInt();
+                Serial.printf("Blink interval set to: %d ms\n", blinkInterval);
+            }
+            else if (value == "SIGNAL_ON") {
+                signalIsRunning = true;
+                Serial.printf("value received: `%s` signalIsRunning: %d\n", value.c_str(), signalIsRunning);
+            }
+            else if (value == "SIGNAL_OFF") {
+                signalIsRunning = false;
+                Serial.printf("value received: `%s` signalIsRunning: %d\n", value.c_str(), signalIsRunning);
+            }
+            else if (value.substr(0, 6) == "SIGNAL") {
+                String signal = String(value.c_str()).substring(7);
+                Serial.printf("signal received: `%s`\n", signal.c_str());
+                // parse values of time and mode
+                parseString(signal.c_str(), timeValues, modeValues);
+            }
+            portEXIT_CRITICAL(&mux);
+        }
+    }
+};
 
-    // printing values
-    Print(timeValues, modeValues, 4);
+// .. Blink Task
+void blinkTask(void *parameter) {
+    Serial.print("Blink Task running on core: ");
+    Serial.println(xPortGetCoreID());
     
-    commandON = true;
-}
-
-// .. task functions
-void TaskSerialBT(void *pvParameters) {
-    (void) pvParameters; // To avoid unused parameter warning
-
-    while (true) {
-        // CheckBtConnection();
-
-        // read BT message
-        if (SerialBT.available()) {
-            String message = SerialBT.readStringUntil('\n');
-            // ProcessMATLAB_GUI(message);
-            ProcessMATLAB_Command(message);
-        }
-
-        delay(20);
-    }
-}
-
-void TaskSerial(void *pvParameters) {
-    (void) pvParameters; // To avoid unused parameter warning
-
-    while (true) {
-        // int value = random(0, 100);
-        if (Serial.available()) {
-            String message = Serial.readStringUntil('\n');
-            ProcessMATLAB_GUI(message);
-        }
-        delay(20);
-    }
-}
-
-void TaskBlink(void *pvParameters) {
-    (void) pvParameters; // To avoid unused parameter warning
+    bool ledState = false;
     
     while(true) {
-
-        // track starting time
-        start = std::chrono::high_resolution_clock::now();
-
-        // current index
-        size_t index = 0;
+        bool shouldBlink;
+        bool shouldRunSignal;
+        int currentInterval;
+        std::vector<int32_t> currentTimeValues;
+        std::vector<int32_t> currentModeValues;
         
-        bool first = false;
+        // Safely read shared variables
+        portENTER_CRITICAL(&mux);
+        shouldBlink = isBlinking;
+        shouldRunSignal = signalIsRunning;
+        currentInterval = blinkInterval;
+        portEXIT_CRITICAL(&mux);
         
-        while(true) {
-            auto now = std::chrono::high_resolution_clock::now();
-            auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
-            
-            if (elapsed >= 2000 && !first) {
-                Serial.println("ik ben uit");
-                first = true;
-            }
+        if (shouldRunSignal) {
+            auto start = std::chrono::high_resolution_clock::now();
 
-            if (elapsed >= 5000) {
-                Serial.println("ik ben uit 5000");
-                break;
-            }
         }
-
-        // iterate through arrays
-        // while(true) {
-        //     // calculate elapsed time
-        //     auto now = std::chrono::high_resolution_clock::now();
-        //     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
-
-        //     // if (commandON) {
-        //     //     Serial.print("elapsed: ");
-        //     //     Serial.println(elapsed);
-        //     //     Serial.print("timeValues[index]: ");
-        //     //     Serial.println(timeValues[index]);
-        //     //     commandON = false;
-        //     // }
-
-        //     // // check if time has reached
-        //     // if ((elapsed >= (int64_t)timeValues[index]) && commandON)
-        //     // {
-        //     //     // update mode
-        //     //     // int mode = modeValues[index];
-        //     //     // digitalWrite(led, mode);
-
-        //     //     // // update index
-        //     //     ++index;
-
-        //     //     // // break if time -1
-        //     //     if (timeValues[index] == -1) {
-        //     //         break;
-        //     //     }
-        //     //     Serial.printf("time: %d, mode: %d", timeValues[index], modeValues[index]);
-        //     // }
-        // }
-
-        delay(20);
+        else if (shouldBlink) {
+            ledState = !ledState;
+            digitalWrite(LED_PIN, ledState);
+            vTaskDelay(currentInterval / portTICK_PERIOD_MS);
+        } else {
+            digitalWrite(LED_PIN, LOW);
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+        }
     }
+}
+
+// .. Comunication Task
+void bleTask(void *parameter) {
+    Serial.print("BLE Task running on core: ");
+    Serial.println(xPortGetCoreID());
     
-    // // iterate through arrays
-    // while (index < N && commandON) {
-    //     // calculate elapsed time
-    //     auto now = std::chrono::high_resolution_clock::now();
-    //     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
-        
-    //     // check if time has reached
-    //     if (elapsed >= timeValues[index]) {
-    //         // update mode
-    //         int mode = modeValues[index];
-    //         digitalWrite(led, mode);
-            
-    //         // update index
-    //         ++index;
-            
-    //         // break if time -1
-    //         if (timeValues[index] == -1) {
-    //             break;
-    //         }
-    //     }
-    // }
-    // delay(20);
+    // Initialize BLE
+    NimBLEDevice::init("ESP32_BLINK");
+    
+    // Create the BLE Server
+    NimBLEServer *pServer = NimBLEDevice::createServer();
+    pServer->setCallbacks(new ServerCallbacks());
+
+    // Create the BLE Service
+    NimBLEService *pService = pServer->createService(SERVICE_UUID);
+
+    // Create BLE Characteristic
+    NimBLECharacteristic *pCharacteristic = pService->createCharacteristic(
+        CHARACTERISTIC_UUID,
+        NIMBLE_PROPERTY::WRITE
+    );
+    pCharacteristic->setCallbacks(new CharacteristicCallbacks());
+
+    // Start the service
+    pService->start();
+
+    // Start advertising
+    NimBLEAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
+    pAdvertising->addServiceUUID(SERVICE_UUID);
+    pAdvertising->setScanResponse(true);
+    pAdvertising->setMinPreferred(0x06);
+    NimBLEDevice::startAdvertising();
+    
+    Serial.println("BLE initialized and advertising!");
+    blink_n(5);
+
+    // Keep the task alive
+    while(true) {
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
 }
 
 // .. setup
 void setup() {
     Serial.begin(115200);
-    SerialBT.begin("ESP32_BT"); // Bluetooth name
-    Serial.print("Bluetooth started. Waiting for connections...");
-    Serial.println(" `ESP32_BT`");
-    pinMode(2, OUTPUT);
-
-    // put your setup code here, to run once:
-    // Serial.begin(115200);
-
-    pinMode(ad1, INPUT);
-    pinMode(ad2, INPUT);
-    pinMode(ad3, INPUT);
-    pinMode(ad4, INPUT);
-    pinMode(ad5, INPUT);
-    pinMode(ad6, INPUT);
-
-    pinMode(di1, OUTPUT);
-    pinMode(di2, OUTPUT);
-    pinMode(di3, OUTPUT);
-    pinMode(di4, OUTPUT);
-    pinMode(di5, OUTPUT);
-    pinMode(di6, OUTPUT);
-
-    pinMode(led, OUTPUT);
-    pinMode(di10, OUTPUT);
-    // pinMode(outputPin, OUTPUT);
-    // pinMode(adcPin, INPUT);
-
-
-    // Create the SerialBT task
+    pinMode(LED_PIN, OUTPUT);
+    
+    // Create tasks for each core
     xTaskCreatePinnedToCore(
-        TaskSerialBT,             // Task function
-        "Serial",                 // Task name
-        2048*4,                   // Stack size (bytes)
-        NULL,                     // Parameter passed to the task
-        1,                        // Task priority
-        NULL,                     // Task handle
-        1                         // Core idx
+        blinkTask,        // Task function
+        "BlinkTask",      // Task name
+        4096,             // Stack size (bytes)
+        NULL,             // Parameter to pass
+        1,                // Task priority
+        &blinkTaskHandle, // Task handle
+        CORE_1            // Core to run task on
     );
 
-    // Create the SerialBT task
     xTaskCreatePinnedToCore(
-        TaskSerial,               // Task function
-        "Serial",                 // Task name
-        1024,                     // Stack size (bytes)
-        NULL,                     // Parameter passed to the task
-        1,                        // Task priority
-        NULL,                     // Task handle
-        1                         // Core idx
+        bleTask,          // Task function
+        "BLETask",        // Task name
+        4096,             // Stack size (bytes)
+        NULL,             // Parameter to pass
+        1,                // Task priority
+        &bleTaskHandle,   // Task handle
+        CORE_0            // Core to run task on
     );
 
-
-    // Create the Blink task
-    xTaskCreatePinnedToCore(
-        TaskBlink,                // Task function
-        "Blink",                  // Task name
-        2048*4,                     // Stack size (bytes)
-        NULL,                     // Parameter passed to the task
-        1,                        // Task priority
-        NULL,                     // Task handle
-        0                         // Core idx
-    );
-
-    // origin = std::chrono::high_resolution_clock::now();
-
+    Serial.println("Both tasks created successfully!");
 }
 
-void loop() { }
+void loop() {
+    // Empty loop as tasks handle everything
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+}
