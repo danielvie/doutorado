@@ -6,6 +6,7 @@ function guibt()
     add_led_buttons(fig);
 
     add_btn_signal(fig);
+    add_btn_test(fig);
 end
 
 %% .. Add Buttons
@@ -70,6 +71,18 @@ function add_btn_signal(fig)
     uibutton(fig, 'push', 'Text', 'Signal 2', ...
         'Position', [450, 300, 80, 50], ...
         'ButtonPushedFcn', @(btn, event) handle_signal2());
+end
+
+function add_btn_test(fig)
+    % Create the "Connect Serial" button
+    uibutton(fig, 'push', 'Text', 'start', ...
+        'Position', [350, 200, 80, 50], ...
+        'ButtonPushedFcn', @(btn, event) handle_test_start());
+
+    % Create the "Connect Serial" button
+    uibutton(fig, 'push', 'Text', 'stop', ...
+        'Position', [450, 200, 80, 50], ...
+        'ButtonPushedFcn', @(btn, event) handle_test_stop());
 end
 
 %% .. Handlers Bluetooth
@@ -169,6 +182,20 @@ function handle_signal2()
 
     handle_send_command_bt(signal);
     fprintf("signal: `%s`\n", signal);
+end
+
+%% .. Handlers Test
+function handle_test_start()
+    command = "start";
+    handle_send_command_bt(command);
+    fprintf("start: %s\n", command);
+    % fprintf("sending modes: ""%s""\n", result);
+end
+
+function handle_test_stop()
+    command = "stop";
+    handle_send_command_bt(command);
+    fprintf("start: %s\n", command);
 end
 
 %% .. Helpers

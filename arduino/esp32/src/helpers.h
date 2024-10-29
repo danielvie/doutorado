@@ -1,8 +1,10 @@
 #pragma once
 
 #include <Arduino.h>
-#include <iostream>
 #include <chrono>
+#include <vector>
+#include <sstream>
+#include <iostream>
 
 struct Bin {
     bool b1;
@@ -19,6 +21,8 @@ struct Bin Num2Bin(int n);
 // int qpRun();
 
 void GetValues(const char *s, int timeValues[], int modeValues[]);
-void Init(int timeValues[], int modeValues[], int N);
+void InitTimeMode(int timeValues[], int modeValues[], int N);
 void SetValues(int timeValuesNew[], int modeValuesNew[], int timeValues[], int modeValues[], int N);
-void Print(int timeValues[], int modeValues[], int N);
+void parseString(const std::string& ref, std::vector<int32_t>& time, std::vector<int32_t>& mode);
+
+void PrintValues(const std::vector<int32_t>& timeValues, const std::vector<int32_t>& modeValues);
