@@ -74,6 +74,11 @@ void parseValues(const std::string& input, std::vector<int32_t>& values, char de
 }
 
 void parseString(const std::string& ref, std::vector<int32_t>& time, std::vector<int32_t>& mode) {
+    // cleaning previous values
+    time.clear();
+    mode.clear();
+
+    // parsing new values
     size_t semicolonPos = ref.find(';');
     if (semicolonPos != std::string::npos) {
         // Extract time part (before semicolon)

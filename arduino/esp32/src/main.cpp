@@ -18,6 +18,7 @@ bool isBlinking = false;
 int blinkInterval = 500;
 
 // time and mode variables
+auto start = std::chrono::high_resolution_clock::now();
 bool signalIsRunning = false;
 std::vector<int32_t> timeValues;
 std::vector<int32_t> modeValues;
@@ -89,6 +90,7 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
             }
             else if (value == "SIGNAL_ON") {
                 signalIsRunning = true;
+                start = std::chrono::high_resolution_clock::now();
                 Serial.printf("value received: `%s` signalIsRunning: %d\n", value.c_str(), signalIsRunning);
             }
             else if (value == "SIGNAL_OFF") {
@@ -125,10 +127,46 @@ void blinkTask(void *parameter) {
         shouldBlink = isBlinking;
         shouldRunSignal = signalIsRunning;
         currentInterval = blinkInterval;
+
+        currentTimeValues = timeValues;
+        currentModeValues = modeValues;
         portEXIT_CRITICAL(&mux);
         
         if (shouldRunSignal) {
-            auto start = std::chrono::high_resolution_clock::now();
+            // RunSignals(currentTimeValues, currentModeValues);
+
+            // track starting time
+            start = std::chrono::high_resolution_clock::now();
+            Serial.println("\nnew loop... (elapsed time 0)");
+            
+            // current index
+            size_t index = 0;
+            size_t N = currentTimeValues.size();
+            
+            // iterate through arrays
+            while(index < N) {
+                // calculate elapsed time
+                auto now = std::chrono::high_resolution_clock::now();
+                auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
+                
+                // check if time has reached
+                if (elapsed >= currentTimeValues[index]) {
+                    // update mode
+                    int mode = currentModeValues[index];
+
+                    Serial.printf("elapsed time: %d -> mode: %d\n", currentTimeValues[index], mode);
+                    digitalWrite(LED_PIN, mode);
+                    
+                    // update index
+                    ++index;
+                    
+                    // break if is last element
+                    if (index == currentTimeValues.size()) {
+                        break;
+                    }
+                }
+            }
+            Serial.println("\n...end of loop");
 
         }
         else if (shouldBlink) {
