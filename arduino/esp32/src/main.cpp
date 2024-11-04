@@ -2,6 +2,7 @@
 #include <NimBLEDevice.h>
 #include <NimBLEServer.h>
 #include "helpers.h"
+#include "esp_log.h"
 
 // Pin definitions
 #define LED_PIN 2
@@ -286,6 +287,7 @@ void bleTask(void *parameter) {
     NimBLEDevice::startAdvertising();
     
     Serial.println("BLE initialized and advertising!");
+    ESP_LOGI("TAG", "BLE initialized and advertising!");
     blink_n(5);
 
     // Keep the task alive
@@ -297,6 +299,16 @@ void bleTask(void *parameter) {
 // .. setup
 void setup() {
     Serial.begin(115200);
+
+    // Example logging messages with different levels
+    ESP_LOGE("DANIEL", "teste mais uma vez");
+    ESP_LOGE("TAG", "This is an error message");
+    ESP_LOGW("TAG", "This is a warning message");
+    ESP_LOGI("TAG", "This is an info message");
+    ESP_LOGD("TAG", "This is a debug message");
+    ESP_LOGV("TAG", "This is a verbose message");
+
+
     pinMode(LED_PIN, OUTPUT);
 
     pinMode(DI1, OUTPUT);
