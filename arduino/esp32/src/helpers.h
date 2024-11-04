@@ -23,6 +23,6 @@ struct Bin Num2Bin(int n);
 void GetValues(const char *s, int timeValues[], int modeValues[]);
 void InitTimeMode(int timeValues[], int modeValues[], int N);
 void SetValues(int timeValuesNew[], int modeValuesNew[], int timeValues[], int modeValues[], int N);
-void parseString(const std::string& ref, std::vector<int32_t>& time, std::vector<int32_t>& mode);
+void parseString(const std::string& ref, std::vector<int64_t>& time, std::vector<int64_t>& mode);
 
-void PrintValues(const std::vector<int32_t>& timeValues, const std::vector<int32_t>& modeValues);
+void PrintValues(const std::vector<int64_t>& timeValues, const std::vector<int64_t>& modeValues);

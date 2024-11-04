@@ -54,7 +54,7 @@ void GetValues(const char *s, int timeValues[], int modeValues[])
     }
 }
 
-void parseValues(const std::string& input, std::vector<int32_t>& values, char delimiter) {
+void parseValues(const std::string& input, std::vector<int64_t>& values, char delimiter) {
     std::stringstream ss(input);
     std::string token;
     while (std::getline(ss, token, delimiter)) {
@@ -62,9 +62,9 @@ void parseValues(const std::string& input, std::vector<int32_t>& values, char de
             try {
                 int value = std::stoi(token);
                 if (value > INT16_MAX || value < INT16_MIN) {
-                    throw std::out_of_range("Value outside int32_t range");
+                    throw std::out_of_range("Value outside int64_t range");
                 }
-                values.push_back(static_cast<int32_t>(value));
+                values.push_back(static_cast<int64_t>(value));
             }
             catch (const std::exception& e) {
                 std::cerr << "Error parsing value '" << token << "': " << e.what() << std::endl;
@@ -73,7 +73,7 @@ void parseValues(const std::string& input, std::vector<int32_t>& values, char de
     }
 }
 
-void parseString(const std::string& ref, std::vector<int32_t>& time, std::vector<int32_t>& mode) {
+void parseString(const std::string& ref, std::vector<int64_t>& time, std::vector<int64_t>& mode) {
     // cleaning previous values
     time.clear();
     mode.clear();
@@ -113,7 +113,7 @@ void SetValues(int timeValuesNew[], int modeValuesNew[], int timeValues[], int m
     }
 }
 
-void PrintValues_helper(const std::vector<int32_t>& vector)
+void PrintValues_helper(const std::vector<int64_t>& vector)
 {
     for (auto v: vector) {
         Serial.printf("%d ", v);
@@ -121,7 +121,7 @@ void PrintValues_helper(const std::vector<int32_t>& vector)
     Serial.println("\n");
 }
 
-void PrintValues(const std::vector<int32_t>& timeValues, const std::vector<int32_t>& modeValues)
+void PrintValues(const std::vector<int64_t>& timeValues, const std::vector<int64_t>& modeValues)
 {
     Serial.println("");
     Serial.println("timeValues: ");

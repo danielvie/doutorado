@@ -28,8 +28,8 @@ int blinkInterval = 500;
 // time and mode variables
 auto start = std::chrono::high_resolution_clock::now();
 bool signalIsRunning = false;
-std::vector<int32_t> timeValues;
-std::vector<int32_t> modeValues;
+std::vector<int64_t> timeValues;
+std::vector<int64_t> modeValues;
 
 // command digital out
 uint16_t digitalOut = 0;
@@ -91,6 +91,7 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
             }
             else if (value == "STOP") {
                 isBlinking = false;
+
                 digitalWrite(LED_PIN, LOW);
                 Serial.println("LED Blinking Stopped");
             }
@@ -106,6 +107,12 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
             }
             else if (value == "SIGNAL_OFF") {
                 signalIsRunning = false;
+
+                digitalWrite(LED_PIN, LOW);
+                digitalWrite(DI4, LOW);
+                digitalWrite(DI5, LOW);
+                digitalWrite(DI6, LOW);
+
                 Serial.printf("value received: `%s` signalIsRunning: %d\n", value.c_str(), signalIsRunning);
             }
             else if (value == "0") {
@@ -150,8 +157,8 @@ void blinkTask(void *parameter) {
         bool shouldBlink;
         bool shouldRunSignal;
         int currentInterval;
-        std::vector<int32_t> currentTimeValues;
-        std::vector<int32_t> currentModeValues;
+        std::vector<int64_t> currentTimeValues;
+        std::vector<int64_t> currentModeValues;
         
         // Safely read shared variables
         portENTER_CRITICAL(&mux);
@@ -168,7 +175,7 @@ void blinkTask(void *parameter) {
 
             // track starting time
             start = std::chrono::high_resolution_clock::now();
-            Serial.println("\nnew loop... (elapsed time 0)");
+            // Serial.println("\nnew loop... (elapsed time 0)\n");
             
             // current index
             size_t index = 0;
@@ -178,15 +185,25 @@ void blinkTask(void *parameter) {
             while(index < N) {
                 // calculate elapsed time
                 auto now = std::chrono::high_resolution_clock::now();
-                auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
+                auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(now - start).count();
                 
                 // check if time has reached
-                if (elapsed >= currentTimeValues[index]) {
+                uint64_t time_microsec = currentTimeValues[index];
+                if (elapsed >= time_microsec) {
                     // update mode
                     int mode = currentModeValues[index];
 
-                    Serial.printf("elapsed time: %d -> mode: %d\n", currentTimeValues[index], mode);
-                    digitalWrite(LED_PIN, mode);
+                    Bin mode_bin = Num2Bin(mode);
+                    // struct Bin Num2Bin(int num)
+                    
+                    digitalWrite(LED_PIN, mode_bin.b1);
+                    digitalWrite(DI4, mode_bin.b1);
+                    digitalWrite(DI5, mode_bin.b2);
+                    digitalWrite(DI6, mode_bin.b3);
+
+                    int cur_time = currentTimeValues[index];
+                    // Serial.printf("elapsed time: %d .. mode: %d", cur_time, mode);
+                    // Serial.printf(" .. (di4, di5, di6) -> Bin(%d, %d, %d)\n", mode_bin.b3, mode_bin.b2, mode_bin.b1);
                     
                     // update index
                     ++index;
@@ -197,15 +214,19 @@ void blinkTask(void *parameter) {
                     }
                 }
             }
-            Serial.println("\n...end of loop");
+            // Serial.println("\n...end of loop");
 
         }
         else if (shouldBlink) {
             ledState = !ledState;
             digitalWrite(LED_PIN, ledState);
+            digitalWrite(DI4, ledState);
+            // digitalWrite(LED_PIN, ledState);
+            // digitalWrite(LED_PIN, ledState);
             vTaskDelay(currentInterval / portTICK_PERIOD_MS);
         }
         else if (digitalOut == 0) {
+            digitalWrite(LED_PIN, LOW);
             digitalWrite(DI4, LOW);
             digitalWrite(DI5, LOW);
             digitalWrite(DI6, LOW);

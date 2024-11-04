@@ -44,8 +44,10 @@ function add_btn_test_interval(fig)
 end
 
 function add_btn_test_signal(fig)
-    time = [  0, 100, 200, 500, 1000, 5000, 6500];
-    mode = [  0,   1,   0,   1,    0,    1,    0];
+
+    time = [  0,   1000, 1333, 2333, 2666, 3666, 4000];
+    mode = [  3,      7,    5,    7,    6,    7,    3];
+
     signal = construct_signal(time, mode);
     command = sprintf("SIGNAL:%s", signal);
     uibutton(fig, 'push', 'Text', 'signal 1', ...
