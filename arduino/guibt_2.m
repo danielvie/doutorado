@@ -11,27 +11,27 @@ end
 function add_btn_connect_bt(fig)
     % Create the "Connect" button
     uibutton(fig, 'push', 'Text', 'Connect ..', ...
+        'BackgroundColor', get_color('green'), ...
+        'FontColor', 'white', ...
         'Position', [40, 300, 100, 50], ...
         'ButtonPushedFcn', @(btn, event) handle_connect());
 
     % Create the "Disconnect" button
     uibutton(fig, 'push', 'Text', 'Disconnect ..', ...
+        'BackgroundColor', get_color('red'), ...
+        'FontColor', 'white', ...
         'Position', [160, 300, 100, 50], ...
         'ButtonPushedFcn', @(btn, event) handle_disconnect());
 end
 
 function add_btn_test_interval(fig)
-    uibutton(fig, 'push', 'Text', 'start', ...
+    uibutton(fig, 'push', 'Text', 'blink ON', ...
         'Position', [350, 300, 80, 50], ...
-        'BackgroundColor', get_color('green'), ...
-        'FontColor', 'white', ...
-        'ButtonPushedFcn', @(btn, event) handle_test_start());
+        'ButtonPushedFcn', @(btn, event) handle_test_blink_on());
 
-    uibutton(fig, 'push', 'Text', 'stop', ...
+    uibutton(fig, 'push', 'Text', 'blink OFF', ...
         'Position', [450, 300, 80, 50], ...
-        'BackgroundColor', get_color('red'), ...
-        'FontColor', 'white', ...
-        'ButtonPushedFcn', @(btn, event) handle_test_stop());
+        'ButtonPushedFcn', @(btn, event) handle_test_blink_off());
 
     intervals = [100, 200, 500, 1000, 2000];
     for i = 1:numel(intervals)
@@ -45,33 +45,24 @@ end
 
 function add_btn_test_signal(fig)
 
+    hInputBox = uicontrol(fig, 'Style', 'edit', ...
+        'Position', [40 + 200, 30, 90, 50], ...
+        'String', '1', ...
+        'FontSize', 12);
+
+    % constructing signal 1
     time = [  0,   1000, 1333, 2333, 2666, 3666, 4000];
     mode = [  3,      7,    5,    7,    6,    7,    3];
-
-    signal = construct_signal(time, mode);
-    command = sprintf("SIGNAL:%s", signal);
     uibutton(fig, 'push', 'Text', 'signal 1', ...
         'Position', [40, 30, 90, 50], ...
-        'ButtonPushedFcn', @(btn, event) send_command_bt(command));
+        'ButtonPushedFcn', @(btn, event) handle_signal_command(time, mode, hInputBox));
 
+    % constructing signal 2
     time = [ 0, 2000, 5000, 10000, 15000];
     mode = [ 0,    1,    0,     1,     0];
-    signal = construct_signal(time, mode);
-    command = sprintf("SIGNAL:%s", signal);
     uibutton(fig, 'push', 'Text', 'signal 2', ...
         'Position', [40 + 100, 30, 90, 50], ...
-        'ButtonPushedFcn', @(btn, event) send_command_bt(command));
-
-    
-    time = [ 0, 2000, 4000, 10000, 12000, 13000, 14000, 15000, 20000];
-    mode = [ 0,    1,   0,      1,     0,     1,     0,     1,     0];
-
-    signal = construct_signal(time, mode);
-    command = sprintf("SIGNAL:%s", signal);
-    uibutton(fig, 'push', 'Text', 'signal 3', ...
-        'Position', [40 + 200, 30, 90, 50], ...
-        'ButtonPushedFcn', @(btn, event) send_command_bt(command));
-
+        'ButtonPushedFcn', @(btn, event) handle_signal_command(time, mode, hInputBox));
 
     % .. ON/OFF signals
     uibutton(fig, 'push', 'Text', 'signal ON', ...
@@ -137,6 +128,20 @@ function handle_connect()
     % disp('Connected: Object o registered in workspace.');
 end
 
+function handle_signal_command(time, mode, hInputBox)
+    % get value of input
+    inputText = get(hInputBox, 'String');
+    value = str2double(inputText);
+
+    % constructing signal
+    signal = construct_signal(time*value, mode);
+    command = sprintf("SIGNAL:%s", signal);
+
+    % sending to ESP32
+    send_command_bt(command);
+end
+
+
 % Callback function for "Disconnect" button
 function handle_disconnect()
     % Check if 'o' exists in the workspace and delete it
@@ -153,11 +158,11 @@ function handle_disconnect()
     end
 end
 
-function handle_test_start()
+function handle_test_blink_on()
     send_command_bt('START')
 end
 
-function handle_test_stop()
+function handle_test_blink_off()
     send_command_bt('STOP')
 end
 

@@ -176,7 +176,7 @@ void blinkTask(void *parameter) {
 
             // track starting time
             start = std::chrono::high_resolution_clock::now();
-            // Serial.println("\nnew loop... (elapsed time 0)\n");
+            Serial.println("\nnew loop... (elapsed time 0)\n");
             
             // current index
             size_t index = 0;
@@ -203,7 +203,7 @@ void blinkTask(void *parameter) {
                     digitalWrite(DI6, mode_bin.b3);
 
                     int cur_time = currentTimeValues[index];
-                    // Serial.printf("elapsed time: %d .. mode: %d", cur_time, mode);
+                    Serial.printf("elapsed time: %d .. mode: %d\n", cur_time, mode);
                     // Serial.printf(" .. (di4, di5, di6) -> Bin(%d, %d, %d)\n", mode_bin.b3, mode_bin.b2, mode_bin.b1);
                     
                     // update index
@@ -215,7 +215,7 @@ void blinkTask(void *parameter) {
                     }
                 }
             }
-            // Serial.println("\n...end of loop");
+            Serial.println("\n...end of loop");
 
         }
         else if (shouldBlink) {

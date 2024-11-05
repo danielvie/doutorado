@@ -61,7 +61,7 @@ void parseValues(const std::string& input, std::vector<int64_t>& values, char de
         if (!token.empty()) {
             try {
                 int value = std::stoi(token);
-                if (value > INT16_MAX || value < INT16_MIN) {
+                if (value < INT64_MIN || value > INT64_MAX) {
                     throw std::out_of_range("Value outside int64_t range");
                 }
                 values.push_back(static_cast<int64_t>(value));
