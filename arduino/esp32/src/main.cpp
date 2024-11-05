@@ -216,7 +216,6 @@ void blinkTask(void *parameter) {
                 }
             }
             Serial.println("\n...end of loop");
-
         }
         else if (shouldBlink) {
             ledState = !ledState;
