@@ -54,22 +54,28 @@ void GetValues(const char *s, int timeValues[], int modeValues[])
     }
 }
 
-void parseValues(const std::string& input, std::vector<int64_t>& values, char delimiter) {
-    std::stringstream ss(input);
-    std::string token;
-    while (std::getline(ss, token, delimiter)) {
+void parseValues(const std::string &input, std::vector<int64_t> &values, char delimiter) {
+    size_t start = 0;
+    size_t end = input.find(delimiter);
+    while (end != std::string::npos) {
+        std::string token = input.substr(start, end - start);
         if (!token.empty()) {
             try {
                 int value = std::stoi(token);
-                if (value > INT16_MAX || value < INT16_MIN) {
+                if (value > INT64_MAX || value < INT64_MIN) {
                     throw std::out_of_range("Value outside int64_t range");
                 }
                 values.push_back(static_cast<int64_t>(value));
             }
-            catch (const std::exception& e) {
-                std::cerr << "Error parsing value '" << token << "': " << e.what() << std::endl;
+            catch (const std::exception &e) {
+                Serial.print("Error parsing value '");
+                Serial.print(token.c_str());
+                Serial.print("': ");
+                Serial.println(e.what());
             }
         }
+        start = end + 1;
+        end = input.find(delimiter, start);
     }
 }
 

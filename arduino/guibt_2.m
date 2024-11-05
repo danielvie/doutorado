@@ -45,7 +45,7 @@ end
 
 function add_btn_test_signal(fig)
 
-    time = [  0,   1000, 1333, 2333, 2666, 3666, 4000];
+    time = [  0,   1000, 1333, 2333, 2666, 3666, 4000]*9;
     mode = [  3,      7,    5,    7,    6,    7,    3];
 
     signal = construct_signal(time, mode);
@@ -108,33 +108,10 @@ end
 %% .. bluetooth handlers
 % Callback function for "Connect" button
 function handle_connect()
+    [b, charac] = ble_connect();
 
-    % UUID definitions (must match ESP32)
-    SERVICE_UUID = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
-    CHAR_UUID = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
-
-    try
-        % scan for BLE devices
-        fprintf('Scanning for ESP32_BLINK...\n');
-        b = ble('ESP32_BLINK');
-
-        % connect to the service
-        charac = characteristic(b, SERVICE_UUID, CHAR_UUID);
-        
-        fprintf("Connected to ESP32!\n");
-        assignin('base', 'b', b);  % Register object 'o' in the base workspace
-        assignin('base', 'charac', charac);  % Register object 'o' in the base workspace
-
-    catch ME
-        fprintf('Error: %s\n', ME.message);
-        if exist('b', 'var')
-            clear b;
-        end
-    end
-    % o = bluetooth("ESP32_BT", 1);
-
-    % assignin('base', 'o', o);  % Register object 'o' in the base workspace
-    % disp('Connected: Object o registered in workspace.');
+    assignin('base', 'b', b);  % Register object 'o' in the base workspace
+    assignin('base', 'charac', charac);  % Register object 'o' in the base workspace
 end
 
 % Callback function for "Disconnect" button

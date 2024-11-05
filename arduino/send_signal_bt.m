@@ -8,11 +8,21 @@ function send_signal_bt(time, mode)
         % b = evalin('base', 'b');
         charac = evalin('base', 'charac');
 
+        fprintf("sending command .. (bt): `%s`\n", command);
         write(charac, unicode2native(command, 'ASCII'));
-        fprintf("command sent .. (bt): `%s`\n", command);
     else
-        disp('command not sent!');
-        disp(command);
+        try
+            [b, charac] = ble_connect();
+
+            fprintf("sending command .. (bt): `%s`\n", command);
+            write(charac, unicode2native(command, 'ASCII'));
+            assignin('base', 'b', b);  % Register object 'o' in the base workspace
+            assignin('base', 'charac', charac);  % Register object 'o' in the base workspace
+        catch ME
+            disp('command not sent!');
+            fprintf('Error: %s\n', ME.message);
+            disp(command);
+        end
     end
 end
 
