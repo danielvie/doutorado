@@ -24,6 +24,7 @@
 // Shared variables between cores
 bool deviceConnected = false;
 bool isBlinking = false;
+bool hasLog = true;
 int blinkInterval = 500;
 
 // time and mode variables
@@ -82,29 +83,40 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
         std::string value = pCharacteristic->getValue();
         
         if (value.length() > 0) {
-            Serial.print("\nReceived command: ");
-            Serial.println(value.c_str());
+            if (hasLog) {
+                Serial.print("\nReceived command: ");
+                Serial.println(value.c_str());
+            }
             
+
             portENTER_CRITICAL(&mux);
             if (value == "START") {
                 isBlinking = true;
-                Serial.println("LED Blinking Started");
+                if (hasLog) {
+                    Serial.println("LED Blinking Started");
+                }
             }
             else if (value == "STOP") {
                 isBlinking = false;
 
                 digitalWrite(LED_PIN, LOW);
-                Serial.println("LED Blinking Stopped");
+                if (hasLog) {
+                    Serial.println("LED Blinking Stopped");
+                }
             }
             else if (value.substr(0, 8) == "INTERVAL") {
                 String intervalStr = String(value.c_str()).substring(9);
                 blinkInterval = intervalStr.toInt();
-                Serial.printf("Blink interval set to: %d ms\n", blinkInterval);
+                if (hasLog) {
+                    Serial.printf("Blink interval set to: %d ms\n", blinkInterval);
+                }
             }
             else if (value == "SIGNAL_ON") {
                 signalIsRunning = true;
                 start = std::chrono::high_resolution_clock::now();
+                if (hasLog) {
                 Serial.printf("value received: `%s` signalIsRunning: %d\n", value.c_str(), signalIsRunning);
+                }
             }
             else if (value == "SIGNAL_OFF") {
                 signalIsRunning = false;
@@ -114,29 +126,53 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
                 digitalWrite(DI5, LOW);
                 digitalWrite(DI6, LOW);
 
-                Serial.printf("value received: `%s` signalIsRunning: %d\n", value.c_str(), signalIsRunning);
+                if (hasLog) {
+                    Serial.printf("value received: `%s` signalIsRunning: %d\n", value.c_str(), signalIsRunning);
+                }
             }
             else if (value == "0") {
                 digitalOut = 0;
-                Serial.printf("value received: `%s`\n", value.c_str());
+                if (hasLog) {
+                    Serial.printf("value received: `%s`\n", value.c_str());
+                }
             }
             else if (value == "D4") {
                 digitalOut = 4;
-                Serial.printf("value received: `%s`\n", value.c_str());
+                if (hasLog) {
+                    Serial.printf("value received: `%s`\n", value.c_str());
+                }
             }
             else if (value == "D5") {
                 digitalOut = 5;
-                Serial.printf("value received: `%s`\n", value.c_str());
+                if (hasLog) {
+                    Serial.printf("value received: `%s`\n", value.c_str());
+                }
             }
             else if (value == "D6") {
                 digitalOut = 6;
-                Serial.printf("value received: `%s`\n", value.c_str());
+                if (hasLog) {
+                    Serial.printf("value received: `%s`\n", value.c_str());
+                }
+            }
+            else if (value == "LOG_ON") {
+                hasLog = true;
+                if (hasLog) {
+                    Serial.printf("value received: `%s`\n", value.c_str());
+                }
+            }
+            else if (value == "LOG_OFF") {
+                hasLog = false;
+                if (hasLog) {
+                    Serial.printf("value received: `%s`\n", value.c_str());
+                }
             }
             else if (value.substr(0, 6) == "SIGNAL") {
                 String signal = String(value.c_str()).substring(7);
                 // Serial.printf("signal received: `%s`\n", signal.c_str());
                 // Serial.println("new signal received!\n");
-                Serial.println("new signal received");
+                if (hasLog) {
+                    Serial.println("new signal received");
+                }
                 // Serial.println(signal.c_str());
 
                 // parse values of time and mode
@@ -176,8 +212,10 @@ void blinkTask(void *parameter) {
 
             // track starting time
             start = std::chrono::high_resolution_clock::now();
-            Serial.println("\nnew loop... (elapsed time 0)\n");
-            
+            if (hasLog) {
+                Serial.println("\nnew loop... (elapsed time 0)\n");
+            }
+
             // current index
             size_t index = 0;
             size_t N = currentTimeValues.size();
@@ -203,7 +241,9 @@ void blinkTask(void *parameter) {
                     digitalWrite(DI6, mode_bin.b3);
 
                     int cur_time = currentTimeValues[index];
-                    Serial.printf("elapsed time: %d .. mode: %d\n", cur_time, mode);
+                    if (hasLog) {
+                        Serial.printf("elapsed time: %d .. mode: %d\n", cur_time, mode);
+                    }
                     // Serial.printf(" .. (di4, di5, di6) -> Bin(%d, %d, %d)\n", mode_bin.b3, mode_bin.b2, mode_bin.b1);
                     
                     // update index
@@ -215,7 +255,9 @@ void blinkTask(void *parameter) {
                     }
                 }
             }
-            Serial.println("\n...end of loop");
+            if (hasLog) {
+                Serial.println("\n...end of loop");
+            }
         }
         else if (shouldBlink) {
             ledState = !ledState;
