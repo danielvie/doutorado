@@ -1,7 +1,7 @@
 function [b, charac] = ble_connect()
     % UUID definitions (must match ESP32)
-    SERVICE_UUID = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
-    CHAR_UUID = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
+    SERVICE_UUID = '4b887ab9-7677-4b0a-8371-113d46b91c1d';
+    CHAR_UUID = '2ef72a2d-22cb-4ab8-8c03-affce243d888';
 
     try
         % scan for BLE devices

@@ -18,8 +18,8 @@
 #define DI6 23
 
 // BLE UUIDs
-#define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
-#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+#define SERVICE_UUID        "4b887ab9-7677-4b0a-8371-113d46b91c1d"
+#define CHARACTERISTIC_UUID "2ef72a2d-22cb-4ab8-8c03-affce243d888"
 
 // Shared variables between cores
 bool deviceConnected = false;
