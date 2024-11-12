@@ -182,6 +182,62 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
     }
 };
 
+void runSignal(std::vector<int64_t> &currentTimeValues,std::vector<int64_t> &currentModeValues) {
+    // track starting time
+    start = std::chrono::high_resolution_clock::now();
+    if (hasLog) {
+        Serial.println("\nnew loop... (elapsed time 0)\n");
+    }
+
+    // current index
+    size_t index = 0;
+    size_t N = currentTimeValues.size();
+
+    // iterate through arrays
+    while (index < N)
+    {
+        // calculate elapsed time
+        auto now = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(now - start).count();
+
+        // check if time has reached
+        uint64_t time_microsec = currentTimeValues[index];
+        if (elapsed >= time_microsec)
+        {
+            // update mode
+            int mode = currentModeValues[index];
+
+            Bin mode_bin = Num2Bin(mode);
+            // struct Bin Num2Bin(int num)
+
+            digitalWrite(LED_PIN, mode_bin.b1);
+            digitalWrite(DI4, mode_bin.b1);
+            digitalWrite(DI5, mode_bin.b2);
+            digitalWrite(DI6, mode_bin.b3);
+
+            int cur_time = currentTimeValues[index];
+            if (hasLog)
+            {
+                Serial.printf("elapsed time: %d .. mode: %d\n", cur_time, mode);
+            }
+            // Serial.printf(" .. (di4, di5, di6) -> Bin(%d, %d, %d)\n", mode_bin.b3, mode_bin.b2, mode_bin.b1);
+
+            // update index
+            ++index;
+
+            // break if is last element
+            if (index == currentTimeValues.size())
+            {
+                break;
+            }
+        }
+    }
+    if (hasLog)
+    {
+        Serial.println("\n...end of loop");
+    }
+}
+
 // .. Blink Task
 void blinkTask(void *parameter) {
     Serial.print("Blink Task running on core: ");
@@ -207,56 +263,7 @@ void blinkTask(void *parameter) {
         portEXIT_CRITICAL(&mux);
         
         if (shouldRunSignal) {
-            // RunSignals(currentTimeValues, currentModeValues);
-
-            // track starting time
-            start = std::chrono::high_resolution_clock::now();
-            if (hasLog) {
-                Serial.println("\nnew loop... (elapsed time 0)\n");
-            }
-
-            // current index
-            size_t index = 0;
-            size_t N = currentTimeValues.size();
-            
-            // iterate through arrays
-            while(index < N) {
-                // calculate elapsed time
-                auto now = std::chrono::high_resolution_clock::now();
-                auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(now - start).count();
-                
-                // check if time has reached
-                uint64_t time_microsec = currentTimeValues[index];
-                if (elapsed >= time_microsec) {
-                    // update mode
-                    int mode = currentModeValues[index];
-
-                    Bin mode_bin = Num2Bin(mode);
-                    // struct Bin Num2Bin(int num)
-                    
-                    digitalWrite(LED_PIN, mode_bin.b1);
-                    digitalWrite(DI4, mode_bin.b1);
-                    digitalWrite(DI5, mode_bin.b2);
-                    digitalWrite(DI6, mode_bin.b3);
-
-                    int cur_time = currentTimeValues[index];
-                    if (hasLog) {
-                        Serial.printf("elapsed time: %d .. mode: %d\n", cur_time, mode);
-                    }
-                    // Serial.printf(" .. (di4, di5, di6) -> Bin(%d, %d, %d)\n", mode_bin.b3, mode_bin.b2, mode_bin.b1);
-                    
-                    // update index
-                    ++index;
-                    
-                    // break if is last element
-                    if (index == currentTimeValues.size()) {
-                        break;
-                    }
-                }
-            }
-            if (hasLog) {
-                Serial.println("\n...end of loop");
-            }
+            runSignal(currentTimeValues, currentModeValues);
         }
         else if (shouldBlink) {
             ledState = !ledState;
