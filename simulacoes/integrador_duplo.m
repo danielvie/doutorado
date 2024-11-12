@@ -15,8 +15,8 @@ function var_out = integrador_duplo(save_fig)
         % montando valores de referencia
 
     %% 4 CONSTRUINDO MPC
-        tr  = config.Ts(2:end);
         % ur  = [1, 0];
+        tr  = config.Ts(2:end);
         dtr = diff(config.Ts);
         xr  = engine.get_xr(config);
 

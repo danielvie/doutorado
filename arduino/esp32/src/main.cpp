@@ -385,5 +385,6 @@ void setup() {
 
 void loop() {
     // Empty loop as tasks handle everything
+    digitalWrite(LED_PIN, 1);
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 }

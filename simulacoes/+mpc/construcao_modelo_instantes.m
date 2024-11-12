@@ -5,7 +5,7 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr,config)
     % Gamma = [ 
     %          F_{N} F_{N-1} ... F_2 [(A_1 - A_2) x_bar(t_1) + B_1 - B_2
     %          F_{N} F_{N-1} ... F_3 [(A_2 - A_3) x_bar(t_2) + B_2 - B_3
-    %                                     ...
+    %                                     \...
     %          F_{N} [(A_{N-1} - A_{N}) x_bar(t_{N-1}) + B_{N-1} - B_{N}
     %          A_N x_bar(t_N) + B_{N}
     %         ]

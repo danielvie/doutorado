@@ -72,8 +72,8 @@ function add_btn_test_signal(fig)
         'ButtonPushedFcn', @(btn, event) handle_signal_command(time, mode, hInputBox));
 
     % constructing signal 2
-    time = [ 0, 2000, 5000, 10000, 15000];
-    mode = [ 0,    1,    0,     1,     0];
+    time = [ 0, 1, 2, 3, 5, 6, 9];
+    mode = [ 0, 1, 0, 1, 0, 1, 0];
     uibutton(fig, 'push', 'Text', 'signal 2', ...
         'Position', [40 + 100, 30, 90, 50], ...
         'ButtonPushedFcn', @(btn, event) handle_signal_command(time, mode, hInputBox));
