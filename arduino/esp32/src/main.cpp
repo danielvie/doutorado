@@ -87,7 +87,6 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
                 Serial.print("\nReceived command: ");
                 Serial.println(value.c_str());
             }
-            
 
             portENTER_CRITICAL(&mux);
             if (value == "START") {

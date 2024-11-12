@@ -70,8 +70,30 @@ end
 
 function add_btn_test_signal(fig)
 
-    hInputBox = uicontrol(fig, 'Style', 'edit', ...
-        'Position', [40 + 200, 30, 90, 50], ...
+    uicontrol(fig, 'Style', 'text', ...
+                  'Position', [40, 132, 50, 40], ...
+                  'String', 'time:', ...
+                  'FontSize', 12, ...
+                  'HorizontalAlignment', 'right');
+
+    hInputTime = uicontrol(fig, 'Style', 'edit', ...
+        'Position', [95, 140, 400, 40], ...
+        'String', '[-1]', ...
+        'FontSize', 11);
+
+    uicontrol(fig, 'Style', 'text', ...
+                  'Position', [40, 86, 50, 40], ...
+                  'String', 'mode:', ...
+                  'FontSize', 12, ...
+                  'HorizontalAlignment', 'right');
+
+    hInputMode = uicontrol(fig, 'Style', 'edit', ...
+        'Position', [95, 95, 400, 40], ...
+        'String', '[-1]', ...
+        'FontSize', 11);
+
+    hInputScale = uicontrol(fig, 'Style', 'edit', ...
+        'Position', [40 + 160, 30, 75, 50], ...
         'String', '1', ...
         'FontSize', 12);
 
@@ -79,19 +101,23 @@ function add_btn_test_signal(fig)
     time = [  0,   1000, 1333, 2333, 2666, 3666, 4000];
     mode = [  3,      7,    5,    7,    6,    7,    3];
     uibutton(fig, 'push', 'Text', 'signal 1', ...
-        'Position', [40, 30, 90, 50], ...
-        'ButtonPushedFcn', @(btn, event) handle_signal_command(time, mode, hInputBox));
+        'Position', [40, 30, 75, 50], ...
+        'ButtonPushedFcn', @(btn, event) handle_signal_command(time, mode, hInputTime, hInputMode, hInputScale));
 
     % constructing signal 2
     time = [ 0, 1, 2, 3, 5, 6, 9];
     mode = [ 0, 1, 0, 1, 0, 1, 0];
     uibutton(fig, 'push', 'Text', 'signal 2', ...
-        'Position', [40 + 100, 30, 90, 50], ...
-        'ButtonPushedFcn', @(btn, event) handle_signal_command(time, mode, hInputBox));
+        'Position', [40 + 80, 30, 75, 50], ...
+        'ButtonPushedFcn', @(btn, event) handle_signal_command(time, mode, hInputTime, hInputMode, hInputScale));
 
     % .. ON/OFF signals
+    uibutton(fig, 'push', 'Text', 'SET', ...
+        'Position', [290, 30, 60, 50], ...
+        'ButtonPushedFcn', @(btn, event) handle_set_signal(hInputTime, hInputMode, hInputScale));
+
     uibutton(fig, 'push', 'Text', 'signal ON', ...
-        'Position', [350, 30, 80, 50], ...
+        'Position', [360, 30, 80, 50], ...
         'BackgroundColor', get_color('green'), ...
         'FontColor', 'white', ...
         'ButtonPushedFcn', @(btn, event) send_command_bt("SIGNAL_ON"));
@@ -127,18 +153,49 @@ function handle_connect()
     ble_connect();    
 end
 
-function handle_signal_command(time, mode, hInputBox)
+function handle_signal_command(time, mode, hInputTime, hInputMode, hInputScale)
     % get value of input
-    inputText = get(hInputBox, 'String');
-    value = str2double(inputText);
 
+    % timeText = get(hInputTime, 'String');
+    % time = eval(timeText);
+
+    % modeText = get(hInputMode, 'String');
+    % mode = eval(modeText);
+
+    scaleText = get(hInputScale, 'String');
+    scale = str2double(scaleText);
+    
+    time_ = time*scale;
+    set(hInputTime, 'String', mat2str(time_));
+
+    mode_ = mode*scale;
+    set(hInputMode, 'String', mat2str(mode_));
+    
     % constructing signal
-    signal = construct_signal(time*value, mode);
+    % signal = construct_signal(time*scale, mode);
+    % command = sprintf("SIGNAL:%s", signal);
+
+    % % sending to ESP32
+    % send_command_bt(command);
+end
+
+function handle_set_signal(hinput_time, hinput_mode, hinput_scale)
+    time_str = get(hinput_time, 'String');
+    time = eval(time_str);
+
+    mode_str = get(hinput_mode, 'String');
+    mode = eval(mode_str);
+
+    scale_str = get(hinput_scale, 'String');
+    scale = eval(scale_str);
+    
+    signal = construct_signal(time*scale, mode);
     command = sprintf("SIGNAL:%s", signal);
 
-    % sending to ESP32
     send_command_bt(command);
+
 end
+
 
 % Callback function for "Disconnect" button
 function handle_disconnect()
