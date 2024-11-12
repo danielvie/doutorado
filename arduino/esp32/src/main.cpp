@@ -24,7 +24,7 @@
 // Shared variables between cores
 bool deviceConnected = false;
 bool isBlinking = false;
-bool hasLog = true;
+bool hasLog = false;
 int blinkInterval = 500;
 
 // time and mode variables
@@ -265,6 +265,7 @@ void blinkTask(void *parameter) {
             digitalWrite(DI4, ledState);
             // digitalWrite(LED_PIN, ledState);
             // digitalWrite(LED_PIN, ledState);
+            // vTaskDelay(currentInterval / portTICK_PERIOD_MS);
             vTaskDelay(currentInterval / portTICK_PERIOD_MS);
         }
         else if (digitalOut == 0) {

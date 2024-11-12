@@ -39,6 +39,12 @@ end
 
 
 function add_btn_test_blink(fig)
+
+    hInputBox = uicontrol(fig, 'Style', 'edit', ...
+        'Position', [350, 260, 80, 50], ...
+        'String', '100', ...
+        'FontSize', 12);
+
     uibutton(fig, 'push', 'Text', 'blink ON', ...
         'Position', [350, 330, 80, 50], ...
         'ButtonPushedFcn', @(btn, event) handle_test_blink_on());
@@ -47,14 +53,19 @@ function add_btn_test_blink(fig)
         'Position', [450, 330, 80, 50], ...
         'ButtonPushedFcn', @(btn, event) handle_test_blink_off());
 
-    intervals = [100, 200, 500, 1000, 2000];
-    for i = 1:numel(intervals)
-        interval = intervals(i);
-        command = sprintf("interval: %d", interval);
-        uibutton(fig, 'push', 'Text', command, ...
-            'Position', [40 + (i-1)*100, 110, 90, 50], ...
-            'ButtonPushedFcn', @(btn, event) send_command_bt(upper(command)));
-    end
+    uibutton(fig, 'push', 'Text', 'blink SET ms', ...
+        'Position', [450, 260, 80, 50], ...
+        'ButtonPushedFcn', @(btn, event) handle_test_blink_set(hInputBox));
+
+
+    % intervals = [100, 200, 500, 1000, 2000];
+    % for i = 1:numel(intervals)
+    %     interval = intervals(i);
+    %     command = sprintf("interval: %d", interval);
+    %     uibutton(fig, 'push', 'Text', command, ...
+    %         'Position', [40 + (i-1)*100, 110, 90, 50], ...
+    %         'ButtonPushedFcn', @(btn, event) send_command_bt(upper(command)));
+    % end
 end
 
 function add_btn_test_signal(fig)
@@ -153,6 +164,14 @@ function handle_test_blink_off()
     send_command_bt('STOP')
 end
 
+function handle_test_blink_set(hInputBox)
+    inputText = get(hInputBox, 'String');
+    interval = str2double(inputText);
+    
+    command = sprintf("interval: %d", interval);
+    send_command_bt(upper(command));
+end
+
 %% .. serial handlers
 % Callback function for "Connect" button
 function handle_connect_serial()
@@ -228,7 +247,7 @@ function send_command_bt(command)
         charac = evalin('base', 'charac');
 
         write(charac, unicode2native(command, 'ASCII'));
-        fprintf("command sent .. (bt): `%s`\n", command);
+        fprintf("command sent .. (bt): '%s'\n", command);
     else
         disp('command not sent!');
         disp(command);
