@@ -1,5 +1,9 @@
 
 * NOTES
+  - ( ) fazer leitura de sinais
+  - ( ) fazer analise de tempo critico da otimizacao
+  - ( ) fazer o programa usando rmt para gerar os sinal de saida
+  - ( ) fazer preparacao matlab para calculo rapido do sinal de referencia
 
 * TODOS
   - ( ) definir interface para comunicacao
