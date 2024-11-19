@@ -1,28 +1,48 @@
 import asyncio
+import platform
 from bleak import BleakClient, BleakScanner
 
-# UUIDs (must match the ones in ESP32 code)
 SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
 async def find_esp32():
     print("Scanning for ESP32 Signal Controller...")
-    devices = await BleakScanner.discover()
-    for device in devices:
-        if device.name and "ESP32 Signal Controller" in device.name:
-            return device.address
+    
+    # macOS specific scanner configuration
+    if platform.system() == 'Darwin':  # Darwin is macOS
+        scanner = BleakScanner(adapter='BluetoothAdapter')
+        # Scan with extended timeout and additional parameters for macOS
+        devices = await scanner.discover(timeout=10.0, return_adv=True)
+        print("\nDiscovered devices:")
+        for device, adv_data in devices.values():
+            print(f"Name: {device.name}, Address: {device.address}")
+        
+        for device, adv_data in devices.values():
+            if device.name and "ESP32" in device.name:
+                return device.address
+    else:
+        # Original Windows code
+        devices = await BleakScanner.discover()
+        for device in devices:
+            if device.name and "ESP32 Signal Controller" in device.name:
+                return device.address
+    
     return None
 
 async def send_command(address, command):
-    async with BleakClient(address) as client:
-        print(f"Connected to ESP32: {address}")
-        
-        # Convert string to bytes
-        command_bytes = command.encode()
-        
-        # Send command
-        await client.write_gatt_char(CHARACTERISTIC_UUID, command_bytes)
-        print(f"Sent command: {command}")
+    # Add retry logic and longer timeout for macOS
+    try:
+        async with BleakClient(address, timeout=20.0) as client:
+            print(f"Connected to ESP32: {address}")
+            
+            # Convert string to bytes
+            command_bytes = command.encode()
+            
+            # Send command
+            await client.write_gatt_char(CHARACTERISTIC_UUID, command_bytes)
+            print(f"Sent command: {command}")
+    except Exception as e:
+        print(f"Error during connection/communication: {str(e)}")
 
 async def main():
     # Find ESP32

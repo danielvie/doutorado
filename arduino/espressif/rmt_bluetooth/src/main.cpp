@@ -167,13 +167,13 @@ void rmtTask(void* parameter) {
         if (signalsEnabled) {
             
             Serial.println("Signals enabled. Writing RMT items.");
-            Serial.println("1");
+            Serial.println("10");
             
             rmt_write_items(RMT_TX_CHANNEL_21, items21, 3, false);
             rmt_write_items(RMT_TX_CHANNEL_22, items22, 3, false);
             rmt_write_items(RMT_TX_CHANNEL_23, items23, 3, false);
             
-            Serial.println("2");
+            Serial.println("20");
         }
         vTaskDelay(pdMS_TO_TICKS(10));
     }
