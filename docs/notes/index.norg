@@ -8,9 +8,9 @@
    -- ( ) fazer design no kicad
    -- ( ) fechar malha com controlador sendo usado e mandando dados bluetooth
    -- ( ) implementar pooling system com matlab para ler os dados da ESP32
-   -- ( ) make an example of the code using python
+   -- (x) make an example of the bluetooth code using python
    -- (x) ver como gerar as chaves para registrar BLE
-   --- (x) A-->  [guid]::NewGuid().ToString()
+   --- (x) A--> [guid]::NewGuid().ToString()
 
    -- (x) testar circuito com fonte
    --- (x) alimentar com a fonte e comandar sinal usando bluetooth

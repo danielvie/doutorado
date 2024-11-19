@@ -7,7 +7,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-// 
 #define LED 2
 
 // Core definitions
@@ -52,9 +51,16 @@ class CharacteristicCallbacks: public BLECharacteristicCallbacks {
         if (value == "START") {
             signalsEnabled = true;
             Serial.println("Signals started");
+            digitalWrite(LED, HIGH);
         } else if (value == "STOP") {
             signalsEnabled = false;
             Serial.println("Signals stopped");
+            digitalWrite(LED, LOW);
+            
+            // Stop RMT channels
+            rmt_tx_stop(RMT_TX_CHANNEL_21);
+            rmt_tx_stop(RMT_TX_CHANNEL_22);
+            rmt_tx_stop(RMT_TX_CHANNEL_23);
         }
     }
 };
@@ -91,13 +97,24 @@ void createRMTItems(rmt_item32_t* items, uint16_t high1, uint16_t low1,
     items[2].level1 = 0;
 }
 
+// Reinitialize RMT channels
+void reinitializeRMTChannels() {
+    // Uninstall drivers
+    rmt_driver_uninstall(RMT_TX_CHANNEL_21);
+    rmt_driver_uninstall(RMT_TX_CHANNEL_22);
+    rmt_driver_uninstall(RMT_TX_CHANNEL_23);
+    
+    // Reconfigure channels
+    configureRMTChannel(RMT_TX_CHANNEL_21, (gpio_num_t)RMT_TX_GPIO_21);
+    configureRMTChannel(RMT_TX_CHANNEL_22, (gpio_num_t)RMT_TX_GPIO_22);
+    configureRMTChannel(RMT_TX_CHANNEL_23, (gpio_num_t)RMT_TX_GPIO_23);
+}
+
 // Task for BLE communication
 void bleTask(void* parameter) {
-    // Print task core
     Serial.print("BLE Task running on core: ");
     Serial.println(xPortGetCoreID());
     
-    // Initialize BLE
     BLEDevice::init("ESP32 Signal Controller");
     BLEServer *pServer = BLEDevice::createServer();
     pServer->setCallbacks(new ServerCallbacks());
@@ -124,11 +141,10 @@ void bleTask(void* parameter) {
 
 // Task for RMT signal generation
 void rmtTask(void* parameter) {
-    // Print task core
     Serial.print("RMT Task running on core: ");
     Serial.println(xPortGetCoreID());
     
-    // Configure RMT channels
+    // Initial configuration
     configureRMTChannel(RMT_TX_CHANNEL_21, (gpio_num_t)RMT_TX_GPIO_21);
     configureRMTChannel(RMT_TX_CHANNEL_22, (gpio_num_t)RMT_TX_GPIO_22);
     configureRMTChannel(RMT_TX_CHANNEL_23, (gpio_num_t)RMT_TX_GPIO_23);
@@ -138,34 +154,43 @@ void rmtTask(void* parameter) {
     rmt_item32_t items22[3];
     rmt_item32_t items23[3];
     
+    // signals: high, low, high, low, high, low
     createRMTItems(items21, 5, 10, 5, 15, 20, 30);  // Signal for GPIO 21
     createRMTItems(items22, 10, 10, 5, 15, 20, 30); // Signal for GPIO 22
     createRMTItems(items23, 50, 10, 5, 15, 20, 30); // Signal for GPIO 23
-    
-    while(1) {
+
+    rmt_tx_stop(RMT_TX_CHANNEL_21);
+    rmt_tx_stop(RMT_TX_CHANNEL_22);
+    rmt_tx_stop(RMT_TX_CHANNEL_23);
+
+    while (1) {
         if (signalsEnabled) {
-            rmt_write_items(RMT_TX_CHANNEL_21, items21, 3, true);
-            rmt_write_items(RMT_TX_CHANNEL_22, items22, 3, true);
-            rmt_write_items(RMT_TX_CHANNEL_23, items23, 3, true);
+            
+            Serial.println("Signals enabled. Writing RMT items.");
+            Serial.println("1");
+            
+            rmt_write_items(RMT_TX_CHANNEL_21, items21, 3, false);
+            rmt_write_items(RMT_TX_CHANNEL_22, items22, 3, false);
+            rmt_write_items(RMT_TX_CHANNEL_23, items23, 3, false);
+            
+            Serial.println("2");
         }
-        vTaskDelay(pdMS_TO_TICKS(1)); // Small delay to prevent watchdog triggers
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 
 void setup() {
     Serial.begin(115200);
-    
     pinMode(LED, OUTPUT);
     
-    // Create FreeRTOS tasks on specific cores
     xTaskCreatePinnedToCore(
-        bleTask,        // Task function
-        "BLE Task",     // Task name
-        4096,           // Stack size (bytes)
-        NULL,           // Parameter
-        1,              // Priority
-        &bleTaskHandle, // Task handle
-        CORE_0          // Core ID (Protocol core)
+        bleTask,
+        "BLE Task",
+        4096,
+        NULL,
+        1,
+        &bleTaskHandle,
+        CORE_0
     );
     
     xTaskCreatePinnedToCore(
@@ -175,14 +200,19 @@ void setup() {
         NULL,
         1,
         &rmtTaskHandle,
-        CORE_1      // Core ID (Application core)
+        CORE_1
     );
     
     vTaskDelay(pdMS_TO_TICKS(1000));
-    digitalWrite(LED, HIGH);
+    
+    for (int i = 0; i < 3; i++) {
+        digitalWrite(LED, HIGH);
+        vTaskDelay(pdMS_TO_TICKS(100));
+        digitalWrite(LED, LOW);
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
 }
 
 void loop() {
-    // Empty as we're using FreeRTOS tasks
     vTaskDelete(NULL);
 }

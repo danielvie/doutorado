@@ -34,17 +34,17 @@ async def main():
     
     while True:
         print("\nCommands:")
-        print("1. Start signals")
-        print("2. Stop signals")
-        print("3. Exit")
+        print("a. Start signals")
+        print("s. Stop signals")
+        print("d. Exit")
         
-        choice = input("Enter choice (1-3): ")
+        choice = input("Enter choice (a,s,d): ")
         
-        if choice == "1":
+        if choice == "a":
             await send_command(esp32_address, "START")
-        elif choice == "2":
+        elif choice == "s":
             await send_command(esp32_address, "STOP")
-        elif choice == "3":
+        elif choice == "d":
             print("Exiting...")
             break
         else:
