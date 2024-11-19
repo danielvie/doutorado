@@ -154,8 +154,8 @@ void rmtTask(void* parameter) {
     rmt_item32_t items22[3];
     rmt_item32_t items23[3];
     
-    // signals: high, low, high, low, high, low
-    createRMTItems(items21, 5, 10, 5, 15, 20, 30);  // Signal for GPIO 21
+    // signals (in usecs): high, low, high, low, high, low
+    createRMTItems(items21, 5, 5, 10, 5, 15, 5);  // Signal for GPIO 21
     createRMTItems(items22, 10, 10, 5, 15, 20, 30); // Signal for GPIO 22
     createRMTItems(items23, 50, 10, 5, 15, 20, 30); // Signal for GPIO 23
 
