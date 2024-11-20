@@ -1,5 +1,7 @@
 function cfg = compute_phase(config, iref)
 
+    
+    
     config.iref = iref;
 
     %% CALCULO DA TRAJETORIA

@@ -150,14 +150,74 @@ void rmtTask(void* parameter) {
     configureRMTChannel(RMT_TX_CHANNEL_23, (gpio_num_t)RMT_TX_GPIO_23);
     
     // Create RMT items for each signal
-    rmt_item32_t items21[3];
-    rmt_item32_t items22[3];
-    rmt_item32_t items23[3];
+    rmt_item32_t items_di4[3];
+    rmt_item32_t items_di5[3];
+    rmt_item32_t items_di6[3];
+
+    // Ts (us):
+    //  0   74.6667   93.3333  168.0000  186.6667  261.3333  280.0000
+    // 
+    // dTs (us):
+    //  74.6667   18.6667   74.6667   18.6667   74.6667   18.6667
+    //  74.6   18.6   74.6   18.6   74.6   18.6
+    // modes:
+    //  4     2     6     5     7     3
+    //
+    //  1     0     1     1     1     0 : di6
+    //  0     1     1     0     1     1 : di5
+    //  0     0     0     1     1     1 : di4
+
     
     // signals (in usecs): high, low, high, low, high, low
-    createRMTItems(items21, 5, 5, 10, 5, 15, 5);  // Signal for GPIO 21
-    createRMTItems(items22, 10, 10, 5, 15, 20, 30); // Signal for GPIO 22
-    createRMTItems(items23, 50, 10, 5, 15, 20, 30); // Signal for GPIO 23
+
+
+    items_di4[0].level0 = 1;//0;
+    items_di4[0].level1 = 0;//0;
+    items_di4[1].level0 = 1;//0;
+    items_di4[1].level1 = 0;//1;
+    items_di4[2].level0 = 1;//1;
+    items_di4[2].level1 = 0;//1;
+    
+    items_di4[0].duration0 = 75;
+    items_di4[0].duration1 = 18;
+    items_di4[1].duration0 = 75; // 75+75+18 = 168
+    items_di4[1].duration1 = 18;
+    items_di4[2].duration0 = 75;
+    items_di4[2].duration1 = 18; // 18+75+18 = 111
+
+
+    items_di5[0].level0 = 1;//0;
+    items_di5[0].level1 = 0;//1;
+    items_di5[1].level0 = 1;//1;
+    items_di5[1].level1 = 0;//0;
+    items_di5[2].level0 = 1;//1;
+    items_di5[2].level1 = 0;//1;
+    
+    items_di5[0].duration0 = 75; // low 75
+    items_di5[0].duration1 = 18;
+    items_di5[1].duration0 = 75; // high 93
+    items_di5[1].duration1 = 18; // low 18
+    items_di5[2].duration0 = 75;  
+    items_di5[2].duration1 = 18; // high 93
+
+
+    items_di6[0].level0 = 1;//1;
+    items_di6[0].level1 = 0;//0;
+    items_di6[1].level0 = 1;//1;
+    items_di6[1].level1 = 0;//1;
+    items_di6[2].level0 = 1;//1;
+    items_di6[2].level1 = 0;//0;
+    
+    items_di6[0].duration0 = 75; // high 75
+    items_di6[0].duration1 = 18; // low 18
+    items_di6[1].duration0 = 75;
+    items_di6[1].duration1 = 18;
+    items_di6[2].duration0 = 75; // high 168
+    items_di6[2].duration1 = 18; // low 18
+
+    // createRMTItems(items_di4, 75, 18, 75, 18, 75, 18); // Signal for GPIO 21
+    // createRMTItems(items_di5, 75, 18, 75, 18, 75, 18); // Signal for GPIO 22
+    // createRMTItems(items_di6, 75, 18, 75, 18, 75, 18); // Signal for GPIO 23
 
     rmt_tx_stop(RMT_TX_CHANNEL_21);
     rmt_tx_stop(RMT_TX_CHANNEL_22);
@@ -166,16 +226,16 @@ void rmtTask(void* parameter) {
     while (1) {
         if (signalsEnabled) {
             
-            Serial.println("Signals enabled. Writing RMT items.");
-            Serial.println("10");
+            // Serial.println("Signals enabled. Writing RMT items.");
+            // Serial.println("10");
             
-            rmt_write_items(RMT_TX_CHANNEL_21, items21, 3, false);
-            rmt_write_items(RMT_TX_CHANNEL_22, items22, 3, false);
-            rmt_write_items(RMT_TX_CHANNEL_23, items23, 3, false);
+            rmt_write_items(RMT_TX_CHANNEL_21, items_di4, 3, false);
+            rmt_write_items(RMT_TX_CHANNEL_22, items_di5, 3, false);
+            rmt_write_items(RMT_TX_CHANNEL_23, items_di6, 3, false);
             
-            Serial.println("20");
+            // Serial.println("20");
         }
-        vTaskDelay(pdMS_TO_TICKS(10));
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
 }
 
