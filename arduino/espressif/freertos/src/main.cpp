@@ -1,168 +1,181 @@
-// src/main.cpp
 #include <Arduino.h>
+#include "driver/timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "soc/timer_group_struct.h"
+#include "driver/gpio.h"
+#include "rom/ets_sys.h"
 
-// Wave pattern structure
-struct WaveTiming {
-    uint32_t highTime;  // microseconds HIGH
-    uint32_t lowTime;   // microseconds LOW
+// Define output pin
+#define PIN_DI4 GPIO_NUM_21
+#define PIN_DI5 GPIO_NUM_22
+#define PIN_DI6 GPIO_NUM_23
+
+// Structure to hold pulse timing information
+struct PulseTiming {
+    uint32_t highTime;  // High time in microseconds
+    uint32_t lowTime;   // Low time in microseconds
 };
 
-// Pin configuration structure
-struct PinConfig {
-    uint8_t pin;
-    WaveTiming pattern[3];  // Fixed size array for each pattern
+// Array of pulse patterns
+const PulseTiming pulsePattern[] = {
+    {1, 1},  // 2us HIGH, 2us LOW
+    // {2, 2}   // 2us HIGH, 2us LOW
 };
 
-// Create static configurations for each pin
-static PinConfig PIN_21 = {
-    21,
-    {{5, 5}, {10, 10}, {15, 15}}
-};
+const int patternLength = sizeof(pulsePattern) / sizeof(pulsePattern[0]);
+volatile int currentPulseIndex = 0;
 
-static PinConfig PIN_22 = {
-    22,
-    {{50, 50}, {100, 100}, {150, 150}}
-};
+// Timer group and index definitions
+#define TIMER_GROUP TIMER_GROUP_0
+#define TIMER_INDEX TIMER_0
+#define TIMER_DIVIDER 80    // Hardware timer clock divider (80MHz/80 = 1MHz)
+#define TIMER_SCALE   1     // Used to calculate counter values
 
-static PinConfig PIN_23 = {
-    23,
-    {{50, 50}, {75, 75}, {100, 100}}
-};
+// CPU frequency for cycle calculations (240MHz)
+#define CPU_FREQ_MHZ 240
 
-// Task handles
-TaskHandle_t taskHandle21 = NULL;
-TaskHandle_t taskHandle22 = NULL;
-TaskHandle_t taskHandle23 = NULL;
+// Core assignments
+#define TIMER_CORE 0    // Core for timer and pulse generation
+#define MONITOR_CORE 1  // Core for monitoring task
 
-void IRAM_ATTR waveGeneratorTask(void* pvParameters) {
-    PinConfig* config = (PinConfig*)pvParameters;
-    const uint8_t pin = config->pin;
-    
-    Serial.printf("Starting pin %d\n", pin);
-    
-    // Initialize time tracking
-    TickType_t lastWakeTime = xTaskGetTickCount();
-    uint64_t nextMicroTime = esp_timer_get_time();
-    
-    // Configure GPIO
-    gpio_set_direction(static_cast<gpio_num_t>(pin), GPIO_MODE_OUTPUT);
-    gpio_set_level(static_cast<gpio_num_t>(pin), 0);
-    
-    size_t patternIndex = 0;
-    
-    while (1) {
-        const WaveTiming& currentTiming = config->pattern[patternIndex];
-        
-        // Set output HIGH
-        gpio_set_level(static_cast<gpio_num_t>(pin), 1);
-        
-        // Calculate next wake time for HIGH period
-        nextMicroTime += currentTiming.highTime;
-        
-        // Wait for HIGH period
-        if (currentTiming.highTime > 50) {
-            vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(currentTiming.highTime / 1000));
-        } else {
-            while (esp_timer_get_time() < nextMicroTime) {
-                // Tight loop for short delays
-            }
+// Convert microseconds to CPU cycles
+#define US_TO_CYCLES(us) ((us) * CPU_FREQ_MHZ)
+
+// Initialize GPIO using direct register access
+void initGPIO() {
+    gpio_pad_select_gpio(PIN_DI4);
+    gpio_set_direction(PIN_DI4, GPIO_MODE_OUTPUT);
+    gpio_set_level(PIN_DI4, 0);
+
+    gpio_pad_select_gpio(PIN_DI5);
+    gpio_set_direction(PIN_DI5, GPIO_MODE_OUTPUT);
+    gpio_set_level(PIN_DI5, 0);
+
+    gpio_pad_select_gpio(PIN_DI6);
+    gpio_set_direction(PIN_DI6, GPIO_MODE_OUTPUT);
+    gpio_set_level(PIN_DI6, 0);
+}
+
+// Inline assembly function to wait for exact number of cycles
+static inline void IRAM_ATTR delay_cycles(unsigned cycles) {
+    if (cycles > 0) {
+        unsigned start = xthal_get_ccount();
+        unsigned target = start + cycles;
+        // Handle counter overflow
+        if (target < start) {
+            while (xthal_get_ccount() > start) {}
         }
-        
-        // Set output LOW
-        gpio_set_level(static_cast<gpio_num_t>(pin), 0);
-        
-        // Calculate next wake time for LOW period
-        nextMicroTime += currentTiming.lowTime;
-        
-        // Check for timing drift
-        int64_t drift = nextMicroTime - esp_timer_get_time();
-        if (drift < -1000) {  // Allow small drift before resetting
-            nextMicroTime = esp_timer_get_time();
-        }
-        
-        // Wait for LOW period
-        if (currentTiming.lowTime > 50) {
-            vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(currentTiming.lowTime / 1000));
-        } else {
-            while (esp_timer_get_time() < nextMicroTime) {
-                // Tight loop for short delays
-            }
-        }
-        
-        // Move to next pattern
-        patternIndex = (patternIndex + 1) % 3;
+        while (xthal_get_ccount() < target) {}
     }
 }
 
-// Function to calculate and print timing info
-void printTimingInfo(const char* label, const PinConfig& config) {
-    uint32_t totalPeriod = 0;
-    Serial.printf("\n%s (GPIO%d):\n", label, config.pin);
-    for (int i = 0; i < 3; i++) {
-        Serial.printf("  Cycle %d: UP=%dµs, DOWN=%dµs\n",
-            i + 1,
-            config.pattern[i].highTime,
-            config.pattern[i].lowTime
-        );
-        totalPeriod += config.pattern[i].highTime + config.pattern[i].lowTime;
+// Inline functions for fast GPIO control
+static inline void IRAM_ATTR gpio_set_high(gpio_num_t pin) {
+    GPIO.out_w1ts = (1 << pin);
+}
+
+static inline void IRAM_ATTR gpio_set_low(gpio_num_t pin) {
+    GPIO.out_w1tc = (1 << pin);
+}
+
+// Timer ISR handle
+timer_isr_handle_t timerIsrHandle;
+
+// Timer ISR function
+bool IRAM_ATTR timerISR(void* arg) {
+    // Clear the interrupt and re-enable alarm
+    timer_group_clr_intr_status_in_isr(TIMER_GROUP, TIMER_INDEX);
+    timer_group_enable_alarm_in_isr(TIMER_GROUP, TIMER_INDEX);
+    
+    // Get current pattern timing
+    uint32_t highCycles = US_TO_CYCLES(pulsePattern[currentPulseIndex].highTime);
+    uint32_t lowCycles = US_TO_CYCLES(pulsePattern[currentPulseIndex].lowTime);
+    
+    // Generate HIGH pulse
+    gpio_set_high(PIN_DI4);
+    delay_cycles(US_TO_CYCLES(1));
+
+    // Generate LOW pulse
+    gpio_set_low(PIN_DI4);
+    delay_cycles(US_TO_CYCLES(1));
+    
+    // Move to next pulse pattern
+    currentPulseIndex = (currentPulseIndex + 1) % patternLength;
+    
+    return false;
+}
+
+// Initialize hardware timer
+void initTimer() {
+    timer_config_t config = {
+        .alarm_en = TIMER_ALARM_EN,
+        .counter_en = TIMER_START,
+        .intr_type = TIMER_INTR_LEVEL,
+        .counter_dir = TIMER_COUNT_UP,
+        .auto_reload = TIMER_AUTORELOAD_EN,
+        .divider = TIMER_DIVIDER
+    };
+
+    ESP_ERROR_CHECK(timer_init(TIMER_GROUP, TIMER_INDEX, &config));
+    ESP_ERROR_CHECK(timer_set_counter_value(TIMER_GROUP, TIMER_INDEX, 0));
+    ESP_ERROR_CHECK(timer_enable_intr(TIMER_GROUP, TIMER_INDEX));
+    ESP_ERROR_CHECK(timer_isr_callback_add(TIMER_GROUP, TIMER_INDEX, timerISR, NULL, 0));
+}
+
+// Task to monitor the pulse generator
+void monitorTask(void *pvParameters) {
+    // Set task priority to maximum for this core
+    vTaskPrioritySet(NULL, configMAX_PRIORITIES - 1);
+    
+    Serial.println("Monitor task started on core ");
+    Serial.println(xPortGetCoreID());
+    
+    while (1) {
+        Serial.printf("Current pulse index: %d\n", currentPulseIndex);
+        vTaskDelay(pdMS_TO_TICKS(500));
     }
-    Serial.printf("  Total Period: %d microseconds\n", totalPeriod);
-    Serial.printf("  Frequency: %.2f Hz\n", 1000000.0f / totalPeriod);
 }
 
 void setup() {
+    // Initialize serial for debugging
     Serial.begin(115200);
-    while(!Serial);
-
-    Serial.println("\nMulti-Pin Wave Pattern Generator Started");
-
-    // Configure pins
-    pinMode(PIN_21.pin, OUTPUT);
-    pinMode(PIN_22.pin, OUTPUT);
-    pinMode(PIN_23.pin, OUTPUT);
+    while (!Serial) {
+        delay(100);
+    }
+    Serial.println("\nStarting pulse generator...");
     
-    // Print configurations
-    printTimingInfo("Fast Pattern", PIN_21);
-    printTimingInfo("Slow Pattern", PIN_22);
-    printTimingInfo("Medium Pattern", PIN_23);
+    // Set CPU frequency to maximum
+    setCpuFrequencyMhz(240);
+    
+    // Configure GPIO
+    initGPIO();
 
-    // Create tasks for each pin with static configurations
+    // Create monitor task pinned to core 1
     xTaskCreatePinnedToCore(
-        waveGeneratorTask,
-        "Wave_GPIO21",
-        2048,
-        &PIN_21,
-        configMAX_PRIORITIES - 1,
-        &taskHandle21,
-        1
+        monitorTask,
+        "MonitorTask",
+        4096,
+        NULL,
+        1,  // Priority
+        NULL,
+        MONITOR_CORE  // Run on core 1
     );
 
-    xTaskCreatePinnedToCore(
-        waveGeneratorTask,
-        "Wave_GPIO22",
-        2048,
-        &PIN_22,
-        configMAX_PRIORITIES - 1,
-        &taskHandle22,
-        1
-    );
+    // Initialize and start timer (will run on core 0)
+    Serial.println("Initializing timer...");
+    initTimer();
 
-    xTaskCreatePinnedToCore(
-        waveGeneratorTask,
-        "Wave_GPIO23",
-        2048,
-        &PIN_23,
-        configMAX_PRIORITIES - 1,
-        &taskHandle23,
-        1
-    );
+    // Start timer with initial period
+    uint64_t initialPeriod = (pulsePattern[0].highTime + 
+                             pulsePattern[0].lowTime) * TIMER_SCALE;
+    ESP_ERROR_CHECK(timer_set_alarm_value(TIMER_GROUP, TIMER_INDEX, initialPeriod));
+    ESP_ERROR_CHECK(timer_start(TIMER_GROUP, TIMER_INDEX));
 
-    Serial.println("\nAll tasks started!");
+    Serial.println("Setup complete!");
 }
 
 void loop() {
-    // Main loop stays empty
+    // Main loop runs on core 0 - keep it minimal
     vTaskDelay(pdMS_TO_TICKS(1000));
 }
