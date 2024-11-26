@@ -1,181 +1,235 @@
 #include <Arduino.h>
-#include "driver/timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "soc/timer_group_struct.h"
-#include "driver/gpio.h"
-#include "rom/ets_sys.h"
+#include "driver/timer.h"
+#include <BLEDevice.h>
+#include <BLEServer.h>
+#include <BLEUtils.h>
+#include <BLE2902.h>
 
-// Define output pin
-#define PIN_DI4 GPIO_NUM_21
-#define PIN_DI5 GPIO_NUM_22
-#define PIN_DI6 GPIO_NUM_23
+#define CORE_0 0
+#define CORE_1 1
 
-// Structure to hold pulse timing information
-struct PulseTiming {
-    uint32_t highTime;  // High time in microseconds
-    uint32_t lowTime;   // Low time in microseconds
+#define LED 2
+#define GPIO_DI4 21
+#define GPIO_DI5 22
+#define GPIO_DI6 23
+#define CPU_FREQ_MHZ 240  // ESP32 running at 240MHz
+
+// BLE UUIDs
+#define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
+#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+
+// Signal states
+volatile bool signalsEnabled = false;
+
+// Convert microseconds to CPU ticks
+#define US_TO_TICKS(us) ((us) * CPU_FREQ_MHZ)
+
+// Timing sequence in microseconds
+const uint32_t timings[] = {
+    75,  // duration 1
+    18,  // duration 2
+    75,  // duration 3
+    18,  // duration 4
+    75,  // duration 5
+    18,  // duration 6
 };
 
-// Array of pulse patterns
-const PulseTiming pulsePattern[] = {
-    {1, 1},  // 2us HIGH, 2us LOW
-    // {2, 2}   // 2us HIGH, 2us LOW
+const uint32_t modes_di6[] = {
+    1, 0, 1, 1, 1, 0,
 };
 
-const int patternLength = sizeof(pulsePattern) / sizeof(pulsePattern[0]);
-volatile int currentPulseIndex = 0;
+const uint32_t modes_di5[] = {
+    0, 1, 1, 0, 1, 1,
+};
 
-// Timer group and index definitions
-#define TIMER_GROUP TIMER_GROUP_0
-#define TIMER_INDEX TIMER_0
-#define TIMER_DIVIDER 80    // Hardware timer clock divider (80MHz/80 = 1MHz)
-#define TIMER_SCALE   1     // Used to calculate counter values
+const uint32_t modes_di4[] = {
+    0, 0, 0, 1, 1, 1,
+};
 
-// CPU frequency for cycle calculations (240MHz)
-#define CPU_FREQ_MHZ 240
+// Number of elements in the timing sequence
+const uint8_t NUM_TIMINGS = sizeof(timings) / sizeof(timings[0]);
 
-// Core assignments
-#define TIMER_CORE 0    // Core for timer and pulse generation
-#define MONITOR_CORE 1  // Core for monitoring task
+// BLE Server callbacks
+class ServerCallbacks: public BLEServerCallbacks {
+    void onConnect(BLEServer* pServer) {
+        Serial.println("Device connected");
+    }
+    
+    void onDisconnect(BLEServer* pServer) {
+        Serial.println("Device disconnected");
+        BLEDevice::startAdvertising();
+    }
+};
 
-// Convert microseconds to CPU cycles
-#define US_TO_CYCLES(us) ((us) * CPU_FREQ_MHZ)
-
-// Initialize GPIO using direct register access
-void initGPIO() {
-    gpio_pad_select_gpio(PIN_DI4);
-    gpio_set_direction(PIN_DI4, GPIO_MODE_OUTPUT);
-    gpio_set_level(PIN_DI4, 0);
-
-    gpio_pad_select_gpio(PIN_DI5);
-    gpio_set_direction(PIN_DI5, GPIO_MODE_OUTPUT);
-    gpio_set_level(PIN_DI5, 0);
-
-    gpio_pad_select_gpio(PIN_DI6);
-    gpio_set_direction(PIN_DI6, GPIO_MODE_OUTPUT);
-    gpio_set_level(PIN_DI6, 0);
-}
-
-// Inline assembly function to wait for exact number of cycles
-static inline void IRAM_ATTR delay_cycles(unsigned cycles) {
-    if (cycles > 0) {
-        unsigned start = xthal_get_ccount();
-        unsigned target = start + cycles;
-        // Handle counter overflow
-        if (target < start) {
-            while (xthal_get_ccount() > start) {}
+// BLE Characteristic callbacks
+class CharacteristicCallbacks: public BLECharacteristicCallbacks {
+    void onWrite(BLECharacteristic *characteristic) {
+        std::string value = characteristic->getValue();
+        if (value == "START") {
+            signalsEnabled = true;
+            Serial.println("Signals started");
+            digitalWrite(LED, HIGH);
+        } else if (value == "STOP") {
+            signalsEnabled = false;
+            Serial.println("Signals stopped");
+            digitalWrite(LED, LOW);
         }
-        while (xthal_get_ccount() < target) {}
+    }
+};
+
+// Task for BLE communication
+void bleTask(void* parameter) {
+    Serial.print("BLE Task running on core: ");
+    Serial.println(xPortGetCoreID());
+    
+    BLEDevice::init("ESP32 Signal Controller");
+    BLEServer *pServer = BLEDevice::createServer();
+    pServer->setCallbacks(new ServerCallbacks());
+    
+    BLEService *pService = pServer->createService(SERVICE_UUID);
+    BLECharacteristic *pCharacteristic = pService->createCharacteristic(
+        CHARACTERISTIC_UUID,
+        BLECharacteristic::PROPERTY_READ |
+        BLECharacteristic::PROPERTY_WRITE
+    );
+    
+    pCharacteristic->setCallbacks(new CharacteristicCallbacks());
+    pCharacteristic->setValue("Hello");
+    pService->start();
+    
+    BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
+    pAdvertising->addServiceUUID(SERVICE_UUID);
+    pAdvertising->start();
+    
+    while(1) {
+        vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
 
-// Inline functions for fast GPIO control
-static inline void IRAM_ATTR gpio_set_high(gpio_num_t pin) {
-    GPIO.out_w1ts = (1 << pin);
-}
 
-static inline void IRAM_ATTR gpio_set_low(gpio_num_t pin) {
-    GPIO.out_w1tc = (1 << pin);
-}
-
-// Timer ISR handle
-timer_isr_handle_t timerIsrHandle;
-
-// Timer ISR function
-bool IRAM_ATTR timerISR(void* arg) {
-    // Clear the interrupt and re-enable alarm
-    timer_group_clr_intr_status_in_isr(TIMER_GROUP, TIMER_INDEX);
-    timer_group_enable_alarm_in_isr(TIMER_GROUP, TIMER_INDEX);
+void IRAM_ATTR generateSignal(void* arg) {
+    uint8_t state = 0;
+    uint64_t startTicks;
     
-    // Get current pattern timing
-    uint32_t highCycles = US_TO_CYCLES(pulsePattern[currentPulseIndex].highTime);
-    uint32_t lowCycles = US_TO_CYCLES(pulsePattern[currentPulseIndex].lowTime);
-    
-    // Generate HIGH pulse
-    gpio_set_high(PIN_DI4);
-    delay_cycles(US_TO_CYCLES(1));
+    // Ts (us):
+    //  0   74.6667   93.3333  168.0000  186.6667  261.3333  280.0000
+    // 
+    // dTs (us):
+    //  74.6667   18.6667   74.6667   18.6667   74.6667   18.6667
+    //  74.6   18.6   74.6   18.6   74.6   18.6
+    // modes:
+    //     4      2      6      5      7      3
+    //
+    //     1      0      1      1      1      0 : di6
+    //     0      1      1      0      1      1 : di5
+    //     0      0      0      1      1      1 : di4
 
-    // Generate LOW pulse
-    gpio_set_low(PIN_DI4);
-    delay_cycles(US_TO_CYCLES(1));
-    
-    // Move to next pulse pattern
-    currentPulseIndex = (currentPulseIndex + 1) % patternLength;
-    
-    return false;
-}
+    // Precalculate GPIO bit masks for faster manipulation
+    const uint32_t gpio_di4_mask = 1 << GPIO_DI4;
+    const uint32_t gpio_di5_mask = 1 << GPIO_DI5;
+    const uint32_t gpio_di6_mask = 1 << GPIO_DI6;
 
-// Initialize hardware timer
-void initTimer() {
-    timer_config_t config = {
-        .alarm_en = TIMER_ALARM_EN,
-        .counter_en = TIMER_START,
-        .intr_type = TIMER_INTR_LEVEL,
-        .counter_dir = TIMER_COUNT_UP,
-        .auto_reload = TIMER_AUTORELOAD_EN,
-        .divider = TIMER_DIVIDER
-    };
+    // mi6
+    // 75; high
+    // 18; low
+    // 75+18+75=168; high
+    // 18; low
 
-    ESP_ERROR_CHECK(timer_init(TIMER_GROUP, TIMER_INDEX, &config));
-    ESP_ERROR_CHECK(timer_set_counter_value(TIMER_GROUP, TIMER_INDEX, 0));
-    ESP_ERROR_CHECK(timer_enable_intr(TIMER_GROUP, TIMER_INDEX));
-    ESP_ERROR_CHECK(timer_isr_callback_add(TIMER_GROUP, TIMER_INDEX, timerISR, NULL, 0));
-}
+    // mi5
+    // 75; low
+    // 18+75=93; high
+    // 18; low
+    // 75+18=93; high
 
-// Task to monitor the pulse generator
-void monitorTask(void *pvParameters) {
-    // Set task priority to maximum for this core
-    vTaskPrioritySet(NULL, configMAX_PRIORITIES - 1);
-    
-    Serial.println("Monitor task started on core ");
-    Serial.println(xPortGetCoreID());
-    
+    // mi4
+    // 75+18+75=168; low
+    // 18+75+18=111; high
+
     while (1) {
-        Serial.printf("Current pulse index: %d\n", currentPulseIndex);
-        vTaskDelay(pdMS_TO_TICKS(500));
+        startTicks = esp_timer_get_time() * CPU_FREQ_MHZ;  // Current time in CPU ticks
+        
+        // Set pin state (even indices are HIGH, odd are LOW)
+        // mi4 = modes_di4[state];
+        // mi5 = modes_di5[state];
+        // mi6 = modes_di6[state];
+        // digitalWrite(GPIO_DI4, (state % 2 == 0) ? HIGH : LOW);
+        // digitalWrite(GPIO_DI4, mi4);
+        // digitalWrite(GPIO_DI5, mi5);
+        // digitalWrite(GPIO_DI6, mi6);
+
+        if (!signalsEnabled)
+        {
+            GPIO.out_w1tc = (1 << LED) | (1 << GPIO_DI4) | (1 << GPIO_DI5) | (1 << GPIO_DI6);
+            vTaskDelay(pdMS_TO_TICKS(100));
+            continue;
+        }
+
+        // Fast GPIO manipulation using direct register access
+        if (modes_di4[state]) {
+            GPIO.out_w1ts = gpio_di4_mask;  // Set pin HIGH
+        } else {
+            GPIO.out_w1tc = gpio_di4_mask;  // Set pin LOW
+        }
+        
+        if (modes_di5[state]) {
+            GPIO.out_w1ts = gpio_di5_mask;  // Set pin HIGH
+        } else {
+            GPIO.out_w1tc = gpio_di5_mask;  // Set pin LOW
+        }
+        
+        if (modes_di6[state]) {
+            GPIO.out_w1ts = gpio_di6_mask;  // Set pin HIGH
+        } else {
+            GPIO.out_w1tc = gpio_di6_mask;  // Set pin LOW
+        }
+        
+
+        // Wait for precise duration using CPU ticks
+        while ((esp_timer_get_time() * CPU_FREQ_MHZ) - startTicks < US_TO_TICKS(timings[state])) {
+            // Tight loop for precise timing
+            // We don't yield here to maintain timing accuracy
+        }
+        
+        // Move to next state
+        state = (state + 1) % NUM_TIMINGS;
     }
 }
 
 void setup() {
-    // Initialize serial for debugging
-    Serial.begin(115200);
-    while (!Serial) {
-        delay(100);
-    }
-    Serial.println("\nStarting pulse generator...");
-    
-    // Set CPU frequency to maximum
-    setCpuFrequencyMhz(240);
-    
-    // Configure GPIO
-    initGPIO();
+    // Configure signal pin
+    pinMode(LED, OUTPUT);
+    pinMode(GPIO_DI4, OUTPUT);
+    pinMode(GPIO_DI5, OUTPUT);
+    pinMode(GPIO_DI6, OUTPUT);
 
-    // Create monitor task pinned to core 1
+    // Initial low state using direct register access
+    GPIO.out_w1tc = (1 << LED) | (1 << GPIO_DI4) | (1 << GPIO_DI5) | (1 << GPIO_DI6);
+    
     xTaskCreatePinnedToCore(
-        monitorTask,
-        "MonitorTask",
+        bleTask,
+        "BLE Task",
         4096,
         NULL,
-        1,  // Priority
+        1,
         NULL,
-        MONITOR_CORE  // Run on core 1
+        CORE_0
     );
-
-    // Initialize and start timer (will run on core 0)
-    Serial.println("Initializing timer...");
-    initTimer();
-
-    // Start timer with initial period
-    uint64_t initialPeriod = (pulsePattern[0].highTime + 
-                             pulsePattern[0].lowTime) * TIMER_SCALE;
-    ESP_ERROR_CHECK(timer_set_alarm_value(TIMER_GROUP, TIMER_INDEX, initialPeriod));
-    ESP_ERROR_CHECK(timer_start(TIMER_GROUP, TIMER_INDEX));
-
-    Serial.println("Setup complete!");
+    
+    // Create signal generation task with high priority
+    xTaskCreatePinnedToCore(
+        generateSignal,           // Task function
+        "SignalGenerator",        // Task name
+        2048,                     // Stack size (bytes)
+        NULL,                     // Task parameters
+        configMAX_PRIORITIES - 1, // Highest priority
+        NULL,                     // Task handle
+        CORE_1                    // Core ID (1 = second core)
+    );
 }
 
 void loop() {
-    // Main loop runs on core 0 - keep it minimal
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    // Main loop remains empty as signal generation is handled by FreeRTOS task
+    vTaskDelay(pdMS_TO_TICKS(1000));  // Corrected from pdMS_TO_DELAY to pdMS_TO_TICKS
 }
