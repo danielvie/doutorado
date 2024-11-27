@@ -1,4 +1,13 @@
 
+* NOTES reuniao 26 nov
+  - ( ) montar script para gerar sinal
+  - ( ) fazer a sincronizacao dos sinais rmt
+  - ?( ) conferir ST microcontrolador (100MHz)
+  - !( ) fazer simulacoes para resistor 3k3 + 375
+  - !( ) capacitores 470u
+  - !( ) estudar novamente o `compute_phase` pra retomar controle
+  - !( ) fazer programa matlab gerar os valores para chaveamento da esp
+
 * NOTES
   - ( ) fazer leitura de sinais
   - ( ) fazer analise de tempo critico da otimizacao

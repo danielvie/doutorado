@@ -23,7 +23,7 @@ function config = get_config_sim_patino_2()
 	config.smax  = 12;
 
 	% dynamics of the system (Buck-Boost converter)
-	R  = 22.0; % Ω
+	R  = 3300.0 + 375; % Ω
 	L  = 100.0*1e-3; % mH
 	C1 = 470.0*1e-6; % μF
 	C2 = 470.0*1e-6; % μF
@@ -48,7 +48,7 @@ function config = get_config_sim_patino_2()
         u2 = str2double(ibin(2));
         u3 = str2double(ibin(3));
     
-        A{i} = [        0,         0, (u2-u1)/C1
+        A{i} = [         0,         0, (u2-u1)/C1
                          0,         0, (u3-u2)/C2
                  (u1-u2)/L, (u2-u3)/L,       -R/L];
 

@@ -12,7 +12,7 @@ function cfg = compute_phase(config, iref)
         param.C(1) = 470e-6;
         param.C(2) = 470e-6;
         param.L = 100*1e-3;
-        param.R = 22;
+        param.R = 3300+375;
 
         param.iMax = param.E/param.R; 
         param.iLref = config.iref;

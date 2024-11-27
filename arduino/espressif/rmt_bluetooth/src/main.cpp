@@ -222,6 +222,7 @@ void rmtTask(void* parameter) {
     rmt_tx_stop(RMT_TX_CHANNEL_21);
     rmt_tx_stop(RMT_TX_CHANNEL_22);
     rmt_tx_stop(RMT_TX_CHANNEL_23);
+    
 
     while (1) {
         if (signalsEnabled) {

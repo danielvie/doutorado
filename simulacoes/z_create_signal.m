@@ -1,7 +1,8 @@
 
 
 config = engine.get_config_sim_patino_2();
-res = compute_phase(config, 8/22);
+iref = 8/22; % por que esse valor?
+res = compute_phase(config, iref);
 
 disp(res);
 

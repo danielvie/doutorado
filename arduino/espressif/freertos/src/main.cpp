@@ -21,31 +21,35 @@
 #define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
 // Signal states
-volatile bool signalsEnabled = false;
+volatile int signalsEnabled = 0;
 
 // Convert microseconds to CPU ticks
 #define US_TO_TICKS(us) ((us) * CPU_FREQ_MHZ)
 
 // Timing sequence in microseconds
 const uint32_t timings[] = {
-    75,  // duration 1
-    18,  // duration 2
-    75,  // duration 3
-    18,  // duration 4
-    75,  // duration 5
-    18,  // duration 6
+    17,  // duration 1
+    76,  // duration 2
+    17,  // duration 3
+    76,  // duration 4
+    17,  // duration 5
+    76,  // duration 6
 };
 
+//      1     1     1     0     1     1 : di6
+//      1     0     1     1     1     0 : di5
+//      0     1     0     0     0     0 : di4
+
 const uint32_t modes_di6[] = {
-    1, 0, 1, 1, 1, 0,
+    1, 1, 1, 0, 1, 1,
 };
 
 const uint32_t modes_di5[] = {
-    0, 1, 1, 0, 1, 1,
+    1, 0, 1, 1, 1, 0,
 };
 
 const uint32_t modes_di4[] = {
-    0, 0, 0, 1, 1, 1,
+    0, 1, 0, 0, 0, 0,
 };
 
 // Number of elements in the timing sequence
@@ -68,11 +72,15 @@ class CharacteristicCallbacks: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *characteristic) {
         std::string value = characteristic->getValue();
         if (value == "START") {
-            signalsEnabled = true;
+            signalsEnabled = 1;
             Serial.println("Signals started");
             digitalWrite(LED, HIGH);
+        } else if (value == "HIGH") {
+            signalsEnabled = 2;
+            Serial.println("Signals stopped");
+            digitalWrite(LED, LOW);
         } else if (value == "STOP") {
-            signalsEnabled = false;
+            signalsEnabled = 0;
             Serial.println("Signals stopped");
             digitalWrite(LED, LOW);
         }
@@ -103,6 +111,15 @@ void bleTask(void* parameter) {
     pAdvertising->addServiceUUID(SERVICE_UUID);
     pAdvertising->start();
     
+
+    for (int i = 0; i < 3; i++)
+    {
+        GPIO.out_w1ts = (1 << LED);
+        vTaskDelay(pdMS_TO_TICKS(100));
+        GPIO.out_w1tc = (1 << LED);
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    
     while(1) {
         vTaskDelay(pdMS_TO_TICKS(100));
     }
@@ -125,6 +142,24 @@ void IRAM_ATTR generateSignal(void* arg) {
     //     1      0      1      1      1      0 : di6
     //     0      1      1      0      1      1 : di5
     //     0      0      0      1      1      1 : di4
+
+    // Ts (us):
+    //          0   16.9697   93.3333  110.3030  186.6667  203.6364  280.0000
+    //
+    // dTs (us):
+    //    16.9697   76.3636   16.9697   76.3636   16.9697   76.3636
+    //
+    // modes:
+    //      1     2     1     5     1     3
+    //
+    //      0     0     0     1     0     0 : di6
+    //      0     1     0     0     0     1 : di5
+    //      1     0     1     1     1     1 : di4
+    // 
+    //      1     1     1     0     1     1 : di6
+    //      1     0     1     1     1     0 : di5
+    //      0     1     0     0     0     0 : di4
+
 
     // Precalculate GPIO bit masks for faster manipulation
     const uint32_t gpio_di4_mask = 1 << GPIO_DI4;
@@ -159,9 +194,16 @@ void IRAM_ATTR generateSignal(void* arg) {
         // digitalWrite(GPIO_DI5, mi5);
         // digitalWrite(GPIO_DI6, mi6);
 
-        if (!signalsEnabled)
+        if (signalsEnabled == 0)
         {
             GPIO.out_w1tc = (1 << LED) | (1 << GPIO_DI4) | (1 << GPIO_DI5) | (1 << GPIO_DI6);
+            vTaskDelay(pdMS_TO_TICKS(100));
+            continue;
+        }
+        
+        if (signalsEnabled == 2)
+        {
+            GPIO.out_w1ts = (1 << LED) | (1 << GPIO_DI4) | (1 << GPIO_DI5) | (1 << GPIO_DI6);
             vTaskDelay(pdMS_TO_TICKS(100));
             continue;
         }
@@ -227,6 +269,8 @@ void setup() {
         NULL,                     // Task handle
         CORE_1                    // Core ID (1 = second core)
     );
+    
+
 }
 
 void loop() {
