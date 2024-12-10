@@ -6,9 +6,10 @@ function [A,b] = modelSwitchedCapacitor(n,R,L,C,E)
 
     nModes = 2^n; % Total number of possible modes
     for i = 1:nModes
+        ii = i-1;
         ubin = dec2bin(i-1,n);
         for j = 1:n
-            u(j) = str2num(ubin(j)); % State of the jth cell
+            u(j) = str2double(ubin(j)); % State of the jth cell
         end
         
         auxA = zeros(n,n);

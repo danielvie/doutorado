@@ -2,9 +2,9 @@
 
 % reading config data
 config = engine.get_config_sim_patino_2();
-
-% setting `iref`
 param = struct();
+
+% params patino
 param.E = 30;
 param.C(1) = 40e-6;
 param.C(2) = 40e-6;
@@ -12,13 +12,35 @@ param.L = 10*1e-3;
 param.R = 10;
 
 param.iMax = param.E/param.R;
-param.iLref = 1; % << this is the current setpoint
-param.alpha = param.iLref / param.iMax; % duty cycle
+param.iLref = 2.9;
+param.alpha = param.iLref / param.iMax;
 
-param.n = 3; % number of swtching cells
+param.n = 3;
 param.T = 0.28*1e-3;
 
+% setting `iref`
+% param.E = 5;
+% param.C(1) = 470e-6;
+% param.C(2) = 470e-6;
+% param.L = 10*1e-3;
+% param.R = 3300+375;
+% 
+% param.iMax = param.E/param.R;
+% param.iLref = 1; % << this is the current setpoint
+% param.alpha = param.iLref / param.iMax; % duty cycle
+% 
+% param.n = 3; % number of swtching cells
+% param.T = 0.28*1e-3;
+
 [Omega, dT] = phase_shift.industrial_solution(param.alpha, param.n, param.T);
+
+dT_us = dT*1e6;
+
+% compute output modes
+nmodes = numel(dT_us);
+di4 = zeros(nmodes, 1);
+di5 = di4;
+di6 = di4;
 
 config.Omega = Omega;
 
@@ -35,7 +57,7 @@ nsim = 40;
 % assignin('base', 'cfg', cfg);
 
 % run simulation
-[y, t, m] = engine.sim_n2(cfg, nsim);
+[y, T, m] = engine.sim_n2(cfg, nsim);
 
 % plotting result traj
 vc1 = y(:,1);
@@ -56,17 +78,17 @@ figure(2);
 clf()
 
 subplot(3, 1, 1);
-plot(t, vc1);
+plot(T, vc1);
 xlabel('t - time(s)');
 ylabel('voltage c_1 [V]');
 
 subplot(3, 1, 2);
-plot(t, vc2);
+plot(T, vc2);
 xlabel('t - time(s)');
 ylabel('voltage c_2 [V]');
 
 subplot(3, 1, 3);
-plot(t, i_l);
+plot(T, i_l);
 xlabel('t - time(s)');
 ylabel('current L [A]');
 
