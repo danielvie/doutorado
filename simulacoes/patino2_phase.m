@@ -3,10 +3,10 @@ function res = patino2_phase(save_fig, nsim_in)
         save_fig = false;
     end
     
-    nsim = 100;
-    if (nargin >= 1)
-        nsim = nsim_in;
-    end
+    % nsim = 100;
+    % if (nargin >= 1)
+    %     nsim = nsim_in;
+    % end
 
 
     % get configuration
@@ -25,7 +25,7 @@ function res = patino2_phase(save_fig, nsim_in)
     param.R = 10;
 
     param.iMax = param.E/param.R; 
-    param.iLref = 2.99;
+    param.iLref = 2;
     param.alpha = param.iLref / param.iMax; % Duty cycle
 
     param.n = 3; % Number of switching cells
@@ -60,7 +60,7 @@ function res = patino2_phase(save_fig, nsim_in)
 
     % getting vars from the function
     vout = utils.getAllVars();
-    res = resultados.ResPatino2_phase(vout);
+    res = resultados.ResPatino2(vout);
 
     % plot dos resultados
     f1 = figure(1);
@@ -68,13 +68,13 @@ function res = patino2_phase(save_fig, nsim_in)
 
     f2 = figure(2);
     res.plot_traj();
-
-    f3 = figure(3);
-    res.plot_u_signal();
+    % 
+    % f3 = figure(3);
+    % res.plot_u_signal();
     
-    res.data.f1 = f1;
-    res.data.f2 = f2;
-    res.data.f3 = f3;
+    % res.data.f1 = f1;
+    % res.data.f2 = f2;
+    % res.data.f3 = f3;
 
     if (save_fig)
         fprintf("salvando figuras\n\n");
@@ -85,8 +85,8 @@ function res = patino2_phase(save_fig, nsim_in)
         config.fig_width = 8;
         config.fig_height = 10;
         save_figure(f1, "graf_patino2_xi.pdf", addr, config);
-        save_figure(f2, "graf_patino2_traj.pdf", addr);
-        save_figure(f3, "graf_patino2_u_signal.pdf", addr);
+        % save_figure(f2, "graf_patino2_traj.pdf", addr);
+        % save_figure(f3, "graf_patino2_u_signal.pdf", addr);
 
         %% copy figures to latex
         % copyfile('graf_ex2_*.pdf', "../../LATEX_tese/Cap2/fig/");
