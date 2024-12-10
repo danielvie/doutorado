@@ -11,36 +11,91 @@ param.C(2) = 40e-6;
 param.L = 10*1e-3;
 param.R = 10;
 
+% params circuit
+param.E = 5;
+param.C(1) = 470e-6;
+param.C(2) = 470e-6;
+param.L = 100*1e-3;
+param.R = 3300+375;
+
+param.n = 3; % number of switch cells
+param.T = 0.28*1e-3; % period of cycle
+
 param.iMax = param.E/param.R;
-param.iLref = 2.9;
+param.iLref = 0.0013; % <<< current setpoint
 param.alpha = param.iLref / param.iMax;
 
-param.n = 3;
-param.T = 0.28*1e-3;
+fprintf("\n");
+fprintf("=========================================\n");
+fprintf("max. current: %f\n", param.iMax);
+fprintf("iref: %f, alpha: %f\n", param.iLref, param.alpha);
+fprintf("=========================================\n");
+fprintf("\n");
 
-% setting `iref`
-% param.E = 5;
-% param.C(1) = 470e-6;
-% param.C(2) = 470e-6;
-% param.L = 10*1e-3;
-% param.R = 3300+375;
-% 
-% param.iMax = param.E/param.R;
-% param.iLref = 1; % << this is the current setpoint
-% param.alpha = param.iLref / param.iMax; % duty cycle
-% 
-% param.n = 3; % number of swtching cells
-% param.T = 0.28*1e-3;
 
-[Omega, dT] = phase_shift.industrial_solution(param.alpha, param.n, param.T);
+[Omega, dT, tt] = phase_shift.industrial_solution(param.alpha, param.n, param.T);
+[A,b] = phase_shift.modelSwitchedCapacitor(param.n,param.R,param.L,param.C,param.E);
+config.A = A;
+config.b = b;
 
 dT_us = dT*1e6;
 
 % compute output modes
 nmodes = numel(dT_us);
-di4 = zeros(nmodes, 1);
+di4 = zeros(1, nmodes);
 di5 = di4;
 di6 = di4;
+
+for i = 1:nmodes
+    % read mode from omega
+    m = Omega(i)-1;
+    
+    % convert value to bin
+    bin = dec2bin(m, 3);
+    
+    % insert value into outputs
+    di6(i) = str2double(bin(1));
+    di5(i) = str2double(bin(2));
+    di4(i) = str2double(bin(3));
+end
+
+% negate the values (real circuit has inverted logic)
+di6_ = 1-di6;
+di5_ = 1-di5;
+di4_ = 1-di4;
+
+% disp(di6);
+% disp(di5);
+% disp(di4);
+
+% disp('===================');
+% disp(di6_);
+% disp(di5_);
+% disp(di4_);
+
+% constructing signal for esp32
+fprintf("const uint32_t modes_di6[] = {\n  ");
+for i = 1:nmodes
+    fprintf("%d, ", di6_(i));
+end
+fprintf("\n};\n\n");
+
+% constructing signal for esp32
+fprintf("const uint32_t modes_di5[] = {\n  ");
+for i = 1:nmodes
+    fprintf("%d, ", di5_(i));
+end
+fprintf("\n};\n\n");
+
+% constructing signal for esp32
+fprintf("const uint32_t modes_di4[] = {\n  ");
+for i = 1:nmodes
+    fprintf("%d, ", di4_(i));
+end
+fprintf("\n};\n\n");
+
+
+
 
 config.Omega = Omega;
 

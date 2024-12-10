@@ -1,4 +1,4 @@
-function [Omega,dtSwitch] = industrial_solution(alpha,nSwitches,T)
+function [Omega,dtSwitch, tSwitch] = industrial_solution(alpha,nSwitches,T)
 
     % Inputs:
     % alpha: Duty cyle in the interval (0, 1)

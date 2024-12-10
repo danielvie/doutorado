@@ -16,6 +16,12 @@
    {@ Tuesday 26 November 2024}
 
 ** reuniao 
+   - ( ) fazer simulacoes para: 
+   -- ( ) capacitores 470u
+   -- ( ) indutor 100 mF
+   -- ( ) resistor 3k3 + 375
+   -- ( ) fonte 5V
+
    - ( ) montar script para gerar sinal
    - ( ) fazer a sincronizacao dos sinais rmt
    - ( ) organizar codigo matlab e montar design
@@ -24,8 +30,6 @@
    - ( ) fazer o programa usando rmt para gerar os sinal de saida
    - ( ) fazer preparacao matlab para calculo rapido do sinal de referencia
    - ?( ) conferir ST microcontrolador (100MHz)
-   - !( ) fazer simulacoes para resistor 3k3 + 375
-   - !( ) capacitores 470u
    - !( ) estudar novamente o `compute_phase` pra retomar controle
    - !( ) fazer programa matlab gerar os valores para chaveamento da esp
 
