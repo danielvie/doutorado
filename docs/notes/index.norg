@@ -1,32 +1,53 @@
 {:play:}
 
+
+* TODAY
+  - ( ) encontrar arquivo com simulacao de phase_shift e rodar com diferentes setpoint
+  - ( ) calcular modelos (A, b) para setpoint com parametro ajustavel
+  - ( ) fazer programa para receber o sinal via bluetooth e atualizar o sinal de onda
+
+
 * NOTES
 
-** TODOS
-   -- ( ) organizar codigo matlab e montar design
-   -- ( ) definir interface para comunicacao
-   -- ( ) fazer design no kicad
-   -- ( ) fechar malha com controlador sendo usado e mandando dados bluetooth
-   -- ( ) implementar pooling system com matlab para ler os dados da ESP32
-   -- (x) make an example of the bluetooth code using python
-   -- (x) ver como gerar as chaves para registrar BLE
-   --- (x) A--> [guid]::NewGuid().ToString()
+** reuniao 26 nov
+   - ( ) montar script para gerar sinal
+   - ( ) fazer a sincronizacao dos sinais rmt
+   - ( ) organizar codigo matlab e montar design
+   - ( ) fazer leitura de sinais
+   - ( ) fazer analise de tempo critico da otimizacao
+   - ( ) fazer o programa usando rmt para gerar os sinal de saida
+   - ( ) fazer preparacao matlab para calculo rapido do sinal de referencia
+   - ?( ) conferir ST microcontrolador (100MHz)
+   - !( ) fazer simulacoes para resistor 3k3 + 375
+   - !( ) capacitores 470u
+   - !( ) estudar novamente o `compute_phase` pra retomar controle
+   - !( ) fazer programa matlab gerar os valores para chaveamento da esp
 
-   -- (x) testar circuito com fonte
-   --- (x) alimentar com a fonte e comandar sinal usando bluetooth
-   --- (x) alimentar com o usb i mandar sinal usando serial / bluetooth
+* TASKS
+   - ( ) definir interface para comunicacao
+   - ( ) fazer design no kicad
+   - ( ) fechar malha com controlador sendo usado e mandando dados bluetooth
+   - ( ) implementar pooling system com matlab para ler os dados da ESP32
+   - ( ) make an example of the code using python
 
-   -- (x) fazer programa multi thread para medir latencia do comando
 
-   -- (x) testar circuito com fonte
+   - (x) ver como gerar as chaves para registrar BLE
+   -- (x) A-->  [guid]::NewGuid().ToString()
+
+   - (x) testar circuito com fonte
    -- (x) alimentar com a fonte e comandar sinal usando bluetooth
-   -- (x) alimentar com o usb e mandar sinal usando serial / bluetooth
+   -- (x) alimentar com o usb i mandar sinal usando serial / bluetooth
 
-** ANOTACOES
-   stats 1000 iteracoes de led
-   STATS:
-   max: 0.09491 sec
-   min: 0.01942 sec
+   - (x) fazer programa multi thread para medir latencia do comando
 
-   mean: 0.04473 sec
-   dev : 0.00827 sec
+   - (x) testar circuito com fonte
+   - (x) alimentar com a fonte e comandar sinal usando bluetooth
+   - (x) alimentar com o usb e mandar sinal usando serial / bluetooth
+
+  -- (x) verificar tempo de comandos led
+     stats 1000 iteracoes de led
+     STATS:
+     max: 0.09491 sec
+     min: 0.01942 sec
+     mean: 0.04473 sec
+     dev : 0.00827 sec
