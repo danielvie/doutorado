@@ -26,42 +26,52 @@ volatile int signalsEnabled = 0;
 // Convert microseconds to CPU ticks
 #define US_TO_TICKS(us) ((us) * CPU_FREQ_MHZ)
 
-// Timing sequence in microseconds
+// signal timing
 const uint32_t timings[] = {
-    55*10,  // duration 1
-    38*10,  // duration 2
-    55*10,  // duration 3
-    38*10,  // duration 4
-    55*10,  // duration 5
-    38*10,  // duration 6
+    50,
+    25,
+    50,
+    25,
+    50,
+    25,
 };
 
-//      1     1     1     0     1     1 : di6
-//      1     0     1     1     1     0 : di5
-//      0     1     0     0     0     0 : di4
-
+// signal modes
 const uint32_t modes_di6[] = {
-  1, 1, 0, 0, 0, 1, 
+  1, 0, 1, 0, 1, 0, 
 };
 
 const uint32_t modes_di5[] = {
-  0, 1, 1, 1, 0, 0, 
+  0, 1, 0, 1, 0, 1, 
 };
 
 const uint32_t modes_di4[] = {
-  0, 0, 0, 1, 1, 1, 
+  1, 1, 0, 0, 1, 0, 
 };
 
-// Number of elements in the timing sequence
+// number of elements in the timing sequence
 const uint8_t NUM_TIMINGS = sizeof(timings) / sizeof(timings[0]);
+
+// blink helper
+void blink(uint8_t N) {
+    for (uint8_t i = 0; i < N; i++)
+    {
+        GPIO.out_w1ts = (1 << LED);
+        vTaskDelay(pdMS_TO_TICKS(100));
+        GPIO.out_w1tc = (1 << LED);
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+}
 
 // BLE Server callbacks
 class ServerCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
+        blink(3);
         Serial.println("Device connected");
     }
     
     void onDisconnect(BLEServer* pServer) {
+        blink(2);
         Serial.println("Device disconnected");
         BLEDevice::startAdvertising();
     }
@@ -87,6 +97,7 @@ class CharacteristicCallbacks: public BLECharacteristicCallbacks {
     }
 };
 
+
 // Task for BLE communication
 void bleTask(void* parameter) {
     Serial.print("BLE Task running on core: ");
@@ -111,17 +122,12 @@ void bleTask(void* parameter) {
     pAdvertising->addServiceUUID(SERVICE_UUID);
     pAdvertising->start();
     
+    // start blink
+    blink(5);
 
-    for (int i = 0; i < 3; i++)
-    {
-        GPIO.out_w1ts = (1 << LED);
-        vTaskDelay(pdMS_TO_TICKS(100));
-        GPIO.out_w1tc = (1 << LED);
-        vTaskDelay(pdMS_TO_TICKS(100));
-    }
-    
+    // keep task alive
     while(1) {
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
 }
 
@@ -129,71 +135,17 @@ void bleTask(void* parameter) {
 void IRAM_ATTR generateSignal(void* arg) {
     uint8_t state = 0;
     uint64_t startTicks;
-    
-    // Ts (us):
-    //  0   74.6667   93.3333  168.0000  186.6667  261.3333  280.0000
-    // 
-    // dTs (us):
-    //  74.6667   18.6667   74.6667   18.6667   74.6667   18.6667
-    //  74.6   18.6   74.6   18.6   74.6   18.6
-    // modes:
-    //     4      2      6      5      7      3
-    //
-    //     1      0      1      1      1      0 : di6
-    //     0      1      1      0      1      1 : di5
-    //     0      0      0      1      1      1 : di4
 
-    // Ts (us):
-    //          0   16.9697   93.3333  110.3030  186.6667  203.6364  280.0000
-    //
-    // dTs (us):
-    //    16.9697   76.3636   16.9697   76.3636   16.9697   76.3636
-    //
-    // modes:
-    //      1     2     1     5     1     3
-    //
-    //      0     0     0     1     0     0 : di6
-    //      0     1     0     0     0     1 : di5
-    //      1     0     1     1     1     1 : di4
-    // 
-    //      1     1     1     0     1     1 : di6
-    //      1     0     1     1     1     0 : di5
-    //      0     1     0     0     0     0 : di4
-
-
-    // Precalculate GPIO bit masks for faster manipulation
+    // precalculate GPIO bit masks
     const uint32_t gpio_di4_mask = 1 << GPIO_DI4;
     const uint32_t gpio_di5_mask = 1 << GPIO_DI5;
     const uint32_t gpio_di6_mask = 1 << GPIO_DI6;
 
-    // mi6
-    // 75; high
-    // 18; low
-    // 75+18+75=168; high
-    // 18; low
-
-    // mi5
-    // 75; low
-    // 18+75=93; high
-    // 18; low
-    // 75+18=93; high
-
-    // mi4
-    // 75+18+75=168; low
-    // 18+75+18=111; high
-
+    // signal loop
     while (1) {
         startTicks = esp_timer_get_time() * CPU_FREQ_MHZ;  // Current time in CPU ticks
-        
-        // Set pin state (even indices are HIGH, odd are LOW)
-        // mi4 = modes_di4[state];
-        // mi5 = modes_di5[state];
-        // mi6 = modes_di6[state];
-        // digitalWrite(GPIO_DI4, (state % 2 == 0) ? HIGH : LOW);
-        // digitalWrite(GPIO_DI4, mi4);
-        // digitalWrite(GPIO_DI5, mi5);
-        // digitalWrite(GPIO_DI6, mi6);
 
+        // command all LOW
         if (signalsEnabled == 0)
         {
             GPIO.out_w1tc = (1 << LED) | (1 << GPIO_DI4) | (1 << GPIO_DI5) | (1 << GPIO_DI6);
@@ -201,54 +153,47 @@ void IRAM_ATTR generateSignal(void* arg) {
             continue;
         }
         
+        // command all HIGH
         if (signalsEnabled == 2)
         {
             GPIO.out_w1ts = (1 << LED) | (1 << GPIO_DI4) | (1 << GPIO_DI5) | (1 << GPIO_DI6);
             vTaskDelay(pdMS_TO_TICKS(100));
             continue;
         }
+        
+        // command SIGNAL
+        
+        // prepare signal
+        uint32_t pin_states = 
+            (modes_di4[state]? gpio_di4_mask : 0) |
+            (modes_di5[state]? gpio_di5_mask : 0) |
+            (modes_di6[state]? gpio_di6_mask : 0);
+            
+        // set pins HIGH
+        GPIO.out_w1ts = pin_states;
+        
+        // set pins LOW
+        GPIO.out_w1tc = ~pin_states & (gpio_di4_mask | gpio_di5_mask | gpio_di6_mask);
 
-        // Fast GPIO manipulation using direct register access
-        if (modes_di4[state]) {
-            GPIO.out_w1ts = gpio_di4_mask;  // Set pin HIGH
-        } else {
-            GPIO.out_w1tc = gpio_di4_mask;  // Set pin LOW
-        }
+        // count CPU ticks
+        while ((esp_timer_get_time() * CPU_FREQ_MHZ) - startTicks < US_TO_TICKS(timings[state])) {}
         
-        if (modes_di5[state]) {
-            GPIO.out_w1ts = gpio_di5_mask;  // Set pin HIGH
-        } else {
-            GPIO.out_w1tc = gpio_di5_mask;  // Set pin LOW
-        }
-        
-        if (modes_di6[state]) {
-            GPIO.out_w1ts = gpio_di6_mask;  // Set pin HIGH
-        } else {
-            GPIO.out_w1tc = gpio_di6_mask;  // Set pin LOW
-        }
-        
-
-        // Wait for precise duration using CPU ticks
-        while ((esp_timer_get_time() * CPU_FREQ_MHZ) - startTicks < US_TO_TICKS(timings[state])) {
-            // Tight loop for precise timing
-            // We don't yield here to maintain timing accuracy
-        }
-        
-        // Move to next state
+        // move to next state
         state = (state + 1) % NUM_TIMINGS;
     }
 }
 
 void setup() {
-    // Configure signal pin
+    // configure pin
     pinMode(LED, OUTPUT);
     pinMode(GPIO_DI4, OUTPUT);
     pinMode(GPIO_DI5, OUTPUT);
     pinMode(GPIO_DI6, OUTPUT);
 
-    // Initial low state using direct register access
+    // start with LOW
     GPIO.out_w1tc = (1 << LED) | (1 << GPIO_DI4) | (1 << GPIO_DI5) | (1 << GPIO_DI6);
     
+    // create BLE task
     xTaskCreatePinnedToCore(
         bleTask,
         "BLE Task",
@@ -259,18 +204,16 @@ void setup() {
         CORE_0
     );
     
-    // Create signal generation task with high priority
+    // create signal task
     xTaskCreatePinnedToCore(
         generateSignal,           // Task function
-        "SignalGenerator",        // Task name
+        "Signal Task",            // Task name
         2048,                     // Stack size (bytes)
         NULL,                     // Task parameters
         configMAX_PRIORITIES - 1, // Highest priority
         NULL,                     // Task handle
         CORE_1                    // Core ID (1 = second core)
     );
-    
-
 }
 
 void loop() {

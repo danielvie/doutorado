@@ -29,20 +29,19 @@ async def find_esp32():
     
     return None
 
-async def send_command(address, command):
+async def send_command(client, command) -> bool:
     # Add retry logic and longer timeout for macOS
     try:
-        async with BleakClient(address, timeout=20.0) as client:
-            print(f"Connected to ESP32: {address}")
-            
-            # Convert string to bytes
-            command_bytes = command.encode()
-            
-            # Send command
-            await client.write_gatt_char(CHARACTERISTIC_UUID, command_bytes)
-            print(f"Sent command: {command}")
+        # Convert string to bytes
+        command_bytes = command.encode()
+        
+        # Send command
+        await client.write_gatt_char(CHARACTERISTIC_UUID, command_bytes)
+        print(f"Sent command: {command}")
     except Exception as e:
         print(f"Error during connection/communication: {str(e)}")
+        return False
+    return True
 
 async def main():
     # Find ESP32
@@ -52,26 +51,31 @@ async def main():
         print("ESP32 device not found!")
         return
     
-    while True:
-        print("\nCommands:")
-        print("a. Start signals")
-        print("s. LOW")
-        print("d. HIGH")
-        print("q. Exit")
-        
-        choice = input("Enter choice (a,s,d,q): ")
-        
-        if choice == "a":
-            await send_command(esp32_address, "START")
-        elif choice == "s":
-            await send_command(esp32_address, "STOP")
-        elif choice == "d":
-            await send_command(esp32_address, "HIGH")
-        elif choice == "q":
-            print("Exiting...")
-            break
-        else:
-            print("Invalid choice!")
+    try:
+        # establish a persistent connection
+        async with BleakClient(esp32_address, timeout=20.0) as client:
+            while True:
+                print("\nCommands:")
+                print("a. Start signals")
+                print("s. LOW")
+                print("d. HIGH")
+                print("q. Exit")
+                
+                choice = input("Enter choice (a,s,d,q): ")
+                
+                if choice == "a":
+                    await send_command(client, "START")
+                elif choice == "s":
+                    await send_command(client, "STOP")
+                elif choice == "d":
+                    await send_command(client, "HIGH")
+                elif choice == "q":
+                    print("Exiting...")
+                    break
+                else:
+                    print("Invalid choice!")
+    except Exception as e:
+        print(f"Connection error: {str(e)}")
 
 if __name__ == "__main__":
     # Install required package: pip install bleak
