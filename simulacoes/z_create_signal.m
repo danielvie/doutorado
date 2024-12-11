@@ -5,24 +5,24 @@ config = engine.get_config_sim_patino_2();
 param = struct();
 
 % params patino
-param.E = 30;
-param.C(1) = 40e-6;
-param.C(2) = 40e-6;
-param.L = 10*1e-3;
-param.R = 10;
+% param.E = 30;
+% param.C(1) = 40e-6;
+% param.C(2) = 40e-6;
+% param.L = 10*1e-3;
+% param.R = 10;
 
 % params circuit
 param.E = 5;
 param.C(1) = 470e-6;
 param.C(2) = 470e-6;
 param.L = 100*1e-3;
-param.R = 3300+375;
+param.R = 22;
 
 param.n = 3; % number of switch cells
 param.T = 0.28*1e-3; % period of cycle
 
 param.iMax = param.E/param.R;
-param.iLref = 0.0013; % <<< current setpoint
+param.iLref = .05; % <<< current setpoint
 param.alpha = param.iLref / param.iMax;
 
 fprintf("\n");
@@ -60,9 +60,12 @@ for i = 1:nmodes
 end
 
 % negate the values (real circuit has inverted logic)
-di6_ = 1-di6;
-di5_ = 1-di5;
-di4_ = 1-di4;
+% di6_ = 1-di6;
+% di5_ = 1-di5;
+% di4_ = 1-di4;
+di6_ = di6;
+di5_ = di5;
+di4_ = di4;
 
 % disp(di6);
 % disp(di5);
@@ -94,7 +97,7 @@ for i = 1:nmodes
 end
 fprintf("\n};\n\n");
 
-
+disp(dT_us*5);
 
 
 config.Omega = Omega;

@@ -28,12 +28,12 @@ volatile int signalsEnabled = 0;
 
 // Timing sequence in microseconds
 const uint32_t timings[] = {
-    17,  // duration 1
-    76,  // duration 2
-    17,  // duration 3
-    76,  // duration 4
-    17,  // duration 5
-    76,  // duration 6
+    55*10,  // duration 1
+    38*10,  // duration 2
+    55*10,  // duration 3
+    38*10,  // duration 4
+    55*10,  // duration 5
+    38*10,  // duration 6
 };
 
 //      1     1     1     0     1     1 : di6
@@ -41,15 +41,15 @@ const uint32_t timings[] = {
 //      0     1     0     0     0     0 : di4
 
 const uint32_t modes_di6[] = {
-    1, 1, 1, 0, 1, 1,
+  1, 1, 0, 0, 0, 1, 
 };
 
 const uint32_t modes_di5[] = {
-    1, 0, 1, 1, 1, 0,
+  0, 1, 1, 1, 0, 0, 
 };
 
 const uint32_t modes_di4[] = {
-    0, 1, 0, 0, 0, 0,
+  0, 0, 0, 1, 1, 1, 
 };
 
 // Number of elements in the timing sequence
