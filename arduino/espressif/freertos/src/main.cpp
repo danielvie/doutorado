@@ -1,9 +1,9 @@
-#include <sstream>
 #include <Arduino.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/timer.h"
 #include <NimBLEDevice.h>
+#include "helpers.h"
 
 #define CORE_0 0
 #define CORE_1 1
@@ -25,30 +25,25 @@ volatile int signalsEnabled = 0;
 #define US_TO_TICKS(us) ((us) * CPU_FREQ_MHZ)
 
 // signal timing
-const uint32_t timings[] = {
-    50,
-    25,
-    50,
-    25,
-    50,
-    25,
+std::vector<uint64_t> timings = {
+    50, 25, 50, 25, 50, 25,
 };
 
 // signal modes
-const uint32_t modes_di6[] = {
-  1, 0, 1, 0, 1, 0, 
+std::vector<uint64_t> modes = {
+    // 5, 3, 4, 2, 5, 2
+    1, 0, 1, 0, 1, 0
 };
 
-const uint32_t modes_di5[] = {
-  0, 1, 0, 1, 0, 1, 
-};
+SignalState::State signalState = SignalState::NORMAL;
 
-const uint32_t modes_di4[] = {
-  1, 1, 0, 0, 1, 0, 
-};
+// flag
+
+// SIGNAL:50, 25, 50, 25, 50, 25; 5, 3, 4, 2, 5, 2
+// SIGNAL:50, 50, 50, 50, 50, 50; 1, 0, 1, 0, 1, 0
 
 // number of elements in the timing sequence
-const uint8_t NUM_TIMINGS = sizeof(timings) / sizeof(timings[0]);
+const uint8_t NUM_TIMINGS = timings.size();
 
 // blink helper
 void blink(uint8_t N) {
@@ -59,37 +54,6 @@ void blink(uint8_t N) {
         GPIO.out_w1tc = (1 << LED);
         vTaskDelay(pdMS_TO_TICKS(100));
     }
-}
-
-void _parseSection(const std::string &section, std::vector<int64_t> &result) {
-    std::stringstream ss(section);
-    std::string item;
-    
-    while (std::getline(ss, item, ',')) {
-        result.push_back(std::stoi(item));
-    }
-}
-
-int parseSignal(const std::string &s, std::vector<int64_t> &time, std::vector<int64_t> &mode) {
-    // clearing values
-    time.clear();
-    mode.clear();
-    
-    // parsing new values
-    size_t semicolonPos = s.find(';');
-    if (semicolonPos == std::string::npos) {
-        throw std::runtime_error("No semicolon found");
-        return 0;
-    }
-    
-    // extract the parts
-    std::string timeSection = s.substr(0, semicolonPos);
-    std::string modeSection = s.substr(semicolonPos + 1);
-    
-    // parse each part
-    _parseSection(timeSection, time);
-    _parseSection(modeSection, mode);
-    return 1;
 }
 
 // BLE Server callbacks
@@ -123,32 +87,34 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
             Serial.println("Signals stopped");
             digitalWrite(LED, LOW);
         } else if (value.substr(0,7) == "SIGNAL:") {
-            signalsEnabled = 0;
+            // signalsEnabled = 1;
             std::string command = value.substr(0,7);
             std::string signal = value.substr(7);
             Serial.println("Signals received:");
             Serial.println(command.c_str());
             Serial.println(signal.c_str());
 
-            std::vector<int64_t> time, mode;
+            // std::vector<uint64_t> time, mode;
             
             try {
-                parseSignal(signal, time, mode);
+                signalState = SignalState::CHANGING;
+                parseSignal(signal, timings, modes);
                 
                 // printing values
                 Serial.print("time: ");
-                for (auto ti : time) {
+                for (auto ti : timings) {
                     Serial.printf("%d, ", ti);
                 }
                 Serial.println(" ");
 
                 Serial.print("mode: ");
-                for (auto mi : mode) {
+                for (auto mi : modes) {
                     Serial.printf("%d, ", mi);
                 }
                 Serial.println(" ");
 
                 digitalWrite(LED, LOW);
+                signalState = SignalState::CHANGED;
             }
             catch (std::exception &e) {
                 Serial.printf("Error parsing signal: %s\n", e.what());
@@ -202,6 +168,26 @@ void IRAM_ATTR generateSignal(void* arg) {
     const uint32_t gpio_di5_mask = 1 << GPIO_DI5;
     const uint32_t gpio_di6_mask = 1 << GPIO_DI6;
 
+    // variables to generate the sinal during a cycle
+    std::vector<uint64_t> time_, d4_, d5_, d6_;
+
+    // update values
+    auto update_bin_values = [&time_, &d4_, &d5_, &d6_]() {
+        time_.clear();
+        d4_.clear();
+        d5_.clear();
+        d6_.clear();
+        
+        time_ = timings;
+        for (uint64_t mi : modes) {
+            Bin bin = Num2Bin(mi);
+            d4_.push_back((uint64_t)bin.b1);
+            d5_.push_back((uint64_t)bin.b2);
+            d6_.push_back((uint64_t)bin.b3);
+        }
+    };
+    update_bin_values();
+
     // signal loop
     while (1) {
         startTicks = esp_timer_get_time() * CPU_FREQ_MHZ;  // Current time in CPU ticks
@@ -223,12 +209,16 @@ void IRAM_ATTR generateSignal(void* arg) {
         }
         
         // command SIGNAL
+        if (state == 0 && signalState == SignalState::CHANGED) {
+            update_bin_values();
+            signalState = SignalState::NORMAL;
+        }
         
         // prepare signal
         uint32_t pin_states = 
-            (modes_di4[state]? gpio_di4_mask : 0) |
-            (modes_di5[state]? gpio_di5_mask : 0) |
-            (modes_di6[state]? gpio_di6_mask : 0);
+            (d4_[state]? gpio_di4_mask : 0) |
+            (d5_[state]? gpio_di5_mask : 0) |
+            (d6_[state]? gpio_di6_mask : 0);
             
         // set pins HIGH
         GPIO.out_w1ts = pin_states;
@@ -237,7 +227,7 @@ void IRAM_ATTR generateSignal(void* arg) {
         GPIO.out_w1tc = ~pin_states & (gpio_di4_mask | gpio_di5_mask | gpio_di6_mask);
 
         // count CPU ticks
-        while ((esp_timer_get_time() * CPU_FREQ_MHZ) - startTicks < US_TO_TICKS(timings[state])) {}
+        while ((esp_timer_get_time() * CPU_FREQ_MHZ) - startTicks < US_TO_TICKS(time_[state])) {}
         
         // move to next state
         state = (state + 1) % NUM_TIMINGS;

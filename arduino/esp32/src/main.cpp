@@ -167,15 +167,14 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
             }
             else if (value.substr(0, 6) == "SIGNAL") {
                 String signal = String(value.c_str()).substring(7);
-                // Serial.printf("signal received: `%s`\n", signal.c_str());
-                // Serial.println("new signal received!\n");
                 if (hasLog) {
                     Serial.println("new signal received");
                 }
-                // Serial.println(signal.c_str());
 
                 // parse values of time and mode
                 parseString(signal.c_str(), timeValues, modeValues);
+                
+                // TODO: update time and mode
             }
             portEXIT_CRITICAL(&mux);
         }

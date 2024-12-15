@@ -10,6 +10,7 @@
     <h1>ESP32 Web Bluetooth Control</h1>
     
     <button id="connectBtn">Connect to ESP32</button>
+    <button id="disconnectBtn">Disconnect</button>
     
     <!-- <div id="controlPanel" style="display: none;"> -->
     <div id="controlPanel">
@@ -18,7 +19,6 @@
         <button id="btn-start">start</button>
         <button id="btn-stop">stop</button>
         <button id="btn-high">high</button>
-        <button id="disconnectBtn">Disconnect</button>
     </div>
     
     <div id="status"></div>
@@ -65,9 +65,9 @@
                 characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
 
                 updateStatus('Connected to ESP32');
-                controlPanel.style.display = 'block';
-                connectBtn.style.display = 'none';
-                disconnectBtn.style.display = 'block';
+                // controlPanel.style.display = 'block';
+                // connectBtn.style.display = 'none';
+                // disconnectBtn.style.display = 'block';
             } catch (error) {
                 updateStatus(`Connection failed: ${error.message}`, true);
                 resetConnection();
@@ -98,7 +98,7 @@
                 
                 await characteristic.writeValue(data);
                 updateStatus(`Sent command: ${command}`);
-                commandInput.value = ''; // Clear input
+                // commandInput.value = ''; // Clear input
             } catch (error) {
                 updateStatus(`Send failed: ${error.message}`, true);
                 resetConnection();
@@ -115,9 +115,9 @@
             gattServer = null;
             characteristic = null;
             
-            controlPanel.style.display = 'none';
-            connectBtn.style.display = 'block';
-            disconnectBtn.style.display = 'none';
+            // controlPanel.style.display = 'none';
+            // connectBtn.style.display = 'block';
+            // disconnectBtn.style.display = 'none';
         }
 
         async function disconnectDevice() {
@@ -145,7 +145,7 @@
                 const data = encoder.encode(command);
                 
                 await characteristic.writeValue(data);
-                updateStatus('Sent start');
+                updateStatus(`Sent ${command}`);
             } catch (error) {
                 updateStatus(`Send failed: ${error.message}`, true);
                 resetConnection();
