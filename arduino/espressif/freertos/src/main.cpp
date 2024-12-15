@@ -1,11 +1,9 @@
+#include <sstream>
 #include <Arduino.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/timer.h"
-#include <BLEDevice.h>
-#include <BLEServer.h>
-#include <BLEUtils.h>
-#include <BLE2902.h>
+#include <NimBLEDevice.h>
 
 #define CORE_0 0
 #define CORE_1 1
@@ -63,23 +61,54 @@ void blink(uint8_t N) {
     }
 }
 
+void _parseSection(const std::string &section, std::vector<int64_t> &result) {
+    std::stringstream ss(section);
+    std::string item;
+    
+    while (std::getline(ss, item, ',')) {
+        result.push_back(std::stoi(item));
+    }
+}
+
+int parseSignal(const std::string &s, std::vector<int64_t> &time, std::vector<int64_t> &mode) {
+    // clearing values
+    time.clear();
+    mode.clear();
+    
+    // parsing new values
+    size_t semicolonPos = s.find(';');
+    if (semicolonPos == std::string::npos) {
+        throw std::runtime_error("No semicolon found");
+        return 0;
+    }
+    
+    // extract the parts
+    std::string timeSection = s.substr(0, semicolonPos);
+    std::string modeSection = s.substr(semicolonPos + 1);
+    
+    // parse each part
+    _parseSection(timeSection, time);
+    _parseSection(modeSection, mode);
+    return 1;
+}
+
 // BLE Server callbacks
-class ServerCallbacks: public BLEServerCallbacks {
-    void onConnect(BLEServer* pServer) {
+class ServerCallbacks: public NimBLEServerCallbacks {
+    void onConnect(NimBLEServer* pServer) {
         blink(3);
         Serial.println("Device connected");
     }
     
-    void onDisconnect(BLEServer* pServer) {
+    void onDisconnect(NimBLEServer* pServer) {
         blink(2);
         Serial.println("Device disconnected");
-        BLEDevice::startAdvertising();
+        NimBLEDevice::startAdvertising();
     }
 };
 
 // BLE Characteristic callbacks
-class CharacteristicCallbacks: public BLECharacteristicCallbacks {
-    void onWrite(BLECharacteristic *characteristic) {
+class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
+    void onWrite(NimBLECharacteristic *characteristic) {
         std::string value = characteristic->getValue();
         if (value == "START") {
             signalsEnabled = 1;
@@ -87,12 +116,44 @@ class CharacteristicCallbacks: public BLECharacteristicCallbacks {
             digitalWrite(LED, HIGH);
         } else if (value == "HIGH") {
             signalsEnabled = 2;
-            Serial.println("Signals stopped");
+            Serial.println("Signals high");
             digitalWrite(LED, LOW);
         } else if (value == "STOP") {
             signalsEnabled = 0;
             Serial.println("Signals stopped");
             digitalWrite(LED, LOW);
+        } else if (value.substr(0,7) == "SIGNAL:") {
+            signalsEnabled = 0;
+            std::string command = value.substr(0,7);
+            std::string signal = value.substr(7);
+            Serial.println("Signals received:");
+            Serial.println(command.c_str());
+            Serial.println(signal.c_str());
+
+            std::vector<int64_t> time, mode;
+            
+            try {
+                parseSignal(signal, time, mode);
+                
+                // printing values
+                Serial.print("time: ");
+                for (auto ti : time) {
+                    Serial.printf("%d, ", ti);
+                }
+                Serial.println(" ");
+
+                Serial.print("mode: ");
+                for (auto mi : mode) {
+                    Serial.printf("%d, ", mi);
+                }
+                Serial.println(" ");
+
+                digitalWrite(LED, LOW);
+            }
+            catch (std::exception &e) {
+                Serial.printf("Error parsing signal: %s\n", e.what());
+                Serial.printf("Signal sent to parse: '%s'\n", signal.c_str());
+            }
         }
     }
 };
@@ -103,22 +164,22 @@ void bleTask(void* parameter) {
     Serial.print("BLE Task running on core: ");
     Serial.println(xPortGetCoreID());
     
-    BLEDevice::init("ESP32 Signal Controller");
-    BLEServer *pServer = BLEDevice::createServer();
+    NimBLEDevice::init("ESP32 Signal Controller");
+    NimBLEServer *pServer = NimBLEDevice::createServer();
     pServer->setCallbacks(new ServerCallbacks());
     
-    BLEService *pService = pServer->createService(SERVICE_UUID);
-    BLECharacteristic *pCharacteristic = pService->createCharacteristic(
+    NimBLEService *pService = pServer->createService(SERVICE_UUID);
+    NimBLECharacteristic *pCharacteristic = pService->createCharacteristic(
         CHARACTERISTIC_UUID,
-        BLECharacteristic::PROPERTY_READ |
-        BLECharacteristic::PROPERTY_WRITE
+        NIMBLE_PROPERTY::READ |
+        NIMBLE_PROPERTY::WRITE
     );
     
     pCharacteristic->setCallbacks(new CharacteristicCallbacks());
     pCharacteristic->setValue("Hello");
     pService->start();
     
-    BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
+    NimBLEAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
     pAdvertising->addServiceUUID(SERVICE_UUID);
     pAdvertising->start();
     
@@ -184,6 +245,9 @@ void IRAM_ATTR generateSignal(void* arg) {
 }
 
 void setup() {
+    // configure serial
+    Serial.begin(115200);
+
     // configure pin
     pinMode(LED, OUTPUT);
     pinMode(GPIO_DI4, OUTPUT);
@@ -197,7 +261,7 @@ void setup() {
     xTaskCreatePinnedToCore(
         bleTask,
         "BLE Task",
-        4096,
+        2048,
         NULL,
         1,
         NULL,

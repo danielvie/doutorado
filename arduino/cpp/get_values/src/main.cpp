@@ -12,34 +12,30 @@ void _parseSection(const std::string &section, std::vector<int64_t> &result);
 int main(int argc, char const *argv[])
 {
     std::string s = "100,2,548,452,546540,5462,4564516,4562,00,300,400;1,4,1,5,1,85,3,1325,458,12,2,3,4";
+    std::vector<int64_t> time, mode;
     
-    // int timeValues[4];
-    // int modeValues[4];
-    
-    // GetValues(s.c_str(), timeValues, modeValues);
-    // PrintV(timeValues, 4);
-    // PrintV(modeValues, 4);
-    
-    std::vector<int64_t> time;
-    std::vector<int64_t> mode;
-    
-    parseSignal(s, time, mode);
+    try {
+        parseSignal(s, time, mode);
+        std::cout << s << std::endl;
+        
+        // printing time
+        std::cout << "time: ";
+        for (auto ti : time) {
+            std::cout << ti << ", ";
+        }
+        std::cout << "\n";
 
-    std::cout << s << std::endl;
-    
-    // printing time
-    std::cout << "time: ";
-    for (auto ti : time) {
-        std::cout << ti << ", ";
+        // printing mode
+        std::cout << "mode: ";
+        for (auto mi : mode) {
+            std::cout << mi << ", ";
+        }
+        std::cout << "\n";
     }
-    std::cout << "\n";
-
-    // printing mode
-    std::cout << "mode: ";
-    for (auto mi : mode) {
-        std::cout << mi << ", ";
+    catch (const std::exception &e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
     }
-    std::cout << "\n";
     
     return 0;
 }
