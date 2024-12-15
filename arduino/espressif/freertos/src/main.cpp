@@ -82,7 +82,7 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
             signalsEnabled = 2;
             Serial.println("Signals high");
             digitalWrite(LED, LOW);
-        } else if (value == "STOP") {
+        } else if (value == "STOP" || value == "LOW") {
             signalsEnabled = 0;
             Serial.println("Signals stopped");
             digitalWrite(LED, LOW);
