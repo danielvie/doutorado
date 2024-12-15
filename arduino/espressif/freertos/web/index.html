@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 Web Bluetooth Control</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>ESP32 Web Bluetooth Control</h1>
+    
+    <button id="connectBtn">Connect to ESP32</button>
+    
+    <!-- <div id="controlPanel" style="display: none;"> -->
+    <div id="controlPanel">
+        <input type="text" id="commandInput" placeholder="Enter command">
+        <button id="sendBtn">Send Command</button>
+        <button id="btn-start">start</button>
+        <button id="btn-stop">stop</button>
+        <button id="btn-high">high</button>
+        <button id="disconnectBtn">Disconnect</button>
+    </div>
+    
+    <div id="status"></div>
+
+    <script>
+        const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
+        const CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+
+        let bluetoothDevice = null;
+        let gattServer = null;
+        let characteristic = null;
+
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const controlPanel = document.getElementById('controlPanel');
+        const sendBtn = document.getElementById('sendBtn');
+        const commandInput = document.getElementById('commandInput');
+        const statusDiv = document.getElementById('status');
+        const btn_start = document.getElementById('btn-start')
+        const btn_stop = document.getElementById('btn-stop')
+        const btn_high = document.getElementById('btn-high')
+
+        function updateStatus(message, isError = false) {
+            statusDiv.textContent = message;
+            statusDiv.style.color = isError ? '#ff5252' : '#03dac6';
+            console.log(isError ? 'ERROR: ' + message : message);
+        }
+
+        async function connectDevice() {
+            try {
+                // Request device
+                bluetoothDevice = await navigator.bluetooth.requestDevice({
+                    filters: [{ services: [SERVICE_UUID] }]
+                });
+
+                // Add disconnect event listener
+                bluetoothDevice.addEventListener('gattserverdisconnected', handleDisconnect);
+
+                // Connect to GATT server
+                gattServer = await bluetoothDevice.gatt.connect();
+
+                // Get service and characteristic
+                const service = await gattServer.getPrimaryService(SERVICE_UUID);
+                characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+
+                updateStatus('Connected to ESP32');
+                controlPanel.style.display = 'block';
+                connectBtn.style.display = 'none';
+                disconnectBtn.style.display = 'block';
+            } catch (error) {
+                updateStatus(`Connection failed: ${error.message}`, true);
+                resetConnection();
+            }
+        }
+
+        async function sendCommand() {
+            if (!characteristic) {
+                updateStatus('Not connected', true);
+                return;
+            }
+
+            const command = commandInput.value.trim().toUpperCase();
+            if (!command) {
+                updateStatus('Please enter a command', true);
+                return;
+            }
+
+            try {
+                // Ensure connection is active
+                if (!bluetoothDevice || !bluetoothDevice.gatt.connected) {
+                    await connectDevice();
+                }
+
+                // Convert string to Uint8Array
+                const encoder = new TextEncoder();
+                const data = encoder.encode(command);
+                
+                await characteristic.writeValue(data);
+                updateStatus(`Sent command: ${command}`);
+                commandInput.value = ''; // Clear input
+            } catch (error) {
+                updateStatus(`Send failed: ${error.message}`, true);
+                resetConnection();
+            }
+        }
+
+        function handleDisconnect() {
+            updateStatus('Disconnected from ESP32', true);
+            resetConnection();
+        }
+
+        function resetConnection() {
+            bluetoothDevice = null;
+            gattServer = null;
+            characteristic = null;
+            
+            controlPanel.style.display = 'none';
+            connectBtn.style.display = 'block';
+            disconnectBtn.style.display = 'none';
+        }
+
+        async function disconnectDevice() {
+            if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+                await bluetoothDevice.gatt.disconnect();
+            }
+            resetConnection();
+            updateStatus('Manually disconnected');
+        }
+
+        // Event Listeners
+        connectBtn.addEventListener('click', connectDevice);
+        sendBtn.addEventListener('click', sendCommand);
+        disconnectBtn.addEventListener('click', disconnectDevice);
+        
+        async function _send_command(command) {
+            try {
+                // Ensure connection is active
+                if (!bluetoothDevice || !bluetoothDevice.gatt.connected) {
+                    await connectDevice();
+                }
+
+                // Convert string to Uint8Array
+                const encoder = new TextEncoder();
+                const data = encoder.encode(command);
+                
+                await characteristic.writeValue(data);
+                updateStatus('Sent start');
+            } catch (error) {
+                updateStatus(`Send failed: ${error.message}`, true);
+                resetConnection();
+            }
+        }
+        
+        btn_start.addEventListener('click', async () => {
+            _send_command("START")
+        })
+        
+        btn_stop.addEventListener('click', async () => {
+            _send_command("STOP")
+        })
+
+        btn_high.addEventListener('click', async () => {
+            _send_command("HIGH")
+        })
+
+    </script>
+</body>
+</html>
