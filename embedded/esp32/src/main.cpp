@@ -9,6 +9,7 @@
 #define CORE_1 1
 
 #define LED 2
+#define MAX_ELEMENTS_SIGNAL 30
 #define GPIO_DI4 21
 #define GPIO_DI5 22
 #define GPIO_DI6 23
@@ -32,18 +33,18 @@ std::vector<uint64_t> timings = {
 // signal modes
 std::vector<uint64_t> modes = {
     // 5, 3, 4, 2, 5, 2
-    1, 0, 1, 0, 1, 0
+    7, 0, 7, 0, 7, 0
 };
 
-SignalState::State signalState = SignalState::NORMAL;
+std::vector<uint64_t> modes_di4 = { 1, 0, 1, 0, 1, 0 };
+std::vector<uint64_t> modes_di5 = { 1, 0, 1, 0, 1, 0 };
+std::vector<uint64_t> modes_di6 = { 1, 0, 1, 0, 1, 0 };
+
+SignalState::State signalState = SignalState::IDLE;
 
 // flag
-
 // SIGNAL:50, 25, 50, 25, 50, 25; 5, 3, 4, 2, 5, 2
 // SIGNAL:50, 50, 50, 50, 50, 50; 1, 0, 1, 0, 1, 0
-
-// number of elements in the timing sequence
-const uint8_t NUM_TIMINGS = timings.size();
 
 // blink helper
 void blink(uint8_t N) {
@@ -78,6 +79,7 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
             signalsEnabled = 1;
             Serial.println("Signals started");
             digitalWrite(LED, HIGH);
+            signalState = SignalState::RUN;
         } else if (value == "HIGH") {
             signalsEnabled = 2;
             Serial.println("Signals high");
@@ -86,19 +88,27 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
             signalsEnabled = 0;
             Serial.println("Signals stopped");
             digitalWrite(LED, LOW);
+            signalState = SignalState::IDLE;
         } else if (value.substr(0,7) == "SIGNAL:") {
             // signalsEnabled = 1;
-            std::string command = value.substr(0,7);
             std::string signal = value.substr(7);
             Serial.println("Signals received:");
-            Serial.println(command.c_str());
-            Serial.println(signal.c_str());
+            Serial.println(value.c_str());
 
-            // std::vector<uint64_t> time, mode;
-            
             try {
                 signalState = SignalState::CHANGING;
                 parseSignal(signal, timings, modes);
+                
+                // converting values of modes to binary
+                modes_di4.clear();
+                modes_di5.clear();
+                modes_di6.clear();
+                for (uint64_t mi : modes) {
+                    Bin bin = Num2Bin(mi);
+                    modes_di4.push_back(bin.b1);
+                    modes_di5.push_back(bin.b2);
+                    modes_di6.push_back(bin.b3);
+                }
                 
                 // printing values
                 Serial.print("time: ");
@@ -153,7 +163,21 @@ void bleTask(void* parameter) {
     blink(5);
 
     // keep task alive
+    size_t counter = 0;
     while(1) {
+        if (signalState == SignalState::IDLE) {
+            counter = 0;
+        }
+        if (counter > 10) {
+            vTaskDelay(pdMS_TO_TICKS(1));
+            continue;
+        }
+
+        if (signalState == SignalState::READ) {
+            Serial.printf("ik moet hier iets lezen! (counter: %d) (core: %d)\n", counter, xPortGetCoreID());
+            signalState = SignalState::RUN;
+            counter++;
+        }
         vTaskDelay(pdMS_TO_TICKS(1));
     }
 }
@@ -170,27 +194,46 @@ void IRAM_ATTR generateSignal(void* arg) {
 
     // variables to generate the sinal during a cycle
     std::vector<uint64_t> time_, d4_, d5_, d6_;
+    time_.reserve(MAX_ELEMENTS_SIGNAL);
+    d4_.reserve(MAX_ELEMENTS_SIGNAL);
+    d5_.reserve(MAX_ELEMENTS_SIGNAL);
+    d6_.reserve(MAX_ELEMENTS_SIGNAL);
 
     // update values
-    auto update_bin_values = [&time_, &d4_, &d5_, &d6_]() {
+    auto print = [](std::vector<uint64_t> &v){
+        for (auto vi : v) {
+            Serial.printf("%d, ", vi);
+        }
+        Serial.println(";");
+    };
+
+    uint8_t num_timings_;
+    auto update_bin_values = [&time_, &d4_, &d5_, &d6_, &num_timings_]() {
+        // clearing previous values
         time_.clear();
         d4_.clear();
         d5_.clear();
         d6_.clear();
-        
+
+        // updating arrays
         time_ = timings;
-        for (uint64_t mi : modes) {
-            Bin bin = Num2Bin(mi);
-            d4_.push_back((uint64_t)bin.b1);
-            d5_.push_back((uint64_t)bin.b2);
-            d6_.push_back((uint64_t)bin.b3);
-        }
+        d4_ = modes_di4;
+        d5_ = modes_di5;
+        d6_ = modes_di6;
+
+        // updating number of elements
+        num_timings_ = timings.size();
     };
+
     update_bin_values();
 
     // signal loop
     while (1) {
         startTicks = esp_timer_get_time() * CPU_FREQ_MHZ;  // Current time in CPU ticks
+        
+        if (d4_.size() == 0) {
+            continue;
+        }
 
         // command all LOW
         if (signalsEnabled == 0)
@@ -209,9 +252,11 @@ void IRAM_ATTR generateSignal(void* arg) {
         }
         
         // command SIGNAL
-        if (state == 0 && signalState == SignalState::CHANGED) {
-            update_bin_values();
-            signalState = SignalState::NORMAL;
+        if (state == 0) {
+            if (signalState == SignalState::CHANGED) {
+                update_bin_values();
+            }
+            signalState = SignalState::READ;
         }
         
         // prepare signal
@@ -230,7 +275,7 @@ void IRAM_ATTR generateSignal(void* arg) {
         while ((esp_timer_get_time() * CPU_FREQ_MHZ) - startTicks < US_TO_TICKS(time_[state])) {}
         
         // move to next state
-        state = (state + 1) % NUM_TIMINGS;
+        state = (state + 1) % num_timings_;
     }
 }
 
@@ -249,13 +294,13 @@ void setup() {
     
     // create BLE task
     xTaskCreatePinnedToCore(
-        bleTask,
-        "BLE Task",
-        2048,
-        NULL,
-        1,
-        NULL,
-        CORE_0
+        bleTask,    // Task function
+        "BLE Task", // Task name
+        2048,       // Stack size (bytes)
+        NULL,       // Task parameters
+        1,          // Highest priority
+        NULL,       // Task handle
+        CORE_0      // Core ID (0 = first core)
     );
     
     // create signal task

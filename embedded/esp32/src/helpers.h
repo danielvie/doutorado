@@ -12,7 +12,9 @@ struct Bin {
 
 namespace SignalState {
     enum State {
-        NORMAL,
+        IDLE,
+        RUN,
+        READ,
         CHANGING,
         CHANGED,
     };
