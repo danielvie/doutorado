@@ -90,7 +90,6 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
             digitalWrite(LED, LOW);
             signalState = SignalState::IDLE;
         } else if (value.substr(0,7) == "SIGNAL:") {
-            // signalsEnabled = 1;
             std::string signal = value.substr(7);
             Serial.println("Signals received:");
             Serial.println(value.c_str());
@@ -122,8 +121,6 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
                     Serial.printf("%d, ", mi);
                 }
                 Serial.println(" ");
-
-                digitalWrite(LED, LOW);
                 signalState = SignalState::CHANGED;
             }
             catch (std::exception &e) {
