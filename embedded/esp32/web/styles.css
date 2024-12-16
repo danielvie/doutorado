@@ -54,6 +54,13 @@ input {
     margin-top: 20px;
 }
 
+/* #4a4a4a */
+.bar {
+    width: 100%;
+    background-color: #c89efc;
+    height: 2px;
+}
+
 .grid-12 {
     display: grid;
     grid-template-columns: repeat(12, 1fr);

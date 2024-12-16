@@ -205,7 +205,7 @@ btn_signal_calc.addEventListener('click', () => {
     _multiply_time(mul)
     
     in_mul.value = '1.0'
-    console.log(res, res_str)
+    console.log('new time signal:', in_time.value)
 })
 
 btn_div10.addEventListener('click', () => {
