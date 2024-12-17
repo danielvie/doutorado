@@ -19,8 +19,6 @@
 #define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 #define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
-// Signal states
-volatile int signalsEnabled = 0;
 
 // Convert microseconds to CPU ticks
 #define US_TO_TICKS(us) ((us) * CPU_FREQ_MHZ)
@@ -40,6 +38,7 @@ std::vector<uint64_t> modes_di4 = { 1, 0, 1, 0, 1, 0 };
 std::vector<uint64_t> modes_di5 = { 1, 0, 1, 0, 1, 0 };
 std::vector<uint64_t> modes_di6 = { 1, 0, 1, 0, 1, 0 };
 
+// Signal states
 SignalState::State signalState = SignalState::IDLE;
 
 // flag
@@ -76,26 +75,27 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
     void onWrite(NimBLECharacteristic *characteristic) {
         std::string value = characteristic->getValue();
         if (value == "START") {
-            signalsEnabled = 1;
+            // signalsEnabled = 1;
+            signalState = SignalState::RUN_SIGNAL;
             Serial.println("Signals started");
             digitalWrite(LED, HIGH);
-            signalState = SignalState::RUN;
         } else if (value == "HIGH") {
-            signalsEnabled = 2;
+            // signalsEnabled = 2;
+            signalState = SignalState::RUN_HIGH;
             Serial.println("Signals high");
             digitalWrite(LED, LOW);
         } else if (value == "STOP" || value == "LOW") {
-            signalsEnabled = 0;
+            // signalsEnabled = 0;
+            signalState = SignalState::IDLE;
             Serial.println("Signals stopped");
             digitalWrite(LED, LOW);
-            signalState = SignalState::IDLE;
         } else if (value.substr(0,7) == "SIGNAL:") {
             std::string signal = value.substr(7);
             Serial.println("Signals received:");
             Serial.println(value.c_str());
 
             try {
-                signalState = SignalState::CHANGING;
+                signalState = SignalState::SIGNAL_READING;
                 parseSignal(signal, timings, modes);
                 
                 // converting values of modes to binary
@@ -121,7 +121,7 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
                     Serial.printf("%d, ", mi);
                 }
                 Serial.println(" ");
-                signalState = SignalState::CHANGED;
+                signalState = SignalState::SIGNAL_CHANGED;
             }
             catch (std::exception &e) {
                 Serial.printf("Error parsing signal: %s\n", e.what());
@@ -170,9 +170,9 @@ void bleTask(void* parameter) {
             continue;
         }
 
-        if (signalState == SignalState::READ) {
+        if (signalState == SignalState::RUN_AND_READ) {
             Serial.printf("ik moet hier iets lezen! (counter: %d) (core: %d)\n", counter, xPortGetCoreID());
-            signalState = SignalState::RUN;
+            signalState = SignalState::RUN_SIGNAL;
             counter++;
         }
         vTaskDelay(pdMS_TO_TICKS(1));
@@ -233,7 +233,7 @@ void IRAM_ATTR generateSignal(void* arg) {
         }
 
         // command all LOW
-        if (signalsEnabled == 0)
+        if (signalState == SignalState::IDLE)
         {
             GPIO.out_w1tc = (1 << LED) | (1 << GPIO_DI4) | (1 << GPIO_DI5) | (1 << GPIO_DI6);
             vTaskDelay(pdMS_TO_TICKS(100));
@@ -241,7 +241,7 @@ void IRAM_ATTR generateSignal(void* arg) {
         }
         
         // command all HIGH
-        if (signalsEnabled == 2)
+        if (signalState == SignalState::RUN_HIGH)
         {
             GPIO.out_w1ts = (1 << LED) | (1 << GPIO_DI4) | (1 << GPIO_DI5) | (1 << GPIO_DI6);
             vTaskDelay(pdMS_TO_TICKS(100));
@@ -250,10 +250,10 @@ void IRAM_ATTR generateSignal(void* arg) {
         
         // command SIGNAL
         if (state == 0) {
-            if (signalState == SignalState::CHANGED) {
+            if (signalState == SignalState::SIGNAL_CHANGED) {
                 update_bin_values();
             }
-            signalState = SignalState::READ;
+            signalState = SignalState::RUN_AND_READ;
         }
         
         // prepare signal

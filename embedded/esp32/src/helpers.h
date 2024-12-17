@@ -13,10 +13,11 @@ struct Bin {
 namespace SignalState {
     enum State {
         IDLE,
-        RUN,
-        READ,
-        CHANGING,
-        CHANGED,
+        RUN_SIGNAL,
+        RUN_HIGH,
+        RUN_AND_READ,
+        SIGNAL_READING,
+        SIGNAL_CHANGED,
     };
 }
 
