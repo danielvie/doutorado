@@ -95,7 +95,9 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
             Serial.println(value.c_str());
 
             try {
-                signalState = SignalState::SIGNAL_READING;
+                if (signalState != SignalState::IDLE) {
+                    signalState = SignalState::SIGNAL_READING;
+                }
                 parseSignal(signal, timings, modes);
                 
                 // converting values of modes to binary
@@ -121,7 +123,13 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
                     Serial.printf("%d, ", mi);
                 }
                 Serial.println(" ");
-                signalState = SignalState::SIGNAL_CHANGED;
+
+                if (signalState == SignalState::IDLE) {
+                    signalState = SignalState::SIGNAL_CHANGED_IDLE;
+                }
+                else {
+                    signalState = SignalState::SIGNAL_CHANGED;
+                }
             }
             catch (std::exception &e) {
                 Serial.printf("Error parsing signal: %s\n", e.what());
@@ -205,7 +213,7 @@ void IRAM_ATTR generateSignal(void* arg) {
     };
 
     uint8_t num_timings_;
-    auto update_bin_values = [&time_, &d4_, &d5_, &d6_, &num_timings_]() {
+    auto UpdateSignalValues = [&time_, &d4_, &d5_, &d6_, &num_timings_]() {
         // clearing previous values
         time_.clear();
         d4_.clear();
@@ -222,7 +230,7 @@ void IRAM_ATTR generateSignal(void* arg) {
         num_timings_ = timings.size();
     };
 
-    update_bin_values();
+    UpdateSignalValues();
 
     // signal loop
     while (1) {
@@ -239,6 +247,12 @@ void IRAM_ATTR generateSignal(void* arg) {
             vTaskDelay(pdMS_TO_TICKS(100));
             continue;
         }
+
+        if (signalState == SignalState::SIGNAL_CHANGED_IDLE) {
+            UpdateSignalValues();
+            signalState = SignalState::IDLE;
+            continue;
+        }
         
         // command all HIGH
         if (signalState == SignalState::RUN_HIGH)
@@ -251,7 +265,7 @@ void IRAM_ATTR generateSignal(void* arg) {
         // command SIGNAL
         if (state == 0) {
             if (signalState == SignalState::SIGNAL_CHANGED) {
-                update_bin_values();
+                UpdateSignalValues();
             }
             signalState = SignalState::RUN_AND_READ;
         }

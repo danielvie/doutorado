@@ -18,6 +18,7 @@ namespace SignalState {
         RUN_AND_READ,
         SIGNAL_READING,
         SIGNAL_CHANGED,
+        SIGNAL_CHANGED_IDLE,
     };
 }
 
