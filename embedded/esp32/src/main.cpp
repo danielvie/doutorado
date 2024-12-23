@@ -10,6 +10,9 @@
 
 #define LED 2
 #define MAX_ELEMENTS_SIGNAL 30
+
+#define GPIO_AN6 36
+
 #define GPIO_DI4 21
 #define GPIO_DI5 22
 #define GPIO_DI6 23
@@ -180,10 +183,18 @@ void bleTask(void* parameter) {
 
         if (signalState == SignalState::RUN_AND_READ) {
             Serial.printf("ik moet hier iets lezen! (counter: %d) (core: %d)\n", counter, xPortGetCoreID());
+
+            // GPIO.out_w1ts = (1 << LED) | (1 << GPIO_DI4) | (1 << GPIO_DI5) | (1 << GPIO_DI6);
+            // int value = (GPIO.in >> GPIO_AN6) & 0x1;
             signalState = SignalState::RUN_SIGNAL;
             counter++;
         }
-        vTaskDelay(pdMS_TO_TICKS(1));
+
+        int value = analogRead(GPIO_AN6);
+        float value_ = (float)value * 3.3 / 4096;
+        Serial.print("an value: ");
+        Serial.println(value_);
+        vTaskDelay(pdMS_TO_TICKS(200));
     }
 }
 
@@ -296,6 +307,9 @@ void setup() {
 
     // configure pin
     pinMode(LED, OUTPUT);
+
+    pinMode(GPIO_AN6, INPUT);
+
     pinMode(GPIO_DI4, OUTPUT);
     pinMode(GPIO_DI5, OUTPUT);
     pinMode(GPIO_DI6, OUTPUT);
