@@ -14,26 +14,32 @@
     
     <!-- <div id="controlPanel" style="display: none;"> -->
     <div id="controlPanel">
-        <div class="grid justify-content">
+        <div class="grid-24 justify-content">
             <input type="text" id="commandInput" class="col-span-20" placeholder="Enter command">
             <button id="sendBtn" class="col-span-4 justify-content mx-0" style="margin-left: 0.8em;">send</button>
         </div>
-        <div class="grid">
+        <div class="grid-24">
+            <label for="" class="col-span-3 flex item-center justify-content mr-4">alpha:</label>
+            <input type="text" id="in-alpha" class="col-span-2" value="0.5">
+            <label for="" class="col-span-1"></label>
+            <button type="text" id="btn-alpha" class="col-span-4" placeholder="Enter time">calc</button>
+        </div>
+        <div class="grid-24">
             <label for="" class="col-span-3 flex item-center justify-content mr-4">time:</label>
             <input type="text" id="in-time" class="col-span-21" placeholder="Enter time">
         </div>
-        <div class="grid">
+        <div class="grid-24">
             <label for="" class="col-span-3 flex item-center justify-content mr-4">modes:</label>
             <input type="text" id="in-mode" class="col-span-21" placeholder="Enter modes">
         </div>
-        <div class="grid mb-4">
+        <div class="grid-24 mb-4">
             <label for="" class="col-span-3 flex item-center justify-content mr-4">X*time:</label>
             <input type="text" id="in-mul" class="col-span-3" placeholder="X*time" value="1.0">
             <span class="col-span-2"></span>
             <button id="btn-div10" class="col-span-4">x1/10</button>
             <button id="btn-mul10" class="col-span-4">x10</button>
             <button id="btn-signal-calc" class="col-span-4">calc</button>
-            <button id="btn-signal-send" class="col-span-4">&#10140;</button>
+            <button id="btn-signal-send" class="col-span-4">send</button>
         </div>
         
         <div class="bar mb-10"></div>

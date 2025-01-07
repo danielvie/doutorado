@@ -1,4 +1,5 @@
 #include <Arduino.h>
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/timer.h"
@@ -11,11 +12,14 @@
 #define LED 2
 #define MAX_ELEMENTS_SIGNAL 30
 
-#define GPIO_AN6 36
-
+// define IO's
+#define GPIO_DI1 4
+#define GPIO_DI2 17
+#define GPIO_DI3 18
 #define GPIO_DI4 21
 #define GPIO_DI5 22
 #define GPIO_DI6 23
+
 #define CPU_FREQ_MHZ 240  // ESP32 running at 240MHz
 
 // BLE UUIDs
@@ -60,6 +64,7 @@ void blink(uint8_t N) {
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
+
 
 // BLE Server callbacks
 class ServerCallbacks: public NimBLEServerCallbacks {
@@ -178,14 +183,23 @@ void bleTask(void* parameter) {
 
         if (analogReadState == AnalogReadState::READ) {
             Serial.printf("ik moet hier iets lezen! (counter: %d) (core: %d)\n", counter, xPortGetCoreID());
+
             analogReadState = AnalogReadState::IDLE;
             counter++;
         }
 
-        int value = analogRead(GPIO_AN6);
-        float value_ = (float)value * 3.3 / 4096;
-        Serial.print("an value: ");
-        Serial.println(value_);
+        // float voltage_06 = read_analog_06();
+        // Serial.printf("an value -> 06: %f\n", voltage_06);
+
+        // float voltage_01 = read_analog_01();
+        // float voltage_02 = read_analog_02();
+        // float voltage_03 = read_analog_03();
+        // float voltage_04 = read_analog_04();
+        // float voltage_05 = read_analog_05();
+        // float voltage_06 = read_analog_06();
+        // Serial.printf("an value -> 01: %f, 02: %f, 03: %f, 04: %f, 05: %f, 06: %f\n", 
+        //     voltage_01, voltage_02, voltage_03, voltage_04, voltage_05, voltage_06);
+
         vTaskDelay(pdMS_TO_TICKS(200));
     }
 }
@@ -297,10 +311,19 @@ void setup() {
     // configure serial
     Serial.begin(115200);
 
+    // Configure ADC1 pins
+    adc1_config_width(ADC_WIDTH_BIT_12); // 12-bit resolution
+    adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_12); // GPIO_AN6 (GPIO36)
+    adc1_config_channel_atten(ADC1_CHANNEL_4, ADC_ATTEN_DB_12); // GPIO_AN4 (GPIO32)
+    adc1_config_channel_atten(ADC1_CHANNEL_6, ADC_ATTEN_DB_12); // GPIO_AN5 (GPIO34)
+
+    // Configure ADC2 pins
+    adc2_config_channel_atten(ADC2_CHANNEL_4, ADC_ATTEN_DB_12); // GPIO_AN1 (GPIO13)
+    adc2_config_channel_atten(ADC2_CHANNEL_7, ADC_ATTEN_DB_12); // GPIO_AN2 (GPIO27)
+    adc2_config_channel_atten(ADC2_CHANNEL_8, ADC_ATTEN_DB_12); // GPIO_AN3 (GPIO25)
+
     // configure pin
     pinMode(LED, OUTPUT);
-
-    pinMode(GPIO_AN6, INPUT);
 
     pinMode(GPIO_DI4, OUTPUT);
     pinMode(GPIO_DI5, OUTPUT);

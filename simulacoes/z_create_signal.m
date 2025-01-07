@@ -22,8 +22,13 @@ param.n = 3; % number of switch cells
 param.T = 0.28*1e-3; % period of cycle
 
 param.iMax = param.E/param.R;
-param.iLref = .05; % <<< current setpoint
+
+
+param.iLref = .1136363636; % <<< current setpoint
 param.alpha = param.iLref / param.iMax;
+
+param.alpha = 0.7;
+param.iLref = param.alpha * param.iMax;
 
 fprintf("\n");
 fprintf("=========================================\n");
@@ -152,19 +157,10 @@ ylabel('current L [A]');
 
 
 
-% iref = 8/22; % por que esse valor?
-% res = compute_phase(config, iref);
 
-% disp(res);
+fprintf("\n\nSIGNAL:\n\n");
+disp('dTs (us):');
+disp(dT_us);
 
-% ts_us = res.Ts*1e6;
-% disp('Ts (us):');
-% disp(ts_us);
-
-% disp('dTs (us):');
-% disp(diff(ts_us));
-
-% disp('modes:')
-% disp(res.Omega);
-
-
+disp('modes:')
+disp(Omega-1);

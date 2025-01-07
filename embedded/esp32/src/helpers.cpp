@@ -42,3 +42,54 @@ int parseSignal(const std::string &s, std::vector<uint64_t> &time, std::vector<u
     _parseSection(modeSection, mode);
     return 1;
 }
+
+float read_analog_01(void) {
+    // using esp-idf
+    int rawValue = 0;
+    adc2_get_raw(ADC2_CHANNEL_4, ADC_WIDTH_BIT_12, &rawValue); // ADC2 channel 4 is GPIO13 (ESP32)
+    float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
+    
+    return voltage;
+}
+
+float read_analog_02(void) {
+    // using esp-idf
+    int rawValue = 0;
+    adc2_get_raw(ADC2_CHANNEL_7, ADC_WIDTH_BIT_12, &rawValue); // ADC2 channel 7 is GPIO27 (ESP32)
+    float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
+    
+    return voltage;
+}
+
+float read_analog_03(void) {
+    // using esp-idf
+    int rawValue = 0;
+    adc2_get_raw(ADC2_CHANNEL_8, ADC_WIDTH_BIT_12, &rawValue); // ADC2 channel 8 is GPIO25 (ESP32)
+    float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
+    
+    return voltage;
+}
+
+float read_analog_04(void) {
+    // using esp-idf
+    int rawValue = adc1_get_raw(ADC1_CHANNEL_4); // ADC1 channel 4 is GPIO32
+    float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
+    
+    return voltage;
+}
+
+float read_analog_05(void) {
+    // using esp-idf
+    int rawValue = adc1_get_raw(ADC1_CHANNEL_6); // ADC1 channel 6 is GPIO34
+    float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
+    
+    return voltage;
+}
+
+float read_analog_06(void) {
+    // using esp-idf
+    int rawValue = adc1_get_raw(ADC1_CHANNEL_0); // ADC1 channel 0 is GPIO36
+    float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
+    
+    return voltage;
+}
