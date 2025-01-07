@@ -11,6 +11,7 @@
     
     <button id="connectBtn">Connect to ESP32</button>
     <button id="disconnectBtn">Disconnect</button>
+    <button id="btn-receive">receive</button>
     
     <!-- <div id="controlPanel" style="display: none;"> -->
     <div id="controlPanel">
@@ -18,6 +19,16 @@
             <input type="text" id="commandInput" class="col-span-20" placeholder="Enter command">
             <button id="sendBtn" class="col-span-4 justify-content mx-0" style="margin-left: 0.8em;">send</button>
         </div>
+
+        <div class="grid-24 mb-8">
+            <label for="" class="col-span-3 flex item-center justify-content mr-4">an4</label>
+            <div type="text" id="div-an4" class="col-span-4 analog-read"> -9.999</div>
+            <label for="" class="col-span-3 flex item-center justify-content mr-4">an5</label>
+            <div type="text" id="div-an5" class="col-span-4 analog-read"> -9.999</div>
+            <label for="" class="col-span-3 flex item-center justify-content mr-4">an6</label>
+            <div type="text" id="div-an6" class="col-span-4 analog-read"> -9.999</div>
+        </div>
+
         <div class="grid-24">
             <label for="" class="col-span-3 flex item-center justify-content mr-4">alpha:</label>
             <input type="text" id="in-alpha" class="col-span-2" value="0.5">

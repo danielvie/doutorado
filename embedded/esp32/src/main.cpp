@@ -156,7 +156,8 @@ void bleTask(void* parameter) {
     NimBLECharacteristic *pCharacteristic = pService->createCharacteristic(
         CHARACTERISTIC_UUID,
         NIMBLE_PROPERTY::READ |
-        NIMBLE_PROPERTY::WRITE
+        NIMBLE_PROPERTY::WRITE |
+        NIMBLE_PROPERTY::NOTIFY
     );
     
     pCharacteristic->setCallbacks(new CharacteristicCallbacks());
@@ -188,7 +189,21 @@ void bleTask(void* parameter) {
             counter++;
         }
 
-        // float voltage_06 = read_analog_06();
+        float voltage_04 = read_analog_04();
+        float voltage_05 = read_analog_05();
+        float voltage_06 = read_analog_06();
+        
+        String message =  "an4:" + String(voltage_04, 3) + ", " +
+                          "an5:" + String(voltage_05, 3) + ", " +
+                          "an6:" + String(voltage_06, 3);
+
+        // Convert the message to a char array
+        const char *messageCStr = message.c_str();
+
+        // Set the value of the characteristic
+        pCharacteristic->setValue((uint8_t *)messageCStr, strlen(messageCStr));
+        pCharacteristic->notify();
+
         // Serial.printf("an value -> 06: %f\n", voltage_06);
 
         // float voltage_01 = read_analog_01();

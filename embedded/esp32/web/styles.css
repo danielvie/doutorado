@@ -61,6 +61,16 @@ input {
     height: 2px;
 }
 
+.analog-read {
+    border: solid 1px #555;
+    border-radius: 8px;
+    height: 25px;
+    position: relative;
+    top: 5px;
+    padding: 0.4em;
+    padding-top: 1.0em;
+}
+
 .grid-12 {
     display: grid;
     grid-template-columns: repeat(12, 1fr);

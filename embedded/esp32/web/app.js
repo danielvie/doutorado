@@ -13,6 +13,10 @@ const commandInput = document.getElementById('commandInput');
 const statusDiv = document.getElementById('status');
 
 
+const div_an4 = document.getElementById('div-an4');
+const div_an5 = document.getElementById('div-an5');
+const div_an6 = document.getElementById('div-an6');
+
 const in_time = document.getElementById('in-time')
 const in_mode = document.getElementById('in-mode')
 const in_mul = document.getElementById('in-mul')
@@ -25,6 +29,8 @@ const btn_signal_1 = document.getElementById('btn-signal-1')
 const btn_signal_2 = document.getElementById('btn-signal-2')
 const btn_signal_send = document.getElementById('btn-signal-send')
 const btn_alpha = document.getElementById('btn-alpha')
+
+const btn_receive = document.getElementById('btn-receive')
 
 const btn_div10 = document.getElementById('btn-div10')
 const btn_mul10 = document.getElementById('btn-mul10')
@@ -325,3 +331,54 @@ btn_mul10.addEventListener('click', () => {
 })
 
 btn_signal_1.click()
+
+let is_listening = false;
+let listen_interval;
+
+function toggleListening() {
+    is_listening = !is_listening
+    if (is_listening) {
+        btn_receive.textContent = "Stop Listening"
+        listen_messages()
+    } else {
+        btn_receive.textContent = "Start Listening"
+        clearInterval(listen_interval) // stop listenning
+    }
+}
+
+btn_receive.addEventListener('click', async () => {
+    if (!bluetoothDevice || !bluetoothDevice.gatt.connected) {
+        await connectDevice();
+    }
+    toggleListening()
+})
+
+async function listen_messages() {
+
+    const regex = /an4:([\d.]+), an5:([\d.]+), an6:([\d.]+)/;
+    listen_interval = setInterval(async () => {
+        if (characteristic) {
+            try {
+                const value = await characteristic.readValue()
+                const decoder = new TextDecoder()
+                const message = decoder.decode(value)
+
+                // updateStatus(`Received message: ${message}`)
+                const match = message.match(regex);
+                
+                if (match) {
+                    const an4 = match[1];
+                    const an5 = match[2];
+                    const an6 = match[3];
+                    
+                    div_an4.textContent = an4;
+                    div_an5.textContent = an5;
+                    div_an6.textContent = an6;
+                }
+
+            } catch (err) {
+                updateStatus(`Receive failed: ${err.message}`, true)
+            }
+        }
+    }, 1000);
+}
