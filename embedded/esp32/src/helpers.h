@@ -10,15 +10,27 @@ struct Bin {
     bool b6;
 };
 
-namespace SignalState {
+namespace SignalWriteState {
     enum State {
         IDLE,
         RUN_SIGNAL,
         RUN_HIGH,
-        RUN_AND_READ,
-        SIGNAL_READING,
-        SIGNAL_CHANGED,
-        SIGNAL_CHANGED_IDLE,
+    };
+}
+
+namespace SignalReadState {
+    enum State {
+        IDLE,
+        READ,
+        READING,
+        CHANGED,
+    };
+}
+
+namespace AnalogReadState {
+    enum State {
+        IDLE,
+        READ,
     };
 }
 

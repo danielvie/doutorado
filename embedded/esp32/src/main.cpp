@@ -42,7 +42,9 @@ std::vector<uint64_t> modes_di5 = { 1, 0, 1, 0, 1, 0 };
 std::vector<uint64_t> modes_di6 = { 1, 0, 1, 0, 1, 0 };
 
 // Signal states
-SignalState::State signalState = SignalState::IDLE;
+SignalWriteState::State signalWriteState = SignalWriteState::IDLE;
+SignalReadState::State signalReadState = SignalReadState::IDLE;
+AnalogReadState::State analogReadState = AnalogReadState::IDLE;
 
 // flag
 // SIGNAL:50, 25, 50, 25, 50, 25; 5, 3, 4, 2, 5, 2
@@ -79,17 +81,17 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
         std::string value = characteristic->getValue();
         if (value == "START") {
             // signalsEnabled = 1;
-            signalState = SignalState::RUN_SIGNAL;
+            signalWriteState = SignalWriteState::RUN_SIGNAL;
             Serial.println("Signals started");
             digitalWrite(LED, HIGH);
         } else if (value == "HIGH") {
             // signalsEnabled = 2;
-            signalState = SignalState::RUN_HIGH;
+            signalWriteState = SignalWriteState::RUN_HIGH;
             Serial.println("Signals high");
             digitalWrite(LED, LOW);
         } else if (value == "STOP" || value == "LOW") {
             // signalsEnabled = 0;
-            signalState = SignalState::IDLE;
+            signalWriteState = SignalWriteState::IDLE;
             Serial.println("Signals stopped");
             digitalWrite(LED, LOW);
         } else if (value.substr(0,7) == "SIGNAL:") {
@@ -98,9 +100,7 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
             Serial.println(value.c_str());
 
             try {
-                if (signalState != SignalState::IDLE) {
-                    signalState = SignalState::SIGNAL_READING;
-                }
+                signalReadState = SignalReadState::READING;
                 parseSignal(signal, timings, modes);
                 
                 // converting values of modes to binary
@@ -127,12 +127,7 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
                 }
                 Serial.println(" ");
 
-                if (signalState == SignalState::IDLE) {
-                    signalState = SignalState::SIGNAL_CHANGED_IDLE;
-                }
-                else {
-                    signalState = SignalState::SIGNAL_CHANGED;
-                }
+                signalReadState = SignalReadState::CHANGED;
             }
             catch (std::exception &e) {
                 Serial.printf("Error parsing signal: %s\n", e.what());
@@ -173,7 +168,7 @@ void bleTask(void* parameter) {
     // keep task alive
     size_t counter = 0;
     while(1) {
-        if (signalState == SignalState::IDLE) {
+        if (signalWriteState == SignalWriteState::IDLE) {
             counter = 0;
         }
         if (counter > 10) {
@@ -181,12 +176,9 @@ void bleTask(void* parameter) {
             continue;
         }
 
-        if (signalState == SignalState::RUN_AND_READ) {
+        if (analogReadState == AnalogReadState::READ) {
             Serial.printf("ik moet hier iets lezen! (counter: %d) (core: %d)\n", counter, xPortGetCoreID());
-
-            // GPIO.out_w1ts = (1 << LED) | (1 << GPIO_DI4) | (1 << GPIO_DI5) | (1 << GPIO_DI6);
-            // int value = (GPIO.in >> GPIO_AN6) & 0x1;
-            signalState = SignalState::RUN_SIGNAL;
+            analogReadState = AnalogReadState::IDLE;
             counter++;
         }
 
@@ -252,21 +244,21 @@ void IRAM_ATTR generateSignal(void* arg) {
         }
 
         // command all LOW
-        if (signalState == SignalState::IDLE)
+        if (signalWriteState == SignalWriteState::IDLE)
         {
             GPIO.out_w1tc = (1 << LED) | (1 << GPIO_DI4) | (1 << GPIO_DI5) | (1 << GPIO_DI6);
             vTaskDelay(pdMS_TO_TICKS(100));
             continue;
         }
 
-        if (signalState == SignalState::SIGNAL_CHANGED_IDLE) {
+        if (signalReadState == SignalReadState::CHANGED) {
             UpdateSignalValues();
-            signalState = SignalState::IDLE;
+            signalReadState = SignalReadState::IDLE;
             continue;
         }
         
         // command all HIGH
-        if (signalState == SignalState::RUN_HIGH)
+        if (signalWriteState == SignalWriteState::RUN_HIGH)
         {
             GPIO.out_w1ts = (1 << LED) | (1 << GPIO_DI4) | (1 << GPIO_DI5) | (1 << GPIO_DI6);
             vTaskDelay(pdMS_TO_TICKS(100));
@@ -275,10 +267,10 @@ void IRAM_ATTR generateSignal(void* arg) {
         
         // command SIGNAL
         if (state == 0) {
-            if (signalState == SignalState::SIGNAL_CHANGED) {
+            if (signalReadState == SignalReadState::CHANGED) {
                 UpdateSignalValues();
             }
-            signalState = SignalState::RUN_AND_READ;
+            analogReadState = AnalogReadState::READ;
         }
         
         // prepare signal
