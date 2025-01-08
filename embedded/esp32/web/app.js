@@ -12,7 +12,8 @@ const sendBtn = document.getElementById('sendBtn');
 const commandInput = document.getElementById('commandInput');
 const statusDiv = document.getElementById('status');
 
-
+const div_an2 = document.getElementById('div-an2');
+const div_an3 = document.getElementById('div-an3');
 const div_an4 = document.getElementById('div-an4');
 const div_an5 = document.getElementById('div-an5');
 const div_an6 = document.getElementById('div-an6');
@@ -355,7 +356,7 @@ btn_receive.addEventListener('click', async () => {
 
 async function listen_messages() {
 
-    const regex = /an4:([\d.]+), an5:([\d.]+), an6:([\d.]+)/;
+    const regex = /an2:([\d.]+), an3:([\d.]+), an4:([\d.]+), an5:([\d.]+), an6:([\d.]+)/;
     listen_interval = setInterval(async () => {
         if (characteristic) {
             try {
@@ -367,10 +368,14 @@ async function listen_messages() {
                 const match = message.match(regex);
                 
                 if (match) {
-                    const an4 = match[1];
-                    const an5 = match[2];
-                    const an6 = match[3];
+                    const an2 = match[1];
+                    const an3 = match[2];
+                    const an4 = match[3];
+                    const an5 = match[4];
+                    const an6 = match[5];
                     
+                    div_an2.textContent = an2;
+                    div_an3.textContent = an3;
                     div_an4.textContent = an4;
                     div_an5.textContent = an5;
                     div_an6.textContent = an6;

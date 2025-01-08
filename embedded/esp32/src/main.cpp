@@ -65,6 +65,59 @@ void blink(uint8_t N) {
     }
 }
 
+// READ ANALOG
+
+float read_analog_01(void) {
+    // using esp-idf
+    int rawValue = adc1_get_raw(ADC1_CHANNEL_3); // ADC1 channel 0 is GPIO36
+    float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
+    
+    return voltage;
+}
+
+float read_analog_02(void) {
+    // using esp-idf
+    int rawValue = adc1_get_raw(ADC1_CHANNEL_5); // ADC1 channel 0 is GPIO36
+    float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
+    
+    return voltage;
+}
+
+float read_analog_03(void) {
+    // using esp-idf
+    int rawValue = adc1_get_raw(ADC1_CHANNEL_7); // ADC1 channel 0 is GPIO36
+    float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
+    
+    return voltage;
+}
+
+
+
+float read_analog_04(void) {
+    // using esp-idf
+    int rawValue = adc1_get_raw(ADC1_CHANNEL_4); // ADC1 channel 4 is GPIO32
+    float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
+    
+    return voltage;
+}
+
+float read_analog_05(void) {
+    // using esp-idf
+    int rawValue = adc1_get_raw(ADC1_CHANNEL_6); // ADC1 channel 6 is GPIO34
+    float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
+    
+    return voltage;
+}
+
+float read_analog_06(void) {
+    // using esp-idf
+    int rawValue = adc1_get_raw(ADC1_CHANNEL_0); // ADC1 channel 0 is GPIO36
+    float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
+    
+    return voltage;
+}
+
+
 
 // BLE Server callbacks
 class ServerCallbacks: public NimBLEServerCallbacks {
@@ -189,13 +242,19 @@ void bleTask(void* parameter) {
             counter++;
         }
 
+        float voltage_02 = read_analog_02();
+        float voltage_03 = read_analog_03();
         float voltage_04 = read_analog_04();
         float voltage_05 = read_analog_05();
         float voltage_06 = read_analog_06();
-        
-        String message =  "an4:" + String(voltage_04, 3) + ", " +
-                          "an5:" + String(voltage_05, 3) + ", " +
-                          "an6:" + String(voltage_06, 3);
+
+        String message = "an2:" + String(voltage_02, 3) + ", " +
+                         "an3:" + String(voltage_03, 3) + ", " +
+                         "an4:" + String(voltage_04, 3) + ", " +
+                         "an5:" + String(voltage_05, 3) + ", " +
+                         "an6:" + String(voltage_06, 3);
+
+        Serial.println(message);
 
         // Convert the message to a char array
         const char *messageCStr = message.c_str();
@@ -203,17 +262,6 @@ void bleTask(void* parameter) {
         // Set the value of the characteristic
         pCharacteristic->setValue((uint8_t *)messageCStr, strlen(messageCStr));
         pCharacteristic->notify();
-
-        // Serial.printf("an value -> 06: %f\n", voltage_06);
-
-        // float voltage_01 = read_analog_01();
-        // float voltage_02 = read_analog_02();
-        // float voltage_03 = read_analog_03();
-        // float voltage_04 = read_analog_04();
-        // float voltage_05 = read_analog_05();
-        // float voltage_06 = read_analog_06();
-        // Serial.printf("an value -> 01: %f, 02: %f, 03: %f, 04: %f, 05: %f, 06: %f\n", 
-        //     voltage_01, voltage_02, voltage_03, voltage_04, voltage_05, voltage_06);
 
         vTaskDelay(pdMS_TO_TICKS(200));
     }
@@ -332,10 +380,14 @@ void setup() {
     adc1_config_channel_atten(ADC1_CHANNEL_4, ADC_ATTEN_DB_12); // GPIO_AN4 (GPIO32)
     adc1_config_channel_atten(ADC1_CHANNEL_6, ADC_ATTEN_DB_12); // GPIO_AN5 (GPIO34)
 
+    adc1_config_channel_atten(ADC1_CHANNEL_3, ADC_ATTEN_DB_12); // GPIO_AN5 (GPIO34)
+    adc1_config_channel_atten(ADC1_CHANNEL_5, ADC_ATTEN_DB_12); // GPIO_AN5 (GPIO34)
+    adc1_config_channel_atten(ADC1_CHANNEL_7, ADC_ATTEN_DB_12); // GPIO_AN5 (GPIO34)
+
     // Configure ADC2 pins
-    adc2_config_channel_atten(ADC2_CHANNEL_4, ADC_ATTEN_DB_12); // GPIO_AN1 (GPIO13)
-    adc2_config_channel_atten(ADC2_CHANNEL_7, ADC_ATTEN_DB_12); // GPIO_AN2 (GPIO27)
-    adc2_config_channel_atten(ADC2_CHANNEL_8, ADC_ATTEN_DB_12); // GPIO_AN3 (GPIO25)
+    // adc2_config_channel_atten(ADC2_CHANNEL_4, ADC_ATTEN_DB_12); // GPIO_AN1 (GPIO13)
+    // adc2_config_channel_atten(ADC2_CHANNEL_7, ADC_ATTEN_DB_12); // GPIO_AN2 (GPIO27)
+    // adc2_config_channel_atten(ADC2_CHANNEL_8, ADC_ATTEN_DB_12); // GPIO_AN3 (GPIO25)
 
     // configure pin
     pinMode(LED, OUTPUT);
