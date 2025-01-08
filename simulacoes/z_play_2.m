@@ -1,60 +1,43 @@
 
 function z_play_2()
     % creating `sim` object
-
-    modes = [1, 2, 1, 5, 1, 3];
-
-    nmodes = numel(modes);
-    di4 = zeros(1, nmodes);
-    di5 = di4;
-    di6 = di4;
-
-    for i = 1:nmodes
-        % read mode from omega
-        m = modes(i);
-        
-        % convert value to bin
-        bin = dec2bin(m, 3);
-        
-        % insert value into outputs
-        di6(i) = str2double(bin(1));
-        di5(i) = str2double(bin(2));
-        di4(i) = str2double(bin(3));
-    end
-
-    disp(di6);
-    disp(di5);
-    disp(di4);
     
-    % negate the values
-    di6_ = 1-di6;
-    di5_ = 1-di5;
-    di4_ = 1-di4;
+    an6 = [
+        465, 309
+        1000, 853
+        1444, 1289
+        1986, 1816
+        2503, 2343
+        3101, 3271
+    ];
 
-    disp('===================');
-    disp(di6_);
-    disp(di5_);
-    disp(di4_);
+    an5 = [
+        554, 394
+        1055, 899
+        1413, 1256
+        2029, 1865
+        2577, 2428
+        2973, 3030
+    ];
 
-    % constructing signal for esp32
-    fprintf("const uint32_t modes_di6[] = {\n  ");
-    for i = 1:nmodes
-        fprintf("%d, ", di6_(i));
-    end
-    fprintf("\n};\n\n");
-
-    % constructing signal for esp32
-    fprintf("const uint32_t modes_di5[] = {\n  ");
-    for i = 1:nmodes
-        fprintf("%d, ", di5_(i));
-    end
-    fprintf("\n};\n\n");
-
-    % constructing signal for esp32
-    fprintf("const uint32_t modes_di4[] = {\n  ");
-    for i = 1:nmodes
-        fprintf("%d, ", di4_(i));
-    end
-    fprintf("\n};\n\n");
+    an4 = [
+        573, 412
+        1017, 860
+        1443, 1281
+        2054, 1887
+        2543, 2384
+        2958, 3003
+    ];
+    
+    f = plot(an4(:,1), an4(:, 2), '-*', 'linew', 2);
+    hold on;
+    plot(an5(:,1), an5(:, 2), '-*', 'linew', 2);
+    plot(an6(:,1), an6(:, 2), '-*', 'linew', 2);
+    hold off;
+    grid on;
+    axis equal;
+    legend('an4', 'an5', 'an6');
+    
+    assignin('base', 'f', f);
 
 end
