@@ -65,60 +65,6 @@ void blink(uint8_t N) {
     }
 }
 
-// READ ANALOG
-
-float read_analog_01(void) {
-    // using esp-idf
-    int rawValue = adc1_get_raw(ADC1_CHANNEL_3); // ADC1 channel 0 is GPIO36
-    float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
-    
-    return voltage;
-}
-
-float read_analog_02(void) {
-    // using esp-idf
-    int rawValue = adc1_get_raw(ADC1_CHANNEL_5); // ADC1 channel 0 is GPIO36
-    float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
-    
-    return voltage;
-}
-
-float read_analog_03(void) {
-    // using esp-idf
-    int rawValue = adc1_get_raw(ADC1_CHANNEL_7); // ADC1 channel 0 is GPIO36
-    float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
-    
-    return voltage;
-}
-
-
-
-float read_analog_04(void) {
-    // using esp-idf
-    int rawValue = adc1_get_raw(ADC1_CHANNEL_4); // ADC1 channel 4 is GPIO32
-    float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
-    
-    return voltage;
-}
-
-float read_analog_05(void) {
-    // using esp-idf
-    int rawValue = adc1_get_raw(ADC1_CHANNEL_6); // ADC1 channel 6 is GPIO34
-    float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
-    
-    return voltage;
-}
-
-float read_analog_06(void) {
-    // using esp-idf
-    int rawValue = adc1_get_raw(ADC1_CHANNEL_0); // ADC1 channel 0 is GPIO36
-    float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
-    
-    return voltage;
-}
-
-
-
 // BLE Server callbacks
 class ServerCallbacks: public NimBLEServerCallbacks {
     void onConnect(NimBLEServer* pServer) {
@@ -242,19 +188,17 @@ void bleTask(void* parameter) {
             counter++;
         }
 
-        float voltage_02 = read_analog_02();
-        float voltage_03 = read_analog_03();
-        float voltage_04 = read_analog_04();
-        float voltage_05 = read_analog_05();
-        float voltage_06 = read_analog_06();
+        float voltage_02 = read_analog(AnalogPort::AN2);
+        float voltage_03 = read_analog(AnalogPort::AN3);
+        float voltage_04 = read_analog(AnalogPort::AN4);
+        float voltage_05 = read_analog(AnalogPort::AN5);
+        float voltage_06 = read_analog(AnalogPort::AN6);
 
         String message = "an2:" + String(voltage_02, 3) + ", " +
                          "an3:" + String(voltage_03, 3) + ", " +
                          "an4:" + String(voltage_04, 3) + ", " +
                          "an5:" + String(voltage_05, 3) + ", " +
                          "an6:" + String(voltage_06, 3);
-
-        Serial.println(message);
 
         // Convert the message to a char array
         const char *messageCStr = message.c_str();

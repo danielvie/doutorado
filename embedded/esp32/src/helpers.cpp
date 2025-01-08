@@ -42,3 +42,32 @@ int parseSignal(const std::string &s, std::vector<uint64_t> &time, std::vector<u
     _parseSection(modeSection, mode);
     return 1;
 }
+
+float read_analog(AnalogPort port) {
+    int rawValue = 0;
+    
+    switch (port) {
+        case AnalogPort::AN1:
+            rawValue = adc1_get_raw(ADC1_CHANNEL_3);
+            break;
+        case AnalogPort::AN2:
+            rawValue = adc1_get_raw(ADC1_CHANNEL_5);
+            break;
+        case AnalogPort::AN3:
+            rawValue = adc1_get_raw(ADC1_CHANNEL_4);
+            break;
+        case AnalogPort::AN4:
+            rawValue = adc1_get_raw(ADC1_CHANNEL_7);
+            break;
+        case AnalogPort::AN5:
+            rawValue = adc1_get_raw(ADC1_CHANNEL_6);
+            break;
+        case AnalogPort::AN6:
+            rawValue = adc1_get_raw(ADC1_CHANNEL_0);
+            break;
+        default:
+            return -9.9f; // Return -9.9V for invalid ports
+    }
+    
+    return ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
+}
