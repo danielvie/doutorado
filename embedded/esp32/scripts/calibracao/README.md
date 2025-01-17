@@ -1,4 +1,4 @@
-# calibracao reuniao
+# calibracao reuniao (lab ita)
 
 ## an6
     multimetro, esp
@@ -29,3 +29,37 @@
     2054, 1887
     2543, 2384
     2958, 3003
+
+
+
+# calibracao (gerador pequeno)
+
+## an6
+    multimetro, esp
+
+    500, 343
+    1000, 842
+    1500, 1342
+    2000, 1828
+    2500, 2341
+    3000, 3080
+
+## an5
+    multimetro, esp
+
+    500, 346
+    1000, 844
+    1500, 1343
+    2000, 1834
+    2500, 2343
+    3000, 3080
+
+## an4
+    multimetro, esp
+
+    500, 347
+    1000, 841
+    1500, 1340
+    2000, 1834
+    2500, 2344
+    3000, 3076

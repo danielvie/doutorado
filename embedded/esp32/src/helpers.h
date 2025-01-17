@@ -54,4 +54,6 @@ enum class AnalogPort {
     AN6 = 6
 };
 
+float esp2multi(float x);
+
 float read_analog(AnalogPort port);

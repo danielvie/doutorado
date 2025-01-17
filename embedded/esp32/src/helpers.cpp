@@ -21,6 +21,12 @@ void _parseSection(const std::string &section, std::vector<uint64_t> &result) {
     }
 }
 
+
+float esp2multi(float x) {
+    float beta[] = {-0.1545, 0.99686667};
+    return (x-beta[0])/beta[1];
+}
+
 int parseSignal(const std::string &s, std::vector<uint64_t> &time, std::vector<uint64_t> &mode) {
     // clearing values
     time.clear();
@@ -69,5 +75,9 @@ float read_analog(AnalogPort port) {
             return -9.9f; // Return -9.9V for invalid ports
     }
     
-    return ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
+    float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
+    
+    float voltageCompensated = esp2multi(voltage);
+    
+    return voltageCompensated;
 }
