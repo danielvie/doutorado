@@ -37,6 +37,16 @@ const btn_div10 = document.getElementById('btn-div10')
 const btn_mul10 = document.getElementById('btn-mul10')
 const btn_signal_calc = document.getElementById('btn-signal-calc')
 
+const btn_copy_values = document.getElementById('btn-copy-values')
+
+const div_analog_an4 = document.getElementById('analog-an4')
+const div_analog_an5 = document.getElementById('analog-an5')
+const div_analog_an6 = document.getElementById('analog-an6')
+
+const analog_values_an4 = []
+const analog_values_an5 = []
+const analog_values_an6 = []
+
 function updateStatus(message, isError = false) {
     statusDiv.textContent = message;
     statusDiv.style.color = isError ? '#ff5252' : '#03dac6';
@@ -323,6 +333,23 @@ btn_signal_calc.addEventListener('click', () => {
     console.log('new time signal:', in_time.value)
 })
 
+btn_copy_values.addEventListener('click', () => {
+    const an4 = div_analog_an4.innerText
+    const an5 = div_analog_an5.innerText
+    const an6 = div_analog_an6.innerText
+    
+    // creating message
+    const message = `an4 = [${an4}]
+an5 = [${an5}]
+an6 = [${an6}]`
+    
+    // coping values
+    navigator.clipboard.writeText(message)
+        .then(() => console.log('values copied!!'))
+        .catch(() => console.error('values NOT copied!!'))
+    
+})
+
 btn_div10.addEventListener('click', () => {
     _multiply_time(0.1)
 })
@@ -379,6 +406,15 @@ async function listen_messages() {
                     div_an4.textContent = an4;
                     div_an5.textContent = an5;
                     div_an6.textContent = an6;
+                    
+                    // saving time series
+                    // analog_values_an4.push(an4)
+                    // analog_values_an5.push(an5)
+                    // analog_values_an6.push(an6)
+                    div_analog_an4.innerText += ` ${an4},`
+                    div_analog_an5.innerText += ` ${an5},`
+                    div_analog_an6.innerText += ` ${an6},`
+                    
                 }
 
             } catch (err) {

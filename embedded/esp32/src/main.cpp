@@ -116,8 +116,9 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
                     modes_di4.push_back(bin.b1);
                     modes_di5.push_back(bin.b2);
                     modes_di6.push_back(bin.b3);
+                    
                 }
-                
+
                 // printing values
                 Serial.print("time: ");
                 for (auto ti : timings) {
@@ -332,6 +333,11 @@ void setup() {
     // adc2_config_channel_atten(ADC2_CHANNEL_4, ADC_ATTEN_DB_12); // GPIO_AN1 (GPIO13)
     // adc2_config_channel_atten(ADC2_CHANNEL_7, ADC_ATTEN_DB_12); // GPIO_AN2 (GPIO27)
     // adc2_config_channel_atten(ADC2_CHANNEL_8, ADC_ATTEN_DB_12); // GPIO_AN3 (GPIO25)
+    
+    // reserve time series
+    an4_values.reserve(100);
+    an5_values.reserve(100);
+    an6_values.reserve(100);
 
     // configure pin
     pinMode(LED, OUTPUT);
