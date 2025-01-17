@@ -8,3 +8,8 @@ tasks:
   main:
     cmds:
      - uv run calibracao.py
+
+  plot:
+    aliases: [p]
+    cmds:
+     - uv run grafico.py

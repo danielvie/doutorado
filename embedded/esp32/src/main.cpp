@@ -347,7 +347,7 @@ void setup() {
     xTaskCreatePinnedToCore(
         bleTask,    // Task function
         "BLE Task", // Task name
-        2048,       // Stack size (bytes)
+        4096,       // Stack size (bytes)
         NULL,       // Task parameters
         1,          // Highest priority
         NULL,       // Task handle

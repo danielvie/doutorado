@@ -77,7 +77,7 @@ float read_analog(AnalogPort port) {
     
     float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
     
-    float voltageCompensated = esp2multi(voltage);
+    voltage = esp2multi(voltage);
     
-    return voltageCompensated;
+    return voltage;
 }
