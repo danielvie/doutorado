@@ -120,10 +120,6 @@ function resetConnection() {
     bluetoothDevice = null;
     gattServer = null;
     characteristic = null;
-
-    // controlPanel.style.display = 'none';
-    // connectBtn.style.display = 'block';
-    // disconnectBtn.style.display = 'none';
 }
 
 async function disconnectDevice() {

@@ -1,0 +1,200 @@
+import { useState, useEffect } from "react";
+import './App.css'
+import { connectDevice, disconnectDevice, setUpdateStatus, sendCommand  } from "./components/bluetooth";
+
+function App() {
+  
+  const [status, setStatus] = useState('.')
+  const [commandMessage, setCommandMessage] = useState('')
+  
+  const [time, setTime] = useState('')
+  const [mode, setMode] = useState('')
+  const [mulValue, setMulValue] = useState("1.0")
+  
+  useEffect(() => {
+    const _time = "50, 25, 50, 25, 50, 25"
+    const _mode = "5, 3, 4, 2, 5, 2"
+    
+    setTime(_time)
+    setMode(_mode)
+  }, [])
+  
+  function updateStatus(message:string, isError = false) {
+    // statusDiv.textContent = message;
+    // statusDiv.style.color = isError ? '#ff5252' : '#03dac6';
+    // console.log(isError ? 'ERROR: ' + message : message);
+    setStatus(message)
+  }
+  
+  setUpdateStatus(updateStatus)
+
+  function handleSetCommandMessage(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = e.target.value
+    setCommandMessage(value)
+  }
+
+  function handleSendCommand() {
+    sendCommand(commandMessage)
+  }
+
+  function handleConnect() {
+    connectDevice()
+  }
+
+  function handleDisconnect() {
+    disconnectDevice()
+  }
+  
+  function handleStart() {
+    sendCommand("START")
+  }
+
+  function handleStop() {
+    sendCommand("STOP")
+  }
+  
+  function handleHigh() {
+    sendCommand("HIGH")
+  }
+
+  function setSignal1() {
+    const _time = "50, 25, 50, 25, 50, 25"
+    const _mode = "5, 3, 4, 2, 5, 2"
+    setTime(_time)
+    setMode(_mode)
+  }
+
+  function setSignal2() {
+    const _time = "50, 50, 50, 50, 50, 50"
+    const _mode = "7, 0, 7, 0, 7, 0"
+    setTime(_time)
+    setMode(_mode)
+  }
+  
+  function handleSetTime(e: React.ChangeEvent<HTMLInputElement>) {
+    setTime(e.target.value)
+  }
+
+  function handleSetMode(e: React.ChangeEvent<HTMLInputElement>) {
+    setMode(e.target.value)
+  }
+  
+  function handleSendSignal() {
+    const signal = `SIGNAL:${time};${mode}`
+    sendCommand(signal)
+  }
+
+  function handleSetMultiply(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = e.target.value
+    
+    setMulValue(value)
+  }
+  
+  function _multiply_time(value: number) {
+    // split and multiply values
+    const res = time.split(',').map((e) => parseFloat(e)*value)
+    
+    // write values back
+    const res_str = res.map(Math.round).join(', ')
+    updateStatus(res_str)
+    setTime(res_str)
+  }
+  
+  
+  return (
+    <>
+      <div className="grid items-center justify-items-center">
+        <div className="w-[600px]">
+          <h1 className="text-purple-500 text-4xl font-bold justify-center items-center text-center">ESP32 Web Bluetooth Control</h1>
+
+          <div className="flex  gap-3 my-5 items-center justify-center">
+            <button id="connectBtn" onClick={handleConnect} className="btn">Connect to ESP32</button>
+            <button id="disconnectBtn" onClick={handleDisconnect} className="btn">Disconnect</button>
+            <button id="btn-receive" className="btn">receive</button>
+            <button id="btn-copy-values" className="btn">copy</button>
+          </div>
+
+          <div id="controlPanel" className="bg-panel p-5 rounded-xl">
+
+            <div className="bg-purple-500 w-full h-[2px] mb-4"></div>
+
+            <div className="flex justify-content">
+              <input type="text" id="commandInput" value={commandMessage} onChange={handleSetCommandMessage} className="flex-1 bg-panel border-zinc-700 border-[1px] rounded-sm px-3 py-1" placeholder="Enter command" />
+              <button id="sendBtn" onClick={handleSendCommand} className="flex-none ml-2 btn">send</button>
+            </div>
+
+            <div className="grid grid-cols-3 my-4 gap-3">
+              <div className="flex">
+                <label className="mr-4 relative top-2 w-12">an2:</label>
+                <div itemType="text" id="div-an2" className="border ml-2 p-2 items-center"> -9.999</div>
+              </div>
+              <div className="flex">
+                <label className="mr-4 relative top-2 w-12">an3</label>
+                <div itemType="text" id="div-an3" className="border ml-2 p-2 items-center"> -9.999</div>
+              </div>
+              <div className="flex">
+                <label className="mr-4 relative top-2 w-12">an4</label>
+                <div itemType="text" id="div-an4" className="border p-2 ml-2 items-center"> -9.999</div>
+              </div>
+              <div className="flex">
+                <label className="mr-4 relative top-2 w-12">an5</label>
+                <div itemType="text" id="div-an5" className="border p-2 ml-2 items-center"> -9.999</div>
+              </div>
+              <div className="flex">
+                <label className="mr-4 relative top-2 w-12">an6</label>
+                <div itemType="text" id="div-an6" className="border p-2 ml-2 items-center"> -9.999</div>
+              </div>
+            </div>
+
+            <div className="flex my-4 gap-2">
+              <label htmlFor="" className="mr-4 relative top-2 w-12">alpha:</label>
+              <input type="text" id="in-alpha" className="bg-panel border flex-none w-16 px-2 text-center" value="0.5" />
+              <button itemType="text" id="btn-alpha" className="btn" onClick={() => alert('bla ble')}>calc</button>
+              <span className="flex-1"></span>
+            </div>
+
+            <div className="flex my-4 gap-2">
+              <label htmlFor="" className="flex item-center justify-content mr-4 relative top-2 w-12">time:</label>
+              <input type="text" id="in-time" className="input p-2 flex-grow" placeholder="Enter time" value={time} onChange={handleSetTime} />
+            </div>
+
+            <div className="flex my-4 gap-2">
+              <label htmlFor="" className="flex item-center justify-content mr-4 relative top-2 w-12">modes:</label>
+              <input type="text" id="in-mode" className="input p-2 flex-grow" placeholder="Enter modes" value={mode} onChange={handleSetMode} />
+            </div>
+
+            <div className="flex my-4 gap-2">
+              <label htmlFor="" className="flex item-center justify-content mr-4 relative top-2 w-12">X*time:</label>
+              <input type="text" id="in-mul" className="input p-2 w-16 text-center" placeholder="X*time" value={mulValue} onChange={handleSetMultiply} />
+              <span className=""></span>
+              <button id="btn-div10" onClick={() => _multiply_time(0.1)} className="btn">x1/10</button>
+              <button id="btn-mul10" onClick={() => _multiply_time(10.0)} className="btn">x10</button>
+              <button id="btn-signal-calc" onClick={() => _multiply_time(parseFloat(mulValue))} className="btn">calc</button>
+              <button id="btn-signal-send" onClick={handleSendSignal} className="btn">send signal</button>
+            </div>
+
+            <div className="bg-purple-500 w-full h-[2px] my-5"></div>
+
+            <div className="flex gap-4 justify-center">
+              <button id="btn-signal-1" onClick={setSignal1} className="btn">signal 1</button>
+              <button id="btn-signal-2" onClick={setSignal2} className="btn">signal 2</button>
+              <button id="btn-start" onClick={handleStart} className="btn">start</button>
+              <button id="btn-stop" onClick={handleStop} className="btn">stop</button>
+              <button id="btn-high" onClick={handleHigh} className="btn">high</button>
+            </div>
+
+          </div>
+
+          <div id="status" className="w-min-[300px] m-2 p-3 rounded-lg bg-panel font-bold">{status}</div>
+
+          <div id="analog-an4" className="hidden"></div>
+          <div id="analog-an5" className="hidden"></div>
+          <div id="analog-an6" className="hidden"></div>
+        </div>
+
+      </div>
+    </>
+  )
+}
+
+export default App
