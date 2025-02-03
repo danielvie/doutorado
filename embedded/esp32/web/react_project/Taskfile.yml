@@ -7,4 +7,4 @@ tasks:
 
   main:
     cmds:
-     - npm run dev
+     - bun run dev

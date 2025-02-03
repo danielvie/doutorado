@@ -1,6 +1,17 @@
 import { useState, useEffect } from "react";
 import './App.css'
 import { connectDevice, disconnectDevice, setUpdateStatus, sendCommand  } from "./components/bluetooth";
+import RealtimeChart, { DataPoint } from "./components/Chart";
+
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer
+} from 'recharts';
 
 function App() {
   
@@ -11,14 +22,42 @@ function App() {
   const [mode, setMode] = useState('')
   const [mulValue, setMulValue] = useState("1.0")
   
+  const [data, setData] = useState<DataPoint[]>([])
+  
   useEffect(() => {
     const _time = "50, 25, 50, 25, 50, 25"
     const _mode = "5, 3, 4, 2, 5, 2"
     
     setTime(_time)
     setMode(_mode)
+
+    const interval = setInterval(() => {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString();
+      
+      setData(currentData => {
+        const newData = [...currentData, {
+          time: timeStr,
+          value1: generateValue(),
+          value2: generateValue()*3,
+          value3: generateValue()*6
+        }].slice(-500);
+        
+        return newData;
+      });
+    }, 10);
+    
+    return () => clearInterval(interval);
+
+
   }, [])
   
+  
+  const generateValue = () => {
+    return Math.sin(Date.now() / 1000) * 5 + Math.random() * 2;
+  };
+
+
   function updateStatus(message:string, isError = false) {
     // statusDiv.textContent = message;
     // statusDiv.style.color = isError ? '#ff5252' : '#03dac6';
@@ -99,8 +138,7 @@ function App() {
     updateStatus(res_str)
     setTime(res_str)
   }
-  
-  
+
   return (
     <>
       <div className="grid items-center justify-items-center">
@@ -191,6 +229,9 @@ function App() {
           <div id="analog-an5" className="hidden"></div>
           <div id="analog-an6" className="hidden"></div>
         </div>
+        
+        <RealtimeChart data={data}/>
+
 
       </div>
     </>
