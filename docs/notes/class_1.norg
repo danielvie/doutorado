@@ -1,0 +1,97 @@
+* INTRO
+  {C:/Users/daniel/Pictures/LTP/Missouri/01_intro}
+
+  Louis Pape
+
+  email: dvkzy@mst.edu
+
+  - Class outline
+
+  -- spoof
+  --- when someone is messing with your signal
+
+* NOTES
+** homework
+   {:hw0:}
+
+** semester group project
+  -- needs
+  -- integrate GPS
+
+
+** system elements
+  -- components
+     operating parts of the system described by input, process, and output
+     -> elements of the system perform functions that perform the processes
+
+  -- attributes
+     properties of the components, or of the system under consideration
+
+  -- relationships
+     links between components and attributes
+
+
+** system component types
+  - structural components
+     static, but still perform an operation (or function)
+  - operating components
+  -- perform processing or control (do or change something)
+  -- flow components ...
+
+
+** system definition
+   - systems and subsystems
+   -- systems, segments, subsystems, elements
+      -> it look fractal - similar look at different magnifications
+
+  -- environment
+
+** Examples of system
+   - fire department
+   - university
+   - computer
+   - cruise ship
+   - aircraft
+   - automobile
+   - airport
+   - corporation
+   - ...
+
+** system classification
+   - natural vs human-made system
+   - physical vs. conceptual systems
+   - static vs. dynamic systems
+   - closed vs. open systems
+
+   key takeaway: precision of terms is crucial 
+   most useful SE tool: diagramming a sentence
+
+** systems engineering concepts The  Wright Bros. Used
+   - System Boundary
+   -- included pilot as part of the system
+
+** System Engineering Definitions (INCOSE)
+   - Systems Engineering: An interdisciplinary ...
+
+** Systems Engineering
+   - an interdisciplinary approach
+   - a means to enable the realization of successful systems
+
+   - system engineers are responsible for
+   -- design and management of ...
+
+** importance of system engineering
+   - "re-design a part of desing" -> you should plan for it!
+   - bottom-up integration and test process reduces risk
+   - massive amounts of data, and the need for configuration
+
+** SE's dirty little secret
+   - far too much of a program's success depends on personalities, leadership, trust
+     organizational conflicts, morale, guesswork, ego, luck, timing, social and 
+     political environment, and any number of other non-engineering influences, and then 
+     also the team's knowledge
+
+   - scientific method CANNOT be employed to determine how much SE is 'best'
+   - One should not act foolishly
+
+
