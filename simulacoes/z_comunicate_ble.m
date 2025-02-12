@@ -4,6 +4,39 @@
 % use `blelist` to list the bluetooth devices
 clear;
 
+
+% read control data
+config = engine.get_config_sim_patino_2();
+params = struct();
+params.E = 5;
+params.C(1) = 470e-6;
+params.C(2) = 470e-6;
+params.L = 100*1e-3;
+params.R = 22;
+
+params.n = 3; % number of switing cells
+params.T = 0.28*1e-3; % period of cycle
+params.iMax = params.E/params.R;
+
+% params.iLref = 0.1136; % << current setpoint
+% params.alpha = params.iLref / params.iMax;
+
+params.alpha = 0.7;
+params.iLref = params.alpha * paarms.iMax;
+
+[Omega, dT, tt] = phase_shift.industrial_solution(param.alpha, param.n, param.T);
+[A,b] = phase_shift.modelSwitchedCapacitor(param.n,param.R,param.L,param.C,param.E);
+config.A = A;
+config.b = b;
+
+dT_us = dT*1e6;
+
+
+
+
+
+
+
 SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
 CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
 
@@ -57,6 +90,20 @@ function computeMessage(message)
         value = str2double(tokens{i}{2});
         parsed_data.(key) = value;
     end
+    
+    %  compute one cicle of control
+
+    % compute dtk
+    % [dtk, ~, ~] = mpc.mpc_dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
+
+    % Ts = config.Ts;
+    % for j = 1:numel(dtk)
+    %     Ts(j+1) = Ts(j+1) + dtk(j);
+    % end
+
+    % config.Ts = Ts;
+    
+    % convert to 
 
     disp(['Performing computation: ', message]);
     disp(['Message length: ', num2str(length(message))]);
