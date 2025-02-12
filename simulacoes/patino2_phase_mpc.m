@@ -3,31 +3,29 @@ function res = patino2_phase_mpc(save_fig, nsim_in)
         save_fig = false;
     end
     
-    nsim = 1000;
+    nsim = 100;
     if (nargin >= 1)
         nsim = nsim_in;
     end
 
-    % get configuration
+
+    % get configuration of the system
     config = engine.get_config_sim_patino_2();
-    iref = 1.0; 
+    iref = 1.3; 
     % TODO: colocar `iref` com get_config...
 
+    % compute trajectory and MPC parameters
     cfg = compute_phase(config, iref);
-    
-    % FIXME: remover esse `iiref`
 
-    iiref.time = [ 0.0, 0.01, 0.02, 0.03 ];
-    iiref.value = [ 0.7, 1.2, 1.5, 2.0 ];
-    cfg.iiref = iiref;
-
+    % save results in workspace
     assignin('base', "config", config);
     assignin('base', "cfg", cfg);
 
-    nsim = 120;
+    nsim = 40;
 
     %% SIMULACAO
 
+    % add error in initial condition
     cfg.x0 = cfg.x0 + [2.5; -2.3; 1.1];
     % cfg.x0 = [0.0, 0.0, 0.0];
     % cfg.x0 = [19.2928,9.9247,0.9823];
@@ -38,18 +36,18 @@ function res = patino2_phase_mpc(save_fig, nsim_in)
     % [y,t,u] = sim_1(config_);
 
     cfg.mpc.on = true;
-    [y, t, m, ~, log1] = engine.sim_n2(cfg, nsim);
+    [y, t, m] = engine.sim_n2(cfg, nsim);
     
     cfg.mpc.on = false;
-    [y_off, t_off, m_off, ~, log2] = engine.sim_n2(cfg, nsim);
+    [y_off, t_off, m_off] = engine.sim_n2(cfg, nsim);
 
     % getting vars from the function
     vout = utils.getAllVars();
-    res = resultados.ResPatino2_mpc_phase(vout);
+    res = resultados.ResPatino2(vout);
 
     % plot dos resultados
     f1 = figure(1);
-    res.plot_x3();
+    res.plot_xi();
 
     f2 = figure(2);
     res.plot_traj();

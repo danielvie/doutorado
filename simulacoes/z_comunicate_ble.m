@@ -6,30 +6,30 @@ clear;
 
 
 % read control data
-config = engine.get_config_sim_patino_2();
-params = struct();
-params.E = 5;
-params.C(1) = 470e-6;
-params.C(2) = 470e-6;
-params.L = 100*1e-3;
-params.R = 22;
-
-params.n = 3; % number of switing cells
-params.T = 0.28*1e-3; % period of cycle
-params.iMax = params.E/params.R;
+% config = engine.get_config_sim_patino_2();
+% params = struct();
+% params.E = 5;
+% params.C(1) = 470e-6;
+% params.C(2) = 470e-6;
+% params.L = 100*1e-3;
+% params.R = 22;
+% 
+% params.n = 3; % number of switing cells
+% params.T = 0.28*1e-3; % period of cycle
+% params.iMax = params.E/params.R;
 
 % params.iLref = 0.1136; % << current setpoint
 % params.alpha = params.iLref / params.iMax;
 
-params.alpha = 0.7;
-params.iLref = params.alpha * paarms.iMax;
+% params.alpha = 0.7;
+% params.iLref = params.alpha * params.iMax;
 
-[Omega, dT, tt] = phase_shift.industrial_solution(param.alpha, param.n, param.T);
-[A,b] = phase_shift.modelSwitchedCapacitor(param.n,param.R,param.L,param.C,param.E);
-config.A = A;
-config.b = b;
-
-dT_us = dT*1e6;
+% [Omega, dT, tt] = phase_shift.industrial_solution(params.alpha, params.n, params.T);
+% [A,b] = phase_shift.modelSwitchedCapacitor(param.n,params.R,param.L,param.C,param.E);
+% config.A = A;
+% config.b = b;
+% 
+% dT_us = dT*1e6;
 
 
 

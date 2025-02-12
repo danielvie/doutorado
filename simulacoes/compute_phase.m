@@ -1,18 +1,26 @@
 function cfg = compute_phase(config, iref)
 
-    
-    
     config.iref = iref;
 
     %% CALCULO DA TRAJETORIA
         %% rodando simulacao como resultado da trajetoria
         param = struct();
 
-        param.E = 5;
-        param.C(1) = 470e-6;
-        param.C(2) = 470e-6;
-        param.L = 100*1e-3;
-        param.R = 3300+375;
+        param.E = 30;
+        param.C(1) = 40e-6;
+        param.C(2) = 40e-6;
+        param.L = 10*1e-3;
+        param.R = 10;
+
+
+
+        % PARAMS FOR LAB
+        % param.E = 5;
+        % param.C(1) = 470e-6;
+        % param.C(2) = 470e-6;
+        % param.L = 100*1e-3;
+        % param.R = 3300+375;
+
 
         param.iMax = param.E/param.R; 
         param.iLref = config.iref;
