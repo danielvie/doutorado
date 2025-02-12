@@ -174,20 +174,20 @@ void bleTask(void* parameter) {
     // keep task alive
     size_t counter = 0;
     while(1) {
-        if (signalWriteState == SignalWriteState::IDLE) {
-            counter = 0;
-        }
-        if (counter > 10) {
-            vTaskDelay(pdMS_TO_TICKS(1));
-            continue;
-        }
+        // if (signalWriteState == SignalWriteState::IDLE) {
+        //     counter = 0;
+        // }
+        // if (counter > 10) {
+        //     vTaskDelay(pdMS_TO_TICKS(1));
+        //     continue;
+        // }
 
-        if (analogReadState == AnalogReadState::READ) {
-            Serial.printf("ik moet hier iets lezen! (counter: %d) (core: %d)\n", counter, xPortGetCoreID());
+        // if (analogReadState == AnalogReadState::READ) {
+        //     Serial.printf("ik moet hier iets lezen! (counter: %d) (core: %d)\n", counter, xPortGetCoreID());
 
-            analogReadState = AnalogReadState::IDLE;
-            counter++;
-        }
+        //     analogReadState = AnalogReadState::IDLE;
+        //     counter++;
+        // }
 
         float voltage_02 = read_analog(AnalogPort::AN2);
         float voltage_03 = read_analog(AnalogPort::AN3);
@@ -195,6 +195,7 @@ void bleTask(void* parameter) {
         float voltage_05 = read_analog(AnalogPort::AN5);
         float voltage_06 = read_analog(AnalogPort::AN6);
 
+        counter++;
         String message = "an2:" + String(voltage_02, 3) + ", " +
                          "an3:" + String(voltage_03, 3) + ", " +
                          "an4:" + String(voltage_04, 3) + ", " +
@@ -208,7 +209,7 @@ void bleTask(void* parameter) {
         pCharacteristic->setValue((uint8_t *)messageCStr, strlen(messageCStr));
         pCharacteristic->notify();
 
-        vTaskDelay(pdMS_TO_TICKS(200));
+        vTaskDelay(pdMS_TO_TICKS(2000));
     }
 }
 
@@ -334,11 +335,6 @@ void setup() {
     // adc2_config_channel_atten(ADC2_CHANNEL_7, ADC_ATTEN_DB_12); // GPIO_AN2 (GPIO27)
     // adc2_config_channel_atten(ADC2_CHANNEL_8, ADC_ATTEN_DB_12); // GPIO_AN3 (GPIO25)
     
-    // reserve time series
-    an4_values.reserve(100);
-    an5_values.reserve(100);
-    an6_values.reserve(100);
-
     // configure pin
     pinMode(LED, OUTPUT);
 
