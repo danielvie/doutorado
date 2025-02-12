@@ -105,6 +105,8 @@ function computeMessage(message)
     
     % convert to 
 
-    disp(['Performing computation: ', message]);
-    disp(['Message length: ', num2str(length(message))]);
+    %disp(['Performing computation: ', message]);
+    %disp(['Message length: ', num2str(length(message))]);
+    disp(parsed_data);
+    disp(['a6 - a5: ', num2str(parsed_data.an6-parsed_data.an5)]);
 end
