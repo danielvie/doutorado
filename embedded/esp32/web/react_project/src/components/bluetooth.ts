@@ -95,18 +95,23 @@ export async function sendCommand(command: string) {
     }
 }
 
-export function toggleListening() {
+export function bt_is_connected() {
+    return (bluetoothDevice)
+}
+
+export function toggleListening(probe: CallableFunction):boolean {
     is_listening = !is_listening
     if (is_listening) {
         // btn_receive.textContent = "Stop Listening"
-        listen_messages()
+        listen_messages(probe)
     } else {
         // btn_receive.textContent = "Start Listening"
         clearInterval(listen_interval) // stop listenning
     }
+    return is_listening
 }
 
-export async function listen_messages() {
+export async function listen_messages(probe: CallableFunction) {
     const regex = /an2:([\d.]+), an3:([\d.]+), an4:([\d.]+), an5:([\d.]+), an6:([\d.]+)/;
     listen_interval = setInterval(async () => {
         if (characteristic) {
@@ -125,7 +130,14 @@ export async function listen_messages() {
                     const an5 = match[4];
                     const an6 = match[5];
                     
-                    console.log('my readings: ', an2,an3,an4,an5,an6)
+                    const results = {
+                        an2,
+                        an3,
+                        an4,
+                        an5,
+                        an6,
+                    }
+                    probe(results)
                     
                     // div_an2.textContent = an2;
                     // div_an3.textContent = an3;

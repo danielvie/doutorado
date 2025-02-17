@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import './App.css'
-import { connectDevice, disconnectDevice, setUpdateStatus, sendCommand, toggleListening  } from "./components/bluetooth";
+import { connectDevice, disconnectDevice, setUpdateStatus, sendCommand, toggleListening, bt_is_connected  } from "./components/bluetooth";
 import RealtimeChart, { DataPoint } from "./components/Chart";
 
 function App() {
@@ -13,6 +13,8 @@ function App() {
   const [mulValue, setMulValue] = useState("1.0")
   
   const [data, setData] = useState<DataPoint[]>([])
+
+  const [receiveLabel, setReceiveLabel] = useState('Start Listening')
   
   useEffect(() => {
     const _time = "50, 25, 50, 25, 50, 25"
@@ -25,16 +27,16 @@ function App() {
       const now = new Date();
       const timeStr = now.toLocaleTimeString();
       
-      setData(currentData => {
-        const newData = [...currentData, {
-          time: timeStr,
-          value1: generateValue(),
-          value2: generateValue()*3,
-          value3: generateValue()*6
-        }].slice(-500);
+      // setData(currentData => {
+      //   const newData = [...currentData, {
+      //     time: timeStr,
+      //     value1: generateValue(),
+      //     value2: generateValue()*3,
+      //     value3: generateValue()*6
+      //   }].slice(-500);
         
-        return newData;
-      });
+      //   return newData;
+      // });
     }, 10);
     
     return () => clearInterval(interval);
@@ -86,11 +88,34 @@ function App() {
     sendCommand("HIGH")
   }
   
-  function handle_receive() {
-    // if (!bluetoothDevice || !bluetoothDevice.gatt.connected) {
-    //     await connectDevice();
-    // }
-    toggleListening()
+  function probe_values(values:{an2: string, an3: string, an4: string, an5: string, an6: string}) {
+    console.log('from probe: values => ', values)
+
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString();
+      
+      setData(currentData => {
+        const newData = [...currentData, {
+          time: timeStr,
+          value1: parseFloat(values.an2),
+          value2: parseFloat(values.an3),
+          value3: parseFloat(values.an4),
+        }].slice(-500);
+        
+        return newData;
+      });
+  }
+  
+  async function handle_receive() {
+    if (!bt_is_connected()) {
+        await connectDevice();
+    }
+    const is_listening = toggleListening(probe_values)
+    if (is_listening) {
+      setReceiveLabel("Stop Listening")
+    } else {
+      setReceiveLabel("Start Listening")
+    }
   }
 
   function setSignal1() {
@@ -145,7 +170,7 @@ function App() {
           <div className="flex  gap-3 my-5 items-center justify-center">
             <button id="connectBtn" onClick={handleConnect} className="btn">Connect to ESP32</button>
             <button id="disconnectBtn" onClick={handleDisconnect} className="btn">Disconnect</button>
-            <button onClick={handle_receive} className="btn">receive</button>
+            <button onClick={handle_receive} className="btn">{receiveLabel}</button>
             <button id="btn-copy-values" className="btn">copy</button>
           </div>
 
