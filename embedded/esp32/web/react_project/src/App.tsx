@@ -1,17 +1,7 @@
 import { useState, useEffect } from "react";
 import './App.css'
-import { connectDevice, disconnectDevice, setUpdateStatus, sendCommand  } from "./components/bluetooth";
+import { connectDevice, disconnectDevice, setUpdateStatus, sendCommand, toggleListening  } from "./components/bluetooth";
 import RealtimeChart, { DataPoint } from "./components/Chart";
-
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer
-} from 'recharts';
 
 function App() {
   
@@ -95,6 +85,13 @@ function App() {
   function handleHigh() {
     sendCommand("HIGH")
   }
+  
+  function handle_receive() {
+    // if (!bluetoothDevice || !bluetoothDevice.gatt.connected) {
+    //     await connectDevice();
+    // }
+    toggleListening()
+  }
 
   function setSignal1() {
     const _time = "50, 25, 50, 25, 50, 25"
@@ -148,7 +145,7 @@ function App() {
           <div className="flex  gap-3 my-5 items-center justify-center">
             <button id="connectBtn" onClick={handleConnect} className="btn">Connect to ESP32</button>
             <button id="disconnectBtn" onClick={handleDisconnect} className="btn">Disconnect</button>
-            <button id="btn-receive" className="btn">receive</button>
+            <button onClick={handle_receive} className="btn">receive</button>
             <button id="btn-copy-values" className="btn">copy</button>
           </div>
 
@@ -231,7 +228,6 @@ function App() {
         </div>
         
         <RealtimeChart data={data}/>
-
 
       </div>
     </>
