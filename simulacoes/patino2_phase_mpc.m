@@ -11,7 +11,7 @@ function res = patino2_phase_mpc(save_fig, nsim_in)
 
     % get configuration of the system
     config = engine.get_config_sim_patino_2();
-    iref = 1.3; 
+    iref = 0.8; 
     % TODO: colocar `iref` com get_config...
 
     % compute trajectory and MPC parameters
