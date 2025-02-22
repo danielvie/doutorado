@@ -71,7 +71,7 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
             textAnchor="end"
           />
           <YAxis />
-          <Tooltip content={<CustomTooltip/>} />
+          <Tooltip/>
           <Legend verticalAlign='top' />
           <Line 
             type="monotone" 
