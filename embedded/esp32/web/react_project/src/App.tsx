@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import './App.css'
 import { connectDevice, disconnectDevice, setUpdateStatus, sendCommand, toggleListening, bt_is_connected  } from "./components/bluetooth";
 import RealtimeChart, { DataPoint } from "./components/Chart";
+import { _create_signal } from "./helper";
+
+
+const initial_time = new Date();
 
 function App() {
   
@@ -13,44 +17,19 @@ function App() {
   const [mulValue, setMulValue] = useState("1.0")
   
   const [data, setData] = useState<DataPoint[]>([])
+  const [alpha, setAlpha] = useState('0.5')
 
   const [receiveLabel, setReceiveLabel] = useState('Start Listening')
-  
-  useEffect(() => {
-    const _time = "50, 25, 50, 25, 50, 25"
-    const _mode = "5, 3, 4, 2, 5, 2"
-    
-    setTime(_time)
-    setMode(_mode)
 
-    const interval = setInterval(() => {
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString();
-      
-      // setData(currentData => {
-      //   const newData = [...currentData, {
-      //     time: timeStr,
-      //     value1: generateValue(),
-      //     value2: generateValue()*3,
-      //     value3: generateValue()*6
-      //   }].slice(-500);
-        
-      //   return newData;
-      // });
-    }, 10);
-    
-    return () => clearInterval(interval);
+  const [copyLabel, setCopyLabel] = useState('copy')
 
-
-  }, [])
-  
   
   const generateValue = () => {
     return Math.sin(Date.now() / 1000) * 5 + Math.random() * 2;
   };
 
 
-  function updateStatus(message:string, isError = false) {
+  function updateStatus(message:string, _isError = false) {
     // statusDiv.textContent = message;
     // statusDiv.style.color = isError ? '#ff5252' : '#03dac6';
     // console.log(isError ? 'ERROR: ' + message : message);
@@ -59,10 +38,41 @@ function App() {
   
   setUpdateStatus(updateStatus)
 
+  function handle_copy() {
+    let message: string = ''
+    
+    message += `time = [${data.map(v => v.time).join(', ')}];\n`;
+    message += `an3 = [${data.map(v => v.an3).join(', ')}];\n`;
+    message += `an5 = [${data.map(v => v.an5).join(', ')}];\n`;
+    message += `an5 = [${data.map(v => v.an6).join(', ')}];\n`;
+
+    navigator.clipboard.writeText(message)
+      .then(() => {
+        setCopyLabel('copied!')
+        setTimeout(() => {
+          setCopyLabel('copy')
+        }, 500);
+      })
+  }
+
   function handleSetCommandMessage(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value
     setCommandMessage(value)
   }
+  
+  function handle_set_alpha(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = e.target.value
+    setAlpha(value)
+  }
+  
+  function handle_compute_alpha() {
+    const value = parseFloat(alpha)
+    const res = _create_signal(value)
+
+    setTime(res.time)
+    setMode(res.mode)
+  }
+
 
   function handleSendCommand() {
     sendCommand(commandMessage)
@@ -88,11 +98,13 @@ function App() {
     sendCommand("HIGH")
   }
   
+  
   function probe_values(values:{an2: string, an3: string, an4: string, an5: string, an6: string}) {
     console.log('from probe: values => ', values)
 
       const now = new Date();
-      const timeStr = now.toLocaleTimeString();
+
+      const timeStr = (now.getTime()-initial_time.getTime()).toString();
       
       setData(currentData => {
         const newData = [...currentData, {
@@ -116,6 +128,26 @@ function App() {
     } else {
       setReceiveLabel("Start Listening")
     }
+  }
+
+  function handle_test_receive() {
+
+    setInterval(() => {
+      const now = new Date();
+      const timeStr = (now.getTime() - initial_time.getTime()).toString();
+      
+      setData(currentData => {
+        const newData = [...currentData, {
+          time: timeStr,
+          an3: generateValue(),
+          an5: generateValue()*3,
+          an6: generateValue()*6
+        }];
+        
+        return newData;
+      });
+    }, 100);
+
   }
 
   function setSignal1() {
@@ -171,7 +203,8 @@ function App() {
             <button id="connectBtn" onClick={handleConnect} className="btn">Connect to ESP32</button>
             <button id="disconnectBtn" onClick={handleDisconnect} className="btn">Disconnect</button>
             <button onClick={handle_receive} className="btn">{receiveLabel}</button>
-            <button id="btn-copy-values" className="btn">copy</button>
+            <button onClick={handle_test_receive} className="btn">test</button>
+            <button onClick={handle_copy} className="btn">{copyLabel}</button>
           </div>
 
           <div id="controlPanel" className="bg-panel p-5 rounded-xl">
@@ -207,9 +240,9 @@ function App() {
             </div>
 
             <div className="flex my-4 gap-2">
-              <label htmlFor="" className="mr-4 relative top-2 w-12">alpha:</label>
-              <input type="text" id="in-alpha" className="bg-panel border flex-none w-16 px-2 text-center" value="0.5" />
-              <button itemType="text" id="btn-alpha" className="btn" onClick={() => alert('bla ble')}>calc</button>
+              <label className="mr-4 relative top-2 w-12">alpha:</label>
+              <input type="number" step="0.1" id="in-alpha" className="bg-panel border flex-none w-16 px-2 text-center" value={alpha} onChange={handle_set_alpha} />
+              <button itemType="text" id="btn-alpha" className="btn" onClick={handle_compute_alpha}>calc</button>
               <span className="flex-1"></span>
             </div>
 
@@ -251,10 +284,8 @@ function App() {
           <div id="analog-an5" className="hidden"></div>
           <div id="analog-an6" className="hidden"></div>
         </div>
-        
-        <RealtimeChart data={data}/>
-
       </div>
+      <RealtimeChart data={data.slice(-500)} />
     </>
   )
 }
