@@ -159,5 +159,5 @@ export async function listen_messages(probe: CallableFunction) {
                 updateStatus(`Receive failed: ${err.message}`, true)
             }
         }
-    }, 1000);
+    }, 500);
 }

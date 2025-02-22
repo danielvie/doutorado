@@ -97,9 +97,9 @@ function App() {
       setData(currentData => {
         const newData = [...currentData, {
           time: timeStr,
-          value1: parseFloat(values.an2),
-          value2: parseFloat(values.an3),
-          value3: parseFloat(values.an4),
+          an6: parseFloat(values.an6),
+          an5: parseFloat(values.an5),
+          an3: parseFloat(values.an3),
         }].slice(-500);
         
         return newData;

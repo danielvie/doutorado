@@ -209,7 +209,7 @@ void bleTask(void* parameter) {
         pCharacteristic->setValue((uint8_t *)messageCStr, strlen(messageCStr));
         pCharacteristic->notify();
 
-        vTaskDelay(pdMS_TO_TICKS(2000));
+        vTaskDelay(pdMS_TO_TICKS(500));
     }
 }
 
@@ -322,13 +322,13 @@ void setup() {
 
     // Configure ADC1 pins
     adc1_config_width(ADC_WIDTH_BIT_12); // 12-bit resolution
-    adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_12); // GPIO_AN6 (GPIO36)
-    adc1_config_channel_atten(ADC1_CHANNEL_4, ADC_ATTEN_DB_12); // GPIO_AN4 (GPIO32)
-    adc1_config_channel_atten(ADC1_CHANNEL_6, ADC_ATTEN_DB_12); // GPIO_AN5 (GPIO34)
+    adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_12); // {A6} GPIO_AN6 (GPIO36)
+    adc1_config_channel_atten(ADC1_CHANNEL_3, ADC_ATTEN_DB_12); // {}   GPIO_AN3 (GPIO39)
+    adc1_config_channel_atten(ADC1_CHANNEL_6, ADC_ATTEN_DB_12); // {A5} GPIO_AN5 (GPIO34)
+    adc1_config_channel_atten(ADC1_CHANNEL_7, ADC_ATTEN_DB_12); // {A4} GPIO_AN7 (GPIO35)
+    adc1_config_channel_atten(ADC1_CHANNEL_4, ADC_ATTEN_DB_12); // {A3} GPIO_AN4 (GPIO32)
+    adc1_config_channel_atten(ADC1_CHANNEL_5, ADC_ATTEN_DB_12); // {A2} GPIO_AN5 (GPIO33)
 
-    adc1_config_channel_atten(ADC1_CHANNEL_3, ADC_ATTEN_DB_12); // GPIO_AN5 (GPIO34)
-    adc1_config_channel_atten(ADC1_CHANNEL_5, ADC_ATTEN_DB_12); // GPIO_AN5 (GPIO34)
-    adc1_config_channel_atten(ADC1_CHANNEL_7, ADC_ATTEN_DB_12); // GPIO_AN5 (GPIO34)
 
     // Configure ADC2 pins
     // adc2_config_channel_atten(ADC2_CHANNEL_4, ADC_ATTEN_DB_12); // GPIO_AN1 (GPIO13)

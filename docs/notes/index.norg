@@ -1,6 +1,8 @@
 {:play:}
 
 * TODAY
+
+  - ( ) salvar os sinais
   - ( ) encontrar arquivo com simulacao de phase_shift e rodar com diferentes setpoint
   - ( ) calcular modelos (A, b) para setpoint com parametro ajustavel
   - ( ) fazer programa para receber o sinal via bluetooth e atualizar o sinal de onda
@@ -11,6 +13,11 @@
 * NOTES
 
 ** reuniao 
+
+   {@ Friday 21 February 2025}
+   - ( ) salvar os sinais
+   - ( ) mapear a regiao linear
+
    {@ Wednesday 12 February 2025}
    - ( ) enviar endereco pinout
    - ( ) pesquisar maneira de fazer a diferenca de tensao dois elementos

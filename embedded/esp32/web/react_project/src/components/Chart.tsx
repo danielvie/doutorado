@@ -43,24 +43,24 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
           <Legend />
           <Line 
             type="monotone" 
-            dataKey="value1" 
-            name="Value 1"
+            dataKey="an3" 
+            name="an3"
             stroke="#8884d8" 
             strokeWidth={2}
             dot={false}
           />
           <Line 
             type="monotone" 
-            dataKey="value2" 
-            name="Value 2"
+            dataKey="an5" 
+            name="an5"
             stroke="#82ca9d" 
             strokeWidth={2}
             dot={false}
           />
           <Line 
             type="monotone" 
-            dataKey="value3" 
-            name="Value 3"
+            dataKey="an6" 
+            name="an6"
             stroke="#ff7300" 
             strokeWidth={2}
             dot={false}
