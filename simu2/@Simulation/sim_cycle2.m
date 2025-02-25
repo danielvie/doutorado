@@ -1,4 +1,4 @@
-function [y,t,m,xr] = sim_cycle2(self, config)
+function [y,t,m,xr] = sim_cycle2(~, config)
 
     % lendo configuracoes
     cfg = config;

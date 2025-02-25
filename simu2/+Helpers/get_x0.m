@@ -1,4 +1,4 @@
-function x0 = get_x0(self)
+function x0 = get_x0(config)
 
     %{
         usando equacao 2.10 da tese
@@ -17,7 +17,7 @@ function x0 = get_x0(self)
     %}
 
     % copiando config para nova var
-    cfg = self.config;
+    cfg = config;
 
     % inicializando variaveis de apoio
     n  = numel(cfg.Omega);

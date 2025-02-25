@@ -6,9 +6,9 @@ function set_mpc(self)
     Ts  = cfg.Ts;
     tr  = Ts(2:end);
     dtr = diff(Ts);
-    xr  = self.get_xr();
+    xr  = Helpers.get_xr(self.config);
 
-    [Phi, Gamma] = self.mpc_construcao_modelo_instantes(cfg.A, cfg.b, tr, xr, cfg);
+    [Phi, Gamma] = Mpc.construcao_modelo_instantes(cfg.A, cfg.b, tr, xr, cfg);
 
     N  = numel(cfg.Omega);
 
@@ -38,7 +38,7 @@ function set_mpc(self)
     % ]; % dimensao: Nx1
 
     [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,~] = ...
-    self.mpc_matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c);
+    Mpc.matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c);
 
     % criando estrutura com dados MPC
     mpc_opt          = struct();

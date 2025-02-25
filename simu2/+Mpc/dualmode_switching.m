@@ -1,4 +1,4 @@
-function [dtk, fval, exitflag] = mpc_dualmode_switching(self, ek, H, Hf, Phi1Np, Qbar, Rbar, Lbar, cbar, Pf, Sf, bf, PhiNp, p)
+function [dtk, fval, exitflag] = mpc_dualmode_switching(ek, H, Hf, Phi1Np, Qbar, Rbar, Lbar, cbar, Pf, Sf, bf, PhiNp, p)
 
     % para o quadprog, eh preciso
     % X = quadprog(H,f,A,b)

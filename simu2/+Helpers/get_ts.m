@@ -1,4 +1,4 @@
-function Ts = calc_ts(dT)
+function Ts = get_ts(dT)
     % monta vetor de Time Sequence
     
     Ts = zeros(1, numel(dT) + 1);

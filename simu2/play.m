@@ -21,27 +21,13 @@ s.config.mpc.on = false;
 figure(11);
 subplot(3,1,1);
 plot(t, y(:,1))
-
 subplot(3,1,2);
 plot(t, y(:,2))
-
 subplot(3,1,3);
 plot(t, y(:,3))
 
-
 figure(12);
-vc1 = y(:,1);
-vc2 = y(:,2);
-i_l = y(:,3);
-
-vc1_off = y_off(:,1);
-vc2_off = y_off(:,2);
-i_l_off = y_off(:,3);
-
-plot3(vc1, vc2, i_l);
+plot3(y(:,1), y(:,2), y(:,3));
 hold on;
-plot3(vc1_off, vc2_off, i_l_off);
+plot3(y_off(:,1), y_off(:,2), y_off(:,3));
 hold off;
-xlabel('1')
-ylabel('2')
-zlabel('3')

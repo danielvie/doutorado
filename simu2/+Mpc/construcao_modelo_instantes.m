@@ -1,4 +1,4 @@
-function [Phi, Gamma] = mpc_construcao_modelo_instantes(self, Ac, Bc, tr, xr, config)
+function [Phi, Gamma] = construcao_modelo_instantes(Ac, Bc, tr, xr, config)
 
     % Phi   = F_{N} F_{N-1} ... F_1
 
@@ -134,7 +134,7 @@ function [Phi, Gamma] = mpc_construcao_modelo_instantes(self, Ac, Bc, tr, xr, co
 
     % calculando Gamma2
     Gamma2 = [];
-    x0 = self.get_x0();
+    x0 = Helpers.get_x0(config);
     xt0 = [x0; 1];
     I = eye(size(F{1}));
 

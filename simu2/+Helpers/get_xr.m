@@ -1,4 +1,4 @@
-function Xr = get_xr(self)
+function Xr = get_xr(config)
     % get_xr - calcula valores de `xr`
     % 
     % Prototype   : Xr = get_xr(config)
@@ -35,8 +35,6 @@ function Xr = get_xr(self)
     % History
     % 2021-12-15: 1 - dvieira -  init
     
-    config = self.config;
-
     A  = config.A;
     B  = config.b;
     Ts = config.Ts;

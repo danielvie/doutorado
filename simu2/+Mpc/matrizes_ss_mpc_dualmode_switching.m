@@ -1,4 +1,4 @@
-function [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = mpc_matrizes_ss_mpc_dualmode_switching(~, Phi, Gamma, Q, R, Np, c)
+function [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = matrizes_ss_mpc_dualmode_switching(Phi, Gamma, Q, R, Np, c)
     % Restricao (at each cycle): L*dt <= c
     % f = Phi * Xi(k)
  

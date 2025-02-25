@@ -31,7 +31,7 @@ function set_traj_phase(self, iref)
 
     % updating config values
     self.config.Omega = Omega;
-    self.config.Ts = self.calc_ts(dT);
-    self.config.x0 = self.get_x0();
+    self.config.Ts = Helpers.get_ts(dT);
+    self.config.x0 = Helpers.get_x0(self.config);
 
 end
