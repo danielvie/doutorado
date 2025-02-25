@@ -1,9 +1,9 @@
 
+% setting simulation
 s = Simulation();
 s.set_config(Enums.SimName.PATINO_2)
-s.set_traj_phase(0.8);
+s.set_traj_phase_with_iref(1.20);
 s.set_mpc();
-
 
 % number of cycles
 nsim = 40;
@@ -11,6 +11,7 @@ nsim = 40;
 % add error in IC
 s.config.x0 = s.config.x0 + [2.5; -2.3; 1.1];
 
+% running simulation
 s.config.mpc.on = true;
 [y, t, m] = s.run(nsim);
 

@@ -13,7 +13,9 @@ classdef Simulation < handle
 
         % .. preparation
         set_config(self, sim_name);
-        set_traj_phase(self, alpha);
+        set_traj_phase(self, params);
+        set_traj_phase_with_iref(self, iref);
+        set_traj_phase_with_alpha(self, alpha);
         set_mpc(self);
 
         % .. simulation
