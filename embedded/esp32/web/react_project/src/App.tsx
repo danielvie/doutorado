@@ -213,28 +213,6 @@ function App() {
               <button id="sendBtn" onClick={handleSendCommand} className="flex-none ml-2 btn">send</button>
             </div>
 
-            <div className="grid grid-cols-3 my-4 gap-3">
-              <div className="flex">
-                <label className="mr-4 relative top-2 w-12">an2:</label>
-                <div itemType="text" id="div-an2" className="border ml-2 p-2 items-center"> -9.999</div>
-              </div>
-              <div className="flex">
-                <label className="mr-4 relative top-2 w-12">an3</label>
-                <div itemType="text" id="div-an3" className="border ml-2 p-2 items-center"> -9.999</div>
-              </div>
-              <div className="flex">
-                <label className="mr-4 relative top-2 w-12">an4</label>
-                <div itemType="text" id="div-an4" className="border p-2 ml-2 items-center"> -9.999</div>
-              </div>
-              <div className="flex">
-                <label className="mr-4 relative top-2 w-12">an5</label>
-                <div itemType="text" id="div-an5" className="border p-2 ml-2 items-center"> -9.999</div>
-              </div>
-              <div className="flex">
-                <label className="mr-4 relative top-2 w-12">an6</label>
-                <div itemType="text" id="div-an6" className="border p-2 ml-2 items-center"> -9.999</div>
-              </div>
-            </div>
 
             <div className="flex my-4 gap-2">
               <label className="mr-4 relative top-2 w-12">alpha:</label>

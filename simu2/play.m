@@ -26,9 +26,11 @@ subplot(3,1,2);
 plot(t, y(:,2))
 subplot(3,1,3);
 plot(t, y(:,3))
+grid on;
 
 figure(12);
 plot3(y(:,1), y(:,2), y(:,3));
 hold on;
 plot3(y_off(:,1), y_off(:,2), y_off(:,3));
 hold off;
+grid on;

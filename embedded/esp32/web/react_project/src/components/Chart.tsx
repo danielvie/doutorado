@@ -59,7 +59,9 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
   return (
     <div className="w-full h-96 p-4 mb-10">
       <h2 className="text-xl font-bold mb-4">{title}</h2>
-      <div>data: {v1}, {v2}, {v3}</div>
+      <div>an6: {v3}</div>
+      <div>an5: {v2}</div>
+      <div>an3: {v1}</div>
       
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
