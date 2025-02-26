@@ -15,11 +15,11 @@ function z_1_simrun()
     % PARAM hier
     params = struct();
 
-    % params.E = 30;
-    % params.C(1) = 40e-6;
-    % params.C(2) = 40e-6;
-    % params.L = 10*1e-3;
-    % params.R = 10;
+    params.E = 30;
+    params.C(1) = 40e-6;
+    params.C(2) = 40e-6;
+    params.L = 10*1e-3;
+    params.R = 10;
 
     % params.iMax = params.E/params.R; 
     % params.iLref = config.iref;
@@ -31,11 +31,11 @@ function z_1_simrun()
 
 
     % set system parameters
-    params.E = 5;
-    params.C(1) = 470e-6;
-    params.C(2) = 470e-6;
-    params.L = 100*1e-3;
-    params.R = 22;
+    % params.E = 5;
+    % params.C(1) = 470e-6;
+    % params.C(2) = 470e-6;
+    % params.L = 100*1e-3;
+    % params.R = 22;
 
     params.iMax = params.E/params.R; 
     params.iLref = config.iref;
@@ -84,6 +84,8 @@ function z_1_simrun()
     plot(t, y(:,2))
     subplot(3,1,3);
     plot(t, y(:,3))
+
+    
 
 end
 

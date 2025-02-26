@@ -157,8 +157,8 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac,Bc,tr,xr,config)
     xbar0 = xr(1,:)';
     Dt = diff(config.Ts);
 
-    [Phi3, Gamma3] = linModel(A,b,Omega,xbar0,Dt);
-    
-    bla = 1;
+    % [Phi3, Gamma3] = linModel(A,b,Omega,xbar0,Dt);
+    % 
+    % bla = 1;
     
 end

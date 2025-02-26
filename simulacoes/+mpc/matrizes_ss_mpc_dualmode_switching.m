@@ -1,7 +1,5 @@
 function [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c)
-
-    % Restricaoo (at each cycle): L*dt <= c
-
+    % Restricao (at each cycle): L*dt <= c
     % f = Phi * Xi(k)
  
     % Phi =
@@ -59,6 +57,17 @@ function [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = matrizes_ss_mpc_du
     
     Pf = dlyap(Phib',Phib'*Q*Phib + K'*R*K);
     
+    % Simple conservative approximation of the terminal invariant set
+    % We use the constraint L*K*x <= c directly
+    Sf = L*K;  % Terminal state constraints
+    bf = c;    % Terminal constraint bounds
+    
+    % Note: This is a simplified approach. For more accurate results,
+    % you might want to iterate a few times to get a better approximation
+    % of the maximal invariant set
+
+
+
     % Determinacao do conjunto terminal invariante e admissivel
     % Requer o MPT Toolbox
     sys = LTISystem('A',Phib);
