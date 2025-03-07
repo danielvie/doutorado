@@ -1,36 +1,50 @@
+function play()
+    % setting simulation
+    s = Simulation();
+    success = s.set_config(Enums.SimName.LAB_CIRCUIT);
 
-% setting simulation
-s = Simulation();
-s.set_config(Enums.SimName.PATINO_2)
-s.set_traj_phase_with_iref(1.20);
-s.set_mpc();
+    % check if data is loaded
+    if (~success)
+        disp('ending simulation!!');
+        return
+    end
+    
+    % s.set_traj_phase_with_iref(0.07);
+    s.set_traj_phase_with_alpha(0.5);
+    s.set_mpc();
 
-% number of cycles
-nsim = 40;
+    % number of cycles
+    nsim = 40;
 
-% add error in IC
-s.config.x0 = s.config.x0 + [2.5; -2.3; 1.1];
+    % add error in IC
+    s.config.x0 = s.config.x0 + [0.1; -0.01; 0.01];
 
-% running simulation
-s.config.mpc.on = true;
-[y, t, m] = s.run(nsim);
+    % running simulation
+    s.config.mpc.on = true;
+    [y, t, m] = s.run(nsim);
 
-s.config.mpc.on = false;
-[y_off, t_off, m_off] = s.run(nsim);
+    s.config.mpc.on = false;
+    [y_off, t_off, m_off] = s.run(nsim);
 
-% plot results
-figure(11);
-subplot(3,1,1);
-plot(t, y(:,1))
-subplot(3,1,2);
-plot(t, y(:,2))
-subplot(3,1,3);
-plot(t, y(:,3))
-grid on;
+    % getting variables from simulation
+    vars = Utils.getAllVars();
 
-figure(12);
-plot3(y(:,1), y(:,2), y(:,3));
-hold on;
-plot3(y_off(:,1), y_off(:,2), y_off(:,3));
-hold off;
-grid on;
+    % creating results object
+    res = Results.Patino2(vars);
+
+    % saving in workspace
+    assignin('base', 's', s);
+    assignin('base', 'res', res);
+
+    % plotting states
+    figure(1);
+    res.plot_xi();
+
+    % plotting trajectory
+    figure(2);
+    res.plot_traj();
+
+    % plotting u signals
+    figure(3);
+    res.plot_u_signals(20);
+end

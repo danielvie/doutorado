@@ -22,7 +22,7 @@ function set_mpc(self)
 
     c = zeros(N, 1);
     for i= 1:N
-    c(i) = -dtr(i) + t_min;
+        c(i) = -dtr(i) + t_min;
     end
 
     % c = [

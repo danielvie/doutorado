@@ -1,21 +1,20 @@
 function [y,t,m,xr] = sim_cycle2(~, config)
 
-    % lendo configuracoes
+    % reading config
     cfg = config;
 
     x0    = cfg.x0;
     Ts    = cfg.Ts;
 
-    % simulando com parametros flexiveis
     nmodes  = numel(cfg.Omega);
     nstates = numel(x0);
     
-    % alocando vetores de saida 
+    % allocating output vectors
     t    = zeros(nmodes, 1);
     y    = zeros(nmodes, nstates);
     m    = zeros(nmodes, 1);
     
-    % calculando simulacao
+    % computing simulation
     xi0  = x0;
     xi0_ = x0;
     
@@ -25,31 +24,23 @@ function [y,t,m,xr] = sim_cycle2(~, config)
     omega = cfg.Omega;
     for i = 1:nmodes
 
-        % lendo modo de operacao (indice do modo inicia em `0`)
+        % reading operation modes (indices start with `0`)
         imode = omega(i);
                 
-        % lendo matrizes A e B 
+        % reading matrices `A` and `B`
         Ai = cfg.A{imode};
         Bi = cfg.b{imode};
         
         xr(i+1,:) = xi0;
 
-        % simulando com estado extendido
+        % simulating with extended state
         xi0_ = reshape(xi0_, [numel(xi0_), 1]);
         dt   = Ts(i+1) - Ts(i);
         Fa   = expm([Ai,Bi;zeros(1,size(Ai,2)),0]*dt);
 
-        
-        % if (i+1 <= nmodes)
-        %     imode = omega(i+1);
-        % else
-        %     imode = omega(i);
-        % end
-
         yend     = Fa*[xi0_;1];
 
-
-        % salvando valores de estado extendido
+        % saving values of extended state
         % y    = [y; yend(1:nstates)';];
         % t    = [t; Ts(i+1)];
         % m    = [m; imode];
@@ -60,11 +51,4 @@ function [y,t,m,xr] = sim_cycle2(~, config)
         xi0_  = yend(1:nstates);
 
     end
-
-    % adicionando primeiros valores
-    % x0 = reshape(x0, [1, nstates]);
-    % y = [x0;y];
-    % t = [Ts(1);t];
-    % m = [cfg.Omega(1);m];
-    
 end

@@ -12,7 +12,7 @@ classdef Simulation < handle
         end
 
         % .. preparation
-        set_config(self, sim_name);
+        success = set_config(self, sim_name);
         set_traj_phase(self, params);
         set_traj_phase_with_iref(self, iref);
         set_traj_phase_with_alpha(self, alpha);
@@ -20,6 +20,7 @@ classdef Simulation < handle
 
         % .. simulation
         [y,t,u,m,dtk_out] = run(self, nsim);
+        [y,t,m,xr] = sim_cycle(self, config);
         [y,t,m,xr] = sim_cycle2(self, config);
         
         % .. helpers
