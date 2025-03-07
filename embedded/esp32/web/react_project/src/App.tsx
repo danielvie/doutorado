@@ -44,7 +44,7 @@ function App() {
     message += `time = [${data.map(v => v.time).join(', ')}];\n`;
     message += `an3 = [${data.map(v => v.an3).join(', ')}];\n`;
     message += `an5 = [${data.map(v => v.an5).join(', ')}];\n`;
-    message += `an5 = [${data.map(v => v.an6).join(', ')}];\n`;
+    message += `an6 = [${data.map(v => v.an6).join(', ')}];\n`;
 
     navigator.clipboard.writeText(message)
       .then(() => {
