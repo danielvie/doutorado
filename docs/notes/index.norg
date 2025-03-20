@@ -2,9 +2,9 @@
 
 * TODAY
 
-  - ( ) salvar os sinais
+  - (x) salvar os sinais
   - ( ) encontrar arquivo com simulacao de phase_shift e rodar com diferentes setpoint
-  - ( ) calcular modelos (A, b) para setpoint com parametro ajustavel
+  - (x) calcular modelos (A, b) para setpoint com parametro ajustavel
   - ( ) fazer programa para receber o sinal via bluetooth e atualizar o sinal de onda
 
 * LTP Missouri
@@ -14,6 +14,13 @@
 
 ** reuniao 
 
+
+   {@ Wednesday 12 March 2025}
+   - estamos lendo em a6, a5, a3
+   - ( ) testar simulacao lab circuit
+   - ( ) ler circuito malha aberta com 3.3v de alimentacao
+   - ( ) mudar para plotar grafico linear
+   - ( ) calcular o tempo de um ciclo matlab
 
    {@ Wednesday 26 February 2025}
    - revisar parametros simulacao

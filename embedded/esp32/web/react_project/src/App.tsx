@@ -116,9 +116,9 @@ function App() {
   }
   
   async function handle_receive() {
-    if (!bt_is_connected()) {
-        await connectDevice();
-    }
+    // if (!bt_is_connected()) {
+    //     await connectDevice();
+    // }
     const is_listening = toggleListening(probe_values)
     if (is_listening) {
       setReceiveLabel("Stop Listening")
