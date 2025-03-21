@@ -1,0 +1,197 @@
+* The 'ilities
+
+  This is a group assignment.
+
+  With the selected system configuration from CDR, and building on the functions and requirements for your project identified in the conceptual design review, the approach of how the system performs the functions to satisfy requirements during simple operation of the system need to be considered. This assignment is to discuss the major ‘ilities we covered in class and how your design will address these ‘ilities, or if the design of your system merits it, why you can ignore some of them for now.  The key ‘ilities are
+
+  - Manufacturability (Producibility)
+  - Reliability
+  - Maintainability
+  - Supportability
+  - Affordability
+  - Usability *
+  - Disposability *
+
+** what to do
+   There are about 50 ‘-ilities currently in use in the literature, but stick to these seven for the assignment, please.
+
+   Your submission should include the following for each of the ‘ilities listed above (or why they don’t apply to your system):
+
+   - ( ) Identify any requirements in your system that relate to the ‘ility
+   - ( ) Describe how the ‘ility is carried out or implemented within the system functional architecture
+   - ( ) Describe how the ‘ility is realized by the system physical architecture
+   - ( ) How each ‘ility is related to the other ‘ilities in the system (or not – some don’t)
+   - ( ) Any technical documents that clarify how the ‘ility will be achieved
+
+   The descriptions for each ‘ility should be no more than two pages (1 page preferred, but at least half a page). 
+   This report should be in .docx format (Word is easier for me to make comments on and much preferred; .pdf or .pptx is 
+   barely acceptable).  Informal style, bullets OK, but some narrative should be included.
+
+** requirements
+
+   - 1. The GPS spoof detection system shall identify GPS spoofing as it occurs to the aircraft GPS tracking systems while in operation.  
+   - 2. The GPS spoof detection system shall have a red light that allows users to identify if they are a target of spoofing while in operation.  
+   - 3. The GPS spoof detection system shall store a record of all GPS spoof attacks while in operation.  
+   - 4. The GPS spoof detection system shall be able to have data transferred off platform while not in operation.   
+   - 5. The GPS spoof detection system shall communicate with aircraft GPS systems while in operation. 
+   - 6. The GPS spoof detection system shall interface with current aircraft electrical power systems while in operation.  
+   - 7. The GPS spoof detection system shall have dual redundancy while in operation.  
+   - 8. The system shall display a visual alert within 3 seconds after catching a possible GPS spoof attack while in operation.  
+   - 9. The GPS spoof detection system shall emit a sound alert within 3 seconds after catching a possible GPS spoof attack while in operation.  
+
+** my part
+
+*** Usability *
+
+*** Disposability *
+
+
+   > ----------- RESPONSE -----------
+
+   ### Usability,
+
+   - ( ) Identify any requirements in your system that relate to the ‘ility
+   - ( ) Describe how the ‘ility is carried out or implemented within the system functional architecture
+   - ( ) Describe how the ‘ility is realized by the system physical architecture
+   - ( ) How each ‘ility is related to the other ‘ilities in the system (or not – some don’t)
+   - ( ) Any technical documents that clarify how the ‘ility will be achieved
+
+
+*** `USABILITY`
+
+    Usability refers to how effectively, efficiently, and intuitively users interact with the System during operation. 
+    For your GPS Spoof Warning System, this is about ensuring pilots or operators can easily understand and respond to spoofing alerts.
+
+    - (x) `identify requirements`
+
+    Requirement 2 (“red light that allows users to identify if they are a target of spoofing”) and Requirement 8 (“visual alert 
+    within 3 seconds”) directly support usability by providing a simple, immediate visual. The red light is a intuitive signal 
+    that doesn’t require complex interpretation.
+
+    Requirement 5 (“communicate with aircraft GPS systems”) ensures seamless integration, reducing the need for pilots to manually 
+    troubleshoot compatibility issues, enhancing ease of use.
+
+    Requirement 8 ("visual alert within 3 seconds after detection while in operation") ensures users can react promptly with visual feedback
+
+    Requirement 9 (“sound alert within 3 seconds”) adds an auditory layer, improving usability by ensuring pilots are alerted 
+    even if their attention is disperse.
+
+    - (x) `how usability is carried out or implemented within the system functional architecture`
+
+    For usability, the functional architecture is about how the system detects spoofing and communicates it to the pilot effectively.
+
+    - Spoof Detection Function:
+      The system continuously monitors GPS signals (Requirement 1) by comparing received data against expected patterns or known 
+      spoofing signatures. 
+
+    - Alert Generation Function:
+      Upon detecting a spoof, the system triggers both visual (red light, Requirement 2) and auditory (sound, Requirement 9) alerts 
+      within 3 seconds (Requirements 8 and 9). These functions prioritize simplicity and speed, reducing pilot decision-making time.
+
+    - Integration Function:
+      The system interfaces with the aircraft’s GPS (Requirement 5), pulling real-time data without requiring manual input from 
+      the pilot. This data flow minimizes user interaction, enhancing ease of use.
+
+    - Output Delivery Function:
+      The red light and sound are activated via a user interface module, designed to be unambiguous. The functional flow 
+      ensures that detection immediately translates to pilot-facing outputs without intermediate steps that could complicate operation.
+
+    - (x) `how usability is realized in the system physical architecture`
+
+    In the physical architecture, usability is supported by:
+
+    - Hardware Components: 
+      A red LED or display panel (for Requirement 2 & 8) and a speaker or buzzer (for Requirement 9) are integrated into the 
+      system’s physical design, likely mounted in the cockpit where they are easily noticeable.
+
+    - Power Integration: 
+      The system interfaces with aircraft electrical power systems (Requirement 6), ensuring these alerts remain operational 
+      without requiring separate power management by the user.
+
+    - Placement and Ergonomics: 
+      The physical placement of the light and speaker must consider cockpit layout, ensuring they are 
+      within the pilot’s line of sight and hearing range without adding clutter or distraction.
+
+    - (x) `how usability relates to other ‘ilities’`
+
+    Usability depends on Reliability for detection (Requirement 1) and consistent alert activation. If the system fails to detect 
+    or alert, usability suffers.
+
+    It depends on maintainability because if the red light or speaker fails, maintenance must be straightforward to restore usability, 
+    though no specific maintainability requirement is listed.
+
+    Usability and disposability are more independent, as usability focuses on operation, while disposability 
+    concerns end-of-life handling.
+
+    - (x) `technical documents that clarify usability`
+
+    MIL-STD-1472 (Human Engineering): a military standard that establishes human engineering design criteria for equipment to 
+    optimize usability, safety, and human performance.
+
+    System Requirements Document (SRD): Would refine timing (3-second alerts) and user interaction specifics.
+
+*** `DISPOSABILITY`
+
+    Disposability refers to the system’s ability to be decommissioned, removed, or disposed of safely and efficiently at the 
+    end of its lifecycle, minimizing environmental impact or operational disruption.
+
+    - (x) `identify requirements`
+
+    No requirements explicitly mention disposability, but the following indirectly relate:
+
+    Requirement 4 (“data transferred off platform while not in operation”) enables data preservation or system removal post-operation, 
+    facilitating decommissioning. 
+
+    Requirement 6 (“interface with current aircraft electrical power systems while in operation”) 
+    ensures compatibility with existing power sources, allowing for system disconnection without major aircraft modifications, 
+    simplifying disposal.
+
+
+    - (x) `how disposability is carried out or implemented within the system functional architecture`
+
+    In the functional architecture, disposability involves:
+
+    - Data Offloading Function: 
+      The system includes a data transfer function (Requirement 4) to extract spoofing records (Requirement 3) before disposal. 
+      This ensures operational data isn’t lost when the system is removed.
+
+    - Modular Design: While not explicitly stated, interfacing with existing aircraft systems (Requirement 5 & 6) suggests a 
+      plug-and-play functionality, allowing the system to be detached without affecting core aircraft operations.
+
+    - ( ) `how disposability is realized in the system physical architecture`
+
+    In the physical architecture, disposability is supported by:
+
+    - Removable Components: 
+      The system likely uses standard connectors for power (Requirement 6) and GPS interfacing (Requirement 5), enabling physical 
+      disconnection from the aircraft without structural changes.
+
+    - Data Port: 
+      A physical interface (e.g., USB, Ethernet) for data transfer (Requirement 4) allows extraction of stored records 
+      (Requirement 3) prior to disposal.
+
+    - Material Considerations: 
+      Though not specified, disposability would require the system’s materials (e.g., electronics, casing) 
+      to comply with aviation disposal regulations, such as recycling or safe hazardous waste handling.
+
+    - ( ) `how usability relates to other ‘ilities’`
+
+    - Usability: 
+      Largely unrelated, as usability focuses on active operation, while disposability addresses end-of-life. However, data transfer 
+      (Requirement 4) could enhance usability post-mission by allowing analysis, indirectly linking the two.
+
+    - Maintainability: 
+      A maintainable design (e.g., replaceable parts) could conflict with disposability if it prioritizes repair over replacement.
+
+    - Reliability: 
+      Dual redundancy (Requirement 7) might increase complexity, potentially complicating disposal.
+
+    - ( ) `technical documents that clarify usability`
+
+    - End-of-Life Plan: 
+      A document outlining procedures for data extraction (Requirement 4), physical removal, and disposal of 
+      components, ensuring compliance with aviation and environmental standards.
+    - FAA AC 20-62 (Eligibility, Quality, and Identification of Aeronautical Replacement Parts): 
+      Could guide how the system’s components 
+      are designed for eventual removal or replacement.
+      Environmental Compliance Standards (e.g., RoHS): Specifies restrictions on hazardous materials, ensuring safe disposal.
