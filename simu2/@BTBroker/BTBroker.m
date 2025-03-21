@@ -5,6 +5,7 @@ classdef BTBroker < handle
         characteristic_uuid;
         device;
         chart_list;
+        simulation;
     end
     
     methods
@@ -14,8 +15,11 @@ classdef BTBroker < handle
             self.service_uuid = service_uuid;
             self.characteristic_uuid = characteristic_uuid;
             
+            % prepare connection
             self.connect();
             self.subscribe();
+            
+            % prepare model
         end
         
         print(self);
@@ -29,6 +33,7 @@ classdef BTBroker < handle
         
         message_handle_event(self, src, event);
         message_process(self, msg);
-
+        
+        set_simulation(self);
     end
 end

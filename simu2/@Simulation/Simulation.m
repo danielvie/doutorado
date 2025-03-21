@@ -22,6 +22,8 @@ classdef Simulation < handle
         [y,t,u,m,dtk_out] = run(self, nsim);
         [y,t,m,xr] = sim_cycle(self, config);
         [y,t,m,xr] = sim_cycle2(self, config);
+
+        Ts = signal_process(self, state);
         
         % .. helpers
         Ts_out  = quantizacao(self, Ts, type);
