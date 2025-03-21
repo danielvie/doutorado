@@ -76,7 +76,7 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
           <Tooltip/>
           <Legend verticalAlign='top' />
           <Line 
-            type="monotone" 
+            type="linear" 
             dataKey="an3" 
             name="an3"
             stroke="#8884d8" 
@@ -84,7 +84,7 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
             dot={false}
           />
           <Line 
-            type="monotone" 
+            type="linear" 
             dataKey="an5" 
             name="an5"
             stroke="#82ca9d" 
@@ -92,7 +92,7 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
             dot={false}
           />
           <Line 
-            type="monotone" 
+            type="linear" 
             dataKey="an6" 
             name="an6"
             stroke="#ff7300" 
