@@ -14,3 +14,12 @@ s.set_traj_phase_with_alpha(0.5);
 s.set_mpc();
 
 b.simulation = s;
+
+% command for LAB alpha 0.5:
+%command = "SIGNAL:47, 47, 47, 47, 47, 47;4, 6, 2, 3, 1, 5";
+command = Helpers.signal_create( ...
+    [47, 47, 47, 47, 47, 47], ...
+    [4, 6, 2, 3, 1, 5]);
+b.message(command);
+% b.message("CYCLE_NRUN:15");
+% b.message("START");

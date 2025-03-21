@@ -36,6 +36,7 @@ std::vector<uint64_t> timings = {
 };
 
 // signal modes
+uint32_t cycle_nrun = 10; // number of cycles to read and notify MATLAB
 std::vector<uint64_t> modes = {
     // 5, 3, 4, 2, 5, 2
     7, 0, 7, 0, 7, 0
@@ -98,6 +99,12 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
             signalWriteState = SignalWriteState::IDLE;
             Serial.println("Signals stopped");
             digitalWrite(LED, LOW);
+        } else if (value.substr(0,8) == "CYCLE_NRUN:") {
+            std::string payload = value.substr(11);
+            cycle_nrun = std::stoi(payload);
+
+            Serial.printf("updating ncycles to `%d`!\n", cycle_nrun);
+
         } else if (value.substr(0,7) == "SIGNAL:") {
             std::string signal = value.substr(7);
             Serial.println("Signals received:");
@@ -116,7 +123,6 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
                     modes_di4.push_back(bin.b1);
                     modes_di5.push_back(bin.b2);
                     modes_di6.push_back(bin.b3);
-                    
                 }
 
                 // printing values
@@ -172,42 +178,28 @@ void bleTask(void* parameter) {
     blink(5);
 
     // keep task alive
-    size_t counter = 0;
     while(1) {
-        // if (signalWriteState == SignalWriteState::IDLE) {
-        //     counter = 0;
-        // }
-        // if (counter > 10) {
-        //     vTaskDelay(pdMS_TO_TICKS(1));
-        //     continue;
-        // }
+        if (analogReadState == AnalogReadState::READ) {
 
-        // if (analogReadState == AnalogReadState::READ) {
-        //     Serial.printf("ik moet hier iets lezen! (counter: %d) (core: %d)\n", counter, xPortGetCoreID());
+            Serial.println("read values and nofity MATLAB (::READ)");
+            float an_04 = read_analog(AnalogPort::AN4);
+            float an_05 = read_analog(AnalogPort::AN5);
+            float an_06 = read_analog(AnalogPort::AN6);
 
-        //     analogReadState = AnalogReadState::IDLE;
-        //     counter++;
-        // }
+            String message = "an4:" + String(an_04, 3) + ", " +
+                             "an5:" + String(an_05, 3) + ", " +
+                             "an6:" + String(an_06, 3);
 
-        float voltage_02 = read_analog(AnalogPort::AN2);
-        float voltage_03 = read_analog(AnalogPort::AN3);
-        float voltage_04 = read_analog(AnalogPort::AN4);
-        float voltage_05 = read_analog(AnalogPort::AN5);
-        float voltage_06 = read_analog(AnalogPort::AN6);
+            // Convert the message to a char array
+            const char *messageCStr = message.c_str();
 
-        counter++;
-        String message = "an2:" + String(voltage_02, 3) + ", " +
-                         "an3:" + String(voltage_03, 3) + ", " +
-                         "an4:" + String(voltage_04, 3) + ", " +
-                         "an5:" + String(voltage_05, 3) + ", " +
-                         "an6:" + String(voltage_06, 3);
+            // Set the value of the characteristic
+            pCharacteristic->setValue((uint8_t *)messageCStr, strlen(messageCStr));
+            pCharacteristic->notify();
 
-        // Convert the message to a char array
-        const char *messageCStr = message.c_str();
+            analogReadState = AnalogReadState::IDLE;
+        }
 
-        // Set the value of the characteristic
-        pCharacteristic->setValue((uint8_t *)messageCStr, strlen(messageCStr));
-        pCharacteristic->notify();
 
         vTaskDelay(pdMS_TO_TICKS(500));
     }
@@ -216,6 +208,7 @@ void bleTask(void* parameter) {
 
 void IRAM_ATTR generateSignal(void* arg) {
     uint8_t state = 0;
+    uint32_t cycle_count = 0;
     uint64_t startTicks;
 
     // precalculate GPIO bit masks
@@ -262,6 +255,7 @@ void IRAM_ATTR generateSignal(void* arg) {
     while (1) {
         startTicks = esp_timer_get_time() * CPU_FREQ_MHZ;  // Current time in CPU ticks
         
+        // ignore if there are no signal to run
         if (d4_.size() == 0) {
             continue;
         }
@@ -290,12 +284,23 @@ void IRAM_ATTR generateSignal(void* arg) {
         
         // command SIGNAL
         if (state == 0) {
+            cycle_count++;
+            // update values when something is changed
             if (signalReadState == SignalReadState::CHANGED) {
+                Serial.println("update values when something is changed");
                 UpdateSignalValues();
             }
-            analogReadState = AnalogReadState::READ;
+            
+            // allow read signals and notify MATLAB
+            uint16_t rem = cycle_count % cycle_nrun;
+
+            if (rem == 0) {
+                Serial.println("allow read signals and notify MATLAB");
+                // Serial.printf("cycle_nrun: %d, cycle_count: %d\n", cycle_nrun, cycle_count);
+                analogReadState = AnalogReadState::READ;
+            }
         }
-        
+
         // prepare signal
         uint32_t pin_states = 
             (d4_[state]? gpio_di4_mask : 0) |

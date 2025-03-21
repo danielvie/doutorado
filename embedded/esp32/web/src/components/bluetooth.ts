@@ -66,7 +66,8 @@ function updateStatus(message:string, isError: boolean = false) {
 
 export async function sendCommand(command: string) {
     if (!characteristic) {
-        updateStatus('Not connected', true);
+        updateStatus(`Not connected\ncommand: '${command}'`, true);
+        console.log(`"${command}"`);
         return;
     }
 

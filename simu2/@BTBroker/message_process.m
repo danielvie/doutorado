@@ -9,13 +9,13 @@ function message_process(self, msg)
     end
     
     disp(parsed_data);
-    disp(['a6 - a5: ', num2str(parsed_data.an6-parsed_data.an5)]);
     
-    % state = [parsed_data.an4; parsed_data.an5; parsed_data.an6;];
 
-    state = [1.6759
-    3.3386
-    0.0627];
+    v_c1 = parsed_data.an4;
+    v_c2 = parsed_data.an5;
+    i_l  = parsed_data.an6 / 22; % tensao / resistencia resistor
+    state = [v_c1; v_c2; i_l;];
+
     % xtarget = [1.6667; 3.3391; 0.0583];
 
     tic;
