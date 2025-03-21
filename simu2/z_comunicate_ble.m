@@ -17,9 +17,17 @@ b.simulation = s;
 
 % command for LAB alpha 0.5:
 %command = "SIGNAL:47, 47, 47, 47, 47, 47;4, 6, 2, 3, 1, 5";
+
+
+time_ms = [47, 47, 47, 47, 47, 47];
+mode = [4, 6, 2, 3, 1, 5];
+
 command = Helpers.signal_create( ...
-    [47, 47, 47, 47, 47, 47], ...
-    [4, 6, 2, 3, 1, 5]);
+    time_ms, ...
+    mode);
+
 b.message(command);
-% b.message("CYCLE_NRUN:15");
+s.config.Ts = time_ms*1e-3;
+b.message("CYCLE_NRUN:15");
 % b.message("START");
+

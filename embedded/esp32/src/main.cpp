@@ -182,13 +182,18 @@ void bleTask(void* parameter) {
         if (analogReadState == AnalogReadState::READ) {
 
             Serial.println("read values and nofity MATLAB (::READ)");
-            float an_04 = read_analog(AnalogPort::AN4);
-            float an_05 = read_analog(AnalogPort::AN5);
-            float an_06 = read_analog(AnalogPort::AN6);
 
-            String message = "an4:" + String(an_04, 3) + ", " +
-                             "an5:" + String(an_05, 3) + ", " +
-                             "an6:" + String(an_06, 3);
+            float voltage_02 = read_analog(AnalogPort::AN2);
+            float voltage_03 = read_analog(AnalogPort::AN3);
+            float voltage_04 = read_analog(AnalogPort::AN4);
+            float voltage_05 = read_analog(AnalogPort::AN5);
+            float voltage_06 = read_analog(AnalogPort::AN6);
+
+            String message = "an2:" + String(voltage_02, 3) + ", " +
+                             "an3:" + String(voltage_03, 3) + ", " +
+                             "an4:" + String(voltage_04, 3) + ", " +
+                             "an5:" + String(voltage_05, 3) + ", " +
+                             "an6:" + String(voltage_06, 3);
 
             // Convert the message to a char array
             const char *messageCStr = message.c_str();

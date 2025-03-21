@@ -20,6 +20,11 @@
    {@ Friday 21 March 2025}
    - resistor: 22 ohm
    - indutor: 2 ohm
+   - ( ) fazer diagrama de como SW funciona
+   - quais portas estao lendo os valores?
+   -- vc1: an6
+   -- vc2: an5
+   -- tensao sobre resistor: an3
 
    {@ Wednesday 12 March 2025}
    - estamos lendo em a6, a5, a3

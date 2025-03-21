@@ -32,7 +32,10 @@ classdef BTBroker < handle
         unsubscribe(self);
         
         message_handle_event(self, src, event);
-        message_process(self, msg);
+        message_handle_process(self, msg);
+
+        message_start(self);
+        message_stop(self);
         
         set_simulation(self);
     end
