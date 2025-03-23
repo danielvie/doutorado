@@ -20,15 +20,15 @@ b.simulation = s;
 
 
 time_ms = [47, 47, 47, 47, 47, 47];
-% mode = [4, 6, 2, 3, 1, 5];
-mode = [7, 0, 7, 0, 7, 0];
+% % mode = [4, 6, 2, 3, 1, 5];
+% mode = [7, 0, 7, 0, 7, 0];
 
-command = Helpers.signal_create( ...
-    time_ms, ...
-    mode);
+% command = Helpers.signal_create( ...
+%     time_ms, ...
+%     mode);
 
-b.message(command);
+b.message("SIGNAL:150,100;7,0");
 s.config.Ts = time_ms*1e-3;
-b.message_cycles_nrun('10000');
-%b.message("START");
+b.message_cmd_cycles_nrun('10000000');
+b.message("START");
 
