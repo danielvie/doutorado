@@ -184,9 +184,9 @@ void bleTask(void* parameter) {
         if (ble_task_state == BLETaskState::ANALOG_READ) {
             ble_task_state = BLETaskState::ANALOG_READING;
 
-            float voltage_02 = read_analog(AnalogPort::AN2);
+            // float voltage_02 = read_analog(AnalogPort::AN2);
             float voltage_03 = read_analog(AnalogPort::AN3);
-            float voltage_04 = read_analog(AnalogPort::AN4);
+            // float voltage_04 = read_analog(AnalogPort::AN4);
             float voltage_05 = read_analog(AnalogPort::AN5);
             float voltage_06 = read_analog(AnalogPort::AN6);
 

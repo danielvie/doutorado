@@ -108,17 +108,18 @@ export function bt_is_connected() {
 export function toggle_listening(probe: CallableFunction):boolean {
     is_listening = !is_listening
     if (is_listening) {
-        // btn_receive.textContent = "Stop Listening"
         listen_messages(probe)
     } else {
-        // btn_receive.textContent = "Start Listening"
         clearInterval(listen_interval) // stop listenning
     }
     return is_listening
 }
 
 export async function listen_messages(probe: CallableFunction) {
-    const regex = /an2:([\d.]+), an3:([\d.]+), an4:([\d.]+), an5:([\d.]+), an6:([\d.]+)/;
+    const regex = /(\w+):([\d.]+)/g;
+    const parsed_data: Record<string, number> = {};
+    let match;
+
     listen_interval = setInterval(async () => {
         if (characteristic) {
             try {
@@ -127,38 +128,27 @@ export async function listen_messages(probe: CallableFunction) {
                 const message = decoder.decode(value)
 
                 // updateStatus(`Received message: ${message}`)
-                const match = message.match(regex);
+                let has_match = false;
+                while ((match = regex.exec(message)) !== null) {
+                    if (match) {
+                        has_match = true
+                    }
+                    const key = match[1];
+                    const value = parseFloat(match[2]);
+                    parsed_data[key] = value;
+                }
                 
-                if (match) {
-                    const an2 = match[1];
-                    const an3 = match[2];
-                    const an4 = match[3];
-                    const an5 = match[4];
-                    const an6 = match[5];
+                if (has_match) {
+                    const an3 = parsed_data["an3"];
+                    const an5 = parsed_data["an5"];
+                    const an6 = parsed_data["an6"];
                     
                     const results = {
-                        an2,
                         an3,
-                        an4,
                         an5,
                         an6,
                     }
                     probe(results)
-                    
-                    // div_an2.textContent = an2;
-                    // div_an3.textContent = an3;
-                    // div_an4.textContent = an4;
-                    // div_an5.textContent = an5;
-                    // div_an6.textContent = an6;
-                    
-                    // saving time series
-                    // analog_values_an4.push(an4)
-                    // analog_values_an5.push(an5)
-                    // analog_values_an6.push(an6)
-                    // div_analog_an4.innerText += ` ${an4},`
-                    // div_analog_an5.innerText += ` ${an5},`
-                    // div_analog_an6.innerText += ` ${an6},`
-                    
                 }
 
             } catch (err:any) {

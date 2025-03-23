@@ -99,7 +99,7 @@ function App() {
   }
   
   
-  function probe_values(values:{an2: string, an3: string, an4: string, an5: string, an6: string}) {
+  function probe_values(values:{an3: string, an5: string, an6: string}) {
       const now = new Date();
       const timeStr = (now.getTime()-initial_time.getTime()).toString();
       
