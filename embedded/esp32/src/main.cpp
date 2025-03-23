@@ -1,5 +1,6 @@
 #include <Arduino.h>
 
+#include "esp_task_wdt.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/timer.h"
@@ -42,6 +43,12 @@ std::vector<uint64_t> modes = {
     7, 0, 7, 0, 7, 0
 };
 
+std::vector<uint64_t> pending_time_vec;    // Buffer for new timings
+std::vector<uint64_t> pending_d4_vec;      // Buffer for new DI4 states
+std::vector<uint64_t> pending_d5_vec;      // Buffer for new DI5 states
+std::vector<uint64_t> pending_d6_vec;      // Buffer for new DI6 states
+volatile bool signal_update_pending = false; // Flag for pending update
+
 std::vector<uint64_t> modes_di4 = { 1, 0, 1, 0, 1, 0 };
 std::vector<uint64_t> modes_di5 = { 1, 0, 1, 0, 1, 0 };
 std::vector<uint64_t> modes_di6 = { 1, 0, 1, 0, 1, 0 };
@@ -79,7 +86,6 @@ void blink(uint8_t N) {
 // Timer ISR
 bool IRAM_ATTR timer_group_isr_callback(void *args)
 {
-    // Reset the timer alarm
     timer_group_enable_alarm_in_isr(TIMER_GROUP, TIMER_IDX);
 
     if (signal_task_state != SignalTaskState::SIGNAL_RUN && 
@@ -87,32 +93,45 @@ bool IRAM_ATTR timer_group_isr_callback(void *args)
         return true;
     }
 
-    // Process state change for signal pins
     uint32_t pin_states =
         (d4_vec[current_state] ? gpio_di4_mask : 0) |
         (d5_vec[current_state] ? gpio_di5_mask : 0) |
         (d6_vec[current_state] ? gpio_di6_mask : 0);
 
-    // Set pins HIGH
     GPIO.out_w1ts = pin_states;
-
-    // Set pins LOW
     GPIO.out_w1tc = ~pin_states & (gpio_di4_mask | gpio_di5_mask | gpio_di6_mask);
 
-    // Set up next interval
-    uint64_t next_alarm_us = time_vec[current_state];
-    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, next_alarm_us);
+    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, time_vec[current_state]);
 
-    // Move to next state
     current_state = (current_state + 1) % num_timings;
-    
-    // Count cycles when we loop back to state 0
     if (current_state == 0) {
         cycle_count++;
-        
-        // Allow read signals and notify MATLAB
         if (cycle_count % cycle_nrun == 0) {
             ble_task_state = BLETaskState::ANALOG_READ;
+        }
+
+        // Check and apply pending signal update at cycle end
+        if (signal_update_pending) {
+            if (xSemaphoreTakeFromISR(signal_mutex, NULL) == pdTRUE) {
+                time_vec = pending_time_vec;
+                d4_vec = pending_d4_vec;
+                d5_vec = pending_d5_vec;
+                d6_vec = pending_d6_vec;
+                num_timings = time_vec.size();
+
+                // If running, restart timer with new signal
+                if (signal_task_state == SignalTaskState::SIGNAL_RUN ||
+                    signal_task_state == SignalTaskState::SIGNAL_RUN_CHANGED) {
+                    timer_pause(TIMER_GROUP, TIMER_IDX);
+                    timer_set_counter_value(TIMER_GROUP, TIMER_IDX, 0);
+                    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, time_vec[0]);
+                    timer_start(TIMER_GROUP, TIMER_IDX);
+                    signal_task_state = SignalTaskState::SIGNAL_RUN_CHANGED;
+                }
+
+                signal_update_pending = false; // Reset flag
+                xSemaphoreGiveFromISR(signal_mutex, NULL);
+            }
         }
     }
 
@@ -199,7 +218,7 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
             Serial.println("Signals stopped");
             digitalWrite(LED, LOW);
             GPIO.out_w1tc = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
-        } else if (value.substr(0,8) == "CYCLE_NRUN:") {
+        } else if (value.substr(0,11) == "CYCLE_NRUN:") {
             std::string payload = value.substr(11);
             cycle_nrun = std::stoi(payload);
             Serial.printf("updating ncycles to `%d`!\n", cycle_nrun);
@@ -210,54 +229,38 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
 
             try {
                 ble_task_state = BLETaskState::SIGNAL_READING;
-                parseSignal(signal, timings, modes);
-                
-                // converting values of modes to binary
-                modes_di4.clear();
-                modes_di5.clear();
-                modes_di6.clear();
-                for (uint64_t mi : modes) {
+                std::vector<uint64_t> new_timings, new_modes;
+                parseSignal(signal, new_timings, new_modes);
+
+                // Convert modes to binary
+                std::vector<uint64_t> new_d4_vec, new_d5_vec, new_d6_vec;
+                for (uint64_t mi : new_modes) {
                     Bin bin = Num2Bin(mi);
-                    modes_di4.push_back(bin.b1);
-                    modes_di5.push_back(bin.b2);
-                    modes_di6.push_back(bin.b3);
+                    new_d4_vec.push_back(bin.b1);
+                    new_d5_vec.push_back(bin.b2);
+                    new_d6_vec.push_back(bin.b3);
                 }
 
-                // printing values
+                // Print values
                 Serial.print("time: ");
-                for (auto ti : timings) {
+                for (auto ti : new_timings) {
                     Serial.printf("%d, ", ti);
                 }
                 Serial.println(" ");
 
                 Serial.print("mode: ");
-                for (auto mi : modes) {
+                for (auto mi : new_modes) {
                     Serial.printf("%d, ", mi);
                 }
                 Serial.println(" ");
 
-                // Update timer signal values safely
+                // Buffer the new signal safely
                 if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
-                    // Clear and update vectors
-                    time_vec.clear();
-                    d4_vec.clear();
-                    d5_vec.clear();
-                    d6_vec.clear();
-                    
-                    time_vec = timings;
-                    d4_vec = modes_di4;
-                    d5_vec = modes_di5;
-                    d6_vec = modes_di6;
-                    
-                    num_timings = timings.size();
-                    
-                    if (signal_task_state == SignalTaskState::SIGNAL_RUN) {
-                        signal_task_state = SignalTaskState::SIGNAL_RUN_CHANGED;
-                        // If we are already running, we need to restart the timer with new values
-                        stop_timer();
-                        start_timer();
-                    }
-                    
+                    pending_time_vec = new_timings;
+                    pending_d4_vec = new_d4_vec;
+                    pending_d5_vec = new_d5_vec;
+                    pending_d6_vec = new_d6_vec;
+                    signal_update_pending = true; // Set flag for ISR to handle
                     xSemaphoreGive(signal_mutex);
                 }
             }
@@ -271,6 +274,10 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
 
 // Task for BLE communication
 void bleTask(void* parameter) {
+    esp_task_wdt_init(30, true);
+    esp_task_wdt_add(NULL);
+
+
     Serial.print("BLE Task running on core: ");
     Serial.println(xPortGetCoreID());
     
@@ -322,6 +329,7 @@ void bleTask(void* parameter) {
             ble_task_state = BLETaskState::IDLE;
         }
 
+        esp_task_wdt_reset();
         vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
@@ -359,6 +367,11 @@ void setup() {
     d4_vec.reserve(MAX_ELEMENTS_SIGNAL);
     d5_vec.reserve(MAX_ELEMENTS_SIGNAL);
     d6_vec.reserve(MAX_ELEMENTS_SIGNAL);
+
+    pending_time_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    pending_d4_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    pending_d5_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    pending_d6_vec.reserve(MAX_ELEMENTS_SIGNAL);
     
     // Initial vector values
     time_vec = timings;
@@ -387,24 +400,24 @@ void setup() {
     
     // create BLE task
     xTaskCreatePinnedToCore(
-        signalTask,               // Task function
-        "Signal Task",            // Task name
-        2048,                     // Stack size (bytes)
-        NULL,                     // Task parameters
-        configMAX_PRIORITIES - 2, // Lower priority than timer ISR
-        NULL,                     // Task handle
-        CORE_0                    // Core ID (1 = second core)
-    );
-    
-    // create signal task
-    xTaskCreatePinnedToCore(
         bleTask,    // Task function
         "BLE Task", // Task name
         4096,       // Stack size (bytes)
         NULL,       // Task parameters
         1,          // Highest priority
         NULL,       // Task handle
-        CORE_1      // Core ID (0 = first core)
+        CORE_0      // Core ID (0 = first core)
+    );
+    
+    // create signal task
+    xTaskCreatePinnedToCore(
+        signalTask,               // Task function
+        "Signal Task",            // Task name
+        2048,                     // Stack size (bytes)
+        NULL,                     // Task parameters
+        configMAX_PRIORITIES - 2, // Lower priority than timer ISR
+        NULL,                     // Task handle
+        CORE_1                    // Core ID (1 = second core)
     );
 }
 

@@ -29,6 +29,6 @@ command = Helpers.signal_create( ...
 
 b.message(command);
 s.config.Ts = time_ms*1e-3;
-%b.message("CYCLE_NRUN:15");
-b.message("START");
+b.message_cycles_nrun('10000');
+%b.message("START");
 
