@@ -101,7 +101,7 @@ bool IRAM_ATTR timer_group_isr_callback(void *args)
 
     // Set up next interval
     uint64_t next_alarm_us = time_vec[current_state];
-    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, next_alarm_us * TIMER_DIVIDER);
+    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, next_alarm_us);
 
     // Move to next state
     current_state = (current_state + 1) % num_timings;
@@ -132,7 +132,7 @@ void initialize_timer() {
     
     timer_init(TIMER_GROUP, TIMER_IDX, &config);
     timer_set_counter_value(TIMER_GROUP, TIMER_IDX, 0);
-    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, time_vec[0] * TIMER_DIVIDER);
+    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, time_vec[0]);
     timer_enable_intr(TIMER_GROUP, TIMER_IDX);
     timer_isr_callback_add(TIMER_GROUP, TIMER_IDX, timer_group_isr_callback, NULL, 0);
     timer_initialized = true;
@@ -146,7 +146,7 @@ void start_timer() {
     current_state = 0;
     cycle_count = 0;
     timer_set_counter_value(TIMER_GROUP, TIMER_IDX, 0);
-    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, time_vec[0] * TIMER_DIVIDER);
+    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, time_vec[0]);
     timer_start(TIMER_GROUP, TIMER_IDX);
 }
 
@@ -387,24 +387,24 @@ void setup() {
     
     // create BLE task
     xTaskCreatePinnedToCore(
-        bleTask,    // Task function
-        "BLE Task", // Task name
-        4096,       // Stack size (bytes)
-        NULL,       // Task parameters
-        1,          // Highest priority
-        NULL,       // Task handle
-        CORE_0      // Core ID (0 = first core)
-    );
-    
-    // create signal task
-    xTaskCreatePinnedToCore(
         signalTask,               // Task function
         "Signal Task",            // Task name
         2048,                     // Stack size (bytes)
         NULL,                     // Task parameters
         configMAX_PRIORITIES - 2, // Lower priority than timer ISR
         NULL,                     // Task handle
-        CORE_1                    // Core ID (1 = second core)
+        CORE_0                    // Core ID (1 = second core)
+    );
+    
+    // create signal task
+    xTaskCreatePinnedToCore(
+        bleTask,    // Task function
+        "BLE Task", // Task name
+        4096,       // Stack size (bytes)
+        NULL,       // Task parameters
+        1,          // Highest priority
+        NULL,       // Task handle
+        CORE_1      // Core ID (0 = first core)
     );
 }
 
