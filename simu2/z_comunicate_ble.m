@@ -20,7 +20,8 @@ b.simulation = s;
 
 
 time_ms = [47, 47, 47, 47, 47, 47];
-mode = [4, 6, 2, 3, 1, 5];
+% mode = [4, 6, 2, 3, 1, 5];
+mode = [7, 0, 7, 0, 7, 0];
 
 command = Helpers.signal_create( ...
     time_ms, ...
@@ -29,5 +30,5 @@ command = Helpers.signal_create( ...
 b.message(command);
 s.config.Ts = time_ms*1e-3;
 %b.message("CYCLE_NRUN:15");
-% b.message("START");
+b.message("START");
 
