@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import './App.css'
 import { connect_device, disconnect_device, set_update_status, send_command, toggle_listening, bt_is_connected  } from "./components/bluetooth";
 import RealtimeChart, { DataPoint } from "./components/Chart";
@@ -9,34 +9,34 @@ const initial_time = new Date();
 
 function App() {
   
-  const [status, setStatus] = useState('.')
-  const [commandMessage, setCommandMessage] = useState('')
+  const [status, set_status] = useState('.')
+  const [command_message, set_command_message] = useState('')
   
-  const [time, setTime] = useState('')
-  const [mode, setMode] = useState('')
-  const [mulValue, setMulValue] = useState("1.0")
+  const [time, set_time] = useState('')
+  const [mode, set_mode] = useState('')
+  const [mul_value, set_mul_value] = useState("1.0")
   
-  const [data, setData] = useState<DataPoint[]>([])
-  const [alpha, setAlpha] = useState('0.5')
+  const [data, set_data] = useState<DataPoint[]>([])
+  const [alpha, set_alpha] = useState('0.5')
 
-  const [receiveLabel, setReceiveLabel] = useState('Start Listening')
+  const [receive_label, set_receive_label] = useState('Start Listening')
 
-  const [copyLabel, setCopyLabel] = useState('copy')
+  const [copy_label, set_copy_label] = useState('copy')
 
   
-  const generateValue = () => {
+  const generate_value = () => {
     return Math.sin(Date.now() / 1000) * 5 + Math.random() * 2;
   };
 
 
-  function updateStatus(message:string, _isError = false) {
+  function update_status(message:string, _isError = false) {
     // statusDiv.textContent = message;
     // statusDiv.style.color = isError ? '#ff5252' : '#03dac6';
     // console.log(isError ? 'ERROR: ' + message : message);
-    setStatus(message)
+    set_status(message)
   }
   
-  set_update_status(updateStatus)
+  set_update_status(update_status)
 
   function handle_copy() {
     let message: string = ''
@@ -48,41 +48,41 @@ function App() {
 
     navigator.clipboard.writeText(message)
       .then(() => {
-        setCopyLabel('copied!')
+        set_copy_label('copied!')
         setTimeout(() => {
-          setCopyLabel('copy')
+          set_copy_label('copy')
         }, 500);
       })
   }
 
-  function handleSetCommandMessage(e: React.ChangeEvent<HTMLInputElement>) {
+  function handle_set_command_message(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value
-    setCommandMessage(value)
+    set_command_message(value)
   }
   
   function handle_set_alpha(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value
-    setAlpha(value)
+    set_alpha(value)
   }
   
   function handle_compute_alpha() {
     const value = parseFloat(alpha)
     const res = _create_signal(value)
 
-    setTime(res.time)
-    setMode(res.mode)
+    set_time(res.time)
+    set_mode(res.mode)
   }
 
 
-  function handleSendCommand() {
-    send_command(commandMessage)
+  function handle_send_command() {
+    send_command(command_message)
   }
 
-  function handleConnect() {
+  function handle_connect() {
     connect_device()
   }
 
-  function handleDisconnect() {
+  function handle_disconnect() {
     disconnect_device()
   }
   
@@ -90,11 +90,11 @@ function App() {
     send_command("START")
   }
 
-  function handleStop() {
+  function handle_stop() {
     send_command("STOP")
   }
   
-  function handleHigh() {
+  function handle_high() {
     send_command("HIGH")
   }
   
@@ -103,7 +103,7 @@ function App() {
       const now = new Date();
       const timeStr = (now.getTime()-initial_time.getTime()).toString();
       
-      setData(currentData => {
+      set_data(currentData => {
         const newData = [...currentData, {
           time: timeStr,
           an6: parseFloat(values.an6),
@@ -121,9 +121,9 @@ function App() {
     // }
     const is_listening = toggle_listening(probe_values)
     if (is_listening) {
-      setReceiveLabel("Stop Listening")
+      set_receive_label("Stop Listening")
     } else {
-      setReceiveLabel("Start Listening")
+      set_receive_label("Start Listening")
     }
   }
 
@@ -133,12 +133,12 @@ function App() {
       const now = new Date();
       const timeStr = (now.getTime() - initial_time.getTime()).toString();
       
-      setData(currentData => {
+      set_data(currentData => {
         const newData = [...currentData, {
           time: timeStr,
-          an3: generateValue(),
-          an5: generateValue()*3,
-          an6: generateValue()*6
+          an3: generate_value(),
+          an5: generate_value()*3,
+          an6: generate_value()*6
         }];
         
         return newData;
@@ -147,37 +147,37 @@ function App() {
 
   }
 
-  function setSignal1() {
+  function set_signal_1() {
     const _time = "50, 50, 50, 50, 50, 50"
     const _mode = "7, 0, 7, 0, 7, 0"
-    setTime(_time)
-    setMode(_mode)
+    set_time(_time)
+    set_mode(_mode)
   }
 
-  function setSignal2() {
+  function set_signal_2() {
     const _time = "50, 50, 50, 50, 50, 50"
     const _mode = "7, 0, 7, 0, 7, 0"
-    setTime(_time)
-    setMode(_mode)
+    set_time(_time)
+    set_mode(_mode)
   }
   
-  function handleSetTime(e: React.ChangeEvent<HTMLInputElement>) {
-    setTime(e.target.value)
+  function handle_set_time(e: React.ChangeEvent<HTMLInputElement>) {
+    set_time(e.target.value)
   }
 
-  function handleSetMode(e: React.ChangeEvent<HTMLInputElement>) {
-    setMode(e.target.value)
+  function handle_set_mode(e: React.ChangeEvent<HTMLInputElement>) {
+    set_mode(e.target.value)
   }
   
-  function handleSendSignal() {
+  function handle_send_signal() {
     const signal = `SIGNAL:${time};${mode}`
     send_command(signal)
   }
 
-  function handleSetMultiply(e: React.ChangeEvent<HTMLInputElement>) {
+  function handle_set_multiply(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value
     
-    setMulValue(value)
+    set_mul_value(value)
   }
   
   function _multiply_time(value: number) {
@@ -186,8 +186,8 @@ function App() {
     
     // write values back
     const res_str = res.map(Math.round).join(', ')
-    updateStatus(res_str)
-    setTime(res_str)
+    update_status(res_str)
+    set_time(res_str)
   }
 
   return (
@@ -197,11 +197,11 @@ function App() {
           <h1 className="text-purple-500 text-4xl font-bold justify-center items-center text-center">ESP32 Web Bluetooth Control</h1>
 
           <div className="flex  gap-3 my-5 items-center justify-center">
-            <button id="connectBtn" onClick={handleConnect} className="btn">Connect to ESP32</button>
-            <button id="disconnectBtn" onClick={handleDisconnect} className="btn">Disconnect</button>
-            <button onClick={handle_receive} className="btn">{receiveLabel}</button>
+            <button id="connectBtn" onClick={handle_connect} className="btn">Connect to ESP32</button>
+            <button id="disconnectBtn" onClick={handle_disconnect} className="btn">Disconnect</button>
+            <button onClick={handle_receive} className="btn">{receive_label}</button>
             <button onClick={handle_test_receive} className="btn">test</button>
-            <button onClick={handle_copy} className="btn">{copyLabel}</button>
+            <button onClick={handle_copy} className="btn">{copy_label}</button>
           </div>
 
           <div id="controlPanel" className="bg-panel p-5 rounded-xl">
@@ -209,8 +209,8 @@ function App() {
             <div className="bg-purple-500 w-full h-[2px] mb-4"></div>
 
             <div className="flex justify-content">
-              <input type="text" id="commandInput" value={commandMessage} onChange={handleSetCommandMessage} className="flex-1 bg-panel border-zinc-700 border-[1px] rounded-sm px-3 py-1" placeholder="Enter command" />
-              <button id="sendBtn" onClick={handleSendCommand} className="flex-none ml-2 btn">send</button>
+              <input type="text" id="commandInput" value={command_message} onChange={handle_set_command_message} className="flex-1 bg-panel border-zinc-700 border-[1px] rounded-sm px-3 py-1" placeholder="Enter command" />
+              <button id="sendBtn" onClick={handle_send_command} className="flex-none ml-2 btn">send</button>
             </div>
 
 
@@ -223,32 +223,32 @@ function App() {
 
             <div className="flex my-4 gap-2">
               <label htmlFor="" className="flex item-center justify-content mr-4 relative top-2 w-12">time:</label>
-              <input type="text" id="in-time" className="input p-2 flex-grow" placeholder="Enter time" value={time} onChange={handleSetTime} />
+              <input type="text" id="in-time" className="input p-2 flex-grow" placeholder="Enter time" value={time} onChange={handle_set_time} />
             </div>
 
             <div className="flex my-4 gap-2">
               <label htmlFor="" className="flex item-center justify-content mr-4 relative top-2 w-12">modes:</label>
-              <input type="text" id="in-mode" className="input p-2 flex-grow" placeholder="Enter modes" value={mode} onChange={handleSetMode} />
+              <input type="text" id="in-mode" className="input p-2 flex-grow" placeholder="Enter modes" value={mode} onChange={handle_set_mode} />
             </div>
 
             <div className="flex my-4 gap-2">
               <label htmlFor="" className="flex item-center justify-content mr-4 relative top-2 w-12">X*time:</label>
-              <input type="text" id="in-mul" className="input p-2 w-16 text-center" placeholder="X*time" value={mulValue} onChange={handleSetMultiply} />
+              <input type="text" id="in-mul" className="input p-2 w-16 text-center" placeholder="X*time" value={mul_value} onChange={handle_set_multiply} />
               <span className=""></span>
               <button id="btn-div10" onClick={() => _multiply_time(0.1)} className="btn">x1/10</button>
               <button id="btn-mul10" onClick={() => _multiply_time(10.0)} className="btn">x10</button>
-              <button id="btn-signal-calc" onClick={() => _multiply_time(parseFloat(mulValue))} className="btn">calc</button>
-              <button id="btn-signal-send" onClick={handleSendSignal} className="btn">send signal</button>
+              <button id="btn-signal-calc" onClick={() => _multiply_time(parseFloat(mul_value))} className="btn">calc</button>
+              <button id="btn-signal-send" onClick={handle_send_signal} className="btn">send signal</button>
             </div>
 
             <div className="bg-purple-500 w-full h-[2px] my-5"></div>
 
             <div className="flex gap-4 justify-center">
-              <button id="btn-signal-1" onClick={setSignal1} className="btn">signal 1</button>
-              <button id="btn-signal-2" onClick={setSignal2} className="btn">signal 2</button>
+              <button id="btn-signal-1" onClick={set_signal_1} className="btn">signal 1</button>
+              <button id="btn-signal-2" onClick={set_signal_2} className="btn">signal 2</button>
               <button id="btn-start" onClick={handleStart} className="btn">start</button>
-              <button id="btn-stop" onClick={handleStop} className="btn">stop</button>
-              <button id="btn-high" onClick={handleHigh} className="btn">high</button>
+              <button id="btn-stop" onClick={handle_stop} className="btn">stop</button>
+              <button id="btn-high" onClick={handle_high} className="btn">high</button>
             </div>
 
           </div>

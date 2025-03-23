@@ -60,7 +60,7 @@ export function set_update_status(_callable: CallableFunction) {
     _updateStatus = _callable
 }
 
-function update_status(message:string, isError: boolean = false) {
+function update_status(message:string, _isError: boolean = false) {
     _updateStatus(message)
 }
 
@@ -70,9 +70,10 @@ function is_disconnected() {
 
 export async function send_command(command: string) {
     if (is_disconnected()) {
-        update_status(`Not connected\ncommand: '${command}'`, true);
-        console.log(`"${command}"`);
-        return;
+        // update_status(`Not connected\ncommand: '${command}'`, true);
+        // console.log(`"${command}"`);
+        // return;
+        await connect_device();
     }
 
     const comm = command.trim().toUpperCase();
