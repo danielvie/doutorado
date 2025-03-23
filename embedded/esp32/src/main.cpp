@@ -22,13 +22,14 @@
 
 #define CPU_FREQ_MHZ 240  // ESP32 running at 240MHz
 
+// Timer configuration
+#define TIMER_DIVIDER         80  // Hardware timer clock divider
+#define TIMER_GROUP           TIMER_GROUP_0  // Test on timer group 0
+#define TIMER_IDX             TIMER_0  // Timer index as proper enum value
+
 // BLE UUIDs
 #define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 #define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
-
-
-// Convert microseconds to CPU ticks
-#define US_TO_TICKS(us) ((us) * CPU_FREQ_MHZ)
 
 // signal timing
 std::vector<uint64_t> timings = {
@@ -38,7 +39,6 @@ std::vector<uint64_t> timings = {
 // signal modes
 uint32_t cycle_nrun = 10; // number of cycles to read and notify MATLAB
 std::vector<uint64_t> modes = {
-    // 5, 3, 4, 2, 5, 2
     7, 0, 7, 0, 7, 0
 };
 
@@ -50,9 +50,20 @@ std::vector<uint64_t> modes_di6 = { 1, 0, 1, 0, 1, 0 };
 SignalTaskState::State signal_task_state = SignalTaskState::IDLE;
 BLETaskState::State ble_task_state = BLETaskState::IDLE;
 
-// flag
-// SIGNAL:50, 25, 50, 25, 50, 25; 5, 3, 4, 2, 5, 2
-// SIGNAL:50, 50, 50, 50, 50, 50; 1, 0, 1, 0, 1, 0
+// Timer variables
+volatile uint8_t current_state = 0;
+volatile uint32_t cycle_count = 0;
+volatile bool timer_initialized = false;
+std::vector<uint64_t> time_vec, d4_vec, d5_vec, d6_vec;
+volatile uint8_t num_timings = 0;
+
+// Mutex for signal array access
+SemaphoreHandle_t signal_mutex = NULL;
+
+// GPIO bit masks
+const uint32_t gpio_di4_mask = 1 << GPIO_DI4;
+const uint32_t gpio_di5_mask = 1 << GPIO_DI5;
+const uint32_t gpio_di6_mask = 1 << GPIO_DI6;
 
 // blink helper
 void blink(uint8_t N) {
@@ -63,6 +74,85 @@ void blink(uint8_t N) {
         GPIO.out_w1tc = (1 << LED);
         vTaskDelay(pdMS_TO_TICKS(100));
     }
+}
+
+// Timer ISR
+bool IRAM_ATTR timer_group_isr_callback(void *args)
+{
+    // Reset the timer alarm
+    timer_group_enable_alarm_in_isr(TIMER_GROUP, TIMER_IDX);
+
+    if (signal_task_state != SignalTaskState::SIGNAL_RUN && 
+        signal_task_state != SignalTaskState::SIGNAL_RUN_CHANGED) {
+        return true;
+    }
+
+    // Process state change for signal pins
+    uint32_t pin_states =
+        (d4_vec[current_state] ? gpio_di4_mask : 0) |
+        (d5_vec[current_state] ? gpio_di5_mask : 0) |
+        (d6_vec[current_state] ? gpio_di6_mask : 0);
+
+    // Set pins HIGH
+    GPIO.out_w1ts = pin_states;
+
+    // Set pins LOW
+    GPIO.out_w1tc = ~pin_states & (gpio_di4_mask | gpio_di5_mask | gpio_di6_mask);
+
+    // Set up next interval
+    uint64_t next_alarm_us = time_vec[current_state];
+    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, next_alarm_us * TIMER_DIVIDER);
+
+    // Move to next state
+    current_state = (current_state + 1) % num_timings;
+    
+    // Count cycles when we loop back to state 0
+    if (current_state == 0) {
+        cycle_count++;
+        
+        // Allow read signals and notify MATLAB
+        if (cycle_count % cycle_nrun == 0) {
+            ble_task_state = BLETaskState::ANALOG_READ;
+        }
+    }
+
+    return true;
+}
+
+// Function to initialize timer
+void initialize_timer() {
+    timer_config_t config = {
+        .alarm_en = TIMER_ALARM_EN,
+        .counter_en = TIMER_PAUSE,
+        .intr_type = TIMER_INTR_LEVEL,
+        .counter_dir = TIMER_COUNT_UP,
+        .auto_reload = TIMER_AUTORELOAD_EN,
+        .divider = TIMER_DIVIDER
+    };
+    
+    timer_init(TIMER_GROUP, TIMER_IDX, &config);
+    timer_set_counter_value(TIMER_GROUP, TIMER_IDX, 0);
+    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, time_vec[0] * TIMER_DIVIDER);
+    timer_enable_intr(TIMER_GROUP, TIMER_IDX);
+    timer_isr_callback_add(TIMER_GROUP, TIMER_IDX, timer_group_isr_callback, NULL, 0);
+    timer_initialized = true;
+}
+
+// Function to start timer
+void start_timer() {
+    if (!timer_initialized) {
+        initialize_timer();
+    }
+    current_state = 0;
+    cycle_count = 0;
+    timer_set_counter_value(TIMER_GROUP, TIMER_IDX, 0);
+    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, time_vec[0] * TIMER_DIVIDER);
+    timer_start(TIMER_GROUP, TIMER_IDX);
+}
+
+// Function to stop timer
+void stop_timer() {
+    timer_pause(TIMER_GROUP, TIMER_IDX);
 }
 
 // BLE Server callbacks
@@ -84,26 +174,35 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
     void onWrite(NimBLECharacteristic *characteristic) {
         std::string value = characteristic->getValue();
         if (value == "START") {
-            // signalsEnabled = 1;
-            signal_task_state = SignalTaskState::SIGNAL_RUN;
+            if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
+                signal_task_state = SignalTaskState::SIGNAL_RUN;
+                xSemaphoreGive(signal_mutex);
+            }
             Serial.println("Signals started");
             digitalWrite(LED, HIGH);
+            start_timer();
         } else if (value == "HIGH") {
-            // signalsEnabled = 2;
-            signal_task_state = SignalTaskState::HIGH_RUN;
+            if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
+                signal_task_state = SignalTaskState::HIGH_RUN;
+                xSemaphoreGive(signal_mutex);
+            }
+            stop_timer();
             Serial.println("Signals high");
             digitalWrite(LED, LOW);
+            GPIO.out_w1ts = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
         } else if (value == "STOP" || value == "LOW") {
-            // signalsEnabled = 0;
-            signal_task_state = SignalTaskState::IDLE;
+            if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
+                signal_task_state = SignalTaskState::IDLE;
+                xSemaphoreGive(signal_mutex);
+            }
+            stop_timer();
             Serial.println("Signals stopped");
             digitalWrite(LED, LOW);
+            GPIO.out_w1tc = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
         } else if (value.substr(0,8) == "CYCLE_NRUN:") {
             std::string payload = value.substr(11);
             cycle_nrun = std::stoi(payload);
-
             Serial.printf("updating ncycles to `%d`!\n", cycle_nrun);
-
         } else if (value.substr(0,7) == "SIGNAL:") {
             std::string signal = value.substr(7);
             Serial.println("Signals received:");
@@ -137,10 +236,29 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
                 }
                 Serial.println(" ");
 
-                if (signal_task_state == SignalTaskState::SIGNAL_RUN) {
-                    signal_task_state = SignalTaskState::SIGNAL_RUN_CHANGED;
-                } else {
-                    signal_task_state = SignalTaskState::SIGNAL_CHANGED;
+                // Update timer signal values safely
+                if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
+                    // Clear and update vectors
+                    time_vec.clear();
+                    d4_vec.clear();
+                    d5_vec.clear();
+                    d6_vec.clear();
+                    
+                    time_vec = timings;
+                    d4_vec = modes_di4;
+                    d5_vec = modes_di5;
+                    d6_vec = modes_di6;
+                    
+                    num_timings = timings.size();
+                    
+                    if (signal_task_state == SignalTaskState::SIGNAL_RUN) {
+                        signal_task_state = SignalTaskState::SIGNAL_RUN_CHANGED;
+                        // If we are already running, we need to restart the timer with new values
+                        stop_timer();
+                        start_timer();
+                    }
+                    
+                    xSemaphoreGive(signal_mutex);
                 }
             }
             catch (std::exception &e) {
@@ -208,121 +326,22 @@ void bleTask(void* parameter) {
     }
 }
 
-void IRAM_ATTR signalTask(void* arg) {
-
-    // precalculate GPIO bit masks
-    const uint32_t gpio_di4_mask = 1 << GPIO_DI4;
-    const uint32_t gpio_di5_mask = 1 << GPIO_DI5;
-    const uint32_t gpio_di6_mask = 1 << GPIO_DI6;
-
-    // variables to generate the sinal during a cycle
-    std::vector<uint64_t> time_, d4_, d5_, d6_;
-    time_.reserve(MAX_ELEMENTS_SIGNAL);
-    d4_.reserve(MAX_ELEMENTS_SIGNAL);
-    d5_.reserve(MAX_ELEMENTS_SIGNAL);
-    d6_.reserve(MAX_ELEMENTS_SIGNAL);
-
-    // update values
-    auto print = [](std::vector<uint64_t> &v){
-        for (auto vi : v) {
-            Serial.printf("%d, ", vi);
-        }
-        Serial.println(";");
-    };
-
-    uint8_t num_timings_;
-    auto UpdateSignalValues = [&time_, &d4_, &d5_, &d6_, &num_timings_]() {
-        // clearing previous values
-        time_.clear();
-        d4_.clear();
-        d5_.clear();
-        d6_.clear();
-
-        // updating arrays
-        time_ = timings;
-        d4_ = modes_di4;
-        d5_ = modes_di5;
-        d6_ = modes_di6;
-
-        // updating number of elements
-        num_timings_ = timings.size();
-    };
-
-    UpdateSignalValues();
-
-    // signal loop
-    uint8_t state = 0;
-    uint32_t cycle_count = 0;
-    uint64_t startTicks;
-
-    auto SignalRun = [&state, &cycle_count, &UpdateSignalValues, &d4_, &d5_, &d6_, &startTicks, &num_timings_, &time_] {
-        // command SIGNAL
-        if (state == 0) {
-            cycle_count++;
-
-            // update values when something is changed
-            if (signal_task_state == SignalTaskState::SIGNAL_RUN_CHANGED) {
-                UpdateSignalValues();
-            }
-
-            // allow read signals and notify MATLAB
-            if (cycle_count % cycle_nrun == 0) {
-                ble_task_state = BLETaskState::ANALOG_READ;
-            }
-        }
-
-        // prepare signal
-        uint32_t pin_states =
-            (d4_[state] ? gpio_di4_mask : 0) |
-            (d5_[state] ? gpio_di5_mask : 0) |
-            (d6_[state] ? gpio_di6_mask : 0);
-
-        // set pins HIGH
-        GPIO.out_w1ts = pin_states;
-
-        // set pins LOW
-        GPIO.out_w1tc = ~pin_states & (gpio_di4_mask | gpio_di5_mask | gpio_di6_mask);
-
-        // count CPU ticks
-        while ((esp_timer_get_time() * CPU_FREQ_MHZ) - startTicks < US_TO_TICKS(time_[state])) {}
-
-        // move to next state
-        state = (state + 1) % num_timings_;
-    };
-
+// Signal task now just monitors state changes and handles any work not done by timer
+void signalTask(void* arg) {
     while (1) {
-        startTicks = esp_timer_get_time() * CPU_FREQ_MHZ;  // Current time in CPU ticks
-        
-        // ignore if there are no signal to run
-        if (d4_.size() == 0) {
-            continue;
-        }
-
         switch (signal_task_state)
         {
         // command all LOW when state IDLE
         case SignalTaskState::IDLE:
-            GPIO.out_w1tc = (1 << LED) | (1 << GPIO_DI4) | (1 << GPIO_DI5) | (1 << GPIO_DI6);
+            GPIO.out_w1tc = (1 << LED) | gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
             vTaskDelay(pdMS_TO_TICKS(100));
             break;
         case SignalTaskState::HIGH_RUN:
-            GPIO.out_w1ts = (1 << LED) | (1 << GPIO_DI4) | (1 << GPIO_DI5) | (1 << GPIO_DI6);
+            GPIO.out_w1ts = (1 << LED) | gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
             vTaskDelay(pdMS_TO_TICKS(100));
             break;
-        case SignalTaskState::SIGNAL_CHANGED:
-            UpdateSignalValues();
-            signal_task_state == SignalTaskState::IDLE;
-            break;
-        case SignalTaskState::SIGNAL_RUN_CHANGED:
-            UpdateSignalValues();
-            signal_task_state == SignalTaskState::SIGNAL_RUN;
-            SignalRun();
-            break;
-        case SignalTaskState::SIGNAL_RUN:
-            SignalRun();
-            break;
         default:
-            Serial.println("STATE NOT FOUND!!!");
+            vTaskDelay(pdMS_TO_TICKS(100));
             break;
         }
     }
@@ -331,6 +350,22 @@ void IRAM_ATTR signalTask(void* arg) {
 void setup() {
     // configure serial
     Serial.begin(115200);
+
+    // Create mutex for signal array access
+    signal_mutex = xSemaphoreCreateMutex();
+
+    // Initialize vectors
+    time_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    d4_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    d5_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    d6_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    
+    // Initial vector values
+    time_vec = timings;
+    d4_vec = modes_di4;
+    d5_vec = modes_di5;
+    d6_vec = modes_di6;
+    num_timings = timings.size();
 
     // Configure ADC1 pins
     adc1_config_width(ADC_WIDTH_BIT_12); // 12-bit resolution
@@ -343,13 +378,12 @@ void setup() {
 
     // configure pin
     pinMode(LED, OUTPUT);
-
     pinMode(GPIO_DI4, OUTPUT);
     pinMode(GPIO_DI5, OUTPUT);
     pinMode(GPIO_DI6, OUTPUT);
 
     // start with LOW
-    GPIO.out_w1tc = (1 << LED) | (1 << GPIO_DI4) | (1 << GPIO_DI5) | (1 << GPIO_DI6);
+    GPIO.out_w1tc = (1 << LED) | gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
     
     // create BLE task
     xTaskCreatePinnedToCore(
@@ -364,17 +398,17 @@ void setup() {
     
     // create signal task
     xTaskCreatePinnedToCore(
-        signalTask,           // Task function
+        signalTask,               // Task function
         "Signal Task",            // Task name
         2048,                     // Stack size (bytes)
         NULL,                     // Task parameters
-        configMAX_PRIORITIES - 1, // Highest priority
+        configMAX_PRIORITIES - 2, // Lower priority than timer ISR
         NULL,                     // Task handle
         CORE_1                    // Core ID (1 = second core)
     );
 }
 
 void loop() {
-    // Main loop remains empty as signal generation is handled by FreeRTOS task
-    vTaskDelay(pdMS_TO_TICKS(1000));  // Corrected from pdMS_TO_DELAY to pdMS_TO_TICKS
+    // Main loop remains empty as signal generation is handled by hardware timer and FreeRTOS tasks
+    vTaskDelay(pdMS_TO_TICKS(1000));
 }
