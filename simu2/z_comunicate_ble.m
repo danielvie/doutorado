@@ -35,3 +35,4 @@ b.message("START");
 
 
 c =@(x) b.message(x);
+c('SIGNAL:75,19;1,4')
