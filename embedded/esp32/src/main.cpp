@@ -299,11 +299,11 @@ void IRAM_ATTR generateSignal(void* arg) {
             // allow read signals and notify MATLAB
             uint16_t rem = cycle_count % cycle_nrun;
 
-            if (rem == 0) {
-                Serial.println("allow read signals and notify MATLAB");
-                // Serial.printf("cycle_nrun: %d, cycle_count: %d\n", cycle_nrun, cycle_count);
-                analogReadState = AnalogReadState::READ;
-            }
+            // if (rem == 0) {
+            //     Serial.println("allow read signals and notify MATLAB");
+            //     // Serial.printf("cycle_nrun: %d, cycle_count: %d\n", cycle_nrun, cycle_count);
+            //     analogReadState = AnalogReadState::READ;
+            // }
         }
 
         // prepare signal
