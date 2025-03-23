@@ -27,8 +27,11 @@ time_ms = [47, 47, 47, 47, 47, 47];
 %     time_ms, ...
 %     mode);
 
-b.message("SIGNAL:150,100;7,0");
+b.message("SIGNAL:50,50,50,50,50,50;7,0,7,0,7,0");
+% b.message("SIGNAL:500,500;7,0");
 s.config.Ts = time_ms*1e-3;
 b.message_cmd_cycles_nrun('10000000');
 b.message("START");
 
+
+c =@(x) b.message(x);
