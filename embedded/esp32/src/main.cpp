@@ -190,9 +190,7 @@ void bleTask(void* parameter) {
             float voltage_05 = read_analog(AnalogPort::AN5);
             float voltage_06 = read_analog(AnalogPort::AN6);
 
-            String message = "an2:" + String(voltage_02, 3) + ", " +
-                             "an3:" + String(voltage_03, 3) + ", " +
-                             "an4:" + String(voltage_04, 3) + ", " +
+            String message = "an3:" + String(voltage_03, 3) + ", " +
                              "an5:" + String(voltage_05, 3) + ", " +
                              "an6:" + String(voltage_06, 3);
 

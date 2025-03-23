@@ -11,7 +11,7 @@ let is_listening = false;
 let listen_interval:any;
 
 
-export async function connectDevice() {
+export async function connect_device() {
     try {
         // Request device
         let navigatorObject: any = window.navigator
@@ -20,7 +20,7 @@ export async function connectDevice() {
         });
 
         // Add disconnect event listener
-        bluetoothDevice.addEventListener('gattserverdisconnected', handleDisconnect);
+        bluetoothDevice.addEventListener('gattserverdisconnected', handle_disconnect);
 
         // Connect to GATT server
         gattServer = await bluetoothDevice.gatt.connect();
@@ -29,58 +29,62 @@ export async function connectDevice() {
         const service = await gattServer.getPrimaryService(SERVICE_UUID);
         characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
 
-        updateStatus('Connected to ESP32');
+        update_status('Connected to ESP32');
     } catch (error:any) {
-        updateStatus(`Connection failed: ${error.message}`, true);
-        resetConnection();
+        update_status(`Connection failed: ${error.message}`, true);
+        reset_connection();
     }
 }
 
-export async function disconnectDevice() {
+export async function disconnect_device() {
     if (bluetoothDevice && bluetoothDevice.gatt.connected) {
         await bluetoothDevice.gatt.disconnect();
     }
-    resetConnection();
-    updateStatus('Manually disconnected');
+    reset_connection();
+    update_status('Manually disconnected');
 }
 
-function handleDisconnect() {
-    updateStatus('Disconnected from ESP32', true);
-    resetConnection();
+function handle_disconnect() {
+    update_status('Disconnected from ESP32', true);
+    reset_connection();
 }
 
-function resetConnection() {
+function reset_connection() {
     bluetoothDevice = null;
     gattServer = null;
     characteristic = null;
 }
 
 // function updateStatus(message, isError = false) {
-export function setUpdateStatus(_callable: CallableFunction) {
+export function set_update_status(_callable: CallableFunction) {
     _updateStatus = _callable
 }
 
-function updateStatus(message:string, isError: boolean = false) {
+function update_status(message:string, isError: boolean = false) {
     _updateStatus(message)
 }
 
-export async function sendCommand(command: string) {
-    if (!characteristic) {
-        updateStatus(`Not connected\ncommand: '${command}'`, true);
+function is_disconnected() {
+    return !characteristic;
+}
+
+export async function send_command(command: string) {
+    if (is_disconnected()) {
+        update_status(`Not connected\ncommand: '${command}'`, true);
         console.log(`"${command}"`);
         return;
     }
 
     const comm = command.trim().toUpperCase();
     if (!comm) {
-        updateStatus('Please enter a command', true);
+        update_status('Please enter a command', true);
         return;
     }
 
     try {
         // Ensure connection is active
         if (!bluetoothDevice || !bluetoothDevice.gatt.connected) {
-            await connectDevice();
+            await connect_device();
         }
 
         // Convert string to Uint8Array
@@ -88,11 +92,11 @@ export async function sendCommand(command: string) {
         const data = encoder.encode(comm);
 
         await characteristic.writeValue(data);
-        updateStatus(`Sent command: ${comm}`);
+        update_status(`Sent command: ${comm}`);
         // commandInput.value = ''; // Clear input
     } catch (error: any) {
-        updateStatus(`Send failed: ${error.message}`, true);
-        resetConnection();
+        update_status(`Send failed: ${error.message}`, true);
+        reset_connection();
     }
 }
 
@@ -100,7 +104,7 @@ export function bt_is_connected() {
     return (bluetoothDevice)
 }
 
-export function toggleListening(probe: CallableFunction):boolean {
+export function toggle_listening(probe: CallableFunction):boolean {
     is_listening = !is_listening
     if (is_listening) {
         // btn_receive.textContent = "Stop Listening"
@@ -157,7 +161,7 @@ export async function listen_messages(probe: CallableFunction) {
                 }
 
             } catch (err:any) {
-                updateStatus(`Receive failed: ${err.message}`, true)
+                update_status(`Receive failed: ${err.message}`, true)
             }
         }
     }, 500);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import './App.css'
-import { connectDevice, disconnectDevice, setUpdateStatus, sendCommand, toggleListening, bt_is_connected  } from "./components/bluetooth";
+import { connect_device, disconnect_device, set_update_status, send_command, toggle_listening, bt_is_connected  } from "./components/bluetooth";
 import RealtimeChart, { DataPoint } from "./components/Chart";
 import { _create_signal } from "./helper";
 
@@ -36,7 +36,7 @@ function App() {
     setStatus(message)
   }
   
-  setUpdateStatus(updateStatus)
+  set_update_status(updateStatus)
 
   function handle_copy() {
     let message: string = ''
@@ -75,27 +75,27 @@ function App() {
 
 
   function handleSendCommand() {
-    sendCommand(commandMessage)
+    send_command(commandMessage)
   }
 
   function handleConnect() {
-    connectDevice()
+    connect_device()
   }
 
   function handleDisconnect() {
-    disconnectDevice()
+    disconnect_device()
   }
   
   function handleStart() {
-    sendCommand("START")
+    send_command("START")
   }
 
   function handleStop() {
-    sendCommand("STOP")
+    send_command("STOP")
   }
   
   function handleHigh() {
-    sendCommand("HIGH")
+    send_command("HIGH")
   }
   
   
@@ -119,7 +119,7 @@ function App() {
     // if (!bt_is_connected()) {
     //     await connectDevice();
     // }
-    const is_listening = toggleListening(probe_values)
+    const is_listening = toggle_listening(probe_values)
     if (is_listening) {
       setReceiveLabel("Stop Listening")
     } else {
@@ -148,8 +148,8 @@ function App() {
   }
 
   function setSignal1() {
-    const _time = "50, 25, 50, 25, 50, 25"
-    const _mode = "5, 3, 4, 2, 5, 2"
+    const _time = "50, 50, 50, 50, 50, 50"
+    const _mode = "7, 0, 7, 0, 7, 0"
     setTime(_time)
     setMode(_mode)
   }
@@ -171,7 +171,7 @@ function App() {
   
   function handleSendSignal() {
     const signal = `SIGNAL:${time};${mode}`
-    sendCommand(signal)
+    send_command(signal)
   }
 
   function handleSetMultiply(e: React.ChangeEvent<HTMLInputElement>) {
