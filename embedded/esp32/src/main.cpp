@@ -47,9 +47,8 @@ std::vector<uint64_t> modes_di5 = { 1, 0, 1, 0, 1, 0 };
 std::vector<uint64_t> modes_di6 = { 1, 0, 1, 0, 1, 0 };
 
 // Signal states
-SignalWriteState::State signalWriteState = SignalWriteState::IDLE;
-SignalReadState::State signalReadState = SignalReadState::IDLE;
-AnalogReadState::State analogReadState = AnalogReadState::IDLE;
+SignalTaskState::State signal_task_state = SignalTaskState::IDLE;
+BLETaskState::State ble_task_state = BLETaskState::IDLE;
 
 // flag
 // SIGNAL:50, 25, 50, 25, 50, 25; 5, 3, 4, 2, 5, 2
@@ -86,17 +85,17 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
         std::string value = characteristic->getValue();
         if (value == "START") {
             // signalsEnabled = 1;
-            signalWriteState = SignalWriteState::RUN_SIGNAL;
+            signal_task_state = SignalTaskState::SIGNAL_RUN;
             Serial.println("Signals started");
             digitalWrite(LED, HIGH);
         } else if (value == "HIGH") {
             // signalsEnabled = 2;
-            signalWriteState = SignalWriteState::RUN_HIGH;
+            signal_task_state = SignalTaskState::HIGH_RUN;
             Serial.println("Signals high");
             digitalWrite(LED, LOW);
         } else if (value == "STOP" || value == "LOW") {
             // signalsEnabled = 0;
-            signalWriteState = SignalWriteState::IDLE;
+            signal_task_state = SignalTaskState::IDLE;
             Serial.println("Signals stopped");
             digitalWrite(LED, LOW);
         } else if (value.substr(0,8) == "CYCLE_NRUN:") {
@@ -111,7 +110,7 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
             Serial.println(value.c_str());
 
             try {
-                signalReadState = SignalReadState::READING;
+                ble_task_state = BLETaskState::SIGNAL_READING;
                 parseSignal(signal, timings, modes);
                 
                 // converting values of modes to binary
@@ -138,7 +137,11 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
                 }
                 Serial.println(" ");
 
-                signalReadState = SignalReadState::CHANGED;
+                if (signal_task_state == SignalTaskState::SIGNAL_RUN) {
+                    signal_task_state = SignalTaskState::SIGNAL_RUN_CHANGED;
+                } else {
+                    signal_task_state = SignalTaskState::SIGNAL_CHANGED;
+                }
             }
             catch (std::exception &e) {
                 Serial.printf("Error parsing signal: %s\n", e.what());
@@ -147,7 +150,6 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
         }
     }
 };
-
 
 // Task for BLE communication
 void bleTask(void* parameter) {
@@ -179,9 +181,8 @@ void bleTask(void* parameter) {
 
     // keep task alive
     while(1) {
-        if (analogReadState == AnalogReadState::READ) {
-
-            Serial.println("read values and nofity MATLAB (::READ)");
+        if (ble_task_state == BLETaskState::ANALOG_READ) {
+            ble_task_state = BLETaskState::ANALOG_READING;
 
             float voltage_02 = read_analog(AnalogPort::AN2);
             float voltage_03 = read_analog(AnalogPort::AN3);
@@ -202,19 +203,14 @@ void bleTask(void* parameter) {
             pCharacteristic->setValue((uint8_t *)messageCStr, strlen(messageCStr));
             pCharacteristic->notify();
 
-            analogReadState = AnalogReadState::IDLE;
+            ble_task_state = BLETaskState::IDLE;
         }
 
-
-        vTaskDelay(pdMS_TO_TICKS(500));
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
 
-
-void IRAM_ATTR generateSignal(void* arg) {
-    uint8_t state = 0;
-    uint32_t cycle_count = 0;
-    uint64_t startTicks;
+void IRAM_ATTR signalTask(void* arg) {
 
     // precalculate GPIO bit masks
     const uint32_t gpio_di4_mask = 1 << GPIO_DI4;
@@ -257,6 +253,45 @@ void IRAM_ATTR generateSignal(void* arg) {
     UpdateSignalValues();
 
     // signal loop
+    uint8_t state = 0;
+    uint32_t cycle_count = 0;
+    uint64_t startTicks;
+
+    auto SignalRun = [&state, &cycle_count, &UpdateSignalValues, &d4_, &d5_, &d6_, &startTicks, &num_timings_, &time_] {
+        // command SIGNAL
+        if (state == 0) {
+            cycle_count++;
+
+            // update values when something is changed
+            if (signal_task_state == SignalTaskState::SIGNAL_RUN_CHANGED) {
+                UpdateSignalValues();
+            }
+
+            // allow read signals and notify MATLAB
+            if (cycle_count % cycle_nrun == 0) {
+                ble_task_state = BLETaskState::ANALOG_READ;
+            }
+        }
+
+        // prepare signal
+        uint32_t pin_states =
+            (d4_[state] ? gpio_di4_mask : 0) |
+            (d5_[state] ? gpio_di5_mask : 0) |
+            (d6_[state] ? gpio_di6_mask : 0);
+
+        // set pins HIGH
+        GPIO.out_w1ts = pin_states;
+
+        // set pins LOW
+        GPIO.out_w1tc = ~pin_states & (gpio_di4_mask | gpio_di5_mask | gpio_di6_mask);
+
+        // count CPU ticks
+        while ((esp_timer_get_time() * CPU_FREQ_MHZ) - startTicks < US_TO_TICKS(time_[state])) {}
+
+        // move to next state
+        state = (state + 1) % num_timings_;
+    };
+
     while (1) {
         startTicks = esp_timer_get_time() * CPU_FREQ_MHZ;  // Current time in CPU ticks
         
@@ -265,64 +300,33 @@ void IRAM_ATTR generateSignal(void* arg) {
             continue;
         }
 
-        // command all LOW
-        if (signalWriteState == SignalWriteState::IDLE)
+        switch (signal_task_state)
         {
+        // command all LOW when state IDLE
+        case SignalTaskState::IDLE:
             GPIO.out_w1tc = (1 << LED) | (1 << GPIO_DI4) | (1 << GPIO_DI5) | (1 << GPIO_DI6);
             vTaskDelay(pdMS_TO_TICKS(100));
-            continue;
-        }
-
-        if (signalReadState == SignalReadState::CHANGED) {
-            UpdateSignalValues();
-            signalReadState = SignalReadState::IDLE;
-            continue;
-        }
-        
-        // command all HIGH
-        if (signalWriteState == SignalWriteState::RUN_HIGH)
-        {
+            break;
+        case SignalTaskState::HIGH_RUN:
             GPIO.out_w1ts = (1 << LED) | (1 << GPIO_DI4) | (1 << GPIO_DI5) | (1 << GPIO_DI6);
             vTaskDelay(pdMS_TO_TICKS(100));
-            continue;
+            break;
+        case SignalTaskState::SIGNAL_CHANGED:
+            UpdateSignalValues();
+            signal_task_state == SignalTaskState::IDLE;
+            break;
+        case SignalTaskState::SIGNAL_RUN_CHANGED:
+            UpdateSignalValues();
+            signal_task_state == SignalTaskState::SIGNAL_RUN;
+            SignalRun();
+            break;
+        case SignalTaskState::SIGNAL_RUN:
+            SignalRun();
+            break;
+        default:
+            Serial.println("STATE NOT FOUND!!!");
+            break;
         }
-        
-        // command SIGNAL
-        if (state == 0) {
-            cycle_count++;
-            // update values when something is changed
-            if (signalReadState == SignalReadState::CHANGED) {
-                Serial.println("update values when something is changed");
-                UpdateSignalValues();
-            }
-            
-            // allow read signals and notify MATLAB
-            uint16_t rem = cycle_count % cycle_nrun;
-
-            // if (rem == 0) {
-            //     Serial.println("allow read signals and notify MATLAB");
-            //     // Serial.printf("cycle_nrun: %d, cycle_count: %d\n", cycle_nrun, cycle_count);
-            //     analogReadState = AnalogReadState::READ;
-            // }
-        }
-
-        // prepare signal
-        uint32_t pin_states = 
-            (d4_[state]? gpio_di4_mask : 0) |
-            (d5_[state]? gpio_di5_mask : 0) |
-            (d6_[state]? gpio_di6_mask : 0);
-            
-        // set pins HIGH
-        GPIO.out_w1ts = pin_states;
-        
-        // set pins LOW
-        GPIO.out_w1tc = ~pin_states & (gpio_di4_mask | gpio_di5_mask | gpio_di6_mask);
-
-        // count CPU ticks
-        while ((esp_timer_get_time() * CPU_FREQ_MHZ) - startTicks < US_TO_TICKS(time_[state])) {}
-        
-        // move to next state
-        state = (state + 1) % num_timings_;
     }
 }
 
@@ -339,12 +343,6 @@ void setup() {
     adc1_config_channel_atten(ADC1_CHANNEL_4, ADC_ATTEN_DB_12); // {A3} GPIO_AN4 (GPIO32)
     adc1_config_channel_atten(ADC1_CHANNEL_5, ADC_ATTEN_DB_12); // {A2} GPIO_AN5 (GPIO33)
 
-
-    // Configure ADC2 pins
-    // adc2_config_channel_atten(ADC2_CHANNEL_4, ADC_ATTEN_DB_12); // GPIO_AN1 (GPIO13)
-    // adc2_config_channel_atten(ADC2_CHANNEL_7, ADC_ATTEN_DB_12); // GPIO_AN2 (GPIO27)
-    // adc2_config_channel_atten(ADC2_CHANNEL_8, ADC_ATTEN_DB_12); // GPIO_AN3 (GPIO25)
-    
     // configure pin
     pinMode(LED, OUTPUT);
 
@@ -368,7 +366,7 @@ void setup() {
     
     // create signal task
     xTaskCreatePinnedToCore(
-        generateSignal,           // Task function
+        signalTask,           // Task function
         "Signal Task",            // Task name
         2048,                     // Stack size (bytes)
         NULL,                     // Task parameters
