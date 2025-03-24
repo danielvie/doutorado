@@ -193,11 +193,11 @@ function App() {
           </h1>
 
           <div className="flex gap-3 my-5 items-center justify-center">
-          {is_connected? 
+          {is_connected ? 
             <button
               id="disconnectBtn"
               onClick={handle_disconnect}
-              className="btn"
+              className="btn danger"
               disabled={!is_connected} // Disable when disconnected
             >
               Disconnect
@@ -206,7 +206,7 @@ function App() {
             <button
               id="connectBtn"
               onClick={handle_connect}
-              className="btn"
+              className="btn green"
               disabled={is_connected} // Disable when connected
             >
               Connect to ESP32

@@ -6,6 +6,14 @@
   @apply border-none px-3 py-2 bg-purple-600 text-lg rounded-md cursor-pointer hover:bg-purple-700 duration-300
 }
 
+.green {
+  @apply bg-green-700 !important
+}
+
+.danger {
+  @apply bg-red-700 !important
+}
+
 .bg-panel {
   background-color: #1e1e1e;
 }

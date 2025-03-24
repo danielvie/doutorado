@@ -55,15 +55,11 @@ function update_status(message: string, _isError: boolean = false) {
     if (_updateStatus) _updateStatus(message, _isError);
 }
 
-function is_disconnected() {
-    return !bluetoothDevice || !bluetoothDevice.gatt.connected || !characteristic;
-}
-
 export async function send_command(command: string) {
-    if (is_disconnected()) {
+    if (!bt_is_connected()) {
         update_status('Not connected, attempting to reconnect...', true);
         await connect_device();
-        if (is_disconnected()) {
+        if (!bt_is_connected()) {
             update_status(`Failed to reconnect, cannot send command: '${command}'`, true);
             return;
         }
@@ -91,7 +87,7 @@ export function bt_is_connected() {
 }
 
 export function toggle_listening(probe: CallableFunction): boolean {
-    if (is_disconnected()) {
+    if (!bt_is_connected()) {
         update_status('Cannot toggle listening: not connected', true);
         return false;
     }
