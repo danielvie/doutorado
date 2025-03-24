@@ -68,6 +68,7 @@ void blink(uint8_t N) {
     }
 }
 
+// .. TIMER SETTINGS
 bool IRAM_ATTR timer_group_isr_callback(void *args) {
     timer_group_enable_alarm_in_isr(TIMER_GROUP, TIMER_IDX);
 
@@ -132,7 +133,6 @@ void start_timer() {
     std::vector<uint64_t>& d5_vec = (active_set == ActiveSignalSet::SET_A) ? d5_vec_a : d5_vec_b;
     std::vector<uint64_t>& d6_vec = (active_set == ActiveSignalSet::SET_A) ? d6_vec_a : d6_vec_b;
 
-    // Pre-set pins to the first state
     uint32_t pin_states =
         (d4_vec[0] ? gpio_di4_mask : 0) |
         (d5_vec[0] ? gpio_di5_mask : 0) |
@@ -148,6 +148,7 @@ void stop_timer() {
     timer_pause(TIMER_GROUP, TIMER_IDX);
 }
 
+// .. BLE connect AND disconned CALLBACKS
 class ServerCallbacks: public NimBLEServerCallbacks {
     void onConnect(NimBLEServer* pServer) {
         blink(3);
@@ -160,6 +161,7 @@ class ServerCallbacks: public NimBLEServerCallbacks {
     }
 };
 
+// .. BLE write CALLBACK
 class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
     void onWrite(NimBLECharacteristic *characteristic) {
         std::string value = characteristic->getValue();
@@ -246,6 +248,7 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
     }
 };
 
+// .. MAIN BLE TASKS (updates matlab)
 void bleTask(void* parameter) {
     Serial.print("BLE Task running on core: ");
     Serial.println(xPortGetCoreID());
@@ -280,8 +283,8 @@ void bleTask(void* parameter) {
             float voltage_06 = read_analog(AnalogPort::AN6);
 
             String message = "an3:" + String(voltage_03, 3) + ", " +
-                            "an5:" + String(voltage_05, 3) + ", " +
-                            "an6:" + String(voltage_06, 3);
+                             "an5:" + String(voltage_05, 3) + ", " +
+                             "an6:" + String(voltage_06, 3);
 
             const char *messageCStr = message.c_str();
             pCharacteristic->setValue((uint8_t *)messageCStr, strlen(messageCStr));
@@ -294,6 +297,7 @@ void bleTask(void* parameter) {
     }
 }
 
+// .. MAIN SIGNAL TASK (process messages and signal statemachine)
 void signalTask(void* arg) {
     esp_task_wdt_add(NULL);
     while (1) {
@@ -305,12 +309,10 @@ void signalTask(void* arg) {
                 GPIO.out_w1ts = (1 << LED) | gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
                 break;
             case SignalTaskState::SIGNAL_RUN:
-            case SignalTaskState::SIGNAL_RUN_CHANGED:
                 if (switch_set_pending && current_state == 0) {
                     if (xSemaphoreTake(signal_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
                         active_set = (active_set == ActiveSignalSet::SET_A) ? ActiveSignalSet::SET_B : ActiveSignalSet::SET_A;
                         switch_set_pending = false;
-                        signal_task_state = SignalTaskState::SIGNAL_RUN_CHANGED;
                         xSemaphoreGive(signal_mutex);
                     }
                 }
@@ -364,8 +366,24 @@ void setup() {
     esp_task_wdt_init(30, true);
     esp_task_wdt_add(NULL);
 
-    xTaskCreatePinnedToCore(bleTask, "BLE Task", 8192, NULL, 2, NULL, CORE_1);
-    xTaskCreatePinnedToCore(signalTask, "Signal Task", 2048, NULL, configMAX_PRIORITIES - 2, NULL, CORE_1);
+    xTaskCreatePinnedToCore(
+        bleTask, 
+        "BLE Task", 
+        8192, 
+        NULL, 
+        2, 
+        NULL, 
+        CORE_1
+    );
+    xTaskCreatePinnedToCore(
+        signalTask, 
+        "Signal Task", 
+        2048, 
+        NULL, 
+        configMAX_PRIORITIES - 2, 
+        NULL, 
+        CORE_1
+    );
 }
 
 void loop() {

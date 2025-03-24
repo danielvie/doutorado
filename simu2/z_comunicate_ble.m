@@ -35,4 +35,4 @@ b.message("START");
 
 
 c =@(x) b.message(x);
-c('SIGNAL:75,19;1,4')
+c('SIGNAL:35,15,35,15;1,0,1,3,1');
