@@ -5,32 +5,23 @@ let bluetoothDevice: any = null;
 let gattServer = null;
 let characteristic: any = null;
 
-let _updateStatus: any = null
-
+let _updateStatus: any = null;
 let is_listening = false;
-let listen_interval:any;
-
 
 export async function connect_device() {
     try {
-        // Request device
-        let navigatorObject: any = window.navigator
+        let navigatorObject: any = window.navigator;
         bluetoothDevice = await navigatorObject.bluetooth.requestDevice({
-            filters: [{ services: [SERVICE_UUID] }]
+            filters: [{ services: [SERVICE_UUID] }],
         });
 
-        // Add disconnect event listener
         bluetoothDevice.addEventListener('gattserverdisconnected', handle_disconnect);
-
-        // Connect to GATT server
         gattServer = await bluetoothDevice.gatt.connect();
-
-        // Get service and characteristic
         const service = await gattServer.getPrimaryService(SERVICE_UUID);
         characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
 
         update_status('Connected to ESP32');
-    } catch (error:any) {
+    } catch (error: any) {
         update_status(`Connection failed: ${error.message}`, true);
         reset_connection();
     }
@@ -53,27 +44,29 @@ function reset_connection() {
     bluetoothDevice = null;
     gattServer = null;
     characteristic = null;
+    is_listening = false; // Reset listening state on disconnect
 }
 
-// function updateStatus(message, isError = false) {
 export function set_update_status(_callable: CallableFunction) {
-    _updateStatus = _callable
+    _updateStatus = _callable;
 }
 
-function update_status(message:string, _isError: boolean = false) {
-    _updateStatus(message)
+function update_status(message: string, _isError: boolean = false) {
+    if (_updateStatus) _updateStatus(message, _isError);
 }
 
 function is_disconnected() {
-    return !characteristic;
+    return !bluetoothDevice || !bluetoothDevice.gatt.connected || !characteristic;
 }
 
 export async function send_command(command: string) {
     if (is_disconnected()) {
-        // update_status(`Not connected\ncommand: '${command}'`, true);
-        // console.log(`"${command}"`);
-        // return;
+        update_status('Not connected, attempting to reconnect...', true);
         await connect_device();
+        if (is_disconnected()) {
+            update_status(`Failed to reconnect, cannot send command: '${command}'`, true);
+            return;
+        }
     }
 
     const comm = command.trim().toUpperCase();
@@ -83,18 +76,10 @@ export async function send_command(command: string) {
     }
 
     try {
-        // Ensure connection is active
-        if (!bluetoothDevice || !bluetoothDevice.gatt.connected) {
-            await connect_device();
-        }
-
-        // Convert string to Uint8Array
         const encoder = new TextEncoder();
         const data = encoder.encode(comm);
-
         await characteristic.writeValue(data);
         update_status(`Sent command: ${comm}`);
-        // commandInput.value = ''; // Clear input
     } catch (error: any) {
         update_status(`Send failed: ${error.message}`, true);
         reset_connection();
@@ -102,58 +87,74 @@ export async function send_command(command: string) {
 }
 
 export function bt_is_connected() {
-    return (bluetoothDevice)
+    return bluetoothDevice && bluetoothDevice.gatt.connected;
 }
 
-export function toggle_listening(probe: CallableFunction):boolean {
-    is_listening = !is_listening
-    if (is_listening) {
-        listen_messages(probe)
-    } else {
-        clearInterval(listen_interval) // stop listenning
+export function toggle_listening(probe: CallableFunction): boolean {
+    if (is_disconnected()) {
+        update_status('Cannot toggle listening: not connected', true);
+        return false;
     }
-    return is_listening
+
+    is_listening = !is_listening;
+    if (is_listening) {
+        start_notifications(probe);
+    } else {
+        stop_notifications();
+    }
+    return is_listening;
 }
 
-export async function listen_messages(probe: CallableFunction) {
-    const regex = /(\w+):([\d.]+)/g;
-    const parsed_data: Record<string, number> = {};
-    let match;
+async function start_notifications(probe: CallableFunction) {
+    if (!characteristic) {
+        update_status('No characteristic available', true);
+        return;
+    }
 
-    listen_interval = setInterval(async () => {
-        if (characteristic) {
-            try {
-                const value = await characteristic.readValue()
-                const decoder = new TextDecoder()
-                const message = decoder.decode(value)
+    try {
+        // Start notifications and add event listener
+        await characteristic.startNotifications();
+        characteristic.addEventListener('characteristicvaluechanged', (event: any) => {
+            const value = event.target.value;
+            const decoder = new TextDecoder();
+            const message = decoder.decode(value);
 
-                // updateStatus(`Received message: ${message}`)
-                let has_match = false;
-                while ((match = regex.exec(message)) !== null) {
-                    if (match) {
-                        has_match = true
-                    }
-                    const key = match[1];
-                    const value = parseFloat(match[2]);
-                    parsed_data[key] = value;
-                }
-                
-                if (has_match) {
-                    const an3 = parsed_data["an3"];
-                    const an5 = parsed_data["an5"];
-                    const an6 = parsed_data["an6"];
-                    
-                    const results = {
-                        an3,
-                        an5,
-                        an6,
-                    }
-                    probe(results)
-                }
+            const regex = /(\w+):([\d.]+)/g;
+            const parsed_data: Record<string, string> = {};
+            let match;
+            let has_match = false;
 
-            } catch (err:any) {
-                update_status(`Receive failed: ${err.message}`, true)
+            while ((match = regex.exec(message)) !== null) {
+                has_match = true;
+                const key = match[1];
+                const value = match[2];
+                parsed_data[key] = value;
             }
-        }
-    }, 500);
+
+            if (has_match) {
+                const results = {
+                    an3: parsed_data["an3"] || "0",
+                    an5: parsed_data["an5"] || "0",
+                    an6: parsed_data["an6"] || "0",
+                };
+                probe(results); // Call the probe callback with new data
+            }
+        });
+        update_status('Started listening for notifications');
+    } catch (err: any) {
+        update_status(`Failed to start notifications: ${err.message}`, true);
+        is_listening = false;
+    }
+}
+
+async function stop_notifications() {
+    if (!characteristic) return;
+
+    try {
+        await characteristic.stopNotifications();
+        // Note: Event listener remains attached; it will be re-triggered if notifications restart
+        update_status('Stopped listening for notifications');
+    } catch (err: any) {
+        update_status(`Failed to stop notifications: ${err.message}`, true);
+    }
 }

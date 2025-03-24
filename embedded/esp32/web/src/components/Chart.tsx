@@ -1,15 +1,19 @@
 import React from 'react';
+import { Line } from 'react-chartjs-2';
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  Chart as ChartJS,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  Title,
   Tooltip,
   Legend,
-  ResponsiveContainer,
-  TooltipProps
-} from 'recharts';
+  Filler,
+} from 'chart.js';
+
+// Register Chart.js components
+ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend, Filler);
 
 export interface DataPoint {
   time: string;
@@ -23,38 +27,88 @@ interface RealTimeChartProps {
   title?: string;
 }
 
-interface CustomTooltipProps extends TooltipProps<any, any> {
-  active?: boolean;
-  payload?: any[];
-  label?: string;
-}
-
-const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className='bg-white text-black items-start text-left p-2'>
-        <p>{payload[0].name}: {payload[0].value.toFixed(2)}</p>
-        <p>{payload[1].name}: {payload[1].value.toFixed(2)}</p>
-        <p>{payload[2].name}: {payload[2].value.toFixed(2)}</p>
-      </div>
-    )
-  }
-  return null
-}
-
-const RealTimeChart: React.FC<RealTimeChartProps> = ({ 
+const RealTimeChart: React.FC<RealTimeChartProps> = ({
   data,
-  title = "Real-time Value Monitor"
+  title = "Real-time Value Monitor",
 }) => {
-  
-  let v1: string = ''
-  let v2: string = ''
-  let v3: string = ''
+  // Extract latest values for display
+  let v1 = '';
+  let v2 = '';
+  let v3 = '';
   if (data.length) {
-    v1 = data[data.length-1].an3.toFixed(2)
-    v2 = data[data.length-1].an5.toFixed(2)
-    v3 = data[data.length-1].an6.toFixed(2)
+    v1 = data[data.length - 1].an3.toFixed(2);
+    v2 = data[data.length - 1].an5.toFixed(2);
+    v3 = data[data.length - 1].an6.toFixed(2);
   }
+
+  // Chart.js data configuration
+  const chartData = {
+    labels: data.map(d => d.time), // X-axis labels
+    datasets: [
+      {
+        label: 'an3',
+        data: data.map(d => d.an3),
+        borderColor: '#8884d8',
+        borderWidth: 2,
+        pointRadius: 0, // No dots
+        fill: false,
+      },
+      {
+        label: 'an5',
+        data: data.map(d => d.an5),
+        borderColor: '#82ca9d',
+        borderWidth: 2,
+        pointRadius: 0, // No dots
+        fill: false,
+      },
+      {
+        label: 'an6',
+        data: data.map(d => d.an6),
+        borderColor: '#ff7300',
+        borderWidth: 2,
+        pointRadius: 0, // No dots
+        fill: false,
+      },
+    ],
+  };
+
+  // Chart.js options configuration
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: false, // Disable animations for real-time performance
+    scales: {
+      x: {
+        title: { display: true, text: 'Time' },
+        ticks: {
+          maxTicksLimit: 10, // Limit number of ticks for readability
+          autoSkip: true,
+          maxRotation: 45,
+          minRotation: 45,
+        },
+        grid: { display: false }, // Optional: disable x-axis grid lines
+      },
+      y: {
+        title: { display: true, text: 'Value' },
+        grid: { borderDash: [3, 3] }, // Dashed grid lines like recharts
+      },
+    },
+    plugins: {
+      legend: {
+        position: 'top' as const, // Match recharts verticalAlign='top'
+      },
+      tooltip: {
+        callbacks: {
+          // Custom tooltip to match your recharts version
+          label: function (context: any) {
+            const datasetLabel = context.dataset.label || '';
+            const value = context.parsed.y.toFixed(2);
+            return `${datasetLabel}: ${value}`;
+          },
+        },
+      },
+    },
+  };
 
   return (
     <div className="w-full h-96 p-4 mb-10">
@@ -62,45 +116,9 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
       <div>an6: {v3}</div>
       <div>an5: {v2}</div>
       <div>an3: {v1}</div>
-      
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis 
-            dataKey="time"
-            interval="preserveStartEnd"
-            angle={-45}
-            textAnchor="end"
-          />
-          <YAxis />
-          <Tooltip/>
-          <Legend verticalAlign='top' />
-          <Line 
-            type="linear" 
-            dataKey="an3" 
-            name="an3"
-            stroke="#8884d8" 
-            strokeWidth={2}
-            dot={false}
-          />
-          <Line 
-            type="linear" 
-            dataKey="an5" 
-            name="an5"
-            stroke="#82ca9d" 
-            strokeWidth={2}
-            dot={false}
-          />
-          <Line 
-            type="linear" 
-            dataKey="an6" 
-            name="an6"
-            stroke="#ff7300" 
-            strokeWidth={2}
-            dot={false}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+      <div className="h-full">
+        <Line data={chartData} options={options} />
+      </div>
     </div>
   );
 };
