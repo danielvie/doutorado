@@ -16,38 +16,16 @@ struct Bin {
     bool b6;
 };
 
-namespace SignalTaskState {
-    enum State {
-        IDLE,
-        SIGNAL_CHANGED,
-        SIGNAL_RUN,
-        SIGNAL_RUN_CHANGED,
-        HIGH_RUN,
-    };
-}
-
-namespace BLETaskState {
-    enum State {
-        IDLE,
-        ANALOG_READ,
-        ANALOG_READING,
-        SIGNAL_READING,
-    };
-}
+enum class ActiveSignalSet { SET_A, SET_B };
+enum class SignalTaskState { IDLE, HIGH_RUN, SIGNAL_RUN };
+enum class BLETaskState { IDLE, ANALOG_READ, ANALOG_READING, SIGNAL_READING };
+enum class AnalogPort { AN1 = 1, AN2 = 2, AN3 = 3, AN4 = 4, AN5 = 5, AN6 = 6 };
 
 struct Bin Num2Bin(uint64_t n);
 
 void _parseSection(const std::string &section, std::vector<uint64_t> &result);
 int parseSignal(const std::string &s, std::vector<uint64_t> &time, std::vector<uint64_t> &mode);
 
-enum class AnalogPort {
-    AN1 = 1,
-    AN2 = 2,
-    AN3 = 3,
-    AN4 = 4,
-    AN5 = 5,
-    AN6 = 6
-};
 
 float esp2multi(float x);
 

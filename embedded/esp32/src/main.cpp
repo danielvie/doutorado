@@ -27,8 +27,6 @@
 #define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 #define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
-enum class ActiveSignalSet { SET_A, SET_B };
-
 std::vector<uint64_t> timings = {50, 50, 50, 50, 50, 50};
 uint32_t cycle_nrun = 10;
 std::vector<uint64_t> modes = {7, 0, 7, 0, 7, 0};
@@ -39,13 +37,14 @@ std::vector<uint64_t> modes_di6 = {1, 0, 1, 0, 1, 0};
 std::vector<uint64_t> time_vec_a, d4_vec_a, d5_vec_a, d6_vec_a;
 std::vector<uint64_t> time_vec_b, d4_vec_b, d5_vec_b, d6_vec_b;
 
-SignalTaskState::State signal_task_state = SignalTaskState::IDLE;
-BLETaskState::State ble_task_state = BLETaskState::IDLE;
+SignalTaskState signal_task_state = SignalTaskState::IDLE;
+BLETaskState ble_task_state = BLETaskState::IDLE;
 
 volatile uint8_t current_state = 0;
 volatile uint32_t cycle_count = 0;
 volatile bool timer_initialized = false;
-volatile uint8_t num_timings = 0;
+volatile uint8_t num_timings = 0; // New signal's length
+volatile uint8_t active_num_timings = 0; // Current active set's length
 volatile ActiveSignalSet active_set = ActiveSignalSet::SET_A;
 volatile bool switch_set_pending = false;
 
@@ -72,8 +71,7 @@ void blink(uint8_t N) {
 bool IRAM_ATTR timer_group_isr_callback(void *args) {
     timer_group_enable_alarm_in_isr(TIMER_GROUP, TIMER_IDX);
 
-    if (signal_task_state != SignalTaskState::SIGNAL_RUN && 
-        signal_task_state != SignalTaskState::SIGNAL_RUN_CHANGED) {
+    if (signal_task_state != SignalTaskState::SIGNAL_RUN) {
         return true;
     }
 
@@ -82,7 +80,7 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
     std::vector<uint64_t>& d5_vec = (active_set == ActiveSignalSet::SET_A) ? d5_vec_a : d5_vec_b;
     std::vector<uint64_t>& d6_vec = (active_set == ActiveSignalSet::SET_A) ? d6_vec_a : d6_vec_b;
 
-    uint8_t next_state = (current_state + 1) % num_timings;
+    uint8_t next_state = (current_state + 1) % active_num_timings; // Use active length
     uint32_t pin_states =
         (d4_vec[next_state] ? gpio_di4_mask : 0) |
         (d5_vec[next_state] ? gpio_di5_mask : 0) |
@@ -132,6 +130,8 @@ void start_timer() {
     std::vector<uint64_t>& d4_vec = (active_set == ActiveSignalSet::SET_A) ? d4_vec_a : d4_vec_b;
     std::vector<uint64_t>& d5_vec = (active_set == ActiveSignalSet::SET_A) ? d5_vec_a : d5_vec_b;
     std::vector<uint64_t>& d6_vec = (active_set == ActiveSignalSet::SET_A) ? d6_vec_a : d6_vec_b;
+
+    active_num_timings = (active_set == ActiveSignalSet::SET_A) ? time_vec_a.size() : time_vec_b.size();
 
     uint32_t pin_states =
         (d4_vec[0] ? gpio_di4_mask : 0) |
@@ -297,7 +297,7 @@ void bleTask(void* parameter) {
     }
 }
 
-// .. MAIN SIGNAL TASK (process messages and signal statemachine)
+// .. MAIN SIGNAL TASK (signal statemachine and update_set logic)
 void signalTask(void* arg) {
     esp_task_wdt_add(NULL);
     while (1) {
@@ -309,9 +309,10 @@ void signalTask(void* arg) {
                 GPIO.out_w1ts = (1 << LED) | gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
                 break;
             case SignalTaskState::SIGNAL_RUN:
-                if (switch_set_pending && current_state == 0) {
+                if (switch_set_pending && current_state == active_num_timings - 1) {
                     if (xSemaphoreTake(signal_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
                         active_set = (active_set == ActiveSignalSet::SET_A) ? ActiveSignalSet::SET_B : ActiveSignalSet::SET_A;
+                        active_num_timings = num_timings; // Update to new set's length after switch
                         switch_set_pending = false;
                         xSemaphoreGive(signal_mutex);
                     }
@@ -343,6 +344,7 @@ void setup() {
     d5_vec_a = modes_di5;
     d6_vec_a = modes_di6;
     num_timings = timings.size();
+    active_num_timings = num_timings;
 
     time_vec_b = timings;
     d4_vec_b = modes_di4;
