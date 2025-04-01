@@ -7,6 +7,9 @@ name = "ESP32 Signal Controller";
 
 b = BTBroker(name, SERVICE_UUID, CHARACTERISTIC_UUID);
 
+c =@(x) b.message(x);
+
+
 s = Simulation();
 s.set_config(Enums.SimName.LAB_CIRCUIT);
 
@@ -19,20 +22,23 @@ b.simulation = s;
 %command = "SIGNAL:47, 47, 47, 47, 47, 47;4, 6, 2, 3, 1, 5";
 
 
-time_ms = [47, 47, 47, 47, 47, 47];
-% % mode = [4, 6, 2, 3, 1, 5];
+time_ms = [4, 6, 2, 3, 1, 5];
+mode = [7, 6, 7, 3, 7, 5];
+
 % mode = [7, 0, 7, 0, 7, 0];
 
-% command = Helpers.signal_create( ...
-%     time_ms, ...
-%     mode);
+command = Helpers.signal_create( ...
+     time_ms, ...
+     mode);
 
-b.message("SIGNAL:50,50,50,50,50,50;7,0,7,0,7,0");
-% b.message("SIGNAL:500,500;7,0");
+b.message(command);
+
 s.config.Ts = time_ms*1e-3;
-b.message_cmd_cycles_nrun('10000000');
-b.message("START");
+b.message_cmd_cycles_nrun('1000');
+b.message_cmd_start();
+
+disp(s)
+
+%b.message("START");
 
 
-c =@(x) b.message(x);
-c('SIGNAL:35,15,35,15;1,0,1,3,1');

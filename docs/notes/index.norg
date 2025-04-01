@@ -2,12 +2,18 @@
 
 * TODAY
 
+  #26mar,
+  - ( ) fazer o matlab mudar a referencia por alpha / iref
+  - ( ) tomar cuidado com a nova linearizacao
+  - ( ) tentar usar o qpoasis na ESP
+  - ( ) documentar o codigo para artigo
+
   #12mar,
   - (x) testar simulacao lab circuit
   - (x) ler circuito malha aberta com 3.3v de alimentacao
   - (x) mudar para plotar grafico linear
-  - ( ) fechar malha para receber o sinal via bluetooth e calcular sinal da onda
-  - ( ) calcular o tempo de um ciclo matlab
+  - (x) fechar malha para receber o sinal via bluetooth e calcular sinal da onda
+  - (x) calcular o tempo de um ciclo matlab
 
 * LTP Missouri
   {:ltp_missouri:}
@@ -15,6 +21,10 @@
 * NOTES
 
 ** reuniao 
+
+
+   {@ Wednesday 26 March 2025}
+   - ( ) fazer o matlab mudar a referencia por alpha
 
 
    {@ Friday 21 March 2025}

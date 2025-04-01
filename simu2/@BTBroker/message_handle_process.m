@@ -29,11 +29,11 @@ function message_handle_process(self, msg)
     disp(Ts_ms);
 
     time_ms = Ts_ms;
-    mode = [4, 6, 2, 3, 1, 5];
+    mode = [7, 6, 7, 3, 7, 5];
     
     command = Helpers.signal_create(time_ms, mode);
     disp('command:');
     disp(command);
-%     self.message(command);
+    self.message(command);
 
 end
