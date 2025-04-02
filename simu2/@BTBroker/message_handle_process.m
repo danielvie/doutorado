@@ -22,18 +22,17 @@ function message_handle_process(self, msg)
     tic;
     
     Ts_sec = self.simulation.signal_process(state);
-    Ts_ms  = Ts_sec*1e3;
+    Ts_us  = Ts_sec*1e6;
     toc
     
-    disp('Ts_ms:');
-    disp(Ts_ms);
+    disp('Ts_us:');
+    disp(Ts_us);
 
-    time_ms = Ts_ms;
-    mode = [7, 6, 7, 3, 7, 5];
-    
-    command = Helpers.signal_create(time_ms, mode);
-    disp('command:');
-    disp(command);
+    time_us = Ts_us;
+    mode = self.config.Omega - 1; % '-1' corrects idx for esp32
+
+    command = Helpers.signal_create(time_us, mode);
+    fprintf('command: %f\n', command);
     self.message(command);
 
 end

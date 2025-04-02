@@ -13,28 +13,32 @@ c =@(x) b.message(x);
 s = Simulation();
 s.set_config(Enums.SimName.LAB_CIRCUIT);
 
+for i = 0.1:0.01:0.9
+    fprintf("set i: %d\n", i);
+    s.set_alpha_and_mpc_cached(i);
+end
+
 s.set_traj_phase_with_alpha(0.5);
 s.set_mpc();
 
 b.simulation = s;
 
 % command for LAB alpha 0.5:
-%command = "SIGNAL:47, 47, 47, 47, 47, 47;4, 6, 2, 3, 1, 5";
+% time_us = [47, 47, 47, 47, 47, 47];
+% mode = [4, 6, 2, 3, 1, 5];
+% "SIGNAL:47, 47, 47, 47, 47, 47;4, 6, 2, 3, 1, 5";
 
-
-time_ms = [4, 6, 2, 3, 1, 5];
-mode = [7, 6, 7, 3, 7, 5];
-
-% mode = [7, 0, 7, 0, 7, 0];
+time_us = s.get_time_us();
+mode = s.get_mode();
 
 command = Helpers.signal_create( ...
-     time_ms, ...
+     time_us, ...
      mode);
 
+fprintf("command: %s\n", command)
 b.message(command);
 
-s.config.Ts = time_ms*1e-3;
-b.message_cmd_cycles_nrun('1000');
+b.message_cmd_cycles_nrun('1000000');
 b.message_cmd_start();
 
 disp(s)

@@ -2,7 +2,6 @@ classdef Simulation < handle
     properties
         config;
         mpc;
-        opt;
     end
 
     methods
@@ -18,6 +17,9 @@ classdef Simulation < handle
         set_traj_phase_with_alpha(self, alpha);
         set_mpc(self);
 
+        set_alpha_and_mpc(self, alpha);
+        set_alpha_and_mpc_cached(self, alpha);
+
         % .. simulation
         [y,t,u,m,dtk_out] = run(self, nsim);
         [y,t,m,xr] = sim_cycle(self, config);
@@ -27,5 +29,8 @@ classdef Simulation < handle
         
         % .. helpers
         Ts_out  = quantizacao(self, Ts, type);
+        
+        time_us = get_time_us(self);
+        modes = get_mode(self);
     end
 end
