@@ -1,5 +1,5 @@
 % [y,t,u] = sim_n(config, Ts)
-function Ts = signal_process(self, state)
+function time_us = signal_process(self, state)
 
     % reading config
     config = self.config;
@@ -40,5 +40,8 @@ function Ts = signal_process(self, state)
     for j = 1:numel(dtk)
         Ts(j+1) = Ts(j+1) + dtk(j);
     end
+
+    time_sec = arrayfun(@round, diff(Ts));
+    time_us = time_sec*1e6;
 
 end

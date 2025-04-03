@@ -10,9 +10,12 @@ function message_handle_process(self, msg)
     
     disp(parsed_data);
     
+     % v_c1 -> a5
+     % v_c2 -> a6
+     % v_i  -> a3
 
-    v_c1 = parsed_data.an6;
-    v_c2 = parsed_data.an5;
+    v_c2 = parsed_data.an6;
+    v_c1 = parsed_data.an5;
     i_l  = parsed_data.an3 / 22; % tensao / resistencia resistor
     state = [v_c1; v_c2; i_l;];
     disp("state:");
@@ -21,18 +24,16 @@ function message_handle_process(self, msg)
 
     tic;
     
-    Ts_sec = self.simulation.signal_process(state);
-    Ts_us  = Ts_sec*1e6;
+    time_us = self.simulation.signal_process(state);
     toc
     
-    disp('Ts_us:');
-    disp(Ts_us);
+    disp('time_us:');
+    disp(time_us);
 
-    time_us = Ts_us;
-    mode = self.config.Omega - 1; % '-1' corrects idx for esp32
+    mode = self.simulation.get_mode();
 
     command = Helpers.signal_create(time_us, mode);
-    fprintf('command: %f\n', command);
+    fprintf('command sent: %s\n', command);
     self.message(command);
 
 end

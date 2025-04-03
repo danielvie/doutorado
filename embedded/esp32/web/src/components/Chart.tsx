@@ -46,7 +46,7 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
     labels: data.map(d => d.time), // X-axis labels
     datasets: [
       {
-        label: 'an3',
+        label: 'VR',
         data: data.map(d => d.an3),
         borderColor: '#8884d8',
         borderWidth: 2,

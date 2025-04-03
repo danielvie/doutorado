@@ -2,6 +2,10 @@
 
 * TODAY
 
+  - ( ) simular a mudanca de referencia
+  - ( ) criar um sistema de log para comparar os resultados
+  - ( ) configurar manobra para a simulacao e o circuito
+
   #26mar,
   - ( ) fazer o matlab mudar a referencia por alpha / iref
   - ( ) tomar cuidado com a nova linearizacao
@@ -22,6 +26,11 @@
 
 ** reuniao 
 
+{@ Wednesday 2 April 2025}
+   - 
+     % v_c1 -> a5
+     % v_c2 -> a6
+     % v_i  -> a3
 
    {@ Wednesday 26 March 2025}
    - ( ) fazer o matlab mudar a referencia por alpha

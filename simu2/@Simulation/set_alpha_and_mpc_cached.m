@@ -2,7 +2,12 @@ function set_alpha_and_mpc_cached(self, alpha)
     persistent cache;
 
     if isempty(cache)
-        cache = containers.Map('KeyType', 'double', 'ValueType', 'any');
+        try
+            cache_ = load('cache_set_alpha.mat', 'cache');
+            cache = cache_.cache;
+        catch
+            cache = containers.Map('KeyType', 'double', 'ValueType', 'any');
+        end
     end
     
     % define key
