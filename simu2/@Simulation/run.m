@@ -36,8 +36,13 @@ function [y,t,m,dtk_out] = run(self, nsim)
             % computing control `dtk`
             [dtk, ~, exitflag] = Mpc.dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
 
-            % ignore control if problem is infeasible
-            if exitflag == -2
+            % ignore control if problem not possible
+            %  exitflag:
+            %    1: function converged to the solution x
+            %    0: number of iterations exceeded MaxIterations
+            %   -2: problem is infeasible
+            %   -3: problem is unbounded
+            if exitflag ~= 1
                 dtk = dtk*0;
             end
 

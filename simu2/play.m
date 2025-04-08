@@ -15,7 +15,7 @@ function play()
     %s.set_alpha_and_mpc_cached(0.5);
 
     % number of cycles
-    nsim = 5000;
+    nsim = 100;
 
     % add error in IC
     s.config.x0 = s.config.x0 + [0.1; -0.01; 0.01];
@@ -23,9 +23,13 @@ function play()
     % running simulation
     s.config.mpc.on = true;
     [y, t, m] = s.run(nsim);
+    disp("x0_on:");
+    disp(s.config.x0);
 
     s.config.mpc.on = false;
     [y_off, t_off, m_off] = s.run(nsim);
+    disp("x0_off:");
+    disp(s.config.x0);
 
     % getting variables from simulation
     vars = Utils.getAllVars();
@@ -47,5 +51,5 @@ function play()
 
     % plotting u signals
     figure(3);
-    res.plot_u_signals(40);
+    res.plot_u_signals(20);
 end
