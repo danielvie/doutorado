@@ -13,13 +13,8 @@ c =@(x) b.message(x);
 s = Simulation();
 s.set_config(Enums.SimName.LAB_CIRCUIT);
 
-% for i = 0.1:0.01:0.9
-%     fprintf("set i: %d\n", i);
-%     s.set_alpha_and_mpc_cached(i);
-% end
-
 s.set_alpha_and_mpc_cached(0.5);
-%s.set_mpc();
+
 
 b.simulation = s;
 

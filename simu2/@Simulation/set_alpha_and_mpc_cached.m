@@ -1,12 +1,11 @@
 function set_alpha_and_mpc_cached(self, alpha)
-    persistent cache;
-
-    if isempty(cache)
+    if isempty(self.set_alpha_cache)
         try
-            cache_ = load('cache_set_alpha.mat', 'cache');
-            cache = cache_.cache;
-        catch
-            cache = containers.Map('KeyType', 'double', 'ValueType', 'any');
+            cache_ = load('set_alpha_cache.mat', 'set_alpha_cache');
+            self.set_alpha_cache = cache_.set_alpha_cache;
+        catch e
+            disp(e);
+            self.set_alpha_cache = containers.Map('KeyType', 'double', 'ValueType', 'any');
         end
     end
     
@@ -14,26 +13,25 @@ function set_alpha_and_mpc_cached(self, alpha)
     key = alpha;
 
     % check if key exists in cache
-    if isKey(cache, key)
-        cached_data = cache(key);
+    if isKey(self.set_alpha_cache, key)
+        cached_data = self.set_alpha_cache(key);
 
         self.config = cached_data.config;
         self.mpc = cached_data.mpc;
-        disp(["got data from cache for alpha: ", num2str(alpha)]);
     else 
         self.set_traj_phase_with_alpha(alpha);
         self.set_mpc();
         
-        cache(key) = struct('config', self.config, 'mpc', self.mpc);
-        fprintf("cached alpha %.3f: ", key);
+        self.set_alpha_cache(key) = struct('config', self.config, 'mpc', self.mpc);
+        self.save_set_alpha_cache();
     end
     
-    fprintf("\n");
     time_us = arrayfun(@round, diff(self.config.Ts*1e6));
     mode = self.config.Omega-1;
-    disp(time_us);
-    disp(mode);
-    
-    Helpers.signal_create(time_us, mode)
-    
+    time_str = strjoin(string(time_us), ", ");
+
+    mode_ = arrayfun(@(x) sprintf("%2d", x), mode);
+    mode_str = strjoin(mode_, ", ");
+    fprintf("time_us: %s\n", time_str);
+    fprintf("mode   : %s\n", mode_str);
 end

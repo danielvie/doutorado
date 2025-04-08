@@ -53,10 +53,8 @@ function [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = matrizes_ss_mpc_du
     % you might want to iterate a few times to get a better approximation
     % of the maximal invariant set
 
-
-
-    % Determinacao do conjunto terminal invariante e admissivel
-    % Requer o MPT Toolbox
+    % Determining the invariant and admissible terminal set
+    % Requires MPT Toolbox
     sys = LTISystem('A',Phib);
     Hmpt = [L*K  -c];
     X = Polyhedron('H',Hmpt);

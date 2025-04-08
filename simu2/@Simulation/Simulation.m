@@ -2,6 +2,7 @@ classdef Simulation < handle
     properties
         config;
         mpc;
+        set_alpha_cache;
     end
 
     methods
@@ -18,7 +19,9 @@ classdef Simulation < handle
         set_mpc(self);
 
         set_alpha_and_mpc(self, alpha);
+
         set_alpha_and_mpc_cached(self, alpha);
+        save_set_alpha_cache(self);
 
         % .. simulation
         [y,t,u,m,dtk_out] = run(self, nsim);
