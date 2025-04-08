@@ -1,4 +1,12 @@
-function [dtk, fval, exitflag] = mpc_dualmode_switching(ek, H, Hf, Phi1Np, Qbar, Rbar, Lbar, cbar, Pf, Sf, bf, PhiNp, p)
+function [dtk, fval, exitflag] = dualmode_switching(ek, H, Hf, Phi1Np, Qbar, Rbar, Lbar, cbar, Pf, Sf, bf, PhiNp, p)
+    
+    % dtk: optimization result
+    % fval: objective function value at solution
+    % exitflag: reason quadprog stopped
+    %            1: function converged to the solution x
+    %            0: number of iterations exceeded MaxIterations
+    %           -2: problem is infeasible
+    %           -3: problem is unbounded
 
     % para o quadprog, eh preciso
     % X = quadprog(H,f,A,b)

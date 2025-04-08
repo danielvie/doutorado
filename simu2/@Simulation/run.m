@@ -34,7 +34,12 @@ function [y,t,m,dtk_out] = run(self, nsim)
             ek  = reshape(x0, [numelx0,1]) - reshape(cfg.mpc.x_target, [numelx0,1]);
 
             % computing control `dtk`
-            [dtk, ~, ~] = Mpc.dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
+            [dtk, ~, exitflag] = Mpc.dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
+
+            % ignore control if problem is infeasible
+            if exitflag == -2
+                dtk = dtk*0;
+            end
 
             % reading nominal time values
             Ts = config.Ts;
@@ -42,11 +47,19 @@ function [y,t,m,dtk_out] = run(self, nsim)
             % applying quantization on time signal
             Ts = self.quantizacao(Ts, Enums.QuantType.Sim);
 
+
+            dtk_ = dtk*1e6;
+            cts_us = Ts*1e6;
+            dts    = diff(cts_us);
             % updating time vector with control command
             for j = 1:numel(dtk)
                 Ts(j+1) = Ts(j+1) + dtk(j);
             end
-            
+
+            ts_us = Ts*1e6;
+            bla = self.signal_process(x0);
+            ble = 1;
+
             % compessating negative time values (when control is too much)
             % need to adjust control constraints!!!
             % dif = [ 0, diff(Ts) ];

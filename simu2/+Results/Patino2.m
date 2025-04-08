@@ -73,13 +73,18 @@ classdef Patino2
             set(gca,'fontsize', 15);
         end
         
-        function plot_u_signals(self, ncycles)
+        function plot_u_signals(self, ncycles, skip)
             
             % default value for ncycles
             if (nargin == 1)
                 disp('setting ncycles = 8');
                 ncycles = 8;
             end
+
+            if (nargin == 2)
+                skip = 0;
+            end
+
             
             % calculating npoints for u signal
             npoints = size(self.data.y_off, 1) / self.data.nsim;
@@ -94,10 +99,10 @@ classdef Patino2
             end
 
             % reading values
-            t_off = self.data.t_off(1:npoints);
-            m_off = self.data.m_off(1:npoints);
-            t = self.data.t(1:npoints);
-            m = self.data.m(1:npoints);
+            t_off = self.data.t_off(1+skip:skip+npoints);
+            m_off = self.data.m_off(1+skip:skip+npoints);
+            t = self.data.t(1+skip:skip+npoints);
+            m = self.data.m(1+skip:skip+npoints);
             tit = "Buck-Boost Converter: Control Signal";
             x_label = "time (s)";
             y_label = "mode";

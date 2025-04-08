@@ -18,7 +18,7 @@ function set_mpc(self)
     Np = 2; % numero de ciclos a frente
 
     % parametros das restricoes de chaveamento
-    t_min = 0*1e-6;
+    t_min = 5*1e-6;
 
     c = zeros(N, 1);
     for i= 1:N
