@@ -6,6 +6,11 @@ import { _create_signal } from "./helper";
 
 const initial_time = new Date();
 
+enum TestStatus {
+  ON,
+  OFF,
+}
+
 function App() {
   const [status, set_status] = useState('.');
   const [command_message, set_command_message] = useState('');
@@ -16,6 +21,10 @@ function App() {
   const [alpha, set_alpha] = useState('0.5');
   const [cycle_nrun, set_cycle_nrun] = useState('100');
   const [listen_label, set_listen_label] = useState('Start Listening');
+  const [test_label, set_test_label] = useState('Test On');
+  const [test_status, set_test_status] = useState(TestStatus.OFF);
+  const [test_interval_id, set_test_interval_id] = useState<number>();
+
   const [copy_label, set_copy_label] = useState('copy');
   const [is_connected, set_is_connected] = useState(false); // New state for connection status
 
@@ -130,20 +139,35 @@ function App() {
   }
 
   function handle_test_receive() {
-    setInterval(() => {
-      const now = new Date();
-      const timeStr = (now.getTime() - initial_time.getTime()).toString();
+    if (test_status === TestStatus.OFF) {
+      set_test_status(TestStatus.ON)
+      set_test_label("Test Off")
+      set_data([])
 
-      set_data(currentData => {
-        const newData = [...currentData, {
-          time: timeStr,
-          an3: generate_value(),
-          an5: generate_value() * 3,
-          an6: generate_value() * 6,
-        }];
-        return newData;
-      });
-    }, 100);
+      const test_interval_id_ = setInterval(() => {
+        const now = new Date();
+        const timeStr = (now.getTime() - initial_time.getTime()).toString();
+
+        set_data(currentData => {
+          const newData = [...currentData, {
+            time: timeStr,
+            an3: generate_value(),
+            an5: generate_value() * 3,
+            an6: generate_value() * 6,
+          }];
+          return newData;
+        });
+      }, 100);
+      set_test_interval_id(test_interval_id_)
+    } else if (test_status === TestStatus.ON) {
+      console.log('stoping test');
+      
+      set_test_status(TestStatus.OFF)
+      set_test_label('Test On')
+      clearInterval(test_interval_id)
+    }
+    
+    
   }
 
   function set_signal_1() {
@@ -213,7 +237,7 @@ function App() {
             </button>
           }
             <button onClick={handle_listen} className="btn">{listen_label}</button>
-            <button onClick={handle_test_receive} className="btn">test</button>
+            <button onClick={handle_test_receive} className="btn">{test_label}</button>
             <button onClick={handle_copy} className="btn">{copy_label}</button>
           </div>
 

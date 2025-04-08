@@ -10,8 +10,9 @@ function play()
     end
     
     % s.set_traj_phase_with_iref(0.07);
-    s.set_traj_phase_with_alpha(0.5);
-    s.set_mpc();
+    %s.set_traj_phase_with_alpha(0.5);
+    %s.set_mpc();
+    s.set_alpha_and_mpc_cached(0.5);
 
     % number of cycles
     nsim = 40;

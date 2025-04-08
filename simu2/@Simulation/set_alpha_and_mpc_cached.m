@@ -5,12 +5,12 @@ function set_alpha_and_mpc_cached(self, alpha)
             self.set_alpha_cache = cache_.set_alpha_cache;
         catch e
             disp(e);
-            self.set_alpha_cache = containers.Map('KeyType', 'double', 'ValueType', 'any');
+            self.set_alpha_cache = containers.Map('KeyType', 'char', 'ValueType', 'any');
         end
     end
     
-    % define key
-    key = alpha;
+    % define key ({sim_name}_{alpha})
+    key = string(self.config.sim_name)+'_'+string(alpha);
 
     % check if key exists in cache
     if isKey(self.set_alpha_cache, key)

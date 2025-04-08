@@ -46,7 +46,7 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
     labels: data.map(d => d.time), // X-axis labels
     datasets: [
       {
-        label: 'VR',
+        label: 'an3 -> VR',
         data: data.map(d => d.an3),
         borderColor: '#8884d8',
         borderWidth: 2,
@@ -54,7 +54,7 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
         fill: false,
       },
       {
-        label: 'an5',
+        label: 'an5 -> v_c1',
         data: data.map(d => d.an5),
         borderColor: '#82ca9d',
         borderWidth: 2,
@@ -62,7 +62,7 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
         fill: false,
       },
       {
-        label: 'an6',
+        label: 'an6 -> v_c2',
         data: data.map(d => d.an6),
         borderColor: '#ff7300',
         borderWidth: 2,
@@ -72,52 +72,23 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
     ],
   };
 
-  // Chart.js options configuration
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    animation: false, // Disable animations for real-time performance
-    scales: {
-      x: {
-        title: { display: true, text: 'Time' },
-        ticks: {
-          maxTicksLimit: 10, // Limit number of ticks for readability
-          autoSkip: true,
-          maxRotation: 45,
-          minRotation: 45,
-        },
-        grid: { display: false }, // Optional: disable x-axis grid lines
-      },
-      y: {
-        title: { display: true, text: 'Value' },
-        grid: { borderDash: [3, 3] }, // Dashed grid lines like recharts
-      },
-    },
-    plugins: {
-      legend: {
-        position: 'top' as const, // Match recharts verticalAlign='top'
-      },
-      tooltip: {
-        callbacks: {
-          // Custom tooltip to match your recharts version
-          label: function (context: any) {
-            const datasetLabel = context.dataset.label || '';
-            const value = context.parsed.y.toFixed(2);
-            return `${datasetLabel}: ${value}`;
-          },
-        },
-      },
-    },
-  };
-
   return (
     <div className="w-full h-96 p-4 mb-10">
       <h2 className="text-xl font-bold mb-4">{title}</h2>
-      <div>an6: {v3}</div>
-      <div>an5: {v2}</div>
-      <div>an3: {v1}</div>
+      <div>
+        <span className='w-28 inline-block text-right'>an5 {`->`} V_C1:</span>
+        <span className='w-12 inline-block text-right ml-3'>{v2}</span>
+      </div>
+      <div>
+        <span className='w-28 inline-block text-right'>an6 {`->`} V_C2:</span>
+        <span className='w-12 inline-block text-right ml-3'>{v3}</span>
+      </div>
+      <div>
+        <span className='w-28 inline-block text-right'>an3 {`->`} VR:</span>
+        <span className='w-12 inline-block text-right ml-3'>{v1}</span>
+      </div>
       <div className="h-full">
-        <Line data={chartData} options={options} />
+        <Line data={chartData}/>
       </div>
     </div>
   );
