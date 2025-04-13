@@ -13,7 +13,7 @@ c =@(x) b.message(x);
 s = Simulation();
 s.set_config(Enums.SimName.LAB_CIRCUIT);
 
-s.set_alpha_and_mpc_cached(0.5);
+s.set_alpha_and_mpc_cached(0.4);
 
 
 b.simulation = s;
@@ -33,7 +33,7 @@ command = Helpers.signal_create( ...
 fprintf("command: %s\n", command)
 b.message(command);
 
-b.message_cmd_cycles_nrun('10000');
+b.message_cmd_cycles_nrun('2');
 b.message_cmd_start();
 
 disp(s)

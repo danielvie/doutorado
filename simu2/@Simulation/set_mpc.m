@@ -15,10 +15,10 @@ function set_mpc(self)
     p  = N - 1;
     Q  = diag([1,1,1]); % FIXME: colocar numel generico
     R  = eye(p);
-    Np = 3; % numero de ciclos a frente
+    Np = 15; % numero de ciclos a frente
 
     % parametros das restricoes de chaveamento
-    t_min = 5*1e-6;
+    t_min = 3*1e-6;
 
     c = zeros(N, 1);
     for i= 1:N

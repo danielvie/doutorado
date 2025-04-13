@@ -44,6 +44,8 @@ function [y,t,m,dtk_out] = run(self, nsim)
             %   -3: problem is unbounded
             if exitflag ~= 1
                 dtk = dtk*0;
+            else
+                bla = 1;
             end
 
             % reading nominal time values
@@ -64,6 +66,7 @@ function [y,t,m,dtk_out] = run(self, nsim)
             ts_us = Ts*1e6;
             bla = self.signal_process(x0);
             ble = 1;
+            
 
             % compessating negative time values (when control is too much)
             % need to adjust control constraints!!!

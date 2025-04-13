@@ -1,7 +1,7 @@
 function set_alpha_and_mpc_cached(self, alpha)
     if isempty(self.set_alpha_cache)
         try
-            cache_ = load('set_alpha_cache.mat', 'set_alpha_cache');
+            % cache_ = load('set_alpha_cache.mat', 'set_alpha_cache');
             self.set_alpha_cache = cache_.set_alpha_cache;
         catch e
             disp(e);
@@ -23,7 +23,7 @@ function set_alpha_and_mpc_cached(self, alpha)
         self.set_mpc();
         
         self.set_alpha_cache(key) = struct('config', self.config, 'mpc', self.mpc);
-        self.save_set_alpha_cache();
+        % self.save_set_alpha_cache();
     end
     
     time_us = arrayfun(@round, diff(self.config.Ts*1e6));

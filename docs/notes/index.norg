@@ -2,17 +2,23 @@
 
 * TODAY
 
-  - ( ) simular a mudanca de referencia
+
+  # {@ Friday 11 April 2025}
+  - ( ) ajustar conversao do sinal para dt
+  - ( ) calcular regiao de atracao para a simulacao do circuito
+
+  # {@ Wednesday 2 April 2025}
+  - (x) simular a mudanca de referencia
   - ( ) criar um sistema de log para comparar os resultados
   - ( ) configurar manobra para a simulacao e o circuito
 
-  #26mar,
+  # {@ Wednesday 26 March 2025} 
   - ( ) fazer o matlab mudar a referencia por alpha / iref
   - ( ) tomar cuidado com a nova linearizacao
   - ( ) tentar usar o qpoasis na ESP
   - ( ) documentar o codigo para artigo
 
-  #12mar,
+  # {@ Wednesday 12 March 2025} 
   - (x) testar simulacao lab circuit
   - (x) ler circuito malha aberta com 3.3v de alimentacao
   - (x) mudar para plotar grafico linear

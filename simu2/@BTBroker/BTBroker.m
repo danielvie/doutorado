@@ -38,6 +38,11 @@ classdef BTBroker < handle
         message_cmd_stop(self);
         message_cmd_cycles_nrun(self, value);
         message_cmd_signal(self, time_us, mode);
+
+        x(self); % stop
+        start(self);
+        
+        s(self, alpha); % set
         
         set_simulation(self);
     end

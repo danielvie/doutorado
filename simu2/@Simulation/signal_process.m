@@ -25,10 +25,24 @@ function time_us = signal_process(self, state)
     end
 
     % computing `ek`
-    ek  = x0 - cfg.mpc.x_target;
+    cfg.mpc.x_target = [1.38; 2.4; 0.05];
+    ek = x0 - cfg.mpc.x_target;
+    %ek = [0.01;0;0];
 
     % computing control `dtk`
-    [dtk, ~, ~] = Mpc.dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
+    [dtk, ~, exitflag] = Mpc.dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
+    %self.quadprog_dtk = [self.quadprog_dtk;dtk';];
+    
+
+    % ignore control if problem not possible
+    %  exitflag:
+    %    1: function converged to the solution x
+    %    0: number of iterations exceeded MaxIterations
+    %   -2: problem is infeasible
+    %   -3: problem is unbounded
+    if exitflag ~= 1
+        dtk = dtk*0;
+    end
 
     % reading nominal time values
     Ts = config.Ts;
@@ -43,4 +57,5 @@ function time_us = signal_process(self, state)
 
 
     time_us = arrayfun(@round, diff(Ts*1e6));
+    self.quadprog_flag = [self.quadprog_flag;exitflag, -999, time_us, -888, x0',-777,cfg.mpc.x_target'];
 end

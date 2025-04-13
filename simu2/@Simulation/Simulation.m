@@ -3,12 +3,16 @@ classdef Simulation < handle
         config;
         mpc;
         set_alpha_cache;
+        quadprog_log;
+        quadprog_flag;
     end
 
     methods
         % .. constructor
         function self = Simulation()
             % disp('starting `Simulacao` class')
+            self.quadprog_flag = [];
+            self.quadprog_log = struct();
         end
 
         % .. preparation
