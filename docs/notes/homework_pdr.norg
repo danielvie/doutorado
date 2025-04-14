@@ -1,0 +1,75 @@
+* PDR
+
+** info
+*** links
+   - pdf
+     {https://mailmissouri-my.sharepoint.com/:p:/r/personal/jcmkr_umsystem_edu/_layouts/15/doc2.aspx?sourcedoc=%7BE4B10EA9-9AC3-4C26-B8E6-43887E98164A%7D&file=SYS_ENG_5101_PDR_GROUP2%20-%20Copy.pptx&fromShare=true&action=edit&mobileredirect=true}
+
+   - home
+     {C:/Users/daniel/Desktop/temp/missouri/pdr}
+
+
+*** Operational Requirements
+    - 1. The GPS spoof detection system shall identify GPS spoofing as it
+      occurs to the aircraft GPS tracking systems while in operation.
+
+    - 2. The GPS spoof detection system shall have a red light that allows
+      users to identify if they are a target of spoofing while in operation.
+
+    - 3. The GPS spoof detection system shall store a record of all GPS spoof
+      attacks while in operation.
+
+    - 4. The GPS spoof detection system shall be able to have data
+      transferred off platform while not in operation..
+
+    - 5. The GPS spoof detection system shall communicate with aircraft
+      GPS systems while in operation.
+
+    - 6. The GPS spoof detection system shall interface with current aircraft 
+      electrical power systems while in operation.
+
+    - 7. The GPS spoof detection system shall have dual redundancy while in operation.
+
+    - 8. The system shall display a visual alert within 3 seconds after catching a 
+      possible GPS spoof attack while in operation.
+
+    - 9. The GPS spoof detection system shall emit a sound alert within 3 seconds 
+      after catching a possible GPS spoof attack while in operation.
+
+    - 10. The GPS spoof detection system shall have a button for the user to cancel 
+      the alert while in operation
+
+*** 'ilities task description
+    With the selected system configuration from CDR, and building on the functions and requirements for your project identified in the conceptual design review, the approach of how the system performs the functions to satisfy requirements during simple operation of the system need to be considered. This assignment is to discuss the major ‘ilities we covered in class and how your design will address these ‘ilities, or if the design of your system merits it, why you can ignore some of them for now.  The key ‘ilities are
+
+    - Manufacturability (Producibility)
+    - Reliability
+    - Maintainability
+    - Supportability
+    - Affordability
+    - Usability
+    - Disposability
+
+    There are about 50 ‘-ilities currently in use in the literature, but stick to these seven for the assignment, please.
+
+    Your submission should include the following for each of the ‘ilities listed above (or why they don’t apply to your system):
+    · Identify any requirements in your system that relate to the ‘ility
+    · Describe how the ‘ility is carried out or implemented within the system functional architecture
+    · Describe how the ‘ility is realized by the system physical architecture
+    · How each ‘ility is related to the other ‘ilities in the system (or not – some don’t)
+    · Any technical documents that clarify how the ‘ility will be achieved
+
+
+** agenda
+
+   - (=) INTRODUCTION – PDR OVERVIEW
+   - (=) CONCEPTUAL DESIGN REVIEW – RECAP
+
+   - ( ) THE –ILITIES
+   - (=) DERIVED SET OF REQUIREMENTS
+   - ( ) RISK ASSESSMENT
+
+   - ( ) TECHNICAL PERFORMANCE MEASURES (TPMs)
+   - (=) MOEs AND MOPs
+   - (=) FUNCTIONAL ARCHITECTURE
+   - (=) SUMMARY
