@@ -35,7 +35,8 @@
     - 6. The GPS spoof detection system shall interface with current aircraft 
       electrical power systems while in operation.
 
-    - 7. The GPS spoof detection system shall have dual redundancy while in operation.
+    - 7. The GPS spoof detection system shall perform a Built-in test to verify 
+      operational integrity every 1 minute while in operation.
 
     - 8. The system shall display a visual alert within 3 seconds after catching a 
       possible GPS spoof attack while in operation.
@@ -75,6 +76,19 @@
     -- ( ) organize
 
 
+    ilities:
+
+    - Manufacturability (Producibility)
+    - Reliability
+    - Maintainability
+    - Supportability
+    - Affordability
+    - Usability
+    - Disposability
+    - Testability
+
+
+
 
     There are about 50 ‘-ilities currently in use in the literature, but stick to these seven for the assignment, please.
 
@@ -106,6 +120,54 @@
 
 
 ** presentation
+
+
+*** manufacturability (producibility)
+**** requirements
+**** functional architecture
+**** physical architecture
+**** relationships
+**** technical documents
+
+*** reliability
+**** requirements
+**** functional architecture
+**** physical architecture
+**** relationships
+**** technical documents
+
+*** maintainability
+**** requirements
+**** functional architecture
+**** physical architecture
+**** relationships
+**** technical documents
+
+*** supportability
+**** requirements
+**** functional architecture
+**** physical architecture
+**** relationships
+**** technical documents
+
+
+*** affordability
+**** requirements
+**** functional architecture
+**** physical architecture
+**** relationships
+**** technical documents
+
+
+*** testability
+**** requirements
+**** functional architecture
+**** physical architecture
+**** relationships
+**** technical documents
+
+
+
 
 *** usability
 
@@ -166,7 +228,6 @@
      If the ^red light^ or ^speaker^ can fails, maintenance must be straightforward to 
      restore usability
 
-
 **** technical documents
      ,MIL-STD-1472 (Human Engineering):,
      a ^military standard^ that establishes ^human engineering^ design criteria for equipment to
@@ -213,6 +274,11 @@
 
      End-of-Life Plan: outlines procedures for data extraction, physical removal, and disposal of components, ensuring compliance with aviation
      and environmental standards.
+
+
+
+
+
 
 
 
