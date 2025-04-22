@@ -42,6 +42,9 @@ classdef Simulation < handle
 
         time_us = signal_process(self, state);
         
+        % .. projection
+        project_feasibility_region(self);
+        
         % .. helpers
         [Phi, Gamma] = get_phi_gamma(self);
         c = get_switching_constraints(self);
