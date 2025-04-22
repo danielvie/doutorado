@@ -1,7 +1,7 @@
 function play()
     % setting simulation
     s = Simulation();
-    success = s.set_config(Enums.SimName.LAB_CIRCUIT);
+    success = s.set_config(Enums.SimName.PATINO_2);
 
     % check if data is loaded
     if (~success)
@@ -18,7 +18,7 @@ function play()
     nsim = 100;
 
     % add error in IC
-    s.config.x0 = s.config.x0 + [0.2; -0.2; 0.01];
+    s.config.x0 = s.config.x0;
 
     % running simulation
     s.config.mpc.on = true;
@@ -32,7 +32,7 @@ function play()
     disp(s.config.x0);
 
     % getting variables from simulation
-    vars = Utils.getAllVars();
+    vars = Helpers.getAllVars();
 
     % creating results object
     res = Results.Patino2(vars);

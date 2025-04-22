@@ -1,18 +1,26 @@
 classdef Simulation < handle
     properties
         config;
-        mpc;
         set_alpha_cache;
-        quadprog_log;
-        quadprog_flag;
+        log;
     end
 
     methods
         % .. constructor
-        function self = Simulation()
-            % disp('starting `Simulacao` class')
-            self.quadprog_flag = [];
-            self.quadprog_log = struct();
+        function self = Simulation(sim_name)
+
+            if nargin < 1
+                fprintf('Simulation name not provided. Using default.\n');
+            else
+                self.set_config(sim_name);
+            end
+
+            % log structure
+            self.log = struct();
+            self.log.exitflag = [];
+            self.log.time_us = [];
+            self.log.x0 = [];
+            self.log.x_target = [];
         end
 
         % .. preparation
@@ -35,6 +43,8 @@ classdef Simulation < handle
         time_us = signal_process(self, state);
         
         % .. helpers
+        [Phi, Gamma] = get_phi_gamma(self);
+        c = get_switching_constraints(self);
         Ts_out  = quantizacao(self, Ts, type);
         
         time_us = get_time_us(self);

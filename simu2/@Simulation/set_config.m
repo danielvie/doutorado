@@ -16,7 +16,7 @@ function success = set_config(self, sim_name)
             self.config = Data.lab_circuit();
         otherwise
             success = false;
-            disp('value not valid')
+            disp('ERROR: `sim_name` value not valid as an argument')
     end
 
 end

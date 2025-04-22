@@ -56,6 +56,11 @@ function time_us = signal_process(self, state)
     end
 
 
+    % logging data
     time_us = arrayfun(@round, diff(Ts*1e6));
-    self.quadprog_flag = [self.quadprog_flag;exitflag, -999, time_us, -888, x0',-777,cfg.mpc.x_target'];
+
+    self.log.exitflag = [self.log.exitflag; exitflag];
+    self.log.time_us = [self.log.time_us; time_us];
+    self.log.x0 = [self.log.x0; x0'];
+    self.log.x_target = [self.log.x_target; cfg.mpc.x_target'];
 end
