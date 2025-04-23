@@ -21,6 +21,7 @@ classdef Simulation < handle
 
             % log structure
             self.log = struct();
+            self.log.iter = [];
             self.log.exitflag = [];
             self.log.time_us = [];
             self.log.x0 = [];

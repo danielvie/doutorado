@@ -60,7 +60,6 @@ classdef BTBroker < handle
         sa(self, alpha); % start()
         so(self, alpha); % stop()
         x(self); % stop()
-        log(self); % simulation.log
         
     end
 end

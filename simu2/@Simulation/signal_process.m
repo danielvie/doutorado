@@ -60,7 +60,15 @@ function time_us = signal_process(self, state)
 
     % logging data
     time_us = arrayfun(@round, diff(Ts*1e6));
+    
+    % add iteration
+    if isempty(self.log.iter)
+        self.log.iter = [self.log.iter; 1];
+    else
+        self.log.iter = [self.log.iter; self.log.iter(end)+1];
+    end
 
+    % log rest of data
     self.log.exitflag = [self.log.exitflag; exitflag];
     self.log.time_us = [self.log.time_us; time_us];
     self.log.x0 = [self.log.x0; x0'];
