@@ -20,7 +20,7 @@ function config = lab_circuit()
 	config.sim_name = Enums.SimName.LAB_CIRCUIT;
 
 	% operation modes (alpha = 0.5)
-	config.Omega = [4, 6, 2, 3, 1, 5];
+	config.Omega = [5, 7, 3, 4, 2, 6];
 
 	% maximum number of operation modes
 	config.smax  = 12;
@@ -54,13 +54,13 @@ function config = lab_circuit()
 	config.Tpmax = 0.4*1e-3; % 0.400ms
     
 	% time sequence
-    config.Ts    = [47, 47, 47, 47, 47, 47]*1e-6;
+    config.Ts    = [0.0, 46.6667, 93.3333, 140.0, 186.6667, 233.3333, 280.0]*1e-6;
 	
 	% initial state
-    config.x0    = [9.9247; 19.2928; 0.9823];
+    config.x0    = [1.0000; 2.0062; 0.0626];
 
     % constraint time (t_min)
-    config.c_time = [3*1e-6, 3*1e-6];
+    config.c_time = [1, 1]*(3*1e-6);
 
 	% % config OTMIN
 	% % tmin   = 0.022*1e-3;

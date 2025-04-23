@@ -4,6 +4,10 @@ classdef Simulation < handle
         set_alpha_cache;
         log;
     end
+    
+    methods(Hidden = true)
+        set_traj_phase(self, params);
+    end
 
     methods
         % .. constructor
@@ -25,13 +29,12 @@ classdef Simulation < handle
 
         % .. preparation
         success = set_config(self, sim_name);
-        set_traj_phase(self, params);
+
         set_traj_phase_with_iref(self, iref);
         set_traj_phase_with_alpha(self, alpha);
         set_mpc(self);
 
         set_alpha_and_mpc(self, alpha);
-
         set_alpha_and_mpc_cached(self, alpha);
         save_set_alpha_cache(self);
 
@@ -43,9 +46,17 @@ classdef Simulation < handle
         time_us = signal_process(self, state);
         
         % .. projection
-        project_feasibility_region(self);
+        fig = project_feasibility_region(self);
+
+        % .. aliases
+        alpha(self, value);
+        iref(self, value);
+
+        % .. automation
+        project_with_alpha(self, alpha, folder, flag_save);
         
         % .. helpers
+        name(self);
         [Phi, Gamma] = get_phi_gamma(self);
         c = get_switching_constraints(self);
         Ts_out  = quantizacao(self, Ts, type);

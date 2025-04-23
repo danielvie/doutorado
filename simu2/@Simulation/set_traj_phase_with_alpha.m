@@ -1,6 +1,16 @@
 function set_traj_phase_with_alpha(self, alpha)
+    % set_traj_phase_with_alpha - Set the trajectory phase with a given alpha value.
+    %
+    % Syntax: set_traj_phase_with_alpha(self, alpha)
+    %
+    % Inputs:
+    %   self - Instance of the Simulation class.
+    %   alpha - Alpha value for the simulation.
+    %
+    % Outputs:
+    %   None. The function modifies the simulation object in place.
+
     disp(['set traj phase with alpha: ', num2str(alpha)]);
-    % disp(['set traj phase with alpha: ', num2str(iref)]);
 
 	% dynamics of the system (Buck-Boost converter)
 	params = self.config.circuit_params;
