@@ -2,6 +2,11 @@
 
 * TODAY
 
+  # {@ Saturday 11 April 2026}
+  - ( ) ?? criar o sinal na esp32 com o ciclo inteiro e usar o timer apenas para o periodo do ciclo??
+  - ( ) enviar codigo de projecao para kawa
+  - ( ) procurar alternativa para plotar regiao de atracao??
+
   # {@ Friday 11 April 2025}
   - ( ) ajustar conversao do sinal para dt 
         sinal esta truncando os valores de dt e reduzindo a janela total!

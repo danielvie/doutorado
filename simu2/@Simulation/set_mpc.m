@@ -10,7 +10,7 @@ function set_mpc(self)
     p  = N - 1;
     Q  = diag([1,1,1]); % FIXME: colocar numel generico
     R  = eye(p);
-    Np = 30; % numero de ciclos a frente
+    Np = 5; % numero de ciclos a frente
 
     % parametros das restricoes de chaveamento
     c = self.get_switching_constraints();
