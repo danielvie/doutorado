@@ -9,32 +9,25 @@ time_us_dt_rounded = arrayfun(@round, time_us_dt);
 time_us_constructed = construct_signal(time_us_dt_rounded);
 compare_time(time_us, time_us_constructed);
 
+time_us_dt_new = Helpers.compute_dt_time_signal(time_us);
 
-% fix time drift
-time_us_dt_rounded_fixed = time_us_dt_rounded;
-for i = 1:numel(time_us)-i
-    ti_c = time_us_constructed(i+1);
-    ti_us = time_us(i+1);
-    ti_diff = round(ti_c - ti_us);
-    if ti_diff > 0
-        time_us_dt_rounded_fixed(i) = time_us_dt_rounded_fixed(i) - ti_diff;
-    end
-end
+time_us_constructed_new = construct_signal(time_us_dt_new);
+disp('New time vector:');
+compare_time(time_us, time_us_constructed_new);
 
-time_us_constructed = construct_signal(time_us_dt_rounded_fixed);
-for i = 1:numel(time_us)-i
-    ti_c = time_us_constructed(i+1);
-    ti_us = time_us(i+1);
-    ti_diff = round(ti_c - ti_us);
-    if ti_diff > 0
-        time_us_dt_rounded_fixed(i) = time_us_dt_rounded_fixed(i) - ti_diff;
-    end
-end
 
-disp('dfasdfasdf');
-time_us_constructed_fixed = construct_signal(time_us_dt_rounded_fixed);
-compare_time(time_us, time_us_constructed_fixed);
 
+% function time_dt = construct_dt_time_signal(time)
+%     time_dt = zeros(1, numel(time)-1);
+%     time_dt(1) = round(time(2));
+%     temp_cumulative = 0;
+%     for i = 2:numel(time)-1
+%         dt_time = time(i) - temp_cumulative;
+%         dt_time = dt_time - round(rem(dt_time, 1));
+%         time_dt(i) = round(dt_time);
+%         temp_cumulative = temp_cumulative + time_dt(i);
+%     end
+% end
    
 
 function time = construct_signal(time_dt)

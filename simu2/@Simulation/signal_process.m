@@ -57,7 +57,6 @@ function time_us = signal_process(self, state)
         Ts(j+1) = Ts(j+1) + dtk(j);
     end
 
-
     % logging data
     time_us = arrayfun(@round, diff(Ts*1e6));
     

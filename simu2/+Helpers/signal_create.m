@@ -6,7 +6,8 @@ function signal = signal_create(time, mode)
     end
 
     % make time not be smaller than a value
-    time_ = arrayfun(@(x) max(x, 20), time);
+    time_ = time;
+    % time_ = arrayfun(@(x) max(x, 20), time);
 
     % Convert vector a to string
     time_str = strjoin(arrayfun(@num2str, time_, 'UniformOutput', false), ',');
