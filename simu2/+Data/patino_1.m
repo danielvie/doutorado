@@ -63,4 +63,8 @@ function config = patino_1()
       config.otmin.b   = [];
       config.otmin.Aeq = [];
       config.otmin.beq = [];
+
+      % constraint time
+      % config.c_time = [0.001, 0.001];
+      config.c_time = [0.2515, 0.2500-0.04];
 end

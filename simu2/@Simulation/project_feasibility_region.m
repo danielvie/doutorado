@@ -32,7 +32,7 @@ function project_feasibility_region(self)
     p1 = zeros(1, numel(c));
     p2 = zeros(1, size(Gamma, 2));
     p1(1:2) = [1, -1];
-    p2(1:2) = [1, 0];
+    p2(1) = 1;
     
     L = toeplitz(p1, p2);
 
@@ -62,7 +62,7 @@ function project_feasibility_region(self)
     v1 = Projecao.create_projection(config);
     config.N  = 2;
     v2 = Projecao.create_projection(config);
-    config.N  = 4;
+    config.N  = 20;
     v4 = Projecao.create_projection(config);
 
     % deslocando origem 
@@ -74,7 +74,19 @@ function project_feasibility_region(self)
     % PP = intersect(v.D,PP);
     % clf, plot(PP2)
 
+    vars = Helpers.getAllVars();
+    assignin('base', 'vars', vars);
+
     f1 = figure(2);
-    Projecao.plotter.patino2.plot_projection(f1, v1, v2, v4, config.xbar, "N_p = 4", "N_p = 2", "N_p = 1")
+    
+    if self.config.sim_name == Enums.SimName.PATINO_2
+        Projecao.plotter.patino2.plot_projection(f1, v1, v2, v4, config.xbar, "N_p = 4", "N_p = 2", "N_p = 1")
+    if self.config.sim_name == Enums.SimName.LAB_CIRCUIT
+        Projecao.plotter.patino2.plot_projection(f1, v1, v2, v4, config.xbar, "N_p = 4", "N_p = 2", "N_p = 1")
+    elseif self.config.sim_name == Enums.SimName.PATINO_1
+        Projecao.plotter.patino1.plot_projection(f1, v1, v2, v4, config.xbar);
+    elseif self.config.sim_name == Enums.SimName.INTEGRADOR_DUPLO
+        Projecao.plotter.integrador.plot_projection(f1, v1, v2, v4, config.xbar);
+    end
 
 end

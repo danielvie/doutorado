@@ -59,6 +59,9 @@ function config = lab_circuit()
 	% initial state
     config.x0    = [9.9247; 19.2928; 0.9823];
 
+    % constraint time (t_min)
+    config.c_time = [3*1e-6, 3*1e-6];
+
 	% % config OTMIN
 	% % tmin   = 0.022*1e-3;
 	% % tmax   = 0.400*1e-3;

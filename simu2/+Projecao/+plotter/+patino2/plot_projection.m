@@ -16,6 +16,7 @@ function plot_projection(f, v1, v2, v3, xbar, varargin)
     hold on;
     plot(v2.D, 'color', c2);
     plot(v1.D, 'color', c1);
+    disp('xbar:');
     disp(xbar)
     plot3(xbar(1),xbar(2),xbar(3), 'rx', 'markers', 12, 'linew', 2);
     hold off;

@@ -40,7 +40,7 @@ function config = intduplo()
       % weighting matrix for the trajectory computation
       config.Q = diag([1,1]);
 
-	% max value for the period of the trajectory cycle
+	  % max value for the period of the trajectory cycle
       config.Tpmax = 1;
 
       % time sequence
@@ -48,5 +48,8 @@ function config = intduplo()
       
       % initial state
       config.x0    = [-0.5; -1];
+
+      % constraint time
+      config.c_time = [1.625, 0.635];
 
 end

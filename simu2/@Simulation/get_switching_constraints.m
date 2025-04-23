@@ -6,11 +6,15 @@ function c = get_switching_constraints(self)
 
     Ts  = cfg.Ts;
     dtr = diff(Ts);
-    t_min = 3*1e-6;
+
+    % constraint time
+    c_time = self.config.c_time;
+    c_time_numel = numel(c_time);
 
     c = zeros(N, 1);
     for i= 1:N
-        c(i) = -dtr(i) + t_min;
+        c_time_i = rem(i-1, c_time_numel) + 1;
+        c(i) = -dtr(i) + c_time(c_time_i);
     end
 
     % c = [
