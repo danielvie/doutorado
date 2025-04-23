@@ -18,5 +18,18 @@ function set_traj_phase(self, params)
     self.config.Omega = Omega;
     self.config.Ts = Helpers.get_ts(dT);
     self.config.x0 = Helpers.get_x0(self.config);
+    
+    % printing result
+    time_us = self.config.Ts*1e6;
+    dt_time_us = diff(time_us);
+
+    disp('Omega: ');
+    disp(Omega - 1);
+    disp('time_us: ');
+    disp(time_us);
+    disp('dt_time_us: ');
+    disp(dt_time_us);
+    disp('x0: ');
+    disp(self.config.x0);
 
 end

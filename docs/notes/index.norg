@@ -3,7 +3,9 @@
 * TODAY
 
   # {@ Friday 11 April 2025}
-  - ( ) ajustar conversao do sinal para dt
+  - ( ) ajustar conversao do sinal para dt 
+        sinal esta truncando os valores de dt e reduzindo a janela total!
+        comecei a mexer nisso no `t.m`, mas a minha cabeca nao ta funcionando direito mais
   - ( ) calcular regiao de atracao para a simulacao do circuito
 
   # {@ Wednesday 2 April 2025}
