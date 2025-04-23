@@ -33,7 +33,7 @@ command = Helpers.signal_create( ...
 fprintf("command: %s\n", command)
 b.message(command);
 
-b.message_cmd_cycles_nrun('2');
+b.message_cmd_cycles_nrun('1000');
 b.message_cmd_start();
 
 disp(s)

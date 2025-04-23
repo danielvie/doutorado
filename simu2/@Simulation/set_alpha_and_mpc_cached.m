@@ -22,7 +22,7 @@ function set_alpha_and_mpc_cached(self, alpha)
         self.set_traj_phase_with_alpha(alpha);
         self.set_mpc();
         
-        self.set_alpha_cache(key) = struct('config', self.config, 'mpc', self.mpc);
+        self.set_alpha_cache(key) = struct('config', self.config);
         % self.save_set_alpha_cache();
     end
     

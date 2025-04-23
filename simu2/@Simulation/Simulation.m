@@ -25,6 +25,7 @@ classdef Simulation < handle
             self.log.time_us = [];
             self.log.x0 = [];
             self.log.x_target = [];
+            self.log.time_qp = [];
         end
 
         % .. preparation

@@ -30,7 +30,9 @@ function time_us = signal_process(self, state)
     %ek = [0.01;0;0];
 
     % computing control `dtk`
+    tic;
     [dtk, ~, exitflag] = Mpc.dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
+    time_qp = toc;
     %self.quadprog_dtk = [self.quadprog_dtk;dtk';];
     
 
@@ -63,4 +65,6 @@ function time_us = signal_process(self, state)
     self.log.time_us = [self.log.time_us; time_us];
     self.log.x0 = [self.log.x0; x0'];
     self.log.x_target = [self.log.x_target; cfg.mpc.x_target'];
+
+    self.log.time_qp = [self.log.time_qp; time_qp];
 end

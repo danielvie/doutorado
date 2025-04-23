@@ -6,6 +6,7 @@ classdef BTBroker < handle
         device;
         chart_list;
         simulation;
+        verbose;
     end
     
     methods
@@ -20,30 +21,46 @@ classdef BTBroker < handle
             self.subscribe();
             
             % prepare model
+            
+            % prepare flags
+            self.verbose = false;
         end
         
         print(self);
         
+        res = is_connected(self);
+        
+        % .. config
         connect(self);
         disconnect(self);
-        res = is_connected(self);
-        message(self, msg);
         subscribe(self);
         unsubscribe(self);
-        
-        message_handle_event(self, src, event);
-        message_handle_process(self, msg);
 
+        % .. message commands
+        message(self, msg);
         message_cmd_start(self);
         message_cmd_stop(self);
         message_cmd_cycles_nrun(self, value);
         message_cmd_signal(self, time_us, mode);
+        
+        % .. message handlers
+        message_handle_event(self, src, event);
+        message_handle_process(self, msg);
 
-        x(self); % stop
-        start(self);
-        
-        s(self, alpha); % set
-        
+        % .. setters
+        set_verbose(self, value);
         set_simulation(self);
+
+        % .. automation
+        start(self);
+        stop(self);
+
+        % .. aliases
+        s(self, alpha); % simulation.set_alpha_and_mpc_cached(alpha)
+        sa(self, alpha); % start()
+        so(self, alpha); % stop()
+        x(self); % stop()
+        log(self); % simulation.log
+        
     end
 end
