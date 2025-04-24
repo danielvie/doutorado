@@ -10,31 +10,28 @@ function play()
 
 
     % creating simulation object
-    s = Simulation(Enums.SimName.PATINO_2);
+    s = Simulation(Enums.SimName.LAB_CIRCUIT);
     
     % compute trajectory with alpha
     s.set_traj_phase_with_alpha(0.5);
     %s.set_alpha_and_mpc_cached(0.5);
 
     % set MPC parameters
-    s.set_mpc_with_np(5); 
+    s.set_mpc_with_np(15); 
 
     % number of simulation cycles
     nsim = 100;
 
     % add error in IC
-    s.config.x0 = s.config.x0 + [0.1; 0.1; 0.1];
+    % s.config.x0 = s.config.x0 + [0.1; 0.1; 0.1];
+    s.set_offset([0.2, 0.2, 0.1]);
 
     % running simulation
     s.config.mpc.on = true;
     [y, t, m] = s.run(nsim);
-    disp("x0_on:");
-    disp(s.config.x0);
 
     s.config.mpc.on = false;
     [y_off, t_off, m_off] = s.run(nsim);
-    disp("x0_off:");
-    disp(s.config.x0);
 
     % getting variables from simulation
     vars = Utils.getAllVars();

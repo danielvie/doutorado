@@ -30,8 +30,10 @@ classdef Simulation < handle
             self.log.time_qp = [];
         end
 
-        % .. preparation
+        % .. setters
         success = set_config(self, sim_name);
+
+        set_offset(self, offset);
 
         set_traj_phase_with_iref(self, iref);
         set_traj_phase_with_alpha(self, alpha);
