@@ -134,7 +134,7 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac, Bc, tr, xr, config)
 
     % calculando Gamma2
     Gamma2 = [];
-    x0 = Helpers.get_x0(config);
+    x0 = Utils.get_x0(config);
     xt0 = [x0; 1];
     I = eye(size(F{1}));
 

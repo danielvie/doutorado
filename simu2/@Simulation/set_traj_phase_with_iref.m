@@ -1,4 +1,10 @@
 function set_traj_phase_with_iref(self, iref)
+
+    if ~self.can_compute_phase()
+        fprintf(2, 'CANNOT COMPUTE PHASE. EXPECTED PATINO_2 OR LAB_CIRCUIT.\n');
+        return;
+    end
+
     disp(['set traj phase with iref: ', num2str(iref)]);
 
 	% dynamics of the system (Buck-Boost converter)

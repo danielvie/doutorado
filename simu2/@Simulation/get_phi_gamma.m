@@ -3,7 +3,7 @@ function [Phi, Gamma] = get_phi_gamma(self)
 
     Ts  = cfg.Ts;
     tr  = Ts(2:end);
-    xr  = Helpers.get_xr(self.config);
+    xr  = Utils.get_xr(self.config);
 
     [Phi, Gamma] = Mpc.construcao_modelo_instantes(cfg.A, cfg.b, tr, xr, cfg);   
     

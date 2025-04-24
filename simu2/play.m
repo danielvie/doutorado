@@ -1,20 +1,25 @@
 function play()
-    % setting simulation
-    s = Simulation();
-    success = s.set_config(Enums.SimName.LAB_CIRCUIT);
+    % play - Main function to run the simulation and analyze results.
+    %
+    % This function initializes a simulation object, configures its parameters,
+    % and runs the simulation with and without Model Predictive Control (MPC).
+    % It then processes and visualizes the results.
+    %
+    % Outputs:
+    % - None. The function modifies the workspace and generates plots.
 
-    % check if data is loaded
-    if (~success)
-        disp('ending simulation!!');
-        return
-    end
+
+    % creating simulation object
+    s = Simulation(Enums.SimName.PATINO_2);
     
-    %s.set_traj_phase_with_iref(0.07);
+    % compute trajectory with alpha
     s.set_traj_phase_with_alpha(0.5);
-    s.set_mpc();
     %s.set_alpha_and_mpc_cached(0.5);
 
-    % number of cycles
+    % set MPC parameters
+    s.set_mpc_with_np(5); 
+
+    % number of simulation cycles
     nsim = 100;
 
     % add error in IC
@@ -32,7 +37,7 @@ function play()
     disp(s.config.x0);
 
     % getting variables from simulation
-    vars = Helpers.getAllVars();
+    vars = Utils.getAllVars();
 
     % creating results object
     res = Results.Patino2(vars);

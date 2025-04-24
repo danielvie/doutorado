@@ -31,7 +31,7 @@ function message_handle_process(self, msg)
     time_us = self.simulation.signal_process(state);
     mode = self.simulation.get_mode();
 
-    command = Helpers.signal_create(time_us, mode);
+    command = Utils.signal_create(time_us, mode);
     
     if self.verbose
         disp('Sending command:');

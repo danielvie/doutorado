@@ -1,5 +1,26 @@
-function set_mpc(self)
-
+function set_mpc(self, Np)
+    % set_mpc - Configures the Model Predictive Control (MPC) parameters for the simulation.
+    %
+    % This function initializes the MPC optimization problem by computing the necessary
+    % matrices and constraints based on the system dynamics and switching constraints.
+    % It stores the resulting MPC configuration in the simulation object's configuration.
+    %
+    % Inputs:
+    %   self - Instance of the Simulation class.
+    %   Np   - Prediction horizon
+    %
+    % Outputs:
+    %   None. The function modifies the simulation object's configuration in place.
+    %
+    % Functionality:
+    % - Reads system configuration and dynamics matrices.
+    % - Computes MPC optimization matrices and constraints.
+    % - Creates an MPC configuration structure and updates the simulation object.
+    
+    if nargin < 2
+        Np = 5; % Default prediction horizon if not provided
+    end
+    
     % reading config values
     cfg = self.config;
 
@@ -10,7 +31,6 @@ function set_mpc(self)
     p  = N - 1;
     Q  = diag([1,1,1]); % FIXME: colocar numel generico
     R  = eye(p);
-    Np = 5; % numero de ciclos a frente
 
     % parametros das restricoes de chaveamento
     c = self.get_switching_constraints();
@@ -52,7 +72,7 @@ function set_mpc(self)
     % cfg.mpc          = mpc_opt;
     
     
-    mpc_opt.vars     = rmfield(Helpers.getAllVars(), 'mpc_opt');
+    mpc_opt.vars     = rmfield(Utils.getAllVars(), 'mpc_opt');
 
 
     % updating config values of object

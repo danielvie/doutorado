@@ -32,7 +32,7 @@ function project_with_alpha(self, alpha, folder, flag_save)
     
     % saving .fig and vars results as file in `transf/projection` with prefix `alpha_xx_...`
     if flag_save
-        vars = Helpers.getAllVars();
+        vars = Utils.getAllVars();
         name_fig = sprintf('alpha_%s.fig', name_alpha);
         name_vars = sprintf('alpha_%s_vars.mat', name_alpha);
     

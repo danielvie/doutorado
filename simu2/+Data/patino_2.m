@@ -33,7 +33,7 @@ function config = patino_2()
 	config.circuit_params.R  = 10.0; % Ω
 	
 	% computing dynamic matrix for buckboost
-	[A,b,C,D] = Helpers.compute_buckboost(config.circuit_params);
+	[A,b,C,D] = Utils.compute_buckboost(config.circuit_params);
 
 	config.A     = A;
 	config.b     = b;

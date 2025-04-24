@@ -7,6 +7,7 @@ classdef Simulation < handle
     
     methods(Hidden = true)
         set_traj_phase(self, params);
+        res = can_compute_phase(self);
     end
 
     methods
@@ -34,7 +35,8 @@ classdef Simulation < handle
 
         set_traj_phase_with_iref(self, iref);
         set_traj_phase_with_alpha(self, alpha);
-        set_mpc(self);
+        set_mpc(self, Np);
+        set_mpc_with_np(self, Np);
 
         set_alpha_and_mpc(self, alpha);
         set_alpha_and_mpc_cached(self, alpha);
@@ -58,7 +60,7 @@ classdef Simulation < handle
         project_with_alpha(self, alpha, folder, flag_save);
         
         % .. helpers
-        name(self);
+        name_out = name(self);
         [Phi, Gamma] = get_phi_gamma(self);
         c = get_switching_constraints(self);
         Ts_out  = quantizacao(self, Ts, type);

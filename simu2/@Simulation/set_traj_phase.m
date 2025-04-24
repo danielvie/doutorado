@@ -1,6 +1,28 @@
 function set_traj_phase(self, params)
+    % set_traj_phase - Set the trajectory phase for the simulation.
+    % 
+    % Syntax: set_traj_phase(self, params)
+    %
+    % Inputs:
+    %   self - Instance of the Simulation class.
+    %   params - Structure containing the following fields:
+    %       alpha - Alpha value for the simulation.
+    %       n - Number of switching cells.
+    %       T - Period of the complete cycle.
+    %       iMax - Maximum current (optional).
+    %       iLref - Reference inductor current (optional).
+    %       E - Voltage (optional).
+    %       R - Resistance (optional).
+    %
+    % Outputs:
+    %   None. The function modifies the simulation object in place.
+    
+    if ~self.can_compute_phase()
+        fprintf(2, 'CANNOT COMPUTE PHASE. EXPECTED PATINO_2 OR LAB_CIRCUIT.\n');
+        return;
+    end
 
-    [Omega,dT] = Helpers.industrial_solution(params.alpha, params.n, params.T);
+    [Omega,dT] = Utils.industrial_solution(params.alpha, params.n, params.T);
 
     % removendo elementos com dT muito pequeno (< 1e-16)
     EPS = 1e-16;
@@ -16,8 +38,8 @@ function set_traj_phase(self, params)
 
     % updating config values
     self.config.Omega = Omega;
-    self.config.Ts = Helpers.get_ts(dT);
-    self.config.x0 = Helpers.get_x0(self.config);
+    self.config.Ts = Utils.get_ts(dT);
+    self.config.x0 = Utils.get_x0(self.config);
     
     % printing result
     time_us = self.config.Ts*1e6;

@@ -1,12 +1,31 @@
-% aula 8
-
-% a projecao pode ser realizada empregando a funcao 'projection' do MPT Toolbox
-% {aula8, slide 33}
-
-% sendo Sf, bf obtidos na caracterizacao de O_inf com os valores de equilibrio xbar, ubar considerados
-% {aula8, slide 10}
-
 function var_out = create_projection(config)
+    % create_projection - Compute the feasibility region of the system.
+    % 
+    % Note: This function uses the package +Projecao to calculate the feasibility
+    %       region and employs the MPT Toolbox for projection operations.
+    % 
+    % Syntax: var_out = create_projection(config)
+    %
+    % Inputs:
+    %   config - A structure containing the following fields:
+    %       A, B       - System dynamic matrices.
+    %       Q, R       - Weighting matrices for the DLQR controller.
+    %       Sx, bx     - State constraints (Sx * x <= bx).
+    %       Su, bu     - Input constraints (Su * u <= bu).
+    %       xbar, ubar - Equilibrium state and input.
+    %       N          - Prediction horizon (default: 10).
+    %
+    % Outputs:
+    %   var_out - A structure containing all computed variables
+
+
+    % aula 8
+    
+    % a projecao pode ser realizada empregando a funcao 'projection' do MPT Toolbox
+    % {aula8, slide 33}
+    
+    % sendo Sf, bf obtidos na caracterizacao de O_inf com os valores de equilibrio xbar, ubar considerados
+    % {aula8, slide 10}
 
 
     %{
@@ -116,7 +135,7 @@ function var_out = create_projection(config)
     % P.D = D;
 
     % GETTING ALL VARIABLES AS REPONSE PARAMETER
-    var_out = Helpers.getAllVars();
+    var_out = Utils.getAllVars();
     % varnames = who;
     % var_out  = struct();
     % for i = 1:numel(varnames)

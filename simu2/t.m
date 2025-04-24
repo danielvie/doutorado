@@ -9,7 +9,7 @@ time_us_dt_rounded = arrayfun(@round, time_us_dt);
 time_us_constructed = construct_signal(time_us_dt_rounded);
 compare_time(time_us, time_us_constructed);
 
-time_us_dt_new = Helpers.compute_dt_time_signal(time_us);
+time_us_dt_new = Utils.compute_dt_time_signal(time_us);
 
 time_us_constructed_new = construct_signal(time_us_dt_new);
 disp('New time vector:');

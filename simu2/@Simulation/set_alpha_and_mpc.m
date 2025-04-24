@@ -8,6 +8,6 @@ function set_alpha_and_mpc(self, alpha)
     disp(time_us);
     disp(mode);
     
-    Helpers.signal_create(time_us, mode)
+    Utils.signal_create(time_us, mode)
     
 end
