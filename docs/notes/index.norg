@@ -2,7 +2,7 @@
 
 * TODAY
 
-  # {@ Saturday 11 April 2026}
+  # {@ Wednesday 23 April 2025}
   - ( ) ?? criar o sinal na esp32 com o ciclo inteiro e usar o timer apenas para o periodo do ciclo??
   - ( ) enviar codigo de projecao para kawa
   - ( ) procurar alternativa para plotar regiao de atracao??
@@ -33,6 +33,9 @@
 
 * LTP Missouri
   {:ltp_missouri:}
+
+* APARTAMENTO
+  {:busca_apartamento:}
 
 * NOTES
 

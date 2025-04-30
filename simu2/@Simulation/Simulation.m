@@ -41,7 +41,7 @@ classdef Simulation < handle
         set_mpc_with_np(self, Np);
 
         set_alpha_and_mpc(self, alpha);
-        set_alpha_and_mpc_cached(self, alpha);
+        set_alpha_and_mpc_cached(self, alpha, Np);
         save_set_alpha_cache(self);
 
         % .. simulation
