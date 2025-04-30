@@ -7,7 +7,7 @@ function [Aa, Ba] = construcao_modelo_aumentado(Phi, Gamma, Nd)
     % Inputs:
     %   Phi - Matrix of propagation dynamics
     %   Gamma - Matrix of propagation control
-    %   Nd - Number of blocks repeated 
+    %   Nd - Number of delays in the block (repeated control)
     %
     % Outputs:
     %   Aa - Matrix of propagation dynamics (block)
@@ -48,6 +48,17 @@ function [Aa, Ba] = construcao_modelo_aumentado(Phi, Gamma, Nd)
     % Phi [3x3]
     % Gamma [3x5]
     % deltat [5x1]
+    %
+    % Xa[k'+1] = Aa X[k'] + Bb z[k']
+    %
+    % k' = unit blocks of Nd
+    % z[k'] = u[k'+1] => u[k'] = z[k'-1]
+    % Xa[k'] = [X[k'];z[k'-1]]
+    % 
+    % Aa = [Ab, Bb; 
+    %        0,  0]
+    % Ba = [0; 
+    %       1]
 
     Aa = [Ab, Bb
         zeros(1, size(Ab, 2)), zeros(1, size(Bb, 2))];

@@ -45,4 +45,4 @@ Aa = [Ab, Bb
 Ba = [zeros(1, size(Gamma, 2)); ones(1, size(Gamma, 2))];
 
 
-[a_, b_] = Mpc.construcao_modelo_aumentado(Phi, Gamma, Nd)
+[a_, b_] = Mpc.construcao_modelo_aumentado(Phi, Gamma, Nd);
