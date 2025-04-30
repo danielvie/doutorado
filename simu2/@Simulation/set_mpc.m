@@ -54,6 +54,8 @@ function set_mpc(self, Np, Nd)
     % ]; % dimensao: Nx1
 
     [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,~] = ...
+    Mpc.matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c);
+
     Mpc.matrizes_ss_mpc_dualmode_switching(Aa,Ba,Q,R,Np,c);
 
     % criando estrutura com dados MPC
