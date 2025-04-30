@@ -1,11 +1,11 @@
 function set_alpha_and_mpc_cached(self, alpha)
-    if isempty(self.set_alpha_cache)
+    if isempty(self.m_set_alpha_cache)
         try
             % cache_ = load('set_alpha_cache.mat', 'set_alpha_cache');
-            self.set_alpha_cache = cache_.set_alpha_cache;
+            self.m_set_alpha_cache = cache_.set_alpha_cache;
         catch e
             disp(e);
-            self.set_alpha_cache = containers.Map('KeyType', 'char', 'ValueType', 'any');
+            self.m_set_alpha_cache = containers.Map('KeyType', 'char', 'ValueType', 'any');
         end
     end
     
@@ -13,16 +13,16 @@ function set_alpha_and_mpc_cached(self, alpha)
     key = string(self.config.sim_name)+'_'+string(alpha);
 
     % check if key exists in cache
-    if isKey(self.set_alpha_cache, key)
-        cached_data = self.set_alpha_cache(key);
+    if isKey(self.m_set_alpha_cache, key)
+        cached_data = self.m_set_alpha_cache(key);
 
         self.config = cached_data.config;
-        self.mpc = cached_data.mpc;
+        % self.config.mpc = cached_data.mpc;
     else 
         self.set_traj_phase_with_alpha(alpha);
         self.set_mpc();
         
-        self.set_alpha_cache(key) = struct('config', self.config);
+        self.m_set_alpha_cache(key) = struct('config', self.config);
         % self.save_set_alpha_cache();
     end
     

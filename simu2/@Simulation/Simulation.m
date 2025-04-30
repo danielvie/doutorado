@@ -1,7 +1,7 @@
 classdef Simulation < handle
     properties
         config;
-        set_alpha_cache;
+        m_set_alpha_cache;
         log;
     end
     
