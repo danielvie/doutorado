@@ -43,3 +43,6 @@ Aa = [Ab, Bb
       zeros(1, size(Ab, 2)), zeros(1, size(Bb, 2))];
       
 Ba = [zeros(1, size(Gamma, 2)); ones(1, size(Gamma, 2))];
+
+
+[a_, b_] = Mpc.construcao_modelo_aumentado(Phi, Gamma, Nd)
