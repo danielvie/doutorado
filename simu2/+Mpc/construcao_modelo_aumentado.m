@@ -56,13 +56,23 @@ function [Aa, Ba] = construcao_modelo_aumentado(Phi, Gamma, Nd)
     % Xa[k'] = [X[k'];z[k'-1]]
     % 
     % Aa = [Ab, Bb; 
-    %        0,  0]
+    %       za, zb]
     % Ba = [0; 
     %       1]
+    %
+    % Ab [na,ma]
+    % Bb [nb,mb]
+    % za [na,ma]
+    % zb [na,mb]
+
+    [~,ma] = size(Ab);
+    [~,mb] = size(Bb);
+    za = zeros(mb,ma);
+    zb = zeros(mb,mb);
 
     Aa = [Ab, Bb
-        zeros(1, size(Ab, 2)), zeros(1, size(Bb, 2))];
+          za, zb];
         
-    Ba = [zeros(1, size(Gamma, 2)); ones(1, size(Gamma, 2))];
-
+    Ba = [zeros(ma, mb); ones(mb, mb)];
+    bla = 1;
 end

@@ -79,9 +79,7 @@ function set_mpc(self, Np, Nd)
     mpc_opt.options  = optimoptions('quadprog', 'Algorithm', 'active-set');
     % cfg.mpc          = mpc_opt;
     
-    
     mpc_opt.vars     = rmfield(Utils.getAllVars(), 'mpc_opt');
-
 
     % updating config values of object
     self.config.mpc = mpc_opt;
