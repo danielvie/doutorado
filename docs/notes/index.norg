@@ -32,7 +32,7 @@
   - (x) calcular o tempo de um ciclo matlab
 
 * LTP Missouri
-  {:ltp_missouri:}
+  {:ltp_missouri/ltp_missouri:}
 
 * APARTAMENTO
   {:busca_apartamento:}

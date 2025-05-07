@@ -1,0 +1,160 @@
+* group notes
+  {C:/Users/daniel/Pictures/LTP/Missouri/final_presentation}
+
+** Group 1
+
+*** 1. Conceptual Design
+
+    - Clear need statement and nice design support when describing the problem
+    - Clear inputs and outputs for the integration of their system
+    - The block diagram helped with the description of the functional architecture
+
+*** 2. Requirements
+    - nice seeing some requirements that we did not catch. Like the maximum volume for the system and the maximum acceleration supported by the system
+
+
+*** 3. Analysis of Alternatives
+
+*** 4. Functional Analysis
+    - I liked the format of the functions where the diagram embeds also some "how" context in them
+
+*** 5. System Physical Architecture
+
+
+*** 6. Risk Assessment
+    - I liked how they explained on the first slide that the risks were stated as:
+      IF an condition THEN outcome
+      This showed effort for the communication to be clear
+
+    - Liked the analysis of a component supplier ends production. We did not catch that
+
+*** 7. Cost and Schedule
+    - For the schedule, I though that maybe it was too dependent on the last step (slide 38). 
+      Maybe the testing phase could be anticipated using virtual systems and simulation while the prototype is not ready.
+
+*** 8. Professional Appearance
+    - Overall, nice professional appearance. I liked how all of the Group 1 did the presentation with the camera on. 
+      This gave a bit more of human touch to the presentation.
+
+
+** Group 2
+
+*** 1. Conceptual Design
+    - I liked the structure and how the problem is posed and overall problem statement with what we wanted to do
+
+*** 2. Requirements
+    - I feel like the requirements cover the product well, but seeing the other groups i feel like we missed requirements on
+      the product body (size and weight)
+
+*** 3. Analysis of Alternatives
+    - Missed some visual aid to the alternatives, but feel like it covers the message
+
+*** 4. Functional Analysis
+    - Similar to group 3, i think that a table transmits the message well 
+
+*** 5. System Physical Architecture
+    - Seeing the other groups i feel like this part could be explorer a bit more
+
+*** 6. Risk Assessment
+    - It aligns with group 1 on putting emphases on the statement format, I like how this helps with the understanding of the
+      message
+
+*** 7. Cost and Schedule
+    - Good use of the parallel tasks to not waste time
+
+*** 8. Professional Appearance
+    - I liked how the group put the topics together but I felt like the presentation was not very uniform on style.
+      Group 1 was a good example of how a uniform presentation format can help with the Professional Appearance of the 
+      project.
+
+
+** Group 3
+
+*** 1. Conceptual Design
+    - difficult to follow the Need Statement, too many words and little visual.
+
+*** 2. Requirements
+    - good catch on the requirements for cyber security.
+
+*** 3. Analysis of Alternatives
+    - Nice criteria for scoring the alternatives
+
+*** 4. Functional Analysis
+    - Liked how the decomposition was done (slide 7) by deriving from the main function.
+
+*** 5. System Physical Architecture
+    - Similar comment as `item 4`, liked the way the decomposition (slide 9) was done.
+
+*** 6. Risk Assessment
+    - Nice (and very contemporary) to cover the strike on the manufacturing facility
+
+*** 7. Cost and Schedule
+    - I liked how the costs were aligned with ours, (around $40 mi)
+    And nice details (slide 15) on the costs allocated for the project
+
+    - The Schedule was taking advantage of parallel tasks
+
+*** 8. Professional Appearance
+    - The presentation was a bit too full with words and difficult to follow the slide data. 
+      I find the approach of the Group 1 to be more appropriate for the density of information packed on the presentations.
+    - Did not like how the cameras were off during the presentation.
+
+
+
+
+** notes for my presentation
+
+   ilities
+
+   new requirements:
+   with the ilities analysis we looked at the relationship they have with 
+   each other, manufacturability and supportability touches 
+
+   - use standardized manufacturing processes
+   - achieving a minimum 95% pass rate
+
+   - design for integration using existing aircraft mounting and power 
+     interface
+   - not exceed 4 hours
+
+   - designed and prototyped by January 2028
+   - withing 40 million dollars
+
+   - the BIT shall return result with 10 seconds
+
+   - GPS Spoof Detection System shall have an orange light for
+     warning
+
+   - shall keep the red light switched off on failure from 
+     BIT
+
+   - The project shall receive a regulatory agreement with FAA
+     prior to the beginning of the test campaigns
+
+   - weekly health checks and monthly preventive maintenance
+
+   - maintaining the System shall be about 1 million dollars
+
+
+* risk
+  - #1: if no FAA liberation, then no test and development will be 
+    halted
+    Criticality: 5
+    Likelihood: 5
+
+  - #2: If power consumption exceeds the limits, then the system 
+    does not integrate
+    Criticality: 5
+    Likelihood: 1
+
+  - #3: if integration takes longer than anticipated, then the 
+    timeline will be delayed
+    Criticality: 3
+    Likelihood: 5
+
+  - #4: If the cost exceeds 40 million dollars, then the project
+    will be over budget
+    timeline will be delayed
+    Criticality: 2
+    Likelihood: 4
+
