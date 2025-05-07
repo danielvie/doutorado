@@ -74,5 +74,4 @@ function [Aa, Ba] = construcao_modelo_aumentado(Phi, Gamma, Nd)
           za, zb];
         
     Ba = [zeros(ma, mb); ones(mb, mb)];
-    bla = 1;
 end

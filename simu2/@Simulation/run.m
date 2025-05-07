@@ -27,14 +27,21 @@ function [y,t,m,dtk_out] = run(self, nsim)
     end
     
     numelx0 = numel(x0);
+    dtk_prev = zeros([numel(cfg.Omega)-1, 1]);
     for i = 1:nsim
         dtk = zeros([numel(cfg.Omega)-1, 1]);
         if mpc_on
             % computing `ek`
-            ek  = reshape(x0, [numelx0,1]) - reshape(cfg.mpc.x_target, [numelx0,1]);
+            ek  = reshape(x0, [numelx0, 1]) - reshape(cfg.mpc.x_target, [numelx0, 1]);
+
+            % computing augmented `ek_aug`
+            ek_aug = [ek; dtk_prev];
 
             % computing control `dtk`
-            [dtk, ~, exitflag] = Mpc.dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
+            [dtk, ~, exitflag] = Mpc.dualmode_switching(ek_aug,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
+            
+            % updating dtk_prev
+            dtk_prev = dtk;
 
             % ignore control if problem not possible
             %  exitflag:

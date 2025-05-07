@@ -35,7 +35,7 @@ function set_mpc(self, Np, Nd)
     N  = numel(cfg.Omega);
 
     p  = N - 1;
-    Q  = diag([1,1,1]); % FIXME: colocar numel generico
+    Q  = eye(size(Aa, 2)); % FIXME: colocar numel generico
     R  = eye(p);
 
     % parametros das restricoes de chaveamento
@@ -53,9 +53,10 @@ function set_mpc(self, Np, Nd)
     %     -dtr(9) + t_min;
     % ]; % dimensao: Nx1
 
+    % [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,~] = ...
+    % Mpc.matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c);
+    
     [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,~] = ...
-    Mpc.matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c);
-
     Mpc.matrizes_ss_mpc_dualmode_switching(Aa,Ba,Q,R,Np,c);
 
     % criando estrutura com dados MPC
