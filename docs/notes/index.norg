@@ -31,6 +31,9 @@
   - (x) fechar malha para receber o sinal via bluetooth e calcular sinal da onda
   - (x) calcular o tempo de um ciclo matlab
 
+* Financas
+  {:financas/auvp:}
+
 * LTP Missouri
   {:ltp_missouri/ltp_missouri:}
 

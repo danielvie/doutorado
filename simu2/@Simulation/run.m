@@ -71,8 +71,8 @@ function [y,t,m,dtk_out] = run(self, nsim)
             end
 
             ts_us = Ts*1e6;
-            bla = self.signal_process(x0);
-            ble = 1;
+            % bla = self.signal_process(x0);
+            % ble = 1;
             
 
             % compessating negative time values (when control is too much)
