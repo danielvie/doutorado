@@ -22,7 +22,7 @@ function set_mpc(self, Np, Nd)
     end
 
     if nargin < 3
-        Nd = 1; % Default repeated controls if not provided
+        Nd = 25; % Default repeated controls if not provided
     end
     
     % reading config values

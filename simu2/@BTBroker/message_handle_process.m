@@ -7,15 +7,21 @@ function message_handle_process(self, msg)
         value = str2double(tokens{i}{2});
         parsed_data.(key) = value;
     end
+
+    if ~isfield(parsed_data, 'an6')
+        % if parse is not successfull, then return
+        return
+    end
+
     
     if self.verbose
         disp('Parsed data:');
         disp(parsed_data);
     end
     
-     % v_c1 -> a5
-     % v_c2 -> a6
-     % v_i  -> a3
+    % v_c1 -> a5
+    % v_c2 -> a6
+    % v_i  -> a3
 
     v_c2 = parsed_data.an6;
     v_c1 = parsed_data.an5;

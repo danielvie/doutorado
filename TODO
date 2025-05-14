@@ -1,7 +1,16 @@
 
+canal 1 3v
+canal 2 15v
+
     # {@ Wednesday 14 May 2025}*:
+        ☐ acertar simulacao para segurar controle no tempo do estado aumentado
+        ☐ criar procedimento de teste para o broker
+        ☐ ver referencias para artigo do circuito
+            como fizeram com o circuito que usaram?
+        ☐ desacoplar set_mpc, ou talvez combinaca com uma estrutura de entrada
         ☐ criar logica na ESP32 para esperar por N periodos
         ☐ implementar propagacao Block em `run`
+        ☐ mudar chaveamento para ciclo inteiro?
         ☐ implementar propagacao Block em `signal_process` 
         ☐ pedir VPN
         ☐ instalar Mathematica

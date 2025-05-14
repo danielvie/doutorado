@@ -52,14 +52,14 @@ classdef BTBroker < handle
         set_simulation(self);
 
         % .. automation
-        start(self);
-        stop(self);
+        start(self); % self.message("START");
+        stop(self); % self.message("STOP");
 
         % .. aliases
-        s(self, alpha); % simulation.set_alpha_and_mpc_cached(alpha)
-        sa(self, alpha); % start()
-        so(self, alpha); % stop()
-        x(self); % stop()
+        s(self, alpha); % self.simulation.set_alpha_and_mpc_cached(alpha)
+        sa(self, alpha); % self.start()
+        so(self, alpha); % self.stop()
+        x(self); % self.stop()
         
     end
 end

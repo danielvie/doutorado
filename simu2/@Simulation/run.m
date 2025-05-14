@@ -109,6 +109,11 @@ function [y,t,m,dtk_out] = run(self, nsim)
 
             self.log.run.time_qp = [self.log.run.time_qp; time_qp];
 
+            self.log.run.time_qp = [self.log.run.time_qp; time_qp];
+
+
+            self.log.signal.dtk = [self.log.signal.dtk; dtk'];
+            self.log.signal.dtk_prev = [self.log.signal.dtk_prev; dtk_prev'];
 
         end
         

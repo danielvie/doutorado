@@ -33,7 +33,10 @@ command = Utils.signal_create( ...
 fprintf("command: %s\n", command)
 b.message(command);
 
-b.message_cmd_cycles_nrun('1');
+
+b.set_verbose(false);
+
+b.message_cmd_cycles_nrun(25);
 b.message_cmd_start();
 
 disp(s)
@@ -41,3 +44,14 @@ disp(s)
 %b.message("START");
 
 
+% how to test
+% 1. run this to connect with the device
+% 2. change the setpoint of the device
+%     >> b.s(0.7)
+
+% broker commands:
+%  s(self, alpha); % simulation.set_alpha_and_mpc_cached(alpha)
+%  sa(self, alpha); % start()
+%  so(self, alpha); % stop()
+%  x(self); % stop()
+%  set_verbose(self, value); % Set the verbosity level of the BTBroker. (default: false)

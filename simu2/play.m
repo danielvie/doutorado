@@ -24,7 +24,7 @@ function play()
 
     % add error in IC
     % s.config.x0 = s.config.x0 + [0.1; 0.1; 0.1];
-    s.set_offset([0.4, 0.2, 0.1]);
+    s.set_offset([0.8, 0.2, 0.1]);
 
     % running simulation
     s.config.mpc.on = true;
