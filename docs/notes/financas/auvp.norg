@@ -3,6 +3,7 @@
 ** sites
    {https://comunidade.auvp.com.br}
    {https://aulas.auvp.com.br}
+   {https://carteira.auvp.com.br}
 
 ** conta de investimento
    - (x) mandar email pra acessar com AUVP
@@ -12,4 +13,6 @@
 
 ** aulas
    {:auvp/modulo_01:}
+   {:auvp/modulo_02:}
+   {:auvp/modulo_03:}
 
