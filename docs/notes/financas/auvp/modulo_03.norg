@@ -19,4 +19,34 @@
     - B3 -> bolsa de valores brasileira
 
 
+*** aula 03 - Introducao ao tesouro direto
+    - calculadora IPCA:
+    {https://www.ibge.gov.br/explica/inflacao.php}
+
+    - qualquer pessoa pode investir no tesouro diredo 
+      basta ter um CPF e uma conta aberta em qualquer banco ou instituicao financeira
+
+    - antes eh importante entender inflacao
+
+    - "poder de compra"
+
+    - IPCA -> Indice de Precos ao Consumidor Amplo
+      seu objetivo eh medir a inflacao ou deflacao no Brasil
+
+    - Selic -> Sistema Especial de Liquidacao e de Custodia
+      taxa basica de juros da economia, que influencia outras taxas de juros do pais
+
+    - de onde vem a inflacao?
+      o dinheiro nao some da economia, com o tempo o valor do dinheiro eh ajustado pra 
+      refletir o estado das coisas que sao ofertadas no mercado
+
+    - Titulos Publicos do Tesouro Direto
+    -- Tesouro Selic
+       rende 100% da taxa Selic
+
+    -- Tesouro IPCA+
+       rende uma taxa fixa + inflacao do periodo
+
+    -- Tesouro Prefixado
+       rende uma taxa prefixada no momento da contratacao
 
