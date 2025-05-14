@@ -1,24 +1,30 @@
 
-  # {@ Wednesday 14 May 2025}*
+    # {@ Wednesday 14 May 2025}*
+    ☐ criar logica na ESP32 para esperar por N periodos
+    ☐ medir novo tempo de calculo Matlab
+    ☐ implementar propagacao Block em `run` e dm `signal_process` 
+    ☐ pedir VPN
+    ☐ instalar Mathematica
+    ☐ fazer projecao Mathematica
 
-  # {@ Wednesday 23 April 2025}
-  ☐ ?? criar o sinal na esp32 com o ciclo inteiro e usar o timer apenas para o periodo do ciclo??
-  ✔ enviar codigo de projecao para kawa @done(25-05-14 02:04)
-  ☐ procurar alternativa para plotar regiao de atracao??
+    # {@ Wednesday 23 April 2025}
+    ☐ ?? criar o sinal na esp32 com o ciclo inteiro e usar o timer apenas para o periodo do ciclo??
+    ✔ enviar codigo de projecao para kawa @done(25-05-14 02:04)
+    ☐ procurar alternativa para plotar regiao de atracao??
 
-  # {@ Friday 11 April 2025}
-  ☐ ajustar conversao do sinal para dt 
+    # {@ Friday 11 April 2025}
+    ☐ ajustar conversao do sinal para dt 
         sinal esta truncando os valores de dt e reduzindo a janela total!
         comecei a mexer nisso no `t.m`, mas a minha cabeca nao ta funcionando direito mais
-  ☐ calcular regiao de atracao para a simulacao do circuito
+    ☐ calcular regiao de atracao para a simulacao do circuito
 
-  # {@ Wednesday 2 April 2025}
-  ✔ simular a mudanca de referencia @done(25-05-14 02:02)
-  ✔ criar um sistema de log para comparar os resultados @done(25-05-14 02:04)
-  ✔ configurar manobra para a simulacao e o circuito @done(25-05-14 02:04)
+    # {@ Wednesday 2 April 2025}
+    ✔ simular a mudanca de referencia @done(25-05-14 02:02)
+    ✔ criar um sistema de log para comparar os resultados @done(25-05-14 02:04)
+    ✔ configurar manobra para a simulacao e o circuito @done(25-05-14 02:04)
 
-  # {@ Wednesday 26 March 2025} 
-  ✔ fazer o matlab mudar a referencia por alpha / iref @done(25-05-14 02:04)
-  ✔ tomar cuidado com a nova linearizacao @done(25-05-14 02:05)
-  ☐ tentar usar o qpoasis na ESP
-  ☐ documentar o codigo para artigo
+    # {@ Wednesday 26 March 2025} 
+    ✔ fazer o matlab mudar a referencia por alpha / iref @done(25-05-14 02:04)
+    ✔ tomar cuidado com a nova linearizacao @done(25-05-14 02:05)
+    ☐ tentar usar o qpoasis na ESP
+    ☐ documentar o codigo para artigo
