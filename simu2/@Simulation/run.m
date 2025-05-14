@@ -38,8 +38,10 @@ function [y,t,m,dtk_out] = run(self, nsim)
             ek_aug = [ek; dtk_prev];
 
             % computing control `dtk`
+            tic;
             [dtk, ~, exitflag] = Mpc.dualmode_switching(ek_aug,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
-            
+            time_qp = tic;
+
             % updating dtk_prev
             dtk_prev = dtk;
 
@@ -71,8 +73,8 @@ function [y,t,m,dtk_out] = run(self, nsim)
             end
 
             ts_us = Ts*1e6;
-            % bla = self.signal_process(x0);
-            % ble = 1;
+            bla = self.signal_process(x0);
+            ble = 1;
             
 
             % compessating negative time values (when control is too much)
@@ -87,6 +89,27 @@ function [y,t,m,dtk_out] = run(self, nsim)
     
             % updating time on local config variable
             cfg.Ts = Ts;
+
+
+            % LOGGING DATA
+            time_us = arrayfun(@round, diff(Ts*1e6));
+            
+            % add iteration
+            if isempty(self.log.run.iter)
+                self.log.run.iter = [self.log.run.iter; 1];
+            else
+                self.log.run.iter = [self.log.run.iter; self.log.run.iter(end)+1];
+            end
+
+            % log rest of data
+            self.log.run.exitflag = [self.log.run.exitflag; exitflag];
+            self.log.run.time_us = [self.log.run.time_us; time_us];
+            self.log.run.x0 = [self.log.run.x0; x0'];
+            self.log.run.x_target = [self.log.run.x_target; cfg.mpc.x_target'];
+
+            self.log.run.time_qp = [self.log.run.time_qp; time_qp];
+
+
         end
         
         % running 1 simulation cycle

@@ -1,5 +1,10 @@
 % [y,t,u] = sim_n(config, Ts)
 function time_us = signal_process(self, state)
+    persistent dtk_prev
+    if isempty(dtk_prev)
+        % creating zero vector with size of number of `u` commands
+        dtk_prev = zeros(self.config.mpc.p, 1);
+    end
 
     % reading config
     config = self.config;
@@ -27,12 +32,19 @@ function time_us = signal_process(self, state)
     % computing `ek`
     cfg.mpc.x_target = [1.38; 2.4; 0.05];
     ek = x0 - cfg.mpc.x_target;
-    %ek = [0.01;0;0];
+
+    % computing augmented `ek_aug`
+    ek_aug = [ek; dtk_prev];
 
     % computing control `dtk`
     tic;
-    [dtk, ~, exitflag] = Mpc.dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
+    [dtk, ~, exitflag] = Mpc.dualmode_switching(ek_aug,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
     time_qp = toc;
+    
+    % updating dtk_prev
+    dtk_prev = dtk;
+
+
     %self.quadprog_dtk = [self.quadprog_dtk;dtk';];
     
 
@@ -61,17 +73,20 @@ function time_us = signal_process(self, state)
     time_us = arrayfun(@round, diff(Ts*1e6));
     
     % add iteration
-    if isempty(self.log.iter)
-        self.log.iter = [self.log.iter; 1];
+    if isempty(self.log.signal.iter)
+        self.log.signal.iter = [self.log.signal.iter; 1];
     else
-        self.log.iter = [self.log.iter; self.log.iter(end)+1];
+        self.log.signal.iter = [self.log.signal.iter; self.log.signal.iter(end)+1];
     end
 
     % log rest of data
-    self.log.exitflag = [self.log.exitflag; exitflag];
-    self.log.time_us = [self.log.time_us; time_us];
-    self.log.x0 = [self.log.x0; x0'];
-    self.log.x_target = [self.log.x_target; cfg.mpc.x_target'];
+    self.log.signal.exitflag = [self.log.signal.exitflag; exitflag];
+    self.log.signal.time_us = [self.log.signal.time_us; time_us];
+    self.log.signal.x0 = [self.log.signal.x0; x0'];
+    self.log.signal.x_target = [self.log.signal.x_target; cfg.mpc.x_target'];
 
-    self.log.time_qp = [self.log.time_qp; time_qp];
+    self.log.signal.time_qp = [self.log.signal.time_qp; time_qp];
+
+    self.log.signal.dtk = [self.log.signal.dtk; dtk'];
+    self.log.signal.dtk_prev = [self.log.signal.dtk_prev; dtk_prev'];
 end

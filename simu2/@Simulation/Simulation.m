@@ -4,7 +4,7 @@ classdef Simulation < handle
         m_set_alpha_cache;
         log;
     end
-    
+
     methods(Hidden = true)
         set_traj_phase(self, params);
         res = can_compute_phase(self);
@@ -21,13 +21,18 @@ classdef Simulation < handle
             end
 
             % log structure
-            self.log = struct();
-            self.log.iter = [];
-            self.log.exitflag = [];
-            self.log.time_us = [];
-            self.log.x0 = [];
-            self.log.x_target = [];
-            self.log.time_qp = [];
+            log_struct = struct();
+            log_struct.iter = [];
+            log_struct.exitflag = [];
+            log_struct.time_us = [];
+            log_struct.x0 = [];
+            log_struct.x_target = [];
+            log_struct.time_qp = [];
+            log_struct.dtk = [];
+            log_struct.dtk_prev = [];
+            
+            self.log.run = log_struct;
+            self.log.signal = log_struct;
         end
 
         % .. setters
@@ -50,7 +55,7 @@ classdef Simulation < handle
         [y,t,m,xr] = sim_cycle2(self, config);
 
         time_us = signal_process(self, state);
-        
+
         % .. projection
         fig = project_feasibility_region(self);
 
@@ -60,13 +65,13 @@ classdef Simulation < handle
 
         % .. automation
         project_with_alpha(self, alpha, folder, flag_save);
-        
+
         % .. helpers
         name_out = name(self);
         [Phi, Gamma] = get_phi_gamma(self);
         c = get_switching_constraints(self);
         Ts_out  = quantizacao(self, Ts, type);
-        
+
         time_us = get_time_us(self);
         modes = get_mode(self);
     end
