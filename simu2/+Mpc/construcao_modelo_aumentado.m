@@ -13,8 +13,6 @@ function [Aa, Ba] = construcao_modelo_aumentado(Phi, Gamma, Nd)
     %   Aa - Matrix of propagation dynamics (block)
     %   Ba - Matrix of propagation control (block)
 
-
-
     % CONSTRUINDO MODELO EXTENDIDO
     % notes for LAB_CIRCUIT
     % e(tn) = Phi e(t0) + Gamma deltat
@@ -42,7 +40,6 @@ function [Aa, Ba] = construcao_modelo_aumentado(Phi, Gamma, Nd)
     for i = 2:numel(B_aux)
         Bb = Bb + B_aux{i}*Gamma;
     end
-
 
     % Calculando Matrix Extendida (Aa, Ba)
     % Phi [3x3]
