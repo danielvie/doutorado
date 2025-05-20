@@ -1,35 +1,27 @@
 \section{Augmented States}
 \label{section_augmented_states}
-Our hypothesis is that the control input will remain constant for $N_d$ consecutive cycles. To incorporate this into our system model, we will expand the prediction equation over these $N_d$ steps and then redefine the terms for simplification.
 
-Starting with the standard discrete-time linear prediction equation:
+Our hypothesis is that the control input will remain constant for $N_d$ consecutive cycles. To 
+incorporate this into our system model, we will expand the prediction equation over these $N_d$ 
+steps and then redefine the terms for simplification.
 
-\noindent
-\begin{equation}
-    e\big(t_N\big) = \Phi e\big(t_0\big) + \Gamma \delta t
-\end{equation}
-
-We can rename the matrices 
+Starting with the standard discrete-time linear prediction equation \refeq{cap3-dynamic-equation}:
 
 \noindent
 \begin{equation}
-    \begin{matrix}
-        A = \Phi & x[K] = x(t) \\
-        B = \Gamma & u[K] = \delta t
-    \end{matrix}
+    x[k + 1] = A x[k] + B u[k] \nonumber
 \end{equation}
 
-for simplification inside this scope and then
-iteratively expand this equation for several steps, assuming the control 
-input $u$ remains constant at $u\big[K\big]$ for the next $N_d - 1$ steps:
+We can iteratively expand this equation for several steps, assuming the control 
+input $u$ remains constant at $u\big[k\big]$ for the next $N_d - 1$ steps:
 
 \noindent
 \begin{align}
-    X\big[K+1\big] &= A x\big[K\big] + B u\big[K\big] \nonumber \\
-    X\big[K+2\big] &= A^2 x\big[K\big] + AB u\big[K\big] + B u\big[K\big] \nonumber \\
-    X\big[K+3\big] &= A^3 x\big[K\big] + A^2B u\big[K\big]+ AB u\big[K\big] + B u\big[K\big] \nonumber \\
+    x\big[k+1\big] &= A x\big[k\big] + B u\big[k\big] \nonumber \\
+    x\big[k+2\big] &= A^2 x\big[k\big] + AB u\big[k\big] + B u\big[k\big] \nonumber \\
+    x\big[k+3\big] &= A^3 x\big[k\big] + A^2B u\big[k\big]+ AB u\big[k\big] + B u\big[k\big] \nonumber \\
     &\vdots \nonumber \\
-    X\big[K+N_d\big] &= A^{N_d} x\big[K\big] + \big(A^{N_{d-1}} + A^{N_{d-2}} + \dots +  A^0 \big)Bu\big[K\big]
+    x\big[k+N_d\big] &= A^{N_d} x\big[k\big] + \big(A^{N_{d-1}} + A^{N_{d-2}} + \dots +  A^0 \big)Bu\big[k\big]
 \end{align}
 
 To simplify the notation, let's define new matrices $A_b$ and $B_b$ as:
@@ -40,61 +32,61 @@ To simplify the notation, let's define new matrices $A_b$ and $B_b$ as:
 \end{align}
 
 Furthermore, let's shift the time index by blocks of $N_d$ cycles. This implies the following relationship between 
-the original time index $K$ and the new time index $K'$:
+the original time index $k$ and the new time index $k'$:
 
 \noindent
 \begin{align*}
-    K' - 1 &= K - N_d \\
-    K' &= K \\
-    K' + 1 &= K + N_d \\
+    k' - 1 &= k - N_d \\
+    k' &= k \\
+    k' + 1 &= k + N_d \\
     &\vdots
 \end{align*}
 
-Considering this shift, a transition of one step in the new time index $K'$ corresponds to a transition of $N_d$ 
-steps in the original time index $K$. Therefore, the state at time $K'+1$ (which corresponds to $K+N_d$) can 
-be expressed based on the state and control at time $K'$ (which is the same as $K$).
+Considering this shift, a transition of one step in the new time index $k'$ corresponds to a transition of $N_d$ 
+steps in the original time index $k$. Therefore, the state at time $k'+1$ (which corresponds to $k+N_d$) can 
+be expressed based on the state and control at time $k'$ (which is the same as $k$).
 
 Let's consider the final prediction equation:
 \noindent
 \begin{equation}
-    x\big[K+N_d\big] = A_b x\big[K\big] + B_b u\big[K\big]
+    x\big[k+N_d\big] = A_b x\big[k\big] + B_b u\big[k\big]
 \end{equation}
-Using the new time index $K'$, this becomes:
+Using the new time index $k'$, this becomes:
 \noindent
 \begin{equation}
-    x\big[K'+1\big] = A_b x\big[K'\big] + B_b u\big[K'\big]
+    x\big[k'+1\big] = A_b x\big[k'\big] + B_b u\big[k'\big]
 \end{equation}
-Now, defining the augmented state vector $X_a\big[K'\big]$ as:
+Now, defining the augmented state vector $X_a\big[k'\big]$ as:
 \noindent
 \begin{equation}
-    X_a\big[K'\big] = 
+    X_a\big[k'\big] = 
     \begin{bmatrix}
-        x\big[K'\big] \\
-        z\big[K'-1\big]
+        x\big[k'\big] \\
+        z\big[k'-1\big]
     \end{bmatrix}
 \end{equation}
 with
 \noindent
 \begin{equation}
-    z\big[K'-1\big] = u\big[K'-1\big]
+    z\big[k'-1\big] = u\big[k'-1\big]
 \end{equation}
 we get to the augmented state transition equation:
 \noindent
 \begin{equation}
-    X_a \big[K'+1\big] = 
+    X_a \big[k'+1\big] = 
     \begin{bmatrix}
         A_b & B_b \\
         0 & 0
     \end{bmatrix}
-    X_a\big[K'\big]
+    X_a\big[k'\big]
     +
     \begin{bmatrix}
         0 \\
         1
     \end{bmatrix}
-    z\big[K'\big]
+    z\big[k'\big]
 \end{equation}
-where $z\big[K'\big] = u\big[K'\big]$.
+where $z\big[k'\big] = u\big[k'\big]$.
 
 We can replace the augmented state transition matrix
 
@@ -119,7 +111,7 @@ and the augmented input matrix
 resulting in 
 
 \begin{equation}
-    X_a \big[K'+1\big] = 
-    A_b X_a \big[K'\big] +
-    B_a z\big[K'\big]
+    X_a \big[k'+1\big] = 
+    A_b X_a \big[k'\big] +
+    B_a z\big[k'\big]
 \end{equation}
