@@ -50,3 +50,65 @@
     -- Tesouro Prefixado
        rende uma taxa prefixada no momento da contratacao
 
+*** aula 04 - Tesouro Selic
+    {C:/Users/daniel/Documents/DOUTORADO/docs/notes/financas/auvp/material_modulo_03/modulo_03_aula_04.png}
+    - como ver o valor da Selic hoje?
+      {https://bcb.gov.br}
+
+    - investimento POS-FIXADO
+      no momento do investimento, vc nao sabe qual sera a rentabilidade
+
+    - selic eh modificada diariamente
+
+    - banco teem que terminar o dia com mais depositos do que saques
+      caso tenha mais saque, ele tem que pegar um emprestimo com outro banco
+
+    - a taxa do emprestimo eh a taxa DI
+
+    - se vc retirar o valor investido antes de 30 dias, vc perde uma parte da rentabilidade
+      isso acontece por conta do IOF (Imposto sobre Operacoes Financeiras)
+
+    @table
+    | Prazo de investimento | Aliquota de IR |
+    | -                     | -              |
+    | ateh 180 dias         | 22.50%         |
+    | 181 a 360 dias        | 20.00%         |
+    | 361 a 720 dias        | 17.50%         |
+    | +720 dias             | 15.00%         |
+    @end
+
+    - pode vender a qualquer momento
+
+    - tesouro leva 1 dia pra ser executado
+
+
+*** aula 05 - Tesouro pre-fixado
+    {C:/Users/daniel/Documents/DOUTORADO/docs/notes/financas/auvp/material_modulo_03/modulo_03_aula_05.png}
+
+    - o titulo pre-fixado vai ter o valor final proximo de R$ 1000.00
+
+    - marcacao a mercado
+      ajuste do titulo quando a taxa selic muda e o valor do titulo eh alterado para garantir o 
+      valor final
+
+
+*** aula 06 - Tesouro IPCA+
+    {C:/Users/daniel/Documents/DOUTORADO/docs/notes/financas/auvp/material_modulo_03/modulo_03_aula_06.png}
+
+    - tesouro publico atrelado aa inflacao
+
+*** aula 07 - marcacao a mercado
+    {C:/Users/daniel/Documents/DOUTORADO/docs/notes/financas/auvp/material_modulo_03/modulo_03_aula_07.png}
+    {C:/Users/daniel/Documents/DOUTORADO/docs/notes/financas/auvp/material_modulo_03/modulo_03_aula_07_2.png}
+
+    {https://www.tesourodireto.com.br/titulos/tipos-de-tesouro.htm}
+
+*** aula 08 - juros semestrais
+    {C:/Users/daniel/Documents/DOUTORADO/docs/notes/financas/auvp/material_modulo_03/modulo_03_aula_08.png}
+
+*** aula 09 - tesouro educa+ / renda+
+    {C:/Users/daniel/Documents/DOUTORADO/docs/notes/financas/auvp/material_modulo_03/modulo_03_aula_09.png}
+
+    educa+ / renda+
+    - oferece uma calculadora pra receber o dinheiro do planejamento
+
