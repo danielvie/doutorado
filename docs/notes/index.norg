@@ -2,6 +2,10 @@
 
 * TODAY
 
+  # {@ Tuesday 20 May 2025}*:
+  - ( ) ver referencias para artigo do circuito; como fizeram com o circuito que usaram?
+        {:doutorado_pesquisa_circuito_nos_artigos:}
+
   # {@ Wednesday 14 May 2025}*:
   - ( ) criar logica na ESP32 para esperar por N periodos
   - (x) implementar propagacao Block em `run`
