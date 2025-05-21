@@ -26,6 +26,10 @@ function [y,t,m,dtk_out] = run(self, nsim)
         end
     end
     
+    % FIXME: change Nd so it is defined in the proper data flow
+    Nd = 5;
+    Nd_counter = 1;
+    
     numelx0 = numel(x0);
     dtk_prev = zeros([numel(cfg.Omega)-1, 1]);
     for i = 1:nsim
@@ -39,7 +43,16 @@ function [y,t,m,dtk_out] = run(self, nsim)
 
             % computing control `dtk`
             tic;
-            [dtk, ~, exitflag] = Mpc.dualmode_switching(ek_aug,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
+
+            Nd_counter = Nd_counter + 1;
+            if (Nd_counter >= Nd)
+                [dtk, ~, exitflag] = Mpc.dualmode_switching(ek_aug,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
+                Nd_counter = 1;
+            else
+                dtk = dtk_prev;
+                exitflag = 44; % flag that the value is not computed
+            end
+
             time_qp = tic;
 
             % updating dtk_prev
@@ -51,7 +64,8 @@ function [y,t,m,dtk_out] = run(self, nsim)
             %    0: number of iterations exceeded MaxIterations
             %   -2: problem is infeasible
             %   -3: problem is unbounded
-            if exitflag ~= 1
+            %   44: using previous dtk to emulate the time to respond from esp32
+            if exitflag ~= 1 && exitflag ~= 44
                 dtk = dtk*0;
             else
                 bla = 1;
@@ -108,12 +122,11 @@ function [y,t,m,dtk_out] = run(self, nsim)
             self.log.run.x_target = [self.log.run.x_target; cfg.mpc.x_target'];
 
             self.log.run.time_qp = [self.log.run.time_qp; time_qp];
-
             self.log.run.time_qp = [self.log.run.time_qp; time_qp];
 
 
-            self.log.signal.dtk = [self.log.signal.dtk; dtk'];
-            self.log.signal.dtk_prev = [self.log.signal.dtk_prev; dtk_prev'];
+            self.log.run.dtk = [self.log.run.dtk; dtk'];
+            self.log.run.dtk_prev = [self.log.run.dtk_prev; dtk_prev'];
 
         end
         
@@ -130,9 +143,10 @@ function [y,t,m,dtk_out] = run(self, nsim)
         dtk_out = [dtk_out, dtk];
 
         % updating values for next cycle
-        cfg.x0 = y_(end,:)';
         t0  = t_(end) + t0;
+        cfg.x0 = y_(end,:)';
         x0  = cfg.x0;
+        
 
     end
 end
