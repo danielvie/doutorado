@@ -27,7 +27,7 @@ function [y,t,m,dtk_out] = run(self, nsim)
     end
     
     % FIXME: change Nd so it is defined in the proper data flow
-    Nd = 5;
+    Nd = 1;
     Nd_counter = 1;
     
     numelx0 = numel(x0);
@@ -46,7 +46,7 @@ function [y,t,m,dtk_out] = run(self, nsim)
 
             Nd_counter = Nd_counter + 1;
             if (Nd_counter >= Nd)
-                [dtk, ~, exitflag] = Mpc.dualmode_switching(ek_aug,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
+                [dtk, ~, exitflag] = Mpc.dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
                 Nd_counter = 1;
             else
                 dtk = dtk_prev;
@@ -67,8 +67,6 @@ function [y,t,m,dtk_out] = run(self, nsim)
             %   44: using previous dtk to emulate the time to respond from esp32
             if exitflag ~= 1 && exitflag ~= 44
                 dtk = dtk*0;
-            else
-                bla = 1;
             end
 
             % reading nominal time values
@@ -87,7 +85,7 @@ function [y,t,m,dtk_out] = run(self, nsim)
             end
 
             ts_us = Ts*1e6;
-            bla = self.signal_process(x0);
+            % bla = self.signal_process(x0);
             ble = 1;
             
 

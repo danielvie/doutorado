@@ -22,7 +22,7 @@ function set_mpc(self, Np, Nd)
     end
 
     if nargin < 3
-        Nd = 5; % Default repeated controls if not provided
+        Nd = 1; % Default repeated controls if not provided
     end
     
     % reading config values
@@ -35,7 +35,7 @@ function set_mpc(self, Np, Nd)
     N  = numel(cfg.Omega);
 
     p  = N - 1;
-    Q  = eye(size(Aa, 2)); % FIXME: colocar numel generico
+    Q  = eye(size(Phi, 2)); % FIXME: colocar numel generico
     R  = eye(p);
 
     % parametros das restricoes de chaveamento
@@ -55,10 +55,8 @@ function set_mpc(self, Np, Nd)
 
     % [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,~] = ...
     % Mpc.matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c);
-    disp('antes');
     [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,~] = ...
-    Mpc.matrizes_ss_mpc_dualmode_switching(Aa,Ba,Q,R,Np,c);
-    disp('depois');
+    Mpc.matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c);
     % criando estrutura com dados MPC
     mpc_opt          = struct();
     mpc_opt.on       = true;
