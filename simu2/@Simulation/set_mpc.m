@@ -1,4 +1,4 @@
-function set_mpc(self, Np, Nd)
+function set_mpc(self, mpc_config)
     % set_mpc - Configures the Model Predictive Control (MPC) parameters for the simulation.
     %
     % This function initializes the MPC optimization problem by computing the necessary
@@ -17,19 +17,17 @@ function set_mpc(self, Np, Nd)
     % - Computes MPC optimization matrices and constraints.
     % - Creates an MPC configuration structure and updates the simulation object.
     
-    if nargin < 2
-        Np = 5; % Default prediction horizon if not provided
+    if nargin == 1
+        mpc_config = self.get_mpc_config();
     end
 
-    if nargin < 3
-        Nd = 1; % Default repeated controls if not provided
-    end
+    Np = mpc_config.Np; % Default prediction horizon if not provided
+    Nd = mpc_config.Nd; % Default repeated controls if not provided
     
     % reading config values
     cfg = self.config;
 
     [Phi, Gamma] = self.get_phi_gamma();
-    
     [Aa, Ba] = Mpc.construcao_modelo_aumentado(Phi, Gamma, Nd);
 
     N  = numel(cfg.Omega);

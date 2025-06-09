@@ -17,14 +17,17 @@ function play()
     s.set_alpha_and_mpc_cached(0.5);
 
     % set MPC parameters
-    s.set_mpc_with_np(15); 
+    mpc_config = s.get_mpc_config();
+    mpc_config.Nd = 15;
+    mpc_config.Np = 30;
+    s.set_mpc(mpc_config); 
 
     % number of simulation cycles
-    nsim = 100;
+    nsim = 1000;
 
     % add error in IC
-    % s.config.x0 = s.config.x0 + [0.1; 0.1; 0.1];
-    s.set_offset([0.9, 0.2, 0.1]);
+    s.config.x0 = s.config.x0 + [0.5; 0.1; 0.1];
+    % s.set_offset([0.6, 0.2, 0.1]);
 
     % running simulation
     s.config.mpc.on = true;
