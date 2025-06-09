@@ -13,20 +13,20 @@ function play()
     s = Simulation(Enums.SimName.LAB_CIRCUIT);
     
     % compute trajectory with alpha
-    %s.set_traj_phase_with_alpha(0.5);
-    s.set_alpha_and_mpc_cached(0.5);
+    s.set_traj_phase_with_alpha(0.5);
+    % s.set_alpha_and_mpc_cached(0.5);
 
     % set MPC parameters
     mpc_config = s.get_mpc_config();
-    mpc_config.Nd = 15;
-    mpc_config.Np = 30;
+    mpc_config.Nd = 2;
+    mpc_config.Np = 20;
     s.set_mpc(mpc_config); 
 
     % number of simulation cycles
     nsim = 1000;
 
     % add error in IC
-    s.config.x0 = s.config.x0 + [0.5; 0.1; 0.1];
+    s.config.x0 = s.config.x0 + [0.4; 0.1; 0.1];
     % s.set_offset([0.6, 0.2, 0.1]);
 
     % running simulation

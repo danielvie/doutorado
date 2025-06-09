@@ -24,22 +24,18 @@ function [Aa, Ba] = construcao_modelo_aumentado(Phi, Gamma, Nd)
 
     % Calculando A,B block
     % Ab = A^Nd
-    Ab = eye(size(Phi));
-    for i = 1:Nd
-        Ab = Ab*Phi;
-    end
+    Ab = mpower(Phi, Nd);
 
     % Bb = (A^(Nd-1) + A^(Nd-1) + ... + A^0)B
-    B_aux = cell([1, Nd]);
-    B_aux{1} = eye(size(Phi));
+    %
+    % (A^(Nd-1) + A^(Nd-1) + ... + A^0)
+    A_i = mpower(Phi, 0);
     for i = 1:Nd-1
-        B_aux{i+1} = Phi*B_aux{i};
+        A_i = A_i + mpower(Phi, i);
     end
-
-    Bb = B_aux{1}*Gamma;
-    for i = 2:numel(B_aux)
-        Bb = Bb + B_aux{i}*Gamma;
-    end
+    
+    % (A^(Nd-1) + A^(Nd-1) + ... + A^0)B
+    Bb = A_i*Gamma;
 
     % Calculando Matrix Extendida (Aa, Ba)
     % Phi [3x3]

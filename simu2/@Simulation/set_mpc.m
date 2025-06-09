@@ -17,7 +17,7 @@ function set_mpc(self, mpc_config)
     % - Computes MPC optimization matrices and constraints.
     % - Creates an MPC configuration structure and updates the simulation object.
     
-    if nargin == 1
+    if nargin == 1        
         mpc_config = self.get_mpc_config();
     end
 
