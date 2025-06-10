@@ -73,20 +73,20 @@ function time_us = signal_process(self, state)
     time_us = arrayfun(@round, diff(Ts*1e6));
     
     % add iteration
-    if isempty(self.log.signal.iter)
-        self.log.signal.iter = [self.log.signal.iter; 1];
+    if isempty(self.m_log.signal.iter)
+        self.m_log.signal.iter = [self.m_log.signal.iter; 1];
     else
-        self.log.signal.iter = [self.log.signal.iter; self.log.signal.iter(end)+1];
+        self.m_log.signal.iter = [self.m_log.signal.iter; self.m_log.signal.iter(end)+1];
     end
 
     % log rest of data
-    self.log.signal.exitflag = [self.log.signal.exitflag; exitflag];
-    self.log.signal.time_us = [self.log.signal.time_us; time_us];
-    self.log.signal.x0 = [self.log.signal.x0; x0'];
-    self.log.signal.x_target = [self.log.signal.x_target; cfg.mpc.x_target'];
+    self.m_log.signal.exitflag = [self.m_log.signal.exitflag; exitflag];
+    self.m_log.signal.time_us = [self.m_log.signal.time_us; time_us];
+    self.m_log.signal.x0 = [self.m_log.signal.x0; x0'];
+    self.m_log.signal.x_target = [self.m_log.signal.x_target; cfg.mpc.x_target'];
 
-    self.log.signal.time_qp = [self.log.signal.time_qp; time_qp];
+    self.m_log.signal.time_qp = [self.m_log.signal.time_qp; time_qp];
 
-    self.log.signal.dtk = [self.log.signal.dtk; dtk'];
-    self.log.signal.dtk_prev = [self.log.signal.dtk_prev; dtk_prev'];
+    self.m_log.signal.dtk = [self.m_log.signal.dtk; dtk'];
+    self.m_log.signal.dtk_prev = [self.m_log.signal.dtk_prev; dtk_prev'];
 end

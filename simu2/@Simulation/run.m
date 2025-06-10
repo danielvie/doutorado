@@ -112,24 +112,24 @@ function [y,t,m,dtk_out] = run(self, nsim)
             time_us = arrayfun(@round, diff(Ts*1e6));
             
             % add iteration
-            if isempty(self.log.run.iter)
-                self.log.run.iter = [self.log.run.iter; 1];
+            if isempty(self.m_log.run.iter)
+                self.m_log.run.iter = [self.m_log.run.iter; 1];
             else
-                self.log.run.iter = [self.log.run.iter; self.log.run.iter(end)+1];
+                self.m_log.run.iter = [self.m_log.run.iter; self.m_log.run.iter(end)+1];
             end
 
             % log rest of data
-            self.log.run.exitflag = [self.log.run.exitflag; exitflag];
-            self.log.run.time_us = [self.log.run.time_us; time_us];
-            self.log.run.x0 = [self.log.run.x0; x0'];
-            self.log.run.x_target = [self.log.run.x_target; cfg.mpc.x_target'];
+            self.m_log.run.exitflag = [self.m_log.run.exitflag; exitflag];
+            self.m_log.run.time_us = [self.m_log.run.time_us; time_us];
+            self.m_log.run.x0 = [self.m_log.run.x0; x0'];
+            self.m_log.run.x_target = [self.m_log.run.x_target; cfg.mpc.x_target'];
 
-            self.log.run.time_qp = [self.log.run.time_qp; time_qp];
-            self.log.run.time_qp = [self.log.run.time_qp; time_qp];
+            self.m_log.run.time_qp = [self.m_log.run.time_qp; time_qp];
+            self.m_log.run.time_qp = [self.m_log.run.time_qp; time_qp];
 
 
-            self.log.run.dtk = [self.log.run.dtk; dtk'];
-            self.log.run.dtk_prev = [self.log.run.dtk_prev; dtk_prev'];
+            self.m_log.run.dtk = [self.m_log.run.dtk; dtk'];
+            self.m_log.run.dtk_prev = [self.m_log.run.dtk_prev; dtk_prev'];
 
         end
         

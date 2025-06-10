@@ -4,7 +4,7 @@ classdef Simulation < handle
         m_set_alpha_cache;
         m_mpc_config;
         m_state_mode;
-        log;
+        m_log;
     end
 
     methods(Hidden = true)
@@ -39,8 +39,8 @@ classdef Simulation < handle
             log_struct.dtk = [];
             log_struct.dtk_prev = [];
             
-            self.log.run = log_struct;
-            self.log.signal = log_struct;
+            self.m_log.run = log_struct;
+            self.m_log.signal = log_struct;
         end
 
         % .. setters
