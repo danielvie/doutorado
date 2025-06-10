@@ -48,15 +48,21 @@ function [y,t,m,dtk_out] = run(self, nsim)
             % ?? augmented
             if self.m_state_mode == Enums.StateMode.AUGMENTED
                 Nd_counter = Nd_counter + 1;
-                if Nd_counter > Nd
-                        [dtk, ~, exitflag] = Mpc.dualmode_switching(ek_aug,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
-                    Nd_counter = 1;
-                else
-                    dtk = dtk_prev;
+                if Nd_counter < Nd 
+                    dtk = dtk_prev; % keep repeating control until Nd
                     exitflag = 44; % flag that the value is not computed
+                else
+                    [dtk, ~, exitflag] = Mpc.dualmode_switching(ek_aug,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,...
+                    cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,...
+                    cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,...
+                    cfg.mpc.PhiNp,cfg.mpc.p);
+                    Nd_counter = 1;
                 end
             else % Enums.StateMode.ORIGINAL
-                [dtk, ~, exitflag] = Mpc.dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
+                [dtk, ~, exitflag] = Mpc.dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,...
+                                                            cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,...
+                                                            cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,...
+                                                            cfg.mpc.PhiNp,cfg.mpc.p);
             end
 
             time_qp = tic;

@@ -68,7 +68,7 @@ Now, defining the augmented state vector $X_a\big[k'\big]$ as:
 with
 \noindent
 \begin{equation}
-    z\big[k'-1\big] = u\big[k'-1\big]
+    z\big[k'-1\big] = u\big[k'\big]
 \end{equation}
 we get to the augmented state transition equation:
 \noindent
@@ -86,7 +86,7 @@ we get to the augmented state transition equation:
     \end{bmatrix}
     z\big[k'\big]
 \end{equation}
-where $z\big[k'\big] = u\big[k'\big]$.
+where $z\big[k'\big] = u\big[k' + 1\big]$.
 
 We can replace the augmented state transition matrix
 

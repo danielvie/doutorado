@@ -11,7 +11,7 @@ function play()
 
     % creating simulation object
     s = Simulation(Enums.SimName.LAB_CIRCUIT);
-    % s.m_state_mode = Enums.StateMode.AUGMENTED;
+    s.m_state_mode = Enums.StateMode.AUGMENTED;
     
     % compute trajectory with alpha
     s.set_traj_phase_with_alpha(0.5);
@@ -51,8 +51,8 @@ function play()
     assignin('base', 'res', res);
 
     % plotting states
-    figure(1);
-    res.plot_xi();
+    % figure(1);
+    % res.plot_xi();
 
     % plotting trajectory
     figure(2);
