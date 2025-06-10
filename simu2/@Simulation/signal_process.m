@@ -3,11 +3,11 @@ function time_us = signal_process(self, state)
     persistent dtk_prev
     if isempty(dtk_prev)
         % creating zero vector with size of number of `u` commands
-        dtk_prev = zeros(self.config.mpc.p, 1);
+        dtk_prev = zeros(self.m_config.mpc.p, 1);
     end
 
     % reading config
-    config = self.config;
+    config = self.m_config;
     
     % reading state
     vc1 = state(1);

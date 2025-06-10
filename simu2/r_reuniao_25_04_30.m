@@ -2,8 +2,8 @@ s = Simulation(Enums.SimName.LAB_CIRCUIT);
 
 s.set_mpc_with_np(5);
 
-Phi = s.config.mpc.vars.Phi;
-Gamma = s.config.mpc.vars.Gamma;
+Phi = s.m_config.mpc.vars.Phi;
+Gamma = s.m_config.mpc.vars.Gamma;
 
 % CONSTRUINDO MODELO EXTENDIDO
 % notes for LAB_CIRCUIT

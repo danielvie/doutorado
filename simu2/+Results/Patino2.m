@@ -51,7 +51,7 @@ classdef Patino2
             y_off = self.data.y_off;
             
             % target
-            x_target = self.data.s.config.mpc.x_target;
+            x_target = self.data.s.m_config.mpc.x_target;
 
             vc1_ = y(:,1);
             vc2_ = y(:,2);

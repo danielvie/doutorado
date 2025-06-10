@@ -23,14 +23,14 @@ function playb()
     nsim = 100;
 
     % add error in IC
-    % s.config.x0 = s.config.x0 + [0.1; 0.1; 0.1];
+    % s.m_config.x0 = s.m_config.x0 + [0.1; 0.1; 0.1];
     s.set_offset([0.2, 0.2, 0.1]);
 
     % running simulation
-    s.config.mpc.on = true;
+    s.m_config.mpc.on = true;
     [y, t, m] = s.run(nsim);
 
-    s.config.mpc.on = false;
+    s.m_config.mpc.on = false;
     [y_off, t_off, m_off] = s.run(nsim);
 
     % getting variables from simulation

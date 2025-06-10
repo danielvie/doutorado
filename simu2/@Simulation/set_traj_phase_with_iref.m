@@ -8,7 +8,7 @@ function set_traj_phase_with_iref(self, iref)
     disp(['set traj phase with iref: ', num2str(iref)]);
 
 	% dynamics of the system (Buck-Boost converter)
-	params = self.config.circuit_params;
+	params = self.m_config.circuit_params;
     
     params.iLref = iref;
     params.iMax = params.E/params.R;

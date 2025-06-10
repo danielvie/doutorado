@@ -2,12 +2,11 @@
 function [y,t,m,dtk_out] = run(self, nsim)
 
     % reading config
-    config = self.config;
+    config = self.m_config;
 
     % initializing output variables
     nmodes  = numel(config.Omega);
     nstates = numel(config.x0);
-
     dtk_out = [];
 
     y = zeros(nsim*nmodes, nstates); 
@@ -32,6 +31,7 @@ function [y,t,m,dtk_out] = run(self, nsim)
     
     numelx0 = numel(x0);
     dtk_prev = zeros([numel(cfg.Omega)-1, 1]);
+
     for i = 1:nsim
         dtk = zeros([numel(cfg.Omega)-1, 1]);
         if mpc_on

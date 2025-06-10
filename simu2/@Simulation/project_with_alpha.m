@@ -22,7 +22,7 @@ function project_with_alpha(self, alpha, folder, flag_save)
     fig = self.project_feasibility_region();
 
     name_alpha = sprintf('alpha_%02d', round(alpha*10));
-    name_sim = string(self.config.sim_name);
+    name_sim = string(self.m_config.sim_name);
     
     % escaping `_`
     name_sim_esc = strrep(name_sim, '_', '\_');

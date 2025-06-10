@@ -1,6 +1,6 @@
 classdef Simulation < handle
     properties
-        config;
+        m_config;
         m_set_alpha_cache;
         m_mpc_config;
         m_state_mode;

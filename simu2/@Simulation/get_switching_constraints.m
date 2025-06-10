@@ -1,6 +1,6 @@
 function c = get_switching_constraints(self)
 
-    cfg = self.config;
+    cfg = self.m_config;
 
     N  = numel(cfg.Omega);
 
@@ -8,7 +8,7 @@ function c = get_switching_constraints(self)
     dtr = diff(Ts);
 
     % constraint time
-    c_time = self.config.c_time;
+    c_time = self.m_config.c_time;
     c_time_numel = numel(c_time);
 
     c = zeros(N, 1);

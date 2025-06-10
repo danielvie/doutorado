@@ -11,6 +11,6 @@ function set_offset(self, offset)
     %   None. The function modifies the simulation object's configuration in place.
 
     % Set the offset in the simulation configuration
-    offset_shaped = reshape(offset, size(self.config.x0));
-    self.config.x0 = self.config.x0 + offset_shaped;
+    offset_shaped = reshape(offset, size(self.m_config.x0));
+    self.m_config.x0 = self.m_config.x0 + offset_shaped;
 end

@@ -1,6 +1,6 @@
 function Ts_out  = quantizacao(self, Ts, type)
     
-    config = self.config;
+    config = self.m_config;
 
     Ts_out = Ts;
 

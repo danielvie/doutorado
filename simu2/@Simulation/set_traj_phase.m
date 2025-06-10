@@ -37,12 +37,12 @@ function set_traj_phase(self, params)
     dT = dT(I);
 
     % updating config values
-    self.config.Omega = Omega;
-    self.config.Ts = Utils.get_ts(dT);
-    self.config.x0 = Utils.get_x0(self.config);
+    self.m_config.Omega = Omega;
+    self.m_config.Ts = Utils.get_ts(dT);
+    self.m_config.x0 = Utils.get_x0(self.m_config);
     
     % printing result
-    time_us = self.config.Ts*1e6;
+    time_us = self.m_config.Ts*1e6;
     dt_time_us = diff(time_us);
 
     disp('Omega: ');
@@ -52,6 +52,6 @@ function set_traj_phase(self, params)
     disp('dt_time_us: ');
     disp(dt_time_us);
     disp('x0: ');
-    disp(self.config.x0);
+    disp(self.m_config.x0);
 
 end

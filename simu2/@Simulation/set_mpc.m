@@ -23,7 +23,7 @@ function set_mpc(self)
     Nd = mpc_config.Nd; % Default repeated controls if not provided
     
     % reading config values
-    cfg = self.config;
+    cfg = self.m_config;
 
     [Phi, Gamma] = self.get_phi_gamma();
 
@@ -87,5 +87,5 @@ function set_mpc(self)
     mpc_opt.vars     = rmfield(Utils.getAllVars(), 'mpc_opt');
 
     % updating config values of object
-    self.config.mpc = mpc_opt;
+    self.m_config.mpc = mpc_opt;
 end

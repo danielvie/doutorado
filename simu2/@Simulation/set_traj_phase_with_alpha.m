@@ -18,7 +18,7 @@ function set_traj_phase_with_alpha(self, alpha)
     disp(['set traj phase with alpha: ', num2str(alpha)]);
 
 	% dynamics of the system (Buck-Boost converter)
-	params = self.config.circuit_params;
+	params = self.m_config.circuit_params;
     
     params.alpha = alpha;
     params.iMax = params.E/params.R;

@@ -47,7 +47,7 @@ function fig = project_feasibility_region(self)
     config.bu = -c;
 
     % Set the initial state and input
-    config.xbar = self.config.x0;
+    config.xbar = self.m_config.x0;
     config.ubar = zeros(numel_u, 1);
 
     % Generate projections for different prediction horizons
@@ -71,13 +71,13 @@ function fig = project_feasibility_region(self)
     fig = figure(2);
 
     % Plot the projections based on the simulation name
-    if self.config.sim_name == Enums.SimName.PATINO_2
+    if self.m_config.sim_name == Enums.SimName.PATINO_2
         Projecao.plotter.patino2.plot_projection(fig, v1, v2, v4, config.xbar, "N_p = 4", "N_p = 2", "N_p = 1");
-    elseif self.config.sim_name == Enums.SimName.LAB_CIRCUIT
+    elseif self.m_config.sim_name == Enums.SimName.LAB_CIRCUIT
         Projecao.plotter.patino2.plot_projection(fig, v1, v2, v4, config.xbar, "N_p = 4", "N_p = 2", "N_p = 1");
-    elseif self.config.sim_name == Enums.SimName.PATINO_1
+    elseif self.m_config.sim_name == Enums.SimName.PATINO_1
         Projecao.plotter.patino1.plot_projection(fig, v1, v2, v4, config.xbar);
-    elseif self.config.sim_name == Enums.SimName.INTEGRADOR_DUPLO
+    elseif self.m_config.sim_name == Enums.SimName.INTEGRADOR_DUPLO
         Projecao.plotter.integrador.plot_projection(fig, v1, v2, v4, config.xbar);
     end
 end
