@@ -45,10 +45,10 @@ function [y,t,m,dtk_out] = run(self, nsim)
             % computing control `dtk`
             tic;
 
+            % ?? augmented
             if self.m_state_mode == Enums.StateMode.AUGMENTED
                 Nd_counter = Nd_counter + 1;
                 if Nd_counter > Nd
-                    % ?? augmented
                         [dtk, ~, exitflag] = Mpc.dualmode_switching(ek_aug,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
                     Nd_counter = 1;
                 else
@@ -149,8 +149,5 @@ function [y,t,m,dtk_out] = run(self, nsim)
         t0  = t_(end) + t0;
         cfg.x0 = y_(end,:)';
         x0  = cfg.x0;
-        
-
     end
-    bla = 1;
 end
