@@ -2,6 +2,7 @@ classdef Simulation < handle
     properties
         config;
         m_set_alpha_cache;
+        m_mpc_config;
         log;
     end
 
@@ -19,6 +20,9 @@ classdef Simulation < handle
             else
                 self.set_config(sim_name);
             end
+            
+            % default mpc_config
+            self.m_mpc_config = self.get_mpc_config();
 
             % log structure
             log_struct = struct();
@@ -43,11 +47,13 @@ classdef Simulation < handle
         set_traj_phase_with_iref(self, iref);
         set_traj_phase_with_alpha(self, alpha);
         set_mpc(self, Np);
-        set_mpc_with_np(self, Np);
 
         set_alpha_and_mpc(self, alpha);
         set_alpha_and_mpc_cached(self, alpha, Np);
         save_set_alpha_cache(self);
+        
+        % .. getters
+        mpc_config = get_mpc_config(self);
 
         % .. simulation
         [y,t,u,m,dtk_out] = run(self, nsim);

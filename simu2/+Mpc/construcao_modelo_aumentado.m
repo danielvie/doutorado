@@ -29,13 +29,13 @@ function [Aa, Ba] = construcao_modelo_aumentado(Phi, Gamma, Nd)
     % Bb = (A^(Nd-1) + A^(Nd-1) + ... + A^0)B
     %
     % (A^(Nd-1) + A^(Nd-1) + ... + A^0)
-    A_i = mpower(Phi, 0);
+    A_sum_i = mpower(Phi, 0);
     for i = 1:Nd-1
-        A_i = A_i + mpower(Phi, i);
+        A_sum_i = A_sum_i + mpower(Phi, i);
     end
     
     % (A^(Nd-1) + A^(Nd-1) + ... + A^0)B
-    Bb = A_i*Gamma;
+    Bb = A_sum_i*Gamma;
 
     % Calculando Matrix Extendida (Aa, Ba)
     % Phi [3x3]

@@ -49,6 +49,9 @@ classdef Patino2
             % plot traj control ON
             y = self.data.y;
             y_off = self.data.y_off;
+            
+            % target
+            x_target = self.data.s.config.mpc.x_target;
 
             vc1_ = y(:,1);
             vc2_ = y(:,2);
@@ -62,6 +65,7 @@ classdef Patino2
             plot3(vc1_, vc2_, i_l_);
             hold on;
             plot3(vc1_off, vc2_off, i_l_off);
+            plot3(x_target(1), x_target(2), x_target(3), 'rx', 'MarkerSize', 12);
             grid on;
 
             title("Multilevel Converter: Trajectory");

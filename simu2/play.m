@@ -18,9 +18,11 @@ function play()
 
     % set MPC parameters
     mpc_config = s.get_mpc_config();
-    mpc_config.Nd = 2;
+    mpc_config.Nd = 1;
     mpc_config.Np = 20;
-    s.set_mpc(mpc_config); 
+    s.set_mpc_config(mpc_config)
+
+    s.set_mpc();
 
     % number of simulation cycles
     nsim = 1000;
