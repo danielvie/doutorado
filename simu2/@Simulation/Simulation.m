@@ -3,6 +3,7 @@ classdef Simulation < handle
         config;
         m_set_alpha_cache;
         m_mpc_config;
+        m_state_mode;
         log;
     end
 
@@ -23,6 +24,9 @@ classdef Simulation < handle
             
             % default mpc_config
             self.m_mpc_config = self.get_mpc_config();
+            
+            % default state mode
+            self.m_state_mode = Enums.StateMode.ORIGINAL;
 
             % log structure
             log_struct = struct();

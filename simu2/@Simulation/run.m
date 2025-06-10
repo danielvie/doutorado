@@ -4,7 +4,7 @@ function [y,t,m,dtk_out] = run(self, nsim)
     % reading config
     config = self.config;
 
-    % inicializacao variaveis de saida
+    % initializing output variables
     nmodes  = numel(config.Omega);
     nstates = numel(config.x0);
 
@@ -26,7 +26,7 @@ function [y,t,m,dtk_out] = run(self, nsim)
         end
     end
     
-    % FIXME: change Nd so it is defined in the proper data flow
+    % getting Nd from config
     Nd = self.m_mpc_config.Nd;
     Nd_counter = 1;
     
@@ -44,13 +44,18 @@ function [y,t,m,dtk_out] = run(self, nsim)
             % computing control `dtk`
             tic;
 
-            Nd_counter = Nd_counter + 1;
-            if (Nd_counter > Nd)
-                [dtk, ~, exitflag] = Mpc.dualmode_switching(ek_aug,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
-                Nd_counter = 1;
-            else
-                dtk = dtk_prev;
-                exitflag = 44; % flag that the value is not computed
+            if self.m_state_mode == Enums.StateMode.AUGMENTED
+                Nd_counter = Nd_counter + 1;
+                if Nd_counter > Nd
+                    % ?? augmented
+                        [dtk, ~, exitflag] = Mpc.dualmode_switching(ek_aug,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
+                    Nd_counter = 1;
+                else
+                    dtk = dtk_prev;
+                    exitflag = 44; % flag that the value is not computed
+                end
+            else % Enums.StateMode.ORIGINAL
+                [dtk, ~, exitflag] = Mpc.dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,cfg.mpc.PhiNp,cfg.mpc.p);
             end
 
             time_qp = tic;

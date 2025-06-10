@@ -26,12 +26,17 @@ function set_mpc(self)
     cfg = self.config;
 
     [Phi, Gamma] = self.get_phi_gamma();
-    [Aa, Ba] = Mpc.construcao_modelo_aumentado(Phi, Gamma, Nd);
 
     N  = numel(cfg.Omega);
-
     p  = N - 1;
-    Q  = eye(size(Aa, 2)); % FIXME: colocar numel generico
+
+    % ?? augmented
+    if self.m_state_mode == Enums.StateMode.AUGMENTED
+        [Aa, Ba] = Mpc.construcao_modelo_aumentado(Phi, Gamma, Nd);
+        Q  = eye(size(Aa, 2)); 
+    else
+        Q  = eye(size(Phi, 2)); 
+    end
     R  = eye(p);
 
     % parametros das restricoes de chaveamento
@@ -49,10 +54,15 @@ function set_mpc(self)
     %     -dtr(9) + t_min;
     % ]; % dimensao: Nx1
 
-    % [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,~] = ...
-    % Mpc.matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c);
-    [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,~] = ...
-    Mpc.matrizes_ss_mpc_dualmode_switching(Aa,Ba,Q,R,Np,c);
+    % ?? augmented
+    if self.m_state_mode == Enums.StateMode.AUGMENTED
+        [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,~] = ...
+        Mpc.matrizes_ss_mpc_dualmode_switching(Aa,Ba,Q,R,Np,c);
+    else
+        [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,~] = ...
+        Mpc.matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c);
+    end
+
     % criando estrutura com dados MPC
     mpc_opt          = struct();
     mpc_opt.on       = true;
