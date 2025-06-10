@@ -51,8 +51,8 @@ function play()
     assignin('base', 'res', res);
 
     % plotting states
-    % figure(1);
-    % res.plot_xi();
+    figure(1);
+    res.plot_xi();
 
     % plotting trajectory
     figure(2);

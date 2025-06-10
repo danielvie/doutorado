@@ -5,18 +5,15 @@ function [y,t,m,dtk_out] = run(self, nsim)
     config = self.m_config;
 
     % initializing output variables
-    % modes_len  = numel(config.Omega);
-    % states_len = numel(config.x0);
+    modes_len  = numel(config.Omega);
+    states_len = numel(config.x0);
 
-    % y = zeros(nsim*modes_len, states_len); 
-    % t = zeros(nsim*modes_len, 1);
-    % m = zeros(nsim*modes_len, 1);
+    y = zeros(nsim*modes_len, states_len); 
+    t = zeros(nsim*modes_len, 1);
+    m = zeros(nsim*modes_len, 1);
     
-    y = [];
-    t = [];
-    m = [];
-
-    dtk_out = [];
+    dtk_len = modes_len - 1;
+    dtk_out = zeros(dtk_len, nsim);
 
     cfg = config;
 
@@ -140,17 +137,13 @@ function [y,t,m,dtk_out] = run(self, nsim)
         [y_,t_,m_,~] = self.sim_cycle2(cfg);
 
         % saving states
-        % ii = (i-1)*modes_len + 1;
-        % y(ii:ii+modes_len-1,:) = y_(1:modes_len,:);
-        % t(ii:ii+modes_len-1)   = t_(1:modes_len) + t0;
-        % m(ii:ii+modes_len-1)   = m_(1:modes_len);
-
-        y = [y; y_];
-        t = [t; t_];
-        m = [m; m_];
+        ii = (i-1)*modes_len + 1;
+        y(ii:ii+modes_len-1,:) = y_(1:modes_len,:);
+        t(ii:ii+modes_len-1)   = t_(1:modes_len) + t0;
+        m(ii:ii+modes_len-1)   = m_(1:modes_len);
 
         % saving control signal
-        dtk_out = [dtk_out, dtk];
+        dtk_out(:,i) = dtk(:);
 
         % updating values for next cycle
         t0  = t_(end) + t0;
