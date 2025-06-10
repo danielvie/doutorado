@@ -5,14 +5,19 @@ function [y,t,m,dtk_out] = run(self, nsim)
     config = self.m_config;
 
     % initializing output variables
-    nmodes  = numel(config.Omega);
-    nstates = numel(config.x0);
+    % modes_len  = numel(config.Omega);
+    % states_len = numel(config.x0);
+
+    % y = zeros(nsim*modes_len, states_len); 
+    % t = zeros(nsim*modes_len, 1);
+    % m = zeros(nsim*modes_len, 1);
+    
+    y = [];
+    t = [];
+    m = [];
+
     dtk_out = [];
 
-    y = zeros(nsim*nmodes, nstates); 
-    t = zeros(nsim*nmodes, 1);
-    m = zeros(nsim*nmodes, 1);
-    
     cfg = config;
 
     t0  = 0.0;
@@ -29,14 +34,13 @@ function [y,t,m,dtk_out] = run(self, nsim)
     Nd = self.m_mpc_config.Nd;
     Nd_counter = 1;
     
-    numelx0 = numel(x0);
     dtk_prev = zeros([numel(cfg.Omega)-1, 1]);
 
     for i = 1:nsim
         dtk = zeros([numel(cfg.Omega)-1, 1]);
         if mpc_on
             % computing `ek`
-            ek  = reshape(x0, [numelx0, 1]) - reshape(cfg.mpc.x_target, [numelx0, 1]);
+            ek  = x0 - cfg.mpc.x_target;
 
             % computing augmented `ek_aug`
             ek_aug = [ek; dtk_prev];
@@ -127,7 +131,6 @@ function [y,t,m,dtk_out] = run(self, nsim)
             self.m_log.run.time_qp = [self.m_log.run.time_qp; time_qp];
             self.m_log.run.time_qp = [self.m_log.run.time_qp; time_qp];
 
-
             self.m_log.run.dtk = [self.m_log.run.dtk; dtk'];
             self.m_log.run.dtk_prev = [self.m_log.run.dtk_prev; dtk_prev'];
 
@@ -137,10 +140,14 @@ function [y,t,m,dtk_out] = run(self, nsim)
         [y_,t_,m_,~] = self.sim_cycle2(cfg);
 
         % saving states
-        ii = (i-1)*nmodes + 1;
-        y(ii:ii+nmodes-1,:) = y_(1:nmodes,:);
-        t(ii:ii+nmodes-1)   = t_(1:nmodes) + t0;
-        m(ii:ii+nmodes-1)   = m_(1:nmodes);
+        % ii = (i-1)*modes_len + 1;
+        % y(ii:ii+modes_len-1,:) = y_(1:modes_len,:);
+        % t(ii:ii+modes_len-1)   = t_(1:modes_len) + t0;
+        % m(ii:ii+modes_len-1)   = m_(1:modes_len);
+
+        y = [y; y_];
+        t = [t; t_];
+        m = [m; m_];
 
         % saving control signal
         dtk_out = [dtk_out, dtk];
@@ -152,4 +159,5 @@ function [y,t,m,dtk_out] = run(self, nsim)
         
 
     end
+    bla = 1;
 end
