@@ -53,10 +53,10 @@ function [y,t,m,dtk_out] = run(self, nsim)
                     exitflag = 44; % flag that the value is not computed
                 else
                     [dtk, ~, exitflag] = Mpc.dualmode_switching(ek_aug,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,...
-                    cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,...
-                    cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,...
-                    cfg.mpc.PhiNp,cfg.mpc.p);
-                    Nd_counter = 1;
+                                                                cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,...
+                                                                cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,...
+                                                                cfg.mpc.PhiNp,cfg.mpc.p);
+                                                                Nd_counter = 1;
                 end
             else % Enums.StateMode.ORIGINAL
                 [dtk, ~, exitflag] = Mpc.dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,...
@@ -88,34 +88,23 @@ function [y,t,m,dtk_out] = run(self, nsim)
             Ts = self.quantizacao(Ts, Enums.QuantType.Sim);
 
 
-            dtk_ = dtk*1e6;
-            cts_us = Ts*1e6;
-            dts    = diff(cts_us);
+            % dtk_ = dtk*1e6;
+            % cts_us = Ts*1e6;
+            % dts    = diff(cts_us);
+
             % updating time vector with control command
             for j = 1:numel(dtk)
                 Ts(j+1) = Ts(j+1) + dtk(j);
             end
 
-            ts_us = Ts*1e6;
+            % ts_us = Ts*1e6;
             % bla = self.signal_process(x0);
-            ble = 1;
-            
-
-            % compessating negative time values (when control is too much)
-            % need to adjust control constraints!!!
-            % dif = [ 0, diff(Ts) ];
-            % idx = dif < 0;
-            % while any(idx)
-            %     Ts = Ts - dif.*idx;
-            %     dif = [ 0, diff(Ts) ];
-            %     idx = dif < 0;
-            % end
+            % ble = 1;
     
             % updating time on local config variable
             cfg.Ts = Ts;
 
-
-            % LOGGING DATA
+            % logging DATA
             time_us = arrayfun(@round, diff(Ts*1e6));
             
             % add iteration
@@ -125,7 +114,7 @@ function [y,t,m,dtk_out] = run(self, nsim)
                 self.m_log.run.iter = [self.m_log.run.iter; self.m_log.run.iter(end)+1];
             end
 
-            % log rest of data
+            % log data
             self.m_log.run.exitflag = [self.m_log.run.exitflag; exitflag];
             self.m_log.run.time_us = [self.m_log.run.time_us; time_us];
             self.m_log.run.x0 = [self.m_log.run.x0; x0'];
@@ -136,7 +125,6 @@ function [y,t,m,dtk_out] = run(self, nsim)
 
             self.m_log.run.dtk = [self.m_log.run.dtk; dtk'];
             self.m_log.run.dtk_prev = [self.m_log.run.dtk_prev; dtk_prev'];
-
         end
         
         % running 1 simulation cycle
