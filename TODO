@@ -2,17 +2,36 @@
 canal 1 3v
 canal 2 15v
 
+'Cmd/Ctrl+Enter' // Triggers `Todo: Toggle Box`
+'Alt+Enter' // Triggers `Todo: Toggle Box`
+
+"<localleader>tu" -> "todo.toggleBox"
+"<localleader>td" -> "todo.toggleDone"
+"<localleader>tc" -> "todo.toggleCancelled"
+"<localleader>ts" -> "todo.toggleStart"
+"<localleader>ta" -> "todo.archive"
+
     # {@ Wednesday 14 May 2025}*:
-        ☐ acertar simulacao para segurar controle no tempo do estado aumentado
+        ☐ acertar simulacao para segurar controle no tempo do estado aumentado @started(25-06-17 22:03)
+            -> precisa de conferir se o tempo segurado faz sentido
         ☐ criar procedimento de teste para o broker
-        ☐ ver referencias para artigo do circuito
+        ☐ ver referencias para artigo do circuito @started(25-06-17 22:04)
             como fizeram com o circuito que usaram?
-        ☐ desacoplar set_mpc, ou talvez combinaca com uma estrutura de entrada
-        ☐ criar logica na ESP32 para esperar por N periodos
-        ☐ implementar propagacao Block em `run`
+            -> trabalho SOLANO 2023
+                -> implementou circuito real (maquette experimentale), 
+                -> feito pela empresa ARCEL (figure 5.1a)
+                -> apresenta Resultados Experimentais para validar a 
+                   performance da estrategia
+        ✔ desacoplar set_mpc, ou talvez combinaca com uma estrutura de entrada @done(25-06-17 21:56)
+        ✔ criar logica na ESP32 para esperar por N periodos @done(25-06-17 21:56)
+        ☐ implementar propagacao Block em `run` @started(10-06-17 21:00)
+            -> problemas com a implementacao
         ☐ mudar chaveamento para ciclo inteiro?
+            -> ???
         ☐ implementar propagacao Block em `signal_process` 
-        ☐ pedir VPN
+        ☐ pedir VPN @started(25-05-15 21:00)
+            -> instrucoes vpn: ./VPN ITA/
+                -> https://wikiti.ita.br/ITA:Instala%C3%A7%C3%A3o_e_utiliza%C3%A7%C3%A3o_da_VPN_ITA_Internet_no_Windows
         ☐ instalar Mathematica
         ☐ fazer projecao Mathematica
     
