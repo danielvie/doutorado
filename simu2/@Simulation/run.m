@@ -31,7 +31,8 @@ function [y,t,m,dtk_out] = run(self, nsim)
     Nd = self.m_mpc_config.Nd;
     Nd_counter = 1;
     
-    dtk_prev = zeros([numel(cfg.Omega)-1, 1]);
+    dtk_prev  = zeros([numel(cfg.Omega)-1, 1]);
+    dtk_prev2 = zeros([numel(cfg.Omega)-1, 1]);
 
     for i = 1:nsim
         dtk = zeros([numel(cfg.Omega)-1, 1]);
@@ -40,7 +41,7 @@ function [y,t,m,dtk_out] = run(self, nsim)
             ek  = x0 - cfg.mpc.x_target;
 
             % computing augmented `ek_aug`
-            ek_aug = [ek; dtk_prev];
+            ek_aug = [ek; dtk_prev2];
 
             % computing control `dtk`
             tic;
@@ -68,6 +69,7 @@ function [y,t,m,dtk_out] = run(self, nsim)
             time_qp = tic;
 
             % updating dtk_prev
+            dtk_prev2 = dtk_prev;
             dtk_prev = dtk;
 
             % ignore control if problem not possible
@@ -98,7 +100,7 @@ function [y,t,m,dtk_out] = run(self, nsim)
             end
 
             % ts_us = Ts*1e6;
-            % bla = self.signal_process(x0);
+            bla = self.signal_process(x0);
             % ble = 1;
     
             % updating time on local config variable

@@ -1,9 +1,10 @@
 % [y,t,u] = sim_n(config, Ts)
 function time_us = signal_process(self, state)
-    persistent dtk_prev
+    persistent dtk_prev dtk_prev2
     if isempty(dtk_prev)
         % creating zero vector with size of number of `u` commands
         dtk_prev = zeros(self.m_config.mpc.p, 1);
+        dtk_prev2 = zeros(self.m_config.mpc.p, 1);
     end
 
     % reading config
@@ -34,7 +35,7 @@ function time_us = signal_process(self, state)
     ek = x0 - cfg.mpc.x_target;
 
     % computing augmented `ek_aug`
-    ek_aug = [ek; dtk_prev];
+    ek_aug = [ek; dtk_prev2];
 
     % computing control `dtk`
     tic;
@@ -42,6 +43,7 @@ function time_us = signal_process(self, state)
     time_qp = toc;
     
     % updating dtk_prev
+    dtk_prev2 = dtk_prev;
     dtk_prev = dtk;
 
 

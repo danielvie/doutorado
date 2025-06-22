@@ -66,5 +66,5 @@ function [Aa, Ba] = construcao_modelo_aumentado(Phi, Gamma, Nd)
     Aa = [Ab, Bb
           za, zb];
         
-    Ba = [zeros(ma, mb); ones(mb, mb)];
+    Ba = [zeros(ma, mb); eye(mb)];
 end

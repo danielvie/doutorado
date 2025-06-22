@@ -11,6 +11,9 @@ canal 2 15v
 "<localleader>ts" -> "todo.toggleStart"
 "<localleader>ta" -> "todo.archive"
 
+    # {@ Wednesday 18 Jun 2025}*:
+
+
     # {@ Wednesday 14 May 2025}*:
         ☐ acertar simulacao para segurar controle no tempo do estado aumentado @started(25-06-17 22:03)
             -> precisa de conferir se o tempo segurado faz sentido

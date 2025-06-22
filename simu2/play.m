@@ -20,9 +20,9 @@ function play()
     % set MPC parameters
 
     mpc_config = s.get_mpc_config();
-    mpc_config.Nd = 5;
+    mpc_config.Nd = 3;
     mpc_config.Np = 25;
-    s.set_mpc_config(mpc_config)
+    s.set_mpc_config(mpc_config);
 
     s.set_mpc();
 

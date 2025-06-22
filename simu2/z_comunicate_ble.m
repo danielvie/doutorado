@@ -9,11 +9,17 @@ b = BTBroker(name, SERVICE_UUID, CHARACTERISTIC_UUID);
 
 c =@(x) b.message(x);
 
-
 s = Simulation();
 s.set_config(Enums.SimName.LAB_CIRCUIT);
+s.m_state_mode = Enums.StateMode.AUGMENTED;
 
-s.set_alpha_and_mpc_cached(0.5);
+% s.set_alpha_and_mpc_cached(0.5);
+
+mpc_config = s.get_mpc_config();
+mpc_config.Nd = 15;
+mpc_config.Np = 25;
+s.set_mpc_config(mpc_config);
+s.set_mpc();
 
 
 b.simulation = s;
@@ -36,7 +42,8 @@ b.message(command);
 
 b.set_verbose(false);
 
-b.message_cmd_cycles_nrun(25);
+% b.message_cmd_cycles_nrun(25);
+b.s(0.5);
 b.message_cmd_start();
 
 disp(s)
