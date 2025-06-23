@@ -21,7 +21,7 @@
 
 *** aula 03 - Introducao ao tesouro direto
     - calculadora IPCA:
-    {https://www.ibge.gov.br/explica/inflacao.php}
+      {https://www.ibge.gov.br/explica/inflacao.php}
 
     - qualquer pessoa pode investir no tesouro diredo 
       basta ter um CPF e uma conta aberta em qualquer banco ou instituicao financeira
@@ -117,4 +117,50 @@
 
     - Certificado de Recebiveis Imobiliarios
     - Certificado de Recebiveis do Agronegocio
+
+*** aula 13 - Debentures
+    {C:/Users/daniel/Documents/DOUTORADO/docs/notes/financas/auvp/material_modulo_03/modulo_03_aula_13.png}
+
+    - Sao titulos de divida de uma empresa
+
+*** aula 14 - Fundos de Investimento
+
+*** aula 15 - Previdencia Privada
+
+**** PGBL -> (Plano Gerador de Beneficio Livre)
+     - Permite abater, no calculo do IR, ateh 12% da renda bruta tributavel (para quem faz a declaracao completa do IR)
+     - Exemplo: voce investe 12% de toda a sua renda em um PGBL e pode abater esse valor no seu imposto de renda
+
+     Recomendado para:
+     - quem faz declaracao completa do IR
+     - quem esta nas faixas mais altas de tributacao
+     - individuos com despesas dedutiveis significativas, como gastos com saude e educacao
+
+     Ponto de Atencao:
+     - no momento do resgate, o IT incide sobre o valor total acumulado -- ou seja, contribuicoes + rendimentos, 
+       e nao apenas sobre os lucros!! 😱
+
+
+**** VGBL -> (Vida Gerador de Beneficio Livre)
+     - a tributacao incide apenas sobre os rendimentos, e nao sobre o total resgatado
+     - eh vantajoso para o planejamento sucessorio, pois funciona de forma semelhante a um seguro de vida:
+       os recursos sao transmitidos diretamente aos herdeiros, sem necessidade de inventario
+
+     Recomendado para:
+     - Pessoas que utilizam a declaracao simplificada do IR, mas desejam investir em previdencia
+     - quem ja atingiu o limite de 12% de deducao com o PGBL, mas querem investir valores adicionais 
+       para complementar a aposentadoria ou facilitar o planejamento sucessorio
+     - investidores focados em planejamento patrimonial ou que buscam menor tributacao no momento do resgate
+
+     Ponto de atencao:
+     - nao oferece beneficio fiscal na fase de contribuicao
+
+
+*** aula 16 - Contrafluxo
+    {C:/Users/daniel/Documents/DOUTORADO/docs/notes/financas/auvp/material_modulo_03/modulo_03_aula_16.png}
+
+**** Como as corretoras ganham dinheiro?
+     - A corretora tem um spread quando vc faz uma movimentacao
+     - No aluguel de acoes, tem um spread tbm
+
 
