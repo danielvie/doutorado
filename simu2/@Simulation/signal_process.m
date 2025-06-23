@@ -33,10 +33,14 @@ function time_us = signal_process(self, state, dtk_prev)
         self.m_log.signal.iter = [self.m_log.signal.iter; self.m_log.signal.iter(end)+1];
     end
 
+    % compute `ek`
+    ek  = x0 - config.mpc.x_target;
+
     % log rest of data
     self.m_log.signal.exitflag = [self.m_log.signal.exitflag; exitflag];
     self.m_log.signal.time_us = [self.m_log.signal.time_us; time_us];
     self.m_log.signal.x0 = [self.m_log.signal.x0; x0'];
+    self.m_log.signal.ek = [self.m_log.signal.ek; ek'];
     self.m_log.signal.x_target = [self.m_log.signal.x_target; config.mpc.x_target'];
 
     self.m_log.signal.time_qp = [self.m_log.signal.time_qp; time_qp];

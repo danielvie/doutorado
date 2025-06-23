@@ -32,7 +32,6 @@ function [y,t,m,dtk_out] = run(self, nsim)
     for i = 1:nsim
         dtk = zeros([numel(config.Omega)-1, 1]);
         if mpc_on
-
             % ?? augmented
             if self.m_state_mode == Enums.StateMode.AUGMENTED
                 Nd_counter = Nd_counter + 1;
@@ -70,10 +69,14 @@ function [y,t,m,dtk_out] = run(self, nsim)
                 self.m_log.run.iter = [self.m_log.run.iter; self.m_log.run.iter(end)+1];
             end
 
+            % compute `ek`
+            ek  = x0 - config.mpc.x_target;
+
             % log data
             self.m_log.run.exitflag = [self.m_log.run.exitflag; exitflag];
             self.m_log.run.time_us = [self.m_log.run.time_us; time_us];
             self.m_log.run.x0 = [self.m_log.run.x0; x0'];
+            self.m_log.run.ek = [self.m_log.run.ek; ek'];
             self.m_log.run.x_target = [self.m_log.run.x_target; config.mpc.x_target'];
 
             self.m_log.run.time_qp = [self.m_log.run.time_qp; time_qp];

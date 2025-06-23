@@ -12,40 +12,36 @@ function [y,t,m,xr] = sim_cycle2(~, config)
     m    = zeros(nmodes, 1);
     
     % computing simulation
-    xi0  = x0;
     xi0_ = x0;
     
-    xr   = zeros(nmodes, numel(x0));
+    xr   = zeros(nmodes+1, nstates);
     xr(1,:) = x0;
     
-    omega = config.Omega;
+    zeros_aug = [zeros(1, size(config.A{1}, 2)), 0];
+    
     for i = 1:nmodes
 
         % reading operation modes (indices start with `0`)
-        imode = omega(i);
+        imode = config.Omega(i);
                 
         % reading matrices `A` and `B`
         Ai = config.A{imode};
         Bi = config.b{imode};
         
-        xr(i+1,:) = xi0;
+        xr(i+1,:) = xi0_;
 
         % simulating with extended state
-        xi0_ = reshape(xi0_, [numel(xi0_), 1]);
         dt   = Ts(i+1) - Ts(i);
-        Fa   = expm([Ai,Bi;zeros(1,size(Ai,2)),0]*dt);
+        Fa   = expm([Ai,Bi; zeros_aug]*dt);
 
-        yend     = Fa*[xi0_;1];
+        % computing propagation
+        yend = Fa*[xi0_; 1];
 
         % saving values of extended state
-        % y    = [y; yend(1:nstates)';];
-        % t    = [t; Ts(i+1)];
-        % m    = [m; imode];
-        y(i,:) = yend(1:nstates);
+        y(i,:) = yend(1:nstates)';
         t(i) = Ts(i+1);
         m(i) = imode;
 
         xi0_  = yend(1:nstates);
-
     end
 end
