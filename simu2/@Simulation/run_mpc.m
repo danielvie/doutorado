@@ -3,22 +3,18 @@ function [dtk, exitflag] = run_mpc(self, config, x0, dtk_prev)
     % compute `ek`
     ek  = x0 - config.mpc.x_target;
     
-    % compute augmented `ek_aug`
-    ek_aug = [ek; dtk_prev];
+    % compute ek_input
+    if self.m_state_mode == Enums.StateMode.AUGMENTED
+        ek_input = [ek; dtk_prev];
+    else % Enums.StateMode.ORIGINAL
+        ek_input = ek;
+    end
     
     % compute control `dtk`
-    % ?? augmented
-    if self.m_state_mode == Enums.StateMode.AUGMENTED
-        [dtk, ~, exitflag] = Mpc.dualmode_switching(ek_aug,config.mpc.H,config.mpc.Hf,config.mpc.Phi1Np,...
-                                                    config.mpc.Qbar,config.mpc.Rbar,config.mpc.Lbar,...
-                                                    config.mpc.cbar,config.mpc.Pf,config.mpc.Sf,config.mpc.bf,...
-                                                    config.mpc.PhiNp,config.mpc.p);
-    else % Enums.StateMode.ORIGINAL
-        [dtk, ~, exitflag] = Mpc.dualmode_switching(ek,config.mpc.H,config.mpc.Hf,config.mpc.Phi1Np,...
-                                                    config.mpc.Qbar,config.mpc.Rbar,config.mpc.Lbar,...
-                                                    config.mpc.cbar,config.mpc.Pf,config.mpc.Sf,config.mpc.bf,...
-                                                    config.mpc.PhiNp,config.mpc.p);
-    end
+    [dtk, ~, exitflag] = Mpc.dualmode_switching(ek_input,config.mpc.H,config.mpc.Hf,config.mpc.Phi1Np,...
+                                                config.mpc.Qbar,config.mpc.Rbar,config.mpc.Lbar,...
+                                                config.mpc.cbar,config.mpc.Pf,config.mpc.Sf,config.mpc.bf,...
+                                                config.mpc.PhiNp,config.mpc.p);
     
     % ignore control if problem not possible
     %  exitflag:

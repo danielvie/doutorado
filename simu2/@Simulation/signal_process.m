@@ -1,5 +1,5 @@
 % [y,t,u] = sim_n(config, Ts)
-function time_us = signal_process(self, state, dtk_prev)
+function [time_us, dtk] = signal_process(self, state, dtk_prev)
 
     % reading config
     config = self.m_config;

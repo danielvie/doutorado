@@ -1,4 +1,9 @@
 function message_handle_process(self, msg)
+    persistent dtk_prev
+    if isempty(dtk_prev)
+        dtk_prev = zeros([numel(config.Omega)-1, 1]);
+    end
+
     % parsing message
     tokens = regexp(msg, '(\w+):([\d.]+)', 'tokens');
     parsed_data = struct();
@@ -34,16 +39,20 @@ function message_handle_process(self, msg)
     end
     % xtarget = [1.6667; 3.3391; 0.0583];
 
-    time_us = self.simulation.signal_process(state);
-    mode = self.simulation.get_mode();
+    [time_us, dtk] = self.simulation.signal_process(state, dtk_prev);
+    
+    % save last `dtk`
+    dtk_prev = dtk;
 
+    % construct signal message command
+    mode = self.simulation.get_mode();
     command = Utils.signal_create(time_us, mode);
     
+    % send message to ESP32
     if self.verbose
         disp('Sending command:');
         disp(command);
     end
-
     self.message(command);
 
 end

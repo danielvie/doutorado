@@ -66,7 +66,7 @@ classdef Simulation < handle
         [y,t,m,xr] = sim_cycle(self, config);
         [y,t,m,xr] = sim_cycle2(self, config);
 
-        time_us = signal_process(self, state, dtk_prev);
+        [time_us, dtk] = signal_process(self, state, dtk_prev);
 
         % .. projection
         fig = project_feasibility_region(self);
