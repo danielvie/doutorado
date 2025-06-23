@@ -61,10 +61,11 @@ classdef Simulation < handle
 
         % .. simulation
         [y,t,u,m,dtk_out] = run(self, nsim);
+        [dtk, exitflag, time_qp] = run_mpc(self, state_run, config, x0, dtk_prev);
         [y,t,m,xr] = sim_cycle(self, config);
         [y,t,m,xr] = sim_cycle2(self, config);
 
-        time_us = signal_process(self, state);
+        time_us = signal_process(self, state, dtk_prev);
 
         % .. projection
         fig = project_feasibility_region(self);

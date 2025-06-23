@@ -22,12 +22,12 @@ function play()
     mpc_config = s.get_mpc_config();
     mpc_config.Nd = 3;
     mpc_config.Np = 25;
-    s.set_mpc_config(mpc_config);
 
+    s.set_mpc_config(mpc_config);
     s.set_mpc();
 
     % number of simulation cycles
-    nsim = 1000;
+    nsim = 500;
 
     % add error in IC
     s.m_config.x0 = s.m_config.x0 + [0.6; 0.1; 0.1];
@@ -50,6 +50,9 @@ function play()
     assignin('base', 's', s);
     assignin('base', 'res', res);
 
+    assignin('base', 'log', s.m_log);
+
+
     % plotting states
     % figure(1);
     % res.plot_xi();
@@ -58,6 +61,8 @@ function play()
     figure(2);
     res.plot_traj();
 
+    
+    
     % plotting u signals
     % figure(3);
     % res.plot_u_signals(20);

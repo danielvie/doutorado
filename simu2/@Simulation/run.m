@@ -32,19 +32,10 @@ function [y,t,m,dtk_out] = run(self, nsim)
     Nd_counter = 1;
     
     dtk_prev  = zeros([numel(cfg.Omega)-1, 1]);
-    dtk_prev2 = zeros([numel(cfg.Omega)-1, 1]);
 
     for i = 1:nsim
         dtk = zeros([numel(cfg.Omega)-1, 1]);
         if mpc_on
-            % computing `ek`
-            ek  = x0 - cfg.mpc.x_target;
-
-            % computing augmented `ek_aug`
-            ek_aug = [ek; dtk_prev2];
-
-            % computing control `dtk`
-            tic;
 
             % ?? augmented
             if self.m_state_mode == Enums.StateMode.AUGMENTED
@@ -53,55 +44,27 @@ function [y,t,m,dtk_out] = run(self, nsim)
                     dtk = dtk_prev; % keep repeating control until Nd
                     exitflag = 44; % flag that the value is not computed
                 else
-                    [dtk, ~, exitflag] = Mpc.dualmode_switching(ek_aug,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,...
-                                                                cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,...
-                                                                cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,...
-                                                                cfg.mpc.PhiNp,cfg.mpc.p);
+                    [dtk, exitflag] = self.run_mpc(cfg, x0, dtk_prev);
                     Nd_counter = 1;
                 end
             else % Enums.StateMode.ORIGINAL
-                [dtk, ~, exitflag] = Mpc.dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,...
-                                                            cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,...
-                                                            cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,...
-                                                            cfg.mpc.PhiNp,cfg.mpc.p);
+                [dtk, exitflag] = self.run_mpc(cfg, x0, dtk_prev);
             end
 
             time_qp = tic;
 
             % updating dtk_prev
-            dtk_prev2 = dtk_prev;
             dtk_prev = dtk;
 
-            % ignore control if problem not possible
-            %  exitflag:
-            %    1: function converged to the solution x
-            %    0: number of iterations exceeded MaxIterations
-            %   -2: problem is infeasible
-            %   -3: problem is unbounded
-            %   44: using previous dtk to emulate the time to respond from esp32
-            if exitflag ~= 1 && exitflag ~= 44
-                dtk = dtk*0;
-            end
-
-            % reading nominal time values
+            % compute new time vector from dtk
             Ts = config.Ts;
-            
-            % applying quantization on time signal
             Ts = self.quantizacao(Ts, Enums.QuantType.Sim);
-
-
-            % dtk_ = dtk*1e6;
-            % cts_us = Ts*1e6;
-            % dts    = diff(cts_us);
-
-            % updating time vector with control command
+            
             for j = 1:numel(dtk)
                 Ts(j+1) = Ts(j+1) + dtk(j);
             end
 
-            % ts_us = Ts*1e6;
-            bla = self.signal_process(x0);
-            % ble = 1;
+            bla_time_us = self.signal_process(x0, dtk_prev);
     
             % updating time on local config variable
             cfg.Ts = Ts;
