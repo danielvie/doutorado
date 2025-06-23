@@ -1,10 +1,7 @@
 function [dtk, exitflag] = run_mpc(self, config, x0, dtk_prev)
 
-    % read config
-    cfg = config;
-
     % compute `ek`
-    ek  = x0 - cfg.mpc.x_target;
+    ek  = x0 - config.mpc.x_target;
     
     % compute augmented `ek_aug`
     ek_aug = [ek; dtk_prev];
@@ -12,15 +9,15 @@ function [dtk, exitflag] = run_mpc(self, config, x0, dtk_prev)
     % compute control `dtk`
     % ?? augmented
     if self.m_state_mode == Enums.StateMode.AUGMENTED
-        [dtk, ~, exitflag] = Mpc.dualmode_switching(ek_aug,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,...
-                                                    cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,...
-                                                    cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,...
-                                                    cfg.mpc.PhiNp,cfg.mpc.p);
+        [dtk, ~, exitflag] = Mpc.dualmode_switching(ek_aug,config.mpc.H,config.mpc.Hf,config.mpc.Phi1Np,...
+                                                    config.mpc.Qbar,config.mpc.Rbar,config.mpc.Lbar,...
+                                                    config.mpc.cbar,config.mpc.Pf,config.mpc.Sf,config.mpc.bf,...
+                                                    config.mpc.PhiNp,config.mpc.p);
     else % Enums.StateMode.ORIGINAL
-        [dtk, ~, exitflag] = Mpc.dualmode_switching(ek,cfg.mpc.H,cfg.mpc.Hf,cfg.mpc.Phi1Np,...
-                                                    cfg.mpc.Qbar,cfg.mpc.Rbar,cfg.mpc.Lbar,...
-                                                    cfg.mpc.cbar,cfg.mpc.Pf,cfg.mpc.Sf,cfg.mpc.bf,...
-                                                    cfg.mpc.PhiNp,cfg.mpc.p);
+        [dtk, ~, exitflag] = Mpc.dualmode_switching(ek,config.mpc.H,config.mpc.Hf,config.mpc.Phi1Np,...
+                                                    config.mpc.Qbar,config.mpc.Rbar,config.mpc.Lbar,...
+                                                    config.mpc.cbar,config.mpc.Pf,config.mpc.Sf,config.mpc.bf,...
+                                                    config.mpc.PhiNp,config.mpc.p);
     end
     
     % ignore control if problem not possible
@@ -32,12 +29,5 @@ function [dtk, exitflag] = run_mpc(self, config, x0, dtk_prev)
     if exitflag ~= 1
         dtk = dtk*0;
     end
-    
-    % compute new time vector from dtk
-    Ts = config.Ts;
-    Ts = self.quantizacao(Ts, Enums.QuantType.Sim);
-    
-    for j = 1:numel(dtk)
-        Ts(j+1) = Ts(j+1) + dtk(j);
-    end
+
 end

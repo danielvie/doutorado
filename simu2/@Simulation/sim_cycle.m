@@ -1,21 +1,18 @@
 function [y,t,u,m,xr, yy,tt,mm] = sim_cycle(~, config)
 
-    % lendo configuracoes
-    cfg = config;
-
-    C     = cfg.C;
-    D     = cfg.D;
-    tstep = cfg.tstep;
-    x0    = cfg.x0;
-    Ts    = cfg.Ts;
+    C     = config.C;
+    D     = config.D;
+    tstep = config.tstep;
+    x0    = config.x0;
+    Ts    = config.Ts;
 
     % simulando com parametros flexiveis
-    n_modes = numel(cfg.Omega);
-    nstates = size(cfg.A{1}, 2);
+    n_modes = numel(config.Omega);
+    nstates = size(config.A{1}, 2);
     
     % alocando vetores de saida 
-    nmax = ceil(cfg.Tpmax/cfg.tstep);
-    nvar = numel(cfg.xref);
+    nmax = ceil(config.Tpmax/config.tstep);
+    nvar = numel(config.xref);
     t    = zeros(nmax, 1);
     u    = zeros(nmax, 1);
     y    = zeros(nmax, nvar);
@@ -35,19 +32,19 @@ function [y,t,u,m,xr, yy,tt,mm] = sim_cycle(~, config)
     tt = zeros(n_modes, 1);
     mm = zeros(n_modes, 1);
     
-    omega = cfg.Omega;
+    omega = config.Omega;
 
     for i = 1:n_modes
         % lendo modo de operacao (indice do modo inicia em `0`)
         imode =omega(i);
                 
         % lendo matrizes A e B 
-        Ai = cfg.A{imode};
-        Bi = cfg.b{imode};
+        Ai = config.A{imode};
+        Bi = config.b{imode};
         
         % calculando ciclo
         ti = (Ts(i):tstep:Ts(i+1)-tstep)';
-        % ui = ones(size(ti))*cfg.ur(imode);
+        % ui = ones(size(ti))*config.ur(imode);
         ui = ones(size(ti));
         mi = ones(size(ti))*imode;
         
@@ -67,10 +64,6 @@ function [y,t,u,m,xr, yy,tt,mm] = sim_cycle(~, config)
         cont = cont + nti;
         
         xr(i+1,:) = xi0;
-
-
-
-
 
         % simulando com estado extendido
         xi0_ = reshape(xi0_, [numel(xi0_), 1]);
@@ -97,7 +90,7 @@ function [y,t,u,m,xr, yy,tt,mm] = sim_cycle(~, config)
     x0 = reshape(x0, [1, nstates]);
     yy = [x0;yy];
     tt = [Ts(1);tt];
-    mm = [cfg.Omega(1);mm];
+    mm = [config.Omega(1);mm];
     
     % removendo pontos nao usados da alocacao
     t = t(1:cont);

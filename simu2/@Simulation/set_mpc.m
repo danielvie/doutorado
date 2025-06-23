@@ -23,11 +23,11 @@ function set_mpc(self)
     Nd = mpc_config.Nd; % Default repeated controls if not provided
     
     % reading config values
-    cfg = self.m_config;
+    config = self.m_config;
 
     [Phi, Gamma] = self.get_phi_gamma();
 
-    N  = numel(cfg.Omega);
+    N  = numel(config.Omega);
     p  = N - 1;
 
     % ?? augmented
@@ -67,7 +67,7 @@ function set_mpc(self)
     mpc_opt          = struct();
     mpc_opt.on       = true;
 
-    mpc_opt.x_target = cfg.x0;
+    mpc_opt.x_target = config.x0;
     mpc_opt.H        = H;
     mpc_opt.Hf       = Hf;
     mpc_opt.Phi1Np   = Phi1Np;
@@ -82,7 +82,7 @@ function set_mpc(self)
     mpc_opt.p        = p;
     
     mpc_opt.options  = optimoptions('quadprog', 'Algorithm', 'active-set');
-    % cfg.mpc          = mpc_opt;
+    % config.mpc          = mpc_opt;
     
     mpc_opt.vars     = rmfield(Utils.getAllVars(), 'mpc_opt');
 

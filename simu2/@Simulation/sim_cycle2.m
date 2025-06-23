@@ -1,12 +1,9 @@
 function [y,t,m,xr] = sim_cycle2(~, config)
 
-    % reading config
-    cfg = config;
+    x0    = config.x0;
+    Ts    = config.Ts;
 
-    x0    = cfg.x0;
-    Ts    = cfg.Ts;
-
-    nmodes  = numel(cfg.Omega);
+    nmodes  = numel(config.Omega);
     nstates = numel(x0);
     
     % allocating output vectors
@@ -21,15 +18,15 @@ function [y,t,m,xr] = sim_cycle2(~, config)
     xr   = zeros(nmodes, numel(x0));
     xr(1,:) = x0;
     
-    omega = cfg.Omega;
+    omega = config.Omega;
     for i = 1:nmodes
 
         % reading operation modes (indices start with `0`)
         imode = omega(i);
                 
         % reading matrices `A` and `B`
-        Ai = cfg.A{imode};
-        Bi = cfg.b{imode};
+        Ai = config.A{imode};
+        Bi = config.b{imode};
         
         xr(i+1,:) = xi0;
 

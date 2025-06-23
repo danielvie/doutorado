@@ -1,12 +1,8 @@
-% [y,t,u] = sim_n(config, Ts)
 function [y,t,m,dtk_out] = run(self, nsim)
 
-    % reading config
-    config = self.m_config;
-
     % initializing output variables
-    modes_len  = numel(config.Omega);
-    states_len = numel(config.x0);
+    modes_len  = numel(self.m_config.Omega);
+    states_len = numel(self.m_config.x0);
 
     y = zeros(nsim*modes_len, states_len); 
     t = zeros(nsim*modes_len, 1);
@@ -15,14 +11,14 @@ function [y,t,m,dtk_out] = run(self, nsim)
     dtk_len = modes_len - 1;
     dtk_out = zeros(dtk_len, nsim);
 
-    cfg = config;
+    config = self.m_config;
 
     t0  = 0.0;
-    x0  = cfg.x0;
+    x0  = config.x0;
     
     mpc_on = false;
-    if isfield(cfg, 'mpc')
-        if cfg.mpc.on == 1
+    if isfield(config, 'mpc')
+        if config.mpc.on == 1
             mpc_on = true;
         end
     end
@@ -31,10 +27,10 @@ function [y,t,m,dtk_out] = run(self, nsim)
     Nd = self.m_mpc_config.Nd;
     Nd_counter = 1;
     
-    dtk_prev  = zeros([numel(cfg.Omega)-1, 1]);
+    dtk_prev  = zeros([numel(config.Omega)-1, 1]);
 
     for i = 1:nsim
-        dtk = zeros([numel(cfg.Omega)-1, 1]);
+        dtk = zeros([numel(config.Omega)-1, 1]);
         if mpc_on
 
             % ?? augmented
@@ -44,11 +40,11 @@ function [y,t,m,dtk_out] = run(self, nsim)
                     dtk = dtk_prev; % keep repeating control until Nd
                     exitflag = 44; % flag that the value is not computed
                 else
-                    [dtk, exitflag] = self.run_mpc(cfg, x0, dtk_prev);
+                    [dtk, exitflag] = self.run_mpc(config, x0, dtk_prev);
                     Nd_counter = 1;
                 end
             else % Enums.StateMode.ORIGINAL
-                [dtk, exitflag] = self.run_mpc(cfg, x0, dtk_prev);
+                [dtk, exitflag] = self.run_mpc(config, x0, dtk_prev);
             end
 
             time_qp = tic;
@@ -57,17 +53,12 @@ function [y,t,m,dtk_out] = run(self, nsim)
             dtk_prev = dtk;
 
             % compute new time vector from dtk
-            Ts = config.Ts;
-            Ts = self.quantizacao(Ts, Enums.QuantType.Sim);
-            
-            for j = 1:numel(dtk)
-                Ts(j+1) = Ts(j+1) + dtk(j);
-            end
+            Ts = self.compute_ts_from_dtk(self.m_config, dtk);
 
             bla_time_us = self.signal_process(x0, dtk_prev);
     
             % updating time on local config variable
-            cfg.Ts = Ts;
+            config.Ts = Ts;
 
             % logging DATA
             time_us = arrayfun(@round, diff(Ts*1e6));
@@ -83,7 +74,7 @@ function [y,t,m,dtk_out] = run(self, nsim)
             self.m_log.run.exitflag = [self.m_log.run.exitflag; exitflag];
             self.m_log.run.time_us = [self.m_log.run.time_us; time_us];
             self.m_log.run.x0 = [self.m_log.run.x0; x0'];
-            self.m_log.run.x_target = [self.m_log.run.x_target; cfg.mpc.x_target'];
+            self.m_log.run.x_target = [self.m_log.run.x_target; config.mpc.x_target'];
 
             self.m_log.run.time_qp = [self.m_log.run.time_qp; time_qp];
             self.m_log.run.time_qp = [self.m_log.run.time_qp; time_qp];
@@ -93,7 +84,7 @@ function [y,t,m,dtk_out] = run(self, nsim)
         end
         
         % running 1 simulation cycle
-        [y_,t_,m_,~] = self.sim_cycle2(cfg);
+        [y_,t_,m_,~] = self.sim_cycle2(config);
 
         % saving states
         ii = (i-1)*modes_len + 1;
@@ -106,7 +97,7 @@ function [y,t,m,dtk_out] = run(self, nsim)
 
         % updating values for next cycle
         t0  = t_(end) + t0;
-        cfg.x0 = y_(end,:)';
-        x0  = cfg.x0;
+        config.x0 = y_(end,:)';
+        x0  = config.x0;
     end
 end

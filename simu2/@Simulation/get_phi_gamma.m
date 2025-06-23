@@ -1,11 +1,11 @@
 function [Phi, Gamma] = get_phi_gamma(self)
-    cfg = self.m_config;
+    config = self.m_config;
 
-    Ts  = cfg.Ts;
+    Ts  = config.Ts;
     tr  = Ts(2:end);
     xr  = Utils.get_xr(self.m_config);
 
-    [Phi, Gamma] = Mpc.construcao_modelo_instantes(cfg.A, cfg.b, tr, xr, cfg);   
+    [Phi, Gamma] = Mpc.construcao_modelo_instantes(config.A, config.b, tr, xr, config);   
     
     % construindo modelo extendido
     

@@ -16,26 +16,23 @@ function x0 = get_x0(config)
                         0,  0]
     %}
 
-    % copiando config para nova var
-    cfg = config;
-
     % inicializando variaveis de apoio
-    n  = numel(cfg.Omega);
+    n  = numel(config.Omega);
     F  = cell(n,1);
     g  = cell(n,1);
     
-    [m_, n_] = size(cfg.A{1});
+    [m_, n_] = size(config.A{1});
     I  = eye(m_, n_);
 
     for i = 1:n
-        mi = cfg.Omega(i);
-        Ai = cfg.A{mi};
-        bi = cfg.b{mi};
+        mi = config.Omega(i);
+        Ai = config.A{mi};
+        bi = config.b{mi};
 
         % calculando `Fi` e `gi` por estado aumentado
         %  Aa = [ Ai, bi
         %          0,  0]
-        dt   = cfg.Ts(i+1) - cfg.Ts(i);
+        dt   = config.Ts(i+1) - config.Ts(i);
         Fa   = expm([Ai, bi;zeros(1, size(Ai, 2)), 0]*dt);
         F{i} = Fa(1:m_, 1:n_);
         g{i} = Fa(1:m_, n_+1:end);

@@ -1,10 +1,10 @@
 function c = get_switching_constraints(self)
 
-    cfg = self.m_config;
+    config = self.m_config;
 
-    N  = numel(cfg.Omega);
+    N  = numel(config.Omega);
 
-    Ts  = cfg.Ts;
+    Ts  = config.Ts;
     dtr = diff(Ts);
 
     % constraint time
