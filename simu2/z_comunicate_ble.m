@@ -7,7 +7,7 @@ name = "ESP32 Signal Controller";
 
 b = BTBroker(name, SERVICE_UUID, CHARACTERISTIC_UUID);
 
-c =@(x) b.message(x);
+c =@(x) b.msg(x);
 
 s = Simulation();
 s.set_config(Enums.SimName.LAB_CIRCUIT);
@@ -21,8 +21,8 @@ mpc_config.Np = 25;
 s.set_mpc_config(mpc_config);
 s.set_mpc();
 
-
 b.simulation = s;
+
 
 % command for LAB alpha 0.5:
 % time_us = [47, 47, 47, 47, 47, 47];
@@ -36,19 +36,20 @@ command = Utils.signal_create( ...
      time_us, ...
      mode);
 
-fprintf("command: %s\n", command)
-b.message(command);
+b.msg(command);
 
 
+b.set_control_on(false);
 b.set_verbose(false);
 
-% b.message_cmd_cycles_nrun(25);
+
+b.set_cycles_nrun(mpc_config.Nd);
 b.s(0.5);
-b.message_cmd_start();
+b.msg_start();
 
 disp(s)
 
-%b.message("START");
+b.msg("START");
 
 
 % how to test
@@ -57,8 +58,23 @@ disp(s)
 %     >> b.s(0.7)
 
 % broker commands:
-%  s(self, alpha); % simulation.set_alpha_and_mpc_cached(alpha)
-%  sa(self, alpha); % start()
-%  so(self, alpha); % stop()
-%  x(self); % stop()
-%  set_verbose(self, value); % Set the verbosity level of the BTBroker. (default: false)
+%
+% b.simulation.set_alpha_and_mpc_cached(alpha) 
+% alias: b.s(alpha); 
+%
+% b.start()
+% alias: b.sa(); 
+%
+% b.stop()
+% alias: b.so(); 
+% alias: b.x(); 
+%
+% Set the control ON/OFF (true/false)
+% b.set_control_on(value);
+%
+% Set the verbosity level of the BTBroker. (default: false)
+% b.set_verbose(value); 
+% 
+% b.set_cycles_nrun(value);
+% 
+

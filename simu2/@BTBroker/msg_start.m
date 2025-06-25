@@ -1,3 +1,3 @@
-function start(self)
+function msg_start(self)
     self.msg("START");
 end

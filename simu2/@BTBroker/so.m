@@ -1,3 +1,3 @@
 function so(self)
-    self.message("STOP");
+    self.msg("STOP");
 end

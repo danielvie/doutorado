@@ -7,6 +7,7 @@ classdef BTBroker < handle
         chart_list;
         simulation;
         verbose;
+        control_on;
     end
     
     methods
@@ -15,6 +16,7 @@ classdef BTBroker < handle
             self.name = name;
             self.service_uuid = service_uuid;
             self.characteristic_uuid = characteristic_uuid;
+            self.control_on = true;
             
             % prepare connection
             self.connect();
@@ -37,23 +39,27 @@ classdef BTBroker < handle
         unsubscribe(self);
 
         % .. message commands
-        message(self, msg);
-        message_cmd_start(self);
-        message_cmd_stop(self);
-        message_cmd_cycles_nrun(self, value);
-        message_cmd_signal(self, time_us, mode);
+        msg(self, msg);
+        msg_start(self);
+        msg_stop(self);
         
         % .. message handlers
-        message_handle_event(self, src, event);
-        message_handle_process(self, msg);
+        msg_handle_event(self, src, event);
+        msg_handle_process(self, msg);
 
         % .. setters
-        set_verbose(self, value);
+        set_cycles_nrun(self, value);
+        set_signal(self, time_us, mode);
         set_simulation(self);
+        set_verbose(self, value);
+        set_control_on(self, value);
+
+        % .. getters
+        get_signal(self);
 
         % .. automation
-        start(self); % self.message("START");
-        stop(self); % self.message("STOP");
+        start(self); % self.msg("START");
+        stop(self); % self.msg("STOP");
 
         % .. aliases
         s(self, alpha); % self.simulation.set_alpha_and_mpc_cached(alpha)

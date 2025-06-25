@@ -1,4 +1,4 @@
-function message(self, msg)
+function msg(self, msg)
     
     % formated message
     if isstring(msg) == false
@@ -14,4 +14,8 @@ function message(self, msg)
 
     % send message
     write(self.chart_list, uint8(fmt_msg));
+    
+    if self.verbose
+        fprintf("command:= %s\n", msg);
+    end
 end

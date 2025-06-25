@@ -1,7 +1,13 @@
-function message_handle_process(self, msg)
+function msg_handle_process(self, msg)
+
+    if self.control_on == false 
+        % Early return if there is no control
+        return;
+    end 
+
     persistent dtk_prev
     if isempty(dtk_prev)
-        dtk_prev = zeros([numel(config.Omega)-1, 1]);
+        dtk_prev = zeros([numel(self.simulation.m_config.Omega)-1, 1]);
     end
 
     % parsing message
@@ -17,7 +23,6 @@ function message_handle_process(self, msg)
         % if parse is not successfull, then return
         return
     end
-
     
     if self.verbose
         disp('Parsed data:');
@@ -53,6 +58,6 @@ function message_handle_process(self, msg)
         disp('Sending command:');
         disp(command);
     end
-    self.message(command);
+    self.msg(command);
 
 end

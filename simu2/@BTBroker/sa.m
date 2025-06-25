@@ -1,3 +1,3 @@
 function sa(self)
-    self.message("START");
+    self.msg("START");
 end
