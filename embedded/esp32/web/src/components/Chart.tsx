@@ -1,7 +1,19 @@
-import React from 'react';
-import { Line } from 'react-chartjs-2';
+import React from "react";
+import { Line } from "react-chartjs-2";
 import {
+  CategoryScale,
   Chart as ChartJS,
+  Filler,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+} from "chart.js";
+
+// Register Chart.js components
+ChartJS.register(
   LineElement,
   PointElement,
   LinearScale,
@@ -10,10 +22,7 @@ import {
   Tooltip,
   Legend,
   Filler,
-} from 'chart.js';
-
-// Register Chart.js components
-ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend, Filler);
+);
 
 /**
  * Interface representing a data point for the chart
@@ -51,9 +60,9 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
 }) => {
   // Extract latest values from the dataset for display in the digital readout
   // Empty strings are used as defaults if no data is available
-  let v1 = '';
-  let v2 = '';
-  let v3 = '';
+  let v1 = "";
+  let v2 = "";
+  let v3 = "";
   if (data.length) {
     v1 = data[data.length - 1].an3.toFixed(2); // Format VR value to 2 decimal places
     v2 = data[data.length - 1].an5.toFixed(2); // Format V_C1 value to 2 decimal places
@@ -62,31 +71,31 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
 
   // Configure the Chart.js data structure for the line chart
   const chartData = {
-    labels: data.map(d => d.time), // Use timestamps as X-axis labels
+    labels: data.map((d) => d.time), // Use timestamps as X-axis labels
     datasets: [
       {
-        label: 'an3 -> VR',  // Voltage reference
-        data: data.map(d => d.an3),
-        borderColor: '#8884d8', // Purple line
+        label: "an3 -> VR", // Voltage reference
+        data: data.map((d) => d.an3),
+        borderColor: "#8884d8", // Purple line
         borderWidth: 2,
         pointRadius: 0, // Hide individual data points for smoother appearance
-        fill: false,    // Don't fill area under the line
+        fill: false, // Don't fill area under the line
       },
       {
-        label: 'an5 -> v_c1',  // Voltage across capacitor 1
-        data: data.map(d => d.an5),
-        borderColor: '#82ca9d', // Green line
+        label: "an5 -> v_c1", // Voltage across capacitor 1
+        data: data.map((d) => d.an5),
+        borderColor: "#82ca9d", // Green line
         borderWidth: 2,
         pointRadius: 0, // Hide individual data points for smoother appearance
-        fill: false,    // Don't fill area under the line
+        fill: false, // Don't fill area under the line
       },
       {
-        label: 'an6 -> v_c2',  // Voltage across capacitor 2
-        data: data.map(d => d.an6),
-        borderColor: '#ff7300', // Orange line
+        label: "an6 -> v_c2", // Voltage across capacitor 2
+        data: data.map((d) => d.an6),
+        borderColor: "#ff7300", // Orange line
         borderWidth: 2,
         pointRadius: 0, // Hide individual data points for smoother appearance
-        fill: false,    // Don't fill area under the line
+        fill: false, // Don't fill area under the line
       },
     ],
   };
@@ -95,24 +104,24 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
     <div className="w-full h-96 p-4 mb-10">
       {/* Chart title */}
       <h2 className="text-xl font-bold mb-4">{title}</h2>
-      
+
       {/* Digital readouts for the latest values of each measurement */}
       <div>
-        <span className='w-28 inline-block text-right'>an5 {`->`} V_C1:</span>
-        <span className='w-12 inline-block text-right ml-3'>{v2}</span>
+        <span className="w-28 inline-block text-right">an5 {`->`} V_C1:</span>
+        <span className="w-12 inline-block text-right ml-3">{v2}</span>
       </div>
       <div>
-        <span className='w-28 inline-block text-right'>an6 {`->`} V_C2:</span>
-        <span className='w-12 inline-block text-right ml-3'>{v3}</span>
+        <span className="w-28 inline-block text-right">an6 {`->`} V_C2:</span>
+        <span className="w-12 inline-block text-right ml-3">{v3}</span>
       </div>
       <div>
-        <span className='w-28 inline-block text-right'>an3 {`->`} VR:</span>
-        <span className='w-12 inline-block text-right ml-3'>{v1}</span>
+        <span className="w-28 inline-block text-right">an3 {`->`} VR:</span>
+        <span className="w-12 inline-block text-right ml-3">{v1}</span>
       </div>
-      
+
       {/* The actual chart component */}
       <div className="h-full">
-        <Line data={chartData}/>
+        <Line data={chartData} />
       </div>
     </div>
   );

@@ -1,6 +1,13 @@
-import { useState, useEffect } from "react";
-import './App.css';
-import { connect_device, disconnect_device, set_update_status, send_command, toggle_listening, bt_is_connected } from "./components/bluetooth";
+import { useEffect, useState } from "react";
+import "./App.css";
+import {
+  bt_is_connected,
+  connect_device,
+  disconnect_device,
+  send_command,
+  set_update_status,
+  toggle_listening,
+} from "./components/bluetooth";
 import RealtimeChart, { DataPoint } from "./components/Chart";
 import { _create_signal } from "./helper";
 
@@ -12,20 +19,20 @@ enum TestStatus {
 }
 
 function App() {
-  const [status, set_status] = useState('.');
-  const [command_message, set_command_message] = useState('');
-  const [time, set_time] = useState('');
-  const [mode, set_mode] = useState('');
+  const [status, set_status] = useState(".");
+  const [command_message, set_command_message] = useState("");
+  const [time, set_time] = useState("");
+  const [mode, set_mode] = useState("");
   const [mul_value, set_mul_value] = useState("1.0");
   const [data, set_data] = useState<DataPoint[]>([]);
-  const [alpha, set_alpha] = useState('0.5');
-  const [cycle_nrun, set_cycle_nrun] = useState('100');
-  const [listen_label, set_listen_label] = useState('Start Listening');
-  const [test_label, set_test_label] = useState('Test On');
+  const [alpha, set_alpha] = useState("0.5");
+  const [cycle_nrun, set_cycle_nrun] = useState("100");
+  const [listen_label, set_listen_label] = useState("Start Listening");
+  const [test_label, set_test_label] = useState("Test On");
   const [test_status, set_test_status] = useState(TestStatus.OFF);
   const [test_interval_id, set_test_interval_id] = useState<number>();
 
-  const [copy_label, set_copy_label] = useState('copy');
+  const [copy_label, set_copy_label] = useState("copy");
   const [is_connected, set_is_connected] = useState(false); // New state for connection status
 
   // Monitor connection state
@@ -47,16 +54,16 @@ function App() {
   set_update_status(update_status);
 
   function handle_copy() {
-    let message: string = '';
-    message += `time = [${data.map(v => v.time).join(', ')}];\n`;
-    message += `an3 = [${data.map(v => v.an3).join(', ')}];\n`;
-    message += `an5 = [${data.map(v => v.an5).join(', ')}];\n`;
-    message += `an6 = [${data.map(v => v.an6).join(', ')}];\n`;
+    let message: string = "";
+    message += `time = [${data.map((v) => v.time).join(", ")}];\n`;
+    message += `an3 = [${data.map((v) => v.an3).join(", ")}];\n`;
+    message += `an5 = [${data.map((v) => v.an5).join(", ")}];\n`;
+    message += `an6 = [${data.map((v) => v.an6).join(", ")}];\n`;
 
     navigator.clipboard.writeText(message)
       .then(() => {
-        set_copy_label('copied!');
-        setTimeout(() => set_copy_label('copy'), 500);
+        set_copy_label("copied!");
+        setTimeout(() => set_copy_label("copy"), 500);
       });
   }
 
@@ -78,10 +85,10 @@ function App() {
     const value_ = e.target.value;
     set_cycle_nrun(value_);
   }
-  
+
   function handle_send_cycle_nrun() {
-    const command = `CYCLE_NRUN:${cycle_nrun}`
-    send_command(command)
+    const command = `CYCLE_NRUN:${cycle_nrun}`;
+    send_command(command);
   }
 
   function handle_compute_alpha() {
@@ -115,11 +122,11 @@ function App() {
     send_command("HIGH");
   }
 
-  function probe_values(values: { an3: string, an5: string, an6: string }) {
+  function probe_values(values: { an3: string; an5: string; an6: string }) {
     const now = new Date();
     const timeStr = (now.getTime() - initial_time.getTime()).toString();
 
-    set_data(currentData => {
+    set_data((currentData) => {
       const newData = [...currentData, {
         time: timeStr,
         an6: parseFloat(values.an6),
@@ -140,15 +147,15 @@ function App() {
 
   function handle_test_receive() {
     if (test_status === TestStatus.OFF) {
-      set_test_status(TestStatus.ON)
-      set_test_label("Test Off")
-      set_data([])
+      set_test_status(TestStatus.ON);
+      set_test_label("Test Off");
+      set_data([]);
 
       const test_interval_id_ = setInterval(() => {
         const now = new Date();
         const timeStr = (now.getTime() - initial_time.getTime()).toString();
 
-        set_data(currentData => {
+        set_data((currentData) => {
           const newData = [...currentData, {
             time: timeStr,
             an3: generate_value(),
@@ -158,16 +165,14 @@ function App() {
           return newData;
         });
       }, 100);
-      set_test_interval_id(test_interval_id_)
+      set_test_interval_id(test_interval_id_);
     } else if (test_status === TestStatus.ON) {
-      console.log('stoping test');
-      
-      set_test_status(TestStatus.OFF)
-      set_test_label('Test On')
-      clearInterval(test_interval_id)
+      console.log("stoping test");
+
+      set_test_status(TestStatus.OFF);
+      set_test_label("Test On");
+      clearInterval(test_interval_id);
     }
-    
-    
   }
 
   function set_signal_1() {
@@ -202,8 +207,8 @@ function App() {
   }
 
   function _multiply_time(value: number) {
-    const res = time.split(',').map((e) => parseFloat(e) * value);
-    const res_str = res.map(Math.round).join(', ');
+    const res = time.split(",").map((e) => parseFloat(e) * value);
+    const res_str = res.map(Math.round).join(", ");
     update_status(res_str);
     set_time(res_str);
   }
@@ -217,27 +222,33 @@ function App() {
           </h1>
 
           <div className="flex gap-3 my-5 items-center justify-center">
-          {is_connected ? 
-            <button
-              id="disconnectBtn"
-              onClick={handle_disconnect}
-              className="btn danger"
-              disabled={!is_connected} // Disable when disconnected
-            >
-              Disconnect
+            {is_connected
+              ? (
+                <button
+                  id="disconnectBtn"
+                  onClick={handle_disconnect}
+                  className="btn danger"
+                  disabled={!is_connected} // Disable when disconnected
+                >
+                  Disconnect
+                </button>
+              )
+              : (
+                <button
+                  id="connectBtn"
+                  onClick={handle_connect}
+                  className="btn green"
+                  disabled={is_connected} // Disable when connected
+                >
+                  Connect to ESP32
+                </button>
+              )}
+            <button onClick={handle_listen} className="btn">
+              {listen_label}
             </button>
-            :
-            <button
-              id="connectBtn"
-              onClick={handle_connect}
-              className="btn green"
-              disabled={is_connected} // Disable when connected
-            >
-              Connect to ESP32
+            <button onClick={handle_test_receive} className="btn">
+              {test_label}
             </button>
-          }
-            <button onClick={handle_listen} className="btn">{listen_label}</button>
-            <button onClick={handle_test_receive} className="btn">{test_label}</button>
             <button onClick={handle_copy} className="btn">{copy_label}</button>
           </div>
 
@@ -253,7 +264,13 @@ function App() {
                 className="flex-1 bg-panel border-zinc-700 border-[1px] rounded-sm px-3 py-1"
                 placeholder="Enter command"
               />
-              <button id="sendBtn" onClick={handle_send_command} className="flex-none ml-2 btn">send</button>
+              <button
+                id="sendBtn"
+                onClick={handle_send_command}
+                className="flex-none ml-2 btn"
+              >
+                send
+              </button>
             </div>
 
             <div className="flex my-4 gap-2">
@@ -266,7 +283,13 @@ function App() {
                 value={alpha}
                 onChange={handle_set_alpha}
               />
-              <button id="btn-alpha" className="btn" onClick={handle_compute_alpha}>calc</button>
+              <button
+                id="btn-alpha"
+                className="btn"
+                onClick={handle_compute_alpha}
+              >
+                calc
+              </button>
               <span className="flex-1"></span>
 
               <label className="mr-4 relative top-2 w-16">cycle_nrun:</label>
@@ -277,11 +300,22 @@ function App() {
                 value={cycle_nrun}
                 onChange={handle_cycle_nrun}
               />
-              <button id="btn-alpha" className="btn" onClick={handle_send_cycle_nrun}>send</button>
+              <button
+                id="btn-alpha"
+                className="btn"
+                onClick={handle_send_cycle_nrun}
+              >
+                send
+              </button>
             </div>
 
             <div className="flex my-4 gap-2">
-              <label htmlFor="" className="flex item-center justify-content mr-4 relative top-2 w-12">time:</label>
+              <label
+                htmlFor=""
+                className="flex item-center justify-content mr-4 relative top-2 w-12"
+              >
+                time:
+              </label>
               <input
                 type="text"
                 id="in-time"
@@ -293,7 +327,12 @@ function App() {
             </div>
 
             <div className="flex my-4 gap-2">
-              <label htmlFor="" className="flex item-center justify-content mr-4 relative top-2 w-12">modes:</label>
+              <label
+                htmlFor=""
+                className="flex item-center justify-content mr-4 relative top-2 w-12"
+              >
+                modes:
+              </label>
               <input
                 type="text"
                 id="in-mode"
@@ -305,7 +344,12 @@ function App() {
             </div>
 
             <div className="flex my-4 gap-2">
-              <label htmlFor="" className="flex item-center justify-content mr-4 relative top-2 w-12">X*time:</label>
+              <label
+                htmlFor=""
+                className="flex item-center justify-content mr-4 relative top-2 w-12"
+              >
+                X*time:
+              </label>
               <input
                 type="text"
                 id="in-mul"
@@ -315,24 +359,61 @@ function App() {
                 onChange={handle_set_multiply}
               />
               <span className=""></span>
-              <button id="btn-div10" onClick={() => _multiply_time(0.1)} className="btn">x1/10</button>
-              <button id="btn-mul10" onClick={() => _multiply_time(10.0)} className="btn">x10</button>
-              <button id="btn-signal-calc" onClick={() => _multiply_time(parseFloat(mul_value))} className="btn">calc</button>
-              <button id="btn-signal-send" onClick={handle_send_signal} className="btn">send signal</button>
+              <button
+                id="btn-div10"
+                onClick={() => _multiply_time(0.1)}
+                className="btn"
+              >
+                x1/10
+              </button>
+              <button
+                id="btn-mul10"
+                onClick={() => _multiply_time(10.0)}
+                className="btn"
+              >
+                x10
+              </button>
+              <button
+                id="btn-signal-calc"
+                onClick={() => _multiply_time(parseFloat(mul_value))}
+                className="btn"
+              >
+                calc
+              </button>
+              <button
+                id="btn-signal-send"
+                onClick={handle_send_signal}
+                className="btn"
+              >
+                send signal
+              </button>
             </div>
 
             <div className="bg-purple-500 w-full h-[2px] my-5"></div>
 
             <div className="flex gap-4 justify-center">
-              <button id="btn-signal-1" onClick={set_signal_1} className="btn">signal 1</button>
-              <button id="btn-signal-2" onClick={set_signal_2} className="btn">signal 2</button>
-              <button id="btn-start" onClick={handleStart} className="btn">start</button>
-              <button id="btn-stop" onClick={handle_stop} className="btn">stop</button>
-              <button id="btn-high" onClick={handle_high} className="btn">high</button>
+              <button id="btn-signal-1" onClick={set_signal_1} className="btn">
+                signal 1
+              </button>
+              <button id="btn-signal-2" onClick={set_signal_2} className="btn">
+                signal 2
+              </button>
+              <button id="btn-start" onClick={handleStart} className="btn">
+                start
+              </button>
+              <button id="btn-stop" onClick={handle_stop} className="btn">
+                stop
+              </button>
+              <button id="btn-high" onClick={handle_high} className="btn">
+                high
+              </button>
             </div>
           </div>
 
-          <div id="status" className="w-min-[300px] m-2 p-3 rounded-lg bg-panel font-bold">
+          <div
+            id="status"
+            className="w-min-[300px] m-2 p-3 rounded-lg bg-panel font-bold"
+          >
             {status} {is_connected ? "(Connected)" : "(Disconnected)"}
           </div>
 
