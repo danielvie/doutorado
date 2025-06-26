@@ -45,13 +45,15 @@ func main() {
 		log.Fatalf("Invalid port number: %s. Must be between 1 and 65535.", port)
 	}
 
-	// Create a file server handler for the current directory
+	// Create a file server handler
 	// fs := http.FileServer(http.Dir(dir))
 	// http.Handle("/", fs)
+
 	distFS, err := fs.Sub(content, "dist")
 	if err != nil {
-		log.Fatalf("Failed to access embedded dist folder: %s", err)
+		log.Fatalf("Failed to access embedded files: %s", err)
 	}
+
 	fs := http.FileServer(http.FS(distFS))
 	http.Handle("/", fs)
 
