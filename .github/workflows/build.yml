@@ -46,8 +46,7 @@ jobs:
       # Step 6: Build the Windows executable and rename it
       - name: Build Windows Executable
         run: |
-          cd embedded/esp32/web
-          GOOS=windows GOARCH=amd64 go build -o web_server_daniel.exe ./go_server/server.go
+          GOOS=windows GOARCH=amd64 go build -o web_server_daniel.exe ./embedded/esp32/web/server.go
           mv web_server_daniel.exe web_server_daniel-windows-amd64.exe  # Rename the file
 
       # Step 7: Upload the executable as an artifact
