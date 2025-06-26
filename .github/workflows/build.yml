@@ -66,4 +66,4 @@ jobs:
           name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
-          files: web_server_daniel-windows-amd64.exe
+          files: wembedded/esp32/web/eb_server_daniel-windows-amd64.exe
