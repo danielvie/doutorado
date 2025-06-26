@@ -1,0 +1,69 @@
+name: Build and Release Windows Executable
+
+# Trigger the workflow only on tagged pushes
+on:
+  push:
+    tags:
+      - 'web-v*'  # Triggers on tags like web-v1.0.0, web-v2.0.0, etc.
+
+permissions:
+  contents: write  # Grant write access to repository contents
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+
+      # Step 2: Set up Node environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          cd embedded\esp32\web
+          npm install
+
+      # Step 4: Build React App
+      - name: Build react app
+        run: |
+          cd embedded\esp32\web
+          npm run build
+
+      # Step 5: Set up Go environment
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      # Step 6: Build the Windows executable and rename it
+      - name: Build Windows Executable
+        run: |
+          cd embedded\esp32\web
+          GOOS=windows GOARCH=amd64 go build -o web_server_daniel.exe ./go_server/server.go
+          mv web_server_daniel.exe web_server_daniel-windows-amd64.exe  # Rename the file
+
+      # Step 7: Upload the executable as an artifact
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web_server_daniel
+          path: web_server_daniel-windows-amd64.exe
+
+      # Step 8: Create a GitHub Release
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          files: web_server_daniel-windows-amd64.exe
