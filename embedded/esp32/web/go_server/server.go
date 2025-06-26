@@ -2,22 +2,26 @@ package main
 
 import (
 	"bufio"
+	"embed"
 	"fmt"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 )
 
+//go:embed dist/*
+var content embed.FS
+
 func main() {
 	// Get the directory of the executable
-	exePath, err := os.Executable()
-	if err != nil {
-		log.Fatalf("Failed to get executable path: %v", err)
-	}
-	dir := filepath.Dir(exePath)
+	// exePath, err := os.Executable()
+	// if err != nil {
+	// 	log.Fatalf("Failed to get executable path: %v", err)
+	// }
+	// dir := filepath.Dir(exePath)
 
 	// Prompt for port with default value
 	defaultPort := "8000"
@@ -42,7 +46,13 @@ func main() {
 	}
 
 	// Create a file server handler for the current directory
-	fs := http.FileServer(http.Dir(dir))
+	// fs := http.FileServer(http.Dir(dir))
+	// http.Handle("/", fs)
+	distFS, err := fs.Sub(content, "dist")
+	if err != nil {
+		log.Fatalf("Failed to access embedded dist folder: %s", err)
+	}
+	fs := http.FileServer(http.FS(distFS))
 	http.Handle("/", fs)
 
 	// Start the server with improved message
@@ -53,8 +63,7 @@ func main() {
 	color_reset := "\033[0m"
 
 	println(" ")
-	fmt.Printf("%sServing files on:%s %s\n", color, color_reset, dir)
-	fmt.Printf("%sAddress:%s http://localhost%s\n", color, color_reset, addr)
+	fmt.Printf("%sServing files on Address:%s http://localhost%s\n", color, color_reset, addr)
 	println(" ")
 	err = http.ListenAndServe(addr, nil)
 	if err != nil {

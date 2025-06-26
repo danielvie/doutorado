@@ -14,4 +14,4 @@ tasks:
     aliases: ["b"]
     cmds:
      - bun run build
-     - go build -o dist/server.exe ./go_server/server.go
+     - go build -o webserver.exe ./go_server/server.go
