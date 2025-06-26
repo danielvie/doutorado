@@ -6,5 +6,12 @@ tasks:
     deps: [main]
 
   main:
+    aliases: ["m"]
     cmds:
      - bun run dev
+
+  build:
+    aliases: ["b"]
+    cmds:
+     - bun run build
+     - go build -o dist/server.exe ./go_server/server.go
