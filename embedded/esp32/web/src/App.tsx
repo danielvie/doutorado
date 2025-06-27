@@ -269,7 +269,7 @@ function App() {
                 onClick={handle_send_command}
                 className="flex-none ml-2 btn"
               >
-                send
+                SEND command
               </button>
             </div>
 
@@ -288,7 +288,7 @@ function App() {
                 className="btn"
                 onClick={handle_compute_alpha}
               >
-                calc
+                CALC
               </button>
               <span className="flex-1"></span>
 
@@ -305,7 +305,7 @@ function App() {
                 className="btn"
                 onClick={handle_send_cycle_nrun}
               >
-                send
+                SEND cycle
               </button>
             </div>
 
@@ -378,14 +378,14 @@ function App() {
                 onClick={() => _multiply_time(parseFloat(mul_value))}
                 className="btn"
               >
-                calc
+                multiply
               </button>
               <button
                 id="btn-signal-send"
                 onClick={handle_send_signal}
                 className="btn"
               >
-                send signal
+                SEND signal
               </button>
             </div>
 
@@ -393,19 +393,19 @@ function App() {
 
             <div className="flex gap-4 justify-center">
               <button id="btn-signal-1" onClick={set_signal_1} className="btn">
-                signal 1
+                SIGNAL 1
               </button>
               <button id="btn-signal-2" onClick={set_signal_2} className="btn">
-                signal 2
+                SIGNAL 2
               </button>
               <button id="btn-start" onClick={handleStart} className="btn">
-                start
+                START
               </button>
               <button id="btn-stop" onClick={handle_stop} className="btn">
-                stop
+                LOW
               </button>
               <button id="btn-high" onClick={handle_high} className="btn">
-                high
+                HIGH
               </button>
             </div>
           </div>
