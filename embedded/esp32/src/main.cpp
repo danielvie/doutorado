@@ -390,8 +390,14 @@ void bleTask(void* parameter) {
             ble_task_state = BLETaskState::IDLE;
         }
         
+        // Send signal if listen is ON without signal
+        if (signal_task_state != SignalTaskState::SIGNAL_RUN) {
+            readAndSendAnalogData(pCharacteristic);
+            vTaskDelay(pdMS_TO_TICKS(100));  // ms task period
+        }
+        
         esp_task_wdt_reset();  // Reset watchdog timer
-        vTaskDelay(pdMS_TO_TICKS(50));  // 50ms task period
+        vTaskDelay(pdMS_TO_TICKS(10));  // ms task period
     }
 }
 
