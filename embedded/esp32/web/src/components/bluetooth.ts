@@ -178,10 +178,10 @@ export function bt_is_connected() {
  * When enabled, the device will send notification data that will be
  * processed and sent to the provided callback function.
  *
- * @param fun_probe - Callback function that will receive the parsed sensor data
+ * @param fn_probe - Callback function that will receive the parsed sensor data
  * @returns {boolean} The new listening state (true = listening, false = not listening)
  */
-export function toggle_listening(fun_probe: CallableFunction): boolean {
+export function toggle_listening(fn_probe: CallableFunction): boolean {
     // Can't listen if not connected
     if (!bt_is_connected()) {
         update_status("Cannot toggle listening: not connected", true);
@@ -193,7 +193,7 @@ export function toggle_listening(fun_probe: CallableFunction): boolean {
 
     // Start or stop notifications based on the new state
     if (g_is_listening) {
-        start_notifications(fun_probe);
+        start_notifications(fn_probe);
     } else {
         stop_notifications();
     }
@@ -207,9 +207,9 @@ export function toggle_listening(fun_probe: CallableFunction): boolean {
  * This sets up an event listener for incoming data, parses it,
  * and passes the parsed sensor values to the provided callback.
  *
- * @param fun_probe - Callback function that will receive the parsed sensor data
+ * @param fn_probe - Callback function that will receive the parsed sensor data
  */
-async function start_notifications(fun_probe: CallableFunction) {
+async function start_notifications(fn_probe: CallableFunction) {
     if (!g_characteristic) {
         update_status("No characteristic available", true);
         return;
@@ -252,7 +252,7 @@ async function start_notifications(fun_probe: CallableFunction) {
                         an5: parsed_data["an5"] || "0",
                         an6: parsed_data["an6"] || "0",
                     };
-                    fun_probe(results); // Call the probe callback with new data
+                    fn_probe(results); // Call the probe callback with new data
                 }
             },
         );
