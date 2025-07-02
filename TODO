@@ -11,8 +11,8 @@ canal 2 15v
 "<localleader>ts" -> "todo.toggleStart"
 "<localleader>ta" -> "todo.archive"
 
-    # {@ Wednesday 18 Jun 2025}*:
-
+    # {@ Wednesday 25 Jun 2025}*:
+        ☐ mudar `web` para ler os sinais independente do estado do sinal
 
     # {@ Wednesday 14 May 2025}*:
         ☐ acertar simulacao para segurar controle no tempo do estado aumentado @started(25-06-17 22:03)
