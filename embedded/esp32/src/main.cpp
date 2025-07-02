@@ -79,6 +79,7 @@ const uint32_t gpio_di6_mask = 1 << GPIO_DI6;
 // Forward declarations
 void bleTask(void* parameter);
 void signalTask(void* arg);
+void readAndSendAnalogData(NimBLECharacteristic* pCharacteristic);
 
 /**
  * LED blink utility function for status indication
@@ -385,22 +386,7 @@ void bleTask(void* parameter) {
         // Handle analog reading requests
         if (ble_task_state == BLETaskState::ANALOG_READ) {
             ble_task_state = BLETaskState::ANALOG_READING;
-
-            // Read analog values from multiple channels
-            float voltage_03 = read_analog(AnalogPort::AN3);
-            float voltage_05 = read_analog(AnalogPort::AN5);
-            float voltage_06 = read_analog(AnalogPort::AN6);
-
-            // Format message with sensor readings
-            String message = "an3:" + String(voltage_03, 3) + ", " +
-                             "an5:" + String(voltage_05, 3) + ", " +
-                             "an6:" + String(voltage_06, 3);
-
-            // Send data via BLE notification
-            const char *messageCStr = message.c_str();
-            pCharacteristic->setValue((uint8_t *)messageCStr, strlen(messageCStr));
-            pCharacteristic->notify();
-
+            readAndSendAnalogData(pCharacteristic);
             ble_task_state = BLETaskState::IDLE;
         }
         
@@ -457,6 +443,27 @@ void signalTask(void* arg) {
         esp_task_wdt_reset();  // Reset watchdog timer
         vTaskDelay(pdMS_TO_TICKS(10));  // 10ms task period
     }
+}
+
+/**
+ * Read analog values from multiple channels and send via BLE notification
+ * @param pCharacteristic Pointer to the BLE characteristic for sending data
+ */
+void readAndSendAnalogData(NimBLECharacteristic* pCharacteristic) {
+    // Read analog values from multiple channels
+    float voltage_03 = read_analog(AnalogPort::AN3);
+    float voltage_05 = read_analog(AnalogPort::AN5);
+    float voltage_06 = read_analog(AnalogPort::AN6);
+
+    // Format message with sensor readings
+    String message = "an3:" + String(voltage_03, 3) + ", " +
+                     "an5:" + String(voltage_05, 3) + ", " +
+                     "an6:" + String(voltage_06, 3);
+
+    // Send data via BLE notification
+    const char *messageCStr = message.c_str();
+    pCharacteristic->setValue((uint8_t *)messageCStr, strlen(messageCStr));
+    pCharacteristic->notify();
 }
 
 /**
