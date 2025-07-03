@@ -69,6 +69,6 @@ func main() {
 	println(" ")
 	err = http.ListenAndServe(addr, nil)
 	if err != nil {
-		log.Fatalf("Server failed to start: %v", err)
+		log.Fatalf("Server fail ed to start: %v", err)
 	}
 }
