@@ -84,6 +84,8 @@ So, this system uses one of the ESP32's built-in hardware timers.
 
 
 \begin{lstlisting}[caption={Core ISR logic}]
+// from main.cpp
+
 bool IRAM_ATTR timer_group_isr_callback(void *args) {
     // Re-enable timer alarm for next interrupt
     timer_group_enable_alarm_in_isr(TIMER_GROUP, TIMER_IDX);
@@ -133,6 +135,8 @@ The BLE service and characteristic are defined and created in main.cpp
 
 
 \begin{lstlisting}[caption={BLE service}]
+// from main.cpp
+
 // BLE Service and Characteristic UUIDs for remote control
 #define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 #define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
@@ -147,5 +151,58 @@ NimBLECharacteristic *pCharacteristic = pService->createCharacteristic(
     NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::NOTIFY
 );
 pCharacteristic->setCallbacks(new CharacteristicCallbacks());
+}
+\end{lstlisting}
+
+\subsection{Part 2: The Web Control Interface}
+
+This is the user interface of the system for controlling the ESP32.
+It is build with web technologies to run in any browser that supports
+Web Bluetooth (like Google Chrome)
+
+\subsubsection{Core Capabilities}
+
+\begin{itemize}
+    \item \textbf{React \& TypeScript:} The application is build using React, a popular 
+        JavaScript library for building user interfaces, and TypeScript, which adds static
+        typing to JavaScript. This combination allow a code that is both portable and 
+        maintainable.
+        \item \textbf{Web Blutooth API:} The Web Bluetooth API is a brawser standard that 
+            exposes Blueetooth functionality to JavaScript, allowing the application to
+            \subitem \textbf{Scan} for nearby BLE devices
+            \subitem \textbf{Connect} to a selected device (ESP32)
+            \subitem \textbf{Discover} its services and characteristics
+            \subitem \textbf{Write} data to characteristics (to send commands)
+            \subitem \textbf{Subscribe} to notifications from charateristics (to receive sensor data)
+\end{itemize}
+
+This eliminates the need for any native software, drivers, or browser plugins. The entire control
+system runs directly in the browser.
+
+
+\begin{lstlisting}[caption={Bluetooth connect\_device}]
+// from bluetooth.ts
+
+export async function connect_device() {
+    try {
+        let navigatorObject: any = window.navigator;
+
+        // Open the device picker dialog, filtering for our specific service
+        g_bluetoothDevice = await navigatorObject.bluetooth.requestDevice({
+            filters: [{ services: [SERVICE_UUID] }],
+        });
+
+        // Connect to the device's GATT server
+        g_gattServer = await g_bluetoothDevice.gatt.connect();
+
+        // Get the service we're interested in
+        const service = await g_gattServer.getPrimaryService(SERVICE_UUID);
+
+        // Get the characteristic we'll use for reading/writing data
+        g_characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+
+    } catch (error: any) {
+        // Handle any errors during the connection process
+    }
 }
 \end{lstlisting}
