@@ -18,7 +18,6 @@
     - CVM -> policia do mercado financeiro
     - B3 -> bolsa de valores brasileira
 
-
 *** aula 03 - Introducao ao tesouro direto
     - calculadora IPCA:
       {https://www.ibge.gov.br/explica/inflacao.php}
@@ -80,7 +79,6 @@
     - pode vender a qualquer momento
 
     - tesouro leva 1 dia pra ser executado
-
 
 *** aula 05 - Tesouro pre-fixado
     {C:/Users/daniel/Documents/DOUTORADO/docs/notes/financas/auvp/material_modulo_03/modulo_03_aula_05.png}
@@ -164,3 +162,45 @@
      - No aluguel de acoes, tem um spread tbm
 
 
+* Avaliacao
+
+  1.  sabendo que existem diversos orgaos reguladores no brasil, assinale qual protege investi 250000 por insti
+  a) FGC
+
+  2. qual destes investimentos nao tem garantia da FGC
+  a) CRI, CRA e Debentures
+
+  3. quais os tipos de renda fixa podem ser obtidos?
+  d) prefixados em que a taxa de juros eh definida no momento da aplicacao ou 
+  pos-fixados em que o indicador eh definido no momento da aplicacao
+
+  4. o queh eh renda fixa?
+  c) de forma simplificada, podemos dizer que a renda fixa eh um ato de emprestar dinheiro a intituicoes,
+  podendo ser instituicoes publicas ou privadas
+
+  5. o que sao debentures?
+  c) as debentures nada mais sao do que o ato de emprestar dinheiro para uma empresa e, em troca,
+  voce recebe juros sobre o valor que foi emprestado. eh bem parecido com a dinamica do tesouro direto,
+  mas com risco maior. em vez de emprestar para o governo, voce financia uma empresa.
+
+
+  6. sefundo seus conhecimentos, marque a alternativa correta:
+  I. Tesouro SELIC: Tesouro atrelado aa taxa Selic, rende 100% da taxa (V)
+  II. Tesouro IPCA+: Tesouro com rentabilidade prefixada, onde vc sae exatamente o quanto ira receber (F)
+  III. Tesouro prefixado com juros semestrais: Tesouro com rentabilidade pre-fixada que pagam juros semestralmente (V)
+  (I e III)
+
+  7. O que sao LCI's e LCA's?
+  d) Letras de credito imobiliario e letras de credito agricola, sao protegidas pelo FGC e isentas de IR. Podem ser comparadas
+  em risco aos CDBs e em rentabilidade a CRIs, CRAs e debentures incentivadas.
+
+  8. O que acontece se a corretora falir?
+  a) perco o saldo que estava na corretora e preciso transferir a custodia dos meus investimentos.
+
+  9. Sobre a marcacao aa mercado, eh correto afirmar aque:
+  c) devido ao reajuste de precos e taxas serem realizados diariamente, investimentos em Tesouro ICPA+ ou prefixados
+  podem ter ser valor reajustado diariamente
+
+  10. O que eh a CBLC?
+  c) Companhia Brasileira de Liquidacao e Custodia, ela eh responsavel por garantir a liquidacao e a custodia dos 
+  ativos na bolsa de valores brasileira
