@@ -1,0 +1,151 @@
+\section{Software description}
+
+This chapter will elaborate on the software architecture. It is composed of a two-parts: a high-precision ESP32-based signal generator 
+and a web-based remote control panel. This integration enables real-time configuration, control, and monitoring of the hardware 
+directly from a web browser via Bluetooth Low Energy (BLE). We will deconstruct the architecture of both the ESP32 firmware 
+and the React web application.
+
+\subsection{System Architecture}
+
+\begin{enumerate}
+    \item \textbf{The Embedded System (ESP32 Firmware)}: A C++ application running on an ESP32 microcontroller. Its sole 
+        purpose is to generate precise digital signals on its GPIO pins and report back sensor data. It acts as a Bluetooth 
+        GATT server, waiting for commands and sending out data.
+    \item \textbf{The Web Control Interface (React App)}: A web application built with React and TypeScript. It serves as 
+        the user's command center to define the signal patterns, send commands to the ESP32 and visualize incoming sensor
+        data on a live chart. It acts as a Bluetooth GATT client, connecting to and controlling the ESP32.
+\end{enumerate}
+
+The bridge between these two parts is the Web Bluetooth API, which allows the browser-based application to communicate 
+wirelessly and directly with the ESP32 hardware.
+
+\subsection{Part 1: The Embedded System (ESP32 Firmware)}
+The firmware is built to be a robust, real-time signal generation engine leveraging features of the ESP32 
+and the FreeRTOS operating system to achieve high performance and reliability.
+
+\subsubsection{FreeRTOS: The Real-Time Engine}
+The ESP32 SDK is build on top of FreeRTOS, a real-time operating system designed for embedded devices. 
+A RTOS guarantees that tasks can be executed with precise timing and this project uses FreeRTOS for:
+
+\begin{itemize}
+    \item \textbf{Multitasking:} The firmware runs two primary tasks concurrently: `signalTask` and `bleTask`. The `bleTask'
+        handles all the non-time-critical Bluetooth communication, while the `signalTask' focuses on managing the signal 
+        state machine
+    \item \textbf{Task Pinning:} The ESP32 has a dual-core processor. To prevent the BLE stack from interfering with signal
+        timing, both tasks are "pinned" to a specific CPU core using `xTaskCreatePinnedToCore' This prevents that a spike in 
+        Bluetooth activity on Core 1 will not delay the signal generation logic running alongsite it.
+    \item \textbf{Priority Management:} The `signalTask' is assigned a high priority, ensuring it gets processor time 
+        when it needs, to enforce the real-time guarantees.
+\end{itemize}
+
+Here is how the tasks are created and pinned to CORE\_1 and CORE\_0
+
+\begin{lstlisting}[caption={Example of FreeRTOS Task Creation}]
+// from main.cpp
+
+// Create BLE task on Core 1 with high stack size for BLE operations
+xTaskCreatePinnedToCore(
+    bleTask,                    // Task function
+    "BLE Task",                 // Task name
+    8192,                       // Stack size (bytes)
+    NULL,                       // Task parameter
+    2,                          // Priority
+    NULL,                       // Task handle
+    CORE_1                      // CPU core 1
+);
+
+// Create signal task on Core 1 with high priority for precise timing
+xTaskCreatePinnedToCore(
+    signalTask,                 // Task function
+    "Signal Task",              // Task name
+    2048,                       // Stack size (bytes)
+    NULL,                       // Task parameter
+    configMAX_PRIORITIES - 2,   // High priority (second highest)
+    NULL,                       // Task handle
+    CORE_0                      // CPU core 0
+);
+\end{lstlisting}
+
+\subsubsection{ESP32 Hardware Timers}
+Software delays like `delay()' are not capable of generating signals with microsecond accuracy. 
+So, this system uses one of the ESP32's built-in hardware timers.
+
+\begin{itemize}
+    \item \textbf{How it Works:} The timer is a dedicated hardware that counts at a very high frequency.
+        It is configure with a prescaler (TIMER\_DIVIDER), which divides the CPU's main clock (240MHz) to create
+        a slower, more manageable timer clock (3MHz in this case).
+    \item \textbf{Interrupt Service Routine (ISR):} The timer is set to trigger a hardware interrupt when its counter reaches
+        a "alarm" value. This interrupt executes a function (Interrupt Service Routine). In this project, the `timer\_group\_isr\_callback'
+        is the ISR. This function contains the code needed to switch the GPIO pins to their next state and set the alarm for the next
+        interrupt.
+    \item \textbf{IRAM Execution:} For maximum speed and to avoid delays from flash memory access, the ISR is loaded into the ESP32's
+        Instruction RAM (IRAM) using the IRAM\_ATTR attribute.
+\end{itemize}
+
+
+\begin{lstlisting}[caption={Core ISR logic}]
+bool IRAM_ATTR timer_group_isr_callback(void *args) {
+    // Re-enable timer alarm for next interrupt
+    timer_group_enable_alarm_in_isr(TIMER_GROUP, TIMER_IDX);
+
+    // Get references to the currently active signal set
+    std::vector<uint64_t>& time_vec = (active_set == ActiveSignalSet::SET_A) ? time_vec_a : time_vec_b;
+    std::vector<uint64_t>& d4_vec = (active_set == ActiveSignalSet::SET_A) ? d4_vec_a : d4_vec_b;
+    std::vector<uint64_t>& d5_vec = (active_set == ActiveSignalSet::SET_A) ? d5_vec_a : d5_vec_b;
+    std::vector<uint64_t>& d6_vec = (active_set == ActiveSignalSet::SET_A) ? d6_vec_a : d6_vec_b;
+
+    // Calculate next state position in signal pattern (circular buffer)
+    uint8_t next_state = (current_state + 1) % active_num_timings;
+    
+    // Build pin state mask based on signal pattern
+    uint32_t pin_states =
+        (d4_vec[next_state] ? gpio_di4_mask : 0) |
+        (d5_vec[next_state] ? gpio_di5_mask : 0) |
+        (d6_vec[next_state] ? gpio_di6_mask : 0);
+
+    // Apply pin states using direct GPIO register manipulation for speed
+    GPIO.out_w1ts = pin_states;  // Set high pins
+    GPIO.out_w1tc = ~pin_states & (gpio_di4_mask | gpio_di5_mask | gpio_di6_mask);  // Clear low pins
+
+    // Update current state and set next timer alarm
+    current_state = next_state;
+    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, time_vec[current_state]);
+
+    return true;
+}
+\end{lstlisting}
+
+\subsubsection{Blutooth Low Energy (BLE)}
+Bluetooth Low Energy is a wireless communication protocol designed for sending small amounts of data with very low power 
+consumption. It operates on a server-client model known as GATT (Generic Attribute Profile).
+
+\begin{itemize}
+    \item \textbf{GAT Server (The ESP32):} The ESP32 is configured as a GAT Server. It creates and advertises a Service
+        (identified by SERVICE\_UUID).
+    \item \textbf{Characteristics (The Data Points):} Inside the service, it defines a Characteristic (identified by 
+        CHARACTERISTIC\_UUID). This is the actual endpoint for communication. The firmware configures this charateristic to
+        be writable and to support notifications (to send data back to the client).
+    \item \textbf{NimBLE Library:} The project uses the NimBLE-Arduino library, a highly efficient and memory-optimized
+        BLE stack for the ESP32.
+\end{itemize}
+
+The BLE service and characteristic are defined and created in main.cpp
+
+
+\begin{lstlisting}[caption={BLE service}]
+// BLE Service and Characteristic UUIDs for remote control
+#define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
+#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+
+// ... inside bleTask() ...
+NimBLEDevice::init("ESP32 Signal Controller");
+NimBLEServer *pServer = NimBLEDevice::createServer();
+// ...
+NimBLEService *pService = pServer->createService(SERVICE_UUID);
+NimBLECharacteristic *pCharacteristic = pService->createCharacteristic(
+    CHARACTERISTIC_UUID,
+    NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::NOTIFY
+);
+pCharacteristic->setCallbacks(new CharacteristicCallbacks());
+}
+\end{lstlisting}
