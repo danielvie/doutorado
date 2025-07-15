@@ -11,15 +11,21 @@ canal 2 15v
 "<localleader>ts" -> "todo.toggleStart"
 "<localleader>ta" -> "todo.archive"
 
+    # {@ Friday 11 Jul 2025}*:
+        ☐ fazer nova calibracao
+        ☐ colocar mensagem de resposta com valores de interesse da ESP32
+        ☐ no log da GUI, guardar todos os dados (para copy) e mostrar apenas N
+        ☐ fazer sinal de leitura como um servico independente e persistente
+
     # {@ Wednesday 02 Jul 2025}*:
-        ? colocar para ajustar manualmente a escala do WEB
+        ☐ colocar para ajustar manualmente a escala do WEB
 
 
     # {@ Wednesday 25 Jun 2025}*:
-        ? mudar `web` para ler os sinais independente do estado do sinal
+        ☐ mudar `web` para ler os sinais independente do estado do sinal
 
     # {@ Wednesday 14 May 2025}*:
-        ☝ acertar simulacao para segurar controle no tempo do estado aumentado @started(25-06-17 22:03)
+        ✔ ☝ acertar simulacao para segurar controle no tempo do estado aumentado @started(25-06-17 22:03) @done(25-07-11 10:11) @lasted(3w2d12h8m14s)
             -> precisa de conferir se o tempo segurado faz sentido
         ☝ criar procedimento de teste para o broker
         ☝ ver referencias para artigo do circuito @started(25-06-17 22:04)
@@ -31,11 +37,11 @@ canal 2 15v
                    performance da estrategia
         ✔ desacoplar set_mpc, ou talvez combinaca com uma estrutura de entrada @done(25-06-17 21:56)
         ✔ criar logica na ESP32 para esperar por N periodos @done(25-06-17 21:56)
-        ☝ implementar propagacao Block em `run` @started(10-06-17 21:00)
+        ✔ ☝ implementar propagacao Block em `run` @started(10-06-17 21:00) @done(25-07-11 10:11) @lasted(15y3w6d13h11m38s)
             -> problemas com a implementacao
-        ☝ mudar chaveamento para ciclo inteiro?
+        ✔ ☝ mudar chaveamento para ciclo inteiro? @done(25-07-11 10:11)
             -> ???
-        ☝ implementar propagacao Block em `signal_process` 
+        ✔ ☝ implementar propagacao Block em `signal_process` @done(25-07-11 10:11)
         ☝ pedir VPN @started(25-05-15 21:00)
             -> instrucoes vpn: ./VPN ITA/
                 -> https://wikiti.ita.br/ITA:Instala%C3%A7%C3%A3o_e_utiliza%C3%A7%C3%A3o_da_VPN_ITA_Internet_no_Windows
@@ -50,7 +56,7 @@ canal 2 15v
     Embedded:
 
     Simulacao:
-        ☝ medir tempo nova implementacao estados extendidos
+        ✔ ☝ medir tempo nova implementacao estados extendidos @done(25-07-11 10:11)
 
     # {@ Wednesday 23 April 2025}:
         ☝ ?? criar o sinal na esp32 com o ciclo inteiro e usar o timer apenas para o periodo do ciclo??
