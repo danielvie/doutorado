@@ -63,9 +63,9 @@ void _parseSection(const std::string &section, std::vector<uint64_t> &result) {
  * @param x Raw voltage reading from ESP32 ADC
  * @return Calibrated voltage value in volts
  */
-float esp2multi(float x) {
-    float beta[] = {-0.1545, 0.99686667};  // [offset, scale] calibration coefficients
-    return (x - beta[0]) / beta[1];
+float esp32calibration(float x) {
+    float beta[] = {0.1323, 1.0028};  // [offset, scale] calibration coefficients
+    return x*beta[1] + beta[0];
 }
 
 /**
@@ -163,7 +163,7 @@ float read_analog(AnalogPort port) {
     float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
     
     // Apply calibration transformation
-    voltage = esp2multi(voltage);
+    voltage = esp32calibration(voltage);
     
     return voltage;
 }

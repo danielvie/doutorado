@@ -108,7 +108,7 @@ int parseSignal(const std::string &s, std::vector<uint64_t> &time, std::vector<u
  * @param x Raw voltage reading from ESP32 ADC
  * @return Calibrated voltage value
  */
-float esp2multi(float x);
+float esp32calibration(float x);
 
 /**
  * Read analog voltage from specified port
