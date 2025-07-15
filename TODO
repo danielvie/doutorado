@@ -12,14 +12,13 @@ canal 2 15v
 "<localleader>ta" -> "todo.archive"
 
     # {@ Friday 11 Jul 2025}*:
-        ☐ fazer nova calibracao
+        ✔ fazer nova calibracao @done(25-07-15 00:06)
         ☐ colocar mensagem de resposta com valores de interesse da ESP32
-        ☐ no log da GUI, guardar todos os dados (para copy) e mostrar apenas N
+        ✔ no log da GUI, guardar todos os dados (para copy) e mostrar apenas N @done(25-07-15 00:21)
         ☐ fazer sinal de leitura como um servico independente e persistente
 
     # {@ Wednesday 02 Jul 2025}*:
         ☐ colocar para ajustar manualmente a escala do WEB
-
 
     # {@ Wednesday 25 Jun 2025}*:
         ☐ mudar `web` para ler os sinais independente do estado do sinal

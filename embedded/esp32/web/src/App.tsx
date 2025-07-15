@@ -133,7 +133,6 @@ function App() {
         an5: parseFloat(values.an5),
         an3: parseFloat(values.an3),
       }];
-      // }].slice(-500);
       return newData;
     });
   }
