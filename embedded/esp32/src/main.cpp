@@ -113,28 +113,37 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
         return true;
     }
 
-    // Get references to the currently active signal set
-    std::vector<uint64_t>& time_vec = (active_set == ActiveSignalSet::SET_A) ? time_vec_a : time_vec_b;
-    std::vector<uint64_t>& d4_vec = (active_set == ActiveSignalSet::SET_A) ? d4_vec_a : d4_vec_b;
-    std::vector<uint64_t>& d5_vec = (active_set == ActiveSignalSet::SET_A) ? d5_vec_a : d5_vec_b;
-    std::vector<uint64_t>& d6_vec = (active_set == ActiveSignalSet::SET_A) ? d6_vec_a : d6_vec_b;
-
-    // Calculate next state position in signal pattern (circular buffer)
+    // Pre-calculate next state
     uint8_t next_state = (current_state + 1) % active_num_timings;
-    
-    // Build pin state mask based on signal pattern
-    uint32_t pin_states =
-        (d4_vec[next_state] ? gpio_di4_mask : 0) |
-        (d5_vec[next_state] ? gpio_di5_mask : 0) |
-        (d6_vec[next_state] ? gpio_di6_mask : 0);
 
-    // Apply pin states using direct GPIO register manipulation for speed
-    GPIO.out_w1ts = pin_states;  // Set high pins
-    GPIO.out_w1tc = ~pin_states & (gpio_di4_mask | gpio_di5_mask | gpio_di6_mask);  // Clear low pins
+    // Simplified pin state calculation
+    uint32_t pin_mask = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
+    uint32_t pin_states = 0;
 
-    // Update current state and set next timer alarm
+    // Build pin state mask based on active signal pattern
+    if (active_set == ActiveSignalSet::SET_A) {
+        pin_states = (d4_vec_a[next_state] ? gpio_di4_mask : 0) |
+                     (d5_vec_a[next_state] ? gpio_di5_mask : 0) |
+                     (d6_vec_a[next_state] ? gpio_di6_mask : 0);
+    } else {
+        pin_states = (d4_vec_b[next_state] ? gpio_di4_mask : 0) |
+                     (d5_vec_b[next_state] ? gpio_di5_mask : 0) |
+                     (d6_vec_b[next_state] ? gpio_di6_mask : 0);
+    }
+
+    // Atomic GPIO update
+    GPIO.out_w1ts = pin_states; // Set high pins
+    GPIO.out_w1tc = ~pin_states & pin_mask; // Clear low pins
+
+    // Update state
     current_state = next_state;
-    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, time_vec[current_state]);
+
+    // Set next alarm
+    if (active_set == ActiveSignalSet::SET_A) {
+        timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, time_vec_a[current_state]);
+    } else {
+        timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, time_vec_b[current_state]);
+    }
 
     // Check for cycle completion and trigger analog reading if needed
     if (current_state == 0) {
@@ -143,6 +152,7 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
             ble_task_state = BLETaskState::ANALOG_READ;
         }
     }
+
     return true;
 }
 
