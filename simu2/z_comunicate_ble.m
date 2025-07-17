@@ -40,16 +40,16 @@ b.msg(command);
 
 
 b.set_control_on(false);
-b.set_verbose(false);
+% b.set_verbose(false);
 
 
-b.set_cycles_nrun(mpc_config.Nd);
-b.s(0.5);
-b.msg_start();
+% b.set_cycles_nrun(mpc_config.Nd);
+% b.s(0.5);
+% b.msg_start();
+% 
+% disp(s)
 
-disp(s)
-
-b.msg("START");
+% b.msg("START");
 
 
 % how to test

@@ -80,6 +80,7 @@ const uint32_t gpio_di6_mask = 1 << GPIO_DI6;
 void bleTask(void* parameter);
 void signalTask(void* arg);
 void readAndSendAnalogData(NimBLECharacteristic* pCharacteristic);
+void sendMessageStatus(NimBLECharacteristic* pCharacteristic);
 
 /**
  * LED blink utility function for status indication
@@ -286,6 +287,10 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
             digitalWrite(LED, LOW);
             GPIO.out_w1tc = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
         } 
+        // STATUS command: Returns the main status info from the system
+        else if (value == "STATUS") {
+            sendMessageStatus(characteristic);
+        } 
         // CYCLE_NRUN command: Set analog reading frequency
         else if (value.substr(0,11) == "CYCLE_NRUN:") {
             std::string payload = value.substr(11);
@@ -459,6 +464,54 @@ void signalTask(void* arg) {
         esp_task_wdt_reset();  // Reset watchdog timer
         vTaskDelay(pdMS_TO_TICKS(10));  // 10ms task period
     }
+}
+
+void add_time_and_mode_to_message(std::vector<uint64_t> &timings, 
+                 std::vector<uint64_t> &d4, 
+                 std::vector<uint64_t> &d5, 
+                 std::vector<uint64_t> &d6, 
+                 String &message) {
+
+    // Debug output of parsed signal
+    message += "time: ";
+    for (auto ti : timings) {
+        message += String(ti) + ", ";
+    }
+    message += "\n";
+    message += "mode: ";
+    for (int i = 0; i < d4.size(); i++) {
+        message += String(d4[i]*1 + d5[i]*2 + d6[i]*4) + ", ";
+    }
+    message += "\n";
+}
+
+/**
+ * Send Status info to main program
+ * @param pCharacteristic Pointer to the BLE characteristic for sending data
+ */
+void sendMessageStatus(NimBLECharacteristic* pCharacteristic) {
+    // Read analog values from multiple channels
+    float voltage_03 = read_analog(AnalogPort::AN3);
+    float voltage_05 = read_analog(AnalogPort::AN5);
+    float voltage_06 = read_analog(AnalogPort::AN6);
+
+    // Format message with sensor readings
+    String message = "status ";
+    
+    if (active_set == ActiveSignalSet::SET_A) {
+        message += "(SET_A active)\n";
+    } else {
+        message += "(SET_B active)\n";
+    }
+    message += "\nSET_A:\n";
+    add_time_and_mode_to_message(time_vec_a, d4_vec_a, d5_vec_a, d6_vec_a, message);
+    message += "\nSET_B:\n";
+    add_time_and_mode_to_message(time_vec_b, d4_vec_b, d5_vec_b, d6_vec_b, message);
+
+    // Send data via BLE notification
+    const char *messageCStr = message.c_str();
+    pCharacteristic->setValue((uint8_t *)messageCStr, strlen(messageCStr));
+    pCharacteristic->notify();
 }
 
 /**

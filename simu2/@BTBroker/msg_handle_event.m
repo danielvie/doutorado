@@ -1,6 +1,10 @@
 function msg_handle_event(self, src, ~)
     message = char(read(src));
     
+    if contains(message, 'status') 
+        disp(message);
+    end
+
     if self.verbose
         disp(['Received message: ', message]);
     end
