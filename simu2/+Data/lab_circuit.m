@@ -26,7 +26,7 @@ function config = lab_circuit()
 	config.smax  = 12;
 
 	% dynamics of the system (Buck-Boost converter)
-	config.circuit_params.E  = 3.0; % V
+	config.circuit_params.E  = 5.0; % V
 	config.circuit_params.C1 = 470.0*1e-6; % μF
 	config.circuit_params.C2 = 470.0*1e-6; % μF
 	config.circuit_params.L  = 100.0*1e-3; % mH

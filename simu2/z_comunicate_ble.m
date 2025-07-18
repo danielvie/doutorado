@@ -49,7 +49,7 @@ b.msg_start();
 
 disp(s)
 
-b.msg("START");
+% b.msg("START");
 
 
 % how to test

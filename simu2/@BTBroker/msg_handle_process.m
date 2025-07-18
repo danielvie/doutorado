@@ -36,8 +36,18 @@ function msg_handle_process(self, msg)
     v_c2 = parsed_data.an6;
     v_c1 = parsed_data.an5;
     i_l  = parsed_data.an3 / 22; % tensao / resistencia resistor
+    
+    % ajustando escala do divisor de tensao (* 10/6)
+    v_c2 = v_c2*10/6;
+    v_c1 = v_c1*10/6;
+    i_l  = i_l*10/6;
+    
+    % montando vetor de estados
     state = [v_c1; v_c2; i_l;];
     
+
+    
+
     if self.verbose
         disp('Received state:');
         disp(state);

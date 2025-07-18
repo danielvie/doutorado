@@ -6,6 +6,31 @@
 
 * TODAY
 
+  # {@ Friday 18 July 2025} Calibracao
+
+  - [ ] fazer escala do grafico GUI em tempo (segundos)
+  - [ ] fazer calibracao de todos
+  - [ ] colocar imagem da ESP32 e do circuito na GUI
+  - [ ] fazer botao para limpar o log de sinais
+  - [ ] registrar log dos botoes clicados com timestamp
+  - [ ] colocar input para escala da leitura do AD e escrever os dois valores no label do grafico
+  - [ ] create get message grom GUI
+  - [ ] criar grafico do sinal no GUI 
+  - [ ] adicionar periodo total (soma dos tempos)
+
+
+  - .JPG -> tensao R, alpha 0.3
+  - .JPG -> tensao R, alpha 0.7
+  - TEK0016.JPG -> tensao R, alpha 0.3 -> 0.7
+  - .JPG -> tensao C1, alpha 0.3
+  - .JPG -> tensao C1, alpha 0.7
+  - .JPG -> tensao R, alpha 0.3 (corrigido escala de tempo)
+  - .JPG -> tensao R, alpha 0.7 (corrigido escala de tempo)
+
+
+  - TEK0017.JPG -> sinais digitais alpha 0.3
+  - TEK0019.JPG -> sinais digitais alpha 0.3 (2)
+
   # {@ Monday 14 July 2025} Calibracao
 
   0.10 -> 0.00

@@ -129,9 +129,9 @@ function App() {
     set_data((currentData) => {
       const newData = [...currentData, {
         time: timeStr,
-        an6: parseFloat(values.an6),
-        an5: parseFloat(values.an5),
-        an3: parseFloat(values.an3),
+        an6: parseFloat(values.an6)*10.0/6.0,
+        an5: parseFloat(values.an5)*10.0/6.0,
+        an3: parseFloat(values.an3)*10.0/6.0,
       }];
       return newData;
     });

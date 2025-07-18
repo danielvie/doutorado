@@ -5,7 +5,7 @@ function play()
     % and runs the simulation with and without Model Predictive Control (MPC).
     % It then processes and visualizes the results.
     %
-    % Outputs:
+    % Outputs:c
     % - None. The function modifies the workspace and generates plots.
 
 
