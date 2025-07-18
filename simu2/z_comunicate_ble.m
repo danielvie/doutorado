@@ -77,4 +77,6 @@ b.set_control_on(false);
 % 
 % b.set_cycles_nrun(value);
 % 
-
+% Get status of the variables
+% b.msg("STATUS");
+% alias: b.st();

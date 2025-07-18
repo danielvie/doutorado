@@ -66,6 +66,7 @@ classdef BTBroker < handle
         sa(self, alpha); % self.start()
         so(self, alpha); % self.stop()
         x(self); % self.stop()
+        st(self); % self.msg('STATUS')
         
     end
 end
