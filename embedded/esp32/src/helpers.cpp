@@ -5,6 +5,7 @@
  * data parsing, and analog sensor interfacing.
  */
 
+#include <math.h>
 #include "helpers.h"
 
 /**
@@ -51,22 +52,6 @@ void _parseSection(const std::string &section, std::vector<uint64_t> &result) {
     }
 }
 
-/**
- * Apply calibration transformation to ESP32 voltage reading
- * 
- * Converts raw ESP32 ADC voltage measurements to calibrated values
- * using a linear transformation. The coefficients beta[] were determined
- * through calibration against a reference multimeter.
- * 
- * Formula: calibrated_voltage = (raw_voltage - offset) / scale
- * 
- * @param x Raw voltage reading from ESP32 ADC
- * @return Calibrated voltage value in volts
- */
-float esp32calibration(float x) {
-    float beta[] = {0.1323, 1.0028};  // [offset, scale] calibration coefficients
-    return x*beta[1] + beta[0];
-}
 
 /**
  * Parse a complete signal string containing timing and mode data
@@ -166,4 +151,58 @@ float read_analog(AnalogPort port) {
     voltage = esp32calibration(voltage);
     
     return voltage;
+}
+
+
+
+// calibration function
+/**
+ * Apply calibration transformation to ESP32 voltage reading
+ * 
+ * Converts raw ESP32 ADC voltage measurements to calibrated values
+ * using a linear transformation. The coefficients beta[] were determined
+ * through calibration against a reference multimeter.
+ * 
+ * Formula: calibrated_voltage = (raw_voltage - offset) / scale
+ * 
+ * @param x Raw voltage reading from ESP32 ADC
+ * @return Calibrated voltage value in volts
+ */
+
+double calib_from[] = {0.00, 0.07, 0.17, 0.26, 0.36, 0.46, 0.56, 0.66, 0.76, 0.86, 0.96, 1.06, 1.16, 1.27, 1.37, 1.46, 1.56, 1.67, 1.76, 1.86, 1.96, 2.06, 2.16, 2.27, 2.37, 2.49, 2.61, 2.75, 2.90, 3.07, 3.26, 3.30, 3.30};
+double calib_to[]   = {0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1.00, 1.10, 1.20, 1.30, 1.40, 1.50, 1.60, 1.70, 1.80, 1.90, 2.00, 2.10, 2.20, 2.30, 2.40, 2.50, 2.60, 2.70, 2.80, 2.90, 3.00, 3.10, 3.20, 3.30};
+int    calib_numel  = sizeof(calib_from) / sizeof(calib_from[0]);
+
+float esp32calibration(float value) {
+    
+    // return value;
+    // lower boundary
+    if (value <= calib_from[0]) {
+        return calib_to[0];
+    }
+    
+    // higher boundary
+    if (value >= calib_from[calib_numel - 1]) {
+        return calib_to[calib_numel-1];
+    }
+    
+    // find the lookup interval
+    for (int i = 0; i < calib_numel-1; ++i) {
+        if (value >= calib_from[i] && value <= calib_from[i+1]) {
+            float x1 = calib_from[i];
+            float y1 = calib_to[i];
+            float x2 = calib_from[i+1];
+            float y2 = calib_to[i+1];
+            
+            // perform a linear interpolation
+            if (x2 == x1) {
+                return y1;
+            }
+
+            return y1 + (value - x1) * (y2 - y1) / (x2 - x1);
+        }
+    }
+    
+    // edge cases protection
+    return calib_to[calib_numel - 1];
 }
