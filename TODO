@@ -11,9 +11,21 @@ canal 2 15v
 "<localleader>ts" -> "todo.toggleStart"
 "<localleader>ta" -> "todo.archive"
 
+
+    # {@ Friday 18 Jul 2025}:
+        ☐ adicionar periodo total (soma dos tempos)
+        ☐ colocar imagem da ESP32 e do circuito na GUI
+        ☐ colocar input para escala da leitura do AD e escrever os dois valores no label do grafico
+        ☐ create get message grom GUI
+        ☐ criar grafico do sinal no GUI 
+        ☐ fazer botao para limpar o log de sinais
+        ☐ fazer calibracao de todos
+        ☐ fazer escala do grafico GUI em tempo (segundos)
+        ☐ registrar log dos botoes clicados com timestamp
+
     # {@ Friday 11 Jul 2025}*:
         ✔ fazer nova calibracao @done(25-07-15 00:06)
-        ☐ colocar mensagem de resposta com valores de interesse da ESP32
+        ✔ colocar mensagem de resposta com valores de interesse da ESP32 @done(25-07-18 19:54)
         ✔ no log da GUI, guardar todos os dados (para copy) e mostrar apenas N @done(25-07-15 00:21)
         ☐ fazer sinal de leitura como um servico independente e persistente
 

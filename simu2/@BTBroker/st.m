@@ -1,3 +1,3 @@
 function st(self)
-    self.msg("STATUS");
+    self.get_status()
 end

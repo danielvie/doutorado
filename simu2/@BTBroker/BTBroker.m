@@ -54,8 +54,13 @@ classdef BTBroker < handle
         set_verbose(self, value);
         set_control_on(self, value);
 
+        % alias
+        set_verbose_on(self);
+        set_verbose_off(self);
+
         % .. getters
         get_signal(self);
+        get_status(self);
 
         % .. automation
         start(self); % self.msg("START");
@@ -66,7 +71,7 @@ classdef BTBroker < handle
         sa(self, alpha); % self.start()
         so(self, alpha); % self.stop()
         x(self); % self.stop()
-        st(self); % self.msg('STATUS')
+        st(self); % self.get_status()
         
     end
 end

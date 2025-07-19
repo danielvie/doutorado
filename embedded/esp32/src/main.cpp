@@ -117,24 +117,22 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
     // Pre-calculate next state
     uint8_t next_state = (current_state + 1) % active_num_timings;
 
-    // Simplified pin state calculation
-    uint32_t pin_mask = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
-    uint32_t pin_states = 0;
+    const uint32_t pin_mask = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
+    uint32_t new_gpio_out_value = 0;
 
     // Build pin state mask based on active signal pattern
     if (active_set == ActiveSignalSet::SET_A) {
-        pin_states = (d4_vec_a[next_state] ? gpio_di4_mask : 0) |
-                     (d5_vec_a[next_state] ? gpio_di5_mask : 0) |
-                     (d6_vec_a[next_state] ? gpio_di6_mask : 0);
+        new_gpio_out_value = (d4_vec_a[next_state] ? gpio_di4_mask : 0) |
+                             (d5_vec_a[next_state] ? gpio_di5_mask : 0) |
+                             (d6_vec_a[next_state] ? gpio_di6_mask : 0);
     } else {
-        pin_states = (d4_vec_b[next_state] ? gpio_di4_mask : 0) |
-                     (d5_vec_b[next_state] ? gpio_di5_mask : 0) |
-                     (d6_vec_b[next_state] ? gpio_di6_mask : 0);
+        new_gpio_out_value = (d4_vec_b[next_state] ? gpio_di4_mask : 0) |
+                             (d5_vec_b[next_state] ? gpio_di5_mask : 0) |
+                             (d6_vec_b[next_state] ? gpio_di6_mask : 0);
     }
 
-    // Atomic GPIO update
-    GPIO.out_w1ts = pin_states; // Set high pins
-    GPIO.out_w1tc = ~pin_states & pin_mask; // Clear low pins
+    // Atomic GPIO update: Write directly to the GPIO_OUT_REG for simultaneous update
+    GPIO.out = (GPIO.out & ~pin_mask) | new_gpio_out_value;
 
     // Update state
     current_state = next_state;
@@ -156,7 +154,6 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
 
     return true;
 }
-
 /**
  * Initialize the hardware timer for signal generation
  * Configures timer with appropriate prescaler and interrupt settings
@@ -255,6 +252,11 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
     void onWrite(NimBLECharacteristic *characteristic) {
         std::string value = characteristic->getValue();
         
+        Serial.print("received message: ");
+        Serial.println(value.c_str());
+        Serial.println("==================");
+
+        
         // START command: Begin signal generation
         if (value == "START") {
             if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
@@ -290,6 +292,7 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
         // STATUS command: Returns the main status info from the system
         else if (value == "STATUS") {
             sendMessageStatus(characteristic);
+            Serial.println("ik ben hier!!!");
         } 
         // CYCLE_NRUN command: Set analog reading frequency
         else if (value.substr(0,11) == "CYCLE_NRUN:") {
@@ -309,6 +312,8 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
                 parseSignal(signal, new_timings, new_modes);
 
                 // Convert combined modes to individual pin states
+                Serial.println("ik ben hier [1]");
+                
                 std::vector<uint64_t> new_d4_vec, new_d5_vec, new_d6_vec;
                 for (uint64_t mi : new_modes) {
                     Bin bin = Num2Bin(mi);  // Convert number to binary representation
@@ -332,12 +337,14 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
                 // Update the inactive signal set (double buffering)
                 if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
                     if (active_set == ActiveSignalSet::SET_A) {
+                        Serial.println("updating SET_B...");
                         // Update SET_B while SET_A is active
                         time_vec_b = new_timings;
                         d4_vec_b = new_d4_vec;
                         d5_vec_b = new_d5_vec;
                         d6_vec_b = new_d6_vec;
                     } else {
+                        Serial.println("updating SET_A...");
                         // Update SET_A while SET_B is active
                         time_vec_a = new_timings;
                         d4_vec_a = new_d4_vec;
@@ -406,10 +413,10 @@ void bleTask(void* parameter) {
         }
         
         // Send signal if listen is ON without signal
-        if (signal_task_state != SignalTaskState::SIGNAL_RUN) {
-            readAndSendAnalogData(pCharacteristic);
-            vTaskDelay(pdMS_TO_TICKS(100));  // ms task period
-        }
+        // if (signal_task_state != SignalTaskState::SIGNAL_RUN) {
+        //     readAndSendAnalogData(pCharacteristic);
+        //     vTaskDelay(pdMS_TO_TICKS(100));  // ms task period
+        // }
         
         esp_task_wdt_reset();  // Reset watchdog timer
         vTaskDelay(pdMS_TO_TICKS(10));  // ms task period
@@ -512,6 +519,8 @@ void sendMessageStatus(NimBLECharacteristic* pCharacteristic) {
     const char *messageCStr = message.c_str();
     pCharacteristic->setValue((uint8_t *)messageCStr, strlen(messageCStr));
     pCharacteristic->notify();
+    Serial.println(message);
+    Serial.println("ik ben hier ook!!!");
 }
 
 /**
