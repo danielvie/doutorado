@@ -12,14 +12,17 @@ canal 2 15v
 "<localleader>ta" -> "todo.archive"
 
 
+    # {@ Sunday 20 Jul 2025}:
+        ☐ investigar porque o sinal nao eh comandado no MATLAB 
+
     # {@ Friday 18 Jul 2025}:
         ☐ adicionar periodo total (soma dos tempos)
-        ☐ colocar imagem da ESP32 e do circuito na GUI
+        ✔ colocar imagem da ESP32 e do circuito na GUI @done(25-07-21 01:28)
         ☐ colocar input para escala da leitura do AD e escrever os dois valores no label do grafico
-        ☐ create get message grom GUI
+        ☐ create get message from GUI
         ☐ criar grafico do sinal no GUI 
         ☐ fazer botao para limpar o log de sinais
-        ☐ fazer calibracao de todos
+        ✔ fazer calibracao de todos os pontos (linear) @done(25-07-21 01:29)
         ☐ fazer escala do grafico GUI em tempo (segundos)
         ☐ registrar log dos botoes clicados com timestamp
 
