@@ -7,6 +7,21 @@ name = "ESP32 Signal Controller";
 
 b = BTBroker(name, SERVICE_UUID, CHARACTERISTIC_UUID);
 
+s = Simulation();
+s.set_config(Enums.SimName.LAB_CIRCUIT);
+s.m_state_mode = Enums.StateMode.AUGMENTED;
+
+mpc_config = s.get_mpc_config();
+mpc_config.Nd = 15;
+mpc_config.Np = 25;
+s.set_mpc_config(mpc_config);
+s.set_mpc();
+
+b.simulation = s;
+
+
+b.set_cycles_nrun(mpc_config.Nd);
+b.msg_start();
 
 % broker commands:
 %
