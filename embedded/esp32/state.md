@@ -10,11 +10,11 @@
 
     state "BLE Task States" as BLE_States {
 
-        BLE_IDLE --> ANALOG_READ : "cycle_count % cycle_nrun == 0 (from timer ISR)"
-        ANALOG_READ --> ANALOG_READING : "ble_task_state = ANALOG_READING"
-        ANALOG_READING --> BLE_IDLE : "readAndSendAnalogData() complete"
-        BLE_IDLE --> SIGNAL_READING : ""SIGNAL.data" command received"
-        SIGNAL_READING --> BLE_IDLE : "Signal parsing complete"
+        BLE_IDLE --> ANALOG_READ : cycle_count % cycle_nrun == 0 (from timer ISR)
+        ANALOG_READ --> ANALOG_READING : ble_task_state = ANALOG_READING
+        ANALOG_READING --> BLE_IDLE : readAndSendAnalogData() complete
+        BLE_IDLE --> SIGNAL_READING : SIGNAL.data command received
+        SIGNAL_READING --> BLE_IDLE : Signal parsing complete
     }
 
     state "Signal Task States" as Signal_States {
@@ -27,19 +27,4 @@
         SIGNAL_RUN --> SIGNAL_RUN : current_state == active_num_timings - 1 AND switch_set_pending (switch active_set)
     }
 
-    note right of SIGNAL_RUN
-        Timer ISR manages transitions within
-        the SIGNAL.RUN state by updating
-        current.state and setting next alarm.
-        It also triggers ANALOG_READ state.
-    end note
-```
-
-```plantuml
-@startuml
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
-Alice -> Bob: Another authentication Request
-Alice <-- Bob: Another authentication Response
-@enduml
 ```
