@@ -11,11 +11,12 @@ function App() {
 
   return (
     <>
+
       <div className="flex items-center">
         <div className="flex">
           <Control data={data} set_data={set_data} set_show_images={set_show_images}></Control>
         </div>
-        <div className="flex flex-auto p-4">
+        <div className="flex w-[600px]  p-4">
           <RealtimeChart data={data.slice(-200)} />
         </div>
       </div>

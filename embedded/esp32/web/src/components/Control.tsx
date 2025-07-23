@@ -12,10 +12,10 @@ import { DataPoint } from "./Chart";
 
 const initial_time = new Date();
 
-enum TestStatus {
-    ON,
-    OFF,
-}
+// enum TestStatus {
+//     ON,
+//     OFF,
+// }
 
 interface IControlProps {
     data: DataPoint[],
@@ -33,21 +33,22 @@ function Control(props: IControlProps) {
     const [mode, set_mode] = useState("");
     const [mul_value, set_mul_value] = useState("1.0");
     const [status, set_status] = useState(".");
-    const [test_interval_id, set_test_interval_id] = useState<number>();
-    const [test_status, set_test_status] = useState(TestStatus.OFF);
+    // const [test_interval_id, set_test_interval_id] = useState<number>();
+    // const [test_status, set_test_status] = useState(TestStatus.OFF);
     const [time, set_time] = useState("");
 
     // Monitor connection state
     useEffect(() => {
+        handle_compute_alpha();
         const interval = setInterval(() => {
             set_is_connected(bt_is_connected());
         }, 1000); // Check every second
         return () => clearInterval(interval);
     }, []);
 
-    const generate_value = () => {
-        return Math.sin(Date.now() / 1000) * 5 + Math.random() * 2;
-    };
+    // const generate_value = () => {
+    //     return Math.sin(Date.now() / 1000) * 5 + Math.random() * 2;
+    // };
 
     function update_status(message: string, _isError = false) {
         set_status(message);
@@ -148,7 +149,7 @@ function Control(props: IControlProps) {
         set_listen_label(is_listening ? "Stop Listening" : "Start Listening");
     }
 
-    function handle_test_receive() {
+    /* function handle_test_receive() {
         if (test_status === TestStatus.OFF) {
             set_test_status(TestStatus.ON);
             props.set_data([]);
@@ -174,7 +175,7 @@ function Control(props: IControlProps) {
             set_test_status(TestStatus.OFF);
             clearInterval(test_interval_id);
         }
-    }
+    } */
 
     function set_signal_1() {
         const _time = "50, 50, 50, 50, 50, 50";
