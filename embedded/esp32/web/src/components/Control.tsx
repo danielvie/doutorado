@@ -12,15 +12,14 @@ import { DataPoint } from "./Chart";
 
 const initial_time = new Date();
 
-// enum TestStatus {
-//     ON,
-//     OFF,
-// }
-
 interface IControlProps {
     data: DataPoint[],
     set_data: React.Dispatch<React.SetStateAction<DataPoint[]>>,
     set_show_images: React.Dispatch<React.SetStateAction<boolean>>
+    analog_scale: number,
+    set_analog_scale: CallableFunction,
+    filter_alpha: number,
+    set_filter_alpha: CallableFunction,
 }
 
 function Control(props: IControlProps) {
@@ -33,8 +32,6 @@ function Control(props: IControlProps) {
     const [mode, set_mode] = useState("");
     const [mul_value, set_mul_value] = useState("1.0");
     const [status, set_status] = useState(".");
-    // const [test_interval_id, set_test_interval_id] = useState<number>();
-    // const [test_status, set_test_status] = useState(TestStatus.OFF);
     const [time, set_time] = useState("");
 
     // Monitor connection state
@@ -45,10 +42,6 @@ function Control(props: IControlProps) {
         }, 1000); // Check every second
         return () => clearInterval(interval);
     }, []);
-
-    // const generate_value = () => {
-    //     return Math.sin(Date.now() / 1000) * 5 + Math.random() * 2;
-    // };
 
     function update_status(message: string, _isError = false) {
         set_status(message);
@@ -71,6 +64,10 @@ function Control(props: IControlProps) {
             });
     }
 
+    function handle_clear_data() {
+        props.set_data([]);
+    }
+        
     function handle_set_command_message(e: React.ChangeEvent<HTMLInputElement>) {
         set_command_message(e.target.value);
     }
@@ -149,33 +146,18 @@ function Control(props: IControlProps) {
         set_listen_label(is_listening ? "Stop Listening" : "Start Listening");
     }
 
-    /* function handle_test_receive() {
-        if (test_status === TestStatus.OFF) {
-            set_test_status(TestStatus.ON);
-            props.set_data([]);
-
-            const test_interval_id_ = setInterval(() => {
-                const now = new Date();
-                const timeStr = (now.getTime() - initial_time.getTime()).toString();
-
-                props.set_data((currentData) => {
-                    const newData = [...currentData, {
-                        time: timeStr,
-                        an3: generate_value(),
-                        an5: generate_value() * 3,
-                        an6: generate_value() * 6,
-                    }];
-                    return newData;
-                });
-            }, 100);
-            set_test_interval_id(test_interval_id_);
-        } else if (test_status === TestStatus.ON) {
-            console.log("stoping test");
-
-            set_test_status(TestStatus.OFF);
-            clearInterval(test_interval_id);
-        }
-    } */
+    function calc_total_time(): string {
+        
+        let total = 0.0
+        time.split(",").forEach(t => {
+            const value = parseFloat(t)
+            total += value
+        })
+        
+        const T = total.toFixed(1)
+        
+        return `T: ${T} us`
+    }
 
     function set_signal_1() {
         const _time = "50, 50, 50, 50, 50, 50";
@@ -206,6 +188,14 @@ function Control(props: IControlProps) {
 
     function handle_set_multiply(e: React.ChangeEvent<HTMLInputElement>) {
         set_mul_value(e.target.value);
+    }
+
+    function handle_set_analog_scale(e: React.ChangeEvent<HTMLInputElement>) {
+        props.set_analog_scale(e.target.value);
+    }
+
+    function handle_set_filter(e: React.ChangeEvent<HTMLInputElement>) {
+        props.set_filter_alpha(e.target.value);
     }
 
     function _multiply_time(value: number) {
@@ -250,6 +240,7 @@ function Control(props: IControlProps) {
                     {listen_label}
                 </button>
                 <button onClick={handle_copy} className="btn">{copy_label}</button>
+                <button onClick={handle_clear_data} className="btn">clear data</button>
                <button className="text-4xl" onClick={() => props.set_show_images(true)}>🖼️</button>
             </div>
 
@@ -310,11 +301,8 @@ function Control(props: IControlProps) {
                     </button>
                 </div>
 
-                <div className="flex my-4 gap-2">
-                    <label
-                        htmlFor=""
-                        className="flex item-center justify-content mr-4 relative top-2 w-12"
-                    >
+                <div className="flex gap-2">
+                    <label className="flex item-center justify-content mr-4 relative top-2 w-12">
                         time:
                     </label>
                     <input
@@ -325,6 +313,9 @@ function Control(props: IControlProps) {
                         value={time}
                         onChange={handle_set_time}
                     />
+                    <div className="flex items-center ml-2">
+                        ( {calc_total_time()} )
+                    </div>
                 </div>
 
                 <div className="flex my-4 gap-2">
@@ -345,10 +336,7 @@ function Control(props: IControlProps) {
                 </div>
 
                 <div className="flex my-4 gap-2">
-                    <label
-                        htmlFor=""
-                        className="flex item-center justify-content mr-4 relative top-2 w-12"
-                    >
+                    <label className="flex item-center justify-content mr-4 relative top-2 w-12">
                         X*time:
                     </label>
                     <input
@@ -359,34 +347,40 @@ function Control(props: IControlProps) {
                         value={mul_value}
                         onChange={handle_set_multiply}
                     />
-                    <span className=""></span>
-                    <button
-                        id="btn-div10"
-                        onClick={() => _multiply_time(0.1)}
-                        className="btn"
-                    >
-                        x1/10
-                    </button>
-                    <button
-                        id="btn-mul10"
-                        onClick={() => _multiply_time(10.0)}
-                        className="btn"
-                    >
-                        x10
-                    </button>
                     <button
                         id="btn-signal-calc"
                         onClick={() => _multiply_time(parseFloat(mul_value))}
                         className="btn"
                     >
-                        multiply
+                        mult
                     </button>
-                    <button
-                        id="btn-signal-send"
-                        onClick={handle_send_signal}
-                        className="btn"
-                    >
-                        SEND signal
+
+                    <label className="flex-grow item-center text-right relative top-2 w-20">
+                        Scale:
+                    </label>
+                    <input
+                        type="number"
+                        id="in-scale"
+                        className="input p-2 w-16 text-center"
+                        placeholder="analog scale"
+                        value={props.analog_scale}
+                        onChange={handle_set_analog_scale}
+                    />
+
+                    <label className="flex-grow item-center text-right relative top-2 w-20">
+                        filter:
+                    </label>
+                    <input
+                        type="number"
+                        id="in-scale"
+                        className="input p-2 w-16 text-center"
+                        placeholder="analog scale"
+                        value={props.filter_alpha}
+                        onChange={handle_set_filter}
+                    />
+
+                    <button id="btn-signal-send" onClick={handle_send_signal} className="btn">
+                        SEND
                     </button>
                 </div>
 

@@ -38,6 +38,7 @@ SemaphoreHandle_t signal_mutex = NULL;
 const uint32_t gpio_di4_mask = 1 << GPIO_DI4;
 const uint32_t gpio_di5_mask = 1 << GPIO_DI5;
 const uint32_t gpio_di6_mask = 1 << GPIO_DI6;
+const uint32_t gpio_pin_mask = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
 
 /**
  * Hardware Timer Interrupt Service Routine (ISR)
@@ -60,7 +61,6 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
     // Pre-calculate next state
     uint8_t next_state = (current_state + 1) % active_num_timings;
 
-    const uint32_t pin_mask = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
     uint32_t new_gpio_out_value = 0;
 
     // Build pin state mask based on active signal pattern
@@ -75,7 +75,7 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
     }
 
     // Atomic GPIO update: Write directly to the GPIO_OUT_REG for simultaneous update
-    GPIO.out = (GPIO.out & ~pin_mask) | new_gpio_out_value;
+    GPIO.out = (GPIO.out & ~gpio_pin_mask) | new_gpio_out_value;
 
     // Update state
     current_state = next_state;
@@ -143,13 +143,14 @@ void startSignalTimer() {
     // Update active signal length
     active_num_timings = (active_set == ActiveSignalSet::SET_A) ? time_vec_a.size() : time_vec_b.size();
 
-    // Set initial pin states for first signal step
-    uint32_t pin_states =
+    // Set initial pin states for first signal step using atomic GPIO update
+    uint32_t initial_pin_states = 
         (d4_vec[0] ? gpio_di4_mask : 0) |
         (d5_vec[0] ? gpio_di5_mask : 0) |
         (d6_vec[0] ? gpio_di6_mask : 0);
-    GPIO.out_w1ts = pin_states;
-    GPIO.out_w1tc = ~pin_states & (gpio_di4_mask | gpio_di5_mask | gpio_di6_mask);
+    
+    // Atomic GPIO update: Write directly to the GPIO_OUT_REG for simultaneous update
+    GPIO.out = (GPIO.out & ~gpio_pin_mask) | initial_pin_states;
 
     // Set first timer alarm and start timer
     timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, time_vec[0]);

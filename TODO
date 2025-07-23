@@ -13,17 +13,17 @@ canal 2 15v
 
 
     # {@ Sunday 20 Jul 2025}:
-        ☐ investigar porque o sinal nao eh comandado no MATLAB 
+        ☐ investigar porque o sinal nao eh comandado no MATLAB @started(25-07-23 00:28)
 
     # {@ Friday 18 Jul 2025}:
-        ☐ adicionar periodo total (soma dos tempos)
+        ✔ adicionar periodo total (soma dos tempos) @done(25-07-23 00:28)
         ✔ colocar imagem da ESP32 e do circuito na GUI @done(25-07-21 01:28)
-        ☐ colocar input para escala da leitura do AD e escrever os dois valores no label do grafico
+        ✔ colocar input para escala da leitura do AD e escrever os dois valores no label do grafico @done(25-07-23 00:12)
         ☐ create get message from GUI
         ☐ criar grafico do sinal no GUI 
-        ☐ fazer botao para limpar o log de sinais
+        ✔ fazer botao para limpar o log de sinais @done(25-07-23 00:32)
         ✔ fazer calibracao de todos os pontos (linear) @done(25-07-21 01:29)
-        ☐ fazer escala do grafico GUI em tempo (segundos)
+        ✔ fazer escala do grafico GUI em tempo (segundos) @done(25-07-23 00:32)
         ☐ registrar log dos botoes clicados com timestamp
 
     # {@ Friday 11 Jul 2025}*:

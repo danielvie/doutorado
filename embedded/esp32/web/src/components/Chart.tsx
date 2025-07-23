@@ -24,6 +24,10 @@ ChartJS.register(
   Filler,
 );
 
+
+// Add state to store previous filtered values
+let previousFilteredValues: { [key: string]: number } = {};
+
 /**
  * Interface representing a data point for the chart
  * @property time - The timestamp for this data point
@@ -45,6 +49,8 @@ export interface DataPoint {
  */
 interface RealTimeChartProps {
   data: DataPoint[];
+  analog_scale: number,
+  filter_alpha: number,
   title?: string;
 }
 
@@ -56,6 +62,8 @@ interface RealTimeChartProps {
  */
 const RealTimeChart: React.FC<RealTimeChartProps> = ({
   data,
+  analog_scale,
+  filter_alpha,
   title = "Real-time Value Monitor",
 }) => {
   // Extract latest values from the dataset for display in the digital readout
@@ -99,6 +107,44 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
       },
     ],
   };
+  
+  function fun_process_scale(value: string): string {
+    const current_value = parseFloat(value)
+    if (isNaN(current_value)) {
+      return value
+    }
+    
+    return (current_value*analog_scale).toFixed(2)
+  }
+
+  function low_band_filter(value: string, key: string = 'default'): string {
+    // Parse the input value to a number
+    const currentValue = parseFloat(value);
+    
+    // alpha = (1/10)^(filter_alpha)
+    const alpha: number = Math.min(Math.pow(10,-filter_alpha), 1.0)
+
+    // Return original value if parsing failed
+    if (isNaN(currentValue)) {
+      return value;
+    }
+    
+    // Initialize previous value if this is the first reading for this key
+    if (!(key in previousFilteredValues)) {
+      previousFilteredValues[key] = currentValue;
+      return currentValue.toFixed(2);
+    }
+    
+    // Apply exponential moving average filter
+    // Formula: filtered_value = alpha * current_value + (1 - alpha) * previous_filtered_value
+    const filteredValue = alpha * currentValue + (1 - alpha) * previousFilteredValues[key];
+    
+    // Store the filtered value for next iteration
+    previousFilteredValues[key] = filteredValue;
+    
+    // Return the filtered value rounded to 2 decimal places
+    return filteredValue.toFixed(2);
+  }
 
   return (
     <div className="w-full h-96 p-4 mb-10">
@@ -107,16 +153,26 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
 
       {/* Digital readouts for the latest values of each measurement */}
       <div>
-        <span className="w-28 inline-block text-right">an5 {`->`} V_C1:</span>
-        <span className="w-12 inline-block text-right ml-3">{v2}</span>
+        <span className="w-32 inline-block text-right">an5 {`->`} V_C1:</span>
+        {/* <span className="w-24 inline-block text-right ml-3">{v2} ({fun_process_scale(v2)})</span> */}
+        <span className="w-24 inline-block text-right ml-3">
+          {low_band_filter(v2, 'an5')} ({fun_process_scale(low_band_filter(v2, 'an5_scaled'))})
+        </span>
+
       </div>
       <div>
-        <span className="w-28 inline-block text-right">an6 {`->`} V_C2:</span>
-        <span className="w-12 inline-block text-right ml-3">{v3}</span>
+        <span className="w-32 inline-block text-right">an6 {`->`} V_C2:</span>
+        {/* <span className="w-24 inline-block text-right ml-3">{v3} ({fun_process_scale(v3)})</span> */}
+        <span className="w-24 inline-block text-right ml-3">
+          {low_band_filter(v3, 'an6')} ({fun_process_scale(low_band_filter(v3, 'an6_scaled'))})
+        </span>
       </div>
       <div>
-        <span className="w-28 inline-block text-right">an3 {`->`} VR:</span>
-        <span className="w-12 inline-block text-right ml-3">{v1}</span>
+        <span className="w-32 inline-block text-right">an3 {`->`} VR:</span>
+        {/* <span className="w-24 inline-block text-right ml-3">{v1} ({fun_process_scale(v1)})</span> */}
+        <span className="w-24 inline-block text-right ml-3">
+          {low_band_filter(v1, 'an3')} ({fun_process_scale(low_band_filter(v1, 'an3_scaled'))})
+        </span>
       </div>
 
       {/* The actual chart component */}
