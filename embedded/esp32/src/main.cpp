@@ -254,6 +254,7 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
         
         Serial.print("received message: ");
         Serial.println(value.c_str());
+        Serial.printf("Free heap: %d bytes\n", ESP.getFreeHeap());
         Serial.println("==================");
 
         
@@ -292,7 +293,6 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
         // STATUS command: Returns the main status info from the system
         else if (value == "STATUS") {
             sendMessageStatus(characteristic);
-            Serial.println("ik ben hier!!!");
         } 
         // CYCLE_NRUN command: Set analog reading frequency
         else if (value.substr(0,11) == "CYCLE_NRUN:") {
@@ -312,8 +312,6 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
                 parseSignal(signal, new_timings, new_modes);
 
                 // Convert combined modes to individual pin states
-                Serial.println("ik ben hier [1]");
-                
                 std::vector<uint64_t> new_d4_vec, new_d5_vec, new_d6_vec;
                 for (uint64_t mi : new_modes) {
                     Bin bin = Num2Bin(mi);  // Convert number to binary representation
@@ -419,7 +417,13 @@ void bleTask(void* parameter) {
         // }
         
         esp_task_wdt_reset();  // Reset watchdog timer
-        vTaskDelay(pdMS_TO_TICKS(10));  // ms task period
+        
+        // Use different delays based on signal state to give BLE more processing time during signal generation
+        if (signal_task_state == SignalTaskState::SIGNAL_RUN) {
+            vTaskDelay(pdMS_TO_TICKS(5));   // Shorter delay when signal is running to handle BLE better
+        } else {
+            vTaskDelay(pdMS_TO_TICKS(10));  // Normal delay when not running signals
+        }
     }
 }
 
@@ -455,9 +459,13 @@ void signalTask(void* arg) {
                 if (switch_set_pending && current_state == active_num_timings - 1) {
                     if (xSemaphoreTake(signal_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
                         // Toggle between SET_A and SET_B
-                        active_set = (active_set == ActiveSignalSet::SET_A) ? 
-                                    ActiveSignalSet::SET_B : ActiveSignalSet::SET_A;
-                        active_num_timings = num_timings;  // Update to new pattern length
+                        if (active_set == ActiveSignalSet::SET_A) {
+                            active_set = ActiveSignalSet::SET_B;
+                        } else {
+                            active_set = ActiveSignalSet::SET_A;
+                        }
+
+                        active_num_timings = num_timings; // Update to new pattern length
                         switch_set_pending = false;
                         xSemaphoreGive(signal_mutex);
                     }
@@ -497,30 +505,55 @@ void add_time_and_mode_to_message(std::vector<uint64_t> &timings,
  * @param pCharacteristic Pointer to the BLE characteristic for sending data
  */
 void sendMessageStatus(NimBLECharacteristic* pCharacteristic) {
+    // Use static buffer to avoid heap allocation issues
+    static char message_buffer[1024];  // Static buffer to avoid heap fragmentation
+    int pos = 0;
+    
     // Read analog values from multiple channels
     float voltage_03 = read_analog(AnalogPort::AN3);
     float voltage_05 = read_analog(AnalogPort::AN5);
     float voltage_06 = read_analog(AnalogPort::AN6);
 
-    // Format message with sensor readings
-    String message = "status ";
+    // Format message with sensor readings using snprintf for safety
+    pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "status ");
     
     if (active_set == ActiveSignalSet::SET_A) {
-        message += "(SET_A active)\n";
+        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "(SET_A active)\n");
     } else {
-        message += "(SET_B active)\n";
+        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "(SET_B active)\n");
     }
-    message += "\nSET_A:\n";
-    add_time_and_mode_to_message(time_vec_a, d4_vec_a, d5_vec_a, d6_vec_a, message);
-    message += "\nSET_B:\n";
-    add_time_and_mode_to_message(time_vec_b, d4_vec_b, d5_vec_b, d6_vec_b, message);
 
-    // Send data via BLE notification
-    const char *messageCStr = message.c_str();
-    pCharacteristic->setValue((uint8_t *)messageCStr, strlen(messageCStr));
-    pCharacteristic->notify();
-    Serial.println(message);
-    Serial.println("ik ben hier ook!!!");
+    pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "state: ");
+    if (signal_task_state == SignalTaskState::HIGH_RUN) {
+        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "SignalTaskState::HIGH_RUN\n");
+    } else if (signal_task_state == SignalTaskState::IDLE) {
+        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "SignalTaskState::IDLE\n");
+    } else if (signal_task_state == SignalTaskState::SIGNAL_RUN) {
+        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "SignalTaskState::SIGNAL_RUN\n");
+    }
+
+    // Add analog readings
+    pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, 
+                   "analog: an3:%.3f, an5:%.3f, an6:%.3f\n", 
+                   voltage_03, voltage_05, voltage_06);
+
+    // Add basic timing info without full vectors to prevent overflow
+    pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, 
+                   "SET_A: %d elements, SET_B: %d elements\n", 
+                   time_vec_a.size(), time_vec_b.size());
+    
+    // Add current state info if signal is running
+    if (signal_task_state == SignalTaskState::SIGNAL_RUN) {
+        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, 
+                       "current_state: %d, cycle_count: %d\n", 
+                       current_state, cycle_count);
+    }
+    
+    // Ensure null termination
+    message_buffer[sizeof(message_buffer) - 1] = '\0';
+
+    Serial.println(message_buffer);
+    Serial.println("STATUS response sent successfully");
 }
 
 /**
@@ -528,19 +561,24 @@ void sendMessageStatus(NimBLECharacteristic* pCharacteristic) {
  * @param pCharacteristic Pointer to the BLE characteristic for sending data
  */
 void readAndSendAnalogData(NimBLECharacteristic* pCharacteristic) {
+    // Use static buffer to avoid heap allocation issues
+    static char analog_buffer[128];
+    
     // Read analog values from multiple channels
     float voltage_03 = read_analog(AnalogPort::AN3);
     float voltage_05 = read_analog(AnalogPort::AN5);
     float voltage_06 = read_analog(AnalogPort::AN6);
 
-    // Format message with sensor readings
-    String message = "an3:" + String(voltage_03, 3) + ", " +
-                     "an5:" + String(voltage_05, 3) + ", " +
-                     "an6:" + String(voltage_06, 3);
+    // Format message with sensor readings using snprintf for safety
+    snprintf(analog_buffer, sizeof(analog_buffer), 
+             "an3:%.3f, an5:%.3f, an6:%.3f", 
+             voltage_03, voltage_05, voltage_06);
+    
+    // Ensure null termination
+    analog_buffer[sizeof(analog_buffer) - 1] = '\0';
 
     // Send data via BLE notification
-    const char *messageCStr = message.c_str();
-    pCharacteristic->setValue((uint8_t *)messageCStr, strlen(messageCStr));
+    pCharacteristic->setValue((uint8_t *)analog_buffer, strlen(analog_buffer));
     pCharacteristic->notify();
 }
 
@@ -604,15 +642,15 @@ void setup() {
     esp_task_wdt_init(30, true);
     esp_task_wdt_add(NULL);
 
-    // Create BLE task on Core 1 with high stack size for BLE operations
+    // Create BLE task on Core 0 with higher stack size and higher priority for BLE operations and memory safety
     xTaskCreatePinnedToCore(
         bleTask,                    // Task function
         "BLE Task",                 // Task name
-        8192,                       // Stack size (bytes)
+        10240,                      // Stack size (increased from 8192 to 10240 bytes)
         NULL,                       // Task parameter
-        2,                          // Priority
+        3,                          // Priority (increased from 2 to 3)
         NULL,                       // Task handle
-        CORE_1                      // CPU core
+        CORE_0                      // CPU core
     );
     
     // Create signal task on Core 1 with high priority for precise timing

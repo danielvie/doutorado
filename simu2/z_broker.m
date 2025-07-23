@@ -19,9 +19,12 @@ s.set_mpc();
 
 b.simulation = s;
 
+b.s(0.5);
+
+b.set_control_on(false);
 
 b.set_cycles_nrun(mpc_config.Nd);
-b.msg_start();
+% b.msg_start();
 
 % broker commands:
 %

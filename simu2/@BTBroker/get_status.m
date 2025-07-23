@@ -1,3 +1,5 @@
 function get_status(self)
-    self.msg("STATUS");
+    cmd = "STATUS";
+    self.msg(cmd);
+    fprintf("command: %s\n", cmd);
 end
