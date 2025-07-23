@@ -2,7 +2,7 @@ does the author implement a real physical circuit to test his solution?
 (solano sae)
 
 
-Yes, the author of the thesis implemented a real physical circuit to test the proposed solutions. The thesis includes a chapter titled "Résultats Expérimentaux" (Experimental Results) , which details the experimental implementation of the control strategies developed in previous chapters.
+the author of the thesis implemented a real physical circuit to test the proposed solutions. The thesis includes a chapter titled "Résultats Expérimentaux" (Experimental Results) , which details the experimental implementation of the control strategies developed in previous chapters.
 
 Key points from the thesis confirm this:
 

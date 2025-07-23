@@ -39,7 +39,7 @@ command = Utils.signal_create( ...
 b.msg(command);
 
 
-b.set_control_on(false);
+b.set_control_on(true);
 % b.set_verbose(false);
 
 

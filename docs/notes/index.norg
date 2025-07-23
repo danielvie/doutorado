@@ -6,6 +6,13 @@
 
 * TODAY
 
+
+  # {@ Wednesday 23 July 2025} Calibracao
+  - [ ] colocar sinal completo no log de status
+  - [ ] fazer um controlador proporcional para validar malha fechada
+
+
+
   # {@ Friday 18 July 2025} Calibracao
 
   - [ ] fazer escala do grafico GUI em tempo (segundos)

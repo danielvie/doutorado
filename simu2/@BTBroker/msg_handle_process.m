@@ -44,9 +44,6 @@ function msg_handle_process(self, msg)
     
     % montando vetor de estados
     state = [v_c1; v_c2; i_l;];
-    
-
-    
 
     if self.verbose
         disp('Received state:');
