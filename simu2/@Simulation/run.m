@@ -29,6 +29,9 @@ function [y,t,m,dtk_out] = run(self, nsim)
     
     dtk_prev  = zeros([numel(config.Omega)-1, 1]);
 
+    cont = 0;
+    skip = 100;
+
     for i = 1:nsim
         dtk = zeros([numel(config.Omega)-1, 1]);
         if mpc_on
@@ -54,6 +57,43 @@ function [y,t,m,dtk_out] = run(self, nsim)
             % compute new time vector from dtk
             Ts = self.compute_ts_from_dtk(self.m_config, dtk);
 
+            
+            c = self.m_config.c_time(1);
+            
+            while any(diff(Ts) < 0)
+                dts = max(diff(Ts), c);
+                dts_ = dts - diff(Ts);
+                for j = 1:numel(dts_)
+                    Ts(j+1) = Ts(j+1) + dts_(j);
+                end
+                
+                % conditioning time to factible values
+                Ts_final = self.m_config.Ts(end);
+                if sum(Ts) > Ts_final
+                    Ts = Ts/norm(Ts)*Ts_final;
+                end
+            end
+
+
+
+            if any(diff(Ts) < 0)
+                error("ASSERT :: time cannot be negative!");
+            end
+            
+            % % getting correct dtk for resulting Ts
+            % Ts_nom = self.m_config.Ts;
+            % dTs = (Ts - Ts_nom)';
+            % dtk = dTs(2:end-1);
+
+
+            % 
+            % 
+            % cont = cont + 1;
+            % if rem(cont, skip) == 0
+            %     bla = 1;
+            % end
+
+
             bla_time_us = self.signal_process(x0, dtk_prev);
     
             % updating time on local config variable
@@ -77,6 +117,7 @@ function [y,t,m,dtk_out] = run(self, nsim)
             self.m_log.run.time_us = [self.m_log.run.time_us; time_us];
             self.m_log.run.x0 = [self.m_log.run.x0; x0'];
             self.m_log.run.ek = [self.m_log.run.ek; ek'];
+            self.m_log.run.ts = [self.m_log.run.ts; Ts];
             self.m_log.run.x_target = [self.m_log.run.x_target; config.mpc.x_target'];
 
             self.m_log.run.time_qp = [self.m_log.run.time_qp; time_qp];
@@ -99,6 +140,9 @@ function [y,t,m,dtk_out] = run(self, nsim)
         dtk_out(:,i) = dtk(:);
 
         % updating values for next cycle
+        if t0 < 0
+            bla = 1;
+        end
         t0  = t_(end) + t0;
         config.x0 = y_(end,:)';
         x0  = config.x0;

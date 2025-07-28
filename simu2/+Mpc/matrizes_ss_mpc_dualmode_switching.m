@@ -1,4 +1,4 @@
-function [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = matrizes_ss_mpc_dualmode_switching(Phi, Gamma, Q, R, Np, c)
+function [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,K,L] = matrizes_ss_mpc_dualmode_switching(Phi, Gamma, Q, R, Np, c)
     % Restricao (at each cycle): L*dt <= c
     % f = Phi * Xi(k)
  
@@ -37,6 +37,8 @@ function [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = matrizes_ss_mpc_du
     
     % Determinacao do ganho terminal K
     K = dlqr(Phi,Gamma,Q,R);
+    disp('ganho terminal K:')
+    disp(K)
     Phib = Phi - Gamma*K;
     
     % Determinacao da matriz de custo terminal Pf
@@ -46,8 +48,8 @@ function [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,L] = matrizes_ss_mpc_du
     
     % Simple conservative approximation of the terminal invariant set
     % We use the constraint L*K*x <= c directly
-    Sf = L*K;  % Terminal state constraints
-    bf = c;    % Terminal constraint bounds
+    % Sf = L*K;  % Terminal state constraints
+    % bf = c;    % Terminal constraint bounds
     
     % Note: This is a simplified approach. For more accurate results,
     % you might want to iterate a few times to get a better approximation

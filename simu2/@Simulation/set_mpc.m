@@ -56,10 +56,10 @@ function set_mpc(self)
 
     % ?? augmented
     if self.m_state_mode == Enums.StateMode.AUGMENTED
-        [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,~] = ...
+        [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,K,~] = ...
         Mpc.matrizes_ss_mpc_dualmode_switching(Aa,Ba,Q,R,Np,c);
     else
-        [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,~] = ...
+        [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,K,~] = ...
         Mpc.matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c);
     end
 
@@ -79,6 +79,7 @@ function set_mpc(self)
     mpc_opt.Sf       = Sf;
     mpc_opt.bf       = bf;
     mpc_opt.PhiNp    = PhiNp;
+    mpc_opt.K        = K;
     mpc_opt.p        = p;
     
     mpc_opt.options  = optimoptions('quadprog', 'Algorithm', 'active-set');

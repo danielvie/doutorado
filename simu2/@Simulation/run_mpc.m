@@ -10,12 +10,15 @@ function [dtk, exitflag] = run_mpc(self, config, x0, dtk_prev)
         ek_input = ek;
     end
     
+    exitflag = 1;
     % compute control `dtk`
-    [dtk, ~, exitflag] = Mpc.dualmode_switching(ek_input,config.mpc.H,config.mpc.Hf,config.mpc.Phi1Np,...
-                                                config.mpc.Qbar,config.mpc.Rbar,config.mpc.Lbar,...
-                                                config.mpc.cbar,config.mpc.Pf,config.mpc.Sf,config.mpc.bf,...
-                                                config.mpc.PhiNp,config.mpc.p);
+    % [dtk, ~, exitflag] = Mpc.dualmode_switching(ek_input,config.mpc.H,config.mpc.Hf,config.mpc.Phi1Np,...
+    %                                             config.mpc.Qbar,config.mpc.Rbar,config.mpc.Lbar,...
+    %                                             config.mpc.cbar,config.mpc.Pf,config.mpc.Sf,config.mpc.bf,...
+    %                                             config.mpc.PhiNp,config.mpc.p);
     
+    k = self.m_config.mpc.K;
+    dtk = -k*ek;
     % ignore control if problem not possible
     %  exitflag:
     %    1: function converged to the solution x

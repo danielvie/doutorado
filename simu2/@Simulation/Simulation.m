@@ -35,6 +35,7 @@ classdef Simulation < handle
             log_struct.time_us = [];
             log_struct.x0 = [];
             log_struct.ek = [];
+            log_struct.ts = [];
             log_struct.x_target = [];
             log_struct.time_qp = [];
             log_struct.dtk = [];

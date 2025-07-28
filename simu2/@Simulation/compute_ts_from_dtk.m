@@ -1,4 +1,4 @@
-function Ts = compute_ts_from_dtk(self, config, dtk)
+    function Ts = compute_ts_from_dtk(self, config, dtk)
     % Applies time adjustments based on control signal dtk
     % Returns the adjusted time vector
     

@@ -11,10 +11,10 @@ function play()
 
     % creating simulation object
     s = Simulation(Enums.SimName.LAB_CIRCUIT);
-    s.m_state_mode = Enums.StateMode.AUGMENTED;
+    % s.m_state_mode = Enums.StateMode.AUGMENTED;
     
     % compute trajectory with alpha
-    s.set_traj_phase_with_alpha(0.5);
+    s.set_traj_phase_with_alpha(0.9);
     % s.set_alpha_and_mpc_cached(0.5);
 
     % set MPC parameters
@@ -54,8 +54,8 @@ function play()
 
 
     % plotting states
-    % figure(1);
-    % res.plot_xi();
+    figure(1);
+    res.plot_xi();
 
     % plotting trajectory
     figure(2);
@@ -64,6 +64,6 @@ function play()
     
     
     % plotting u signals
-    % figure(3);
-    % res.plot_u_signals(20);
+    figure(3);
+    res.plot_u_signals(20);
 end

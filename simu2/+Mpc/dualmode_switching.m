@@ -60,6 +60,6 @@ function [dtk, fval, exitflag] = dualmode_switching(ek, H, Hf, Phi1Np, Qbar, Rba
 %     
 %     x0  = zeros(size(f_qp, 1), 1);
 %     Dtk = quadprog(H_qp,f_qp,A_qp,b_qp,Aeq_qp,beq_qp,lb_qp,ub_qp,x0,options);
-
+    
     dtk =  Dtk(1:p);
 end
