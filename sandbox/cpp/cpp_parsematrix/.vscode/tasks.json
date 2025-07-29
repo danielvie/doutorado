@@ -1,0 +1,15 @@
+// .vscode/tasks.json
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Task b", // This is the unique name/label for your task
+            "type": "shell",    // Or "process", "cmake", etc. depending on your task
+            "command": "task b", // Replace with the actual command for Task B
+            "group": "build",   // Optional: associates it with the build group
+            "problemMatcher": [], // Optional: configure to parse output for errors/warnings
+            "detail": "This task performs a specific pre-debug action."
+        }
+        // You can add more tasks here if needed
+    ]
+}
