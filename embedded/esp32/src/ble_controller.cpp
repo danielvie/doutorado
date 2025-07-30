@@ -16,7 +16,14 @@ extern volatile uint32_t cycle_count;
 BLETaskState ble_task_state = BLETaskState::IDLE;
 
 // Global matrix variable for gain matrix
-Matrix g_gain_k(1, 1, {0.0});  // Initialize with 1x1 matrix containing 0
+
+size_t g_control_dtk_size = 0;
+double g_control_dtk[50];
+
+size_t g_control_ts_size = 0;
+double g_control_ts[50];
+
+Matrix g_control_gain_k(1, 1, {0.0});  // Initialize with 1x1 matrix containing 0
 
 // LED blink utility function for status indication
 void blink(uint8_t N) {
@@ -116,13 +123,13 @@ void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
             Matrix new_matrix = Matrix::from_string(matrix_str);
             
             if (new_matrix.is_valid()) {
-                g_gain_k = new_matrix;  // Store as global variable
+                g_control_gain_k = new_matrix;  // Store as global variable
                 Serial.printf("Matrix stored successfully: %dx%d\n", 
-                             g_gain_k.get_rows(), g_gain_k.get_cols());
+                             g_control_gain_k.get_rows(), g_control_gain_k.get_cols());
                 
                 // Debug: Print the matrix
                 Serial.println("Stored matrix:");
-                g_gain_k.print();
+                g_control_gain_k.print();
             } else {
                 Serial.println("Error: Invalid matrix format or data");
             }
@@ -202,20 +209,20 @@ void sendMessageStatus(NimBLECharacteristic* pCharacteristic) {
     Serial.println(message_buffer);
     
     // Demonstrate matrix multiplication with 3-element vector (optimized)
-    if (g_gain_k.is_valid() && g_gain_k.get_cols() == 3) {
+    if (g_control_gain_k.is_valid() && g_control_gain_k.get_cols() == 3) {
         // Pre-allocate result array for the multiplication
-        double result[g_gain_k.get_rows()];
+        double result[g_control_gain_k.get_rows()];
         
         // Perform optimized multiplication with vector [0.6, 0.1, 0.1] (NO SCALING)
-        g_gain_k.multiply_vector3(-0.6, -0.1, -0.1, result);
+        g_control_gain_k.multiply_vector3(-0.6, -0.1, -0.1, result);
         
         Serial.println("Matrix multiplication result (optimized):");
-        for (int i = 0; i < g_gain_k.get_rows(); ++i) {
+        for (int i = 0; i < g_control_gain_k.get_rows(); ++i) {
             Serial.printf("%.6f\n", result[i]);
         }
 
         Serial.println("\ncomputing => g_gain_k.multiply(Matrix(3,1,{0.6, 0.1, 0.1}));");
-        auto res = g_gain_k.scale(-1.0).multiply(Matrix(3,1,{0.6, 0.1, 0.1}));
+        auto res = g_control_gain_k.scale(-1.0).multiply(Matrix(3,1,{0.6, 0.1, 0.1}));
         res.print();
 
 
@@ -238,6 +245,19 @@ void readAndSendAnalogData(NimBLECharacteristic* pCharacteristic) {
     float voltage_03 = read_analog(AnalogPort::AN3);
     float voltage_05 = read_analog(AnalogPort::AN5);
     float voltage_06 = read_analog(AnalogPort::AN6);
+
+    // Compute control
+    if (g_control_gain_k.is_valid()) {
+        // compute control
+        g_control_dtk_size = g_control_gain_k.get_rows();
+        g_control_gain_k.multiply_vector3(voltage_06, voltage_05, voltage_03, g_control_dtk);
+        
+        // compute_ts_from_dtk
+        for (int j = 0; j < g_control_dtk_size; j++) {
+
+            
+        }
+    }
 
     // Format message with sensor readings using snprintf for safety
     snprintf(analog_buffer, sizeof(analog_buffer), 

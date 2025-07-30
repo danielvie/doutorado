@@ -60,6 +60,7 @@ classdef Simulation < handle
         
         % .. getters
         mpc_config = get_mpc_config(self);
+        msg_gain_k = get_msg_gain_k(self);
 
         % .. simulation
         [y,t,u,m,dtk_out] = run(self, nsim);

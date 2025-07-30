@@ -1,33 +1,50 @@
 
 
-k = [ 0.000416242448866209  0.00084516335645335  0.0095940645925792
-     -0.000417344537416973 -0.00084917861146434 -0.0095773668223236
-     -0.000835003627684464 -0.00040502724274651  0.0096153507389479
-      0.000839081838071992  0.00040617093509823 -0.0095993990256534
-      0.000833303406786859 -0.00081487214316475  0.0193015691040008];
+% k = [ 0.000416242448866209  0.00084516335645335  0.0095940645925792
+%      -0.000417344537416973 -0.00084917861146434 -0.0095773668223236
+%      -0.000835003627684464 -0.00040502724274651  0.0096153507389479
+%       0.000839081838071992  0.00040617093509823 -0.0095993990256534
+%       0.000833303406786859 -0.00081487214316475  0.0193015691040008];
+% 
+% ek = [0.6; 0.1; 0.1];
+% 
+% k_ = k';
+% -k*ek
+% 
+% 
+% msg = compute_matrix(k)
 
-ek = [0.6; 0.1; 0.1];
+% function s = compute_matrix(matrix)
+% 
+%     sout_elements = arrayfun(@num2str, matrix, 'UniformOutput', false);
+%     sout = strjoin(sout_elements, ',');
+% 
+%     [m,n] = size(matrix);
+%     s = sprintf("MATRIX:%d;%d;%s;", m,n,sout);
+% 
+% end
 
-k_ = k';
--k*ek
 
 
-msg = compute_matrix(k)
+s = Simulation();
+s.set_config(Enums.SimName.LAB_CIRCUIT);
+% s.m_state_mode = Enums.StateMode.AUGMENTED;
 
-function s = compute_matrix(matrix)
+mpc_config = s.get_mpc_config();
+mpc_config.Nd = 15;
+mpc_config.Np = 25;
+s.set_mpc_config(mpc_config);
+s.set_mpc();
 
-    sout_elements = arrayfun(@num2str, matrix, 'UniformOutput', false);
-    sout = strjoin(sout_elements, ',');
-
-    [m,n] = size(matrix);
-    s = sprintf("MATRIX:%d;%d;%s;", m,n,sout);
-
-end
+msg_k = s.get_msg_gain_k();
 
 b = z_broker_simple();
-b.msg(msg);
-b.st();
+b.simulation = s;
+b.msg(msg_k);
+% b.st();
 
+b.s(0.5);
+b.sa
 
 % -k*ek =
 % 

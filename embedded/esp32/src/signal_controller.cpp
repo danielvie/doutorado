@@ -40,6 +40,7 @@ const uint32_t gpio_di5_mask = 1 << GPIO_DI5;
 const uint32_t gpio_di6_mask = 1 << GPIO_DI6;
 const uint32_t gpio_pin_mask = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
 
+
 /**
  * Hardware Timer Interrupt Service Routine (ISR)
  * 

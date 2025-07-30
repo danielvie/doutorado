@@ -12296,11 +12296,11 @@
       "index": "b1C",
       "roundness": null,
       "seed": 1199662235,
-      "version": 51,
-      "versionNonce": 874200699,
+      "version": 53,
+      "versionNonce": 566789508,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1746585825618,
+      "updated": 1753636391900,
       "link": null,
       "locked": false,
       "points": [
@@ -64123,7 +64123,7 @@
       "version": 13,
       "versionNonce": 99094302,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607749399,
       "link": null,
       "locked": false,
@@ -64179,10 +64179,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        136.6666259765625,
-        258.3333740234375
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "j63Qj3TYOyDOy1D_xRLs3",
@@ -64207,7 +64204,7 @@
       "version": 8,
       "versionNonce": 409739394,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607749954,
       "link": null,
       "locked": false,
@@ -64243,10 +64240,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        -73.33331298828125,
-        250
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "aCi1ym0NntJ629h6aR_0p",
@@ -64271,7 +64265,7 @@
       "version": 36,
       "versionNonce": 1227309406,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607751318,
       "link": null,
       "locked": false,
@@ -64419,10 +64413,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        65,
-        61.666748046875
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "Z_WhHPML8w_OUD9zTO7yH",
@@ -64447,7 +64438,7 @@
       "version": 10,
       "versionNonce": 230982146,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607752047,
       "link": null,
       "locked": false,
@@ -64491,10 +64482,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        38.333251953125,
-        -1.666748046875
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "BadRPa9QZWm9FnfzcnzEM",
@@ -64519,7 +64507,7 @@
       "version": 4,
       "versionNonce": 927646686,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607752492,
       "link": null,
       "locked": false,
@@ -64539,10 +64527,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        43.333251953125,
-        3.3333740234375
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "ImWsctyCdGWrZp1i_PYhR",
@@ -64567,7 +64552,7 @@
       "version": 41,
       "versionNonce": 1894009182,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607755269,
       "link": null,
       "locked": false,
@@ -64735,10 +64720,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        15,
-        608.3333740234375
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "9BKQBAMoHN-RW8cGCqrO9",
@@ -64763,7 +64745,7 @@
       "version": 10,
       "versionNonce": 1614936578,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607756898,
       "link": null,
       "locked": false,
@@ -64807,10 +64789,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        38.3333740234375,
-        61.666748046875
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "7BJMNFsUY0tn82f-T1Xk2",
@@ -64835,7 +64814,7 @@
       "version": 12,
       "versionNonce": 1174531294,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607757296,
       "link": null,
       "locked": false,
@@ -64887,10 +64866,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        -25,
-        65
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "YpZk_4P8UnEHYrUllm0LG",
@@ -64915,7 +64891,7 @@
       "version": 37,
       "versionNonce": 667357662,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607759134,
       "link": null,
       "locked": false,
@@ -65067,10 +65043,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        -18.3333740234375,
-        225
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "cHkBsmWWzMSCV7cLqJ8bv",
@@ -65095,7 +65068,7 @@
       "version": 10,
       "versionNonce": 1577605506,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607759541,
       "link": null,
       "locked": false,
@@ -65139,10 +65112,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        20,
-        73.3333740234375
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "iOe26FjkUbOlfv5QGkPZP",
@@ -65167,7 +65137,7 @@
       "version": 18,
       "versionNonce": 65415710,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607760183,
       "link": null,
       "locked": false,
@@ -65243,10 +65213,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        21.6666259765625,
-        76.6666259765625
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "OPbPZmgPXCndBO3zfoK08",
@@ -65271,7 +65238,7 @@
       "version": 5,
       "versionNonce": 2026449694,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607760636,
       "link": null,
       "locked": false,
@@ -65295,10 +65262,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        15,
-        45
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "Y_cCUWSfC6CBZ3S-hhXjK",
@@ -65323,7 +65287,7 @@
       "version": 29,
       "versionNonce": 1652567838,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607761942,
       "link": null,
       "locked": false,
@@ -65443,10 +65407,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        -1.666748046875,
-        225
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "Y6EDYouomtyn68mvLsne8",
@@ -65471,7 +65432,7 @@
       "version": 37,
       "versionNonce": 1933947934,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607765830,
       "link": null,
       "locked": false,
@@ -65623,10 +65584,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        88.333251953125,
-        81.6666259765625
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "na-R1-xsN_qRUHOrE7s8t",
@@ -65651,7 +65609,7 @@
       "version": 30,
       "versionNonce": 1525866690,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607767075,
       "link": null,
       "locked": false,
@@ -65775,10 +65733,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        11.666748046875,
-        193.3333740234375
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "PKFlViFTQoKUVbmWMoFml",
@@ -65803,7 +65758,7 @@
       "version": 10,
       "versionNonce": 82748894,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607767857,
       "link": null,
       "locked": false,
@@ -65847,10 +65802,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        13.333251953125,
-        103.3333740234375
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "RLTUAKoqVKQpLRZ5FT6f9",
@@ -65875,7 +65827,7 @@
       "version": 19,
       "versionNonce": 973196446,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607768471,
       "link": null,
       "locked": false,
@@ -65955,10 +65907,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        6.6666259765625,
-        76.666748046875
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "Gm10jBwfDm7kFIYGbg4e0",
@@ -65983,7 +65932,7 @@
       "version": 9,
       "versionNonce": 676544030,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607768844,
       "link": null,
       "locked": false,
@@ -66023,10 +65972,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        23.333251953125,
-        46.666748046875
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "_Ts0W3aadaUS1EoHtXLcj",
@@ -66051,7 +65997,7 @@
       "version": 8,
       "versionNonce": 1034338690,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607770579,
       "link": null,
       "locked": false,
@@ -66087,10 +66033,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        28.3333740234375,
-        0
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "ia3IWC1_mkWmktRXBvrDS",
@@ -66115,7 +66058,7 @@
       "version": 4,
       "versionNonce": 531303518,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607771061,
       "link": null,
       "locked": false,
@@ -66135,10 +66078,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        18.33349609375,
-        103.3333740234375
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "I0_WW9-3bbKc57hF__5zG",
@@ -66163,7 +66103,7 @@
       "version": 35,
       "versionNonce": 91211038,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607772305,
       "link": null,
       "locked": false,
@@ -66307,10 +66247,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        18.33349609375,
-        175
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "D89L1Jho2CYj8RE_kjV6W",
@@ -66335,7 +66272,7 @@
       "version": 66,
       "versionNonce": 1508971330,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749607774560,
       "link": null,
       "locked": false,
@@ -66603,10 +66540,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        -55,
-        681.6666259765625
-      ]
+      "lastCommittedPoint": null
     },
     {
       "id": "KHXPaxrUOpzkhOERfddDj",
@@ -66631,7 +66565,7 @@
       "version": 5,
       "versionNonce": 1178344670,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1749636797610,
       "link": null,
       "locked": false,
@@ -66651,10 +66585,7 @@
       ],
       "pressures": [],
       "simulatePressure": true,
-      "lastCommittedPoint": [
-        -1.69281005859375,
-        4.16656494140625
-      ]
+      "lastCommittedPoint": null
     }
   ],
   "appState": {
