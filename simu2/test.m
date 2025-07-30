@@ -24,6 +24,10 @@ function s = compute_matrix(matrix)
 
 end
 
+b = z_broker_simple();
+b.msg(msg);
+% b.st();
+
 
 % -k*ek =
 % 

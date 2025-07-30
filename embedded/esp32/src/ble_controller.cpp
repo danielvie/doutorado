@@ -201,6 +201,10 @@ void sendMessageStatus(NimBLECharacteristic* pCharacteristic) {
     
     Serial.println(message_buffer);
     g_gain_k.print();
+    
+    auto res = g_gain_k.scale(-1.0).multiply(Matrix(3, 1, {0.6, 0.1, 0.1}));
+    res.print();
+
     Serial.println("STATUS response sent successfully");
 }
 
