@@ -159,6 +159,32 @@ Matrix Matrix::multiply(const Matrix& other) const {
     return Matrix(result_rows, result_cols, result_data);
 }
 
+/**
+ * Specialized multiplication with 3-element vector (optimized, no object creation)
+ * Multiplies this matrix by a 3x1 vector [x1, x2, x3]
+ * Result is stored in the provided result array (must be pre-allocated with size = number of rows)
+ * 
+ * @param x1 First element of the 3x1 vector
+ * @param x2 Second element of the 3x1 vector  
+ * @param x3 Third element of the 3x1 vector
+ * @param result Pointer to result array (must be pre-allocated with size = m_rows)
+ */
+void Matrix::multiply_vector3(double x1, double x2, double x3, double* result) const {
+    if (!m_is_valid || m_cols != 3 || !result) {
+        return; // Invalid matrix or wrong dimensions or null result pointer
+    }
+    
+    // Cache data pointer to avoid repeated vector access overhead
+    const double* data_ptr = m_data.data();
+    
+    // Use the same indexing as get_element(): col * m_rows + row (column-major)
+    for (int i = 0; i < m_rows; ++i) {
+        result[i] = data_ptr[0 * m_rows + i] * x1 +     // matrix[i][0] * x1
+                    data_ptr[1 * m_rows + i] * x2 +     // matrix[i][1] * x2  
+                    data_ptr[2 * m_rows + i] * x3;      // matrix[i][2] * x3
+    }
+}
+
 Matrix& Matrix::scale(const double value) {
     for (size_t i = 0; i < m_data.size(); ++i) {
         m_data[i] *= value;

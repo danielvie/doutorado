@@ -200,10 +200,28 @@ void sendMessageStatus(NimBLECharacteristic* pCharacteristic) {
     }
     
     Serial.println(message_buffer);
-    g_gain_k.print();
     
-    auto res = g_gain_k.scale(-1.0).multiply(Matrix(3, 1, {0.6, 0.1, 0.1}));
-    res.print();
+    // Demonstrate matrix multiplication with 3-element vector (optimized)
+    if (g_gain_k.is_valid() && g_gain_k.get_cols() == 3) {
+        // Pre-allocate result array for the multiplication
+        double result[g_gain_k.get_rows()];
+        
+        // Perform optimized multiplication with vector [0.6, 0.1, 0.1] (NO SCALING)
+        g_gain_k.multiply_vector3(-0.6, -0.1, -0.1, result);
+        
+        Serial.println("Matrix multiplication result (optimized):");
+        for (int i = 0; i < g_gain_k.get_rows(); ++i) {
+            Serial.printf("%.6f\n", result[i]);
+        }
+
+        Serial.println("\ncomputing => g_gain_k.multiply(Matrix(3,1,{0.6, 0.1, 0.1}));");
+        auto res = g_gain_k.scale(-1.0).multiply(Matrix(3,1,{0.6, 0.1, 0.1}));
+        res.print();
+
+
+    } else {
+        Serial.println("Matrix not available or wrong dimensions for vector multiplication");
+    }
 
     Serial.println("STATUS response sent successfully");
 }

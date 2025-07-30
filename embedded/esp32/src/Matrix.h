@@ -35,6 +35,10 @@ public:
 
     // Matrix Multiplication
     Matrix multiply(const Matrix& other) const;
+    
+    // Specialized multiplication with 3-element vector (optimized, no object creation)
+    void multiply_vector3(double x1, double x2, double x3, double* result) const;
+    
     Matrix& scale(const double value);
 
     // Print the matrix

@@ -26,7 +26,7 @@ end
 
 b = z_broker_simple();
 b.msg(msg);
-% b.st();
+b.st();
 
 
 % -k*ek =
