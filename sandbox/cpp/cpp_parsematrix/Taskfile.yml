@@ -5,7 +5,7 @@ tasks:
     deps: [m]
 
   build:
-    aliases: ["b"]
+    aliases: [b]
     cmds:
       - cmake -B build
       - cmake --build build
@@ -17,7 +17,7 @@ tasks:
       - ./build/debug/main.exe
       
   clean:
-    aliases: ["c"]
+    aliases: [c]
     cmds: 
       - 'if {{ eq OS "windows" }}; 
         then powershell Remove-Item -Recurse -Force build; 
