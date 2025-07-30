@@ -34,5 +34,7 @@ int main() {
     
     res.print();
 
+    // 133 us
+    // 108 us
     return 0;
 }

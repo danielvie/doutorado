@@ -2,6 +2,7 @@
 #include "ble_controller.h"
 #include "signal_controller.h"
 #include "esp_task_wdt.h"
+#include "Matrix.h"
 
 // External references to global variables
 extern SignalTaskState signal_task_state;
