@@ -254,8 +254,7 @@ void readAndSendAnalogData(NimBLECharacteristic* pCharacteristic) {
         
         // compute_ts_from_dtk
         for (int j = 0; j < g_control_dtk_size; j++) {
-
-            
+            // TODO: atualizar o Ts
         }
     }
 
