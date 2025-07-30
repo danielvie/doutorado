@@ -12,7 +12,7 @@ k_ = k';
 -k*ek
 
 
-compute_matrix(k)
+msg = compute_matrix(k)
 
 function s = compute_matrix(matrix)
 
@@ -20,7 +20,7 @@ function s = compute_matrix(matrix)
     sout = strjoin(sout_elements, ',');
 
     [m,n] = size(matrix);
-    s = sprintf("%d;%d;%s;", m,n,sout);
+    s = sprintf("MATRIX:%d;%d;%s;", m,n,sout);
 
 end
 

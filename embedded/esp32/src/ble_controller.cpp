@@ -15,6 +15,9 @@ extern volatile uint32_t cycle_count;
 // BLE Task state management
 BLETaskState ble_task_state = BLETaskState::IDLE;
 
+// Global matrix variable for gain matrix
+Matrix g_gain_k(1, 1, {0.0});  // Initialize with 1x1 matrix containing 0
+
 // LED blink utility function for status indication
 void blink(uint8_t N) {
     for (uint8_t i = 0; i < N; i++) {
@@ -102,6 +105,32 @@ void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
             Serial.printf("Signal sent to parse: '%s'\n", signal.c_str());
         }
     }
+    // MATRIX command: Load new gain matrix
+    else if (value.substr(0,7) == "MATRIX:") {
+        std::string matrix_str = value.substr(7);
+        Serial.println("Matrix received:");
+        Serial.println(matrix_str.c_str());
+
+        try {
+            // Parse and store the matrix using Matrix::from_string
+            Matrix new_matrix = Matrix::from_string(matrix_str);
+            
+            if (new_matrix.is_valid()) {
+                g_gain_k = new_matrix;  // Store as global variable
+                Serial.printf("Matrix stored successfully: %dx%d\n", 
+                             g_gain_k.get_rows(), g_gain_k.get_cols());
+                
+                // Debug: Print the matrix
+                Serial.println("Stored matrix:");
+                g_gain_k.print();
+            } else {
+                Serial.println("Error: Invalid matrix format or data");
+            }
+        } catch (std::exception &e) {
+            Serial.printf("Error parsing matrix: %s\n", e.what());
+            Serial.printf("Matrix string sent to parse: '%s'\n", matrix_str.c_str());
+        }
+    }
 }
 
 /**
@@ -171,6 +200,7 @@ void sendMessageStatus(NimBLECharacteristic* pCharacteristic) {
     }
     
     Serial.println(message_buffer);
+    g_gain_k.print();
     Serial.println("STATUS response sent successfully");
 }
 
