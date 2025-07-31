@@ -13,7 +13,7 @@ int main() {
     std::string str_matrix_B = "3;2;7,8,9,10,11,12;";       // 3x2 matrix
 
     // --- format "m;n;gain_k[];time_us[];modes[];"
-    std::string test_1 = "1;2;0.00041624,0.0154;40,25,16;1,5,7;";
+    std::string test_1 = "1;2;0.00041624,0.0154;40,25,16;1,5,7,8,4,1,6,85,8,115,3;";
     // std::string k = "5;3;0.00041624,-0.00041734,-0.000835,0.00083908,0.0008333,0.00084516,-0.00084918,-0.00040503,0.00040617,-0.00081487,0.0095941,-0.0095774,0.0096154,-0.0095994,0.019302;";
 
     // --- Test Matrix Multiplication ---
@@ -30,6 +30,7 @@ int main() {
     
     if (err != ERROR_CODE::OK) {
         print_error_code(err);
+        return 0;
     }
     
     std::cout << "gain_k:\n";
