@@ -112,30 +112,72 @@ void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
             Serial.printf("Signal sent to parse: '%s'\n", signal.c_str());
         }
     }
-    // MATRIX command: Load new gain matrix
-    else if (value.substr(0,7) == "MATRIX:") {
-        std::string matrix_str = value.substr(7);
-        Serial.println("Matrix received:");
-        Serial.println(matrix_str.c_str());
+    // MESSAGE_DATA command: Load new gain matrix
+    else if (value.substr(0,13) == "MESSAGE_DATA:") {
+        std::string message_str = value.substr(13);
+        Serial.println("message received:");
+        Serial.println(message_str.c_str());
 
         try {
-            // Parse and store the matrix using Matrix::from_string
-            Matrix new_matrix = Matrix::from_string(matrix_str);
+            int m,n;
+            std::vector<double> gain_k;
+            std::vector<uint64_t> times;
+            std::vector<uint64_t> modes;
+            ERROR_CODE err;
+
+            err = parse_message_data(message_str, m, n, gain_k, times, modes);
             
-            if (new_matrix.is_valid()) {
-                g_control_gain_k = new_matrix;  // Store as global variable
-                Serial.printf("Matrix stored successfully: %dx%d\n", 
-                             g_control_gain_k.get_rows(), g_control_gain_k.get_cols());
-                
-                // Debug: Print the matrix
-                Serial.println("Stored matrix:");
-                g_control_gain_k.print();
+            if (err != ERROR_CODE::OK) {
+                print_error_code(err);
             } else {
-                Serial.println("Error: Invalid matrix format or data");
+                Serial.println("VALUES PARSED:");
+                Serial.printf("m: %d\n", m);
+                Serial.printf("n: %d\n", n);
+
+                Serial.println("gain_k:");
+                for (auto el : gain_k) {
+                    Serial.printf("%f, ", el);
+                }
+                Serial.println("");
+
+                Matrix gain_matrix(m, n, gain_k);
+                gain_matrix.print();
+
+                Serial.println("\n");
+
+                Serial.println("times:");
+                for (auto el : times) {
+                    Serial.printf("%d, ", el);
+                }
+                Serial.println("\n");
+
+                Serial.println("modes:");
+                for (auto el : modes) {
+                    Serial.printf("%d, ", el);
+                }
+                Serial.println("\n");
+
             }
+
+
+            // Parse and store the matrix using Matrix::from_string
+            // Matrix new_matrix = Matrix::from_string(matrix_str);
+            
+            // if (new_matrix.is_valid()) {
+            //     g_control_gain_k = new_matrix;  // Store as global variable
+            //     Serial.printf("Matrix stored successfully: %dx%d\n", 
+            //                  g_control_gain_k.get_rows(), g_control_gain_k.get_cols());
+                
+            //     // Debug: Print the matrix
+            //     Serial.println("Stored matrix:");
+            //     g_control_gain_k.print();
+            // } else {
+            //     Serial.println("Error: Invalid matrix format or data");
+            // }
+
         } catch (std::exception &e) {
-            Serial.printf("Error parsing matrix: %s\n", e.what());
-            Serial.printf("Matrix string sent to parse: '%s'\n", matrix_str.c_str());
+            Serial.printf("Error parsing message: %s\n", e.what());
+            // Serial.printf("Matrix string sent to parse: '%s'\n", matrix_str.c_str());
         }
     }
 }

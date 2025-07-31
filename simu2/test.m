@@ -14,15 +14,25 @@
 % 
 % msg = compute_matrix(k)
 
-% function s = compute_matrix(matrix)
-% 
-%     sout_elements = arrayfun(@num2str, matrix, 'UniformOutput', false);
-%     sout = strjoin(sout_elements, ',');
-% 
-%     [m,n] = size(matrix);
-%     s = sprintf("MATRIX:%d;%d;%s;", m,n,sout);
-% 
-% end
+function s = compute_message(gain_k, times, modes)
+
+    % gain_k
+    str_gain_k_elements = arrayfun(@num2str, gain_k, 'UniformOutput', false);
+    str_gain_k = strjoin(str_gain_k_elements, ',');
+    [m,n] = size(gain_k);
+
+    % times
+    str_times_elements = arrayfun(@num2str, times, 'UniformOutput', false);
+    str_times = strjoin(str_times_elements, ',');
+
+    % modes
+    str_modes_elements = arrayfun(@num2str, modes, 'UniformOutput', false);
+    str_modes = strjoin(str_modes_elements, ',');
+
+    s = sprintf("MESSAGE_DATA:%d;%d;%s;%s;%s;", m,n,str_gain_k,str_times,str_modes);
+
+end
+
 
 
 
@@ -33,18 +43,31 @@ s.set_config(Enums.SimName.LAB_CIRCUIT);
 mpc_config = s.get_mpc_config();
 mpc_config.Nd = 15;
 mpc_config.Np = 25;
+
 s.set_mpc_config(mpc_config);
+
+s.set_traj_phase_with_alpha(0.9);
+
 s.set_mpc();
 
-msg_k = s.get_msg_gain_k();
+gain_k = s.m_config.mpc.K
+times = s.get_time_us()
+modes = s.get_mode()
 
+msg_data = compute_message(gain_k, times, modes)
+
+
+
+% 
+% msg_k = s.get_msg_gain_k();
+% 
 b = z_broker_simple();
 b.simulation = s;
-b.msg(msg_k);
-% b.st();
+b.msg(msg_data);
+b.st();
 
-b.s(0.5);
-b.sa
+% b.s(0.5);
+% b.sa
 
 % -k*ek =
 % 
