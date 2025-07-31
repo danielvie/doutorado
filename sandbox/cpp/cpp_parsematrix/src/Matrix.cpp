@@ -1,7 +1,7 @@
 #include "Matrix.h"
 
 // --- Helper Function for Safe String to Double Conversion ---
-double safeStod(const std::string& s) {
+double safe_stod(const std::string& s) {
     size_t pos;
     // Check for empty string or string containing only whitespace
     if (s.empty() || s.find_first_not_of(" \t\n\v\f\r") == std::string::npos) {
@@ -29,7 +29,7 @@ void parse_matrix_string(const std::string& input_str, int& out_m, int& out_n, s
             throw std::runtime_error("Missing first semicolon (after m). Input: '" + input_str + "'");
         }
         std::string m_str = s.substr(0, first_semicolon_pos);
-        out_m = safeStod(m_str);
+        out_m = safe_stod(m_str);
         if (out_m <= 0) {
             throw std::invalid_argument("Matrix rows (m) must be a positive integer.");
         }
@@ -42,7 +42,7 @@ void parse_matrix_string(const std::string& input_str, int& out_m, int& out_n, s
             throw std::runtime_error("Missing second semicolon (after n). Input: '" + input_str + "'");
         }
         std::string n_str = s.substr(0, second_semicolon_pos);
-        out_n = safeStod(n_str);
+        out_n = safe_stod(n_str);
         if (out_n <= 0) {
             throw std::invalid_argument("Matrix columns (n) must be a positive integer.");
         }
@@ -67,12 +67,12 @@ void parse_matrix_string(const std::string& input_str, int& out_m, int& out_n, s
             size_t comma_pos;
             while ((comma_pos = data_str_segment.find(',', start_pos)) != std::string::npos) {
                 std::string num_str = data_str_segment.substr(start_pos, comma_pos - start_pos);
-                out_data.push_back(safeStod(num_str));
+                out_data.push_back(safe_stod(num_str));
                 start_pos = comma_pos + 1;
             }
             // Add the last number (or the only number if no commas)
             std::string last_num_str = data_str_segment.substr(start_pos);
-            out_data.push_back(safeStod(last_num_str));
+            out_data.push_back(safe_stod(last_num_str));
         }
 
     } catch (const std::invalid_argument& e) {
