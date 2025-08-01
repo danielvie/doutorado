@@ -264,6 +264,7 @@ void updateSignalControl(const std::string& str_control_message) {
         }
         Serial.println("");
         Matrix gain_matrix(m, n, gain_k);
+        Serial.println("");
         gain_matrix.print();
         Serial.println("\n");
         Serial.println("times:");
@@ -284,14 +285,33 @@ void updateSignalControl(const std::string& str_control_message) {
     }
 
 
-    // // Convert combined modes to individual pin states
-    // std::vector<uint64_t> new_d4_vec, new_d5_vec, new_d6_vec;
-    // for (uint64_t mi : new_modes) {
-    //     Bin bin = Num2Bin(mi);  // Convert number to binary representation
-    //     new_d4_vec.push_back(bin.b1);
-    //     new_d5_vec.push_back(bin.b2);
-    //     new_d6_vec.push_back(bin.b3);
+    // if (err != ERROR_CODE::OK) {
+    //     print_error_code(err);
+    // } else {
+
+    //     // // Convert combined modes to individual pin states
+    //     // std::vector<uint64_t> new_d4_vec, new_d5_vec, new_d6_vec;
+    //     // for (uint64_t mi : new_modes) {
+    //     //     Bin bin = Num2Bin(mi);  // Convert number to binary representation
+    //     //     new_d4_vec.push_back(bin.b1);
+    //     //     new_d5_vec.push_back(bin.b2);
+    //     //     new_d6_vec.push_back(bin.b3);
+    //     // }
+
+    //     // // Debug output of parsed signal
+    //     // Serial.print("time: ");
+    //     // for (auto ti : new_timings) {
+    //     //     Serial.printf("%d, ", ti);
+    //     // }
+    //     // Serial.println(" ");
+    //     // Serial.print("mode: ");
+    //     // for (auto mi : new_modes) {
+    //     //     Serial.printf("%d, ", mi);
+    //     // }
+    //     // Serial.println(" ");
+
     // }
+
 
     // // Debug output of parsed signal
     // Serial.print("time: ");

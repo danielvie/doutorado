@@ -47,6 +47,8 @@ s.set_mpc_config(mpc_config);
 s.set_traj_phase_with_alpha(0.5);
 s.set_mpc();
 
+s.m_config.mpc.x_target(3) = randn()*10;
+
 msg_data = s.get_msg_control_signal()
 
 b = BTBroker();

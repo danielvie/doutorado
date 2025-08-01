@@ -114,60 +114,13 @@ void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
     }
     // MESSAGE_DATA command: Load new gain matrix
     else if (value.substr(0,13) == "MESSAGE_DATA:") {
-        std::string message_str = value.substr(13);
+        std::string str_message = value.substr(13);
         Serial.println("message received:");
-        Serial.println(message_str.c_str());
+        Serial.println(str_message.c_str());
         Serial.println("\n\n");
 
         try {
-            int m,n;
-            std::vector<double> gain_k;
-            std::vector<uint64_t> times;
-            std::vector<uint64_t> modes;
-            std::vector<double> target;
-            ERROR_CODE err;
-
-            err = parse_control_message(message_str, m, n, gain_k, times, modes, target);
-            
-            if (err != ERROR_CODE::OK) {
-                print_error_code(err);
-            } else {
-                Serial.println("VALUES PARSED:");
-                Serial.printf("m: %d\n", m);
-                Serial.printf("n: %d\n", n);
-
-                Serial.println("gain_k:");
-                for (auto el : gain_k) {
-                    Serial.printf("%f, ", el);
-                }
-                Serial.println("");
-
-                Matrix gain_matrix(m, n, gain_k);
-                gain_matrix.print();
-
-                Serial.println("\n");
-
-                Serial.println("times:");
-                for (auto el : times) {
-                    Serial.printf("%d, ", el);
-                }
-                Serial.println("\n");
-
-                Serial.println("modes:");
-                for (auto el : modes) {
-                    Serial.printf("%d, ", el);
-                }
-                Serial.println("\n");
-
-                Serial.println("target:");
-                for (auto el : target) {
-                    Serial.printf("%f, ", el);
-                }
-                Serial.println("\n");
-
-            }
-                
-
+            updateSignalControl(str_message);
         } catch (std::exception &e) {
             Serial.printf("Error parsing message: %s\n", e.what());
         }
