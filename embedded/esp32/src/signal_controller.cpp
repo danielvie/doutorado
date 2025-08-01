@@ -304,6 +304,7 @@ void updateSignalControl(const std::string& str_control_message) {
                 set_b_data.d4_vec = new_d4_vec;
                 set_b_data.d5_vec = new_d5_vec;
                 set_b_data.d6_vec = new_d6_vec;
+                set_b_data.target = new_target;
                 set_b_data.m = new_m;
                 set_b_data.n = new_n;
                 set_b_data.gain_k = new_gain_k;
@@ -315,6 +316,7 @@ void updateSignalControl(const std::string& str_control_message) {
                 set_a_data.d4_vec = new_d4_vec;
                 set_a_data.d5_vec = new_d5_vec;
                 set_a_data.d6_vec = new_d6_vec;
+                set_a_data.target = new_target;
                 set_a_data.m = new_m;
                 set_a_data.n = new_n;
                 set_a_data.gain_k = new_gain_k;

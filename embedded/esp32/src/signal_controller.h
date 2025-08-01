@@ -41,6 +41,7 @@ struct SetData {
     std::vector<uint64_t> d4_vec;
     std::vector<uint64_t> d5_vec;
     std::vector<uint64_t> d6_vec; 
+    std::vector<double> target; 
     std::vector<double> gain_k;
     int m,n;
 };
