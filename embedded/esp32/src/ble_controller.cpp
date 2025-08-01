@@ -120,6 +120,7 @@ void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
         Serial.println("\n\n");
 
         try {
+            ble_task_state = BLETaskState::SIGNAL_READING;
             updateSignalControl(str_message);
         } catch (std::exception &e) {
             Serial.printf("Error parsing message: %s\n", e.what());

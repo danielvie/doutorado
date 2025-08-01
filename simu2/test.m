@@ -54,6 +54,8 @@ msg_data = s.get_msg_control_signal()
 b = BTBroker();
 b.simulation = s;
 b.msg(msg_data);
+b.set_control_on(false);
+
 % b.st();
 
 % b.s(0.5);
