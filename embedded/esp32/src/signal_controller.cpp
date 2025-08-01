@@ -394,9 +394,14 @@ void signalTask(void* arg) {
                 break;
                 
             case SignalTaskState::SIGNAL_RUN:
-                // Handle seamless signal set switching during signal generation
+
+                // Check if switch is pending
+                if (!switch_set_pending) {
+                    break;
+                }
+                
                 // Switch occurs at the end of current pattern to avoid glitches
-                if (switch_set_pending && current_state == active_num_timings - 1) {
+                if (current_state == active_num_timings - 1) {
                     if (xSemaphoreTake(signal_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
                         // Toggle between SET_A and SET_B
                         if (active_set == ActiveSignalSet::SET_A) {
