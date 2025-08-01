@@ -23,7 +23,7 @@ double g_control_dtk[50];
 size_t g_control_ts_size = 0;
 double g_control_ts[50];
 
-Matrix g_control_gain_k(1, 1, {0.0});  // Initialize with 1x1 matrix containing 0
+// Matrix g_control_gain_k(1, 1, {0.0});  // Initialize with 1x1 matrix containing 0
 
 // LED blink utility function for status indication
 void blink(uint8_t N) {
@@ -197,23 +197,25 @@ void sendMessageStatus(NimBLECharacteristic* pCharacteristic) {
     Serial.println(message_buffer);
     
     // Demonstrate matrix multiplication with 3-element vector (optimized)
-    if (g_control_gain_k.is_valid() && g_control_gain_k.get_cols() == 3) {
+
+    SetData* set_data = (active_set == ActiveSignalSet::SET_A) ? &set_a_data : &set_b_data;
+    Matrix control_gain_k(set_data->m, set_data->n, set_data->gain_k);
+
+    if (control_gain_k.is_valid() && control_gain_k.get_cols() == 3) {
         // Pre-allocate result array for the multiplication
-        double result[g_control_gain_k.get_rows()];
+        double result[control_gain_k.get_rows()];
         
         // Perform optimized multiplication with vector [0.6, 0.1, 0.1] (NO SCALING)
-        g_control_gain_k.multiply_vector3(-0.6, -0.1, -0.1, result);
+        control_gain_k.multiply_vector3(-0.6, -0.1, -0.1, result);
         
         Serial.println("Matrix multiplication result (optimized):");
-        for (int i = 0; i < g_control_gain_k.get_rows(); ++i) {
+        for (int i = 0; i < control_gain_k.get_rows(); ++i) {
             Serial.printf("%.6f\n", result[i]);
         }
 
         Serial.println("\ncomputing => g_gain_k.multiply(Matrix(3,1,{0.6, 0.1, 0.1}));");
-        auto res = g_control_gain_k.scale(-1.0).multiply(Matrix(3,1,{0.6, 0.1, 0.1}));
+        auto res = control_gain_k.scale(-1.0).multiply(Matrix(3,1,{0.6, 0.1, 0.1}));
         res.print();
-
-
     } else {
         Serial.println("Matrix not available or wrong dimensions for vector multiplication");
     }
@@ -235,10 +237,18 @@ void readAndSendAnalogData(NimBLECharacteristic* pCharacteristic) {
     float voltage_06 = read_analog(AnalogPort::AN6);
 
     // Compute control
-    if (g_control_gain_k.is_valid()) {
-        // compute control
-        g_control_dtk_size = g_control_gain_k.get_rows();
-        g_control_gain_k.multiply_vector3(voltage_06, voltage_05, voltage_03, g_control_dtk);
+    
+    // state
+    float v_c1 = voltage_05;
+    float v_c2 = voltage_06;
+    float i_l = voltage_03 / 22;
+    
+    SetData* set_data = (active_set == ActiveSignalSet::SET_A) ? &set_a_data : &set_b_data;
+    Matrix control_gain_k(set_data->m, set_data->n, set_data->gain_k);
+    if (control_gain_k.is_valid()) {
+        // compute ek -> x - x_target
+        g_control_dtk_size = control_gain_k.get_rows();
+        control_gain_k.multiply_vector3(v_c1 - set_data->target[0], v_c2 - set_data->target[1], i_l - set_data->target[2], g_control_dtk);
         
         // compute_ts_from_dtk
         for (int j = 0; j < g_control_dtk_size; j++) {

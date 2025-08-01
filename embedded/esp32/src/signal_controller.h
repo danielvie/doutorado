@@ -46,6 +46,9 @@ struct SetData {
     int m,n;
 };
 
+extern SetData set_a_data; // Signal set A
+extern SetData set_b_data; // Signal set B
+
 // extern std::vector<uint64_t> time_vec_a, d4_vec_a, d5_vec_a, d6_vec_a;
 // extern std::vector<uint64_t> time_vec_b, d4_vec_b, d5_vec_b, d6_vec_b;
 

@@ -54,8 +54,7 @@ classdef Simulation < handle
         set_traj_phase_with_alpha(self, alpha);
         set_mpc(self, Np);
 
-        set_alpha_and_mpc(self, alpha);
-        set_alpha_and_mpc_cached(self, alpha, Np);
+        set_traj_phase_alpha_and_mpc(self, alpha);
         save_set_alpha_cache(self);
         
         % .. getters

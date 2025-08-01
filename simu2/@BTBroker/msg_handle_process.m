@@ -33,8 +33,8 @@ function msg_handle_process(self, msg)
     % v_c2 -> a6
     % v_i  -> a3
 
-    v_c2 = parsed_data.an6;
     v_c1 = parsed_data.an5;
+    v_c2 = parsed_data.an6;
     i_l  = parsed_data.an3 / 22; % tensao / resistencia resistor
     
     % ajustando escala do divisor de tensao (* 10/6)

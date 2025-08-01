@@ -40,8 +40,8 @@ void setup() {
     Serial.begin(115200);
     
     // initializing g_gain_k
-    g_control_gain_k.m_is_valid = false;
-    g_control_gain_k.m_data.reserve(50);
+    // g_control_gain_k.m_is_valid = false;
+    // g_control_gain_k.m_data.reserve(50);
     
     // Initialize signal controller (creates mutex, initializes vectors, configures GPIO)
     initializeSignalController();
