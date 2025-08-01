@@ -339,10 +339,11 @@ ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& 
     target.clear();
 
     std::string s = input_str;
+    size_t semicolon_pos;
 
     try {
         // .. --- 1. Parse 'm' (rows) ---
-        size_t semicolon_pos = s.find(';');
+        semicolon_pos = s.find(';');
         if (semicolon_pos == std::string::npos) {
             return ERROR_CODE::RUNTIME_ERROR_MISSING_SEMICOLON;
         }

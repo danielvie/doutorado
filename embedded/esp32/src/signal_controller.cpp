@@ -255,14 +255,7 @@ void updateSignalControl(const std::string& str_control_message) {
     if (err != ERROR_CODE::OK) {
         print_error_code(err);
     } else {
-        Serial.println("VALUES PARSED:");
-        Serial.printf("m: %d\n", m);
-        Serial.printf("n: %d\n", n);
-        Serial.println("gain_k:");
-        for (auto el : gain_k) {
-            Serial.printf("%f, ", el);
-        }
-        Serial.println("");
+        Serial.println("VALUES PARSED:\n");
         Matrix gain_matrix(m, n, gain_k);
         Serial.println("");
         gain_matrix.print();
