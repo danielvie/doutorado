@@ -394,12 +394,10 @@ void signalTask(void* arg) {
                 break;
                 
             case SignalTaskState::SIGNAL_RUN:
-
                 // Check if switch is pending
                 if (!switch_set_pending) {
                     break;
                 }
-                
                 // Switch occurs at the end of current pattern to avoid glitches
                 if (current_state == active_num_timings - 1) {
                     if (xSemaphoreTake(signal_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
