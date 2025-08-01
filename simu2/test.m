@@ -15,7 +15,7 @@
 % msg = compute_matrix(k)
 
 function s = compute_message(gain_k, times, modes)
-
+    
     % gain_k
     str_gain_k_elements = arrayfun(@num2str, gain_k, 'UniformOutput', false);
     str_gain_k = strjoin(str_gain_k_elements, ',');
@@ -30,7 +30,6 @@ function s = compute_message(gain_k, times, modes)
     str_modes = strjoin(str_modes_elements, ',');
 
     s = sprintf("MESSAGE_DATA:%d;%d;%s;%s;%s;", m,n,str_gain_k,str_times,str_modes);
-
 end
 
 
@@ -45,26 +44,15 @@ mpc_config.Nd = 15;
 mpc_config.Np = 25;
 
 s.set_mpc_config(mpc_config);
-
-s.set_traj_phase_with_alpha(0.9);
-
+s.set_traj_phase_with_alpha(0.5);
 s.set_mpc();
 
-gain_k = s.m_config.mpc.K
-times = s.get_time_us()
-modes = s.get_mode()
+msg_data = s.get_msg_control_signal()
 
-msg_data = compute_message(gain_k, times, modes)
-
-
-
-% 
-% msg_k = s.get_msg_gain_k();
-% 
-b = z_broker_simple();
+b = BTBroker();
 b.simulation = s;
 b.msg(msg_data);
-b.st();
+% b.st();
 
 % b.s(0.5);
 % b.sa

@@ -18,7 +18,6 @@ int main() {
 
     // --- Test Matrix Multiplication ---
     std::cout << "\n--- Testing Matrix Multiplication ---" << std::endl;
-
     
     int m,n;
     std::vector<double> gain_k;

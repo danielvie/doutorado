@@ -10,9 +10,18 @@ classdef BTBroker < handle
         control_on;
     end
     
+    methods (Static)
+        [name, service_uuid, characteristic_uuid] = get_default_config();
+    end
+    
     methods
         % .. constructor
         function self = BTBroker(name, service_uuid, characteristic_uuid)
+            
+            if nargin == 0
+                [name, service_uuid, characteristic_uuid] = self.get_default_config();
+            end
+            
             self.name = name;
             self.service_uuid = service_uuid;
             self.characteristic_uuid = characteristic_uuid;

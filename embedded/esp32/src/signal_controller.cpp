@@ -241,6 +241,95 @@ void updateSignalPattern(const std::string& signal) {
     }
 }
 
+void updateSignalControl(const std::string& str_control_message) {
+
+    int m,n;
+    std::vector<double> gain_k;
+    std::vector<uint64_t> new_timings;
+    std::vector<uint64_t> new_modes;
+    std::vector<double> target;
+    ERROR_CODE err;
+
+    parse_control_message(str_control_message, m, n, gain_k, new_timings, new_modes, target);
+
+    if (err != ERROR_CODE::OK) {
+        print_error_code(err);
+    } else {
+        Serial.println("VALUES PARSED:");
+        Serial.printf("m: %d\n", m);
+        Serial.printf("n: %d\n", n);
+        Serial.println("gain_k:");
+        for (auto el : gain_k) {
+            Serial.printf("%f, ", el);
+        }
+        Serial.println("");
+        Matrix gain_matrix(m, n, gain_k);
+        gain_matrix.print();
+        Serial.println("\n");
+        Serial.println("times:");
+        for (auto el : new_timings) {
+            Serial.printf("%d, ", el);
+        }
+        Serial.println("\n");
+        Serial.println("modes:");
+        for (auto el : new_modes) {
+            Serial.printf("%d, ", el);
+        }
+        Serial.println("\n");
+        Serial.println("target:");
+        for (auto el : target) {
+            Serial.printf("%f, ", el);
+        }
+        Serial.println("\n");
+    }
+
+
+    // // Convert combined modes to individual pin states
+    // std::vector<uint64_t> new_d4_vec, new_d5_vec, new_d6_vec;
+    // for (uint64_t mi : new_modes) {
+    //     Bin bin = Num2Bin(mi);  // Convert number to binary representation
+    //     new_d4_vec.push_back(bin.b1);
+    //     new_d5_vec.push_back(bin.b2);
+    //     new_d6_vec.push_back(bin.b3);
+    // }
+
+    // // Debug output of parsed signal
+    // Serial.print("time: ");
+    // for (auto ti : new_timings) {
+    //     Serial.printf("%d, ", ti);
+    // }
+    // Serial.println(" ");
+    // Serial.print("mode: ");
+    // for (auto mi : new_modes) {
+    //     Serial.printf("%d, ", mi);
+    // }
+    // Serial.println(" ");
+
+//     // Update the inactive signal set (double buffering)
+//     if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
+//         if (active_set == ActiveSignalSet::SET_A) {
+//             Serial.println("updating SET_B...");
+//             // Update SET_B while SET_A is active
+//             time_vec_b = new_timings;
+//             d4_vec_b = new_d4_vec;
+//             d5_vec_b = new_d5_vec;
+//             d6_vec_b = new_d6_vec;
+//         } else {
+//             Serial.println("updating SET_A...");
+//             // Update SET_A while SET_B is active
+//             time_vec_a = new_timings;
+//             d4_vec_a = new_d4_vec;
+//             d5_vec_a = new_d5_vec;
+//             d6_vec_a = new_d6_vec;
+//         }
+//         num_timings = new_timings.size();
+//         switch_set_pending = true;  // Mark for set switching
+//         xSemaphoreGive(signal_mutex);
+//     }
+    
+}
+
+
 /**
  * Initialize signal controller
  */

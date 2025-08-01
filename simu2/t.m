@@ -1,1 +1,3 @@
-play
+% play
+clear;
+test

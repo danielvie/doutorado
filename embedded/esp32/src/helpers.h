@@ -125,4 +125,4 @@ float read_analog(AnalogPort port);
 
 
 void print_error_code(ERROR_CODE err);
-ERROR_CODE parse_message_data(const std::string& input_str, int& out_m, int& out_n, std::vector<double>& out_data, std::vector<uint64_t>& times, std::vector<uint64_t>& modes);
+ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& out_n, std::vector<double>& gain_k_data, std::vector<uint64_t>& times, std::vector<uint64_t>& mode, std::vector<double>& target);

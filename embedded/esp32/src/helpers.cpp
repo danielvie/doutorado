@@ -270,11 +270,14 @@ ERROR_CODE safe_stod(const std::string& s, double &number) {
     return ERROR_CODE::OK;
 }
 
-ERROR_CODE parse_message_data(const std::string& input_str, int& out_m, int& out_n, std::vector<double>& gain_k_data, std::vector<uint64_t>& times, std::vector<uint64_t>& modes) {
+ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& out_n, std::vector<double>& gain_k_data, std::vector<uint64_t>& times, std::vector<uint64_t>& modes, std::vector<double>& target) {
     std::string s = input_str;
-    gain_k_data.clear(); // Ensure output vector is clean
-    times.clear();    // Ensure output vector is clean
-    modes.clear();    // Ensure output vector is clean
+
+    // ensure that the vectors are clear
+    gain_k_data.clear();
+    times.clear();
+    modes.clear();
+    target.clear();
 
     try {
         // .. --- 1. Parse 'm' (rows) ---
@@ -288,9 +291,8 @@ ERROR_CODE parse_message_data(const std::string& input_str, int& out_m, int& out
             return ERROR_CODE::INVALID_ARGUMENT_MATRIX_ROWS_M_MUST_BE_A_POSITIVE_INTEGER;
         }
 
-        s = s.substr(semicolon_pos + 1); // Consume 'm' and its semicolon
-
         // .. --- 2. Parse 'n' (columns) ---
+        s = s.substr(semicolon_pos + 1); // Consume 'm' and its semicolon
         semicolon_pos = s.find(';');
         if (semicolon_pos == std::string::npos) {
             return ERROR_CODE::RUNTIME_ERROR_MISSING_SEMICOLON;
@@ -301,9 +303,8 @@ ERROR_CODE parse_message_data(const std::string& input_str, int& out_m, int& out
             return ERROR_CODE::INVALID_ARGUMENT_MATRIX_COLUMNS_N_MUST_BE_A_POSITIVE_INTEGER;
         }
 
-        s = s.substr(semicolon_pos + 1); // Consume 'n' and its semicolon
-
         // .. --- 3. Parse 'gain_k_data' vector ---
+        s = s.substr(semicolon_pos + 1); // Consume 'n' and its semicolon
         semicolon_pos = s.find(';');
         if (semicolon_pos == std::string::npos) {
             return ERROR_CODE::RUNTIME_ERROR_MISSING_SEMICOLON;
@@ -331,9 +332,8 @@ ERROR_CODE parse_message_data(const std::string& input_str, int& out_m, int& out
         safe_stod(last_num_str, value_double);
         gain_k_data.push_back(value_double);
 
-        s = s.substr(semicolon_pos + 1); // Consume 'gain_k_data' and its semicolon
-
         // .. --- 4. Parse 'time[]' vector ---
+        s = s.substr(semicolon_pos + 1); // Consume 'gain_k_data' and its semicolon
         semicolon_pos = s.find(';');
         if (semicolon_pos == std::string::npos) {
             return ERROR_CODE::RUNTIME_ERROR_MISSING_SEMICOLON;
@@ -357,9 +357,8 @@ ERROR_CODE parse_message_data(const std::string& input_str, int& out_m, int& out
         safe_stoi(num_str, value_int);
         times.push_back(value_int);
 
-        s = s.substr(semicolon_pos + 1); // Consume 'times' and its semicolon
-
         // .. --- 5. Parse 'modes[]' vector ---
+        s = s.substr(semicolon_pos + 1); // Consume 'times' and its semicolon
         semicolon_pos = s.find(';');
         std::string modes_str_segment;
         if (semicolon_pos != std::string::npos) {
@@ -384,6 +383,34 @@ ERROR_CODE parse_message_data(const std::string& input_str, int& out_m, int& out
         num_str = modes_str_segment.substr(start_pos);
         safe_stoi(num_str, value_int);
         modes.push_back(value_int);
+
+        // .. --- 6. Parse 'target[]' vector ---
+        s = s.substr(semicolon_pos + 1); // Consume 'modes' and its semicolon
+
+        semicolon_pos = s.find(';');
+        if (semicolon_pos != std::string::npos) {
+            modes_str_segment = s.substr(0, semicolon_pos);
+        } else {
+            // No final semicolon, take the rest of the string
+            modes_str_segment = s;
+        }
+        
+        if (modes_str_segment.empty()) {
+            return ERROR_CODE::INVALID_ARGUMENT_EMPTY;
+        }
+        
+        start_pos = 0;
+
+        while ((comma_pos = modes_str_segment.find(',', start_pos)) != std::string::npos) {
+            num_str = modes_str_segment.substr(start_pos, comma_pos - start_pos);
+            safe_stod(num_str, value_double);
+            target.push_back(value_double);
+            start_pos = comma_pos + 1;
+        }
+        num_str = modes_str_segment.substr(start_pos);
+        safe_stod(num_str, value_double);
+        target.push_back(value_double);
+
 
         // .. Check for unexpected trailing characters after the final semicolon
         if (semicolon_pos != std::string::npos && s.length() > semicolon_pos + 1) {

@@ -117,15 +117,17 @@ void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
         std::string message_str = value.substr(13);
         Serial.println("message received:");
         Serial.println(message_str.c_str());
+        Serial.println("\n\n");
 
         try {
             int m,n;
             std::vector<double> gain_k;
             std::vector<uint64_t> times;
             std::vector<uint64_t> modes;
+            std::vector<double> target;
             ERROR_CODE err;
 
-            err = parse_message_data(message_str, m, n, gain_k, times, modes);
+            err = parse_control_message(message_str, m, n, gain_k, times, modes, target);
             
             if (err != ERROR_CODE::OK) {
                 print_error_code(err);
@@ -157,27 +159,17 @@ void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
                 }
                 Serial.println("\n");
 
+                Serial.println("target:");
+                for (auto el : target) {
+                    Serial.printf("%f, ", el);
+                }
+                Serial.println("\n");
+
             }
-
-
-            // Parse and store the matrix using Matrix::from_string
-            // Matrix new_matrix = Matrix::from_string(matrix_str);
-            
-            // if (new_matrix.is_valid()) {
-            //     g_control_gain_k = new_matrix;  // Store as global variable
-            //     Serial.printf("Matrix stored successfully: %dx%d\n", 
-            //                  g_control_gain_k.get_rows(), g_control_gain_k.get_cols());
                 
-            //     // Debug: Print the matrix
-            //     Serial.println("Stored matrix:");
-            //     g_control_gain_k.print();
-            // } else {
-            //     Serial.println("Error: Invalid matrix format or data");
-            // }
 
         } catch (std::exception &e) {
             Serial.printf("Error parsing message: %s\n", e.what());
-            // Serial.printf("Matrix string sent to parse: '%s'\n", matrix_str.c_str());
         }
     }
 }

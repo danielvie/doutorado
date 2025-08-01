@@ -60,7 +60,14 @@ classdef Simulation < handle
         
         % .. getters
         mpc_config = get_mpc_config(self);
-        msg_gain_k = get_msg_gain_k(self);
+        [Phi, Gamma] = get_phi_gamma(self);
+        c = get_switching_constraints(self);
+
+        msg_gain_k = get_msg_control_signal(self);
+        gain_k = get_gain_k(self);
+        mode = get_mode(self);
+        time_us = get_time_us(self);
+        target = get_target(self);
 
         % .. simulation
         [y,t,u,m,dtk_out] = run(self, nsim);
@@ -82,11 +89,6 @@ classdef Simulation < handle
 
         % .. helpers
         name_out = name(self);
-        [Phi, Gamma] = get_phi_gamma(self);
-        c = get_switching_constraints(self);
         Ts_out  = quantizacao(self, Ts, type);
-
-        time_us = get_time_us(self);
-        modes = get_mode(self);
     end
 end
