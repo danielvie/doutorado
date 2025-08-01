@@ -6,6 +6,15 @@
 
 * TODAY
 
+  # {@ Wednesday 01 Aug 2025} Calibracao
+  - controle preditivo explicito
+  - MPT Toolbox faz isso
+  - MPC multi-parametric
+
+
+  - alimentacao positivo dentro | negativo fora
+  - usar a placa com jacare no resistor para dissipar potencia
+
 
   # {@ Wednesday 23 July 2025} Calibracao
   - [ ] colocar sinal completo no log de status

@@ -29,8 +29,8 @@ function config = lab_circuit()
 	config.circuit_params.E  = 5.0; % V
 	config.circuit_params.C1 = 470.0*1e-6; % μF
 	config.circuit_params.C2 = 470.0*1e-6; % μF
-	config.circuit_params.L  = 100.0*1e-3; % mH
-	config.circuit_params.R  = 22.0 + 2.0; % Ω
+	config.circuit_params.L  = 300.0*1e-3; % mH
+	config.circuit_params.R  = 68.0 + 4.9; % Ω
 	
 	% computing dynamic matrix for buckboost
 	[A,b,C,D] = Utils.compute_buckboost(config.circuit_params);
