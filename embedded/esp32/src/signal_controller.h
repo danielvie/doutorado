@@ -36,8 +36,15 @@ extern volatile ActiveSignalSet active_set;
 extern volatile bool switch_set_pending;
 
 // Signal vectors
-extern std::vector<uint64_t> time_vec_a, d4_vec_a, d5_vec_a, d6_vec_a;
-extern std::vector<uint64_t> time_vec_b, d4_vec_b, d5_vec_b, d6_vec_b;
+struct SetData {
+    std::vector<uint64_t> time_vec;
+    std::vector<uint64_t> d4_vec;
+    std::vector<uint64_t> d5_vec;
+    std::vector<uint64_t> d6_vec; 
+};
+
+// extern std::vector<uint64_t> time_vec_a, d4_vec_a, d5_vec_a, d6_vec_a;
+// extern std::vector<uint64_t> time_vec_b, d4_vec_b, d5_vec_b, d6_vec_b;
 
 // Function declarations
 void initializeSignalController();

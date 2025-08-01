@@ -13,8 +13,13 @@ std::vector<uint64_t> modes_di5 = {1, 0, 1, 0, 1, 0};           // Individual pi
 std::vector<uint64_t> modes_di6 = {1, 0, 1, 0, 1, 0};           // Individual pin states for DI6
 
 // Double-buffered signal storage for seamless pattern switching
-std::vector<uint64_t> time_vec_a, d4_vec_a, d5_vec_a, d6_vec_a;  // Signal set A
-std::vector<uint64_t> time_vec_b, d4_vec_b, d5_vec_b, d6_vec_b;  // Signal set B
+
+
+SetData set_a_data; // Signal set A
+SetData set_b_data; // Signal set B
+
+// std::vector<uint64_t> time_vec_a, d4_vec_a, d5_vec_a, d6_vec_a;  // Signal set A
+// std::vector<uint64_t> time_vec_b, d4_vec_b, d5_vec_b, d6_vec_b; // Signal set B
 
 // Task state management
 SignalTaskState signal_task_state = SignalTaskState::IDLE;
@@ -66,13 +71,13 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
 
     // Build pin state mask based on active signal pattern
     if (active_set == ActiveSignalSet::SET_A) {
-        new_gpio_out_value = (d4_vec_a[next_state] ? gpio_di4_mask : 0) |
-                             (d5_vec_a[next_state] ? gpio_di5_mask : 0) |
-                             (d6_vec_a[next_state] ? gpio_di6_mask : 0);
+        new_gpio_out_value = (set_a_data.d4_vec[next_state] ? gpio_di4_mask : 0) |
+                             (set_a_data.d5_vec[next_state] ? gpio_di5_mask : 0) |
+                             (set_a_data.d6_vec[next_state] ? gpio_di6_mask : 0);
     } else {
-        new_gpio_out_value = (d4_vec_b[next_state] ? gpio_di4_mask : 0) |
-                             (d5_vec_b[next_state] ? gpio_di5_mask : 0) |
-                             (d6_vec_b[next_state] ? gpio_di6_mask : 0);
+        new_gpio_out_value = (set_b_data.d4_vec[next_state] ? gpio_di4_mask : 0) |
+                             (set_b_data.d5_vec[next_state] ? gpio_di5_mask : 0) |
+                             (set_b_data.d6_vec[next_state] ? gpio_di6_mask : 0);
     }
 
     // Atomic GPIO update: Write directly to the GPIO_OUT_REG for simultaneous update
@@ -83,9 +88,9 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
 
     // Set next alarm
     if (active_set == ActiveSignalSet::SET_A) {
-        timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, time_vec_a[current_state]);
+        timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, set_a_data.time_vec[current_state]);
     } else {
-        timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, time_vec_b[current_state]);
+        timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, set_b_data.time_vec[current_state]);
     }
 
     // Check for cycle completion and trigger analog reading if needed
@@ -115,7 +120,7 @@ void initialize_timer() {
     
     timer_init(TIMER_GROUP, TIMER_IDX, &config);
     timer_set_counter_value(TIMER_GROUP, TIMER_IDX, 0);
-    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, time_vec_a[0]);
+    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, set_a_data.time_vec[0]);
     timer_enable_intr(TIMER_GROUP, TIMER_IDX);
     timer_isr_callback_add(TIMER_GROUP, TIMER_IDX, timer_group_isr_callback, NULL, 0);
     timer_initialized = true;
@@ -136,13 +141,13 @@ void startSignalTimer() {
     timer_set_counter_value(TIMER_GROUP, TIMER_IDX, 0);
     
     // Get references to active signal set
-    std::vector<uint64_t>& time_vec = (active_set == ActiveSignalSet::SET_A) ? time_vec_a : time_vec_b;
-    std::vector<uint64_t>& d4_vec = (active_set == ActiveSignalSet::SET_A) ? d4_vec_a : d4_vec_b;
-    std::vector<uint64_t>& d5_vec = (active_set == ActiveSignalSet::SET_A) ? d5_vec_a : d5_vec_b;
-    std::vector<uint64_t>& d6_vec = (active_set == ActiveSignalSet::SET_A) ? d6_vec_a : d6_vec_b;
+    std::vector<uint64_t>& time_vec = (active_set == ActiveSignalSet::SET_A) ? set_a_data.time_vec : set_b_data.time_vec;
+    std::vector<uint64_t>& d4_vec = (active_set == ActiveSignalSet::SET_A) ? set_a_data.d4_vec : set_b_data.d4_vec;
+    std::vector<uint64_t>& d5_vec = (active_set == ActiveSignalSet::SET_A) ? set_a_data.d5_vec : set_b_data.d5_vec;
+    std::vector<uint64_t>& d6_vec = (active_set == ActiveSignalSet::SET_A) ? set_a_data.d6_vec : set_b_data.d6_vec;
 
     // Update active signal length
-    active_num_timings = (active_set == ActiveSignalSet::SET_A) ? time_vec_a.size() : time_vec_b.size();
+    active_num_timings = (active_set == ActiveSignalSet::SET_A) ? set_a_data.time_vec.size() : set_a_data.time_vec.size();
 
     // Set initial pin states for first signal step using atomic GPIO update
     uint32_t initial_pin_states = 
@@ -184,9 +189,9 @@ void setAllOutputsLow() {
  */
 int getSignalSetSize(ActiveSignalSet set) {
     if (set == ActiveSignalSet::SET_A) {
-        return time_vec_a.size();
+        return set_a_data.time_vec.size();
     } else {
-        return time_vec_b.size();
+        return set_b_data.time_vec.size();
     }
 }
 
@@ -223,17 +228,17 @@ void updateSignalPattern(const std::string& signal) {
         if (active_set == ActiveSignalSet::SET_A) {
             Serial.println("updating SET_B...");
             // Update SET_B while SET_A is active
-            time_vec_b = new_timings;
-            d4_vec_b = new_d4_vec;
-            d5_vec_b = new_d5_vec;
-            d6_vec_b = new_d6_vec;
+            set_b_data.time_vec = new_timings;
+            set_b_data.d4_vec = new_d4_vec;
+            set_b_data.d5_vec = new_d5_vec;
+            set_b_data.d6_vec = new_d6_vec;
         } else {
             Serial.println("updating SET_A...");
             // Update SET_A while SET_B is active
-            time_vec_a = new_timings;
-            d4_vec_a = new_d4_vec;
-            d5_vec_a = new_d5_vec;
-            d6_vec_a = new_d6_vec;
+            set_a_data.time_vec = new_timings;
+            set_a_data.d4_vec = new_d4_vec;
+            set_a_data.d5_vec = new_d5_vec;
+            set_a_data.d6_vec = new_d6_vec;
         }
         num_timings = new_timings.size();
         switch_set_pending = true;  // Mark for set switching
@@ -247,76 +252,68 @@ void updateSignalControl(const std::string& str_control_message) {
     std::vector<double> gain_k;
     std::vector<uint64_t> new_timings;
     std::vector<uint64_t> new_modes;
-    std::vector<double> target;
+    std::vector<double> new_target;
     ERROR_CODE err;
 
-    parse_control_message(str_control_message, m, n, gain_k, new_timings, new_modes, target);
-
-    if (err != ERROR_CODE::OK) {
-        print_error_code(err);
-    } else {
-        Serial.println("VALUES PARSED:\n");
-        Matrix gain_matrix(m, n, gain_k);
-        Serial.println("");
-        gain_matrix.print();
-        Serial.println("\n");
-        Serial.println("times:");
-        for (auto el : new_timings) {
-            Serial.printf("%d, ", el);
-        }
-        Serial.println("\n");
-        Serial.println("modes:");
-        for (auto el : new_modes) {
-            Serial.printf("%d, ", el);
-        }
-        Serial.println("\n");
-        Serial.println("target:");
-        for (auto el : target) {
-            Serial.printf("%f, ", el);
-        }
-        Serial.println("\n");
-    }
-
+    parse_control_message(str_control_message, m, n, gain_k, new_timings, new_modes, new_target);
 
     // if (err != ERROR_CODE::OK) {
     //     print_error_code(err);
     // } else {
-
-    //     // // Convert combined modes to individual pin states
-    //     // std::vector<uint64_t> new_d4_vec, new_d5_vec, new_d6_vec;
-    //     // for (uint64_t mi : new_modes) {
-    //     //     Bin bin = Num2Bin(mi);  // Convert number to binary representation
-    //     //     new_d4_vec.push_back(bin.b1);
-    //     //     new_d5_vec.push_back(bin.b2);
-    //     //     new_d6_vec.push_back(bin.b3);
-    //     // }
-
-    //     // // Debug output of parsed signal
-    //     // Serial.print("time: ");
-    //     // for (auto ti : new_timings) {
-    //     //     Serial.printf("%d, ", ti);
-    //     // }
-    //     // Serial.println(" ");
-    //     // Serial.print("mode: ");
-    //     // for (auto mi : new_modes) {
-    //     //     Serial.printf("%d, ", mi);
-    //     // }
-    //     // Serial.println(" ");
-
+    //     Serial.println("VALUES PARSED:\n");
+    //     Matrix gain_matrix(m, n, gain_k);
+    //     Serial.println("");
+    //     gain_matrix.print();
+    //     Serial.println("\n");
+    //     Serial.println("times:");
+    //     for (auto el : new_timings) {
+    //         Serial.printf("%d, ", el);
+    //     }
+    //     Serial.println("\n");
+    //     Serial.println("modes:");
+    //     for (auto el : new_modes) {
+    //         Serial.printf("%d, ", el);
+    //     }
+    //     Serial.println("\n");
+    //     Serial.println("target:");
+    //     for (auto el : target) {
+    //         Serial.printf("%f, ", el);
+    //     }
+    //     Serial.println("\n");
     // }
 
 
-    // // Debug output of parsed signal
-    // Serial.print("time: ");
-    // for (auto ti : new_timings) {
-    //     Serial.printf("%d, ", ti);
-    // }
-    // Serial.println(" ");
-    // Serial.print("mode: ");
-    // for (auto mi : new_modes) {
-    //     Serial.printf("%d, ", mi);
-    // }
-    // Serial.println(" ");
+    if (err != ERROR_CODE::OK) {
+        print_error_code(err);
+    } else {
+
+        // Convert combined modes to individual pin states
+        std::vector<uint64_t> new_d4_vec, new_d5_vec, new_d6_vec;
+        for (uint64_t mi : new_modes) {
+            Bin bin = Num2Bin(mi);  // Convert number to binary representation
+            new_d4_vec.push_back(bin.b1);
+            new_d5_vec.push_back(bin.b2);
+            new_d6_vec.push_back(bin.b3);
+        }
+
+        // Debug output of parsed signal
+        Serial.print("time: ");
+        for (auto ti : new_timings) {
+            Serial.printf("%d, ", ti);
+        }
+        Serial.println(" ");
+        Serial.print("mode: ");
+        for (auto mi : new_modes) {
+            Serial.printf("%d, ", mi);
+        }
+        Serial.println(" ");
+        Serial.print("target: ");
+        for (auto mi : new_target) {
+            Serial.printf("%f, ", mi);
+        }
+        Serial.println(" ");
+
+    }
 
 //     // Update the inactive signal set (double buffering)
 //     if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
@@ -351,28 +348,28 @@ void initializeSignalController() {
     signal_mutex = xSemaphoreCreateMutex();
 
     // Pre-allocate vector memory to avoid dynamic allocation during operation
-    time_vec_a.reserve(MAX_ELEMENTS_SIGNAL);
-    d4_vec_a.reserve(MAX_ELEMENTS_SIGNAL);
-    d5_vec_a.reserve(MAX_ELEMENTS_SIGNAL);
-    d6_vec_a.reserve(MAX_ELEMENTS_SIGNAL);
-    time_vec_b.reserve(MAX_ELEMENTS_SIGNAL);
-    d4_vec_b.reserve(MAX_ELEMENTS_SIGNAL);
-    d5_vec_b.reserve(MAX_ELEMENTS_SIGNAL);
-    d6_vec_b.reserve(MAX_ELEMENTS_SIGNAL);
+    set_a_data.time_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    set_a_data.d4_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    set_a_data.d5_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    set_a_data.d6_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    set_b_data.time_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    set_b_data.d4_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    set_b_data.d5_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    set_b_data.d6_vec.reserve(MAX_ELEMENTS_SIGNAL);
     
     // Initialize signal sets with default patterns
-    time_vec_a = timings;
-    d4_vec_a = modes_di4;
-    d5_vec_a = modes_di5;
-    d6_vec_a = modes_di6;
+    set_a_data.time_vec = timings;
+    set_a_data.d4_vec = modes_di4;
+    set_a_data.d5_vec = modes_di5;
+    set_a_data.d6_vec = modes_di6;
     num_timings = timings.size();
     active_num_timings = num_timings;
 
     // Initialize backup signal set with same default pattern
-    time_vec_b = timings;
-    d4_vec_b = modes_di4;
-    d5_vec_b = modes_di5;
-    d6_vec_b = modes_di6;
+    set_b_data.time_vec = timings;
+    set_b_data.d4_vec = modes_di4;
+    set_b_data.d5_vec = modes_di5;
+    set_b_data.d6_vec = modes_di6;
 
     // Configure GPIO pins as outputs and set initial low state
     pinMode(GPIO_DI4, OUTPUT);
