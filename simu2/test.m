@@ -41,13 +41,13 @@ s.set_config(Enums.SimName.LAB_CIRCUIT);
 
 mpc_config = s.get_mpc_config();
 mpc_config.Nd = 15;
-mpc_config.Np = 25;
+mpc_config.Np = 1; % Nd - Number of delays in the block (repeated control)
 
 s.set_mpc_config(mpc_config);
 s.set_traj_phase_with_alpha(0.5);
 s.set_mpc();
 
-s.m_config.mpc.x_target(3) = randn()*10;
+s.m_config.mpc.x_target(3) = randn();
 
 msg_data = s.get_msg_control_signal()
 

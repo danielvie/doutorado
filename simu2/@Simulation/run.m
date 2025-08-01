@@ -42,41 +42,60 @@ function [y,t,m,dtk_out] = run(self, nsim)
                     dtk = dtk_prev; % keep repeating control until Nd
                     exitflag = 44; % flag that the value is not computed
                 else
-                    [dtk, exitflag] = self.run_mpc(config, x0, dtk_prev);
+                    % [dtk, exitflag] = self.run_mpc(config, x0, dtk_prev);
+                    % NOTE: computing dtk with proportinal
+                    ek  = x0 - config.mpc.x_target;
+                    k = self.m_config.mpc.K;
+                    dtk = -k*ek;
+                    exitflag = 1;
+
                     Nd_counter = 1;
                 end
             else % Enums.StateMode.ORIGINAL
-                [dtk, exitflag] = self.run_mpc(config, x0, dtk_prev);
+                % [dtk, exitflag] = self.run_mpc(config, x0, dtk_prev);
+                % NOTE: computing dtk with proportinal
+                ek  = x0 - config.mpc.x_target;
+                k = self.m_config.mpc.K;
+                dtk = -k*ek;
+                exitflag = 1;
             end
 
             time_qp = tic;
 
             % updating dtk_prev
             dtk_prev = dtk;
-
-            % compute new time vector from dtk
-            Ts = self.compute_ts_from_dtk(self.m_config, dtk);
-
             
-            c = self.m_config.c_time(1);
+            % constrainting `dtk`
+            time_us = self.get_time_us();
+            dtk_us = dtk*1e6;
+            dtk_us(1) = max(time_us(2)-time_us(1) + dtk_us(1),5);
+            dtk_us(2) = max(time_us(3)-time_us(2) + dtk_us(1)+dtk_us(2),5);
+            dtk_us(3) = max(time_us(4)-time_us(3) + dtk_us(1)+dtk_us(2)+dtk_us(3),5);
+            dtk_us(4) = max(time_us(5)-time_us(4) + dtk_us(1)+dtk_us(2)+dtk_us(3)+dtk_us(4),5);
+            dtk_us(5) = max(time_us(6)-time_us(5) + dtk_us(1)+dtk_us(2)+dtk_us(3)+dtk_us(4)+dtk_us(5),5);
             
-            while any(diff(Ts) < 0)
-                dts = max(diff(Ts), c);
-                dts_ = dts - diff(Ts);
-                for j = 1:numel(dts_)
-                    Ts(j+1) = Ts(j+1) + dts_(j);
-                end
-                
-                % conditioning time to factible values
-                Ts_final = self.m_config.Ts(end);
-                if sum(Ts) > Ts_final
-                    Ts = Ts/norm(Ts)*Ts_final;
-                end
-            end
+            Ts = self.compute_ts_from_dtk(self.m_config, dtk_us*1e-6);
 
+            % 
+            % c = self.m_config.c_time(1);
+            % 
+            % while any(diff(Ts) < 0)
+            %     dts = max(diff(Ts), c);
+            %     dts_ = dts - diff(Ts);
+            %     for j = 1:numel(dts_)
+            %         Ts(j+1) = Ts(j+1) + dts_(j);
+            %     end
+            % 
+            %     % conditioning time to factible values
+            %     Ts_final = self.m_config.Ts(end);
+            %     if sum(Ts) > Ts_final
+            %         Ts = Ts/norm(Ts)*Ts_final;
+            %     end
+            % end
 
-
-            if any(diff(Ts) < 0)
+            ts_us = Ts*1e6;
+            d_ts_us = diff(ts_us);
+            if any(d_ts_us < 0)
                 error("ASSERT :: time cannot be negative!");
             end
             

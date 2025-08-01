@@ -6,7 +6,7 @@
     Ts = config.Ts;
     
     % apply quantization
-    Ts = self.quantizacao(Ts, Enums.QuantType.Sim);
+    % Ts = self.quantizacao(Ts, Enums.QuantType.Sim);
     
     % adjust time vector based on control signal
     for j = 1:numel(dtk)

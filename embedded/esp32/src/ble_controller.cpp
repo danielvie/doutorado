@@ -15,10 +15,10 @@ extern volatile uint32_t cycle_count;
 // BLE Task state management
 BLETaskState ble_task_state = BLETaskState::IDLE;
 
-// Global matrix variable for gain matrix
-
+// NOTE: Global matrix variable for gain matrix
 size_t g_control_dtk_size = 0;
 double g_control_dtk[50];
+int64_t g_control_dtk_us[50];
 
 size_t g_control_ts_size = 0;
 double g_control_ts[50];
@@ -121,7 +121,7 @@ void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
 
         try {
             ble_task_state = BLETaskState::SIGNAL_READING;
-            updateSignalControl(str_message);
+            updateSignalControl(str_message); // NOTE: 0 -> read new message
         } catch (std::exception &e) {
             Serial.printf("Error parsing message: %s\n", e.what());
         }
@@ -245,15 +245,39 @@ void readAndSendAnalogData(NimBLECharacteristic* pCharacteristic) {
     
     SetData* set_data = (active_set == ActiveSignalSet::SET_A) ? &set_a_data : &set_b_data;
     Matrix control_gain_k(set_data->m, set_data->n, set_data->gain_k);
-    if (control_gain_k.is_valid()) {
+    
+    // NOTE: 5 -> compute dtk on read analog
+    if (control_gain_k.is_valid() && (control_gain_k.get_cols() == 3)) {
         // compute ek -> x - x_target
         g_control_dtk_size = control_gain_k.get_rows();
-        control_gain_k.multiply_vector3(v_c1 - set_data->target[0], v_c2 - set_data->target[1], i_l - set_data->target[2], g_control_dtk);
+        // control_gain_k.multiply_vector3(v_c1 - set_data->target[0], v_c2 - set_data->target[1], i_l - set_data->target[2], g_control_dtk);
+        control_gain_k.multiply_vector3(0.6, 0.1, 0.1, g_control_dtk);
+        
+        // compute dtk_us
+        for (int i = 0; i < g_control_dtk_size; i++) {
+            g_control_dtk_us[i] = (uint64_t)(g_control_dtk[i]*1000000.0);
+            g_control_dtk_us[i] = 0;
+        }
+        
+        // conditioning 
+        
+        
+        Serial.println("result of dtk:");
+        for (int i = 0; i < g_control_dtk_size; i++) {
+            Serial.printf("%f, ", g_control_dtk[i]);
+        }
+        Serial.println("");
+
+        Serial.println("result of dtk_us:");
+        for (int i = 0; i < g_control_dtk_size; i++) {
+            Serial.printf("%d, ", g_control_dtk_us[i]);
+        }
+        Serial.println("");
         
         // compute_ts_from_dtk
-        for (int j = 0; j < g_control_dtk_size; j++) {
-            // TODO: atualizar o Ts
-        }
+        // for (int j = 0; j < g_control_dtk_size; j++) {
+        //     // TODO: atualizar o Ts
+        // }
     }
 
     // Format message with sensor readings using snprintf for safety

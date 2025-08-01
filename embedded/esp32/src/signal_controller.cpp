@@ -2,9 +2,6 @@
 #include "ble_controller.h"
 #include "esp_task_wdt.h"
 
-// External references from BLE controller
-extern BLETaskState ble_task_state;
-
 // Default signal pattern configuration
 std::vector<uint64_t> timings = {50, 50, 50, 50, 50, 50};        // Timing intervals in timer ticks
 std::vector<uint64_t> modes = {7, 0, 7, 0, 7, 0};               // Combined mode patterns (binary representation)
@@ -86,18 +83,20 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
     // Update state
     current_state = next_state;
 
-    // Set next alarm
+    // NOTE: 6 -> Set next alarm with control adjustment
     if (active_set == ActiveSignalSet::SET_A) {
-        timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, set_a_data.time_vec[current_state]);
+        // timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, set_a_data.time_vec[current_state]);
+        timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, set_a_data.time_vec[current_state] + g_control_dtk_us[current_state]);
     } else {
-        timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, set_b_data.time_vec[current_state]);
+        // timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, set_b_data.time_vec[current_state]);
+        timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, set_b_data.time_vec[current_state] + g_control_dtk_us[current_state]);
     }
 
     // Check for cycle completion and trigger analog reading if needed
     if (current_state == 0) {
         cycle_count++;
         if (cycle_count % cycle_nrun == 0) {
-            ble_task_state = BLETaskState::ANALOG_READ;
+            ble_task_state = BLETaskState::ANALOG_READ; // NOTE: 4 -> loop call
         }
     }
 
@@ -255,6 +254,7 @@ ERROR_CODE updateSignalControl(const std::string& str_control_message) {
     std::vector<double> new_target;
     ERROR_CODE err;
 
+    // NOTE: 1 -> parse message
     parse_control_message(str_control_message, new_m, new_n, new_gain_k, new_timings, new_modes, new_target);
 
     // if (err != ERROR_CODE::OK) {
@@ -297,7 +297,7 @@ ERROR_CODE updateSignalControl(const std::string& str_control_message) {
         new_d6_vec.push_back(bin.b3);
     }
 
-    // Update the inactive signal set (double buffering)
+    // NOTE: 2 -> Update the inactive signal set (double buffering)
     if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
         if (active_set == ActiveSignalSet::SET_A) {
             Serial.println("updating SET_B...");
@@ -403,7 +403,7 @@ void signalTask(void* arg) {
                 // Switch occurs at the end of current pattern to avoid glitches
                 if (current_state == active_num_timings - 1) {
                     if (xSemaphoreTake(signal_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
-                        // Toggle between SET_A and SET_B
+                        // NOTE: 3 -> Toggle between SET_A and SET_B
                         if (active_set == ActiveSignalSet::SET_A) {
                             active_set = ActiveSignalSet::SET_B;
                         } else {
