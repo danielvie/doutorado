@@ -246,7 +246,7 @@ void updateSignalPattern(const std::string& signal) {
     }
 }
 
-void updateSignalControl(const std::string& str_control_message) {
+ERROR_CODE updateSignalControl(const std::string& str_control_message) {
 
     int new_m,new_n;
     std::vector<double> new_gain_k;
@@ -285,48 +285,50 @@ void updateSignalControl(const std::string& str_control_message) {
 
     if (err != ERROR_CODE::OK) {
         print_error_code(err);
-    } else {
-        // Convert combined modes to individual pin states
-        std::vector<uint64_t> new_d4_vec, new_d5_vec, new_d6_vec;
-        for (uint64_t mi : new_modes) {
-            Bin bin = Num2Bin(mi);  // Convert number to binary representation
-            new_d4_vec.push_back(bin.b1);
-            new_d5_vec.push_back(bin.b2);
-            new_d6_vec.push_back(bin.b3);
-        }
+        return err;
+    } 
+    
+    // Convert combined modes to individual pin states
+    std::vector<uint64_t> new_d4_vec, new_d5_vec, new_d6_vec;
+    for (uint64_t mi : new_modes) {
+        Bin bin = Num2Bin(mi);  // Convert number to binary representation
+        new_d4_vec.push_back(bin.b1);
+        new_d5_vec.push_back(bin.b2);
+        new_d6_vec.push_back(bin.b3);
+    }
 
-        // Update the inactive signal set (double buffering)
-        if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
-            if (active_set == ActiveSignalSet::SET_A) {
-                Serial.println("updating SET_B...");
-                // Update SET_B while SET_A is active
-                set_b_data.time_vec = new_timings;
-                set_b_data.d4_vec = new_d4_vec;
-                set_b_data.d5_vec = new_d5_vec;
-                set_b_data.d6_vec = new_d6_vec;
-                set_b_data.target = new_target;
-                set_b_data.m = new_m;
-                set_b_data.n = new_n;
-                set_b_data.gain_k = new_gain_k;
-            }
-            else {
-                Serial.println("updating SET_A...");
-                // Update SET_A while SET_B is active
-                set_a_data.time_vec = new_timings;
-                set_a_data.d4_vec = new_d4_vec;
-                set_a_data.d5_vec = new_d5_vec;
-                set_a_data.d6_vec = new_d6_vec;
-                set_a_data.target = new_target;
-                set_a_data.m = new_m;
-                set_a_data.n = new_n;
-                set_a_data.gain_k = new_gain_k;
-            }
-            num_timings = new_timings.size();
-            switch_set_pending = true; // Mark for set switching
-            xSemaphoreGive(signal_mutex);
+    // Update the inactive signal set (double buffering)
+    if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
+        if (active_set == ActiveSignalSet::SET_A) {
+            Serial.println("updating SET_B...");
+            // Update SET_B while SET_A is active
+            set_b_data.time_vec = new_timings;
+            set_b_data.d4_vec = new_d4_vec;
+            set_b_data.d5_vec = new_d5_vec;
+            set_b_data.d6_vec = new_d6_vec;
+            set_b_data.target = new_target;
+            set_b_data.m = new_m;
+            set_b_data.n = new_n;
+            set_b_data.gain_k = new_gain_k;
         }
+        else {
+            Serial.println("updating SET_A...");
+            // Update SET_A while SET_B is active
+            set_a_data.time_vec = new_timings;
+            set_a_data.d4_vec = new_d4_vec;
+            set_a_data.d5_vec = new_d5_vec;
+            set_a_data.d6_vec = new_d6_vec;
+            set_a_data.target = new_target;
+            set_a_data.m = new_m;
+            set_a_data.n = new_n;
+            set_a_data.gain_k = new_gain_k;
+        }
+        num_timings = new_timings.size();
+        switch_set_pending = true; // Mark for set switching
+        xSemaphoreGive(signal_mutex);
     }
     
+    return ERROR_CODE::OK;
 }
 
 

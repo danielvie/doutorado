@@ -57,7 +57,7 @@ void stopSignalTimer();
 void setAllOutputsHigh();
 void setAllOutputsLow();
 void updateSignalPattern(const std::string& signal);
-void updateSignalControl(const std::string& str_control_message);
+ERROR_CODE updateSignalControl(const std::string& str_control_message);
 int getSignalSetSize(ActiveSignalSet set);
 
 // Timer ISR callback
