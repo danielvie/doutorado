@@ -36,18 +36,26 @@ extern volatile ActiveSignalSet active_set;
 extern volatile bool switch_set_pending;
 
 // Signal vectors
+
+struct MatrixData {
+    std::vector<float> values;
+    int rows, cols;
+    bool is_valid;
+};
+
 struct SetData {
     std::vector<uint64_t> time_vec;
     std::vector<uint64_t> d4_vec;
     std::vector<uint64_t> d5_vec;
     std::vector<uint64_t> d6_vec; 
-    std::vector<double> target; 
-    std::vector<double> gain_k;
-    int m,n;
+    std::vector<float> target; 
+    MatrixData gain_k;
 };
 
 extern SetData set_a_data; // Signal set A
 extern SetData set_b_data; // Signal set B
+
+void toggleSetData();
 
 // extern std::vector<uint64_t> time_vec_a, d4_vec_a, d5_vec_a, d6_vec_a;
 // extern std::vector<uint64_t> time_vec_b, d4_vec_b, d5_vec_b, d6_vec_b;

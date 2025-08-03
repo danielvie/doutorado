@@ -55,6 +55,8 @@ b = BTBroker();
 b.simulation = s;
 b.msg(msg_data);
 b.set_control_on(false);
+b.msg("TOGGLE_SET");
+b.st();
 
 % b.st();
 

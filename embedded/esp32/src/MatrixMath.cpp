@@ -1,111 +1,88 @@
 #include "MatrixMath.h"
 
-/**
- * Perform matrix multiplication without class overhead
- * 
- * Multiplies matrix A (m_a x n_a) by matrix B (m_b x n_b)
- * Result matrix C will be (m_a x n_b)
- * 
- * @param m_a Number of rows in matrix A
- * @param n_a Number of columns in matrix A (must equal m_b)
- * @param values_a Pointer to matrix A data in row-major order
- * @param m_b Number of rows in matrix B (must equal n_a)
- * @param n_b Number of columns in matrix B
- * @param values_b Pointer to matrix B data in row-major order
- * @param result Pointer to result matrix data (must be pre-allocated with size m_a * n_b)
- * @return true if multiplication successful, false if dimensions incompatible
- */
-bool matrix_multiply(int m_a, int n_a, const double* values_a,
-                    int m_b, int n_b, const double* values_b,
-                    double* result) {
+/* bool matrix_multiply(int& rows_a, int& cols_a, std::vector<float>& values_a,
+                    int rows_b, int cols_b, std::vector<float> values_b,
+                    std::vector<float>& result) {
     
     // Check dimension compatibility
-    if (n_a != m_b) {
+    if (cols_a != rows_b) {
         return false;  // Incompatible dimensions
     }
     
-    // Check for null pointers
-    if (!values_a || !values_b || !result) {
-        return false;
-    }
-    
     // Initialize result matrix to zero
-    int result_size = m_a * n_b;
-    for (int idx = 0; idx < result_size; ++idx) {
-        result[idx] = 0.0;
-    }
+    int result_size = rows_a * cols_b;
+    result.clear();
+    result.resize(result_size, 0.0f);
     
     // Optimized matrix multiplication with i-k-j loop order for better cache locality
-    for (int i = 0; i < m_a; ++i) {           // Rows of A (and result)
-        for (int k = 0; k < n_a; ++k) {       // Columns of A (rows of B)
-            double a_ik = values_a[i * n_a + k];  // Cache this element
-            for (int j = 0; j < n_b; ++j) {   // Columns of B (and result)
-                result[i * n_b + j] += a_ik * values_b[k * n_b + j];
+    for (int i = 0; i < rows_a; ++i) {           // Rows of A (and result)
+        for (int k = 0; k < cols_a; ++k) {       // Columns of A (rows of B)
+            float a_ik = values_a[i * cols_a + k];  // Cache this element
+            for (int j = 0; j < cols_b; ++j) {   // Columns of B (and result)
+                result[i * cols_b + j] += a_ik * values_b[k * cols_b + j];
             }
         }
     }
     
     return true;
-}
+} */
 
-/**
- * Scale a matrix by a constant factor
- * 
- * @param m Number of rows in matrix
- * @param n Number of columns in matrix
- * @param values Pointer to matrix data (modified in-place)
- * @param scale_factor Factor to multiply each element by
- */
-void matrix_scale(int m, int n, double* values, double scale_factor) {
-    if (!values) return;
+
+bool matrix_isvalid(MatrixData& M) {
+    // rows -> m
+    // cols -> n
+    // values -> matrix(:)
     
-    int size = m * n;
-    for (int i = 0; i < size; ++i) {
-        values[i] *= scale_factor;
+    if (M.rows <= 0 || M.cols <= 0) {
+        return false;
     }
-}
-
-/**
- * Copy matrix data
- * 
- * @param m Number of rows
- * @param n Number of columns
- * @param src Source matrix data
- * @param dst Destination matrix data (must be pre-allocated)
- */
-void matrix_copy(int m, int n, const double* src, double* dst) {
-    if (!src || !dst) return;
+    if (M.values.size() != static_cast<size_t>(M.rows*M.cols)) {
+        return false;
+    }
     
-    int size = m * n;
-    for (int i = 0; i < size; ++i) {
-        dst[i] = src[i];
-    }
+    return true;
 }
 
-/**
- * Print matrix for debugging (requires Serial to be initialized)
- * 
- * @param m Number of rows
- * @param n Number of columns
- * @param values Pointer to matrix data
- * @param name Optional name for the matrix
- */
-void matrix_print(int m, int n, const double* values, const char* name) {
-    if (!values) {
-        Serial.println("Matrix is null");
+bool matrix_multiply_vector3(MatrixData& M, float x1, float x2, float x3, float* result) {
+    // Cache data pointer to avoid repeated vector access overhead
+    const float* data_ptr = M.values.data();
+    
+    // Use the same indexing as get_element(): col * m_rows + row (column-major)
+    for (int i = 0; i < M.rows; ++i) {
+        result[i] = data_ptr[0 * M.rows + i] * x1 +     // matrix[i][0] * x1
+                    data_ptr[1 * M.rows + i] * x2 +     // matrix[i][1] * x2  
+                    data_ptr[2 * M.rows + i] * x3;      // matrix[i][2] * x3
+    }
+    return true;
+}
+
+void matrix_print(MatrixData& M) {
+    if (!matrix_isvalid(M)) {
+        Serial.println("Matrix is not valid!!");
         return;
     }
     
-    if (name) {
-        Serial.printf("%s (%dx%d):\n", name, m, n);
-    } else {
-        Serial.printf("Matrix (%dx%d):\n", m, n);
-    }
-    
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j) {
-            Serial.printf("%.6f\t", values[i * n + j]);
+    Serial.printf("Matrix (%dx%d):\n", M.rows, M.cols);
+    for (int i = 0; i < M.rows; ++i) {
+        for (int j = 0; j < M.cols; ++j) {
+            Serial.printf("%.6f\t", M.values[i * M.cols + j]);
         }
         Serial.println();
     }
 }
+
+
+// bool matrix_isvalid(int rows, int cols, std::vector<float> values){
+//     // rows -> m
+//     // cols -> n
+//     // values -> matrix(:)
+    
+//     if (rows <= 0 || cols <= 0) {
+//         return false;
+//     }
+//     if (values.size() != static_cast<size_t>(rows*cols)) {
+//         return false;
+//     }
+    
+//     return true;
+// }

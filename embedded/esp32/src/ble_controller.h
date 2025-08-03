@@ -14,10 +14,10 @@ extern Matrix g_gain_k;
 
 // Global control variables accessible from signal_controller
 extern size_t g_control_dtk_size;
-extern double g_control_dtk[50];
+extern float g_control_dtk[50];
 extern int64_t g_control_dtk_us[50];
 extern size_t g_control_ts_size;
-extern double g_control_ts[50];
+extern float g_control_ts[50];
 
 // BLE Task state management
 extern BLETaskState ble_task_state;

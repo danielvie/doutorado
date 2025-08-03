@@ -1,13 +1,13 @@
 #include "Matrix.h"
 
 // --- Helper Function for Safe String to Double Conversion ---
-double safeStod(const std::string& s) {
+float safeStof(const std::string& s) {
     size_t pos;
     // Check for empty string or string containing only whitespace
     if (s.empty() || s.find_first_not_of(" \t\n\v\f\r") == std::string::npos) {
-        throw std::invalid_argument("Empty or whitespace-only string cannot be converted to double.");
+        throw std::invalid_argument("Empty or whitespace-only string cannot be converted to float.");
     }
-    double value = std::stod(s, &pos);
+    float value = std::stof(s, &pos);
     // Ensure no non-numeric characters remain after conversion
     if (pos != s.length()) {
         throw std::invalid_argument("Non-numeric characters found after number: '" + s + "'");
@@ -18,7 +18,7 @@ double safeStod(const std::string& s) {
 // --- Utility Function to Parse the Matrix String Format ---
 // This function extracts m, n, and the flattened data vector.
 // It throws exceptions for format errors.
-void parse_matrix_string(const std::string& input_str, int& out_m, int& out_n, std::vector<double>& out_data) {
+void parse_matrix_string(const std::string& input_str, int& out_m, int& out_n, std::vector<float>& out_data) {
     std::string s = input_str;
     out_data.clear(); // Ensure output vector is clean
 
@@ -29,7 +29,7 @@ void parse_matrix_string(const std::string& input_str, int& out_m, int& out_n, s
             throw std::runtime_error("Missing first semicolon (after m). Input: '" + input_str + "'");
         }
         std::string m_str = s.substr(0, first_semicolon_pos);
-        out_m = safeStod(m_str);
+        out_m = safeStof(m_str);
         if (out_m <= 0) {
             throw std::invalid_argument("Matrix rows (m) must be a positive integer.");
         }
@@ -42,7 +42,7 @@ void parse_matrix_string(const std::string& input_str, int& out_m, int& out_n, s
             throw std::runtime_error("Missing second semicolon (after n). Input: '" + input_str + "'");
         }
         std::string n_str = s.substr(0, second_semicolon_pos);
-        out_n = safeStod(n_str);
+        out_n = safeStof(n_str);
         if (out_n <= 0) {
             throw std::invalid_argument("Matrix columns (n) must be a positive integer.");
         }
@@ -67,12 +67,12 @@ void parse_matrix_string(const std::string& input_str, int& out_m, int& out_n, s
             size_t comma_pos;
             while ((comma_pos = data_str_segment.find(',', start_pos)) != std::string::npos) {
                 std::string num_str = data_str_segment.substr(start_pos, comma_pos - start_pos);
-                out_data.push_back(safeStod(num_str));
+                out_data.push_back(safeStof(num_str));
                 start_pos = comma_pos + 1;
             }
             // Add the last number (or the only number if no commas)
             std::string last_num_str = data_str_segment.substr(start_pos);
-            out_data.push_back(safeStod(last_num_str));
+            out_data.push_back(safeStof(last_num_str));
         }
 
     } catch (const std::invalid_argument& e) {
@@ -89,8 +89,19 @@ void parse_matrix_string(const std::string& input_str, int& out_m, int& out_n, s
 
 
 // Constructor for explicit dimensions and data
-Matrix::Matrix(int rows, int cols, const std::vector<double>& data)
+Matrix::Matrix(int rows, int cols, const std::vector<float>& data)
     : m_is_valid(true), m_rows(rows), m_cols(cols), m_data(data) {
+
+    if (m_rows <= 0 || m_cols <= 0) {
+        m_is_valid = false;
+    }
+    if (m_data.size() != static_cast<size_t>(m_rows * m_cols)) {
+        m_is_valid = false;
+    }
+}
+
+Matrix::Matrix(MatrixData& gain_k)
+    : m_is_valid(true), m_rows(gain_k.rows), m_cols(gain_k.cols), m_data(gain_k.values) {
 
     if (m_rows <= 0 || m_cols <= 0) {
         m_is_valid = false;
@@ -103,7 +114,7 @@ Matrix::Matrix(int rows, int cols, const std::vector<double>& data)
 // Static factory method to create a Matrix from the specific string format
 Matrix Matrix::from_string(const std::string& matrix_str) {
     int m, n;
-    std::vector<double> data;
+    std::vector<float> data;
     parse_matrix_string(matrix_str, m, n, data); // Uses the utility function
     return Matrix(m, n, data); // Construct the matrix
 }
@@ -120,7 +131,7 @@ int Matrix::is_valid() const {
 }
 
 // Get element at (row, col)
-double Matrix::get_element(int row, int col) const {
+float Matrix::get_element(int row, int col) const {
     if (row < 0 || row >= m_rows || col < 0 || col >= m_cols) {
         throw std::out_of_range("Matrix element access out of bounds.");
     }
@@ -140,17 +151,17 @@ void Matrix::set_element(int row, int col, int value) {
 Matrix Matrix::multiply(const Matrix& other) const {
     int result_rows = m_rows;
     int result_cols = other.m_cols;
-    std::vector<double> result_data(result_rows * result_cols, 0.0); // Initialize to 0
+    std::vector<float> result_data(result_rows * result_cols, 0.0); // Initialize to 0
 
     // Cache data pointers to avoid repeated vector access overhead
-    const double* this_data = m_data.data();
-    const double* other_data = other.m_data.data();
-    double* result_ptr = result_data.data();
+    const float* this_data = m_data.data();
+    const float* other_data = other.m_data.data();
+    float* result_ptr = result_data.data();
 
     // Optimized loop order: i-k-j for better cache locality
     for (int i = 0; i < result_rows; ++i) {
         for (int k = 0; k < m_cols; ++k) {
-            double this_ik = this_data[k * m_rows + i]; // Cache this element
+            float this_ik = this_data[k * m_rows + i]; // Cache this element
             for (int j = 0; j < result_cols; ++j) {
                 result_ptr[i * result_cols + j] += this_ik * other_data[j * other.m_rows + k];
             }
@@ -169,13 +180,13 @@ Matrix Matrix::multiply(const Matrix& other) const {
  * @param x3 Third element of the 3x1 vector
  * @param result Pointer to result array (must be pre-allocated with size = m_rows)
  */
-void Matrix::multiply_vector3(double x1, double x2, double x3, double* result) const {
+void Matrix::multiply_vector3(float x1, float x2, float x3, float* result) const {
     if (!m_is_valid || m_cols != 3 || !result) {
         return; // Invalid matrix or wrong dimensions or null result pointer
     }
     
     // Cache data pointer to avoid repeated vector access overhead
-    const double* data_ptr = m_data.data();
+    const float* data_ptr = m_data.data();
     
     // Use the same indexing as get_element(): col * m_rows + row (column-major)
     for (int i = 0; i < m_rows; ++i) {
@@ -185,7 +196,7 @@ void Matrix::multiply_vector3(double x1, double x2, double x3, double* result) c
     }
 }
 
-Matrix& Matrix::scale(const double value) {
+Matrix& Matrix::scale(const float value) {
     for (size_t i = 0; i < m_data.size(); ++i) {
         m_data[i] *= value;
     }

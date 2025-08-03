@@ -40,7 +40,7 @@ struct Bin {
 
 /**
  * Signal Set Management
- * Defines which signal buffer set is currently active for double-buffering
+ * Defines which signal buffer set is currently active for float-buffering
  */
 enum class ActiveSignalSet { 
     SET_A,      // Signal set A is active
@@ -125,4 +125,4 @@ float read_analog(AnalogPort port);
 
 
 void print_error_code(ERROR_CODE err);
-ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& out_n, std::vector<double>& gain_k_data, std::vector<uint64_t>& times, std::vector<uint64_t>& mode, std::vector<double>& target);
+ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& out_n, std::vector<float>& gain_k_data, std::vector<uint64_t>& times, std::vector<uint64_t>& mode, std::vector<float>& target);

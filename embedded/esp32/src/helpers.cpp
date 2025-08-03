@@ -170,8 +170,8 @@ float read_analog(AnalogPort port) {
  * @return Calibrated voltage value in volts
  */
 
-double calib_from[] = {0.00, 0.07, 0.17, 0.26, 0.36, 0.46, 0.56, 0.66, 0.76, 0.86, 0.96, 1.06, 1.16, 1.27, 1.37, 1.46, 1.56, 1.67, 1.76, 1.86, 1.96, 2.06, 2.16, 2.27, 2.37, 2.49, 2.61, 2.75, 2.90, 3.07, 3.26, 3.30, 3.30};
-double calib_to[]   = {0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1.00, 1.10, 1.20, 1.30, 1.40, 1.50, 1.60, 1.70, 1.80, 1.90, 2.00, 2.10, 2.20, 2.30, 2.40, 2.50, 2.60, 2.70, 2.80, 2.90, 3.00, 3.10, 3.20, 3.30};
+float calib_from[] = {0.00, 0.07, 0.17, 0.26, 0.36, 0.46, 0.56, 0.66, 0.76, 0.86, 0.96, 1.06, 1.16, 1.27, 1.37, 1.46, 1.56, 1.67, 1.76, 1.86, 1.96, 2.06, 2.16, 2.27, 2.37, 2.49, 2.61, 2.75, 2.90, 3.07, 3.26, 3.30, 3.30};
+float calib_to[]   = {0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1.00, 1.10, 1.20, 1.30, 1.40, 1.50, 1.60, 1.70, 1.80, 1.90, 2.00, 2.10, 2.20, 2.30, 2.40, 2.50, 2.60, 2.70, 2.80, 2.90, 3.00, 3.10, 3.20, 3.30};
 int    calib_numel  = sizeof(calib_from) / sizeof(calib_from[0]);
 
 float esp32calibration(float value) {
@@ -255,7 +255,7 @@ ERROR_CODE safe_stoi(const std::string& s, int &number) {
     return ERROR_CODE::OK;
 }
 
-ERROR_CODE safe_stod(const std::string& s, double &number) {
+ERROR_CODE safe_stod(const std::string& s, float &number) {
     size_t pos;
     // Check for empty string or string containing only whitespace
     if (s.empty() || s.find_first_not_of(" \t\n\v\f\r") == std::string::npos) {
@@ -299,7 +299,7 @@ ERROR_CODE parse_control_message__vector_uint64(std::string& s, size_t& semicolo
         return ERROR_CODE::OK;
 }
 
-ERROR_CODE parse_control_message__vector_double(std::string& s, size_t& semicolon_pos, std::vector<double>& V) {
+ERROR_CODE parse_control_message__vector_double(std::string& s, size_t& semicolon_pos, std::vector<float>& V) {
         s = s.substr(semicolon_pos + 1); // Consume previous and its semicolon
         semicolon_pos = s.find(';');
         if (semicolon_pos == std::string::npos) {
@@ -313,7 +313,7 @@ ERROR_CODE parse_control_message__vector_double(std::string& s, size_t& semicolo
 
         size_t start_pos = 0;
         size_t comma_pos;
-        double value;
+        float value;
 
         while ((comma_pos = str_segment.find(',', start_pos)) != std::string::npos) {
             std::string str_element = str_segment.substr(start_pos, comma_pos - start_pos);
@@ -330,7 +330,7 @@ ERROR_CODE parse_control_message__vector_double(std::string& s, size_t& semicolo
 
 
 
-ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& out_n, std::vector<double>& gain_k_data, std::vector<uint64_t>& times, std::vector<uint64_t>& modes, std::vector<double>& target) {
+ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& out_n, std::vector<float>& gain_k_data, std::vector<uint64_t>& times, std::vector<uint64_t>& modes, std::vector<float>& target) {
 
     // ensure that the vectors are clear
     gain_k_data.clear();

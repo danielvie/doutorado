@@ -3,6 +3,7 @@
 #include "signal_controller.h"
 #include "esp_task_wdt.h"
 #include "Matrix.h"
+#include "MatrixMath.h"
 
 // External references to global variables
 extern SignalTaskState signal_task_state;
@@ -17,11 +18,11 @@ BLETaskState ble_task_state = BLETaskState::IDLE;
 
 // NOTE: Global matrix variable for gain matrix
 size_t g_control_dtk_size = 0;
-double g_control_dtk[50];
+float g_control_dtk[50];
 int64_t g_control_dtk_us[50];
 
 size_t g_control_ts_size = 0;
-double g_control_ts[50];
+float g_control_ts[50];
 
 // Matrix g_control_gain_k(1, 1, {0.0});  // Initialize with 1x1 matrix containing 0
 
@@ -92,6 +93,9 @@ void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
     else if (value == "STATUS") {
         sendMessageStatus(characteristic);
     } 
+    else if (value == "TOGGLE_SET") {
+        toggleSetData();
+    }
     // CYCLE_NRUN command: Set analog reading frequency
     else if (value.substr(0,11) == "CYCLE_NRUN:") {
         std::string payload = value.substr(11);
@@ -112,6 +116,8 @@ void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
             Serial.printf("Signal sent to parse: '%s'\n", signal.c_str());
         }
     }
+    
+
     // MESSAGE_DATA command: Load new gain matrix
     else if (value.substr(0,13) == "MESSAGE_DATA:") {
         std::string str_message = value.substr(13);
@@ -199,23 +205,24 @@ void sendMessageStatus(NimBLECharacteristic* pCharacteristic) {
     // Demonstrate matrix multiplication with 3-element vector (optimized)
 
     SetData* set_data = (active_set == ActiveSignalSet::SET_A) ? &set_a_data : &set_b_data;
-    Matrix control_gain_k(set_data->m, set_data->n, set_data->gain_k);
 
-    if (control_gain_k.is_valid() && control_gain_k.get_cols() == 3) {
+    if (matrix_isvalid(set_data->gain_k) && set_data->gain_k.cols == 3) {
         // Pre-allocate result array for the multiplication
-        double result[control_gain_k.get_rows()];
+
+        int64_t clock_start = esp_timer_get_time();
+        float result[set_data->gain_k.rows];
         
-        // Perform optimized multiplication with vector [0.6, 0.1, 0.1] (NO SCALING)
-        control_gain_k.multiply_vector3(-0.6, -0.1, -0.1, result);
-        
-        Serial.println("Matrix multiplication result (optimized):");
-        for (int i = 0; i < control_gain_k.get_rows(); ++i) {
+        // NOTE: test matrix multiply
+        matrix_multiply_vector3(set_data->gain_k, -0.6, -0.1, -0.1, result);
+        int64_t duration_us = esp_timer_get_time() - clock_start;
+
+        Serial.printf("Matrix multiplication result2 [duration]: %d us\n", duration_us);
+        for (int i = 0; i < set_data->gain_k.rows; ++i) {
             Serial.printf("%.6f\n", result[i]);
         }
+        
+        matrix_print(set_data->gain_k);
 
-        Serial.println("\ncomputing => g_gain_k.multiply(Matrix(3,1,{0.6, 0.1, 0.1}));");
-        auto res = control_gain_k.scale(-1.0).multiply(Matrix(3,1,{0.6, 0.1, 0.1}));
-        res.print();
     } else {
         Serial.println("Matrix not available or wrong dimensions for vector multiplication");
     }
@@ -244,7 +251,7 @@ void readAndSendAnalogData(NimBLECharacteristic* pCharacteristic) {
     float i_l = voltage_03 / 22;
     
     SetData* set_data = (active_set == ActiveSignalSet::SET_A) ? &set_a_data : &set_b_data;
-    Matrix control_gain_k(set_data->m, set_data->n, set_data->gain_k);
+    Matrix control_gain_k(set_data->gain_k);
     
     // NOTE: 5 -> compute dtk on read analog
     if (control_gain_k.is_valid() && (control_gain_k.get_cols() == 3)) {

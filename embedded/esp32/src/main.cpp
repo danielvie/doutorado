@@ -90,17 +90,17 @@ void setup() {
     // std::string k = "5;3;0.00041624,-0.00041734,-0.000835,0.00083908,0.0008333,0.00084516,-0.00084918,-0.00040503,0.00040617,-0.00081487,0.0095941,-0.0095774,0.0096154,-0.0095994,0.019302;";
 
     // // Matrix data for performance comparison (5x3 matrix from string k)
-    // double matrix_data[15] = {
+    // float matrix_data[15] = {
     //     0.00041624, -0.00041734, -0.000835, 0.00083908, 0.0008333, 0.00084516,
     //     -0.00084918, -0.00040503, 0.00040617, -0.00081487, 0.0095941, -0.0095774,
     //     0.0096154, -0.0095994, 0.019302
     // };
     
     // // Vector B (3x1)
-    // double vector_b[3] = {0.6, 0.1, 0.1};
+    // float vector_b[3] = {0.6, 0.1, 0.1};
     
     // // Result vector (5x1)
-    // double result_matrixmath[5];
+    // float result_matrixmath[5];
 
     // // Time MatrixMath computation
     // uint64_t start_matrixmath = esp_timer_get_time();
@@ -138,7 +138,7 @@ void setup() {
     // Serial.printf("MatrixMath computation: %llu microseconds\n", duration_matrixmath);
     // Serial.printf("Class-based computation: %llu microseconds\n", duration_class);
     // if (duration_matrixmath > 0) {
-    //     Serial.printf("Class overhead factor: %.2fx\n", (double)duration_class / duration_matrixmath);
+    //     Serial.printf("Class overhead factor: %.2fx\n", (float)duration_class / duration_matrixmath);
     // }
 
 

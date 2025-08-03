@@ -9,7 +9,6 @@ std::vector<uint64_t> modes_di4 = {1, 0, 1, 0, 1, 0};           // Individual pi
 std::vector<uint64_t> modes_di5 = {1, 0, 1, 0, 1, 0};           // Individual pin states for DI5
 std::vector<uint64_t> modes_di6 = {1, 0, 1, 0, 1, 0};           // Individual pin states for DI6
 
-// Double-buffered signal storage for seamless pattern switching
 
 
 SetData set_a_data; // Signal set A
@@ -42,6 +41,15 @@ const uint32_t gpio_di5_mask = 1 << GPIO_DI5;
 const uint32_t gpio_di6_mask = 1 << GPIO_DI6;
 const uint32_t gpio_pin_mask = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
 
+void toggleSetData() {
+    if (active_set == ActiveSignalSet::SET_A) {
+        Serial.println("Changing to SET_B");
+        active_set = ActiveSignalSet::SET_B;
+    } else {
+        Serial.println("Changing to SET_A");
+        active_set = ActiveSignalSet::SET_A;
+    }
+}
 
 /**
  * Hardware Timer Interrupt Service Routine (ISR)
@@ -222,7 +230,7 @@ void updateSignalPattern(const std::string& signal) {
     }
     Serial.println(" ");
 
-    // Update the inactive signal set (double buffering)
+    // Update the inactive signal set (float buffering)
     if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
         if (active_set == ActiveSignalSet::SET_A) {
             Serial.println("updating SET_B...");
@@ -248,40 +256,14 @@ void updateSignalPattern(const std::string& signal) {
 ERROR_CODE updateSignalControl(const std::string& str_control_message) {
 
     int new_m,new_n;
-    std::vector<double> new_gain_k;
+    std::vector<float> new_gain_k;
     std::vector<uint64_t> new_timings;
     std::vector<uint64_t> new_modes;
-    std::vector<double> new_target;
+    std::vector<float> new_target;
     ERROR_CODE err;
 
     // NOTE: 1 -> parse message
     parse_control_message(str_control_message, new_m, new_n, new_gain_k, new_timings, new_modes, new_target);
-
-    // if (err != ERROR_CODE::OK) {
-    //     print_error_code(err);
-    // } else {
-    //     Serial.println("VALUES PARSED:\n");
-    //     Matrix gain_matrix(m, n, gain_k);
-    //     Serial.println("");
-    //     gain_matrix.print();
-    //     Serial.println("\n");
-    //     Serial.println("times:");
-    //     for (auto el : new_timings) {
-    //         Serial.printf("%d, ", el);
-    //     }
-    //     Serial.println("\n");
-    //     Serial.println("modes:");
-    //     for (auto el : new_modes) {
-    //         Serial.printf("%d, ", el);
-    //     }
-    //     Serial.println("\n");
-    //     Serial.println("target:");
-    //     for (auto el : target) {
-    //         Serial.printf("%f, ", el);
-    //     }
-    //     Serial.println("\n");
-    // }
-
 
     if (err != ERROR_CODE::OK) {
         print_error_code(err);
@@ -297,31 +279,32 @@ ERROR_CODE updateSignalControl(const std::string& str_control_message) {
         new_d6_vec.push_back(bin.b3);
     }
 
-    // NOTE: 2 -> Update the inactive signal set (double buffering)
+    // NOTE: 2 -> Update the inactive signal set (float buffering)
+    
+
+    auto set_data_helper = [&new_timings, &new_d4_vec, 
+                            &new_d5_vec, &new_d6_vec, 
+                            &new_target, &new_m, 
+                            &new_n, &new_gain_k](SetData& set_data) {
+        
+        set_data.time_vec = new_timings;
+        set_data.d4_vec = new_d4_vec;
+        set_data.d5_vec = new_d5_vec;
+        set_data.d6_vec = new_d6_vec;
+        set_data.target = new_target;
+        set_data.gain_k = MatrixData{.values = new_gain_k, .rows = new_m, .cols = new_n};
+    };
+
     if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
         if (active_set == ActiveSignalSet::SET_A) {
             Serial.println("updating SET_B...");
             // Update SET_B while SET_A is active
-            set_b_data.time_vec = new_timings;
-            set_b_data.d4_vec = new_d4_vec;
-            set_b_data.d5_vec = new_d5_vec;
-            set_b_data.d6_vec = new_d6_vec;
-            set_b_data.target = new_target;
-            set_b_data.m = new_m;
-            set_b_data.n = new_n;
-            set_b_data.gain_k = new_gain_k;
+            set_data_helper(set_b_data);
         }
         else {
             Serial.println("updating SET_A...");
             // Update SET_A while SET_B is active
-            set_a_data.time_vec = new_timings;
-            set_a_data.d4_vec = new_d4_vec;
-            set_a_data.d5_vec = new_d5_vec;
-            set_a_data.d6_vec = new_d6_vec;
-            set_a_data.target = new_target;
-            set_a_data.m = new_m;
-            set_a_data.n = new_n;
-            set_a_data.gain_k = new_gain_k;
+            set_data_helper(set_a_data);
         }
         num_timings = new_timings.size();
         switch_set_pending = true; // Mark for set switching
@@ -404,11 +387,7 @@ void signalTask(void* arg) {
                 if (current_state == active_num_timings - 1) {
                     if (xSemaphoreTake(signal_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
                         // NOTE: 3 -> Toggle between SET_A and SET_B
-                        if (active_set == ActiveSignalSet::SET_A) {
-                            active_set = ActiveSignalSet::SET_B;
-                        } else {
-                            active_set = ActiveSignalSet::SET_A;
-                        }
+                        toggleSetData();
 
                         active_num_timings = num_timings; // Update to new pattern length
                         switch_set_pending = false;
