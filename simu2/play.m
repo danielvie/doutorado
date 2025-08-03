@@ -60,8 +60,7 @@ function play()
     % plotting trajectory
     figure(2);
     res.plot_traj();
-
-    
+   
     
     % plotting u signals
     figure(3);

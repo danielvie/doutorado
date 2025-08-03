@@ -2,15 +2,14 @@
 #define BLE_CONTROLLER_H
 
 #include <NimBLEDevice.h>
+#include "MatrixMath.h"
+#include "esp_task_wdt.h"
 #include "helpers.h"
-#include "Matrix.h"
+#include "signal_controller.h"
 
 // BLE Service and Characteristic UUIDs for remote control
 #define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 #define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
-
-// Global matrix variable for gain matrix
-extern Matrix g_gain_k;
 
 // Global control variables accessible from signal_controller
 extern size_t g_control_dtk_size;

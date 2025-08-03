@@ -77,7 +77,7 @@ classdef Patino2
             set(gca,'fontsize', 15);
         end
         
-        function plot_u_signals(self, ncycles, skip)
+        function f = plot_u_signals(self, ncycles, skip)
             
             % default value for ncycles
             if (nargin == 1)
