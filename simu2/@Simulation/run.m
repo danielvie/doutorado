@@ -69,56 +69,16 @@ function [y,t,m,dtk_out] = run(self, nsim)
             time_us = self.get_time_us();
             dtk_us = dtk*1e6;
 
-            % ts_us = zeros(1,numel(time_us)+1);
-            
-            % for j = 1:dtk_len
-            %     ts_us(j+1) = ts_us(j) + time_us(j) + dtk_us(j);
-            % end
             time_constraint_us = self.m_config.c_time(1)*1e6;
             dtk_us = fix_dtk(time_us, dtk_us, time_constraint_us);
 
-            % dbstop();
-            
-            ts_us = self.m_config.Ts*1e6;
             Ts = self.compute_ts_from_dtk(self.m_config, dtk_us*1e-6);
-
-            % time_constraint = self.m_config.c_time(1);
-            % while any(diff(Ts) < 0)
-            %     % imposing time constraint
-            %     ts_diff = max(diff(Ts), time_constraint);
-            %     ts_diff_complement = ts_diff - diff(Ts);
-            %     for j = 1:numel(ts_diff_complement)
-            %         Ts(j+1) = Ts(j+1) + ts_diff_complement(j);
-            %     end
-            % 
-            %     % conditioning time to factible values
-            %     Ts_final = self.m_config.Ts(end);
-            %     if sum(Ts) > Ts_final
-            %         Ts = Ts/Ts(end-1)*Ts_final;
-            %     end
-            % end
-
             ts_us = Ts*1e6;
             ts_us_diff = diff(ts_us);
             if any(ts_us_diff < 0)
                 error("ASSERT :: time cannot be negative!");
             end
-            
-            % % getting correct dtk for resulting Ts
-            % Ts_nom = self.m_config.Ts;
-            % dTs = (Ts - Ts_nom)';
-            % dtk = dTs(2:end-1);
-
-
-            % 
-            % 
-            % cont = cont + 1;
-            % if rem(cont, skip) == 0
-            %     bla = 1;
-            % end
-
-
-    
+  
             % updating time on local config variable
             config.Ts = Ts;
 
@@ -163,9 +123,6 @@ function [y,t,m,dtk_out] = run(self, nsim)
         dtk_out(:,i) = dtk(:);
 
         % updating values for next cycle
-        if t0 < 0
-            bla = 1;
-        end
         t0  = t_(end) + t0;
         config.x0 = y_(end,:)';
         x0  = config.x0;
