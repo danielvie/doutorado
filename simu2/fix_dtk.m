@@ -10,6 +10,11 @@ function [dtk_us_new] = fix_dtk(time_us, dtk_us, time_constraint_us)
         ts_us_ref(i+1) = ts_us_ref(i) + time_us(i);
     end
 
+    % normalize dtk to the cycle range
+    if sum(dtk_us) > ts_us_ref(end)
+        dtk_us = dtk_us/sum(dtk_us) * ts_us_ref(end);
+    end
+
     % impose constraint on dtk_us based on time_us
     for i = 1:dtk_len
         if (time_us(i) + dtk_us(i) < time_constraint_us)
@@ -17,7 +22,7 @@ function [dtk_us_new] = fix_dtk(time_us, dtk_us, time_constraint_us)
         end
     end
 
-    % adjust ts_us with new dtk
+    % adjust ts_us with dtk_us
     ts_us = ts_us_ref;
     for i = 1:dtk_len
         ts_us(i+1) = ts_us(i+1) + dtk_us(i);

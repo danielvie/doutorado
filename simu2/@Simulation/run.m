@@ -70,6 +70,10 @@ function [y,t,m,dtk_out] = run(self, nsim)
             dtk_us = dtk*1e6;
 
             time_constraint_us = self.m_config.c_time(1)*1e6;
+            
+            % =====================================================
+            % fix dtk with constraints
+            
             dtk_us = fix_dtk(time_us, dtk_us, time_constraint_us);
 
             Ts = self.compute_ts_from_dtk(self.m_config, dtk_us*1e-6);
