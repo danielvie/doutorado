@@ -1,3 +1,3 @@
-% play
-clear;
-test
+play
+% clear;
+% test
