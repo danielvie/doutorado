@@ -64,5 +64,5 @@ function play()
     
     % plotting u signals
     figure(3);
-    res.plot_u_signals(20);
+    res.plot_u_signals(nsim);
 end

@@ -36,11 +36,16 @@ function [y, t, m, dtk_out, config, simulation_state] = initialize_simulation(se
     states_len = numel(self.m_config.x0);
     dtk_len = modes_len - 1;
     
-    % Initialize output arrays
-    y = zeros(nsim*modes_len, states_len); 
-    t = zeros(nsim*modes_len, 1);
-    m = zeros(nsim*modes_len, 1);
+    % Initialize output arrays (add +1 to include initial state at t=0)
+    y = zeros(nsim*modes_len + 1, states_len); 
+    t = zeros(nsim*modes_len + 1, 1);
+    m = zeros(nsim*modes_len + 1, 1);
     dtk_out = zeros(dtk_len, nsim);
+    
+    % Store initial state at t=0
+    y(1, :) = self.m_config.x0';
+    t(1) = 0.0;
+    m(1) = self.m_config.Omega(1); % initial mode
     
     % Initialize configuration
     config = self.m_config;
@@ -155,8 +160,8 @@ function [y, t, m, dtk_out, config, simulation_state] = execute_simulation_cycle
         error('sim_cycle2 returned %d modes, expected %d', size(y_, 1), modes_len);
     end
     
-    % Store results in output arrays
-    ii = (iteration-1) * modes_len + 1;
+    % Store results in output arrays (offset by +1 to account for initial state at t=0)
+    ii = (iteration-1) * modes_len + 2; % +2 because index 1 is reserved for initial state
     y(ii:ii+modes_len-1, :) = y_(1:modes_len, :);
     t(ii:ii+modes_len-1) = t_(1:modes_len) + simulation_state.t0;
     m(ii:ii+modes_len-1) = m_(1:modes_len);
