@@ -29,9 +29,6 @@ function [y,t,m,dtk_out] = run(self, nsim)
     
     dtk_prev  = zeros([numel(config.Omega)-1, 1]);
 
-    cont = 0;
-    skip = 100;
-
     for i = 1:nsim
         dtk = zeros([numel(config.Omega)-1, 1]);
         if mpc_on
@@ -73,7 +70,7 @@ function [y,t,m,dtk_out] = run(self, nsim)
             
             % =====================================================
             % fix dtk with constraints
-            
+            % dtk_us = fix_dtk_2(time_us, dtk_us, time_constraint_us);
             dtk_us = fix_dtk(time_us, dtk_us, time_constraint_us);
 
             Ts = self.compute_ts_from_dtk(self.m_config, dtk_us*1e-6);
