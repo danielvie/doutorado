@@ -81,17 +81,16 @@ Result condition_dtk_signal_float(const std::vector<float>& time_us, const float
     return Result::OK;
 }
 
-Result condition_dtk_signal(const std::vector<uint32_t>& time_us, const float& time_constraint_us, std::vector<int32_t>& dtk_us) {
+Result condition_dtk_signal(const std::vector<uint32_t>& time_us, const float& time_constraint_us, int32_t* dtk_us, size_t dtk_len) {
     
-    size_t dtk_len   = dtk_us.size();
     size_t ts_us_len = time_us.size()+1;
 
     auto compute_sum_u = [](const std::vector<uint32_t>& vec) -> uint32_t {
         return std::accumulate(vec.begin(), vec.end(), uint32_t(0));
     };
 
-    auto compute_sum_i = [](const std::vector<int32_t>& vec) -> int32_t {
-        return std::accumulate(vec.begin(), vec.end(), int32_t(0));
+    auto compute_sum_array_i = [](const int32_t* vec, size_t dtk_len) -> int32_t {
+        return std::accumulate(vec, vec + dtk_len, int32_t(0));
     };
 
     // create ts_us_ref
@@ -103,7 +102,15 @@ Result condition_dtk_signal(const std::vector<uint32_t>& time_us, const float& t
     }
 
     // normalize dtk to the cycle range
-    float dtk_us_sum = compute_sum_i(dtk_us);
+    float dtk_us_sum = compute_sum_array_i(dtk_us, dtk_len);
+
+    std::cout << "\n\n=========\n";
+    std::cout << "check sum\n";
+    print_array(dtk_us, dtk_len, "dtk_us [array]");
+    std::cout << "dtk_us_sum: " << dtk_us_sum << "\n";
+    std::cout << "=========\n\n";
+
+
     if (dtk_us_sum > ts_us_ref[ts_us_len-1]) {
         for (int i = 0; i < dtk_len; i++) {
             dtk_us[i] = dtk_us[i] / dtk_us_sum * ts_us_ref[ts_us_len - 1];
@@ -155,7 +162,7 @@ void vector_create_ts(const std::vector<float>& time_us, std::vector<float>& res
 }
 
 int main_condition_dtk(std::vector<float>& time_us, std::vector<float>& dtk_us, float& time_constraint_us) {
-    vector_print(dtk_us, "dtk_us: ");
+    print_vector(dtk_us, "dtk_us: ");
 
     std::vector<uint32_t> time_us_u;
     std::vector<int32_t> dtk_us_i;
@@ -173,14 +180,14 @@ int main_condition_dtk(std::vector<float>& time_us, std::vector<float>& dtk_us, 
         dtk_us_i[i] = (int32_t)std::round(dtk_us[i]);
     }
 
-    vector_print(time_us_u, "time_us_u: ");
-    vector_print(dtk_us_i, "dtk_us_i: ");
+    print_vector(time_us_u, "time_us_u: ");
+    print_vector(dtk_us_i, "dtk_us_i: ");
 
     auto clock_ini = std::chrono::high_resolution_clock::now();
-    auto err = condition_dtk_signal(time_us_u, time_constraint_us, dtk_us_i);
+    auto err = condition_dtk_signal(time_us_u, time_constraint_us, dtk_us_i.data(), dtk_us_i.size());
     auto clock_end = std::chrono::high_resolution_clock::now();
 
-    vector_print(dtk_us_i, "dtk_us_i_new: ");
+    print_vector(dtk_us_i, "dtk_us_i_new: ");
 
     if (err == Result::FAIL) {
         std::cout << "deu ruim!\n";
