@@ -18,12 +18,6 @@ enum class ControlStatus {
 };
 
 extern ControlStatus g_control_status;
-extern float g_control_dtk[50];
-extern size_t g_control_dtk_len;
-extern int32_t g_control_dtk_us[50];
-
-extern int32_t g_control_time_us[50];
-extern size_t g_control_time_us_len;
 
 // BLE Task state management
 extern BLETaskState ble_task_state;

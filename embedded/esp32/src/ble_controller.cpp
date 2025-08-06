@@ -14,12 +14,6 @@ BLETaskState ble_task_state = BLETaskState::IDLE;
 
 // NOTE: Global matrix variable for gain matrix
 ControlStatus g_control_status = ControlStatus::OFF;
-float g_control_dtk[50] = {};
-size_t g_control_dtk_len = 0;
-int32_t g_control_dtk_us[50] = {};
-
-int32_t g_control_time_us[50] = {};
-size_t g_control_time_us_len = 0;
 
 // Matrix g_control_gain_k(1, 1, {0.0});  // Initialize with 1x1 matrix containing 0
 
@@ -218,7 +212,7 @@ void send_message_status(NimBLECharacteristic* pCharacteristic) {
 
     Serial.println("\n");
     print_vec_i32(data_set_active->time_us_diff, "dataset->time_us_diff");
-    print_array_i32(g_control_dtk_us, g_control_dtk_len, "g_control_dtk_us");
+    // print_array_i32(g_control_dtk_us, g_control_dtk_len, "g_control_dtk_us");
     
     print_dataset(data_set_active);
     print_ts_us_constructed();
@@ -284,31 +278,30 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     // NOTE: 5 -> compute dtk on read analog
     if (matrix_isvalid(dataset_active->gain_k) && (dataset_active->gain_k.cols == 3)) {
         // compute ek -> x - x_target
-        g_control_dtk_len = dataset_active->gain_k.rows;
+        float control_dtk[50] = {};
+        int32_t control_dtk_us[50] = {};
+        size_t control_dtk_len = dataset_active->gain_k.rows;
 
-        matrix_multiply_vector3(dataset_active->gain_k, -v_c1, -v_c2, -i_l, g_control_dtk);
+        matrix_multiply_vector3(dataset_active->gain_k, -v_c1, -v_c2, -i_l, control_dtk);
         // matrix_multiply_vector3(dataset_active->gain_k, -0.6, -0.1, -0.1, g_control_dtk);
 
         // compute dtk_us
         // NOTE: set g_control_dtk_us
-        for (int i = 0; i < g_control_dtk_len; i++) {
-            g_control_dtk_us[i] = (int32_t)std::round(g_control_dtk[i]*1000000.0);
+        for (int i = 0; i < control_dtk_len; i++) {
+            control_dtk_us[i] = (int32_t)std::round(control_dtk[i]*1000000.0);
         }
 
         // NOTE: conditioning dtk
 
-        condition_dtk_signal(dataset_active->time_vec, 10, g_control_dtk_us, g_control_dtk_len);
+        condition_dtk_signal(dataset_active->time_vec, 10, control_dtk_us, control_dtk_len);
 
-        // TODO: deletar g_control_time_us_len
-        // g_control_time_us_len = g_control_dtk_len+1;
+        dataset_active->time_us_diff.resize(control_dtk_len+1, 0);
 
-        dataset_active->time_us_diff.resize(g_control_dtk_len+1, 0);
-
-        dataset_active->time_us_diff[0] = g_control_dtk_us[0];
-        for (size_t i = 1; i < g_control_dtk_len; i++) {
-            dataset_active->time_us_diff[i] = g_control_dtk_us[i] - g_control_dtk_us[i-1];
+        dataset_active->time_us_diff[0] = control_dtk_us[0];
+        for (size_t i = 1; i < control_dtk_len; i++) {
+            dataset_active->time_us_diff[i] = control_dtk_us[i] - control_dtk_us[i-1];
         }
-        dataset_active->time_us_diff[g_control_dtk_len] = -g_control_dtk_us[g_control_dtk_len-1];
+        dataset_active->time_us_diff[control_dtk_len] = -control_dtk_us[control_dtk_len-1];
 
         size_t time_us_len = dataset_active->time_vec.size();
         uint32_t ts_us[time_us_len + 1] = {};

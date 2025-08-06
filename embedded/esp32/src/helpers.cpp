@@ -389,10 +389,10 @@ void print_ts_us_constructed() {
     }
     print_vec_u32(ts_us_2, "ts_us_2 constructed");
 
-    for (size_t i = 0; i < g_control_dtk_len; i++) {
-        ts_us[i+1] = ts_us[i+1] + g_control_dtk_us[i];
-    }
-    print_vec_u32(ts_us, "ts_us with control");
+    // for (size_t i = 0; i < g_control_dtk_len; i++) {
+    //     ts_us[i+1] = ts_us[i+1] + g_control_dtk_us[i];
+    // }
+    // print_vec_u32(ts_us, "ts_us with control");
 
 }
 
