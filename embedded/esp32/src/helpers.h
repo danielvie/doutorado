@@ -87,47 +87,26 @@ enum class AnalogPort {
 
 // Function Declarations
 
-/**
- * Convert a numeric value to binary representation
- * @param n Input number to convert
- * @return Bin structure with individual bit flags
- */
-struct Bin num2bin(uint64_t n);
+// Convert number to bit flags
+Bin num2bin(uint64_t n);
 
-/**
- * Parse a comma-separated section of a signal string
- * @param section String containing comma-separated values
- * @param result Vector to store parsed numeric values
- */
+// Split comma-separated list into vector
 void _parse_section(const std::string &section, std::vector<uint64_t> &result);
 
-/**
- * Parse a complete signal string containing timing and mode data
- * Expected format: "time1,time2,time3;mode1,mode2,mode3"
- * @param s Input signal string to parse
- * @param time Vector to store timing values
- * @param mode Vector to store mode values
- * @return 1 on success, 0 on failure
- */
+// Parse timing and mode from "time1,time2;mode1,mode2" string
 int parse_signal(const std::string &s, std::vector<uint64_t> &time, std::vector<uint64_t> &mode);
 
-/**
- * Apply calibration transformation to ESP32 voltage reading
- * Converts raw ESP32 ADC voltage to calibrated measurement
- * @param x Raw voltage reading from ESP32 ADC
- * @return Calibrated voltage value
- */
+// Calibrate raw ADC voltage to actual voltage
 float esp32_calibration(float x);
 
-/**
- * Read analog voltage from specified port
- * Handles ADC channel mapping and voltage conversion
- * @param port Analog port to read from
- * @return Calibrated voltage reading in volts, or -9.9V for invalid ports
- */
+// Read analog input and return calibrated voltage
 float read_analog(AnalogPort port);
 
+// Print error code to Serial
 void print_error_code(ERROR_CODE err);
+
+// Parse control message into parameters (rows, cols, gain, times, modes, target)
 ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& out_n, std::vector<float>& gain_k_data, std::vector<uint64_t>& times, std::vector<uint64_t>& mode, std::vector<float>& target);
 
+// Adjust timing based on constraints and return status
 Result condition_dtk_signal(const std::vector<uint32_t>& time_us, const uint32_t& time_constraint_us, std::vector<int32_t>& dtk_us);
