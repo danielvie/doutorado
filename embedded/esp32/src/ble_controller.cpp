@@ -16,7 +16,7 @@ BLETaskState ble_task_state = BLETaskState::IDLE;
 ControlStatus g_control_status = ControlStatus::OFF;
 float g_control_dtk[50];
 float g_control_ts[50];
-int64_t g_control_dtk_us[50];
+int32_t g_control_dtk_us[50];
 size_t g_control_dtk_size = 0;
 size_t g_control_ts_size = 0;
 
@@ -221,12 +221,12 @@ void send_message_status(NimBLECharacteristic* pCharacteristic) {
     if (matrix_isvalid(data_set_active->gain_k) && data_set_active->gain_k.cols == 3) {
         // Pre-allocate result array for the multiplication
 
-        int64_t clock_start = esp_timer_get_time();
+        int32_t clock_start = esp_timer_get_time();
         float result[data_set_active->gain_k.rows];
         
         // NOTE: test matrix multiply
         matrix_multiply_vector3(data_set_active->gain_k, -0.6, -0.1, -0.1, result);
-        int64_t duration_us = esp_timer_get_time() - clock_start;
+        int32_t duration_us = esp_timer_get_time() - clock_start;
 
         Serial.printf("Matrix multiplication result2 [duration]: %d us\n", duration_us);
         for (int i = 0; i < data_set_active->gain_k.rows; ++i) {
@@ -277,7 +277,7 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
         } else {
             Serial.println("control is ON, reading g_control_dtk_us");
             for (int i = 0; i < g_control_dtk_size; i++) {
-                g_control_dtk_us[i] = (int64_t)std::round(g_control_dtk[i]*1000000.0);
+                g_control_dtk_us[i] = (int32_t)std::round(g_control_dtk[i]*1000000.0);
             }
         }
         
@@ -296,7 +296,7 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
         }
         Serial.println("\n");
         
-        // conditioning dtk
+        // NOTE: conditioning dtk
         // Result res = condition_dtk_signal(dataset_active->time_vec, 3, g_control_dtk_us);
 
         // compute_ts_from_dtk

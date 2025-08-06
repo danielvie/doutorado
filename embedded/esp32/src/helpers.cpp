@@ -10,7 +10,7 @@
 #include "Arduino.h"
 
 // Convert a numeric value to binary representation structure
-struct Bin num2bin(uint64_t num) {
+struct Bin num2bin(uint32_t num) {
     auto b = Bin();
     b.b1 = num & 0x1;
     b.b2 = num & 0x2;
@@ -27,41 +27,6 @@ struct Bin num2bin(uint64_t num) {
 float calib_from[] = {0.00, 0.07, 0.17, 0.26, 0.36, 0.46, 0.56, 0.66, 0.76, 0.86, 0.96, 1.06, 1.16, 1.27, 1.37, 1.46, 1.56, 1.67, 1.76, 1.86, 1.96, 2.06, 2.16, 2.27, 2.37, 2.49, 2.61, 2.75, 2.90, 3.07, 3.26, 3.30, 3.30};
 float calib_to[]   = {0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1.00, 1.10, 1.20, 1.30, 1.40, 1.50, 1.60, 1.70, 1.80, 1.90, 2.00, 2.10, 2.20, 2.30, 2.40, 2.50, 2.60, 2.70, 2.80, 2.90, 3.00, 3.10, 3.20, 3.30};
 int   calib_numel  = sizeof(calib_from) / sizeof(calib_from[0]);
-
-// Parse a comma-separated section of a signal string
-void parse_section(const std::string &section, std::vector<uint64_t> &result) {
-    std::stringstream ss(section);
-    std::string item;
-    
-    // Split by comma and convert each item to integer
-    while (std::getline(ss, item, ',')) {
-        result.push_back(std::stoi(item));
-    }
-}
-
-// Parse a complete signal string containing timing and mode data
-int parse_signal(const std::string &s, std::vector<uint64_t> &time, std::vector<uint64_t> &mode) {
-    // Clear any existing values to start fresh
-    time.clear();
-    mode.clear();
-    
-    // Find the semicolon separator between timing and mode sections
-    size_t semicolonPos = s.find(';');
-    if (semicolonPos == std::string::npos) {
-        throw std::runtime_error("No semicolon found");
-        return 0;
-    }
-    
-    // Extract timing section (before semicolon) and mode section (after semicolon)
-    std::string timeSection = s.substr(0, semicolonPos);
-    std::string modeSection = s.substr(semicolonPos + 1);
-    
-    // Parse each section into respective vectors
-    parse_section(timeSection, time);
-    parse_section(modeSection, mode);
-    
-    return 1;  // Success
-}
 
 //Read analog voltage from specified port with calibration
 float read_analog(AnalogPort port) {
@@ -195,7 +160,7 @@ ERROR_CODE safe_stod(const std::string& s, float &number) {
     return ERROR_CODE::OK;
 }
 
-ERROR_CODE parse_control_message__vector_uint64(std::string& s, size_t& semicolon_pos, std::vector<uint64_t>& V) {
+ERROR_CODE parse_control_message__vector_uint64(std::string& s, size_t& semicolon_pos, std::vector<uint32_t>& V) {
         s = s.substr(semicolon_pos + 1); // Consume previous and its semicolon
         semicolon_pos = s.find(';');
         if (semicolon_pos == std::string::npos) {
@@ -253,7 +218,7 @@ ERROR_CODE parse_control_message__vector_double(std::string& s, size_t& semicolo
         return ERROR_CODE::OK;
 }
 
-ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& out_n, std::vector<float>& gain_k_data, std::vector<uint64_t>& times, std::vector<uint64_t>& modes, std::vector<float>& target) {
+ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& out_n, std::vector<float>& gain_k_data, std::vector<uint32_t>& times, std::vector<uint32_t>& modes, std::vector<float>& target) {
 
     // ensure that the vectors are clear
     gain_k_data.clear();
@@ -321,6 +286,41 @@ ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& 
         return ERROR_CODE::RUNTIME_ERROR_UNEXPECTED_ERROR;
     }
     return ERROR_CODE::OK;
+}
+
+// Parse a comma-separated section of a signal string
+void parse_section(const std::string &section, std::vector<uint32_t> &result) {
+    std::stringstream ss(section);
+    std::string item;
+    
+    // Split by comma and convert each item to integer
+    while (std::getline(ss, item, ',')) {
+        result.push_back(std::stoi(item));
+    }
+}
+
+// Parse a complete signal string containing timing and mode data
+int parse_signal(const std::string &s, std::vector<uint32_t> &time, std::vector<uint32_t> &mode) {
+    // Clear any existing values to start fresh
+    time.clear();
+    mode.clear();
+    
+    // Find the semicolon separator between timing and mode sections
+    size_t semicolonPos = s.find(';');
+    if (semicolonPos == std::string::npos) {
+        throw std::runtime_error("No semicolon found");
+        return 0;
+    }
+    
+    // Extract timing section (before semicolon) and mode section (after semicolon)
+    std::string timeSection = s.substr(0, semicolonPos);
+    std::string modeSection = s.substr(semicolonPos + 1);
+    
+    // Parse each section into respective vectors
+    parse_section(timeSection, time);
+    parse_section(modeSection, mode);
+    
+    return 1;  // Success
 }
 
 Result condition_dtk_signal(const std::vector<uint32_t>& time_us, const uint32_t& time_constraint_us, std::vector<int32_t>& dtk_us) {

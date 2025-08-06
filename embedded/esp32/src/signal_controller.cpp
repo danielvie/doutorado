@@ -3,17 +3,17 @@
 #include "esp_task_wdt.h"
 
 // Default signal pattern configuration
-std::vector<uint64_t> timings = {50, 50, 50, 50, 50, 50};        // Timing intervals in timer ticks
-std::vector<uint64_t> modes = {7, 0, 7, 0, 7, 0};               // Combined mode patterns (binary representation)
-std::vector<uint64_t> modes_di4 = {1, 0, 1, 0, 1, 0};           // Individual pin states for DI4
-std::vector<uint64_t> modes_di5 = {1, 0, 1, 0, 1, 0};           // Individual pin states for DI5
-std::vector<uint64_t> modes_di6 = {1, 0, 1, 0, 1, 0};           // Individual pin states for DI6
+std::vector<uint32_t> timings = {50, 50, 50, 50, 50, 50};        // Timing intervals in timer ticks
+std::vector<uint32_t> modes = {7, 0, 7, 0, 7, 0};               // Combined mode patterns (binary representation)
+std::vector<uint32_t> modes_di4 = {1, 0, 1, 0, 1, 0};           // Individual pin states for DI4
+std::vector<uint32_t> modes_di5 = {1, 0, 1, 0, 1, 0};           // Individual pin states for DI5
+std::vector<uint32_t> modes_di6 = {1, 0, 1, 0, 1, 0};           // Individual pin states for DI6
 
 DataSet dataset_a; // Signal set A
 DataSet dataset_b; // Signal set B
 
-// std::vector<uint64_t> time_vec_a, d4_vec_a, d5_vec_a, d6_vec_a;  // Signal set A
-// std::vector<uint64_t> time_vec_b, d4_vec_b, d5_vec_b, d6_vec_b; // Signal set B
+// std::vector<uint32_t> time_vec_a, d4_vec_a, d5_vec_a, d6_vec_a;  // Signal set A
+// std::vector<uint32_t> time_vec_b, d4_vec_b, d5_vec_b, d6_vec_b; // Signal set B
 
 // Task state management
 SignalTaskState signal_task_state = SignalTaskState::IDLE;
@@ -154,10 +154,10 @@ void start_signal_timer() {
     timer_set_counter_value(TIMER_GROUP, TIMER_IDX, 0);
     
     // Get references to active signal set
-    std::vector<uint64_t>& time_vec = (active_set == ActiveSignalSet::SET_A) ? dataset_a.time_vec : dataset_b.time_vec;
-    std::vector<uint64_t>& d4_vec = (active_set == ActiveSignalSet::SET_A) ? dataset_a.d4_vec : dataset_b.d4_vec;
-    std::vector<uint64_t>& d5_vec = (active_set == ActiveSignalSet::SET_A) ? dataset_a.d5_vec : dataset_b.d5_vec;
-    std::vector<uint64_t>& d6_vec = (active_set == ActiveSignalSet::SET_A) ? dataset_a.d6_vec : dataset_b.d6_vec;
+    std::vector<uint32_t>& time_vec = (active_set == ActiveSignalSet::SET_A) ? dataset_a.time_vec : dataset_b.time_vec;
+    std::vector<uint32_t>& d4_vec = (active_set == ActiveSignalSet::SET_A) ? dataset_a.d4_vec : dataset_b.d4_vec;
+    std::vector<uint32_t>& d5_vec = (active_set == ActiveSignalSet::SET_A) ? dataset_a.d5_vec : dataset_b.d5_vec;
+    std::vector<uint32_t>& d6_vec = (active_set == ActiveSignalSet::SET_A) ? dataset_a.d6_vec : dataset_b.d6_vec;
 
     // Update active signal length
     active_num_timings = (active_set == ActiveSignalSet::SET_A) ? dataset_a.time_vec.size() : dataset_a.time_vec.size();
@@ -202,12 +202,12 @@ int get_signal_set_size(ActiveSignalSet set) {
 
 // Update signal pattern (double-buffered)
 void update_signal_pattern(const std::string& signal) {
-    std::vector<uint64_t> new_timings, new_modes;
+    std::vector<uint32_t> new_timings, new_modes;
     parse_signal(signal, new_timings, new_modes);
 
     // Convert combined modes to individual pin states
-    std::vector<uint64_t> new_d4_vec, new_d5_vec, new_d6_vec;
-    for (uint64_t mi : new_modes) {
+    std::vector<uint32_t> new_d4_vec, new_d5_vec, new_d6_vec;
+    for (uint32_t mi : new_modes) {
         Bin bin = num2bin(mi);  // Convert number to binary representation
         new_d4_vec.push_back(bin.b1);
         new_d5_vec.push_back(bin.b2);
@@ -253,8 +253,8 @@ ERROR_CODE update_signal_control(const std::string& str_control_message) {
 
     int new_m,new_n;
     std::vector<float> new_gain_k;
-    std::vector<uint64_t> new_timings;
-    std::vector<uint64_t> new_modes;
+    std::vector<uint32_t> new_timings;
+    std::vector<uint32_t> new_modes;
     std::vector<float> new_target;
     ERROR_CODE err;
 
@@ -267,8 +267,8 @@ ERROR_CODE update_signal_control(const std::string& str_control_message) {
     } 
     
     // Convert combined modes to individual pin states
-    std::vector<uint64_t> new_d4_vec, new_d5_vec, new_d6_vec;
-    for (uint64_t mi : new_modes) {
+    std::vector<uint32_t> new_d4_vec, new_d5_vec, new_d6_vec;
+    for (uint32_t mi : new_modes) {
         Bin bin = num2bin(mi);  // Convert number to binary representation
         new_d4_vec.push_back(bin.b1);
         new_d5_vec.push_back(bin.b2);

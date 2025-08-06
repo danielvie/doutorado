@@ -44,10 +44,10 @@ struct MatrixData {
 };
 
 struct DataSet {
-    std::vector<uint64_t> time_vec;
-    std::vector<uint64_t> d4_vec;
-    std::vector<uint64_t> d5_vec;
-    std::vector<uint64_t> d6_vec; 
+    std::vector<uint32_t> time_vec;
+    std::vector<uint32_t> d4_vec;
+    std::vector<uint32_t> d5_vec;
+    std::vector<uint32_t> d6_vec; 
     std::vector<float> target; 
     MatrixData gain_k;
 };
@@ -62,8 +62,8 @@ void toggle_dataset();
 void set_control_on();
 void set_control_off();
 
-// extern std::vector<uint64_t> time_vec_a, d4_vec_a, d5_vec_a, d6_vec_a;
-// extern std::vector<uint64_t> time_vec_b, d4_vec_b, d5_vec_b, d6_vec_b;
+// extern std::vector<uint32_t> time_vec_a, d4_vec_a, d5_vec_a, d6_vec_a;
+// extern std::vector<uint32_t> time_vec_b, d4_vec_b, d5_vec_b, d6_vec_b;
 
 // Function declarations
 void initialize_signal_controller();

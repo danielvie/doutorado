@@ -88,13 +88,13 @@ enum class AnalogPort {
 // Function Declarations
 
 // Convert number to bit flags
-Bin num2bin(uint64_t n);
+Bin num2bin(uint32_t n);
 
 // Split comma-separated list into vector
-void parse_section(const std::string &section, std::vector<uint64_t> &result);
+void parse_section(const std::string &section, std::vector<uint32_t> &result);
 
 // Parse timing and mode from "time1,time2;mode1,mode2" string
-int parse_signal(const std::string &s, std::vector<uint64_t> &time, std::vector<uint64_t> &mode);
+int parse_signal(const std::string &s, std::vector<uint32_t> &time, std::vector<uint32_t> &mode);
 
 // Calibrate raw ADC voltage to actual voltage
 float esp32_calibration(float x);
@@ -106,7 +106,7 @@ float read_analog(AnalogPort port);
 void print_error_code(ERROR_CODE err);
 
 // Parse control message into parameters (rows, cols, gain, times, modes, target)
-ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& out_n, std::vector<float>& gain_k_data, std::vector<uint64_t>& times, std::vector<uint64_t>& mode, std::vector<float>& target);
+ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& out_n, std::vector<float>& gain_k_data, std::vector<uint32_t>& times, std::vector<uint32_t>& mode, std::vector<float>& target);
 
 // Adjust timing based on constraints and return status
 Result condition_dtk_signal(const std::vector<uint32_t>& time_us, const uint32_t& time_constraint_us, std::vector<int32_t>& dtk_us);

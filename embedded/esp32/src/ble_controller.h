@@ -20,7 +20,7 @@ enum class ControlStatus {
 extern ControlStatus g_control_status;
 extern float g_control_dtk[50];
 extern float g_control_ts[50];
-extern int64_t g_control_dtk_us[50];
+extern int32_t g_control_dtk_us[50];
 extern size_t g_control_dtk_size;
 extern size_t g_control_ts_size;
 
