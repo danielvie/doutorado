@@ -12,11 +12,17 @@
 #define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
 // Global control variables accessible from signal_controller
-extern size_t g_control_dtk_size;
+enum class ControlStatus {
+    ON,
+    OFF,
+};
+
+extern ControlStatus g_control_status;
 extern float g_control_dtk[50];
-extern int64_t g_control_dtk_us[50];
-extern size_t g_control_ts_size;
 extern float g_control_ts[50];
+extern int64_t g_control_dtk_us[50];
+extern size_t g_control_dtk_size;
+extern size_t g_control_ts_size;
 
 // BLE Task state management
 extern BLETaskState ble_task_state;

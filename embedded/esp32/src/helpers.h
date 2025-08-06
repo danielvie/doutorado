@@ -129,3 +129,5 @@ float read_analog(AnalogPort port);
 
 void print_error_code(ERROR_CODE err);
 ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& out_n, std::vector<float>& gain_k_data, std::vector<uint64_t>& times, std::vector<uint64_t>& mode, std::vector<float>& target);
+
+Result condition_dtk_signal(const std::vector<float>& time_us, const float& time_constraint_us, std::vector<float>& dtk_us);

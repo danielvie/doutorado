@@ -49,14 +49,20 @@ s.set_mpc();
 
 s.m_config.mpc.x_target(3) = randn();
 
-msg_data = s.get_msg_control_signal()
+msg_data = s.get_msg_control_signal();
+disp("msg_data:");
+disp(msg_data);
 
 b = BTBroker();
 b.simulation = s;
 b.msg(msg_data);
 b.set_control_on(false);
-b.msg("TOGGLE_SET");
+% b.msg("TOGGLE_SET_B");
+b.msg("CONTROL_ON");
 b.st();
+
+b.sa();
+b.x();
 
 % b.st();
 

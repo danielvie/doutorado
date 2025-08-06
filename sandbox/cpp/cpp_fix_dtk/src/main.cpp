@@ -4,6 +4,8 @@
 #include <string>
 #include <chrono>
 
+#include "helper.h"
+
 // time_us =
 //     84     9    84     9    84     9
 //
@@ -19,34 +21,25 @@ enum class Result{
     FAIL,
 };
 
-float vector_sum(const std::vector<float>& vec) {
-    float sum = std::accumulate(vec.begin(), vec.end(), 0.0f);
-    return sum;
-}
-
-void vector_print(const std::vector<float>& V, const std::string name) {
-    std::cout << name << ": ";
-    for (auto el : V) {
-        std::cout << el << ", " ;
-    }
-    std::cout << "\n";
-}
-
-Result condition_dtk_signal(const std::vector<float>& time_us, const float& time_constraint_us, std::vector<float>& dtk_us) {
+Result condition_dtk_signal_float(const std::vector<float>& time_us, const float& time_constraint_us, std::vector<float>& dtk_us) {
     
     size_t dtk_len   = dtk_us.size();
     size_t ts_us_len = time_us.size()+1;
 
+    auto compute_sum = [](const std::vector<float>& vec) -> float {
+        return std::accumulate(vec.begin(), vec.end(), 0.0f);
+    };
+
     // create ts_us_ref
     std::vector<float> ts_us_ref(dtk_len + 2, 0.0);
-    ts_us_ref[dtk_len+1] = std::round(vector_sum(time_us));
+    ts_us_ref[dtk_len+1] = std::round(compute_sum(time_us));
     
     for (int i=0; i < dtk_len; i++) {
         ts_us_ref[i+1] = ts_us_ref[i] + time_us[i];
     }
 
     // normalize dtk to the cycle range
-    float dtk_us_sum = vector_sum(dtk_us);
+    float dtk_us_sum = compute_sum(dtk_us);
     if (dtk_us_sum > ts_us_ref[ts_us_len-1]) {
         for (int i = 0; i < dtk_len; i++) {
             dtk_us[i] = dtk_us[i] / dtk_us_sum * ts_us_ref[ts_us_len - 1];
@@ -88,6 +81,71 @@ Result condition_dtk_signal(const std::vector<float>& time_us, const float& time
     return Result::OK;
 }
 
+Result condition_dtk_signal(const std::vector<uint64_t>& time_us, const float& time_constraint_us, std::vector<int64_t>& dtk_us) {
+    
+    size_t dtk_len   = dtk_us.size();
+    size_t ts_us_len = time_us.size()+1;
+
+    auto compute_sum_u = [](const std::vector<uint64_t>& vec) -> uint64_t {
+        return std::accumulate(vec.begin(), vec.end(), 0u);
+    };
+
+    auto compute_sum_i = [](const std::vector<int64_t>& vec) -> int64_t {
+        return std::accumulate(vec.begin(), vec.end(), int64_t(0));
+    };
+
+    // create ts_us_ref
+    std::vector<float> ts_us_ref(dtk_len + 2, 0.0);
+    ts_us_ref[dtk_len+1] = std::round(compute_sum_u(time_us));
+    
+    for (int i=0; i < dtk_len; i++) {
+        ts_us_ref[i+1] = ts_us_ref[i] + time_us[i];
+    }
+
+    // normalize dtk to the cycle range
+    float dtk_us_sum = compute_sum_i(dtk_us);
+    if (dtk_us_sum > ts_us_ref[ts_us_len-1]) {
+        for (int i = 0; i < dtk_len; i++) {
+            dtk_us[i] = dtk_us[i] / dtk_us_sum * ts_us_ref[ts_us_len - 1];
+        }
+    }
+
+    // adjust ts_us with dtk_us
+    std::vector<float> ts_us = ts_us_ref;
+    for (size_t i = 0; i < dtk_len; i++) {
+        ts_us[i+1] = ts_us[i+1] + dtk_us[i];
+    }
+
+    // impose time constraint for `ts_us`
+    for (size_t i = 0; i < ts_us_len-2; i++) {
+        if (ts_us[i+1] - ts_us[i] < time_constraint_us) {
+            ts_us[i+1] = ts_us[i] + time_constraint_us;
+        }
+    }
+    
+    // adjust final time
+    float ts_us_end = ts_us[ts_us_len - 1];
+    if (ts_us[ts_us_len-2] > ts_us_end) {
+        for (size_t i = 0; i < ts_us_len-1; i++) {
+            ts_us[i] = ts_us[i]/ts_us[ts_us_len-2]*(ts_us_end - time_constraint_us*dtk_len);
+        }
+    }
+
+    // impose time constraint for `ts_us`
+    for (size_t i = 0; i < ts_us_len-1; i++) {
+        if (ts_us[i+1] - ts_us[i] < time_constraint_us) {
+            ts_us[i+1] = ts_us[i] + time_constraint_us;
+        }
+    }
+
+    for (size_t i = 0; i < dtk_len; i++) {
+        dtk_us[i] = ts_us[i+1] - ts_us_ref[i+1];
+    }
+    
+    return Result::OK;
+}
+
+
 void vector_create_ts(const std::vector<float>& time_us, std::vector<float>& result) {
     size_t time_us_len = time_us.size();
     result.resize(time_us_len+1, 0.0);
@@ -96,73 +154,26 @@ void vector_create_ts(const std::vector<float>& time_us, std::vector<float>& res
     }
 }
 
-float fix_dtk_proportion(const std::vector<float>& time_us, const float& time_constraint_us,const std::vector<float>& dtk_us) {
-    
-    // create ts_us_ref
-    // std::vector<float> ts_us_ref(dtk_len + 2, 0.0);
-    // ts_us_ref[dtk_len+1] = std::round(vector_sum(time_us));
-    
-    std::vector<float> ts_us;
-    vector_create_ts(time_us, ts_us);
-
-    vector_print(ts_us, "[] ts_us");
-
-    // test proportion
-    auto is_valid = [&ts_us, &dtk_us, &time_constraint_us](float k) {
-        size_t ts_us_len = ts_us.size();
-        size_t dtk_len = dtk_us.size();
-        bool valid = (ts_us[1] + k*dtk_us[0]) - ts_us[0] > time_constraint_us;
-        for (size_t i = 1; i < ts_us_len - 2; i++) {
-            valid = valid && ((ts_us[i+1] + k*dtk_us[i]) - (ts_us[i] + k*dtk_us[i-1]) > time_constraint_us);
-        }
-        valid = valid && (ts_us[ts_us_len-1] - (ts_us[ts_us_len-2] + k*dtk_us[dtk_len-1]) > time_constraint_us);
-        return valid;
-    };
-    
-    // nominal, manter valores
-    std::cout << "bla 1\n";
-    if (is_valid(1.0)) {
-        return 1.0;
-    }
-    std::cout << "bla 2\n";
-
-    // binary search
-    float a = 0.0;
-    float b = 1.0;
-    float x;
-    float tol = 0.0001;
-    
-    for (int i = 0; i < 10; i++) {
-        x = (a + b)/2;
-        if (is_valid(x)) {
-            std::cout << "[is valid] x: " << x << ", a: " << a << ", b: " << b << "\n";
-            a = x;
-        } else {
-            std::cout << "[is NOT valid] x: " << x << ", a: " << a << ", b: " << b << "\n";
-            b = x;
-        }
-        // exit condition
-        if (fabs(b-a) < tol) {
-            return a;
-        }
-    }
-    
-    return a;
-}
-
-int main_proportional(std::vector<float>& time_us, std::vector<float>& dtk_us, float& time_constraint_us) {
-
-    auto res = fix_dtk_proportion(time_us, time_constraint_us, dtk_us);
-    
-    std::cout << "result: " << res << "\n";
-    return 1;
-}
-
 int main_condition_dtk(std::vector<float>& time_us, std::vector<float>& dtk_us, float& time_constraint_us) {
     vector_print(dtk_us, "dtk_us: ");
 
+    std::vector<uint64_t> time_us_u;
+    std::vector<int64_t> dtk_us_i;
+    
+    time_us_u.resize(time_us.size(), 0);
+    dtk_us_i.resize(dtk_us.size(), 0);
+
+    for (size_t i = 0; i < time_us.size(); i++) {
+        time_us_u[i] = (uint64_t)std::round(time_us[i]);
+    }
+
+    for (size_t i = 0; i < dtk_us.size(); i++) {
+        dtk_us_i[i] = (int64_t)std::round(dtk_us[i]);
+    }
+
+
     auto clock_ini = std::chrono::high_resolution_clock::now();
-    auto err = condition_dtk_signal(time_us, time_constraint_us, dtk_us);
+    auto err = condition_dtk_signal(time_us_u, time_constraint_us, dtk_us_i);
     auto clock_end = std::chrono::high_resolution_clock::now();
 
     vector_print(dtk_us, "dtk_us_new: ");

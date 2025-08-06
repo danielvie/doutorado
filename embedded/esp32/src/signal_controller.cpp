@@ -39,7 +39,28 @@ const uint32_t gpio_di5_mask = 1 << GPIO_DI5;
 const uint32_t gpio_di6_mask = 1 << GPIO_DI6;
 const uint32_t gpio_pin_mask = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
 
-void toggle_data_set() {
+
+void set_dataset_a() {
+    Serial.println("Changing to SET_A");
+    active_set = ActiveSignalSet::SET_A;
+}
+
+void set_dataset_b() {
+    Serial.println("Changing to SET_B");
+    active_set = ActiveSignalSet::SET_B;
+}
+
+void set_control_on() {
+    Serial.println("Changing control to ON");
+    g_control_status = ControlStatus::ON;
+}
+
+void set_control_off() {
+    Serial.println("Changing control to OFF");
+    g_control_status = ControlStatus::OFF;
+}
+
+void toggle_dataset() {
     if (active_set == ActiveSignalSet::SET_A) {
         Serial.println("Changing to SET_B");
         active_set = ActiveSignalSet::SET_B;
@@ -82,11 +103,12 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
     current_state = next_state;
 
     // NOTE: 6 -> Set next alarm with control adjustment
+    // NOTE: Use g_control_dtk_us
     if (active_set == ActiveSignalSet::SET_A) {
-        // timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, set_a_data.time_vec[current_state]);
+        // timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_a.time_vec[current_state]);
         timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_a.time_vec[current_state] + g_control_dtk_us[current_state]);
     } else {
-        // timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, set_b_data.time_vec[current_state]);
+        // timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_b.time_vec[current_state]);
         timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_b.time_vec[current_state] + g_control_dtk_us[current_state]);
     }
 
@@ -361,7 +383,7 @@ void signal_task(void* arg) {
                 if (current_state == active_num_timings - 1) {
                     if (xSemaphoreTake(signal_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
                         // NOTE: 3 -> Toggle between SET_A and SET_B
-                        toggle_data_set();
+                        toggle_dataset();
 
                         active_num_timings = num_timings; // Update to new pattern length
                         switch_set_pending = false;

@@ -13,12 +13,12 @@ extern volatile uint32_t cycle_count;
 BLETaskState ble_task_state = BLETaskState::IDLE;
 
 // NOTE: Global matrix variable for gain matrix
-size_t g_control_dtk_size = 0;
+ControlStatus g_control_status = ControlStatus::OFF;
 float g_control_dtk[50];
-int64_t g_control_dtk_us[50];
-
-size_t g_control_ts_size = 0;
 float g_control_ts[50];
+int64_t g_control_dtk_us[50];
+size_t g_control_dtk_size = 0;
+size_t g_control_ts_size = 0;
 
 // Matrix g_control_gain_k(1, 1, {0.0});  // Initialize with 1x1 matrix containing 0
 
@@ -91,8 +91,21 @@ void BLE_router(NimBLECharacteristic *characteristic) {
         send_message_status(characteristic);
     } 
     else if (message == "TOGGLE_SET") {
-        toggle_data_set();
+        toggle_dataset();
     }
+    else if (message == "TOGGLE_SET_A") {
+        set_dataset_a();
+    }
+    else if (message == "TOGGLE_SET_B") {
+        set_dataset_b();
+    }
+    else if (message == "CONTROL_ON") {
+        set_control_on();
+    }
+    else if (message == "CONTROL_OFF") {
+        set_control_off();
+    }
+
     // CYCLE_NRUN command: Set analog reading frequency
     else if (message.substr(0,11) == "CYCLE_NRUN:") {
         std::string payload = message.substr(11);
@@ -257,14 +270,21 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
         matrix_multiply_vector3(dataset_active->gain_k, 0.6, 0.1, 0.1, g_control_dtk);
 
         // compute dtk_us
-        for (int i = 0; i < g_control_dtk_size; i++) {
-            g_control_dtk_us[i] = (uint64_t)(g_control_dtk[i]*1000000.0);
-            g_control_dtk_us[i] = 0;
+        // NOTE: set g_control_dtk_us
+        if (g_control_status == ControlStatus::OFF) {
+            Serial.println("control is OFF, setting g_control_dtk_us to 0");
+            std::fill(g_control_dtk_us, g_control_dtk_us + g_control_ts_size, 0);
+        } else {
+            Serial.println("control is ON, reading g_control_dtk_us");
+            for (int i = 0; i < g_control_dtk_size; i++) {
+                g_control_dtk_us[i] = (int64_t)std::round(g_control_dtk[i]*1000000.0);
+            }
         }
         
-        // conditioning 
         
         
+        Serial.printf("g_control_dtk_size: %d\n", g_control_dtk_size);
+
         Serial.println("result of dtk:");
         for (int i = 0; i < g_control_dtk_size; i++) {
             Serial.printf("%f, ", g_control_dtk[i]);
@@ -275,8 +295,11 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
         for (int i = 0; i < g_control_dtk_size; i++) {
             Serial.printf("%d, ", g_control_dtk_us[i]);
         }
-        Serial.println("");
+        Serial.println("\n");
         
+        // conditioning dtk
+        // Result res = condition_dtk_signal(dataset_active->time_vec, 3, g_control_dtk_us);
+
         // compute_ts_from_dtk
         // for (int j = 0; j < g_control_dtk_size; j++) {
         //     // TODO: atualizar o Ts

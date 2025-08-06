@@ -55,7 +55,12 @@ struct DataSet {
 extern DataSet dataset_a; // Signal set A
 extern DataSet dataset_b; // Signal set B
 
-void toggle_data_set();
+void set_dataset_a();
+void set_dataset_b();
+void toggle_dataset();
+
+void set_control_on();
+void set_control_off();
 
 // extern std::vector<uint64_t> time_vec_a, d4_vec_a, d5_vec_a, d6_vec_a;
 // extern std::vector<uint64_t> time_vec_b, d4_vec_b, d5_vec_b, d6_vec_b;
