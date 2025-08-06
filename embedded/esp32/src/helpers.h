@@ -91,7 +91,7 @@ enum class AnalogPort {
 Bin num2bin(uint64_t n);
 
 // Split comma-separated list into vector
-void _parse_section(const std::string &section, std::vector<uint64_t> &result);
+void parse_section(const std::string &section, std::vector<uint64_t> &result);
 
 // Parse timing and mode from "time1,time2;mode1,mode2" string
 int parse_signal(const std::string &s, std::vector<uint64_t> &time, std::vector<uint64_t> &mode);

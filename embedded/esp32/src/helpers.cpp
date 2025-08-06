@@ -29,7 +29,7 @@ float calib_to[]   = {0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1.00
 int   calib_numel  = sizeof(calib_from) / sizeof(calib_from[0]);
 
 // Parse a comma-separated section of a signal string
-void _parse_section(const std::string &section, std::vector<uint64_t> &result) {
+void parse_section(const std::string &section, std::vector<uint64_t> &result) {
     std::stringstream ss(section);
     std::string item;
     
@@ -57,8 +57,8 @@ int parse_signal(const std::string &s, std::vector<uint64_t> &time, std::vector<
     std::string modeSection = s.substr(semicolonPos + 1);
     
     // Parse each section into respective vectors
-    _parse_section(timeSection, time);
-    _parse_section(modeSection, mode);
+    parse_section(timeSection, time);
+    parse_section(modeSection, mode);
     
     return 1;  // Success
 }
