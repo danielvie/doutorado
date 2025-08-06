@@ -87,7 +87,7 @@ Result condition_dtk_signal(const std::vector<uint64_t>& time_us, const float& t
     size_t ts_us_len = time_us.size()+1;
 
     auto compute_sum_u = [](const std::vector<uint64_t>& vec) -> uint64_t {
-        return std::accumulate(vec.begin(), vec.end(), 0u);
+        return std::accumulate(vec.begin(), vec.end(), uint64_t(0));
     };
 
     auto compute_sum_i = [](const std::vector<int64_t>& vec) -> int64_t {
@@ -160,6 +160,9 @@ int main_condition_dtk(std::vector<float>& time_us, std::vector<float>& dtk_us, 
     std::vector<uint64_t> time_us_u;
     std::vector<int64_t> dtk_us_i;
     
+    vector_print(time_us_u, "time_us_u: ");
+    vector_print(dtk_us_i, "dtk_us_i: ");
+
     time_us_u.resize(time_us.size(), 0);
     dtk_us_i.resize(dtk_us.size(), 0);
 
