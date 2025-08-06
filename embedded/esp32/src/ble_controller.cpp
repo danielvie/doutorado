@@ -297,15 +297,7 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
 
         // NOTE: conditioning dtk
 
-        // Serial.println("\n\n\n>>>>> I PRE CONDITION >>>>>\n");
-        // print_vec_u32(dataset_active->time_vec, "time_us");
-        // print_array_i32(g_control_dtk_us, g_control_dtk_len, "dtk_us pre");
-        // Serial.println("<<<<< PRE CONDITION E <<<<<\n");
-
         condition_dtk_signal(dataset_active->time_vec, 10, g_control_dtk_us, g_control_dtk_len);
-        
-        // construction g_control_time_us
-        // (this is the array of the differences for compansating time_us)
 
         // TODO: deletar g_control_time_us_len
         // g_control_time_us_len = g_control_dtk_len+1;
