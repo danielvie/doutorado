@@ -9,8 +9,6 @@ std::vector<uint64_t> modes_di4 = {1, 0, 1, 0, 1, 0};           // Individual pi
 std::vector<uint64_t> modes_di5 = {1, 0, 1, 0, 1, 0};           // Individual pin states for DI5
 std::vector<uint64_t> modes_di6 = {1, 0, 1, 0, 1, 0};           // Individual pin states for DI6
 
-
-
 DataSet dataset_a; // Signal set A
 DataSet dataset_b; // Signal set B
 
@@ -51,15 +49,7 @@ void toggle_data_set() {
     }
 }
 
-/**
- * Hardware Timer Interrupt Service Routine (ISR)
- * 
- * This ISR executes at precise timing intervals to generate digital signals.
- * It runs in IRAM for maximum performance and minimal jitter.
- * 
- * @param args Unused parameter (required by timer callback signature)
- * @return true to continue timer operation
- */
+// Timer ISR: toggle signals and schedule next interrupt
 bool IRAM_ATTR timer_group_isr_callback(void *args) {
     // Re-enable timer alarm for next interrupt
     timer_group_enable_alarm_in_isr(TIMER_GROUP, TIMER_IDX);
@@ -111,10 +101,7 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
     return true;
 }
 
-/**
- * Initialize the hardware timer for signal generation
- * Configures timer with appropriate prescaler and interrupt settings
- */
+// Initialize hardware timer
 void initialize_timer() {
     timer_config_t config = {
         .alarm_en = TIMER_ALARM_EN,      // Enable alarm functionality
@@ -133,10 +120,7 @@ void initialize_timer() {
     timer_initialized = true;
 }
 
-/**
- * Start the signal generation timer
- * Initializes timer if needed and begins signal output
- */
+// Start signal timer
 void start_signal_timer() {
     if (!timer_initialized) {
         initialize_timer();
@@ -170,30 +154,22 @@ void start_signal_timer() {
     timer_start(TIMER_GROUP, TIMER_IDX);
 }
 
-/**
- * Stop the signal generation timer
- */
+// Stop signal timer
 void stop_signal_timer() {
     timer_pause(TIMER_GROUP, TIMER_IDX);
 }
 
-/**
- * Set all digital outputs to high
- */
+// Set outputs high
 void set_all_outputs_high() {
     GPIO.out_w1ts = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
 }
 
-/**
- * Set all digital outputs to low
- */
+// Set outputs low
 void set_all_outputs_low() {
     GPIO.out_w1tc = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
 }
 
-/**
- * Get the size of a signal set
- */
+// Return number of elements in a signal set
 int get_signal_set_size(ActiveSignalSet set) {
     if (set == ActiveSignalSet::SET_A) {
         return dataset_a.time_vec.size();
@@ -202,9 +178,7 @@ int get_signal_set_size(ActiveSignalSet set) {
     }
 }
 
-/**
- * Update signal pattern from string
- */
+// Update signal pattern (double-buffered)
 void update_signal_pattern(const std::string& signal) {
     std::vector<uint64_t> new_timings, new_modes;
     parse_signal(signal, new_timings, new_modes);
