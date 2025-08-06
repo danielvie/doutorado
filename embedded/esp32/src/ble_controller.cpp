@@ -50,10 +50,10 @@ void BLE_router(NimBLECharacteristic *characteristic) {
 
     std::string message = characteristic->getValue();
 
-    Serial.print("received message: ");
-    Serial.println(message.c_str());
-    Serial.printf("Free heap: %d bytes\n", ESP.getFreeHeap());
-    Serial.println("==================");
+    // Serial.print("received message: ");
+    // Serial.println(message.c_str());
+    // Serial.printf("Free heap: %d bytes\n", ESP.getFreeHeap());
+    // Serial.println("==================");
 
     // START command: Begin signal generation
     if (message == "START") {
@@ -153,7 +153,7 @@ void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
 // Send system status over BLE
 void send_message_status(NimBLECharacteristic* pCharacteristic) {
     // Use static buffer to avoid heap allocation issues
-    static char message_buffer[1024];  // Static buffer to avoid heap fragmentation
+    static char message_buffer[4096];  // Static buffer to avoid heap fragmentation
     int pos = 0;
     
     // Read analog values from multiple channels
@@ -162,7 +162,7 @@ void send_message_status(NimBLECharacteristic* pCharacteristic) {
     float voltage_06 = read_analog(AnalogPort::AN6);
 
     // Format message with sensor readings using snprintf for safety
-    pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "status ");
+    pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "\n\n\n\n\n\n\n\n\n\n=========== STATUS ");
     
     if (active_set == ActiveSignalSet::SET_A) {
         pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "(SET_A active)\n");
@@ -214,11 +214,14 @@ void send_message_status(NimBLECharacteristic* pCharacteristic) {
     
     DataSet* data_set_active = (active_set == ActiveSignalSet::SET_A) ? &dataset_a : &dataset_b;
 
+    Serial.print(message_buffer);
+
     Serial.println("\n");
     print_vec_i32(data_set_active->time_us_diff, "dataset->time_us_diff");
     print_array_i32(g_control_dtk_us, g_control_dtk_len, "g_control_dtk_us");
     
     print_dataset(data_set_active);
+    print_ts_us_constructed();
 
     // When signal is running, try multiple times with delays to ensure delivery
     // if (signal_task_state == SignalTaskState::SIGNAL_RUN) {
@@ -288,12 +291,8 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
 
         // compute dtk_us
         // NOTE: set g_control_dtk_us
-        if (g_control_status == ControlStatus::OFF) {
-            std::fill(g_control_dtk_us, g_control_dtk_us + g_control_dtk_len, 0);
-        } else {
-            for (int i = 0; i < g_control_dtk_len; i++) {
-                g_control_dtk_us[i] = (int32_t)std::round(g_control_dtk[i]*1000000.0);
-            }
+        for (int i = 0; i < g_control_dtk_len; i++) {
+            g_control_dtk_us[i] = (int32_t)std::round(g_control_dtk[i]*1000000.0);
         }
 
         // NOTE: conditioning dtk
@@ -317,27 +316,13 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
         for (size_t i = 1; i < g_control_dtk_len; i++) {
             dataset_active->time_us_diff[i] = g_control_dtk_us[i] - g_control_dtk_us[i-1];
         }
-        dataset_active->time_us_diff[g_control_dtk_len] = g_control_dtk_us[g_control_dtk_len-1];
+        dataset_active->time_us_diff[g_control_dtk_len] = -g_control_dtk_us[g_control_dtk_len-1];
 
-
-        // show final ts vector
-        // uint32_t ts_us[g_control_dtk_len+2] = {};
-        
-        // for (size_t i = 0; i < (g_control_dtk_len+1); i++) {
-        //     ts_us[i+1] = ts_us[i] + dataset_active->time_vec[i];
-        // }
-
-        // for (size_t i = 0; i < (g_control_dtk_len); i++) {
-        //     ts_us[i+1] = ts_us[i+1] + g_control_dtk_us[i];
-        // }
-        
-        // Serial.println("\n>>>>> I POS CONDITION >>>>>\n");
-        // print_array_i32(g_control_dtk_us, g_control_dtk_len, "dtk_us pos");
-        // print_array_u32(ts_us, g_control_dtk_len+2, "ts_us");
-        // Serial.println("\n<<<<< POS CONDITION E <<<<<\n");
-        
-        
-
+        size_t time_us_len = dataset_active->time_vec.size();
+        uint32_t ts_us[time_us_len + 1] = {};
+        for (size_t i = 0; i < time_us_len; i++) {
+            ts_us[i+1] = ts_us[i] + dataset_active->time_vec[i] + dataset_active->time_us_diff[i];
+        }
     } 
 
     // Format message with sensor readings using snprintf for safety

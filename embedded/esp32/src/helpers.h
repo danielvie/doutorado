@@ -6,6 +6,8 @@
 #include <driver/adc.h>
 #include <numeric>
 
+// Forward declarations
+struct DataSet;
 
 // ADC Configuration Constants
 #define ADC_MAX 4095.0      // 12-bit ADC maximum value (2^12 - 1)
@@ -116,7 +118,7 @@ void print_array_u32(const uint32_t* V,const size_t& len, const std::string& nam
 
 
 void print_dataset(DataSet* d);
-
+void print_ts_us_constructed();
 
 // Adjust timing based on constraints and return status
 void condition_dtk_signal(const std::vector<uint32_t>& time_us, const float& time_constraint_us, int32_t* dtk_us, size_t dtk_len);

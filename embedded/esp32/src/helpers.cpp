@@ -8,6 +8,7 @@
 #include <math.h>
 #include "helpers.h"
 #include "signal_controller.h"
+#include "ble_controller.h"
 #include "Arduino.h"
 
 // Convert a numeric value to binary representation structure
@@ -357,24 +358,44 @@ void print_array_u32(const uint32_t* V,const size_t& len, const std::string& nam
 }
 
 
-// struct DataSet {
-//     std::vector<uint32_t> time_vec;
-//     std::vector<uint32_t> d4_vec;
-//     std::vector<uint32_t> d5_vec;
-//     std::vector<uint32_t> d6_vec; 
-//     std::vector<int32_t> time_us_diff;
-//     std::vector<float> target; 
-//     MatrixData gain_k;
-// };
 
 void print_dataset(DataSet* d) {
+    Serial.println("-- Dataset d:");
     print_vec_u32(d->time_vec, "d->time_vec");
-    print_vec_u32(d->d4_vec, "d->time_vec");
-    print_vec_u32(d->d5_vec, "d->time_vec");
-    print_vec_u32(d->d6_vec, "d->time_vec");
-    print_vec_i32(d->time_us_diff, "d->time_vec");
+    print_vec_u32(d->d4_vec, "d->d4_vec");
+    print_vec_u32(d->d5_vec, "d->d5_vec");
+    print_vec_u32(d->d6_vec, "d->d6_vec");
+    print_vec_i32(d->time_us_diff, "d->time_us_diff");
     // print_vec_u32(d->target, "d->time_vec");
+    Serial.println("-- \n");
 }
+
+void print_ts_us_constructed() {
+    DataSet* d = (active_set == ActiveSignalSet::SET_A) ? &dataset_a : &dataset_b;
+
+    size_t time_us_len = d->time_vec.size();
+
+    std::vector<uint32_t> ts_us, ts_us_2;
+    ts_us.resize(time_us_len+1, 0);
+    ts_us_2.resize(time_us_len+1, 0);
+    
+    for (size_t i = 0; i < time_us_len; i++) {
+        ts_us[i+1] = ts_us[i] + d->time_vec[i];
+    }
+    print_vec_u32(ts_us, "ts_us constructed");
+
+    for (size_t i = 0; i < time_us_len; i++) {
+        ts_us_2[i+1] = ts_us_2[i] + d->time_vec[i] + d->time_us_diff[i];
+    }
+    print_vec_u32(ts_us_2, "ts_us_2 constructed");
+
+    for (size_t i = 0; i < g_control_dtk_len; i++) {
+        ts_us[i+1] = ts_us[i+1] + g_control_dtk_us[i];
+    }
+    print_vec_u32(ts_us, "ts_us with control");
+
+}
+
 
 void condition_dtk_signal(const std::vector<uint32_t>& time_us, const float& time_constraint_us, int32_t* dtk_us, size_t dtk_len) {
     

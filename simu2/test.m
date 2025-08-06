@@ -59,11 +59,12 @@ b.msg(msg_data);
 b.set_control_on(false);
 % b.msg("TOGGLE_SET_B");
 b.msg("CONTROL_OFF");
-b.st();
 
-% b.sa();
-% pause(0.5);
-% b.x();
+
+b.sa();
+pause(0.3);
+b.x();
+% b.st();
 
 % b.st();
 
