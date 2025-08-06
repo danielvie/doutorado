@@ -104,12 +104,24 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
 
     // NOTE: 6 -> Set next alarm with control adjustment
     // NOTE: Use g_control_dtk_us
+
     if (active_set == ActiveSignalSet::SET_A) {
         // timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_a.time_vec[current_state]);
-        timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_a.time_vec[current_state] + g_control_dtk_us[current_state]);
-    } else {
+        if (g_control_status == ControlStatus::ON) {
+            timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_a.time_vec[current_state] + dataset_a.time_us_diff[current_state]);
+        }
+        else {
+            timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_a.time_vec[current_state]);
+        }
+    }
+    else {
         // timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_b.time_vec[current_state]);
-        timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_b.time_vec[current_state] + g_control_dtk_us[current_state]);
+        if (g_control_status == ControlStatus::ON) {
+            timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_b.time_vec[current_state] + dataset_b.time_us_diff[current_state]);
+        }
+        else {
+            timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_b.time_vec[current_state]);
+        }
     }
 
     // Check for cycle completion and trigger analog reading if needed
@@ -275,8 +287,7 @@ ERROR_CODE update_signal_control(const std::string& str_control_message) {
         new_d6_vec.push_back(bin.b3);
     }
 
-    // NOTE: 2 -> Update the inactive signal set (float buffering)
-    
+    // NOTE: 2 -> Update dataset
 
     auto dataset_helper = [&new_timings, &new_d4_vec, 
                             &new_d5_vec, &new_d6_vec, 

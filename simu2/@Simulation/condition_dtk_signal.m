@@ -1,7 +1,8 @@
-function [dtk_us_new] = condition_dtk_signal(time_us, dtk_us, time_constraint_us)
+function [dtk_us_new, ts_us_final] = condition_dtk_signal(time_us, dtk_us, time_constraint_us)
     
     dtk_len = numel(dtk_us);
-    ts_us_len = numel(time_us)+1;
+    time_us_len = numel(time_us);
+    ts_us_len = time_us_len+1;
 
     % create ts_us_ref
     ts_us_ref = zeros(1, dtk_len+2);
@@ -52,5 +53,24 @@ function [dtk_us_new] = condition_dtk_signal(time_us, dtk_us, time_constraint_us
     for i = 1:dtk_len
         dtk_us_new(i) = ts_us(i+1) - ts_us_ref(i+1);
     end
+
+    ts_us_final = ts_us_ref;
+    for i = 1:dtk_len
+        ts_us_final(i+1) = ts_us_final(i+1) + dtk_us_new(i);
+    end
+
+    ts_us_final_2 = zeros(1, time_us_len);
+    
+    time_us_2 = time_us;
+    for i = 1:dtk_len
+        time_us_2(i) = time_us_2(i) + dtk_us_new(i);
+    end
+
+    for i = 1:dtk_len
+        ts_us_final_2(i+1) = ts_us_final_2(i) + time_us_2(i);
+    end
+
+    disp("ts_us_final_2:");
+    disp(ts_us_final_2);
 
 end

@@ -48,6 +48,7 @@ struct DataSet {
     std::vector<uint32_t> d4_vec;
     std::vector<uint32_t> d5_vec;
     std::vector<uint32_t> d6_vec; 
+    std::vector<int32_t> time_us_diff;
     std::vector<float> target; 
     MatrixData gain_k;
 };

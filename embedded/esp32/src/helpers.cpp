@@ -7,6 +7,7 @@
 
 #include <math.h>
 #include "helpers.h"
+#include "signal_controller.h"
 #include "Arduino.h"
 
 // Convert a numeric value to binary representation structure
@@ -323,7 +324,59 @@ int parse_signal(const std::string &s, std::vector<uint32_t> &time, std::vector<
     return 1;  // Success
 }
 
-Result condition_dtk_signal(const std::vector<uint32_t>& time_us, const float& time_constraint_us, int32_t* dtk_us, size_t dtk_len) {
+void print_vec_i32(const std::vector<int32_t>& V, const std::string& name) {
+    Serial.printf("%s: \n", name.c_str());
+    for (auto el : V) {
+        Serial.printf("%d,", el);
+    }
+    Serial.println("\n");
+}
+
+void print_vec_u32(const std::vector<uint32_t>& V, const std::string& name) {
+    Serial.printf("%s: \n", name.c_str());
+    for (auto el : V) {
+        Serial.printf("%u,", el);
+    }
+    Serial.println("\n");
+}
+
+void print_array_i32(const int32_t* V,const size_t& len, const std::string& name) {
+    Serial.printf("%s: \n", name.c_str());
+    for (size_t i = 0; i < len; i++) {
+        Serial.printf("%d,", V[i]);
+    }
+    Serial.println("\n");
+}
+
+void print_array_u32(const uint32_t* V,const size_t& len, const std::string& name) {
+    Serial.printf("%s: \n", name.c_str());
+    for (size_t i = 0; i < len; i++) {
+        Serial.printf("%u,", V[i]);
+    }
+    Serial.println("\n");
+}
+
+
+// struct DataSet {
+//     std::vector<uint32_t> time_vec;
+//     std::vector<uint32_t> d4_vec;
+//     std::vector<uint32_t> d5_vec;
+//     std::vector<uint32_t> d6_vec; 
+//     std::vector<int32_t> time_us_diff;
+//     std::vector<float> target; 
+//     MatrixData gain_k;
+// };
+
+void print_dataset(DataSet* d) {
+    print_vec_u32(d->time_vec, "d->time_vec");
+    print_vec_u32(d->d4_vec, "d->time_vec");
+    print_vec_u32(d->d5_vec, "d->time_vec");
+    print_vec_u32(d->d6_vec, "d->time_vec");
+    print_vec_i32(d->time_us_diff, "d->time_vec");
+    // print_vec_u32(d->target, "d->time_vec");
+}
+
+void condition_dtk_signal(const std::vector<uint32_t>& time_us, const float& time_constraint_us, int32_t* dtk_us, size_t dtk_len) {
     
     size_t ts_us_len = time_us.size()+1;
 
@@ -383,6 +436,4 @@ Result condition_dtk_signal(const std::vector<uint32_t>& time_us, const float& t
     for (size_t i = 0; i < dtk_len; i++) {
         dtk_us[i] = ts_us[i+1] - ts_us_ref[i+1];
     }
-    
-    return Result::OK;
 }

@@ -14,9 +14,12 @@ BLETaskState ble_task_state = BLETaskState::IDLE;
 
 // NOTE: Global matrix variable for gain matrix
 ControlStatus g_control_status = ControlStatus::OFF;
-float g_control_dtk[50];
+float g_control_dtk[50] = {};
 size_t g_control_dtk_len = 0;
-int32_t g_control_dtk_us[50];
+int32_t g_control_dtk_us[50] = {};
+
+int32_t g_control_time_us[50] = {};
+size_t g_control_time_us_len = 0;
 
 // Matrix g_control_gain_k(1, 1, {0.0});  // Initialize with 1x1 matrix containing 0
 
@@ -176,6 +179,14 @@ void send_message_status(NimBLECharacteristic* pCharacteristic) {
         pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "SignalTaskState::SIGNAL_RUN\n");
     }
 
+    // Add control status
+    pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "control: ");
+    if (g_control_status == ControlStatus::ON) {
+        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "ControlStatus::ON\n");
+    } else if (g_control_status == ControlStatus::OFF) { 
+        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "ControlStatus::OFF\n");
+    } 
+
     // Add analog readings
     pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, 
                    "analog: an3:%.3f, an5:%.3f, an6:%.3f\n", 
@@ -199,43 +210,51 @@ void send_message_status(NimBLECharacteristic* pCharacteristic) {
 
     // Send data via BLE notification with retry mechanism for signal running state
     pCharacteristic->setValue((uint8_t *)message_buffer, strlen(message_buffer));
+    pCharacteristic->notify();
     
+    DataSet* data_set_active = (active_set == ActiveSignalSet::SET_A) ? &dataset_a : &dataset_b;
+
+    Serial.println("\n");
+    print_vec_i32(data_set_active->time_us_diff, "dataset->time_us_diff");
+    print_array_i32(g_control_dtk_us, g_control_dtk_len, "g_control_dtk_us");
+    
+    print_dataset(data_set_active);
+
     // When signal is running, try multiple times with delays to ensure delivery
-    if (signal_task_state == SignalTaskState::SIGNAL_RUN) {
-        for (int retry = 0; retry < 3; retry++) {
-            pCharacteristic->notify();
-            vTaskDelay(pdMS_TO_TICKS(10)); // Small delay between retries
-        }
-    } else {
-        pCharacteristic->notify();
-    }
+    // if (signal_task_state == SignalTaskState::SIGNAL_RUN) {
+    //     for (int retry = 0; retry < 3; retry++) {
+    //         vTaskDelay(pdMS_TO_TICKS(10)); // Small delay between retries
+    //     }
+    // } else {
+    //     pCharacteristic->notify();
+    // }
     
-    Serial.println(message_buffer);
+    // Serial.println(message_buffer);
     
     // Demonstrate matrix multiplication with 3-element vector (optimized)
 
-    DataSet* data_set_active = (active_set == ActiveSignalSet::SET_A) ? &dataset_a : &dataset_b;
+    // DataSet* data_set_active = (active_set == ActiveSignalSet::SET_A) ? &dataset_a : &dataset_b;
 
-    if (matrix_isvalid(data_set_active->gain_k) && data_set_active->gain_k.cols == 3) {
-        // Pre-allocate result array for the multiplication
+    // if (matrix_isvalid(data_set_active->gain_k) && data_set_active->gain_k.cols == 3) {
+    //     // Pre-allocate result array for the multiplication
 
-        int32_t clock_start = esp_timer_get_time();
-        float result[data_set_active->gain_k.rows];
+    //     int32_t clock_start = esp_timer_get_time();
+    //     float result[data_set_active->gain_k.rows];
         
-        // NOTE: test matrix multiply
-        matrix_multiply_vector3(data_set_active->gain_k, -0.6, -0.1, -0.1, result);
-        int32_t duration_us = esp_timer_get_time() - clock_start;
+    //     // NOTE: test matrix multiply
+    //     matrix_multiply_vector3(data_set_active->gain_k, -0.6, -0.1, -0.1, result);
+    //     int32_t duration_us = esp_timer_get_time() - clock_start;
 
-        Serial.printf("Matrix multiplication result2 [duration]: %d us\n", duration_us);
-        for (int i = 0; i < data_set_active->gain_k.rows; ++i) {
-            Serial.printf("%.6f\n", result[i]);
-        }
+    //     Serial.printf("Matrix multiplication result2 [duration]: %d us\n", duration_us);
+    //     for (int i = 0; i < data_set_active->gain_k.rows; ++i) {
+    //         Serial.printf("%.6f\n", result[i]);
+    //     }
         
-        matrix_print(data_set_active->gain_k);
+    //     matrix_print(data_set_active->gain_k);
 
-    } else {
-        Serial.println("Matrix not available or wrong dimensions for vector multiplication");
-    }
+    // } else {
+    //     Serial.println("Matrix not available or wrong dimensions for vector multiplication");
+    // }
 
     Serial.println("STATUS response sent successfully");
 }
@@ -264,72 +283,62 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
         // compute ek -> x - x_target
         g_control_dtk_len = dataset_active->gain_k.rows;
 
-        // control_gain_k.multiply_vector3(0.6, 0.1, 0.1, g_control_dtk);
-        matrix_multiply_vector3(dataset_active->gain_k, 0.6, 0.1, 0.1, g_control_dtk);
+        matrix_multiply_vector3(dataset_active->gain_k, -v_c1, -v_c2, -i_l, g_control_dtk);
+        // matrix_multiply_vector3(dataset_active->gain_k, -0.6, -0.1, -0.1, g_control_dtk);
 
         // compute dtk_us
         // NOTE: set g_control_dtk_us
         if (g_control_status == ControlStatus::OFF) {
-            Serial.println("control is OFF, setting g_control_dtk_us to 0");
             std::fill(g_control_dtk_us, g_control_dtk_us + g_control_dtk_len, 0);
         } else {
-            Serial.println("control is ON, reading g_control_dtk_us");
             for (int i = 0; i < g_control_dtk_len; i++) {
                 g_control_dtk_us[i] = (int32_t)std::round(g_control_dtk[i]*1000000.0);
             }
         }
-        
-        
-        Serial.printf("g_control_dtk_size: %d\n", g_control_dtk_len);
-
-        Serial.println("result of dtk:");
-        for (int i = 0; i < g_control_dtk_len; i++) {
-            Serial.printf("%f, ", g_control_dtk[i]);
-        }
-        Serial.println("");
-
-        Serial.println("result of dtk_us:");
-        for (int i = 0; i < g_control_dtk_len; i++) {
-            Serial.printf("%d, ", g_control_dtk_us[i]);
-        }
-        Serial.println("\n");
-
-
-        // print result to check
-        Serial.println("\n==================");
-        Serial.println("==================");
-        
-        Serial.println("time_vec:");
-        for (auto el : dataset_active->time_vec) {
-            Serial.printf("%d, ", el);
-        }
-        Serial.println("\n");
-        
-        Serial.println("g_control_dtk_us:");
-        for (size_t i = 0; i < g_control_dtk_len; i++) {
-            Serial.printf("%d, ", g_control_dtk_us[i]);
-        }
-        Serial.println("\n");
 
         // NOTE: conditioning dtk
-        Result res = condition_dtk_signal(dataset_active->time_vec, 3, g_control_dtk_us, g_control_dtk_len);
 
-        Serial.println("g_control_dtk_us_new:");
-        for (size_t i = 0; i < g_control_dtk_len; i++) {
-            Serial.printf("%d, ", g_control_dtk_us[i]);
+        // Serial.println("\n\n\n>>>>> I PRE CONDITION >>>>>\n");
+        // print_vec_u32(dataset_active->time_vec, "time_us");
+        // print_array_i32(g_control_dtk_us, g_control_dtk_len, "dtk_us pre");
+        // Serial.println("<<<<< PRE CONDITION E <<<<<\n");
+
+        condition_dtk_signal(dataset_active->time_vec, 10, g_control_dtk_us, g_control_dtk_len);
+        
+        // construction g_control_time_us
+        // (this is the array of the differences for compansating time_us)
+
+        // TODO: deletar g_control_time_us_len
+        // g_control_time_us_len = g_control_dtk_len+1;
+
+        dataset_active->time_us_diff.resize(g_control_dtk_len+1, 0);
+
+        dataset_active->time_us_diff[0] = g_control_dtk_us[0];
+        for (size_t i = 1; i < g_control_dtk_len; i++) {
+            dataset_active->time_us_diff[i] = g_control_dtk_us[i] - g_control_dtk_us[i-1];
         }
-        Serial.println("\n");
+        dataset_active->time_us_diff[g_control_dtk_len] = g_control_dtk_us[g_control_dtk_len-1];
 
-        Serial.println("==================");
-        Serial.println("==================\n");
-        
-        
 
-        // compute_ts_from_dtk
-        // for (int j = 0; j < g_control_dtk_size; j++) {
-        //     // TODO: atualizar o Ts
+        // show final ts vector
+        // uint32_t ts_us[g_control_dtk_len+2] = {};
+        
+        // for (size_t i = 0; i < (g_control_dtk_len+1); i++) {
+        //     ts_us[i+1] = ts_us[i] + dataset_active->time_vec[i];
         // }
-    }
+
+        // for (size_t i = 0; i < (g_control_dtk_len); i++) {
+        //     ts_us[i+1] = ts_us[i+1] + g_control_dtk_us[i];
+        // }
+        
+        // Serial.println("\n>>>>> I POS CONDITION >>>>>\n");
+        // print_array_i32(g_control_dtk_us, g_control_dtk_len, "dtk_us pos");
+        // print_array_u32(ts_us, g_control_dtk_len+2, "ts_us");
+        // Serial.println("\n<<<<< POS CONDITION E <<<<<\n");
+        
+        
+
+    } 
 
     // Format message with sensor readings using snprintf for safety
     snprintf(analog_buffer, sizeof(analog_buffer), 

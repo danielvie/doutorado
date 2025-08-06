@@ -108,5 +108,15 @@ void print_error_code(ERROR_CODE err);
 // Parse control message into parameters (rows, cols, gain, times, modes, target)
 ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& out_n, std::vector<float>& gain_k_data, std::vector<uint32_t>& times, std::vector<uint32_t>& mode, std::vector<float>& target);
 
+void print_vec_i32(const std::vector<int32_t>& V, const std::string& name);
+void print_vec_u32(const std::vector<uint32_t>& V, const std::string& name);
+
+void print_array_i32(const int32_t* V,const size_t& len, const std::string& name);
+void print_array_u32(const uint32_t* V,const size_t& len, const std::string& name);
+
+
+void print_dataset(DataSet* d);
+
+
 // Adjust timing based on constraints and return status
-Result condition_dtk_signal(const std::vector<uint32_t>& time_us, const float& time_constraint_us, int32_t* dtk_us, size_t dtk_len);
+void condition_dtk_signal(const std::vector<uint32_t>& time_us, const float& time_constraint_us, int32_t* dtk_us, size_t dtk_len);

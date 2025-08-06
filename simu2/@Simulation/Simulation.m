@@ -13,7 +13,7 @@ classdef Simulation < handle
     end
     
     methods(Static)
-        dtk_us_new = condition_dtk_signal(time_us, dtk_us, time_constraint_us);
+        [dtk_us_new, ts_us_final] = condition_dtk_signal(time_us, dtk_us, time_constraint_us);
     end
 
     methods

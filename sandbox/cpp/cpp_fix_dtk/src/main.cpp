@@ -209,7 +209,7 @@ int main_condition_dtk(std::vector<float>& time_us, std::vector<float>& dtk_us, 
 
 int main() {
 
-    // test values
+    // test values alpha: 0.3
     std::vector<float> time_us = {84, 9, 84, 9, 84, 9};
     std::vector<float> dtk_us = {4146.18386384488, 4783.98329645644, -4771.28079764979, 5826.11363501824,-5782.47667405956};
     float time_constraint_us = 3;
