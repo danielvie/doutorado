@@ -323,17 +323,16 @@ int parse_signal(const std::string &s, std::vector<uint32_t> &time, std::vector<
     return 1;  // Success
 }
 
-Result condition_dtk_signal(const std::vector<uint32_t>& time_us, const uint32_t& time_constraint_us, std::vector<int32_t>& dtk_us) {
+Result condition_dtk_signal(const std::vector<uint32_t>& time_us, const float& time_constraint_us, int32_t* dtk_us, size_t dtk_len) {
     
-    size_t dtk_len   = dtk_us.size();
     size_t ts_us_len = time_us.size()+1;
 
     auto compute_sum_u = [](const std::vector<uint32_t>& vec) -> uint32_t {
         return std::accumulate(vec.begin(), vec.end(), uint32_t(0));
     };
 
-    auto compute_sum_i = [](const std::vector<int32_t>& vec) -> int32_t {
-        return std::accumulate(vec.begin(), vec.end(), int32_t(0));
+    auto compute_sum_array_i = [](const int32_t* vec, size_t dtk_len) -> int32_t {
+        return std::accumulate(vec, vec + dtk_len, int32_t(0));
     };
 
     // create ts_us_ref
@@ -345,7 +344,8 @@ Result condition_dtk_signal(const std::vector<uint32_t>& time_us, const uint32_t
     }
 
     // normalize dtk to the cycle range
-    float dtk_us_sum = compute_sum_i(dtk_us);
+    float dtk_us_sum = compute_sum_array_i(dtk_us, dtk_len);
+
     if (dtk_us_sum > ts_us_ref[ts_us_len-1]) {
         for (int i = 0; i < dtk_len; i++) {
             dtk_us[i] = dtk_us[i] / dtk_us_sum * ts_us_ref[ts_us_len - 1];

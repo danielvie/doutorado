@@ -15,7 +15,7 @@ BLETaskState ble_task_state = BLETaskState::IDLE;
 // NOTE: Global matrix variable for gain matrix
 ControlStatus g_control_status = ControlStatus::OFF;
 float g_control_dtk[50];
-size_t g_control_dtk_size = 0;
+size_t g_control_dtk_len = 0;
 int32_t g_control_dtk_us[50];
 
 // Matrix g_control_gain_k(1, 1, {0.0});  // Initialize with 1x1 matrix containing 0
@@ -262,7 +262,7 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     // NOTE: 5 -> compute dtk on read analog
     if (matrix_isvalid(dataset_active->gain_k) && (dataset_active->gain_k.cols == 3)) {
         // compute ek -> x - x_target
-        g_control_dtk_size = dataset_active->gain_k.rows;
+        g_control_dtk_len = dataset_active->gain_k.rows;
 
         // control_gain_k.multiply_vector3(0.6, 0.1, 0.1, g_control_dtk);
         matrix_multiply_vector3(dataset_active->gain_k, 0.6, 0.1, 0.1, g_control_dtk);
@@ -271,31 +271,59 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
         // NOTE: set g_control_dtk_us
         if (g_control_status == ControlStatus::OFF) {
             Serial.println("control is OFF, setting g_control_dtk_us to 0");
-            std::fill(g_control_dtk_us, g_control_dtk_us + g_control_dtk_size, 0);
+            std::fill(g_control_dtk_us, g_control_dtk_us + g_control_dtk_len, 0);
         } else {
             Serial.println("control is ON, reading g_control_dtk_us");
-            for (int i = 0; i < g_control_dtk_size; i++) {
+            for (int i = 0; i < g_control_dtk_len; i++) {
                 g_control_dtk_us[i] = (int32_t)std::round(g_control_dtk[i]*1000000.0);
             }
         }
         
         
-        Serial.printf("g_control_dtk_size: %d\n", g_control_dtk_size);
+        Serial.printf("g_control_dtk_size: %d\n", g_control_dtk_len);
 
         Serial.println("result of dtk:");
-        for (int i = 0; i < g_control_dtk_size; i++) {
+        for (int i = 0; i < g_control_dtk_len; i++) {
             Serial.printf("%f, ", g_control_dtk[i]);
         }
         Serial.println("");
 
         Serial.println("result of dtk_us:");
-        for (int i = 0; i < g_control_dtk_size; i++) {
+        for (int i = 0; i < g_control_dtk_len; i++) {
             Serial.printf("%d, ", g_control_dtk_us[i]);
         }
         Serial.println("\n");
+
+
+        // print result to check
+        Serial.println("\n==================");
+        Serial.println("==================");
         
+        Serial.println("time_vec:");
+        for (auto el : dataset_active->time_vec) {
+            Serial.printf("%d, ", el);
+        }
+        Serial.println("\n");
+        
+        Serial.println("g_control_dtk_us:");
+        for (size_t i = 0; i < g_control_dtk_len; i++) {
+            Serial.printf("%d, ", g_control_dtk_us[i]);
+        }
+        Serial.println("\n");
+
         // NOTE: conditioning dtk
-        // Result res = condition_dtk_signal(dataset_active->time_vec, 3, g_control_dtk_us);
+        Result res = condition_dtk_signal(dataset_active->time_vec, 3, g_control_dtk_us, g_control_dtk_len);
+
+        Serial.println("g_control_dtk_us_new:");
+        for (size_t i = 0; i < g_control_dtk_len; i++) {
+            Serial.printf("%d, ", g_control_dtk_us[i]);
+        }
+        Serial.println("\n");
+
+        Serial.println("==================");
+        Serial.println("==================\n");
+        
+        
 
         // compute_ts_from_dtk
         // for (int j = 0; j < g_control_dtk_size; j++) {

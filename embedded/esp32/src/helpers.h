@@ -109,4 +109,4 @@ void print_error_code(ERROR_CODE err);
 ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& out_n, std::vector<float>& gain_k_data, std::vector<uint32_t>& times, std::vector<uint32_t>& mode, std::vector<float>& target);
 
 // Adjust timing based on constraints and return status
-Result condition_dtk_signal(const std::vector<uint32_t>& time_us, const uint32_t& time_constraint_us, std::vector<int32_t>& dtk_us);
+Result condition_dtk_signal(const std::vector<uint32_t>& time_us, const float& time_constraint_us, int32_t* dtk_us, size_t dtk_len);
