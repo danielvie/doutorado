@@ -15,10 +15,8 @@ BLETaskState ble_task_state = BLETaskState::IDLE;
 // NOTE: Global matrix variable for gain matrix
 ControlStatus g_control_status = ControlStatus::OFF;
 float g_control_dtk[50];
-float g_control_ts[50];
-int32_t g_control_dtk_us[50];
 size_t g_control_dtk_size = 0;
-size_t g_control_ts_size = 0;
+int32_t g_control_dtk_us[50];
 
 // Matrix g_control_gain_k(1, 1, {0.0});  // Initialize with 1x1 matrix containing 0
 
@@ -273,7 +271,7 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
         // NOTE: set g_control_dtk_us
         if (g_control_status == ControlStatus::OFF) {
             Serial.println("control is OFF, setting g_control_dtk_us to 0");
-            std::fill(g_control_dtk_us, g_control_dtk_us + g_control_ts_size, 0);
+            std::fill(g_control_dtk_us, g_control_dtk_us + g_control_dtk_size, 0);
         } else {
             Serial.println("control is ON, reading g_control_dtk_us");
             for (int i = 0; i < g_control_dtk_size; i++) {
