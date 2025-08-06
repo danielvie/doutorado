@@ -44,7 +44,7 @@ void setup() {
     // g_control_gain_k.m_data.reserve(50);
     
     // Initialize signal controller (creates mutex, initializes vectors, configures GPIO)
-    initializeSignalController();
+    initialize_signal_controller();
 
     // Configure ADC channels for analog input reading
     adc1_config_width(ADC_WIDTH_BIT_12);  // 12-bit resolution (0-4095)
@@ -76,7 +76,7 @@ void setup() {
     
     // Create signal task on Core 1 with high priority for precise timing
     xTaskCreatePinnedToCore(
-        signalTask,                 // Task function
+        signal_task,                 // Task function
         "Signal Task",              // Task name
         2048,                       // Stack size (bytes)
         NULL,                       // Task parameter

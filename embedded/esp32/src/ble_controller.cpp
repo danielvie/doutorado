@@ -44,97 +44,102 @@ void ServerCallbacks::onDisconnect(NimBLEServer* pServer) {
     NimBLEDevice::startAdvertising();  // Resume advertising for new connections
 }
 
-// .. BLE write CALLBACK
-void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
-    std::string value = characteristic->getValue();
-    
+void BLE_router(NimBLECharacteristic *characteristic) {
+
+    std::string message = characteristic->getValue();
+
     Serial.print("received message: ");
-    Serial.println(value.c_str());
+    Serial.println(message.c_str());
     Serial.printf("Free heap: %d bytes\n", ESP.getFreeHeap());
     Serial.println("==================");
 
     // START command: Begin signal generation
-    if (value == "START") {
+    if (message == "START") {
         if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
             signal_task_state = SignalTaskState::SIGNAL_RUN;
             xSemaphoreGive(signal_mutex);
         }
         Serial.println("Signals started");
         digitalWrite(2, HIGH);  // LED GPIO
-        startSignalTimer();
+        start_signal_timer();
     } 
     // HIGH command: Set all outputs to constant high
-    else if (value == "HIGH") {
+    else if (message == "HIGH") {
         if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
             signal_task_state = SignalTaskState::HIGH_RUN;
             xSemaphoreGive(signal_mutex);
         }
-        stopSignalTimer();
+        stop_signal_timer();
         Serial.println("Signals high");
         digitalWrite(2, LOW);
-        setAllOutputsHigh();
+        set_all_outputs_high();
     } 
     // STOP/LOW commands: Stop signals and set outputs low
-    else if (value == "STOP" || value == "LOW") {
+    else if (message == "STOP" || message == "LOW") {
         if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
             signal_task_state = SignalTaskState::IDLE;
             xSemaphoreGive(signal_mutex);
         }
-        stopSignalTimer();
+        stop_signal_timer();
         Serial.println("Signals stopped");
         digitalWrite(2, LOW);
-        setAllOutputsLow();
+        set_all_outputs_low();
     } 
     // STATUS command: Returns the main status info from the system
-    else if (value == "STATUS") {
-        sendMessageStatus(characteristic);
+    else if (message == "STATUS") {
+        send_message_status(characteristic);
     } 
-    else if (value == "TOGGLE_SET") {
-        toggleDataSet();
+    else if (message == "TOGGLE_SET") {
+        toggle_data_set();
     }
     // CYCLE_NRUN command: Set analog reading frequency
-    else if (value.substr(0,11) == "CYCLE_NRUN:") {
-        std::string payload = value.substr(11);
+    else if (message.substr(0,11) == "CYCLE_NRUN:") {
+        std::string payload = message.substr(11);
         cycle_nrun = std::stoi(payload);
         Serial.printf("updating ncycles to `%d`!\n", cycle_nrun);
     } 
     // SIGNAL command: Load new signal pattern
-    else if (value.substr(0,7) == "SIGNAL:") {
-        std::string signal = value.substr(7);
+    else if (message.substr(0,7) == "SIGNAL:") {
+        std::string signal = message.substr(7);
         Serial.println("Signals received:");
-        Serial.println(value.c_str());
+        Serial.println(message.c_str());
 
         try {
             ble_task_state = BLETaskState::SIGNAL_READING;
-            updateSignalPattern(signal);
+            update_signal_pattern(signal);
         } catch (std::exception &e) {
             Serial.printf("Error parsing signal: %s\n", e.what());
             Serial.printf("Signal sent to parse: '%s'\n", signal.c_str());
         }
     }
-    
 
     // MESSAGE_DATA command: Load new gain matrix
-    else if (value.substr(0,13) == "MESSAGE_DATA:") {
-        std::string str_message = value.substr(13);
+    else if (message.substr(0,13) == "MESSAGE_DATA:") {
+        std::string str_message = message.substr(13);
         Serial.println("message received:");
         Serial.println(str_message.c_str());
         Serial.println("\n\n");
 
         try {
             ble_task_state = BLETaskState::SIGNAL_READING;
-            updateSignalControl(str_message); // NOTE: 0 -> read new message
+            update_signal_control(str_message); // NOTE: 0 -> read new message
         } catch (std::exception &e) {
             Serial.printf("Error parsing message: %s\n", e.what());
         }
     }
 }
 
+
+// .. BLE write CALLBACK
+void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
+    BLE_router(characteristic);
+}
+
 /**
  * Send Status info to main program
  * @param pCharacteristic Pointer to the BLE characteristic for sending data
  */
-void sendMessageStatus(NimBLECharacteristic* pCharacteristic) {
+void send_message_status(NimBLECharacteristic* pCharacteristic) {
     // Use static buffer to avoid heap allocation issues
     static char message_buffer[1024];  // Static buffer to avoid heap fragmentation
     int pos = 0;
@@ -170,8 +175,8 @@ void sendMessageStatus(NimBLECharacteristic* pCharacteristic) {
     // Add basic timing info without full vectors to prevent overflow
     pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, 
                    "SET_A: %d elements, SET_B: %d elements\n", 
-                   getSignalSetSize(ActiveSignalSet::SET_A), 
-                   getSignalSetSize(ActiveSignalSet::SET_B));
+                   get_signal_set_size(ActiveSignalSet::SET_A), 
+                   get_signal_set_size(ActiveSignalSet::SET_B));
     
     // Add current state info if signal is running
     if (signal_task_state == SignalTaskState::SIGNAL_RUN) {
@@ -230,7 +235,7 @@ void sendMessageStatus(NimBLECharacteristic* pCharacteristic) {
  * Read analog values from multiple channels and send via BLE notification
  * @param pCharacteristic Pointer to the BLE characteristic for sending data
  */
-void readAndSendAnalogData(NimBLECharacteristic* pCharacteristic) {
+void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     // Use static buffer to avoid heap allocation issues
     static char analog_buffer[128];
     
@@ -340,7 +345,7 @@ void bleTask(void* parameter) {
         // Handle analog reading requests
         if (ble_task_state == BLETaskState::ANALOG_READ) {
             ble_task_state = BLETaskState::ANALOG_READING;
-            readAndSendAnalogData(pCharacteristic);
+            read_and_send_analog_data(pCharacteristic);
             ble_task_state = BLETaskState::IDLE;
         }
         

@@ -20,7 +20,7 @@
  * 
  * Note: There's a bug in bit 5 calculation (0x16 should be 0x10)
  */
-struct Bin Num2Bin(uint64_t num) {
+struct Bin num2bin(uint64_t num) {
     auto b = Bin();
     b.b1 = num & 0x1;
     b.b2 = num & 0x2;
@@ -43,7 +43,7 @@ struct Bin Num2Bin(uint64_t num) {
  * 
  * Example: "50,100,75" -> {50, 100, 75}
  */
-void _parseSection(const std::string &section, std::vector<uint64_t> &result) {
+void _parse_section(const std::string &section, std::vector<uint64_t> &result) {
     std::stringstream ss(section);
     std::string item;
     
@@ -73,7 +73,7 @@ void _parseSection(const std::string &section, std::vector<uint64_t> &result) {
  * 
  * Throws std::runtime_error if semicolon delimiter is not found.
  */
-int parseSignal(const std::string &s, std::vector<uint64_t> &time, std::vector<uint64_t> &mode) {
+int parse_signal(const std::string &s, std::vector<uint64_t> &time, std::vector<uint64_t> &mode) {
     // Clear any existing values to start fresh
     time.clear();
     mode.clear();
@@ -90,8 +90,8 @@ int parseSignal(const std::string &s, std::vector<uint64_t> &time, std::vector<u
     std::string modeSection = s.substr(semicolonPos + 1);
     
     // Parse each section into respective vectors
-    _parseSection(timeSection, time);
-    _parseSection(modeSection, mode);
+    _parse_section(timeSection, time);
+    _parse_section(modeSection, mode);
     
     return 1;  // Success
 }
@@ -149,7 +149,7 @@ float read_analog(AnalogPort port) {
     float voltage = ((float)rawValue / ADC_MAX) * VOLTAGE_MAX;
     
     // Apply calibration transformation
-    voltage = esp32calibration(voltage);
+    voltage = esp32_calibration(voltage);
     
     return voltage;
 }
@@ -174,7 +174,7 @@ float calib_from[] = {0.00, 0.07, 0.17, 0.26, 0.36, 0.46, 0.56, 0.66, 0.76, 0.86
 float calib_to[]   = {0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1.00, 1.10, 1.20, 1.30, 1.40, 1.50, 1.60, 1.70, 1.80, 1.90, 2.00, 2.10, 2.20, 2.30, 2.40, 2.50, 2.60, 2.70, 2.80, 2.90, 3.00, 3.10, 3.20, 3.30};
 int    calib_numel  = sizeof(calib_from) / sizeof(calib_from[0]);
 
-float esp32calibration(float value) {
+float esp32_calibration(float value) {
     
     // return value;
     // lower boundary

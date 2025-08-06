@@ -92,14 +92,14 @@ enum class AnalogPort {
  * @param n Input number to convert
  * @return Bin structure with individual bit flags
  */
-struct Bin Num2Bin(uint64_t n);
+struct Bin num2bin(uint64_t n);
 
 /**
  * Parse a comma-separated section of a signal string
  * @param section String containing comma-separated values
  * @param result Vector to store parsed numeric values
  */
-void _parseSection(const std::string &section, std::vector<uint64_t> &result);
+void _parse_section(const std::string &section, std::vector<uint64_t> &result);
 
 /**
  * Parse a complete signal string containing timing and mode data
@@ -109,7 +109,7 @@ void _parseSection(const std::string &section, std::vector<uint64_t> &result);
  * @param mode Vector to store mode values
  * @return 1 on success, 0 on failure
  */
-int parseSignal(const std::string &s, std::vector<uint64_t> &time, std::vector<uint64_t> &mode);
+int parse_signal(const std::string &s, std::vector<uint64_t> &time, std::vector<uint64_t> &mode);
 
 /**
  * Apply calibration transformation to ESP32 voltage reading
@@ -117,7 +117,7 @@ int parseSignal(const std::string &s, std::vector<uint64_t> &time, std::vector<u
  * @param x Raw voltage reading from ESP32 ADC
  * @return Calibrated voltage value
  */
-float esp32calibration(float x);
+float esp32_calibration(float x);
 
 /**
  * Read analog voltage from specified port
@@ -126,7 +126,6 @@ float esp32calibration(float x);
  * @return Calibrated voltage reading in volts, or -9.9V for invalid ports
  */
 float read_analog(AnalogPort port);
-
 
 void print_error_code(ERROR_CODE err);
 ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& out_n, std::vector<float>& gain_k_data, std::vector<uint64_t>& times, std::vector<uint64_t>& mode, std::vector<float>& target);

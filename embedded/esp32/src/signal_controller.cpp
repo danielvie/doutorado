@@ -41,7 +41,7 @@ const uint32_t gpio_di5_mask = 1 << GPIO_DI5;
 const uint32_t gpio_di6_mask = 1 << GPIO_DI6;
 const uint32_t gpio_pin_mask = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
 
-void toggleDataSet() {
+void toggle_data_set() {
     if (active_set == ActiveSignalSet::SET_A) {
         Serial.println("Changing to SET_B");
         active_set = ActiveSignalSet::SET_B;
@@ -137,7 +137,7 @@ void initialize_timer() {
  * Start the signal generation timer
  * Initializes timer if needed and begins signal output
  */
-void startSignalTimer() {
+void start_signal_timer() {
     if (!timer_initialized) {
         initialize_timer();
     }
@@ -173,28 +173,28 @@ void startSignalTimer() {
 /**
  * Stop the signal generation timer
  */
-void stopSignalTimer() {
+void stop_signal_timer() {
     timer_pause(TIMER_GROUP, TIMER_IDX);
 }
 
 /**
  * Set all digital outputs to high
  */
-void setAllOutputsHigh() {
+void set_all_outputs_high() {
     GPIO.out_w1ts = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
 }
 
 /**
  * Set all digital outputs to low
  */
-void setAllOutputsLow() {
+void set_all_outputs_low() {
     GPIO.out_w1tc = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
 }
 
 /**
  * Get the size of a signal set
  */
-int getSignalSetSize(ActiveSignalSet set) {
+int get_signal_set_size(ActiveSignalSet set) {
     if (set == ActiveSignalSet::SET_A) {
         return dataset_a.time_vec.size();
     } else {
@@ -205,14 +205,14 @@ int getSignalSetSize(ActiveSignalSet set) {
 /**
  * Update signal pattern from string
  */
-void updateSignalPattern(const std::string& signal) {
+void update_signal_pattern(const std::string& signal) {
     std::vector<uint64_t> new_timings, new_modes;
-    parseSignal(signal, new_timings, new_modes);
+    parse_signal(signal, new_timings, new_modes);
 
     // Convert combined modes to individual pin states
     std::vector<uint64_t> new_d4_vec, new_d5_vec, new_d6_vec;
     for (uint64_t mi : new_modes) {
-        Bin bin = Num2Bin(mi);  // Convert number to binary representation
+        Bin bin = num2bin(mi);  // Convert number to binary representation
         new_d4_vec.push_back(bin.b1);
         new_d5_vec.push_back(bin.b2);
         new_d6_vec.push_back(bin.b3);
@@ -253,7 +253,7 @@ void updateSignalPattern(const std::string& signal) {
     }
 }
 
-ERROR_CODE updateSignalControl(const std::string& str_control_message) {
+ERROR_CODE update_signal_control(const std::string& str_control_message) {
 
     int new_m,new_n;
     std::vector<float> new_gain_k;
@@ -273,7 +273,7 @@ ERROR_CODE updateSignalControl(const std::string& str_control_message) {
     // Convert combined modes to individual pin states
     std::vector<uint64_t> new_d4_vec, new_d5_vec, new_d6_vec;
     for (uint64_t mi : new_modes) {
-        Bin bin = Num2Bin(mi);  // Convert number to binary representation
+        Bin bin = num2bin(mi);  // Convert number to binary representation
         new_d4_vec.push_back(bin.b1);
         new_d5_vec.push_back(bin.b2);
         new_d6_vec.push_back(bin.b3);
@@ -318,7 +318,7 @@ ERROR_CODE updateSignalControl(const std::string& str_control_message) {
 /**
  * Initialize signal controller
  */
-void initializeSignalController() {
+void initialize_signal_controller() {
     // Create mutex for thread-safe signal data access
     signal_mutex = xSemaphoreCreateMutex();
 
@@ -350,7 +350,7 @@ void initializeSignalController() {
     pinMode(GPIO_DI4, OUTPUT);
     pinMode(GPIO_DI5, OUTPUT);
     pinMode(GPIO_DI6, OUTPUT);
-    setAllOutputsLow();
+    set_all_outputs_low();
 }
 
 /**
@@ -362,7 +362,7 @@ void initializeSignalController() {
  * 
  * @param arg Unused task parameter
  */
-void signalTask(void* arg) {
+void signal_task(void* arg) {
     esp_task_wdt_add(NULL);  // Register with watchdog timer
     
     // Main signal task loop
@@ -387,7 +387,7 @@ void signalTask(void* arg) {
                 if (current_state == active_num_timings - 1) {
                     if (xSemaphoreTake(signal_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
                         // NOTE: 3 -> Toggle between SET_A and SET_B
-                        toggleDataSet();
+                        toggle_data_set();
 
                         active_num_timings = num_timings; // Update to new pattern length
                         switch_set_pending = false;

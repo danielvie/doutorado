@@ -55,21 +55,21 @@ struct DataSet {
 extern DataSet dataset_a; // Signal set A
 extern DataSet dataset_b; // Signal set B
 
-void toggleDataSet();
+void toggle_data_set();
 
 // extern std::vector<uint64_t> time_vec_a, d4_vec_a, d5_vec_a, d6_vec_a;
 // extern std::vector<uint64_t> time_vec_b, d4_vec_b, d5_vec_b, d6_vec_b;
 
 // Function declarations
-void initializeSignalController();
-void signalTask(void* arg);
-void startSignalTimer();
-void stopSignalTimer();
-void setAllOutputsHigh();
-void setAllOutputsLow();
-void updateSignalPattern(const std::string& signal);
-ERROR_CODE updateSignalControl(const std::string& str_control_message);
-int getSignalSetSize(ActiveSignalSet set);
+void initialize_signal_controller();
+void signal_task(void* arg);
+void start_signal_timer();
+void stop_signal_timer();
+void set_all_outputs_high();
+void set_all_outputs_low();
+void update_signal_pattern(const std::string& signal);
+ERROR_CODE update_signal_control(const std::string& str_control_message);
+int get_signal_set_size(ActiveSignalSet set);
 
 // Timer ISR callback
 bool IRAM_ATTR timer_group_isr_callback(void *args);

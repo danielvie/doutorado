@@ -23,9 +23,9 @@ extern BLETaskState ble_task_state;
 
 // Function declarations
 void bleTask(void* parameter);
-void readAndSendAnalogData(NimBLECharacteristic* pCharacteristic);
-void sendMessageStatus(NimBLECharacteristic* pCharacteristic);
-void initializeBLE();
+void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic);
+void send_message_status(NimBLECharacteristic* pCharacteristic);
+void initialize_BLE();
 
 // BLE Callback classes
 class ServerCallbacks: public NimBLEServerCallbacks {
