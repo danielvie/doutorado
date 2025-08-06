@@ -328,8 +328,6 @@ ERROR_CODE parse_control_message__vector_double(std::string& s, size_t& semicolo
         return ERROR_CODE::OK;
 }
 
-
-
 ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& out_n, std::vector<float>& gain_k_data, std::vector<uint64_t>& times, std::vector<uint64_t>& modes, std::vector<float>& target) {
 
     // ensure that the vectors are clear
@@ -398,4 +396,64 @@ ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& 
         return ERROR_CODE::RUNTIME_ERROR_UNEXPECTED_ERROR;
     }
     return ERROR_CODE::OK;
+}
+
+Result condition_dtk_signal(const std::vector<float>& time_us, const float& time_constraint_us, std::vector<float>& dtk_us) {
+    
+    size_t dtk_len   = dtk_us.size();
+    size_t ts_us_len = time_us.size()+1;
+
+    auto compute_sum = [](const std::vector<float>& vec) -> float {
+        return std::accumulate(vec.begin(), vec.end(), 0.0f);
+    };
+
+    // create ts_us_ref
+    std::vector<float> ts_us_ref(dtk_len + 2, 0.0);
+    ts_us_ref[dtk_len+1] = std::round(compute_sum(time_us));
+    
+    for (int i=0; i < dtk_len; i++) {
+        ts_us_ref[i+1] = ts_us_ref[i] + time_us[i];
+    }
+
+    // normalize dtk to the cycle range
+    float dtk_us_sum = compute_sum(dtk_us);
+    if (dtk_us_sum > ts_us_ref[ts_us_len-1]) {
+        for (int i = 0; i < dtk_len; i++) {
+            dtk_us[i] = dtk_us[i] / dtk_us_sum * ts_us_ref[ts_us_len - 1];
+        }
+    }
+
+    // adjust ts_us with dtk_us
+    std::vector<float> ts_us = ts_us_ref;
+    for (size_t i = 0; i < dtk_len; i++) {
+        ts_us[i+1] = ts_us[i+1] + dtk_us[i];
+    }
+
+    // impose time constraint for `ts_us`
+    for (size_t i = 0; i < ts_us_len-2; i++) {
+        if (ts_us[i+1] - ts_us[i] < time_constraint_us) {
+            ts_us[i+1] = ts_us[i] + time_constraint_us;
+        }
+    }
+    
+    // adjust final time
+    float ts_us_end = ts_us[ts_us_len - 1];
+    if (ts_us[ts_us_len-2] > ts_us_end) {
+        for (size_t i = 0; i < ts_us_len-1; i++) {
+            ts_us[i] = ts_us[i]/ts_us[ts_us_len-2]*(ts_us_end - time_constraint_us*dtk_len);
+        }
+    }
+
+    // impose time constraint for `ts_us`
+    for (size_t i = 0; i < ts_us_len-1; i++) {
+        if (ts_us[i+1] - ts_us[i] < time_constraint_us) {
+            ts_us[i+1] = ts_us[i] + time_constraint_us;
+        }
+    }
+
+    for (size_t i = 0; i < dtk_len; i++) {
+        dtk_us[i] = ts_us[i+1] - ts_us_ref[i+1];
+    }
+    
+    return Result::OK;
 }

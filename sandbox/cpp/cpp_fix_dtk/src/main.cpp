@@ -32,7 +32,7 @@ void vector_print(const std::vector<float>& V, const std::string name) {
     std::cout << "\n";
 }
 
-Result fix_dtk(const std::vector<float>& time_us, const float& time_constraint_us, std::vector<float>& dtk_us) {
+Result condition_dtk_signal(const std::vector<float>& time_us, const float& time_constraint_us, std::vector<float>& dtk_us) {
     
     size_t dtk_len   = dtk_us.size();
     size_t ts_us_len = time_us.size()+1;
@@ -88,9 +88,7 @@ Result fix_dtk(const std::vector<float>& time_us, const float& time_constraint_u
     return Result::OK;
 }
 
-
 void vector_create_ts(const std::vector<float>& time_us, std::vector<float>& result) {
-
     size_t time_us_len = time_us.size();
     result.resize(time_us_len+1, 0.0);
     for (int i=0; i < time_us_len; i++) {
@@ -152,36 +150,42 @@ float fix_dtk_proportion(const std::vector<float>& time_us, const float& time_co
     return a;
 }
 
-int main() {
-
-    std::vector<float> time_us = {84, 9, 84, 9, 84, 9};
-    std::vector<float> dtk_us = {4146.18386384488, 4783.98329645644, -4771.28079764979, 5826.11363501824,-5782.47667405956};
-    float time_constraint_us = 3;
+int main_proportional(std::vector<float>& time_us, std::vector<float>& dtk_us, float& time_constraint_us) {
 
     auto res = fix_dtk_proportion(time_us, time_constraint_us, dtk_us);
     
     std::cout << "result: " << res << "\n";
+    return 1;
+}
 
-    
-    
-    
-    
-    // vector_print(dtk_us, "dtk_us: ");
+int main_condition_dtk(std::vector<float>& time_us, std::vector<float>& dtk_us, float& time_constraint_us) {
+    vector_print(dtk_us, "dtk_us: ");
 
-    // auto clock_ini = std::chrono::high_resolution_clock::now();
-    // auto err = fix_dtk(time_us, time_constraint_us, dtk_us);
-    // auto clock_end = std::chrono::high_resolution_clock::now();
+    auto clock_ini = std::chrono::high_resolution_clock::now();
+    auto err = condition_dtk_signal(time_us, time_constraint_us, dtk_us);
+    auto clock_end = std::chrono::high_resolution_clock::now();
 
-    // vector_print(dtk_us, "dtk_us_new: ");
+    vector_print(dtk_us, "dtk_us_new: ");
 
-    // if (err == Result::FAIL) {
-    //     std::cout << "deu ruim!\n";
-    //     return 0;
-    // }
+    if (err == Result::FAIL) {
+        std::cout << "deu ruim!\n";
+        return 0;
+    }
 
-    // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(clock_end - clock_ini);
-    // std::cout << "duration: ";
-    // std::cout << duration.count() << " us\n";
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(clock_end - clock_ini);
+    std::cout << "duration: ";
+    std::cout << duration.count() << " us\n";
+    return 1;
+}
+
+int main() {
+
+    // test values
+    std::vector<float> time_us = {84, 9, 84, 9, 84, 9};
+    std::vector<float> dtk_us = {4146.18386384488, 4783.98329645644, -4771.28079764979, 5826.11363501824,-5782.47667405956};
+    float time_constraint_us = 3;
+
+    main_condition_dtk(time_us, dtk_us, time_constraint_us);
 
     return 0;
 }

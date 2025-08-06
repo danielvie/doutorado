@@ -11,6 +11,10 @@ classdef Simulation < handle
         set_traj_phase(self, params);
         res = can_compute_phase(self);
     end
+    
+    methods(Static)
+        dtk_us_new = condition_dtk_signal(time_us, dtk_us, time_constraint_us);
+    end
 
     methods
         % .. constructor

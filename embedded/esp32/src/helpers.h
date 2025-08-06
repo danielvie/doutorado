@@ -4,6 +4,7 @@
 #include <sstream>
 #include <vector>
 #include <driver/adc.h>
+#include <numeric>
 
 
 // ADC Configuration Constants
@@ -22,7 +23,10 @@ enum class ERROR_CODE {
     RUNTIME_ERROR_UNEXPECTED_ERROR
 };
 
-
+enum class Result{
+    OK,
+    FAIL,
+};
 
 /**
  * Binary representation structure for digital output control

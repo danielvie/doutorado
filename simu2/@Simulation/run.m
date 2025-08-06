@@ -104,7 +104,7 @@ function [config, time_us] = apply_time_constraints(self, config, dtk)
     time_constraint_us = self.m_config.c_time(1) * 1e6;
     
     % Apply constraints using fix_dtk function
-    dtk_us = fix_dtk(time_us, dtk_us, time_constraint_us);
+    dtk_us = self.condition_dtk_signal(time_us, dtk_us, time_constraint_us);
     
     % Compute new time vector
     Ts = self.compute_ts_from_dtk(self.m_config, dtk_us * 1e-6);

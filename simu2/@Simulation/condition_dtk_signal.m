@@ -1,4 +1,4 @@
-function [dtk_us_new] = fix_dtk(time_us, dtk_us, time_constraint_us)
+function [dtk_us_new] = condition_dtk_signal(time_us, dtk_us, time_constraint_us)
     
     dtk_len = numel(dtk_us);
     ts_us_len = numel(time_us)+1;
