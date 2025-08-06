@@ -282,7 +282,6 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
         }
         
         
-        
         Serial.printf("g_control_dtk_size: %d\n", g_control_dtk_size);
 
         Serial.println("result of dtk:");
