@@ -269,9 +269,16 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     // Compute control
     
     // state
+    // NOTE: State Vector
+    // vc1 = states(:, 1);
+    // vc2 = states(:, 2);
+    // i_l = states(:, 3);
+
+    const float resistance = 68.0 + 4.9; // resistor + indutor
+
     float v_c1 = voltage_05;
     float v_c2 = voltage_06;
-    float i_l = voltage_03 / 22;
+    float i_l  = voltage_03 / resistance;
     
     DataSet* dataset_active = (active_set == ActiveSignalSet::SET_A) ? &dataset_a : &dataset_b;
    
@@ -283,7 +290,6 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
         size_t control_dtk_len = dataset_active->gain_k.rows;
 
         matrix_multiply_vector3(dataset_active->gain_k, -v_c1, -v_c2, -i_l, control_dtk);
-        // matrix_multiply_vector3(dataset_active->gain_k, -0.6, -0.1, -0.1, g_control_dtk);
 
         // compute dtk_us
         // NOTE: set g_control_dtk_us

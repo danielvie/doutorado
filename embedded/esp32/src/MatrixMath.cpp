@@ -42,19 +42,3 @@ void matrix_print(MatrixData& M) {
         Serial.println();
     }
 }
-
-
-// bool matrix_isvalid(int rows, int cols, std::vector<float> values){
-//     // rows -> m
-//     // cols -> n
-//     // values -> matrix(:)
-    
-//     if (rows <= 0 || cols <= 0) {
-//         return false;
-//     }
-//     if (values.size() != static_cast<size_t>(rows*cols)) {
-//         return false;
-//     }
-    
-//     return true;
-// }
