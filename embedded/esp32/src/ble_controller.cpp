@@ -260,6 +260,7 @@ void send_message_status(NimBLECharacteristic* pCharacteristic) {
 void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     // Use static buffer to avoid heap allocation issues
     static char analog_buffer[128];
+    static char control_result[256];
     
     // Read analog values from multiple channels
     float voltage_03 = read_analog(AnalogPort::AN3);
@@ -274,20 +275,22 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     // vc2 = states(:, 2);
     // i_l = states(:, 3);
 
-    const float resistance = 68.0 + 4.9; // resistor + indutor
+    const float resistance = 68.0; // resistor
+    const float scale_factor = 10.0/6.0;
+    // TODO: change scale to extenal BLE command
 
-    float v_c1 = voltage_05;
-    float v_c2 = voltage_06;
-    float i_l  = voltage_03 / resistance;
-    
+    float v_c1 = voltage_05 * scale_factor;
+    float v_c2 = voltage_06 * scale_factor;
+    float i_l = voltage_03 / resistance * scale_factor;
+
     DataSet* dataset_active = (active_set == ActiveSignalSet::SET_A) ? &dataset_a : &dataset_b;
    
     // NOTE: 5 -> compute dtk on read analog
+    float control_dtk[50] = {};
+    int32_t control_dtk_us[50] = {};
+    size_t control_dtk_len = dataset_active->gain_k.rows;
     if (matrix_isvalid(dataset_active->gain_k) && (dataset_active->gain_k.cols == 3)) {
         // compute ek -> x - x_target
-        float control_dtk[50] = {};
-        int32_t control_dtk_us[50] = {};
-        size_t control_dtk_len = dataset_active->gain_k.rows;
 
         matrix_multiply_vector3(dataset_active->gain_k, -v_c1, -v_c2, -i_l, control_dtk);
 
@@ -317,6 +320,10 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     } 
 
     // Format message with sensor readings using snprintf for safety
+    //
+    // float v_c1 = voltage_05 * scale_factor;
+    // float v_c2 = voltage_06 * scale_factor;
+    // float i_l = voltage_03 / resistance * scale_factor;
     snprintf(analog_buffer, sizeof(analog_buffer), 
              "an3:%.3f, an5:%.3f, an6:%.3f", 
              voltage_03, voltage_05, voltage_06);
@@ -324,9 +331,19 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     // Ensure null termination
     analog_buffer[sizeof(analog_buffer) - 1] = '\0';
 
+    snprintf(control_result, sizeof(control_result), 
+             "v_c1:%.3f, v_c2:%.3f, i_l:%.3f\ncontrol:[%d,%d,%d,%d,%d]", 
+             v_c1, v_c2, i_l,
+             control_dtk_us[0],control_dtk_us[1],control_dtk_us[2],control_dtk_us[3],control_dtk_us[4]);
+
+    control_result[sizeof(control_result) - 1] = '\0';
+
     // Send data via BLE notification
-    pCharacteristic->setValue((uint8_t *)analog_buffer, strlen(analog_buffer));
+    // pCharacteristic->setValue((uint8_t *)analog_buffer, strlen(analog_buffer));
+    pCharacteristic->setValue((uint8_t *)control_result, strlen(control_result));
     pCharacteristic->notify();
+
+    // pCharacteristic->notify();
 }
 
 // BLE communication task

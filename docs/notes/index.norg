@@ -6,6 +6,14 @@
 
 * TODAY
 
+  # {@ Wednesday 6 August 2025} Calibracao
+  - [ ] melhorar interface matlab, esta ruim
+  - [ ] investigar fator de escala do sinal de leitura (10.0/6.0)
+  - [ ] criar metodo para set_alpha e enviar mensagem data completo
+  - [ ] consertar log de mensagem na tela, o parser esta limitando as mensagens BLE
+  - [ ] criar prefixo para sempre mostrar mensagem em modo verboso
+  - [ ] testar ambiente com usb_isolator (precisa de cabos USB antigo)
+
   # {@ Wednesday 01 Aug 2025} Calibracao
   - controle preditivo explicito
   - MPT Toolbox faz isso

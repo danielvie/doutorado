@@ -44,7 +44,7 @@ mpc_config.Nd = 15;
 mpc_config.Np = 1; % Nd - Number of delays in the block (repeated control)
 
 s.set_mpc_config(mpc_config);
-s.set_traj_phase_with_alpha(0.3);
+s.set_traj_phase_with_alpha(0.5);
 s.set_mpc();
 
 s.m_config.mpc.x_target(3) = randn();
@@ -58,12 +58,13 @@ b.simulation = s;
 b.msg(msg_data);
 b.set_control_on(false);
 % b.msg("TOGGLE_SET_B");
-b.msg("CONTROL_OFF");
+b.msg("CONTROL_ON");
+b.set_verbose(true);
 
 
-b.sa();
-pause(0.3);
-b.x();
+% b.sa();
+% pause(0.3);
+% b.x();
 % b.st();
 
 % b.st();
