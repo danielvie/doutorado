@@ -44,6 +44,7 @@ void ServerCallbacks::onDisconnect(NimBLEServer* pServer) {
     NimBLEDevice::startAdvertising();  // Resume advertising for new connections
 }
 
+// Route BLE commands
 void BLE_router(NimBLECharacteristic *characteristic) {
 
     std::string message = characteristic->getValue();
@@ -135,10 +136,7 @@ void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
     BLE_router(characteristic);
 }
 
-/**
- * Send Status info to main program
- * @param pCharacteristic Pointer to the BLE characteristic for sending data
- */
+// Send system status over BLE
 void send_message_status(NimBLECharacteristic* pCharacteristic) {
     // Use static buffer to avoid heap allocation issues
     static char message_buffer[1024];  // Static buffer to avoid heap fragmentation
@@ -231,10 +229,7 @@ void send_message_status(NimBLECharacteristic* pCharacteristic) {
     Serial.println("STATUS response sent successfully");
 }
 
-/**
- * Read analog values from multiple channels and send via BLE notification
- * @param pCharacteristic Pointer to the BLE characteristic for sending data
- */
+// Send analog readings over BLE
 void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     // Use static buffer to avoid heap allocation issues
     static char analog_buffer[128];
@@ -301,15 +296,7 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     pCharacteristic->notify();
 }
 
-/**
- * BLE Communication Task
- * Runs on Core 0 and handles:
- * - BLE server initialization and advertising
- * - Periodic analog sensor readings
- * - Data transmission to connected clients
- * 
- * @param parameter Unused task parameter
- */
+// BLE communication task
 void bleTask(void* parameter) {
     Serial.print("BLE Task running on core: ");
     Serial.println(xPortGetCoreID());
