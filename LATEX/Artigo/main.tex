@@ -76,7 +76,15 @@
 
 %Insert Abstract
 %Max. 200 words. Remember that the abstract is what readers see first in electronic abstracting and indexing services. This is the advertisement of your article. Make it interesting, and easy to be understood. Be accurate and specific, keep it as brief as possible.
-\textbf{Abstract}\\ \textit{Max. 200 words. Remember that the abstract is what readers see first in electronic abstracting \& indexing services - make it brief, specific, interesting and easy to understand. If a research article refers to your hardware, cite that research article here.}
+\textbf{Abstract}\\ \textit{
+The challenges associated with implementing controllers for switched systems often arise from the high cost and complexity of the required hardware. 
+This paper addresses that barrier by presenting a low-cost circuit for a three-cell voltage converter specifically designed for the experimental 
+study of switched-mode control. The proposed solution uses standard, easily accessible electronic components, making it an ideal platform for 
+educational and research purposes. At the heart of the control architecture is an ESP32 microcontroller, which provides the necessary real-time 
+capabilities to generate precise signals for the switched actuators. This approach aims to provide a practical and easy-to-implement solution for 
+developing and testing control algorithms, thus lowering the entry barrier for students and researchers in the field. 
+This work contributes a valuable tool that bridges the gap between the theoretical aspects of switched systems and their accessible, 
+hands-on application.}
 
 %Insert Keywords
 % At least 3 keywords. There is no limit on the no. of keywords you can list. Please remember that effective keywords should not repeat words appearing in your title, and should be neither too general nor too narrow.
@@ -131,7 +139,14 @@ If you haven’t acquired certification, please delete this row of the specifica
 \newpage
 \section{Hardware in context}
 % Include a short description of the hardware, putting into context of similar open hardware and proprietary equipment in the field.
-\textit{Write a short description of the hardware and provide context, i.e., describe similar open hardware and proprietary equipment in the field. \textcolor{red}{Algo que tenha sido usado nos artigos da literatura.}}
+\textit{
+  During our research, we observed that most of the work in the field of switched-mode control for multi-cell
+  converters was purely digital, relying heavily on simulation. The limited experimental work available
+  often outsourced the design and manufacturing of the physical circuit to external companies, as documented
+  in the work of Solano and Saenz. Our hardware aims to fill this gap by providing an easily accessible
+  and low-cost solution for implementing and studying these complex control strategies. By using standard
+  components and an embedded controller, our circuit provides an effective platform for hands-on research,
+  reducing the barriers to entry for researchers and students.}
 \section{Hardware description}
 % Describe the hardware, highlighting the customization rather than the steps of the procedure. Highlight how it differs/which advantage it offers over pre-existing methods. For example, how could this hardware: be compared to other hardware in terms of cost or ease of use, be used in the development of further designs in a particular area, and so on.
 
@@ -155,7 +170,7 @@ Add 3-5 bullet points which broadly explain to other researchers - inside or out
 \begin{center}
 \includegraphics[scale=1]{CircuitDiagram.pdf}
 \end{center}
-\caption{Circuit diagram.}
+\caption{Three-cell Converter}
 \end{figure}
 
 \begin{figure}[h]
