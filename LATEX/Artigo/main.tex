@@ -8,6 +8,7 @@
 \usepackage{enumitem}
 \usepackage{amssymb}
 \usepackage{xcolor}
+\usepackage{graphicx}
 \newlist{selectlist}{itemize}{2}
 \setlist[selectlist]{label=$\square$,leftmargin=*,noitemsep,topsep=0pt}
 
@@ -54,7 +55,7 @@
 % Create the title block
 \begin{flushleft}
 
-{\Huge \bf A flying capacitor three-cell converter controlled by Python} 
+{\Huge \bf A flying capacitor three-cell voltage converter for studies in the control of switched systems} 
 
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{10pt}
@@ -144,15 +145,47 @@ Add 3-5 bullet points which broadly explain to other researchers - inside or out
 
 \textcolor{red}{Figuras: 
 \begin{itemize}
-\item Diagrama do circuito com chaves conceituais.
-\item Esquemático ?
-\item PCB layout e figura 3d. 
-\item Foto da placa.
 \item Tela do osciloscópio: Para um dado valor de alpha --> Três sinais de comando, vc1, v2, vr. Apresentar vc1, v2, vr durante a transição entre dois valores diferentes de alpha. 
 \item Figura com modulação triangular.
 \item Tela do software.
 \end{itemize}
 }
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=1]{CircuitDiagram.pdf}
+\end{center}
+\caption{Circuit diagram.}
+\end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=0.75]{PhaseShiftModulation.pdf}
+\end{center}
+\caption{Circuit diagram.}
+\end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=1]{Schematics.pdf}
+\end{center}
+\caption{Schematics.}
+\end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=0.7]{Front.pdf}
+\includegraphics[scale=0.7]{Back.pdf}
+\end{center}
+\caption{PCB layout: Front (left) and Back (right).}
+\end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=0.25]{DevicePhoto.jpeg}
+\end{center}
+\caption{Photo of the device. The $10 \Omega$ resistors R1, R2, $\ldots$, R6 are soldered on the bottom.}
+\end{figure}
 
 \section*{\textit{Design files}}
 % The  complete  design  files  must  be  either  uploaded  to  an  approved  online  repository,  uploaded  at the  time  of  submission  on  the  online  Editorial  Manager  submission  interface  as  supplementary materials [CAD files, videos,. . . ], or included in the body of the manuscript [e.g.  figures].  The three approved  online  repositories  are  Mendeley  Data,  the  Open  Science  Framework,  and  Zenodo. See repository instructions: https://doi.org/10.5281/zenodo.3346799
@@ -214,6 +247,11 @@ Add 3-5 bullet points which broadly explain to other researchers - inside or out
 \section{Bill of materials summary}
 \tabulinesep=1ex
 \noindent
+
+% defining url's
+\urldef{\aliexpressurl}\url{https://www.aliexpress.com/item/1005006844873587.html?spm=a2g0o.productlist.main.9.5c8b640crrwiUa&algo_pvid=3916fe28-c01d-45b7-8975-0dc065f15c56&algo_exp_id=3916fe28-c01d-45b7-8975-0dc065f15c56-8&pdp_ext_f=%7B%22order%22%3A%22243%22%2C%22eval%22%3A%221%22%7D&pdp_npi=4%40dis%21USD%212.23%212.23%21%21%2115.84%2115.84%21%402103277f17535278073698102e9b73%2112000038492445322%21sea%21BR%213505867280%21X&curPageLogUid=ECUlwNYTI6XL&utparam-url=scene%3Asearch%7Cquery_from%3A}
+\urldef{\mouserurl}\url{https://www.mouser.com/ProductDetail/Texas-Instruments/INA132U-2K5?qs=VBduBm9rCJQmjzz%2FewsuqQ%3D%3D}
+
 \begin{tabu} to \linewidth {|X[1.1,1]|X|X[0.6,1]|X[0.8,1]|X|X|X[1.1,1]|}
 %\begin{tabular}{|c|c|c|c|c|c|c|}
 \hline
@@ -274,13 +312,13 @@ R1, R2, R3, R4, R5, R6 & 10 $\Omega$ Resistor & 6 & \dots & \dots & \dots & Elec
 
 \dots & TSC-428 driver & 3 & \dots & \dots & \dots & \dots \\\hline
 
-\dots & IRF 740 n-channel mosfet & 8 & \dots & \dots & \dots & \dots \\\hline
+\dots & IRF 740 n-channel mosfet & 8 & US\$2.28 (10 pieces) & US\$2.28 & \aliexpressurl & \dots \\\hline
 
 \dots & 22 $\Omega$ / 1 W resistor & \dots & \dots & \dots & \dots & \dots \\\hline
 
 \dots & 470 $\mu$F / 35 V electrolitic capacitor & \dots & \dots & \dots & \dots & \dots \\\hline
 
-\dots & INA-132 instrumentation amplifier & 2 & \dots & \dots & \dots & \dots \\\hline
+\dots & INA-132 instrumentation amplifier & 2 & US\$3.60 & US\$7.20 \dots & \mouserurl & \dots \\\hline
 
 \dots & 10 cm x 10 cm Double-sided copper board & 1 & \dots & \dots & \dots & \dots \\\hline
 
@@ -363,7 +401,7 @@ R1, R2, R3, R4, R5, R6 & 10 $\Omega$ Resistor & 6 & \dots & \dots & \dots & Elec
 \noindent
 \textit{Funding: This work was supported by Conselho Nacional de Desenvolvimento Científico e Tecnológico - CNPq, Brazil [grant number 305233/2022-0].}
 \vskip 0.2cm
-% \\
+\\
 
 \noindent
 \textbf{References}\\
