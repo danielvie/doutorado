@@ -206,3 +206,18 @@ export async function connect_device() {
     }
 }
 \end{lstlisting}
+
+\subsection{Web Interface}
+
+The web interface is built with React.js to provide an easy user experience.
+This interface serves as the primary connection point between the user and the hardware,
+linking directly to the ESP32 microcontroller via Bluetooth Low Energy (BLE). 
+
+From the web application, users can easily send string commands to the device, as well as trigger automated
+sequences for common experimental procedures. A key function of the interface is its ability to perform
+on-the-fly computations to generate the control signals needed for the power switches. It also
+receives and processes data from the ESP32's BLE connection, specifically the analog measurements from
+the circuit. The received data is then visually represented in a real-time chart, allowing for immediate
+analysis of the circuit's performance.
+
+\includegraphics[scale=0.50]{web_interface.png}
