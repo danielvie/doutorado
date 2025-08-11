@@ -221,3 +221,18 @@ the circuit. The received data is then visually represented in a real-time chart
 analysis of the circuit's performance.
 
 \includegraphics[scale=0.50]{web_interface.png}
+
+The web interface provides single-page application for interacting
+with the hardware in real-time. It connects to the ESP32 via Bluetooth Low Energy (BLE) and serves as
+a command center for controlling the circuit and analyzing its performance. The following are the key
+features of the interface:
+
+\begin{itemize}
+    \item Connect/Disconnect: Establish or terminate a BLE connection to the ESP32.
+    \item Live Data Plotting: Listen for BLE messages containing analog sensor readings from the ESP32 and display the data in a real-time, dynamic chart.
+    \item Data Export: Copy the chart's raw data to the clipboard for external analysis or debugging.
+    \item Manual Control: Send direct string commands to the ESP32 for simple operations.
+    \item Signal Generation: Compute and send complex switching signals to the circuit, including a time vector and a mode vector, to control the switches.
+    \item Digital Output Control: Command all digital outputs on the ESP32 to a HIGH or LOW state.
+    \item START Command: Send the command to the ESP32 to initiate the use of the generated signals.
+\end{itemize}
