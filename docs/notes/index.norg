@@ -4,230 +4,206 @@
 
 {:play2:}
 
-* TODAY
+* Acompanhamento Doutorado
 
-  # {@ Wednesday 6 August 2025} Calibracao
-  - [ ] melhorar interface matlab, esta ruim
-  - [ ] investigar fator de escala do sinal de leitura (10.0/6.0)
-  - [ ] criar metodo para set_alpha e enviar mensagem data completo
-  - [ ] consertar log de mensagem na tela, o parser esta limitando as mensagens BLE
-  - [ ] criar prefixo para sempre mostrar mensagem em modo verboso
-  - [ ] testar ambiente com usb_isolator (precisa de cabos USB antigo)
+** {@ Wednesday 6 August 2025} Calibracao
+   -- [ ] melhorar interface matlab, esta ruim
+   -- [ ] investigar fator de escala do sinal de leitura (10.0/6.0)
+   -- [ ] criar metodo para set_alpha e enviar mensagem data completo
+   -- [ ] consertar log de mensagem na tela, o parser esta limitando as mensagens BLE
+   -- [ ] criar prefixo para sempre mostrar mensagem em modo verboso
+   -- [ ] testar ambiente com usb_isolator (precisa de cabos USB antigo)
 
-  # {@ Wednesday 01 Aug 2025} Calibracao
-  - controle preditivo explicito
-  - MPT Toolbox faz isso
-  - MPC multi-parametric
-
-
-  - alimentacao positivo dentro | negativo fora
-  - usar a placa com jacare no resistor para dissipar potencia
+** # {@ Wednesday 01 Aug 2025} Calibracao
+   -- controle preditivo explicito
+   -- MPT Toolbox faz isso
+   -- MPC multi-parametric
 
 
-  # {@ Wednesday 23 July 2025} Calibracao
-  - [ ] colocar sinal completo no log de status
-  - [ ] fazer um controlador proporcional para validar malha fechada
+   -- alimentacao positivo dentro | negativo fora
+   -- usar a placa com jacare no resistor para dissipar potencia
+
+** # {@ Wednesday 23 July 2025} Calibracao
+   -- [ ] colocar sinal completo no log de status
+   -- [ ] fazer um controlador proporcional para validar malha fechada
+
+** # {@ Friday 18 July 2025} Calibracao
+
+   -- [ ] fazer escala do grafico GUI em tempo (segundos)
+   -- [ ] fazer calibracao de todos
+   -- [ ] colocar imagem da ESP32 e do circuito na GUI
+   -- [ ] fazer botao para limpar o log de sinais
+   -- [ ] registrar log dos botoes clicados com timestamp
+   -- [ ] colocar input para escala da leitura do AD e escrever os dois valores no label do grafico
+   -- [ ] create get message grom GUI
+   -- [ ] criar grafico do sinal no GUI 
+   -- [ ] adicionar periodo total (soma dos tempos)
 
 
-
-  # {@ Friday 18 July 2025} Calibracao
-
-  - [ ] fazer escala do grafico GUI em tempo (segundos)
-  - [ ] fazer calibracao de todos
-  - [ ] colocar imagem da ESP32 e do circuito na GUI
-  - [ ] fazer botao para limpar o log de sinais
-  - [ ] registrar log dos botoes clicados com timestamp
-  - [ ] colocar input para escala da leitura do AD e escrever os dois valores no label do grafico
-  - [ ] create get message grom GUI
-  - [ ] criar grafico do sinal no GUI 
-  - [ ] adicionar periodo total (soma dos tempos)
+   -- .JPG -> tensao R, alpha 0.3
+   -- .JPG -> tensao R, alpha 0.7
+   -- TEK0016.JPG -> tensao R, alpha 0.3 -> 0.7
+   -- .JPG -> tensao C1, alpha 0.3
+   -- .JPG -> tensao C1, alpha 0.7
+   -- .JPG -> tensao R, alpha 0.3 (corrigido escala de tempo)
+   -- .JPG -> tensao R, alpha 0.7 (corrigido escala de tempo)
 
 
-  - .JPG -> tensao R, alpha 0.3
-  - .JPG -> tensao R, alpha 0.7
-  - TEK0016.JPG -> tensao R, alpha 0.3 -> 0.7
-  - .JPG -> tensao C1, alpha 0.3
-  - .JPG -> tensao C1, alpha 0.7
-  - .JPG -> tensao R, alpha 0.3 (corrigido escala de tempo)
-  - .JPG -> tensao R, alpha 0.7 (corrigido escala de tempo)
+   -- TEK0017.JPG -> sinais digitais alpha 0.3
+   -- TEK0019.JPG -> sinais digitais alpha 0.3 (2)
+
+   # {@ Monday 14 July 2025} Calibracao
+
+   0.10 -> 0.00
+   0.20 -> 0.07
+   0.30 -> 0.17
+   0.40 -> 0.26
+   0.50 -> 0.36
+   0.60 -> 0.46
+   0.70 -> 0.56
+   0.80 -> 0.66
+   0.90 -> 0.76
+   1.00 -> 0.86
+   1.10 -> 0.96
+   1.20 -> 1.06
+   1.30 -> 1.16
+   1.40 -> 1.27
+   1.50 -> 1.37
+   1.60 -> 1.46
+   1.70 -> 1.56
+   1.80 -> 1.67
+   1.90 -> 1.76
+   2.00 -> 1.86
+   2.10 -> 1.96
+   2.20 -> 2.06
+   2.30 -> 2.16
+   2.40 -> 2.27
+   2.50 -> 2.37
+   2.60 -> 2.49
+   2.70 -> 2.61
+   2.80 -> 2.75
+   2.90 -> 2.90
+   3.00 -> 3.07
+   3.10 -> 3.26
+   3.20 -> 3.30
+   3.30 -> 3.30
 
 
-  - TEK0017.JPG -> sinais digitais alpha 0.3
-  - TEK0019.JPG -> sinais digitais alpha 0.3 (2)
+   a = [0.10, 0.00;
+   0.20, 0.07;
+   0.30, 0.17;
+   0.40, 0.26;
+   0.50, 0.36;
+   0.60, 0.46;
+   0.70, 0.56;
+   0.80, 0.66;
+   0.90, 0.76;
+   1.00, 0.86;
+   1.10, 0.96;
+   1.20, 1.06;
+   1.30, 1.16;
+   1.40, 1.27;
+   1.50, 1.37;
+   1.60, 1.46;
+   1.70, 1.56;
+   1.80, 1.67;
+   1.90, 1.76;
+   2.00, 1.86;
+   2.10, 1.96;
+   2.20, 2.06;
+   2.30, 2.16;
+   2.40, 2.27;
+   2.50, 2.37;
+   2.60, 2.49;
+   2.70, 2.61;
+   2.80, 2.75;
+   2.90, 2.90;
+   3.00, 3.07;
+   3.10, 3.26;
+   3.20, 3.30;
+   3.30, 3.30;]
 
-  # {@ Monday 14 July 2025} Calibracao
+** # {@ Friday 11 July 2025}*:
 
-  0.10 -> 0.00
-  0.20 -> 0.07
-  0.30 -> 0.17
-  0.40 -> 0.26
-  0.50 -> 0.36
-  0.60 -> 0.46
-  0.70 -> 0.56
-  0.80 -> 0.66
-  0.90 -> 0.76
-  1.00 -> 0.86
-  1.10 -> 0.96
-  1.20 -> 1.06
-  1.30 -> 1.16
-  1.40 -> 1.27
-  1.50 -> 1.37
-  1.60 -> 1.46
-  1.70 -> 1.56
-  1.80 -> 1.67
-  1.90 -> 1.76
-  2.00 -> 1.86
-  2.10 -> 1.96
-  2.20 -> 2.06
-  2.30 -> 2.16
-  2.40 -> 2.27
-  2.50 -> 2.37
-  2.60 -> 2.49
-  2.70 -> 2.61
-  2.80 -> 2.75
-  2.90 -> 2.90
-  3.00 -> 3.07
-  3.10 -> 3.26
-  3.20 -> 3.30
-  3.30 -> 3.30
+   -- refazer calibracao
 
+** # {@ Wednesday 2 July 2025}*:
+   -- TEK0001.JPG -> tensao R, alpha 0.3
+   -- TEK0002.JPG -> tensao R, alpha 0.7
+   -- TEK0003.JPG -> tensao C1, alpha 0.3
+   -- TEK0004.JPG -> tensao C1, alpha 0.7
+   -- TEK0005.JPG -> tensao R, alpha 0.3 (corrigido escala de tempo)
+   -- TEK0007.JPG -> tensao R, alpha 0.7 (corrigido escala de tempo)
 
-  a = [0.10, 0.00;
-  0.20, 0.07;
-  0.30, 0.17;
-  0.40, 0.26;
-  0.50, 0.36;
-  0.60, 0.46;
-  0.70, 0.56;
-  0.80, 0.66;
-  0.90, 0.76;
-  1.00, 0.86;
-  1.10, 0.96;
-  1.20, 1.06;
-  1.30, 1.16;
-  1.40, 1.27;
-  1.50, 1.37;
-  1.60, 1.46;
-  1.70, 1.56;
-  1.80, 1.67;
-  1.90, 1.76;
-  2.00, 1.86;
-  2.10, 1.96;
-  2.20, 2.06;
-  2.30, 2.16;
-  2.40, 2.27;
-  2.50, 2.37;
-  2.60, 2.49;
-  2.70, 2.61;
-  2.80, 2.75;
-  2.90, 2.90;
-  3.00, 3.07;
-  3.10, 3.26;
-  3.20, 3.30;
-  3.30, 3.30;]
+   -- TEK0008.JPG -> tensao C2, alpha 0.3
+   -- TEK0009.JPG -> tensao C2, alpha 0.7
 
+   -- TEK0010.JPG -> tensao R, alpha 0.3 -> 0.7
 
-  # {@ Friday 11 July 2025}*:
+** # {@ Tuesday 20 May 2025}*:
+   -- ( ) ver referencias para artigo do circuito; como fizeram com o circuito que usaram?
+          {:doutorado_pesquisa_circuito_nos_artigos:}
 
-  - refazer calibracao
+** # {@ Wednesday 14 May 2025}*:
+   -- ( ) criar logica na ESP32 para esperar por N periodos
+   -- (x) implementar propagacao Block em `run`
+   -- (x) implementar propagacao Block em `signal_process` 
+   -- ( ) pedir VPN
+   -- ( ) instalar Mathematica
+   -- ( ) fazer projecao Mathematica
 
+** # {@ Wednesday 23 April 2025}
+   -- ( ) ?? criar o sinal na esp32 com o ciclo inteiro e usar o timer apenas para o periodo do ciclo??
+   -- (x) enviar codigo de projecao para kawa
+   -- ( ) procurar alternativa para plotar regiao de atracao??
 
-  # {@ Wednesday 2 July 2025}*:
-  - TEK0001.JPG -> tensao R, alpha 0.3
-  - TEK0002.JPG -> tensao R, alpha 0.7
-  - TEK0003.JPG -> tensao C1, alpha 0.3
-  - TEK0004.JPG -> tensao C1, alpha 0.7
-  - TEK0005.JPG -> tensao R, alpha 0.3 (corrigido escala de tempo)
-  - TEK0007.JPG -> tensao R, alpha 0.7 (corrigido escala de tempo)
+** # {@ Friday 11 April 2025}
+   -- ( ) ajustar conversao do sinal para dt 
+          sinal esta truncando os valores de dt e reduzindo a janela total!
+          comecei a mexer nisso no `t.m`, mas a minha cabeca nao ta funcionando direito mais
+   -- ( ) calcular regiao de atracao para a simulacao do circuito
 
-  - TEK0008.JPG -> tensao C2, alpha 0.3
-  - TEK0009.JPG -> tensao C2, alpha 0.7
+** # {@ Wednesday 2 April 2025}
+   -- (x) simular a mudanca de referencia
+   -- ( ) criar um sistema de log para comparar os resultados
+   -- ( ) configurar manobra para a simulacao e o circuito
 
-  - TEK0010.JPG -> tensao R, alpha 0.3 -> 0.7
+** # {@ Wednesday 26 March 2025} 
+   -- ( ) fazer o matlab mudar a referencia por alpha / iref
+   -- ( ) tomar cuidado com a nova linearizacao
+   -- ( ) tentar usar o qpoasis na ESP
+   -- ( ) documentar o codigo para artigo
 
+** # {@ Wednesday 12 March 2025} 
+   -- (x) testar simulacao lab circuit
+   -- (x) ler circuito malha aberta com 3.3v de alimentacao
+   -- (x) mudar para plotar grafico linear
+   -- (x) fechar malha para receber o sinal via bluetooth e calcular sinal da onda
+   -- (x) calcular o tempo de um ciclo matlab
 
+** {@ Wednesday 2 April 2025}
+   -- 
+      % v_c1 -> a5
+      % v_c2 -> a6
+      % v_i  -> a3
 
+** {@ Wednesday 26 March 2025}
+   -- ( ) fazer o matlab mudar a referencia por alpha
 
-
-  # {@ Tuesday 20 May 2025}*:
-  - ( ) ver referencias para artigo do circuito; como fizeram com o circuito que usaram?
-        {:doutorado_pesquisa_circuito_nos_artigos:}
-
-  # {@ Wednesday 14 May 2025}*:
-  - ( ) criar logica na ESP32 para esperar por N periodos
-  - (x) implementar propagacao Block em `run`
-  - (x) implementar propagacao Block em `signal_process` 
-  - ( ) pedir VPN
-  - ( ) instalar Mathematica
-  - ( ) fazer projecao Mathematica
-
-  # {@ Wednesday 23 April 2025}
-  - ( ) ?? criar o sinal na esp32 com o ciclo inteiro e usar o timer apenas para o periodo do ciclo??
-  - (x) enviar codigo de projecao para kawa
-  - ( ) procurar alternativa para plotar regiao de atracao??
-
-  # {@ Friday 11 April 2025}
-  - ( ) ajustar conversao do sinal para dt 
-        sinal esta truncando os valores de dt e reduzindo a janela total!
-        comecei a mexer nisso no `t.m`, mas a minha cabeca nao ta funcionando direito mais
-  - ( ) calcular regiao de atracao para a simulacao do circuito
-
-  # {@ Wednesday 2 April 2025}
-  - (x) simular a mudanca de referencia
-  - ( ) criar um sistema de log para comparar os resultados
-  - ( ) configurar manobra para a simulacao e o circuito
-
-  # {@ Wednesday 26 March 2025} 
-  - ( ) fazer o matlab mudar a referencia por alpha / iref
-  - ( ) tomar cuidado com a nova linearizacao
-  - ( ) tentar usar o qpoasis na ESP
-  - ( ) documentar o codigo para artigo
-
-  # {@ Wednesday 12 March 2025} 
-  - (x) testar simulacao lab circuit
-  - (x) ler circuito malha aberta com 3.3v de alimentacao
-  - (x) mudar para plotar grafico linear
-  - (x) fechar malha para receber o sinal via bluetooth e calcular sinal da onda
-  - (x) calcular o tempo de um ciclo matlab
-
-* Financas
-  {:financas/auvp:}
-
-* LTP
-  {:ltp_tobe:}
-  {:ltp_missouri/ltp_missouri:}
-
-* APARTAMENTO
-  {:busca_apartamento:}
-
-* NOTES
-
-** reuniao 
-
-{@ Wednesday 2 April 2025}
-   - 
-     % v_c1 -> a5
-     % v_c2 -> a6
-     % v_i  -> a3
-
-   {@ Wednesday 26 March 2025}
-   - ( ) fazer o matlab mudar a referencia por alpha
-
-
-   {@ Friday 21 March 2025}
-   - resistor: 22 ohm
-   - indutor: 2 ohm
-   - ( ) fazer diagrama de como SW funciona
-   - quais portas estao lendo os valores?
-   -- vc1: an6
-   -- vc2: an5
-   -- tensao sobre resistor: an3
+** {@ Friday 21 March 2025}
+   -- resistor: 22 ohm
+   -- indutor: 2 ohm
+   -- ( ) fazer diagrama de como SW funciona
+   -- quais portas estao lendo os valores?
+   --- vc1: an6
+   --- vc2: an5
+   --- tensao sobre resistor: an3
 
    {@ Wednesday 12 March 2025}
-   - estamos lendo em a6, a5, a3
+   -- estamos lendo em a6, a5, a3
 
    {@ Wednesday 26 February 2025}
-   - revisar parametros simulacao
+   -- revisar parametros simulacao
 
    % PARAMS FOR LAB
    % param.E = 5;
@@ -238,8 +214,8 @@
 
    % resistencia indutor = 2 ohms
 
-   - medidas de leitura usando o gerador de sinais:
-     (gerador sinal) -> (leitura ESP)
+   -- medidas de leitura usando o gerador de sinais:
+      (gerador sinal) -> (leitura ESP)
 
 
    0.10 -> 0.15 ::  0.05
@@ -276,88 +252,80 @@
    3.20 -> 3.46 ::  0.26
    3.30 -> 3.46 ::  0.16
 
+** {@ Friday 21 February 2025}
+   -- (x) salvar os sinais
+   -- (x) mapear a regiao linear
 
-   {@ Friday 21 February 2025}
-   - (x) salvar os sinais
-   - (x) mapear a regiao linear
+** {@ Wednesday 12 February 2025}
+   -- ( ) enviar endereco pinout
+   -- ( ) pesquisar maneira de fazer a diferenca de tensao dois elementos
+          INA122, problema do ganho (ganho 1 ou menor)
 
+** {@ Tuesday 07 January 2025} 
+   -- ( ) perguntar de soldagem de pcb
+   -- ( ) fazer leitura de an2 a an6
+   -- ( ) gravar a serie temporal de valores
+   -- ( ) fazer procedimento de calibracao
 
-   {@ Wednesday 12 February 2025}
-   - ( ) enviar endereco pinout
-   - ( ) pesquisar maneira de fazer a diferenca de tensao dois elementos
-         INA122, problema do ganho (ganho 1 ou menor)
+**** calibracao reuniao
 
+     an6
+     multimetro, esp
 
-   {@ Tuesday 07 January 2025} 
-   - ( ) perguntar de soldagem de pcb
-   - ( ) fazer leitura de an2 a an6
-   - ( ) gravar a serie temporal de valores
-   - ( ) fazer procedimento de calibracao
-
-
-*** calibracao reuniao
-
-    an6
-    multimetro, esp
-
-    465, 309
-    1000, 853
-    1444, 1289
-    1986, 1816
-    2503, 2343
-    3101, 3271
+     465, 309
+     1000, 853
+     1444, 1289
+     1986, 1816
+     2503, 2343
+     3101, 3271
 
 
-    an5
-    multimetro, esp
+     an5
+     multimetro, esp
 
-    554, 394
-    1055, 899
-    1413, 1256
-    2029, 1865
-    2577, 2428
-    2973, 3030
+     554, 394
+     1055, 899
+     1413, 1256
+     2029, 1865
+     2577, 2428
+     2973, 3030
 
-    an4
-    multimetro, esp
+     an4
+     multimetro, esp
 
-    573, 412
-    1017, 860
-    1443, 1281
-    2054, 1887
-    2543, 2384
-    2958, 3003
+     573, 412
+     1017, 860
+     1443, 1281
+     2054, 1887
+     2543, 2384
+     2958, 3003
 
-** reuniao 
-   {@ Tuesday 10 December 2024} 
+** {@ Tuesday 26 November 2024}
 
-** reuniao 
-   {@ Tuesday 26 November 2024}
+   -- ( ) fazer simulacoes para: 
+   --- ( ) capacitores 470u
+   --- ( ) indutor 100 mF
+   --- ( ) resistor 3k3 + 375
+   --- ( ) fonte 5V
 
-** reuniao 
-   - ( ) fazer simulacoes para: 
-   -- ( ) capacitores 470u
-   -- ( ) indutor 100 mF
-   -- ( ) resistor 3k3 + 375
-   -- ( ) fonte 5V
+   -- ( ) montar script para gerar sinal
+   -- ( ) fazer a sincronizacao dos sinais rmt
+   -- ( ) organizar codigo matlab e montar design
+   -- ( ) fazer leitura de sinais
+   -- ( ) fazer analise de tempo critico da otimizacao
+   -- ( ) fazer o programa usando rmt para gerar os sinal de saida
+   -- ( ) fazer preparacao matlab para calculo rapido do sinal de referencia
+   -- ?( ) conferir ST microcontrolador (100MHz)
+   -- !( ) estudar novamente o `compute_phase` pra retomar controle
+   -- !( ) fazer programa matlab gerar os valores para chaveamento da esp
 
-   - ( ) montar script para gerar sinal
-   - ( ) fazer a sincronizacao dos sinais rmt
-   - ( ) organizar codigo matlab e montar design
-   - ( ) fazer leitura de sinais
-   - ( ) fazer analise de tempo critico da otimizacao
-   - ( ) fazer o programa usando rmt para gerar os sinal de saida
-   - ( ) fazer preparacao matlab para calculo rapido do sinal de referencia
-   - ?( ) conferir ST microcontrolador (100MHz)
-   - !( ) estudar novamente o `compute_phase` pra retomar controle
-   - !( ) fazer programa matlab gerar os valores para chaveamento da esp
 
 * TASKS
-  - ( ) definir interface para comunicacao
-  - ( ) fazer design no kicad
-  - ( ) fechar malha com controlador sendo usado e mandando dados bluetooth
-  - ( ) implementar pooling system com matlab para ler os dados da ESP32
-  - ( ) make an example of the code using python
+  - (x) definir interface para comunicacao
+  - (x) fazer design no kicad
+  - (x) fechar malha com controlador sendo usado e mandando dados bluetooth
+  - (x) implementar pooling system com matlab para ler os dados da ESP32
+  - (x) make an example of the code using python
 
 
   - (x) ver como gerar as chaves para registrar BLE
@@ -380,3 +348,17 @@
          min: 0.01942 sec
          mean: 0.04473 sec
          dev : 0.00827 sec
+
+* Financas
+  {:financas/auvp:}
+
+* LTP
+  {:ltp_tobe:}
+  {:ltp_missouri/ltp_missouri:}
+
+* APARTAMENTO
+  {:busca_apartamento:}
+
+* NOTES
+
+
