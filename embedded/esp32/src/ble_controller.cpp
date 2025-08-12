@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "ble_controller.h"
+#include "signal_controller.h"
 #include "note_buffer.h"
 
 // External references to global variables
@@ -159,51 +160,51 @@ void send_message_status(NimBLECharacteristic* pCharacteristic) {
     // Format message with sensor readings using snprintf for safety
     pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "\n\n\n\n\n\n\n\n\n\n=========== STATUS ");
     
-    // if (active_set == ActiveSignalSet::SET_A) {
-    //     pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "(SET_A active)\n");
-    // } else {
-    //     pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "(SET_B active)\n");
-    // }
+    if (active_set == ActiveSignalSet::SET_A) {
+        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "(SET_A active)\n");
+    } else {
+        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "(SET_B active)\n");
+    }
 
-    // pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "state: ");
-    // if (signal_task_state == SignalTaskState::HIGH_RUN) {
-    //     pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "SignalTaskState::HIGH_RUN\n");
-    // } else if (signal_task_state == SignalTaskState::IDLE) {
-    //     pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "SignalTaskState::IDLE\n");
-    // } else if (signal_task_state == SignalTaskState::SIGNAL_RUN) {
-    //     pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "SignalTaskState::SIGNAL_RUN\n");
-    // }
+    pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "state: ");
+    if (signal_task_state == SignalTaskState::HIGH_RUN) {
+        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "SignalTaskState::HIGH_RUN\n");
+    } else if (signal_task_state == SignalTaskState::IDLE) {
+        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "SignalTaskState::IDLE\n");
+    } else if (signal_task_state == SignalTaskState::SIGNAL_RUN) {
+        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "SignalTaskState::SIGNAL_RUN\n");
+    }
 
-    // // Add control status
-    // pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "control: ");
-    // if (g_control_status == ControlStatus::ON) {
-    //     pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "ControlStatus::ON\n");
-    // } else if (g_control_status == ControlStatus::OFF) { 
-    //     pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "ControlStatus::OFF\n");
-    // } 
+    // Add control status
+    pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "control: ");
+    if (g_control_status == ControlStatus::ON) {
+        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "ControlStatus::ON\n");
+    } else if (g_control_status == ControlStatus::OFF) { 
+        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "ControlStatus::OFF\n");
+    } 
 
-    // // Add analog readings
-    // pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, 
-    //                "analog: an3:%.3f, an5:%.3f, an6:%.3f\n", 
-    //                voltage_03, voltage_05, voltage_06);
+    // Add analog readings
+    pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, 
+                   "analog: an3:%.3f, an5:%.3f, an6:%.3f\n", 
+                   voltage_03, voltage_05, voltage_06);
 
-    // // Add basic timing info without full vectors to prevent overflow
-    // pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, 
-    //                "SET_A: %d elements, SET_B: %d elements\n", 
-    //                get_signal_set_size(ActiveSignalSet::SET_A), 
-    //                get_signal_set_size(ActiveSignalSet::SET_B));
+    // Add basic timing info without full vectors to prevent overflow
+    pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, 
+                   "SET_A: %d elements, SET_B: %d elements\n", 
+                   get_signal_set_size(ActiveSignalSet::SET_A), 
+                   get_signal_set_size(ActiveSignalSet::SET_B));
     
-    // // Add current state info if signal is running
-    // if (signal_task_state == SignalTaskState::SIGNAL_RUN) {
-    //     pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, 
-    //                    "current_state: %d, cycle_count: %d\n", 
-    //                    current_state, cycle_count);
-    // }
+    // Add current state info if signal is running
+    if (signal_task_state == SignalTaskState::SIGNAL_RUN) {
+        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, 
+                       "current_state: %d, cycle_count: %d\n", 
+                       current_state, cycle_count);
+    }
     
-    // // Ensure null termination
-    // message_buffer[sizeof(message_buffer) - 1] = '\0';
+    // Ensure null termination
+    message_buffer[sizeof(message_buffer) - 1] = '\0';
 
-    // // Send data via BLE notification with retry mechanism for signal running state
+    // Send data via BLE notification with retry mechanism for signal running state
     // pCharacteristic->setValue((uint8_t *)message_buffer, strlen(message_buffer));
     // pCharacteristic->notify();
     
@@ -256,17 +257,34 @@ void send_message_status(NimBLECharacteristic* pCharacteristic) {
 
 
     note_buffer_clear();
-    note_buffer_add_text("my first note");
+    note_buffer_add_text("STATUS: ");
+    note_buffer_add_text("my first note\n");
+    note_buffer_add_text("my first note\n");
+    note_buffer_add_text("my first note\n");
+    note_buffer_add_text("my first note\n");
+    note_buffer_add_text("my first note\n");
+    note_buffer_add_text("my first note\n");
+    note_buffer_add_text("my first note\n");
+    note_buffer_add_text("my first note\n");
+    note_buffer_add_text("my first note\n");
+    note_buffer_add_text("my first note\n");
 
     // pCharacteristic->setValue((uint8_t *)message_buffer, strlen(message_buffer));
     // pCharacteristic->notify();
+
+    note_buffer_add_matrix(dataset_a.gain_k);
+    note_buffer_add_matrix(dataset_b.gain_k);
+
+    note_buffer_print_buffer();
+
 
     pCharacteristic->setValue((uint8_t *)note_buffer, strlen(note_buffer));
     pCharacteristic->notify();
 
 
-
-
+    Serial.println("=================================");
+    Serial.println("print matrix B:\n");
+    matrix_print(dataset_b.gain_k);
 
     Serial.println("STATUS response sent successfully");
 }

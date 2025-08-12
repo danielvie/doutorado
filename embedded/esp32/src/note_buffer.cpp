@@ -1,4 +1,5 @@
 #include "note_buffer.h"
+#include "Arduino.h"
 
 // --- Global Variable Definitions ---
 // These variables are defined here, and the 'extern' declarations in buffer.h refer to them.
@@ -38,14 +39,61 @@ void note_buffer_add_text(const std::string& text_to_add) {
     }
 }
 
+void note_buffer_add_text_f(const char* format, ...) {
+    if (note_buffer_is_full) {
+        std::cout << "Buffer is full. Cannot add new text." << std::endl;
+        return;
+    }
+
+    // A temporary buffer to hold the formatted string.
+    char temp_buffer[NOTE_TEMP_BUFFER_SIZE];
+    
+    va_list args;
+    va_start(args, format);
+    // Use vsnprintf for safety to prevent buffer overflow.
+    vsnprintf(temp_buffer, sizeof(temp_buffer), format, args);
+    va_end(args);
+
+    // Call the original add_text function with the formatted string.
+    note_buffer_add_text(temp_buffer);
+}
+
+void note_buffer_add_matrix(MatrixData& M) {
+    if (!matrix_isvalid(M)) {
+        note_buffer_add_text("Matrix is not valid!!\n");
+        return;
+    }
+
+    std::stringstream ss;
+
+    note_buffer_add_text_f("Matrix (%dx%d):\n", M.rows, M.cols);
+    // ss << "Matrix (" << M.rows << "x" << M.cols << "):";
+
+    for (int i = 0; i < M.rows; ++i) {
+        for (int j = 0; j < M.cols; ++j) {
+            note_buffer_add_text_f("%.6f\t", M.values[i * M.cols + j]);
+            // ss << std::fixed << std::setprecision(6) << M.values[i * M.cols + j] << "\t";
+        }
+        // ss << "\n";
+        note_buffer_add_text("\n");
+    }
+    
+    note_buffer_add_text(ss.str());
+}
+
 void note_buffer_print_buffer() {
     for (size_t i = 0; i < NOTE_BUFFER_SIZE; ++i) {
         // Print character, or a period if it's a null terminator for visibility.
         if (note_buffer[i] == '\0') {
-            std::cout << ".";
+            Serial.print(".");
         } else {
-            std::cout << note_buffer[i];
+            Serial.print(note_buffer[i]);
         }
     }
-    std::cout << "\n\n";
+
+    Serial.print("\n");
+    const float buffer_used = ((float)note_buffer_idx)/((float)NOTE_BUFFER_SIZE) * 100.0;
+    Serial.printf("[buffer size: %d, idx: %d, used: %.1f%%]\n", NOTE_BUFFER_SIZE, note_buffer_idx, buffer_used);
+    Serial.print("\n\n");
 }
+

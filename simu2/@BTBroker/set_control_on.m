@@ -1,5 +1,5 @@
-function set_control_on(self, value)
+function set_control_on(self)
     
-    self.control_on = value;
+    self.control_on = true;
 
 end
