@@ -1,13 +1,4 @@
-/**
- * Creates a switching signal based on a duty cycle (alpha)
- *
- * This function implements a mathematical model for power electronics switching
- * patterns based on a given duty cycle (alpha). It calculates the appropriate
- * switching times and modes for a 3-cell converter.
- *
- * @param alpha - Duty cycle value between 0 and 1
- * @returns Object containing comma-separated strings of switching times and modes
- */
+// Creates a switching signal based on a duty cycle
 export function _create_signal(alpha: number) {
     // System parameters
     let E = 5; // Input voltage (V)
@@ -40,22 +31,13 @@ export function _create_signal(alpha: number) {
     };
 }
 
-/**
- * Implements the industrial solution algorithm for power electronic converters
- *
- * This algorithm calculates the optimal switching patterns for a multi-cell converter
- * based on the duty cycle (alpha), number of switches, and switching period.
- *
- * @param alpha - Duty cycle (0 to 1)
- * @param nSwitches - Number of switch cells
- * @param T - Period of switching cycle (seconds)
- * @returns Object containing switching modes (Omega) and time intervals (dtSwitch)
- */
+// Calculates optimal switching patterns for a multi-cell converter
 export function industrial_solution(
     alpha: number,
     nSwitches: number,
     T: number,
 ) {
+    
     // Step 1: Define t0,i; ton,i; toff,i and initial state of the ith switch cell
     // t0 = initial time for each switch
     // ton = turn-on time for each switch

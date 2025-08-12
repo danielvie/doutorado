@@ -96,7 +96,7 @@ hands-on application.}
 
 %Insert Keywords
 % At least 3 keywords. There is no limit on the no. of keywords you can list. Please remember that effective keywords should not repeat words appearing in your title, and should be neither too general nor too narrow.
-\textbf{Keywords}\\ \textit{Add at least 3 keywords and a maximum of 6 keywords.}
+\textbf{Keywords}\\ \textit{Voltage Converter; Low-Cost Circuit; ESP32 Microcontroller; Switched-mode control;}
 
 \newpage
 \textbf{Specifications table}\\
@@ -104,7 +104,7 @@ hands-on application.}
 \vskip 0.2cm
 \tabulinesep=1ex
 \begin{tabu} to \linewidth {|X|X[3,l]|}
-\hline  \textbf{Hardware name} & \textit{Python-controlled three-cell converter}
+\hline  \textbf{Hardware name} & \textit{ESP32 C++ controlled three-cell converter}
   %Please specify the name of the hardware that you invented / customized
   \\
   \hline \textbf{Subject area} & %
@@ -150,8 +150,8 @@ If you haven’t acquired certification, please delete this row of the specifica
 
 During our research, we observed that most of the work in the field of switched-mode control for multi-cell
 converters was purely digital, relying heavily on simulation. The limited experimental work available
-often outsourced the design and manufacturing of the physical circuit to external companies, as documented
-in the work of \cite{solano2014etude}. Our hardware aims to fill this gap by providing an easily accessible
+often outsourced the design and manufacturing of the physical circuit to external companies \cite{Saenz:2014}.
+Our hardware aims to fill this gap by providing an easily accessible
 and low-cost solution for implementing and studying these complex control strategies. By using standard
 components and an embedded controller, our circuit provides an effective platform for hands-on research,
 reducing the barriers to entry for researchers and students.
@@ -170,7 +170,6 @@ Add 3-5 bullet points which broadly explain to other researchers - inside or out
 \textcolor{red}{Figuras: 
 \begin{itemize}
 \item Tela do osciloscópio: Para um dado valor de alpha --> Três sinais de comando, vc1, v2, vr. Apresentar vc1, v2, vr durante a transição entre dois valores diferentes de alpha. 
-\item Figura com modulação triangular.
 \item Tela do software.
 \end{itemize}
 }
@@ -182,11 +181,32 @@ Add 3-5 bullet points which broadly explain to other researchers - inside or out
 \caption{Three-cell Converter}
 \end{figure}
 
+The most commonly used method to operate the converter is the so-called Phase-Shifted Modulation (PSM) scheme \cite[p. 74-77]{Saenz:2014}. For a $p$-cell converter, the PSM scheme employs $p$ triangular modulation signals $s_1(t), s_2(t), \ldots, s_p(t)$, which oscillate in the 0 - 1 range with frequency $f = 1/T$ and $2 \pi / p$  phase shifts, as illustrated in Figure \ref{fig:PSM} for $p = 3$. Signal $s_i(t)$ is associated to the $u_i(t)$ switch command in the converter, so that
+%
+\begin{equation}
+u_i(t) = \left\{
+\begin{array}{l}
+0 \,,\; s_i(t) \geq \alpha \\[6pt]
+1 \,,\; s_i(t) < \alpha 
+\end{array}
+\right.
+\end{equation}
+%
+where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the converter output. As can be seen from Fig. \ref{fig:PSM}, the ``on" and "off" times are the same for all switch commands, namely:
+
+\begin{equation}
+\Delta t_{on} = \alpha T \,, \; \Delta t_{off} = (1 - \alpha) T
+\end{equation}
+
+
+
+
 \begin{figure}[h]
+\label{fig:PSM}
 \begin{center}
 \includegraphics[scale=0.75]{PhaseShiftModulation.pdf}
 \end{center}
-\caption{Circuit diagram.}
+\caption{Phase-shifted modulation scheme for a three-cell converter. The ``on" and ``off" times are given by $\Delta t_{on} = \alpha T$ and $\Delta t_{off} = (1 - \alpha) T$, respectively.}
 \end{figure}
 
 \begin{figure}[h]
@@ -282,7 +302,13 @@ Add 3-5 bullet points which broadly explain to other researchers - inside or out
 \textbf{Designator} & \textbf{Component} & \textbf{Number} & \textbf{Cost per unit - currency} & \textbf{Total cost - currency} & \textbf{Source of materials} & \textbf{Material type} \\\hline
 
 %Insert items here
-\textit{If possible, use the same designator here as you use in the associated design file. If that’s not possible, you will need to explain the relationship between the two.} & \textit{Name of Component 1} & \textit{Number of units} & \textit{Cost per unit and the currency used} & \textit{Total cost and the currency used} & \textit{If possible, include a direct link to a webpage where the component can be purchased } & \textit{Select from:
+\textit{If possible, use the same designator here as you use in the associated design file. If that’s not possible, you will need to explain the relationship between the two.} & 
+\textit{Name of Component 1} & 
+\textit{Number of units} & 
+\textit{Cost per unit and the currency used} & 
+\textit{Total cost and the currency used} & 
+\textit{If possible, include a direct link to a webpage where the component can be purchased } & 
+\textit{Select from:
 \vskip 0.1cm
 %\begin{itemize}
 -Metal
