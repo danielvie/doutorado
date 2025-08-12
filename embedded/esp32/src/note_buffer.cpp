@@ -63,7 +63,7 @@ void note_buffer_add_matrix(MatrixData& M) {
         return;
     }
 
-    note_buffer_add_text_f("Matrix (%dx%d):\n", M.rows, M.cols);
+    note_buffer_add_text_f("M(%dx%d):\n", M.rows, M.cols);
     for (int i = 0; i < M.rows; ++i) {
         for (int j = 0; j < M.cols; ++j) {
             note_buffer_add_text_f("%.6f\t", M.values[i * M.cols + j]);

@@ -71,6 +71,7 @@ classdef BTBroker < handle
         % .. getters
         get_signal(self);
         get_status(self);
+        get_last_calc(self);
 
         % .. automation
         start(self); % self.msg("START");
@@ -89,6 +90,8 @@ classdef BTBroker < handle
 
         tg_a(self); % toggle set A
         tg_b(self); % toggle set B
+        
+        last(self); % self.get_last_calc
         
     end
 end

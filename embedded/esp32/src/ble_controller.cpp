@@ -88,6 +88,9 @@ void BLE_router(NimBLECharacteristic *characteristic) {
     else if (message == "STATUS") {
         send_message_status(characteristic);
     } 
+    else if (message == "LAST_CALC") {
+        send_message_last_calc(characteristic);
+    } 
     else if (message == "TOGGLE_SET") {
         toggle_dataset();
     }
@@ -145,6 +148,15 @@ void BLE_router(NimBLECharacteristic *characteristic) {
 // .. BLE write CALLBACK
 void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
     BLE_router(characteristic);
+}
+
+void send_message_last_calc(NimBLECharacteristic* pCharacteristic) {
+
+    note_buffer_print_buffer();
+
+    pCharacteristic->setValue((uint8_t *)note_buffer, strlen(note_buffer));
+    pCharacteristic->notify();
+    
 }
 
 // Send system status over BLE
@@ -271,6 +283,17 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
 
         // NOTE: conditioning dtk
 
+        note_buffer_clear();
+        note_buffer_add_text_f("x:[%.4f,%.4f,%.4f]\n", v_c1, v_c2, i_l);
+        note_buffer_add_text("k ");
+        note_buffer_add_matrix(dataset_active->gain_k);
+
+        note_buffer_add_text("dtk:\n");
+        for (size_t i = 0; i < control_dtk_len; i++) {
+            note_buffer_add_text_f("%.3f,", control_dtk[i]);
+        }
+        note_buffer_add_text("\n");
+
         condition_dtk_signal(dataset_active->time_vec, 10, control_dtk_us, control_dtk_len);
 
         dataset_active->time_us_diff.resize(control_dtk_len+1, 0);
@@ -286,6 +309,23 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
         for (size_t i = 0; i < time_us_len; i++) {
             ts_us[i+1] = ts_us[i] + dataset_active->time_vec[i] + dataset_active->time_us_diff[i];
         }
+        
+        // save last matrix multiplication
+
+        note_buffer_add_text("dtk fix:\n");
+        for (size_t i = 0; i < control_dtk_len; i++) {
+            note_buffer_add_text_f("%.3f,", control_dtk[i]);
+        }
+        note_buffer_add_text("\n");
+
+        note_buffer_add_text("ts_us:\n");
+        const size_t ts_us_len = time_us_len + 1;
+        for (size_t i = 0; i < ts_us_len; i++) {
+            note_buffer_add_text_f("%.3f,", ts_us[i]);
+        }
+        note_buffer_add_text("\n");
+        
+        
     } 
 
     // Format message with sensor readings using snprintf for safety

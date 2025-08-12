@@ -22,7 +22,7 @@ b.set_control_off;
 b.v_on;
 
 b.ss(0.5);
-b.tg_b();
+% b.tg_b();
 b.st();
 
 % b.sa();
