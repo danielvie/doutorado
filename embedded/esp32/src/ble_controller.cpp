@@ -35,6 +35,7 @@ void ServerCallbacks::onConnect(NimBLEServer* pServer) {
     Serial.println("Device connected");
 }
 
+
 void ServerCallbacks::onDisconnect(NimBLEServer* pServer) {
     blink(2);  // Visual indication of disconnection
     Serial.println("Device disconnected");
@@ -158,7 +159,7 @@ void send_message_status(NimBLECharacteristic* pCharacteristic) {
     float voltage_06 = read_analog(AnalogPort::AN6);
 
     // Format message with sensor readings using snprintf for safety
-    pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "\n\n\n\n\n\n\n\n\n\n=========== STATUS ");
+    pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "\n\n=========== STATUS ");
     
     if (active_set == ActiveSignalSet::SET_A) {
         pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "(SET_A active)\n");
@@ -205,88 +206,23 @@ void send_message_status(NimBLECharacteristic* pCharacteristic) {
     message_buffer[sizeof(message_buffer) - 1] = '\0';
 
     // Send data via BLE notification with retry mechanism for signal running state
-    // pCharacteristic->setValue((uint8_t *)message_buffer, strlen(message_buffer));
-    // pCharacteristic->notify();
-    
-    // DataSet* data_set_active = (active_set == ActiveSignalSet::SET_A) ? &dataset_a : &dataset_b;
-
-    // Serial.print(message_buffer);
-
-    // Serial.println("\n");
-    // print_vec_i32(data_set_active->time_us_diff, "dataset->time_us_diff");
-    // // print_array_i32(g_control_dtk_us, g_control_dtk_len, "g_control_dtk_us");
-    
-    // print_dataset(data_set_active);
-    // print_ts_us_constructed();
-
-    // When signal is running, try multiple times with delays to ensure delivery
-    // if (signal_task_state == SignalTaskState::SIGNAL_RUN) {
-    //     for (int retry = 0; retry < 3; retry++) {
-    //         vTaskDelay(pdMS_TO_TICKS(10)); // Small delay between retries
-    //     }
-    // } else {
-    //     pCharacteristic->notify();
-    // }
-    
-    // Serial.println(message_buffer);
-    
-    // Demonstrate matrix multiplication with 3-element vector (optimized)
-
-    // DataSet* data_set_active = (active_set == ActiveSignalSet::SET_A) ? &dataset_a : &dataset_b;
-
-    // if (matrix_isvalid(data_set_active->gain_k) && data_set_active->gain_k.cols == 3) {
-    //     // Pre-allocate result array for the multiplication
-
-    //     int32_t clock_start = esp_timer_get_time();
-    //     float result[data_set_active->gain_k.rows];
-        
-    //     // NOTE: test matrix multiply
-    //     matrix_multiply_vector3(data_set_active->gain_k, -0.6, -0.1, -0.1, result);
-    //     int32_t duration_us = esp_timer_get_time() - clock_start;
-
-    //     Serial.printf("Matrix multiplication result2 [duration]: %d us\n", duration_us);
-    //     for (int i = 0; i < data_set_active->gain_k.rows; ++i) {
-    //         Serial.printf("%.6f\n", result[i]);
-    //     }
-        
-    //     matrix_print(data_set_active->gain_k);
-
-    // } else {
-    //     Serial.println("Matrix not available or wrong dimensions for vector multiplication");
-    // }
-
-
-    note_buffer_clear();
-    note_buffer_add_text("STATUS: ");
-    note_buffer_add_text("my first note\n");
-    note_buffer_add_text("my first note\n");
-    note_buffer_add_text("my first note\n");
-    note_buffer_add_text("my first note\n");
-    note_buffer_add_text("my first note\n");
-    note_buffer_add_text("my first note\n");
-    note_buffer_add_text("my first note\n");
-    note_buffer_add_text("my first note\n");
-    note_buffer_add_text("my first note\n");
-    note_buffer_add_text("my first note\n");
-
-    // pCharacteristic->setValue((uint8_t *)message_buffer, strlen(message_buffer));
-    // pCharacteristic->notify();
-
-    note_buffer_add_matrix(dataset_a.gain_k);
-    note_buffer_add_matrix(dataset_b.gain_k);
-
-    note_buffer_print_buffer();
-
-
-    pCharacteristic->setValue((uint8_t *)note_buffer, strlen(note_buffer));
+    pCharacteristic->setValue((uint8_t *)message_buffer, strlen(message_buffer));
     pCharacteristic->notify();
+        
 
-
-    Serial.println("=================================");
-    Serial.println("print matrix B:\n");
-    matrix_print(dataset_b.gain_k);
 
     Serial.println("STATUS response sent successfully");
+}
+
+void send_ble_message_in_chunks(NimBLECharacteristic* pCharacteristic, const char* buffer, size_t total_len, size_t chunk_size) {
+    size_t sent = 0;
+    while (sent < total_len) {
+        size_t this_chunk = std::min(chunk_size, total_len - sent);
+        pCharacteristic->setValue((uint8_t*)(buffer + sent), this_chunk);
+        pCharacteristic->notify();
+        sent += this_chunk;
+        vTaskDelay(pdMS_TO_TICKS(5)); // Small delay to avoid flooding
+    }
 }
 
 // Send analog readings over BLE

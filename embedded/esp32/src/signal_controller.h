@@ -75,6 +75,9 @@ void set_all_outputs_high();
 void set_all_outputs_low();
 void update_signal_pattern(const std::string& signal);
 ERROR_CODE update_signal_control(const std::string& str_control_message);
+
+DataSet* get_dataset_active();
+std::string get_dataset_active_name();
 int get_signal_set_size(ActiveSignalSet set);
 
 // Timer ISR callback

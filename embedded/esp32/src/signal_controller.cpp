@@ -203,6 +203,18 @@ void set_all_outputs_low() {
     GPIO.out_w1tc = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
 }
 
+DataSet* get_dataset_active() {
+    DataSet* dataset_active = (active_set == ActiveSignalSet::SET_A) ? &dataset_a : &dataset_b;
+    return dataset_active;
+}
+
+std::string get_dataset_active_name() {
+    if (active_set == ActiveSignalSet::SET_A) {
+        return "SET_A";
+    }
+    return "SET_B";
+}
+
 // Return number of elements in a signal set
 int get_signal_set_size(ActiveSignalSet set) {
     if (set == ActiveSignalSet::SET_A) {

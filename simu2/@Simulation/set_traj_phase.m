@@ -42,16 +42,16 @@ function set_traj_phase(self, params)
     self.m_config.x0 = Utils.get_x0(self.m_config);
     
     % printing result
-    time_us = self.m_config.Ts*1e6;
-    dt_time_us = diff(time_us);
+    % time_us = self.m_config.Ts*1e6;
+    % dt_time_us = diff(time_us);
 
-    disp('Omega: ');
-    disp(Omega - 1);
-    disp('time_us: ');
-    disp(time_us);
-    disp('dt_time_us: ');
-    disp(dt_time_us);
-    disp('x0: ');
-    disp(self.m_config.x0);
+    % disp('Omega: ');
+    % disp(Omega - 1);
+    % disp('time_us: ');
+    % disp(time_us);
+    % disp('dt_time_us: ');
+    % disp(dt_time_us);
+    % disp('x0: ');
+    % disp(self.m_config.x0);
 
 end

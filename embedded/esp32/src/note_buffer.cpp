@@ -1,5 +1,4 @@
 #include "note_buffer.h"
-#include "Arduino.h"
 
 // --- Global Variable Definitions ---
 // These variables are defined here, and the 'extern' declarations in buffer.h refer to them.
@@ -64,21 +63,15 @@ void note_buffer_add_matrix(MatrixData& M) {
         return;
     }
 
-    std::stringstream ss;
-
     note_buffer_add_text_f("Matrix (%dx%d):\n", M.rows, M.cols);
-    // ss << "Matrix (" << M.rows << "x" << M.cols << "):";
-
     for (int i = 0; i < M.rows; ++i) {
         for (int j = 0; j < M.cols; ++j) {
             note_buffer_add_text_f("%.6f\t", M.values[i * M.cols + j]);
-            // ss << std::fixed << std::setprecision(6) << M.values[i * M.cols + j] << "\t";
         }
-        // ss << "\n";
         note_buffer_add_text("\n");
     }
     
-    note_buffer_add_text(ss.str());
+    // note_buffer_add_text(ss.str());
 }
 
 void note_buffer_print_buffer() {

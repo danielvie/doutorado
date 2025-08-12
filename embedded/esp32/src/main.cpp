@@ -84,67 +84,6 @@ void setup() {
         NULL,                       // Task handle
         CORE_1                      // CPU core
     );
-
-
-    // testing Matrix.cpp
-    // std::string k = "5;3;0.00041624,-0.00041734,-0.000835,0.00083908,0.0008333,0.00084516,-0.00084918,-0.00040503,0.00040617,-0.00081487,0.0095941,-0.0095774,0.0096154,-0.0095994,0.019302;";
-
-    // // Matrix data for performance comparison (5x3 matrix from string k)
-    // float matrix_data[15] = {
-    //     0.00041624, -0.00041734, -0.000835, 0.00083908, 0.0008333, 0.00084516,
-    //     -0.00084918, -0.00040503, 0.00040617, -0.00081487, 0.0095941, -0.0095774,
-    //     0.0096154, -0.0095994, 0.019302
-    // };
-    
-    // // Vector B (3x1)
-    // float vector_b[3] = {0.6, 0.1, 0.1};
-    
-    // // Result vector (5x1)
-    // float result_matrixmath[5];
-
-    // // Time MatrixMath computation
-    // uint64_t start_matrixmath = esp_timer_get_time();
-    
-    // // Scale matrix by -1.0 (in-place)
-    // matrix_scale(5, 3, matrix_data, -1.0);
-    
-    // // Perform matrix multiplication using MatrixMath
-    // bool success = matrix_multiply(5, 3, matrix_data, 3, 1, vector_b, result_matrixmath);
-    
-    // uint64_t end_matrixmath = esp_timer_get_time();
-    // uint64_t duration_matrixmath = end_matrixmath - start_matrixmath;
-
-    // // Time class-based computation
-    // Matrix matrix_a = Matrix::from_string(k);
-    // Matrix matrix_b(3,1,{0.6, 0.1, 0.1});
-
-    // uint64_t start_time = esp_timer_get_time();
-        
-    // auto res = matrix_a.scale(-1.0).multiply(matrix_b);
-        
-    // uint64_t end_time = esp_timer_get_time();
-    // uint64_t duration_class = end_time - start_time;
-    
-    // // Print results for verification
-    // Serial.println("=== Matrix Class Results ===");
-    // matrix_a.print();
-    // res.print();
-    
-    // Serial.println("=== MatrixMath Results ===");
-    // matrix_print(5, 1, result_matrixmath, "Result");
-    
-    // // Performance comparison
-    // Serial.println("=== Performance Comparison ===");
-    // Serial.printf("MatrixMath computation: %llu microseconds\n", duration_matrixmath);
-    // Serial.printf("Class-based computation: %llu microseconds\n", duration_class);
-    // if (duration_matrixmath > 0) {
-    //     Serial.printf("Class overhead factor: %.2fx\n", (float)duration_class / duration_matrixmath);
-    // }
-
-
-
-
-
 }
 
 /**

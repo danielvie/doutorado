@@ -37,8 +37,8 @@ function [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,K,L] = matrizes_ss_mpc_
     
     % Determinacao do ganho terminal K
     K = dlqr(Phi,Gamma,Q,R);
-    disp('ganho terminal K:')
-    disp(K)
+    % disp('ganho terminal K:')
+    % disp(K)
     Phib = Phi - Gamma*K;
     
     % Determinacao da matriz de custo terminal Pf

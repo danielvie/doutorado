@@ -26,6 +26,7 @@ extern BLETaskState ble_task_state;
 void bleTask(void* parameter);
 void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic);
 void send_message_status(NimBLECharacteristic* pCharacteristic);
+void send_ble_message_in_chunks(NimBLECharacteristic* pCharacteristic, const char* buffer, size_t total_len, size_t chunk_size = 20);
 void initialize_BLE();
 
 // BLE Callback classes
