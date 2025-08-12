@@ -258,11 +258,11 @@ void send_message_status(NimBLECharacteristic* pCharacteristic) {
     note_buffer_clear();
     note_buffer_add_text("my first note");
 
-    pCharacteristic->setValue((uint8_t *)message_buffer, strlen(message_buffer));
-    pCharacteristic->notify();
-
-    // pCharacteristic->setValue((uint8_t *)note_buffer, strlen(note_buffer));
+    // pCharacteristic->setValue((uint8_t *)message_buffer, strlen(message_buffer));
     // pCharacteristic->notify();
+
+    pCharacteristic->setValue((uint8_t *)note_buffer, strlen(note_buffer));
+    pCharacteristic->notify();
 
 
 
