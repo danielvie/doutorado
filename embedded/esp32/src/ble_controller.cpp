@@ -88,9 +88,6 @@ void BLE_router(NimBLECharacteristic *characteristic) {
     else if (message == "STATUS") {
         send_message_status(characteristic);
     } 
-    else if (message == "LAST_CALC") {
-        send_message_last_calc(characteristic);
-    } 
     else if (message == "TOGGLE_SET") {
         toggle_dataset();
     }
@@ -106,7 +103,11 @@ void BLE_router(NimBLECharacteristic *characteristic) {
     else if (message == "CONTROL_OFF") {
         set_control_off();
     }
-
+    else if (message.substr(0,10) == "LAST_CALC:") {
+        std::string payload = message.substr(10);
+        int n_chunk = std::stoi(payload);
+        send_message_last_calc(characteristic, n_chunk - 1);
+    } 
     // CYCLE_NRUN command: Set analog reading frequency
     else if (message.substr(0,11) == "CYCLE_NRUN:") {
         std::string payload = message.substr(11);
@@ -150,12 +151,12 @@ void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
     BLE_router(characteristic);
 }
 
-void send_message_last_calc(NimBLECharacteristic* pCharacteristic) {
+void send_message_last_calc(NimBLECharacteristic* pCharacteristic, int n_chunk) {
 
     note_buffer_print_buffer();
 
-    pCharacteristic->setValue((uint8_t *)note_buffer, strlen(note_buffer));
-    pCharacteristic->notify();
+    // Send in chunks to handle large messages
+    send_ble_message_chunk(pCharacteristic, note_buffer, strlen(note_buffer), 200, n_chunk);
     
 }
 
@@ -226,17 +227,50 @@ void send_message_status(NimBLECharacteristic* pCharacteristic) {
     Serial.println("STATUS response sent successfully");
 }
 
-void send_ble_message_in_chunks(NimBLECharacteristic* pCharacteristic, const char* buffer, size_t total_len, size_t chunk_size) {
-    size_t sent = 0;
-    while (sent < total_len) {
-        size_t this_chunk = std::min(chunk_size, total_len - sent);
-        pCharacteristic->setValue((uint8_t*)(buffer + sent), this_chunk);
-        pCharacteristic->notify();
-        sent += this_chunk;
-        vTaskDelay(pdMS_TO_TICKS(5)); // Small delay to avoid flooding
-    }
-}
+void send_ble_message_chunk(NimBLECharacteristic* pCharacteristic, const char* buffer, size_t total_len, size_t chunk_size, int chunk_index) {
+    // We need to account for the header size, so the actual data payload per chunk is smaller.
+    // The header "[CHUNK_X_OF_Y]" can vary in size. Let's assume a safe maximum, or use dynamic sizing.
+    // The original code used `chunk_size - 20`, let's maintain that for simplicity.
+    size_t payload_size = chunk_size - 20;
 
+    // Calculate the total number of chunks needed for the full message.
+    int total_chunks = (total_len + payload_size - 1) / payload_size;
+
+    // Check if the requested chunk index is valid.
+    if (chunk_index < 0 || chunk_index >= total_chunks) {
+        Serial.printf("Error: Invalid chunk index %d. Total chunks: %d\n", chunk_index, total_chunks);
+        return;
+    }
+
+    // Calculate the start position for the requested chunk.
+    size_t sent = chunk_index * payload_size;
+    
+    // Calculate the actual size of the data for this specific chunk.
+    size_t this_chunk_data_len = std::min(payload_size, total_len - sent);
+    
+    // Create the header for the chunk.
+    char header_buffer[20]; // Assuming header won't exceed 20 bytes
+    int header_len = snprintf(header_buffer, sizeof(header_buffer), "\n[CHUNK_%d_OF_%d]\n", chunk_index + 1, total_chunks);
+    
+    // Create the final buffer for the notification.
+    char chunk_buffer[chunk_size];
+    memcpy(chunk_buffer, header_buffer, header_len);
+    
+    // Copy the data payload after the header.
+    memcpy(chunk_buffer + header_len, buffer + sent, this_chunk_data_len);
+
+    Serial.printf("Sending chunk %d/%d: %d bytes (total length: %d)\n", 
+                  chunk_index + 1, total_chunks, header_len + this_chunk_data_len, total_len);
+
+    // Set the characteristic value and send the notification.
+    pCharacteristic->setValue((uint8_t*)chunk_buffer, header_len + this_chunk_data_len);
+    pCharacteristic->notify();
+    
+    // A small delay to ensure the client has time to process the notification
+    vTaskDelay(pdMS_TO_TICKS(50));
+    
+    Serial.printf("Chunk %d sent successfully.\n", chunk_index + 1);
+}
 // Send analog readings over BLE
 void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     // Use static buffer to avoid heap allocation issues
@@ -273,7 +307,12 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     if (matrix_isvalid(dataset_active->gain_k) && (dataset_active->gain_k.cols == 3)) {
         // compute ek -> x - x_target
 
-        matrix_multiply_vector3(dataset_active->gain_k, -v_c1, -v_c2, -i_l, control_dtk);
+        float ek[3] = {};
+        ek[0] = v_c1 - dataset_active->target[0];
+        ek[1] = v_c2 - dataset_active->target[1];
+        ek[2] = i_l - dataset_active->target[2];
+
+        matrix_multiply_vector3(dataset_active->gain_k, -ek[0], -ek[1], -ek[2], control_dtk);
 
         // compute dtk_us
         // NOTE: set g_control_dtk_us
@@ -284,15 +323,16 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
         // NOTE: conditioning dtk
 
         note_buffer_clear();
-        note_buffer_add_text_f("x:[%.4f,%.4f,%.4f]\n", v_c1, v_c2, i_l);
-        note_buffer_add_text("k ");
+        note_buffer_add_text("k=");
         note_buffer_add_matrix(dataset_active->gain_k);
-
-        note_buffer_add_text("dtk:\n");
+        note_buffer_add_text_f("x=[%.7f,%.7f,%.7f]\n", v_c1, v_c2, i_l);
+        note_buffer_add_text_f("tgt=[%.7f,%.7f,%.7f]\n", dataset_active->target[0], dataset_active->target[1], dataset_active->target[2]);
+        note_buffer_add_text_f("ek=[%.7f,%.7f,%.7f]\n", ek[0], ek[1], ek[2]);
+        note_buffer_add_text("dtk=[");
         for (size_t i = 0; i < control_dtk_len; i++) {
-            note_buffer_add_text_f("%.3f,", control_dtk[i]);
+            note_buffer_add_text_f("%.7f,", control_dtk[i]);
         }
-        note_buffer_add_text("\n");
+        note_buffer_add_text("]\n");
 
         condition_dtk_signal(dataset_active->time_vec, 10, control_dtk_us, control_dtk_len);
 
@@ -312,19 +352,18 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
         
         // save last matrix multiplication
 
-        note_buffer_add_text("dtk fix:\n");
+        note_buffer_add_text("dtk_fix=[");
         for (size_t i = 0; i < control_dtk_len; i++) {
-            note_buffer_add_text_f("%.3f,", control_dtk[i]);
+            note_buffer_add_text_f("%.7f,", control_dtk[i]);
         }
-        note_buffer_add_text("\n");
+        note_buffer_add_text("]\n");
 
-        note_buffer_add_text("ts_us:\n");
+        note_buffer_add_text("ts_us=[");
         const size_t ts_us_len = time_us_len + 1;
         for (size_t i = 0; i < ts_us_len; i++) {
-            note_buffer_add_text_f("%.3f,", ts_us[i]);
+            note_buffer_add_text_f("%.7f,", ts_us[i]);
         }
-        note_buffer_add_text("\n");
-        
+        note_buffer_add_text("]\n");
         
     } 
 

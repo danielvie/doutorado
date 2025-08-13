@@ -63,13 +63,17 @@ void note_buffer_add_matrix(MatrixData& M) {
         return;
     }
 
-    note_buffer_add_text_f("M(%dx%d):\n", M.rows, M.cols);
+    note_buffer_add_text("[");
     for (int i = 0; i < M.rows; ++i) {
         for (int j = 0; j < M.cols; ++j) {
-            note_buffer_add_text_f("%.6f\t", M.values[i * M.cols + j]);
+            if (M.values[i * M.cols + j] > 0) {
+                note_buffer_add_text(" ");
+            }
+            note_buffer_add_text_f("%.7f\t", M.values[i * M.cols + j]);
         }
         note_buffer_add_text("\n");
     }
+    note_buffer_add_text("]\n");
     
     // note_buffer_add_text(ss.str());
 }
