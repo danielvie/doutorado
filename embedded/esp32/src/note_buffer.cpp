@@ -73,7 +73,7 @@ void note_buffer_add_matrix(MatrixData& M) {
         }
         note_buffer_add_text("\n");
     }
-    note_buffer_add_text("]\n");
+    note_buffer_add_text("];\n");
     
     // note_buffer_add_text(ss.str());
 }

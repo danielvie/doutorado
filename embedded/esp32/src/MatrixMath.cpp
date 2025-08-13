@@ -19,11 +19,11 @@ bool matrix_multiply_vector3(MatrixData& M, float x1, float x2, float x3, float*
     // Cache data pointer to avoid repeated vector access overhead
     const float* data_ptr = M.values.data();
     
-    // Use the same indexing as get_element(): col * m_rows + row (column-major)
+    // Use row-major indexing consistent with matrix_print(): row * M.cols + col
     for (int i = 0; i < M.rows; ++i) {
-        result[i] = data_ptr[0 * M.rows + i] * x1 +     // matrix[i][0] * x1
-                    data_ptr[1 * M.rows + i] * x2 +     // matrix[i][1] * x2  
-                    data_ptr[2 * M.rows + i] * x3;      // matrix[i][2] * x3
+        result[i] = data_ptr[i * M.cols + 0] * x1 +     // matrix[i][0] * x1
+                    data_ptr[i * M.cols + 1] * x2 +     // matrix[i][1] * x2  
+                    data_ptr[i * M.cols + 2] * x3;      // matrix[i][2] * x3
     }
     return true;
 }
