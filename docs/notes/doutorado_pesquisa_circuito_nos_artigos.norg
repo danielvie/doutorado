@@ -3,7 +3,8 @@
 ** Patino
    {patino2010__3.pdf}
 
-   Section IV describes the examples, the second converter is a real converter for which the control law has been tested in simulation and in a real platform
+   Section IV describes the examples, the second converter is a real converter for which the control 
+   law has been tested in simulation and in a real platform
 
    The circuit is a Four-Level Three-Cell Converter
 
@@ -22,7 +23,7 @@
    - egidio2020__continuo.pdf
    - egidio2020__discreto.pdf
 
-   Only provideing implementation for the control law with a simulated model
+   Only providing implementation for the control law with a simulated model
 
    - kuiava_2011__practical_stability_of_continuous_time_switched_systems_without_a_common_equilibria_and_governed_by_a_time-dependent_switching_signal.pdf
    - liberzon_2003__switching_in_systems_and_control.pdf

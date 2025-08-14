@@ -6,6 +6,13 @@
 
 * Acompanhamento Doutorado
 
+** {@ Wednesday 13 August 2025} Calibracao
+   - [ ] consigo fazer um log usando o buffer e bluetooth?
+   -- talvez tenha que fazer uma logica pra montar o log
+   - [ ] improve status message with information of matrix and maybe warnings
+   - [ ] atualizar codigo no artigo
+   - [ ] rever literatura de referencia SIMULADOS, NUMERICO
+
 ** {@ Wednesday 6 August 2025} Calibracao
    -- [ ] melhorar interface matlab, esta ruim
    -- [ ] investigar fator de escala do sinal de leitura (10.0/6.0)

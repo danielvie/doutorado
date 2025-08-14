@@ -16,6 +16,8 @@ msg_data = s.get_msg_control_signal();
 b = BTBroker();
 b.simulation = s;
 % b.msg(msg_data);
+b.control_on = false;
+
 b.set_control_off;
 % b.msg("TOGGLE_SET_B");
 % b.msg("CONTROL_ON");

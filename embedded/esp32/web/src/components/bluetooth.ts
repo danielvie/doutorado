@@ -228,14 +228,18 @@ async function start_notifications(fn_probe: CallableFunction) {
 
                 // Convert the binary data to text
                 const decoder = new TextDecoder();
-                const message = decoder.decode(value);
+                let message = decoder.decode(value);
+                // message = message.replace(/\ncontrol\:.*/g, "")
+                // console.log(message)
 
                 // Parse the message using regex to extract key:value pairs
                 // Expected format is like "an3:1.23 an5:4.56 an6:7.89"
                 const regex = /(\w+):([\d.]+)/g;
                 const parsed_data: Record<string, string> = {};
+                console.log(parsed_data)
                 let match;
                 let has_match = false;
+
 
                 // Extract all key-value pairs from the message
                 while ((match = regex.exec(message)) !== null) {

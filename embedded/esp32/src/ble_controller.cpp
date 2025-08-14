@@ -271,6 +271,7 @@ void send_ble_message_chunk(NimBLECharacteristic* pCharacteristic, const char* b
     
     Serial.printf("Chunk %d sent successfully.\n", chunk_index + 1);
 }
+uint64_t koka_contador = 0u;
 // Send analog readings over BLE
 void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     // Use static buffer to avoid heap allocation issues
@@ -322,17 +323,20 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
 
         // NOTE: conditioning dtk
 
-        note_buffer_clear();
-        note_buffer_add_text("k=");
-        note_buffer_add_matrix(dataset_active->gain_k);
-        note_buffer_add_text_f("x=[%.7f,%.7f,%.7f];\n", v_c1, v_c2, i_l);
-        note_buffer_add_text_f("tgt=[%.7f,%.7f,%.7f];\n", dataset_active->target[0], dataset_active->target[1], dataset_active->target[2]);
-        note_buffer_add_text_f("ek=[%.7f,%.7f,%.7f];\n", ek[0], ek[1], ek[2]);
-        note_buffer_add_text("dtk=[");
-        for (size_t i = 0; i < control_dtk_len; i++) {
-            note_buffer_add_text_f("%.7f,", control_dtk[i]);
-        }
-        note_buffer_add_text("];\n");
+        // note_buffer_clear();
+        // koka_contador = koka_contador++ % 100000;
+        // note_buffer_add_text_f("cont: %d\n", koka_contador);
+
+        // note_buffer_add_text("k=");
+        // note_buffer_add_matrix(dataset_active->gain_k);
+        // note_buffer_add_text_f("x=[%.7f,%.7f,%.7f];\n", v_c1, v_c2, i_l);
+        // note_buffer_add_text_f("tgt=[%.7f,%.7f,%.7f];\n", dataset_active->target[0], dataset_active->target[1], dataset_active->target[2]);
+        // note_buffer_add_text_f("ek=[%.7f,%.7f,%.7f];\n", ek[0], ek[1], ek[2]);
+        // note_buffer_add_text("dtk=[");
+        // for (size_t i = 0; i < control_dtk_len; i++) {
+        //     note_buffer_add_text_f("%.7f,", control_dtk[i]);
+        // }
+        // note_buffer_add_text("];\n");
 
         condition_dtk_signal(dataset_active->time_vec, 10, control_dtk_us, control_dtk_len);
 
@@ -352,19 +356,26 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
         
         // save last matrix multiplication
 
-        note_buffer_add_text("dtk_fix=[");
-        for (size_t i = 0; i < control_dtk_len; i++) {
-            note_buffer_add_text_f("%.7f,", control_dtk[i]);
-        }
-        note_buffer_add_text("];\n");
+        // note_buffer_add_text("dtk_fix=[");
+        // for (size_t i = 0; i < control_dtk_len; i++) {
+        //     note_buffer_add_text_f("%.7f,", control_dtk[i]);
+        // }
+        // note_buffer_add_text("];\n");
 
-        note_buffer_add_text("ts_us=[");
-        const size_t ts_us_len = time_us_len + 1;
-        for (size_t i = 0; i < ts_us_len; i++) {
-            note_buffer_add_text_f("%.7f,", ts_us[i]);
-        }
-        note_buffer_add_text("];\n");
-        
+        // note_buffer_add_text("ts_us=[");
+        // const size_t ts_us_len = time_us_len + 1;
+        // for (size_t i = 0; i < ts_us_len; i++) {
+        //     note_buffer_add_text_f("%.7f,", ts_us[i]);
+        // }
+        // note_buffer_add_text("];\n");
+    } else {
+        note_buffer_clear();
+        koka_contador = koka_contador++ % 100000;
+        note_buffer_add_text_f("matrix is not valid!!!! cont: %d\n", koka_contador);
+        note_buffer_add_text_f("M.rows: %d; M.cols: %d\n", dataset_active->gain_k.rows, dataset_active->gain_k.cols);
+        note_buffer_add_matrix(dataset_active->gain_k);
+        // pCharacteristic->setValue((uint8_t *)control_result, strlen(control_result));
+        // pCharacteristic->notify();
     } 
 
     // Format message with sensor readings using snprintf for safety
@@ -380,7 +391,8 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     analog_buffer[sizeof(analog_buffer) - 1] = '\0';
 
     snprintf(control_result, sizeof(control_result), 
-             "v_c1:%.3f, v_c2:%.3f, i_l:%.3f\ncontrol:[%d,%d,%d,%d,%d]", 
+             "an3:%.3f, an5:%.3f, an6:%.3f\nv_c1:%.3f, v_c2:%.3f, i_l:%.3f\ncontrol:[%d,%d,%d,%d,%d]", 
+             voltage_03, voltage_05, voltage_06,
              v_c1, v_c2, i_l,
              control_dtk_us[0],control_dtk_us[1],control_dtk_us[2],control_dtk_us[3],control_dtk_us[4]);
 
