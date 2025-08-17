@@ -1,8 +1,9 @@
 #ifndef MATRIX_MATH_H
 #define MATRIX_MATH_H
 
-#include <Arduino.h>
 #include <vector>
+
+#include "Print.h"
 
 struct MatrixData {
     std::vector<float> values;
@@ -16,3 +17,4 @@ void matrix_print(MatrixData& M);
 void matrix_test();
 
 #endif // MATRIX_MATH_H
+
