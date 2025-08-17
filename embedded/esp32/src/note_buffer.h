@@ -1,15 +1,13 @@
 #pragma once
 
+#include "Arduino.h"
+
 #include <iostream>
 #include <cstring>
 #include <string>
 #include <algorithm>
 
-// #include <sstream>
-// #include <iomanip>
-
-#include "Arduino.h"
-#include "MatrixMath.h"
+#include "matrix_math.h"
 
 // --- Global Variable Declarations ---
 // The static buffer to store text. 'extern' indicates that this variable is defined elsewhere.

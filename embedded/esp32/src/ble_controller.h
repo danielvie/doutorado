@@ -7,7 +7,7 @@
 
 #include "signal_controller.h"
 #include "note_buffer.h"
-#include "MatrixMath.h"
+#include "matrix_math.h"
 #include "helpers.h"
 #include "signal_controller.h"
 

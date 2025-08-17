@@ -6,7 +6,7 @@
  */
 
 #include <math.h>
-#include "helpers.h"
+#include "Helpers.h"
 #include "signal_controller.h"
 #include "ble_controller.h"
 #include "Arduino.h"
