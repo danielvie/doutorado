@@ -3,12 +3,17 @@
 
 #include <Arduino.h>
 #include <vector>
-#include "signal_controller.h"
 
 // bool matrix_multiply(int& rows_a, int& cols_a, std::vector<float>& values_a,
 //                     int& rows_b, int& cols_b, std::vector<float>& values_b,
 //                     std::vector<float>& result);
 
+
+struct MatrixData {
+    std::vector<float> values;
+    int rows, cols;
+    bool is_valid;
+};
 
 bool matrix_isvalid(MatrixData& M);
 bool matrix_multiply_vector3(MatrixData& M, float x1, float x2, float x3, float* result);

@@ -6,6 +6,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "helpers.h"
+#include "MatrixMath.h"
 
 // Timer configuration for precise signal timing
 #define CPU_FREQ_MHZ 240         // ESP32 CPU frequency
@@ -37,11 +38,6 @@ extern volatile bool switch_set_pending;
 
 // Signal vectors
 
-struct MatrixData {
-    std::vector<float> values;
-    int rows, cols;
-    bool is_valid;
-};
 
 struct DataSet {
     std::vector<uint32_t> time_vec;
