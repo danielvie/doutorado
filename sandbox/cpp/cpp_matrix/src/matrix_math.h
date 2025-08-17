@@ -1,13 +1,14 @@
 #ifndef MATRIX_MATH_H
 #define MATRIX_MATH_H
 
-#include <vector>
-
 #include "Print.h"
 
+#define MAX_MATRIX_ELEMENTS 100
+
 struct MatrixData {
-    std::vector<float> values;
-    int rows, cols;
+    float values[MAX_MATRIX_ELEMENTS];
+    uint16_t size;
+    uint16_t rows, cols;
     bool is_valid;
 };
 

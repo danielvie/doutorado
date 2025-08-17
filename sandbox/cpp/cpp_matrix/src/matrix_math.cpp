@@ -9,7 +9,7 @@ bool matrix_isvalid(MatrixData& M) {
     if (M.rows <= 0 || M.cols <= 0) {
         return false;
     }
-    if (M.values.size() != static_cast<size_t>(M.rows*M.cols)) {
+    if (M.size != static_cast<size_t>(M.rows*M.cols)) {
         return false;
     }
     
@@ -18,7 +18,7 @@ bool matrix_isvalid(MatrixData& M) {
 
 bool matrix_multiply_vector3(MatrixData& M, float x1, float x2, float x3, float* result) {
     // Cache data pointer to avoid repeated vector access overhead
-    const float* data_ptr = M.values.data();
+    const float* data_ptr = M.values;
     
     // Use row-major indexing consistent with matrix_print(): row * M.cols + col
     for (int i = 0; i < M.rows; ++i) {
@@ -53,6 +53,7 @@ void matrix_test() {
         .values = {1.0, 0.0, 0.0,
                    0.0, 1.0, 0.0,
                    0.0, 0.0, 1.0},
+        .size = 9,
         .rows = 3,
         .cols = 3,
         .is_valid = true
@@ -67,6 +68,7 @@ void matrix_test() {
     MatrixData mat2x3 = {
         .values = {1.0, 2.0, 3.0,   // Row 1: 1*1 + 2*(-1) + 3*2 = 1 - 2 + 6 = 5
                    4.0, 5.0, 6.0},  // Row 2: 4*1 + 5*(-1) + 6*2 = 4 - 5 + 12 = 11
+        .size = 6,
         .rows = 2,
         .cols = 3,
         .is_valid = true
@@ -80,6 +82,7 @@ void matrix_test() {
     println("\nTest 3: 1x3 matrix * [2, 3, 4]");
     MatrixData mat1x3 = {
         .values = {0.5, 1.5, -2.0},  // 0.5*2 + 1.5*3 + (-2.0)*4 = 1 + 4.5 - 8 = -2.5
+        .size = 3,
         .rows = 1,
         .cols = 3,
         .is_valid = true
@@ -96,6 +99,7 @@ void matrix_test() {
                    0.0, 2.0, 0.0,    // Row 2: 0*1 + 2*0 + 0*(-1) = 0  
                    1.0, 1.0, 1.0,    // Row 3: 1*1 + 1*0 + 1*(-1) = 0
                    2.0, -1.0, 3.0},  // Row 4: 2*1 + (-1)*0 + 3*(-1) = -1
+        .size = 12,
         .rows = 4,
         .cols = 3,
         .is_valid = true
@@ -110,6 +114,7 @@ void matrix_test() {
     MatrixData matFrac = {
         .values = {10.0, 20.0, 30.0,  // Row 1: 10*0.1 + 20*0.2 + 30*0.3 = 1 + 4 + 9 = 14
                    1.0, -2.0, 5.0},   // Row 2: 1*0.1 + (-2)*0.2 + 5*0.3 = 0.1 - 0.4 + 1.5 = 1.2
+        .size = 6,
         .rows = 2,
         .cols = 3,
         .is_valid = true
