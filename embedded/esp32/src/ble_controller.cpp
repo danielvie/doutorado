@@ -62,7 +62,7 @@ void BLE_router(NimBLECharacteristic *characteristic) {
     // HIGH command: Set all outputs to constant high
     else if (message == "HIGH") {
         if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
-            signal_task_state = SignalTaskState::HIGH_RUN;
+            signal_task_state = SignalTaskState::HIGH_ALL;
             xSemaphoreGive(signal_mutex);
         }
         stop_signal_timer();
@@ -178,8 +178,8 @@ void send_message_status(NimBLECharacteristic* pCharacteristic) {
     }
 
     pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "state: ");
-    if (signal_task_state == SignalTaskState::HIGH_RUN) {
-        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "SignalTaskState::HIGH_RUN\n");
+    if (signal_task_state == SignalTaskState::HIGH_ALL) {
+        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "SignalTaskState::HIGH_ALL\n");
     } else if (signal_task_state == SignalTaskState::IDLE) {
         pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "SignalTaskState::IDLE\n");
     } else if (signal_task_state == SignalTaskState::SIGNAL_RUN) {

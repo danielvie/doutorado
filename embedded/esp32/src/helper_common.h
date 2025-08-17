@@ -59,7 +59,7 @@ enum class ActiveSignalSet {
  */
 enum class SignalTaskState { 
     IDLE,       // No signal generation, all outputs low
-    HIGH_RUN,   // All outputs forced high (constant)
+    HIGH_ALL,   // All outputs forced high (constant)
     SIGNAL_RUN  // Active signal pattern generation
 };
 

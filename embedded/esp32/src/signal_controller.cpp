@@ -390,8 +390,8 @@ void signal_task(void* arg) {
                 GPIO.out_w1tc = (1 << 2) | gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;  // Include LED
                 break;
                 
-            case SignalTaskState::HIGH_RUN:
-                // All outputs high in HIGH_RUN mode
+            case SignalTaskState::HIGH_ALL:
+                // All outputs high in HIGH_ALL mode
                 GPIO.out_w1ts = (1 << 2) | gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;  // Include LED
                 break;
                 

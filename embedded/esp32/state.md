@@ -19,10 +19,10 @@
 
     state "Signal Task States" as Signal_States {
         IDLE --> SIGNAL_RUN : "START" command received
-        IDLE --> HIGH_RUN : "HIGH" command received
-        HIGH_RUN --> IDLE : "STOP" or "LOW" command received
+        IDLE --> HIGH_ALL : "HIGH" command received
+        HIGH_ALL --> IDLE : "STOP" or "LOW" command received
         SIGNAL_RUN --> IDLE : "STOP" or "LOW" command received
-        SIGNAL_RUN --> HIGH_RUN : "HIGH" command received
+        SIGNAL_RUN --> HIGH_ALL : "HIGH" command received
 
         SIGNAL_RUN --> SIGNAL_RUN : current_state == active_num_timings - 1 AND switch_set_pending (switch active_set)
     }
