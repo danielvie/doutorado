@@ -1,4 +1,4 @@
-#include "matrix_math.h"
+#include "helpers_matrix.h"
 
 bool matrix_isvalid(MatrixData& M) {
     // rows -> m

@@ -64,7 +64,7 @@ void setup() {
     xTaskCreatePinnedToCore(
         bleTask,                    // Task function
         "BLE Task",                 // Task name
-        10240,                      // Stack size (increased from 8192 to 10240 bytes)
+        10240,                      // Stack size (bytes)
         NULL,                       // Task parameter
         3,                          // Priority (increased from 2 to 3)
         NULL,                       // Task handle
@@ -75,7 +75,7 @@ void setup() {
     xTaskCreatePinnedToCore(
         signal_task,                 // Task function
         "Signal Task",              // Task name
-        2048,                       // Stack size (bytes)
+        4096,                       // Stack size (bytes)
         NULL,                       // Task parameter
         configMAX_PRIORITIES - 2,   // High priority (second highest)
         NULL,                       // Task handle

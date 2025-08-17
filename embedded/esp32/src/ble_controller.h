@@ -6,10 +6,10 @@
 #include "esp_task_wdt.h"
 
 #include "signal_controller.h"
-#include "note_buffer.h"
-#include "matrix_math.h"
-#include "helpers.h"
 #include "signal_controller.h"
+#include "helpers.h"
+#include "helpers_matrix.h"
+#include "helpers_note.h"
 
 // BLE Service and Characteristic UUIDs for remote control
 #define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
