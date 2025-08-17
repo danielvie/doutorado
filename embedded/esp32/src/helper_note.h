@@ -7,7 +7,7 @@
 #include <string>
 #include <algorithm>
 
-#include "helpers_matrix.h"
+#include "helper_matrix.h"
 
 // --- Global Variable Declarations ---
 // The static buffer to store text. 'extern' indicates that this variable is defined elsewhere.

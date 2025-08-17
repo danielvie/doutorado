@@ -7,9 +7,9 @@
 #include "freertos/task.h"
 #include <Arduino.h>
 
-#include "Helpers.h"
+#include "helper_common.h"
 #include "ble_controller.h"
-#include "helpers_matrix.h"
+#include "helper_matrix.h"
 
 // Timer configuration for precise signal timing
 #define CPU_FREQ_MHZ 240         // ESP32 CPU frequency
