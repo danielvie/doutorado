@@ -1,7 +1,4 @@
-#include <Arduino.h>
 #include "ble_controller.h"
-#include "signal_controller.h"
-#include "note_buffer.h"
 
 // External references to global variables
 extern SignalTaskState signal_task_state;

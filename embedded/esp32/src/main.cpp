@@ -15,8 +15,6 @@
 
 #include "ble_controller.h"
 #include "signal_controller.h"
-#include "helpers.h"
-#include "MatrixMath.h"
 
 // CPU Core definitions for task assignment
 #define CORE_0 0

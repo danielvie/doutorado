@@ -1,11 +1,14 @@
 #ifndef SIGNAL_CONTROLLER_H
 #define SIGNAL_CONTROLLER_H
 
-#include <Arduino.h>
 #include "driver/timer.h"
+#include "esp_task_wdt.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include <Arduino.h>
+
 #include "helpers.h"
+#include "ble_controller.h"
 #include "MatrixMath.h"
 
 // Timer configuration for precise signal timing

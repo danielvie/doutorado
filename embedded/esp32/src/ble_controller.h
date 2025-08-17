@@ -1,9 +1,13 @@
 #ifndef BLE_CONTROLLER_H
 #define BLE_CONTROLLER_H
 
+#include <Arduino.h>
 #include <NimBLEDevice.h>
-#include "MatrixMath.h"
 #include "esp_task_wdt.h"
+
+#include "signal_controller.h"
+#include "note_buffer.h"
+#include "MatrixMath.h"
 #include "helpers.h"
 #include "signal_controller.h"
 

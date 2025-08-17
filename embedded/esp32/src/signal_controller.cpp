@@ -1,6 +1,4 @@
 #include "signal_controller.h"
-#include "ble_controller.h"
-#include "esp_task_wdt.h"
 
 // Default signal pattern configuration
 std::vector<uint32_t> timings = {50, 50, 50, 50, 50, 50};        // Timing intervals in timer ticks
