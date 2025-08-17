@@ -273,7 +273,7 @@ void update_signal_pattern(const std::string& signal) {
 
 ERROR_CODE update_signal_control(const std::string& str_control_message) {
 
-    int new_m,new_n;
+    int new_rows,new_cols;
     std::vector<float> new_gain_k;
     std::vector<uint32_t> new_timings;
     std::vector<uint32_t> new_modes;
@@ -281,7 +281,7 @@ ERROR_CODE update_signal_control(const std::string& str_control_message) {
     ERROR_CODE err;
 
     // NOTE: 1 -> parse message
-    parse_control_message(str_control_message, new_m, new_n, new_gain_k, new_timings, new_modes, new_target);
+    parse_control_message(str_control_message, new_gain_k, new_rows, new_cols, new_timings, new_modes, new_target);
 
     if (err != ERROR_CODE::OK) {
         print_error_code(err);
@@ -301,15 +301,15 @@ ERROR_CODE update_signal_control(const std::string& str_control_message) {
 
     auto dataset_helper = [&new_timings, &new_d4_vec, 
                             &new_d5_vec, &new_d6_vec, 
-                            &new_target, &new_m, 
-                            &new_n, &new_gain_k](DataSet& data_set) {
+                            &new_target, &new_rows, 
+                            &new_cols, &new_gain_k](DataSet& data_set) {
         
         data_set.time_vec = new_timings;
         data_set.d4_vec = new_d4_vec;
         data_set.d5_vec = new_d5_vec;
         data_set.d6_vec = new_d6_vec;
         data_set.target = new_target;
-        data_set.gain_k = MatrixData{.values = new_gain_k, .rows = new_m, .cols = new_n};
+        data_set.gain_k = MatrixData{.values = new_gain_k, .rows = new_rows, .cols = new_cols};
     };
 
     if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {

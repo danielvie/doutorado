@@ -220,7 +220,7 @@ ERROR_CODE parse_control_message__vector_double(std::string& s, size_t& semicolo
         return ERROR_CODE::OK;
 }
 
-ERROR_CODE parse_control_message(const std::string& input_str, int& out_m, int& out_n, std::vector<float>& gain_k_data, std::vector<uint32_t>& times, std::vector<uint32_t>& modes, std::vector<float>& target) {
+ERROR_CODE parse_control_message(const std::string& input_str, std::vector<float>& gain_k_data, int& out_m, int& out_n, std::vector<uint32_t>& times, std::vector<uint32_t>& modes, std::vector<float>& target) {
 
     // ensure that the vectors are clear
     gain_k_data.clear();
