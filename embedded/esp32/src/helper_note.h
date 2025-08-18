@@ -11,22 +11,70 @@
 
 // --- Global Variable Declarations ---
 // The static buffer to store text. 'extern' indicates that this variable is defined elsewhere.
-static const int NOTE_BUFFER_MAX_SIZE = 2048;
+static const int NOTE_BUFFER_SIZE = 2048;
 static const int NOTE_TEMP_BUFFER_SIZE = 256;
-extern char note_buffer[NOTE_BUFFER_MAX_SIZE];
+
+// extern char note_buffer[NOTE_BUFFER_MAX_SIZE];
+
+
+struct NoteData {
+    char* buffer;
+    size_t buffer_size;
+    size_t idx;
+    bool is_full;
+    
+    // Default constructor with default size
+    NoteData() : buffer_size(NOTE_BUFFER_SIZE), idx(0), is_full(false) {
+        buffer = new char[buffer_size];
+    }
+    
+    // Constructor with custom size
+    NoteData(size_t size) : buffer_size(size), idx(0), is_full(false) {
+        buffer = new char[buffer_size];
+    }
+    
+    // Destructor to free memory
+    ~NoteData() {
+        delete[] buffer;
+    }
+    
+    // Copy constructor
+    NoteData(const NoteData& other) : buffer_size(other.buffer_size), idx(other.idx), is_full(other.is_full) {
+        buffer = new char[buffer_size];
+        std::memcpy(buffer, other.buffer, buffer_size);
+    }
+    
+    // Assignment operator
+    NoteData& operator=(const NoteData& other) {
+        if (this != &other) {
+            delete[] buffer;
+            buffer_size = other.buffer_size;
+            idx = other.idx;
+            is_full = other.is_full;
+            buffer = new char[buffer_size];
+            std::memcpy(buffer, other.buffer, buffer_size);
+        }
+        return *this;
+    }
+};
+
+    // char note_buffer[NOTE_BUFFER_MAX_SIZE];
+    // size_t note_buffer_idx = 0;
+    // bool note_buffer_is_full = false;
+
 
 // A static index to keep track of the current position to write to.
-extern size_t note_buffer_idx;
+// extern size_t note_buffer_idx;
 
 // An auxiliary variable to track if the buffer is full.
-extern bool note_buffer_is_full;
+// extern bool note_buffer_is_full;
 
 // --- Function Prototypes ---
 // These are the declarations for the functions defined in buffer.cpp.
-void note_buffer_clear();
-void note_buffer_add_text(const std::string& text_to_add);
-void note_buffer_add_text_f(const char* format, ...);
+void note_buffer_clear(NoteData& data);
+void note_buffer_add_text(NoteData& data, const std::string& text_to_add);
+void note_buffer_add_text_f(NoteData& data, const char* format, ...);
 
-void note_buffer_add_matrix(MatrixData& M);
+void note_buffer_add_matrix(NoteData& data, MatrixData& M);
 
-void note_buffer_print_buffer();
+void note_buffer_print_buffer(NoteData& data);

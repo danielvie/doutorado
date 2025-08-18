@@ -3,10 +3,6 @@
 // --- Global Variable Definitions ---
 // These variables are defined here, and the 'extern' declarations in buffer.h refer to them.
 
-// char note_buffer[NOTE_BUFFER_MAX_SIZE];
-// size_t note_buffer_idx = 0;
-// bool note_buffer_is_full = false;
-
 // --- Function Definitions ---
 void note_buffer_clear(NoteData& data) {
     std::fill(data.buffer, data.buffer + data.buffer_size, '\0');

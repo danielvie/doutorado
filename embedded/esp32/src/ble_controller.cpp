@@ -14,7 +14,7 @@ BLETaskState ble_task_state = BLETaskState::IDLE;
 // NOTE: Global matrix variable for gain matrix
 ControlStatus g_control_status = ControlStatus::OFF;
 
-// Matrix g_control_gain_k(1, 1, {0.0});  // Initialize with 1x1 matrix containing 0
+NoteData g_log_last_calc(1024);
 
 // LED blink utility function for status indication
 void blink(uint8_t N) {
@@ -107,10 +107,10 @@ void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
 
 void send_message_last_calc(NimBLECharacteristic* pCharacteristic, int n_chunk) {
 
-    note_buffer_print_buffer();
+    note_buffer_print_buffer(g_log_last_calc);
 
     // Send in chunks to handle large messages
-    send_ble_message_chunk(pCharacteristic, note_buffer, strlen(note_buffer), 200, n_chunk);
+    send_ble_message_chunk(pCharacteristic, g_log_last_calc.buffer, strlen(g_log_last_calc.buffer), 200, n_chunk);
     
 }
 
@@ -277,20 +277,20 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
 
         // NOTE: conditioning dtk
 
-        // note_buffer_clear();
-        // koka_contador = koka_contador++ % 100000;
-        // note_buffer_add_text_f("cont: %d\n", koka_contador);
+        note_buffer_clear(g_log_last_calc);
+        koka_contador = koka_contador++ % 100000;
+        note_buffer_add_text_f(g_log_last_calc, "cont: %d\n", koka_contador);
 
-        // note_buffer_add_text("k=");
-        // note_buffer_add_matrix(dataset_active->gain_k);
-        // note_buffer_add_text_f("x=[%.7f,%.7f,%.7f];\n", v_c1, v_c2, i_l);
-        // note_buffer_add_text_f("tgt=[%.7f,%.7f,%.7f];\n", dataset_active->target[0], dataset_active->target[1], dataset_active->target[2]);
-        // note_buffer_add_text_f("ek=[%.7f,%.7f,%.7f];\n", ek[0], ek[1], ek[2]);
-        // note_buffer_add_text("dtk=[");
-        // for (size_t i = 0; i < control_dtk_len; i++) {
-        //     note_buffer_add_text_f("%.7f,", control_dtk[i]);
-        // }
-        // note_buffer_add_text("];\n");
+        note_buffer_add_text(g_log_last_calc, "k=");
+        note_buffer_add_matrix(g_log_last_calc, dataset_active->gain_k);
+        note_buffer_add_text_f(g_log_last_calc, "x=[%.7f,%.7f,%.7f];\n", v_c1, v_c2, i_l);
+        note_buffer_add_text_f(g_log_last_calc, "tgt=[%.7f,%.7f,%.7f];\n", dataset_active->target[0], dataset_active->target[1], dataset_active->target[2]);
+        note_buffer_add_text_f(g_log_last_calc, "ek=[%.7f,%.7f,%.7f];\n", ek[0], ek[1], ek[2]);
+        note_buffer_add_text(g_log_last_calc, "dtk=[");
+        for (size_t i = 0; i < control_dtk_len; i++) {
+            note_buffer_add_text_f(g_log_last_calc, "%.7f,", control_dtk[i]);
+        }
+        note_buffer_add_text(g_log_last_calc, "];\n");
 
         condition_dtk_signal(dataset_active->time_vec, 10, control_dtk_us, control_dtk_len);
 
@@ -309,25 +309,25 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
         }
         
         // save last matrix multiplication
+        note_buffer_add_text(g_log_last_calc, "dtk_fix=[");
+        for (size_t i = 0; i < control_dtk_len; i++) {
+            note_buffer_add_text_f(g_log_last_calc, "%.7f,", control_dtk[i]);
+        }
+        note_buffer_add_text(g_log_last_calc, "];\n");
 
-        // note_buffer_add_text("dtk_fix=[");
-        // for (size_t i = 0; i < control_dtk_len; i++) {
-        //     note_buffer_add_text_f("%.7f,", control_dtk[i]);
-        // }
-        // note_buffer_add_text("];\n");
+        note_buffer_add_text(g_log_last_calc, "ts_us=[");
+        const size_t ts_us_len = time_us_len + 1;
+        for (size_t i = 0; i < ts_us_len; i++) {
+            note_buffer_add_text_f(g_log_last_calc, "%.7f,", ts_us[i]);
+        }
+        note_buffer_add_text(g_log_last_calc, "];\n");
 
-        // note_buffer_add_text("ts_us=[");
-        // const size_t ts_us_len = time_us_len + 1;
-        // for (size_t i = 0; i < ts_us_len; i++) {
-        //     note_buffer_add_text_f("%.7f,", ts_us[i]);
-        // }
-        // note_buffer_add_text("];\n");
     } else {
-        note_buffer_clear();
+        note_buffer_clear(g_log_last_calc);
         koka_contador = koka_contador++ % 100000;
-        note_buffer_add_text_f("matrix is not valid!!!! cont: %d\n", koka_contador);
-        note_buffer_add_text_f("M.rows: %d; M.cols: %d\n", dataset_active->gain_k.rows, dataset_active->gain_k.cols);
-        note_buffer_add_matrix(dataset_active->gain_k);
+        note_buffer_add_text_f(g_log_last_calc, "matrix is not valid!!!! cont: %d\n", koka_contador);
+        note_buffer_add_text_f(g_log_last_calc, "M.rows: %d; M.cols: %d\n", dataset_active->gain_k.rows, dataset_active->gain_k.cols);
+        note_buffer_add_matrix(g_log_last_calc, dataset_active->gain_k);
         // pCharacteristic->setValue((uint8_t *)control_result, strlen(control_result));
         // pCharacteristic->notify();
     } 
