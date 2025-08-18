@@ -5,6 +5,8 @@
 #include <vector>
 #include <driver/adc.h>
 #include <numeric>
+#include <chrono>
+#include <random>
 
 // Forward declarations
 struct DataSet;
@@ -122,6 +124,7 @@ std::string get_ble_task_state_label(BLETaskState state);
 std::string get_signal_task_state_label(SignalTaskState state);
 std::string get_status_onoff_label(StatusONOFF status);
 DataSet* get_dataset_from_set(SignalSet set);
+uint32_t get_rand_int(uint32_t a, uint32_t b);
 
 // Print error code to Serial
 void print_error_code(ERROR_CODE err);

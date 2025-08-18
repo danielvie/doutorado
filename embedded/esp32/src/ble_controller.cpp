@@ -1,5 +1,8 @@
 #include "ble_controller.h"
 
+#include <chrono>
+#include <random>
+
 // External references to global variables
 extern SignalTaskState g_signal_task_state;
 extern SemaphoreHandle_t g_signal_mutex;
@@ -231,7 +234,7 @@ void send_ble_message_chunk(NimBLECharacteristic* pCharacteristic, const char* b
     
     Serial.printf("Chunk %d sent successfully.\n", chunk_index + 1);
 }
-uint64_t koka_contador = 0ul;
+
 // Send analog readings over BLE
 void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     // Use static buffer to avoid heap allocation issues
@@ -285,9 +288,11 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
 
         // first part part of the log
         if (g_system_status.log_last_calc == StatusONOFF::ON) {
-            koka_contador = std::remainder(koka_contador++, 100000);
             note_buffer_clear(g_log_last_calc);
-            note_buffer_add_text_f(g_log_last_calc, "cont: %d\n", koka_contador);
+
+            auto rand_int = get_rand_int(1, 1000000);
+
+            note_buffer_add_text_f(g_log_last_calc, "rand: %d\n", rand_int);
 
             note_buffer_add_text(g_log_last_calc, "k=");
             note_buffer_add_matrix(g_log_last_calc, dataset_active->gain_k);
@@ -335,8 +340,7 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
 
     } else {
         note_buffer_clear(g_log_last_calc);
-        koka_contador = std::remainder(koka_contador++, 100000);
-        note_buffer_add_text_f(g_log_last_calc, "matrix is not valid!!!! cont: %d\n", koka_contador);
+        note_buffer_add_text_f(g_log_last_calc, "matrix is not valid!!!! rand: %d\n", get_rand_int(1, 1000000));
         note_buffer_add_text_f(g_log_last_calc, "M.rows: %d; M.cols: %d\n", dataset_active->gain_k.rows, dataset_active->gain_k.cols);
         note_buffer_add_matrix(g_log_last_calc, dataset_active->gain_k);
     } 

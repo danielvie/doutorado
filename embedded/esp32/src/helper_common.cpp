@@ -127,6 +127,16 @@ DataSet* get_dataset_from_set(SignalSet set) {
     return dataset;
 }
 
+uint32_t get_rand_int(uint32_t a, uint32_t b) {
+    unsigned seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+    std::mt19937 gen(seed);
+    std::uniform_int_distribution<uint32_t> rand(1, 1000000);
+    uint32_t rand_int = rand(gen);
+    
+    return rand_int;
+}
+
+
 float esp32_calibration(float value) {
     
     // return value;
