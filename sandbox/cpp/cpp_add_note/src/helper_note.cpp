@@ -2,44 +2,45 @@
 
 // --- Global Variable Definitions ---
 // These variables are defined here, and the 'extern' declarations in buffer.h refer to them.
-char note_buffer[NOTE_BUFFER_MAX_SIZE];
-size_t note_buffer_idx = 0;
-bool note_buffer_is_full = false;
+
+// char note_buffer[NOTE_BUFFER_MAX_SIZE];
+// size_t note_buffer_idx = 0;
+// bool note_buffer_is_full = false;
 
 // --- Function Definitions ---
-void note_buffer_clear() {
-    std::fill(note_buffer, note_buffer + NOTE_BUFFER_MAX_SIZE, '\0');
-    note_buffer_idx = 0;
-    note_buffer_is_full = false;
+void note_buffer_clear(NoteData& data) {
+    std::fill(data.buffer, data.buffer + NOTE_BUFFER_SIZE, '\0');
+    data.idx = 0;
+    data.is_full = false;
 }
 
-void note_buffer_add_text(const std::string& text_to_add) {
-    if (note_buffer_is_full) {
+void note_buffer_add_text(NoteData& data, const std::string& text_to_add) {
+    if (data.is_full) {
         return;
     }
 
     size_t text_length = text_to_add.length();
-    size_t remaining_space = NOTE_BUFFER_MAX_SIZE - note_buffer_idx;
+    size_t remaining_space = NOTE_BUFFER_SIZE - data.idx;
 
     if (text_length > remaining_space) {
-        note_buffer_is_full = true;
+        data.is_full = true;
         return;
     }
     
     // Copy the text into the buffer.
     for (size_t i = 0; i < text_length; ++i) {
-        note_buffer[note_buffer_idx] = text_to_add[i];
-        note_buffer_idx++;
+        data.buffer[data.idx] = text_to_add[i];
+        data.idx++;
     }
     
     // Add a null terminator after the text for easier printing.
-    if (note_buffer_idx < NOTE_BUFFER_MAX_SIZE) {
-        note_buffer[note_buffer_idx] = '\0';
+    if (data.idx < NOTE_BUFFER_SIZE) {
+        data.buffer[data.idx] = '\0';
     }
 }
 
-void note_buffer_add_text_f(const char* format, ...) {
-    if (note_buffer_is_full) {
+void note_buffer_add_text_f(NoteData& data, const char* format, ...) {
+    if (data.is_full) {
         std::cout << "Buffer is full. Cannot add new text." << std::endl;
         return;
     }
@@ -54,43 +55,42 @@ void note_buffer_add_text_f(const char* format, ...) {
     va_end(args);
 
     // Call the original add_text function with the formatted string.
-    note_buffer_add_text(temp_buffer);
+    note_buffer_add_text(data, temp_buffer);
 }
 
-void note_buffer_add_matrix(MatrixData& M) {
+void note_buffer_add_matrix(NoteData& data, MatrixData& M) {
     if (!matrix_isvalid(M)) {
-        note_buffer_add_text("Matrix is not valid!!\n");
+        note_buffer_add_text(data, "Matrix is not valid!!\n");
         return;
     }
 
-    note_buffer_add_text("[");
+    note_buffer_add_text(data, "[");
     for (int i = 0; i < M.rows; ++i) {
         for (int j = 0; j < M.cols; ++j) {
             if (M.values[i * M.cols + j] > 0) {
-                note_buffer_add_text(" ");
+                note_buffer_add_text(data, " ");
             }
-            note_buffer_add_text_f("%.7f\t", M.values[i * M.cols + j]);
+            note_buffer_add_text_f(data, "%.7f\t", M.values[i * M.cols + j]);
         }
-        note_buffer_add_text("\n");
+        note_buffer_add_text(data, "\n");
     }
-    note_buffer_add_text("];\n");
+    note_buffer_add_text(data, "];\n");
     
     // note_buffer_add_text(ss.str());
 }
 
-void note_buffer_print_buffer() {
-    for (size_t i = 0; i < NOTE_BUFFER_MAX_SIZE; ++i) {
+void note_buffer_print_buffer(NoteData& data) {
+    for (size_t i = 0; i < NOTE_BUFFER_SIZE; ++i) {
         // Print character, or a period if it's a null terminator for visibility.
-        if (note_buffer[i] == '\0') {
+        if (data.buffer[i] == '\0') {
             printf(".");
         } else {
-            printf("%c", note_buffer[i]);
+            printf("%c", data.buffer[i]);
         }
     }
 
     printf("\n");
-    const float buffer_used = ((float)note_buffer_idx)/((float)NOTE_BUFFER_MAX_SIZE) * 100.0;
-    printf("[buffer size: %d, idx: %lld, used: %.1f%%]\n", NOTE_BUFFER_MAX_SIZE, note_buffer_idx, buffer_used);
+    const float buffer_used = ((float)data.idx)/((float)NOTE_BUFFER_SIZE) * 100.0;
+    printf("[buffer size: %d, idx: %lld, used: %.1f%%]\n", NOTE_BUFFER_SIZE, data.idx, buffer_used);
     printf("\n\n");
 }
-
