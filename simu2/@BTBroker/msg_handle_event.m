@@ -1,8 +1,9 @@
 function msg_handle_event(self, src, ~)
     message = char(read(src));
     
-    if contains(message, 'status') 
+    if contains(message, 'STATUS') 
         disp(message);
+        return;
     end
 
     if self.verbose

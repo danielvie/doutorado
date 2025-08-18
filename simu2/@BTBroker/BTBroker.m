@@ -73,6 +73,7 @@ classdef BTBroker < handle
         % .. getters
         get_signal(self);
         get_status(self);
+        get_status_durations(self);
         get_status_matrix_a(self);
         get_status_matrix_b(self);
         get_last_calc(self, n_chunk);

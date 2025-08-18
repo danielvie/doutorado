@@ -15,7 +15,6 @@ struct DataSet;
 #define ADC_MAX 4095.0      // 12-bit ADC maximum value (2^12 - 1)
 #define VOLTAGE_MAX 3.3     // Maximum voltage reference (3.3V)
 
-
 enum class StatusONOFF {
     ON,
     OFF,
@@ -27,7 +26,15 @@ struct SystemStatus {
     StatusONOFF log_last_calc;
 };
 
+struct SystemDuration {
+    int64_t read_and_send_analog_us;
+    int64_t matrix_multiply_us;
+    int64_t dtk_condition;
+    int64_t update_signal_with_dtk;
+};
+
 extern SystemStatus g_system_status;
+extern SystemDuration g_system_duration;
 
 enum class ERROR_CODE {
     OK,

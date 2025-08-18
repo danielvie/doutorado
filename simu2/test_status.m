@@ -21,7 +21,7 @@ b.control_on = false;
 b.set_control_off;
 % b.msg("TOGGLE_SET_B");
 % b.msg("CONTROL_ON");
-b.v_on;
+b.v_off;
 
 b.ss(0.5);
 % b.tg_b();

@@ -29,6 +29,13 @@ SystemStatus g_system_status = {
     .log_last_calc = StatusONOFF::OFF,
 };
 
+SystemDuration g_system_duration = {
+    .read_and_send_analog_us = 0,
+    .matrix_multiply_us = 0,
+    .dtk_condition = 0,
+    .update_signal_with_dtk = 0,
+};
+
 // calibration function
 // Apply calibration transformation to ESP32 voltage reading
 float calib_from[] = {0.00, 0.07, 0.17, 0.26, 0.36, 0.46, 0.56, 0.66, 0.76, 0.86, 0.96, 1.06, 1.16, 1.27, 1.37, 1.46, 1.56, 1.67, 1.76, 1.86, 1.96, 2.06, 2.16, 2.27, 2.37, 2.49, 2.61, 2.75, 2.90, 3.07, 3.26, 3.30, 3.30};

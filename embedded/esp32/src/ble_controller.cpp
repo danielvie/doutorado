@@ -70,6 +70,10 @@ void BLE_router(NimBLECharacteristic *characteristic) {
         // status matrix setB
         send_ble_message_status_matrix(characteristic, SignalSet::SET_B);
     } 
+    else if (message == "STATUS_DURATIONS") {
+        // status matrix setB
+        send_ble_message_status_durations(characteristic);
+    } 
     else if (message == "TOGGLE_SET") {
         toggle_signal_dataset();
     }
@@ -121,17 +125,17 @@ void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
     BLE_router(characteristic);
 }
 
-void send_message_last_calc(NimBLECharacteristic* pCharacteristic, int n_chunk) {
+void send_message_last_calc(NimBLECharacteristic* characteristic, int n_chunk) {
     note_buffer_print_info(g_log_last_calc);
 
     // Send in chunks to handle large messages
-    send_ble_message_chunk(pCharacteristic, g_log_last_calc.buffer, strlen(g_log_last_calc.buffer), 200, n_chunk);
+    send_ble_message_chunk(characteristic, g_log_last_calc.buffer, strlen(g_log_last_calc.buffer), 200, n_chunk);
 }
 
 // Send system status over BLE
-void send_ble_message_status(NimBLECharacteristic* pCharacteristic) {
+void send_ble_message_status(NimBLECharacteristic* characteristic) {
     // Use static buffer to avoid heap allocation issues
-    NoteData message_buffer(270);
+    NoteData message_buffer(BLE_BUFFER_SIZE);
     note_buffer_clear(message_buffer);
     
     // Read analog values from multiple channels
@@ -163,26 +167,28 @@ void send_ble_message_status(NimBLECharacteristic* pCharacteristic) {
 
     // add g_cycle_nrun
     note_buffer_add_text_f(message_buffer, "g_cycle_nrun : %d\n", g_cycle_nrun);
-    note_buffer_add_text_f(message_buffer, "g_cycle_count: %d\n", g_cycle_count);
+
+    // Add duration read and send analog
+    note_buffer_add_text_f(message_buffer, "\nduration read and send: %d us\n", g_system_duration.read_and_send_analog_us);
 
     // Add analog readings
     note_buffer_add_text_f(message_buffer, "\nanalog: an3:%.3f, an5:%.3f, an6:%.3f\n", 
                                             voltage_03, voltage_05, voltage_06);
 
     // Send data via BLE notification with retry mechanism for signal running state
-    note_buffer_ble_send(message_buffer, pCharacteristic);
+    note_buffer_ble_send(message_buffer, characteristic);
 
     note_buffer_print_info(message_buffer);
     Serial.println("STATUS response sent successfully");
 }
 
 void send_ble_message_status_matrix(NimBLECharacteristic* characteristic, SignalSet set) {
-    NoteData message_buffer(270);
+    NoteData message_buffer(BLE_BUFFER_SIZE);
 
     note_buffer_clear(message_buffer);
     DataSet* data = get_dataset_from_set(set);
     
-    note_buffer_add_text_f(message_buffer, "\n\nmatrix %s [%dx%d]:\n", 
+    note_buffer_add_text_f(message_buffer, "\n\nSTATUS matrix %s [%dx%d]:\n", 
                                            get_signal_set_label(set).c_str(), data->gain_k.rows, data->gain_k.cols);
     note_buffer_add_matrix(message_buffer, data->gain_k);
     note_buffer_ble_send(message_buffer, characteristic);
@@ -190,7 +196,20 @@ void send_ble_message_status_matrix(NimBLECharacteristic* characteristic, Signal
     note_buffer_print_info(message_buffer);
 }
 
-void send_ble_message_chunk(NimBLECharacteristic* pCharacteristic, const char* buffer, size_t total_len, size_t chunk_size, int chunk_index) {
+void send_ble_message_status_durations(NimBLECharacteristic* characteristic) {
+    NoteData buffer(BLE_BUFFER_SIZE);
+    
+    note_buffer_add_text(buffer, "\nSTATUS time duration:\n");
+    note_buffer_add_text_f(buffer, "read and send   : %d us\n", g_system_duration.read_and_send_analog_us);
+    note_buffer_add_text_f(buffer, "matrix multiply : %d us\n", g_system_duration.matrix_multiply_us);
+    note_buffer_add_text_f(buffer, "dtk condition   : %d us\n", g_system_duration.dtk_condition);
+    note_buffer_add_text_f(buffer, "update dtk sig  : %d us\n", g_system_duration.update_signal_with_dtk);
+    
+    note_buffer_ble_send(buffer, characteristic);
+    note_buffer_print_info(buffer);
+}
+
+void send_ble_message_chunk(NimBLECharacteristic* characteristic, const char* buffer, size_t total_len, size_t chunk_size, int chunk_index) {
     // We need to account for the header size, so the actual data payload per chunk is smaller.
     // The header "[CHUNK_X_OF_Y]" can vary in size. Let's assume a safe maximum, or use dynamic sizing.
     // The original code used `chunk_size - 20`, let's maintain that for simplicity.
@@ -226,8 +245,8 @@ void send_ble_message_chunk(NimBLECharacteristic* pCharacteristic, const char* b
                   chunk_index + 1, total_chunks, header_len + this_chunk_data_len, total_len);
 
     // Set the characteristic value and send the notification.
-    pCharacteristic->setValue((uint8_t*)chunk_buffer, header_len + this_chunk_data_len);
-    pCharacteristic->notify();
+    characteristic->setValue((uint8_t*)chunk_buffer, header_len + this_chunk_data_len);
+    characteristic->notify();
     
     // A small delay to ensure the client has time to process the notification
     vTaskDelay(pdMS_TO_TICKS(50));
@@ -236,7 +255,10 @@ void send_ble_message_chunk(NimBLECharacteristic* pCharacteristic, const char* b
 }
 
 // Send analog readings over BLE
-void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
+void read_and_send_analog_data(NimBLECharacteristic* characteristic) {
+
+    auto timer_start = std::chrono::high_resolution_clock::now();
+
     // Use static buffer to avoid heap allocation issues
     static char analog_buffer[128];
     static char control_result[256];
@@ -268,6 +290,7 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     float control_dtk[50] = {};
     int32_t control_dtk_us[50] = {};
     size_t control_dtk_len = dataset_active->gain_k.rows;
+
     if (matrix_isvalid(dataset_active->gain_k) && (dataset_active->gain_k.cols == 3)) {
         // compute ek -> x - x_target
 
@@ -276,7 +299,10 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
         ek[1] = v_c2 - dataset_active->target[1];
         ek[2] = i_l - dataset_active->target[2];
 
+        auto timer_a = std::chrono::high_resolution_clock::now();
         matrix_multiply_vector3(dataset_active->gain_k, -ek[0], -ek[1], -ek[2], control_dtk);
+        auto timer_b = std::chrono::high_resolution_clock::now();
+        g_system_duration.matrix_multiply_us = std::chrono::duration_cast<std::chrono::microseconds>(timer_b - timer_a).count();
 
         // compute dtk_us
         // NOTE: set g_control_dtk_us
@@ -291,7 +317,6 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
             note_buffer_clear(g_log_last_calc);
 
             auto rand_int = get_rand_int(1, 1000000);
-
             note_buffer_add_text_f(g_log_last_calc, "rand: %d\n", rand_int);
 
             note_buffer_add_text(g_log_last_calc, "k=");
@@ -306,8 +331,12 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
             note_buffer_add_text(g_log_last_calc, "];\n");
         }
 
+        timer_a = std::chrono::high_resolution_clock::now();
         condition_dtk_signal(dataset_active->time_vec, 10, control_dtk_us, control_dtk_len);
+        timer_b = std::chrono::high_resolution_clock::now();
+        g_system_duration.dtk_condition = std::chrono::duration_cast<std::chrono::microseconds>(timer_b - timer_a).count();
 
+        timer_a = std::chrono::high_resolution_clock::now();
         dataset_active->time_us_diff.resize(control_dtk_len+1, 0);
         dataset_active->time_us_diff[0] = control_dtk_us[0];
         for (size_t i = 1; i < control_dtk_len; i++) {
@@ -320,6 +349,8 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
         for (size_t i = 0; i < time_us_len; i++) {
             ts_us[i+1] = ts_us[i] + dataset_active->time_vec[i] + dataset_active->time_us_diff[i];
         }
+        timer_b = std::chrono::high_resolution_clock::now();
+        g_system_duration.update_signal_with_dtk = std::chrono::duration_cast<std::chrono::microseconds>(timer_b - timer_a).count();
         
         // second part of the log
         if (g_system_status.log_last_calc == StatusONOFF::ON) {
@@ -345,6 +376,9 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
         note_buffer_add_matrix(g_log_last_calc, dataset_active->gain_k);
     } 
 
+    auto timer_end = std::chrono::high_resolution_clock::now();
+    g_system_duration.read_and_send_analog_us = std::chrono::duration_cast<std::chrono::microseconds>(timer_end - timer_start).count();
+
     // Format message with sensor readings using snprintf for safety
     //
     // float v_c1 = voltage_05 * scale_factor;
@@ -366,11 +400,11 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     control_result[sizeof(control_result) - 1] = '\0';
 
     // Send data via BLE notification
-    // pCharacteristic->setValue((uint8_t *)analog_buffer, strlen(analog_buffer));
-    pCharacteristic->setValue((uint8_t *)control_result, strlen(control_result));
-    pCharacteristic->notify();
+    // characteristic->setValue((uint8_t *)analog_buffer, strlen(analog_buffer));
+    characteristic->setValue((uint8_t *)control_result, strlen(control_result));
+    characteristic->notify();
 
-    // pCharacteristic->notify();
+    // characteristic->notify();
 }
 
 // BLE communication task
@@ -385,13 +419,13 @@ void bleTask(void* parameter) {
     
     // Create service and characteristic for remote control
     NimBLEService *pService = pServer->createService(SERVICE_UUID);
-    NimBLECharacteristic *pCharacteristic = pService->createCharacteristic(
+    NimBLECharacteristic *characteristic = pService->createCharacteristic(
         CHARACTERISTIC_UUID,
         NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::NOTIFY
     );
     
-    pCharacteristic->setCallbacks(new CharacteristicCallbacks());
-    pCharacteristic->setValue("Hello");
+    characteristic->setCallbacks(new CharacteristicCallbacks());
+    characteristic->setValue("Hello");
     pService->start();
     
     // Start advertising to make device discoverable
@@ -409,7 +443,7 @@ void bleTask(void* parameter) {
         // Handle analog reading requests
         if (g_ble_task_state == BLETaskState::ANALOG_READ) {
             g_ble_task_state = BLETaskState::ANALOG_READING;
-            read_and_send_analog_data(pCharacteristic);
+            read_and_send_analog_data(characteristic);
             g_ble_task_state = BLETaskState::IDLE;
         }
         
