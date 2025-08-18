@@ -2,13 +2,13 @@
 
 // --- Global Variable Definitions ---
 // These variables are defined here, and the 'extern' declarations in buffer.h refer to them.
-char note_buffer[NOTE_BUFFER_SIZE];
+char note_buffer[NOTE_BUFFER_MAX_SIZE];
 size_t note_buffer_idx = 0;
 bool note_buffer_is_full = false;
 
 // --- Function Definitions ---
 void note_buffer_clear() {
-    std::fill(note_buffer, note_buffer + NOTE_BUFFER_SIZE, '\0');
+    std::fill(note_buffer, note_buffer + NOTE_BUFFER_MAX_SIZE, '\0');
     note_buffer_idx = 0;
     note_buffer_is_full = false;
 }
@@ -19,7 +19,7 @@ void note_buffer_add_text(const std::string& text_to_add) {
     }
 
     size_t text_length = text_to_add.length();
-    size_t remaining_space = NOTE_BUFFER_SIZE - note_buffer_idx;
+    size_t remaining_space = NOTE_BUFFER_MAX_SIZE - note_buffer_idx;
 
     if (text_length > remaining_space) {
         note_buffer_is_full = true;
@@ -33,7 +33,7 @@ void note_buffer_add_text(const std::string& text_to_add) {
     }
     
     // Add a null terminator after the text for easier printing.
-    if (note_buffer_idx < NOTE_BUFFER_SIZE) {
+    if (note_buffer_idx < NOTE_BUFFER_MAX_SIZE) {
         note_buffer[note_buffer_idx] = '\0';
     }
 }
@@ -79,7 +79,7 @@ void note_buffer_add_matrix(MatrixData& M) {
 }
 
 void note_buffer_print_buffer() {
-    for (size_t i = 0; i < NOTE_BUFFER_SIZE; ++i) {
+    for (size_t i = 0; i < NOTE_BUFFER_MAX_SIZE; ++i) {
         // Print character, or a period if it's a null terminator for visibility.
         if (note_buffer[i] == '\0') {
             Serial.print(".");
@@ -89,8 +89,8 @@ void note_buffer_print_buffer() {
     }
 
     Serial.print("\n");
-    const float buffer_used = ((float)note_buffer_idx)/((float)NOTE_BUFFER_SIZE) * 100.0;
-    Serial.printf("[buffer size: %d, idx: %d, used: %.1f%%]\n", NOTE_BUFFER_SIZE, note_buffer_idx, buffer_used);
+    const float buffer_used = ((float)note_buffer_idx)/((float)NOTE_BUFFER_MAX_SIZE) * 100.0;
+    Serial.printf("[buffer size: %d, idx: %d, used: %.1f%%]\n", NOTE_BUFFER_MAX_SIZE, note_buffer_idx, buffer_used);
     Serial.print("\n\n");
 }
 

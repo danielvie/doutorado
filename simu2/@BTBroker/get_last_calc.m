@@ -3,7 +3,7 @@ function get_last_calc(self, n_chunk)
         n_chunk = 1;
     end
 
-    cmd = sprintf("LAST_CALC:%d", n_chunk);
+    cmd = sprintf("LOG_LAST_CALC:%d", n_chunk);
     self.msg(cmd);
     fprintf("command: %s\n", cmd);
 end

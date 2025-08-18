@@ -77,8 +77,8 @@ void BLE_router(NimBLECharacteristic *characteristic) {
     else if (message == "CONTROL_OFF") {
         set_signal_control_off();
     }
-    else if (message.substr(0,10) == "LAST_CALC:") {
-        std::string payload = message.substr(10);
+    else if (message.substr(0,14) == "LOG_LAST_CALC:") {
+        std::string payload = message.substr(14);
         int n_chunk = std::stoi(payload);
         send_message_last_calc(characteristic, n_chunk - 1);
     } 

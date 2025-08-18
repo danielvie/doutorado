@@ -11,9 +11,9 @@
 
 // --- Global Variable Declarations ---
 // The static buffer to store text. 'extern' indicates that this variable is defined elsewhere.
-static const int NOTE_BUFFER_SIZE = 2048;
+static const int NOTE_BUFFER_MAX_SIZE = 2048;
 static const int NOTE_TEMP_BUFFER_SIZE = 256;
-extern char note_buffer[NOTE_BUFFER_SIZE];
+extern char note_buffer[NOTE_BUFFER_MAX_SIZE];
 
 // A static index to keep track of the current position to write to.
 extern size_t note_buffer_idx;
