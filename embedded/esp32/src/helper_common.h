@@ -61,7 +61,7 @@ struct Bin {
  * Signal Set Management
  * Defines which signal buffer set is currently active for float-buffering
  */
-enum class ActiveSignalSet { 
+enum class SignalSet { 
     SET_A,      // Signal set A is active
     SET_B       // Signal set B is active
 };
@@ -117,10 +117,11 @@ float esp32_calibration(float x);
 // Read analog input and return calibrated voltage
 float read_analog(AnalogPort port);
 
-std::string get_active_signal_set_label(ActiveSignalSet set);
+std::string get_signal_set_label(SignalSet set);
 std::string get_ble_task_state_label(BLETaskState state);
 std::string get_signal_task_state_label(SignalTaskState state);
 std::string get_status_onoff_label(StatusONOFF status);
+DataSet* get_dataset_from_set(SignalSet set);
 
 // Print error code to Serial
 void print_error_code(ERROR_CODE err);

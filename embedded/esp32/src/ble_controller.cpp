@@ -4,7 +4,7 @@
 extern SignalTaskState g_signal_task_state;
 extern SemaphoreHandle_t g_signal_mutex;
 extern uint32_t g_cycle_nrun;
-extern volatile ActiveSignalSet g_active_set;
+extern volatile SignalSet g_active_set;
 extern volatile uint8_t g_current_state;
 extern volatile uint32_t g_cycle_count;
 
@@ -59,6 +59,14 @@ void BLE_router(NimBLECharacteristic *characteristic) {
     else if (message == "STATUS") {
         send_ble_message_status(characteristic);
     } 
+    else if (message == "STATUS_MA") {
+        // status matrix setA
+        send_ble_message_status_matrix(characteristic, SignalSet::SET_A);
+    } 
+    else if (message == "STATUS_MB") {
+        // status matrix setB
+        send_ble_message_status_matrix(characteristic, SignalSet::SET_B);
+    } 
     else if (message == "TOGGLE_SET") {
         toggle_signal_dataset();
     }
@@ -103,12 +111,10 @@ void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
 }
 
 void send_message_last_calc(NimBLECharacteristic* pCharacteristic, int n_chunk) {
-
-    note_buffer_print_buffer(g_log_last_calc);
+    note_buffer_print_info(g_log_last_calc);
 
     // Send in chunks to handle large messages
     send_ble_message_chunk(pCharacteristic, g_log_last_calc.buffer, strlen(g_log_last_calc.buffer), 200, n_chunk);
-    
 }
 
 // Send system status over BLE
@@ -124,7 +130,7 @@ void send_ble_message_status(NimBLECharacteristic* pCharacteristic) {
 
     // Format message with sensor readings using snprintf for safety
     note_buffer_add_text(message_buffer, "\n\nSTATUS\n");
-    note_buffer_add_text_f(message_buffer, "active       : %s\n", get_active_signal_set_label(g_active_set).c_str());
+    note_buffer_add_text_f(message_buffer, "active       : %s\n", get_signal_set_label(g_active_set).c_str());
 
     // Add system state
     note_buffer_add_text(message_buffer, "signal state : ");
@@ -155,8 +161,22 @@ void send_ble_message_status(NimBLECharacteristic* pCharacteristic) {
     // Send data via BLE notification with retry mechanism for signal running state
     note_buffer_ble_send(message_buffer, pCharacteristic);
 
-    note_buffer_print_buffer(message_buffer);
+    note_buffer_print_info(message_buffer);
     Serial.println("STATUS response sent successfully");
+}
+
+void send_ble_message_status_matrix(NimBLECharacteristic* characteristic, SignalSet set) {
+    NoteData message_buffer(270);
+
+    note_buffer_clear(message_buffer);
+    DataSet* data = get_dataset_from_set(set);
+    
+    note_buffer_add_text_f(message_buffer, "\nmatrix %s [%dx%d]:\n", 
+                                           get_signal_set_label(set).c_str(), data->gain_k.rows, data->gain_k.cols);
+    note_buffer_add_matrix(message_buffer, data->gain_k);
+    note_buffer_ble_send(message_buffer, characteristic);
+    
+    note_buffer_print_info(message_buffer);
 }
 
 void send_ble_message_chunk(NimBLECharacteristic* pCharacteristic, const char* buffer, size_t total_len, size_t chunk_size, int chunk_index) {
@@ -231,7 +251,7 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     float v_c2 = voltage_06 * scale_factor;
     float i_l = voltage_03 / resistance * scale_factor;
 
-    DataSet* dataset_active = (g_active_set == ActiveSignalSet::SET_A) ? &g_dataset_a : &g_dataset_b;
+    DataSet* dataset_active = (g_active_set == SignalSet::SET_A) ? &g_dataset_a : &g_dataset_b;
    
     // NOTE: 5 -> compute dtk on read analog
     float control_dtk[50] = {};

@@ -80,12 +80,12 @@ std::string get_status_onoff_label(StatusONOFF status) {
     }
 }
 
-std::string get_active_signal_set_label(ActiveSignalSet set) {
+std::string get_signal_set_label(SignalSet set) {
     switch (set)
     {
-    case ActiveSignalSet::SET_A:
+    case SignalSet::SET_A:
         return "SET_A";
-    case ActiveSignalSet::SET_B:
+    case SignalSet::SET_B:
         return "SET_B";
     default:
         return "-ERROR";
@@ -122,6 +122,10 @@ std::string get_ble_task_state_label(BLETaskState state) {
     }
 }
 
+DataSet* get_dataset_from_set(SignalSet set) {
+    DataSet* dataset = (set == SignalSet::SET_A) ? &g_dataset_a : &g_dataset_b;
+    return dataset;
+}
 
 float esp32_calibration(float value) {
     
@@ -425,7 +429,7 @@ void print_dataset(DataSet* d) {
 }
 
 void print_ts_us_constructed() {
-    DataSet* d = (g_active_set == ActiveSignalSet::SET_A) ? &g_dataset_a : &g_dataset_b;
+    DataSet* d = (g_active_set == SignalSet::SET_A) ? &g_dataset_a : &g_dataset_b;
 
     size_t time_us_len = d->time_vec.size();
 

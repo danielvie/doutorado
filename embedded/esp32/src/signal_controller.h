@@ -36,7 +36,7 @@ extern volatile uint32_t g_cycle_count;
 extern volatile bool g_timer_initialized;
 extern volatile uint8_t g_num_timings;
 extern volatile uint8_t g_active_num_timings;
-extern volatile ActiveSignalSet g_active_set;
+extern volatile SignalSet g_active_set;
 extern volatile bool g_switch_set_pending;
 
 // Signal vectors
@@ -77,7 +77,7 @@ ERROR_CODE signal_update_full_control(const std::string& str_control_message);
 
 DataSet* get_dataset_active();
 std::string get_dataset_active_name();
-int get_signal_set_size(ActiveSignalSet set);
+int get_signal_set_size(SignalSet set);
 
 // Timer ISR callback
 bool IRAM_ATTR timer_group_isr_callback(void *args);

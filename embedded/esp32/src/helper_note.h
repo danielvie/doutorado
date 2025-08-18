@@ -67,5 +67,5 @@ void note_buffer_add_text_f(NoteData& data, const char* format, ...);
 
 void note_buffer_add_matrix(NoteData& data, MatrixData& M);
 
-void note_buffer_print_buffer(NoteData& data);
+void note_buffer_print_info(NoteData& data);
 void note_buffer_ble_send(NoteData& data, NimBLECharacteristic* pCharacteristic);

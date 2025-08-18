@@ -60,7 +60,7 @@ void note_buffer_add_matrix(NoteData& data, MatrixData& M) {
         return;
     }
 
-    note_buffer_add_text(data, "[");
+    note_buffer_add_text(data, "[\n");
     for (int i = 0; i < M.rows; ++i) {
         for (int j = 0; j < M.cols; ++j) {
             if (M.values[i * M.cols + j] > 0) {
@@ -71,11 +71,9 @@ void note_buffer_add_matrix(NoteData& data, MatrixData& M) {
         note_buffer_add_text(data, "\n");
     }
     note_buffer_add_text(data, "];\n");
-    
-    // note_buffer_add_text(ss.str());
 }
 
-void note_buffer_print_buffer(NoteData& data) {
+void note_buffer_print_info(NoteData& data) {
     for (size_t i = 0; i < data.buffer_size; ++i) {
         // Print character, or a period if it's a null terminator for visibility.
         if (data.buffer[i] == '\0') {
