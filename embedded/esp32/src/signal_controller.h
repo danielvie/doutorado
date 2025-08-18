@@ -26,18 +26,18 @@
 #define MAX_ELEMENTS_SIGNAL 30
 
 // External variables that need to be accessible from other modules
-extern SignalTaskState signal_task_state;
-extern SemaphoreHandle_t signal_mutex;
-extern uint32_t cycle_nrun;
+extern SignalTaskState g_signal_task_state;
+extern SemaphoreHandle_t g_signal_mutex;
+extern uint32_t g_cycle_nrun;
 
 // Timer and signal control variables (volatile for ISR access)
-extern volatile uint8_t current_state;
-extern volatile uint32_t cycle_count;
-extern volatile bool timer_initialized;
-extern volatile uint8_t num_timings;
-extern volatile uint8_t active_num_timings;
-extern volatile ActiveSignalSet active_set;
-extern volatile bool switch_set_pending;
+extern volatile uint8_t g_current_state;
+extern volatile uint32_t g_cycle_count;
+extern volatile bool g_timer_initialized;
+extern volatile uint8_t g_num_timings;
+extern volatile uint8_t g_active_num_timings;
+extern volatile ActiveSignalSet g_active_set;
+extern volatile bool g_switch_set_pending;
 
 // Signal vectors
 
@@ -55,12 +55,12 @@ struct DataSet {
 extern DataSet dataset_a; // Signal set A
 extern DataSet dataset_b; // Signal set B
 
-void set_dataset_a();
-void set_dataset_b();
-void toggle_dataset();
+void set_signal_dataset_a();
+void set_signal_dataset_b();
+void toggle_signal_dataset();
 
-void set_control_on();
-void set_control_off();
+void set_signal_control_on();
+void set_signal_control_off();
 
 // extern std::vector<uint32_t> time_vec_a, d4_vec_a, d5_vec_a, d6_vec_a;
 // extern std::vector<uint32_t> time_vec_b, d4_vec_b, d5_vec_b, d6_vec_b;
@@ -72,8 +72,8 @@ void start_signal_timer();
 void stop_signal_timer();
 void set_all_outputs_high();
 void set_all_outputs_low();
-void update_signal_pattern(const std::string& signal);
-ERROR_CODE update_signal_control(const std::string& str_control_message);
+void signal_update_pattern(const std::string& signal);
+ERROR_CODE signal_update_full_control(const std::string& str_control_message);
 
 DataSet* get_dataset_active();
 std::string get_dataset_active_name();

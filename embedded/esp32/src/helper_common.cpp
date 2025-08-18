@@ -371,7 +371,7 @@ void print_dataset(DataSet* d) {
 }
 
 void print_ts_us_constructed() {
-    DataSet* d = (active_set == ActiveSignalSet::SET_A) ? &dataset_a : &dataset_b;
+    DataSet* d = (g_active_set == ActiveSignalSet::SET_A) ? &dataset_a : &dataset_b;
 
     size_t time_us_len = d->time_vec.size();
 

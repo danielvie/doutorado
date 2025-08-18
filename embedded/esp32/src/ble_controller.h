@@ -5,6 +5,7 @@
 #include <NimBLEDevice.h>
 #include "esp_task_wdt.h"
 
+#include "ble_router.h"
 #include "signal_controller.h"
 #include "helper_common.h"
 #include "helper_matrix.h"
@@ -29,7 +30,7 @@ extern BLETaskState ble_task_state;
 void bleTask(void* parameter);
 void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic);
 void send_message_last_calc(NimBLECharacteristic* pCharacteristic, int n_chunk);
-void send_message_status(NimBLECharacteristic* pCharacteristic);
+void send_ble_message_status(NimBLECharacteristic* pCharacteristic);
 void send_ble_message_chunk(NimBLECharacteristic* pCharacteristic, const char* buffer, size_t total_len, size_t chunk_size, int chunk_index);
 void initialize_BLE();
 

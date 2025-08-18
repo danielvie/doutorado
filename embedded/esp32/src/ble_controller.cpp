@@ -1,12 +1,12 @@
 #include "ble_controller.h"
 
 // External references to global variables
-extern SignalTaskState signal_task_state;
-extern SemaphoreHandle_t signal_mutex;
-extern uint32_t cycle_nrun;
-extern volatile ActiveSignalSet active_set;
-extern volatile uint8_t current_state;
-extern volatile uint32_t cycle_count;
+extern SignalTaskState g_signal_task_state;
+extern SemaphoreHandle_t g_signal_mutex;
+extern uint32_t g_cycle_nrun;
+extern volatile ActiveSignalSet g_active_set;
+extern volatile uint8_t g_current_state;
+extern volatile uint32_t g_cycle_count;
 
 // BLE Task state management
 BLETaskState ble_task_state = BLETaskState::IDLE;
@@ -44,61 +44,38 @@ void BLE_router(NimBLECharacteristic *characteristic) {
 
     std::string message = characteristic->getValue();
 
-    // Serial.print("received message: ");
-    // Serial.println(message.c_str());
-    // Serial.printf("Free heap: %d bytes\n", ESP.getFreeHeap());
-    // Serial.println("==================");
-
     // START command: Begin signal generation
     if (message == "START") {
-        if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
-            signal_task_state = SignalTaskState::SIGNAL_RUN;
-            xSemaphoreGive(signal_mutex);
-        }
-        Serial.println("Signals started");
-        digitalWrite(2, HIGH);  // LED GPIO
-        start_signal_timer();
+        ble_router_start();
     } 
+
     // HIGH command: Set all outputs to constant high
     else if (message == "HIGH") {
-        if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
-            signal_task_state = SignalTaskState::HIGH_ALL;
-            xSemaphoreGive(signal_mutex);
-        }
-        stop_signal_timer();
-        Serial.println("Signals high");
-        digitalWrite(2, LOW);
-        set_all_outputs_high();
+        ble_router_high();
     } 
+
     // STOP/LOW commands: Stop signals and set outputs low
     else if (message == "STOP" || message == "LOW") {
-        if (xSemaphoreTake(signal_mutex, portMAX_DELAY) == pdTRUE) {
-            signal_task_state = SignalTaskState::IDLE;
-            xSemaphoreGive(signal_mutex);
-        }
-        stop_signal_timer();
-        Serial.println("Signals stopped");
-        digitalWrite(2, LOW);
-        set_all_outputs_low();
+        ble_router_idle();
     } 
     // STATUS command: Returns the main status info from the system
     else if (message == "STATUS") {
-        send_message_status(characteristic);
+        send_ble_message_status(characteristic);
     } 
     else if (message == "TOGGLE_SET") {
-        toggle_dataset();
+        toggle_signal_dataset();
     }
     else if (message == "TOGGLE_SET_A") {
-        set_dataset_a();
+        set_signal_dataset_a();
     }
     else if (message == "TOGGLE_SET_B") {
-        set_dataset_b();
+        set_signal_dataset_b();
     }
     else if (message == "CONTROL_ON") {
-        set_control_on();
+        set_signal_control_on();
     }
     else if (message == "CONTROL_OFF") {
-        set_control_off();
+        set_signal_control_off();
     }
     else if (message.substr(0,10) == "LAST_CALC:") {
         std::string payload = message.substr(10);
@@ -108,40 +85,20 @@ void BLE_router(NimBLECharacteristic *characteristic) {
     // CYCLE_NRUN command: Set analog reading frequency
     else if (message.substr(0,11) == "CYCLE_NRUN:") {
         std::string payload = message.substr(11);
-        cycle_nrun = std::stoi(payload);
-        Serial.printf("updating ncycles to `%d`!\n", cycle_nrun);
+        g_cycle_nrun = std::stoi(payload);
+        Serial.printf("updating ncycles to `%d`!\n", g_cycle_nrun);
     } 
     // SIGNAL command: Load new signal pattern
     else if (message.substr(0,7) == "SIGNAL:") {
         std::string signal = message.substr(7);
-        Serial.println("Signals received:");
-        Serial.println(message.c_str());
-
-        try {
-            ble_task_state = BLETaskState::SIGNAL_READING;
-            update_signal_pattern(signal);
-        } catch (std::exception &e) {
-            Serial.printf("Error parsing signal: %s\n", e.what());
-            Serial.printf("Signal sent to parse: '%s'\n", signal.c_str());
-        }
+        ble_router_run_signal(signal);
     }
-
     // MESSAGE_DATA command: Load new gain matrix
     else if (message.substr(0,13) == "MESSAGE_DATA:") {
-        std::string str_message = message.substr(13);
-        Serial.println("message received:");
-        Serial.println(str_message.c_str());
-        Serial.println("\n\n");
-
-        try {
-            ble_task_state = BLETaskState::SIGNAL_READING;
-            update_signal_control(str_message); // NOTE: 0 -> read new message
-        } catch (std::exception &e) {
-            Serial.printf("Error parsing message: %s\n", e.what());
-        }
+        auto msg = message.substr(13);
+        ble_router_message_data(msg);
     }
 }
-
 
 // .. BLE write CALLBACK
 void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
@@ -158,7 +115,7 @@ void send_message_last_calc(NimBLECharacteristic* pCharacteristic, int n_chunk) 
 }
 
 // Send system status over BLE
-void send_message_status(NimBLECharacteristic* pCharacteristic) {
+void send_ble_message_status(NimBLECharacteristic* pCharacteristic) {
     // Use static buffer to avoid heap allocation issues
     static char message_buffer[4096];  // Static buffer to avoid heap fragmentation
     int pos = 0;
@@ -171,18 +128,18 @@ void send_message_status(NimBLECharacteristic* pCharacteristic) {
     // Format message with sensor readings using snprintf for safety
     pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "\n\n=========== STATUS ");
     
-    if (active_set == ActiveSignalSet::SET_A) {
+    if (g_active_set == ActiveSignalSet::SET_A) {
         pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "(SET_A active)\n");
     } else {
         pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "(SET_B active)\n");
     }
 
     pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "state: ");
-    if (signal_task_state == SignalTaskState::HIGH_ALL) {
+    if (g_signal_task_state == SignalTaskState::HIGH_ALL) {
         pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "SignalTaskState::HIGH_ALL\n");
-    } else if (signal_task_state == SignalTaskState::IDLE) {
+    } else if (g_signal_task_state == SignalTaskState::IDLE) {
         pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "SignalTaskState::IDLE\n");
-    } else if (signal_task_state == SignalTaskState::SIGNAL_RUN) {
+    } else if (g_signal_task_state == SignalTaskState::SIGNAL_RUN) {
         pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "SignalTaskState::SIGNAL_RUN\n");
     }
 
@@ -206,10 +163,10 @@ void send_message_status(NimBLECharacteristic* pCharacteristic) {
                    get_signal_set_size(ActiveSignalSet::SET_B));
     
     // Add current state info if signal is running
-    if (signal_task_state == SignalTaskState::SIGNAL_RUN) {
+    if (g_signal_task_state == SignalTaskState::SIGNAL_RUN) {
         pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, 
                        "current_state: %d, cycle_count: %d\n", 
-                       current_state, cycle_count);
+                       g_current_state, g_cycle_count);
     }
     
     // Ensure null termination
@@ -296,7 +253,7 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     float v_c2 = voltage_06 * scale_factor;
     float i_l = voltage_03 / resistance * scale_factor;
 
-    DataSet* dataset_active = (active_set == ActiveSignalSet::SET_A) ? &dataset_a : &dataset_b;
+    DataSet* dataset_active = (g_active_set == ActiveSignalSet::SET_A) ? &dataset_a : &dataset_b;
    
     // NOTE: 5 -> compute dtk on read analog
     float control_dtk[50] = {};
@@ -446,7 +403,7 @@ void bleTask(void* parameter) {
         esp_task_wdt_reset();  // Reset watchdog timer
         
         // Use different delays based on signal state to give BLE more processing time during signal generation
-        if (signal_task_state == SignalTaskState::SIGNAL_RUN) {
+        if (g_signal_task_state == SignalTaskState::SIGNAL_RUN) {
             vTaskDelay(pdMS_TO_TICKS(5));   // Shorter delay when signal is running to handle BLE better
         } else {
             vTaskDelay(pdMS_TO_TICKS(10));  // Normal delay when not running signals
