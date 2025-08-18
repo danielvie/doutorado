@@ -32,11 +32,11 @@ void ble_router_idle() {
 }
 
 void ble_router_run_signal(std::string& signal) {
-    ble_task_state = BLETaskState::SIGNAL_READING;
+    g_ble_task_state = BLETaskState::SIGNAL_READING;
     signal_update_pattern(signal);
 }
 
 void ble_router_message_data(std::string& message) {
-    ble_task_state = BLETaskState::SIGNAL_READING;
+    g_ble_task_state = BLETaskState::SIGNAL_READING;
     signal_update_full_control(message); // NOTE: 0 -> read new message
 }

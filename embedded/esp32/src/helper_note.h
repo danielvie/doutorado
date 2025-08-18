@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Arduino.h"
+#include <Arduino.h>
+#include <NimBLEDevice.h>
 
 #include <iostream>
 #include <cstring>
@@ -26,11 +27,13 @@ struct NoteData {
     // Default constructor with default size
     NoteData() : buffer_size(NOTE_BUFFER_SIZE), idx(0), is_full(false) {
         buffer = new char[buffer_size];
+        std::fill(buffer, buffer + buffer_size, '\0');
     }
     
     // Constructor with custom size
     NoteData(size_t size) : buffer_size(size), idx(0), is_full(false) {
         buffer = new char[buffer_size];
+        std::fill(buffer, buffer + buffer_size, '\0');
     }
     
     // Destructor to free memory
@@ -39,23 +42,10 @@ struct NoteData {
     }
     
     // Copy constructor
-    NoteData(const NoteData& other) : buffer_size(other.buffer_size), idx(other.idx), is_full(other.is_full) {
-        buffer = new char[buffer_size];
-        std::memcpy(buffer, other.buffer, buffer_size);
-    }
-    
+    NoteData(const NoteData& other) = delete;    
+
     // Assignment operator
-    NoteData& operator=(const NoteData& other) {
-        if (this != &other) {
-            delete[] buffer;
-            buffer_size = other.buffer_size;
-            idx = other.idx;
-            is_full = other.is_full;
-            buffer = new char[buffer_size];
-            std::memcpy(buffer, other.buffer, buffer_size);
-        }
-        return *this;
-    }
+    NoteData& operator=(const NoteData& other) = delete;
 };
 
     // char note_buffer[NOTE_BUFFER_MAX_SIZE];
@@ -78,3 +68,4 @@ void note_buffer_add_text_f(NoteData& data, const char* format, ...);
 void note_buffer_add_matrix(NoteData& data, MatrixData& M);
 
 void note_buffer_print_buffer(NoteData& data);
+void note_buffer_ble_send(NoteData& data, NimBLECharacteristic* pCharacteristic);

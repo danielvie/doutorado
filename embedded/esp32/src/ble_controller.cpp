@@ -9,10 +9,7 @@ extern volatile uint8_t g_current_state;
 extern volatile uint32_t g_cycle_count;
 
 // BLE Task state management
-BLETaskState ble_task_state = BLETaskState::IDLE;
-
-// NOTE: Global matrix variable for gain matrix
-ControlStatus g_control_status = ControlStatus::OFF;
+BLETaskState g_ble_task_state = BLETaskState::IDLE;
 
 NoteData g_log_last_calc(1024);
 
@@ -117,8 +114,8 @@ void send_message_last_calc(NimBLECharacteristic* pCharacteristic, int n_chunk) 
 // Send system status over BLE
 void send_ble_message_status(NimBLECharacteristic* pCharacteristic) {
     // Use static buffer to avoid heap allocation issues
-    static char message_buffer[4096];  // Static buffer to avoid heap fragmentation
-    int pos = 0;
+    NoteData message_buffer(270);
+    note_buffer_clear(message_buffer);
     
     // Read analog values from multiple channels
     float voltage_03 = read_analog(AnalogPort::AN3);
@@ -126,58 +123,39 @@ void send_ble_message_status(NimBLECharacteristic* pCharacteristic) {
     float voltage_06 = read_analog(AnalogPort::AN6);
 
     // Format message with sensor readings using snprintf for safety
-    pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "\n\n=========== STATUS ");
-    
-    if (g_active_set == ActiveSignalSet::SET_A) {
-        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "(SET_A active)\n");
-    } else {
-        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "(SET_B active)\n");
-    }
+    note_buffer_add_text(message_buffer, "\n\nSTATUS\n");
+    note_buffer_add_text_f(message_buffer, "active       : %s\n", get_active_signal_set_label(g_active_set).c_str());
 
-    pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "state: ");
-    if (g_signal_task_state == SignalTaskState::HIGH_ALL) {
-        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "SignalTaskState::HIGH_ALL\n");
-    } else if (g_signal_task_state == SignalTaskState::IDLE) {
-        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "SignalTaskState::IDLE\n");
-    } else if (g_signal_task_state == SignalTaskState::SIGNAL_RUN) {
-        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "SignalTaskState::SIGNAL_RUN\n");
-    }
+    // Add system state
+    note_buffer_add_text(message_buffer, "signal state : ");
+    note_buffer_add_text(message_buffer, get_signal_task_state_label(g_signal_task_state));
+    note_buffer_add_text(message_buffer, "\n");
 
-    // Add control status
-    pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "control: ");
-    if (g_control_status == ControlStatus::ON) {
-        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "ControlStatus::ON\n");
-    } else if (g_control_status == ControlStatus::OFF) { 
-        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, "ControlStatus::OFF\n");
-    } 
+    note_buffer_add_text(message_buffer, "ble state    : ");
+    note_buffer_add_text(message_buffer, get_ble_task_state_label(g_ble_task_state));
+    note_buffer_add_text(message_buffer, "\n");
+
+    // Add system status
+    note_buffer_add_text(message_buffer, "prop control : ");
+    note_buffer_add_text(message_buffer, get_status_onoff_label(g_system_status.prop_control));
+    note_buffer_add_text(message_buffer, "\n");
+
+    note_buffer_add_text(message_buffer, "log_last_calc: ");
+    note_buffer_add_text(message_buffer, get_status_onoff_label(g_system_status.log_last_calc));
+    note_buffer_add_text(message_buffer, "\n");
+
+    // add g_cycle_nrun
+    note_buffer_add_text_f(message_buffer, "g_cycle_nrun : %d\n", g_cycle_nrun);
+    note_buffer_add_text_f(message_buffer, "g_cycle_count: %d\n", g_cycle_count);
 
     // Add analog readings
-    pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, 
-                   "analog: an3:%.3f, an5:%.3f, an6:%.3f\n", 
-                   voltage_03, voltage_05, voltage_06);
-
-    // Add basic timing info without full vectors to prevent overflow
-    pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, 
-                   "SET_A: %d elements, SET_B: %d elements\n", 
-                   get_signal_set_size(ActiveSignalSet::SET_A), 
-                   get_signal_set_size(ActiveSignalSet::SET_B));
-    
-    // Add current state info if signal is running
-    if (g_signal_task_state == SignalTaskState::SIGNAL_RUN) {
-        pos += snprintf(message_buffer + pos, sizeof(message_buffer) - pos, 
-                       "current_state: %d, cycle_count: %d\n", 
-                       g_current_state, g_cycle_count);
-    }
-    
-    // Ensure null termination
-    message_buffer[sizeof(message_buffer) - 1] = '\0';
+    note_buffer_add_text_f(message_buffer, "\nanalog: an3:%.3f, an5:%.3f, an6:%.3f\n", 
+                                            voltage_03, voltage_05, voltage_06);
 
     // Send data via BLE notification with retry mechanism for signal running state
-    pCharacteristic->setValue((uint8_t *)message_buffer, strlen(message_buffer));
-    pCharacteristic->notify();
-        
+    note_buffer_ble_send(message_buffer, pCharacteristic);
 
-
+    note_buffer_print_buffer(message_buffer);
     Serial.println("STATUS response sent successfully");
 }
 
@@ -253,7 +231,7 @@ void read_and_send_analog_data(NimBLECharacteristic* pCharacteristic) {
     float v_c2 = voltage_06 * scale_factor;
     float i_l = voltage_03 / resistance * scale_factor;
 
-    DataSet* dataset_active = (g_active_set == ActiveSignalSet::SET_A) ? &dataset_a : &dataset_b;
+    DataSet* dataset_active = (g_active_set == ActiveSignalSet::SET_A) ? &g_dataset_a : &g_dataset_b;
    
     // NOTE: 5 -> compute dtk on read analog
     float control_dtk[50] = {};
@@ -394,10 +372,10 @@ void bleTask(void* parameter) {
     // Main BLE task loop
     while (1) {
         // Handle analog reading requests
-        if (ble_task_state == BLETaskState::ANALOG_READ) {
-            ble_task_state = BLETaskState::ANALOG_READING;
+        if (g_ble_task_state == BLETaskState::ANALOG_READ) {
+            g_ble_task_state = BLETaskState::ANALOG_READING;
             read_and_send_analog_data(pCharacteristic);
-            ble_task_state = BLETaskState::IDLE;
+            g_ble_task_state = BLETaskState::IDLE;
         }
         
         esp_task_wdt_reset();  // Reset watchdog timer

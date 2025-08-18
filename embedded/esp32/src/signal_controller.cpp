@@ -1,14 +1,14 @@
 #include "signal_controller.h"
 
 // Default signal pattern configuration
-std::vector<uint32_t> timings = {50, 50, 50, 50, 50, 50};        // Timing intervals in timer ticks
-std::vector<uint32_t> modes = {7, 0, 7, 0, 7, 0};               // Combined mode patterns (binary representation)
-std::vector<uint32_t> modes_di4 = {1, 0, 1, 0, 1, 0};           // Individual pin states for DI4
-std::vector<uint32_t> modes_di5 = {1, 0, 1, 0, 1, 0};           // Individual pin states for DI5
-std::vector<uint32_t> modes_di6 = {1, 0, 1, 0, 1, 0};           // Individual pin states for DI6
+std::vector<uint32_t> g_timings = {50, 50, 50, 50, 50, 50};        // Timing intervals in timer ticks
+std::vector<uint32_t> g_modes = {7, 0, 7, 0, 7, 0};               // Combined mode patterns (binary representation)
+std::vector<uint32_t> g_modes_di4 = {1, 0, 1, 0, 1, 0};           // Individual pin states for DI4
+std::vector<uint32_t> g_modes_di5 = {1, 0, 1, 0, 1, 0};           // Individual pin states for DI5
+std::vector<uint32_t> g_modes_di6 = {1, 0, 1, 0, 1, 0};           // Individual pin states for DI6
 
-DataSet dataset_a; // Signal set A
-DataSet dataset_b; // Signal set B
+DataSet g_dataset_a; // Signal set A
+DataSet g_dataset_b; // Signal set B
 
 // std::vector<uint32_t> time_vec_a, d4_vec_a, d5_vec_a, d6_vec_a;  // Signal set A
 // std::vector<uint32_t> time_vec_b, d4_vec_b, d5_vec_b, d6_vec_b; // Signal set B
@@ -32,11 +32,10 @@ uint32_t g_cycle_nrun = 10;
 SemaphoreHandle_t g_signal_mutex = NULL;
 
 // Pre-calculated GPIO masks for efficient bit manipulation
-const uint32_t gpio_di4_mask = 1 << GPIO_DI4;
-const uint32_t gpio_di5_mask = 1 << GPIO_DI5;
-const uint32_t gpio_di6_mask = 1 << GPIO_DI6;
-const uint32_t gpio_pin_mask = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
-
+const uint32_t GPIO_DI4_MASK = 1 << GPIO_DI4;
+const uint32_t GPIO_DI5_MASK = 1 << GPIO_DI5;
+const uint32_t GPIO_DI6_MASK = 1 << GPIO_DI6;
+const uint32_t GPIO_PIN_MASK = GPIO_DI4_MASK | GPIO_DI5_MASK | GPIO_DI6_MASK;
 
 void set_signal_dataset_a() {
     Serial.println("Changing to SET_A");
@@ -50,12 +49,12 @@ void set_signal_dataset_b() {
 
 void set_signal_control_on() {
     Serial.println("Changing control to ON");
-    g_control_status = ControlStatus::ON;
+    g_system_status.prop_control = StatusONOFF::ON;
 }
 
 void set_signal_control_off() {
     Serial.println("Changing control to OFF");
-    g_control_status = ControlStatus::OFF;
+    g_system_status.prop_control = StatusONOFF::OFF;
 }
 
 void toggle_signal_dataset() {
@@ -85,17 +84,17 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
 
     // Build pin state mask based on active signal pattern
     if (g_active_set == ActiveSignalSet::SET_A) {
-        new_gpio_out_value = (dataset_a.d4_vec[next_state] ? gpio_di4_mask : 0) |
-                             (dataset_a.d5_vec[next_state] ? gpio_di5_mask : 0) |
-                             (dataset_a.d6_vec[next_state] ? gpio_di6_mask : 0);
+        new_gpio_out_value = (g_dataset_a.d4_vec[next_state] ? GPIO_DI4_MASK : 0) |
+                             (g_dataset_a.d5_vec[next_state] ? GPIO_DI5_MASK : 0) |
+                             (g_dataset_a.d6_vec[next_state] ? GPIO_DI6_MASK : 0);
     } else {
-        new_gpio_out_value = (dataset_b.d4_vec[next_state] ? gpio_di4_mask : 0) |
-                             (dataset_b.d5_vec[next_state] ? gpio_di5_mask : 0) |
-                             (dataset_b.d6_vec[next_state] ? gpio_di6_mask : 0);
+        new_gpio_out_value = (g_dataset_b.d4_vec[next_state] ? GPIO_DI4_MASK : 0) |
+                             (g_dataset_b.d5_vec[next_state] ? GPIO_DI5_MASK : 0) |
+                             (g_dataset_b.d6_vec[next_state] ? GPIO_DI6_MASK : 0);
     }
 
     // Atomic GPIO update: Write directly to the GPIO_OUT_REG for simultaneous update
-    GPIO.out = (GPIO.out & ~gpio_pin_mask) | new_gpio_out_value;
+    GPIO.out = (GPIO.out & ~GPIO_PIN_MASK) | new_gpio_out_value;
 
     // Update state
     g_current_state = next_state;
@@ -105,20 +104,20 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
 
     if (g_active_set == ActiveSignalSet::SET_A) {
         // timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_a.time_vec[current_state]);
-        if (g_control_status == ControlStatus::ON) {
-            timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_a.time_vec[g_current_state] + dataset_a.time_us_diff[g_current_state]);
+        if (g_system_status.prop_control == StatusONOFF::ON) {
+            timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, g_dataset_a.time_vec[g_current_state] + g_dataset_a.time_us_diff[g_current_state]);
         }
         else {
-            timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_a.time_vec[g_current_state]);
+            timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, g_dataset_a.time_vec[g_current_state]);
         }
     }
     else {
         // timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_b.time_vec[current_state]);
-        if (g_control_status == ControlStatus::ON) {
-            timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_b.time_vec[g_current_state] + dataset_b.time_us_diff[g_current_state]);
+        if (g_system_status.prop_control == StatusONOFF::ON) {
+            timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, g_dataset_b.time_vec[g_current_state] + g_dataset_b.time_us_diff[g_current_state]);
         }
         else {
-            timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_b.time_vec[g_current_state]);
+            timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, g_dataset_b.time_vec[g_current_state]);
         }
     }
 
@@ -126,7 +125,7 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
     if (g_current_state == 0) {
         g_cycle_count++;
         if (g_cycle_count % g_cycle_nrun == 0) {
-            ble_task_state = BLETaskState::ANALOG_READ; // NOTE: 4 -> loop call
+            g_ble_task_state = BLETaskState::ANALOG_READ; // NOTE: 4 -> loop call
         }
     }
 
@@ -146,7 +145,7 @@ void initialize_timer() {
     
     timer_init(TIMER_GROUP, TIMER_IDX, &config);
     timer_set_counter_value(TIMER_GROUP, TIMER_IDX, 0);
-    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_a.time_vec[0]);
+    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, g_dataset_a.time_vec[0]);
     timer_enable_intr(TIMER_GROUP, TIMER_IDX);
     timer_isr_callback_add(TIMER_GROUP, TIMER_IDX, timer_group_isr_callback, NULL, 0);
     g_timer_initialized = true;
@@ -164,22 +163,22 @@ void start_signal_timer() {
     timer_set_counter_value(TIMER_GROUP, TIMER_IDX, 0);
     
     // Get references to active signal set
-    std::vector<uint32_t>& time_vec = (g_active_set == ActiveSignalSet::SET_A) ? dataset_a.time_vec : dataset_b.time_vec;
-    std::vector<uint32_t>& d4_vec = (g_active_set == ActiveSignalSet::SET_A) ? dataset_a.d4_vec : dataset_b.d4_vec;
-    std::vector<uint32_t>& d5_vec = (g_active_set == ActiveSignalSet::SET_A) ? dataset_a.d5_vec : dataset_b.d5_vec;
-    std::vector<uint32_t>& d6_vec = (g_active_set == ActiveSignalSet::SET_A) ? dataset_a.d6_vec : dataset_b.d6_vec;
+    std::vector<uint32_t>& time_vec = (g_active_set == ActiveSignalSet::SET_A) ? g_dataset_a.time_vec : g_dataset_b.time_vec;
+    std::vector<uint32_t>& d4_vec = (g_active_set == ActiveSignalSet::SET_A) ? g_dataset_a.d4_vec : g_dataset_b.d4_vec;
+    std::vector<uint32_t>& d5_vec = (g_active_set == ActiveSignalSet::SET_A) ? g_dataset_a.d5_vec : g_dataset_b.d5_vec;
+    std::vector<uint32_t>& d6_vec = (g_active_set == ActiveSignalSet::SET_A) ? g_dataset_a.d6_vec : g_dataset_b.d6_vec;
 
     // Update active signal length
-    g_active_num_timings = (g_active_set == ActiveSignalSet::SET_A) ? dataset_a.time_vec.size() : dataset_a.time_vec.size();
+    g_active_num_timings = (g_active_set == ActiveSignalSet::SET_A) ? g_dataset_a.time_vec.size() : g_dataset_a.time_vec.size();
 
     // Set initial pin states for first signal step using atomic GPIO update
     uint32_t initial_pin_states = 
-        (d4_vec[0] ? gpio_di4_mask : 0) |
-        (d5_vec[0] ? gpio_di5_mask : 0) |
-        (d6_vec[0] ? gpio_di6_mask : 0);
+        (d4_vec[0] ? GPIO_DI4_MASK : 0) |
+        (d5_vec[0] ? GPIO_DI5_MASK : 0) |
+        (d6_vec[0] ? GPIO_DI6_MASK : 0);
     
     // Atomic GPIO update: Write directly to the GPIO_OUT_REG for simultaneous update
-    GPIO.out = (GPIO.out & ~gpio_pin_mask) | initial_pin_states;
+    GPIO.out = (GPIO.out & ~GPIO_PIN_MASK) | initial_pin_states;
 
     // Set first timer alarm and start timer
     timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, time_vec[0]);
@@ -193,16 +192,16 @@ void stop_signal_timer() {
 
 // Set outputs high
 void set_all_outputs_high() {
-    GPIO.out_w1ts = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
+    GPIO.out_w1ts = GPIO_DI4_MASK | GPIO_DI5_MASK | GPIO_DI6_MASK;
 }
 
 // Set outputs low
 void set_all_outputs_low() {
-    GPIO.out_w1tc = gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;
+    GPIO.out_w1tc = GPIO_DI4_MASK | GPIO_DI5_MASK | GPIO_DI6_MASK;
 }
 
 DataSet* get_dataset_active() {
-    DataSet* dataset_active = (g_active_set == ActiveSignalSet::SET_A) ? &dataset_a : &dataset_b;
+    DataSet* dataset_active = (g_active_set == ActiveSignalSet::SET_A) ? &g_dataset_a : &g_dataset_b;
     return dataset_active;
 }
 
@@ -216,9 +215,9 @@ std::string get_dataset_active_name() {
 // Return number of elements in a signal set
 int get_signal_set_size(ActiveSignalSet set) {
     if (set == ActiveSignalSet::SET_A) {
-        return dataset_a.time_vec.size();
+        return g_dataset_a.time_vec.size();
     } else {
-        return dataset_b.time_vec.size();
+        return g_dataset_b.time_vec.size();
     }
 }
 
@@ -253,17 +252,17 @@ void signal_update_pattern(const std::string& signal) {
         if (g_active_set == ActiveSignalSet::SET_A) {
             Serial.println("updating SET_B...");
             // Update SET_B while SET_A is active
-            dataset_b.time_vec = new_timings;
-            dataset_b.d4_vec = new_d4_vec;
-            dataset_b.d5_vec = new_d5_vec;
-            dataset_b.d6_vec = new_d6_vec;
+            g_dataset_b.time_vec = new_timings;
+            g_dataset_b.d4_vec = new_d4_vec;
+            g_dataset_b.d5_vec = new_d5_vec;
+            g_dataset_b.d6_vec = new_d6_vec;
         } else {
             Serial.println("updating SET_A...");
             // Update SET_A while SET_B is active
-            dataset_a.time_vec = new_timings;
-            dataset_a.d4_vec = new_d4_vec;
-            dataset_a.d5_vec = new_d5_vec;
-            dataset_a.d6_vec = new_d6_vec;
+            g_dataset_a.time_vec = new_timings;
+            g_dataset_a.d4_vec = new_d4_vec;
+            g_dataset_a.d5_vec = new_d5_vec;
+            g_dataset_a.d6_vec = new_d6_vec;
         }
         g_num_timings = new_timings.size();
         g_switch_set_pending = true;  // Mark for set switching
@@ -316,12 +315,12 @@ ERROR_CODE signal_update_full_control(const std::string& str_control_message) {
         if (g_active_set == ActiveSignalSet::SET_A) {
             Serial.println("updating SET_B...");
             // Update SET_B while SET_A is active
-            dataset_helper(dataset_b);
+            dataset_helper(g_dataset_b);
         }
         else {
             Serial.println("updating SET_A...");
             // Update SET_A while SET_B is active
-            dataset_helper(dataset_a);
+            dataset_helper(g_dataset_a);
         }
         g_num_timings = new_timings.size();
         g_switch_set_pending = true; // Mark for set switching
@@ -340,28 +339,28 @@ void initialize_signal_controller() {
     g_signal_mutex = xSemaphoreCreateMutex();
 
     // Pre-allocate vector memory to avoid dynamic allocation during operation
-    dataset_a.time_vec.reserve(MAX_ELEMENTS_SIGNAL);
-    dataset_a.d4_vec.reserve(MAX_ELEMENTS_SIGNAL);
-    dataset_a.d5_vec.reserve(MAX_ELEMENTS_SIGNAL);
-    dataset_a.d6_vec.reserve(MAX_ELEMENTS_SIGNAL);
-    dataset_b.time_vec.reserve(MAX_ELEMENTS_SIGNAL);
-    dataset_b.d4_vec.reserve(MAX_ELEMENTS_SIGNAL);
-    dataset_b.d5_vec.reserve(MAX_ELEMENTS_SIGNAL);
-    dataset_b.d6_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    g_dataset_a.time_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    g_dataset_a.d4_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    g_dataset_a.d5_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    g_dataset_a.d6_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    g_dataset_b.time_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    g_dataset_b.d4_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    g_dataset_b.d5_vec.reserve(MAX_ELEMENTS_SIGNAL);
+    g_dataset_b.d6_vec.reserve(MAX_ELEMENTS_SIGNAL);
     
     // Initialize signal sets with default patterns
-    dataset_a.time_vec = timings;
-    dataset_a.d4_vec = modes_di4;
-    dataset_a.d5_vec = modes_di5;
-    dataset_a.d6_vec = modes_di6;
-    g_num_timings = timings.size();
+    g_dataset_a.time_vec = g_timings;
+    g_dataset_a.d4_vec = g_modes_di4;
+    g_dataset_a.d5_vec = g_modes_di5;
+    g_dataset_a.d6_vec = g_modes_di6;
+    g_num_timings = g_timings.size();
     g_active_num_timings = g_num_timings;
 
     // Initialize backup signal set with same default pattern
-    dataset_b.time_vec = timings;
-    dataset_b.d4_vec = modes_di4;
-    dataset_b.d5_vec = modes_di5;
-    dataset_b.d6_vec = modes_di6;
+    g_dataset_b.time_vec = g_timings;
+    g_dataset_b.d4_vec = g_modes_di4;
+    g_dataset_b.d5_vec = g_modes_di5;
+    g_dataset_b.d6_vec = g_modes_di6;
 
     // Configure GPIO pins as outputs and set initial low state
     pinMode(GPIO_DI4, OUTPUT);
@@ -387,12 +386,12 @@ void signal_task(void* arg) {
         switch (g_signal_task_state) {
             case SignalTaskState::IDLE:
                 // All outputs low when idle
-                GPIO.out_w1tc = (1 << 2) | gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;  // Include LED
+                GPIO.out_w1tc = (1 << 2) | GPIO_DI4_MASK | GPIO_DI5_MASK | GPIO_DI6_MASK;  // Include LED
                 break;
                 
             case SignalTaskState::HIGH_ALL:
                 // All outputs high in HIGH_ALL mode
-                GPIO.out_w1ts = (1 << 2) | gpio_di4_mask | gpio_di5_mask | gpio_di6_mask;  // Include LED
+                GPIO.out_w1ts = (1 << 2) | GPIO_DI4_MASK | GPIO_DI5_MASK | GPIO_DI6_MASK;  // Include LED
                 break;
                 
             case SignalTaskState::SIGNAL_RUN:

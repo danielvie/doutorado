@@ -24,6 +24,11 @@ struct Bin num2bin(uint32_t num) {
     return b;
 }
 
+SystemStatus g_system_status = {
+    .prop_control = StatusONOFF::OFF,
+    .log_last_calc = StatusONOFF::OFF,
+};
+
 // calibration function
 // Apply calibration transformation to ESP32 voltage reading
 float calib_from[] = {0.00, 0.07, 0.17, 0.26, 0.36, 0.46, 0.56, 0.66, 0.76, 0.86, 0.96, 1.06, 1.16, 1.27, 1.37, 1.46, 1.56, 1.67, 1.76, 1.86, 1.96, 2.06, 2.16, 2.27, 2.37, 2.49, 2.61, 2.75, 2.90, 3.07, 3.26, 3.30, 3.30};
@@ -66,6 +71,57 @@ float read_analog(AnalogPort port) {
     
     return voltage;
 }
+
+std::string get_status_onoff_label(StatusONOFF status) {
+    if (status == StatusONOFF::ON) {
+        return "ON";
+    } else {
+        return "OFF";
+    }
+}
+
+std::string get_active_signal_set_label(ActiveSignalSet set) {
+    switch (set)
+    {
+    case ActiveSignalSet::SET_A:
+        return "SET_A";
+    case ActiveSignalSet::SET_B:
+        return "SET_B";
+    default:
+        return "-ERROR";
+    }
+}
+
+std::string get_signal_task_state_label(SignalTaskState state) {
+    switch (state)
+    {
+    case SignalTaskState::IDLE:
+        return "IDLE";
+    case SignalTaskState::HIGH_ALL:
+        return "HIGH_ALL";
+    case SignalTaskState::SIGNAL_RUN:
+        return "SIGNAL_RUN";
+    default:
+        return "-ERROR";
+    }
+}
+
+std::string get_ble_task_state_label(BLETaskState state) {
+    switch (state)
+    {
+    case BLETaskState::IDLE:
+        return "IDLE";
+    case BLETaskState::ANALOG_READ:
+        return "ANALOG_READ";
+    case BLETaskState::ANALOG_READING:
+        return "ANALOG_READING";
+    case BLETaskState::SIGNAL_READING:
+        return "SIGNAL_READING";
+    default:
+        return "-ERROR";
+    }
+}
+
 
 float esp32_calibration(float value) {
     
@@ -357,8 +413,6 @@ void print_array_u32(const uint32_t* V,const size_t& len, const std::string& nam
     Serial.println("\n");
 }
 
-
-
 void print_dataset(DataSet* d) {
     Serial.println("-- Dataset d:");
     print_vec_u32(d->time_vec, "d->time_vec");
@@ -371,7 +425,7 @@ void print_dataset(DataSet* d) {
 }
 
 void print_ts_us_constructed() {
-    DataSet* d = (g_active_set == ActiveSignalSet::SET_A) ? &dataset_a : &dataset_b;
+    DataSet* d = (g_active_set == ActiveSignalSet::SET_A) ? &g_dataset_a : &g_dataset_b;
 
     size_t time_us_len = d->time_vec.size();
 

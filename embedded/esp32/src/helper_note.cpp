@@ -91,3 +91,8 @@ void note_buffer_print_buffer(NoteData& data) {
     Serial.printf("[buffer size: %d, idx: %d, used: %.1f%%]\n", data.buffer_size, data.idx, buffer_used);
     Serial.printf("\n\n");
 }
+
+void note_buffer_ble_send(NoteData& data, NimBLECharacteristic* pCharacteristic) {
+    pCharacteristic->setValue((uint8_t *)data.buffer, strlen(data.buffer));
+    pCharacteristic->notify();
+}

@@ -52,8 +52,8 @@ struct DataSet {
     MatrixData gain_k;
 };
 
-extern DataSet dataset_a; // Signal set A
-extern DataSet dataset_b; // Signal set B
+extern DataSet g_dataset_a; // Signal set A
+extern DataSet g_dataset_b; // Signal set B
 
 void set_signal_dataset_a();
 void set_signal_dataset_b();

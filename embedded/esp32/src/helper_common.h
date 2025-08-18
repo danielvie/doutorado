@@ -14,6 +14,19 @@ struct DataSet;
 #define VOLTAGE_MAX 3.3     // Maximum voltage reference (3.3V)
 
 
+enum class StatusONOFF {
+    ON,
+    OFF,
+};
+
+
+struct SystemStatus {
+    StatusONOFF prop_control; // proportional control
+    StatusONOFF log_last_calc;
+};
+
+extern SystemStatus g_system_status;
+
 enum class ERROR_CODE {
     OK,
     INVALID_ARGUMENT_EMPTY,
@@ -103,6 +116,11 @@ float esp32_calibration(float x);
 
 // Read analog input and return calibrated voltage
 float read_analog(AnalogPort port);
+
+std::string get_active_signal_set_label(ActiveSignalSet set);
+std::string get_ble_task_state_label(BLETaskState state);
+std::string get_signal_task_state_label(SignalTaskState state);
+std::string get_status_onoff_label(StatusONOFF status);
 
 // Print error code to Serial
 void print_error_code(ERROR_CODE err);
