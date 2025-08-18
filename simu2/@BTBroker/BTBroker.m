@@ -63,6 +63,8 @@ classdef BTBroker < handle
         set_verbose(self, value);
         set_control_on(self);
         set_control_off(self);
+        set_log_last_calc_on(self);
+        set_log_last_calc_off(self);
 
         % alias
         set_verbose_on(self);
@@ -71,6 +73,8 @@ classdef BTBroker < handle
         % .. getters
         get_signal(self);
         get_status(self);
+        get_status_matrix_a(self);
+        get_status_matrix_b(self);
         get_last_calc(self, n_chunk);
 
         % .. automation
@@ -83,7 +87,10 @@ classdef BTBroker < handle
         sa(self, alpha); % self.start()
         so(self, alpha); % self.stop()
         x(self); % self.stop()
+
         st(self); % self.get_status()
+        ma(self); % self.get_status_matrix_a()
+        mb(self); % self.get_status_matrix_b()
         
         v_on(self); % self.verbose_on
         v_off(self); % self.verbose_off
