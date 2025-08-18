@@ -9,7 +9,7 @@
 
 // --- Function Definitions ---
 void note_buffer_clear(NoteData& data) {
-    std::fill(data.buffer, data.buffer + NOTE_BUFFER_SIZE, '\0');
+    std::fill(data.buffer, data.buffer + data.buffer_size, '\0');
     data.idx = 0;
     data.is_full = false;
 }
@@ -20,7 +20,7 @@ void note_buffer_add_text(NoteData& data, const std::string& text_to_add) {
     }
 
     size_t text_length = text_to_add.length();
-    size_t remaining_space = NOTE_BUFFER_SIZE - data.idx;
+    size_t remaining_space = data.buffer_size - data.idx;
 
     if (text_length > remaining_space) {
         data.is_full = true;
@@ -34,7 +34,7 @@ void note_buffer_add_text(NoteData& data, const std::string& text_to_add) {
     }
     
     // Add a null terminator after the text for easier printing.
-    if (data.idx < NOTE_BUFFER_SIZE) {
+    if (data.idx < data.buffer_size) {
         data.buffer[data.idx] = '\0';
     }
 }
@@ -80,7 +80,7 @@ void note_buffer_add_matrix(NoteData& data, MatrixData& M) {
 }
 
 void note_buffer_print_buffer(NoteData& data) {
-    for (size_t i = 0; i < NOTE_BUFFER_SIZE; ++i) {
+    for (size_t i = 0; i < data.buffer_size; ++i) {
         // Print character, or a period if it's a null terminator for visibility.
         if (data.buffer[i] == '\0') {
             printf(".");
@@ -90,7 +90,7 @@ void note_buffer_print_buffer(NoteData& data) {
     }
 
     printf("\n");
-    const float buffer_used = ((float)data.idx)/((float)NOTE_BUFFER_SIZE) * 100.0;
-    printf("[buffer size: %d, idx: %lld, used: %.1f%%]\n", NOTE_BUFFER_SIZE, data.idx, buffer_used);
+    const float buffer_used = ((float)data.idx)/((float)data.buffer_size) * 100.0;
+    printf("[buffer size: %lld, idx: %lld, used: %.1f%%]\n", data.buffer_size, data.idx, buffer_used);
     printf("\n\n");
 }

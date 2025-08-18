@@ -18,9 +18,44 @@ static const int NOTE_TEMP_BUFFER_SIZE = 256;
 
 
 struct NoteData {
-    char buffer[NOTE_TEMP_BUFFER_SIZE];
+    char* buffer;
+    size_t buffer_size;
     size_t idx;
     bool is_full;
+    
+    // Default constructor with default size
+    NoteData() : buffer_size(NOTE_BUFFER_SIZE), idx(0), is_full(false) {
+        buffer = new char[buffer_size];
+    }
+    
+    // Constructor with custom size
+    NoteData(size_t size) : buffer_size(size), idx(0), is_full(false) {
+        buffer = new char[buffer_size];
+    }
+    
+    // Destructor to free memory
+    ~NoteData() {
+        delete[] buffer;
+    }
+    
+    // Copy constructor
+    NoteData(const NoteData& other) : buffer_size(other.buffer_size), idx(other.idx), is_full(other.is_full) {
+        buffer = new char[buffer_size];
+        std::memcpy(buffer, other.buffer, buffer_size);
+    }
+    
+    // Assignment operator
+    NoteData& operator=(const NoteData& other) {
+        if (this != &other) {
+            delete[] buffer;
+            buffer_size = other.buffer_size;
+            idx = other.idx;
+            is_full = other.is_full;
+            buffer = new char[buffer_size];
+            std::memcpy(buffer, other.buffer, buffer_size);
+        }
+        return *this;
+    }
 };
 
     // char note_buffer[NOTE_BUFFER_MAX_SIZE];

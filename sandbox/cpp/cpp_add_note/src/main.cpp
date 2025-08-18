@@ -7,34 +7,30 @@
 // --- Main Function (Example Usage) ---
 int main() {
 
-    NoteData buffer;
+    // Test with default buffer size (2048)
+    std::cout << "=== Testing with default buffer size ===" << std::endl;
+    NoteData buffer_default;
+    note_buffer_clear(buffer_default);
+    note_buffer_add_text(buffer_default, "Default buffer (2048 bytes)");
+    note_buffer_print_buffer(buffer_default);
 
-    // 1. Clear the buffer to start fresh.
-    note_buffer_clear(buffer);
+    // Test with custom buffer size (1024)
+    std::cout << "=== Testing with custom buffer size (1024) ===" << std::endl;
+    NoteData buffer_custom(1024);
+    note_buffer_clear(buffer_custom);
+    note_buffer_add_text(buffer_custom, "Custom buffer (1024 bytes)");
+    note_buffer_print_buffer(buffer_custom);
 
-    // note_buffer_print_buffer(buffer);
-
-    // // 2. Add some text that fits well within the buffer.
-    // note_buffer_add_text(buffer, "Hello, World!");
-    // note_buffer_print_buffer(buffer);
-
-    // // 3. Add a string that almost fills the buffer.
-    // note_buffer_add_text(buffer, " bla\n");
-    // std::string long_string(NOTE_BUFFER_SIZE - 20, 'X');
-    // note_buffer_add_text(buffer, long_string);
-    // note_buffer_print_buffer(buffer);
+    // Test with small buffer size (100)
+    std::cout << "=== Testing with small buffer size (100) ===" << std::endl;
+    NoteData buffer_small(100);
+    note_buffer_clear(buffer_small);
+    note_buffer_add_text(buffer_small, "Small buffer (100 bytes) - let's try to fill it with some longer text to see what happens");
+    note_buffer_print_buffer(buffer_small);
     
-    // // 4. Try to add a small string that will not fit. This should fail.
-    // note_buffer_add_text(buffer, "This should not be added.");
-    // note_buffer_print_buffer(buffer);
-
-    // // 5. Try to add a different string after the buffer is full. This should also fail.
-    // note_buffer_add_text(buffer, "Another try.");
-    // note_buffer_print_buffer(buffer);
-
-    // // 6. Clear the buffer to start again.
-    // note_buffer_clear(buffer);
-    // note_buffer_print_buffer(buffer);
+    // Try to add more text to the small buffer (should fail)
+    note_buffer_add_text(buffer_small, " This should not fit!");
+    note_buffer_print_buffer(buffer_small);
 
     return 0;
 }
