@@ -1,7 +1,7 @@
 function msg_handle_event(self, src, ~)
     message = char(read(src));
     
-    if contains(message, 'STATUS') 
+    if contains(message, 'STATUS') || contains(message, 'LOG')
         disp(message);
         return;
     end

@@ -15,7 +15,7 @@ extern volatile uint32_t g_cycle_count;
 BLETaskState g_ble_task_state = BLETaskState::IDLE;
 
 NoteData g_log_last_calc(1024);
-NoteData g_log_koka(1024);
+NoteData g_log_koka(250);
 
 // LED blink utility function for status indication
 void blink(uint8_t N) {
@@ -75,6 +75,9 @@ void BLE_router(NimBLECharacteristic *characteristic) {
         // status matrix setB
         send_ble_message_status_durations(characteristic);
     } 
+    else if (message == "LOG_KOKA") {
+        send_ble_message_log_koka(characteristic);
+    } 
     else if (message == "TOGGLE_SET") {
         toggle_signal_dataset();
     }
@@ -131,6 +134,12 @@ void send_message_last_calc(NimBLECharacteristic* characteristic, int n_chunk) {
 
     // Send in chunks to handle large messages
     send_ble_message_chunk(characteristic, g_log_last_calc.buffer, strlen(g_log_last_calc.buffer), 200, n_chunk);
+}
+
+void send_ble_message_log_koka(NimBLECharacteristic* characteristic) {
+    // message == "LOG_KOKA"
+    note_buffer_ble_send(g_log_koka, characteristic);
+    note_buffer_print_info(g_log_koka);
 }
 
 // Send system status over BLE
@@ -332,15 +341,41 @@ void read_and_send_analog_data(NimBLECharacteristic* characteristic) {
             note_buffer_add_text(g_log_last_calc, "];\n");
         }
 
-        timer_a = std::chrono::high_resolution_clock::now();
+        
+        const float time_constraint_us = 10.0;
 
         note_buffer_clear(g_log_koka);
-        note_buffer_add_text(g_log_koka, "time_vec: [");
+        note_buffer_add_text(g_log_koka, "\nLOG KOKA::\n");
 
+        note_buffer_add_array_u32(g_log_koka, "time_vec      ", dataset_active->time_vec.data(), dataset_active->time_vec.size());
+        note_buffer_add_array_i32(g_log_koka, "control_dtk_us", control_dtk_us, control_dtk_len);
 
-        condition_dtk_signal(dataset_active->time_vec, 10, control_dtk_us, control_dtk_len);
+        timer_a = std::chrono::high_resolution_clock::now();
+        condition_dtk_signal(dataset_active->time_vec, time_constraint_us, control_dtk_us, control_dtk_len);
         timer_b = std::chrono::high_resolution_clock::now();
         g_system_duration.dtk_condition = std::chrono::duration_cast<std::chrono::microseconds>(timer_b - timer_a).count();
+
+        // copy of control_dtk_us
+        int32_t control_copy[control_dtk_len];
+        for (size_t i = 0; i < control_dtk_len; i++) {
+            control_copy[i] = control_dtk_us[i];
+        }
+
+        size_t workspace_size = 2 * (control_dtk_len + 2);
+        std::unique_ptr<float[]> workspace(new float[workspace_size]);
+
+        timer_a = std::chrono::high_resolution_clock::now();
+        condition_dtk_signal_optimized(dataset_active->time_vec.data(), dataset_active->time_vec.size(), time_constraint_us, 
+                                     control_copy, control_dtk_len, workspace.get());
+        timer_b = std::chrono::high_resolution_clock::now();
+        auto duration_opt = std::chrono::duration_cast<std::chrono::microseconds>(timer_b-timer_a).count();
+
+        note_buffer_add_array_i32(g_log_koka, "control_dtk_us      ", control_dtk_us, control_dtk_len);
+        note_buffer_add_array_i32(g_log_koka, "control_dtk_us (opt)", control_copy, control_dtk_len);
+
+        note_buffer_add_text(g_log_koka, "\n");
+        note_buffer_add_text_f(g_log_koka, "duration    : %d us\n", g_system_duration.dtk_condition);
+        note_buffer_add_text_f(g_log_koka, "duration opt: %d us\n", duration_opt);
 
         timer_a = std::chrono::high_resolution_clock::now();
         dataset_active->time_us_diff.resize(control_dtk_len+1, 0);

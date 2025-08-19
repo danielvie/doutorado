@@ -66,6 +66,7 @@ void note_buffer_add_text(NoteData& buffer, const std::string& text_to_add);
 void note_buffer_add_text_f(NoteData& buffer, const char* format, ...);
 
 void note_buffer_add_array_u32(NoteData& buffer, std::string name, uint32_t* data, size_t data_len);
+void note_buffer_add_array_i32(NoteData& buffer, std::string name, int32_t* data, size_t data_len);
 void note_buffer_add_matrix(NoteData& buffer, MatrixData& M);
 
 void note_buffer_print_info(NoteData& buffer);

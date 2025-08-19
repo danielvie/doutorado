@@ -57,9 +57,17 @@ void note_buffer_add_text_f(NoteData& buffer, const char* format, ...) {
 void note_buffer_add_array_u32(NoteData& buffer, std::string name, uint32_t* data, size_t data_len) {
     note_buffer_add_text_f(buffer, "%s: [", name.c_str());
     for (size_t i = 0; i < data_len; i++) {
-        note_buffer_add_text_f(buffer, "%d, ", data[i]);
+        note_buffer_add_text_f(buffer, "%d,", data[i]);
     }
-    note_buffer_add_text(buffer, "];");
+    note_buffer_add_text(buffer, "];\n");
+}
+
+void note_buffer_add_array_i32(NoteData& buffer, std::string name, int32_t* data, size_t data_len) {
+    note_buffer_add_text_f(buffer, "%s: [", name.c_str());
+    for (size_t i = 0; i < data_len - 1; i++) {
+        note_buffer_add_text_f(buffer, "%d,", data[i]);
+    }
+    note_buffer_add_text_f(buffer, "%d];\n", data[data_len-1]);
 }
 
 void note_buffer_add_matrix(NoteData& buffer, MatrixData& M) {

@@ -29,6 +29,8 @@ void send_ble_message_status(NimBLECharacteristic* characteristic);
 void send_ble_message_status_matrix(NimBLECharacteristic* characteristic, SignalSet set);
 void send_ble_message_status_durations(NimBLECharacteristic* characteristic);
 
+void send_ble_message_log_koka(NimBLECharacteristic* characteristic);
+
 void send_ble_message_chunk(NimBLECharacteristic* characteristic, const char* buffer, size_t total_len, size_t chunk_size, int chunk_index);
 
 
