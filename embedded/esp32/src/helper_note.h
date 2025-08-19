@@ -20,20 +20,20 @@ static const int NOTE_TEMP_BUFFER_SIZE = 256;
 
 struct NoteData {
     char* buffer;
-    size_t buffer_size;
+    size_t size;
     size_t idx;
     bool is_full;
     
     // Default constructor with default size
-    NoteData() : buffer_size(NOTE_BUFFER_SIZE), idx(0), is_full(false) {
-        buffer = new char[buffer_size];
-        std::fill(buffer, buffer + buffer_size, '\0');
+    NoteData() : size(NOTE_BUFFER_SIZE), idx(0), is_full(false) {
+        buffer = new char[size];
+        std::fill(buffer, buffer + size, '\0');
     }
     
     // Constructor with custom size
-    NoteData(size_t size) : buffer_size(size), idx(0), is_full(false) {
-        buffer = new char[buffer_size];
-        std::fill(buffer, buffer + buffer_size, '\0');
+    NoteData(size_t size) : size(size), idx(0), is_full(false) {
+        buffer = new char[size];
+        std::fill(buffer, buffer + size, '\0');
     }
     
     // Destructor to free memory
@@ -61,11 +61,12 @@ struct NoteData {
 
 // --- Function Prototypes ---
 // These are the declarations for the functions defined in buffer.cpp.
-void note_buffer_clear(NoteData& data);
-void note_buffer_add_text(NoteData& data, const std::string& text_to_add);
-void note_buffer_add_text_f(NoteData& data, const char* format, ...);
+void note_buffer_clear(NoteData& buffer);
+void note_buffer_add_text(NoteData& buffer, const std::string& text_to_add);
+void note_buffer_add_text_f(NoteData& buffer, const char* format, ...);
 
-void note_buffer_add_matrix(NoteData& data, MatrixData& M);
+void note_buffer_add_array_u32(NoteData& buffer, std::string name, uint32_t* data, size_t data_len);
+void note_buffer_add_matrix(NoteData& buffer, MatrixData& M);
 
-void note_buffer_print_info(NoteData& data);
-void note_buffer_ble_send(NoteData& data, NimBLECharacteristic* pCharacteristic);
+void note_buffer_print_info(NoteData& buffer);
+void note_buffer_ble_send(NoteData& buffer, NimBLECharacteristic* pCharacteristic);

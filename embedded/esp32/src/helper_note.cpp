@@ -4,39 +4,39 @@
 // These variables are defined here, and the 'extern' declarations in buffer.h refer to them.
 
 // --- Function Definitions ---
-void note_buffer_clear(NoteData& data) {
-    std::fill(data.buffer, data.buffer + data.buffer_size, '\0');
-    data.idx = 0;
-    data.is_full = false;
+void note_buffer_clear(NoteData& buffer) {
+    std::fill(buffer.buffer, buffer.buffer + buffer.size, '\0');
+    buffer.idx = 0;
+    buffer.is_full = false;
 }
 
-void note_buffer_add_text(NoteData& data, const std::string& text_to_add) {
-    if (data.is_full) {
+void note_buffer_add_text(NoteData& buffer, const std::string& text_to_add) {
+    if (buffer.is_full) {
         return;
     }
 
     size_t text_length = text_to_add.length();
-    size_t remaining_space = data.buffer_size - data.idx;
+    size_t remaining_space = buffer.size - buffer.idx;
 
     if (text_length > remaining_space) {
-        data.is_full = true;
+        buffer.is_full = true;
         return;
     }
     
     // Copy the text into the buffer.
     for (size_t i = 0; i < text_length; ++i) {
-        data.buffer[data.idx] = text_to_add[i];
-        data.idx++;
+        buffer.buffer[buffer.idx] = text_to_add[i];
+        buffer.idx++;
     }
     
     // Add a null terminator after the text for easier printing.
-    if (data.idx < data.buffer_size) {
-        data.buffer[data.idx] = '\0';
+    if (buffer.idx < buffer.size) {
+        buffer.buffer[buffer.idx] = '\0';
     }
 }
 
-void note_buffer_add_text_f(NoteData& data, const char* format, ...) {
-    if (data.is_full) {
+void note_buffer_add_text_f(NoteData& buffer, const char* format, ...) {
+    if (buffer.is_full) {
         std::cout << "Buffer is full. Cannot add new text." << std::endl;
         return;
     }
@@ -51,46 +51,54 @@ void note_buffer_add_text_f(NoteData& data, const char* format, ...) {
     va_end(args);
 
     // Call the original add_text function with the formatted string.
-    note_buffer_add_text(data, temp_buffer);
+    note_buffer_add_text(buffer, temp_buffer);
 }
 
-void note_buffer_add_matrix(NoteData& data, MatrixData& M) {
+void note_buffer_add_array_u32(NoteData& buffer, std::string name, uint32_t* data, size_t data_len) {
+    note_buffer_add_text_f(buffer, "%s: [", name.c_str());
+    for (size_t i = 0; i < data_len; i++) {
+        note_buffer_add_text_f(buffer, "%d, ", data[i]);
+    }
+    note_buffer_add_text(buffer, "];");
+}
+
+void note_buffer_add_matrix(NoteData& buffer, MatrixData& M) {
     if (!matrix_isvalid(M)) {
-        note_buffer_add_text(data, "Matrix is not valid!!\n");
+        note_buffer_add_text(buffer, "Matrix is not valid!!\n");
         return;
     }
 
-    note_buffer_add_text(data, "[\n");
+    note_buffer_add_text(buffer, "[\n");
     for (int i = 0; i < M.rows; ++i) {
         for (int j = 0; j < M.cols; ++j) {
             if (M.values[i * M.cols + j] > 0) {
-                note_buffer_add_text(data, " ");
+                note_buffer_add_text(buffer, " ");
             }
-            note_buffer_add_text_f(data, "%.7f\t", M.values[i * M.cols + j]);
+            note_buffer_add_text_f(buffer, "%.7f\t", M.values[i * M.cols + j]);
         }
-        note_buffer_add_text(data, "\n");
+        note_buffer_add_text(buffer, "\n");
     }
-    note_buffer_add_text(data, "];\n");
+    note_buffer_add_text(buffer, "];\n");
 }
 
-void note_buffer_print_info(NoteData& data) {
-    for (size_t i = 0; i < data.buffer_size; ++i) {
+void note_buffer_print_info(NoteData& buffer) {
+    for (size_t i = 0; i < buffer.size; ++i) {
         // Print character, or a period if it's a null terminator for visibility.
-        if (data.buffer[i] == '\0') {
+        if (buffer.buffer[i] == '\0') {
             Serial.printf(".");
         } else {
-            Serial.printf("%c", data.buffer[i]);
+            Serial.printf("%c", buffer.buffer[i]);
         }
     }
 
     Serial.printf("\n");
-    const float buffer_used = ((float)data.idx)/((float)data.buffer_size) * 100.0;
+    const float buffer_used = ((float)buffer.idx)/((float)buffer.size) * 100.0;
 
-    Serial.printf("[buffer size: %d, idx: %d, used: %.1f%%]\n", data.buffer_size, data.idx, buffer_used);
+    Serial.printf("[buffer size: %d, idx: %d, used: %.1f%%]\n", buffer.size, buffer.idx, buffer_used);
     Serial.printf("\n\n");
 }
 
-void note_buffer_ble_send(NoteData& data, NimBLECharacteristic* pCharacteristic) {
-    pCharacteristic->setValue((uint8_t *)data.buffer, strlen(data.buffer));
+void note_buffer_ble_send(NoteData& buffer, NimBLECharacteristic* pCharacteristic) {
+    pCharacteristic->setValue((uint8_t *)buffer.buffer, strlen(buffer.buffer));
     pCharacteristic->notify();
 }

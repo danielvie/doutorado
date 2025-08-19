@@ -68,6 +68,7 @@ void toggle_signal_dataset() {
 }
 
 // Timer ISR: toggle signals and schedule next interrupt
+// NOTE: signal callback
 bool IRAM_ATTR timer_group_isr_callback(void *args) {
     // Re-enable timer alarm for next interrupt
     timer_group_enable_alarm_in_isr(TIMER_GROUP, TIMER_IDX);
@@ -381,7 +382,7 @@ void initialize_signal_controller() {
 void signal_task(void* arg) {
     esp_task_wdt_add(NULL);  // Register with watchdog timer
     
-    // Main signal task loop
+    // NOTE: signal task loop
     while (1) {
         switch (g_signal_task_state) {
             case SignalTaskState::IDLE:

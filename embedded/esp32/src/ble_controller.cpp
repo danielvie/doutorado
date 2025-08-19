@@ -15,6 +15,7 @@ extern volatile uint32_t g_cycle_count;
 BLETaskState g_ble_task_state = BLETaskState::IDLE;
 
 NoteData g_log_last_calc(1024);
+NoteData g_log_koka(1024);
 
 // LED blink utility function for status indication
 void blink(uint8_t N) {
@@ -332,6 +333,11 @@ void read_and_send_analog_data(NimBLECharacteristic* characteristic) {
         }
 
         timer_a = std::chrono::high_resolution_clock::now();
+
+        note_buffer_clear(g_log_koka);
+        note_buffer_add_text(g_log_koka, "time_vec: [");
+
+
         condition_dtk_signal(dataset_active->time_vec, 10, control_dtk_us, control_dtk_len);
         timer_b = std::chrono::high_resolution_clock::now();
         g_system_duration.dtk_condition = std::chrono::duration_cast<std::chrono::microseconds>(timer_b - timer_a).count();
@@ -438,7 +444,7 @@ void bleTask(void* parameter) {
     // Register task with watchdog timer
     esp_task_wdt_add(NULL);
     
-    // Main BLE task loop
+    // NOTE: BLE task loop
     while (1) {
         // Handle analog reading requests
         if (g_ble_task_state == BLETaskState::ANALOG_READ) {
