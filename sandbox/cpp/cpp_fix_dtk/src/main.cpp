@@ -103,5 +103,14 @@ int main() {
     std::cout << "\n=== Performance Comparison ===\n";
     test_performance_comparison();
 
+
+
+    // Original version:     11462 us total, 1.1462 us per call
+    // Optimized version:    1140 us total, 0.114 us per call
+    // Speedup (optimized):  10.0544x
+
+
+
+
     return 0;
 }
