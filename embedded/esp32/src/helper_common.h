@@ -21,7 +21,6 @@ enum class StatusONOFF {
     OFF,
 };
 
-
 struct SystemStatus {
     StatusONOFF prop_control; // proportional control
     StatusONOFF log_last_calc;
@@ -36,6 +35,9 @@ struct SystemDuration {
 
 extern SystemStatus g_system_status;
 extern SystemDuration g_system_duration;
+
+static const uint16_t WORKSPACE_SIZE = 1024;
+extern float workspace[WORKSPACE_SIZE];
 
 enum class ERROR_CODE {
     OK,

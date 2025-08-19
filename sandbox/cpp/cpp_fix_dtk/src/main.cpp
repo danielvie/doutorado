@@ -34,12 +34,9 @@ void test_performance_comparison() {
     float time_constraint_us = 10.0f;
     std::vector<int32_t> dtk_us_original = {-17906, 18065, -32241, -85331, 9210};
     std::vector<int32_t> dtk_us_optimized = dtk_us_original;
-    std::vector<int32_t> dtk_us_fixed = dtk_us_original;
     
     const int num_iterations = 10000;  // Increased for better measurement
     
-    std::cout << "Performance Comparison (ESP32 optimizations)\n";
-    std::cout << "============================================\n";
     std::cout << "Running " << num_iterations << " iterations each...\n\n";
     
     // Test original version
@@ -64,37 +61,22 @@ void test_performance_comparison() {
     end = std::chrono::high_resolution_clock::now();
     auto duration_optimized = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
     
-    // Test fixed-size version
-    start = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < num_iterations; i++) {
-        dtk_us_fixed = {-17906, 18065, -32241, -85331, 9210}; // Reset
-        condition_dtk_signal_fixed<10>(time_us.data(), time_us.size(), time_constraint_us, 
-                                     dtk_us_fixed.data(), dtk_us_fixed.size());
-    }
-    end = std::chrono::high_resolution_clock::now();
-    auto duration_fixed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    
     // Display results
-    std::cout << "Original version:     " << duration_original << " μs total, " 
-              << (double)duration_original / num_iterations << " μs per call\n";
-    std::cout << "Optimized version:    " << duration_optimized << " μs total, " 
-              << (double)duration_optimized / num_iterations << " μs per call\n";
-    std::cout << "Fixed-size version:   " << duration_fixed << " μs total, " 
-              << (double)duration_fixed / num_iterations << " μs per call\n";
+    std::cout << "Original version:     " << duration_original << " us total, " 
+              << (double)duration_original / num_iterations << " us per call\n";
+    std::cout << "Optimized version:    " << duration_optimized << " us total, " 
+              << (double)duration_optimized / num_iterations << " us per call\n";
     
     double speedup_optimized = (double)duration_original / duration_optimized;
-    double speedup_fixed = (double)duration_original / duration_fixed;
     
     std::cout << "\nSpeedup (optimized):  " << speedup_optimized << "x\n";
-    std::cout << "Speedup (fixed-size): " << speedup_fixed << "x\n";
     
     // Verify results are the same
     std::cout << "\nResult verification:\n";
     print_vector(dtk_us_original, "Original:  ");
     print_vector(dtk_us_optimized, "Optimized: ");
-    print_vector(dtk_us_fixed, "Fixed:     ");
     
-    bool results_match = (dtk_us_original == dtk_us_optimized) && (dtk_us_original == dtk_us_fixed);
+    bool results_match = (dtk_us_original == dtk_us_optimized);
     std::cout << "Results match: " << (results_match ? "YES" : "NO") << "\n";
 }
 

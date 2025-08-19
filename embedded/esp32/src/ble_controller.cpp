@@ -361,12 +361,10 @@ void read_and_send_analog_data(NimBLECharacteristic* characteristic) {
             control_copy[i] = control_dtk_us[i];
         }
 
-        size_t workspace_size = 2 * (control_dtk_len + 2);
-        std::unique_ptr<float[]> workspace(new float[workspace_size]);
 
         timer_a = std::chrono::high_resolution_clock::now();
         condition_dtk_signal_optimized(dataset_active->time_vec.data(), dataset_active->time_vec.size(), time_constraint_us, 
-                                     control_copy, control_dtk_len, workspace.get());
+                                     control_copy, control_dtk_len, workspace);
         timer_b = std::chrono::high_resolution_clock::now();
         auto duration_opt = std::chrono::duration_cast<std::chrono::microseconds>(timer_b-timer_a).count();
 
