@@ -33,7 +33,6 @@ void ServerCallbacks::onConnect(NimBLEServer* pServer) {
     Serial.println("Device connected");
 }
 
-
 void ServerCallbacks::onDisconnect(NimBLEServer* pServer) {
     blink(2);  // Visual indication of disconnection
     Serial.println("Device disconnected");
@@ -61,37 +60,37 @@ void BLE_router(NimBLECharacteristic *characteristic) {
     } 
     // STATUS command: Returns the main status info from the system
     else if (message == "STATUS") {
-        send_ble_message_status(characteristic);
+        ble_router_send_ble_message_status(characteristic);
     } 
     else if (message == "STATUS_MATRIX_A") {
         // status matrix setA
-        send_ble_message_status_matrix(characteristic, SignalSet::SET_A);
+        ble_router_send_ble_message_status_matrix(characteristic, SignalSet::SET_A);
     } 
     else if (message == "STATUS_MATRIX_B") {
         // status matrix setB
-        send_ble_message_status_matrix(characteristic, SignalSet::SET_B);
+        ble_router_send_ble_message_status_matrix(characteristic, SignalSet::SET_B);
     } 
     else if (message == "STATUS_DURATIONS") {
         // status matrix setB
-        send_ble_message_status_durations(characteristic);
+        ble_router_send_ble_message_status_durations(characteristic);
     } 
     else if (message == "LOG_KOKA") {
-        send_ble_message_log_koka(characteristic);
+        ble_router_send_ble_message_log_koka(characteristic);
     } 
     else if (message == "TOGGLE_SET") {
-        toggle_signal_dataset();
+        ble_router_toggle_signal_dataset();
     }
     else if (message == "TOGGLE_SET_A") {
-        set_signal_dataset_a();
+        ble_router_set_signal_dataset_a();
     }
     else if (message == "TOGGLE_SET_B") {
-        set_signal_dataset_b();
+        ble_router_set_signal_dataset_b();
     }
     else if (message == "CONTROL_ON") {
-        set_signal_control_on();
+        ble_router_set_signal_control_on();
     }
     else if (message == "CONTROL_OFF") {
-        set_signal_control_off();
+        ble_router_set_signal_control_off();
     }
     else if (message == "LOG_LAST_CALC_ON") {
         Serial.println("set log_last_calc ON");
@@ -104,7 +103,7 @@ void BLE_router(NimBLECharacteristic *characteristic) {
     else if (message.substr(0,14) == "LOG_LAST_CALC:") {
         std::string payload = message.substr(14);
         int n_chunk = std::stoi(payload);
-        send_message_last_calc(characteristic, n_chunk - 1);
+        ble_router_send_message_last_calc(characteristic, n_chunk - 1);
     } 
     // CYCLE_NRUN command: Set analog reading frequency
     else if (message.substr(0,11) == "CYCLE_NRUN:") {
@@ -129,21 +128,25 @@ void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
     BLE_router(characteristic);
 }
 
-void send_message_last_calc(NimBLECharacteristic* characteristic, int n_chunk) {
+void ble_router_send_message_last_calc(NimBLECharacteristic* characteristic, int n_chunk) {
+    // message.substr(0,14) == "LOG_LAST_CALC:"
+    //
     note_buffer_print_info(g_log_last_calc);
 
     // Send in chunks to handle large messages
-    send_ble_message_chunk(characteristic, g_log_last_calc.buffer, strlen(g_log_last_calc.buffer), 200, n_chunk);
+    ble_router_send_ble_message_chunk(characteristic, g_log_last_calc.buffer, strlen(g_log_last_calc.buffer), 200, n_chunk);
 }
 
-void send_ble_message_log_koka(NimBLECharacteristic* characteristic) {
+void ble_router_send_ble_message_log_koka(NimBLECharacteristic* characteristic) {
     // message == "LOG_KOKA"
     note_buffer_ble_send(g_log_koka, characteristic);
     note_buffer_print_info(g_log_koka);
 }
 
-// Send system status over BLE
-void send_ble_message_status(NimBLECharacteristic* characteristic) {
+void ble_router_send_ble_message_status(NimBLECharacteristic* characteristic) {
+    // message == "STATUS"
+    //
+
     // Use static buffer to avoid heap allocation issues
     NoteData message_buffer(BLE_BUFFER_SIZE);
     note_buffer_clear(message_buffer);
@@ -192,7 +195,10 @@ void send_ble_message_status(NimBLECharacteristic* characteristic) {
     Serial.println("STATUS response sent successfully");
 }
 
-void send_ble_message_status_matrix(NimBLECharacteristic* characteristic, SignalSet set) {
+void ble_router_send_ble_message_status_matrix(NimBLECharacteristic* characteristic, SignalSet set) {
+    // message == "STATUS_MATRIX_A" || message == "STATUS_MATRIX_B"
+    //
+
     NoteData message_buffer(BLE_BUFFER_SIZE);
 
     note_buffer_clear(message_buffer);
@@ -206,7 +212,9 @@ void send_ble_message_status_matrix(NimBLECharacteristic* characteristic, Signal
     note_buffer_print_info(message_buffer);
 }
 
-void send_ble_message_status_durations(NimBLECharacteristic* characteristic) {
+void ble_router_send_ble_message_status_durations(NimBLECharacteristic* characteristic) {
+    // message == "STATUS_DURATIONS"
+    //
     NoteData buffer(BLE_BUFFER_SIZE);
     
     note_buffer_add_text(buffer, "\nSTATUS time duration:\n");
@@ -219,10 +227,11 @@ void send_ble_message_status_durations(NimBLECharacteristic* characteristic) {
     note_buffer_print_info(buffer);
 }
 
-void send_ble_message_chunk(NimBLECharacteristic* characteristic, const char* buffer, size_t total_len, size_t chunk_size, int chunk_index) {
-    // We need to account for the header size, so the actual data payload per chunk is smaller.
+void ble_router_send_ble_message_chunk(NimBLECharacteristic* characteristic, const char* buffer, size_t total_len, size_t chunk_size, int chunk_index) {
+    // message.substr(0,14) == "LOG_LAST_CALC:"
+    //
+
     // The header "[CHUNK_X_OF_Y]" can vary in size. Let's assume a safe maximum, or use dynamic sizing.
-    // The original code used `chunk_size - 20`, let's maintain that for simplicity.
     size_t payload_size = chunk_size - 20;
 
     // Calculate the total number of chunks needed for the full message.
@@ -264,7 +273,60 @@ void send_ble_message_chunk(NimBLECharacteristic* characteristic, const char* bu
     Serial.printf("Chunk %d sent successfully.\n", chunk_index + 1);
 }
 
-// Send analog readings over BLE
+void ble_router_start() {
+    // message == "START"
+    //
+
+    if (xSemaphoreTake(g_signal_mutex, portMAX_DELAY) == pdTRUE) {
+        g_signal_task_state = SignalTaskState::SIGNAL_RUN;
+        xSemaphoreGive(g_signal_mutex);
+    }
+    digitalWrite(2, HIGH);  // LED GPIO
+    start_signal_timer();
+}
+
+void ble_router_high() {
+    // message == "HIGH"
+    //
+
+    if (xSemaphoreTake(g_signal_mutex, portMAX_DELAY) == pdTRUE) {
+        g_signal_task_state = SignalTaskState::HIGH_ALL;
+        xSemaphoreGive(g_signal_mutex);
+    }
+    stop_signal_timer();
+    digitalWrite(2, LOW);
+    set_all_outputs_high();
+}
+
+void ble_router_idle() {
+    // message == "STOP" || message == "LOW"
+    //
+
+    if (xSemaphoreTake(g_signal_mutex, portMAX_DELAY) == pdTRUE) {
+        g_signal_task_state = SignalTaskState::IDLE;
+        xSemaphoreGive(g_signal_mutex);
+    }
+    stop_signal_timer();
+    digitalWrite(2, LOW);
+    set_all_outputs_low();
+}
+
+void ble_router_run_signal(std::string& signal) {
+    // message.substr(0,7) == "SIGNAL:"
+    //
+
+    g_ble_task_state = BLETaskState::SIGNAL_READING;
+    signal_update_pattern(signal);
+}
+
+void ble_router_message_data(std::string& message) {
+    // message.substr(0,13) == "MESSAGE_DATA:"
+    //
+
+    g_ble_task_state = BLETaskState::SIGNAL_READING;
+    signal_update_full_control(message); // NOTE: 0 -> read new message
+}
+
 void read_and_send_analog_data(NimBLECharacteristic* characteristic) {
 
     auto timer_start = std::chrono::high_resolution_clock::now();

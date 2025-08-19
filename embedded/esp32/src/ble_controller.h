@@ -5,7 +5,6 @@
 #include <NimBLEDevice.h>
 #include "esp_task_wdt.h"
 
-#include "ble_router.h"
 #include "signal_controller.h"
 #include "helper_common.h"
 #include "helper_matrix.h"
@@ -24,15 +23,17 @@ extern BLETaskState g_ble_task_state;
 void bleTask(void* parameter);
 void read_and_send_analog_data(NimBLECharacteristic* characteristic);
 
-void send_message_last_calc(NimBLECharacteristic* characteristic, int n_chunk);
-void send_ble_message_status(NimBLECharacteristic* characteristic);
-void send_ble_message_status_matrix(NimBLECharacteristic* characteristic, SignalSet set);
-void send_ble_message_status_durations(NimBLECharacteristic* characteristic);
-
-void send_ble_message_log_koka(NimBLECharacteristic* characteristic);
-
-void send_ble_message_chunk(NimBLECharacteristic* characteristic, const char* buffer, size_t total_len, size_t chunk_size, int chunk_index);
-
+void ble_router_send_message_last_calc(NimBLECharacteristic* characteristic, int n_chunk);
+void ble_router_send_ble_message_status(NimBLECharacteristic* characteristic);
+void ble_router_send_ble_message_status_matrix(NimBLECharacteristic* characteristic, SignalSet set);
+void ble_router_send_ble_message_status_durations(NimBLECharacteristic* characteristic);
+void ble_router_send_ble_message_log_koka(NimBLECharacteristic* characteristic);
+void ble_router_send_ble_message_chunk(NimBLECharacteristic* characteristic, const char* buffer, size_t total_len, size_t chunk_size, int chunk_index);
+void ble_router_start();
+void ble_router_high();
+void ble_router_idle();
+void ble_router_run_signal(std::string& message);
+void ble_router_message_data(std::string& message);
 
 void initialize_BLE();
 

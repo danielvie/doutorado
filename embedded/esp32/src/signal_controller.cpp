@@ -37,27 +37,27 @@ const uint32_t GPIO_DI5_MASK = 1 << GPIO_DI5;
 const uint32_t GPIO_DI6_MASK = 1 << GPIO_DI6;
 const uint32_t GPIO_PIN_MASK = GPIO_DI4_MASK | GPIO_DI5_MASK | GPIO_DI6_MASK;
 
-void set_signal_dataset_a() {
+void ble_router_set_signal_dataset_a() {
     Serial.println("Changing to SET_A");
     g_active_set = SignalSet::SET_A;
 }
 
-void set_signal_dataset_b() {
+void ble_router_set_signal_dataset_b() {
     Serial.println("Changing to SET_B");
     g_active_set = SignalSet::SET_B;
 }
 
-void set_signal_control_on() {
+void ble_router_set_signal_control_on() {
     Serial.println("Changing control to ON");
     g_system_status.prop_control = StatusONOFF::ON;
 }
 
-void set_signal_control_off() {
+void ble_router_set_signal_control_off() {
     Serial.println("Changing control to OFF");
     g_system_status.prop_control = StatusONOFF::OFF;
 }
 
-void toggle_signal_dataset() {
+void ble_router_toggle_signal_dataset() {
     if (g_active_set == SignalSet::SET_A) {
         Serial.println("Changing to SET_B");
         g_active_set = SignalSet::SET_B;
@@ -386,7 +386,7 @@ void signal_task(void* arg) {
                 if (g_current_state == g_active_num_timings - 1) {
                     if (xSemaphoreTake(g_signal_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
                         // NOTE: 3 -> Toggle between SET_A and SET_B
-                        toggle_signal_dataset();
+                        ble_router_toggle_signal_dataset();
 
                         g_active_num_timings = g_num_timings; // Update to new pattern length
                         g_switch_set_pending = false;

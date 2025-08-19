@@ -55,12 +55,12 @@ struct DataSet {
 extern DataSet g_dataset_a; // Signal set A
 extern DataSet g_dataset_b; // Signal set B
 
-void set_signal_dataset_a();
-void set_signal_dataset_b();
-void toggle_signal_dataset();
+void ble_router_set_signal_dataset_a();
+void ble_router_set_signal_dataset_b();
+void ble_router_toggle_signal_dataset();
 
-void set_signal_control_on();
-void set_signal_control_off();
+void ble_router_set_signal_control_on();
+void ble_router_set_signal_control_off();
 
 // extern std::vector<uint32_t> time_vec_a, d4_vec_a, d5_vec_a, d6_vec_a;
 // extern std::vector<uint32_t> time_vec_b, d4_vec_b, d5_vec_b, d6_vec_b;
