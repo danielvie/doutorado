@@ -32,7 +32,7 @@ extern uint32_t g_cycle_nrun;
 
 // Timer and signal control variables (volatile for ISR access)
 extern volatile uint8_t g_current_state;
-extern volatile uint32_t g_cycle_count;
+extern volatile uint16_t g_cycle_count;
 extern volatile bool g_timer_initialized;
 extern volatile uint8_t g_num_timings;
 extern volatile uint8_t g_active_num_timings;

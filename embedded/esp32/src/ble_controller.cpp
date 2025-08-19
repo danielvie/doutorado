@@ -9,7 +9,7 @@ extern SemaphoreHandle_t g_signal_mutex;
 extern uint32_t g_cycle_nrun;
 extern volatile SignalSet g_active_set;
 extern volatile uint8_t g_current_state;
-extern volatile uint32_t g_cycle_count;
+extern volatile uint16_t g_cycle_count;
 
 // BLE Task state management
 BLETaskState g_ble_task_state = BLETaskState::IDLE;
@@ -364,7 +364,7 @@ void read_and_send_analog_data(NimBLECharacteristic* characteristic) {
 
         timer_a = std::chrono::high_resolution_clock::now();
         condition_dtk_signal_optimized(dataset_active->time_vec.data(), dataset_active->time_vec.size(), time_constraint_us, 
-                                     control_copy, control_dtk_len, workspace);
+                                     control_copy, control_dtk_len, workspace_float);
         timer_b = std::chrono::high_resolution_clock::now();
         auto duration_opt = std::chrono::duration_cast<std::chrono::microseconds>(timer_b-timer_a).count();
 

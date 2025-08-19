@@ -18,7 +18,7 @@ SignalTaskState g_signal_task_state = SignalTaskState::IDLE;
 
 // Timer and signal control variables (volatile for ISR access)
 volatile uint8_t g_current_state = 0;
-volatile uint32_t g_cycle_count = 0;
+volatile uint16_t g_cycle_count = 0;
 volatile bool g_timer_initialized = false;
 volatile uint8_t g_num_timings = 0;
 volatile uint8_t g_active_num_timings = 0;
@@ -80,19 +80,14 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
 
     // Pre-calculate next state
     uint8_t next_state = (g_current_state + 1) % g_active_num_timings;
-
     uint32_t new_gpio_out_value = 0;
 
     // Build pin state mask based on active signal pattern
-    if (g_active_set == SignalSet::SET_A) {
-        new_gpio_out_value = (g_dataset_a.d4_vec[next_state] ? GPIO_DI4_MASK : 0) |
-                             (g_dataset_a.d5_vec[next_state] ? GPIO_DI5_MASK : 0) |
-                             (g_dataset_a.d6_vec[next_state] ? GPIO_DI6_MASK : 0);
-    } else {
-        new_gpio_out_value = (g_dataset_b.d4_vec[next_state] ? GPIO_DI4_MASK : 0) |
-                             (g_dataset_b.d5_vec[next_state] ? GPIO_DI5_MASK : 0) |
-                             (g_dataset_b.d6_vec[next_state] ? GPIO_DI6_MASK : 0);
-    }
+    DataSet& dataset = (g_active_set == SignalSet::SET_A) ? g_dataset_a : g_dataset_b;
+
+    new_gpio_out_value = (dataset.d4_vec[next_state] ? GPIO_DI4_MASK : 0) |
+                         (dataset.d5_vec[next_state] ? GPIO_DI5_MASK : 0) |
+                         (dataset.d6_vec[next_state] ? GPIO_DI6_MASK : 0);
 
     // Atomic GPIO update: Write directly to the GPIO_OUT_REG for simultaneous update
     GPIO.out = (GPIO.out & ~GPIO_PIN_MASK) | new_gpio_out_value;
@@ -102,30 +97,17 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
 
     // NOTE: 6 -> Set next alarm with control adjustment
     // NOTE: Use g_control_dtk_us
-
-    if (g_active_set == SignalSet::SET_A) {
-        // timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_a.time_vec[current_state]);
-        if (g_system_status.prop_control == StatusONOFF::ON) {
-            timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, g_dataset_a.time_vec[g_current_state] + g_dataset_a.time_us_diff[g_current_state]);
-        }
-        else {
-            timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, g_dataset_a.time_vec[g_current_state]);
-        }
+    if (g_system_status.prop_control == StatusONOFF::ON) {
+        timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset.time_vec[g_current_state] + dataset.time_us_diff[g_current_state]);
     }
     else {
-        // timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset_b.time_vec[current_state]);
-        if (g_system_status.prop_control == StatusONOFF::ON) {
-            timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, g_dataset_b.time_vec[g_current_state] + g_dataset_b.time_us_diff[g_current_state]);
-        }
-        else {
-            timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, g_dataset_b.time_vec[g_current_state]);
-        }
+        timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset.time_vec[g_current_state]);
     }
 
     // Check for cycle completion and trigger analog reading if needed
     if (g_current_state == 0) {
-        g_cycle_count++;
-        if (g_cycle_count % g_cycle_nrun == 0) {
+        g_cycle_count = (g_cycle_count + 1) % g_cycle_nrun;
+        if (g_cycle_count == 0) {
             g_ble_task_state = BLETaskState::ANALOG_READ; // NOTE: 4 -> loop call
         }
     }

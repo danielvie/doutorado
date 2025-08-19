@@ -36,7 +36,7 @@ SystemDuration g_system_duration = {
     .update_signal_with_dtk = 0,
 };
 
-float workspace[WORKSPACE_SIZE];
+float workspace_float[WORKSPACE_SIZE];
 
 // calibration function
 // Apply calibration transformation to ESP32 voltage reading
@@ -469,28 +469,25 @@ void print_ts_us_constructed() {
 }
 
 
-void condition_dtk_signal(const std::vector<uint32_t>& time_us, const float& time_constraint_us, int32_t* dtk_us, size_t dtk_len) {
+void condition_dtk_signal(const std::vector<uint32_t>& time_us, const float& time_constraint_us, int32_t* dtk_us, const size_t& dtk_len) {
     
     size_t ts_us_len = time_us.size()+1;
 
-    auto compute_sum_u = [](const std::vector<uint32_t>& vec) -> uint32_t {
-        return std::accumulate(vec.begin(), vec.end(), uint32_t(0));
-    };
-
-    auto compute_sum_array_i = [](const int32_t* vec, size_t dtk_len) -> int32_t {
-        return std::accumulate(vec, vec + dtk_len, int32_t(0));
-    };
+    const uint16_t max_size= 40;
+    float ts_us_ref[max_size] = {};
+    float ts_us[max_size] = {};
 
     // create ts_us_ref
-    std::vector<float> ts_us_ref(dtk_len + 2, 0.0);
-    ts_us_ref[dtk_len+1] = std::round(compute_sum_u(time_us));
+    ts_us_ref[dtk_len+1] = std::round(std::accumulate(time_us.begin(), time_us.end(), uint32_t(0)));
+    ts_us[dtk_len+1] = ts_us_ref[dtk_len+1];
     
     for (int i=0; i < dtk_len; i++) {
         ts_us_ref[i+1] = ts_us_ref[i] + time_us[i];
+        ts_us[i+1] = ts_us_ref[i+1];
     }
 
     // normalize dtk to the cycle range
-    float dtk_us_sum = compute_sum_array_i(dtk_us, dtk_len);
+    float dtk_us_sum = std::accumulate(dtk_us, dtk_us + dtk_len, int32_t(0));
 
     if (dtk_us_sum > ts_us_ref[ts_us_len-1]) {
         for (int i = 0; i < dtk_len; i++) {
@@ -499,7 +496,6 @@ void condition_dtk_signal(const std::vector<uint32_t>& time_us, const float& tim
     }
 
     // adjust ts_us with dtk_us
-    std::vector<float> ts_us = ts_us_ref;
     for (size_t i = 0; i < dtk_len; i++) {
         ts_us[i+1] = ts_us[i+1] + dtk_us[i];
     }

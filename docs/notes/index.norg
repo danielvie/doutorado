@@ -7,19 +7,19 @@
 * Acompanhamento Doutorado
 
 ** {@ Wednesday 13 August 2025} Calibracao
-   - [ ] consigo fazer um log usando o buffer e bluetooth?
+   - [x] consigo fazer um log usando o buffer e bluetooth?
    -- talvez tenha que fazer uma logica pra montar o log
-   - [ ] improve status message with information of matrix and maybe warnings
+   - [x] improve status message with information of matrix and maybe warnings
    - [ ] atualizar codigo no artigo
    - [ ] rever literatura de referencia SIMULADOS, NUMERICO
 
 ** {@ Wednesday 6 August 2025} Calibracao
-   -- [ ] melhorar interface matlab, esta ruim
-   -- [ ] investigar fator de escala do sinal de leitura (10.0/6.0)
-   -- [ ] criar metodo para set_alpha e enviar mensagem data completo
-   -- [ ] consertar log de mensagem na tela, o parser esta limitando as mensagens BLE
-   -- [ ] criar prefixo para sempre mostrar mensagem em modo verboso
-   -- [ ] testar ambiente com usb_isolator (precisa de cabos USB antigo)
+   -- [x] melhorar interface matlab, esta ruim
+   -- [x] investigar fator de escala do sinal de leitura (10.0/6.0)
+   -- [x] criar metodo para set_alpha e enviar mensagem data completo
+   -- [x] consertar log de mensagem na tela, o parser esta limitando as mensagens BLE
+   -- [x] criar prefixo para sempre mostrar mensagem em modo verboso
+   -- [x] testar ambiente com usb_isolator (precisa de cabos USB antigo)
 
 ** # {@ Wednesday 01 Aug 2025} Calibracao
    -- controle preditivo explicito
@@ -31,8 +31,8 @@
    -- usar a placa com jacare no resistor para dissipar potencia
 
 ** # {@ Wednesday 23 July 2025} Calibracao
-   -- [ ] colocar sinal completo no log de status
-   -- [ ] fazer um controlador proporcional para validar malha fechada
+   -- [x] colocar sinal completo no log de status
+   -- [x] fazer um controlador proporcional para validar malha fechada
 
 ** # {@ Friday 18 July 2025} Calibracao
 

@@ -37,7 +37,7 @@ extern SystemStatus g_system_status;
 extern SystemDuration g_system_duration;
 
 static const uint16_t WORKSPACE_SIZE = 1024;
-extern float workspace[WORKSPACE_SIZE];
+extern float workspace_float[WORKSPACE_SIZE];
 
 enum class ERROR_CODE {
     OK,
@@ -153,5 +153,5 @@ void print_dataset(DataSet* d);
 void print_ts_us_constructed();
 
 // Adjust timing based on constraints and return status
-void condition_dtk_signal(const std::vector<uint32_t>& time_us, const float& time_constraint_us, int32_t* dtk_us, size_t dtk_len);
+void condition_dtk_signal(const std::vector<uint32_t>& time_us, const float& time_constraint_us, int32_t* dtk_us, const size_t& dtk_len);
 void condition_dtk_signal_optimized(const uint32_t* time_us, size_t time_us_len, const float time_constraint_us, int32_t* dtk_us, size_t dtk_len, float* workspace);
