@@ -1,0 +1,50 @@
+@startuml
+hide empty description
+state "Overall System Flow" as Overall_Flow {
+    [*] --> Setup
+    Setup --> BLE_States
+    Setup --> Signal_States
+}
+
+state "BLE Task States" as BLE_States {
+    state BLE_IDLE
+    state ANALOG_READ
+    state ANALOG_READING
+    state SIGNAL_READING
+
+    BLE_IDLE : No active BLE operations
+    ANALOG_READ : Request to read analog sensors
+    ANALOG_READING : Currently reading analog sensors
+    SIGNAL_READING : Currently processing new signal data
+
+    BLE_IDLE --> ANALOG_READ
+    ANALOG_READ --> ANALOG_READING
+    ANALOG_READING --> BLE_IDLE
+    BLE_IDLE --> SIGNAL_READING
+    SIGNAL_READING --> BLE_IDLE
+}
+
+state "Signal Task States" as Signal_States {
+    state IDLE
+    state HIGH_ALL
+    state SIGNAL_RUN
+
+    IDLE : No signal generation, all outputs low
+    HIGH_ALL : All outputs forced high (constant)
+    SIGNAL_RUN : Active signal pattern generation
+
+    IDLE --> SIGNAL_RUN
+    IDLE --> HIGH_ALL
+    HIGH_ALL --> IDLE
+    SIGNAL_RUN --> IDLE
+    SIGNAL_RUN --> HIGH_ALL
+}
+
+' note bottom of SIGNAL_RUN
+'     Timer ISR manages transitions within
+'     the SIGNAL_RUN state by updating
+'     current_state and setting next alarm.
+'     It also triggers ANALOG_READ state.
+' end note
+
+@enduml

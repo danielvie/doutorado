@@ -2,6 +2,7 @@
 
 \documentclass[11pt, letterpaper]{article}
 \usepackage[utf8]{inputenc}
+\usepackage{amsmath}
 \usepackage[margin=1.5cm]{geometry}
 \usepackage{titlesec}
 \usepackage{tabu}
@@ -73,14 +74,22 @@
 %Max. 20 words. A good title should contain the fewest possible words that adequately describe the content of a paper.
 
 %Insert Authors
-\textbf{Daniel Vieira, Roberto Kawakami Harrop Galvão*, José Roberto Colombo Júnior}\\ \textit{List all authors. Please mark the corresponding author with (*)}
+\textbf{Daniel Vieira, Roberto Kawakami Harrop Galvão*, José Roberto Colombo Júnior} 
+
+% \textit{List all authors. Please mark the corresponding author with (*)
 
 %Insert Affiliations
-\textbf{Instituto Tecnológico de Aeronáutica, Electronics Engineering Division, 12228-900, São José dos Campos, SP - Brazil}\\ \textit{Please include the full address of each author institution}
+\textbf{Instituto Tecnológico de Aeronáutica, Electronics Engineering Division, 12228-900, São José dos Campos, SP - Brazil} 
+
+%  \textit{Please include the full address of each author institution}
 
 %Insert Contact Email
 %Include institutional email address of the corresponding author
-\textbf{kawakami@ita.br}\\ \textit{Institutional email address preferred. If you have a Twitter handle, please add it here ‘twitter: \@....’}
+\textbf{kawakami@ita.br} 
+
+
+
+% \textit{Institutional email address preferred. If you have a Twitter handle, please add it here ‘twitter: \@....’}
 
 %Insert Abstract
 %Max. 200 words. Remember that the abstract is what readers see first in electronic abstracting and indexing services. This is the advertisement of your article. Make it interesting, and easy to be understood. Be accurate and specific, keep it as brief as possible.
@@ -229,6 +238,8 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
 \end{center}
 \caption{Photo of the device. The $10 \Omega$ resistors R1, R2, $\ldots$, R6 are soldered on the bottom.}
 \end{figure}
+
+
 
 \section*{\textit{Design files}}
 % The  complete  design  files  must  be  either  uploaded  to  an  approved  online  repository,  uploaded  at the  time  of  submission  on  the  online  Editorial  Manager  submission  interface  as  supplementary materials [CAD files, videos,. . . ], or included in the body of the manuscript [e.g.  figures].  The three approved  online  repositories  are  Mendeley  Data,  the  Open  Science  Framework,  and  Zenodo. See repository instructions: https://doi.org/10.5281/zenodo.3346799
@@ -420,41 +431,44 @@ https://docs.google.com/spreadsheets/d/14c4qT01m3tA2rBspwJqqd35RiecyckPLIuiIuWBo
 \item[$\bullet$]Create a bulleted list describing the capabilities (and limitations) of the hardware. For example, load and operation time, spin speed, coefficient of variation, accuracy, precision, etc.
 \end{itemize}}
 
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=1]{Ton.jpg}
+\includegraphics[scale=1]{DeltaT_12.jpg}
+\includegraphics[scale=1]{DeltaT_31.jpg}
+\end{center}
+\caption{Commands $u_1(t)$, $u_2(t)$, $u_3(t)$ with $\alpha = 0.3$ and $T = $ \textcolor{red}{???} (a) $\Delta T_{on} = 83 \mu$s.}
+\end{figure}
+
+Note that $T = 1/(3.75 \text{ kHz} = 0.27$ ms. \textcolor{red}{Confirmar valores usados no código.} \\
+
 \noindent
 \textbf{Ethics statements}\\
 
-\noindent
-{\it HardwareX has ethical guidelines that all authors must comply with. In addition, we ask you to complete the relevant statement(s) below.  Please delete those which are not relevant for your work.}\\
+This work did not involve human subjects or animal experiments. \\
 
-\noindent
-{\it \textbf{If your work involved human subjects,} please include a statement here confirming that the relevant informed consent was obtained from those subjects:}\\
-
-\noindent
-{\it \textbf{If your work involved animal experiments,} please include a statement here confirming that those experiments complied with the ARRIVE guidelines and were carried out in accordance with the U.K. Animals (Scientific Procedures) Act, 1986 and associated guidelines; EU Directive 2010/63/EU for animal experiments; or the National Institutes of Health guide for the care and use of laboratory animals (NIH Publications No. 8023, revised 1978). Note, the sex of the animals must be indicated, and, where appropriate, the influence (or association) of sex on the results of the study:}\\
 
 \noindent
 \textbf{CRediT author statement}\\
 \noindent
-{\it CRediT is in initiative that enables authors to share an accurate and detailed description of their diverse contributions to a published work.}\\
+
+\textbf{Daniel Vieira}: Software, Writing - Original draft, Investigation, Data Curation. \textbf{Roberto Kawakami Harrop Galvão}: Conceptualization, Methodology, Investigation, Resources, Funding acquisition, Supervision, Project administration, Data Curation, Validation, Visualization, Writing - Original draft, Writing - Reviewing and Editing. \textbf{José Roberto Colombo Júnior}: Methodology, Resources, Writing - Reviewing and Editing. \\
 
 \noindent
-{\it Example of a CRediT author statement: 
-\textbf{Zhang San}: Conceptualization, Methodology, Software \textbf{Priya Singh}: Data curation, Writing- Original draft preparation. \textbf{Wang Wu}: Visualization, Investigation. \textbf{Jan Jansen}: Supervision. \textbf{Ajay Kumar}: Software, Validation.: \textbf{Sun Qi}: Writing- Reviewing and Editing.}\\
+\textbf{Declaration of competing interest}\\
+
+The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper. \\
 
 \noindent
-{\it Please add a CRediT author statement for your data article here, using the \href{https://www.elsevier.com/authors/journal-authors/policies-and-ethics/credit-author-statement}{categories listed on this webpage}.}\\
+\textbf{Funding}\\
 
-
-\noindent
-\textbf{Acknowledgements}\\
-\noindent
-\textit{Funding: This work was supported by Conselho Nacional de Desenvolvimento Científico e Tecnológico - CNPq, Brazil [grant number 305233/2022-0].}
+This work was supported by Conselho Nacional de Desenvolvimento Científico e Tecnológico - CNPq, Brazil [grant number 305233/2022-0].
 \vskip 0.2cm
 % \\
 
-\noindent
-\textbf{References}\\
-\noindent 
+% \noindent
+% \textbf{References}\\
+% \noindent 
 
 %\bibliography{biblio}
 \printbibliography{}

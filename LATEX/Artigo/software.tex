@@ -8,12 +8,12 @@ and the React web application.
 \subsection{System Architecture}
 
 \begin{enumerate}
-    \item \textbf{The Embedded System (ESP32 Firmware)}: A C++ application running on an ESP32 microcontroller. Its sole 
-        purpose is to generate precise digital signals on its GPIO pins and report back sensor data. It acts as a Bluetooth 
-        GATT server, waiting for commands and sending out data.
-    \item \textbf{The Web Control Interface (React App)}: A web application built with React and TypeScript. It serves as 
-        the user's command center to define the signal patterns, send commands to the ESP32 and visualize incoming sensor
-        data on a live chart. It acts as a Bluetooth GATT client, connecting to and controlling the ESP32.
+    \item \textbf{The Embedded System (ESP32 Firmware)}: A C++ application running on an ESP32 microcontroller. Its sole
+          purpose is to generate precise digital signals on its GPIO pins and report back sensor data. It acts as a Bluetooth
+          GATT server, waiting for commands and sending out data.
+    \item \textbf{The Web Control Interface (React App)}: A web application built with React and TypeScript. It serves as
+          the user's command center to define the signal patterns, send commands to the ESP32 and visualize incoming sensor
+          data on a live chart. It acts as a Bluetooth GATT client, connecting to and controlling the ESP32.
 \end{enumerate}
 
 The bridge between these two parts is the Web Bluetooth API, which allows the browser-based application to communicate 
@@ -29,13 +29,13 @@ A RTOS guarantees that tasks can be executed with precise timing and this projec
 
 \begin{itemize}
     \item \textbf{Multitasking:} The firmware runs two primary tasks concurrently: `signalTask` and `bleTask`. The `bleTask'
-        handles all the non-time-critical Bluetooth communication, while the `signalTask' focuses on managing the signal 
-        state machine
+          handles all the non-time-critical Bluetooth communication, while the `signalTask' focuses on managing the signal
+          state machine
     \item \textbf{Task Pinning:} The ESP32 has a dual-core processor. To prevent the BLE stack from interfering with signal
-        timing, both tasks are "pinned" to a specific CPU core using `xTaskCreatePinnedToCore' This prevents that a spike in 
-        Bluetooth activity on Core 1 will not delay the signal generation logic running alongsite it.
-    \item \textbf{Priority Management:} The `signalTask' is assigned a high priority, ensuring it gets processor time 
-        when it needs, to enforce the real-time guarantees.
+          timing, both tasks are "pinned" to a specific CPU core using `xTaskCreatePinnedToCore' This prevents that a spike in
+          Bluetooth activity on Core 1 will not delay the signal generation logic running alongsite it.
+    \item \textbf{Priority Management:} The `signalTask' is assigned a high priority, ensuring it gets processor time
+          when it needs, to enforce the real-time guarantees.
 \end{itemize}
 
 Here is how the tasks are created and pinned to CORE\_1 and CORE\_0
@@ -72,14 +72,14 @@ So, this system uses one of the ESP32's built-in hardware timers.
 
 \begin{itemize}
     \item \textbf{How it Works:} The timer is a dedicated hardware that counts at a very high frequency.
-        It is configure with a prescaler (TIMER\_DIVIDER), which divides the CPU's main clock (240MHz) to create
-        a slower, more manageable timer clock (3MHz in this case).
+          It is configure with a prescaler (TIMER\_DIVIDER), which divides the CPU's main clock (240MHz) to create
+          a slower, more manageable timer clock (3MHz in this case).
     \item \textbf{Interrupt Service Routine (ISR):} The timer is set to trigger a hardware interrupt when its counter reaches
-        a "alarm" value. This interrupt executes a function (Interrupt Service Routine). In this project, the `timer\_group\_isr\_callback'
-        is the ISR. This function contains the code needed to switch the GPIO pins to their next state and set the alarm for the next
-        interrupt.
+          a "alarm" value. This interrupt executes a function (Interrupt Service Routine). In this project, the `timer\_group\_isr\_callback'
+          is the ISR. This function contains the code needed to switch the GPIO pins to their next state and set the alarm for the next
+          interrupt.
     \item \textbf{IRAM Execution:} For maximum speed and to avoid delays from flash memory access, the ISR is loaded into the ESP32's
-        Instruction RAM (IRAM) using the IRAM\_ATTR attribute.
+          Instruction RAM (IRAM) using the IRAM\_ATTR attribute.
 \end{itemize}
 
 
@@ -224,21 +224,19 @@ The web interface is built with React.js to provide an easy user experience.
 This interface serves as the primary connection point between the user and the hardware,
 linking directly to the ESP32 microcontroller via Bluetooth Low Energy (BLE). 
 
-From the web application, users can easily send string commands to the device, as well as trigger automated
+From the web application (Figure \ref{fig:sw_web_interface}), users can easily send string commands to the device, as well as trigger automated
 sequences for common experimental procedures. A key function of the interface is its ability to perform
 on-the-fly computations to generate the control signals needed for the power switches. It also
 receives and processes data from the ESP32's BLE connection, specifically the analog measurements from
 the circuit. The received data is then visually represented in a real-time chart, allowing for immediate
 analysis of the circuit's performance.
 
-
-\begin{figure}[h]
-\begin{center}
-\includegraphics[scale=0.5]{sw_web_interface.png}
-\end{center}
-\caption{Web Interface to connect and control the ESP32.}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.5]{sw_web_interface.png}
+    \caption{Web Interface to connect and control the ESP32.}
+    \label{fig:sw_web_interface}
 \end{figure}
-
 
 The web interface provides single-page application for interacting
 with the hardware in real-time. It connects to the ESP32 via Bluetooth Low Energy (BLE) and serves as
@@ -255,10 +253,20 @@ features of the interface:
     \item START Command: Send the command to the ESP32 to initiate the use of the generated signals.
 \end{itemize}
 
+The system's behavior is described by a state diagram in Figure \ref{fig:state_diagram} that shows the 
+Overall System Flow, which transitions from an initial Setup phase into two main concurrent processes: BLE Task States and Signal Task States. 
+
+The BLE (Bluetooth Low Energy) task handles wireless communication 
+and sensor data, cycling through states such as BLE\_IDLE (when no operations are active), ANALOG\_READING 
+(when it's actively reading sensor data), and SIGNAL\_READING (when it's processing new signal information). 
+
+Concurrently, the Signal task manages the output signals, operating in states like IDLE (with no signals 
+generated), HIGH\_ALL (where all outputs are forced high), and SIGNAL\_RUN (for active signal pattern 
+generation). This dual-task structure allows the system to manage sensor inputs and signal outputs independently.
 
 \begin{figure}[h]
-\begin{center}
-\includegraphics[scale=0.5]{sw_state_machine.png}
-\end{center}
-\caption{State Diagram of the SW Operation Modes}
+    \centering
+    \includegraphics[scale=0.5]{sw_state_machine.png}
+    \caption{State Diagram of the SW Operation Modes}
+    \label{fig:state_diagram}
 \end{figure}
