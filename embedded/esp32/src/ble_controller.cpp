@@ -70,7 +70,7 @@ void BLE_router(NimBLECharacteristic *characteristic) {
         // status matrix setB
         ble_router_send_ble_message_status_matrix(characteristic, SignalSet::SET_B);
     } 
-    else if (message == "STATUS_DURATIONS") {
+    else if (message == "STATUS_DURATION") {
         // status matrix setB
         ble_router_send_ble_message_status_durations(characteristic);
     } 
@@ -213,7 +213,7 @@ void ble_router_send_ble_message_status_matrix(NimBLECharacteristic* characteris
 }
 
 void ble_router_send_ble_message_status_durations(NimBLECharacteristic* characteristic) {
-    // message == "STATUS_DURATIONS"
+    // message == "STATUS_DURATION"
     //
     NoteData buffer(BLE_BUFFER_SIZE);
     
@@ -406,36 +406,11 @@ void read_and_send_analog_data(NimBLECharacteristic* characteristic) {
         
         const float time_constraint_us = 10.0;
 
-        note_buffer_clear(g_log_koka);
-        note_buffer_add_text(g_log_koka, "\nLOG KOKA::\n");
-
-        note_buffer_add_array_u32(g_log_koka, "time_vec      ", dataset_active->time_vec.data(), dataset_active->time_vec.size());
-        note_buffer_add_array_i32(g_log_koka, "control_dtk_us", control_dtk_us, control_dtk_len);
-
-        timer_a = std::chrono::high_resolution_clock::now();
-        condition_dtk_signal(dataset_active->time_vec, time_constraint_us, control_dtk_us, control_dtk_len);
-        timer_b = std::chrono::high_resolution_clock::now();
-        g_system_duration.dtk_condition = std::chrono::duration_cast<std::chrono::microseconds>(timer_b - timer_a).count();
-
-        // copy of control_dtk_us
-        int32_t control_copy[control_dtk_len];
-        for (size_t i = 0; i < control_dtk_len; i++) {
-            control_copy[i] = control_dtk_us[i];
-        }
-
-
         timer_a = std::chrono::high_resolution_clock::now();
         condition_dtk_signal_optimized(dataset_active->time_vec.data(), dataset_active->time_vec.size(), time_constraint_us, 
-                                     control_copy, control_dtk_len, workspace_float);
+                                     control_dtk_us, control_dtk_len, workspace_float);
         timer_b = std::chrono::high_resolution_clock::now();
-        auto duration_opt = std::chrono::duration_cast<std::chrono::microseconds>(timer_b-timer_a).count();
-
-        note_buffer_add_array_i32(g_log_koka, "control_dtk_us      ", control_dtk_us, control_dtk_len);
-        note_buffer_add_array_i32(g_log_koka, "control_dtk_us (opt)", control_copy, control_dtk_len);
-
-        note_buffer_add_text(g_log_koka, "\n");
-        note_buffer_add_text_f(g_log_koka, "duration    : %d us\n", g_system_duration.dtk_condition);
-        note_buffer_add_text_f(g_log_koka, "duration opt: %d us\n", duration_opt);
+        g_system_duration.dtk_condition = std::chrono::duration_cast<std::chrono::microseconds>(timer_b - timer_a).count();
 
         timer_a = std::chrono::high_resolution_clock::now();
         dataset_active->time_us_diff.resize(control_dtk_len+1, 0);

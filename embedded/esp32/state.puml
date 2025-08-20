@@ -17,11 +17,11 @@ state "BLE Task States" as BLE_States {
     ANALOG_READING : Currently reading analog sensors
     SIGNAL_READING : Currently processing new signal data
 
-    BLE_IDLE --> ANALOG_READ : cycle_count % cycle_nrun == 0 (from timer ISR)
-    ANALOG_READ --> ANALOG_READING : ble_task_state = ANALOG_READING
-    ANALOG_READING --> BLE_IDLE : readAndSendAnalogData() complete
-    BLE_IDLE --> SIGNAL_READING : "SIGNAL:data" command received
-    SIGNAL_READING --> BLE_IDLE : Signal parsing complete
+    BLE_IDLE --> ANALOG_READ
+    ANALOG_READ --> ANALOG_READING
+    ANALOG_READING --> BLE_IDLE
+    BLE_IDLE --> SIGNAL_READING
+    SIGNAL_READING --> BLE_IDLE
 }
 
 state "Signal Task States" as Signal_States {
@@ -33,20 +33,18 @@ state "Signal Task States" as Signal_States {
     HIGH_ALL : All outputs forced high (constant)
     SIGNAL_RUN : Active signal pattern generation
 
-    IDLE --> SIGNAL_RUN : "START" command received
-    IDLE --> HIGH_ALL : "HIGH" command received
-    HIGH_ALL --> IDLE : "STOP" or "LOW" command received
-    SIGNAL_RUN --> IDLE : "STOP" or "LOW" command received
-    SIGNAL_RUN --> HIGH_ALL : "HIGH" command received
-
-    SIGNAL_RUN --> SIGNAL_RUN : current_state == active_num_timings - 1 AND switch_set_pending (switch active_set)
+    IDLE --> SIGNAL_RUN
+    IDLE --> HIGH_ALL
+    HIGH_ALL --> IDLE
+    SIGNAL_RUN --> IDLE
+    SIGNAL_RUN --> HIGH_ALL
 }
 
-note bottom of SIGNAL_RUN
-    Timer ISR manages transitions within
-    the SIGNAL_RUN state by updating
-    current_state and setting next alarm.
-    It also triggers ANALOG_READ state.
-end note
+' note bottom of SIGNAL_RUN
+'     Timer ISR manages transitions within
+'     the SIGNAL_RUN state by updating
+'     current_state and setting next alarm.
+'     It also triggers ANALOG_READ state.
+' end note
 
 @enduml
