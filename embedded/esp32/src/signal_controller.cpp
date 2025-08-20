@@ -26,7 +26,7 @@ volatile SignalSet g_active_set = SignalSet::SET_A;
 volatile bool g_switch_set_pending = false;
 
 // Cycle configuration
-uint32_t g_cycle_nrun = 10;
+uint32_t g_cycle_nrun = 1;
 
 // Mutex for thread-safe access to shared signal data
 SemaphoreHandle_t g_signal_mutex = NULL;

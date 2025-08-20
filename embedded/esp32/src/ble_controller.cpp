@@ -3,14 +3,6 @@
 #include <chrono>
 #include <random>
 
-// External references to global variables
-extern SignalTaskState g_signal_task_state;
-extern SemaphoreHandle_t g_signal_mutex;
-extern uint32_t g_cycle_nrun;
-extern volatile SignalSet g_active_set;
-extern volatile uint8_t g_current_state;
-extern volatile uint16_t g_cycle_count;
-
 // BLE Task state management
 BLETaskState g_ble_task_state = BLETaskState::IDLE;
 
@@ -402,7 +394,6 @@ void read_and_send_analog_data(NimBLECharacteristic* characteristic) {
             }
             note_buffer_add_text(g_log_last_calc, "];\n");
         }
-
         
         const float time_constraint_us = 10.0;
 
