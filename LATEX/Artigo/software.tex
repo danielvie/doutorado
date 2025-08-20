@@ -90,28 +90,39 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
     // Re-enable timer alarm for next interrupt
     timer_group_enable_alarm_in_isr(TIMER_GROUP, TIMER_IDX);
 
-    // Get references to the currently active signal set
-    std::vector<uint64_t>& time_vec = (active_set == ActiveSignalSet::SET_A) ? time_vec_a : time_vec_b;
-    std::vector<uint64_t>& d4_vec = (active_set == ActiveSignalSet::SET_A) ? d4_vec_a : d4_vec_b;
-    std::vector<uint64_t>& d5_vec = (active_set == ActiveSignalSet::SET_A) ? d5_vec_a : d5_vec_b;
-    std::vector<uint64_t>& d6_vec = (active_set == ActiveSignalSet::SET_A) ? d6_vec_a : d6_vec_b;
+    // Only execute signal generation when in SIGNAL_RUN state
+    if (g_signal_task_state != SignalTaskState::SIGNAL_RUN) {
+        return true;
+    }
 
-    // Calculate next state position in signal pattern (circular buffer)
-    uint8_t next_state = (current_state + 1) % active_num_timings;
+    // Pre-calculate next state
+    uint8_t next_state = (g_current_state + 1) % g_active_num_timings;
+    uint32_t new_gpio_out_value = 0;
+
+    // Get reference to active dataset
+    DataSet& dataset = (g_active_set == SignalSet::SET_A) ? 
+                        g_dataset_a : g_dataset_b;
+
+    // Build pin state mask based on active signal pattern
+    new_gpio_out_value = (dataset.d4_vec[next_state] ? GPIO_DI4_MASK : 0) |
+                         (dataset.d5_vec[next_state] ? GPIO_DI5_MASK : 0) |
+                         (dataset.d6_vec[next_state] ? GPIO_DI6_MASK : 0);
+
+    // Write directly to the GPIO_OUT_REG for simultaneous update
+    GPIO.out = (GPIO.out & ~GPIO_PIN_MASK) | new_gpio_out_value;
+
+    // Update state
+    g_current_state = next_state;
+    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, 
+                          dataset.time_vec[g_current_state]);
     
-    // Build pin state mask based on signal pattern
-    uint32_t pin_states =
-        (d4_vec[next_state] ? gpio_di4_mask : 0) |
-        (d5_vec[next_state] ? gpio_di5_mask : 0) |
-        (d6_vec[next_state] ? gpio_di6_mask : 0);
-
-    // Apply pin states using direct GPIO register manipulation for speed
-    GPIO.out_w1ts = pin_states;  // Set high pins
-    GPIO.out_w1tc = ~pin_states & (gpio_di4_mask | gpio_di5_mask | gpio_di6_mask);  // Clear low pins
-
-    // Update current state and set next timer alarm
-    current_state = next_state;
-    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, time_vec[current_state]);
+    // Check for cycle completion and trigger analog reading
+    if (g_current_state == 0) {
+        g_cycle_count = (g_cycle_count + 1) % g_cycle_nrun;
+        if (g_cycle_count == 0) {
+            g_ble_task_state = BLETaskState::ANALOG_READ;
+        }
+    }
 
     return true;
 }
@@ -220,7 +231,14 @@ receives and processes data from the ESP32's BLE connection, specifically the an
 the circuit. The received data is then visually represented in a real-time chart, allowing for immediate
 analysis of the circuit's performance.
 
-\includegraphics[scale=0.50]{web_interface.png}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=0.5]{sw_web_interface.png}
+\end{center}
+\caption{Web Interface to connect and control the ESP32.}
+\end{figure}
+
 
 The web interface provides single-page application for interacting
 with the hardware in real-time. It connects to the ESP32 via Bluetooth Low Energy (BLE) and serves as
@@ -236,3 +254,11 @@ features of the interface:
     \item Digital Output Control: Command all digital outputs on the ESP32 to a HIGH or LOW state.
     \item START Command: Send the command to the ESP32 to initiate the use of the generated signals.
 \end{itemize}
+
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=0.5]{sw_state_machine.png}
+\end{center}
+\caption{State Diagram of the SW Operation Modes}
+\end{figure}
