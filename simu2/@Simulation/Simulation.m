@@ -69,6 +69,7 @@ classdef Simulation < handle
         msg_gain_k = get_msg_control_signal(self);
         gain_k = get_gain_k(self);
         mode = get_mode(self);
+        [d1, d2, d3, d4] = get_mode_bin(self);
         time_us = get_time_us(self);
         target = get_target(self);
 

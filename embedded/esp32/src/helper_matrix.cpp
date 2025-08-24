@@ -8,7 +8,7 @@ bool matrix_isvalid(MatrixData& M) {
     if (M.rows <= 0 || M.cols <= 0) {
         return false;
     }
-    if (M.values.size() != static_cast<size_t>(M.rows*M.cols)) {
+    if (M.size != static_cast<size_t>(M.rows*M.cols)) {
         return false;
     }
     
@@ -17,7 +17,7 @@ bool matrix_isvalid(MatrixData& M) {
 
 bool matrix_multiply_vector3(MatrixData& M, float x1, float x2, float x3, float* result) {
     // Cache data pointer to avoid repeated vector access overhead
-    const float* data_ptr = M.values.data();
+    const float* data_ptr = M.values;
     
     // Use row-major indexing consistent with matrix_print(): row * M.cols + col
     for (int i = 0; i < M.rows; ++i) {

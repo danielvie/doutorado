@@ -438,9 +438,14 @@ void read_and_send_analog_data(NimBLECharacteristic* characteristic) {
 
     } else {
         note_buffer_clear(g_log_last_calc);
-        note_buffer_add_text_f(g_log_last_calc, "matrix is not valid!!!! rand: %d\n", get_rand_int(1, 1000000));
-        note_buffer_add_text_f(g_log_last_calc, "M.rows: %d; M.cols: %d\n", dataset_active->gain_k.rows, dataset_active->gain_k.cols);
-        note_buffer_add_matrix(g_log_last_calc, dataset_active->gain_k);
+        if (g_system_status.log_last_calc == StatusONOFF::ON) {
+            note_buffer_add_text_f(g_log_last_calc, "matrix is not valid!!!! rand: %d\n", get_rand_int(1, 1000000));
+            note_buffer_add_text_f(g_log_last_calc, "M.rows: %d; M.cols: %d\n", dataset_active->gain_k.rows, dataset_active->gain_k.cols);
+            note_buffer_add_matrix(g_log_last_calc, dataset_active->gain_k);
+        } else {
+            note_buffer_add_text(g_log_last_calc, "LOG: matrix computation log (log_last_calc) is not active!\n");
+        }
+
     } 
 
     auto timer_end = std::chrono::high_resolution_clock::now();

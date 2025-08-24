@@ -8,6 +8,7 @@ classdef BTBroker < handle
         simulation;
         verbose;
         control_on;
+        history;
     end
     
     methods (Static)

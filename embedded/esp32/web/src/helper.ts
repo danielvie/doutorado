@@ -14,7 +14,7 @@ export function _create_signal(alpha: number) {
     let iMax = E / R; // Maximum current
     let iLref = iMax * alpha; // Current setpoint based on duty cycle
 
-    console.log(`iMax: ${iMax}, iLref: ${iLref}`);
+    // console.log(`iMax: ${iMax}, iLref: ${iLref}`);
 
     // Calculate switching pattern using industrial solution algorithm
     let res = industrial_solution(alpha, n, T);

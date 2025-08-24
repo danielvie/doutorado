@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import {
-    bt_is_connected,
-    connect_device,
-    disconnect_device,
-    send_command,
-    set_update_status,
-    toggle_listening,
+    ble_is_connected,
+    ble_connect_device,
+    ble_disconnect_device,
+    ble_send_command,
+    ble_set_update_status,
+    ble_toggle_listening,
 } from "./bluetooth";
 import { _create_signal } from "../helper";
 import { DataPoint } from "./Chart";
@@ -38,7 +38,7 @@ function Control(props: IControlProps) {
     useEffect(() => {
         handle_compute_alpha();
         const interval = setInterval(() => {
-            set_is_connected(bt_is_connected());
+            set_is_connected(ble_is_connected());
         }, 1000); // Check every second
         return () => clearInterval(interval);
     }, []);
@@ -47,7 +47,7 @@ function Control(props: IControlProps) {
         set_status(message);
     }
 
-    set_update_status(update_status);
+    ble_set_update_status(update_status);
 
 
     function handle_copy() {
@@ -89,7 +89,7 @@ function Control(props: IControlProps) {
 
     function handle_send_cycle_nrun() {
         const command = `CYCLE_NRUN:${cycle_nrun}`;
-        send_command(command);
+        ble_send_command(command);
     }
 
     function handle_compute_alpha() {
@@ -100,27 +100,27 @@ function Control(props: IControlProps) {
     }
 
     function handle_send_command() {
-        send_command(command_message);
+        ble_send_command(command_message);
     }
 
     function handle_connect() {
-        connect_device();
+        ble_connect_device();
     }
 
     function handle_disconnect() {
-        disconnect_device();
+        ble_disconnect_device();
     }
 
     function handleStart() {
-        send_command("START");
+        ble_send_command("START");
     }
 
     function handle_stop() {
-        send_command("STOP");
+        ble_send_command("STOP");
     }
 
     function handle_high() {
-        send_command("HIGH");
+        ble_send_command("HIGH");
     }
 
     function probe_values(values: { an3: string; an5: string; an6: string }) {
@@ -140,9 +140,9 @@ function Control(props: IControlProps) {
 
     async function handle_listen() {
         if (!is_connected) {
-            await connect_device();
+            await ble_connect_device();
         }
-        const is_listening = toggle_listening(probe_values);
+        const is_listening = ble_toggle_listening(probe_values);
         set_listen_label(is_listening ? "Stop Listening" : "Start Listening");
     }
 
@@ -183,7 +183,7 @@ function Control(props: IControlProps) {
 
     function handle_send_signal() {
         const signal = `SIGNAL:${time};${mode}`;
-        send_command(signal);
+        ble_send_command(signal);
     }
 
     function handle_set_multiply(e: React.ChangeEvent<HTMLInputElement>) {

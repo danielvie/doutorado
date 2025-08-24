@@ -4,6 +4,7 @@ import RealtimeChart, { DataPoint } from "./components/Chart";
 import { _create_signal } from "./helper";
 
 import Control from "./components/Control";
+import Listenner from "./components/Listenner";
 
 function App() {
 
@@ -15,8 +16,8 @@ function App() {
   return (
     <>
 
-      <div className="flex items-center">
-        <div className="flex">
+      <div className="grid grid-cols-2 gap-0 p-2">
+        <div className="">
           <Control
             data={data}
             set_data={set_data}
@@ -27,12 +28,15 @@ function App() {
             set_filter_alpha={set_filter_alpha}
           ></Control>
         </div>
-        <div className="flex w-[600px]  p-4">
+        <div className="p-4">
           <RealtimeChart 
             data={data.slice(-200)} 
             analog_scale={analog_scale}
             filter_alpha={filter_alpha}
             />
+        </div>
+        <div className="col-span-2">
+          <Listenner></Listenner>
         </div>
       </div>
 

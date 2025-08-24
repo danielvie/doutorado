@@ -29,7 +29,7 @@ let g_is_listening = false; // Flag to track if we're currently listening for no
  *
  * @returns {Promise<void>} A promise that resolves when connection is established
  */
-export async function connect_device() {
+export async function ble_connect_device() {
     try {
         // Access the Web Bluetooth API through navigator
         let navigatorObject: any = window.navigator;
@@ -42,7 +42,7 @@ export async function connect_device() {
         // Set up a disconnect handler
         g_bluetoothDevice.addEventListener(
             "gattserverdisconnected",
-            handle_disconnect,
+            ble_handle_disconnect,
         );
 
         // Connect to the device's GATT server
@@ -55,11 +55,11 @@ export async function connect_device() {
         g_characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
 
         // Update UI with connection status
-        update_status("Connected to ESP32");
+        ble_update_status("Connected to ESP32");
     } catch (error: any) {
         // Handle any errors during the connection process
-        update_status(`Connection failed: ${error.message}`, true);
-        reset_connection();
+        ble_update_status(`Connection failed: ${error.message}`, true);
+        ble_reset_connection();
     }
 }
 
@@ -68,28 +68,28 @@ export async function connect_device() {
  *
  * @returns {Promise<void>} A promise that resolves when disconnection is complete
  */
-export async function disconnect_device() {
+export async function ble_disconnect_device() {
     if (g_bluetoothDevice && g_bluetoothDevice.gatt.connected) {
         await g_bluetoothDevice.gatt.disconnect();
     }
-    reset_connection();
-    update_status("Manually disconnected");
+    ble_reset_connection();
+    ble_update_status("Manually disconnected");
 }
 
 /**
  * Event handler for when the device disconnects
  * This will be called automatically when the device disconnects unexpectedly
  */
-function handle_disconnect() {
-    update_status("Disconnected from ESP32", true);
-    reset_connection();
+function ble_handle_disconnect() {
+    ble_update_status("Disconnected from ESP32", true);
+    ble_reset_connection();
 }
 
 /**
  * Resets all connection-related variables to their initial state
  * Called after a disconnect (manual or automatic)
  */
-function reset_connection() {
+function ble_reset_connection() {
     g_bluetoothDevice = null;
     g_gattServer = null;
     g_characteristic = null;
@@ -102,7 +102,7 @@ function reset_connection() {
  *
  * @param update_status_fun - Function that accepts a message string and error flag
  */
-export function set_update_status(update_status_fun: CallableFunction) {
+export function ble_set_update_status(update_status_fun: CallableFunction) {
     g_fn_UpdateStatus = update_status_fun;
 }
 
@@ -112,7 +112,7 @@ export function set_update_status(update_status_fun: CallableFunction) {
  * @param message - The status message to display
  * @param _isError - Whether this is an error message (for styling)
  */
-function update_status(message: string, _isError: boolean = false) {
+function ble_update_status(message: string, _isError: boolean = false) {
     if (g_fn_UpdateStatus) {
         g_fn_UpdateStatus(message, _isError);
     }
@@ -127,13 +127,13 @@ function update_status(message: string, _isError: boolean = false) {
  * @param command - The command string to send to the device
  * @returns {Promise<void>} A promise that resolves when the command is sent
  */
-export async function send_command(command: string) {
+export async function ble_send_command(command: string) {
     // Check if we're connected, try to reconnect if not
-    if (!bt_is_connected()) {
-        update_status("Not connected, attempting to reconnect...", true);
-        await connect_device();
-        if (!bt_is_connected()) {
-            update_status(
+    if (!ble_is_connected()) {
+        ble_update_status("Not connected, attempting to reconnect...", true);
+        await ble_connect_device();
+        if (!ble_is_connected()) {
+            ble_update_status(
                 `Failed to reconnect, cannot send command: '${command}'`,
                 true,
             );
@@ -144,7 +144,7 @@ export async function send_command(command: string) {
     // Normalize the command (trim whitespace and convert to uppercase)
     const comm = command.trim().toUpperCase();
     if (!comm) {
-        update_status("Please enter a command", true);
+        ble_update_status("Please enter a command", true);
         return;
     }
 
@@ -155,11 +155,11 @@ export async function send_command(command: string) {
 
         // Send the data to the device via the Bluetooth characteristic
         await g_characteristic.writeValue(data);
-        update_status(`Sent command: ${comm}`);
+        ble_update_status(`Sent command: ${comm}`);
     } catch (error: any) {
         // Handle any errors during sending
-        update_status(`Send failed: ${error.message}`, true);
-        reset_connection();
+        ble_update_status(`Send failed: ${error.message}`, true);
+        ble_reset_connection();
     }
 }
 
@@ -168,7 +168,7 @@ export async function send_command(command: string) {
  *
  * @returns {boolean} True if connected, false otherwise
  */
-export function bt_is_connected() {
+export function ble_is_connected() {
     return g_bluetoothDevice && g_bluetoothDevice.gatt.connected;
 }
 
@@ -181,10 +181,10 @@ export function bt_is_connected() {
  * @param fn_probe - Callback function that will receive the parsed sensor data
  * @returns {boolean} The new listening state (true = listening, false = not listening)
  */
-export function toggle_listening(fn_probe: CallableFunction): boolean {
+export function ble_toggle_listening(fn_probe: CallableFunction): boolean {
     // Can't listen if not connected
-    if (!bt_is_connected()) {
-        update_status("Cannot toggle listening: not connected", true);
+    if (!ble_is_connected()) {
+        ble_update_status("Cannot toggle listening: not connected", true);
         return false;
     }
 
@@ -193,9 +193,9 @@ export function toggle_listening(fn_probe: CallableFunction): boolean {
 
     // Start or stop notifications based on the new state
     if (g_is_listening) {
-        start_notifications(fn_probe);
+        ble_start_notifications(fn_probe);
     } else {
-        stop_notifications();
+        ble_stop_notifications();
     }
 
     return g_is_listening;
@@ -209,9 +209,9 @@ export function toggle_listening(fn_probe: CallableFunction): boolean {
  *
  * @param fn_probe - Callback function that will receive the parsed sensor data
  */
-async function start_notifications(fn_probe: CallableFunction) {
+async function ble_start_notifications(fn_probe: CallableFunction) {
     if (!g_characteristic) {
-        update_status("No characteristic available", true);
+        ble_update_status("No characteristic available", true);
         return;
     }
 
@@ -229,6 +229,12 @@ async function start_notifications(fn_probe: CallableFunction) {
                 // Convert the binary data to text
                 const decoder = new TextDecoder();
                 let message = decoder.decode(value);
+                
+                if (message.includes('LOG') || message.includes('STATUS')) {
+                    console.log(message)
+                    return;
+                }
+
                 // message = message.replace(/\ncontrol\:.*/g, "")
                 // console.log(message)
 
@@ -236,7 +242,7 @@ async function start_notifications(fn_probe: CallableFunction) {
                 // Expected format is like "an3:1.23 an5:4.56 an6:7.89"
                 const regex = /(\w+):([\d.]+)/g;
                 const parsed_data: Record<string, string> = {};
-                console.log(parsed_data)
+                // console.log(parsed_data)
                 let match;
                 let has_match = false;
 
@@ -260,9 +266,9 @@ async function start_notifications(fn_probe: CallableFunction) {
                 }
             },
         );
-        update_status("Started listening for notifications");
+        ble_update_status("Started listening for notifications");
     } catch (err: any) {
-        update_status(`Failed to start notifications: ${err.message}`, true);
+        ble_update_status(`Failed to start notifications: ${err.message}`, true);
         g_is_listening = false;
     }
 }
@@ -273,15 +279,15 @@ async function start_notifications(fn_probe: CallableFunction) {
  * Note that this doesn't remove the event listener, just stops the notifications.
  * The listener will be re-triggered if notifications restart.
  */
-async function stop_notifications() {
+async function ble_stop_notifications() {
     if (!g_characteristic) return;
 
     try {
         // Disable notifications from the characteristic
         await g_characteristic.stopNotifications();
         // Note: Event listener remains attached; it will be re-triggered if notifications restart
-        update_status("Stopped listening for notifications");
+        ble_update_status("Stopped listening for notifications");
     } catch (err: any) {
-        update_status(`Failed to stop notifications: ${err.message}`, true);
+        ble_update_status(`Failed to stop notifications: ${err.message}`, true);
     }
 }

@@ -4,9 +4,12 @@
 #include <Arduino.h>
 #include <vector>
 
+#define MAX_MATRIX_ELEMENTS 100
+
 struct MatrixData {
-    std::vector<float> values;
-    int rows, cols;
+    float values[MAX_MATRIX_ELEMENTS];
+    uint16_t size;
+    uint16_t rows, cols;
     bool is_valid;
 };
 

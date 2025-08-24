@@ -291,7 +291,14 @@ ERROR_CODE signal_update_full_control(const std::string& str_control_message) {
         data_set.d5_vec = new_d5_vec;
         data_set.d6_vec = new_d6_vec;
         data_set.target = new_target;
-        data_set.gain_k = MatrixData{.values = new_gain_k, .rows = new_rows, .cols = new_cols};
+
+        data_set.gain_k.rows = new_rows;
+        data_set.gain_k.cols = new_cols;
+        data_set.gain_k.size = new_gain_k.size();
+        size_t copy_size = std::min(new_gain_k.size(), (size_t)MAX_MATRIX_ELEMENTS);
+        for (size_t i = 0; i < copy_size; ++i) {
+            data_set.gain_k.values[i] = new_gain_k[i];
+        }
     };
 
     if (xSemaphoreTake(g_signal_mutex, portMAX_DELAY) == pdTRUE) {
