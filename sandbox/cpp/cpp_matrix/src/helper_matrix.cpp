@@ -1,4 +1,4 @@
-#include "matrix_math.h"
+#include "helper_matrix.h"
 #include <cstdio>
 
 bool matrix_isvalid(MatrixData& M) {
@@ -59,6 +59,7 @@ void matrix_test() {
         .is_valid = true
     };
     float result1[3];
+    matrix_print(identity);
     matrix_multiply_vector3(identity, 1.0, 2.0, 3.0, result1);
     printf("Expected: [1.0, 2.0, 3.0]\n");
     printf("Got:      [%.3f, %.3f, %.3f]\n", result1[0], result1[1], result1[2]);
@@ -74,6 +75,7 @@ void matrix_test() {
         .is_valid = true
     };
     float result2[2];
+    matrix_print(mat2x3);
     matrix_multiply_vector3(mat2x3, 1.0, -1.0, 2.0, result2);
     printf("Expected: [5.0, 11.0]\n");
     printf("Got:      [%.3f, %.3f]\n", result2[0], result2[1]);

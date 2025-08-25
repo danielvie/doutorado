@@ -56,6 +56,8 @@
  
 \urlstyle{same}
 
+\newcommand{\red}[1]{{\color{red}#1}}
+
 % Set up the section label formatting
 \titleformat{\section}[block]{\hspace{1em}\bfseries}{\thesection.}{0.5em}{} 
 \titleformat{\subsection}[block]{\hspace{1em}}{\thesubsection}{0.5em}{}
@@ -64,182 +66,193 @@
 % Create the title block
 \begin{flushleft}
 
-{\Huge \bf A flying capacitor three-cell voltage converter for studies in the control of switched systems} 
+  {\Huge \bf A flying capacitor three-cell voltage converter for studies in the control of switched systems}
 
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{10pt}
-% \textbf{\large HardwareX article template}
+  \setlength{\parindent}{0pt}
+  \setlength{\parskip}{10pt}
+  % \textbf{\large HardwareX article template}
 
-%Insert title
-%Max. 20 words. A good title should contain the fewest possible words that adequately describe the content of a paper.
+  %Insert title
+  %Max. 20 words. A good title should contain the fewest possible words that adequately describe the content of a paper.
 
-%Insert Authors
-\textbf{Daniel Vieira, Roberto Kawakami Harrop Galvão*, José Roberto Colombo Júnior} 
+  %Insert Authors
+  \textbf{Daniel Vieira, Roberto Kawakami Harrop Galvão*, José Roberto Colombo Júnior}
 
-% \textit{List all authors. Please mark the corresponding author with (*)
+  % \textit{List all authors. Please mark the corresponding author with (*)
 
-%Insert Affiliations
-\textbf{Instituto Tecnológico de Aeronáutica, Electronics Engineering Division, 12228-900, São José dos Campos, SP - Brazil} 
+  %Insert Affiliations
+  \textbf{Instituto Tecnológico de Aeronáutica, Electronics Engineering Division, 12228-900, São José dos Campos, SP - Brazil}
 
-%  \textit{Please include the full address of each author institution}
+  %  \textit{Please include the full address of each author institution}
 
-%Insert Contact Email
-%Include institutional email address of the corresponding author
-\textbf{kawakami@ita.br} 
+  %Insert Contact Email
+  %Include institutional email address of the corresponding author
+  \textbf{kawakami@ita.br}
 
 
 
-% \textit{Institutional email address preferred. If you have a Twitter handle, please add it here ‘twitter: \@....’}
+  % \textit{Institutional email address preferred. If you have a Twitter handle, please add it here ‘twitter: \@....’}
 
-%Insert Abstract
-%Max. 200 words. Remember that the abstract is what readers see first in electronic abstracting and indexing services. This is the advertisement of your article. Make it interesting, and easy to be understood. Be accurate and specific, keep it as brief as possible.
-\textbf{Abstract}\\ \textit{
-The challenges associated with implementing controllers for switched systems often arise from the high cost and complexity of the required hardware. 
-This paper addresses that barrier by presenting a low-cost circuit for a three-cell voltage converter specifically designed for the experimental 
-study of switched-mode control. The proposed solution uses standard, easily accessible electronic components, making it an ideal platform for 
-educational and research purposes. At the heart of the control architecture is an ESP32 microcontroller, which provides the necessary real-time 
-capabilities to generate precise signals for the switched actuators. This approach aims to provide a practical and easy-to-implement solution for 
-developing and testing control algorithms, thus lowering the entry barrier for students and researchers in the field. 
-This work contributes a valuable tool that bridges the gap between the theoretical aspects of switched systems and their accessible, 
-hands-on application.}
+  %Insert Abstract
+  %Max. 200 words. Remember that the abstract is what readers see first in electronic abstracting and indexing services. This is the advertisement of your article. Make it interesting, and easy to be understood. Be accurate and specific, keep it as brief as possible.
+  \textbf{Abstract}\\ \textit{
+    The challenges associated with implementing controllers for switched systems often arise from the high cost and complexity of the required hardware.
+    This paper addresses that barrier by presenting a low-cost circuit for a three-cell voltage converter specifically designed for the experimental
+    study of switched-mode control. The proposed solution uses standard, easily accessible electronic components, making it an ideal platform for
+    educational and research purposes. At the heart of the control architecture is an ESP32 microcontroller, which provides the necessary real-time
+    capabilities to generate precise signals for the switched actuators. This approach aims to provide a practical and easy-to-implement solution for
+    developing and testing control algorithms, thus lowering the entry barrier for students and researchers in the field.
+    This work contributes a valuable tool that bridges the gap between the theoretical aspects of switched systems and their accessible,
+    hands-on application.}
 
-%Insert Keywords
-% At least 3 keywords. There is no limit on the no. of keywords you can list. Please remember that effective keywords should not repeat words appearing in your title, and should be neither too general nor too narrow.
-\textbf{Keywords}\\ \textit{Voltage Converter; Low-Cost Circuit; ESP32 Microcontroller; Switched-mode control;}
+  %Insert Keywords
+  % At least 3 keywords. There is no limit on the no. of keywords you can list. Please remember that effective keywords should not repeat words appearing in your title, and should be neither too general nor too narrow.
+  \textbf{Keywords}\\ \textit{Voltage Converter; Low-Cost Circuit; ESP32 Microcontroller; Switched-mode control;}
 
-\newpage
-\textbf{Specifications table}\\
-\textit{Please replace the italicizied instructions in the right column of the table with the relevant information about your hardware.}
-\vskip 0.2cm
-\tabulinesep=1ex
-\begin{tabu} to \linewidth {|X|X[3,l]|}
-\hline  \textbf{Hardware name} & \textit{ESP32 C++ controlled three-cell converter}
-  %Please specify the name of the hardware that you invented / customized
-  \\
-  \hline \textbf{Subject area} & %
-  % Please state the subject area most relevant to the original community for which this hardware was developed. Example subject areas are listed below.
-  Educational tools and open source alternatives to existing infrastructure
-  \\
-  \hline \textbf{Hardware type} &
-Electrical engineering and computer science
-  \\ 
-\hline \textbf{Closest commercial analog} &
-  %Please specify the open source license. For more details see the guide to authors.
-  \textit{Please specify the closest commercial analog to the submitted hardware. What would this hardware replace? If no commercial analog exists, state “No commercial analog is available.” \textcolor{red}{Algo que tenha sido usado nos artigos da literatura}}
-  \\
-\hline \textbf{Open source license} &
-  %Please specify the open source license. For more details see the guide to authors.
-  {\it All designs must be submitted under an open source license (for more details see the \href{https://www.elsevier.com/journals/hardwarex/2468-0672/guide-for-authors}{\underline{Guide for Authors}}). Please specify the open source license you’ve selected here. }
-  \\
-\hline \textbf{Cost of hardware} &
-  %Approximate cost of hardware (complete breakdown will be included in the Bill of Materials).
-  \textit{Insert an approximate cost only - we will ask you for a complete breakdown of costs in a later section \textbf{(Bill of materials).}}
-  \\
-\hline \textbf{Source file repository} & 
-  % Link to the source file repository
-      % insert a DOI URL to an approved source file repository:  Mendeley Data, theOSF, or Zenodo (instructions).  For example: "https://doi.org/10.5281/zenodo.3346799"
-      % If there is no external repository write “Available in the article”
-  \textit{If you’ve uploaded your source files to an approved repository (\href{http://osf.io}{\underline{OSF}}, \href{https://data.mendeley.com/}{\underline{Mendeley Data}} or \href{https://zenodo.org/}{\underline{Zenodo}}) write the DOI URL here. For exemple:  \href{http://doi.org/10.17605/OSF.IO/WGK7Q}{http://doi.org/10.17605/OSF.IO/WGK7Q}}  
-%  DOI URL to an approved source file repository: \href{https://data.mendeley.com/}{Mendeley Data}, the \href{http://osf.io}{OSF}, or \href{https://zenodo.org/}{Zenodo} \href{https://doi.org/10.5281/zenodo.3346799}{(instructions)}. \linebreak For example: "https://doi.org/10.5281/zenodo.3346799" \linebreak If there is no external repository write “Available in the article"}
-  \\
-\hline \textbf{OSHWA certification UID} \vskip 0.1cm {\it (OPTIONAL)}&
-  %Insert OSHWA Certification UID (optional)
-{\it We encourage you to apply for a free \href{https://certification.oshwa.org/}{\underline{OSHWA Certification}}, which confirms your work is open-source compliant.
-\vskip 0.2cm
-If certification has been acquired, insert the OSHWA UID here. For example: “CH000005”. In your OSHWA certification project description, include a link to your HardwareX publication and the tag \#HX.
-\vskip 0.2cm
-If you haven’t acquired certification, please delete this row of the specifications table.}
-\\\hline
-\end{tabu}
+  \newpage
+  \textbf{Specifications table}\\
+  \textit{Please replace the italicizied instructions in the right column of the table with the relevant information about your hardware.}
+  \vskip 0.2cm
+  \tabulinesep=1ex
+  \begin{tabu} to \linewidth {|X|X[3,l]|}
+    \hline  \textbf{Hardware name}                                        & \textit{ESP32 C++ controlled three-cell converter}
+    %Please specify the name of the hardware that you invented / customized
+    \\
+    \hline \textbf{Subject area}                                          &                                                    %
+    % Please state the subject area most relevant to the original community for which this hardware was developed. Example subject areas are listed below.
+    Educational tools and open source alternatives to existing infrastructure
+    \\
+    \hline \textbf{Hardware type}                                         &
+    Electrical engineering and computer science
+    \\
+    \hline \textbf{Closest commercial analog}                             &
+    %Please specify the open source license. For more details see the guide to authors.
+    \textit{Please specify the closest commercial analog to the submitted hardware. What would this hardware replace? If no commercial analog exists, state “No commercial analog is available.” \textcolor{red}{Algo que tenha sido usado nos artigos da literatura}}
+    \\
+    \hline \textbf{Open source license}                                   &
+    %Please specify the open source license. For more details see the guide to authors.
+    CERN Open Hardware Licence Version 2 - Weakly Reciprocal
+    \\
+    \hline \textbf{Cost of hardware}                                      &
+    %Approximate cost of hardware (complete breakdown will be included in the Bill of Materials).
+    US\$ 50
+    \\
+    \hline \textbf{Source file repository}                                &
+    % Link to the source file repository
+    % insert a DOI URL to an approved source file repository:  Mendeley Data, theOSF, or Zenodo (instructions).  For example: "https://doi.org/10.5281/zenodo.3346799"
+    % If there is no external repository write “Available in the article”
+    \textit{If you’ve uploaded your source files to an approved repository (\href{http://osf.io}{\underline{OSF}}, \href{https://data.mendeley.com/}{\underline{Mendeley Data}} or \href{https://zenodo.org/}{\underline{Zenodo}}) write the DOI URL here. For exemple:  \href{http://doi.org/10.17605/OSF.IO/WGK7Q}{http://doi.org/10.17605/OSF.IO/WGK7Q}}
+    %  DOI URL to an approved source file repository: \href{https://data.mendeley.com/}{Mendeley Data}, the \href{http://osf.io}{OSF}, or \href{https://zenodo.org/}{Zenodo} \href{https://doi.org/10.5281/zenodo.3346799}{(instructions)}. \linebreak For example: "https://doi.org/10.5281/zenodo.3346799" \linebreak If there is no external repository write “Available in the article"}
+    \\
+    \hline \textbf{OSHWA certification UID} \vskip 0.1cm {\it (OPTIONAL)} &
+    %Insert OSHWA Certification UID (optional)
+    {\it We encourage you to apply for a free \href{https://certification.oshwa.org/}{\underline{OSHWA Certification}}, which confirms your work is open-source compliant.
+        \vskip 0.2cm
+        If certification has been acquired, insert the OSHWA UID here. For example: “CH000005”. In your OSHWA certification project description, include a link to your HardwareX publication and the tag \#HX.
+        \vskip 0.2cm
+        If you haven’t acquired certification, please delete this row of the specifications table.}
+    \\\hline
+  \end{tabu}
 \end{flushleft}
 % create the main body of the paper
 \newpage
+
+\textcolor{red}{Figuras:
+  \begin{itemize}
+    \item Tela do osciloscópio:  Apresentar vc1, v2, vr durante a transição entre dois valores diferentes de alpha. Apresentar a tela do osciloscópio associada.
+    \item Tela do software.
+  \end{itemize}
+}
+
 \section{Hardware in context}
 % Include a short description of the hardware, putting into context of similar open hardware and proprietary equipment in the field.
 
-During our research, we observed that most of the work in the field of switched-mode control for multi-cell
+Switched systems are an important topic of research in the systems and control field. In this context, a common application consists of the operation of DC-DC voltage converters \red{[Referências]}, aimed at obtaining a desired voltage level at the output, with fast transient response and small ripple. However, during our research, we observed that most of the work in the field of switched-mode control for multi-cell
 converters was purely digital, relying heavily on simulation. The limited experimental work available
 often outsourced the design and manufacturing of the physical circuit to external companies \cite{Saenz:2014}. Our hardware aims to fill this gap by providing an easily accessible
-and low-cost solution for implementing and studying these complex control strategies. By using standard
+and low-cost solution for implementing and studying these complex control strategies.
+More specifically, we focused on the three-cell flying capacitor converter with RL load, which has been used in  in several papers \red{[Referências]}. By using standard
 components and an embedded controller, our circuit provides an effective platform for hands-on research,
 reducing the barriers to entry for researchers and students.
+
+\red{Falar um pouco sobre a história do flying capacitor converter, citando algumas referências.}
+
+
 
 \section{Hardware description}
 % Describe the hardware, highlighting the customization rather than the steps of the procedure. Highlight how it differs/which advantage it offers over pre-existing methods. For example, how could this hardware: be compared to other hardware in terms of cost or ease of use, be used in the development of further designs in a particular area, and so on.
 
 % > Add 3-5 bulleted points to broadly explain to other researchers how the hardware could be potentially useful to them, for either standard or novel laboratory tasks, inside or outside of the original user community.
 
-\textit{Describe your hardware, highlighting the customization rather than the steps involved in the procedure. Explain how it differs from other hardware and the advantages it offers over pre-existing methods. For example, how does this hardware compare to other hardware in terms of cost or ease of use, or how can it be used to develop further designs in a particular area? 
-\vskip 0.3cm \noindent
-Add 3-5 bullet points which broadly explain to other researchers - inside or outside of the original user community - how the hardware could help them, with either standard or novel laboratory tasks.}
+\textit{Describe your hardware, highlighting the customization rather than the steps involved in the procedure. Explain how it differs from other hardware and the advantages it offers over pre-existing methods. For example, how does this hardware compare to other hardware in terms of cost or ease of use, or how can it be used to develop further designs in a particular area?
+  \vskip 0.3cm \noindent
+  Add 3-5 bullet points which broadly explain to other researchers - inside or outside of the original user community - how the hardware could help them, with either standard or novel laboratory tasks.}
 
 \bigskip
 
-\textcolor{red}{Figuras: 
-\begin{itemize}
-\item Tela do osciloscópio: Para um dado valor de alpha --> Três sinais de comando, vc1, v2, vr. Apresentar vc1, v2, vr durante a transição entre dois valores diferentes de alpha. 
-\item Tela do software.
-\end{itemize}
-}
+The circuit topology is illustrated in Fig. \ref{fig:CircuitTopology}. In this diagram, the binary input variables $u_i$ and $\bar{u}_i = 1 - u_i$ ($i = 1, 2, 3$) are switch commands. If $u_i = 1$, the corresponding upper switch is closed and the lower switch is open. Conversely, if $u_i = 0$, the upper swich is open and the lower switch is closed. The input $E$ is a constant voltage. The goal consists of operating the switches over time in order to achieve a desired voltage  $v_{out}$ at the output.
 
 \begin{figure}[h]
-\begin{center}
-\includegraphics[scale=1]{CircuitDiagram.pdf}
-\end{center}
-\caption{Three-cell Converter}
+  \label{fig:CircuitTopology}
+  \begin{center}
+    \includegraphics[scale=1]{CircuitDiagram.pdf}
+  \end{center}
+  \caption{Circuit topology.}
 \end{figure}
 
-The most commonly used method to operate the converter is the so-called Phase-Shifted Modulation (PSM) scheme \cite[p. 74-77]{Saenz:2014}. For a $p$-cell converter, the PSM scheme employs $p$ triangular modulation signals $s_1(t), s_2(t), \ldots, s_p(t)$, which oscillate in the 0 - 1 range with frequency $f = 1/T$ and $2 \pi / p$  phase shifts, as illustrated in Figure \ref{fig:PSM} for $p = 3$. Signal $s_i(t)$ is associated to the $u_i(t)$ switch command in the converter, so that
+A common method to operate the converter is the so-called Phase-Shifted Modulation (PSM) scheme \cite[p. 74-77]{Saenz:2014}. For a $p$-cell converter, the PSM scheme employs $p$ triangular modulation signals $s_1(t), s_2(t), \ldots, s_p(t)$, which oscillate in the 0 - 1 range with frequency $f = 1/T$ and $2 \pi / p$  phase shifts, as illustrated in Figure \ref{fig:PSM} for $p = 3$. Signal $s_i(t)$ is associated to the $u_i(t)$ switch command in the converter, so that
 %
 \begin{equation}
-u_i(t) = \left\{
-\begin{array}{l}
-0 \,,\; s_i(t) \geq \alpha \\[6pt]
-1 \,,\; s_i(t) < \alpha 
-\end{array}
-\right.
+  u_i(t) = \left\{
+  \begin{array}{l}
+    0 \,,\; s_i(t) \geq \alpha \\[6pt]
+    1 \,,\; s_i(t) < \alpha
+  \end{array}
+  \right.
 \end{equation}
 %
 where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the converter output. As can be seen from Fig. \ref{fig:PSM}, the ``on" and "off" times are the same for all switch commands, namely:
 
 \begin{equation}
-\Delta t_{on} = \alpha T \,, \; \Delta t_{off} = (1 - \alpha) T
+  \Delta t_{on} = \alpha T \,, \; \Delta t_{off} = (1 - \alpha) T
 \end{equation}
 
+\begin{figure}[h]
+  \label{fig:PSM}
+  \begin{center}
+    \includegraphics[scale=0.75]{PhaseShiftModulation.pdf}
+  \end{center}
+  \caption{Phase-shifted modulation scheme for the three-cell converter.}
+\end{figure}
 
 
 
 \begin{figure}[h]
-\label{fig:PSM}
-\begin{center}
-\includegraphics[scale=0.75]{PhaseShiftModulation.pdf}
-\end{center}
-\caption{Phase-shifted modulation scheme for a three-cell converter. The ``on" and ``off" times are given by $\Delta t_{on} = \alpha T$ and $\Delta t_{off} = (1 - \alpha) T$, respectively.}
+  \label{fig:Schematics}
+  \begin{center}
+    \includegraphics[scale=1]{Schematics.pdf}
+  \end{center}
+  \caption{Circuit schematics.}
 \end{figure}
 
 \begin{figure}[h]
-\begin{center}
-\includegraphics[scale=1]{Schematics.pdf}
-\end{center}
-\caption{Schematics.}
+  \label{fig:PCB}
+  \begin{center}
+    \includegraphics[scale=0.7]{Front.pdf}
+    \includegraphics[scale=0.7]{Back.pdf}
+  \end{center}
+  \caption{PCB layout: Front (left) and Back (right).}
 \end{figure}
 
 \begin{figure}[h]
-\begin{center}
-\includegraphics[scale=0.7]{Front.pdf}
-\includegraphics[scale=0.7]{Back.pdf}
-\end{center}
-\caption{PCB layout: Front (left) and Back (right).}
+  \label{fig:Photo}
+  \begin{center}
+    \includegraphics[scale=0.25]{DevicePhoto.jpeg}
+  \end{center}
+  \caption{Photo of the device. The $10 \Omega$ resistors R1, R2, $\ldots$, R6 are soldered on the bottom.}
 \end{figure}
 
-\begin{figure}[h]
-\begin{center}
-\includegraphics[scale=0.25]{DevicePhoto.jpeg}
-\end{center}
-\caption{Photo of the device. The $10 \Omega$ resistors R1, R2, $\ldots$, R6 are soldered on the bottom.}
-\end{figure}
-
-
+\newpage
 
 \section*{\textit{Design files}}
 % The  complete  design  files  must  be  either  uploaded  to  an  approved  online  repository,  uploaded  at the  time  of  submission  on  the  online  Editorial  Manager  submission  interface  as  supplementary materials [CAD files, videos,. . . ], or included in the body of the manuscript [e.g.  figures].  The three approved  online  repositories  are  Mendeley  Data,  the  Open  Science  Framework,  and  Zenodo. See repository instructions: https://doi.org/10.5281/zenodo.3346799
@@ -248,9 +261,9 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
 
 \textit{Your design files should be editable - see \href{https://www.oshwa.org/definition/}{OSHWA’s open source definition of ‘Documentation’} for further details. You must then either:}
 \begin{itemize}
-\item[$\bullet$]{\it Upload your design files to one of the three approved online repositories - \href{https://data.mendeley.com/}{Mendeley Data} (\href{https://doi.org/10.5281/zenodo.3346799}{instructions}), the \href{https://osf.io/}{Open Science Framework} (\href{https://osf.io/wgk7q/wiki/home/}{instructions}) or \href{https://zenodo.org/}{Zenodo} (\href{https://doi.org/10.5281/zenodo.3346799}{instructions}). We recommend this option as the repositories support versioning of files.}
-\item[$\bullet$]{\it Upload your design files as supplementary materials (e.g., CAD files, videos…) to Hardware X’s online editorial system when you submit your manuscript.}
-\item[$\bullet$]{\it Include your design files in the body of the manuscript (e.g., as figures).}
+  \item[$\bullet$]{\it Upload your design files to one of the three approved online repositories - \href{https://data.mendeley.com/}{Mendeley Data} (\href{https://doi.org/10.5281/zenodo.3346799}{instructions}), the \href{https://osf.io/}{Open Science Framework} (\href{https://osf.io/wgk7q/wiki/home/}{instructions}) or \href{https://zenodo.org/}{Zenodo} (\href{https://doi.org/10.5281/zenodo.3346799}{instructions}). We recommend this option as the repositories support versioning of files.}
+  \item[$\bullet$]{\it Upload your design files as supplementary materials (e.g., CAD files, videos…) to Hardware X’s online editorial system when you submit your manuscript.}
+  \item[$\bullet$]{\it Include your design files in the body of the manuscript (e.g., as figures).}
 \end{itemize}
 
 %
@@ -258,13 +271,13 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
 %\begin{itemize}
 \vskip 0.1 cm
 \noindent
-\textit{\underline{CAD files:} You are encouraged to use free and open source software packages for creating the files. For CAD files, \href{http://www.openscad.org/}{OpenSCAD}, \href{http://www.freecadweb.org/}{FreeCAD}, or \href{https://www.blender.org/}{Blender} are encouraged, but, if these are not available, we accept source files from proprietary CAD packages, such as Autocad or Solidworks, and other drawing packages.} 
+\textit{\underline{CAD files:} You are encouraged to use free and open source software packages for creating the files. For CAD files, \href{http://www.openscad.org/}{OpenSCAD}, \href{http://www.freecadweb.org/}{FreeCAD}, or \href{https://www.blender.org/}{Blender} are encouraged, but, if these are not available, we accept source files from proprietary CAD packages, such as Autocad or Solidworks, and other drawing packages.}
 \vskip 0.1 cm
 \noindent
-\textit{\underline{3D printing:} Supplementary files that facilitate digital replication of the devices are encouraged;  for example, STL files for 3D printing components. We recommend uploading CAD files to the \href{http://3dprint.nih.gov/}{\underline{NIH 3D Print Exchange}} as Custom Labware and then entering the link here.} 
+\textit{\underline{3D printing:} Supplementary files that facilitate digital replication of the devices are encouraged;  for example, STL files for 3D printing components. We recommend uploading CAD files to the \href{http://3dprint.nih.gov/}{\underline{NIH 3D Print Exchange}} as Custom Labware and then entering the link here.}
 \vskip 0.1 cm
 \noindent
-\textit{\underline{Electronics:} PCB layouts and other electronics design files can be uploaded to the \href{http://www.ohwr.org/}{\underline{Open Hardware Repository}} or other repositories or as supplementary materials.} 
+\textit{\underline{Electronics:} PCB layouts and other electronics design files can be uploaded to the \href{http://www.ohwr.org/}{\underline{Open Hardware Repository}} or other repositories or as supplementary materials.}
 \vskip 0.1 cm
 \noindent
 \textit{\underline{Software and firmware:} All software files used in the design and operation of the hardware should be included in the repository. Provide a description of the software and firmware and use extensive comments in the code.}
@@ -274,14 +287,14 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
 % Please include a summary of all design files for your hardware by filling rows of the table below
 \vskip 0.1cm
 \tabulinesep=1ex
-\begin{tabu} to \linewidth {|X|X|X[1.5,1]|X[1.5,1]|} 
-\hline
-\textbf{Design filename} & \textbf{File type} & \textbf{Open source license} & \textbf{Location of the file} \\\hline
-%Insert design files
-\textit{For example: Design file 1} & \textit{e.g. CAD file, figures, videos} & \textit{All designs must be submitted under an open hardware license. Enter the corresponding open source license for the file.} & \textit{Either enter the URL for the repository or the sentence: "Available with the article".}  \\\hline
-\dots & \dots & \dots & \dots \\\hline
-\dots & \dots & \dots & \dots \\\hline
-% Design file 3 & File type & License & Link \\\hline
+\begin{tabu} to \linewidth {|X|X|X[1.5,1]|X[1.5,1]|}
+  \hline
+  \textbf{Design filename}            & \textbf{File type}                      & \textbf{Open source license}                                                                                                     & \textbf{Location of the file}                                                                   \\\hline
+  %Insert design files
+  \textit{For example: Design file 1} & \textit{e.g. CAD file, figures, videos} & \textit{All designs must be submitted under an open hardware license. Enter the corresponding open source license for the file.} & \textit{Either enter the URL for the repository or the sentence: "Available with the article".} \\\hline
+  \dots                               & \dots                                   & \dots                                                                                                                            & \dots                                                                                           \\\hline
+  \dots                               & \dots                                   & \dots                                                                                                                            & \dots                                                                                           \\\hline
+  % Design file 3 & File type & License & Link \\\hline
 \end{tabu}
 
 
@@ -302,10 +315,10 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
 \tabulinesep=1ex
 \noindent
 
-\textcolor{red}{Preencher Google Sheet em} 
+\textcolor{red}{Preencher Google Sheet em}
 
 \textcolor{blue}{
-https://docs.google.com/spreadsheets/d/14c4qT01m3tA2rBspwJqqd35RiecyckPLIuiIuWBo2DA/edit?usp=sharing}
+  https://docs.google.com/spreadsheets/d/14c4qT01m3tA2rBspwJqqd35RiecyckPLIuiIuWBo2DA/edit?usp=sharing}
 
 % % defining url's
 % \urldef{\aliexpressurl}\url{https://www.aliexpress.com/item/1005006844873587.html?spm=a2g0o.productlist.main.9.5c8b640crrwiUa&algo_pvid=3916fe28-c01d-45b7-8975-0dc065f15c56&algo_exp_id=3916fe28-c01d-45b7-8975-0dc065f15c56-8&pdp_ext_f=%7B%22order%22%3A%22243%22%2C%22eval%22%3A%221%22%7D&pdp_npi=4%40dis%21USD%212.23%212.23%21%21%2115.84%2115.84%21%402103277f17535278073698102e9b73%2112000038492445322%21sea%21BR%213505867280%21X&curPageLogUid=ECUlwNYTI6XL&utparam-url=scene%3Asearch%7Cquery_from%3A}
@@ -396,13 +409,13 @@ https://docs.google.com/spreadsheets/d/14c4qT01m3tA2rBspwJqqd35RiecyckPLIuiIuWBo
 % >Highlight potential safety concerns that may arise
 
 \textit{Provide detailed, step-by-step construction instructions for the submitted hardware:
-\begin{itemize}
-\item[$\bullet$]Include all necessary information for reproducing it. 
-\item[$\bullet$]Explain and (when possible) characterize design decisions. Include any design alternatives you created.
-\item[$\bullet$]Use visual instructions such as schematics, images and videos.
-\item[$\bullet$]Clearly reference design files and component parts described in the \textbf{Design file summary} and the \textbf {Bill of materials summary}.
-\item[$\bullet$]Highlight any potential safety concerns.
-\end{itemize}}
+  \begin{itemize}
+    \item[$\bullet$]Include all necessary information for reproducing it.
+    \item[$\bullet$]Explain and (when possible) characterize design decisions. Include any design alternatives you created.
+    \item[$\bullet$]Use visual instructions such as schematics, images and videos.
+    \item[$\bullet$]Clearly reference design files and component parts described in the \textbf{Design file summary} and the \textbf {Bill of materials summary}.
+    \item[$\bullet$]Highlight any potential safety concerns.
+  \end{itemize}}
 
 \include{software.tex}
 
@@ -412,11 +425,11 @@ https://docs.google.com/spreadsheets/d/14c4qT01m3tA2rBspwJqqd35RiecyckPLIuiIuWBo
 %> Use visual instructions as necessary. 
 %> Highlight potential safety hazards.
 
-\textit{Provide detailed, step-by-step instructions for the safe and proper operation of the hardware.  
-\begin{itemize}
-\item[$\bullet$]Use visual instructions, as necessary.
-\item[$\bullet$]Highlight any potential safety hazards.
-\end{itemize}}
+\textit{Provide detailed, step-by-step instructions for the safe and proper operation of the hardware.
+  \begin{itemize}
+    \item[$\bullet$]Use visual instructions, as necessary.
+    \item[$\bullet$]Highlight any potential safety hazards.
+  \end{itemize}}
 
 \section{Validation and characterization}
 %Demonstrate the operation of the hardware and characterize its performance over relevant critical metrics
@@ -424,20 +437,20 @@ https://docs.google.com/spreadsheets/d/14c4qT01m3tA2rBspwJqqd35RiecyckPLIuiIuWBo
 %> If possible, characterize performance of the hardware over operational parameters. 
 %> Create a bulleted list that describes the capabilities (and limitations) of the hardware. For example consider descriptions of load, operation time, spin speed, coefficient of variation, accuracy, precision and etc. 
 
-\textit{Demonstrate the operation of the hardware and characterize its performance for a specific scientific application. 
-\begin{itemize}
-\item[$\bullet$]Highlight a relevant use case.
-\item[$\bullet$]If possible, characterize performance of the hardware over operational parameters.
-\item[$\bullet$]Create a bulleted list describing the capabilities (and limitations) of the hardware. For example, load and operation time, spin speed, coefficient of variation, accuracy, precision, etc.
-\end{itemize}}
+\textit{Demonstrate the operation of the hardware and characterize its performance for a specific scientific application.
+  \begin{itemize}
+    \item[$\bullet$]Highlight a relevant use case.
+    \item[$\bullet$]If possible, characterize performance of the hardware over operational parameters.
+    \item[$\bullet$]Create a bulleted list describing the capabilities (and limitations) of the hardware. For example, load and operation time, spin speed, coefficient of variation, accuracy, precision, etc.
+  \end{itemize}}
 
 \begin{figure}[h]
-\begin{center}
-\includegraphics[scale=1]{Ton.jpg}
-\includegraphics[scale=1]{DeltaT_12.jpg}
-\includegraphics[scale=1]{DeltaT_31.jpg}
-\end{center}
-\caption{Commands $u_1(t)$, $u_2(t)$, $u_3(t)$ with $\alpha = 0.3$ and $T = $ \textcolor{red}{???} (a) $\Delta T_{on} = 83 \mu$s.}
+  \begin{center}
+    \includegraphics[scale=1]{Ton.jpg}
+    \includegraphics[scale=1]{DeltaT_12.jpg}
+    \includegraphics[scale=1]{DeltaT_31.jpg}
+  \end{center}
+  \caption{Commands $u_1(t)$, $u_2(t)$, $u_3(t)$ with $\alpha = 0.3$ and $T = $ \textcolor{red}{???} (a) $\Delta T_{on} = 83 \mu$s.}
 \end{figure}
 
 Note that $T = 1/(3.75 \text{ kHz} = 0.27$ ms. \textcolor{red}{Confirmar valores usados no código.} \\
@@ -479,32 +492,32 @@ This work was supported by Conselho Nacional de Desenvolvimento Científico e Te
 %> Include other references as required. Include references to put your device in context in the literature. For more information on the reference format in HardwareX please see the Guide for Authors at: https://www.elsevier.com/journals/hardwarex/2468-0672/guide-for-authors
 
 \begin{center}
----------------------------------------------------------------------------------------------------------------------------
+  ---------------------------------------------------------------------------------------------------------------------------
 \end{center}
 {\it \underline{Additional Information for authors.} (do not include these lines in your submission)\\
 
 \noindent
 \textbf{Author manuscript checklist}
 \begin{itemize}
-\item[$\bullet$]Is the subject of the submission under an open source license? Are design files in the preferred format for making modifications as defined by the \href{http://www.oshwa.org/definition/}{\underline{Open Source Hardware definition}}?
+  \item[$\bullet$]Is the subject of the submission under an open source license? Are design files in the preferred format for making modifications as defined by the \href{http://www.oshwa.org/definition/}{\underline{Open Source Hardware definition}}?
 
-\item[$\bullet$]Can the hardware be reproduced with the details provided in the submission?
+  \item[$\bullet$]Can the hardware be reproduced with the details provided in the submission?
 
-\item[$\bullet$]Are all relevant design files available on either the Mendeley Data, Open Science Framework, or Zenodo repository? Are they described in the Design Files Summary, and clearly documented? (E.g., descriptive file names, commented code, labeled images, etc.) 
-\begin{itemize}
-\item[$\circ$]If in the Open Science Framework, has the repository been registered? \href{https://osf.io/wgk7q/wiki/home/}{\underline{Instructions}}
-\item[$\circ$]If in Zenodo, is the repository open access and published? \href{https://doi.org/10.5281/zenodo.3346799}{\underline{Instructions}}
-\item[$\circ$]If in Mendeley Data, is the repository published or the sharable link included in the additional information you plan to submit? \href{https://doi.org/10.5281/zenodo.3346799}{\underline{Instructions}}
-\end{itemize}
-\item[$\bullet$]Are visual instructions used when necessary?
+  \item[$\bullet$]Are all relevant design files available on either the Mendeley Data, Open Science Framework, or Zenodo repository? Are they described in the Design Files Summary, and clearly documented? (E.g., descriptive file names, commented code, labeled images, etc.)
+        \begin{itemize}
+          \item[$\circ$]If in the Open Science Framework, has the repository been registered? \href{https://osf.io/wgk7q/wiki/home/}{\underline{Instructions}}
+          \item[$\circ$]If in Zenodo, is the repository open access and published? \href{https://doi.org/10.5281/zenodo.3346799}{\underline{Instructions}}
+          \item[$\circ$]If in Mendeley Data, is the repository published or the sharable link included in the additional information you plan to submit? \href{https://doi.org/10.5281/zenodo.3346799}{\underline{Instructions}}
+        \end{itemize}
+  \item[$\bullet$]Are visual instructions used when necessary?
 
-\item[$\bullet$]Is the utility of the hardware to the scientific community explained clearly? Has a specific scientific application been demonstrated using the hardware?
+  \item[$\bullet$]Is the utility of the hardware to the scientific community explained clearly? Has a specific scientific application been demonstrated using the hardware?
 
-\item[$\bullet$]Is the performance of the hardware adequately demonstrated and characterized?
+  \item[$\bullet$]Is the performance of the hardware adequately demonstrated and characterized?
 
-\item[$\bullet$]Are all potential safety concerns addressed?
+  \item[$\bullet$]Are all potential safety concerns addressed?
 
-\item[$\bullet$]For more information on the article template consult the \href{https://www.elsevier.com/journals/hardwarex/2468-0672/guide-for-authors}{\underline{Guide to Authors}}.
+  \item[$\bullet$]For more information on the article template consult the \href{https://www.elsevier.com/journals/hardwarex/2468-0672/guide-for-authors}{\underline{Guide to Authors}}.
 \end{itemize}}
 
 

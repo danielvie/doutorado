@@ -1,0 +1,440 @@
+#include "helper_datasetter.h"
+
+static const float TOL = 0.01;
+bool helper_eql_float(const float a, const float b) {
+    return std::fabs(a - b) < TOL;
+}
+
+void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
+       if (helper_eql_float(alpha, 0.1)) {
+        // alpha: 0.1
+
+        dataset->time_vec[0] = 28;
+        dataset->time_vec[1] = 65;
+        dataset->time_vec[2] = 28;
+        dataset->time_vec[3] = 65;
+        dataset->time_vec[4] = 28;
+        dataset->time_vec[5] = 65;
+        dataset->d4_vec[0] = 0;
+        dataset->d4_vec[1] = 0;
+        dataset->d4_vec[2] = 0;
+        dataset->d4_vec[3] = 0;
+        dataset->d4_vec[4] = 0;
+        dataset->d4_vec[5] = 0;
+        dataset->d5_vec[0] = 1;
+        dataset->d5_vec[1] = 0;
+        dataset->d5_vec[2] = 0;
+        dataset->d5_vec[3] = 0;
+        dataset->d5_vec[4] = 0;
+        dataset->d5_vec[5] = 0;
+        dataset->d6_vec[0] = 0;
+        dataset->d6_vec[1] = 0;
+        dataset->d6_vec[2] = 1;
+        dataset->d6_vec[3] = 0;
+        dataset->d6_vec[4] = 0;
+        dataset->d6_vec[5] = 0;
+
+        dataset->gain_k.rows = 5;
+        dataset->gain_k.cols = 3;
+        dataset->gain_k.size = 15;
+        dataset->gain_k.values[0] = -0.0464731;
+        dataset->gain_k.values[1] = -0.0237292;
+        dataset->gain_k.values[2] = 0.0597880;
+        dataset->gain_k.values[3] = -0.0118889;
+        dataset->gain_k.values[4] = 0.0115526;
+        dataset->gain_k.values[5] = -0.0284607;
+        dataset->gain_k.values[6] = 0.0110946;
+        dataset->gain_k.values[7] = -0.0113114;
+        dataset->gain_k.values[8] = 0.0291281;
+        dataset->gain_k.values[9] = -0.0116095;
+        dataset->gain_k.values[10] = -0.0231720;
+        dataset->gain_k.values[11] = -0.0278441;
+        dataset->gain_k.values[12] = 0.0107936;
+        dataset->gain_k.values[13] = 0.0221058;
+        dataset->gain_k.values[14] = 0.0285782;
+    }
+
+    if (helper_eql_float(alpha, 0.2)) {
+        // alpha: 0.2
+
+        dataset->time_vec[0] = 56;
+        dataset->time_vec[1] = 37;
+        dataset->time_vec[2] = 56;
+        dataset->time_vec[3] = 37;
+        dataset->time_vec[4] = 56;
+        dataset->time_vec[5] = 37;
+        dataset->d4_vec[0] = 0;
+        dataset->d4_vec[1] = 0;
+        dataset->d4_vec[2] = 0;
+        dataset->d4_vec[3] = 0;
+        dataset->d4_vec[4] = 0;
+        dataset->d4_vec[5] = 0;
+        dataset->d5_vec[0] = 1;
+        dataset->d5_vec[1] = 0;
+        dataset->d5_vec[2] = 0;
+        dataset->d5_vec[3] = 0;
+        dataset->d5_vec[4] = 0;
+        dataset->d5_vec[5] = 0;
+        dataset->d6_vec[0] = 0;
+        dataset->d6_vec[1] = 0;
+        dataset->d6_vec[2] = 1;
+        dataset->d6_vec[3] = 0;
+        dataset->d6_vec[4] = 0;
+        dataset->d6_vec[5] = 0;
+
+        dataset->gain_k.rows = 5;
+        dataset->gain_k.cols = 3;
+        dataset->gain_k.size = 15;
+        dataset->gain_k.values[0] = -0.0232125;
+        dataset->gain_k.values[1] = -0.0118591;
+        dataset->gain_k.values[2] = 0.0594152;
+        dataset->gain_k.values[3] = -0.0059372;
+        dataset->gain_k.values[4] = 0.0057550;
+        dataset->gain_k.values[5] = -0.0282159;
+        dataset->gain_k.values[6] = 0.0055714;
+        dataset->gain_k.values[7] = -0.0056772;
+        dataset->gain_k.values[8] = 0.0291334;
+        dataset->gain_k.values[9] = -0.0058123;
+        dataset->gain_k.values[10] = -0.0115747;
+        dataset->gain_k.values[11] = -0.0275968;
+        dataset->gain_k.values[12] = 0.0054391;
+        dataset->gain_k.values[13] = 0.0111152;
+        dataset->gain_k.values[14] = 0.0285453;
+    }
+
+    if (helper_eql_float(alpha, 0.3)) {
+        // alpha: 0.3
+
+        dataset->time_vec[0] = 84;
+        dataset->time_vec[1] = 9;
+        dataset->time_vec[2] = 84;
+        dataset->time_vec[3] = 9;
+        dataset->time_vec[4] = 84;
+        dataset->time_vec[5] = 9;
+        dataset->d4_vec[0] = 0;
+        dataset->d4_vec[1] = 0;
+        dataset->d4_vec[2] = 0;
+        dataset->d4_vec[3] = 0;
+        dataset->d4_vec[4] = 0;
+        dataset->d4_vec[5] = 0;
+        dataset->d5_vec[0] = 1;
+        dataset->d5_vec[1] = 0;
+        dataset->d5_vec[2] = 0;
+        dataset->d5_vec[3] = 0;
+        dataset->d5_vec[4] = 0;
+        dataset->d5_vec[5] = 0;
+        dataset->d6_vec[0] = 0;
+        dataset->d6_vec[1] = 0;
+        dataset->d6_vec[2] = 1;
+        dataset->d6_vec[3] = 0;
+        dataset->d6_vec[4] = 0;
+        dataset->d6_vec[5] = 0;
+
+        dataset->gain_k.rows = 5;
+        dataset->gain_k.cols = 3;
+        dataset->gain_k.size = 15;
+        dataset->gain_k.values[0] = -0.0154251;
+        dataset->gain_k.values[1] = -0.0078781;
+        dataset->gain_k.values[2] = 0.0589670;
+        dataset->gain_k.values[3] = -0.0039522;
+        dataset->gain_k.values[4] = 0.0038193;
+        dataset->gain_k.values[5] = -0.0279457;
+        dataset->gain_k.values[6] = 0.0037269;
+        dataset->gain_k.values[7] = -0.0037972;
+        dataset->gain_k.values[8] = 0.0291487;
+        dataset->gain_k.values[9] = -0.0038686;
+        dataset->gain_k.values[10] = -0.0076983;
+        dataset->gain_k.values[11] = -0.0273509;
+        dataset->gain_k.values[12] = 0.0036425;
+        dataset->gain_k.values[13] = 0.0074410;
+        dataset->gain_k.values[14] = 0.0285290;
+    }
+
+    if (helper_eql_float(alpha, 0.4)) {
+        // alpha: 0.4
+
+        dataset->time_vec[0] = 75;
+        dataset->time_vec[1] = 19;
+        dataset->time_vec[2] = 75;
+        dataset->time_vec[3] = 19;
+        dataset->time_vec[4] = 75;
+        dataset->time_vec[5] = 19;
+        dataset->d4_vec[0] = 0;
+        dataset->d4_vec[1] = 0;
+        dataset->d4_vec[2] = 0;
+        dataset->d4_vec[3] = 0;
+        dataset->d4_vec[4] = 0;
+        dataset->d4_vec[5] = 0;
+        dataset->d5_vec[0] = 1;
+        dataset->d5_vec[1] = 1;
+        dataset->d5_vec[2] = 0;
+        dataset->d5_vec[3] = 0;
+        dataset->d5_vec[4] = 0;
+        dataset->d5_vec[5] = 1;
+        dataset->d6_vec[0] = 0;
+        dataset->d6_vec[1] = 1;
+        dataset->d6_vec[2] = 1;
+        dataset->d6_vec[3] = 1;
+        dataset->d6_vec[4] = 0;
+        dataset->d6_vec[5] = 0;
+
+        dataset->gain_k.rows = 5;
+        dataset->gain_k.cols = 3;
+        dataset->gain_k.size = 15;
+        dataset->gain_k.values[0] = -0.0029026;
+        dataset->gain_k.values[1] = 0.0029034;
+        dataset->gain_k.values[2] = -0.0282194;
+        dataset->gain_k.values[3] = -0.0056311;
+        dataset->gain_k.values[4] = -0.0028428;
+        dataset->gain_k.values[5] = 0.0284874;
+        dataset->gain_k.values[6] = -0.0056643;
+        dataset->gain_k.values[7] = -0.0113211;
+        dataset->gain_k.values[8] = -0.0559378;
+        dataset->gain_k.values[9] = 0.0028875;
+        dataset->gain_k.values[10] = -0.0027512;
+        dataset->gain_k.values[11] = 0.0295586;
+        dataset->gain_k.values[12] = 0.0057374;
+        dataset->gain_k.values[13] = 0.0028733;
+        dataset->gain_k.values[14] = -0.0298394;
+    }
+
+    if (helper_eql_float(alpha, 0.5)) {
+        // alpha: 0.5
+
+        dataset->time_vec[0] = 47;
+        dataset->time_vec[1] = 47;
+        dataset->time_vec[2] = 47;
+        dataset->time_vec[3] = 47;
+        dataset->time_vec[4] = 47;
+        dataset->time_vec[5] = 47;
+        dataset->d4_vec[0] = 0;
+        dataset->d4_vec[1] = 0;
+        dataset->d4_vec[2] = 0;
+        dataset->d4_vec[3] = 0;
+        dataset->d4_vec[4] = 0;
+        dataset->d4_vec[5] = 0;
+        dataset->d5_vec[0] = 1;
+        dataset->d5_vec[1] = 1;
+        dataset->d5_vec[2] = 0;
+        dataset->d5_vec[3] = 0;
+        dataset->d5_vec[4] = 0;
+        dataset->d5_vec[5] = 1;
+        dataset->d6_vec[0] = 0;
+        dataset->d6_vec[1] = 1;
+        dataset->d6_vec[2] = 1;
+        dataset->d6_vec[3] = 1;
+        dataset->d6_vec[4] = 0;
+        dataset->d6_vec[5] = 0;
+
+        dataset->gain_k.rows = 5;
+        dataset->gain_k.cols = 3;
+        dataset->gain_k.size = 15;
+        dataset->gain_k.values[0] = -0.0023027;
+        dataset->gain_k.values[1] = 0.0023314;
+        dataset->gain_k.values[2] = -0.0282839;
+        dataset->gain_k.values[3] = -0.0045131;
+        dataset->gain_k.values[4] = -0.0022593;
+        dataset->gain_k.values[5] = 0.0285021;
+        dataset->gain_k.values[6] = -0.0045605;
+        dataset->gain_k.values[7] = -0.0090792;
+        dataset->gain_k.values[8] = -0.0564138;
+        dataset->gain_k.values[9] = 0.0023013;
+        dataset->gain_k.values[10] = -0.0022091;
+        dataset->gain_k.values[11] = 0.0298983;
+        dataset->gain_k.values[12] = 0.0045863;
+        dataset->gain_k.values[13] = 0.0022807;
+        dataset->gain_k.values[14] = -0.0296241;
+    }
+
+    if (helper_eql_float(alpha, 0.6)) {
+        // alpha: 0.6
+
+        dataset->time_vec[0] = 19;
+        dataset->time_vec[1] = 75;
+        dataset->time_vec[2] = 19;
+        dataset->time_vec[3] = 75;
+        dataset->time_vec[4] = 19;
+        dataset->time_vec[5] = 75;
+        dataset->d4_vec[0] = 0;
+        dataset->d4_vec[1] = 0;
+        dataset->d4_vec[2] = 0;
+        dataset->d4_vec[3] = 0;
+        dataset->d4_vec[4] = 0;
+        dataset->d4_vec[5] = 0;
+        dataset->d5_vec[0] = 1;
+        dataset->d5_vec[1] = 1;
+        dataset->d5_vec[2] = 0;
+        dataset->d5_vec[3] = 0;
+        dataset->d5_vec[4] = 0;
+        dataset->d5_vec[5] = 1;
+        dataset->d6_vec[0] = 0;
+        dataset->d6_vec[1] = 1;
+        dataset->d6_vec[2] = 1;
+        dataset->d6_vec[3] = 1;
+        dataset->d6_vec[4] = 0;
+        dataset->d6_vec[5] = 0;
+
+        dataset->gain_k.rows = 5;
+        dataset->gain_k.cols = 3;
+        dataset->gain_k.size = 15;
+        dataset->gain_k.values[0] = -0.0019036;
+        dataset->gain_k.values[1] = 0.0019455;
+        dataset->gain_k.values[2] = -0.0282993;
+        dataset->gain_k.values[3] = -0.0037718;
+        dataset->gain_k.values[4] = -0.0018763;
+        dataset->gain_k.values[5] = 0.0285624;
+        dataset->gain_k.values[6] = -0.0038164;
+        dataset->gain_k.values[7] = -0.0075878;
+        dataset->gain_k.values[8] = -0.0568317;
+        dataset->gain_k.values[9] = 0.0019131;
+        dataset->gain_k.values[10] = -0.0018465;
+        dataset->gain_k.values[11] = 0.0301843;
+        dataset->gain_k.values[12] = 0.0038179;
+        dataset->gain_k.values[13] = 0.0018880;
+        dataset->gain_k.values[14] = -0.0294650;
+    }
+
+    if (helper_eql_float(alpha, 0.7)) {
+        // alpha: 0.7
+
+        dataset->time_vec[0] = 9;
+        dataset->time_vec[1] = 84;
+        dataset->time_vec[2] = 9;
+        dataset->time_vec[3] = 84;
+        dataset->time_vec[4] = 9;
+        dataset->time_vec[5] = 84;
+        dataset->d4_vec[0] = 0;
+        dataset->d4_vec[1] = 0;
+        dataset->d4_vec[2] = 0;
+        dataset->d4_vec[3] = 0;
+        dataset->d4_vec[4] = 0;
+        dataset->d4_vec[5] = 0;
+        dataset->d5_vec[0] = 1;
+        dataset->d5_vec[1] = 1;
+        dataset->d5_vec[2] = 1;
+        dataset->d5_vec[3] = 0;
+        dataset->d5_vec[4] = 1;
+        dataset->d5_vec[5] = 1;
+        dataset->d6_vec[0] = 1;
+        dataset->d6_vec[1] = 1;
+        dataset->d6_vec[2] = 1;
+        dataset->d6_vec[3] = 1;
+        dataset->d6_vec[4] = 1;
+        dataset->d6_vec[5] = 0;
+
+        dataset->gain_k.rows = 5;
+        dataset->gain_k.cols = 3;
+        dataset->gain_k.size = 15;
+        dataset->gain_k.values[0] = 0.0016244;
+        dataset->gain_k.values[1] = 0.0032914;
+        dataset->gain_k.values[2] = 0.0283306;
+        dataset->gain_k.values[3] = -0.0016435;
+        dataset->gain_k.values[4] = -0.0033222;
+        dataset->gain_k.values[5] = -0.0288014;
+        dataset->gain_k.values[6] = -0.0032525;
+        dataset->gain_k.values[7] = -0.0015696;
+        dataset->gain_k.values[8] = 0.0285767;
+        dataset->gain_k.values[9] = 0.0032836;
+        dataset->gain_k.values[10] = 0.0015887;
+        dataset->gain_k.values[11] = -0.0290583;
+        dataset->gain_k.values[12] = 0.0032544;
+        dataset->gain_k.values[13] = -0.0032050;
+        dataset->gain_k.values[14] = 0.0584852;
+    }
+
+    if (helper_eql_float(alpha, 0.8)) {
+        // alpha: 0.8
+
+        dataset->time_vec[0] = 37;
+        dataset->time_vec[1] = 56;
+        dataset->time_vec[2] = 37;
+        dataset->time_vec[3] = 56;
+        dataset->time_vec[4] = 37;
+        dataset->time_vec[5] = 56;
+        dataset->d4_vec[0] = 0;
+        dataset->d4_vec[1] = 0;
+        dataset->d4_vec[2] = 0;
+        dataset->d4_vec[3] = 0;
+        dataset->d4_vec[4] = 0;
+        dataset->d4_vec[5] = 0;
+        dataset->d5_vec[0] = 1;
+        dataset->d5_vec[1] = 1;
+        dataset->d5_vec[2] = 1;
+        dataset->d5_vec[3] = 0;
+        dataset->d5_vec[4] = 1;
+        dataset->d5_vec[5] = 1;
+        dataset->d6_vec[0] = 1;
+        dataset->d6_vec[1] = 1;
+        dataset->d6_vec[2] = 1;
+        dataset->d6_vec[3] = 1;
+        dataset->d6_vec[4] = 1;
+        dataset->d6_vec[5] = 0;
+
+        dataset->gain_k.rows = 5;
+        dataset->gain_k.cols = 3;
+        dataset->gain_k.size = 15;
+        dataset->gain_k.values[0] = 0.0014210;
+        dataset->gain_k.values[1] = 0.0028825;
+        dataset->gain_k.values[2] = 0.0284068;
+        dataset->gain_k.values[3] = -0.0014328;
+        dataset->gain_k.values[4] = -0.0029037;
+        dataset->gain_k.values[5] = -0.0286929;
+        dataset->gain_k.values[6] = -0.0028490;
+        dataset->gain_k.values[7] = -0.0013794;
+        dataset->gain_k.values[8] = 0.0285511;
+        dataset->gain_k.values[9] = 0.0028703;
+        dataset->gain_k.values[10] = 0.0013911;
+        dataset->gain_k.values[11] = -0.0288429;
+        dataset->gain_k.values[12] = 0.0028493;
+        dataset->gain_k.values[13] = -0.0027968;
+        dataset->gain_k.values[14] = 0.0579364;
+    }
+
+    if (helper_eql_float(alpha, 0.9)) {
+        // alpha: 0.9
+
+        dataset->time_vec[0] = 65;
+        dataset->time_vec[1] = 28;
+        dataset->time_vec[2] = 65;
+        dataset->time_vec[3] = 28;
+        dataset->time_vec[4] = 65;
+        dataset->time_vec[5] = 28;
+        dataset->d4_vec[0] = 0;
+        dataset->d4_vec[1] = 0;
+        dataset->d4_vec[2] = 0;
+        dataset->d4_vec[3] = 0;
+        dataset->d4_vec[4] = 0;
+        dataset->d4_vec[5] = 0;
+        dataset->d5_vec[0] = 1;
+        dataset->d5_vec[1] = 1;
+        dataset->d5_vec[2] = 1;
+        dataset->d5_vec[3] = 0;
+        dataset->d5_vec[4] = 1;
+        dataset->d5_vec[5] = 1;
+        dataset->d6_vec[0] = 1;
+        dataset->d6_vec[1] = 1;
+        dataset->d6_vec[2] = 1;
+        dataset->d6_vec[3] = 1;
+        dataset->d6_vec[4] = 1;
+        dataset->d6_vec[5] = 0;
+
+        dataset->gain_k.rows = 5;
+        dataset->gain_k.cols = 3;
+        dataset->gain_k.size = 15;
+        dataset->gain_k.values[0] = 0.0012643;
+        dataset->gain_k.values[1] = 0.0025653;
+        dataset->gain_k.values[2] = 0.0284445;
+        dataset->gain_k.values[3] = -0.0012696;
+        dataset->gain_k.values[4] = -0.0025758;
+        dataset->gain_k.values[5] = -0.0285750;
+        dataset->gain_k.values[6] = -0.0025362;
+        dataset->gain_k.values[7] = -0.0012319;
+        dataset->gain_k.values[8] = 0.0285091;
+        dataset->gain_k.values[9] = 0.0025468;
+        dataset->gain_k.values[10] = 0.0012373;
+        dataset->gain_k.values[11] = -0.0286417;
+        dataset->gain_k.values[12] = 0.0025331;
+        dataset->gain_k.values[13] = -0.0024806;
+        dataset->gain_k.values[14] = 0.0574119;
+    } 
+}

@@ -1,13 +1,11 @@
 #include "ble_controller.h"
 
-#include <chrono>
-#include <random>
 
 // BLE Task state management
 BLETaskState g_ble_task_state = BLETaskState::IDLE;
 
 NoteData g_log_last_calc(1024);
-NoteData g_log_koka(250);
+NoteData g_log_koka(1024);
 
 // LED blink utility function for status indication
 void blink(uint8_t N) {
@@ -112,6 +110,12 @@ void BLE_router(NimBLECharacteristic *characteristic) {
     else if (message.substr(0,13) == "MESSAGE_DATA:") {
         auto msg = message.substr(13);
         ble_router_message_data(msg);
+    }
+
+    // SET_ALPHA command: set alpha from the lookup data
+    else if (message.substr(0,10) == "SET_ALPHA:") {
+        auto msg = message.substr(10);
+        ble_router_message_set_alpha(msg);
     }
 }
 
@@ -317,6 +321,35 @@ void ble_router_message_data(std::string& message) {
 
     g_ble_task_state = BLETaskState::SIGNAL_READING;
     signal_update_full_control(message); // NOTE: 0 -> read new message
+}
+
+void ble_router_message_set_alpha(std::string& message) {
+    // message.substr(0,10) == "SET_ALPHA:"
+
+    // get set that is not active
+    DataSet* dataset;
+
+    if (g_active_set == SignalSet::SET_A) {
+        dataset = &g_dataset_b;
+    } else {
+        dataset = &g_dataset_a;
+    }
+
+    // set data based on alpha and dataset
+    float alpha = std::stof(message);
+
+    Serial.printf("set_alpha(%.2f)\n", alpha);
+    helper_set_dataset_from_alpha(dataset, alpha);
+
+    // sanity test
+    MatrixData& M = dataset->gain_k;
+    matrix_print(M);
+    Serial.println("\nmultiply by [1; 2; 3]");
+    float result[5];
+    matrix_multiply_vector3(M, 1.0, 2.0, 3.0, result);
+    Serial.printf("result: [%.3f, %.3f, %.3f, %0.3f, %0.3f]\n", 
+                    result[0], result[1], result[2], result[3], result[4]);
+
 }
 
 void read_and_send_analog_data(NimBLECharacteristic* characteristic) {

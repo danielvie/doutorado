@@ -1,58 +1,78 @@
 
 function z_create_lookup()
+    clc;
     s = start();
     
     assignin('base', 's', s);
 
-    set_alpha(s, 0.3);
-    print_data(s);
+    for i = 1:9
+        alpha = i/10;
+        set_alpha(s, alpha);
+
+        sprintf("\n\n\n");
+        space = "    ";
+
+        fprintf("%s", space);
+        fprintf("if (helper_eql_float(alpha, %.1f)) {\n", alpha);
+
+        fprintf("%s", space);
+        fprintf("%s", space);
+        fprintf("// alpha: %.1f\n\n", alpha);
+        print_data(s, space);
+    end
 end
 
-function print_data(s)
+function print_data(s, space)
     k = s.get_gain_k();
     
     [rows, cols] = size(k);
-    k_str = arrayfun(@num2str, k(:), "UniformOutput", false);
-    k_msg = strjoin(k_str, ", ");
 
     time_us = s.get_time_us();
     [d4, d5, d6] = s.get_mode_bin();
 
-    % signal
-    % time_us_str = strjoin(time_us, ",", "UniformOutput", false);
-    % d4_str = strjoin(d4, ",", "UniformOutput", false);
-    % d5_str = strjoin(d5, ",", "UniformOutput", false);
-    % d6_str = strjoin(d6, ",", "UniformOutput", false);
-    
     len = numel(time_us);
-    fprintf("\n\n");
     for i = 1:len
-        fprintf("data_set.time_vec[%d] = %d;\n", i-1, time_us(i));
+        fprintf("%s", space);
+        fprintf("%s", space);
+        fprintf("dataset->time_vec[%d] = %d;\n", i-1, time_us(i));
     end
     for i = 1:len
-        fprintf("data_set.d4_vec[%d] = %d;\n", i-1, d4(i));
+        fprintf("%s", space);
+        fprintf("%s", space);
+        fprintf("dataset->d4_vec[%d] = %d;\n", i-1, d4(i));
     end
     for i = 1:len
-        fprintf("data_set.d5_vec[%d] = %d;\n", i-1, d5(i));
+        fprintf("%s", space);
+        fprintf("%s", space);
+        fprintf("dataset->d5_vec[%d] = %d;\n", i-1, d5(i));
     end
     for i = 1:len
-        fprintf("data_set.d6_vec[%d] = %d;\n", i-1, d6(i));
+        fprintf("%s", space);
+        fprintf("%s", space);
+        fprintf("dataset->d6_vec[%d] = %d;\n", i-1, d6(i));
     end
 
-    fprintf("\n\n");
+    fprintf("\n");
+    
+    fprintf("%s", space);
+    fprintf("%s", space);
+    fprintf("dataset->gain_k.rows = %d;\n", rows);
+    fprintf("%s", space);
+    fprintf("%s", space);
+    fprintf("dataset->gain_k.cols = %d;\n", cols);
+    fprintf("%s", space);
+    fprintf("%s", space);
+    fprintf("dataset->gain_k.size = %d;\n", rows*cols);
 
-    % data_set.time_vec = 
-    % data_set.d4 = strjoin(d4, ",", "UniformOutput", false);
-    
-    fprintf("data_set.gain_k.rows = %d;\n", rows);
-    fprintf("data_set.gain_k.cols = %d;\n", cols);
-    fprintf("data_set.gain_k.size = %d;\n", rows*cols);
-    for i = 1:numel(k)
-        fprintf("data_set.gain_k.values[%d] = %.7f;\n", i-1, k(i));
+
+    kk = k';
+    for i = 1:numel(kk)
+        fprintf("%s", space);
+        fprintf("%s", space);
+        fprintf("dataset->gain_k.values[%d] = %.7f;\n", i-1, kk(i));
     end
-    
-    mm = s.get_msg_control_signal();
-    disp(mm);
+    fprintf("%s", space);
+    fprintf("}\n")
 
 end
 

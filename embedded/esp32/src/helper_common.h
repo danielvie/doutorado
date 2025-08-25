@@ -136,6 +136,7 @@ std::string get_status_onoff_label(StatusONOFF status);
 DataSet* get_dataset_from_set(SignalSet set);
 uint32_t get_rand_int(uint32_t a, uint32_t b);
 
+
 // Print error code to Serial
 void print_error_code(ERROR_CODE err);
 
@@ -147,7 +148,6 @@ void print_vec_u32(const std::vector<uint32_t>& V, const std::string& name);
 
 void print_array_i32(const int32_t* V,const size_t& len, const std::string& name);
 void print_array_u32(const uint32_t* V,const size_t& len, const std::string& name);
-
 
 void print_dataset(DataSet* d);
 void print_ts_us_constructed();

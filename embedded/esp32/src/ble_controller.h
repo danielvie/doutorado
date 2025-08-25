@@ -5,10 +5,14 @@
 #include <NimBLEDevice.h>
 #include "esp_task_wdt.h"
 
+#include <chrono>
+#include <random>
+
 #include "signal_controller.h"
 #include "helper_common.h"
 #include "helper_matrix.h"
 #include "helper_note.h"
+#include "helper_datasetter.h"
 
 // BLE Service and Characteristic UUIDs for remote control
 #define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
@@ -34,6 +38,7 @@ void ble_router_high();
 void ble_router_idle();
 void ble_router_run_signal(std::string& message);
 void ble_router_message_data(std::string& message);
+void ble_router_message_set_alpha(std::string& message);
 
 void initialize_BLE();
 
