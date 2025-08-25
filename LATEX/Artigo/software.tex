@@ -1,8 +1,8 @@
 \section{Software description}
 
-This chapter will elaborate on the software architecture. It is composed of a two-parts: a high-precision ESP32-based signal generator 
-and a web-based remote control panel. This integration enables real-time configuration, control, and monitoring of the hardware 
-directly from a web browser via Bluetooth Low Energy (BLE). We will deconstruct the architecture of both the ESP32 firmware 
+This chapter will elaborate on the software architecture. It is composed of a two-parts: a high-precision ESP32-based signal generator
+and a web-based remote control panel. This integration enables real-time configuration, control, and monitoring of the hardware
+directly from a web browser via Bluetooth Low Energy (BLE). We will deconstruct the architecture of both the ESP32 firmware
 and the React web application.
 
 \subsection{System Architecture}
@@ -16,15 +16,15 @@ and the React web application.
           data on a live chart. It acts as a Bluetooth GATT client, connecting to and controlling the ESP32.
 \end{enumerate}
 
-The bridge between these two parts is the Web Bluetooth API, which allows the browser-based application to communicate 
+The bridge between these two parts is the Web Bluetooth API, which allows the browser-based application to communicate
 wirelessly and directly with the ESP32 hardware.
 
 \subsection{Part 1: The Embedded System (ESP32 Firmware)}
-The firmware is built to be a robust, real-time signal generation engine leveraging features of the ESP32 
+The firmware is built to be a robust, real-time signal generation engine leveraging features of the ESP32
 and the FreeRTOS operating system to achieve high performance and reliability.
 
 \subsubsection{FreeRTOS: The Real-Time Engine}
-The ESP32 SDK is build on top of FreeRTOS, a real-time operating system designed for embedded devices. 
+The ESP32 SDK is build on top of FreeRTOS, a real-time operating system designed for embedded devices.
 A RTOS guarantees that tasks can be executed with precise timing and this project uses FreeRTOS for:
 
 \begin{itemize}
@@ -67,7 +67,7 @@ xTaskCreatePinnedToCore(
 \end{lstlisting}
 
 \subsubsection{ESP32 Hardware Timers}
-Software delays like `delay()' are not capable of generating signals with microsecond accuracy. 
+Software delays like `delay()' are not capable of generating signals with microsecond accuracy.
 So, this system uses one of the ESP32's built-in hardware timers.
 
 \begin{itemize}
@@ -129,17 +129,17 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
 \end{lstlisting}
 
 \subsubsection{Blutooth Low Energy (BLE)}
-Bluetooth Low Energy is a wireless communication protocol designed for sending small amounts of data with very low power 
+Bluetooth Low Energy is a wireless communication protocol designed for sending small amounts of data with very low power
 consumption. It operates on a server-client model known as GATT (Generic Attribute Profile).
 
 \begin{itemize}
     \item \textbf{GAT Server (The ESP32):} The ESP32 is configured as a GAT Server. It creates and advertises a Service
-        (identified by SERVICE\_UUID).
-    \item \textbf{Characteristics (The Data Points):} Inside the service, it defines a Characteristic (identified by 
-        CHARACTERISTIC\_UUID). This is the actual endpoint for communication. The firmware configures this charateristic to
-        be writable and to support notifications (to send data back to the client).
+          (identified by SERVICE\_UUID).
+    \item \textbf{Characteristics (The Data Points):} Inside the service, it defines a Characteristic (identified by
+          CHARACTERISTIC\_UUID). This is the actual endpoint for communication. The firmware configures this charateristic to
+          be writable and to support notifications (to send data back to the client).
     \item \textbf{NimBLE Library:} The project uses the NimBLE-Arduino library, a highly efficient and memory-optimized
-        BLE stack for the ESP32.
+          BLE stack for the ESP32.
 \end{itemize}
 
 The BLE service and characteristic are defined and created in main.cpp
@@ -174,17 +174,17 @@ Web Bluetooth (like Google Chrome)
 \subsubsection{Core Capabilities}
 
 \begin{itemize}
-    \item \textbf{React \& TypeScript:} The application is build using React, a popular 
-        JavaScript library for building user interfaces, and TypeScript, which adds static
-        typing to JavaScript. This combination allow a code that is both portable and 
-        maintainable.
-        \item \textbf{Web Blutooth API:} The Web Bluetooth API is a brawser standard that 
-            exposes Blueetooth functionality to JavaScript, allowing the application to
-            \subitem \textbf{Scan} for nearby BLE devices
-            \subitem \textbf{Connect} to a selected device (ESP32)
-            \subitem \textbf{Discover} its services and characteristics
-            \subitem \textbf{Write} data to characteristics (to send commands)
-            \subitem \textbf{Subscribe} to notifications from charateristics (to receive sensor data)
+    \item \textbf{React \& TypeScript:} The application is build using React, a popular
+          JavaScript library for building user interfaces, and TypeScript, which adds static
+          typing to JavaScript. This combination allow a code that is both portable and
+          maintainable.
+    \item \textbf{Web Blutooth API:} The Web Bluetooth API is a brawser standard that
+          exposes Blueetooth functionality to JavaScript, allowing the application to
+          \subitem \textbf{Scan} for nearby BLE devices
+          \subitem \textbf{Connect} to a selected device (ESP32)
+          \subitem \textbf{Discover} its services and characteristics
+          \subitem \textbf{Write} data to characteristics (to send commands)
+          \subitem \textbf{Subscribe} to notifications from charateristics (to receive sensor data)
 \end{itemize}
 
 This eliminates the need for any native software, drivers, or browser plugins. The entire control
@@ -222,7 +222,7 @@ export async function connect_device() {
 
 The web interface is built with React.js to provide an easy user experience.
 This interface serves as the primary connection point between the user and the hardware,
-linking directly to the ESP32 microcontroller via Bluetooth Low Energy (BLE). 
+linking directly to the ESP32 microcontroller via Bluetooth Low Energy (BLE).
 
 From the web application (Figure \ref{fig:sw_web_interface}), users can easily send string commands to the device, as well as trigger automated
 sequences for common experimental procedures. A key function of the interface is its ability to perform
@@ -253,15 +253,15 @@ features of the interface:
     \item START Command: Send the command to the ESP32 to initiate the use of the generated signals.
 \end{itemize}
 
-The system's behavior is described by a state diagram in Figure \ref{fig:state_diagram} that shows the 
-Overall System Flow, which transitions from an initial Setup phase into two main concurrent processes: BLE Task States and Signal Task States. 
+The system's behavior is described by a state diagram in Figure \ref{fig:state_diagram} that shows the
+Overall System Flow, which transitions from an initial Setup phase into two main concurrent processes: BLE Task States and Signal Task States.
 
-The BLE (Bluetooth Low Energy) task handles wireless communication 
-and sensor data, cycling through states such as BLE\_IDLE (when no operations are active), ANALOG\_READING 
-(when it's actively reading sensor data), and SIGNAL\_READING (when it's processing new signal information). 
+The BLE (Bluetooth Low Energy) task handles wireless communication
+and sensor data, cycling through states such as BLE\_IDLE (when no operations are active), ANALOG\_READING
+(when it's actively reading sensor data), and SIGNAL\_READING (when it's processing new signal information).
 
-Concurrently, the Signal task manages the output signals, operating in states like IDLE (with no signals 
-generated), HIGH\_ALL (where all outputs are forced high), and SIGNAL\_RUN (for active signal pattern 
+Concurrently, the Signal task manages the output signals, operating in states like IDLE (with no signals
+generated), HIGH\_ALL (where all outputs are forced high), and SIGNAL\_RUN (for active signal pattern
 generation). This dual-task structure allows the system to manage sensor inputs and signal outputs independently.
 
 \begin{figure}[h]
