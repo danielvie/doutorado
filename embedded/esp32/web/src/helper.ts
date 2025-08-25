@@ -1,18 +1,18 @@
 // Creates a switching signal based on a duty cycle
 export function _create_signal(alpha: number) {
     // System parameters
-    let E = 5; // Input voltage (V)
+    // let E = 5; // Input voltage (V)
     // let C1 = 470e-6      // Capacitor 1 value (F) - commented out, not used
     // let C2 = 470e-6      // Capacitor 2 value (F) - commented out, not used
     // let L = 100*1e-3     // Inductor value (H) - commented out, not used
-    let R = 22; // Resistance (Ohms)
+    // let R = 22; // Resistance (Ohms)
 
     let n = 3; // Number of switch cells
     let T = 0.28 * 1e-3; // Period of switching cycle (seconds)
 
     // Calculate current parameters
-    let iMax = E / R; // Maximum current
-    let iLref = iMax * alpha; // Current setpoint based on duty cycle
+    // let iMax = E / R; // Maximum current
+    // let iLref = iMax * alpha; // Current setpoint based on duty cycle
 
     // console.log(`iMax: ${iMax}, iLref: ${iLref}`);
 

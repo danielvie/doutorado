@@ -1,11 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
-    ble_is_connected,
-    ble_connect_device,
-    ble_disconnect_device,
     ble_send_command,
-    ble_set_update_status,
-    ble_toggle_listening,
 } from "./bluetooth";
 import { _create_signal } from "../helper";
 
@@ -17,7 +12,7 @@ enum EMATRIX {
     B,
 }
 
-function Listenner(props: IControlProps) {
+function Listenner(_props: IControlProps) {
 
     const [chunk, set_chunk] = useState('1')
 
