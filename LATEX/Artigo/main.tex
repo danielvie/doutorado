@@ -175,22 +175,41 @@
 % create the main body of the paper
 \newpage
 
-
-
 \section{Hardware in context}
-% Include a short description of the hardware, putting into context of similar open hardware and proprietary equipment in the field.
+% Include a short description of the hardware, putting into context of similar open hardware and proprietary 
+% equipment in the field.
 
-Switched systems are an important topic of research in the systems and control field. In this context, a common application consists of the operation of DC-DC voltage converters \cite{Benmiloud:2019}, \cite{Patino:2010}, \cite{Egidio_1:2020}, aimed at obtaining a desired voltage level at the output, with fast transient response and small ripple. However, during our research, we observed that most of the work in the field of switched-mode control for multi-cell
-converters was purely digital, relying heavily on simulation. The limited experimental work available
-often outsourced the design and manufacturing of the physical circuit to external companies \cite{Saenz:2014}. Our hardware aims to fill this gap by providing an easily accessible
-and low-cost solution for implementing and studying these complex control strategies.
-More specifically, we focused on the three-cell flying capacitor converter with RL load, which has been used in  in several papers \red{[Referências]}. By using standard
-components and an embedded controller, our circuit provides an effective platform for hands-on research,
-reducing the barriers to entry for researchers and students.
+Switched systems are an important research topic in control engineering, particularly for DC-DC voltage 
+converters that require fast transient response and low ripple. Several works, such as those by Patino 
+et al. \cite{Patino:2010} and Saenz et al. \cite{Saenz:2014}, have required the use of these converters 
+in their control system research.
 
-\red{Falar um pouco sobre a história do flying capacitor converter, citando algumas referências.}
+However, much of the research in this area is limited to digital simulation, with experimental work often 
+outsourced and difficult for students and researchers to access \cite{Saenz:2014}. Our hardware addresses 
+this gap by providing an affordable and accessible solution for researchers and students to implement 
+hands-on control strategies.
 
+Specifically, we focus on the three-cell flying capacitor converter with RL load, a topology widely used 
+in the literature \textcolor{red}{[Referências]}. By using standard components and an embedded controller, 
+our circuit provides an effective, hands-on tool for research, lowering the barriers to entry for those 
+in the field.
 
+The concept of flying capacitor converters (FCCs), also known as multi-level or switched-capacitor converters, 
+emerged to overcome the limitations of traditional two-level power converters in high-voltage, high-power 
+applications. The core idea is to use a network of capacitors as voltage sources, distributing the voltage 
+stress across a series of switches. This approach allows for the use of lower-voltage, more cost-effective 
+semiconductor devices. While similar concepts appeared earlier, the formal introduction and significant 
+development of the multi-level flying capacitor topology are widely attributed to the work of T.A. Meynard 
+and H. Foch in the early 1990s \cite{Meynard:1993}.
+
+A key challenge in the research history of FCCs is the voltage balancing of the flying capacitors, 
+as their voltages must be precisely controlled to maintain the desired output levels and prevent device 
+overstress. Initial research focused on understanding the natural balancing properties of these converters 
+and developing modulation and control schemes to ensure stable operation. Subsequent work has explored 
+advanced control techniques, such as model predictive control \cite{Wang:2018} and sliding mode control 
+\cite{Benmiloud:2019}, to improve transient response, reduce passive component volume, and enhance overall 
+efficiency. These innovations have expanded their application from high-power industrial drives to areas 
+like electric vehicle charging and renewable energy systems \cite{Lai:1999}.
 
 \section{Hardware description}
 % Describe the hardware, highlighting the customization rather than the steps of the procedure. Highlight how it differs/which advantage it offers over pre-existing methods. For example, how could this hardware: be compared to other hardware in terms of cost or ease of use, be used in the development of further designs in a particular area, and so on.
