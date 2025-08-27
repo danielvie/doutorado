@@ -5,6 +5,7 @@ function z_create_lookup()
     
     assignin('base', 's', s);
 
+    % for i = 1
     for i = 1:9
         alpha = i/10;
         set_alpha(s, alpha);
@@ -23,12 +24,20 @@ function z_create_lookup()
 end
 
 function print_data(s, space)
+
+    fprintf("dataset->time_vec.clear();");
+    fprintf("dataset->d4_vec.clear();");
+    fprintf("dataset->d5_vec.clear();");
+    fprintf("dataset->d6_vec.clear();");
+    fprintf("dataset->target.clear();");
+
     k = s.get_gain_k();
     
     [rows, cols] = size(k);
 
     time_us = s.get_time_us();
     [d4, d5, d6] = s.get_mode_bin();
+    target = s.get_target();
 
     len = numel(time_us);
     for i = 1:len
@@ -50,6 +59,11 @@ function print_data(s, space)
         fprintf("%s", space);
         fprintf("%s", space);
         fprintf("dataset->d6_vec[%d] = %d;\n", i-1, d6(i));
+    end
+    for i = 1:numel(target)
+        fprintf("%s", space);
+        fprintf("%s", space);
+        fprintf("dataset->target[%d] = %f;\n", i-1, target(i));
     end
 
     fprintf("\n");

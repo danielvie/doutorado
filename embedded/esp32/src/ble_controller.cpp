@@ -341,6 +341,9 @@ void ble_router_message_set_alpha(std::string& message) {
     Serial.printf("set_alpha(%.2f)\n", alpha);
     helper_set_dataset_from_alpha(dataset, alpha);
 
+    g_switch_set_pending = true;  // Mark for set switching
+
+
     // sanity test
     // MatrixData& M = dataset->gain_k;
     // matrix_print(M);
