@@ -8,6 +8,7 @@ import Listenner from "./components/Listenner";
 
 function App() {
 
+  const [alpha, set_alpha] = useState("0.5");
   const [data, set_data] = useState<DataPoint[]>([]);
   const [show_images, set_show_images] = useState(false);
   const [analog_scale, set_analog_scale] = useState(1.0);
@@ -15,10 +16,11 @@ function App() {
 
   return (
     <>
-
       <div className="grid grid-cols-2 gap-0 p-2">
         <div className="">
           <Control
+            alpha={alpha}
+            set_alpha={set_alpha}
             data={data}
             set_data={set_data}
             set_show_images={set_show_images}
@@ -36,7 +38,9 @@ function App() {
             />
         </div>
         <div className="col-span-2">
-          <Listenner></Listenner>
+          <Listenner
+            alpha={alpha}
+          ></Listenner>
         </div>
       </div>
 

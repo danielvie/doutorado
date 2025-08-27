@@ -13,6 +13,8 @@ import { DataPoint } from "./Chart";
 const initial_time = new Date();
 
 interface IControlProps {
+    alpha: string,
+    set_alpha: CallableFunction,
     data: DataPoint[],
     set_data: React.Dispatch<React.SetStateAction<DataPoint[]>>,
     set_show_images: React.Dispatch<React.SetStateAction<boolean>>
@@ -23,7 +25,6 @@ interface IControlProps {
 }
 
 function Control(props: IControlProps) {
-    const [alpha, set_alpha] = useState("0.5");
     const [command_message, set_command_message] = useState("");
     const [copy_label, set_copy_label] = useState("copy");
     const [cycle_nrun, set_cycle_nrun] = useState("100");
@@ -74,7 +75,7 @@ function Control(props: IControlProps) {
 
     function handle_set_alpha(e: React.ChangeEvent<HTMLInputElement>) {
         const value_ = e.target.value;
-        set_alpha(value_);
+        props.set_alpha(value_);
 
         const value = parseFloat(value_);
         const res = _create_signal(value);
@@ -93,7 +94,7 @@ function Control(props: IControlProps) {
     }
 
     function handle_compute_alpha() {
-        const value = parseFloat(alpha);
+        const value = parseFloat(props.alpha);
         const res = _create_signal(value);
         set_time(res.time);
         set_mode(res.mode);
@@ -272,7 +273,7 @@ function Control(props: IControlProps) {
                         step="0.1"
                         id="in-alpha"
                         className="bg-panel border flex-none w-16 px-2 text-center"
-                        value={alpha}
+                        value={props.alpha}
                         onChange={handle_set_alpha}
                     />
                     <button

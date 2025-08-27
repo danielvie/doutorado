@@ -342,13 +342,13 @@ void ble_router_message_set_alpha(std::string& message) {
     helper_set_dataset_from_alpha(dataset, alpha);
 
     // sanity test
-    MatrixData& M = dataset->gain_k;
-    matrix_print(M);
-    Serial.println("\nmultiply by [1; 2; 3]");
-    float result[5];
-    matrix_multiply_vector3(M, 1.0, 2.0, 3.0, result);
-    Serial.printf("result: [%.3f, %.3f, %.3f, %0.3f, %0.3f]\n", 
-                    result[0], result[1], result[2], result[3], result[4]);
+    // MatrixData& M = dataset->gain_k;
+    // matrix_print(M);
+    // Serial.println("\nmultiply by [1; 2; 3]");
+    // float result[5];
+    // matrix_multiply_vector3(M, 1.0, 2.0, 3.0, result);
+    // Serial.printf("result: [%.3f, %.3f, %.3f, %0.3f, %0.3f]\n", 
+    //                 result[0], result[1], result[2], result[3], result[4]);
 
 }
 

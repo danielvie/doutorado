@@ -4,7 +4,8 @@ import {
 } from "./bluetooth";
 import { _create_signal } from "../helper";
 
-interface IControlProps {
+interface IProps {
+    alpha: string,
 }
 
 enum EMATRIX {
@@ -12,17 +13,9 @@ enum EMATRIX {
     B,
 }
 
-function Listenner(_props: IControlProps) {
+function Listenner(props: IProps) {
 
     const [chunk, set_chunk] = useState('1')
-
-    // Monitor connection state
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //         set_is_connected(bt_is_connected());
-    //     }, 1000); // Check every second
-    //     return () => clearInterval(interval);
-    // }, []);
 
     function handle_status_matrix(matrix: EMATRIX) {
         if (matrix == EMATRIX.A) {
@@ -67,6 +60,9 @@ function Listenner(_props: IControlProps) {
                 <button onClick={() => ble_send_command("CONTROL_ON")} className="btn">CONTROL ON</button>
                 <button onClick={() => ble_send_command("CONTROL_OFF")} className="btn">CONTROL OFF</button>
             </div>
+            <div className="flex gap-2">
+                <button onClick={() => ble_send_command(`SET_ALPHA:${props.alpha}`)} className="btn">SET ALPHA ({props.alpha})</button>
+            </div>
         </div>
     </>
 }
@@ -89,3 +85,5 @@ export default Listenner;
     // "CYCLE_NRUN:"
     // "SIGNAL:"
     // "MESSAGE_DATA:"
+    // "MESSAGE_DATA:"
+    // "SET_ALPHA:"
