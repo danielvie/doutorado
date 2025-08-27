@@ -15,7 +15,7 @@ The following is a review and classification of the provided references based on
 
 ***
 
-### Benmiloud, M., Benalia, A., Djemai, M., and Defoort, M. (2019)
+### Benmiloud, M., Benalia, A., Djemai, M., and Defoort, M. (2019) [Benmiloud:2019]
 **Title:** On the Local Stabilization of Hybrid Limit Cycles in Switched Affine Systems
 
 **Classification:** #simulated #experimental
@@ -24,7 +24,7 @@ The following is a review and classification of the provided references based on
 
 ***
 
-### Egidio, L. N., Deaecto, G. S., and Geromel, J. C. (2020)
+### Egidio, L. N., Deaecto, G. S., and Geromel, J. C. (2020) [Egidio_1:2020]
 **Title:** Limit cycle global asymptotic stability of continuous-time switched affine systems
 
 **Classification:** #simulated
@@ -33,7 +33,7 @@ The following is a review and classification of the provided references based on
 
 ***
 
-### Solano Saenz, E. H. (2014)
+### Solano Saenz, E. H. (2014) [Saenz:2014]
 **Title:** Étude des convertisseurs multicellulaires série - parallèle et de leurs stratégies de commande, approches linéaire et prédictive
 
 **Classification:** #simulated #experimental
@@ -42,7 +42,7 @@ The following is a review and classification of the provided references based on
 
 ***
 
-### Patino, D., Riedinger, P., and Ruiz, F. (2010)
+### Patino, D., Riedinger, P., and Ruiz, F. (2010) [Patino:2010]
 **Title:** A predictive control approach for DC-DC power converters and cyclic switched systems
 
 **Classification:** #simulated #experimental
@@ -51,7 +51,7 @@ The following is a review and classification of the provided references based on
 
 ***
 
-### Xu, X., Zhang, H., Zheng, Q., and Chen, W. (2022)
+### Xu, X., Zhang, H., Zheng, Q., and Chen, W. (2022) [Xu:2022]
 **Title:** Global exponential stability and $H_{\infty}$ control of limit cycle for switched affine systems under time-dependent switching signal
 
 **Classification:** #numeric #simulated
@@ -60,7 +60,7 @@ The following is a review and classification of the provided references based on
 
 ***
 
-### Kuiava, R., Ramos, R. A., Pota, H. R., and Alberto, L. F. C. (2011)
+### Kuiava, R., Ramos, R. A., Pota, H. R., and Alberto, L. F. C. (2011) [Kuiava:2011]
 **Title:** Practical Stability of Continuous-Time Switched Systems Without a Common Equilibria and Governed by a Time-Dependent Switching Signal
 
 **Classification:** #numeric
@@ -69,7 +69,7 @@ The following is a review and classification of the provided references based on
 
 ***
 
-### Zhu, Y., and Zheng, W. X. (2020)
+### Zhu, Y., and Zheng, W. X. (2020) [Zhu:2020]
 **Title:** Multiple Lyapunov Functions Analysis Approach for Discrete-Time Switched Piecewise-Affine Systems Under Dwell-Time Constraints
 
 **Classification:** #numeric
@@ -78,7 +78,7 @@ The following is a review and classification of the provided references based on
 
 ***
 
-### Egidio, L. N., Daiha, H. R., and Deaecto, G. S. (2020)
+### Egidio, L. N., Daiha, H. R., and Deaecto, G. S. (2020) [Egidio_2:2020]
 **Title:** Global asymptotic stability of limit cycle and $\mathcal{H}_{2}/\mathcal{H}_{\infty}$ performance of discrete-time switched affine systems
 
 **Classification:** #simulated
@@ -87,7 +87,7 @@ The following is a review and classification of the provided references based on
 
 ***
 
-### Andrikopoulos, G., Nikolakopoulos, G., and Manesis, S. (2013)
+### Andrikopoulos, G., Nikolakopoulos, G., and Manesis, S. (2013) [Andrikopoulos:2013]
 **Title:** Pneumatic artificial muscles: A switching Model Predictive Control approach
 
 **Classification:** #simulated #experimental
@@ -96,7 +96,7 @@ The following is a review and classification of the provided references based on
 
 ***
 
-### Sanchez, C. A., Garcia, G., Hadjeras, S., Heemels, W. P. M. H., and Zaccarian, L. (2019)
+### Sanchez, C. A., Garcia, G., Hadjeras, S., Heemels, W. P. M. H., and Zaccarian, L. (2019) [Sanchez:2019]
 **Title:** Practical stabilisation of switched affine systems with dwell-time guarantees
 
 **Classification:** #simulated

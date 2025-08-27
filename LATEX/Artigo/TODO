@@ -1,9 +1,21 @@
 
 
 Tasks artigo:
+    ☐ #artigo Fotos e biografias.
+    ☐ #artigo Terminar contextualização na seção 1.
+    ☐ #artigo Hardware description: Explicar o porquê dos dois mosfets para implementar as chaves do meio.
+    ☐ #artigo Escolher o repositório.
+    ☐ #artigo Preencher a tabela de design files.
+    ☐ #artigo Preencher a build instructions sucintamente. Falar do uso do KiCad para exportar os arquivos de PCB (comentar o caminho para gerar o arquivo necessário para o fabricante da PCB). Explicar que há vias que podem ser usadas para soldar os componentes THT por baixo, se os furos não estiverem metalizados. Comentar que os componentes THT passivos podem ser soldados por cima ou por baixo. Comentar sobre o uso de soquete para a ESP. Comentar sobre o uso de soquetes para os CIs e os mosfets. Comentar sobre o uso de tuxinhos se forem usados soquetes para os mosfets. Comentar sobre o uso de jumper wires para os pontos de teste. Comentar a instalação dos rubber pads. Tirar nova fotografia.
+    ☐ #artigo Operation instructions: Explicar o uso do software com telas passo-a-passo. Mencionar o uso dos pontos de teste para medida com osciloscópio.
+    ☐ #artigo Seção 8: \red{Mencionar valores de tempo usados no código do exemplo.}
+    ☐ #artigo Colocar subsection de Conclusion na seção de Validation and characterization.
+    ☐ #artigo Tela do osciloscópio:  Apresentar vc1, v2, vr durante a transição entre dois valores diferentes de alpha. Apresentar a tela do osciloscópio associada.
+    ☐ #artigo Tela do software.
+    ☐ #artigo adicionar texto com analise dos experimentos das referencias (artigo > notes)
     ✔ #artigo fazer referencia da webinterface no artigo @done(25-08-20 10:40)
     ✔ #artigo fazer referencia da State Diagram no artigo @done(25-08-20 10:40)
-    ☐ #artigo adicionar texto com analise dos experimentos das referencias (artigo > notes)
     ✔ #artigo organizar os nomes dos arquivos de referencia @done(25-08-20 11:46)
     ✔ #artigo adicionar referencias no BIBTEX @done(25-08-20 11:45)
 1 task
+    https://www.infineon.com/evaluation-board/EVAL-4KVA-230VAC-5LINV#BoM
