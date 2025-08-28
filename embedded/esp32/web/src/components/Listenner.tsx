@@ -47,8 +47,8 @@ function Listenner(props: IProps) {
                 <button onClick={() => ble_send_command("STATUS")} className="btn">STATUS</button>
                 <button onClick={() => handle_status_matrix(EMATRIX.A)} className="btn">MATRIX A</button>
                 <button onClick={() => handle_status_matrix(EMATRIX.B)} className="btn">MATRIX B</button>
-                <button onClick={() => handle_status_matrix(EMATRIX.B)} className="btn">KOKA</button>
-                <button onClick={() => handle_status_matrix(EMATRIX.B)} className="btn">DURATION</button>
+                <button onClick={() => ble_send_command("LOG_KOKA")} className="btn">KOKA</button>
+                <button onClick={() => ble_send_command("STATUS_DURATION")} className="btn">DURATION</button>
 
             </div>
             <div className="flex gap-2">

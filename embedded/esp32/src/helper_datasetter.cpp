@@ -5,36 +5,11 @@ bool helper_eql_float(const float a, const float b) {
     return std::fabs(a - b) < TOL;
 }
 
-
-// struct DataSet {
-//     std::vector<uint32_t> time_vec;
-//     std::vector<uint32_t> d4_vec;
-//     std::vector<uint32_t> d5_vec;
-//     std::vector<uint32_t> d6_vec; 
-//     std::vector<int32_t> time_us_diff;
-//     std::vector<float> target; 
-//     MatrixData gain_k;
-// };
-
-// data_set.time_vec = new_timings;
-// data_set.d4_vec = new_d4_vec;
-// data_set.d5_vec = new_d5_vec;
-// data_set.d6_vec = new_d6_vec;
-// data_set.target = new_target;
-
-// data_set.gain_k.rows = new_rows;
-// data_set.gain_k.cols = new_cols;
-// data_set.gain_k.size = new_gain_k.size();
-// size_t copy_size = std::min(new_gain_k.size(), (size_t)MAX_MATRIX_ELEMENTS);
-// for (size_t i = 0; i < copy_size; ++i) {
-//     data_set.gain_k.values[i] = new_gain_k[i];
-// }
-
-
 void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
     if (helper_eql_float(alpha, 0.1)) {
         // alpha: 0.1
 
+        dataset->size_vec = 6;
         dataset->time_vec[0] = 28;
         dataset->time_vec[1] = 65;
         dataset->time_vec[2] = 28;
@@ -45,17 +20,17 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
         dataset->d4_vec[1] = 0;
         dataset->d4_vec[2] = 0;
         dataset->d4_vec[3] = 0;
-        dataset->d4_vec[4] = 0;
+        dataset->d4_vec[4] = 1;
         dataset->d4_vec[5] = 0;
-        dataset->d5_vec[0] = 1;
+        dataset->d5_vec[0] = 0;
         dataset->d5_vec[1] = 0;
-        dataset->d5_vec[2] = 0;
+        dataset->d5_vec[2] = 1;
         dataset->d5_vec[3] = 0;
         dataset->d5_vec[4] = 0;
         dataset->d5_vec[5] = 0;
-        dataset->d6_vec[0] = 0;
+        dataset->d6_vec[0] = 1;
         dataset->d6_vec[1] = 0;
-        dataset->d6_vec[2] = 1;
+        dataset->d6_vec[2] = 0;
         dataset->d6_vec[3] = 0;
         dataset->d6_vec[4] = 0;
         dataset->d6_vec[5] = 0;
@@ -85,6 +60,7 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
     if (helper_eql_float(alpha, 0.2)) {
         // alpha: 0.2
 
+        dataset->size_vec = 6;
         dataset->time_vec[0] = 56;
         dataset->time_vec[1] = 37;
         dataset->time_vec[2] = 56;
@@ -95,17 +71,17 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
         dataset->d4_vec[1] = 0;
         dataset->d4_vec[2] = 0;
         dataset->d4_vec[3] = 0;
-        dataset->d4_vec[4] = 0;
+        dataset->d4_vec[4] = 1;
         dataset->d4_vec[5] = 0;
-        dataset->d5_vec[0] = 1;
+        dataset->d5_vec[0] = 0;
         dataset->d5_vec[1] = 0;
-        dataset->d5_vec[2] = 0;
+        dataset->d5_vec[2] = 1;
         dataset->d5_vec[3] = 0;
         dataset->d5_vec[4] = 0;
         dataset->d5_vec[5] = 0;
-        dataset->d6_vec[0] = 0;
+        dataset->d6_vec[0] = 1;
         dataset->d6_vec[1] = 0;
-        dataset->d6_vec[2] = 1;
+        dataset->d6_vec[2] = 0;
         dataset->d6_vec[3] = 0;
         dataset->d6_vec[4] = 0;
         dataset->d6_vec[5] = 0;
@@ -135,6 +111,7 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
     if (helper_eql_float(alpha, 0.3)) {
         // alpha: 0.3
 
+        dataset->size_vec = 6;
         dataset->time_vec[0] = 84;
         dataset->time_vec[1] = 9;
         dataset->time_vec[2] = 84;
@@ -145,17 +122,17 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
         dataset->d4_vec[1] = 0;
         dataset->d4_vec[2] = 0;
         dataset->d4_vec[3] = 0;
-        dataset->d4_vec[4] = 0;
+        dataset->d4_vec[4] = 1;
         dataset->d4_vec[5] = 0;
-        dataset->d5_vec[0] = 1;
+        dataset->d5_vec[0] = 0;
         dataset->d5_vec[1] = 0;
-        dataset->d5_vec[2] = 0;
+        dataset->d5_vec[2] = 1;
         dataset->d5_vec[3] = 0;
         dataset->d5_vec[4] = 0;
         dataset->d5_vec[5] = 0;
-        dataset->d6_vec[0] = 0;
+        dataset->d6_vec[0] = 1;
         dataset->d6_vec[1] = 0;
-        dataset->d6_vec[2] = 1;
+        dataset->d6_vec[2] = 0;
         dataset->d6_vec[3] = 0;
         dataset->d6_vec[4] = 0;
         dataset->d6_vec[5] = 0;
@@ -185,6 +162,7 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
     if (helper_eql_float(alpha, 0.4)) {
         // alpha: 0.4
 
+        dataset->size_vec = 6;
         dataset->time_vec[0] = 75;
         dataset->time_vec[1] = 19;
         dataset->time_vec[2] = 75;
@@ -194,21 +172,21 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
         dataset->d4_vec[0] = 0;
         dataset->d4_vec[1] = 0;
         dataset->d4_vec[2] = 0;
-        dataset->d4_vec[3] = 0;
-        dataset->d4_vec[4] = 0;
-        dataset->d4_vec[5] = 0;
-        dataset->d5_vec[0] = 1;
+        dataset->d4_vec[3] = 1;
+        dataset->d4_vec[4] = 1;
+        dataset->d4_vec[5] = 1;
+        dataset->d5_vec[0] = 0;
         dataset->d5_vec[1] = 1;
-        dataset->d5_vec[2] = 0;
-        dataset->d5_vec[3] = 0;
+        dataset->d5_vec[2] = 1;
+        dataset->d5_vec[3] = 1;
         dataset->d5_vec[4] = 0;
-        dataset->d5_vec[5] = 1;
-        dataset->d6_vec[0] = 0;
+        dataset->d5_vec[5] = 0;
+        dataset->d6_vec[0] = 1;
         dataset->d6_vec[1] = 1;
-        dataset->d6_vec[2] = 1;
-        dataset->d6_vec[3] = 1;
+        dataset->d6_vec[2] = 0;
+        dataset->d6_vec[3] = 0;
         dataset->d6_vec[4] = 0;
-        dataset->d6_vec[5] = 0;
+        dataset->d6_vec[5] = 1;
         dataset->target[0] = 1.667758;
         dataset->target[1] = 3.335511;
         dataset->target[2] = 0.027476;
@@ -234,12 +212,8 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
     }
     if (helper_eql_float(alpha, 0.5)) {
         // alpha: 0.5
-        dataset->time_vec.clear();
-        dataset->d4_vec.clear();
-        dataset->d5_vec.clear();
-        dataset->d6_vec.clear();
-        dataset->target.clear();
 
+        dataset->size_vec = 6;
         dataset->time_vec[0] = 47;
         dataset->time_vec[1] = 47;
         dataset->time_vec[2] = 47;
@@ -249,21 +223,21 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
         dataset->d4_vec[0] = 0;
         dataset->d4_vec[1] = 0;
         dataset->d4_vec[2] = 0;
-        dataset->d4_vec[3] = 0;
-        dataset->d4_vec[4] = 0;
-        dataset->d4_vec[5] = 0;
-        dataset->d5_vec[0] = 1;
+        dataset->d4_vec[3] = 1;
+        dataset->d4_vec[4] = 1;
+        dataset->d4_vec[5] = 1;
+        dataset->d5_vec[0] = 0;
         dataset->d5_vec[1] = 1;
-        dataset->d5_vec[2] = 0;
-        dataset->d5_vec[3] = 0;
+        dataset->d5_vec[2] = 1;
+        dataset->d5_vec[3] = 1;
         dataset->d5_vec[4] = 0;
-        dataset->d5_vec[5] = 1;
-        dataset->d6_vec[0] = 0;
+        dataset->d5_vec[5] = 0;
+        dataset->d6_vec[0] = 1;
         dataset->d6_vec[1] = 1;
-        dataset->d6_vec[2] = 1;
-        dataset->d6_vec[3] = 1;
+        dataset->d6_vec[2] = 0;
+        dataset->d6_vec[3] = 0;
         dataset->d6_vec[4] = 0;
-        dataset->d6_vec[5] = 0;
+        dataset->d6_vec[5] = 1;
         dataset->target[0] = 1.666666;
         dataset->target[1] = 3.336739;
         dataset->target[2] = 0.034358;
@@ -290,6 +264,7 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
     if (helper_eql_float(alpha, 0.6)) {
         // alpha: 0.6
 
+        dataset->size_vec = 6;
         dataset->time_vec[0] = 19;
         dataset->time_vec[1] = 75;
         dataset->time_vec[2] = 19;
@@ -299,21 +274,21 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
         dataset->d4_vec[0] = 0;
         dataset->d4_vec[1] = 0;
         dataset->d4_vec[2] = 0;
-        dataset->d4_vec[3] = 0;
-        dataset->d4_vec[4] = 0;
-        dataset->d4_vec[5] = 0;
-        dataset->d5_vec[0] = 1;
+        dataset->d4_vec[3] = 1;
+        dataset->d4_vec[4] = 1;
+        dataset->d4_vec[5] = 1;
+        dataset->d5_vec[0] = 0;
         dataset->d5_vec[1] = 1;
-        dataset->d5_vec[2] = 0;
-        dataset->d5_vec[3] = 0;
+        dataset->d5_vec[2] = 1;
+        dataset->d5_vec[3] = 1;
         dataset->d5_vec[4] = 0;
-        dataset->d5_vec[5] = 1;
-        dataset->d6_vec[0] = 0;
+        dataset->d5_vec[5] = 0;
+        dataset->d6_vec[0] = 1;
         dataset->d6_vec[1] = 1;
-        dataset->d6_vec[2] = 1;
-        dataset->d6_vec[3] = 1;
+        dataset->d6_vec[2] = 0;
+        dataset->d6_vec[3] = 0;
         dataset->d6_vec[4] = 0;
-        dataset->d6_vec[5] = 0;
+        dataset->d6_vec[5] = 1;
         dataset->target[0] = 1.665029;
         dataset->target[1] = 3.338240;
         dataset->target[2] = 0.041193;
@@ -340,30 +315,31 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
     if (helper_eql_float(alpha, 0.7)) {
         // alpha: 0.7
 
+        dataset->size_vec = 6;
         dataset->time_vec[0] = 9;
         dataset->time_vec[1] = 84;
         dataset->time_vec[2] = 9;
         dataset->time_vec[3] = 84;
         dataset->time_vec[4] = 9;
         dataset->time_vec[5] = 84;
-        dataset->d4_vec[0] = 0;
+        dataset->d4_vec[0] = 1;
         dataset->d4_vec[1] = 0;
-        dataset->d4_vec[2] = 0;
-        dataset->d4_vec[3] = 0;
-        dataset->d4_vec[4] = 0;
-        dataset->d4_vec[5] = 0;
+        dataset->d4_vec[2] = 1;
+        dataset->d4_vec[3] = 1;
+        dataset->d4_vec[4] = 1;
+        dataset->d4_vec[5] = 1;
         dataset->d5_vec[0] = 1;
         dataset->d5_vec[1] = 1;
         dataset->d5_vec[2] = 1;
-        dataset->d5_vec[3] = 0;
+        dataset->d5_vec[3] = 1;
         dataset->d5_vec[4] = 1;
-        dataset->d5_vec[5] = 1;
+        dataset->d5_vec[5] = 0;
         dataset->d6_vec[0] = 1;
         dataset->d6_vec[1] = 1;
         dataset->d6_vec[2] = 1;
-        dataset->d6_vec[3] = 1;
+        dataset->d6_vec[3] = 0;
         dataset->d6_vec[4] = 1;
-        dataset->d6_vec[5] = 0;
+        dataset->d6_vec[5] = 1;
         dataset->target[0] = 1.663800;
         dataset->target[1] = 3.339060;
         dataset->target[2] = 0.047987;
@@ -390,30 +366,31 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
     if (helper_eql_float(alpha, 0.8)) {
         // alpha: 0.8
 
+        dataset->size_vec = 6;
         dataset->time_vec[0] = 37;
         dataset->time_vec[1] = 56;
         dataset->time_vec[2] = 37;
         dataset->time_vec[3] = 56;
         dataset->time_vec[4] = 37;
         dataset->time_vec[5] = 56;
-        dataset->d4_vec[0] = 0;
+        dataset->d4_vec[0] = 1;
         dataset->d4_vec[1] = 0;
-        dataset->d4_vec[2] = 0;
-        dataset->d4_vec[3] = 0;
-        dataset->d4_vec[4] = 0;
-        dataset->d4_vec[5] = 0;
+        dataset->d4_vec[2] = 1;
+        dataset->d4_vec[3] = 1;
+        dataset->d4_vec[4] = 1;
+        dataset->d4_vec[5] = 1;
         dataset->d5_vec[0] = 1;
         dataset->d5_vec[1] = 1;
         dataset->d5_vec[2] = 1;
-        dataset->d5_vec[3] = 0;
+        dataset->d5_vec[3] = 1;
         dataset->d5_vec[4] = 1;
-        dataset->d5_vec[5] = 1;
+        dataset->d5_vec[5] = 0;
         dataset->d6_vec[0] = 1;
         dataset->d6_vec[1] = 1;
         dataset->d6_vec[2] = 1;
-        dataset->d6_vec[3] = 1;
+        dataset->d6_vec[3] = 0;
         dataset->d6_vec[4] = 1;
-        dataset->d6_vec[5] = 0;
+        dataset->d6_vec[5] = 1;
         dataset->target[0] = 1.664479;
         dataset->target[1] = 3.337700;
         dataset->target[2] = 0.054807;
@@ -440,30 +417,31 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
     if (helper_eql_float(alpha, 0.9)) {
         // alpha: 0.9
 
+        dataset->size_vec = 6;
         dataset->time_vec[0] = 65;
         dataset->time_vec[1] = 28;
         dataset->time_vec[2] = 65;
         dataset->time_vec[3] = 28;
         dataset->time_vec[4] = 65;
         dataset->time_vec[5] = 28;
-        dataset->d4_vec[0] = 0;
+        dataset->d4_vec[0] = 1;
         dataset->d4_vec[1] = 0;
-        dataset->d4_vec[2] = 0;
-        dataset->d4_vec[3] = 0;
-        dataset->d4_vec[4] = 0;
-        dataset->d4_vec[5] = 0;
+        dataset->d4_vec[2] = 1;
+        dataset->d4_vec[3] = 1;
+        dataset->d4_vec[4] = 1;
+        dataset->d4_vec[5] = 1;
         dataset->d5_vec[0] = 1;
         dataset->d5_vec[1] = 1;
         dataset->d5_vec[2] = 1;
-        dataset->d5_vec[3] = 0;
+        dataset->d5_vec[3] = 1;
         dataset->d5_vec[4] = 1;
-        dataset->d5_vec[5] = 1;
+        dataset->d5_vec[5] = 0;
         dataset->d6_vec[0] = 1;
         dataset->d6_vec[1] = 1;
         dataset->d6_vec[2] = 1;
-        dataset->d6_vec[3] = 1;
+        dataset->d6_vec[3] = 0;
         dataset->d6_vec[4] = 1;
-        dataset->d6_vec[5] = 0;
+        dataset->d6_vec[5] = 1;
         dataset->target[0] = 1.665434;
         dataset->target[1] = 3.335792;
         dataset->target[2] = 0.061674;
@@ -486,4 +464,5 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
         dataset->gain_k.values[12] = 0.0025331;
         dataset->gain_k.values[13] = -0.0024806;
         dataset->gain_k.values[14] = 0.0574119;
-    }}
+    }
+}

@@ -42,13 +42,25 @@ extern volatile bool g_switch_set_pending;
 // Signal vectors
 
 
+// FIXME: remove
+// GET DATASET INFO example:
+// active set: SET_B
+// time_vec: [47, 47, 47, 47, 47, 47, ]
+// time_vec.size: 6
+// time_us_diff: [-8, -37, 1, -5, 47, 2, ]
+// time_us_diff.size: 6
+// target: [1.666700, 3.336700, 0.034358, ]
+// target.size: 3
+
+
 struct DataSet {
-    std::vector<uint32_t> time_vec;
-    std::vector<uint32_t> d4_vec;
-    std::vector<uint32_t> d5_vec;
-    std::vector<uint32_t> d6_vec; 
-    std::vector<int32_t> time_us_diff;
-    std::vector<float> target; 
+    uint32_t time_vec[MAX_ELEMENTS_SIGNAL];
+    uint32_t d4_vec[MAX_ELEMENTS_SIGNAL];
+    uint32_t d5_vec[MAX_ELEMENTS_SIGNAL];
+    uint32_t d6_vec[MAX_ELEMENTS_SIGNAL]; 
+    uint16_t size_vec;
+    int32_t time_us_diff[MAX_ELEMENTS_SIGNAL];
+    float target[3]; 
     MatrixData gain_k;
 };
 
@@ -76,6 +88,7 @@ void signal_update_pattern(const std::string& signal);
 ERROR_CODE signal_update_full_control(const std::string& str_control_message);
 
 DataSet* get_dataset_active();
+DataSet* get_dataset_not_active();
 std::string get_dataset_active_name();
 int get_signal_set_size(SignalSet set);
 

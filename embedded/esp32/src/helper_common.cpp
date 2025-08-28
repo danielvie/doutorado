@@ -90,8 +90,7 @@ std::string get_status_onoff_label(StatusONOFF status) {
 }
 
 std::string get_signal_set_label(SignalSet set) {
-    switch (set)
-    {
+    switch (set) {
     case SignalSet::SET_A:
         return "SET_A";
     case SignalSet::SET_B:
@@ -438,11 +437,11 @@ void print_array_u32(const uint32_t* V,const size_t& len, const std::string& nam
 
 void print_dataset(DataSet* d) {
     Serial.println("-- Dataset d:");
-    print_vec_u32(d->time_vec, "d->time_vec");
-    print_vec_u32(d->d4_vec, "d->d4_vec");
-    print_vec_u32(d->d5_vec, "d->d5_vec");
-    print_vec_u32(d->d6_vec, "d->d6_vec");
-    print_vec_i32(d->time_us_diff, "d->time_us_diff");
+    print_array_u32(d->time_vec, d->size_vec, "d->time_vec");
+    print_array_u32(d->d4_vec, d->size_vec, "d->d4_vec");
+    print_array_u32(d->d5_vec, d->size_vec, "d->d5_vec");
+    print_array_u32(d->d6_vec, d->size_vec, "d->d6_vec");
+    print_array_i32(d->time_us_diff, d->size_vec, "d->time_us_diff");
     // print_vec_u32(d->target, "d->time_vec");
     Serial.println("-- \n");
 }
@@ -450,7 +449,7 @@ void print_dataset(DataSet* d) {
 void print_ts_us_constructed() {
     DataSet* d = (g_active_set == SignalSet::SET_A) ? &g_dataset_a : &g_dataset_b;
 
-    size_t time_us_len = d->time_vec.size();
+    size_t time_us_len = d->size_vec;
 
     std::vector<uint32_t> ts_us, ts_us_2;
     ts_us.resize(time_us_len+1, 0);

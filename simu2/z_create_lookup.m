@@ -4,89 +4,90 @@ function z_create_lookup()
     s = start();
     
     assignin('base', 's', s);
+    
+    message = "void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {";
+    message = sprintf("%s\n", message);
 
     % for i = 1
     for i = 1:9
         alpha = i/10;
         set_alpha(s, alpha);
 
-        sprintf("\n\n\n");
-        space = "    ";
+        message = tab(message, 1);
+        message = sprintf("%sif (helper_eql_float(alpha, %.1f)) {\n", message, alpha);
 
-        fprintf("%s", space);
-        fprintf("if (helper_eql_float(alpha, %.1f)) {\n", alpha);
+        message = tab(message, 2);
+        message = sprintf("%s// alpha: %.1f\n\n", message, alpha);
+        message = print_data(message, s);
+    end
+    clc;
+    
+    message = sprintf("%s}\n", message);
 
-        fprintf("%s", space);
-        fprintf("%s", space);
-        fprintf("// alpha: %.1f\n\n", alpha);
-        print_data(s, space);
+    disp(message);
+    clipboard('copy', message);
+end
+
+function message = tab(message, n)
+    for i = 1:n
+        message = sprintf("%s    ", message);
     end
 end
 
-function print_data(s, space)
+function message = print_data(message_in, s)
 
-    fprintf("dataset->time_vec.clear();");
-    fprintf("dataset->d4_vec.clear();");
-    fprintf("dataset->d5_vec.clear();");
-    fprintf("dataset->d6_vec.clear();");
-    fprintf("dataset->target.clear();");
-
+    message = message_in;
+    
     k = s.get_gain_k();
     
     [rows, cols] = size(k);
 
     time_us = s.get_time_us();
-    [d4, d5, d6] = s.get_mode_bin();
+    [d6, d5, d4] = s.get_mode_bin();
     target = s.get_target();
 
     len = numel(time_us);
+
+    message = tab(message, 2);
+    message = sprintf("%sdataset->size_vec = %d;\n", message, len);
     for i = 1:len
-        fprintf("%s", space);
-        fprintf("%s", space);
-        fprintf("dataset->time_vec[%d] = %d;\n", i-1, time_us(i));
+        message = tab(message, 2);
+        message = sprintf("%sdataset->time_vec[%d] = %d;\n", message, i-1, time_us(i));
     end
     for i = 1:len
-        fprintf("%s", space);
-        fprintf("%s", space);
-        fprintf("dataset->d4_vec[%d] = %d;\n", i-1, d4(i));
+        message = tab(message, 2);
+        message = sprintf("%sdataset->d4_vec[%d] = %d;\n", message, i-1, d4(i));
     end
     for i = 1:len
-        fprintf("%s", space);
-        fprintf("%s", space);
-        fprintf("dataset->d5_vec[%d] = %d;\n", i-1, d5(i));
+        message = tab(message, 2);
+        message = sprintf("%sdataset->d5_vec[%d] = %d;\n", message, i-1, d5(i));
     end
     for i = 1:len
-        fprintf("%s", space);
-        fprintf("%s", space);
-        fprintf("dataset->d6_vec[%d] = %d;\n", i-1, d6(i));
+        message = tab(message, 2);
+        message = sprintf("%sdataset->d6_vec[%d] = %d;\n", message, i-1, d6(i));
     end
     for i = 1:numel(target)
-        fprintf("%s", space);
-        fprintf("%s", space);
-        fprintf("dataset->target[%d] = %f;\n", i-1, target(i));
+        message = tab(message, 2);
+        message = sprintf("%sdataset->target[%d] = %f;\n", message, i-1, target(i));
     end
 
-    fprintf("\n");
+    message = sprintf("%s\n", message);
     
-    fprintf("%s", space);
-    fprintf("%s", space);
-    fprintf("dataset->gain_k.rows = %d;\n", rows);
-    fprintf("%s", space);
-    fprintf("%s", space);
-    fprintf("dataset->gain_k.cols = %d;\n", cols);
-    fprintf("%s", space);
-    fprintf("%s", space);
-    fprintf("dataset->gain_k.size = %d;\n", rows*cols);
+    message = tab(message, 2);
+    message = sprintf("%sdataset->gain_k.rows = %d;\n", message, rows);
+    message = tab(message, 2);
+    message = sprintf("%sdataset->gain_k.cols = %d;\n", message, cols);
+    message = tab(message, 2);
+    message = sprintf("%sdataset->gain_k.size = %d;\n", message, rows*cols);
 
 
     kk = k';
     for i = 1:numel(kk)
-        fprintf("%s", space);
-        fprintf("%s", space);
-        fprintf("dataset->gain_k.values[%d] = %.7f;\n", i-1, kk(i));
+        message = tab(message, 2);
+        message = sprintf("%sdataset->gain_k.values[%d] = %.7f;\n", message, i-1, kk(i));
     end
-    fprintf("%s", space);
-    fprintf("}\n")
+    message = tab(message, 1);
+    message = sprintf("%s}\n", message);
 
 end
 

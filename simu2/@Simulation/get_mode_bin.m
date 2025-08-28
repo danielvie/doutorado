@@ -8,10 +8,10 @@ function [b1, b2, b3, b4] = get_mode_bin(self)
     b4  = zeros(1, len);
 
     for i = 1:len
-        bin = dec2bin(mode(i), 4);
+        bin = dec2bin(mode(i), 3);
         b1(i) = str2double(bin(1));
         b2(i) = str2double(bin(2));
         b3(i) = str2double(bin(3));
-        b4(i) = str2double(bin(4));
+        % b4(i) = str2double(bin(4));
     end
 end
