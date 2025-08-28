@@ -40,19 +40,6 @@ extern volatile SignalSet g_active_set;
 extern volatile bool g_switch_set_pending;
 
 // Signal vectors
-
-
-// FIXME: remove
-// GET DATASET INFO example:
-// active set: SET_B
-// time_vec: [47, 47, 47, 47, 47, 47, ]
-// time_vec.size: 6
-// time_us_diff: [-8, -37, 1, -5, 47, 2, ]
-// time_us_diff.size: 6
-// target: [1.666700, 3.336700, 0.034358, ]
-// target.size: 3
-
-
 struct DataSet {
     uint32_t time_vec[MAX_ELEMENTS_SIGNAL];
     uint32_t d4_vec[MAX_ELEMENTS_SIGNAL];
