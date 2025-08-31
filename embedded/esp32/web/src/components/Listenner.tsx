@@ -16,6 +16,7 @@ enum EMATRIX {
 function Listenner(props: IProps) {
 
     const [chunk, set_chunk] = useState('1')
+    const [cycles, set_cycles] = useState('100')
 
     function handle_status_matrix(matrix: EMATRIX) {
         if (matrix == EMATRIX.A) {
@@ -31,6 +32,12 @@ function Listenner(props: IProps) {
         
         set_chunk(value)
     }
+
+    function handle_set_cycles(e: React.ChangeEvent<HTMLInputElement>) {
+        const value = e.target.value
+        
+        set_cycles(value)
+    }
     
     function handle_log_last(chunk: number) {
         ble_send_command(`LOG_LAST_CALC:${chunk}`)
@@ -41,7 +48,22 @@ function Listenner(props: IProps) {
             <div className="flex items-center gap-2">
                 <span>chunk:</span>
                 <input type="number" className="h-10 w-14 p-2" onChange={handle_set_chunk} value={chunk} />
+
+                <span>cycle_nrun:</span>
+                <input id="in-alpha" type="number" className="h-10 w-14 p-2" onChange={handle_set_cycles} value={cycles} />
+
+                    {/* <label className="mr-4 relative top-2 w-16">cycle_nrun:</label>
+                    <input
+                        type="number"
+                        id="in-alpha"
+                        className="bg-panel border flex-none w-24 px-2 text-center"
+                        // value={cycle_nrun}
+                        // onChange={handle_cycle_nrun}
+                    /> */}
+
+
             </div>
+
 
             <div className="flex gap-2 mt-2">
                 <button onClick={() => ble_send_command("STATUS")} className="btn">STATUS</button>
@@ -62,6 +84,7 @@ function Listenner(props: IProps) {
             </div>
             <div className="flex gap-2">
                 <button onClick={() => ble_send_command(`SET_ALPHA:${props.alpha}`)} className="btn">SET ALPHA ({props.alpha})</button>
+                <button onClick={() => ble_send_command(`CYCLE_NRUN:${cycles}`)} className="btn">SET CYCLES ({cycles})</button>
             </div>
         </div>
     </>

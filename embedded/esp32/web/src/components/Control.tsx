@@ -27,11 +27,16 @@ interface IControlProps {
 function Control(props: IControlProps) {
     const [command_message, set_command_message] = useState("");
     const [copy_label, set_copy_label] = useState("copy");
-    const [cycle_nrun, set_cycle_nrun] = useState("100");
+
+    const [bin_is_expanded, set_bin_is_expanded] = useState(true);
+    const [d4_bin, set_d4_bin] = useState("1,2,3");
+    const [d5_bin, set_d5_bin] = useState("1,2,3");
+    const [d6_bin, set_d6_bin] = useState("1,2,3");
+
+
     const [is_connected, set_is_connected] = useState(false); // New state for connection status
     const [listen_label, set_listen_label] = useState("Start Listening");
     const [mode, set_mode] = useState("");
-    const [mul_value, set_mul_value] = useState("1.0");
     const [status, set_status] = useState(".");
     const [time, set_time] = useState("");
 
@@ -81,16 +86,34 @@ function Control(props: IControlProps) {
         const res = _create_signal(value);
         set_time(res.time);
         set_mode(res.mode);
+        
+        update_bin_values(res.mode);
     }
+    
+    function update_bin_values(mode:string) {
+        
+        const mode_v = mode.split(',')
+        
+        const d4:string[] = []
+        const d5:string[] = []
+        const d6:string[] = []
+        mode_v.forEach(el => {
+            const value = parseInt(el.trim())
+            const value_bin = value.toString(2).padStart(3,'0')
+            d4.push(value_bin[2])
+            d5.push(value_bin[1])
+            d6.push(value_bin[0])
+        })
 
-    function handle_cycle_nrun(e: React.ChangeEvent<HTMLInputElement>) {
-        const value_ = e.target.value;
-        set_cycle_nrun(value_);
-    }
+        // set values to d4
+        const d4_str = d4.join(', ')
+        const d5_str = d5.join(', ')
+        const d6_str = d6.join(', ')
+        set_d4_bin(d4_str)
+        set_d5_bin(d5_str)
+        set_d6_bin(d6_str)
 
-    function handle_send_cycle_nrun() {
-        const command = `CYCLE_NRUN:${cycle_nrun}`;
-        ble_send_command(command);
+        
     }
 
     function handle_compute_alpha() {
@@ -160,19 +183,19 @@ function Control(props: IControlProps) {
         return `T: ${T} us`
     }
 
-    function set_signal_1() {
-        const _time = "50, 50, 50, 50, 50, 50";
-        const _mode = "7, 0, 7, 0, 7, 0";
-        set_time(_time);
-        set_mode(_mode);
-    }
+    // function set_signal_1() {
+    //     const _time = "50, 50, 50, 50, 50, 50";
+    //     const _mode = "7, 0, 7, 0, 7, 0";
+    //     set_time(_time);
+    //     set_mode(_mode);
+    // }
 
-    function set_signal_2() {
-        const _time = "50, 50, 50, 50, 50, 50";
-        const _mode = "7, 0, 7, 0, 7, 0";
-        set_time(_time);
-        set_mode(_mode);
-    }
+    // function set_signal_2() {
+    //     const _time = "50, 50, 50, 50, 50, 50";
+    //     const _mode = "7, 0, 7, 0, 7, 0";
+    //     set_time(_time);
+    //     set_mode(_mode);
+    // }
 
     function handle_set_time(e: React.ChangeEvent<HTMLInputElement>) {
         set_time(e.target.value);
@@ -187,24 +210,34 @@ function Control(props: IControlProps) {
         ble_send_command(signal);
     }
 
-    function handle_set_multiply(e: React.ChangeEvent<HTMLInputElement>) {
-        set_mul_value(e.target.value);
-    }
-
-    function handle_set_analog_scale(e: React.ChangeEvent<HTMLInputElement>) {
-        props.set_analog_scale(e.target.value);
-    }
-
-    function handle_set_filter(e: React.ChangeEvent<HTMLInputElement>) {
-        props.set_filter_alpha(e.target.value);
-    }
-
-    function _multiply_time(value: number) {
-        const res = time.split(",").map((e) => parseFloat(e) * value);
-        const res_str = res.map(Math.round).join(", ");
-        update_status(res_str);
-        set_time(res_str);
-    }
+    const mode_bin_values =
+        bin_is_expanded
+            ? <div className="px-2 text-left">
+                <button onClick={() => set_bin_is_expanded(val => !val)} className="bg-[#171717] border-2 border-[#171717] hover:bg-[#191919] hover:border-[#555] p-1 px-2 rounded-md">&lt;&lt;</button>
+                <div className="flex flex-col gap-2">
+                    <div className="flex gap-2">
+                        <label className="flex p-2 w-12">D4:</label>
+                        <div className="input p-2 w-8/12">
+                            {d4_bin}
+                        </div>
+                    </div>
+                    <div className="flex gap-2">
+                        <label className="flex p-2 w-12">D5:</label>
+                        <div className="input p-2 w-8/12">
+                            {d5_bin}
+                        </div>
+                    </div>
+                    <div className="flex gap-2">
+                        <label className="flex p-2 w-12">D6:</label>
+                        <div className="input p-2 w-8/12">
+                            {d6_bin}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            : <div className="px-2 text-left">
+                <button onClick={() => set_bin_is_expanded(val => !val)} className="bg-[#171717] border-2 border-[#171717] hover:bg-[#191919] hover:border-[#555] p-1 px-2 rounded-md">&gt;&gt;</button>
+            </div>
 
 
     return <>
@@ -276,30 +309,7 @@ function Control(props: IControlProps) {
                         value={props.alpha}
                         onChange={handle_set_alpha}
                     />
-                    <button
-                        id="btn-alpha"
-                        className="btn"
-                        onClick={handle_compute_alpha}
-                    >
-                        CALC
-                    </button>
-                    <span className="flex-1"></span>
-
-                    <label className="mr-4 relative top-2 w-16">cycle_nrun:</label>
-                    <input
-                        type="number"
-                        id="in-alpha"
-                        className="bg-panel border flex-none w-24 px-2 text-center"
-                        value={cycle_nrun}
-                        onChange={handle_cycle_nrun}
-                    />
-                    <button
-                        id="btn-alpha"
-                        className="btn"
-                        onClick={handle_send_cycle_nrun}
-                    >
-                        SEND cycle
-                    </button>
+                    <span className="flex-1 h-10"></span>
                 </div>
 
                 <div className="flex gap-2">
@@ -309,7 +319,7 @@ function Control(props: IControlProps) {
                     <input
                         type="text"
                         id="in-time"
-                        className="input p-2 flex-grow"
+                        className="input p-2 w-8/12"
                         placeholder="Enter time"
                         value={time}
                         onChange={handle_set_time}
@@ -329,14 +339,21 @@ function Control(props: IControlProps) {
                     <input
                         type="text"
                         id="in-mode"
-                        className="input p-2 flex-grow"
+                        className="input p-2 w-8/12"
                         placeholder="Enter modes"
                         value={mode}
                         onChange={handle_set_mode}
                     />
-                </div>
+                    
 
-                <div className="flex my-4 gap-2">
+                    <button id="btn-signal-send" onClick={handle_send_signal} className="btn flex-grow">
+                        SEND
+                    </button>
+
+                </div>
+                {mode_bin_values}
+
+                {/* <div className="flex my-4 gap-2">
                     <label className="flex item-center justify-content mr-4 relative top-2 w-12">
                         X*time:
                     </label>
@@ -371,6 +388,7 @@ function Control(props: IControlProps) {
                     <label className="flex-grow item-center text-right relative top-2 w-20">
                         filter:
                     </label>
+
                     <input
                         type="number"
                         id="in-scale"
@@ -380,22 +398,13 @@ function Control(props: IControlProps) {
                         onChange={handle_set_filter}
                     />
 
-                    <button id="btn-signal-send" onClick={handle_send_signal} className="btn">
-                        SEND
-                    </button>
-                </div>
+                </div> */}
 
                 <div className="bg-purple-500 w-full h-[2px] my-5"></div>
 
                 <div className="flex gap-4 justify-center">
-                    <button id="btn-signal-1" onClick={set_signal_1} className="btn">
-                        SIGNAL 1
-                    </button>
-                    <button id="btn-signal-2" onClick={set_signal_2} className="btn">
-                        SIGNAL 2
-                    </button>
                     <button id="btn-start" onClick={handleStart} className="btn">
-                        START
+                        START SIGNAL
                     </button>
                     <button id="btn-stop" onClick={handle_stop} className="btn">
                         LOW

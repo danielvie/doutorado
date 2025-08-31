@@ -33,7 +33,7 @@ A RTOS guarantees that tasks can be executed with precise timing and this projec
           state machine
     \item \textbf{Task Pinning:} The ESP32 has a dual-core processor. To prevent the BLE stack from interfering with signal
           timing, both tasks are "pinned" to a specific CPU core using `xTaskCreatePinnedToCore' This prevents that a spike in
-          Bluetooth activity on Core 1 will not delay the signal generation logic running alongsite it.
+          Bluetooth activity on Core 1 will not delay the signal generation logic running alongside it.
     \item \textbf{Priority Management:} The `signalTask' is assigned a high priority, ensuring it gets processor time
           when it needs, to enforce the real-time guarantees.
 \end{itemize}
@@ -136,7 +136,7 @@ consumption. It operates on a server-client model known as GATT (Generic Attribu
     \item \textbf{GAT Server (The ESP32):} The ESP32 is configured as a GAT Server. It creates and advertises a Service
           (identified by SERVICE\_UUID).
     \item \textbf{Characteristics (The Data Points):} Inside the service, it defines a Characteristic (identified by
-          CHARACTERISTIC\_UUID). This is the actual endpoint for communication. The firmware configures this charateristic to
+          CHARACTERISTIC\_UUID). This is the actual endpoint for communication. The firmware configures this characteristic to
           be writable and to support notifications (to send data back to the client).
     \item \textbf{NimBLE Library:} The project uses the NimBLE-Arduino library, a highly efficient and memory-optimized
           BLE stack for the ESP32.
@@ -178,13 +178,13 @@ Web Bluetooth (like Google Chrome)
           JavaScript library for building user interfaces, and TypeScript, which adds static
           typing to JavaScript. This combination allow a code that is both portable and
           maintainable.
-    \item \textbf{Web Blutooth API:} The Web Bluetooth API is a brawser standard that
-          exposes Blueetooth functionality to JavaScript, allowing the application to
+    \item \textbf{Web Bluetooth API:} The Web Bluetooth API is a browser standard that
+          exposes Bluetooth functionality to JavaScript, allowing the application to
           \subitem \textbf{Scan} for nearby BLE devices
           \subitem \textbf{Connect} to a selected device (ESP32)
           \subitem \textbf{Discover} its services and characteristics
           \subitem \textbf{Write} data to characteristics (to send commands)
-          \subitem \textbf{Subscribe} to notifications from charateristics (to receive sensor data)
+          \subitem \textbf{Subscribe} to notifications from characteristic (to receive sensor data)
 \end{itemize}
 
 This eliminates the need for any native software, drivers, or browser plugins. The entire control
@@ -231,9 +231,18 @@ receives and processes data from the ESP32's BLE connection, specifically the an
 the circuit. The received data is then visually represented in a real-time chart, allowing for immediate
 analysis of the circuit's performance.
 
+
 \begin{figure}[h!]
     \centering
-    \includegraphics[scale=0.5]{sw_web_interface.png}
+    \includegraphics[scale=0.3]{images/sw_esp_pins.png}
+    \caption{ESP32 Digital and Analog mapping}
+    \label{fig:sw_esp_pins}
+\end{figure}
+
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=1.0]{images/sw_web_interface.png}
     \caption{Web Interface to connect and control the ESP32.}
     \label{fig:sw_web_interface}
 \end{figure}
@@ -244,13 +253,45 @@ a command center for controlling the circuit and analyzing its performance. The 
 features of the interface:
 
 \begin{itemize}
-    \item Connect/Disconnect: Establish or terminate a BLE connection to the ESP32.
-    \item Live Data Plotting: Listen for BLE messages containing analog sensor readings from the ESP32 and display the data in a real-time, dynamic chart.
-    \item Data Export: Copy the chart's raw data to the clipboard for external analysis or debugging.
-    \item Manual Control: Send direct string commands to the ESP32 for simple operations.
-    \item Signal Generation: Compute and send complex switching signals to the circuit, including a time vector and a mode vector, to control the switches.
-    \item Digital Output Control: Command all digital outputs on the ESP32 to a HIGH or LOW state.
-    \item START Command: Send the command to the ESP32 to initiate the use of the generated signals.
+    \item \textbf{1. Connect/Disconnect:} Establish or terminate a BLE connection to the ESP32.
+    \item \textbf{2. Enter command:} Allows sending custom command to ESP32 through BLE.
+    \item \textbf{3. SEND command:} Sends the custom command.
+    \item \textbf{4. Alpha:} Input tor selecting the alpha value to compute the signal.
+    \item \textbf{5. Time:} Time vector in micro seconds ($\mu s$)
+
+        each element is a amount of $\mu s$ that the mode is going to be executed.
+
+    \item \textbf{6. Mode:} Mode vector for the digital output
+        
+        the mode is the decimal representation of the three digital outputs.
+        The digital output is set to send value to D4, D5 and D6 (figure \ref{fig:sw_esp_pins}). 
+        The example in figure \ref{fig:sw_web_interface}, generates the digital signals
+        d4: [0, 0, 0, 1, 1, 1], d5: [0, 1, 1, 1, 0, 0], d6: [1, 1, 0, 0, 0, 1]
+
+        represented in Figure \ref{fig:sw_signal}.
+        
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=1.0]{images/sw_signal.pdf}
+    \caption{Signal for $\alpha$ of 0.4}
+    \label{fig:sw_signal}
+\end{figure}
+
+    \item \textbf{7. SEND:} Sends the signal to the ESP32.
+    \item \textbf{8. START SIGNAL:} Commands the ESP32 to start reproducing the signal created.
+    \item \textbf{9. LOW:} Commands the ESP32 to set all digital outputs to LOW (0).
+    \item \textbf{10. HIGH:} Commands the ESP32 to set all digital outputs to HIGH (1).
+    \item \textbf{11. Start Listening:} Allow the web-interface to show the messages sent by ESP32 via BLE.
+
+        the values are status messages and analog data that populates the Monitor Chart
+
+    \item \textbf{12. copy:} Copy the data populating the monitor charts to the clipboard.
+    \item \textbf{13. clear data:} Clear the data populating the monitor charts.
+    \item \textbf{14. <img>:} When clicked on the image, the web interface then shows the schematics of the circuit and the connections of the 
+        ESP32. This is used as a reference while connecting the circuit.
+
+    \item \textbf{15. Monitor Chart:} When `Start Listening` is active, then the Monitor chart shows the values of the analog readings from the ESP32.
+
 \end{itemize}
 
 The system's behavior is described by a state diagram in Figure \ref{fig:state_diagram} that shows the

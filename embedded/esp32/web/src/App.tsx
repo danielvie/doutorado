@@ -8,6 +8,7 @@ import Listenner from "./components/Listenner";
 
 function App() {
 
+  const [has_advanced_menu, set_has_advanced_menu] = useState(false);
   const [alpha, set_alpha] = useState("0.5");
   const [data, set_data] = useState<DataPoint[]>([]);
   const [show_images, set_show_images] = useState(false);
@@ -31,16 +32,22 @@ function App() {
           ></Control>
         </div>
         <div className="p-4">
-          <RealtimeChart 
-            data={data.slice(-200)} 
+          <RealtimeChart
+            data={data.slice(-200)}
             analog_scale={analog_scale}
             filter_alpha={filter_alpha}
-            />
+          />
         </div>
-        <div className="col-span-2">
-          <Listenner
-            alpha={alpha}
-          ></Listenner>
+        <div className="col-span-1">
+          {has_advanced_menu 
+          ? <div>
+             <div onClick={() => set_has_advanced_menu((val)=> !val)} className="text-left bg-[#1a1a1a] p-2 rounded-md"><button>advanced menu &lt;&lt; </button></div> 
+            <Listenner
+              alpha={alpha}
+            ></Listenner>
+          </div>          
+          : <div onClick={() => set_has_advanced_menu((val)=> !val)} className="text-left bg-[#1a1a1a] p-2 rounded-md"><button>advanced menu &gt;&gt;</button></div>
+          }
         </div>
       </div>
 
