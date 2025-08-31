@@ -115,7 +115,7 @@
       \item Fotos e biografias.
       \item Terminar contextualização na seção 1.
       \item Hardware description: Explicar o porquê dos dois mosfets para implementar as chaves do meio.
-      \item Escolher o repositório.
+      \item Escolher o repositório -- \textbf{Zenodo}. CERN Open Hardware.
       \item Preencher a tabela de design files.
       \item Preencher a build instructions sucintamente. Falar do uso do KiCad para exportar os arquivos de PCB (comentar o caminho para gerar o arquivo necessário para o fabricante da PCB). Explicar que há vias que podem ser usadas para soldar os componentes THT por baixo, se os furos não estiverem metalizados. Comentar que os componentes THT passivos podem ser soldados por cima ou por baixo. Comentar sobre o uso de soquete para a ESP. Comentar sobre o uso de soquetes para os CIs e os mosfets. Comentar sobre o uso de tuxinhos se forem usados soquetes para os mosfets. Comentar sobre o uso de jumper wires para os pontos de teste. Comentar a instalação dos rubber pads. Tirar nova fotografia.
       \item Operation instructions: Explicar o uso do software com telas passo-a-passo. Mencionar o uso dos pontos de teste para medida com osciloscópio.
@@ -268,36 +268,6 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
 \end{figure}
 
 
-\newpage
-
-\section*{\textit{Design files}}
-% The  complete  design  files  must  be  either  uploaded  to  an  approved  online  repository,  uploaded  at the  time  of  submission  on  the  online  Editorial  Manager  submission  interface  as  supplementary materials [CAD files, videos,. . . ], or included in the body of the manuscript [e.g.  figures].  The three approved  online  repositories  are  Mendeley  Data,  the  Open  Science  Framework,  and  Zenodo. See repository instructions: https://doi.org/10.5281/zenodo.3346799
-
-% Design files should be in preferred format for making modifications. See OSHWA’s open-source definition for details: https://www.oshwa.org/definition/
-
-\textit{Your design files should be editable - see \href{https://www.oshwa.org/definition/}{OSHWA’s open source definition of ‘Documentation’} for further details. You must then either:}
-\begin{itemize}
-  \item[$\bullet$]{\it Upload your design files to one of the three approved online repositories - \href{https://data.mendeley.com/}{Mendeley Data} (\href{https://doi.org/10.5281/zenodo.3346799}{instructions}), the \href{https://osf.io/}{Open Science Framework} (\href{https://osf.io/wgk7q/wiki/home/}{instructions}) or \href{https://zenodo.org/}{Zenodo} (\href{https://doi.org/10.5281/zenodo.3346799}{instructions}). We recommend this option as the repositories support versioning of files.}
-  \item[$\bullet$]{\it Upload your design files as supplementary materials (e.g., CAD files, videos…) to Hardware X’s online editorial system when you submit your manuscript.}
-  \item[$\bullet$]{\it Include your design files in the body of the manuscript (e.g., as figures).}
-\end{itemize}
-
-%
-%\textit{The complete design files must be either uploaded to an approved online repository, uploaded at the time of submission on the online \href{https://editorialmanager.com/ohx/}{Editorial Manager} submission interface as supplementary materials [CAD files, videos,\dots], or included in the body of the manuscript [e.g. figures]. The three approved online repositories are \href{https://data.mendeley.com/}{Mendeley Data}, the \href{http://osf.io}{Open Science Framework}, and \href{https://zenodo.org/}{Zenodo}. See repository instructions \href{https://doi.org/10.5281/zenodo.3346799}{here}. Design files should be in preferred format for making modifications. See \href{https://www.oshwa.org/definition/}{OSHWA’s open-source definition} for details.}
-%\begin{itemize}
-\vskip 0.1 cm
-\noindent
-\textit{\underline{CAD files:} You are encouraged to use free and open source software packages for creating the files. For CAD files, \href{http://www.openscad.org/}{OpenSCAD}, \href{http://www.freecadweb.org/}{FreeCAD}, or \href{https://www.blender.org/}{Blender} are encouraged, but, if these are not available, we accept source files from proprietary CAD packages, such as Autocad or Solidworks, and other drawing packages.}
-\vskip 0.1 cm
-\noindent
-\textit{\underline{3D printing:} Supplementary files that facilitate digital replication of the devices are encouraged;  for example, STL files for 3D printing components. We recommend uploading CAD files to the \href{http://3dprint.nih.gov/}{\underline{NIH 3D Print Exchange}} as Custom Labware and then entering the link here.}
-\vskip 0.1 cm
-\noindent
-\textit{\underline{Electronics:} PCB layouts and other electronics design files can be uploaded to the \href{http://www.ohwr.org/}{\underline{Open Hardware Repository}} or other repositories or as supplementary materials.}
-\vskip 0.1 cm
-\noindent
-\textit{\underline{Software and firmware:} All software files used in the design and operation of the hardware should be included in the repository. Provide a description of the software and firmware and use extensive comments in the code.}
-
 \section{Design files summary}
 \textit{Complete a separate row for each design file associated with your hardware (including the primary design files). Any empty rows should be deleted.}
 % Please include a summary of all design files for your hardware by filling rows of the table below
@@ -418,20 +388,6 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
 % \textit{You can use this space for any additional descriptions of the materials used.}
 
 \section{Build instructions}
-%Provide detailed, step by step instructions for the construction of the reported hardware include all necessary information for reproducing the submitted hardware.
-% > Explain and, when possible, characterize design decisions. Including design alternatives if they exist. 
-% > Use visual instructions such as schematics, images, and videos. 
-% > Clearly reference design files and component parts described in the Design File Summary and Bill of Materials. 
-% >Highlight potential safety concerns that may arise
-
-\textit{Provide detailed, step-by-step construction instructions for the submitted hardware:
-  \begin{itemize}
-    \item[$\bullet$]Include all necessary information for reproducing it.
-    \item[$\bullet$]Explain and (when possible) characterize design decisions. Include any design alternatives you created.
-    \item[$\bullet$]Use visual instructions such as schematics, images and videos.
-    \item[$\bullet$]Clearly reference design files and component parts described in the \textbf{Design file summary} and the \textbf {Bill of materials summary}.
-    \item[$\bullet$]Highlight any potential safety concerns.
-  \end{itemize}}
 
 \begin{figure}[h]
   \label{fig:PCB}
@@ -454,16 +410,7 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
 \include{software.tex}
 
 \section{Operation instructions}
-%Provide detailed instructions for the safe and proper operation of the hardware. 
-%> Step-by-step operational instructions for operating the hardware. 
-%> Use visual instructions as necessary. 
-%> Highlight potential safety hazards.
 
-\textit{Provide detailed, step-by-step instructions for the safe and proper operation of the hardware.
-  \begin{itemize}
-    \item[$\bullet$]Use visual instructions, as necessary.
-    \item[$\bullet$]Highlight any potential safety hazards.
-  \end{itemize}}
 
 \section{Validation and characterization}
 %Demonstrate the operation of the hardware and characterize its performance over relevant critical metrics
@@ -471,12 +418,7 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
 %> If possible, characterize performance of the hardware over operational parameters. 
 %> Create a bulleted list that describes the capabilities (and limitations) of the hardware. For example consider descriptions of load, operation time, spin speed, coefficient of variation, accuracy, precision and etc. 
 
-\textit{Demonstrate the operation of the hardware and characterize its performance for a specific scientific application.
-  \begin{itemize}
-    \item[$\bullet$]Highlight a relevant use case.
-    \item[$\bullet$]If possible, characterize performance of the hardware over operational parameters.
-    \item[$\bullet$]Create a bulleted list describing the capabilities (and limitations) of the hardware. For example, load and operation time, spin speed, coefficient of variation, accuracy, precision, etc.
-  \end{itemize}}
+
 
 Figure \ref{fig:Commands} presents the switch commands $u_1(t)$, $u_2(t)$, $u_3(t)$ for $\alpha = 0.3$. The waveforms were acquired at the test points TP3, TP4, TP5 using a  Tektronix TDS 2004B oscilloscope.
 
@@ -487,13 +429,13 @@ Figure \ref{fig:Commands} presents the switch commands $u_1(t)$, $u_2(t)$, $u_3(
     \includegraphics[scale=1]{DeltaT_12.jpg}
     \includegraphics[scale=1]{DeltaT_31.jpg}
   \end{center}
-  \caption{Commands $u_1(t)$, $u_2(t)$, $u_3(t)$ with $\alpha = 0.3$ and $T = $ \textcolor{red}{???} (a) $\Delta T_{on} = 83 \mu$s.}
+  \caption{Commands $u_1(t)$, $u_2(t)$, $u_3(t)$ with $\alpha = 0.3$ and $T = 279 \, \mu$s (a) $\Delta T_{on} = 83 \mu$s.}
 \end{figure}
 
 
 
 
-Note that $T = 1/(3.75 \text{ kHz} = 0.27$ ms. \textcolor{red}{Confirmar valores usados no código.} \\
+Note that $T = 1/(3.75 \text{ kHz}) = 0.27$ ms. \\
 
 \noindent
 \textbf{Ethics statements}\\
@@ -563,7 +505,7 @@ This work was supported by Conselho Nacional de Desenvolvimento Científico e Te
 
 
 
-\end{document}
+
 
 %> Author manuscript checklist
 %> ●	HardwareX is a journal dedicated to the exhaustive and fully open source communication of advances in scientific infrastructure. Upon submission the author declares that all information necessary to reproduce the subject of the submission (e.g. bill of materials, build instructions, calibration procedures, source files, code, and safety considerations) is communicated in full and is accessible for use under an open source license. 
@@ -579,3 +521,78 @@ This work was supported by Conselho Nacional de Desenvolvimento Científico e Te
 %> ●	Are all potential safety concerns addressed?
 %> ●	For more information on the article template consult the Guide to Authors.}
 
+
+\newpage
+
+\section*{\textit{Design files}}
+% The  complete  design  files  must  be  either  uploaded  to  an  approved  online  repository,  uploaded  at the  time  of  submission  on  the  online  Editorial  Manager  submission  interface  as  supplementary materials [CAD files, videos,. . . ], or included in the body of the manuscript [e.g.  figures].  The three approved  online  repositories  are  Mendeley  Data,  the  Open  Science  Framework,  and  Zenodo. See repository instructions: https://doi.org/10.5281/zenodo.3346799
+
+% Design files should be in preferred format for making modifications. See OSHWA’s open-source definition for details: https://www.oshwa.org/definition/
+
+\textit{Your design files should be editable - see \href{https://www.oshwa.org/definition/}{OSHWA’s open source definition of ‘Documentation’} for further details. You must then either:}
+\begin{itemize}
+  \item[$\bullet$]{\it Upload your design files to one of the three approved online repositories - \href{https://data.mendeley.com/}{Mendeley Data} (\href{https://doi.org/10.5281/zenodo.3346799}{instructions}), the \href{https://osf.io/}{Open Science Framework} (\href{https://osf.io/wgk7q/wiki/home/}{instructions}) or \href{https://zenodo.org/}{Zenodo} (\href{https://doi.org/10.5281/zenodo.3346799}{instructions}). We recommend this option as the repositories support versioning of files.}
+  \item[$\bullet$]{\it Upload your design files as supplementary materials (e.g., CAD files, videos…) to Hardware X’s online editorial system when you submit your manuscript.}
+  \item[$\bullet$]{\it Include your design files in the body of the manuscript (e.g., as figures).}
+\end{itemize}
+
+%
+%\textit{The complete design files must be either uploaded to an approved online repository, uploaded at the time of submission on the online \href{https://editorialmanager.com/ohx/}{Editorial Manager} submission interface as supplementary materials [CAD files, videos,\dots], or included in the body of the manuscript [e.g. figures]. The three approved online repositories are \href{https://data.mendeley.com/}{Mendeley Data}, the \href{http://osf.io}{Open Science Framework}, and \href{https://zenodo.org/}{Zenodo}. See repository instructions \href{https://doi.org/10.5281/zenodo.3346799}{here}. Design files should be in preferred format for making modifications. See \href{https://www.oshwa.org/definition/}{OSHWA’s open-source definition} for details.}
+%\begin{itemize}
+\vskip 0.1 cm
+\noindent
+\textit{\underline{CAD files:} You are encouraged to use free and open source software packages for creating the files. For CAD files, \href{http://www.openscad.org/}{OpenSCAD}, \href{http://www.freecadweb.org/}{FreeCAD}, or \href{https://www.blender.org/}{Blender} are encouraged, but, if these are not available, we accept source files from proprietary CAD packages, such as Autocad or Solidworks, and other drawing packages.}
+\vskip 0.1 cm
+\noindent
+\textit{\underline{3D printing:} Supplementary files that facilitate digital replication of the devices are encouraged;  for example, STL files for 3D printing components. We recommend uploading CAD files to the \href{http://3dprint.nih.gov/}{\underline{NIH 3D Print Exchange}} as Custom Labware and then entering the link here.}
+\vskip 0.1 cm
+\noindent
+\textit{\underline{Electronics:} PCB layouts and other electronics design files can be uploaded to the \href{http://www.ohwr.org/}{\underline{Open Hardware Repository}} or other repositories or as supplementary materials.}
+\vskip 0.1 cm
+\noindent
+\textit{\underline{Software and firmware:} All software files used in the design and operation of the hardware should be included in the repository. Provide a description of the software and firmware and use extensive comments in the code.}
+
+\newpage
+
+\section*{Build instructions}
+
+%Provide detailed, step by step instructions for the construction of the reported hardware include all necessary information for reproducing the submitted hardware.
+% > Explain and, when possible, characterize design decisions. Including design alternatives if they exist. 
+% > Use visual instructions such as schematics, images, and videos. 
+% > Clearly reference design files and component parts described in the Design File Summary and Bill of Materials. 
+% >Highlight potential safety concerns that may arise
+
+\textit{Provide detailed, step-by-step construction instructions for the submitted hardware:
+  \begin{itemize}
+    \item[$\bullet$]Include all necessary information for reproducing it.
+    \item[$\bullet$]Explain and (when possible) characterize design decisions. Include any design alternatives you created.
+    \item[$\bullet$]Use visual instructions such as schematics, images and videos.
+    \item[$\bullet$]Clearly reference design files and component parts described in the \textbf{Design file summary} and the \textbf {Bill of materials summary}.
+    \item[$\bullet$]Highlight any potential safety concerns.
+  \end{itemize}}
+
+\newpage
+
+\section*{Operation instructions}
+
+%Provide detailed instructions for the safe and proper operation of the hardware. 
+%> Step-by-step operational instructions for operating the hardware. 
+%> Use visual instructions as necessary. 
+%> Highlight potential safety hazards.
+
+\textit{Provide detailed, step-by-step instructions for the safe and proper operation of the hardware.
+  \begin{itemize}
+    \item[$\bullet$]Use visual instructions, as necessary.
+    \item[$\bullet$]Highlight any potential safety hazards.
+  \end{itemize}}
+
+  \section*{Validation and characterization}
+
+  \textit{Demonstrate the operation of the hardware and characterize its performance for a specific scientific application.
+  \begin{itemize}
+    \item[$\bullet$]Highlight a relevant use case.
+    \item[$\bullet$]If possible, characterize performance of the hardware over operational parameters.
+    \item[$\bullet$]Create a bulleted list describing the capabilities (and limitations) of the hardware. For example, load and operation time, spin speed, coefficient of variation, accuracy, precision, etc.
+  \end{itemize}}
+
+\end{document}
