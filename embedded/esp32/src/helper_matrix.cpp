@@ -1,31 +1,26 @@
 #include "helper_matrix.h"
 
-bool matrix_isvalid(MatrixData &M)
-{
+bool matrix_isvalid(MatrixData &M) {
     // rows -> m
     // cols -> n
     // values -> matrix(:)
 
-    if (M.rows <= 0 || M.cols <= 0)
-    {
+    if (M.rows <= 0 || M.cols <= 0) {
         return false;
     }
-    if (M.size != static_cast<size_t>(M.rows * M.cols))
-    {
+    if (M.size != static_cast<size_t>(M.rows * M.cols)) {
         return false;
     }
 
     return true;
 }
 
-bool matrix_multiply_vector3(MatrixData &M, float x1, float x2, float x3, float *result)
-{
+bool matrix_multiply_vector3(MatrixData &M, float x1, float x2, float x3, float *result) {
     // Cache data pointer to avoid repeated vector access overhead
     const float *data_ptr = M.values;
 
     // Use row-major indexing consistent with matrix_print(): row * M.cols + col
-    for (int i = 0; i < M.rows; ++i)
-    {
+    for (int i = 0; i < M.rows; ++i) {
         result[i] = data_ptr[i * M.cols + 0] * x1 + // matrix[i][0] * x1
                     data_ptr[i * M.cols + 1] * x2 + // matrix[i][1] * x2
                     data_ptr[i * M.cols + 2] * x3;  // matrix[i][2] * x3
@@ -33,27 +28,22 @@ bool matrix_multiply_vector3(MatrixData &M, float x1, float x2, float x3, float 
     return true;
 }
 
-void matrix_print(MatrixData &M)
-{
-    if (!matrix_isvalid(M))
-    {
+void matrix_print(MatrixData &M) {
+    if (!matrix_isvalid(M)) {
         helper::println("Matrix is not valid!!");
         return;
     }
 
     helper::printf("Matrix (%dx%d):\n", M.rows, M.cols);
-    for (int i = 0; i < M.rows; ++i)
-    {
-        for (int j = 0; j < M.cols; ++j)
-        {
+    for (int i = 0; i < M.rows; ++i) {
+        for (int j = 0; j < M.cols; ++j) {
             helper::printf("%.6f\t", M.values[i * M.cols + j]);
         }
         helper::println("");
     }
 }
 
-void matrix_test()
-{
+void matrix_test() {
     helper::println("=== MATRIX MULTIPLY TESTS ===");
 
     // Test 1: Identity matrix multiplication

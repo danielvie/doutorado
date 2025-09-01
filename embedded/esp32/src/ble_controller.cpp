@@ -7,10 +7,8 @@ NoteData g_buffer_last_calc(1024);
 NoteData g_buffer_koka(1024);
 
 // LED blink utility function for status indication
-void blink(uint8_t N)
-{
-    for (uint8_t i = 0; i < N; i++)
-    {
+void blink(uint8_t N) {
+    for (uint8_t i = 0; i < N; i++) {
         GPIO.out_w1ts = (1 << 2); // Turn LED on (GPIO 2)
         vTaskDelay(pdMS_TO_TICKS(100));
         GPIO.out_w1tc = (1 << 2); // Turn LED off
@@ -19,138 +17,113 @@ void blink(uint8_t N)
 }
 
 // .. BLE connect AND disconnect CALLBACKS
-void ServerCallbacks::onConnect(NimBLEServer *pServer)
-{
+void ServerCallbacks::onConnect(NimBLEServer *pServer) {
     blink(3); // Visual indication of connection
     helper::println("Device connected");
 }
 
-void ServerCallbacks::onDisconnect(NimBLEServer *pServer)
-{
+void ServerCallbacks::onDisconnect(NimBLEServer *pServer) {
     blink(2); // Visual indication of disconnection
     helper::println("Device disconnected");
     NimBLEDevice::startAdvertising(); // Resume advertising for new connections
 }
 
 // Route BLE commands
-void BLE_router(NimBLECharacteristic *characteristic)
-{
+void BLE_router(NimBLECharacteristic *characteristic) {
 
     std::string message = characteristic->getValue();
 
     // START command: Begin signal generation
-    if (message == "START")
-    {
+    if (message == "START") {
         ble_router_start();
     }
 
     // HIGH command: Set all outputs to constant high
-    else if (message == "HIGH")
-    {
+    else if (message == "HIGH") {
         ble_router_high();
     }
 
     // STOP/LOW commands: Stop signals and set outputs low
-    else if (message == "STOP" || message == "LOW")
-    {
+    else if (message == "STOP" || message == "LOW") {
         ble_router_idle();
     }
     // STATUS command: Returns the main status info from the system
-    else if (message == "STATUS")
-    {
+    else if (message == "STATUS") {
         ble_router_send_ble_message_status(characteristic);
     }
-    else if (message == "STATUS_MATRIX_A")
-    {
+    else if (message == "STATUS_MATRIX_A") {
         // status matrix setA
         ble_router_send_ble_message_status_matrix(characteristic, SignalSet::SET_A);
     }
-    else if (message == "STATUS_MATRIX_B")
-    {
+    else if (message == "STATUS_MATRIX_B") {
         // status matrix setB
         ble_router_send_ble_message_status_matrix(characteristic, SignalSet::SET_B);
     }
-    else if (message == "STATUS_DURATION")
-    {
+    else if (message == "STATUS_DURATION") {
         // status matrix setB
         ble_router_send_ble_message_status_durations(characteristic);
     }
-    else if (message == "LOG_KOKA")
-    {
+    else if (message == "LOG_KOKA") {
         ble_router_send_ble_message_log_koka(characteristic);
     }
-    else if (message == "TOGGLE_SET")
-    {
+    else if (message == "TOGGLE_SET") {
         ble_router_toggle_signal_dataset();
     }
-    else if (message == "TOGGLE_SET_A")
-    {
+    else if (message == "TOGGLE_SET_A") {
         ble_router_set_signal_dataset_a();
     }
-    else if (message == "TOGGLE_SET_B")
-    {
+    else if (message == "TOGGLE_SET_B") {
         ble_router_set_signal_dataset_b();
     }
-    else if (message == "CONTROL_ON")
-    {
+    else if (message == "CONTROL_ON") {
         ble_router_set_signal_control_on();
     }
-    else if (message == "CONTROL_OFF")
-    {
+    else if (message == "CONTROL_OFF") {
         ble_router_set_signal_control_off();
     }
-    else if (message == "LOG_LAST_CALC_ON")
-    {
+    else if (message == "LOG_LAST_CALC_ON") {
         helper::println("set log_last_calc ON");
         g_system_status.log_last_calc = StatusONOFF::ON;
     }
-    else if (message == "LOG_LAST_CALC_OFF")
-    {
+    else if (message == "LOG_LAST_CALC_OFF") {
         helper::println("set log_last_calc OFF");
         g_system_status.log_last_calc = StatusONOFF::OFF;
     }
-    else if (message.substr(0, 14) == "LOG_LAST_CALC:")
-    {
+    else if (message.substr(0, 14) == "LOG_LAST_CALC:") {
         std::string payload = message.substr(14);
         int n_chunk = std::stoi(payload);
         ble_router_send_message_last_calc(characteristic, n_chunk - 1);
     }
     // CYCLE_NRUN command: Set analog reading frequency
-    else if (message.substr(0, 11) == "CYCLE_NRUN:")
-    {
+    else if (message.substr(0, 11) == "CYCLE_NRUN:") {
         std::string payload = message.substr(11);
         g_cycle_nrun = std::stoi(payload);
         helper::printf("updating ncycles to `%d`!\n", g_cycle_nrun);
     }
     // SIGNAL command: Load new signal pattern
-    else if (message.substr(0, 7) == "SIGNAL:")
-    {
+    else if (message.substr(0, 7) == "SIGNAL:") {
         std::string signal = message.substr(7);
         ble_router_run_signal(signal);
     }
     // MESSAGE_DATA command: Load new gain matrix
-    else if (message.substr(0, 13) == "MESSAGE_DATA:")
-    {
+    else if (message.substr(0, 13) == "MESSAGE_DATA:") {
         auto msg = message.substr(13);
         ble_router_message_data(msg);
     }
 
     // SET_ALPHA command: set alpha from the lookup data
-    else if (message.substr(0, 10) == "SET_ALPHA:")
-    {
+    else if (message.substr(0, 10) == "SET_ALPHA:") {
         auto msg = message.substr(10);
         ble_router_message_set_alpha(msg);
     }
 }
 
 // .. BLE write CALLBACK
-void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic)
-{
+void CharacteristicCallbacks::onWrite(NimBLECharacteristic *characteristic) {
     BLE_router(characteristic);
 }
 
-void ble_router_send_message_last_calc(NimBLECharacteristic *characteristic, int n_chunk)
-{
+void ble_router_send_message_last_calc(NimBLECharacteristic *characteristic, int n_chunk) {
     // message.substr(0,14) == "LOG_LAST_CALC:"
     //
     note_buffer_print_info(g_buffer_last_calc);
@@ -159,8 +132,7 @@ void ble_router_send_message_last_calc(NimBLECharacteristic *characteristic, int
     ble_router_send_ble_message_chunk(characteristic, g_buffer_last_calc.buffer, strlen(g_buffer_last_calc.buffer), 200, n_chunk);
 }
 
-void ble_router_send_ble_message_log_koka(NimBLECharacteristic *characteristic)
-{
+void ble_router_send_ble_message_log_koka(NimBLECharacteristic *characteristic) {
     // message == "LOG_KOKA"
     //
 
@@ -174,21 +146,17 @@ void ble_router_send_ble_message_log_koka(NimBLECharacteristic *characteristic)
     note_buffer_add_text(g_buffer_koka, get_signal_set_label(g_active_set).c_str());
     note_buffer_add_text(g_buffer_koka, "\n");
 
-    auto print_u32 = [](std::string name, uint32_t *V, uint16_t size)
-    {
+    auto print_u32 = [](std::string name, uint32_t *V, uint16_t size) {
         note_buffer_add_text_f(g_buffer_koka, "%s: [", name.c_str());
-        for (size_t i = 0; i < size; ++i)
-        {
+        for (size_t i = 0; i < size; ++i) {
             note_buffer_add_text_f(g_buffer_koka, "%d, ", V[i]);
         }
         note_buffer_add_text(g_buffer_koka, "]\n");
     };
 
-    auto print_i32 = [](std::string name, int32_t *V, uint16_t size)
-    {
+    auto print_i32 = [](std::string name, int32_t *V, uint16_t size) {
         note_buffer_add_text_f(g_buffer_koka, "%s: [", name.c_str());
-        for (size_t i = 0; i < size; ++i)
-        {
+        for (size_t i = 0; i < size; ++i) {
             note_buffer_add_text_f(g_buffer_koka, "%d, ", V[i]);
         }
         note_buffer_add_text(g_buffer_koka, "]\n");
@@ -202,8 +170,7 @@ void ble_router_send_ble_message_log_koka(NimBLECharacteristic *characteristic)
     print_i32("time_us_diff", dataset->time_us_diff, dataset->size_vec);
 
     note_buffer_add_text(g_buffer_koka, "target: [");
-    for (auto v : dataset->target)
-    {
+    for (auto v : dataset->target) {
         note_buffer_add_text_f(g_buffer_koka, "%f, ", v);
     }
     note_buffer_add_text(g_buffer_koka, "]\n");
@@ -212,8 +179,7 @@ void ble_router_send_ble_message_log_koka(NimBLECharacteristic *characteristic)
     note_buffer_print_info(g_buffer_koka);
 }
 
-void ble_router_send_ble_message_status(NimBLECharacteristic *characteristic)
-{
+void ble_router_send_ble_message_status(NimBLECharacteristic *characteristic) {
     // message == "STATUS"
     //
 
@@ -265,8 +231,7 @@ void ble_router_send_ble_message_status(NimBLECharacteristic *characteristic)
     helper::println("STATUS response sent successfully");
 }
 
-void ble_router_send_ble_message_status_matrix(NimBLECharacteristic *characteristic, SignalSet set)
-{
+void ble_router_send_ble_message_status_matrix(NimBLECharacteristic *characteristic, SignalSet set) {
     // message == "STATUS_MATRIX_A" || message == "STATUS_MATRIX_B"
     //
 
@@ -283,8 +248,7 @@ void ble_router_send_ble_message_status_matrix(NimBLECharacteristic *characteris
     note_buffer_print_info(message_buffer);
 }
 
-void ble_router_send_ble_message_status_durations(NimBLECharacteristic *characteristic)
-{
+void ble_router_send_ble_message_status_durations(NimBLECharacteristic *characteristic) {
     // message == "STATUS_DURATION"
     //
     NoteData buffer(BLE_BUFFER_SIZE);
@@ -299,8 +263,7 @@ void ble_router_send_ble_message_status_durations(NimBLECharacteristic *characte
     note_buffer_print_info(buffer);
 }
 
-void ble_router_send_ble_message_chunk(NimBLECharacteristic *characteristic, const char *buffer, size_t total_len, size_t chunk_size, int chunk_index)
-{
+void ble_router_send_ble_message_chunk(NimBLECharacteristic *characteristic, const char *buffer, size_t total_len, size_t chunk_size, int chunk_index) {
     // message.substr(0,14) == "LOG_LAST_CALC:"
     //
 
@@ -311,8 +274,7 @@ void ble_router_send_ble_message_chunk(NimBLECharacteristic *characteristic, con
     int total_chunks = (total_len + payload_size - 1) / payload_size;
 
     // Check if the requested chunk index is valid.
-    if (chunk_index < 0 || chunk_index >= total_chunks)
-    {
+    if (chunk_index < 0 || chunk_index >= total_chunks) {
         helper::printf("Error: Invalid chunk index %d. Total chunks: %d\n", chunk_index, total_chunks);
         return;
     }
@@ -347,13 +309,11 @@ void ble_router_send_ble_message_chunk(NimBLECharacteristic *characteristic, con
     helper::printf("Chunk %d sent successfully.\n", chunk_index + 1);
 }
 
-void ble_router_start()
-{
+void ble_router_start() {
     // message == "START"
     //
 
-    if (xSemaphoreTake(g_signal_mutex, portMAX_DELAY) == pdTRUE)
-    {
+    if (xSemaphoreTake(g_signal_mutex, portMAX_DELAY) == pdTRUE) {
         g_signal_task_state = SignalTaskState::SIGNAL_RUN;
         xSemaphoreGive(g_signal_mutex);
     }
@@ -361,13 +321,11 @@ void ble_router_start()
     start_signal_timer();
 }
 
-void ble_router_high()
-{
+void ble_router_high() {
     // message == "HIGH"
     //
 
-    if (xSemaphoreTake(g_signal_mutex, portMAX_DELAY) == pdTRUE)
-    {
+    if (xSemaphoreTake(g_signal_mutex, portMAX_DELAY) == pdTRUE) {
         g_signal_task_state = SignalTaskState::HIGH_ALL;
         xSemaphoreGive(g_signal_mutex);
     }
@@ -376,13 +334,11 @@ void ble_router_high()
     set_all_outputs_high();
 }
 
-void ble_router_idle()
-{
+void ble_router_idle() {
     // message == "STOP" || message == "LOW"
     //
 
-    if (xSemaphoreTake(g_signal_mutex, portMAX_DELAY) == pdTRUE)
-    {
+    if (xSemaphoreTake(g_signal_mutex, portMAX_DELAY) == pdTRUE) {
         g_signal_task_state = SignalTaskState::IDLE;
         xSemaphoreGive(g_signal_mutex);
     }
@@ -391,8 +347,7 @@ void ble_router_idle()
     set_all_outputs_low();
 }
 
-void ble_router_run_signal(std::string &signal)
-{
+void ble_router_run_signal(std::string &signal) {
     // message.substr(0,7) == "SIGNAL:"
     //
 
@@ -400,8 +355,7 @@ void ble_router_run_signal(std::string &signal)
     signal_update_pattern(signal);
 }
 
-void ble_router_message_data(std::string &message)
-{
+void ble_router_message_data(std::string &message) {
     // message.substr(0,13) == "MESSAGE_DATA:"
     //
 
@@ -409,19 +363,16 @@ void ble_router_message_data(std::string &message)
     signal_update_full_control(message); // NOTE: 0 -> read new message
 }
 
-void ble_router_message_set_alpha(std::string &message)
-{
+void ble_router_message_set_alpha(std::string &message) {
     // message.substr(0,10) == "SET_ALPHA:"
 
     // get set that is not active
     DataSet *dataset;
 
-    if (g_active_set == SignalSet::SET_A)
-    {
+    if (g_active_set == SignalSet::SET_A) {
         dataset = &g_dataset_b;
     }
-    else
-    {
+    else {
         dataset = &g_dataset_a;
     }
 
@@ -434,8 +385,7 @@ void ble_router_message_set_alpha(std::string &message)
     g_switch_set_pending = true; // Mark for set switching
 }
 
-void read_and_send_analog_data(NimBLECharacteristic *characteristic)
-{
+void read_and_send_analog_data(NimBLECharacteristic *characteristic) {
 
     auto timer_start = std::chrono::high_resolution_clock::now();
 
@@ -471,8 +421,7 @@ void read_and_send_analog_data(NimBLECharacteristic *characteristic)
     int32_t control_dtk_us[50] = {};
     size_t control_dtk_len = dataset_active->gain_k.rows;
 
-    if (matrix_isvalid(dataset_active->gain_k) && (dataset_active->gain_k.cols == 3))
-    {
+    if (matrix_isvalid(dataset_active->gain_k) && (dataset_active->gain_k.cols == 3)) {
         // compute ek -> x - x_target
 
         float ek[3] = {};
@@ -487,16 +436,14 @@ void read_and_send_analog_data(NimBLECharacteristic *characteristic)
 
         // compute dtk_us
         // NOTE: set g_control_dtk_us
-        for (int i = 0; i < control_dtk_len; i++)
-        {
+        for (int i = 0; i < control_dtk_len; i++) {
             control_dtk_us[i] = (int32_t)std::round(control_dtk[i] * 1000000.0);
         }
 
         // NOTE: conditioning dtk
 
         // first part part of the log
-        if (g_system_status.log_last_calc == StatusONOFF::ON)
-        {
+        if (g_system_status.log_last_calc == StatusONOFF::ON) {
             note_buffer_clear(g_buffer_last_calc);
 
             auto rand_int = get_rand_int(1, 1000000);
@@ -508,8 +455,7 @@ void read_and_send_analog_data(NimBLECharacteristic *characteristic)
             note_buffer_add_text_f(g_buffer_last_calc, "target=[%.7f,%.7f,%.7f];\n", dataset_active->target[0], dataset_active->target[1], dataset_active->target[2]);
             note_buffer_add_text_f(g_buffer_last_calc, "ek=[%.7f,%.7f,%.7f];\n", ek[0], ek[1], ek[2]);
             note_buffer_add_text(g_buffer_last_calc, "dtk=[");
-            for (size_t i = 0; i < control_dtk_len; i++)
-            {
+            for (size_t i = 0; i < control_dtk_len; i++) {
                 note_buffer_add_text_f(g_buffer_last_calc, "%.7f,", control_dtk[i]);
             }
             note_buffer_add_text(g_buffer_last_calc, "];\n");
@@ -526,52 +472,44 @@ void read_and_send_analog_data(NimBLECharacteristic *characteristic)
         timer_a = std::chrono::high_resolution_clock::now();
 
         dataset_active->time_us_diff[0] = control_dtk_us[0];
-        for (size_t i = 1; i < control_dtk_len; i++)
-        {
+        for (size_t i = 1; i < control_dtk_len; i++) {
             dataset_active->time_us_diff[i] = control_dtk_us[i] - control_dtk_us[i - 1];
         }
         dataset_active->time_us_diff[control_dtk_len] = -control_dtk_us[control_dtk_len - 1];
 
         size_t time_us_len = dataset_active->size_vec;
         uint32_t ts_us[time_us_len + 1] = {};
-        for (size_t i = 0; i < time_us_len; i++)
-        {
+        for (size_t i = 0; i < time_us_len; i++) {
             ts_us[i + 1] = ts_us[i] + dataset_active->time_vec[i] + dataset_active->time_us_diff[i];
         }
         timer_b = std::chrono::high_resolution_clock::now();
         g_system_duration.update_signal_with_dtk = std::chrono::duration_cast<std::chrono::microseconds>(timer_b - timer_a).count();
 
         // second part of the log
-        if (g_system_status.log_last_calc == StatusONOFF::ON)
-        {
+        if (g_system_status.log_last_calc == StatusONOFF::ON) {
             // save last matrix multiplication
             note_buffer_add_text(g_buffer_last_calc, "dtk_fix=[");
-            for (size_t i = 0; i < control_dtk_len; i++)
-            {
+            for (size_t i = 0; i < control_dtk_len; i++) {
                 note_buffer_add_text_f(g_buffer_last_calc, "%.7f,", control_dtk[i]);
             }
             note_buffer_add_text(g_buffer_last_calc, "];\n");
 
             note_buffer_add_text(g_buffer_last_calc, "ts_us=[");
             const size_t ts_us_len = time_us_len + 1;
-            for (size_t i = 0; i < ts_us_len; i++)
-            {
+            for (size_t i = 0; i < ts_us_len; i++) {
                 note_buffer_add_text_f(g_buffer_last_calc, "%.7f,", ts_us[i]);
             }
             note_buffer_add_text(g_buffer_last_calc, "];\n");
         }
     }
-    else
-    {
+    else {
         note_buffer_clear(g_buffer_last_calc);
-        if (g_system_status.log_last_calc == StatusONOFF::ON)
-        {
+        if (g_system_status.log_last_calc == StatusONOFF::ON) {
             note_buffer_add_text_f(g_buffer_last_calc, "matrix is not valid!!!! rand: %d\n", get_rand_int(1, 1000000));
             note_buffer_add_text_f(g_buffer_last_calc, "M.rows: %d; M.cols: %d\n", dataset_active->gain_k.rows, dataset_active->gain_k.cols);
             note_buffer_add_matrix(g_buffer_last_calc, dataset_active->gain_k);
         }
-        else
-        {
+        else {
             note_buffer_add_text(g_buffer_last_calc, "LOG: matrix computation log (log_last_calc) is not active!\n");
         }
     }
@@ -608,8 +546,7 @@ void read_and_send_analog_data(NimBLECharacteristic *characteristic)
 }
 
 // BLE communication task
-void bleTask(void *parameter)
-{
+void bleTask(void *parameter) {
     helper::printf("BLE Task running on core: %d\n", xPortGetCoreID());
 
     // Initialize BLE device and server
@@ -638,11 +575,9 @@ void bleTask(void *parameter)
     esp_task_wdt_add(NULL);
 
     // NOTE: BLE task loop
-    while (1)
-    {
+    while (1) {
         // Handle analog reading requests
-        if (g_ble_task_state == BLETaskState::ANALOG_READ)
-        {
+        if (g_ble_task_state == BLETaskState::ANALOG_READ) {
             g_ble_task_state = BLETaskState::ANALOG_READING;
             read_and_send_analog_data(characteristic);
             g_ble_task_state = BLETaskState::IDLE;
@@ -651,12 +586,10 @@ void bleTask(void *parameter)
         esp_task_wdt_reset(); // Reset watchdog timer
 
         // Use different delays based on signal state to give BLE more processing time during signal generation
-        if (g_signal_task_state == SignalTaskState::SIGNAL_RUN)
-        {
+        if (g_signal_task_state == SignalTaskState::SIGNAL_RUN) {
             vTaskDelay(pdMS_TO_TICKS(5)); // Shorter delay when signal is running to handle BLE better
         }
-        else
-        {
+        else {
             vTaskDelay(pdMS_TO_TICKS(10)); // Normal delay when not running signals
         }
     }

@@ -30,39 +30,40 @@ const uint32_t GPIO_DI5_MASK = 1 << GPIO_DI5;
 const uint32_t GPIO_DI6_MASK = 1 << GPIO_DI6;
 const uint32_t GPIO_PIN_MASK = GPIO_DI4_MASK | GPIO_DI5_MASK | GPIO_DI6_MASK;
 
-void ble_router_set_signal_dataset_a()
-{
+void ble_router_set_signal_dataset_a() {
     helper::println("Changing to SET_A");
     g_active_set = SignalSet::SET_A;
 }
 
-void ble_router_set_signal_dataset_b()
-{
+void ble_router_set_signal_dataset_b() {
     helper::println("Changing to SET_B");
     g_active_set = SignalSet::SET_B;
 }
 
-void ble_router_set_signal_control_on()
-{
+void ble_router_set_signal_control_on() {
     helper::println("Changing control to ON");
     g_system_status.prop_control = StatusONOFF::ON;
 }
 
-void ble_router_set_signal_control_off()
-{
+void ble_router_set_signal_control_off() {
     helper::println("Changing control to OFF");
     g_system_status.prop_control = StatusONOFF::OFF;
 }
 
-void ble_router_toggle_signal_dataset()
-{
-    if (g_active_set == SignalSet::SET_A)
-    {
+void ble_router_set_print_on() {
+    helper::g_printer_on = true;
+}
+
+void ble_router_set_print_off() {
+    helper::g_printer_on = false;
+}
+
+void ble_router_toggle_signal_dataset() {
+    if (g_active_set == SignalSet::SET_A) {
         helper::println("Changing to SET_B");
         g_active_set = SignalSet::SET_B;
     }
-    else
-    {
+    else {
         helper::println("Changing to SET_A");
         g_active_set = SignalSet::SET_A;
     }
@@ -70,14 +71,12 @@ void ble_router_toggle_signal_dataset()
 
 // Timer ISR: toggle signals and schedule next interrupt
 // NOTE: signal callback
-bool IRAM_ATTR timer_group_isr_callback(void *args)
-{
+bool IRAM_ATTR timer_group_isr_callback(void *args) {
     // Re-enable timer alarm for next interrupt
     timer_group_enable_alarm_in_isr(TIMER_GROUP, TIMER_IDX);
 
     // Only execute signal generation when in SIGNAL_RUN state
-    if (g_signal_task_state != SignalTaskState::SIGNAL_RUN)
-    {
+    if (g_signal_task_state != SignalTaskState::SIGNAL_RUN) {
         return true;
     }
 
@@ -100,21 +99,17 @@ bool IRAM_ATTR timer_group_isr_callback(void *args)
 
     // NOTE: 6 -> Set next alarm with control adjustment
     // NOTE: Use g_control_dtk_us
-    if (g_system_status.prop_control == StatusONOFF::ON)
-    {
+    if (g_system_status.prop_control == StatusONOFF::ON) {
         timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset.time_vec[g_current_state] + dataset.time_us_diff[g_current_state]);
     }
-    else
-    {
+    else {
         timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, dataset.time_vec[g_current_state]);
     }
 
     // Check for cycle completion and trigger analog reading if needed
-    if (g_current_state == 0)
-    {
+    if (g_current_state == 0) {
         g_cycle_count = (g_cycle_count + 1) % g_cycle_nrun;
-        if (g_cycle_count == 0)
-        {
+        if (g_cycle_count == 0) {
             g_ble_task_state = BLETaskState::ANALOG_READ; // NOTE: 4 -> loop call
         }
     }
@@ -123,8 +118,7 @@ bool IRAM_ATTR timer_group_isr_callback(void *args)
 }
 
 // Initialize hardware timer
-void initialize_timer()
-{
+void initialize_timer() {
     timer_config_t config = {
         .alarm_en = TIMER_ALARM_EN,         // Enable alarm functionality
         .counter_en = TIMER_PAUSE,          // Start in paused state
@@ -143,10 +137,8 @@ void initialize_timer()
 }
 
 // Start signal timer
-void start_signal_timer()
-{
-    if (!g_timer_initialized)
-    {
+void start_signal_timer() {
+    if (!g_timer_initialized) {
         initialize_timer();
     }
 
@@ -181,67 +173,55 @@ void start_signal_timer()
 }
 
 // Stop signal timer
-void stop_signal_timer()
-{
+void stop_signal_timer() {
     timer_pause(TIMER_GROUP, TIMER_IDX);
 }
 
 // Set outputs high
-void set_all_outputs_high()
-{
+void set_all_outputs_high() {
     GPIO.out_w1ts = GPIO_DI4_MASK | GPIO_DI5_MASK | GPIO_DI6_MASK;
 }
 
 // Set outputs low
-void set_all_outputs_low()
-{
+void set_all_outputs_low() {
     GPIO.out_w1tc = GPIO_DI4_MASK | GPIO_DI5_MASK | GPIO_DI6_MASK;
 }
 
-DataSet *get_dataset_active()
-{
+DataSet *get_dataset_active() {
     DataSet *dataset = (g_active_set == SignalSet::SET_A) ? &g_dataset_a : &g_dataset_b;
     return dataset;
 }
 
-DataSet *get_dataset_not_active()
-{
+DataSet *get_dataset_not_active() {
     DataSet *dataset = (g_active_set == SignalSet::SET_A) ? &g_dataset_b : &g_dataset_a;
     return dataset;
 }
 
-std::string get_dataset_active_name()
-{
-    if (g_active_set == SignalSet::SET_A)
-    {
+std::string get_dataset_active_name() {
+    if (g_active_set == SignalSet::SET_A) {
         return "SET_A";
     }
     return "SET_B";
 }
 
 // Return number of elements in a signal set
-int get_signal_set_size(SignalSet set)
-{
-    if (set == SignalSet::SET_A)
-    {
+int get_signal_set_size(SignalSet set) {
+    if (set == SignalSet::SET_A) {
         return g_dataset_a.size_vec;
     }
-    else
-    {
+    else {
         return g_dataset_b.size_vec;
     }
 }
 
 // Update signal pattern (double-buffered)
-void signal_update_pattern(const std::string &signal)
-{
+void signal_update_pattern(const std::string &signal) {
     std::vector<uint32_t> new_timings, new_modes;
     parse_signal(signal, new_timings, new_modes);
 
     // Convert combined modes to individual pin states
     std::vector<uint32_t> new_d4_vec, new_d5_vec, new_d6_vec;
-    for (uint32_t mi : new_modes)
-    {
+    for (uint32_t mi : new_modes) {
         Bin bin = num2bin(mi); // Convert number to binary representation
         new_d4_vec.push_back(bin.b1);
         new_d5_vec.push_back(bin.b2);
@@ -250,39 +230,32 @@ void signal_update_pattern(const std::string &signal)
 
     // Debug output of parsed signal
     helper::print("time: ");
-    for (auto ti : new_timings)
-    {
+    for (auto ti : new_timings) {
         helper::printf("%d, ", ti);
     }
     helper::println(" ");
     helper::print("mode: ");
-    for (auto mi : new_modes)
-    {
+    for (auto mi : new_modes) {
         helper::printf("%d, ", mi);
     }
     helper::println(" ");
 
     // Update the inactive signal set (float buffering)
-    if (xSemaphoreTake(g_signal_mutex, portMAX_DELAY) == pdTRUE)
-    {
-        if (g_active_set == SignalSet::SET_A)
-        {
+    if (xSemaphoreTake(g_signal_mutex, portMAX_DELAY) == pdTRUE) {
+        if (g_active_set == SignalSet::SET_A) {
             helper::println("updating SET_B...");
             // Update SET_B while SET_A is active
-            for (size_t i = 0; i < new_timings.size(); i++)
-            {
+            for (size_t i = 0; i < new_timings.size(); i++) {
                 g_dataset_b.time_vec[i] = new_timings[i];
                 g_dataset_b.d4_vec[i] = new_d4_vec[i];
                 g_dataset_b.d5_vec[i] = new_d5_vec[i];
                 g_dataset_b.d6_vec[i] = new_d6_vec[i];
             }
         }
-        else
-        {
+        else {
             helper::println("updating SET_A...");
             // Update SET_A while SET_B is active
-            for (size_t i = 0; i < new_timings.size(); i++)
-            {
+            for (size_t i = 0; i < new_timings.size(); i++) {
                 g_dataset_a.time_vec[i] = new_timings[i];
                 g_dataset_a.d4_vec[i] = new_d4_vec[i];
                 g_dataset_a.d5_vec[i] = new_d5_vec[i];
@@ -295,8 +268,7 @@ void signal_update_pattern(const std::string &signal)
     }
 }
 
-ERROR_CODE signal_update_full_control(const std::string &str_control_message)
-{
+ERROR_CODE signal_update_full_control(const std::string &str_control_message) {
 
     int new_rows, new_cols;
     std::vector<float> new_gain_k;
@@ -308,16 +280,14 @@ ERROR_CODE signal_update_full_control(const std::string &str_control_message)
     // NOTE: 1 -> parse message
     parse_control_message(str_control_message, new_gain_k, new_rows, new_cols, new_timings, new_modes, new_target);
 
-    if (err != ERROR_CODE::OK)
-    {
+    if (err != ERROR_CODE::OK) {
         print_error_code(err);
         return err;
     }
 
     // Convert combined modes to individual pin states
     std::vector<uint32_t> new_d4_vec, new_d5_vec, new_d6_vec;
-    for (uint32_t mi : new_modes)
-    {
+    for (uint32_t mi : new_modes) {
         Bin bin = num2bin(mi); // Convert number to binary representation
         new_d4_vec.push_back(bin.b1);
         new_d5_vec.push_back(bin.b2);
@@ -329,10 +299,8 @@ ERROR_CODE signal_update_full_control(const std::string &str_control_message)
     auto dataset_helper = [&new_timings, &new_d4_vec,
                            &new_d5_vec, &new_d6_vec,
                            &new_target, &new_rows,
-                           &new_cols, &new_gain_k](DataSet &dataset)
-    {
-        for (size_t i = 0; i < new_timings.size(); i++)
-        {
+                           &new_cols, &new_gain_k](DataSet &dataset) {
+        for (size_t i = 0; i < new_timings.size(); i++) {
             dataset.time_vec[i] = new_timings[i];
             dataset.d4_vec[i] = new_d4_vec[i];
             dataset.d5_vec[i] = new_d5_vec[i];
@@ -348,22 +316,18 @@ ERROR_CODE signal_update_full_control(const std::string &str_control_message)
         dataset.gain_k.cols = new_cols;
         dataset.gain_k.size = new_gain_k.size();
         size_t copy_size = std::min(new_gain_k.size(), (size_t)MAX_MATRIX_ELEMENTS);
-        for (size_t i = 0; i < copy_size; ++i)
-        {
+        for (size_t i = 0; i < copy_size; ++i) {
             dataset.gain_k.values[i] = new_gain_k[i];
         }
     };
 
-    if (xSemaphoreTake(g_signal_mutex, portMAX_DELAY) == pdTRUE)
-    {
-        if (g_active_set == SignalSet::SET_A)
-        {
+    if (xSemaphoreTake(g_signal_mutex, portMAX_DELAY) == pdTRUE) {
+        if (g_active_set == SignalSet::SET_A) {
             helper::println("updating SET_B...");
             // Update SET_B while SET_A is active
             dataset_helper(g_dataset_b);
         }
-        else
-        {
+        else {
             helper::println("updating SET_A...");
             // Update SET_A while SET_B is active
             dataset_helper(g_dataset_a);
@@ -379,8 +343,7 @@ ERROR_CODE signal_update_full_control(const std::string &str_control_message)
 /**
  * Initialize signal controller
  */
-void initialize_signal_controller()
-{
+void initialize_signal_controller() {
     // Create mutex for thread-safe signal data access
     g_signal_mutex = xSemaphoreCreateMutex();
 
@@ -407,15 +370,12 @@ void initialize_signal_controller()
  *
  * @param arg Unused task parameter
  */
-void signal_task(void *arg)
-{
+void signal_task(void *arg) {
     esp_task_wdt_add(NULL); // Register with watchdog timer
 
     // NOTE: signal task loop
-    while (1)
-    {
-        switch (g_signal_task_state)
-        {
+    while (1) {
+        switch (g_signal_task_state) {
         case SignalTaskState::IDLE:
             // All outputs low when idle
             GPIO.out_w1tc = (1 << 2) | GPIO_DI4_MASK | GPIO_DI5_MASK | GPIO_DI6_MASK; // Include LED
@@ -428,15 +388,12 @@ void signal_task(void *arg)
 
         case SignalTaskState::SIGNAL_RUN:
             // Check if switch is pending
-            if (!g_switch_set_pending)
-            {
+            if (!g_switch_set_pending) {
                 break;
             }
             // Switch occurs at the end of current pattern to avoid glitches
-            if (g_current_state == g_active_num_timings - 1)
-            {
-                if (xSemaphoreTake(g_signal_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
-                {
+            if (g_current_state == g_active_num_timings - 1) {
+                if (xSemaphoreTake(g_signal_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
                     // NOTE: 3 -> Toggle between SET_A and SET_B
                     ble_router_toggle_signal_dataset();
 

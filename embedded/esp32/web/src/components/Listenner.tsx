@@ -79,6 +79,8 @@ function Listenner(props: IProps) {
             <div className="flex gap-2">
                 <button onClick={() => ble_send_command("CONTROL_ON")} className="btn">CONTROL ON</button>
                 <button onClick={() => ble_send_command("CONTROL_OFF")} className="btn">CONTROL OFF</button>
+                <button onClick={() => ble_send_command("SET_PRINT_ON")} className="btn">PRINT ON</button>
+                <button onClick={() => ble_send_command("SET_PRINT_OFF")} className="btn">PRINT OFF</button>
             </div>
             <div className="flex gap-2">
                 <button onClick={() => ble_send_command(`SET_ALPHA:${props.alpha}`)} className="btn">SET ALPHA ({props.alpha})</button>

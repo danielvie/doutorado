@@ -1,11 +1,15 @@
 #include "helper_printer.h"
 #include <stdarg.h>
 
-namespace helper
-{
+namespace helper {
+    volatile boolean g_printer_on = true;
 
-    void print(const char *format, ...)
-    {
+    void print(const char *format, ...) {
+
+        if (g_printer_on == false) {
+            return;
+        }
+
         va_list args;
         va_start(args, format);
 
@@ -19,8 +23,12 @@ namespace helper
         va_end(args);
     }
 
-    void println(const char *format, ...)
-    {
+    void println(const char *format, ...) {
+
+        if (g_printer_on == false) {
+            return;
+        }
+
         va_list args;
         va_start(args, format);
 
@@ -34,11 +42,14 @@ namespace helper
         va_end(args);
     }
 
-    void printf(const char *format, ...)
-    {
+    void printf(const char *format, ...) {
+
+        if (g_printer_on == false) {
+            return;
+        }
+
         // Safety check for null format string
-        if (format == nullptr)
-        {
+        if (format == nullptr) {
             Serial.print("[printf: null format]");
             return;
         }
@@ -51,17 +62,14 @@ namespace helper
         int result = vsnprintf(buffer, sizeof(buffer), format, args);
 
         // Check for formatting errors
-        if (result < 0)
-        {
+        if (result < 0) {
             Serial.print("[printf: format error]");
         }
-        else if (result >= sizeof(buffer))
-        {
+        else if (result >= sizeof(buffer)) {
             Serial.print("[printf: truncated]");
             Serial.print(buffer);
         }
-        else
-        {
+        else {
             // Print the formatted string
             Serial.print(buffer);
         }

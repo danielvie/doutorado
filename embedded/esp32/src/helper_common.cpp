@@ -12,8 +12,7 @@
 #include "Arduino.h"
 
 // Convert a numeric value to binary representation structure
-struct Bin num2bin(uint32_t num)
-{
+struct Bin num2bin(uint32_t num) {
     auto b = Bin();
     b.b1 = num & 0x1;
     b.b2 = num & 0x2;
@@ -46,13 +45,11 @@ float calib_to[] = {0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1.00, 
 int calib_numel = sizeof(calib_from) / sizeof(calib_from[0]);
 
 // Read analog voltage from specified port with calibration
-float read_analog(AnalogPort port)
-{
+float read_analog(AnalogPort port) {
     int rawValue = 0;
 
     // Map logical port to physical ADC channel
-    switch (port)
-    {
+    switch (port) {
     case AnalogPort::AN1:
         rawValue = adc1_get_raw(ADC1_CHANNEL_3); // GPIO39
         break;
@@ -84,22 +81,17 @@ float read_analog(AnalogPort port)
     return voltage;
 }
 
-std::string get_status_onoff_label(StatusONOFF status)
-{
-    if (status == StatusONOFF::ON)
-    {
+std::string get_status_onoff_label(StatusONOFF status) {
+    if (status == StatusONOFF::ON) {
         return "ON";
     }
-    else
-    {
+    else {
         return "OFF";
     }
 }
 
-std::string get_signal_set_label(SignalSet set)
-{
-    switch (set)
-    {
+std::string get_signal_set_label(SignalSet set) {
+    switch (set) {
     case SignalSet::SET_A:
         return "SET_A";
     case SignalSet::SET_B:
@@ -109,10 +101,8 @@ std::string get_signal_set_label(SignalSet set)
     }
 }
 
-std::string get_signal_task_state_label(SignalTaskState state)
-{
-    switch (state)
-    {
+std::string get_signal_task_state_label(SignalTaskState state) {
+    switch (state) {
     case SignalTaskState::IDLE:
         return "IDLE";
     case SignalTaskState::HIGH_ALL:
@@ -124,10 +114,8 @@ std::string get_signal_task_state_label(SignalTaskState state)
     }
 }
 
-std::string get_ble_task_state_label(BLETaskState state)
-{
-    switch (state)
-    {
+std::string get_ble_task_state_label(BLETaskState state) {
+    switch (state) {
     case BLETaskState::IDLE:
         return "IDLE";
     case BLETaskState::ANALOG_READ:
@@ -141,14 +129,12 @@ std::string get_ble_task_state_label(BLETaskState state)
     }
 }
 
-DataSet *get_dataset_from_set(SignalSet set)
-{
+DataSet *get_dataset_from_set(SignalSet set) {
     DataSet *dataset = (set == SignalSet::SET_A) ? &g_dataset_a : &g_dataset_b;
     return dataset;
 }
 
-uint32_t get_rand_int(uint32_t a, uint32_t b)
-{
+uint32_t get_rand_int(uint32_t a, uint32_t b) {
     unsigned seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
     std::mt19937 gen(seed);
     std::uniform_int_distribution<uint32_t> rand(1, 1000000);
@@ -157,35 +143,29 @@ uint32_t get_rand_int(uint32_t a, uint32_t b)
     return rand_int;
 }
 
-float esp32_calibration(float value)
-{
+float esp32_calibration(float value) {
 
     // return value;
     // lower boundary
-    if (value <= calib_from[0])
-    {
+    if (value <= calib_from[0]) {
         return calib_to[0];
     }
 
     // higher boundary
-    if (value >= calib_from[calib_numel - 1])
-    {
+    if (value >= calib_from[calib_numel - 1]) {
         return calib_to[calib_numel - 1];
     }
 
     // find the lookup interval
-    for (int i = 0; i < calib_numel - 1; ++i)
-    {
-        if (value >= calib_from[i] && value <= calib_from[i + 1])
-        {
+    for (int i = 0; i < calib_numel - 1; ++i) {
+        if (value >= calib_from[i] && value <= calib_from[i + 1]) {
             float x1 = calib_from[i];
             float y1 = calib_to[i];
             float x2 = calib_from[i + 1];
             float y2 = calib_to[i + 1];
 
             // perform a linear interpolation
-            if (x2 == x1)
-            {
+            if (x2 == x1) {
                 return y1;
             }
 
@@ -197,11 +177,9 @@ float esp32_calibration(float value)
     return calib_to[calib_numel - 1];
 }
 
-void print_error_code(ERROR_CODE err)
-{
+void print_error_code(ERROR_CODE err) {
 
-    switch (err)
-    {
+    switch (err) {
     case ERROR_CODE::OK:
         helper::println("OK");
         break;
@@ -229,54 +207,45 @@ void print_error_code(ERROR_CODE err)
     }
 }
 
-ERROR_CODE safe_stoi(const std::string &s, int &number)
-{
+ERROR_CODE safe_stoi(const std::string &s, int &number) {
     size_t pos;
     // Check for empty string or string containing only whitespace
-    if (s.empty() || s.find_first_not_of(" \t\n\v\f\r") == std::string::npos)
-    {
+    if (s.empty() || s.find_first_not_of(" \t\n\v\f\r") == std::string::npos) {
         return ERROR_CODE::INVALID_ARGUMENT_EMPTY;
     }
     number = std::stoi(s, &pos);
     // Ensure no non-numeric characters remain after conversion
-    if (pos != s.length())
-    {
+    if (pos != s.length()) {
         return ERROR_CODE::INVALID_ARGUMENT_NON_NUMERIC;
     }
 
     return ERROR_CODE::OK;
 }
 
-ERROR_CODE safe_stod(const std::string &s, float &number)
-{
+ERROR_CODE safe_stod(const std::string &s, float &number) {
     size_t pos;
     // Check for empty string or string containing only whitespace
-    if (s.empty() || s.find_first_not_of(" \t\n\v\f\r") == std::string::npos)
-    {
+    if (s.empty() || s.find_first_not_of(" \t\n\v\f\r") == std::string::npos) {
         return ERROR_CODE::INVALID_ARGUMENT_EMPTY;
     }
     number = std::stod(s, &pos);
     // Ensure no non-numeric characters remain after conversion
-    if (pos != s.length())
-    {
+    if (pos != s.length()) {
         return ERROR_CODE::INVALID_ARGUMENT_NON_NUMERIC;
     }
 
     return ERROR_CODE::OK;
 }
 
-ERROR_CODE parse_control_message__vector_uint64(std::string &s, size_t &semicolon_pos, std::vector<uint32_t> &V)
-{
+ERROR_CODE parse_control_message__vector_uint64(std::string &s, size_t &semicolon_pos, std::vector<uint32_t> &V) {
     s = s.substr(semicolon_pos + 1); // Consume previous and its semicolon
     semicolon_pos = s.find(';');
-    if (semicolon_pos == std::string::npos)
-    {
+    if (semicolon_pos == std::string::npos) {
         return ERROR_CODE::RUNTIME_ERROR_MISSING_SEMICOLON;
     }
 
     std::string str_segment = s.substr(0, semicolon_pos);
-    if (str_segment.empty())
-    {
+    if (str_segment.empty()) {
         return ERROR_CODE::INVALID_ARGUMENT_EMPTY;
     }
 
@@ -284,8 +253,7 @@ ERROR_CODE parse_control_message__vector_uint64(std::string &s, size_t &semicolo
     size_t comma_pos;
     int value;
 
-    while ((comma_pos = str_segment.find(',', start_pos)) != std::string::npos)
-    {
+    while ((comma_pos = str_segment.find(',', start_pos)) != std::string::npos) {
         std::string str_element = str_segment.substr(start_pos, comma_pos - start_pos);
         safe_stoi(str_element, value);
         V.push_back(value);
@@ -298,18 +266,15 @@ ERROR_CODE parse_control_message__vector_uint64(std::string &s, size_t &semicolo
     return ERROR_CODE::OK;
 }
 
-ERROR_CODE parse_control_message__vector_double(std::string &s, size_t &semicolon_pos, std::vector<float> &V)
-{
+ERROR_CODE parse_control_message__vector_double(std::string &s, size_t &semicolon_pos, std::vector<float> &V) {
     s = s.substr(semicolon_pos + 1); // Consume previous and its semicolon
     semicolon_pos = s.find(';');
-    if (semicolon_pos == std::string::npos)
-    {
+    if (semicolon_pos == std::string::npos) {
         return ERROR_CODE::RUNTIME_ERROR_MISSING_SEMICOLON;
     }
 
     std::string str_segment = s.substr(0, semicolon_pos);
-    if (str_segment.empty())
-    {
+    if (str_segment.empty()) {
         return ERROR_CODE::INVALID_ARGUMENT_EMPTY;
     }
 
@@ -317,8 +282,7 @@ ERROR_CODE parse_control_message__vector_double(std::string &s, size_t &semicolo
     size_t comma_pos;
     float value;
 
-    while ((comma_pos = str_segment.find(',', start_pos)) != std::string::npos)
-    {
+    while ((comma_pos = str_segment.find(',', start_pos)) != std::string::npos) {
         std::string str_element = str_segment.substr(start_pos, comma_pos - start_pos);
         safe_stod(str_element, value);
         V.push_back(value);
@@ -331,8 +295,7 @@ ERROR_CODE parse_control_message__vector_double(std::string &s, size_t &semicolo
     return ERROR_CODE::OK;
 }
 
-ERROR_CODE parse_control_message(const std::string &input_str, std::vector<float> &gain_k_data, int &out_m, int &out_n, std::vector<uint32_t> &times, std::vector<uint32_t> &modes, std::vector<float> &target)
-{
+ERROR_CODE parse_control_message(const std::string &input_str, std::vector<float> &gain_k_data, int &out_m, int &out_n, std::vector<uint32_t> &times, std::vector<uint32_t> &modes, std::vector<float> &target) {
 
     // ensure that the vectors are clear
     gain_k_data.clear();
@@ -343,100 +306,85 @@ ERROR_CODE parse_control_message(const std::string &input_str, std::vector<float
     std::string s = input_str;
     size_t semicolon_pos;
 
-    try
-    {
+    try {
         // .. --- 1. Parse 'm' (rows) ---
         semicolon_pos = s.find(';');
-        if (semicolon_pos == std::string::npos)
-        {
+        if (semicolon_pos == std::string::npos) {
             return ERROR_CODE::RUNTIME_ERROR_MISSING_SEMICOLON;
         }
         std::string str_element = s.substr(0, semicolon_pos);
         safe_stoi(str_element, out_m);
-        if (out_m <= 0)
-        {
+        if (out_m <= 0) {
             return ERROR_CODE::INVALID_ARGUMENT_MATRIX_ROWS_M_MUST_BE_A_POSITIVE_INTEGER;
         }
 
         // .. --- 2. Parse 'n' (columns) ---
         s = s.substr(semicolon_pos + 1); // Consume 'm' and its semicolon
         semicolon_pos = s.find(';');
-        if (semicolon_pos == std::string::npos)
-        {
+        if (semicolon_pos == std::string::npos) {
             return ERROR_CODE::RUNTIME_ERROR_MISSING_SEMICOLON;
         }
         str_element = s.substr(0, semicolon_pos);
         safe_stoi(str_element, out_n);
-        if (out_n <= 0)
-        {
+        if (out_n <= 0) {
             return ERROR_CODE::INVALID_ARGUMENT_MATRIX_COLUMNS_N_MUST_BE_A_POSITIVE_INTEGER;
         }
 
         // .. --- 3. Parse 'gain_k_data' vector ---
         ERROR_CODE err = parse_control_message__vector_double(s, semicolon_pos, gain_k_data);
-        if (err != ERROR_CODE::OK)
-        {
+        if (err != ERROR_CODE::OK) {
             return err;
         }
 
         // .. --- 4. Parse 'time[]' vector ---
         err = parse_control_message__vector_uint64(s, semicolon_pos, times);
-        if (err != ERROR_CODE::OK)
-        {
+        if (err != ERROR_CODE::OK) {
             return err;
         }
 
         // .. --- 5. Parse 'modes[]' vector ---
         err = parse_control_message__vector_uint64(s, semicolon_pos, modes);
-        if (err != ERROR_CODE::OK)
-        {
+        if (err != ERROR_CODE::OK) {
             return err;
         }
 
         // .. --- 6. Parse 'target[]' vector ---
         err = parse_control_message__vector_double(s, semicolon_pos, target);
-        if (err != ERROR_CODE::OK)
-        {
+        if (err != ERROR_CODE::OK) {
             return err;
         }
 
         // .. Check for unexpected trailing characters after the final semicolon
-        if (semicolon_pos != std::string::npos && s.length() > semicolon_pos + 1)
-        {
+        if (semicolon_pos != std::string::npos && s.length() > semicolon_pos + 1) {
             return ERROR_CODE::RUNTIME_ERROR_UNEXPECTED_CHARACTERS_AFTER_LAST_SEMICOLON;
         }
     }
-    catch (const std::exception &e)
-    {
+    catch (const std::exception &e) {
         return ERROR_CODE::RUNTIME_ERROR_UNEXPECTED_ERROR;
     }
     return ERROR_CODE::OK;
 }
 
 // Parse a comma-separated section of a signal string
-void parse_section(const std::string &section, std::vector<uint32_t> &result)
-{
+void parse_section(const std::string &section, std::vector<uint32_t> &result) {
     std::stringstream ss(section);
     std::string item;
 
     // Split by comma and convert each item to integer
-    while (std::getline(ss, item, ','))
-    {
+    while (std::getline(ss, item, ',')) {
         result.push_back(std::stoi(item));
     }
 }
 
 // Parse a complete signal string containing timing and mode data
-int parse_signal(const std::string &s, std::vector<uint32_t> &time, std::vector<uint32_t> &mode)
-{
+int parse_signal(const std::string &s, std::vector<uint32_t> &time, std::vector<uint32_t> &mode) {
     // Clear any existing values to start fresh
     time.clear();
     mode.clear();
 
     // Find the semicolon separator between timing and mode sections
     size_t semicolonPos = s.find(';');
-    if (semicolonPos == std::string::npos)
-    {
+    if (semicolonPos == std::string::npos) {
         throw std::runtime_error("No semicolon found");
         return 0;
     }
@@ -452,48 +400,39 @@ int parse_signal(const std::string &s, std::vector<uint32_t> &time, std::vector<
     return 1; // Success
 }
 
-void print_vec_i32(const std::vector<int32_t> &V, const std::string &name)
-{
+void print_vec_i32(const std::vector<int32_t> &V, const std::string &name) {
     helper::printf("%s: \n", name.c_str());
-    for (auto el : V)
-    {
+    for (auto el : V) {
         helper::printf("%d,", el);
     }
     helper::println("\n");
 }
 
-void print_vec_u32(const std::vector<uint32_t> &V, const std::string &name)
-{
+void print_vec_u32(const std::vector<uint32_t> &V, const std::string &name) {
     helper::printf("%s: \n", name.c_str());
-    for (auto el : V)
-    {
+    for (auto el : V) {
         helper::printf("%u,", el);
     }
     helper::println("\n");
 }
 
-void print_array_i32(const int32_t *V, const size_t &len, const std::string &name)
-{
+void print_array_i32(const int32_t *V, const size_t &len, const std::string &name) {
     helper::printf("%s: \n", name.c_str());
-    for (size_t i = 0; i < len; i++)
-    {
+    for (size_t i = 0; i < len; i++) {
         helper::printf("%d,", V[i]);
     }
     helper::println("\n");
 }
 
-void print_array_u32(const uint32_t *V, const size_t &len, const std::string &name)
-{
+void print_array_u32(const uint32_t *V, const size_t &len, const std::string &name) {
     helper::printf("%s: \n", name.c_str());
-    for (size_t i = 0; i < len; i++)
-    {
+    for (size_t i = 0; i < len; i++) {
         helper::printf("%u,", V[i]);
     }
     helper::println("\n");
 }
 
-void print_dataset(DataSet *d)
-{
+void print_dataset(DataSet *d) {
     helper::println("-- Dataset d:");
     print_array_u32(d->time_vec, d->size_vec, "d->time_vec");
     print_array_u32(d->d4_vec, d->size_vec, "d->d4_vec");
@@ -504,8 +443,7 @@ void print_dataset(DataSet *d)
     helper::println("-- \n");
 }
 
-void print_ts_us_constructed()
-{
+void print_ts_us_constructed() {
     DataSet *d = (g_active_set == SignalSet::SET_A) ? &g_dataset_a : &g_dataset_b;
 
     size_t time_us_len = d->size_vec;
@@ -514,21 +452,18 @@ void print_ts_us_constructed()
     ts_us.resize(time_us_len + 1, 0);
     ts_us_2.resize(time_us_len + 1, 0);
 
-    for (size_t i = 0; i < time_us_len; i++)
-    {
+    for (size_t i = 0; i < time_us_len; i++) {
         ts_us[i + 1] = ts_us[i] + d->time_vec[i];
     }
     print_vec_u32(ts_us, "ts_us constructed");
 
-    for (size_t i = 0; i < time_us_len; i++)
-    {
+    for (size_t i = 0; i < time_us_len; i++) {
         ts_us_2[i + 1] = ts_us_2[i] + d->time_vec[i] + d->time_us_diff[i];
     }
     print_vec_u32(ts_us_2, "ts_us_2 constructed");
 }
 
-void condition_dtk_signal(const std::vector<uint32_t> &time_us, const float &time_constraint_us, int32_t *dtk_us, const size_t &dtk_len)
-{
+void condition_dtk_signal(const std::vector<uint32_t> &time_us, const float &time_constraint_us, int32_t *dtk_us, const size_t &dtk_len) {
 
     size_t ts_us_len = time_us.size() + 1;
 
@@ -540,8 +475,7 @@ void condition_dtk_signal(const std::vector<uint32_t> &time_us, const float &tim
     ts_us_ref[dtk_len + 1] = std::round(std::accumulate(time_us.begin(), time_us.end(), uint32_t(0)));
     ts_us[dtk_len + 1] = ts_us_ref[dtk_len + 1];
 
-    for (int i = 0; i < dtk_len; i++)
-    {
+    for (int i = 0; i < dtk_len; i++) {
         ts_us_ref[i + 1] = ts_us_ref[i] + time_us[i];
         ts_us[i + 1] = ts_us_ref[i + 1];
     }
@@ -549,56 +483,45 @@ void condition_dtk_signal(const std::vector<uint32_t> &time_us, const float &tim
     // normalize dtk to the cycle range
     float dtk_us_sum = std::accumulate(dtk_us, dtk_us + dtk_len, int32_t(0));
 
-    if (dtk_us_sum > ts_us_ref[ts_us_len - 1])
-    {
-        for (int i = 0; i < dtk_len; i++)
-        {
+    if (dtk_us_sum > ts_us_ref[ts_us_len - 1]) {
+        for (int i = 0; i < dtk_len; i++) {
             dtk_us[i] = dtk_us[i] / dtk_us_sum * ts_us_ref[ts_us_len - 1];
         }
     }
 
     // adjust ts_us with dtk_us
-    for (size_t i = 0; i < dtk_len; i++)
-    {
+    for (size_t i = 0; i < dtk_len; i++) {
         ts_us[i + 1] = ts_us[i + 1] + dtk_us[i];
     }
 
     // impose time constraint for `ts_us`
-    for (size_t i = 0; i < ts_us_len - 2; i++)
-    {
-        if (ts_us[i + 1] - ts_us[i] < time_constraint_us)
-        {
+    for (size_t i = 0; i < ts_us_len - 2; i++) {
+        if (ts_us[i + 1] - ts_us[i] < time_constraint_us) {
             ts_us[i + 1] = ts_us[i] + time_constraint_us;
         }
     }
 
     // adjust final time
     float ts_us_end = ts_us[ts_us_len - 1];
-    if (ts_us[ts_us_len - 2] > ts_us_end)
-    {
-        for (size_t i = 0; i < ts_us_len - 1; i++)
-        {
+    if (ts_us[ts_us_len - 2] > ts_us_end) {
+        for (size_t i = 0; i < ts_us_len - 1; i++) {
             ts_us[i] = ts_us[i] / ts_us[ts_us_len - 2] * (ts_us_end - time_constraint_us * dtk_len);
         }
     }
 
     // impose time constraint for `ts_us`
-    for (size_t i = 0; i < ts_us_len - 1; i++)
-    {
-        if (ts_us[i + 1] - ts_us[i] < time_constraint_us)
-        {
+    for (size_t i = 0; i < ts_us_len - 1; i++) {
+        if (ts_us[i + 1] - ts_us[i] < time_constraint_us) {
             ts_us[i + 1] = ts_us[i] + time_constraint_us;
         }
     }
 
-    for (size_t i = 0; i < dtk_len; i++)
-    {
+    for (size_t i = 0; i < dtk_len; i++) {
         dtk_us[i] = ts_us[i + 1] - ts_us_ref[i + 1];
     }
 }
 
-void condition_dtk_signal_optimized(const uint32_t *time_us, size_t time_us_len, const float time_constraint_us, int32_t *dtk_us, size_t dtk_len, float *workspace)
-{
+void condition_dtk_signal_optimized(const uint32_t *time_us, size_t time_us_len, const float time_constraint_us, int32_t *dtk_us, size_t dtk_len, float *workspace) {
 
     // Use workspace instead of vector allocations
     // workspace needs to be at least 2 * (dtk_len + 2) floats
@@ -609,81 +532,66 @@ void condition_dtk_signal_optimized(const uint32_t *time_us, size_t time_us_len,
 
     // Inline sum computation to avoid lambda overhead
     uint32_t time_sum = 0;
-    for (size_t i = 0; i < time_us_len; i++)
-    {
+    for (size_t i = 0; i < time_us_len; i++) {
         time_sum += time_us[i];
     }
 
     // Create ts_us_ref - avoid std::round for performance
-    for (size_t i = 0; i <= dtk_len + 1; i++)
-    {
+    for (size_t i = 0; i <= dtk_len + 1; i++) {
         ts_us_ref[i] = 0.0f;
     }
     ts_us_ref[dtk_len + 1] = (float)time_sum; // Remove std::round for speed
 
-    for (size_t i = 0; i < dtk_len; i++)
-    {
+    for (size_t i = 0; i < dtk_len; i++) {
         ts_us_ref[i + 1] = ts_us_ref[i] + (float)time_us[i];
     }
 
     // Normalize dtk to the cycle range - inline sum computation
     int32_t dtk_us_sum = 0;
-    for (size_t i = 0; i < dtk_len; i++)
-    {
+    for (size_t i = 0; i < dtk_len; i++) {
         dtk_us_sum += dtk_us[i];
     }
 
-    if (dtk_us_sum > ts_us_ref[ts_us_len - 1])
-    {
+    if (dtk_us_sum > ts_us_ref[ts_us_len - 1]) {
         float normalization_factor = ts_us_ref[ts_us_len - 1] / (float)dtk_us_sum;
-        for (size_t i = 0; i < dtk_len; i++)
-        {
+        for (size_t i = 0; i < dtk_len; i++) {
             dtk_us[i] = (int32_t)((float)dtk_us[i] * normalization_factor);
         }
     }
 
     // Copy ts_us_ref to ts_us and adjust with dtk_us in single loop
-    for (size_t i = 0; i < ts_us_len; i++)
-    {
+    for (size_t i = 0; i < ts_us_len; i++) {
         ts_us[i] = ts_us_ref[i];
-        if (i > 0 && i <= dtk_len)
-        {
+        if (i > 0 && i <= dtk_len) {
             ts_us[i] += (float)dtk_us[i - 1];
         }
     }
 
     // Impose time constraint for ts_us
-    for (size_t i = 0; i < ts_us_len - 2; i++)
-    {
-        if (ts_us[i + 1] - ts_us[i] < time_constraint_us)
-        {
+    for (size_t i = 0; i < ts_us_len - 2; i++) {
+        if (ts_us[i + 1] - ts_us[i] < time_constraint_us) {
             ts_us[i + 1] = ts_us[i] + time_constraint_us;
         }
     }
 
     // Adjust final time
     float ts_us_end = ts_us[ts_us_len - 1];
-    if (ts_us[ts_us_len - 2] > ts_us_end)
-    {
+    if (ts_us[ts_us_len - 2] > ts_us_end) {
         float adjustment_factor = (ts_us_end - time_constraint_us * (float)dtk_len) / ts_us[ts_us_len - 2];
-        for (size_t i = 0; i < ts_us_len - 1; i++)
-        {
+        for (size_t i = 0; i < ts_us_len - 1; i++) {
             ts_us[i] *= adjustment_factor;
         }
     }
 
     // Impose time constraint again
-    for (size_t i = 0; i < ts_us_len - 1; i++)
-    {
-        if (ts_us[i + 1] - ts_us[i] < time_constraint_us)
-        {
+    for (size_t i = 0; i < ts_us_len - 1; i++) {
+        if (ts_us[i + 1] - ts_us[i] < time_constraint_us) {
             ts_us[i + 1] = ts_us[i] + time_constraint_us;
         }
     }
 
     // Calculate final dtk_us values
-    for (size_t i = 0; i < dtk_len; i++)
-    {
+    for (size_t i = 0; i < dtk_len; i++) {
         dtk_us[i] = (int32_t)(ts_us[i + 1] - ts_us_ref[i + 1]);
     }
 }

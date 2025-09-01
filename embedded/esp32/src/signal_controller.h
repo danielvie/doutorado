@@ -61,6 +61,9 @@ void ble_router_toggle_signal_dataset();
 void ble_router_set_signal_control_on();
 void ble_router_set_signal_control_off();
 
+void ble_router_set_print_on();
+void ble_router_set_print_off();
+
 // Function declarations
 void initialize_signal_controller();
 void signal_task(void* arg);
