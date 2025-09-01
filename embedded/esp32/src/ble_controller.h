@@ -13,6 +13,7 @@
 #include "helper_matrix.h"
 #include "helper_note.h"
 #include "helper_datasetter.h"
+#include "helper_printer.h"
 
 // BLE Service and Characteristic UUIDs for remote control
 #define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"

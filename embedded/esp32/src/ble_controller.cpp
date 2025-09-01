@@ -20,12 +20,12 @@ void blink(uint8_t N) {
 // .. BLE connect AND disconnect CALLBACKS
 void ServerCallbacks::onConnect(NimBLEServer* pServer) {
     blink(3);  // Visual indication of connection
-    Serial.println("Device connected");
+    helper::println("Device connected");
 }
 
 void ServerCallbacks::onDisconnect(NimBLEServer* pServer) {
     blink(2);  // Visual indication of disconnection
-    Serial.println("Device disconnected");
+    helper::println("Device disconnected");
     NimBLEDevice::startAdvertising();  // Resume advertising for new connections
 }
 
@@ -83,11 +83,11 @@ void BLE_router(NimBLECharacteristic *characteristic) {
         ble_router_set_signal_control_off();
     }
     else if (message == "LOG_LAST_CALC_ON") {
-        Serial.println("set log_last_calc ON");
+        helper::println("set log_last_calc ON");
         g_system_status.log_last_calc = StatusONOFF::ON;
     } 
     else if (message == "LOG_LAST_CALC_OFF") {
-        Serial.println("set log_last_calc OFF");
+        helper::println("set log_last_calc OFF");
         g_system_status.log_last_calc = StatusONOFF::OFF;
     } 
     else if (message.substr(0,14) == "LOG_LAST_CALC:") {
@@ -99,7 +99,7 @@ void BLE_router(NimBLECharacteristic *characteristic) {
     else if (message.substr(0,11) == "CYCLE_NRUN:") {
         std::string payload = message.substr(11);
         g_cycle_nrun = std::stoi(payload);
-        Serial.printf("updating ncycles to `%d`!\n", g_cycle_nrun);
+        helper::printf("updating ncycles to `%d`!\n", g_cycle_nrun);
     } 
     // SIGNAL command: Load new signal pattern
     else if (message.substr(0,7) == "SIGNAL:") {
@@ -132,18 +132,6 @@ void ble_router_send_message_last_calc(NimBLECharacteristic* characteristic, int
     // Send in chunks to handle large messages
     ble_router_send_ble_message_chunk(characteristic, g_buffer_last_calc.buffer, strlen(g_buffer_last_calc.buffer), 200, n_chunk);
 }
-
-
-
-// struct DataSet {
-//     std::vector<uint32_t> time_vec;
-//     std::vector<uint32_t> d4_vec;
-//     std::vector<uint32_t> d5_vec;
-//     std::vector<uint32_t> d6_vec; 
-//     std::vector<int32_t> time_us_diff;
-//     std::vector<float> target; 
-//     MatrixData gain_k;
-// };
 
 void ble_router_send_ble_message_log_koka(NimBLECharacteristic* characteristic) {
     // message == "LOG_KOKA"
@@ -242,7 +230,7 @@ void ble_router_send_ble_message_status(NimBLECharacteristic* characteristic) {
     note_buffer_ble_send(message_buffer, characteristic);
 
     note_buffer_print_info(message_buffer);
-    Serial.println("STATUS response sent successfully");
+    helper::println("STATUS response sent successfully");
 }
 
 void ble_router_send_ble_message_status_matrix(NimBLECharacteristic* characteristic, SignalSet set) {
@@ -289,7 +277,7 @@ void ble_router_send_ble_message_chunk(NimBLECharacteristic* characteristic, con
 
     // Check if the requested chunk index is valid.
     if (chunk_index < 0 || chunk_index >= total_chunks) {
-        Serial.printf("Error: Invalid chunk index %d. Total chunks: %d\n", chunk_index, total_chunks);
+        helper::printf("Error: Invalid chunk index %d. Total chunks: %d\n", chunk_index, total_chunks);
         return;
     }
 
@@ -310,7 +298,7 @@ void ble_router_send_ble_message_chunk(NimBLECharacteristic* characteristic, con
     // Copy the data payload after the header.
     memcpy(chunk_buffer + header_len, buffer + sent, this_chunk_data_len);
 
-    Serial.printf("Sending chunk %d/%d: %d bytes (total length: %d)\n", 
+    helper::printf("Sending chunk %d/%d: %d bytes (total length: %d)\n", 
                   chunk_index + 1, total_chunks, header_len + this_chunk_data_len, total_len);
 
     // Set the characteristic value and send the notification.
@@ -320,7 +308,7 @@ void ble_router_send_ble_message_chunk(NimBLECharacteristic* characteristic, con
     // A small delay to ensure the client has time to process the notification
     vTaskDelay(pdMS_TO_TICKS(50));
     
-    Serial.printf("Chunk %d sent successfully.\n", chunk_index + 1);
+    helper::printf("Chunk %d sent successfully.\n", chunk_index + 1);
 }
 
 void ble_router_start() {
@@ -392,20 +380,10 @@ void ble_router_message_set_alpha(std::string& message) {
     // set data based on alpha and dataset
     float alpha = std::stof(message);
 
-    Serial.printf("set_alpha(%.2f)\n", alpha);
+    helper::printf("set_alpha(%.2f)\n", alpha);
     helper_set_dataset_from_alpha(dataset, alpha);
 
     g_switch_set_pending = true;  // Mark for set switching
-
-
-    // sanity test
-    // MatrixData& M = dataset->gain_k;
-    // matrix_print(M);
-    // Serial.println("\nmultiply by [1; 2; 3]");
-    // float result[5];
-    // matrix_multiply_vector3(M, 1.0, 2.0, 3.0, result);
-    // Serial.printf("result: [%.3f, %.3f, %.3f, %0.3f, %0.3f]\n", 
-    //                 result[0], result[1], result[2], result[3], result[4]);
 
 }
 
@@ -571,8 +549,7 @@ void read_and_send_analog_data(NimBLECharacteristic* characteristic) {
 
 // BLE communication task
 void bleTask(void* parameter) {
-    Serial.print("BLE Task running on core: ");
-    Serial.println(xPortGetCoreID());
+    helper::printf("BLE Task running on core: %d\n", xPortGetCoreID());
     
     // Initialize BLE device and server
     NimBLEDevice::init("ESP32 Signal Controller");

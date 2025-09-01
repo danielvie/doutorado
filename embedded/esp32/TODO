@@ -1,4 +1,5 @@
 
 
     ESP32:
-        ☐ create function to set dataset by alpha
+        ☐ refactor print statements to print if flag allows
+        ✔ create function to set dataset by alpha @done(25-09-01 00:23)

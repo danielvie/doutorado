@@ -93,17 +93,17 @@ void note_buffer_print_info(NoteData& buffer) {
     for (size_t i = 0; i < buffer.size; ++i) {
         // Print character, or a period if it's a null terminator for visibility.
         if (buffer.buffer[i] == '\0') {
-            Serial.printf(".");
+            helper::printf(".");
         } else {
-            Serial.printf("%c", buffer.buffer[i]);
+            helper::printf("%c", buffer.buffer[i]);
         }
     }
 
-    Serial.printf("\n");
+    helper::printf("\n");
     const float buffer_used = ((float)buffer.idx)/((float)buffer.size) * 100.0;
 
-    Serial.printf("[buffer size: %d, idx: %d, used: %.1f%%]\n", buffer.size, buffer.idx, buffer_used);
-    Serial.printf("\n\n");
+    helper::printf("[buffer size: %d, idx: %d, used: %.1f%%]\n", buffer.size, buffer.idx, buffer_used);
+    helper::printf("\n\n");
 }
 
 void note_buffer_ble_send(NoteData& buffer, NimBLECharacteristic* pCharacteristic) {

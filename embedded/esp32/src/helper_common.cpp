@@ -183,28 +183,28 @@ void print_error_code(ERROR_CODE err) {
 
     switch (err) {
         case ERROR_CODE::OK:
-            Serial.println("OK");
+            helper::println("OK");
             break;
         case ERROR_CODE::INVALID_ARGUMENT_EMPTY:
-            Serial.println("INVALID_ARGUMENT_EMPTY");
+            helper::println("INVALID_ARGUMENT_EMPTY");
             break;
         case ERROR_CODE::INVALID_ARGUMENT_NON_NUMERIC:
-            Serial.println("INVALID_ARGUMENT_NON_NUMERIC");
+            helper::println("INVALID_ARGUMENT_NON_NUMERIC");
             break;
         case ERROR_CODE::RUNTIME_ERROR_MISSING_SEMICOLON:
-            Serial.println("RUNTIME_ERROR_MISSING_SEMICOLON");
+            helper::println("RUNTIME_ERROR_MISSING_SEMICOLON");
             break;
         case ERROR_CODE::INVALID_ARGUMENT_MATRIX_ROWS_M_MUST_BE_A_POSITIVE_INTEGER:
-            Serial.println("INVALID_ARGUMENT_MATRIX_ROWS_M_MUST_BE_A_POSITIVE_INTEGER");
+            helper::println("INVALID_ARGUMENT_MATRIX_ROWS_M_MUST_BE_A_POSITIVE_INTEGER");
             break;
         case ERROR_CODE::INVALID_ARGUMENT_MATRIX_COLUMNS_N_MUST_BE_A_POSITIVE_INTEGER:
-            Serial.println("INVALID_ARGUMENT_MATRIX_COLUMNS_N_MUST_BE_A_POSITIVE_INTEGER");
+            helper::println("INVALID_ARGUMENT_MATRIX_COLUMNS_N_MUST_BE_A_POSITIVE_INTEGER");
             break;
         case ERROR_CODE::RUNTIME_ERROR_UNEXPECTED_CHARACTERS_AFTER_LAST_SEMICOLON:
-            Serial.println("RUNTIME_ERROR_UNEXPECTED_CHARACTERS_AFTER_LAST_SEMICOLON");
+            helper::println("RUNTIME_ERROR_UNEXPECTED_CHARACTERS_AFTER_LAST_SEMICOLON");
             break;
         case ERROR_CODE::RUNTIME_ERROR_UNEXPECTED_ERROR:
-            Serial.println("RUNTIME_ERROR_UNEXPECTED_ERROR");
+            helper::println("RUNTIME_ERROR_UNEXPECTED_ERROR");
             break;
     }
 
@@ -404,46 +404,46 @@ int parse_signal(const std::string &s, std::vector<uint32_t> &time, std::vector<
 }
 
 void print_vec_i32(const std::vector<int32_t>& V, const std::string& name) {
-    Serial.printf("%s: \n", name.c_str());
+    helper::printf("%s: \n", name.c_str());
     for (auto el : V) {
-        Serial.printf("%d,", el);
+        helper::printf("%d,", el);
     }
-    Serial.println("\n");
+    helper::println("\n");
 }
 
 void print_vec_u32(const std::vector<uint32_t>& V, const std::string& name) {
-    Serial.printf("%s: \n", name.c_str());
+    helper::printf("%s: \n", name.c_str());
     for (auto el : V) {
-        Serial.printf("%u,", el);
+        helper::printf("%u,", el);
     }
-    Serial.println("\n");
+    helper::println("\n");
 }
 
 void print_array_i32(const int32_t* V,const size_t& len, const std::string& name) {
-    Serial.printf("%s: \n", name.c_str());
+    helper::printf("%s: \n", name.c_str());
     for (size_t i = 0; i < len; i++) {
-        Serial.printf("%d,", V[i]);
+        helper::printf("%d,", V[i]);
     }
-    Serial.println("\n");
+    helper::println("\n");
 }
 
 void print_array_u32(const uint32_t* V,const size_t& len, const std::string& name) {
-    Serial.printf("%s: \n", name.c_str());
+    helper::printf("%s: \n", name.c_str());
     for (size_t i = 0; i < len; i++) {
-        Serial.printf("%u,", V[i]);
+        helper::printf("%u,", V[i]);
     }
-    Serial.println("\n");
+    helper::println("\n");
 }
 
 void print_dataset(DataSet* d) {
-    Serial.println("-- Dataset d:");
+    helper::println("-- Dataset d:");
     print_array_u32(d->time_vec, d->size_vec, "d->time_vec");
     print_array_u32(d->d4_vec, d->size_vec, "d->d4_vec");
     print_array_u32(d->d5_vec, d->size_vec, "d->d5_vec");
     print_array_u32(d->d6_vec, d->size_vec, "d->d6_vec");
     print_array_i32(d->time_us_diff, d->size_vec, "d->time_us_diff");
     // print_vec_u32(d->target, "d->time_vec");
-    Serial.println("-- \n");
+    helper::println("-- \n");
 }
 
 void print_ts_us_constructed() {

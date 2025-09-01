@@ -61,9 +61,6 @@ void ble_router_toggle_signal_dataset();
 void ble_router_set_signal_control_on();
 void ble_router_set_signal_control_off();
 
-// extern std::vector<uint32_t> time_vec_a, d4_vec_a, d5_vec_a, d6_vec_a;
-// extern std::vector<uint32_t> time_vec_b, d4_vec_b, d5_vec_b, d6_vec_b;
-
 // Function declarations
 void initialize_signal_controller();
 void signal_task(void* arg);

@@ -31,31 +31,31 @@ const uint32_t GPIO_DI6_MASK = 1 << GPIO_DI6;
 const uint32_t GPIO_PIN_MASK = GPIO_DI4_MASK | GPIO_DI5_MASK | GPIO_DI6_MASK;
 
 void ble_router_set_signal_dataset_a() {
-    Serial.println("Changing to SET_A");
+    helper::println("Changing to SET_A");
     g_active_set = SignalSet::SET_A;
 }
 
 void ble_router_set_signal_dataset_b() {
-    Serial.println("Changing to SET_B");
+    helper::println("Changing to SET_B");
     g_active_set = SignalSet::SET_B;
 }
 
 void ble_router_set_signal_control_on() {
-    Serial.println("Changing control to ON");
+    helper::println("Changing control to ON");
     g_system_status.prop_control = StatusONOFF::ON;
 }
 
 void ble_router_set_signal_control_off() {
-    Serial.println("Changing control to OFF");
+    helper::println("Changing control to OFF");
     g_system_status.prop_control = StatusONOFF::OFF;
 }
 
 void ble_router_toggle_signal_dataset() {
     if (g_active_set == SignalSet::SET_A) {
-        Serial.println("Changing to SET_B");
+        helper::println("Changing to SET_B");
         g_active_set = SignalSet::SET_B;
     } else {
-        Serial.println("Changing to SET_A");
+        helper::println("Changing to SET_A");
         g_active_set = SignalSet::SET_A;
     }
 }
@@ -219,21 +219,21 @@ void signal_update_pattern(const std::string& signal) {
     }
 
     // Debug output of parsed signal
-    Serial.print("time: ");
+    helper::print("time: ");
     for (auto ti : new_timings) {
-        Serial.printf("%d, ", ti);
+        helper::printf("%d, ", ti);
     }
-    Serial.println(" ");
-    Serial.print("mode: ");
+    helper::println(" ");
+    helper::print("mode: ");
     for (auto mi : new_modes) {
-        Serial.printf("%d, ", mi);
+        helper::printf("%d, ", mi);
     }
-    Serial.println(" ");
+    helper::println(" ");
 
     // Update the inactive signal set (float buffering)
     if (xSemaphoreTake(g_signal_mutex, portMAX_DELAY) == pdTRUE) {
         if (g_active_set == SignalSet::SET_A) {
-            Serial.println("updating SET_B...");
+            helper::println("updating SET_B...");
             // Update SET_B while SET_A is active
             for (size_t i = 0; i < new_timings.size(); i++) {
                 g_dataset_b.time_vec[i] = new_timings[i];
@@ -243,7 +243,7 @@ void signal_update_pattern(const std::string& signal) {
             }
             
         } else {
-            Serial.println("updating SET_A...");
+            helper::println("updating SET_A...");
             // Update SET_A while SET_B is active
             for (size_t i = 0; i < new_timings.size(); i++) {
                 g_dataset_a.time_vec[i] = new_timings[i];
@@ -314,12 +314,12 @@ ERROR_CODE signal_update_full_control(const std::string& str_control_message) {
 
     if (xSemaphoreTake(g_signal_mutex, portMAX_DELAY) == pdTRUE) {
         if (g_active_set == SignalSet::SET_A) {
-            Serial.println("updating SET_B...");
+            helper::println("updating SET_B...");
             // Update SET_B while SET_A is active
             dataset_helper(g_dataset_b);
         }
         else {
-            Serial.println("updating SET_A...");
+            helper::println("updating SET_A...");
             // Update SET_A while SET_B is active
             dataset_helper(g_dataset_a);
         }

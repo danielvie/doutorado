@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <vector>
+#include "helper_printer.h"
 
 #define MAX_MATRIX_ELEMENTS 100
 
