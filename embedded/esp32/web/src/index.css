@@ -1,17 +1,42 @@
-@tailwind base;
+/* @tailwind base;
 @tailwind components;
-@tailwind utilities;
+@tailwind utilities; */
+
+@import "tailwindcss";
+
+/* @theme {
+  --color-gray-50: oklch(0.984 0.003 247.858);
+  --color-gray-100: oklch(0.968 0.007 247.896);
+  --color-gray-200: oklch(0.929 0.013 255.508);
+  --color-gray-300: oklch(0.869 0.022 252.894);
+  --color-gray-400: oklch(0.704 0.04 256.788);
+  --color-gray-500: oklch(0.554 0.046 257.417);
+  --color-gray-600: oklch(0.446 0.043 257.281);
+  --color-gray-700: oklch(0.372 0.044 257.287);
+  --color-gray-800: oklch(0.990 0.081 260.031);
+  --color-gray-900: oklch(0.208 0.042 265.755);
+  --color-gray-950: oklch(0.129 0.042 264.695);
+} */
+
 
 .btn {
-  @apply border-none px-3 py-2 bg-purple-600 text-lg rounded-md cursor-pointer hover:bg-purple-700 duration-300
+  @apply border px-3 py-2 bg-gray-800 text-lg rounded-md cursor-pointer hover:bg-stone-700 duration-300;
 }
 
-.green {
-  @apply bg-green-700 !important
+.bg-info {
+  background-color: hsl(240, 47%, 69%) !important
 }
 
-.danger {
-  @apply bg-red-700 !important
+.bg-warning {
+  background-color: hsl(60, 49%, 61%) !important
+}
+
+.bg-success {
+  background-color: hsl(122, 50%, 60%) !important
+}
+
+.bg-danger {
+  background-color: hsl(359, 50%, 60%) !important
 }
 
 .bg-panel {
@@ -32,8 +57,8 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: hsl(0, 0%, 80%);
+  background-color: hsl(0, 0%, 10%);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -57,3 +82,4 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
+

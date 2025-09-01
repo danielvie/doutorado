@@ -17,6 +17,7 @@ function App() {
 
   return (
     <>
+      {/* {colors} */}
       <div className="grid grid-cols-2 gap-0 p-2">
         <div className="">
           <Control
@@ -50,7 +51,6 @@ function App() {
           }
         </div>
       </div>
-
 
       {show_images ?
         <div onClick={() => set_show_images(false)} className="fixed inset-0 flex items-center justify-center z-50 p-4 rounded-lg shadow-lg bg-blue-800 bg-opacity-30">

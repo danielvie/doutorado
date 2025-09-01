@@ -242,7 +242,7 @@ function Control(props: IControlProps) {
 
     return <>
         <div className="w-[600px]">
-            <h1 className="text-purple-500 text-4xl font-bold justify-center items-center text-center">
+            <h1 className="title text-4xl font-bold justify-center items-center text-center">
                 ESP32 Web Bluetooth Control
             </h1>
 
