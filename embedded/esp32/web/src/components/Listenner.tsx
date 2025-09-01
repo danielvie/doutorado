@@ -60,8 +60,6 @@ function Listenner(props: IProps) {
                         // value={cycle_nrun}
                         // onChange={handle_cycle_nrun}
                     /> */}
-
-
             </div>
 
 

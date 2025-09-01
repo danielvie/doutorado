@@ -32,22 +32,26 @@ function App() {
             set_filter_alpha={set_filter_alpha}
           ></Control>
         </div>
-        <div className="p-4">
+        <div className="py-2">
           <RealtimeChart
             data={data.slice(-200)}
             analog_scale={analog_scale}
             filter_alpha={filter_alpha}
           />
         </div>
-        <div className="col-span-1">
-          {has_advanced_menu 
-          ? <div>
-             <div onClick={() => set_has_advanced_menu((val)=> !val)} className="text-left bg-[#1a1a1a] p-2 rounded-md"><button>advanced menu &lt;&lt; </button></div> 
-            <Listenner
-              alpha={alpha}
-            ></Listenner>
-          </div>          
-          : <div onClick={() => set_has_advanced_menu((val)=> !val)} className="text-left bg-[#1a1a1a] p-2 rounded-md"><button>advanced menu &gt;&gt;</button></div>
+        <div className="col-span-1 p-2">
+          {has_advanced_menu
+            ? <div>
+              <div onClick={() => set_has_advanced_menu((val) => !val)} className="text-left">
+                <button className="btn info">advanced menu &lt;&lt; </button>
+              </div>
+              <Listenner
+                alpha={alpha}
+              ></Listenner>
+            </div>
+            : <div onClick={() => set_has_advanced_menu((val) => !val)} className="text-left">
+              <button className="btn info">advanced menu &gt;&gt;</button>
+            </div>
           }
         </div>
       </div>

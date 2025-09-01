@@ -1,54 +1,95 @@
-/* @tailwind base;
-@tailwind components;
-@tailwind utilities; */
-
 @import "tailwindcss";
 
-/* @theme {
-  --color-gray-50: oklch(0.984 0.003 247.858);
-  --color-gray-100: oklch(0.968 0.007 247.896);
-  --color-gray-200: oklch(0.929 0.013 255.508);
-  --color-gray-300: oklch(0.869 0.022 252.894);
-  --color-gray-400: oklch(0.704 0.04 256.788);
-  --color-gray-500: oklch(0.554 0.046 257.417);
-  --color-gray-600: oklch(0.446 0.043 257.281);
-  --color-gray-700: oklch(0.372 0.044 257.287);
-  --color-gray-800: oklch(0.990 0.081 260.031);
-  --color-gray-900: oklch(0.208 0.042 265.755);
-  --color-gray-950: oklch(0.129 0.042 264.695);
-} */
+@theme {
+  --color-*: initial;
+  --color-blue-1: hsl(220, 42%, 45%);
+  --color-blue-2: hsl(220, 42%, 35%);
+  --color-blue-3: hsl(220, 42%, 25%);
+  --color-gray-1: hsl(0, 0%, 40%);
+  --color-gray-2: hsl(0, 0%, 30%);
+  --color-gray-3: hsl(0, 0%, 20%);
+  --color-gray-4: hsl(0, 0%, 14%);
+  --color-gray-5: hsl(0, 0%, 10%);
+  --color-gray-6: hsl(0, 0%, 9%);
+  --color-gray-7: hsl(0, 0%, 8%);
+  --color-info: hsl(0, 0%, 23%);
+  --color-send: hsl(280, 46%, 37%);
+  --color-send-2: hsl(280, 46%, 47%);
+  --color-panel: #1e1e1e;
+  --color-warning: hsl(60, 49%, 61%);
+  --color-success: hsl(122, 34%, 30%);
+  --color-success-2: hsl(122, 34%, 40%);
+  --color-danger: hsl(359, 50%, 40%);
+  --color-danger-2: hsl(359, 50%, 50%);
+}
 
-
+/* Custom component styles */
 .btn {
-  @apply border px-3 py-2 bg-gray-800 text-lg rounded-md cursor-pointer hover:bg-stone-700 duration-300;
+  display: inline-block;
+  padding: 0.5rem 0.75rem;
+  font-size: 1.125rem;
+  border: 1px solid var(--color-blue-2);
+  background-color: var(--color-blue-3);
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition-duration: 300ms;
 }
 
-.bg-info {
-  background-color: hsl(240, 47%, 69%) !important
+.btn:hover {
+  background-color: var(--color-blue-2);
 }
 
-.bg-warning {
-  background-color: hsl(60, 49%, 61%) !important
+/* Custom component styles */
+.btn.send {
+  color: hsl(0, 0%, 90%);
+  border-color: var(--color-send-2);
+  background-color: var(--color-send);
 }
 
-.bg-success {
-  background-color: hsl(122, 50%, 60%) !important
+.btn.send:hover {
+  background-color: var(--color-send-2);
 }
 
-.bg-danger {
-  background-color: hsl(359, 50%, 60%) !important
+.btn.success {
+  color: hsl(0, 0%, 90%);
+  border-color: var(--color-success-2);
+  background-color: var(--color-success);
 }
 
-.bg-panel {
-  background-color: #1e1e1e;
+.btn.success:hover {
+  background-color: var(--color-success-2);
 }
+
+.btn.danger {
+  color: hsl(0, 0%, 90%);
+  border-color: var(--color-danger-2);
+  background-color: var(--color-danger);
+}
+
+.btn.danger:hover {
+  background-color: var(--color-danger-2);
+}
+
+.btn.info {
+  padding: 0.2rem 0.7rem;
+  color: hsl(0, 0%, 90%);
+  border-color: var(--color-gray-6);
+  background-color: var(--color-gray-7);
+}
+
+.btn.info:hover {
+  background-color: var(--color-gray-6);
+}
+
+
 
 .border {
-  @apply border-zinc-700 border-[1px]
+  border: 1px solid rgb(63 63 70);
 }
 
 .input {
-  @apply bg-panel border
+  background-color: #1e1e1e;
+  border: 1px solid rgb(63 63 70);
 }
 
 :root {
@@ -58,7 +99,7 @@
 
   color-scheme: light dark;
   color: hsl(0, 0%, 80%);
-  background-color: hsl(0, 0%, 10%);
+  background-color: var(--color-gray-4);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

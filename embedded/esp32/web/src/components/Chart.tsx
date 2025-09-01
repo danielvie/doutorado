@@ -147,38 +147,38 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
   }
 
   return (
-    <div className="w-full h-96 p-4 mb-10">
-      {/* Chart title */}
+    <div className="w-full h-full p-4 bg-panel rounded-md">
       <h2 className="text-xl font-bold mb-4">{title}</h2>
 
-      {/* Digital readouts for the latest values of each measurement */}
       <div>
         <span className="w-32 inline-block text-right">an5 {`->`} V_C1:</span>
-        {/* <span className="w-24 inline-block text-right ml-3">{v2} ({fun_process_scale(v2)})</span> */}
         <span className="w-24 inline-block text-right ml-3">
           {low_band_filter(v2, 'an5')} ({fun_process_scale(low_band_filter(v2, 'an5_scaled'))})
         </span>
-
       </div>
+
       <div>
         <span className="w-32 inline-block text-right">an6 {`->`} V_C2:</span>
-        {/* <span className="w-24 inline-block text-right ml-3">{v3} ({fun_process_scale(v3)})</span> */}
         <span className="w-24 inline-block text-right ml-3">
           {low_band_filter(v3, 'an6')} ({fun_process_scale(low_band_filter(v3, 'an6_scaled'))})
         </span>
       </div>
+
       <div>
         <span className="w-32 inline-block text-right">an3 {`->`} VR:</span>
-        {/* <span className="w-24 inline-block text-right ml-3">{v1} ({fun_process_scale(v1)})</span> */}
         <span className="w-24 inline-block text-right ml-3">
           {low_band_filter(v1, 'an3')} ({fun_process_scale(low_band_filter(v1, 'an3_scaled'))})
         </span>
       </div>
+      
+      <div className="bg-info w-full h-[2px] my-2"></div>
 
-      {/* The actual chart component */}
-      <div className="h-full">
+      <div className="bg-gray-4 p-3 rounded-md">
         <Line data={chartData} />
       </div>
+
+      <div className="bg-info w-full h-[2px] my-2"></div>
+
     </div>
   );
 };
