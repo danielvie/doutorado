@@ -1,12 +1,15 @@
 #include "helper_datasetter.h"
 
 static const float TOL = 0.01;
-bool helper_eql_float(const float a, const float b) {
+bool helper_eql_float(const float a, const float b)
+{
     return std::fabs(a - b) < TOL;
 }
 
-void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
-    if (helper_eql_float(alpha, 0.1)) {
+void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha)
+{
+    if (helper_eql_float(alpha, 0.1))
+    {
         // alpha: 0.1
 
         dataset->size_vec = 6;
@@ -57,7 +60,8 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
         dataset->gain_k.values[13] = 0.0221058;
         dataset->gain_k.values[14] = 0.0285782;
     }
-    if (helper_eql_float(alpha, 0.2)) {
+    if (helper_eql_float(alpha, 0.2))
+    {
         // alpha: 0.2
 
         dataset->size_vec = 6;
@@ -108,7 +112,8 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
         dataset->gain_k.values[13] = 0.0111152;
         dataset->gain_k.values[14] = 0.0285453;
     }
-    if (helper_eql_float(alpha, 0.3)) {
+    if (helper_eql_float(alpha, 0.3))
+    {
         // alpha: 0.3
 
         dataset->size_vec = 6;
@@ -159,7 +164,8 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
         dataset->gain_k.values[13] = 0.0074410;
         dataset->gain_k.values[14] = 0.0285290;
     }
-    if (helper_eql_float(alpha, 0.4)) {
+    if (helper_eql_float(alpha, 0.4))
+    {
         // alpha: 0.4
 
         dataset->size_vec = 6;
@@ -210,7 +216,8 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
         dataset->gain_k.values[13] = 0.0028733;
         dataset->gain_k.values[14] = -0.0298394;
     }
-    if (helper_eql_float(alpha, 0.5)) {
+    if (helper_eql_float(alpha, 0.5))
+    {
         // alpha: 0.5
 
         dataset->size_vec = 6;
@@ -261,7 +268,8 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
         dataset->gain_k.values[13] = 0.0022807;
         dataset->gain_k.values[14] = -0.0296241;
     }
-    if (helper_eql_float(alpha, 0.6)) {
+    if (helper_eql_float(alpha, 0.6))
+    {
         // alpha: 0.6
 
         dataset->size_vec = 6;
@@ -312,7 +320,8 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
         dataset->gain_k.values[13] = 0.0018880;
         dataset->gain_k.values[14] = -0.0294650;
     }
-    if (helper_eql_float(alpha, 0.7)) {
+    if (helper_eql_float(alpha, 0.7))
+    {
         // alpha: 0.7
 
         dataset->size_vec = 6;
@@ -363,7 +372,8 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
         dataset->gain_k.values[13] = -0.0032050;
         dataset->gain_k.values[14] = 0.0584852;
     }
-    if (helper_eql_float(alpha, 0.8)) {
+    if (helper_eql_float(alpha, 0.8))
+    {
         // alpha: 0.8
 
         dataset->size_vec = 6;
@@ -414,7 +424,8 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
         dataset->gain_k.values[13] = -0.0027968;
         dataset->gain_k.values[14] = 0.0579364;
     }
-    if (helper_eql_float(alpha, 0.9)) {
+    if (helper_eql_float(alpha, 0.9))
+    {
         // alpha: 0.9
 
         dataset->size_vec = 6;
