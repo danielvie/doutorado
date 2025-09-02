@@ -190,7 +190,7 @@ this gap by providing an affordable and accessible solution for researchers and 
 hands-on control strategies.
 
 Specifically, we focus on the three-cell flying capacitor converter with RL load, a topology widely used 
-in the literature \textcolor{red}{[Referências]}. By using standard components and an embedded controller, 
+in the literature \cite{Benmiloud:2019} \cite{Patino:2010}. By using standard components and an embedded controller, 
 our circuit provides an effective, hands-on tool for research, lowering the barriers to entry for those 
 in the field.
 
@@ -405,6 +405,28 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
   \end{center}
   \caption{Photo of the device. The $10 \Omega$ resistors R1, R2, $\ldots$, R6 are soldered on the bottom.}
 \end{figure}
+
+
+Measurement points have been deliberately incorporated into the circuit board's design
+to facilitate instrumentation during experiments and testing. As shown in Figure 
+\ref{fig:circuit_measure_points}, the measurement points on the board are highlighted and
+magnified to better reveal their details. These designated locations are essential
+for diagnostics and performance validation, enabling engineers to accurately assess
+key parameters like voltage, current, and signal integrity. The ability to measure
+these directly proved to be effective for troubleshooting and ensuring
+the circuit operates as intended under various conditions.
+
+
+\begin{figure}[h]
+  \label{fig:circuit_measure_points}
+  \begin{center}
+    \includegraphics[width=\textwidth]{images/hw_circuit_measure_points.pdf}
+  \end{center}
+  \caption{Device's Measurement Points}
+\end{figure}
+
+
+
 
 
 \include{software.tex}
