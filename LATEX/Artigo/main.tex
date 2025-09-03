@@ -211,6 +211,23 @@ advanced control techniques, such as model predictive control \cite{Wang:2018} a
 efficiency. These innovations have expanded their application from high-power industrial drives to areas 
 like electric vehicle charging and renewable energy systems \cite{Lai:1999}.
 
+The work of Patino et al. \cite{Patino:2010} proposes a predictive control approach for DC-DC 
+power converters that aims to achieve an optimal periodic cycle from a set-point of the average 
+model. The control law is designed to track a predefined limit cycle and regulate the output 
+waveform. The authors present simulation and experimental results, building a multilevel converter 
+to validate the techniques. There is not much details about the hardware, but the authors specify 
+the electrical parameters for their multi-level converter example, such as the capacitor, inductor, 
+and resistor values. The authors do not specify if the hardware was custom-built by them 
+or an existing commercial platform.
+
+In contrast, Saenz et al. \cite{Saenz:2014} provides extensive details about their hardware, 
+which they used to sudy linear and predictive control strategies for multi-cell converters. 
+Their control method is based on Model Predictive Control (MPC) with variable switching instants, 
+a simplified cost function, and a state machine. The authors used a DE2 FPGA card for control 
+and measurement to validate the performance of the proposed methods. Their experimental results 
+were compared to simulations to confirm the validity. It is also mentioned that the hardware 
+was developed with the help of external resources.
+
 \section{Hardware description}
 % Describe the hardware, highlighting the customization rather than the steps of the procedure. Highlight how it differs/which advantage it offers over pre-existing methods. For example, how could this hardware: be compared to other hardware in terms of cost or ease of use, be used in the development of further designs in a particular area, and so on.
 
