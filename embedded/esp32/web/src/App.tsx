@@ -32,17 +32,8 @@ function App() {
             filter_alpha={filter_alpha}
             set_filter_alpha={set_filter_alpha}
           ></Control>
-        </div>
-        {has_chart
-        ?<div className="py-2">
-           <RealtimeChart
-            data={data.slice(-200)}
-            analog_scale={analog_scale}
-            filter_alpha={filter_alpha}
-          />
-        </div>
-          :""
-        }
+
+
         <div className="col-span-1 p-2">
           <div className="text-left mb-2">
             {
@@ -65,6 +56,22 @@ function App() {
             </div>
           }
         </div>
+
+
+
+        </div>
+
+        {has_chart
+        ?<div className="py-2">
+           <RealtimeChart
+            data={data.slice(-200)}
+            analog_scale={analog_scale}
+            filter_alpha={filter_alpha}
+          />
+        </div>
+          :""
+        }
+
       </div>
 
       {show_images ?
