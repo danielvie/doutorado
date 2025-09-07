@@ -1,13 +1,7 @@
-/**
- * UUID for the ESP32 BLE service
- * This is a custom UUID that must match the one configured in the ESP32 firmware
- */
+// UUID for the ESP32 BLE service
 const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
 
-/**
- * UUID for the characteristic used for data communication
- * This is a custom UUID that must match the one configured in the ESP32 firmware
- */
+// UUID for the characteristic used for data communication
 const CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
 
 // Module-level variables to maintain the Bluetooth connection state
@@ -17,18 +11,10 @@ let g_characteristic: any = null; // The characteristic used for communication
 
 // Function reference for status updates to the UI
 let g_fn_UpdateStatus: any = null; // Will be set to a callback function from the UI component
+let g_fn_SetAppStatusMessage: any = null; // Will be set to a callback function from the UI component
 let g_is_listening = false; // Flag to track if we're currently listening for notifications
 
-/**
- * Initiates a Bluetooth connection to an ESP32 device
- *
- * This function triggers the browser's Bluetooth device picker and establishes
- * a connection with the ESP32 device that advertises our service UUID.
- * Once connected, it sets up event listeners and gets the GATT characteristic
- * used for communication.
- *
- * @returns {Promise<void>} A promise that resolves when connection is established
- */
+// Initiates a Bluetooth connection to an ESP32 device
 export async function ble_connect_device() {
     try {
         // Access the Web Bluetooth API through navigator
@@ -63,11 +49,7 @@ export async function ble_connect_device() {
     }
 }
 
-/**
- * Manually disconnects from the currently connected ESP32 device
- *
- * @returns {Promise<void>} A promise that resolves when disconnection is complete
- */
+// Manually disconnects from the currently connected ESP32 device
 export async function ble_disconnect_device() {
     if (g_bluetoothDevice && g_bluetoothDevice.gatt.connected) {
         await g_bluetoothDevice.gatt.disconnect();
@@ -76,19 +58,13 @@ export async function ble_disconnect_device() {
     ble_update_status("Manually disconnected");
 }
 
-/**
- * Event handler for when the device disconnects
- * This will be called automatically when the device disconnects unexpectedly
- */
+// Event handler for when the device disconnects
 function ble_handle_disconnect() {
     ble_update_status("Disconnected from ESP32", true);
     ble_reset_connection();
 }
 
-/**
- * Resets all connection-related variables to their initial state
- * Called after a disconnect (manual or automatic)
- */
+// Resets all connection-related variables to their initial state
 function ble_reset_connection() {
     g_bluetoothDevice = null;
     g_gattServer = null;
@@ -96,37 +72,23 @@ function ble_reset_connection() {
     g_is_listening = false; // Reset listening state on disconnect
 }
 
-/**
- * Sets the callback function used to update the UI with status messages
- * This should be called by the UI component that displays status messages
- *
- * @param update_status_fun - Function that accepts a message string and error flag
- */
+// Sets the callback function used to update the UI with status messages
 export function ble_set_update_status(update_status_fun: CallableFunction) {
     g_fn_UpdateStatus = update_status_fun;
 }
 
-/**
- * Updates the UI with a status message
- *
- * @param message - The status message to display
- * @param _isError - Whether this is an error message (for styling)
- */
+export function ble_app_set_status_msg(set_status_msg: CallableFunction) {
+    g_fn_SetAppStatusMessage = set_status_msg;
+}
+
+// Updates the UI with a status message
 function ble_update_status(message: string, _isError: boolean = false) {
     if (g_fn_UpdateStatus) {
         g_fn_UpdateStatus(message, _isError);
     }
 }
 
-/**
- * Sends a command to the ESP32 device via Bluetooth
- *
- * Will attempt to reconnect if the device is currently disconnected.
- * Commands are automatically trimmed and converted to uppercase.
- *
- * @param command - The command string to send to the device
- * @returns {Promise<void>} A promise that resolves when the command is sent
- */
+// Sends a command to the ESP32 device via Bluetooth
 export async function ble_send_command(command: string) {
     // Check if we're connected, try to reconnect if not
     if (!ble_is_connected()) {
@@ -163,24 +125,12 @@ export async function ble_send_command(command: string) {
     }
 }
 
-/**
- * Checks if a Bluetooth connection is currently established
- *
- * @returns {boolean} True if connected, false otherwise
- */
+// Checks if a Bluetooth connection is currently established
 export function ble_is_connected() {
     return g_bluetoothDevice && g_bluetoothDevice.gatt.connected;
 }
 
-/**
- * Toggles the notification listening state
- *
- * When enabled, the device will send notification data that will be
- * processed and sent to the provided callback function.
- *
- * @param fn_probe - Callback function that will receive the parsed sensor data
- * @returns {boolean} The new listening state (true = listening, false = not listening)
- */
+// Toggles the notification listening state
 export function ble_toggle_listening(fn_probe: CallableFunction): boolean {
     // Can't listen if not connected
     if (!ble_is_connected()) {
@@ -201,14 +151,7 @@ export function ble_toggle_listening(fn_probe: CallableFunction): boolean {
     return g_is_listening;
 }
 
-/**
- * Starts listening for notifications from the BLE device
- *
- * This sets up an event listener for incoming data, parses it,
- * and passes the parsed sensor values to the provided callback.
- *
- * @param fn_probe - Callback function that will receive the parsed sensor data
- */
+// Starts listening for notifications from the BLE device
 async function ble_start_notifications(fn_probe: CallableFunction) {
     if (!g_characteristic) {
         ble_update_status("No characteristic available", true);
@@ -232,11 +175,9 @@ async function ble_start_notifications(fn_probe: CallableFunction) {
                 
                 if (message.includes('LOG') || message.includes('STATUS')) {
                     console.log(message)
+                    g_fn_SetAppStatusMessage(message);
                     return;
                 }
-
-                // message = message.replace(/\ncontrol\:.*/g, "")
-                // console.log(message)
 
                 // Parse the message using regex to extract key:value pairs
                 // Expected format is like "an3:1.23 an5:4.56 an6:7.89"
@@ -273,12 +214,7 @@ async function ble_start_notifications(fn_probe: CallableFunction) {
     }
 }
 
-/**
- * Stops listening for notifications from the BLE device
- *
- * Note that this doesn't remove the event listener, just stops the notifications.
- * The listener will be re-triggered if notifications restart.
- */
+// Stops listening for notifications from the BLE device
 async function ble_stop_notifications() {
     if (!g_characteristic) return;
 

@@ -1,21 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import RealtimeChart, { DataPoint } from "./components/Chart";
 import { _create_signal } from "./helper";
 
 import Control from "./components/Control";
 import Listenner from "./components/Listenner";
+import { ble_app_set_status_msg } from "./components/bluetooth";
 
 function App() {
 
   const [has_advanced_menu, set_has_advanced_menu] = useState(false);
-  const [has_chart, set_has_chart] = useState(false);
+  const [has_chart, set_has_chart] = useState(true);
   const [alpha, set_alpha] = useState("0.5");
   const [data, set_data] = useState<DataPoint[]>([]);
   const [show_images, set_show_images] = useState(false);
   const [analog_scale, set_analog_scale] = useState(1.0);
   const [filter_alpha, set_filter_alpha] = useState(0);
+  const [status_msg, set_status_msg] = useState('.');
 
+  useEffect(() => {
+    ble_app_set_status_msg(set_status_msg)
+  }, [])
+  
   return (
     <>
       {/* {colors} */}
@@ -49,6 +55,7 @@ function App() {
                 </div>
                 <Listenner
                   alpha={alpha}
+                  status_msg={status_msg}
                 ></Listenner>
               </div>
               : <div onClick={() => set_has_advanced_menu((val) => !val)} className="text-left">
@@ -58,8 +65,9 @@ function App() {
           </div>
         </div>
 
+        {/* chart */}
         {has_chart
-        ?<div className="py-2">
+        ?<div className="py-2 col-span-1">
            <RealtimeChart
             data={data.slice(-200)}
             analog_scale={analog_scale}
@@ -68,6 +76,7 @@ function App() {
         </div>
           :""
         }
+        
 
       </div>
 

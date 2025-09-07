@@ -6,6 +6,7 @@ import { _create_signal } from "../helper";
 
 interface IProps {
     alpha: string,
+    status_msg: string,
 }
 
 enum EMATRIX {
@@ -86,6 +87,10 @@ function Listenner(props: IProps) {
                 <button onClick={() => ble_send_command(`SET_ALPHA:${props.alpha}`)} className="btn">SET ALPHA ({props.alpha})</button>
                 <button onClick={() => ble_send_command(`CYCLE_NRUN:${cycles}`)} className="btn">SET CYCLES ({cycles})</button>
             </div>
+
+
+            <div className="col-span-1 bg-panel rounded-md text-left font-mono whitespace-break-spaces p-3">{props.status_msg}</div>
+
         </div>
     </>
 }
