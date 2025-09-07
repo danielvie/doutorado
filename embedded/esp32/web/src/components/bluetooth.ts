@@ -12,7 +12,7 @@ let g_characteristic: any = null; // The characteristic used for communication
 // Function reference for status updates to the UI
 let g_fn_update_status: any = null; // Will be set to a callback function from the UI component
 let g_fn_set_app_status_message: any = null; // Will be set to a callback function from the UI component
-let g_is_listening = false; // Flag to track if we're currently listening for notifications
+let g_fn_probe: any = null;
 
 // Initiates a Bluetooth connection to an ESP32 device
 export async function ble_connect_device() {
@@ -42,6 +42,11 @@ export async function ble_connect_device() {
 
         // Update UI with connection status
         ble_update_status("Connected to ESP32");
+        
+        // Automatically start listening for notifications when connected
+        if (g_fn_probe) {
+            await ble_start_notifications();
+        }
     } catch (error: any) {
         // Handle any errors during the connection process
         ble_update_status(`Connection failed: ${error.message}`, true);
@@ -69,7 +74,6 @@ function ble_reset_connection() {
     g_bluetooth_device = null;
     g_gattServer = null;
     g_characteristic = null;
-    g_is_listening = false; // Reset listening state on disconnect
 }
 
 // Sets the callback function used to update the UI with status messages
@@ -103,6 +107,8 @@ export async function ble_send_command(command: string) {
         }
     }
 
+    console.log(`command: ${command}`)
+
     // Normalize the command (trim whitespace and convert to uppercase)
     const comm = command.trim().toUpperCase();
     if (!comm) {
@@ -130,29 +136,12 @@ export function ble_is_connected() {
     return g_bluetooth_device && g_bluetooth_device.gatt.connected;
 }
 
-// Toggles the notification listening state
-export function ble_toggle_listening(fn_probe: CallableFunction): boolean {
-    // Can't listen if not connected
-    if (!ble_is_connected()) {
-        ble_update_status("Cannot toggle listening: not connected", true);
-        return false;
-    }
-
-    // Toggle the state
-    g_is_listening = !g_is_listening;
-
-    // Start or stop notifications based on the new state
-    if (g_is_listening) {
-        ble_start_notifications(fn_probe);
-    } else {
-        ble_stop_notifications();
-    }
-
-    return g_is_listening;
+export function ble_set_fn_probe(fn_probe: CallableFunction) {
+    g_fn_probe = fn_probe;
 }
 
 // Starts listening for notifications from the BLE device
-async function ble_start_notifications(fn_probe: CallableFunction) {
+export async function ble_start_notifications() {
     if (!g_characteristic) {
         ble_update_status("No characteristic available", true);
         return;
@@ -203,27 +192,12 @@ async function ble_start_notifications(fn_probe: CallableFunction) {
                         an5: parsed_data["an5"] || "0",
                         an6: parsed_data["an6"] || "0",
                     };
-                    fn_probe(results); // Call the probe callback with new data
+                    g_fn_probe(results); // Call the probe callback with new data
                 }
             },
         );
         ble_update_status("Started listening for notifications");
     } catch (err: any) {
         ble_update_status(`Failed to start notifications: ${err.message}`, true);
-        g_is_listening = false;
-    }
-}
-
-// Stops listening for notifications from the BLE device
-async function ble_stop_notifications() {
-    if (!g_characteristic) return;
-
-    try {
-        // Disable notifications from the characteristic
-        await g_characteristic.stopNotifications();
-        // Note: Event listener remains attached; it will be re-triggered if notifications restart
-        ble_update_status("Stopped listening for notifications");
-    } catch (err: any) {
-        ble_update_status(`Failed to stop notifications: ${err.message}`, true);
     }
 }

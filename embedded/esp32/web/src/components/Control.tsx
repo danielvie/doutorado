@@ -5,7 +5,7 @@ import {
     ble_disconnect_device,
     ble_send_command,
     ble_set_update_status,
-    ble_toggle_listening,
+    ble_set_fn_probe,
 } from "./bluetooth";
 import { _create_signal } from "../helper";
 import { DataPoint } from "./Chart";
@@ -34,18 +34,37 @@ function Control(props: IControlProps) {
     const [d6_bin, set_d6_bin] = useState("");
 
     const [is_connected, set_is_connected] = useState(false); // New state for connection status
-    const [listen_label, set_listen_label] = useState("Start Listening");
     const [mode, set_mode] = useState("");
     const [status, set_status] = useState(".");
     const [time, set_time] = useState("");
 
+    function probe_values(values: { an3: string; an5: string; an6: string }) {
+        const now = new Date();
+        const timeStr = (now.getTime() - initial_time.getTime()).toString();
+
+        props.set_data((currentData) => {
+            const newData = [...currentData, {
+                time: timeStr,
+                an6: parseFloat(values.an6), // * 10.0 / 6.0,
+                an5: parseFloat(values.an5), // * 10.0 / 6.0,
+                an3: parseFloat(values.an3), // * 10.0 / 6.0,
+            }];
+            return newData;
+        });
+    }
+
     // Monitor connection state
     useEffect(() => {
         compute_alpha(props.alpha);
+        ble_set_fn_probe(probe_values);
+
+        // monitor if the BLE is connected
         const interval = setInterval(() => {
-            set_is_connected(ble_is_connected());
+            const connected = ble_is_connected();
+            set_is_connected(connected);
         }, 1000); // Check every second
         return () => clearInterval(interval);
+
     }, []);
 
     function update_status(message: string, _isError = false) {
@@ -141,29 +160,6 @@ function Control(props: IControlProps) {
         ble_send_command("HIGH");
     }
 
-    function probe_values(values: { an3: string; an5: string; an6: string }) {
-        const now = new Date();
-        const timeStr = (now.getTime() - initial_time.getTime()).toString();
-
-        props.set_data((currentData) => {
-            const newData = [...currentData, {
-                time: timeStr,
-                an6: parseFloat(values.an6), // * 10.0 / 6.0,
-                an5: parseFloat(values.an5), // * 10.0 / 6.0,
-                an3: parseFloat(values.an3), // * 10.0 / 6.0,
-            }];
-            return newData;
-        });
-    }
-
-    async function handle_listen() {
-        if (!is_connected) {
-            await ble_connect_device();
-        }
-        const is_listening = ble_toggle_listening(probe_values);
-        set_listen_label(is_listening ? "Stop Listening" : "Start Listening");
-    }
-
     function calc_total_time(): string {
 
         let total = 0.0
@@ -250,9 +246,6 @@ function Control(props: IControlProps) {
                             Connect to ESP32
                         </button>
                     )}
-                <button onClick={handle_listen} className="btn">
-                    {listen_label}
-                </button>
                 <button onClick={()=>ble_send_command("STATUS")} className="btn">status</button>
                 <button onClick={handle_copy} className="btn">{copy_label}</button>
                 <button onClick={handle_clear_data} className="btn">clear data</button>
