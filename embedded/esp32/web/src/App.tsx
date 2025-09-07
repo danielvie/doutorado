@@ -9,7 +9,7 @@ import { ble_app_set_status_msg } from "./components/bluetooth";
 
 function App() {
 
-  const [has_advanced_menu, set_has_advanced_menu] = useState(false);
+  const [has_advanced_menu, set_has_advanced_menu] = useState(true);
   const [has_chart, set_has_chart] = useState(true);
   const [alpha, set_alpha] = useState("0.5");
   const [data, set_data] = useState<DataPoint[]>([]);
