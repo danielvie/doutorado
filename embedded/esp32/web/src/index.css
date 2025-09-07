@@ -4,6 +4,7 @@
   --breakpoint-tablet: 1300px;
 
   /* Keep all default Tailwind colors and add custom ones */
+  /* --color-*: initial; */
   --color-blue50: hsl(220, 50%, 50%);
   --color-blue30: hsl(220, 50%, 30%);
   --color-blue20: hsl(220, 50%, 20%);
@@ -19,8 +20,8 @@
   --color-warning: hsl(60, 50%, 61%);
   --color-success50: hsl(130, 50%, 40%);
   --color-success40: hsl(130, 50%, 30%);
-  --color-danger: hsl(0, 50%, 40%);
-  --color-danger-2: hsl(0, 50%, 50%);
+  --color-danger50: hsl(0, 50%, 50%);
+  --color-danger40: hsl(0, 50%, 40%);
 }
 
 /* Custom component styles */
@@ -62,12 +63,12 @@
 
 .btn.danger {
   color: hsl(0, 0%, 90%);
-  border-color: var(--color-danger-2);
-  background-color: var(--color-danger);
+  border-color: var(--color-danger50);
+  background-color: var(--color-danger40);
 }
 
 .btn.danger:hover {
-  background-color: var(--color-danger-2);
+  background-color: var(--color-danger50);
 }
 
 .btn.info {
@@ -80,8 +81,6 @@
 .btn.info:hover {
   background-color: var(--color-gray30);
 }
-
-
 
 .border {
   border: 1px solid var(--color-zinc-700);

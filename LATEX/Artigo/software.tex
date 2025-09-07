@@ -234,7 +234,7 @@ analysis of the circuit's performance.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[scale=0.9]{images/hw_esp32_pins.pdf}
+    \includegraphics[width=140mm]{images/hw_esp32_pins.pdf}
     \caption{ESP32 Digital and Analog mapping}
     \label{fig:sw_esp_pins}
 \end{figure}
@@ -242,7 +242,7 @@ analysis of the circuit's performance.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[scale=1.0]{images/sw_web_interface.png}
+    \includegraphics[width=140mm]{images/sw_web_interface.pdf}
     \caption{Web Interface to connect and control the ESP32.}
     \label{fig:sw_web_interface}
 \end{figure}
@@ -265,8 +265,19 @@ features of the interface:
         
         the mode is the decimal representation of the three digital outputs.
         The digital output is set to send value to D4, D5 and D6 (figure \ref{fig:sw_esp_pins}). 
+
+        When 6.1 is clicked then the interface shows the decomposed values for each channel D4, D5 and D6.
+
+        \begin{figure}[h!]
+            \centering
+            \includegraphics[width=90mm]{images/sw_web_interface_modes_bin.png}
+            \caption{Binary command values for D4, D5, D6 signal}
+            \label{fig:sw_web_interface_modes_bin}
+        \end{figure}
+        
         The example in figure \ref{fig:sw_web_interface}, generates the digital signals
-        d4: [0, 0, 0, 1, 1, 1], d5: [0, 1, 1, 1, 0, 0], d6: [1, 1, 0, 0, 0, 1]
+        d4: [0, 0, 0, 0, 1, 0], d5: [0, 0, 1, 0, 0, 0], d6: [1, 0, 0, 0, 0, 0] as seen 
+        in figure \ref{fig:sw_web_interface_modes_bin}.
 
         represented in Figure \ref{fig:sw_signal}.
         
@@ -281,16 +292,21 @@ features of the interface:
     \item \textbf{8. START SIGNAL:} Commands the ESP32 to start reproducing the signal created.
     \item \textbf{9. LOW:} Commands the ESP32 to set all digital outputs to LOW (0).
     \item \textbf{10. HIGH:} Commands the ESP32 to set all digital outputs to HIGH (1).
-    \item \textbf{11. Start Listening:} Allow the web-interface to show the messages sent by ESP32 via BLE.
+    \item \textbf{11. chart toggle:} Collapses or expand the Chart to show the voltage reading via BLE.
+    \item \textbf{12. advanced menu:} Collapses or expand the menu with pre-configured facility commands to send messages via BLE.
+
+
+    \item \textbf{13. Monitor Chart:} When `Start Listening` is active, then the Monitor chart shows the values of the analog readings from the ESP32.
+
+    \item \textbf{14. Start Listening:} Allow the web-interface to show the messages sent by ESP32 via BLE.
 
         the values are status messages and analog data that populates the Monitor Chart
 
-    \item \textbf{12. copy:} Copy the data populating the monitor charts to the clipboard.
-    \item \textbf{13. clear data:} Clear the data populating the monitor charts.
-    \item \textbf{14. <img>:} When clicked on the image, the web interface then shows the schematics of the circuit and the connections of the 
+    \item \textbf{15. copy:} Copy the data populating the monitor charts to the clipboard.
+    \item \textbf{16. clear data:} Clear the data populating the monitor charts.
+    \item \textbf{17. $<img>$:} When clicked on the image, the web interface then shows the schematics of the circuit and the connections of the 
         ESP32. This is used as a reference while connecting the circuit.
 
-    \item \textbf{15. Monitor Chart:} When `Start Listening` is active, then the Monitor chart shows the values of the analog readings from the ESP32.
 
 \end{itemize}
 
