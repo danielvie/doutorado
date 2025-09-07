@@ -34,31 +34,28 @@ function App() {
           ></Control>
 
 
-        <div className="col-span-1 p-2">
-          <div className="text-left mb-2">
-            {
-            has_chart
-              ? <button onClick={() => set_has_chart(v => !v)} className="btn info">chart &lt;&lt;</button>
-              : <button onClick={() => set_has_chart(v => !v)} className="btn info">chart &gt;&gt;</button>
+          <div className="col-span-1 p-2">
+            <div className="text-left mb-2">
+              {
+                has_chart
+                  ? <button onClick={() => set_has_chart(v => !v)} className="btn info">chart &lt;&lt;</button>
+                  : <button onClick={() => set_has_chart(v => !v)} className="btn info">chart &gt;&gt;</button>
+              }
+            </div>
+            {has_advanced_menu
+              ? <div>
+                <div onClick={() => set_has_advanced_menu((val) => !val)} className="text-left">
+                  <button className="btn info">advanced menu &lt;&lt; </button>
+                </div>
+                <Listenner
+                  alpha={alpha}
+                ></Listenner>
+              </div>
+              : <div onClick={() => set_has_advanced_menu((val) => !val)} className="text-left">
+                <button className="btn info">advanced menu &gt;&gt;</button>
+              </div>
             }
           </div>
-          {has_advanced_menu
-            ? <div>
-              <div onClick={() => set_has_advanced_menu((val) => !val)} className="text-left">
-                <button className="btn info">advanced menu &lt;&lt; </button>
-              </div>
-              <Listenner
-                alpha={alpha}
-              ></Listenner>
-            </div>
-            : <div onClick={() => set_has_advanced_menu((val) => !val)} className="text-left">
-              <button className="btn info">advanced menu &gt;&gt;</button>
-            </div>
-          }
-        </div>
-
-
-
         </div>
 
         {has_chart
@@ -77,8 +74,8 @@ function App() {
       {show_images ?
         <div onClick={() => set_show_images(false)} className="fixed inset-0 flex items-center justify-center z-50 p-4 rounded-lg shadow-lg bg-gray-5/50">
           <div className="flex flex-col space-y-4 items-center">
-            <img src="circuit.png" alt="Circuit" className="h-[350px]" />
-            <img src="esp_pins.png" alt="ESP Pins" className="max-w-full" />
+            <img src="circuit.png" alt="Circuit" className="w-8/12" />
+            <img src="esp_pins.png" alt="ESP Pins" className="w-8/12" />
           </div>
         </div>
         : ""

@@ -28,11 +28,11 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      inkscape:zoom="1.0396255"
-     inkscape:cx="604.0637"
-     inkscape:cy="343.3929"
-     inkscape:window-width="2380"
+     inkscape:cx="286.16074"
+     inkscape:cy="186.60566"
+     inkscape:window-width="1571"
      inkscape:window-height="1360"
-     inkscape:window-x="1051"
+     inkscape:window-x="1853"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
      inkscape:current-layer="layer2"
@@ -510,7 +510,7 @@
            id="tspan8"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'JetBrainsMono Nerd Font';-inkscape-font-specification:'JetBrainsMono Nerd Font';text-align:center;text-anchor:middle;fill:#f5d6d6;fill-opacity:1;stroke:none;stroke-width:0.7"
            x="183.57295"
-           y="73.24514">GPIO21</tspan></text><rect
+           y="73.24514">GPIO22</tspan></text><rect
          style="fill:#eaadad;fill-opacity:1;stroke:none;stroke-width:0.699999;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:0;stroke-dasharray:none;stroke-opacity:1"
          id="rect12"
          width="17.787548"
@@ -528,7 +528,7 @@
            id="tspan12"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'JetBrainsMono Nerd Font';-inkscape-font-specification:'JetBrainsMono Nerd Font';fill:#262626;stroke:none;stroke-width:0.7"
            x="158.34515"
-           y="73.393799">D5 (21)</tspan></text><rect
+           y="73.393799">D5 (22)</tspan></text><rect
          style="fill:#511414;fill-opacity:1;stroke:none;stroke-width:0.7;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:0;stroke-dasharray:none;stroke-opacity:1"
          id="rect13"
          width="1.9878582"
