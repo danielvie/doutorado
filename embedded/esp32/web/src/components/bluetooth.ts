@@ -5,34 +5,34 @@ const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
 const CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
 
 // Module-level variables to maintain the Bluetooth connection state
-let g_bluetoothDevice: any = null; // Reference to the connected Bluetooth device
+let g_bluetooth_device: any = null; // Reference to the connected Bluetooth device
 let g_gattServer = null; // The GATT server of the connected device
 let g_characteristic: any = null; // The characteristic used for communication
 
 // Function reference for status updates to the UI
-let g_fn_UpdateStatus: any = null; // Will be set to a callback function from the UI component
-let g_fn_SetAppStatusMessage: any = null; // Will be set to a callback function from the UI component
+let g_fn_update_status: any = null; // Will be set to a callback function from the UI component
+let g_fn_set_app_status_message: any = null; // Will be set to a callback function from the UI component
 let g_is_listening = false; // Flag to track if we're currently listening for notifications
 
 // Initiates a Bluetooth connection to an ESP32 device
 export async function ble_connect_device() {
     try {
         // Access the Web Bluetooth API through navigator
-        let navigatorObject: any = window.navigator;
+        let navigator_object: any = window.navigator;
 
         // Open the device picker dialog, filtering for our specific service
-        g_bluetoothDevice = await navigatorObject.bluetooth.requestDevice({
+        g_bluetooth_device = await navigator_object.bluetooth.requestDevice({
             filters: [{ services: [SERVICE_UUID] }],
         });
 
         // Set up a disconnect handler
-        g_bluetoothDevice.addEventListener(
+        g_bluetooth_device.addEventListener(
             "gattserverdisconnected",
             ble_handle_disconnect,
         );
 
         // Connect to the device's GATT server
-        g_gattServer = await g_bluetoothDevice.gatt.connect();
+        g_gattServer = await g_bluetooth_device.gatt.connect();
 
         // Get the service we're interested in
         const service = await g_gattServer.getPrimaryService(SERVICE_UUID);
@@ -51,8 +51,8 @@ export async function ble_connect_device() {
 
 // Manually disconnects from the currently connected ESP32 device
 export async function ble_disconnect_device() {
-    if (g_bluetoothDevice && g_bluetoothDevice.gatt.connected) {
-        await g_bluetoothDevice.gatt.disconnect();
+    if (g_bluetooth_device && g_bluetooth_device.gatt.connected) {
+        await g_bluetooth_device.gatt.disconnect();
     }
     ble_reset_connection();
     ble_update_status("Manually disconnected");
@@ -66,7 +66,7 @@ function ble_handle_disconnect() {
 
 // Resets all connection-related variables to their initial state
 function ble_reset_connection() {
-    g_bluetoothDevice = null;
+    g_bluetooth_device = null;
     g_gattServer = null;
     g_characteristic = null;
     g_is_listening = false; // Reset listening state on disconnect
@@ -74,17 +74,17 @@ function ble_reset_connection() {
 
 // Sets the callback function used to update the UI with status messages
 export function ble_set_update_status(update_status_fun: CallableFunction) {
-    g_fn_UpdateStatus = update_status_fun;
+    g_fn_update_status = update_status_fun;
 }
 
 export function ble_app_set_status_msg(set_status_msg: CallableFunction) {
-    g_fn_SetAppStatusMessage = set_status_msg;
+    g_fn_set_app_status_message = set_status_msg;
 }
 
 // Updates the UI with a status message
 function ble_update_status(message: string, _isError: boolean = false) {
-    if (g_fn_UpdateStatus) {
-        g_fn_UpdateStatus(message, _isError);
+    if (g_fn_update_status) {
+        g_fn_update_status(message, _isError);
     }
 }
 
@@ -127,7 +127,7 @@ export async function ble_send_command(command: string) {
 
 // Checks if a Bluetooth connection is currently established
 export function ble_is_connected() {
-    return g_bluetoothDevice && g_bluetoothDevice.gatt.connected;
+    return g_bluetooth_device && g_bluetooth_device.gatt.connected;
 }
 
 // Toggles the notification listening state
@@ -175,7 +175,7 @@ async function ble_start_notifications(fn_probe: CallableFunction) {
                 
                 if (message.includes('LOG') || message.includes('STATUS')) {
                     console.log(message)
-                    g_fn_SetAppStatusMessage(message);
+                    g_fn_set_app_status_message(message);
                     return;
                 }
 
