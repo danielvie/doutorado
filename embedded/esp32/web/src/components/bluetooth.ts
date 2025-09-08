@@ -133,7 +133,8 @@ export async function ble_send_command(command: string) {
 
 // Checks if a Bluetooth connection is currently established
 export function ble_is_connected() {
-    return g_bluetooth_device && g_bluetooth_device.gatt.connected;
+    // return g_bluetooth_device && g_bluetooth_device.gatt.connected;
+    return g_bluetooth_device;
 }
 
 export function ble_set_fn_probe(fn_probe: CallableFunction) {

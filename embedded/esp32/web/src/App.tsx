@@ -4,12 +4,14 @@ import RealtimeChart, { DataPoint } from "./components/Chart";
 import { _create_signal } from "./helper";
 
 import Control from "./components/Control";
-import Listenner from "./components/Listenner";
+import AdvancedMenu from "./components/AdvancedMenu";
 import { ble_app_set_status_msg } from "./components/bluetooth";
 
 function App() {
 
   const [has_advanced_menu, set_has_advanced_menu] = useState(true);
+  const [advanced_menu_label, set_advanced_menu_label] = useState("advanced menu <<");
+  const [chart_label, set_chart_label] = useState("chart <<");
   const [has_chart, set_has_chart] = useState(true);
   const [alpha, set_alpha] = useState("0.5");
   const [data, set_data] = useState<DataPoint[]>([]);
@@ -22,61 +24,99 @@ function App() {
     ble_app_set_status_msg(set_status_msg)
   }, [])
   
+
+  function handle_toggle_chart() {
+    set_has_chart(v => {
+      // adjust label for the advanced menu
+      const label = v ? "chart >>" : "chart <<"
+      set_chart_label(label)
+
+      // return the toggled value
+      return !v
+    })
+  }
+
+  function handle_toggle_advanced_menu() {
+    set_has_advanced_menu((v) => {
+      // adjust label for the advanced menu
+      const label = v ? "advanced menu >>" : "advanced menu <<"
+      set_advanced_menu_label(label)
+
+      // return the toggled value
+      return !v
+    })
+  }
+
+  const col_control = <div>
+    <Control
+      alpha={alpha}
+      set_alpha={set_alpha}
+      data={data}
+      set_data={set_data}
+      set_show_images={set_show_images}
+      analog_scale={analog_scale}
+      set_analog_scale={set_analog_scale}
+      filter_alpha={filter_alpha}
+      set_filter_alpha={set_filter_alpha}
+    ></Control>
+
+    {/* toggle buttons */}
+    <div className="col-span-1 p-2 text-left bg-panel rounded-md flex flex-col gap-2">
+      <div>
+        <button onClick={handle_toggle_chart} className="btn info">{chart_label}</button>
+      </div>
+      <div>
+        <button onClick={handle_toggle_advanced_menu} className="btn info">{advanced_menu_label}</button>
+      </div>
+    </div>
+  </div>
+  
+  const col_chart = <div className="col-span-1">
+    {has_chart
+      ?
+      <RealtimeChart
+        data={data.slice(-200)}
+        analog_scale={analog_scale}
+        filter_alpha={filter_alpha}
+      />
+      : ""
+    }
+  </div>
+  
+  const col_advanced_menu = <div className="col-span-1">
+    {has_advanced_menu
+      ? <AdvancedMenu
+        alpha={alpha}
+        status_msg={status_msg}
+        set_status_msg={set_status_msg}
+      ></AdvancedMenu>
+      : ""
+    }
+  </div>
+  
+  const col_status_msg = <div className="col-span-1">
+    <div className="col-span-1 bg-panel rounded-md text-left font-mono whitespace-break-spaces p-3">
+      <button onClick={() => set_status_msg("")} className="cursor-pointer">[clear]</button>
+      {status_msg}
+    </div>
+  </div>
+
   return (
     <>
       {/* {colors} */}
-      <div className="grid grid-cols-1 tablet:grid-cols-2 gap-0 p-2 ">
-        <div className="">
-          <Control
-            alpha={alpha}
-            set_alpha={set_alpha}
-            data={data}
-            set_data={set_data}
-            set_show_images={set_show_images}
-            analog_scale={analog_scale}
-            set_analog_scale={set_analog_scale}
-            filter_alpha={filter_alpha}
-            set_filter_alpha={set_filter_alpha}
-          ></Control>
-
-
-          <div className="col-span-1 p-2">
-            <div className="text-left mb-2">
-              {
-                has_chart
-                  ? <button onClick={() => set_has_chart(v => !v)} className="btn info">chart &lt;&lt;</button>
-                  : <button onClick={() => set_has_chart(v => !v)} className="btn info">chart &gt;&gt;</button>
-              }
-            </div>
-            {has_advanced_menu
-              ? <div>
-                <div onClick={() => set_has_advanced_menu((val) => !val)} className="text-left">
-                  <button className="btn info">advanced menu &lt;&lt; </button>
-                </div>
-                <Listenner
-                  alpha={alpha}
-                  status_msg={status_msg}
-                ></Listenner>
-              </div>
-              : <div onClick={() => set_has_advanced_menu((val) => !val)} className="text-left">
-                <button className="btn info">advanced menu &gt;&gt;</button>
-              </div>
-            }
-          </div>
-        </div>
+      <div className="grid grid-cols-1 tablet:grid-cols-2 gap-2 p-2 ">
+        {/* control */}
+        {col_control}
 
         {/* chart */}
-        {has_chart
-        ?<div className="py-2 col-span-1">
-           <RealtimeChart
-            data={data.slice(-200)}
-            analog_scale={analog_scale}
-            filter_alpha={filter_alpha}
-          />
-        </div>
-          :""
-        }
-        
+        {col_chart}
+
+        {/* messages */}
+        {col_status_msg}
+
+        {/* advanced menu */}
+        {col_advanced_menu}
+
 
       </div>
 

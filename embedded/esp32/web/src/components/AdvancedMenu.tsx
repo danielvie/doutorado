@@ -7,6 +7,7 @@ import { _create_signal } from "../helper";
 interface IProps {
     alpha: string,
     status_msg: string,
+    set_status_msg: CallableFunction,
 }
 
 enum EMATRIX {
@@ -14,7 +15,7 @@ enum EMATRIX {
     B,
 }
 
-function Listenner(props: IProps) {
+function AdvancedMenu(props: IProps) {
 
     const [chunk, set_chunk] = useState('1')
     const [cycles, set_cycles] = useState('100')
@@ -52,15 +53,6 @@ function Listenner(props: IProps) {
 
                 <span>cycle_nrun:</span>
                 <input id="in-alpha" type="number" className="h-10 w-14 p-2" onChange={handle_set_cycles} value={cycles} />
-
-                    {/* <label className="mr-4 relative top-2 w-16">cycle_nrun:</label>
-                    <input
-                        type="number"
-                        id="in-alpha"
-                        className="bg-panel border flex-none w-24 px-2 text-center"
-                        // value={cycle_nrun}
-                        // onChange={handle_cycle_nrun}
-                    /> */}
             </div>
 
 
@@ -88,13 +80,12 @@ function Listenner(props: IProps) {
                 <button onClick={() => ble_send_command(`CYCLE_NRUN:${cycles}`)} className="btn">SET CYCLES ({cycles})</button>
             </div>
 
-            <div className="col-span-1 bg-panel rounded-md text-left font-mono whitespace-break-spaces p-3">{props.status_msg}</div>
 
         </div>
     </>
 }
 
-export default Listenner;
+export default AdvancedMenu;
 
     // "STATUS"
     // "STATUS_MATRIX_A"
