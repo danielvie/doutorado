@@ -103,7 +103,6 @@ function App() {
 
   return (
     <>
-      {/* {colors} */}
       <div className="grid grid-cols-1 tablet:grid-cols-2 gap-2 p-2 ">
         {col_control}
         {col_chart}
