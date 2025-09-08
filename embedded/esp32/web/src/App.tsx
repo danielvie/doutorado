@@ -105,19 +105,10 @@ function App() {
     <>
       {/* {colors} */}
       <div className="grid grid-cols-1 tablet:grid-cols-2 gap-2 p-2 ">
-        {/* control */}
         {col_control}
-
-        {/* chart */}
         {col_chart}
-
-        {/* messages */}
         {col_status_msg}
-
-        {/* advanced menu */}
         {col_advanced_menu}
-
-
       </div>
 
       {show_images ?
