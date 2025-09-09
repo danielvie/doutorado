@@ -114,7 +114,7 @@ function App() {
         <div onClick={() => set_show_images(false)} className="fixed inset-0 flex items-center justify-center z-50 p-4 rounded-lg shadow-lg bg-gray-5/50">
           <div className="flex flex-col space-y-4 items-center">
             <img src="circuit.png" alt="Circuit" className="w-8/12" />
-            <img src="esp_pins.png" alt="ESP Pins" className="w-8/12" />
+            <img src="hw_esp32_pins.png" alt="ESP Pins" className="w-8/12" />
           </div>
         </div>
         : ""

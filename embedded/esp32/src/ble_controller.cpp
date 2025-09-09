@@ -464,7 +464,7 @@ void read_and_send_analog_data(NimBLECharacteristic *characteristic) {
         const float time_constraint_us = 10.0;
 
         timer_a = std::chrono::high_resolution_clock::now();
-        condition_dtk_signal_optimized(dataset_active->time_vec, dataset_active->size_vec, time_constraint_us,
+        condition_dtk_signal(dataset_active->time_vec, dataset_active->size_vec, time_constraint_us,
                                        control_dtk_us, control_dtk_len, workspace_float);
         timer_b = std::chrono::high_resolution_clock::now();
         g_system_duration.dtk_condition = std::chrono::duration_cast<std::chrono::microseconds>(timer_b - timer_a).count();
