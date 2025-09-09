@@ -271,7 +271,7 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
   \begin{center}
     \includegraphics[scale=0.75]{PhaseShiftModulation.pdf}
   \end{center}
-  \caption{Phase-shifted modulation scheme for the three-cell converter.}
+  \caption{Phase-shifted modulation scheme for the three-cell converter. \red{Falar que é possível trocar a ordem u1, u2, u3, como na referência Thielemans, 2012.}}
 \end{figure}
 
 
@@ -279,23 +279,28 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
 \begin{figure}[h]
   \label{fig:Schematics}
   \begin{center}
-    \includegraphics[scale=1]{Schematics.pdf}
+    \includegraphics[scale=0.7]{Schematics.pdf}
   \end{center}
   \caption{Circuit schematics.}
 \end{figure}
 
 
 \section{Design files summary}
-\textit{Complete a separate row for each design file associated with your hardware (including the primary design files). Any empty rows should be deleted.}
-% Please include a summary of all design files for your hardware by filling rows of the table below
+
 \vskip 0.1cm
 \tabulinesep=1ex
 \begin{tabu} to \linewidth {|X|X|X[1.5,1]|X[1.5,1]|}
   \hline
   \textbf{Design filename}            & \textbf{File type}                      & \textbf{Open source license}                                                                                                     & \textbf{Location of the file}                                                                   \\\hline
-  %Insert design files
-  \textit{For example: Design file 1} & \textit{e.g. CAD file, figures, videos} & \textit{All designs must be submitted under an open hardware license. Enter the corresponding open source license for the file.} & \textit{Either enter the URL for the repository or the sentence: "Available with the article".} \\\hline
+  Schematic diagram                               & KiCad file                                   & \dots                                                                                                                            & https://doi.org/10.5281/zenodo.17014511                                                                                           \\\hline
+  PCB layout                               & KiCad file                                  & \dots                                                                                                                            & \dots                                                                                           \\\hline
+  
   \dots                               & \dots                                   & \dots                                                                                                                            & \dots                                                                                           \\\hline
+  
+  \dots                               & \dots                                   & \dots                                                                                                                            & \dots                                                                                           \\\hline
+  
+  \dots                               & \dots                                   & \dots                                                                                                                            & \dots                                                                                           \\\hline
+  
   \dots                               & \dots                                   & \dots                                                                                                                            & \dots                                                                                           \\\hline
   % Design file 3 & File type & License & Link \\\hline
 \end{tabu}
@@ -439,14 +444,15 @@ the circuit operates as intended under various conditions.
   \begin{center}
     \includegraphics[scale=0.6]{images/hw_circuit_measure_points.pdf}
   \end{center}
-  \caption{Measurement points on the circuit board. 
-    \red{
-      TP1 = AN6,
-      TP2 = AN5,
-      TP3 = D6,
-      TP4 = D4,
-      TP5 = D5,
-       Rotacionar placa. Conectar bobina. Incluir foto da bobina como inset, como na ampliação dos Test Points.}}
+  \caption{Measurement points on the circuit board}
+\end{figure}
+
+\begin{figure}[h]
+  \label{fig:circuit_measure_points_2}
+  \begin{center}
+    \includegraphics[scale=0.6]{images/hw_circuit_measure_points_2.pdf}
+  \end{center}
+  \caption{Measurement points on the circuit board. \red{1 = TP6, 2 = TP7, 3 = TP9, 4 = TP8, 5 = TP4, 6 = TP5, 7 = TP3, 8 = TP2, 9 = TP1. Rotacionar placa. Conectar bobina. Incluir foto da bobina como inset, como na ampliação dos Test Points.}}
 \end{figure}
 
 
@@ -464,24 +470,30 @@ the circuit operates as intended under various conditions.
 %> If possible, characterize performance of the hardware over operational parameters. 
 %> Create a bulleted list that describes the capabilities (and limitations) of the hardware. For example consider descriptions of load, operation time, spin speed, coefficient of variation, accuracy, precision and etc. 
 
+$R_L = 4.9 \, \Omega$, $R = 68 \, \Omega$. \red{Medir $R$.}
 
-
-Figure \ref{fig:Commands} presents the switch commands $u_1(t)$, $u_2(t)$, $u_3(t)$ for $\alpha = 0.3$. The waveforms were acquired at the test points TP3, TP4, TP5 using a  Tektronix TDS 2004B oscilloscope.
+Figure \ref{fig:Commands} presents the switch commands $u_1(t)$, $u_2(t)$, $u_3(t)$ for $\alpha = 0.4$. The waveforms were acquired at the test points TP3, TP4, TP5 using a  Tektronix TDS 2004B oscilloscope.
 
 \begin{figure}[h]
   \label{fig:Commands}
   \begin{center}
-    \includegraphics[scale=1]{Ton.jpg}
-    \includegraphics[scale=1]{DeltaT_12.jpg}
-    \includegraphics[scale=1]{DeltaT_31.jpg}
+    \includegraphics[scale=1]{PeriodT.jpg}
+    \includegraphics[scale=1]{T12.jpg}
+    \includegraphics[scale=1]{T13.jpg}
   \end{center}
-  \caption{Commands $u_1(t)$, $u_2(t)$, $u_3(t)$ with $\alpha = 0.3$ and $T = 279 \, \mu$s (a) $\Delta T_{on} = 83 \mu$s.}
+  \caption{Commands $u_1(t)$, $u_2(t)$, $u_3(t)$ with $\alpha = 0.4$ and $T = 282 \, \mu$s.}
+\end{figure}
+
+\begin{figure}[h]
+  \label{fig:Commands}
+  \begin{center}
+    \includegraphics[scale=1]{vR_alpha0p4_0p8.jpg}
+  \end{center}
+  \caption{Change in the voltage $v_R(t)$ following a change from $\alpha = 0.4$ to $\alpha = 0.8$.}
 \end{figure}
 
 
 
-
-Note that $T = 1/(3.75 \text{ kHz}) = 0.27$ ms. \\
 
 \noindent
 \textbf{Ethics statements}\\
@@ -644,4 +656,3 @@ This work was supported by Conselho Nacional de Desenvolvimento Científico e Te
   \end{itemize}}
 
 \end{document}
-
