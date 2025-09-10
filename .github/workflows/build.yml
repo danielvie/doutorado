@@ -20,10 +20,6 @@ jobs:
             extension: .exe
             suffix: windows-amd64
           - goos: darwin
-            goarch: amd64
-            extension: ""
-            suffix: macos-amd64
-          - goos: darwin
             goarch: arm64
             extension: ""
             suffix: macos-arm64
@@ -101,5 +97,4 @@ jobs:
           prerelease: false
           files: |
             ./artifacts/web_server_daniel-windows-amd64/web_server_daniel-windows-amd64.exe
-            ./artifacts/web_server_daniel-macos-amd64/web_server_daniel-macos-amd64
             ./artifacts/web_server_daniel-macos-arm64/web_server_daniel-macos-arm64
