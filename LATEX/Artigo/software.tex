@@ -270,7 +270,7 @@ features of the interface:
 
         \begin{figure}[h!]
             \centering
-            \includegraphics[width=90mm]{images/sw_web_interface_modes_bin.png}
+            \includegraphics[width=100mm]{images/sw_web_interface_modes_bin.png}
             \caption{Binary command values for D4, D5, D6 signal}
             \label{fig:sw_web_interface_modes_bin}
         \end{figure}
@@ -283,7 +283,7 @@ features of the interface:
         
 \begin{figure}[h!]
     \centering
-    \includegraphics[scale=1.4]{images/sw_signal.pdf}
+    \includegraphics[width=140mm]{images/sw_signal.pdf}
     \caption{Signal for $\alpha$ of 0.3}
     \label{fig:sw_signal}
 \end{figure}
@@ -296,15 +296,15 @@ features of the interface:
     \item \textbf{12. advanced menu:} Collapses or expand the menu with pre-configured facility commands to send messages via BLE.
 
 
-    \item \textbf{13. Monitor Chart:} When `Start Listening` is active, then the Monitor chart shows the values of the analog readings from the ESP32.
+    \item \textbf{13. Status jbox:} When a status message is received by the web interface, then it is shown in this box.
 
-    \item \textbf{14. Start Listening:} Allow the web-interface to show the messages sent by ESP32 via BLE.
+    \item \textbf{14. Monitor Chart:} When `Start Listening` is active, then the Monitor chart shows the values of the analog readings from the ESP32.
 
-        the values are status messages and analog data that populates the Monitor Chart
+    \item \textbf{15. Status:} Command a `get status` from the ESP32
 
-    \item \textbf{15. copy:} Copy the data populating the monitor charts to the clipboard.
-    \item \textbf{16. clear data:} Clear the data populating the monitor charts.
-    \item \textbf{17. $<img>$:} When clicked on the image, the web interface then shows the schematics of the circuit and the connections of the 
+    \item \textbf{16. copy:} Copy the data populating the monitor charts to the clipboard.
+    \item \textbf{17. clear data:} Clear the data populating the monitor charts.
+    \item \textbf{18. $<img>$:} When clicked on the image, the web interface then shows the schematics of the circuit and the connections of the 
         ESP32. This is used as a reference while connecting the circuit.
 
 
@@ -323,7 +323,7 @@ generation). This dual-task structure allows the system to manage sensor inputs 
 
 \begin{figure}[h]
     \centering
-    \includegraphics[scale=0.5]{images/sw_state_machine.png}
+    \includegraphics[width=130mm]{images/sw_state_machine.png}
     \caption{State Diagram of the SW Operation Modes}
     \label{fig:state_diagram}
 \end{figure}
