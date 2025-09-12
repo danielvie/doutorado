@@ -15,7 +15,8 @@ function App() {
   const [has_chart, set_has_chart] = useState(true);
   const [alpha, set_alpha] = useState("0.5");
   const [data, set_data] = useState<DataPoint[]>([]);
-  const [show_images, set_show_images] = useState(false);
+  const [images_show, set_images_show] = useState(false);
+  const [images_swap, set_images_swap] = useState(true);
   const [analog_scale, set_analog_scale] = useState(1.0);
   const [filter_alpha, set_filter_alpha] = useState(0);
   const [status_msg, set_status_msg] = useState('.');
@@ -46,6 +47,22 @@ function App() {
       return !v
     })
   }
+  
+  const images_1 = <>
+      <img src="circuit.png" alt="Circuit" className="w-8/12" />
+      <img src="hw_esp32_pins.png" alt="ESP Pins" className="w-8/12" />
+  </>
+
+  const images_2 = <>
+      <img src="hw_measure_points.png" alt="ESP Pins" className="w-10/12 border-2 border-gray-500" />
+  </>
+  
+  const images = <div className="fixed inset-0 flex items-center justify-center z-50 p-4 rounded-lg shadow-lg bg-panel/80">
+    <div onClick={() => set_images_show(false)} className="flex flex-col space-y-4 items-center">
+      {images_swap ? images_1 : images_2}
+    </div>
+    <div onClick={() => set_images_swap(v => !v)} className="arrow-r absolute left-10/12"></div>
+  </div>
 
   const col_control = <div>
     <Control
@@ -53,7 +70,7 @@ function App() {
       set_alpha={set_alpha}
       data={data}
       set_data={set_data}
-      set_show_images={set_show_images}
+      set_show_images={set_images_show}
       analog_scale={analog_scale}
       set_analog_scale={set_analog_scale}
       filter_alpha={filter_alpha}
@@ -110,14 +127,8 @@ function App() {
         {col_advanced_menu}
       </div>
 
-      {show_images ?
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4 rounded-lg shadow-lg bg-gray-5/50">
-          <div onClick={() => set_show_images(false)} className="flex flex-col space-y-4 items-center">
-            <img src="circuit.png" alt="Circuit" className="w-8/12" />
-            <img src="hw_esp32_pins.png" alt="ESP Pins" className="w-8/12" />
-          </div>
-          <div className="arrow-r absolute left-10/12"></div>
-        </div>
+      {images_show ?
+        images
         : ""
       }
 
