@@ -123,3 +123,15 @@ body {
   min-height: 100vh;
 }
 
+.arrow-r {
+  width: 0;
+  height: 0;
+  border-top: 50px solid transparent;
+  border-bottom: 50px solid transparent;
+  border-left: 40px solid var(--color-blue30);
+  cursor: pointer;
+}
+
+.arrow-r:hover {
+  border-left: 40px solid var(--color-blue50);
+}

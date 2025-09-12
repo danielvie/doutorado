@@ -249,7 +249,7 @@ function Control(props: IControlProps) {
                 <button onClick={()=>ble_send_command("STATUS")} className="btn">status</button>
                 <button onClick={handle_copy} className="btn">{copy_label}</button>
                 <button onClick={handle_clear_data} className="btn">clear data</button>
-                <button className="text-4xl" onClick={() => props.set_show_images(true)}>🖼️</button>
+                <button className="text-4xl cursor-pointer" onClick={() => props.set_show_images(true)}>🖼️</button>
             </div>
 
             <div id="controlPanel" className="flex flex-col gap-2 p-2 rounded-xl">
