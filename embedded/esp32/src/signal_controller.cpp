@@ -174,7 +174,9 @@ void start_signal_timer() {
 
 // Stop signal timer
 void stop_signal_timer() {
-    timer_pause(TIMER_GROUP, TIMER_IDX);
+    if (g_timer_initialized) {
+        timer_pause(TIMER_GROUP, TIMER_IDX);
+    }
 }
 
 // Set outputs high
