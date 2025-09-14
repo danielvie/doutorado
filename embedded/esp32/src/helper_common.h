@@ -26,6 +26,7 @@ enum class StatusONOFF {
 struct SystemStatus {
     StatusONOFF prop_control; // proportional control
     StatusONOFF log_last_calc;
+    StatusONOFF ble_messages;
 };
 
 struct SystemDuration {

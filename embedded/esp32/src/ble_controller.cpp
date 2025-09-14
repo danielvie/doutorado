@@ -83,6 +83,12 @@ void BLE_router(NimBLECharacteristic *characteristic) {
     else if (message == "CONTROL_OFF") {
         ble_router_set_signal_control_off();
     }
+    else if (message == "BLE_MESSAGE_ON") {
+        ble_router_set_ble_message_on();
+    }
+    else if (message == "BLE_MESSAGE_OFF") {
+        ble_router_set_ble_message_off();
+    }
     else if (message == "LOG_LAST_CALC_ON") {
         helper::println("set log_last_calc ON");
         g_system_status.log_last_calc = StatusONOFF::ON;
@@ -214,6 +220,10 @@ void ble_router_send_ble_message_status(NimBLECharacteristic *characteristic) {
 
     note_buffer_add_text(message_buffer, "log_last_calc: ");
     note_buffer_add_text(message_buffer, get_status_onoff_label(g_system_status.log_last_calc));
+    note_buffer_add_text(message_buffer, "\n");
+
+    note_buffer_add_text(message_buffer, "ble_messages : ");
+    note_buffer_add_text(message_buffer, get_status_onoff_label(g_system_status.ble_messages));
     note_buffer_add_text(message_buffer, "\n");
 
     // add g_cycle_nrun

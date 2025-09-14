@@ -29,6 +29,7 @@ struct Bin num2bin(uint32_t num) {
 SystemStatus g_system_status = {
     .prop_control = StatusONOFF::OFF,
     .log_last_calc = StatusONOFF::OFF,
+    .ble_messages = StatusONOFF::ON,
 };
 
 SystemDuration g_system_duration = {

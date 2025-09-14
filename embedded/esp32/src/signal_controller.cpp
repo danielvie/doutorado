@@ -33,21 +33,50 @@ const uint32_t GPIO_DI6_MASK = 1 << GPIO_DI6;
 const uint32_t GPIO_PIN_MASK = GPIO_DI4_MASK | GPIO_DI5_MASK | GPIO_DI6_MASK;
 
 void ble_router_set_signal_dataset_a() {
+    // message == "TOGGLE_SET_A"
+    //
+
     helper::println("Changing to SET_A");
     g_active_set = SignalSet::SET_A;
 }
 
 void ble_router_set_signal_dataset_b() {
+    // message == "TOGGLE_SET_B"
+    //
+
     helper::println("Changing to SET_B");
     g_active_set = SignalSet::SET_B;
 }
 
 void ble_router_set_signal_control_on() {
+    // message == "CONTROL_ON"
+    //
+
     helper::println("Changing control to ON");
     g_system_status.prop_control = StatusONOFF::ON;
 }
 
+void ble_router_set_ble_message_on() {
+    // message == "BLE_MESSAGE_ON"
+    //
+
+    helper::println("Changing ble messages ON");
+    g_system_status.ble_messages = StatusONOFF::ON;
+}
+
+void ble_router_set_ble_message_off() {
+    // message == "BLE_MESSAGE_OFF"
+    //
+
+    helper::println("Changing ble messages OFF");
+    g_system_status.ble_messages = StatusONOFF::OFF;
+}
+
+
 void ble_router_set_signal_control_off() {
+    // message == "CONTROL_OFF"
+    //
+
     helper::println("Changing control to OFF");
     g_system_status.prop_control = StatusONOFF::OFF;
 }
@@ -61,6 +90,9 @@ void ble_router_set_print_off() {
 }
 
 void ble_router_toggle_signal_dataset() {
+    // message == "TOGGLE_SET"
+    //
+
     if (g_active_set == SignalSet::SET_A) {
         helper::println("Changing to SET_B");
         g_active_set = SignalSet::SET_B;
@@ -109,7 +141,7 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
     }
 
     // Check for cycle completion and trigger analog reading if needed
-    if (g_current_state == 0) {
+    if (g_current_state == 0 && g_system_status.ble_messages == StatusONOFF::ON) {
         g_cycle_count = (g_cycle_count + 1) % g_cycle_nrun;
         if (g_cycle_count == 0) {
             g_ble_task_state = BLETaskState::ANALOG_READ; // NOTE: 4 -> loop call

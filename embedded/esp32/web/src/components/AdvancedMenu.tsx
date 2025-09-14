@@ -8,6 +8,7 @@ import { _create_signal } from "../helper";
 
 interface IProps {
     alpha: string,
+    set_alpha: CallableFunction,
     status_msg: string,
     set_status_msg: CallableFunction,
 }
@@ -47,6 +48,16 @@ function AdvancedMenu(props: IProps) {
         ble_send_command(`LOG_LAST_CALC:${chunk}`)
     }
 
+    
+
+    function handle_set_alpha(new_alpha: string) {
+        props.set_alpha(new_alpha)
+        ble_send_command(`SET_ALPHA:${new_alpha}`)
+    }
+
+    const alpha_less = Math.max(0.1, parseFloat(props.alpha) - 0.1).toFixed(1)
+    const alpha_more = Math.min(0.9, parseFloat(props.alpha) + 0.1).toFixed(1) 
+
     return <>
         <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
@@ -78,7 +89,14 @@ function AdvancedMenu(props: IProps) {
                 <button onClick={() => ble_send_command("SET_PRINT_OFF")} className="btn">PRINT OFF</button>
             </div>
             <div className="flex gap-2">
+                <button onClick={() => ble_send_command("BLE_MESSAGE_ON")} className="btn">BLE_MESSAGE_ON</button>
+                <button onClick={() => ble_send_command("BLE_MESSAGE_OFF")} className="btn">BLE_MESSAGE_OFF</button>
+            </div>
+
+            <div className="flex gap-2">
+                <button onClick={() => handle_set_alpha(alpha_less)} className="btn">({alpha_less})</button>
                 <button onClick={() => ble_send_command(`SET_ALPHA:${props.alpha}`)} className="btn">SET ALPHA ({props.alpha})</button>
+                <button onClick={() => handle_set_alpha(alpha_more)} className="btn">({alpha_more})</button>
                 <button onClick={() => ble_send_command(`CYCLE_NRUN:${cycles}`)} className="btn">SET CYCLES ({cycles})</button>
             </div>
 

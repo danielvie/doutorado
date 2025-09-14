@@ -65,13 +65,13 @@ void setup()
 
     // Create BLE task on Core 0 with higher stack size and higher priority for BLE operations and memory safety
     xTaskCreatePinnedToCore(
-        bleTask,    // Task function
-        "BLE Task", // Task name
-        10240,      // Stack size (bytes)
-        NULL,       // Task parameter
-        3,          // Priority (increased from 2 to 3)
-        NULL,       // Task handle
-        CORE_0      // CPU core
+        bleTask,              // Task function
+        "BLE Task",           // Task name
+        10240,                // Stack size (bytes)
+        NULL,                 // Task parameter
+        tskIDLE_PRIORITY + 1, // Priority
+        NULL,                 // Task handle
+        CORE_0                // CPU core
     );
 
     // Create signal task on Core 1 with high priority for precise timing
@@ -80,7 +80,7 @@ void setup()
         "Signal Task",            // Task name
         4096,                     // Stack size (bytes)
         NULL,                     // Task parameter
-        configMAX_PRIORITIES - 2, // High priority (second highest)
+        configMAX_PRIORITIES - 1, // High priority (second highest)
         NULL,                     // Task handle
         CORE_1                    // CPU core
     );

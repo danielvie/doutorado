@@ -106,6 +106,7 @@ function App() {
     {has_advanced_menu
       ? <AdvancedMenu
         alpha={alpha}
+        set_alpha={set_alpha}
         status_msg={status_msg}
         set_status_msg={set_status_msg}
       ></AdvancedMenu>
