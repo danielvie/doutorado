@@ -1,3 +1,5 @@
+// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
+
 #ifndef MATRIX_MATH_H
 #define MATRIX_MATH_H
 

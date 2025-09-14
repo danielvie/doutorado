@@ -1,3 +1,5 @@
+// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
+
 /**
  * ESP32 Signal Controller with BLE Interface
  *

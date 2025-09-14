@@ -1,3 +1,5 @@
+// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
+
 #ifndef SIGNAL_CONTROLLER_H
 #define SIGNAL_CONTROLLER_H
 

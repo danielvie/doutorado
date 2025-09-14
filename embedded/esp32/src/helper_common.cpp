@@ -1,3 +1,5 @@
+// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
+
 /**
  * Helper Functions Implementation for ESP32 Signal Controller
  *

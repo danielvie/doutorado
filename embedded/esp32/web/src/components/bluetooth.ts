@@ -1,3 +1,5 @@
+// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
+//
 // UUID for the ESP32 BLE service
 const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
 

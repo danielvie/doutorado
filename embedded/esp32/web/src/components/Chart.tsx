@@ -1,3 +1,5 @@
+// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
+
 import React from "react";
 import { Line } from "react-chartjs-2";
 import {

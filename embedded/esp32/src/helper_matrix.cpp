@@ -1,3 +1,5 @@
+// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
+
 #include "helper_matrix.h"
 
 bool matrix_isvalid(MatrixData &M) {

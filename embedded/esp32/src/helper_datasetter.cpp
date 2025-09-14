@@ -1,3 +1,5 @@
+// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
+
 #include "helper_datasetter.h"
 
 static const float TOL = 0.01;

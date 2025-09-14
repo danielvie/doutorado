@@ -1,3 +1,5 @@
+// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
+
 import { useEffect, useState } from "react";
 import {
     ble_is_connected,

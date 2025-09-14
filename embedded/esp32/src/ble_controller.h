@@ -1,3 +1,5 @@
+// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
+
 #ifndef BLE_CONTROLLER_H
 #define BLE_CONTROLLER_H
 

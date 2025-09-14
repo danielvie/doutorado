@@ -1,3 +1,5 @@
+// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
+//
 // Creates a switching signal based on a duty cycle
 export function _create_signal(alpha: number) {
     // System parameters
