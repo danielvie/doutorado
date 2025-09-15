@@ -7,6 +7,7 @@
 #include "esp_task_wdt.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/queue.h"
 #include <Arduino.h>
 
 #include "helper_common.h"
@@ -26,6 +27,14 @@
 
 // Maximum number of timing elements in a signal pattern
 #define MAX_ELEMENTS_SIGNAL 30
+
+// Enum for messages sent from signal task to BLE task
+enum class BLEQueueMessage : uint8_t {
+    ANALOG_READ_REQUEST
+};
+
+// Queue for communication between signal and BLE tasks
+extern QueueHandle_t g_ble_queue;
 
 // External variables that need to be accessible from other modules
 extern SignalTaskState g_signal_task_state;

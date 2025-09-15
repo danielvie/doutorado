@@ -26,6 +26,9 @@ uint32_t g_cycle_nrun = 1;
 // Mutex for thread-safe access to shared signal data
 SemaphoreHandle_t g_signal_mutex = NULL;
 
+// Queue for communication between signal and BLE tasks
+QueueHandle_t g_ble_queue = NULL;
+
 // Pre-calculated GPIO masks for efficient bit manipulation
 const uint32_t GPIO_DI4_MASK = 1 << GPIO_DI4;
 const uint32_t GPIO_DI5_MASK = 1 << GPIO_DI5;
@@ -144,7 +147,9 @@ bool IRAM_ATTR timer_group_isr_callback(void *args) {
     if (g_current_state == 0 && g_system_status.ble_messages == StatusONOFF::ON) {
         g_cycle_count = (g_cycle_count + 1) % g_cycle_nrun;
         if (g_cycle_count == 0) {
-            g_ble_task_state = BLETaskState::ANALOG_READ; // NOTE: 4 -> loop call
+            // Send a message to the BLE task to request an analog read
+            BLEQueueMessage msg = BLEQueueMessage::ANALOG_READ_REQUEST;
+            xQueueSendFromISR(g_ble_queue, &msg, NULL);
         }
     }
 
@@ -382,6 +387,9 @@ ERROR_CODE signal_update_full_control(const std::string &str_control_message) {
 void initialize_signal_controller() {
     // Create mutex for thread-safe signal data access
     g_signal_mutex = xSemaphoreCreateMutex();
+
+    // Create queue for communication with BLE task
+    g_ble_queue = xQueueCreate(10, sizeof(BLEQueueMessage));
 
     // Populate datasets with valid data
     DataSet *active = get_dataset_active();

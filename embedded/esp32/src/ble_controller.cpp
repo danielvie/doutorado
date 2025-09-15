@@ -2,8 +2,7 @@
 
 #include "ble_controller.h"
 
-// BLE Task state management
-BLETaskState g_ble_task_state = BLETaskState::IDLE;
+
 
 NoteData g_buffer_last_calc(1024);
 NoteData g_buffer_koka(1024);
@@ -209,9 +208,9 @@ void ble_router_send_ble_message_status(NimBLECharacteristic *characteristic) {
     note_buffer_add_text(message_buffer, get_signal_task_state_label(g_signal_task_state));
     note_buffer_add_text(message_buffer, "\n");
 
-    note_buffer_add_text(message_buffer, "ble state    : ");
-    note_buffer_add_text(message_buffer, get_ble_task_state_label(g_ble_task_state));
-    note_buffer_add_text(message_buffer, "\n");
+    // note_buffer_add_text(message_buffer, "ble state    : ");
+    // note_buffer_add_text(message_buffer, get_ble_task_state_label(g_ble_task_state));
+    // note_buffer_add_text(message_buffer, "\n");
 
     // Add system status
     note_buffer_add_text(message_buffer, "prop control : ");
@@ -363,7 +362,7 @@ void ble_router_run_signal(std::string &signal) {
     // message.substr(0,7) == "SIGNAL:"
     //
 
-    g_ble_task_state = BLETaskState::SIGNAL_READING;
+    // g_ble_task_state = BLETaskState::SIGNAL_READING;
     signal_update_pattern(signal);
 }
 
@@ -371,7 +370,7 @@ void ble_router_message_data(std::string &message) {
     // message.substr(0,13) == "MESSAGE_DATA:"
     //
 
-    g_ble_task_state = BLETaskState::SIGNAL_READING;
+    // g_ble_task_state = BLETaskState::SIGNAL_READING;
     signal_update_full_control(message); // NOTE: 0 -> read new message
 }
 
@@ -588,21 +587,14 @@ void bleTask(void *parameter) {
 
     // NOTE: BLE task loop
     while (1) {
-        // Handle analog reading requests
-        if (g_ble_task_state == BLETaskState::ANALOG_READ) {
-            g_ble_task_state = BLETaskState::ANALOG_READING;
-            read_and_send_analog_data(characteristic);
-            g_ble_task_state = BLETaskState::IDLE;
+        BLEQueueMessage msg;
+        // Wait for a message from the signal task
+        if (xQueueReceive(g_ble_queue, &msg, pdMS_TO_TICKS(10))) {
+            if (msg == BLEQueueMessage::ANALOG_READ_REQUEST) {
+                read_and_send_analog_data(characteristic);
+            }
         }
 
         esp_task_wdt_reset(); // Reset watchdog timer
-
-        // Use different delays based on signal state to give BLE more processing time during signal generation
-        if (g_signal_task_state == SignalTaskState::SIGNAL_RUN) {
-            vTaskDelay(pdMS_TO_TICKS(5)); // Shorter delay when signal is running to handle BLE better
-        }
-        else {
-            vTaskDelay(pdMS_TO_TICKS(10)); // Normal delay when not running signals
-        }
     }
 }

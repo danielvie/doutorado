@@ -23,8 +23,7 @@
 
 static const int BLE_BUFFER_SIZE = 250;
 
-// BLE Task state management
-extern BLETaskState g_ble_task_state;
+
 
 // Function declarations
 void bleTask(void* parameter);
