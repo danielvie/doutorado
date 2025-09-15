@@ -55,8 +55,10 @@ function AdvancedMenu(props: IProps) {
         ble_send_command(`SET_ALPHA:${new_alpha}`)
     }
 
+    const alpha_min = "0.1"
     const alpha_less = Math.max(0.1, parseFloat(props.alpha) - 0.1).toFixed(1)
     const alpha_more = Math.min(0.9, parseFloat(props.alpha) + 0.1).toFixed(1) 
+    const alpha_max = "0.9"
 
     return <>
         <div className="flex flex-col gap-2">
@@ -91,13 +93,15 @@ function AdvancedMenu(props: IProps) {
             <div className="flex gap-2">
                 <button onClick={() => ble_send_command("BLE_MESSAGE_ON")} className="btn">BLE_MESSAGE_ON</button>
                 <button onClick={() => ble_send_command("BLE_MESSAGE_OFF")} className="btn">BLE_MESSAGE_OFF</button>
+                <button onClick={() => ble_send_command(`CYCLE_NRUN:${cycles}`)} className="btn">SET CYCLES ({cycles})</button>
             </div>
 
             <div className="flex gap-2">
+                <button onClick={() => handle_set_alpha(alpha_min)} className="btn">({alpha_min})</button>
                 <button onClick={() => handle_set_alpha(alpha_less)} className="btn">({alpha_less})</button>
                 <button onClick={() => ble_send_command(`SET_ALPHA:${props.alpha}`)} className="btn">SET ALPHA ({props.alpha})</button>
                 <button onClick={() => handle_set_alpha(alpha_more)} className="btn">({alpha_more})</button>
-                <button onClick={() => ble_send_command(`CYCLE_NRUN:${cycles}`)} className="btn">SET CYCLES ({cycles})</button>
+                <button onClick={() => handle_set_alpha(alpha_max)} className="btn">({alpha_max})</button>
             </div>
 
 
