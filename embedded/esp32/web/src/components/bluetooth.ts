@@ -10,11 +10,49 @@ const CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
 let g_bluetooth_device: any = null; // Reference to the connected Bluetooth device
 let g_gattServer = null; // The GATT server of the connected device
 let g_characteristic: any = null; // The characteristic used for communication
+let g_paired_device: any = null; // Stores the device reference after first successful pairing
 
 // Function reference for status updates to the UI
 let g_fn_update_status: any = null; // Will be set to a callback function from the UI component
 let g_fn_set_app_status_message: any = null; // Will be set to a callback function from the UI component
 let g_fn_probe: any = null;
+
+// Attempts to reconnect to a previously paired device
+async function ble_reconnect_to_paired_device() {
+    if (!g_paired_device) {
+        return false; // No paired device available
+    }
+
+    try {
+        ble_update_status("Attempting to reconnect to paired device...");
+        
+        // Use the stored device reference to reconnect
+        g_bluetooth_device = g_paired_device;
+        
+        // Connect to the device's GATT server
+        g_gattServer = await g_bluetooth_device.gatt.connect();
+
+        // Get the service we're interested in
+        const service = await g_gattServer.getPrimaryService(SERVICE_UUID);
+
+        // Get the characteristic we'll use for reading/writing data
+        g_characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+
+        // Update UI with connection status
+        ble_update_status("Reconnected to ESP32");
+        
+        // Automatically start listening for notifications when connected
+        if (g_fn_probe) {
+            await ble_start_notifications();
+        }
+        
+        return true; // Success
+    } catch (error: any) {
+        ble_update_status(`Reconnection failed: ${error.message}`, true);
+        ble_reset_connection();
+        return false; // Failed
+    }
+}
 
 // Initiates a Bluetooth connection to an ESP32 device
 export async function ble_connect_device() {
@@ -26,6 +64,9 @@ export async function ble_connect_device() {
         g_bluetooth_device = await navigator_object.bluetooth.requestDevice({
             filters: [{ services: [SERVICE_UUID] }],
         });
+
+        // Store the device reference for future automatic reconnections
+        g_paired_device = g_bluetooth_device;
 
         // Set up a disconnect handler
         g_bluetooth_device.addEventListener(
@@ -65,6 +106,12 @@ export async function ble_disconnect_device() {
     ble_update_status("Manually disconnected");
 }
 
+// Clears the paired device reference (forces dialog on next connection)
+export function ble_clear_paired_device() {
+    g_paired_device = null;
+    ble_update_status("Paired device reference cleared");
+}
+
 // Event handler for when the device disconnects
 function ble_handle_disconnect() {
     ble_update_status("Disconnected from ESP32", true);
@@ -76,6 +123,7 @@ function ble_reset_connection() {
     g_bluetooth_device = null;
     g_gattServer = null;
     g_characteristic = null;
+    // Note: We keep g_paired_device for automatic reconnection unless manually cleared
 }
 
 // Sets the callback function used to update the UI with status messages
@@ -99,7 +147,16 @@ export async function ble_send_command(command: string) {
     // Check if we're connected, try to reconnect if not
     if (!ble_is_connected()) {
         ble_update_status("Not connected, attempting to reconnect...", true);
-        await ble_connect_device();
+        
+        // First try to reconnect to a previously paired device
+        const reconnectSuccess = await ble_reconnect_to_paired_device();
+        
+        // If automatic reconnection failed, show the device picker dialog
+        if (!reconnectSuccess) {
+            ble_update_status("Automatic reconnection failed, please select device...");
+            await ble_connect_device();
+        }
+        
         if (!ble_is_connected()) {
             ble_update_status(
                 `Failed to reconnect, cannot send command: '${command}'`,
@@ -135,8 +192,7 @@ export async function ble_send_command(command: string) {
 
 // Checks if a Bluetooth connection is currently established
 export function ble_is_connected() {
-    // return g_bluetooth_device && g_bluetooth_device.gatt.connected;
-    return g_bluetooth_device;
+    return g_bluetooth_device && g_bluetooth_device.gatt && g_bluetooth_device.gatt.connected;
 }
 
 export function ble_set_fn_probe(fn_probe: CallableFunction) {
