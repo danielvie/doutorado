@@ -82,10 +82,16 @@ void ble_router_set_signal_control_off() {
 }
 
 void ble_router_set_print_on() {
+    // message == "SET_PRINT_ON"
+    //
+
     helper::g_printer_on = true;
 }
 
 void ble_router_set_print_off() {
+    // message == "SET_PRINT_OFF"
+    //
+
     helper::g_printer_on = false;
 }
 

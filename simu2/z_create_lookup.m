@@ -4,20 +4,29 @@ function z_create_lookup()
     s = start();
     
     assignin('base', 's', s);
+
+    % header
+    message = sprintf("// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.\n\n");
+    message = sprintf("%s#include ""helper_datasetter.h""\n\n", message);
+    message = sprintf("%sstatic const float TOL = 0.01;\n", message);
+    message = sprintf("%sbool helper_eql_float(const float a, const float b) {\n", message);
+    message = sprintf("%s    return std::fabs(a - b) < TOL;\n", message);
     
-    message = "void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {";
+    message = sprintf("%s}\n\n", message);
+
+    message = sprintf("%svoid helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {\n", message);
     message = sprintf("%s\n", message);
 
     % for i = 1
-    for i = 1:9
-        alpha = i/10;
+    for i = 10:90
+        alpha = i/100;
         set_alpha(s, alpha);
 
         message = tab(message, 1);
-        message = sprintf("%sif (helper_eql_float(alpha, %.1f)) {\n", message, alpha);
+        message = sprintf("%sif (helper_eql_float(alpha, %.2f)) {\n", message, alpha);
 
         message = tab(message, 2);
-        message = sprintf("%s// alpha: %.1f\n\n", message, alpha);
+        message = sprintf("%s// alpha: %.2f\n\n", message, alpha);
         message = print_data(message, s);
     end
     clc;
@@ -43,6 +52,10 @@ function message = print_data(message_in, s)
     [rows, cols] = size(k);
 
     time_us = s.get_time_us();
+    
+    % not accept time less than 4 us
+    time_us = max(time_us, 7);
+
     [d6, d5, d4] = s.get_mode_bin();
     target = s.get_target();
 

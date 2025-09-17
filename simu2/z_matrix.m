@@ -9,4 +9,4 @@ s.set_mpc_config(mpc_config);
 
 s.set_traj_phase_alpha_and_mpc(0.9);
 
-s.get_gain_k()*[1;2;3]
+s.get_gain_k()*[1;2;3];

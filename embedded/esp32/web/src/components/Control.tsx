@@ -54,6 +54,10 @@ function Control(props: IControlProps) {
             return newData;
         });
     }
+    
+    useEffect(() => {
+        compute_alpha(props.alpha)
+    }, [props.alpha])
 
     // Monitor connection state
     useEffect(() => {
@@ -102,7 +106,7 @@ function Control(props: IControlProps) {
         const value_ = e.target.value;
         props.set_alpha(value_);
 
-        compute_alpha(value_)
+        // compute_alpha(value_)
     }
 
     function update_bin_values(mode: string) {
@@ -281,9 +285,9 @@ function Control(props: IControlProps) {
                         <label className="mr-4 relative top-2 w-12">alpha:</label>
                         <input
                             type="number"
-                            step="0.1"
+                            step="0.01"
                             id="in-alpha"
-                            className="bg-panel border flex-none w-16 px-2 text-center"
+                            className="bg-panel border flex-none w-20 px-2 text-center"
                             value={props.alpha}
                             onChange={handle_set_alpha}
                         />

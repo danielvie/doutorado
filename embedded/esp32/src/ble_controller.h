@@ -28,7 +28,7 @@ extern BLETaskState g_ble_task_state;
 
 // Function declarations
 void bleTask(void* parameter);
-void read_and_send_analog_data(NimBLECharacteristic* characteristic);
+void ble_send_analog_data(NimBLECharacteristic* characteristic);
 
 void ble_router_send_message_last_calc(NimBLECharacteristic* characteristic, int n_chunk);
 void ble_router_send_ble_message_status(NimBLECharacteristic* characteristic);

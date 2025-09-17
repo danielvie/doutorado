@@ -48,16 +48,16 @@ function AdvancedMenu(props: IProps) {
         ble_send_command(`LOG_LAST_CALC:${chunk}`)
     }
 
-    
-
     function handle_set_alpha(new_alpha: string) {
         props.set_alpha(new_alpha)
         ble_send_command(`SET_ALPHA:${new_alpha}`)
     }
 
     const alpha_min = "0.1"
-    const alpha_less = Math.max(0.1, parseFloat(props.alpha) - 0.1).toFixed(1)
-    const alpha_more = Math.min(0.9, parseFloat(props.alpha) + 0.1).toFixed(1) 
+    const alpha_less2 = Math.max(0.1, parseFloat(props.alpha) - 0.1).toFixed(2)
+    const alpha_less = Math.max(0.1, parseFloat(props.alpha) - 0.01).toFixed(2)
+    const alpha_more = Math.min(0.9, parseFloat(props.alpha) + 0.01).toFixed(2) 
+    const alpha_more2 = Math.min(0.9, parseFloat(props.alpha) + 0.1).toFixed(2) 
     const alpha_max = "0.9"
 
     return <>
@@ -97,11 +97,13 @@ function AdvancedMenu(props: IProps) {
             </div>
 
             <div className="flex gap-2">
-                <button onClick={() => handle_set_alpha(alpha_min)} className="btn">({alpha_min})</button>
-                <button onClick={() => handle_set_alpha(alpha_less)} className="btn">({alpha_less})</button>
+                <button onClick={() => handle_set_alpha(alpha_min)} className="btn">{alpha_min}</button>
+                <button onClick={() => handle_set_alpha(alpha_less2)} className="btn">{alpha_less2}</button>
+                <button onClick={() => handle_set_alpha(alpha_less)} className="btn">{alpha_less}</button>
                 <button onClick={() => ble_send_command(`SET_ALPHA:${props.alpha}`)} className="btn">SET ALPHA ({props.alpha})</button>
-                <button onClick={() => handle_set_alpha(alpha_more)} className="btn">({alpha_more})</button>
-                <button onClick={() => handle_set_alpha(alpha_max)} className="btn">({alpha_max})</button>
+                <button onClick={() => handle_set_alpha(alpha_more)} className="btn">{alpha_more}</button>
+                <button onClick={() => handle_set_alpha(alpha_more2)} className="btn">{alpha_more2}</button>
+                <button onClick={() => handle_set_alpha(alpha_max)} className="btn">{alpha_max}</button>
             </div>
 
 

@@ -16,6 +16,7 @@
 #include "driver/adc.h"
 
 #include "ble_controller.h"
+#include "analog_controller.h"
 #include "signal_controller.h"
 
 // CPU Core definitions for task assignment
@@ -68,6 +69,17 @@ void setup()
         bleTask,              // Task function
         "BLE Task",           // Task name
         10240,                // Stack size (bytes)
+        NULL,                 // Task parameter
+        tskIDLE_PRIORITY + 1, // Priority
+        NULL,                 // Task handle
+        CORE_0                // CPU core
+    );
+
+    // Create analog task on Core 0 with sufficient stack size for helper::printf
+    xTaskCreatePinnedToCore(
+        analogTask,           // Task function
+        "Analog Task",        // Task name (corrected name)
+        4096,                 // Stack size (bytes) - increased for helper::printf
         NULL,                 // Task parameter
         tskIDLE_PRIORITY + 1, // Priority
         NULL,                 // Task handle

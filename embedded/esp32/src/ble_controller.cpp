@@ -1,6 +1,7 @@
 // Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
 
 #include "ble_controller.h"
+#include "analog_controller.h"
 
 // BLE Task state management
 BLETaskState g_ble_task_state = BLETaskState::IDLE;
@@ -82,6 +83,12 @@ void BLE_router(NimBLECharacteristic *characteristic) {
     }
     else if (message == "CONTROL_OFF") {
         ble_router_set_signal_control_off();
+    }
+    else if (message == "SET_PRINT_ON") {
+        ble_router_set_print_on();
+    }
+    else if (message == "SET_PRINT_OFF") {
+        ble_router_set_print_off();
     }
     else if (message == "BLE_MESSAGE_ON") {
         ble_router_set_ble_message_on();
@@ -224,6 +231,14 @@ void ble_router_send_ble_message_status(NimBLECharacteristic *characteristic) {
 
     note_buffer_add_text(message_buffer, "ble_messages : ");
     note_buffer_add_text(message_buffer, get_status_onoff_label(g_system_status.ble_messages));
+    note_buffer_add_text(message_buffer, "\n");
+
+    note_buffer_add_text(message_buffer, "print_on     : ");
+    if (helper::g_printer_on) {
+        note_buffer_add_text(message_buffer, "ON");
+    } else {
+        note_buffer_add_text(message_buffer, "OFF");
+    }
     note_buffer_add_text(message_buffer, "\n");
 
     // add g_cycle_nrun
@@ -397,7 +412,7 @@ void ble_router_message_set_alpha(std::string &message) {
     g_switch_set_pending = true; // Mark for set switching
 }
 
-void read_and_send_analog_data(NimBLECharacteristic *characteristic) {
+void ble_send_analog_data(NimBLECharacteristic *characteristic) {
 
     auto timer_start = std::chrono::high_resolution_clock::now();
 
@@ -406,9 +421,9 @@ void read_and_send_analog_data(NimBLECharacteristic *characteristic) {
     static char control_result[256];
 
     // Read analog values from multiple channels
-    float voltage_03 = read_analog(AnalogPort::AN3);
-    float voltage_05 = read_analog(AnalogPort::AN5);
-    float voltage_06 = read_analog(AnalogPort::AN6);
+    // float voltage_03 = read_analog(AnalogPort::AN3);
+    // float voltage_05 = read_analog(AnalogPort::AN5);
+    // float voltage_06 = read_analog(AnalogPort::AN6);
 
     // Compute control
 
@@ -419,12 +434,13 @@ void read_and_send_analog_data(NimBLECharacteristic *characteristic) {
     // i_l = states(:, 3);
 
     const float resistance = 68.0; // resistor
-    const float scale_factor = 10.0 / 6.0;
+
     // TODO: change scale to extenal BLE command
 
-    float v_c1 = voltage_05 * scale_factor;
-    float v_c2 = voltage_06 * scale_factor;
-    float i_l = voltage_03 / resistance * scale_factor;
+    // the scale factor is being applied on the analogTask
+    float v_c1 = g_voltage_05;
+    float v_c2 = g_voltage_06;
+    float i_l  = g_voltage_03 / resistance;
 
     DataSet *dataset_active = (g_active_set == SignalSet::SET_A) ? &g_dataset_a : &g_dataset_b;
 
@@ -433,13 +449,14 @@ void read_and_send_analog_data(NimBLECharacteristic *characteristic) {
     int32_t control_dtk_us[50] = {};
     size_t control_dtk_len = dataset_active->gain_k.rows;
 
+    // TODO: remove this code from here. the send analog data is not responsible for computing the gain
     if (matrix_isvalid(dataset_active->gain_k) && (dataset_active->gain_k.cols == 3)) {
         // compute ek -> x - x_target
 
         float ek[3] = {};
         ek[0] = v_c1 - dataset_active->target[0];
         ek[1] = v_c2 - dataset_active->target[1];
-        ek[2] = i_l - dataset_active->target[2];
+        ek[2] = i_l  - dataset_active->target[2];
 
         auto timer_a = std::chrono::high_resolution_clock::now();
         matrix_multiply_vector3(dataset_active->gain_k, -ek[0], -ek[1], -ek[2], control_dtk);
@@ -536,14 +553,14 @@ void read_and_send_analog_data(NimBLECharacteristic *characteristic) {
     // float i_l = voltage_03 / resistance * scale_factor;
     snprintf(analog_buffer, sizeof(analog_buffer),
              "an3:%.3f, an5:%.3f, an6:%.3f",
-             voltage_03, voltage_05, voltage_06);
+             g_voltage_03, g_voltage_05, g_voltage_06);
 
     // Ensure null termination
     analog_buffer[sizeof(analog_buffer) - 1] = '\0';
 
     snprintf(control_result, sizeof(control_result),
              "an3:%.3f, an5:%.3f, an6:%.3f\nv_c1:%.3f, v_c2:%.3f, i_l:%.3f\ncontrol:[%d,%d,%d,%d,%d]",
-             voltage_03, voltage_05, voltage_06,
+             g_voltage_03, g_voltage_05, g_voltage_06,
              v_c1, v_c2, i_l,
              control_dtk_us[0], control_dtk_us[1], control_dtk_us[2], control_dtk_us[3], control_dtk_us[4]);
 
@@ -591,7 +608,7 @@ void bleTask(void *parameter) {
         // Handle analog reading requests
         if (g_ble_task_state == BLETaskState::ANALOG_READ) {
             g_ble_task_state = BLETaskState::ANALOG_READING;
-            read_and_send_analog_data(characteristic);
+            ble_send_analog_data(characteristic);
             g_ble_task_state = BLETaskState::IDLE;
         }
 
