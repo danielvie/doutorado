@@ -51,16 +51,16 @@ function App() {
   }
   
   const images_1 = <>
-      <img src="circuit.png" alt="Circuit" className="w-8/12" />
-      <img src="hw_esp32_pins.png" alt="ESP Pins" className="w-8/12" />
+      <img src="circuit.png" alt="Circuit" className="max-h-[60%] w-10/12" />
+      <img src="hw_esp32_pins.png" alt="ESP Pins" className="max-h-[60%] w-10/12" />
   </>
 
   const images_2 = <>
-      <img src="hw_measure_points.png" alt="ESP Pins" className="w-10/12 border-2 border-gray-500" />
+      <img src="hw_measure_points.png" alt="ESP Pins" className="h-full border-2 border-gray-500" />
   </>
   
   const images = <div className="fixed inset-0 flex items-center justify-center z-50 p-4 rounded-lg shadow-lg bg-panel/80">
-    <div onClick={() => set_images_show(false)} className="flex flex-col space-y-4 items-center">
+    <div onClick={() => set_images_show(false)} className="flex flex-col h-full space-y-4 items-center">
       {images_swap ? images_1 : images_2}
     </div>
     <div onClick={() => set_images_swap(v => !v)} className="arrow-r absolute left-10/12"></div>
@@ -94,7 +94,7 @@ function App() {
     {has_chart
       ?
       <RealtimeChart
-        data={data.slice(-200)}
+        data={data.slice(-500)}
         analog_scale={analog_scale}
         filter_alpha={filter_alpha}
       />

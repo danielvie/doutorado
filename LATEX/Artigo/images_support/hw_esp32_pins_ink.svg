@@ -7,7 +7,7 @@
    viewBox="0 0 210.10808 128.21281"
    version="1.1"
    id="svg1"
-   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   inkscape:version="1.3 (0e150ed, 2023-07-21)"
    sodipodi:docname="hw_esp32_pins_ink.svg"
    xml:space="preserve"
    inkscape:export-filename="hw_esp32_pins.pdf"
@@ -27,13 +27,13 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
-     inkscape:zoom="1.4702525"
-     inkscape:cx="338.03718"
-     inkscape:cy="242.13528"
-     inkscape:window-width="1632"
-     inkscape:window-height="1360"
-     inkscape:window-x="1799"
-     inkscape:window-y="0"
+     inkscape:zoom="0.96697764"
+     inkscape:cx="366.08913"
+     inkscape:cy="226.99594"
+     inkscape:window-width="1512"
+     inkscape:window-height="856"
+     inkscape:window-x="0"
+     inkscape:window-y="38"
      inkscape:window-maximized="0"
      inkscape:current-layer="layer1"
      showguides="true"
@@ -103,8 +103,7 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="Layer 2"
-     transform="translate(5.4911387,-38.277626)"
-     sodipodi:insensitive="true"><rect
+     transform="translate(5.4911387,-38.277626)"><rect
        style="fill:#e9b486;fill-opacity:1;stroke:none;stroke-width:0.699998;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:0;stroke-dasharray:none;stroke-opacity:1"
        id="rect107"
        width="28.007807"
@@ -227,7 +226,7 @@
        style="fill:#b2e5bb;stroke:none;stroke-width:0.7;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:0;stroke-dasharray:none"
        id="circle73"
        cx="84.677238"
-       cy="88.191597"
+       cy="83.559212"
        r="1.7520932" /><circle
        style="fill:#b2e5bb;stroke:none;stroke-width:0.7;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:0;stroke-dasharray:none"
        id="circle74"
@@ -262,7 +261,7 @@
            id="tspan90"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'JetBrainsMono Nerd Font';-inkscape-font-specification:'JetBrainsMono Nerd Font';text-align:center;text-anchor:middle;fill:#262626;stroke:none;stroke-width:0.448899"
            x="48.462944"
-           y="85.002945">ADC1_7</tspan></text></g><rect
+           y="85.002945">ADC1_4</tspan></text></g><rect
        style="fill:#985219;fill-opacity:1;stroke:none;stroke-width:0.7;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:0;stroke-dasharray:none;stroke-opacity:1"
        id="rect91"
        width="15.85506"
@@ -280,7 +279,7 @@
          id="tspan91"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'JetBrainsMono Nerd Font';-inkscape-font-specification:'JetBrainsMono Nerd Font';fill:#e5e5e5;fill-opacity:1;stroke:none;stroke-width:0.7"
          x="17.289579"
-         y="91.724068">GPIO35</tspan></text><rect
+         y="91.724068">GPIO32</tspan></text><rect
        style="fill:#d97625;fill-opacity:1;stroke:none;stroke-width:0.7;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:0;stroke-dasharray:none;stroke-opacity:1"
        id="rect92"
        width="36.469666"
@@ -418,7 +417,7 @@
          id="tspan113"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'JetBrainsMono Nerd Font';-inkscape-font-specification:'JetBrainsMono Nerd Font';fill:#262626;stroke:none;stroke-width:0.7"
          x="43.970467"
-         y="91.704811">A4(35)</tspan></text><rect
+         y="91.704811">A3(32)</tspan></text><rect
        style="fill:#cc3232;fill-opacity:1;stroke:none;stroke-width:0.699999;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:0;stroke-dasharray:none;stroke-opacity:1"
        id="rect2"
        width="44.049221"
@@ -652,7 +651,7 @@
        id="path65"
        sodipodi:nodetypes="cc" /><path
        style="fill:none;fill-opacity:1;stroke:#d97625;stroke-width:0.7;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:0;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#marker2);marker-end:url(#Dot)"
-       d="m 84.677238,83.586918 c -13.149838,0 -10.679673,6.692504 -25.445995,6.692505"
+       d="m 84.677238,87.930224 c -13.149838,0 -10.679673,2.349198 -25.445995,2.349199"
        id="path66"
        sodipodi:nodetypes="cc" /><path
        style="fill:none;fill-opacity:1;stroke:#cc3232;stroke-width:0.700001;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:0;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#marker2);marker-end:url(#Dot)"
