@@ -198,19 +198,19 @@ function Control(props: IControlProps) {
                 <button onClick={() => set_bin_is_expanded(val => !val)} className="btn info my-1">&lt;&lt;</button>
                 <div className="flex flex-col gap-2">
                     <div className="flex gap-2">
-                        <label className="flex p-2 w-12">D4:</label>
+                        <label className="flex p-2 w-20">D4 (u_1):</label>
                         <div className="input p-2 w-8/12">
                             {d4_bin}
                         </div>
                     </div>
                     <div className="flex gap-2">
-                        <label className="flex p-2 w-12">D5:</label>
+                        <label className="flex p-2 w-20">D5 (u_2):</label>
                         <div className="input p-2 w-8/12">
                             {d5_bin}
                         </div>
                     </div>
                     <div className="flex gap-2">
-                        <label className="flex p-2 w-12">D6:</label>
+                        <label className="flex p-2 w-20">D6 (u_3):</label>
                         <div className="input p-2 w-8/12">
                             {d6_bin}
                         </div>
