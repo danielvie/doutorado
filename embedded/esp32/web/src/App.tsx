@@ -80,7 +80,7 @@ function App() {
     ></Control>
 
     {/* toggle buttons */}
-    <div className="col-span-1 p-2 text-left bg-panel rounded-md flex flex-col gap-2">
+    <div className="w-[584px] mx-2 p-2 col-span-1 text-left bg-panel rounded-md flex flex-col gap-2">
       <div>
         <button onClick={handle_toggle_chart} className="btn info">{chart_label}</button>
       </div>
