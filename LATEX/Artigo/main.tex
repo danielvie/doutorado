@@ -504,7 +504,11 @@ This work did not involve human subjects or animal experiments. \\
 
 The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper. \\
 
-\red{Incluir Acknowledgments para o Anderson pela montagem da bobina. Luan pela ajuda com a interpretação do pinout da ESP-32.}
+\noindent
+\textbf{Acknowledgements}\\
+
+The authors wish to thank Dr. Anderson Tiago de Moraes for his help in building the $300$ mH inductor and Mr. Luan Mateus Bocalan Vogás for his help regarding the electrical connections of the ESP-32 microcontroller.
+
 
 \noindent
 \textbf{Funding}\\
@@ -647,6 +651,117 @@ This work was supported by Conselho Nacional de Desenvolvimento Científico e Te
     \item[$\bullet$]Create a bulleted list describing the capabilities (and limitations) of the hardware. For example, load and operation time, spin speed, coefficient of variation, accuracy, precision, etc.
   \end{itemize}}
 
+  \section*{Appendix: Circuit simulation}
+
+  \begin{figure}[h]
+  \label{fig:PSM}
+  \begin{center}
+    \includegraphics[scale=0.75]{Timing1.pdf}
+  \end{center}
+  \caption{Timing}
+\end{figure}
+
+\red{Acertar cor de $s_1(t)$}
+
+\begin{align*}
+&t_1 - t_0 = \left( \frac{2}{3} - \alpha \right) \frac{\;T\;}{2} = \left( \frac{2 - 3 \alpha}{6} \right) T\\[4pt]
+&t_2 - t_0 = \alpha \, \frac{\;T\;}{2} \\[4pt]
+&t_3 - t_0 = \left( \frac{1}{3} + 1 - \alpha \right) \frac{\;T\;}{2} =
+\left( \frac{4 - 3 \alpha}{6} \right) T \\[4pt]
+&t_4 - t_0 = \left( \frac{2}{3} + \alpha \right) \frac{\;T\;}{2} =
+\left( \frac{2 + 3 \alpha}{6} \right) T \\[4pt]
+&t_5 - t_0 = \left( 1 + 1 - \alpha \right) \frac{\;T\;}{2} =
+\left( \frac{6 - 3 \alpha}{6} \right) T\\[4pt]
+&t_6 - t_0 = \left( \frac{1}{3} + 1 + \alpha \right) \frac{\;T\;}{2}=
+\left( \frac{4 + 3 \alpha}{6} \right) T\\[4pt]
+&t_7 - t_0 = T \\[4pt]
+\end{align*}
+
+\begin{align*}
+&\Delta t_1 = t_1 - t_0 = \left(\frac{2 - 3 \alpha}{6}\right)T  \\[4pt]
+&\Delta t_2 = t_2 - t_1 = (t_2 - t_0) - (t_1 - t_0) = \alpha \, \frac{\;T\;}{2} - \frac{(2 - 3 \alpha)T}{6}  = \left(\frac{6 \alpha - 2}{6}\right)T \\[4pt]
+&\Delta t_3 = t_3 - t_2 = (t_3 - t_0) - (t_2 - t_0) =
+\left( \frac{4 - 3 \alpha}{6} \right) T - \alpha \, \frac{\;T\;}{2} = \left( \frac{4 - 6 \alpha}{6} \right) T \\[4pt]
+&\Delta t_4 = t_4 - t_3 = (t_4 - t_0) - (t_3 - t_0) =
+\left( \frac{2 + 3 \alpha}{6} \right) T - \left( \frac{4 - 3 \alpha}{6} \right) T = 
+\left( \frac{6 \alpha - 2}{6} \right) T \\[4pt]
+&\Delta t_5 = t_5 - t_4 = (t_5 - t_0) - (t_4 - t_0) =
+\left( \frac{6 - 3 \alpha}{6} \right) T - \left( \frac{2 + 3 \alpha}{6} \right) T =
+\left( \frac{4 - 6 \alpha}{6} \right) T \\[4pt]
+&\Delta t_6 = t_6 - t_5 = (t_6 - t_0) - (t_5 - t_0) =
+\left( \frac{4 + 3 \alpha}{6} \right) T - \left( \frac{6 - 3 \alpha}{6} \right) T =
+\left( \frac{6 \alpha - 2}{6} \right) T \\[4pt]
+&\Delta t_7 = t_7 - t_6 = (t_7 - t_0) - (t_6 - t_0) =
+T - \left( \frac{4 + 3 \alpha}{6} \right) T =
+\left( \frac{4 - 6 \alpha}{6} \right) T 
+= \left( \frac{2 - 3 \alpha}{6} \right) T\\[4pt]
+\end{align*}
+
+% The state vector is the voltage on the capacitors $x(t) = \big[\,v_{c_1}(t) \; v_{c_2}(t) \; i_L(t) \,\big]'$, 
+% where $v_{c_1}$, $v_{c_2}$ are the voltages in each capacitor and $i_L$ is the load current. The state equation for the $i$th mode of operation is of the form
+
+% \begin{equation}
+% \dot{x}(t) = A_i x(t) + b_i
+% \end{equation}
+
+% \begin{equation}
+%     \begin{matrix}
+%         A_i = \left[ 
+%             \begin{matrix} 
+%                 0 &       0 & \Big(u_2(i)-u_1(i)\Big)/C1 \\ 
+%                 0 & 0 & \Big(u_3(i)-u_2(i)\Big)/C2 \\ 
+%                 \Big(u_1(i)-u_2(i)\Big)/L & \Big(u_2(i)-u_3(i)\Big)/L & -R/L \\ 
+%             \end{matrix} \right] \\
+%             \\
+%         b_i = \left[ \begin{matrix} 0 \\ 0 \\ \Big(E/L\Big) u_3(i) \end{matrix} \right]
+%     \end{matrix}
+% \end{equation}
+
+\begin{table}[h]
+    \caption{Values of $u_i$ for the Multilevel converter}
+    \label{cap4_table_ui}
+    \begin{center}
+        \begin{tabular}{|c|c|c|c|}
+            \hline
+                \textbf{mode ($i$)}   & \boldmath{$u_1 (i)$} & \boldmath{$u_2 (i)$} & \boldmath{$u_3 (i)$} \\
+            \hline
+                1 & 0 & 0 & 0 \\
+                2 & 0 & 0 & 1 \\
+                3 & 0 & 1 & 0 \\
+                4 & 0 & 1 & 1 \\
+                5 & 1 & 0 & 0 \\
+                6 & 1 & 0 & 1 \\
+                7 & 1 & 1 & 0 \\
+                8 & 1 & 1 & 1 \\
+            \hline
+        \end{tabular}
+    \end{center}
+\end{table}
+
+Let $\xi(t) = \big[\,v_{c_1}(t) \; v_{c_2}(t) \; i_L(t) \; 1 \,\big]'$, where $v_{c_1}$, $v_{c_2}$ are the voltages in each capacitor and $i_L$ is the load current. The circuit dynamics for the $i$th mode of operation are described by a differential equation of the form
+%
+\begin{equation}
+\dot{\xi}(t) = A_i \xi(t)
+\end{equation}
+
+\begin{equation}
+    \begin{matrix}
+        A_i = \left[ 
+            \begin{matrix} 
+                0 &       0 & \Big(u_2(i)-u_1(i)\Big)/C1 & 0 \\ 
+                0 & 0 & \Big(u_3(i)-u_2(i)\Big)/C2 & 0 \\ 
+                \Big(u_1(i)-u_2(i)\Big)/L & \Big(u_2(i)-u_3(i)\Big)/L & -R/L & \Big(E/L\Big) u_3(i)\\ 
+                0 & 0 & 0 & 0
+            \end{matrix} \right]
+        %     \\
+        % b_i = \left[ \begin{matrix} 0 \\ 0 \\ \Big(E/L\Big) u_3(i) \end{matrix} \right]
+    \end{matrix}
+\end{equation}
+
+Therefore:
+%
+\begin{equation}
+\xi(t_7) = \exp(A_{i_7} \Delta t_7) \exp(A_{i_6} \Delta t_6) \cdots \exp(A_{i_1} \Delta t_1) \xi(t_0)
+\end{equation}    
+
 \end{document}
-
-
