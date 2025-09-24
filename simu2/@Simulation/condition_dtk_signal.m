@@ -70,7 +70,7 @@ function [dtk_us_new, ts_us_final] = condition_dtk_signal(time_us, dtk_us, time_
         ts_us_final_2(i+1) = ts_us_final_2(i) + time_us_2(i);
     end
 
-    disp("ts_us_final_2:");
-    disp(ts_us_final_2);
+    % disp("ts_us_final_2:");
+    % disp(ts_us_final_2);
 
 end

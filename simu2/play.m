@@ -27,11 +27,11 @@ function play()
     s.set_mpc();
 
     % number of simulation cycles
-    nsim = 300;
+    nsim = 90000;
 
     % add error in IC
-    s.m_config.x0 = s.m_config.x0 + [0.6; 0.1; 0.1];
-    % s.set_offset([0.6, 0.2, 0.1]);
+    % s.m_config.x0 = s.m_config.x0 + [0.6; 0.1; 0.1];
+    s.m_config.x0 = [0.0; 0.0; 0.0];
 
     % running simulation
     s.m_config.mpc.on = true;
