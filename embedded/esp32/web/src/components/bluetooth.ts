@@ -62,6 +62,8 @@ export async function ble_connect_device() {
 
         // Open the device picker dialog, filtering for our specific service
         g_bluetooth_device = await navigator_object.bluetooth.requestDevice({
+            // acceptAllDevices: true,
+            // optionalServices: [SERVICE_UUID]
             filters: [{ services: [SERVICE_UUID] }],
         });
 
