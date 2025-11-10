@@ -33,5 +33,5 @@ void led_init(void)
     gpio_reset_pin(CONFIG_EXAMPLE_BLINK_GPIO);
     /* Set the GPIO as a push/pull output */
     gpio_set_direction(CONFIG_EXAMPLE_BLINK_GPIO, GPIO_MODE_OUTPUT);
-    gpio_set_level(CONFIG_EXAMPLE_BLINK_GPIO, 1);
+    led_off();
 }

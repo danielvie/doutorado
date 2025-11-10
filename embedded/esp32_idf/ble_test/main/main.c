@@ -101,7 +101,8 @@ static bool uuid_from_string_le(const char *str, uint8_t out[16])
 
 /* Blink task control */
 static TaskHandle_t blink_task_handle = NULL;
-volatile uint16_t blink_delay_ms = 200;
+volatile uint16_t blink_delay1_ms = 200;
+volatile uint16_t blink_delay2_ms = 500;
 
 static void stop_blink_task(void)
 {
@@ -116,13 +117,13 @@ static void blink_task(void *arg)
     (void)arg;
     for (;;) {
         led_on();
-        vTaskDelay(pdMS_TO_TICKS(blink_delay_ms));
+        vTaskDelay(pdMS_TO_TICKS(blink_delay1_ms));
         led_off();
-        vTaskDelay(pdMS_TO_TICKS(blink_delay_ms));
+        vTaskDelay(pdMS_TO_TICKS(blink_delay1_ms));
         led_on();
-        vTaskDelay(pdMS_TO_TICKS(blink_delay_ms));
+        vTaskDelay(pdMS_TO_TICKS(blink_delay1_ms));
         led_off();
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        vTaskDelay(pdMS_TO_TICKS(blink_delay2_ms));
     }
     vTaskDelete(NULL);
 }
@@ -150,6 +151,91 @@ static void example_write_event_env(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_par
     esp_gatt_status_t status = ESP_GATT_OK;
     if (param->write.need_rsp) {
         esp_ble_gatts_send_response(gatts_if, param->write.conn_id, param->write.trans_id, status, NULL);
+    }
+}
+
+
+void ble_rounter(esp_ble_gatts_cb_param_t *param) {
+    if (param->write.len > 0) {
+        size_t copy_len = param->write.len;
+        if (copy_len > 31) copy_len = 31;
+        char buf[32];
+        memcpy(buf, param->write.value, copy_len);
+        buf[copy_len] = '\0';
+        while (copy_len > 0 && (buf[copy_len - 1] == '\n' || buf[copy_len - 1] == '\r')) {
+            buf[--copy_len] = '\0';
+        }
+
+        uint16_t blink_d1 = 0, blink_d2 = 0;
+        if (sscanf((const char*)param->write.value, "BLINK:%hu,%hu", &blink_d1, &blink_d2) == 2 ||
+            sscanf((const char*)param->write.value, "blink:%hu,%hu", &blink_d1, &blink_d2) == 2) {
+            if (blink_d1 > 0 && blink_d2 > 0) {
+                blink_delay1_ms = blink_d1;
+                blink_delay2_ms = blink_d2;
+                ESP_LOGI(TAG, "Blink delays set to D1=%u ms, D2=%u ms", blink_d1, blink_d2);
+                
+                // start blink if not running
+                if (!blink_task_handle) {
+                    BaseType_t r = xTaskCreate(blink_task, "blink_task", 2048, NULL, 5, &blink_task_handle);
+                    if (r != pdPASS) {
+                        ESP_LOGE(TAG, "Failed to create blink task");
+                        blink_task_handle = NULL;
+                    }
+                }
+                
+            } else {
+                ESP_LOGW(TAG, "Ignoring DELAY command with zero or invalid value.");
+            }
+        } else if (sscanf((const char*)param->write.value, "BLINK:%hu", &blink_d1) == 1 ||
+                   sscanf((const char*)param->write.value, "blink:%hu", &blink_d1) == 1) {
+            if (blink_d1 > 0) {
+                blink_delay1_ms = blink_d1;
+                ESP_LOGI(TAG, "Blink delay set to %u ms", blink_d1);
+                // Do NOT stop blink task, just update its delay,
+                // or start it if it was stopped.
+                if (!blink_task_handle) {
+                    BaseType_t r = xTaskCreate(blink_task, "blink_task", 2048, NULL, 5, &blink_task_handle);
+                    if (r != pdPASS) {
+                        ESP_LOGE(TAG, "Failed to create blink task");
+                        blink_task_handle = NULL;
+                    }
+                }
+            } else {
+                ESP_LOGW(TAG, "Ignoring DELAY command with zero value.");
+            }
+        } else {
+            for (size_t i = 0; i < copy_len; i++) buf[i] = (char)toupper((unsigned char)buf[i]);
+            if (copy_len == 5 && strncmp(buf, "BLINK", 5) == 0) {
+                ESP_LOGI(TAG, "Start blinking (1s period)");
+                if (!blink_task_handle) {
+                    BaseType_t r = xTaskCreate(blink_task, "blink_task", 2048, NULL, 5, &blink_task_handle);
+                    if (r != pdPASS) {
+                        ESP_LOGE(TAG, "Failed to create blink task");
+                        blink_task_handle = NULL;
+                    }
+                }
+            } else if (copy_len == 2 && strncmp(buf, "ON", 2) == 0) {
+                ESP_LOGI(TAG, "LED ON!");
+                /* Stop any blinking first */
+                stop_blink_task();
+                led_on();
+            } else if (copy_len == 3 && strncmp(buf, "OFF", 3) == 0) {
+                ESP_LOGI(TAG, "LED OFF!");
+                /* Stop any blinking first */
+                stop_blink_task();
+                led_off();
+            } else if (param->write.len == 1) {
+                if (param->write.value[0]) {
+                    ESP_LOGI(TAG, "LED ON! (byte)");
+                    led_on();
+                } else {
+                    ESP_LOGI(TAG, "LED OFF! (byte)");
+                    led_off();
+                }
+            } else {
+                ESP_LOGI(TAG, "Unrecognized write: '%s' (len=%u)", buf, param->write.len);
+            }
+        }
     }
 }
 
@@ -236,68 +322,7 @@ static void led_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t 
         ESP_LOGI(TAG, "Write event, len=%u", param->write.len);
         ESP_LOG_BUFFER_HEX(TAG, param->write.value, param->write.len);
 
-        if (param->write.len > 0) {
-            size_t copy_len = param->write.len;
-            if (copy_len > 31) copy_len = 31;
-            char buf[32];
-            memcpy(buf, param->write.value, copy_len);
-            buf[copy_len] = '\0';
-            while (copy_len > 0 && (buf[copy_len - 1] == '\n' || buf[copy_len - 1] == '\r')) {
-                buf[--copy_len] = '\0';
-            }
-
-            uint16_t blink_new_delay_ms = 0;
-            if (sscanf((const char*)param->write.value, "DELAY:%hu", &blink_new_delay_ms) == 1 ||
-                sscanf((const char*)param->write.value, "delay:%hu", &blink_new_delay_ms) == 1) {
-                if (blink_new_delay_ms > 0) {
-                    blink_delay_ms = blink_new_delay_ms;
-                    ESP_LOGI(TAG, "Blink delay set to %u ms", blink_new_delay_ms);
-                    // Do NOT stop blink task, just update its delay,
-                    // or start it if it was stopped.
-                    if (!blink_task_handle) {
-                        BaseType_t r = xTaskCreate(blink_task, "blink_task", 2048, NULL, 5, &blink_task_handle);
-                        if (r != pdPASS) {
-                            ESP_LOGE(TAG, "Failed to create blink task");
-                            blink_task_handle = NULL;
-                        }
-                    }
-                } else {
-                    ESP_LOGW(TAG, "Ignoring DELAY command with zero value.");
-                }
-            } else {
-                for (size_t i = 0; i < copy_len; i++) buf[i] = (char)toupper((unsigned char)buf[i]);
-                if (copy_len == 5 && strncmp(buf, "BLINK", 5) == 0) {
-                    ESP_LOGI(TAG, "Start blinking (1s period)");
-                    if (!blink_task_handle) {
-                        BaseType_t r = xTaskCreate(blink_task, "blink_task", 2048, NULL, 5, &blink_task_handle);
-                        if (r != pdPASS) {
-                            ESP_LOGE(TAG, "Failed to create blink task");
-                            blink_task_handle = NULL;
-                        }
-                    }
-                } else if (copy_len == 2 && strncmp(buf, "ON", 2) == 0) {
-                    ESP_LOGI(TAG, "LED ON! (string)");
-                    /* Stop any blinking first */
-                    stop_blink_task();
-                    led_on();
-                } else if (copy_len == 3 && strncmp(buf, "OFF", 3) == 0) {
-                    ESP_LOGI(TAG, "LED OFF! (string)");
-                    /* Stop any blinking first */
-                    stop_blink_task();
-                    led_off();
-                } else if (param->write.len == 1) {
-                    if (param->write.value[0]) {
-                        ESP_LOGI(TAG, "LED ON! (byte)");
-                        led_on();
-                    } else {
-                        ESP_LOGI(TAG, "LED OFF! (byte)");
-                        led_off();
-                    }
-                } else {
-                    ESP_LOGI(TAG, "Unrecognized write: '%s' (len=%u)", buf, param->write.len);
-                }
-            }
-        }
+        ble_rounter(param);
 
         example_write_event_env(gatts_if, param);
         break;
