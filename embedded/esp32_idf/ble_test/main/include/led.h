@@ -9,7 +9,6 @@
 /* Includes */
 /* ESP APIs */
 #include "driver/gpio.h"
-#include "led_strip.h"
 
 /* Defines */
 #define BLINK_GPIO CONFIG_EXAMPLE_BLINK_GPIO
