@@ -155,7 +155,7 @@ static void example_write_event_env(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_par
 }
 
 
-void ble_rounter(esp_ble_gatts_cb_param_t *param) {
+void ble_router(esp_ble_gatts_cb_param_t *param) {
     if (param->write.len > 0) {
         size_t copy_len = param->write.len;
         if (copy_len > 31) copy_len = 31;
@@ -322,7 +322,7 @@ static void led_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t 
         ESP_LOGI(TAG, "Write event, len=%u", param->write.len);
         ESP_LOG_BUFFER_HEX(TAG, param->write.value, param->write.len);
 
-        ble_rounter(param);
+        ble_router(param);
 
         example_write_event_env(gatts_if, param);
         break;
