@@ -7,11 +7,16 @@
  * Minimal BLE GATT example for LED ON/OFF control
  * Keeps only the code necessary to expose a writable BLE characteristic
  * that accepts ASCII "ON" / "OFF" (case-insensitive) or a single byte 0x01/0x00.
+ * 
+ * Now in C++
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
+#include <cstdio>
+#include <cstring>
+#include <cctype>
+#include <cstdlib>
+
+extern "C" {
 #include <stdbool.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -26,6 +31,7 @@
 #include "esp_bt_device.h"
 #include "esp_gatt_common_api.h"
 #include "led.h"
+}
 
 #define PROFILE_NUM 1
 #define LED_PROFILE_APP_ID 0
@@ -216,12 +222,10 @@ void ble_router(esp_ble_gatts_cb_param_t *param) {
                 }
             } else if (copy_len == 2 && strncmp(buf, "ON", 2) == 0) {
                 ESP_LOGI(TAG, "LED ON!");
-                /* Stop any blinking first */
                 stop_blink_task();
                 led_on();
             } else if (copy_len == 3 && strncmp(buf, "OFF", 3) == 0) {
                 ESP_LOGI(TAG, "LED OFF!");
-                /* Stop any blinking first */
                 stop_blink_task();
                 led_off();
             } else if (param->write.len == 1) {
@@ -387,7 +391,7 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
     }
 }
 
-void app_main(void)
+extern "C" void app_main(void)
 {
     esp_err_t ret;
 
@@ -452,4 +456,3 @@ void app_main(void)
         ESP_LOGW(TAG, "set local MTU failed: %x", ret);
     }
 }
-
