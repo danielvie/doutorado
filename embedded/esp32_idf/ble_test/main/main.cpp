@@ -15,6 +15,8 @@
 #include <cstring>
 #include <cctype>
 #include <cstdlib>
+#include <string>
+#include <algorithm>
 
 extern "C" {
 #include <stdbool.h>
@@ -110,7 +112,7 @@ static TaskHandle_t blink_task_handle = NULL;
 volatile uint16_t blink_delay1_ms = 200;
 volatile uint16_t blink_delay2_ms = 500;
 
-static void stop_blink_task(void)
+static void blink_stop_task(void)
 {
     if (blink_task_handle) {
         vTaskDelete(blink_task_handle);
@@ -160,85 +162,57 @@ static void example_write_event_env(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_par
     }
 }
 
-
-void ble_router(esp_ble_gatts_cb_param_t *param) {
-    if (param->write.len > 0) {
-        size_t copy_len = param->write.len;
-        if (copy_len > 31) copy_len = 31;
-        char buf[32];
-        memcpy(buf, param->write.value, copy_len);
-        buf[copy_len] = '\0';
-        while (copy_len > 0 && (buf[copy_len - 1] == '\n' || buf[copy_len - 1] == '\r')) {
-            buf[--copy_len] = '\0';
+void blink_create_task() {
+    ESP_LOGI(TAG, "blink_create_task [in]");
+    if (!blink_task_handle) {
+        BaseType_t r = xTaskCreate(blink_task, "blink_task", 2048, NULL, 5, &blink_task_handle);
+        if (r != pdPASS) {
+            ESP_LOGE(TAG, "Failed to create blink task");
+            blink_task_handle = NULL;
         }
+    }
+}
 
+void BLE_router(esp_ble_gatts_cb_param_t *param) {
+    if (param->write.len > 0) {
+
+        // read message
+        std::string message(reinterpret_cast<const char*>(param->write.value), param->write.len);
+        std::string message_lower = message;
+        std::transform(message_lower.begin(), message_lower.end(), message_lower.begin(), ::tolower);
+        
+        // treat cases
         uint16_t blink_d1 = 0, blink_d2 = 0;
-        if (sscanf((const char*)param->write.value, "BLINK:%hu,%hu", &blink_d1, &blink_d2) == 2 ||
-            sscanf((const char*)param->write.value, "blink:%hu,%hu", &blink_d1, &blink_d2) == 2) {
+        if (sscanf(message_lower.c_str(), "blink:%hu,%hu", &blink_d1, &blink_d2) == 2) {
             if (blink_d1 > 0 && blink_d2 > 0) {
                 blink_delay1_ms = blink_d1;
                 blink_delay2_ms = blink_d2;
                 ESP_LOGI(TAG, "Blink delays set to D1=%u ms, D2=%u ms", blink_d1, blink_d2);
-                
-                // start blink if not running
-                if (!blink_task_handle) {
-                    BaseType_t r = xTaskCreate(blink_task, "blink_task", 2048, NULL, 5, &blink_task_handle);
-                    if (r != pdPASS) {
-                        ESP_LOGE(TAG, "Failed to create blink task");
-                        blink_task_handle = NULL;
-                    }
-                }
-                
+                blink_create_task();
             } else {
                 ESP_LOGW(TAG, "Ignoring DELAY command with zero or invalid value.");
             }
-        } else if (sscanf((const char*)param->write.value, "BLINK:%hu", &blink_d1) == 1 ||
-                   sscanf((const char*)param->write.value, "blink:%hu", &blink_d1) == 1) {
+        } else if (sscanf(message_lower.c_str(), "blink:%hu", &blink_d1) == 1) {
             if (blink_d1 > 0) {
                 blink_delay1_ms = blink_d1;
                 ESP_LOGI(TAG, "Blink delay set to %u ms", blink_d1);
-                // Do NOT stop blink task, just update its delay,
-                // or start it if it was stopped.
-                if (!blink_task_handle) {
-                    BaseType_t r = xTaskCreate(blink_task, "blink_task", 2048, NULL, 5, &blink_task_handle);
-                    if (r != pdPASS) {
-                        ESP_LOGE(TAG, "Failed to create blink task");
-                        blink_task_handle = NULL;
-                    }
-                }
+                blink_create_task();
             } else {
                 ESP_LOGW(TAG, "Ignoring DELAY command with zero value.");
             }
+        } else if (message_lower == "blink") {
+            ESP_LOGI(TAG, "Start blinking (1s period)");
+            blink_create_task();
+        } else if (message_lower == "on") {
+            ESP_LOGI(TAG, "LED ON!");
+            blink_stop_task();
+            led_on();
+        } else if (message_lower == "off") {
+            ESP_LOGI(TAG, "LED OFF!");
+            blink_stop_task();
+            led_off();
         } else {
-            for (size_t i = 0; i < copy_len; i++) buf[i] = (char)toupper((unsigned char)buf[i]);
-            if (copy_len == 5 && strncmp(buf, "BLINK", 5) == 0) {
-                ESP_LOGI(TAG, "Start blinking (1s period)");
-                if (!blink_task_handle) {
-                    BaseType_t r = xTaskCreate(blink_task, "blink_task", 2048, NULL, 5, &blink_task_handle);
-                    if (r != pdPASS) {
-                        ESP_LOGE(TAG, "Failed to create blink task");
-                        blink_task_handle = NULL;
-                    }
-                }
-            } else if (copy_len == 2 && strncmp(buf, "ON", 2) == 0) {
-                ESP_LOGI(TAG, "LED ON!");
-                stop_blink_task();
-                led_on();
-            } else if (copy_len == 3 && strncmp(buf, "OFF", 3) == 0) {
-                ESP_LOGI(TAG, "LED OFF!");
-                stop_blink_task();
-                led_off();
-            } else if (param->write.len == 1) {
-                if (param->write.value[0]) {
-                    ESP_LOGI(TAG, "LED ON! (byte)");
-                    led_on();
-                } else {
-                    ESP_LOGI(TAG, "LED OFF! (byte)");
-                    led_off();
-                }
-            } else {
-                ESP_LOGI(TAG, "Unrecognized write: '%s' (len=%u)", buf, param->write.len);
-            }
+            ESP_LOGI(TAG, "Unrecognized write: '%s' (len=%u)", message.c_str(), message.length());
         }
     }
 }
@@ -326,7 +300,7 @@ static void led_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t 
         ESP_LOGI(TAG, "Write event, len=%u", param->write.len);
         ESP_LOG_BUFFER_HEX(TAG, param->write.value, param->write.len);
 
-        ble_router(param);
+        BLE_router(param);
 
         example_write_event_env(gatts_if, param);
         break;
