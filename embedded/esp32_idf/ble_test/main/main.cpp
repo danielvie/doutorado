@@ -64,12 +64,14 @@ static esp_ble_adv_data_t adv_data = {
 };
 
 static esp_ble_adv_params_t adv_params = {
-    .adv_int_min = 0x20,
-    .adv_int_max = 0x40,
-    .adv_type = ADV_TYPE_IND,
-    .own_addr_type = BLE_ADDR_TYPE_PUBLIC,
-    .channel_map = ADV_CHNL_ALL,
-    .adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
+    .adv_int_min        = 0x20,
+    .adv_int_max        = 0x40,
+    .adv_type           = ADV_TYPE_IND,
+    .own_addr_type      = BLE_ADDR_TYPE_PUBLIC,
+    .peer_addr          = {},
+    .peer_addr_type     = BLE_ADDR_TYPE_PUBLIC,
+    .channel_map        = ADV_CHNL_ALL,
+    .adv_filter_policy  = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
 };
 
 /*
@@ -151,6 +153,12 @@ static struct gatts_profile_inst gl_profile_tab[PROFILE_NUM] = {
     [LED_PROFILE_APP_ID] = {
         .gatts_cb = NULL,
         .gatts_if = ESP_GATT_IF_NONE,
+        .app_id = 0,
+        .conn_id = 0,
+        .service_handle = 0,
+        .service_id = {},
+        .char_handle = 0,
+        .char_uuid = {},
     },
 };
 
@@ -204,11 +212,11 @@ void BLE_router(esp_ble_gatts_cb_param_t *param) {
             ESP_LOGI(TAG, "Start blinking (1s period)");
             blink_create_task();
         } else if (message_lower == "on") {
-            ESP_LOGI(TAG, "LED ON!");
+            ESP_LOGI(TAG, "LED ON! koka");
             blink_stop_task();
             led_on();
         } else if (message_lower == "off") {
-            ESP_LOGI(TAG, "LED OFF!");
+            ESP_LOGI(TAG, "LED OFF! koka");
             blink_stop_task();
             led_off();
         } else {
@@ -274,7 +282,7 @@ static void led_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t 
         ESP_LOGI(TAG, "Char added, attr_handle %d", param->add_char.attr_handle);
         gl_profile_tab[LED_PROFILE_APP_ID].char_handle = param->add_char.attr_handle;
         // Add Client Characteristic Configuration Descriptor (CCCD) to match NOTIFY property
-        esp_bt_uuid_t descr_uuid = {0};
+        esp_bt_uuid_t descr_uuid = {};
         descr_uuid.len = ESP_UUID_LEN_16;
         descr_uuid.uuid.uuid16 = ESP_GATT_UUID_CHAR_CLIENT_CONFIG;
         esp_err_t rd = esp_ble_gatts_add_char_descr(gl_profile_tab[LED_PROFILE_APP_ID].service_handle,
