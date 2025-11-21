@@ -371,15 +371,23 @@ extern "C" void app_main(void)
 
     led_init();
 
+    // Initialize NVS (Non-Volatile Storage) for storing system parameters, including Wi-Fi and Bluetooth configuration.
+    // If NVS initialization fails due to no free pages or a new version found, erase and reinitialize.
     ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
     }
+
+    // Check if NVS initialization (or re-initialization) was successful.
     ESP_ERROR_CHECK(ret);
 
+    // Release memory used by the Classic Bluetooth controller if it was enabled. This is crucial for
+    // BLE-only applications to free up resources.
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
 
+    // Initialize the Bluetooth controller with default configuration. This prepares the hardware
+    // for Bluetooth operations.
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
     ret = esp_bt_controller_init(&bt_cfg);
     if (ret) {
@@ -387,30 +395,37 @@ extern "C" void app_main(void)
         return;
     }
 
+    // Enable the Bluetooth controller in BLE mode. This makes the controller ready for BLE functionality.
     ret = esp_bt_controller_enable(ESP_BT_MODE_BLE);
     if (ret) {
         ESP_LOGE(TAG, "enable controller failed: %s", esp_err_to_name(ret));
         return;
     }
 
+    // Initialize the Bluedroid stack, which provides the API for BLE host functionality.
     ret = esp_bluedroid_init();
     if (ret) {
         ESP_LOGE(TAG, "init bluetooth failed: %s", esp_err_to_name(ret));
         return;
     }
 
+    // Enable the Bluedroid stack. This activates the BLE host and makes its services available.
     ret = esp_bluedroid_enable();
     if (ret) {
         ESP_LOGE(TAG, "enable bluetooth failed: %s", esp_err_to_name(ret));
         return;
     }
 
+    // Register the GAP (Generic Access Profile) callback function. This function handles GAP events
+    // such as advertising, scanning, and connection management.
     ret = esp_ble_gap_register_callback(gap_event_handler);
     if (ret) {
         ESP_LOGE(TAG, "gap register error: %x", ret);
         return;
     }
 
+    // Register the GATTS (GATT Server) callback function. This function handles GATT server events
+    // such as service creation, characteristic read/write, and descriptor events.
     ret = esp_ble_gatts_register_callback(gatts_event_handler);
     if (ret) {
         ESP_LOGE(TAG, "gatts register error: %x", ret);
@@ -419,12 +434,15 @@ extern "C" void app_main(void)
 
     gl_profile_tab[LED_PROFILE_APP_ID].gatts_cb = led_profile_event_handler;
 
+    // Register the GATT server application. This associates the profile callback with an application ID.
     ret = esp_ble_gatts_app_register(LED_PROFILE_APP_ID);
     if (ret) {
         ESP_LOGE(TAG, "app register error: %x", ret);
         return;
     }
 
+    // Set the local MTU (Maximum Transmission Unit) for GATT operations. A larger MTU allows
+    // for more data to be exchanged in a single transaction.
     ret = esp_ble_gatt_set_local_mtu(500);
     if (ret) {
         ESP_LOGW(TAG, "set local MTU failed: %x", ret);
