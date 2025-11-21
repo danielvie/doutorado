@@ -3,20 +3,16 @@
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
-/*
- * Minimal BLE GATT example for LED ON/OFF control
- * Keeps only the code necessary to expose a writable BLE characteristic
- * that accepts ASCII "ON" / "OFF" (case-insensitive) or a single byte 0x01/0x00.
- * 
- * Now in C++
- */
 
 #include <cstdio>
 #include <cstring>
 
 #include "helper_note.h"
 #include "ble_controller.h"
-#include "signal_controller.h"
+#include "signal_controller.h" 
+
+// REQUIRED to read the clock speed
+#include "esp_rom_sys.h" 
 
 extern "C" {
 #include <stdbool.h>
@@ -69,7 +65,6 @@ void blink_create_task() {
         }
     }
     
-    
     NoteData msg(120);
     note_buffer_clear(msg);
     
@@ -84,10 +79,10 @@ esp_err_t app_init() {
 
     led_init();
     
-    // initialize signal controller GPIOs
+    // Initialize Signal Controller GPIOs & Test Pattern
     signal_controller_init();
 
-    // Initialize NVS (Non-Volatile Storage) for storing system parameters
+    // Initialize NVS
     ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
@@ -105,12 +100,10 @@ esp_err_t app_init() {
     return ret;
 }
 
-
 extern "C" void app_main(void)
 {
-
     // --------------------------------------------------------
-    // CHECK CLOCK SPEED
+    // 1. PRINT CLOCK SPEED
     // --------------------------------------------------------
     uint32_t cpu_freq_mhz = esp_rom_get_cpu_ticks_per_us();
     
@@ -123,9 +116,7 @@ extern "C" void app_main(void)
         ESP_LOGE(TAG, "Please run 'idf.py menuconfig' -> Component config -> ESP System Settings -> CPU frequency -> 240 MHz");
     }
 
-
-
-    // init functions of the app
+    // 2. Init functions of the app
     esp_err_t ret = app_init();
     if (ret) {
         ESP_LOGW(TAG, "COULD NOT INITIALIZE APP!!");

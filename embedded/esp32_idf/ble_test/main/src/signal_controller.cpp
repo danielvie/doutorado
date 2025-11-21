@@ -8,6 +8,7 @@
 #include "soc/gpio_struct.h"
 #include "esp_rom_sys.h"
 #include "esp_log.h"
+#include "esp_task_wdt.h" // Required to manage Watchdog
 
 static const char *TAG = "SIG_CTRL";
 
@@ -97,7 +98,9 @@ void IRAM_ATTR signal_execute_sequence(const uint16_t* durations, const uint8_t*
         lut_clear[m] = c;
     }
 
-    // 2. Enter Critical Section (Disables interrupts)
+    // 2. Enter Critical Section (Disables interrupts on THIS core)
+    // Since we are pinned to Core 1, this pauses Core 1 interrupts (SysTick).
+    // Core 0 (BLE/WiFi) continues running happily.
     taskENTER_CRITICAL(&signalMutex);
 
     for (int i = 0; i < count; i++) {
@@ -122,34 +125,30 @@ void IRAM_ATTR signal_execute_sequence(const uint16_t* durations, const uint8_t*
 // CONTINUOUS LOOP TASK
 // ---------------------------------------------------------------------------
 static void signal_loop_task(void* arg) {
-    ESP_LOGI(TAG, "Continuous Signal Task Started");
+    ESP_LOGI(TAG, "Continuous Signal Task Started on Core %d", xPortGetCoreID());
     
-    // Calculate "Batching" for Watchdog
-    // We need to let the IDLE task run at least once every few seconds to reset the WDT.
     // 1 Burst = ~3ms. 
-    // 1000 Bursts = ~3000ms (3 Seconds). 
-    // This is safely under the default 5 second watchdog timeout.
-    const uint32_t BURSTS_BEFORE_BREATHER = 1000; 
+    // We yield every ~150ms to keep the Watchdog happy without causing massive gaps.
+    const uint32_t BURSTS_BEFORE_BREATHER = 50; 
     uint32_t burst_count = 0;
 
     while (s_signal_state == SIGNAL_RUNNING) {
-        // Execute the burst (blocking, 3ms)
+        // Execute the burst (blocking, ~3ms)
         signal_execute_sequence(DEMO_DURATIONS, DEMO_MODES, TEST_SEGMENTS);
         
         burst_count++;
         
         if (burst_count >= BURSTS_BEFORE_BREATHER) {
-            // TAKE A BREATHER
-            // We yield for 1 tick (~10ms) to allow the IDLE task to run.
-            // This resets the Task Watchdog Timer (TWDT) and prevents the crash.
-            // This will result in a tiny gap every ~3 seconds.
-            vTaskDelay(1); 
+            // BREATHER: 
+            // A delay of 1 tick (10ms) is the safest way to clear the WDT 
+            // without disabling it in menuconfig.
+            // vTaskDelay(1); 
             burst_count = 0;
         } else {
-            // RUN AS FAST AS POSSIBLE
-            // We yield to cooperate with other High Priority tasks (if any), 
-            // but return immediately if CPU is free.
-            taskYIELD(); 
+            // NO DELAY:
+            // Just loop immediately.
+            // Since we are pinned to Core 1, and BLE is on Core 0, 
+            // we don't need to yield for BLE's sake, only for the Watchdog's sake.
         }
     }
 
@@ -172,10 +171,15 @@ void signal_start_continuous() {
     
     s_signal_state = SIGNAL_RUNNING;
     
-    // Priority 10 (High)
-    // Note: Because this task yields rarely, it will monopolize Core 1.
-    // Ensure BLE/WiFi are handling themselves (usually on Core 0).
-    xTaskCreate(signal_loop_task, "sig_loop", 4096, NULL, 10, &s_signal_task_handle);
+    xTaskCreatePinnedToCore(
+        signal_loop_task,      // Function
+        "sig_loop",            // Name
+        4096,                  // Stack size
+        NULL,                  // Parameters
+        10,                    // Priority
+        &s_signal_task_handle, // Handle
+        1                      // Core ID
+    );
 }
 
 void signal_stop() {
