@@ -16,6 +16,7 @@
 
 #include "helper_note.h"
 #include "ble_controller.h"
+#include "signal_controller.h"
 
 extern "C" {
 #include <stdbool.h>
@@ -82,16 +83,16 @@ esp_err_t app_init() {
     esp_err_t ret;
 
     led_init();
+    
+    // initialize signal controller GPIOs
+    signal_controller_init();
 
-    // Initialize NVS (Non-Volatile Storage) for storing system parameters, including Wi-Fi and Bluetooth configuration.
-    // If NVS initialization fails due to no free pages or a new version found, erase and reinitialize.
+    // Initialize NVS (Non-Volatile Storage) for storing system parameters
     ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
     }
-
-    // Check if NVS initialization (or re-initialization) was successful.
     ESP_ERROR_CHECK(ret);
 
     // Initialize BLE controller
@@ -107,6 +108,23 @@ esp_err_t app_init() {
 
 extern "C" void app_main(void)
 {
+
+    // --------------------------------------------------------
+    // CHECK CLOCK SPEED
+    // --------------------------------------------------------
+    uint32_t cpu_freq_mhz = esp_rom_get_cpu_ticks_per_us();
+    
+    ESP_LOGW(TAG, "================================================");
+    ESP_LOGW(TAG, "           CPU FREQUENCY: %lu MHz", cpu_freq_mhz);
+    ESP_LOGW(TAG, "================================================");
+    
+    if (cpu_freq_mhz < 240) {
+        ESP_LOGE(TAG, "WARNING: ESP32 is running SLOW (%lu MHz).", cpu_freq_mhz);
+        ESP_LOGE(TAG, "Please run 'idf.py menuconfig' -> Component config -> ESP System Settings -> CPU frequency -> 240 MHz");
+    }
+
+
+
     // init functions of the app
     esp_err_t ret = app_init();
     if (ret) {

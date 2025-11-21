@@ -5,6 +5,7 @@
  */
 
 #include "ble_controller.h"
+#include "signal_controller.h"
 #include "helper_note.h"
 
 #include <cstring>
@@ -225,6 +226,10 @@ void BLE_router(esp_ble_gatts_cb_param_t *param) {
             note_buffer_add_text(msg, "LED off");
             ble_send_message(msg.buffer, msg.size);
 
+        } else if (message_lower == "start") {
+            signal_start_continuous();
+        } else if (message_lower == "stop") {
+            signal_stop();
         } else {
             ESP_LOGI(TAG, "Unrecognized write: '%s' (len=%u)", message.c_str(), message.length());
         }
