@@ -18,6 +18,8 @@
 #include <string>
 #include <algorithm>
 
+#include "helper_note.h"
+
 extern "C" {
 #include <stdbool.h>
 #include "freertos/FreeRTOS.h"
@@ -73,6 +75,32 @@ static esp_ble_adv_params_t adv_params = {
     .channel_map        = ADV_CHNL_ALL,
     .adv_filter_policy  = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
 };
+struct gatts_profile_inst {
+    esp_gatts_cb_t gatts_cb;
+    uint16_t gatts_if;
+    uint16_t app_id;
+    uint16_t conn_id;
+    uint16_t service_handle;
+    esp_gatt_srvc_id_t service_id;
+    uint16_t char_handle;
+    esp_bt_uuid_t char_uuid;
+};
+
+static struct gatts_profile_inst gl_profile_tab[PROFILE_NUM] = {
+    [LED_PROFILE_APP_ID] = {
+        .gatts_cb = NULL,
+        .gatts_if = ESP_GATT_IF_NONE,
+        .app_id = 0,
+        .conn_id = 0,
+        .service_handle = 0,
+        .service_id = {},
+        .char_handle = 0,
+        .char_uuid = {},
+    },
+};
+
+
+
 
 /*
  * Parse canonical UUID string (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx) into little-endian 16-byte array.
@@ -122,6 +150,43 @@ static void blink_stop_task(void)
     }
 }
 
+esp_err_t ble_send_message(const char* data, uint16_t len) {
+    // check if client is connected
+    if (gl_profile_tab[LED_PROFILE_APP_ID].conn_id == 0xFFFF) {
+        ESP_LOGW(TAG, "Cannot send message");
+        return ESP_FAIL;
+    }
+
+    // get connection parameters
+    uint16_t conn_id = gl_profile_tab[LED_PROFILE_APP_ID].conn_id;
+    uint16_t gatts_if = gl_profile_tab[LED_PROFILE_APP_ID].gatts_if;
+    uint16_t char_handle = gl_profile_tab[LED_PROFILE_APP_ID].char_handle;
+
+    if (char_handle == 0) {
+        ESP_LOGE(TAG, "cannot send message");
+        return ESP_FAIL;
+    }
+    
+    // send message
+    esp_err_t ret = esp_ble_gatts_send_indicate(
+        gatts_if,
+        conn_id,
+        char_handle,
+        len,
+        (uint8_t*)data,
+        false
+    );
+    
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "esp_ble_gatts_send_indicate failed: %s", esp_err_to_name(ret));
+    } else {
+        ESP_LOGI(TAG, "Sent BLE notification", data, len);
+    }
+    
+    return ret;
+}
+
+
 static void blink_task(void *arg)
 {
     (void)arg;
@@ -138,30 +203,6 @@ static void blink_task(void *arg)
     vTaskDelete(NULL);
 }
 
-struct gatts_profile_inst {
-    esp_gatts_cb_t gatts_cb;
-    uint16_t gatts_if;
-    uint16_t app_id;
-    uint16_t conn_id;
-    uint16_t service_handle;
-    esp_gatt_srvc_id_t service_id;
-    uint16_t char_handle;
-    esp_bt_uuid_t char_uuid;
-};
-
-static struct gatts_profile_inst gl_profile_tab[PROFILE_NUM] = {
-    [LED_PROFILE_APP_ID] = {
-        .gatts_cb = NULL,
-        .gatts_if = ESP_GATT_IF_NONE,
-        .app_id = 0,
-        .conn_id = 0,
-        .service_handle = 0,
-        .service_id = {},
-        .char_handle = 0,
-        .char_uuid = {},
-    },
-};
-
 static void example_write_event_env(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param)
 {
     esp_gatt_status_t status = ESP_GATT_OK;
@@ -169,6 +210,9 @@ static void example_write_event_env(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_par
         esp_ble_gatts_send_response(gatts_if, param->write.conn_id, param->write.trans_id, status, NULL);
     }
 }
+
+
+
 
 void blink_create_task() {
     ESP_LOGI(TAG, "blink_create_task [in]");
@@ -179,7 +223,18 @@ void blink_create_task() {
             blink_task_handle = NULL;
         }
     }
+    
+    
+    NoteData msg(120);
+    note_buffer_clear(msg);
+    
+    note_buffer_add_text(msg, "\nSTATUS\n");
+    note_buffer_add_text_f(msg, "blink: %d, %d\n", blink_delay1_ms, blink_delay2_ms);
+
+    ble_send_message(msg.buffer, msg.size);
 }
+
+
 
 void BLE_router(esp_ble_gatts_cb_param_t *param) {
     if (param->write.len > 0) {
@@ -212,13 +267,21 @@ void BLE_router(esp_ble_gatts_cb_param_t *param) {
             ESP_LOGI(TAG, "Start blinking (1s period)");
             blink_create_task();
         } else if (message_lower == "on") {
-            ESP_LOGI(TAG, "LED ON! koka");
+            ESP_LOGI(TAG, "LED ON!");
             blink_stop_task();
             led_on();
         } else if (message_lower == "off") {
-            ESP_LOGI(TAG, "LED OFF! koka");
+            ESP_LOGI(TAG, "LED OFF!");
             blink_stop_task();
             led_off();
+            
+            NoteData msg(120);
+            note_buffer_clear(msg);
+            
+            note_buffer_add_text(msg, "\nSTATUS\n");
+            note_buffer_add_text(msg, "LED off");
+            ble_send_message(msg.buffer, msg.size);
+
         } else {
             ESP_LOGI(TAG, "Unrecognized write: '%s' (len=%u)", message.c_str(), message.length());
         }
@@ -373,8 +436,8 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
     }
 }
 
-extern "C" void app_main(void)
-{
+
+esp_err_t app_init() {
     esp_err_t ret;
 
     led_init();
@@ -400,28 +463,28 @@ extern "C" void app_main(void)
     ret = esp_bt_controller_init(&bt_cfg);
     if (ret) {
         ESP_LOGE(TAG, "initialize controller failed: %s", esp_err_to_name(ret));
-        return;
+        return ret;
     }
 
     // Enable the Bluetooth controller in BLE mode. This makes the controller ready for BLE functionality.
     ret = esp_bt_controller_enable(ESP_BT_MODE_BLE);
     if (ret) {
         ESP_LOGE(TAG, "enable controller failed: %s", esp_err_to_name(ret));
-        return;
+        return ret;
     }
 
     // Initialize the Bluedroid stack, which provides the API for BLE host functionality.
     ret = esp_bluedroid_init();
     if (ret) {
         ESP_LOGE(TAG, "init bluetooth failed: %s", esp_err_to_name(ret));
-        return;
+        return ret;
     }
 
     // Enable the Bluedroid stack. This activates the BLE host and makes its services available.
     ret = esp_bluedroid_enable();
     if (ret) {
         ESP_LOGE(TAG, "enable bluetooth failed: %s", esp_err_to_name(ret));
-        return;
+        return ret;
     }
 
     // Register the GAP (Generic Access Profile) callback function. This function handles GAP events
@@ -429,7 +492,7 @@ extern "C" void app_main(void)
     ret = esp_ble_gap_register_callback(gap_event_handler);
     if (ret) {
         ESP_LOGE(TAG, "gap register error: %x", ret);
-        return;
+        return ret;
     }
 
     // Register the GATTS (GATT Server) callback function. This function handles GATT server events
@@ -437,7 +500,7 @@ extern "C" void app_main(void)
     ret = esp_ble_gatts_register_callback(gatts_event_handler);
     if (ret) {
         ESP_LOGE(TAG, "gatts register error: %x", ret);
-        return;
+        return ret;
     }
 
     gl_profile_tab[LED_PROFILE_APP_ID].gatts_cb = led_profile_event_handler;
@@ -446,7 +509,7 @@ extern "C" void app_main(void)
     ret = esp_ble_gatts_app_register(LED_PROFILE_APP_ID);
     if (ret) {
         ESP_LOGE(TAG, "app register error: %x", ret);
-        return;
+        return ret;
     }
 
     // Set the local MTU (Maximum Transmission Unit) for GATT operations. A larger MTU allows
@@ -455,4 +518,31 @@ extern "C" void app_main(void)
     if (ret) {
         ESP_LOGW(TAG, "set local MTU failed: %x", ret);
     }
+    
+    return ret;
+}
+
+
+extern "C" void app_main(void)
+{
+
+    // init functions of the app
+    esp_err_t ret = app_init();
+    if (ret) {
+        ESP_LOGW(TAG, "COULD NOT INITIALIZE APP!!");
+    }
+    
+    NoteData message_buffer(120);
+    note_buffer_clear(message_buffer);
+    note_buffer_add_text(message_buffer, "\nSTATUS\n testing hier");
+    note_buffer_print_info(message_buffer);
+    
+    // send BLE message from here:
+    // message: "STATUS: ik ben hier"
+    // 
+    
+    // ble_send_message(message_buffer.buffer, message_buffer.size);
+    
+
+
 }
