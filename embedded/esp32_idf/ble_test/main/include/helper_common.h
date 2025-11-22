@@ -11,6 +11,8 @@
 #include <memory>
 
 
+void blink(uint8_t N);
+
 /**
  * Binary representation structure for digital output control
  * Each boolean represents a single bit/pin state

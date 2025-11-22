@@ -8,6 +8,7 @@
 #include "signal_controller.h"
 #include "helper_note.h"
 #include "helper_common.h"
+#include "memory"
 
 #include <cstring>
 #include <string>
@@ -177,6 +178,8 @@ static void example_write_event_env(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_par
 void BLE_router(esp_ble_gatts_cb_param_t *param) {
     if (param->write.len > 0) {
 
+        std::unique_ptr<NoteData> msg = std::make_unique<NoteData>(120);
+
         // read message
         std::string message(reinterpret_cast<const char*>(param->write.value), param->write.len);
         std::string message_lower = message;
@@ -204,24 +207,29 @@ void BLE_router(esp_ble_gatts_cb_param_t *param) {
             ESP_LOGI(TAG, "LED ON!");
             blink_stop_task();
             led_on();
+
+            note_buffer_clear(*msg);
+            note_buffer_add_text(*msg, "\nSTATUS\n");
+            note_buffer_add_text(*msg, "LED::ON");
+            ble_send_message(msg->buffer, msg->size);
+
         } else if (message_lower == "off") {
             ESP_LOGI(TAG, "LED OFF!");
             blink_stop_task();
             led_off();
             
-            NoteData msg = NoteData(120);
-            note_buffer_clear(msg);
-            note_buffer_add_text(msg, "\nSTATUS\n");
-            note_buffer_add_text(msg, "LED off");
-            ble_send_message(msg.buffer, msg.size);
+            note_buffer_clear(*msg);
+            note_buffer_add_text(*msg, "\nSTATUS\n");
+            note_buffer_add_text(*msg, "LED::OFF");
+            ble_send_message(msg->buffer, msg->size);
+
         } else if (message.substr(0, 7) == "SIGNAL:") {
             ESP_LOGI(TAG, "Updating Signal Pattern via Double Buffer...");
             signal_update_from_string(message);
 
-            NoteData msg = NoteData(128);
-            note_buffer_clear(msg);
-            note_buffer_add_text(msg, "SIGNAL UPDATED OK");
-            ble_send_message(msg.buffer, msg.size);
+            note_buffer_clear(*msg);
+            note_buffer_add_text(*msg, "SIGNAL UPDATED OK");
+            ble_send_message(msg->buffer, msg->size);
         } else if (message_lower == "start") {
             signal_start_continuous();
         } else if (message_lower == "stop") {
@@ -319,9 +327,11 @@ static void led_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t 
         break;
     case ESP_GATTS_CONNECT_EVT:
         ESP_LOGI(TAG, "Client connected");
+        blink(3);
         gl_profile_tab[LED_PROFILE_APP_ID].conn_id = param->connect.conn_id;
         break;
     case ESP_GATTS_DISCONNECT_EVT:
+        blink(2);
         ESP_LOGI(TAG, "Client disconnected - restart advertising");
         esp_ble_gap_start_advertising(&adv_params);
         break;

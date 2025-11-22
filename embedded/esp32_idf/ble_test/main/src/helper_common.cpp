@@ -7,7 +7,20 @@
  * data parsing, and analog sensor interfacing.
  */
 
-#include <helper_common.h>
+#include "helper_common.h"
+#include "led.h"
+
+#include "freertos/FreeRTOS.h"
+
+void blink(uint8_t N) {
+    for (uint8_t i = 0; i < N; i++) {
+        led_on();
+        vTaskDelay(pdMS_TO_TICKS(100));
+        led_off();
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+}
+
 
 struct Bin num2bin(uint32_t num) {
     auto b = Bin();
