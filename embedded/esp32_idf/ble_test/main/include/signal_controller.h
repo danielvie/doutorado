@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <string> // Added string for update function
 #include "esp_err.h"
 
 #define MAX_SIGNAL_SIZE 100
@@ -21,6 +22,14 @@ enum class SignalSet {
 void signal_controller_init();
 
 /**
+ * @brief Updates the inactive signal buffer with new data.
+ * Parses the string, populates the buffer, and sets a flag to swap.
+ * Safe to call from BLE/Core0.
+ * @param message The raw message string (e.g., "SIGNAL:...")
+ */
+void signal_update_from_string(const std::string& message);
+
+/**
  * @brief Starts generating the signal continuously in a loop.
  * Runs in a separate FreeRTOS task on Core 1.
  */
@@ -32,10 +41,6 @@ void signal_start_continuous();
 void signal_stop();
 
 /**
- * @brief (Internal) Executes the signal sequence with interrupts disabled.
- * @param durations Array of durations in microseconds
- * @param modes Array of mode bitmasks (0-7)
- * @param segment_count Number of segments in the pattern
- * @param repeats Number of times to repeat the full pattern in this burst
+ * @brief (Internal) Placeholder
  */
 void signal_execute_sequence(const uint16_t* durations, const uint8_t* modes, int segment_count, int repeats);

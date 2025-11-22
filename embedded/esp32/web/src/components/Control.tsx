@@ -285,7 +285,7 @@ function Control(props: IControlProps) {
                         <label className="mr-4 relative top-2 w-12">alpha:</label>
                         <input
                             type="number"
-                            step="0.01"
+                            step="0.1"
                             id="in-alpha"
                             className="bg-panel border flex-none w-20 px-2 text-center"
                             value={props.alpha}
