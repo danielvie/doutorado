@@ -8,6 +8,7 @@
 #include "signal_controller.h"
 #include "helper_note.h"
 #include "helper_common.h"
+#include "helper_analog.h"
 #include "memory"
 
 #include <cstring>
@@ -200,6 +201,17 @@ void BLE_router(esp_ble_gatts_cb_param_t *param) {
                 ESP_LOGI(TAG, "Blink delay set to %u ms", blink_d1);
                 blink_create_task();
             }
+        } else if (message_lower == "read") {
+            float an3 = analog_read_port(AnalogPort::AN3);
+            float an5 = analog_read_port(AnalogPort::AN5);
+            float an6 = analog_read_port(AnalogPort::AN6);
+
+            note_buffer_clear(*msg);
+            note_buffer_add_text_f(*msg, "\nSTATUS\n");
+            note_buffer_add_text_f(*msg, "an3: %.4f\nan5: %.4f\nan6: %.4f\n", an3, an5, an6);
+            note_buffer_print_info(*msg);
+            ble_send_message(msg->buffer, msg->size);
+
         } else if (message_lower == "blink") {
             ESP_LOGI(TAG, "Start blinking (1s period)");
             blink_create_task();

@@ -8,6 +8,7 @@
 #include <cstring>
 
 #include "helper_note.h"
+#include "helper_analog.h"
 #include "ble_controller.h"
 #include "signal_controller.h" 
 
@@ -79,6 +80,9 @@ esp_err_t app_init() {
 
     led_init();
     
+    // initialize analog ports (ADC)
+    analog_init();
+
     // Initialize Signal Controller GPIOs & Test Pattern
     signal_controller_init();
 
