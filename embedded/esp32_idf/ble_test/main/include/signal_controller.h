@@ -5,9 +5,14 @@
 
 #define MAX_SIGNAL_SIZE 100
 struct DataSet {
-    uint16_t DEMO_DURATIONS[MAX_SIGNAL_SIZE];
-    uint8_t  DEMO_MODES[MAX_SIGNAL_SIZE];
-    uint8_t  DEMO_SIZE;
+    uint16_t time_durations[MAX_SIGNAL_SIZE];
+    uint8_t  modes[MAX_SIGNAL_SIZE];
+    uint8_t  size;
+};
+
+enum class SignalSet { 
+    SET_A,      // Signal set A is active
+    SET_B       // Signal set B is active
 };
 
 /**

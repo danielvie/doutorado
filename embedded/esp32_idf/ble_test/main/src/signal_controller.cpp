@@ -41,10 +41,8 @@ static volatile SignalState s_signal_state = SIGNAL_IDLE;
 // FLEXIBLE SIGNAL DATA
 // ---------------------------------------------------------------------------
 
-// static DataSet dataset_a;
-static uint16_t DEMO_DURATIONS[MAX_SIGNAL_SIZE];
-static uint8_t  DEMO_MODES[MAX_SIGNAL_SIZE];
-static uint8_t  DEMO_SIZE = 0;
+static DataSet dataset_a;
+static DataSet dataset_b;
 
 void signal_controller_init() {
     // 1. Configure GPIOs
@@ -62,23 +60,23 @@ void signal_controller_init() {
     gpio_set_level(PIN_OUT_4, 0);
 
     // 2. Populate Pattern (As requested)
-    DEMO_DURATIONS[0] = 5; // 10 us
-    DEMO_DURATIONS[1] = 20; // 20 us
-    DEMO_DURATIONS[2] = 5; // 10 us
-    DEMO_DURATIONS[3] = 20; // 20 us
-    DEMO_DURATIONS[4] = 10; // 10 us
-    DEMO_DURATIONS[5] = 20; // 20 us
+    dataset_a.time_durations[0] = 5; // 10 us
+    dataset_a.time_durations[1] = 20; // 20 us
+    dataset_a.time_durations[2] = 5; // 10 us
+    dataset_a.time_durations[3] = 20; // 20 us
+    dataset_a.time_durations[4] = 10; // 10 us
+    dataset_a.time_durations[5] = 20; // 20 us
 
-    DEMO_MODES[0] = 7;      // All High
-    DEMO_MODES[1] = 0;      // All Low
-    DEMO_MODES[2] = 7;      // All High
-    DEMO_MODES[3] = 0;      // All Low
-    DEMO_MODES[4] = 7;      // All High
-    DEMO_MODES[5] = 0;      // All Low
+    dataset_a.modes[0] = 7;      // All High
+    dataset_a.modes[1] = 0;      // All Low
+    dataset_a.modes[2] = 7;      // All High
+    dataset_a.modes[3] = 0;      // All Low
+    dataset_a.modes[4] = 7;      // All High
+    dataset_a.modes[5] = 0;      // All Low
     
-    DEMO_SIZE = 6;
+    dataset_a.size = 6;
 
-    ESP_LOGI(TAG, "Signal Controller Initialized. Pattern Size: %d", DEMO_SIZE);
+    ESP_LOGI(TAG, "Signal Controller Initialized. Pattern Size: %d", dataset_a.size);
 }
 
 // ---------------------------------------------------------------------------
@@ -108,18 +106,14 @@ static void signal_loop_task(void* arg) {
     // -------------------------------------------------------
     taskENTER_CRITICAL(&signalMutex);
 
-    uint16_t *time_durations = DEMO_DURATIONS;
-    uint8_t *modes = DEMO_MODES;
+    DataSet &dataset = dataset_a;
 
     while (s_signal_state == SIGNAL_RUNNING) {
         // Iterate through the pattern
-        for (int i = 0; i < DEMO_SIZE; i++) {
+        for (int i = 0; i < dataset_a.size; i++) {
             // 1. Fetch data
-            // uint8_t mode = DEMO_MODES[i] & 0x07;
-            // uint16_t us = DEMO_DURATIONS[i];
-            
-            uint16_t us = time_durations[i];
-            uint8_t mode = modes[i] & 0x07;
+            uint16_t us = dataset.time_durations[i];
+            uint8_t mode = dataset.modes[i] & 0x07;
 
             // 2. Atomic GPIO write (Single CPU cycle)
             GPIO.out_w1ts = lut_set[mode];
@@ -155,7 +149,7 @@ void signal_start_continuous() {
         return;
     }
     
-    if (DEMO_SIZE == 0) {
+    if (dataset_a.size == 0) {
         ESP_LOGE(TAG, "Pattern empty, cannot start");
         return;
     }
