@@ -209,23 +209,19 @@ void BLE_router(esp_ble_gatts_cb_param_t *param) {
             blink_stop_task();
             led_off();
             
-            NoteData* msg = new NoteData(120);
-            note_buffer_clear(*msg);
-            note_buffer_add_text(*msg, "\nSTATUS\n");
-            note_buffer_add_text(*msg, "LED off");
-            ble_send_message(msg->buffer, msg->size);
-            delete msg;
-
+            NoteData msg = NoteData(120);
+            note_buffer_clear(msg);
+            note_buffer_add_text(msg, "\nSTATUS\n");
+            note_buffer_add_text(msg, "LED off");
+            ble_send_message(msg.buffer, msg.size);
         } else if (message.substr(0, 7) == "SIGNAL:") {
             ESP_LOGI(TAG, "Updating Signal Pattern via Double Buffer...");
             signal_update_from_string(message);
 
-            NoteData* msg = new NoteData(128);
-            note_buffer_clear(*msg);
-            note_buffer_add_text(*msg, "SIGNAL UPDATED OK");
-            ble_send_message(msg->buffer, msg->size);
-            delete msg;
-
+            NoteData msg = NoteData(128);
+            note_buffer_clear(msg);
+            note_buffer_add_text(msg, "SIGNAL UPDATED OK");
+            ble_send_message(msg.buffer, msg.size);
         } else if (message_lower == "start") {
             signal_start_continuous();
         } else if (message_lower == "stop") {

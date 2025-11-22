@@ -40,8 +40,8 @@ static volatile SignalState s_signal_state = SIGNAL_IDLE;
 // DOUBLE BUFFERING DATA
 // ---------------------------------------------------------------------------
 
-static DataSet dataset_a;
-static DataSet dataset_b;
+static DataSet g_dataset_a;
+static DataSet g_dataset_b;
 
 // Track which set is currently active in the loop
 static volatile SignalSet g_active_set = SignalSet::SET_A;
@@ -65,23 +65,23 @@ void signal_controller_init() {
     gpio_set_level(PIN_OUT_4, 0);
 
     // 2. Populate Default Pattern into Set A
-    dataset_a.time_durations[0] = 10; 
-    dataset_a.time_durations[1] = 20; 
-    dataset_a.time_durations[2] = 10; 
-    dataset_a.time_durations[3] = 20; 
+    g_dataset_a.time_durations[0] = 10; 
+    g_dataset_a.time_durations[1] = 20; 
+    g_dataset_a.time_durations[2] = 10; 
+    g_dataset_a.time_durations[3] = 20; 
 
-    dataset_a.modes[0] = 7;      
-    dataset_a.modes[1] = 0;      
-    dataset_a.modes[2] = 7;      
-    dataset_a.modes[3] = 0;      
+    g_dataset_a.modes[0] = 7;      
+    g_dataset_a.modes[1] = 0;      
+    g_dataset_a.modes[2] = 7;      
+    g_dataset_a.modes[3] = 0;      
     
-    dataset_a.size = 4;
+    g_dataset_a.size = 4;
 
     // Ensure Set A is active initially
     g_active_set = SignalSet::SET_A;
     g_update_pending = false;
 
-    ESP_LOGI(TAG, "Signal Controller Initialized. Default Pattern Size: %d", dataset_a.size);
+    ESP_LOGI(TAG, "Signal Controller Initialized. Default Pattern Size: %d", g_dataset_a.size);
 }
 
 // ---------------------------------------------------------------------------
@@ -96,10 +96,10 @@ void signal_update_from_string(const std::string& message) {
     // We read the volatile variable once. 
     // If Set A is active, we write to Set B.
     if (g_active_set == SignalSet::SET_A) {
-        target_dataset = &dataset_b;
+        target_dataset = &g_dataset_b;
         target_set_enum = SignalSet::SET_B;
     } else {
-        target_dataset = &dataset_a;
+        target_dataset = &g_dataset_a;
         target_set_enum = SignalSet::SET_A;
     }
 
@@ -167,7 +167,7 @@ static void signal_loop_task(void* arg) {
 
     // Pointer to the data we are currently looping over
     // Start with whatever init set up (Set A)
-    DataSet* current_ptr = &dataset_a;
+    DataSet* dataset = &g_dataset_a;
 
     // -------------------------------------------------------
     // DISABLE INTERRUPTS MANUALLY
@@ -183,11 +183,11 @@ static void signal_loop_task(void* arg) {
             // Swap logic
             if (g_active_set == SignalSet::SET_A) {
                 // A was active, so B must be ready
-                current_ptr = &dataset_b;
+                dataset = &g_dataset_b;
                 g_active_set = SignalSet::SET_B;
             } else {
                 // B was active, so A must be ready
-                current_ptr = &dataset_a;
+                dataset = &g_dataset_a;
                 g_active_set = SignalSet::SET_A;
             }
             // Clear flag
@@ -198,11 +198,11 @@ static void signal_loop_task(void* arg) {
         // EXECUTE PATTERN
         // ---------------------------------------------------
         // Use a local size variable for slight speed opt
-        uint8_t sz = current_ptr->size;
+        uint8_t sz = dataset->size;
 
         for (int i = 0; i < sz; i++) {
-            uint8_t mode = current_ptr->modes[i] & 0x07;
-            uint16_t us = current_ptr->time_durations[i];
+            uint8_t mode = dataset->modes[i] & 0x07;
+            uint16_t us = dataset->time_durations[i];
 
             GPIO.out_w1ts = lut_set[mode];
             GPIO.out_w1tc = lut_clear[mode];
@@ -235,7 +235,7 @@ void signal_start_continuous() {
         return;
     }
     
-    if (dataset_a.size == 0) {
+    if (g_dataset_a.size == 0) {
         ESP_LOGE(TAG, "Pattern empty, cannot start");
         return;
     }
