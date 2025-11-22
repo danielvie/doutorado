@@ -7,6 +7,7 @@
 #include "ble_controller.h"
 #include "signal_controller.h"
 #include "helper_note.h"
+#include "helper_common.h"
 
 #include <cstring>
 #include <string>
@@ -225,6 +226,22 @@ void BLE_router(esp_ble_gatts_cb_param_t *param) {
             note_buffer_add_text(msg, "\nSTATUS\n");
             note_buffer_add_text(msg, "LED off");
             ble_send_message(msg.buffer, msg.size);
+
+        } else if (message.substr(0, 7) == "SIGNAL:") {
+            NoteData msg(1024);
+            note_buffer_clear(msg);
+            note_buffer_add_text(msg, "vou ler SIGNALS: aqui\n");
+
+            std::string s = message.substr(7);
+
+            std::vector<uint32_t> signal_time, signal_mode;
+            parse_signal(message.substr(7), signal_time, signal_mode);
+
+            note_buffer_add_text(msg, "\n");
+            note_buffer_add_array_u32(msg, "time", signal_time.data(), signal_time.size());
+            note_buffer_add_array_u32(msg, "mode", signal_mode.data(), signal_mode.size());
+
+            note_buffer_print_info(msg);
 
         } else if (message_lower == "start") {
             signal_start_continuous();

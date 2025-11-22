@@ -72,12 +72,18 @@ function AdvancedMenu(props: IProps) {
 
 
             <div className="flex gap-2 mt-2">
+                <button onClick={() => ble_send_command("START")} className="btn">START</button>
+                <button onClick={() => ble_send_command("STOP")} className="btn">STOP</button>
+                <button onClick={() => ble_send_command("ON")} className="btn">ON</button>
+                <button onClick={() => ble_send_command("OFF")} className="btn">OFF</button>
+                <button onClick={() => ble_send_command("BLINK")} className="btn">BLINK</button>
+            </div>
+            <div className="flex gap-2">
                 <button onClick={() => ble_send_command("STATUS")} className="btn">STATUS</button>
                 <button onClick={() => handle_status_matrix(EMATRIX.A)} className="btn">MATRIX A</button>
                 <button onClick={() => handle_status_matrix(EMATRIX.B)} className="btn">MATRIX B</button>
                 <button onClick={() => ble_send_command("LOG_KOKA")} className="btn">KOKA</button>
                 <button onClick={() => ble_send_command("STATUS_DURATION")} className="btn">DURATION</button>
-
             </div>
             <div className="flex gap-2">
                 <button onClick={() => handle_log_last(1)} className="btn">LAST CALC</button>

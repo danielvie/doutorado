@@ -8,7 +8,7 @@
 #include "soc/gpio_struct.h"
 #include "esp_rom_sys.h"
 #include "esp_log.h"
-#include "esp_task_wdt.h" // Required to manage Watchdog
+#include "esp_task_wdt.h"
 
 static const char *TAG = "SIG_CTRL";
 
@@ -38,14 +38,13 @@ static TaskHandle_t s_signal_task_handle = NULL;
 static volatile SignalState s_signal_state = SIGNAL_IDLE;
 
 // ---------------------------------------------------------------------------
-// HARDCODED SIGNAL DATA
+// FLEXIBLE SIGNAL DATA
 // ---------------------------------------------------------------------------
-// 100 cycles * 30us = 3000us (3ms) per burst.
-#define TEST_CYCLES 100
-#define TEST_SEGMENTS (TEST_CYCLES * 2)
 
-static uint16_t DEMO_DURATIONS[TEST_SEGMENTS];
-static uint8_t  DEMO_MODES[TEST_SEGMENTS];
+// static DataSet dataset_a;
+static uint16_t DEMO_DURATIONS[MAX_SIGNAL_SIZE];
+static uint8_t  DEMO_MODES[MAX_SIGNAL_SIZE];
+static uint8_t  DEMO_SIZE = 0;
 
 void signal_controller_init() {
     // 1. Configure GPIOs
@@ -62,63 +61,24 @@ void signal_controller_init() {
     gpio_set_level(PIN_OUT_5, 0);
     gpio_set_level(PIN_OUT_4, 0);
 
-    // 2. Populate Test Pattern
-    // 10us UP (Mode 7: 111), 20us DOWN (Mode 0: 000)
-    for (int i = 0; i < TEST_CYCLES; i++) {
-        int idx = i * 2;
-        
-        // Segment A: UP (10us)
-        DEMO_DURATIONS[idx]     = 10; 
-        DEMO_MODES[idx]         = 7;  // Binary 111 (All pins HIGH)
+    // 2. Populate Pattern (As requested)
+    DEMO_DURATIONS[0] = 5; // 10 us
+    DEMO_DURATIONS[1] = 20; // 20 us
+    DEMO_DURATIONS[2] = 5; // 10 us
+    DEMO_DURATIONS[3] = 20; // 20 us
+    DEMO_DURATIONS[4] = 10; // 10 us
+    DEMO_DURATIONS[5] = 20; // 20 us
 
-        // Segment B: DOWN (20us)
-        DEMO_DURATIONS[idx + 1] = 20; 
-        DEMO_MODES[idx + 1]     = 0;  // Binary 000 (All pins LOW)
-    }
-
-    ESP_LOGI(TAG, "Signal Controller Initialized. Pattern: 10us UP / 20us DOWN (%d cycles)", TEST_CYCLES);
-}
-
-// This function runs inside a CRITICAL SECTION.
-void IRAM_ATTR signal_execute_sequence(const uint16_t* durations, const uint8_t* modes, int count) {
+    DEMO_MODES[0] = 7;      // All High
+    DEMO_MODES[1] = 0;      // All Low
+    DEMO_MODES[2] = 7;      // All High
+    DEMO_MODES[3] = 0;      // All Low
+    DEMO_MODES[4] = 7;      // All High
+    DEMO_MODES[5] = 0;      // All Low
     
-    // 1. Pre-calculate lookup tables
-    uint32_t lut_set[8];   
-    uint32_t lut_clear[8]; 
+    DEMO_SIZE = 6;
 
-    for(int m=0; m<8; m++) {
-        uint32_t s = 0;
-        uint32_t c = 0;
-
-        if (m & 4) s |= MASK_OUT_6; else c |= MASK_OUT_6;
-        if (m & 2) s |= MASK_OUT_5; else c |= MASK_OUT_5;
-        if (m & 1) s |= MASK_OUT_4; else c |= MASK_OUT_4;
-
-        lut_set[m] = s;
-        lut_clear[m] = c;
-    }
-
-    // 2. Enter Critical Section (Disables interrupts on THIS core)
-    // Since we are pinned to Core 1, this pauses Core 1 interrupts (SysTick).
-    // Core 0 (BLE/WiFi) continues running happily.
-    taskENTER_CRITICAL(&signalMutex);
-
-    for (int i = 0; i < count; i++) {
-        uint8_t mode = modes[i] & 0x07;
-        uint16_t us = durations[i];
-
-        // Atomic GPIO update
-        GPIO.out_w1ts = lut_set[mode];
-        GPIO.out_w1tc = lut_clear[mode];
-
-        // Busy wait for precision
-        if (us > 0) {
-            esp_rom_delay_us(us);
-        }
-    }
-    
-    // 3. Exit Critical Section
-    taskEXIT_CRITICAL(&signalMutex);
+    ESP_LOGI(TAG, "Signal Controller Initialized. Pattern Size: %d", DEMO_SIZE);
 }
 
 // ---------------------------------------------------------------------------
@@ -127,30 +87,56 @@ void IRAM_ATTR signal_execute_sequence(const uint16_t* durations, const uint8_t*
 static void signal_loop_task(void* arg) {
     ESP_LOGI(TAG, "Continuous Signal Task Started on Core %d", xPortGetCoreID());
     
-    // 1 Burst = ~3ms. 
-    // We yield every ~150ms to keep the Watchdog happy without causing massive gaps.
-    const uint32_t BURSTS_BEFORE_BREATHER = 50; 
-    uint32_t burst_count = 0;
+    // Pre-calculate lookup tables to make the loop as tight as possible
+    uint32_t lut_set[8];   
+    uint32_t lut_clear[8]; 
+
+    for(int m=0; m<8; m++) {
+        uint32_t s = 0;
+        uint32_t c = 0;
+        if (m & 4) s |= MASK_OUT_6; else c |= MASK_OUT_6;
+        if (m & 2) s |= MASK_OUT_5; else c |= MASK_OUT_5;
+        if (m & 1) s |= MASK_OUT_4; else c |= MASK_OUT_4;
+        lut_set[m] = s;
+        lut_clear[m] = c;
+    }
+
+    // -------------------------------------------------------
+    // CRITICAL SECTION START
+    // We disable interrupts and NEVER leave until Stop is called.
+    // Since WDT is disabled for this core, this is safe.
+    // -------------------------------------------------------
+    taskENTER_CRITICAL(&signalMutex);
+
+    uint16_t *time_durations = DEMO_DURATIONS;
+    uint8_t *modes = DEMO_MODES;
 
     while (s_signal_state == SIGNAL_RUNNING) {
-        // Execute the burst (blocking, ~3ms)
-        signal_execute_sequence(DEMO_DURATIONS, DEMO_MODES, TEST_SEGMENTS);
-        
-        burst_count++;
-        
-        if (burst_count >= BURSTS_BEFORE_BREATHER) {
-            // BREATHER: 
-            // A delay of 1 tick (10ms) is the safest way to clear the WDT 
-            // without disabling it in menuconfig.
-            // vTaskDelay(1); 
-            burst_count = 0;
-        } else {
-            // NO DELAY:
-            // Just loop immediately.
-            // Since we are pinned to Core 1, and BLE is on Core 0, 
-            // we don't need to yield for BLE's sake, only for the Watchdog's sake.
+        // Iterate through the pattern
+        for (int i = 0; i < DEMO_SIZE; i++) {
+            // 1. Fetch data
+            // uint8_t mode = DEMO_MODES[i] & 0x07;
+            // uint16_t us = DEMO_DURATIONS[i];
+            
+            uint16_t us = time_durations[i];
+            uint8_t mode = modes[i] & 0x07;
+
+            // 2. Atomic GPIO write (Single CPU cycle)
+            GPIO.out_w1ts = lut_set[mode];
+            GPIO.out_w1tc = lut_clear[mode];
+
+            // 3. Precision Delay
+            if (us > 0) {
+                esp_rom_delay_us(us);
+            }
         }
+        // Loop wraps around instantly here with negligible overhead
     }
+
+    // -------------------------------------------------------
+    // CRITICAL SECTION END
+    // -------------------------------------------------------
+    taskEXIT_CRITICAL(&signalMutex);
 
     ESP_LOGI(TAG, "Continuous Signal Task Stopped");
     
@@ -169,16 +155,23 @@ void signal_start_continuous() {
         return;
     }
     
+    if (DEMO_SIZE == 0) {
+        ESP_LOGE(TAG, "Pattern empty, cannot start");
+        return;
+    }
+
     s_signal_state = SIGNAL_RUNNING;
     
+    // Pin to Core 1 (APP_CPU)
+    // Since WDT is disabled, this task will take 100% of Core 1.
     xTaskCreatePinnedToCore(
-        signal_loop_task,      // Function
-        "sig_loop",            // Name
-        4096,                  // Stack size
-        NULL,                  // Parameters
-        10,                    // Priority
-        &s_signal_task_handle, // Handle
-        1                      // Core ID
+        signal_loop_task,   
+        "sig_loop",         
+        4096,               
+        NULL,               
+        10,                 
+        &s_signal_task_handle, 
+        1                   
     );
 }
 
@@ -189,10 +182,16 @@ void signal_stop() {
     }
 
     ESP_LOGI(TAG, "Stopping Signal...");
+    
+    // This variable is volatile, so the loop on Core 1 will see this change
+    // on its next iteration and break out of the while() loop.
     s_signal_state = SIGNAL_IDLE;
     
-    // Immediate safety clear
-    gpio_set_level(PIN_OUT_6, 0);
-    gpio_set_level(PIN_OUT_5, 0);
-    gpio_set_level(PIN_OUT_4, 0);
+    // Note: We don't need to force pins low here immediately because the 
+    // task will do it as soon as it exits the loop (which is microseconds away).
+}
+
+// Placeholder for interface compatibility
+void signal_execute_sequence(const uint16_t* durations, const uint8_t* modes, int segment_count, int repeats) {
+    // Not used in this optimized version
 }
