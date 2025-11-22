@@ -1,16 +1,4 @@
 #include "signal_controller.h"
-#include "helper_common.h" // Required for parsing
-#include <cstring>
-#include <cstdio>
-#include <cstdlib>
-#include <vector>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "driver/gpio.h"
-#include "soc/gpio_struct.h"
-#include "esp_rom_sys.h"
-#include "esp_log.h"
-#include "esp_task_wdt.h"
 
 static const char *TAG = "SIG_CTRL";
 
@@ -21,6 +9,7 @@ static const char *TAG = "SIG_CTRL";
 #define PIN_OUT_5  GPIO_NUM_22 // Bit 1 (2)
 #define PIN_OUT_4  GPIO_NUM_21 // Bit 0 (1)
 
+const uint32_t MASK_LED   = (1ULL << GPIO_NUM_2);
 const uint32_t MASK_OUT_6 = (1ULL << PIN_OUT_6);
 const uint32_t MASK_OUT_5 = (1ULL << PIN_OUT_5);
 const uint32_t MASK_OUT_4 = (1ULL << PIN_OUT_4);
@@ -169,10 +158,14 @@ static void signal_loop_task(void* arg) {
     // Start with whatever init set up (Set A)
     DataSet* dataset = &g_dataset_a;
 
+    // turn led on to indicate signal running (might need refactor to account for blink signal)
+    led_on();
+
     // -------------------------------------------------------
     // DISABLE INTERRUPTS MANUALLY
     // -------------------------------------------------------
     portDISABLE_INTERRUPTS();
+    
 
     while (s_signal_state == SIGNAL_RUNNING) {
         
@@ -201,8 +194,8 @@ static void signal_loop_task(void* arg) {
         uint8_t sz = dataset->size;
 
         for (int i = 0; i < sz; i++) {
+            uint16_t us  = dataset->time_durations[i];
             uint8_t mode = dataset->modes[i] & 0x07;
-            uint16_t us = dataset->time_durations[i];
 
             GPIO.out_w1ts = lut_set[mode];
             GPIO.out_w1tc = lut_clear[mode];
@@ -224,6 +217,8 @@ static void signal_loop_task(void* arg) {
     gpio_set_level(PIN_OUT_6, 0);
     gpio_set_level(PIN_OUT_5, 0);
     gpio_set_level(PIN_OUT_4, 0);
+    
+    led_off();
 
     s_signal_task_handle = NULL;
     vTaskDelete(NULL);

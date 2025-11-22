@@ -6,24 +6,25 @@
 
 #include <cstdio>
 #include <cstring>
+#include <memory>
 
-#include "helper_note.h"
-#include "helper_analog.h"
 #include "ble_controller.h"
+#include "helper_analog.h"
+#include "helper_note.h"
+#include "led.h"
 #include "signal_controller.h" 
+
+
 
 // REQUIRED to read the clock speed
 #include "esp_rom_sys.h" 
 
-extern "C" {
 #include <stdbool.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
-#include "led.h"
-}
 
 static const char *TAG = "BLE_LED";
 
@@ -104,11 +105,39 @@ esp_err_t app_init() {
     return ret;
 }
 
+static void analog_reading_task(void* arg) {
+    ESP_LOGI(TAG, "Analog Task Started");
+
+    for (;;) {
+
+        // only send message if client is connected
+        if (ble_is_connected()) {
+            // Read Values (in V)
+            float an3 = analog_read_port(AnalogPort::AN3);
+            float an5 = analog_read_port(AnalogPort::AN5);
+            float an6 = analog_read_port(AnalogPort::AN6);
+
+            // Prepare BLE Message
+            auto msg = std::make_unique<NoteData>(128);
+            note_buffer_clear(*msg);
+
+            // Format: "an3:1.2345 an5:0.0123 an6:3.1000"
+            note_buffer_add_text_f(*msg, "an3:%.4f an5:%.4f an6:%.4f", an3, an5, an6);
+
+            // Send
+            // ble_send_message(msg->buffer, msg->size);
+            note_buffer_ble_send(*msg);
+        }
+
+        // Wait 500ms
+        vTaskDelay(pdMS_TO_TICKS(500));
+    }
+    vTaskDelete(NULL);
+}
+
 extern "C" void app_main(void)
 {
-    // --------------------------------------------------------
-    // 1. PRINT CLOCK SPEED
-    // --------------------------------------------------------
+    // print clock speed
     uint32_t cpu_freq_mhz = esp_rom_get_cpu_ticks_per_us();
     
     ESP_LOGW(TAG, "================================================");
@@ -120,14 +149,22 @@ extern "C" void app_main(void)
         ESP_LOGE(TAG, "Please run 'idf.py menuconfig' -> Component config -> ESP System Settings -> CPU frequency -> 240 MHz");
     }
 
-    // 2. Init functions of the app
+    // init functions of the app
     esp_err_t ret = app_init();
     if (ret) {
         ESP_LOGW(TAG, "COULD NOT INITIALIZE APP!!");
     }
-    
-    NoteData message_buffer(120);
-    note_buffer_clear(message_buffer);
-    note_buffer_add_text(message_buffer, "\nSTATUS\n testing hier");
-    note_buffer_print_info(message_buffer);
+
+
+    // Create analog task on Core 0 with sufficient stack size for helper::printf
+    xTaskCreatePinnedToCore(
+        analog_reading_task,  // Task function
+        "Analog Task",        // Task name (corrected name)
+        8192,                  // Stack size (bytes) - increased for helper::printf
+        NULL,                 // Task parameter
+        tskIDLE_PRIORITY + 1, // Priority
+        NULL,                 // Task handle
+        0                     // CPU core
+    );
+
 }

@@ -5,40 +5,15 @@
  */
 
 #include "ble_controller.h"
-#include "signal_controller.h"
-#include "helper_note.h"
-#include "helper_common.h"
-#include "helper_analog.h"
-#include "memory"
-
-#include <cstring>
-#include <string>
-#include <algorithm>
-
-extern "C" {
-#include <stdbool.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_log.h"
-#include "esp_bt.h"
-#include "esp_gap_ble_api.h"
-#include "esp_gatts_api.h"
-#include "esp_bt_defs.h"
-#include "esp_bt_main.h"
-#include "esp_bt_device.h"
-#include "esp_gatt_common_api.h"
-#include "led.h"
-}
 
 #define PROFILE_NUM 1
-#define LED_PROFILE_APP_ID 0
-#define LED_CHAR_UUID_128_LEN 16
+#define PROFILE_APP_ID 0
 
 /* String UUIDs (canonical big-endian textual form) */
-#define SERVICE_UUID_STR        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
-#define CHAR_UUID_STR           "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+#define SERVICE_UUID_STR "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
+#define CHAR_UUID_STR "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
-static const char *TAG = "BLE_CTRL";
+static const char* TAG = "BLE_CTRL";
 
 /* Parsed UUID storage (little-endian as expected by esp-idf) */
 static uint8_t service_uuid_le[16];
@@ -55,20 +30,20 @@ static esp_ble_adv_data_t adv_data = {
     .p_manufacturer_data = NULL,
     .service_data_len = 0,
     .p_service_data = NULL,
-    .service_uuid_len = 0, 
+    .service_uuid_len = 0,
     .p_service_uuid = NULL,
     .flag = (ESP_BLE_ADV_FLAG_GEN_DISC | ESP_BLE_ADV_FLAG_BREDR_NOT_SPT),
 };
 
 static esp_ble_adv_params_t adv_params = {
-    .adv_int_min        = 0x20,
-    .adv_int_max        = 0x40,
-    .adv_type           = ADV_TYPE_IND,
-    .own_addr_type      = BLE_ADDR_TYPE_PUBLIC,
-    .peer_addr          = {},
-    .peer_addr_type     = BLE_ADDR_TYPE_PUBLIC,
-    .channel_map        = ADV_CHNL_ALL,
-    .adv_filter_policy  = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
+    .adv_int_min = 0x20,
+    .adv_int_max = 0x40,
+    .adv_type = ADV_TYPE_IND,
+    .own_addr_type = BLE_ADDR_TYPE_PUBLIC,
+    .peer_addr = {},
+    .peer_addr_type = BLE_ADDR_TYPE_PUBLIC,
+    .channel_map = ADV_CHNL_ALL,
+    .adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
 };
 
 struct gatts_profile_inst {
@@ -83,11 +58,11 @@ struct gatts_profile_inst {
 };
 
 static struct gatts_profile_inst gl_profile_tab[PROFILE_NUM] = {
-    [LED_PROFILE_APP_ID] = {
+    [PROFILE_APP_ID] = {
         .gatts_cb = NULL,
         .gatts_if = ESP_GATT_IF_NONE,
         .app_id = 0,
-        .conn_id = 0,
+        .conn_id = 0xFFFF,
         .service_handle = 0,
         .service_id = {},
         .char_handle = 0,
@@ -95,30 +70,33 @@ static struct gatts_profile_inst gl_profile_tab[PROFILE_NUM] = {
     },
 };
 
-static bool uuid_from_string_le(const char *str, uint8_t out[16])
-{
+static bool uuid_from_string_le(const char* str, uint8_t out[16]) {
     if (!str || !out) return false;
     uint8_t tmp[16];
-    int hi = -1; 
+    int hi = -1;
     int byte_index = 0;
-    for (const char *p = str; *p; ++p) {
+    for (const char* p = str; *p; ++p) {
         char c = *p;
-        if (c == '-') continue; 
+        if (c == '-') continue;
         int v;
-        if (c >= '0' && c <= '9') v = c - '0';
-        else if (c >= 'a' && c <= 'f') v = 10 + (c - 'a');
-        else if (c >= 'A' && c <= 'F') v = 10 + (c - 'A');
-        else return false; 
+        if (c >= '0' && c <= '9')
+            v = c - '0';
+        else if (c >= 'a' && c <= 'f')
+            v = 10 + (c - 'a');
+        else if (c >= 'A' && c <= 'F')
+            v = 10 + (c - 'A');
+        else
+            return false;
         if (hi < 0) {
-            hi = v; 
+            hi = v;
         } else {
-            if (byte_index >= 16) return false; 
+            if (byte_index >= 16) return false;
             tmp[byte_index++] = (uint8_t)((hi << 4) | v);
-            hi = -1; 
+            hi = -1;
         }
     }
-    if (hi != -1) return false; 
-    if (byte_index != 16) return false; 
+    if (hi != -1) return false;
+    if (byte_index != 16) return false;
     for (int i = 0; i < 16; ++i) {
         out[i] = tmp[15 - i];
     }
@@ -133,40 +111,38 @@ extern void blink_stop_task(void);
 extern void blink_create_task(void);
 
 esp_err_t ble_send_message(const char* data, uint16_t len) {
-    if (gl_profile_tab[LED_PROFILE_APP_ID].conn_id == 0xFFFF) {
+    if (gl_profile_tab[PROFILE_APP_ID].conn_id == 0xFFFF) {
         ESP_LOGW(TAG, "Cannot send message: no client connected");
         return ESP_FAIL;
     }
 
-    uint16_t conn_id = gl_profile_tab[LED_PROFILE_APP_ID].conn_id;
-    uint16_t gatts_if = gl_profile_tab[LED_PROFILE_APP_ID].gatts_if;
-    uint16_t char_handle = gl_profile_tab[LED_PROFILE_APP_ID].char_handle;
+    uint16_t conn_id = gl_profile_tab[PROFILE_APP_ID].conn_id;
+    uint16_t gatts_if = gl_profile_tab[PROFILE_APP_ID].gatts_if;
+    uint16_t char_handle = gl_profile_tab[PROFILE_APP_ID].char_handle;
 
     if (char_handle == 0) {
         ESP_LOGE(TAG, "Cannot send message: characteristic handle not set");
         return ESP_FAIL;
     }
-    
+
     esp_err_t ret = esp_ble_gatts_send_indicate(
         gatts_if,
         conn_id,
         char_handle,
         len,
         (uint8_t*)data,
-        false
-    );
-    
+        false);
+
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "esp_ble_gatts_send_indicate failed: %s", esp_err_to_name(ret));
     } else {
         ESP_LOGI(TAG, "Sent BLE notification");
     }
-    
+
     return ret;
 }
 
-static void example_write_event_env(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param)
-{
+static void example_write_event_env(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t* param) {
     esp_gatt_status_t status = ESP_GATT_OK;
     if (param->write.need_rsp) {
         esp_ble_gatts_send_response(gatts_if, param->write.conn_id, param->write.trans_id, status, NULL);
@@ -176,16 +152,15 @@ static void example_write_event_env(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_par
 // ----------------------------------------------------------------------
 // UPDATED BLE ROUTER
 // ----------------------------------------------------------------------
-void BLE_router(esp_ble_gatts_cb_param_t *param) {
+void ble_router(esp_ble_gatts_cb_param_t* param) {
     if (param->write.len > 0) {
-
         std::unique_ptr<NoteData> msg = std::make_unique<NoteData>(120);
 
         // read message
         std::string message(reinterpret_cast<const char*>(param->write.value), param->write.len);
         std::string message_lower = message;
         std::transform(message_lower.begin(), message_lower.end(), message_lower.begin(), ::tolower);
-        
+
         // treat cases
         uint16_t blink_d1 = 0, blink_d2 = 0;
         if (sscanf(message_lower.c_str(), "blink:%hu,%hu", &blink_d1, &blink_d2) == 2) {
@@ -229,7 +204,7 @@ void BLE_router(esp_ble_gatts_cb_param_t *param) {
             ESP_LOGI(TAG, "LED OFF!");
             blink_stop_task();
             led_off();
-            
+
             note_buffer_clear(*msg);
             note_buffer_add_text(*msg, "\nSTATUS\n");
             note_buffer_add_text(*msg, "LED::OFF");
@@ -252,127 +227,125 @@ void BLE_router(esp_ble_gatts_cb_param_t *param) {
     }
 }
 
-static void led_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param)
-{
+static void led_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t* param) {
     switch (event) {
-    case ESP_GATTS_REG_EVT: {
-        ESP_LOGI(TAG, "GATT registered, app_id %d", param->reg.app_id);
-        gl_profile_tab[LED_PROFILE_APP_ID].service_id.is_primary = true;
-        gl_profile_tab[LED_PROFILE_APP_ID].service_id.id.inst_id = 0x00;
-        gl_profile_tab[LED_PROFILE_APP_ID].service_id.id.uuid.len = ESP_UUID_LEN_128;
-        
-        if (!uuid_from_string_le(SERVICE_UUID_STR, service_uuid_le)) {
-            ESP_LOGE(TAG, "Failed to parse service UUID string");
-            return;
-        }
-        memcpy(gl_profile_tab[LED_PROFILE_APP_ID].service_id.id.uuid.uuid.uuid128, service_uuid_le, 16);
+        case ESP_GATTS_REG_EVT: {
+            ESP_LOGI(TAG, "GATT registered, app_id %d", param->reg.app_id);
+            gl_profile_tab[PROFILE_APP_ID].service_id.is_primary = true;
+            gl_profile_tab[PROFILE_APP_ID].service_id.id.inst_id = 0x00;
+            gl_profile_tab[PROFILE_APP_ID].service_id.id.uuid.len = ESP_UUID_LEN_128;
 
-        adv_data.service_uuid_len = 16;
-        adv_data.p_service_uuid = service_uuid_le;
+            if (!uuid_from_string_le(SERVICE_UUID_STR, service_uuid_le)) {
+                ESP_LOGE(TAG, "Failed to parse service UUID string");
+                return;
+            }
+            memcpy(gl_profile_tab[PROFILE_APP_ID].service_id.id.uuid.uuid.uuid128, service_uuid_le, 16);
 
-        esp_err_t ret = esp_ble_gap_config_adv_data(&adv_data);
-        if (ret) {
-            ESP_LOGE(TAG, "config adv data failed: %x", ret);
+            adv_data.service_uuid_len = 16;
+            adv_data.p_service_uuid = service_uuid_le;
+
+            esp_err_t ret = esp_ble_gap_config_adv_data(&adv_data);
+            if (ret) {
+                ESP_LOGE(TAG, "config adv data failed: %x", ret);
+                break;
+            }
+
+            esp_ble_gatts_create_service(gatts_if, &gl_profile_tab[PROFILE_APP_ID].service_id, 5);
             break;
         }
+        case ESP_GATTS_CREATE_EVT: {
+            ESP_LOGI(TAG, "Service created, handle %d", param->create.service_handle);
+            gl_profile_tab[PROFILE_APP_ID].service_handle = param->create.service_handle;
 
-        esp_ble_gatts_create_service(gatts_if, &gl_profile_tab[LED_PROFILE_APP_ID].service_id, 5);
-        break;
-    }
-    case ESP_GATTS_CREATE_EVT: {
-        ESP_LOGI(TAG, "Service created, handle %d", param->create.service_handle);
-        gl_profile_tab[LED_PROFILE_APP_ID].service_handle = param->create.service_handle;
+            gl_profile_tab[PROFILE_APP_ID].char_uuid.len = ESP_UUID_LEN_128;
+            if (!uuid_from_string_le(CHAR_UUID_STR, char_uuid_le)) {
+                ESP_LOGE(TAG, "Failed to parse characteristic UUID string");
+                return;
+            }
+            memcpy(gl_profile_tab[PROFILE_APP_ID].char_uuid.uuid.uuid128, char_uuid_le, 16);
 
-        gl_profile_tab[LED_PROFILE_APP_ID].char_uuid.len = ESP_UUID_LEN_128;
-        if (!uuid_from_string_le(CHAR_UUID_STR, char_uuid_le)) {
-            ESP_LOGE(TAG, "Failed to parse characteristic UUID string");
-            return;
+            esp_ble_gatts_start_service(gl_profile_tab[PROFILE_APP_ID].service_handle);
+
+            esp_gatt_char_prop_t property = ESP_GATT_CHAR_PROP_BIT_WRITE | ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_NOTIFY;
+            esp_err_t rc = esp_ble_gatts_add_char(gl_profile_tab[PROFILE_APP_ID].service_handle,
+                                                  &gl_profile_tab[PROFILE_APP_ID].char_uuid,
+                                                  ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE,
+                                                  property,
+                                                  NULL, NULL);
+            if (rc) {
+                ESP_LOGE(TAG, "add char failed: %x", rc);
+            }
+            break;
         }
-        memcpy(gl_profile_tab[LED_PROFILE_APP_ID].char_uuid.uuid.uuid128, char_uuid_le, 16);
+        case ESP_GATTS_ADD_CHAR_EVT: {
+            ESP_LOGI(TAG, "Char added, attr_handle %d", param->add_char.attr_handle);
+            gl_profile_tab[PROFILE_APP_ID].char_handle = param->add_char.attr_handle;
 
-        esp_ble_gatts_start_service(gl_profile_tab[LED_PROFILE_APP_ID].service_handle);
-
-        esp_gatt_char_prop_t property = ESP_GATT_CHAR_PROP_BIT_WRITE | ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_NOTIFY;
-        esp_err_t rc = esp_ble_gatts_add_char(gl_profile_tab[LED_PROFILE_APP_ID].service_handle,
-                                             &gl_profile_tab[LED_PROFILE_APP_ID].char_uuid,
-                                             ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE,
-                                             property,
-                                             NULL, NULL);
-        if (rc) {
-            ESP_LOGE(TAG, "add char failed: %x", rc);
+            esp_bt_uuid_t descr_uuid = {};
+            descr_uuid.len = ESP_UUID_LEN_16;
+            descr_uuid.uuid.uuid16 = ESP_GATT_UUID_CHAR_CLIENT_CONFIG;
+            esp_err_t rd = esp_ble_gatts_add_char_descr(gl_profile_tab[PROFILE_APP_ID].service_handle,
+                                                        &descr_uuid,
+                                                        ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE,
+                                                        NULL, NULL);
+            if (rd) {
+                ESP_LOGW(TAG, "add cccd failed: %x", rd);
+            }
+            break;
         }
-        break;
-    }
-    case ESP_GATTS_ADD_CHAR_EVT: {
-        ESP_LOGI(TAG, "Char added, attr_handle %d", param->add_char.attr_handle);
-        gl_profile_tab[LED_PROFILE_APP_ID].char_handle = param->add_char.attr_handle;
-        
-        esp_bt_uuid_t descr_uuid = {};
-        descr_uuid.len = ESP_UUID_LEN_16;
-        descr_uuid.uuid.uuid16 = ESP_GATT_UUID_CHAR_CLIENT_CONFIG;
-        esp_err_t rd = esp_ble_gatts_add_char_descr(gl_profile_tab[LED_PROFILE_APP_ID].service_handle,
-                                                    &descr_uuid,
-                                                    ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE,
-                                                    NULL, NULL);
-        if (rd) {
-            ESP_LOGW(TAG, "add cccd failed: %x", rd);
+        case ESP_GATTS_READ_EVT: {
+            esp_gatt_rsp_t rsp;
+            memset(&rsp, 0, sizeof(rsp));
+            rsp.attr_value.handle = param->read.handle;
+            rsp.attr_value.len = 1;
+            rsp.attr_value.value[0] = get_led_state();
+            esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id, ESP_GATT_OK, &rsp);
+            break;
         }
-        break;
-    }
-    case ESP_GATTS_READ_EVT: {
-        esp_gatt_rsp_t rsp;
-        memset(&rsp, 0, sizeof(rsp));
-        rsp.attr_value.handle = param->read.handle;
-        rsp.attr_value.len = 1;
-        rsp.attr_value.value[0] = get_led_state();
-        esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id, ESP_GATT_OK, &rsp);
-        break;
-    }
-    case ESP_GATTS_WRITE_EVT: {
-        ESP_LOGI(TAG, "Write event, len=%u", param->write.len);
-        BLE_router(param);
-        example_write_event_env(gatts_if, param);
-        break;
-    }
-    case ESP_GATTS_START_EVT:
-        ESP_LOGI(TAG, "Service started");
-        break;
-    case ESP_GATTS_CONNECT_EVT:
-        ESP_LOGI(TAG, "Client connected");
-        blink(3);
-        gl_profile_tab[LED_PROFILE_APP_ID].conn_id = param->connect.conn_id;
-        break;
-    case ESP_GATTS_DISCONNECT_EVT:
-        blink(2);
-        ESP_LOGI(TAG, "Client disconnected - restart advertising");
-        esp_ble_gap_start_advertising(&adv_params);
-        break;
-    default:
-        break;
+        case ESP_GATTS_WRITE_EVT: {
+            ESP_LOGI(TAG, "Write event, len=%u", param->write.len);
+            ble_router(param);
+            example_write_event_env(gatts_if, param);
+            break;
+        }
+        case ESP_GATTS_START_EVT:
+            ESP_LOGI(TAG, "Service started");
+            break;
+        case ESP_GATTS_CONNECT_EVT:
+            ESP_LOGI(TAG, "Client connected");
+            blink(3);
+            gl_profile_tab[PROFILE_APP_ID].conn_id = param->connect.conn_id;
+            break;
+        case ESP_GATTS_DISCONNECT_EVT:
+            blink(2);
+            ESP_LOGI(TAG, "Client disconnected - restart advertising");
+            gl_profile_tab[PROFILE_APP_ID].conn_id = 0xFFFF;
+            esp_ble_gap_start_advertising(&adv_params);
+            break;
+        default:
+            break;
     }
 }
 
-static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
-{
+static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t* param) {
     switch (event) {
-    case ESP_GAP_BLE_ADV_DATA_SET_COMPLETE_EVT:
-        esp_ble_gap_start_advertising(&adv_params);
-        break;
-    case ESP_GAP_BLE_SCAN_RSP_DATA_SET_COMPLETE_EVT:
-        esp_ble_gap_start_advertising(&adv_params);
-        break;
-    case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
-        if (param->adv_start_cmpl.status != ESP_BT_STATUS_SUCCESS) {
-            ESP_LOGE(TAG, "Advertising start failed");
-        }
-        break;
-    default:
-        break;
+        case ESP_GAP_BLE_ADV_DATA_SET_COMPLETE_EVT:
+            esp_ble_gap_start_advertising(&adv_params);
+            break;
+        case ESP_GAP_BLE_SCAN_RSP_DATA_SET_COMPLETE_EVT:
+            esp_ble_gap_start_advertising(&adv_params);
+            break;
+        case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
+            if (param->adv_start_cmpl.status != ESP_BT_STATUS_SUCCESS) {
+                ESP_LOGE(TAG, "Advertising start failed");
+            }
+            break;
+        default:
+            break;
     }
 }
 
-static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param)
-{
+static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t* param) {
     if (event == ESP_GATTS_REG_EVT) {
         if (param->reg.status == ESP_GATT_OK) {
             gl_profile_tab[param->reg.app_id].gatts_if = gatts_if;
@@ -407,9 +380,13 @@ esp_err_t ble_controller_init(void) {
     if (ret) return ret;
     ret = esp_ble_gatts_register_callback(gatts_event_handler);
     if (ret) return ret;
-    gl_profile_tab[LED_PROFILE_APP_ID].gatts_cb = led_profile_event_handler;
-    ret = esp_ble_gatts_app_register(LED_PROFILE_APP_ID);
+    gl_profile_tab[PROFILE_APP_ID].gatts_cb = led_profile_event_handler;
+    ret = esp_ble_gatts_app_register(PROFILE_APP_ID);
     if (ret) return ret;
     ret = esp_ble_gatt_set_local_mtu(500);
     return ret;
+}
+
+bool ble_is_connected() {
+    return (gl_profile_tab[PROFILE_APP_ID].conn_id != 0xFFFF);
 }

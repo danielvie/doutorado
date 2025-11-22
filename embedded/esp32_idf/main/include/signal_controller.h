@@ -1,8 +1,19 @@
 #pragma once
 
-#include <stdint.h>
-#include <string> // Added string for update function
+#include "helper_common.h"
+#include "led.h"
+
+#include "driver/gpio.h"
 #include "esp_err.h"
+#include "esp_log.h"
+#include "esp_rom_sys.h"
+#include "esp_task_wdt.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "soc/gpio_struct.h"
+#include <string>
+#include <vector>
+
 
 #define MAX_SIGNAL_SIZE 100
 struct DataSet {

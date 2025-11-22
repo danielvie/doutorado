@@ -1,7 +1,8 @@
 
 
 migrar projeto ESP:
-    ☐ enviar dados analogicos
+    ✔ implementar analog_read @done(25-11-22 02:09)
+    ✔ enviar dados analogicos @done(25-11-22 11:45)
     ☐ implementar print on/off
     ☐ implementar set_alpha
     ☐ implementar matrizes

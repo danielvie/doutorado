@@ -10,6 +10,8 @@
 #include <string>
 #include <algorithm>
 
+#include "ble_controller.h"
+
 #include <cstdarg>
 #include <esp_log.h>
 
@@ -90,4 +92,4 @@ void note_buffer_add_array_i32(NoteData& buffer, std::string name, int32_t* data
 // void note_buffer_add_matrix(NoteData& buffer, MatrixData& M);
 
 void note_buffer_print_info(NoteData& buffer);
-// void note_buffer_ble_send(NoteData& buffer, NimBLECharacteristic* pCharacteristic);
+void note_buffer_ble_send(NoteData& buffer);

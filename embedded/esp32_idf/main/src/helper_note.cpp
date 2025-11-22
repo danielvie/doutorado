@@ -115,7 +115,6 @@ void note_buffer_print_info(NoteData &buffer) {
     ESP_LOGI(TAG_NOTE, "%s", temp_log_buffer);
 }
 
-// void note_buffer_ble_send(NoteData &buffer, NimBLECharacteristic *pCharacteristic) {
-//     pCharacteristic->setValue((uint8_t *)buffer.buffer, strlen(buffer.buffer));
-//     pCharacteristic->notify();
-// }
+void note_buffer_ble_send(NoteData &buffer) {
+    ble_send_message(buffer.buffer, buffer.size);
+}
