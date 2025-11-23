@@ -22,6 +22,9 @@ struct DataSet {
     uint32_t modes_d5[MAX_SIGNAL_SIZE];
     uint32_t modes_d6[MAX_SIGNAL_SIZE]; 
     uint16_t size;
+    int32_t time_us_diff[MAX_SIGNAL_SIZE];
+    float target[3]; 
+    // MatrixData gain_k;
 };
 
 enum class SignalSet { 

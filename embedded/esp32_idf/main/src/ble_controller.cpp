@@ -187,10 +187,10 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
             float an5 = analog_read_port(AnalogPort::AN5);
             float an6 = analog_read_port(AnalogPort::AN6);
 
-            note_buffer_clear(*msg);
-            note_buffer_add_text_f(*msg, "\nSTATUS\n");
-            note_buffer_add_text_f(*msg, "an3: %.4f\nan5: %.4f\nan6: %.4f\n", an3, an5, an6);
-            note_buffer_print_info(*msg);
+            note_clear(*msg);
+            note_add_text(*msg, "\nSTATUS\n");
+            note_add_text(*msg, "an3: %.4f\nan5: %.4f\nan6: %.4f\n", an3, an5, an6);
+            note_print_info(*msg);
             ble_send_message(msg->buffer, msg->size);
 
         } else if (message_lower == "blink") {
@@ -201,9 +201,9 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
             blink_stop_task();
             led_on();
 
-            note_buffer_clear(*msg);
-            note_buffer_add_text(*msg, "\nSTATUS\n");
-            note_buffer_add_text(*msg, "LED::ON");
+            note_clear(*msg);
+            note_add_text(*msg, "\nSTATUS\n");
+            note_add_text(*msg, "LED::ON");
             ble_send_message(msg->buffer, msg->size);
 
         } else if (message_lower == "off") {
@@ -211,17 +211,17 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
             blink_stop_task();
             led_off();
 
-            note_buffer_clear(*msg);
-            note_buffer_add_text(*msg, "\nSTATUS\n");
-            note_buffer_add_text(*msg, "LED::OFF");
+            note_clear(*msg);
+            note_add_text(*msg, "\nSTATUS\n");
+            note_add_text(*msg, "LED::OFF");
             ble_send_message(msg->buffer, msg->size);
 
         } else if (message.substr(0, 7) == "SIGNAL:") {
             ESP_LOGI(TAG, "Updating Signal Pattern via Double Buffer...");
             signal_update_from_string(message);
 
-            note_buffer_clear(*msg);
-            note_buffer_add_text(*msg, "SIGNAL UPDATED OK");
+            note_clear(*msg);
+            note_add_text(*msg, "SIGNAL UPDATED OK");
             ble_send_message(msg->buffer, msg->size);
         } else if (message_lower == "start") {
             signal_start_continuous();

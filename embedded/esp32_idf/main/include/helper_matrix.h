@@ -1,27 +1,35 @@
-// // Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
+// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
 
-// #ifndef MATRIX_MATH_H
-// #define MATRIX_MATH_H
+#ifndef MATRIX_MATH_H
+#define MATRIX_MATH_H
 
-// #include <stdint.h>
-// #include <vector>
+#include "helper_note.h"
 
-// #define MAX_MATRIX_ELEMENTS 100
+#include <stdint.h>
+#include <vector>
+#include <memory>
 
-// struct MatrixData {
-//     float values[MAX_MATRIX_ELEMENTS];
-//     uint16_t size;
-//     uint16_t rows, cols;
-//     bool is_valid;
-// };
 
-// extern "C" {
+extern "C" {
+#include "esp_log.h"
+}
+
+#define MAX_MATRIX_ELEMENTS 100
+
+struct MatrixData {
+    float values[MAX_MATRIX_ELEMENTS];
+    uint16_t size;
+    uint16_t rows, cols;
+    bool is_valid;
+};
+
+extern "C" {
     
-// bool matrix_isvalid(MatrixData& M);
-// bool matrix_multiply_vector3(MatrixData& M, float x1, float x2, float x3, float* result);
-// void matrix_print(MatrixData& M);
-// void matrix_test();
+bool matrix_isvalid(MatrixData& M);
+bool matrix_multiply_vector3(MatrixData& M, float x1, float x2, float x3, float* result);
+void matrix_print(MatrixData& M);
+void matrix_test();
 
-// }
+}
 
-// #endif // MATRIX_MATH_H
+#endif // MATRIX_MATH_H

@@ -14,6 +14,7 @@
 #include "helper_led.h"
 #include "signal_controller.h" 
 
+#include "helper_matrix.h"
 
 
 // REQUIRED to read the clock speed
@@ -68,10 +69,10 @@ void blink_create_task() {
     }
     
     auto msg = std::make_unique<NoteData>(120);
-    note_buffer_clear(*msg);
-    note_buffer_add_text_f(*msg, "\nSTATUS\n");
-    note_buffer_add_text_f(*msg, "LED::BLINK %d, %d\n", blink_delay1_ms, blink_delay2_ms);
-    note_buffer_ble_send(*msg);
+    note_clear(*msg);
+    note_add_text(*msg, "\nSTATUS\n");
+    note_add_text(*msg, "LED::BLINK %d, %d\n", blink_delay1_ms, blink_delay2_ms);
+    note_ble_send(*msg);
 }
 
 esp_err_t app_init() {
@@ -117,14 +118,14 @@ static void analog_reading_task(void* arg) {
 
             // Prepare BLE Message
             auto msg = std::make_unique<NoteData>(128);
-            note_buffer_clear(*msg);
+            note_clear(*msg);
 
             // Format: "an3:1.2345 an5:0.0123 an6:3.1000"
-            note_buffer_add_text_f(*msg, "an3:%.4f an5:%.4f an6:%.4f", an3, an5, an6);
+            note_add_text(*msg, "an3:%.4f an5:%.4f an6:%.4f", an3, an5, an6);
 
             // Send
             // ble_send_message(msg->buffer, msg->size);
-            note_buffer_ble_send(*msg, BLEMode::SILENT);
+            note_ble_send(*msg, BLEMode::SILENT);
         }
 
         // Wait 500ms
@@ -154,6 +155,8 @@ extern "C" void app_main(void)
     }
 
 
+
+
     // Create analog task on Core 0 with sufficient stack size for helper::printf
     xTaskCreatePinnedToCore(
         analog_reading_task,  // Task function
@@ -164,5 +167,7 @@ extern "C" void app_main(void)
         NULL,                 // Task handle
         0                     // CPU core
     );
+    
+    matrix_test();
 
 }
