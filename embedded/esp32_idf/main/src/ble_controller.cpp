@@ -110,10 +110,6 @@ extern volatile uint16_t blink_delay2_ms;
 extern void blink_stop_task(void);
 extern void blink_create_task(void);
 
-esp_err_t ble_send_message(const char* data, uint16_t len) {
-    return ble_send_message(data, len, BLEMode::VERBOSE);
-}
-
 esp_err_t ble_send_message(const char* data, uint16_t len, BLEMode mode) {
     if (gl_profile_tab[PROFILE_APP_ID].conn_id == 0xFFFF) {
         ESP_LOGW(TAG, "Cannot send message: no client connected");

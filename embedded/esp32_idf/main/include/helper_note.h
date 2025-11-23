@@ -13,10 +13,7 @@
 #include <cstdarg>
 #include <esp_log.h>
 
-// Forward declaration to avoid circular dependency
-enum class BLEMode;
-int ble_send_message(const char* data, uint16_t len);
-int ble_send_message(const char* data, uint16_t len, BLEMode mode);
+#include "helper_common.h"
 
 // #include "helper_matrix.h"
 // #include "helper_printer.h"
@@ -76,5 +73,4 @@ void note_add_array_i32(NoteData& buffer, std::string name, int32_t* data, size_
 // void note_buffer_add_matrix(NoteData& buffer, MatrixData& M);
 
 void note_print_info(NoteData& buffer);
-void note_ble_send(NoteData& buffer);
-void note_ble_send(NoteData &buffer, BLEMode mode);
+void note_ble_send(NoteData &buffer, BLEMode mode = BLEMode::VERBOSE);

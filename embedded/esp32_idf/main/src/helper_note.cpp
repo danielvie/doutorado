@@ -1,6 +1,7 @@
 // Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
 
 #include "helper_note.h"
+#include "ble_controller.h"
 
 // --- Global Variable Definitions ---
 // These variables are defined here, and the 'extern' declarations in buffer.h refer to them.
@@ -105,10 +106,6 @@ void note_print_info(NoteData &buffer) {
              buffer.size, buffer.idx, buffer_used);
              
     ESP_LOGI(TAG_NOTE, "%s", temp_log_buffer);
-}
-
-void note_ble_send(NoteData &buffer) {
-    ble_send_message(buffer.buffer, buffer.size);
 }
 
 void note_ble_send(NoteData &buffer, BLEMode mode) {

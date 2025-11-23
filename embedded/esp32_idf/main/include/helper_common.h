@@ -13,6 +13,12 @@
 
 void blink(uint8_t N);
 
+
+enum class BLEMode {
+    SILENT,
+    VERBOSE,
+};
+
 /**
  * Binary representation structure for digital output control
  * Each boolean represents a single bit/pin state
