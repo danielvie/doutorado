@@ -4,9 +4,7 @@
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
 /* Includes */
-#include "led.h"
-#include "common.h"
-#include "esp_log.h"
+#include "helper_led.h"
 
 /* Private variables */
 static uint8_t led_state;

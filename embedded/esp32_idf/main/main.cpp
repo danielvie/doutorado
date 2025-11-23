@@ -11,7 +11,7 @@
 #include "ble_controller.h"
 #include "helper_analog.h"
 #include "helper_note.h"
-#include "led.h"
+#include "helper_led.h"
 #include "signal_controller.h" 
 
 
@@ -67,13 +67,11 @@ void blink_create_task() {
         }
     }
     
-    NoteData msg(120);
-    note_buffer_clear(msg);
-    
-    note_buffer_add_text(msg, "\nSTATUS\n");
-    note_buffer_add_text_f(msg, "LED::BLINK %d, %d\n", blink_delay1_ms, blink_delay2_ms);
-
-    ble_send_message(msg.buffer, msg.size);
+    auto msg = std::make_unique<NoteData>(120);
+    note_buffer_clear(*msg);
+    note_buffer_add_text_f(*msg, "\nSTATUS\n");
+    note_buffer_add_text_f(*msg, "LED::BLINK %d, %d\n", blink_delay1_ms, blink_delay2_ms);
+    note_buffer_ble_send(*msg);
 }
 
 esp_err_t app_init() {
@@ -126,7 +124,7 @@ static void analog_reading_task(void* arg) {
 
             // Send
             // ble_send_message(msg->buffer, msg->size);
-            note_buffer_ble_send(*msg);
+            note_buffer_ble_send(*msg, BLEMode::SILENT);
         }
 
         // Wait 500ms

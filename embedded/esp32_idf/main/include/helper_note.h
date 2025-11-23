@@ -10,10 +10,13 @@
 #include <string>
 #include <algorithm>
 
-#include "ble_controller.h"
-
 #include <cstdarg>
 #include <esp_log.h>
+
+// Forward declaration to avoid circular dependency
+enum class BLEMode;
+int ble_send_message(const char* data, uint16_t len);
+int ble_send_message(const char* data, uint16_t len, BLEMode mode);
 
 // #include "helper_matrix.h"
 // #include "helper_printer.h"
@@ -23,16 +26,10 @@
 static const int NOTE_BUFFER_SIZE = 2048;
 static const int NOTE_TEMP_BUFFER_SIZE = 256;
 
-// extern char note_buffer[NOTE_BUFFER_MAX_SIZE];
-
-
 /* use example: 
-
     NoteData message_buffer(BLE_BUFFER_SIZE);
     note_buffer_clear(message_buffer);
-
     note_buffer_add_text(message_buffer, "\n\nMy Message\n");
-
     note_buffer_print_info(message_buffer);
 */
 
@@ -69,18 +66,6 @@ struct NoteData {
     NoteData& operator=(const NoteData& other) = delete;
 };
 
-
-    // char note_buffer[NOTE_BUFFER_MAX_SIZE];
-    // size_t note_buffer_idx = 0;
-    // bool note_buffer_is_full = false;
-
-
-// A static index to keep track of the current position to write to.
-// extern size_t note_buffer_idx;
-
-// An auxiliary variable to track if the buffer is full.
-// extern bool note_buffer_is_full;
-
 // --- Function Prototypes ---
 // These are the declarations for the functions defined in buffer.cpp.
 void note_buffer_clear(NoteData& buffer);
@@ -93,3 +78,4 @@ void note_buffer_add_array_i32(NoteData& buffer, std::string name, int32_t* data
 
 void note_buffer_print_info(NoteData& buffer);
 void note_buffer_ble_send(NoteData& buffer);
+void note_buffer_ble_send(NoteData &buffer, BLEMode mode);

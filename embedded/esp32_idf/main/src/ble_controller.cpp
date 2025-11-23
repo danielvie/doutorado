@@ -111,6 +111,10 @@ extern void blink_stop_task(void);
 extern void blink_create_task(void);
 
 esp_err_t ble_send_message(const char* data, uint16_t len) {
+    return ble_send_message(data, len, BLEMode::VERBOSE);
+}
+
+esp_err_t ble_send_message(const char* data, uint16_t len, BLEMode mode) {
     if (gl_profile_tab[PROFILE_APP_ID].conn_id == 0xFFFF) {
         ESP_LOGW(TAG, "Cannot send message: no client connected");
         return ESP_FAIL;
@@ -133,10 +137,12 @@ esp_err_t ble_send_message(const char* data, uint16_t len) {
         (uint8_t*)data,
         false);
 
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "esp_ble_gatts_send_indicate failed: %s", esp_err_to_name(ret));
-    } else {
-        ESP_LOGI(TAG, "Sent BLE notification");
+    if (mode == BLEMode::VERBOSE) {
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "esp_ble_gatts_send_indicate failed: %s", esp_err_to_name(ret));
+        } else {
+            ESP_LOGI(TAG, "Sent BLE notification");
+        }
     }
 
     return ret;

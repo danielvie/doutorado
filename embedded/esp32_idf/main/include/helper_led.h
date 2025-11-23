@@ -3,12 +3,14 @@
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
-#ifndef LED_H
-#define LED_H
+#ifndef HELPER_LED_H
+#define HELPER_LED_H
 
 /* Includes */
 /* ESP APIs */
 #include "driver/gpio.h"
+#include "common.h"
+#include "esp_log.h"
 
 /* Defines */
 #define BLINK_GPIO CONFIG_EXAMPLE_BLINK_GPIO
@@ -29,4 +31,4 @@ void led_init(void);
 }
 #endif
 
-#endif // LED_H
+#endif // HELPER_LED_H

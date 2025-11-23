@@ -10,7 +10,7 @@
 #include "helper_analog.h"
 #include "helper_common.h"
 #include "helper_note.h"
-#include "led.h"
+#include "helper_led.h"
 #include "signal_controller.h"
 
 #include <algorithm>
@@ -34,11 +34,17 @@ extern "C" {
 #include "freertos/task.h"
 }
 
+enum class BLEMode {
+    SILENT,
+    VERBOSE,
+};
+
 // Initialize BLE stack and register GATT server
 esp_err_t ble_controller_init(void);
 
 // Send a BLE notification message to the connected client
 esp_err_t ble_send_message(const char* data, uint16_t len);
+esp_err_t ble_send_message(const char* data, uint16_t len, BLEMode mode);
 
 // Router function to handle incoming BLE write commands
 void ble_router(esp_ble_gatts_cb_param_t *param);

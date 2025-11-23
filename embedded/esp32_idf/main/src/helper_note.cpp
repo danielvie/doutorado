@@ -118,3 +118,7 @@ void note_buffer_print_info(NoteData &buffer) {
 void note_buffer_ble_send(NoteData &buffer) {
     ble_send_message(buffer.buffer, buffer.size);
 }
+
+void note_buffer_ble_send(NoteData &buffer, BLEMode mode) {
+    ble_send_message(buffer.buffer, buffer.size, mode);
+}
