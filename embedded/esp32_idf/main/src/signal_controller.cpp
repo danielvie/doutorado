@@ -59,10 +59,14 @@ void signal_controller_init() {
     g_dataset_a.time_durations[2] = 10; 
     g_dataset_a.time_durations[3] = 20; 
 
-    g_dataset_a.modes[0] = 7;      
-    g_dataset_a.modes[1] = 0;      
-    g_dataset_a.modes[2] = 7;      
-    g_dataset_a.modes[3] = 0;      
+    // Mode 7 (111)
+    g_dataset_a.modes_d6[0] = MASK_OUT_6; g_dataset_a.modes_d5[0] = MASK_OUT_5; g_dataset_a.modes_d4[0] = MASK_OUT_4;
+    // Mode 0 (000)
+    g_dataset_a.modes_d6[1] = 0;          g_dataset_a.modes_d5[1] = 0;          g_dataset_a.modes_d4[1] = 0;
+    // Mode 7 (111)
+    g_dataset_a.modes_d6[2] = MASK_OUT_6; g_dataset_a.modes_d5[2] = MASK_OUT_5; g_dataset_a.modes_d4[2] = MASK_OUT_4;
+    // Mode 0 (000)
+    g_dataset_a.modes_d6[3] = 0;          g_dataset_a.modes_d5[3] = 0;          g_dataset_a.modes_d4[3] = 0;
     
     g_dataset_a.size = 4;
 
@@ -80,27 +84,23 @@ void signal_update_from_string(const std::string& message) {
     
     // 1. Determine which dataset is INACTIVE (Safe to write to)
     DataSet* target_dataset = nullptr;
-    SignalSet target_set_enum;
+    SignalSet target_signalset;
 
     // We read the volatile variable once. 
     // If Set A is active, we write to Set B.
     if (g_active_set == SignalSet::SET_A) {
-        target_dataset = &g_dataset_b;
-        target_set_enum = SignalSet::SET_B;
+        target_dataset   = &g_dataset_b;
+        target_signalset = SignalSet::SET_B;
     } else {
-        target_dataset = &g_dataset_a;
-        target_set_enum = SignalSet::SET_A;
+        target_dataset   = &g_dataset_a;
+        target_signalset = SignalSet::SET_A;
     }
 
     // 2. Parse the signal string
     std::vector<uint32_t> times;
     std::vector<uint32_t> modes;
 
-    // Assuming message format "SIGNAL:..." or just numbers. 
-    // parse_signal expects the full string or substring? 
-    // Based on helper_common, it parses "times;modes".
-    // The caller (BLE) usually strips "SIGNAL:".
-    // Let's handle both just in case.
+    // clean "SIGNAL:{}" prefix
     std::string clean_msg = message;
     if (clean_msg.rfind("SIGNAL:", 0) == 0) {
         clean_msg = clean_msg.substr(7);
@@ -119,18 +119,19 @@ void signal_update_from_string(const std::string& message) {
     }
 
     for (size_t i = 0; i < count; i++) {
-        target_dataset->time_durations[i] = (uint16_t)times[i];
-        target_dataset->modes[i] = (uint8_t)modes[i];
+        target_dataset->time_durations[i] = times[i];
+        uint32_t m = modes[i];
+        target_dataset->modes_d4[i] = (m & 1) ? MASK_OUT_4 : 0;
+        target_dataset->modes_d5[i] = (m & 2) ? MASK_OUT_5 : 0;
+        target_dataset->modes_d6[i] = (m & 4) ? MASK_OUT_6 : 0;
     }
     target_dataset->size = (uint8_t)count;
 
     ESP_LOGI(TAG, "Parsed %d segments into %s. Requesting swap...", 
              target_dataset->size, 
-             (target_set_enum == SignalSet::SET_A ? "Set A" : "Set B"));
+             (target_signalset == SignalSet::SET_A ? "Set A" : "Set B"));
 
-    // 4. Signal the Loop to Swap
-    // The loop checks g_update_pending. 
-    // We don't change g_active_set here; the loop does it to ensure sync.
+    // mark upadte pending
     g_update_pending = true;
 }
 
@@ -140,20 +141,6 @@ void signal_update_from_string(const std::string& message) {
 static void signal_loop_task(void* arg) {
     ESP_LOGI(TAG, "Continuous Signal Task Started on Core %d", xPortGetCoreID());
     
-    // Pre-calculate lookup tables
-    uint32_t lut_set[8];   
-    uint32_t lut_clear[8]; 
-
-    for(int m=0; m<8; m++) {
-        uint32_t s = 0;
-        uint32_t c = 0;
-        if (m & 4) s |= MASK_OUT_6; else c |= MASK_OUT_6;
-        if (m & 2) s |= MASK_OUT_5; else c |= MASK_OUT_5;
-        if (m & 1) s |= MASK_OUT_4; else c |= MASK_OUT_4;
-        lut_set[m] = s;
-        lut_clear[m] = c;
-    }
-
     // Pointer to the data we are currently looping over
     // Start with whatever init set up (Set A)
     DataSet* dataset = &g_dataset_a;
@@ -194,11 +181,10 @@ static void signal_loop_task(void* arg) {
         uint8_t sz = dataset->size;
 
         for (int i = 0; i < sz; i++) {
-            uint16_t us  = dataset->time_durations[i];
-            uint8_t mode = dataset->modes[i] & 0x07;
-
-            GPIO.out_w1ts = lut_set[mode];
-            GPIO.out_w1tc = lut_clear[mode];
+            uint32_t us  = dataset->time_durations[i];
+            
+            GPIO.out_w1tc = MASK_OUT_6 | MASK_OUT_5 | MASK_OUT_4;
+            GPIO.out_w1ts = dataset->modes_d6[i] | dataset->modes_d5[i] | dataset->modes_d4[i];
 
             if (us > 0) {
                 esp_rom_delay_us(us);

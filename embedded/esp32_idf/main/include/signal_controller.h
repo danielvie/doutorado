@@ -17,9 +17,11 @@
 
 #define MAX_SIGNAL_SIZE 100
 struct DataSet {
-    uint16_t time_durations[MAX_SIGNAL_SIZE];
-    uint8_t  modes[MAX_SIGNAL_SIZE];
-    uint8_t  size;
+    uint32_t time_durations[MAX_SIGNAL_SIZE];
+    uint32_t modes_d4[MAX_SIGNAL_SIZE];
+    uint32_t modes_d5[MAX_SIGNAL_SIZE];
+    uint32_t modes_d6[MAX_SIGNAL_SIZE]; 
+    uint16_t size;
 };
 
 enum class SignalSet { 
