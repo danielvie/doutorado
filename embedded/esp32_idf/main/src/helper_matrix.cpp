@@ -49,12 +49,12 @@ void matrix_print(MatrixData &M) {
 
 void matrix_test() {
     auto msg = std::make_unique<NoteData>(1024);
-    note_add_text(*msg, "\n=== MATRIX MULTIPLY TESTS ===");
+    note_add_text(*msg, "\n=== MATRIX MULTIPLY TESTS ===\n");
 
     // note_buffer_add_text_f
 
     // Test 1: Identity matrix multiplication
-    note_add_text(*msg, "\nTest 1: 3x3 Identity matrix * [1, 2, 3]");
+    note_add_text(*msg, "\nTest 1: 3x3 Identity matrix * [1, 2, 3]\n");
     MatrixData identity = {
         .values = {1.0, 0.0, 0.0,
                    0.0, 1.0, 0.0,
@@ -66,10 +66,10 @@ void matrix_test() {
     float result1[3];
     matrix_multiply_vector3(identity, 1.0, 2.0, 3.0, result1);
     note_add_text(*msg, "Expected: [1.0, 2.0, 3.0]\n");
-    note_add_text(*msg, "Got:      [%.3f, %.3f, %.3f]\n", result1[0], result1[1], result1[2]);
+    note_add_text(*msg, "Got:      [%.3f, %.3f, %.3f]\n\n", result1[0], result1[1], result1[2]);
 
     // Test 2: Simple 2x3 matrix
-    note_add_text(*msg, "\nTest 2: 2x3 matrix * [1, -1, 2]");
+    note_add_text(*msg, "\nTest 2: 2x3 matrix * [1, -1, 2]\n");
     MatrixData mat2x3 = {
         .values = {1.0, 2.0, 3.0,  // Row 1: 1*1 + 2*(-1) + 3*2 = 1 - 2 + 6 = 5
                    4.0, 5.0, 6.0}, // Row 2: 4*1 + 5*(-1) + 6*2 = 4 - 5 + 12 = 11
@@ -80,10 +80,10 @@ void matrix_test() {
     float result2[2];
     matrix_multiply_vector3(mat2x3, 1.0, -1.0, 2.0, result2);
     note_add_text(*msg, "Expected: [5.0, 11.0]\n");
-    note_add_text(*msg, "Got:      [%.3f, %.3f]\n", result2[0], result2[1]);
+    note_add_text(*msg, "Got:      [%.3f, %.3f]\n\n", result2[0], result2[1]);
 
     // Test 3: Single row matrix (1x3)
-    note_add_text(*msg, "\nTest 3: 1x3 matrix * [2, 3, 4]");
+    note_add_text(*msg, "\nTest 3: 1x3 matrix * [2, 3, 4]\n");
     MatrixData mat1x3 = {
         .values = {0.5, 1.5, -2.0}, // 0.5*2 + 1.5*3 + (-2.0)*4 = 1 + 4.5 - 8 = -2.5
         .size = 3,
@@ -93,10 +93,10 @@ void matrix_test() {
     float result3[1];
     matrix_multiply_vector3(mat1x3, 2.0, 3.0, 4.0, result3);
     note_add_text(*msg, "Expected: [-2.5]\n");
-    note_add_text(*msg, "Got:      [%.3f]\n", result3[0]);
+    note_add_text(*msg, "Got:      [%.3f]\n\n", result3[0]);
 
     // Test 4: Larger matrix (4x3)
-    note_add_text(*msg, "\nTest 4: 4x3 matrix * [1, 0, -1]");
+    note_add_text(*msg, "\nTest 4: 4x3 matrix * [1, 0, -1]\n");
     MatrixData mat4x3 = {
         .values = {1.0, 0.0, 1.0,   // Row 1: 1*1 + 0*0 + 1*(-1) = 0
                    0.0, 2.0, 0.0,   // Row 2: 0*1 + 2*0 + 0*(-1) = 0
@@ -109,7 +109,7 @@ void matrix_test() {
     float result4[4];
     matrix_multiply_vector3(mat4x3, 1.0, 0.0, -1.0, result4);
     note_add_text(*msg, "Expected: [0.0, 0.0, 0.0, -1.0]\n");
-    note_add_text(*msg, "Got:      [%.3f, %.3f, %.3f, %.3f]\n", result4[0], result4[1], result4[2], result4[3]);
+    note_add_text(*msg, "Got:      [%.3f, %.3f, %.3f, %.3f]\n\n", result4[0], result4[1], result4[2], result4[3]);
 
     // Test 5: Fractional values
     // helper::println("\nTest 5: 2x3 matrix * [0.1, 0.2, 0.3]");
