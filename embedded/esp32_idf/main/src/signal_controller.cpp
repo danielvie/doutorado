@@ -221,7 +221,7 @@ static void signal_loop_task(void* arg) {
     vTaskDelete(NULL);
 }
 
-void ble_router_signal_start_continuous() {
+void signal_start_continuous() {
     if (s_signal_state == SIGNAL_RUNNING || s_signal_task_handle != NULL) {
         ESP_LOGW(TAG, "Signal already running!");
         return;
@@ -246,7 +246,7 @@ void ble_router_signal_start_continuous() {
     );
 }
 
-void ble_router_signal_stop() {
+void signal_stop() {
     if (s_signal_state == SIGNAL_IDLE) {
         ESP_LOGW(TAG, "Signal is not running");
         return;

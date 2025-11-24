@@ -2,9 +2,6 @@
 
 #pragma once
 
-// #include <Arduino.h>
-// #include <NimBLEDevice.h>
-
 #include <iostream>
 #include <cstring>
 #include <string>
@@ -15,8 +12,8 @@
 
 #include "helper_common.h"
 
-// #include "helper_matrix.h"
-// #include "helper_printer.h"
+// Forward declaration
+struct MatrixData;
 
 // --- Global Variable Declarations ---
 // The static buffer to store text. 'extern' indicates that this variable is defined elsewhere.
@@ -29,8 +26,6 @@ static const int NOTE_TEMP_BUFFER_SIZE = 256;
     note_buffer_add_text(message_buffer, "\n\nMy Message\n");
     note_buffer_print_info(message_buffer);
 */
-
-
 
 
 struct NoteData {
@@ -70,7 +65,7 @@ void note_add_text(NoteData& buffer, const char* format, ...);
 
 void note_add_array_u32(NoteData& buffer, std::string name, uint32_t* data, size_t data_len);
 void note_add_array_i32(NoteData& buffer, std::string name, int32_t* data, size_t data_len);
-// void note_buffer_add_matrix(NoteData& buffer, MatrixData& M);
+void note_add_matrix(NoteData& buffer, MatrixData& M);
 
 void note_print_info(NoteData& buffer);
 void note_ble_send(NoteData &buffer, BLEMode mode = BLEMode::VERBOSE);

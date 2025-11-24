@@ -1,10 +1,8 @@
 // Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
 
 #include "helper_note.h"
+#include "helper_matrix.h"
 #include "ble_controller.h"
-
-// --- Global Variable Definitions ---
-// These variables are defined here, and the 'extern' declarations in buffer.h refer to them.
 
 const char *TAG_NOTE = "NOTE";
 
@@ -67,24 +65,24 @@ void note_add_array_i32(NoteData &buffer, std::string name, int32_t *data, size_
     note_add_text(buffer, "%d];\n", data[data_len - 1]);
 }
 
-/* void note_buffer_add_matrix(NoteData &buffer, MatrixData &M) {
+void note_add_matrix(NoteData &buffer, MatrixData &M) {
     if (!matrix_isvalid(M)) {
-        note_buffer_add_text(buffer, "Matrix is not valid!!\n");
+        note_add_text(buffer, "Matrix is not valid!!\n");
         return;
     }
 
-    note_buffer_add_text(buffer, "[\n");
+    note_add_text(buffer, "[\n");
     for (int i = 0; i < M.rows; ++i) {
         for (int j = 0; j < M.cols; ++j) {
             if (M.values[i * M.cols + j] > 0) {
-                note_buffer_add_text(buffer, " ");
+                note_add_text(buffer, " ");
             }
-            note_buffer_add_text_f(buffer, "%.7f\t", M.values[i * M.cols + j]);
+            note_add_text(buffer, "%.7f\t", M.values[i * M.cols + j]);
         }
-        note_buffer_add_text(buffer, "\n");
+        note_add_text(buffer, "\n");
     }
-    note_buffer_add_text(buffer, "];\n");
-} */
+    note_add_text(buffer, "];\n");
+}
 
 void note_print_info(NoteData &buffer) {
     char temp_log_buffer[buffer.size + 128]; 

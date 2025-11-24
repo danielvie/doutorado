@@ -8,5 +8,5 @@ migrar projeto ESP:
     ✔ implementar matrizes @done(25-11-23 22:02)
     ☐ implementar medicoes de tempo
     ☐ implementar acao de controle
-    ☐ implementar mensagem de status
-    ☐ implementar mensagem de matriz (A e B)
+    ✔ implementar mensagem de status @done(25-11-24 01:41)
+    ✔ implementar mensagem de matriz (A e B) @done(25-11-24 01:26)

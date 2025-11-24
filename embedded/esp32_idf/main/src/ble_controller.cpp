@@ -258,7 +258,46 @@ void ble_router_message_set_alpha(std::string& message) {
     g_ds_update_pending = true; // mark for set update
 }
 
+void ble_router_status_matrix(SignalSet set) {
+    // status_matrix_a
+    
+    auto msg = std::make_unique<NoteData>(500);
+    
+    DataSet* ds;
+    if (set == SignalSet::SET_A) {
+       ds = &g_dataset_a;
+    } else {
+       ds = &g_dataset_b;
+    }
+    
+    note_add_text(*msg, "\nSTATUS\n");
+    note_add_text(*msg, "\n== status matrix %s ==\n", get_signal_set_label(set).c_str());
+    note_add_matrix(*msg, ds->gain_k);
+    note_ble_send(*msg);
+    note_print_info(*msg);
+}
 
+void ble_router_status(void) {
+    // status_matrix_a
+    
+    auto msg = std::make_unique<NoteData>(500);
+    
+    // DataSet* ds = get_dataset_active();
+    
+    auto is_valid = [](DataSet& ds_) {
+        return matrix_isvalid(ds_.gain_k) ? std::string("valid") : std::string("not valid");
+    };
+    
+    note_add_text(*msg, "\nSTATUS\n");
+    note_add_text(*msg, "\n== status ==\n");
+    note_add_text(*msg, "active  : %s\n", get_signal_set_label(g_active_set).c_str());
+    note_add_text(*msg, "matrix a: %s\n", is_valid(g_dataset_a).c_str());
+    note_add_text(*msg, "matrix b: %s\n", is_valid(g_dataset_b).c_str());
+
+    note_ble_send(*msg);
+    note_print_info(*msg);
+
+}
 
 // ----------------------------------------------------------------------
 // UPDATED BLE ROUTER
@@ -294,10 +333,16 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
         } else if (message.substr(0, 10) == "SET_ALPHA:") {
             auto payload = message.substr(10);
             ble_router_message_set_alpha(payload);
+        } else if (message_lower == "status_matrix_a") {
+            ble_router_status_matrix(SignalSet::SET_A);
+        } else if (message_lower == "status_matrix_b") {
+            ble_router_status_matrix(SignalSet::SET_B);
+        } else if (message_lower == "status") {
+            ble_router_status();
         } else if (message_lower == "start") {
-            ble_router_signal_start_continuous();
+            signal_start_continuous();
         } else if (message_lower == "stop") {
-            ble_router_signal_stop();
+            signal_stop();
         } else {
             ESP_LOGI(TAG, "Unrecognized write: '%s' (len=%u)", message.c_str(), message.length());
         }

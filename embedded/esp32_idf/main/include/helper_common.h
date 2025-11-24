@@ -13,7 +13,6 @@
 #include "helper_led.h"
 #include "freertos/FreeRTOS.h"
 
-
 enum class BLEMode {
     SILENT,
     VERBOSE,

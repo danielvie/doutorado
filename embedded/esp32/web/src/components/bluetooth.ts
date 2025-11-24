@@ -14,6 +14,7 @@ let g_paired_device: any = null; // Stores the device reference after first succ
 
 // Function reference for status updates to the UI
 let g_fn_update_status: any = null; // Will be set to a callback function from the UI component
+let g_fn_ble_status: any = null; // Will be set to a callback function from the UI component
 let g_fn_set_app_status_message: any = null; // Will be set to a callback function from the UI component
 let g_fn_probe: any = null;
 
@@ -160,10 +161,7 @@ export async function ble_send_command(command: string) {
         }
         
         if (!ble_is_connected()) {
-            ble_update_status(
-                `Failed to reconnect, cannot send command: '${command}'`,
-                true,
-            );
+            ble_update_status(`Failed to reconnect, cannot send command:'${command}'`, true);
             return;
         }
     }

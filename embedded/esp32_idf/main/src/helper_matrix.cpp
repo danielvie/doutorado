@@ -4,7 +4,7 @@
 
 const char* TAG_MATRIX = "HELPER_MATRIX";
 
-bool matrix_isvalid(MatrixData &M) {
+bool matrix_isvalid(MatrixData& M) {
     // rows -> m
     // cols -> n
     // values -> matrix(:)
@@ -19,7 +19,7 @@ bool matrix_isvalid(MatrixData &M) {
     return true;
 }
 
-bool matrix_multiply_vector3(MatrixData &M, float x1, float x2, float x3, float *result) {
+bool matrix_multiply_vector3(MatrixData& M, float x1, float x2, float x3, float *result) {
     // Cache data pointer to avoid repeated vector access overhead
     const float *data_ptr = M.values;
 
@@ -32,7 +32,7 @@ bool matrix_multiply_vector3(MatrixData &M, float x1, float x2, float x3, float 
     return true;
 }
 
-void matrix_print(MatrixData &M) {
+void matrix_print(MatrixData& M) {
     if (!matrix_isvalid(M)) {
         ESP_LOGW(TAG_MATRIX, "Matrix is not valid!!");
         return;
