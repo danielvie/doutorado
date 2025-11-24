@@ -2,6 +2,7 @@
 
 #include "helper_common.h"
 #include "helper_led.h"
+#include "helper_matrix.h"
 
 #include "driver/gpio.h"
 #include "esp_err.h"
@@ -18,13 +19,13 @@
 #define MAX_SIGNAL_SIZE 100
 struct DataSet {
     uint32_t time_durations[MAX_SIGNAL_SIZE];
-    uint32_t modes_d4[MAX_SIGNAL_SIZE];
-    uint32_t modes_d5[MAX_SIGNAL_SIZE];
-    uint32_t modes_d6[MAX_SIGNAL_SIZE]; 
+    uint16_t modes_d4[MAX_SIGNAL_SIZE];
+    uint16_t modes_d5[MAX_SIGNAL_SIZE];
+    uint16_t modes_d6[MAX_SIGNAL_SIZE]; 
     uint16_t size;
     int32_t time_us_diff[MAX_SIGNAL_SIZE];
     float target[3]; 
-    // MatrixData gain_k;
+    MatrixData gain_k;
 };
 
 enum class SignalSet { 
