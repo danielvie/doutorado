@@ -61,7 +61,7 @@ void signal_controller_init() {
     // Mode 7 (111)
     g_dataset_a.modes_d6[0] = MASK_OUT_6; g_dataset_a.modes_d5[0] = MASK_OUT_5; g_dataset_a.modes_d4[0] = MASK_OUT_4;
     // Mode 0 (000)
-    g_dataset_a.modes_d6[1] = 0;          g_dataset_a.modes_d5[1] = 0;          g_dataset_a.modes_d4[1] = 0;
+    g_dataset_a.modes_d6[1] = 0;          g_dataset_a.modes_d5[MASK_OUT_6] = 0;          g_dataset_a.modes_d4[MASK_OUT_5] = 0;
     // Mode 7 (111)
     g_dataset_a.modes_d6[2] = MASK_OUT_6; g_dataset_a.modes_d5[2] = MASK_OUT_5; g_dataset_a.modes_d4[2] = MASK_OUT_4;
     // Mode 0 (000)

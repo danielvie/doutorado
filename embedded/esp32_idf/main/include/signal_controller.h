@@ -15,6 +15,9 @@
 #include <string>
 #include <vector>
 
+extern const uint32_t MASK_OUT_6;
+extern const uint32_t MASK_OUT_5;
+extern const uint32_t MASK_OUT_4;
 
 #define MAX_SIGNAL_SIZE 100
 struct DataSet {
