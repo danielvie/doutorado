@@ -151,9 +151,68 @@ static void example_write_event_env(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_par
     }
 }
 
+void ble_router_blink_nn(uint16_t blink_d1, uint16_t blink_d2) {
+    // blink:%hu,%hu
+    if (blink_d1 > 0 && blink_d2 > 0) {
+        blink_delay1_ms = blink_d1;
+        blink_delay2_ms = blink_d2;
+        ESP_LOGI(TAG, "Blink delays set to D1=%u ms, D2=%u ms", blink_d1, blink_d2);
+        blink_create_task();
+    }
+}
+
+void ble_router_blink_n(uint16_t blink_d1) {
+    if (blink_d1 > 0) {
+        blink_delay1_ms = blink_d1;
+        ESP_LOGI(TAG, "Blink delay set to %u ms", blink_d1);
+        blink_create_task();
+    }
+}
+
+void ble_router_blink(void) {
+    ESP_LOGI(TAG, "Start blinking (1s period)");
+    blink_create_task();
+}
+
+void ble_router_led_on(std::unique_ptr<NoteData>& msg) {
+    ESP_LOGI(TAG, "LED ON!");
+    blink_stop_task();
+    led_on();
+
+    note_clear(*msg);
+    note_add_text(*msg, "\nSTATUS\n");
+    note_add_text(*msg, "LED::ON");
+    ble_send_message(msg->buffer, msg->size);
+}
+
+void ble_router_led_off(std::unique_ptr<NoteData>& msg) {
+    ESP_LOGI(TAG, "LED OFF!");
+    blink_stop_task();
+    led_off();
+
+    note_clear(*msg);
+    note_add_text(*msg, "\nSTATUS\n");
+    note_add_text(*msg, "LED::OFF");
+    ble_send_message(msg->buffer, msg->size);
+}
+
+void ble_router_read(std::unique_ptr<NoteData>& msg) {
+    float an3 = analog_read_port(AnalogPort::AN3);
+    float an5 = analog_read_port(AnalogPort::AN5);
+    float an6 = analog_read_port(AnalogPort::AN6);
+
+    note_clear(*msg);
+    note_add_text(*msg, "\nSTATUS\n");
+    note_add_text(*msg, "an3: %.4f\nan5: %.4f\nan6: %.4f\n", an3, an5, an6);
+    note_print_info(*msg);
+    ble_send_message(msg->buffer, msg->size);
+}
+
 void ble_router_set_signal(std::string& message) {
     ESP_LOGI(TAG, "Updating Signal Pattern via Double Buffer...");
     signal_update_from_string(message);
+
+    // ESP_GATT_MAX_ATTR_LEN
 
     auto msg = std::make_unique<NoteData>(120);
     note_clear(*msg);
@@ -163,11 +222,11 @@ void ble_router_set_signal(std::string& message) {
 
 void ble_router_print_active_dataset(void) {
     // (message_lower == "active_dataset")
-    auto msg = std::make_unique<NoteData>(1024);
+    auto msg = std::make_unique<NoteData>(BLE_MESSAGE_MAX_LEN);
     
     DataSet* ds = get_dataset_active();
 
-    note_add_text(*msg, "STATUS\n");
+    note_add_text(*msg, "\nSTATUS\n");
     note_add_text(*msg, "== active dataset (%s) == \n", get_signal_set_label(g_active_set).c_str());
     note_add_array_u32(*msg, "time", ds->time_durations, ds->size);
     note_add_array_u32(*msg, "d4  ", ds->modes_d4, ds->size);
@@ -206,7 +265,7 @@ void ble_router_message_set_alpha(std::string& message) {
 // ----------------------------------------------------------------------
 void ble_router(esp_ble_gatts_cb_param_t* param) {
     if (param->write.len > 0) {
-        std::unique_ptr<NoteData> msg = std::make_unique<NoteData>(120);
+        auto msg = std::make_unique<NoteData>(120);
 
         // read message
         std::string message(reinterpret_cast<const char*>(param->write.value), param->write.len);
@@ -216,70 +275,36 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
         // treat cases
         uint16_t blink_d1 = 0, blink_d2 = 0;
         if (sscanf(message_lower.c_str(), "blink:%hu,%hu", &blink_d1, &blink_d2) == 2) {
-            if (blink_d1 > 0 && blink_d2 > 0) {
-                blink_delay1_ms = blink_d1;
-                blink_delay2_ms = blink_d2;
-                ESP_LOGI(TAG, "Blink delays set to D1=%u ms, D2=%u ms", blink_d1, blink_d2);
-                blink_create_task();
-            }
+            ble_router_blink_nn(blink_d1, blink_d2);
         } else if (sscanf(message_lower.c_str(), "blink:%hu", &blink_d1) == 1) {
-            if (blink_d1 > 0) {
-                blink_delay1_ms = blink_d1;
-                ESP_LOGI(TAG, "Blink delay set to %u ms", blink_d1);
-                blink_create_task();
-            }
-        } else if (message_lower == "read") {
-            float an3 = analog_read_port(AnalogPort::AN3);
-            float an5 = analog_read_port(AnalogPort::AN5);
-            float an6 = analog_read_port(AnalogPort::AN6);
-
-            note_clear(*msg);
-            note_add_text(*msg, "\nSTATUS\n");
-            note_add_text(*msg, "an3: %.4f\nan5: %.4f\nan6: %.4f\n", an3, an5, an6);
-            note_print_info(*msg);
-            ble_send_message(msg->buffer, msg->size);
-
+            ble_router_blink_n(blink_d1);
         } else if (message_lower == "blink") {
-            ESP_LOGI(TAG, "Start blinking (1s period)");
-            blink_create_task();
+            ble_router_blink();
         } else if (message_lower == "on") {
-            ESP_LOGI(TAG, "LED ON!");
-            blink_stop_task();
-            led_on();
-
-            note_clear(*msg);
-            note_add_text(*msg, "\nSTATUS\n");
-            note_add_text(*msg, "LED::ON");
-            ble_send_message(msg->buffer, msg->size);
-
+            ble_router_led_on(msg);
+        } else if (message_lower == "off") {
+            ble_router_led_off(msg);
+        } else if (message_lower == "read") {
+            ble_router_read(msg);
         } else if (message_lower == "active_dataset") {
             ble_router_print_active_dataset();
-        } else if (message_lower == "off") {
-            ESP_LOGI(TAG, "LED OFF!");
-            blink_stop_task();
-            led_off();
-
-            note_clear(*msg);
-            note_add_text(*msg, "\nSTATUS\n");
-            note_add_text(*msg, "LED::OFF");
-            ble_send_message(msg->buffer, msg->size);
         } else if (message.substr(0, 7) == "SIGNAL:") {
-            // auto msg = message.substr(0, 7);
-            ble_router_set_signal(message);
+            auto payload = message.substr(7);
+            ble_router_set_signal(payload);
         } else if (message.substr(0, 10) == "SET_ALPHA:") {
-            auto msg = message.substr(10);
-            ble_router_message_set_alpha(msg);
+            auto payload = message.substr(10);
+            ble_router_message_set_alpha(payload);
         } else if (message_lower == "start") {
-            signal_start_continuous();
+            ble_router_signal_start_continuous();
         } else if (message_lower == "stop") {
-            signal_stop();
+            ble_router_signal_stop();
         } else {
             ESP_LOGI(TAG, "Unrecognized write: '%s' (len=%u)", message.c_str(), message.length());
         }
     }
 }
 
-static void led_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t* param) {
+static void profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t* param) {
     switch (event) {
         case ESP_GATTS_REG_EVT: {
             ESP_LOGI(TAG, "GATT registered, app_id %d", param->reg.app_id);
@@ -432,7 +457,7 @@ esp_err_t ble_controller_init(void) {
     if (ret) return ret;
     ret = esp_ble_gatts_register_callback(gatts_event_handler);
     if (ret) return ret;
-    gl_profile_tab[PROFILE_APP_ID].gatts_cb = led_profile_event_handler;
+    gl_profile_tab[PROFILE_APP_ID].gatts_cb = profile_event_handler;
     ret = esp_ble_gatts_app_register(PROFILE_APP_ID);
     if (ret) return ret;
     ret = esp_ble_gatt_set_local_mtu(500);

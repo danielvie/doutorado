@@ -56,17 +56,25 @@ void signal_controller_init() {
     g_dataset_a.time_durations[0] = 10; 
     g_dataset_a.time_durations[1] = 20; 
     g_dataset_a.time_durations[2] = 10; 
-    g_dataset_a.time_durations[3] = 20; 
+    g_dataset_a.time_durations[3] = 20;
 
     // Mode 7 (111)
-    g_dataset_a.modes_d6[0] = MASK_OUT_6; g_dataset_a.modes_d5[0] = MASK_OUT_5; g_dataset_a.modes_d4[0] = MASK_OUT_4;
+    g_dataset_a.modes_d6[0] = 1;
+    g_dataset_a.modes_d5[0] = 1;
+    g_dataset_a.modes_d4[0] = 1;
     // Mode 0 (000)
-    g_dataset_a.modes_d6[1] = 0;          g_dataset_a.modes_d5[MASK_OUT_6] = 0;          g_dataset_a.modes_d4[MASK_OUT_5] = 0;
+    g_dataset_a.modes_d6[1] = 0;
+    g_dataset_a.modes_d5[1] = 0;
+    g_dataset_a.modes_d4[1] = 0;
     // Mode 7 (111)
-    g_dataset_a.modes_d6[2] = MASK_OUT_6; g_dataset_a.modes_d5[2] = MASK_OUT_5; g_dataset_a.modes_d4[2] = MASK_OUT_4;
+    g_dataset_a.modes_d6[2] = 1;
+    g_dataset_a.modes_d5[2] = 1;
+    g_dataset_a.modes_d4[2] = 1;
     // Mode 0 (000)
-    g_dataset_a.modes_d6[3] = 0;          g_dataset_a.modes_d5[3] = 0;          g_dataset_a.modes_d4[3] = 0;
-    
+    g_dataset_a.modes_d6[3] = 0;
+    g_dataset_a.modes_d5[3] = 0;
+    g_dataset_a.modes_d4[3] = 0;
+
     g_dataset_a.size = 4;
 
     // Ensure Set A is active initially
@@ -99,13 +107,13 @@ void signal_update_from_string(const std::string& message) {
     std::vector<uint32_t> times;
     std::vector<uint32_t> modes;
 
-    // clean "SIGNAL:{}" prefix
-    std::string clean_msg = message;
-    if (clean_msg.rfind("SIGNAL:", 0) == 0) {
-        clean_msg = clean_msg.substr(7);
-    }
+    // // clean "SIGNAL:{}" prefix
+    // std::string clean_msg = message;
+    // if (clean_msg.rfind("SIGNAL:", 0) == 0) {
+    //     clean_msg = clean_msg.substr(7);
+    // }
 
-    if (parse_signal(clean_msg, times, modes) != 1) {
+    if (parse_signal(message, times, modes) != 1) {
         ESP_LOGE(TAG, "Failed to parse signal string");
         return;
     }
@@ -120,9 +128,9 @@ void signal_update_from_string(const std::string& message) {
     for (size_t i = 0; i < count; i++) {
         target_dataset->time_durations[i] = times[i];
         uint32_t m = modes[i];
-        target_dataset->modes_d4[i] = (m & 1) ? MASK_OUT_4 : 0;
-        target_dataset->modes_d5[i] = (m & 2) ? MASK_OUT_5 : 0;
-        target_dataset->modes_d6[i] = (m & 4) ? MASK_OUT_6 : 0;
+        target_dataset->modes_d4[i] = (m & 1) ? 1 : 0;
+        target_dataset->modes_d5[i] = (m & 2) ? 1 : 0;
+        target_dataset->modes_d6[i] = (m & 4) ? 1 : 0;
     }
     target_dataset->size = (uint8_t)count;
 
@@ -151,7 +159,6 @@ static void signal_loop_task(void* arg) {
     // DISABLE INTERRUPTS MANUALLY
     // -------------------------------------------------------
     portDISABLE_INTERRUPTS();
-    
 
     while (s_signal_state == SIGNAL_RUNNING) {
         
@@ -182,8 +189,13 @@ static void signal_loop_task(void* arg) {
         for (int i = 0; i < sz; i++) {
             uint32_t us  = dataset->time_durations[i];
             
+            // clear all 3 pins
             GPIO.out_w1tc = MASK_OUT_6 | MASK_OUT_5 | MASK_OUT_4;
-            GPIO.out_w1ts = dataset->modes_d6[i] | dataset->modes_d5[i] | dataset->modes_d4[i];
+            
+            // calculate bits
+            GPIO.out_w1ts = (dataset->modes_d6[i] << PIN_OUT_6) | 
+                            (dataset->modes_d5[i] << PIN_OUT_5) | 
+                            (dataset->modes_d4[i] << PIN_OUT_4);
 
             if (us > 0) {
                 esp_rom_delay_us(us);
@@ -209,7 +221,7 @@ static void signal_loop_task(void* arg) {
     vTaskDelete(NULL);
 }
 
-void signal_start_continuous() {
+void ble_router_signal_start_continuous() {
     if (s_signal_state == SIGNAL_RUNNING || s_signal_task_handle != NULL) {
         ESP_LOGW(TAG, "Signal already running!");
         return;
@@ -234,7 +246,7 @@ void signal_start_continuous() {
     );
 }
 
-void signal_stop() {
+void ble_router_signal_stop() {
     if (s_signal_state == SIGNAL_IDLE) {
         ESP_LOGW(TAG, "Signal is not running");
         return;

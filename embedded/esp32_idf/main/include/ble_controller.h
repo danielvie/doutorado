@@ -35,6 +35,7 @@ extern "C" {
 #include "freertos/task.h"
 }
 
+#define BLE_MESSAGE_MAX_LEN ESP_GATT_MAX_ATTR_LEN
 
 // Initialize BLE stack and register GATT server
 esp_err_t ble_controller_init(void);
@@ -43,6 +44,7 @@ esp_err_t ble_controller_init(void);
 esp_err_t ble_send_message(const char* data, uint16_t len, BLEMode mode = BLEMode::VERBOSE);
 
 // Router function to handle incoming BLE write commands
+void ble_router_blink_nn(std::string& message);
 void ble_router_set_signal(std::string& message);
 void ble_router_print_active_dataset(void);
 void ble_router_message_set_alpha(std::string& message);

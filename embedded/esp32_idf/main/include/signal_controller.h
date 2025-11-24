@@ -57,12 +57,12 @@ void signal_update_from_string(const std::string& message);
  * @brief Starts generating the signal continuously in a loop.
  * Runs in a separate FreeRTOS task on Core 1.
  */
-void signal_start_continuous();
+void ble_router_signal_start_continuous();
 
 /**
  * @brief Stops the continuous signal generation and forces pins LOW.
  */
-void signal_stop();
+void ble_router_signal_stop();
 
 
 DataSet* get_dataset_active(void);
