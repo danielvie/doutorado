@@ -6,3 +6,7 @@ migrar projeto ESP:
     ✘ implementar print on/off @cancelled(25-11-23 22:02)
     ✔ implementar set_alpha @done(25-11-23 23:55)
     ✔ implementar matrizes @done(25-11-23 22:02)
+    ☐ implementar medicoes de tempo
+    ☐ implementar acao de controle
+    ☐ implementar mensagem de status
+    ☐ implementar mensagem de matriz (A e B)
