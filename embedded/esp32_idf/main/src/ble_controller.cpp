@@ -151,6 +151,56 @@ static void example_write_event_env(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_par
     }
 }
 
+void ble_router_set_signal(std::string& message) {
+    ESP_LOGI(TAG, "Updating Signal Pattern via Double Buffer...");
+    signal_update_from_string(message);
+
+    auto msg = std::make_unique<NoteData>(120);
+    note_clear(*msg);
+    note_add_text(*msg, "SIGNAL UPDATED OK");
+    ble_send_message(msg->buffer, msg->size);
+}
+
+void ble_router_print_active_dataset(void) {
+    // (message_lower == "active_dataset")
+    auto msg = std::make_unique<NoteData>(1024);
+    
+    DataSet* ds = get_dataset_active();
+
+    note_add_text(*msg, "STATUS\n");
+    note_add_text(*msg, "== active dataset (%s) == \n", get_signal_set_label(g_active_set).c_str());
+    note_add_array_u32(*msg, "time", ds->time_durations, ds->size);
+    note_add_array_u32(*msg, "d4  ", ds->modes_d4, ds->size);
+    note_add_array_u32(*msg, "d5  ", ds->modes_d5, ds->size);
+    note_add_array_u32(*msg, "d6  ", ds->modes_d6, ds->size);
+    
+    note_print_info(*msg);
+    note_ble_send(*msg);
+}
+
+
+void ble_router_message_set_alpha(std::string& message) {
+
+    // get set that is not active
+    DataSet *dataset;
+    
+    if (g_active_set == SignalSet::SET_A) {
+        dataset = &g_dataset_b;
+    } else {
+        dataset = &g_dataset_a;
+    }
+    
+    // set data based on alpha
+    float alpha = std::stof(message);
+    
+    ESP_LOGI(TAG, "set_alpha(%.2f)", alpha);
+    helper_set_dataset_from_alpha(dataset, alpha);
+    
+    g_ds_update_pending = true; // mark for set update
+}
+
+
+
 // ----------------------------------------------------------------------
 // UPDATED BLE ROUTER
 // ----------------------------------------------------------------------
@@ -202,6 +252,8 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
             note_add_text(*msg, "LED::ON");
             ble_send_message(msg->buffer, msg->size);
 
+        } else if (message_lower == "active_dataset") {
+            ble_router_print_active_dataset();
         } else if (message_lower == "off") {
             ESP_LOGI(TAG, "LED OFF!");
             blink_stop_task();
@@ -211,14 +263,12 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
             note_add_text(*msg, "\nSTATUS\n");
             note_add_text(*msg, "LED::OFF");
             ble_send_message(msg->buffer, msg->size);
-
         } else if (message.substr(0, 7) == "SIGNAL:") {
-            ESP_LOGI(TAG, "Updating Signal Pattern via Double Buffer...");
-            signal_update_from_string(message);
-
-            note_clear(*msg);
-            note_add_text(*msg, "SIGNAL UPDATED OK");
-            ble_send_message(msg->buffer, msg->size);
+            // auto msg = message.substr(0, 7);
+            ble_router_set_signal(message);
+        } else if (message.substr(0, 10) == "SET_ALPHA:") {
+            auto msg = message.substr(10);
+            ble_router_message_set_alpha(msg);
         } else if (message_lower == "start") {
             signal_start_continuous();
         } else if (message_lower == "stop") {

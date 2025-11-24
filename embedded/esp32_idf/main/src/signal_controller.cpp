@@ -9,10 +9,9 @@ static const char *TAG = "SIG_CTRL";
 #define PIN_OUT_5  GPIO_NUM_22 // Bit 1 (2)
 #define PIN_OUT_4  GPIO_NUM_21 // Bit 0 (1)
 
-const uint32_t MASK_LED   = (1ULL << GPIO_NUM_2);
-const uint32_t MASK_OUT_6 = (1ULL << PIN_OUT_6);
-const uint32_t MASK_OUT_5 = (1ULL << PIN_OUT_5);
-const uint32_t MASK_OUT_4 = (1ULL << PIN_OUT_4);
+const uint32_t MASK_OUT_6 = (1U << PIN_OUT_6);
+const uint32_t MASK_OUT_5 = (1U << PIN_OUT_5);
+const uint32_t MASK_OUT_4 = (1U << PIN_OUT_4);
 
 // ---------------------------------------------------------------------------
 // STATE MANAGEMENT
@@ -29,14 +28,14 @@ static volatile SignalState s_signal_state = SIGNAL_IDLE;
 // DOUBLE BUFFERING DATA
 // ---------------------------------------------------------------------------
 
-static DataSet g_dataset_a;
-static DataSet g_dataset_b;
+DataSet g_dataset_a;
+DataSet g_dataset_b;
 
 // Track which set is currently active in the loop
-static volatile SignalSet g_active_set = SignalSet::SET_A;
+volatile SignalSet g_active_set = SignalSet::SET_A;
 
 // Flag to tell the loop that the OTHER set has new data and we should swap
-static volatile bool g_update_pending = false;
+volatile bool g_ds_update_pending = false;
 
 void signal_controller_init() {
     // 1. Configure GPIOs
@@ -72,7 +71,7 @@ void signal_controller_init() {
 
     // Ensure Set A is active initially
     g_active_set = SignalSet::SET_A;
-    g_update_pending = false;
+    g_ds_update_pending = false;
 
     ESP_LOGI(TAG, "Signal Controller Initialized. Default Pattern Size: %d", g_dataset_a.size);
 }
@@ -132,7 +131,7 @@ void signal_update_from_string(const std::string& message) {
              (target_signalset == SignalSet::SET_A ? "Set A" : "Set B"));
 
     // mark upadte pending
-    g_update_pending = true;
+    g_ds_update_pending = true;
 }
 
 // ---------------------------------------------------------------------------
@@ -159,7 +158,7 @@ static void signal_loop_task(void* arg) {
         // ---------------------------------------------------
         // CHECK FOR UPDATES (Start of Loop)
         // ---------------------------------------------------
-        if (g_update_pending) {
+        if (g_ds_update_pending) {
             // Swap logic
             if (g_active_set == SignalSet::SET_A) {
                 // A was active, so B must be ready
@@ -171,7 +170,7 @@ static void signal_loop_task(void* arg) {
                 g_active_set = SignalSet::SET_A;
             }
             // Clear flag
-            g_update_pending = false;
+            g_ds_update_pending = false;
         }
 
         // ---------------------------------------------------
@@ -243,6 +242,11 @@ void signal_stop() {
 
     ESP_LOGI(TAG, "Stopping Signal...");
     s_signal_state = SIGNAL_IDLE;
+}
+
+DataSet* get_dataset_active(void) {
+    DataSet *dataset = (g_active_set == SignalSet::SET_A) ? &g_dataset_a : &g_dataset_b;
+    return dataset;
 }
 
 // Placeholder for interface compatibility

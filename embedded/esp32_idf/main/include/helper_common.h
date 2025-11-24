@@ -10,14 +10,20 @@
 #include <random>
 #include <memory>
 
-
-void blink(uint8_t N);
+#include "helper_led.h"
+#include "freertos/FreeRTOS.h"
 
 
 enum class BLEMode {
     SILENT,
     VERBOSE,
 };
+
+enum class SignalSet { 
+    SET_A,      // Signal set A is active
+    SET_B       // Signal set B is active
+};
+
 
 /**
  * Binary representation structure for digital output control
@@ -33,6 +39,9 @@ struct Bin {
     bool b6;
 };
 
+void blink(uint8_t N);
 struct Bin num2bin(uint32_t num);
 void parse_section(const std::string &section, std::vector<uint32_t> &result);
 int parse_signal(const std::string &s, std::vector<uint32_t> &time, std::vector<uint32_t> &mode);
+
+std::string get_signal_set_label(SignalSet set);

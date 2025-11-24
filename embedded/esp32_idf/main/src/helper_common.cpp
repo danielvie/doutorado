@@ -8,9 +8,6 @@
  */
 
 #include "helper_common.h"
-#include "helper_led.h"
-
-#include "freertos/FreeRTOS.h"
 
 void blink(uint8_t N) {
     for (uint8_t i = 0; i < N; i++) {
@@ -20,7 +17,6 @@ void blink(uint8_t N) {
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
-
 
 struct Bin num2bin(uint32_t num) {
     auto b = Bin();
@@ -66,4 +62,15 @@ int parse_signal(const std::string &s, std::vector<uint32_t> &time, std::vector<
     parse_section(modeSection, mode);
 
     return 1; // Success
+}
+
+std::string get_signal_set_label(SignalSet set) {
+    switch (set) {
+    case SignalSet::SET_A:
+        return "SET_A";
+    case SignalSet::SET_B:
+        return "SET_B";
+    default:
+        return "-ERROR";
+    }
 }

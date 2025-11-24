@@ -11,6 +11,7 @@
 #include "helper_common.h"
 #include "helper_note.h"
 #include "helper_led.h"
+#include "helper_datasetter.h"
 #include "signal_controller.h"
 
 #include <algorithm>
@@ -42,6 +43,10 @@ esp_err_t ble_controller_init(void);
 esp_err_t ble_send_message(const char* data, uint16_t len, BLEMode mode = BLEMode::VERBOSE);
 
 // Router function to handle incoming BLE write commands
+void ble_router_set_signal(std::string& message);
+void ble_router_print_active_dataset(void);
+void ble_router_message_set_alpha(std::string& message);
+
 void ble_router(esp_ble_gatts_cb_param_t *param);
 
 // check is there is a client connected

@@ -19,19 +19,23 @@
 #define MAX_SIGNAL_SIZE 100
 struct DataSet {
     uint32_t time_durations[MAX_SIGNAL_SIZE];
-    uint16_t modes_d4[MAX_SIGNAL_SIZE];
-    uint16_t modes_d5[MAX_SIGNAL_SIZE];
-    uint16_t modes_d6[MAX_SIGNAL_SIZE]; 
-    uint16_t size;
+    uint32_t modes_d4[MAX_SIGNAL_SIZE];
+    uint32_t modes_d5[MAX_SIGNAL_SIZE];
+    uint32_t modes_d6[MAX_SIGNAL_SIZE]; 
+    uint32_t size;
     int32_t time_us_diff[MAX_SIGNAL_SIZE];
     float target[3]; 
     MatrixData gain_k;
 };
 
-enum class SignalSet { 
-    SET_A,      // Signal set A is active
-    SET_B       // Signal set B is active
-};
+
+
+extern DataSet g_dataset_a;
+extern DataSet g_dataset_b;
+
+extern volatile SignalSet g_active_set;
+extern volatile bool g_ds_update_pending;
+
 
 /**
  * @brief Initialize the GPIOs and populate the custom signal pattern.
@@ -56,6 +60,9 @@ void signal_start_continuous();
  * @brief Stops the continuous signal generation and forces pins LOW.
  */
 void signal_stop();
+
+
+DataSet* get_dataset_active(void);
 
 /**
  * @brief (Internal) Placeholder
