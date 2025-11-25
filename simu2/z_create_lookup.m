@@ -8,7 +8,7 @@ function z_create_lookup()
     % header
     message = sprintf("// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.\n\n");
     message = sprintf("%s#include ""helper_datasetter.h""\n\n", message);
-    message = sprintf("%sstatic const float TOL = 0.01;\n", message);
+    message = sprintf("%sstatic const float TOL = 0.001;\n", message);
     message = sprintf("%sbool helper_eql_float(const float a, const float b) {\n", message);
     message = sprintf("%s    return std::fabs(a - b) < TOL;\n", message);
     
@@ -17,17 +17,22 @@ function z_create_lookup()
     message = sprintf("%svoid helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {\n", message);
     message = sprintf("%s\n", message);
 
-    % for i = 1
+    str_else = "";
+    % for i = 1:3
     for i = 10:90
         alpha = i/100;
         set_alpha(s, alpha);
 
         message = tab(message, 1);
-        message = sprintf("%sif (helper_eql_float(alpha, %.2f)) {\n", message, alpha);
+        message = sprintf("%s%sif (helper_eql_float(alpha, %.2f)) {\n", message, str_else, alpha);
 
         message = tab(message, 2);
         message = sprintf("%s// alpha: %.2f\n\n", message, alpha);
         message = print_data(message, s);
+        
+        if strcmp(str_else, "")
+            str_else = "else ";
+        end
     end
     clc;
     
@@ -62,22 +67,22 @@ function message = print_data(message_in, s)
     len = numel(time_us);
 
     message = tab(message, 2);
-    message = sprintf("%sdataset->size_vec = %d;\n", message, len);
+    message = sprintf("%sdataset->size = %d;\n", message, len);
     for i = 1:len
         message = tab(message, 2);
-        message = sprintf("%sdataset->time_vec[%d] = %d;\n", message, i-1, time_us(i));
+        message = sprintf("%sdataset->time_durations[%d] = %d;\n", message, i-1, time_us(i));
     end
     for i = 1:len
         message = tab(message, 2);
-        message = sprintf("%sdataset->d4_vec[%d] = %d;\n", message, i-1, d4(i));
+        message = sprintf("%sdataset->modes_d4[%d] = %d;\n", message, i-1, d4(i));
     end
     for i = 1:len
         message = tab(message, 2);
-        message = sprintf("%sdataset->d5_vec[%d] = %d;\n", message, i-1, d5(i));
+        message = sprintf("%sdataset->modes_d5[%d] = %d;\n", message, i-1, d5(i));
     end
     for i = 1:len
         message = tab(message, 2);
-        message = sprintf("%sdataset->d6_vec[%d] = %d;\n", message, i-1, d6(i));
+        message = sprintf("%sdataset->modes_d6[%d] = %d;\n", message, i-1, d6(i));
     end
     for i = 1:numel(target)
         message = tab(message, 2);

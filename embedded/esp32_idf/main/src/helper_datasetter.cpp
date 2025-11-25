@@ -24,7 +24,6 @@ void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
         dataset->modes_d4[2] = 0;
         dataset->modes_d4[3] = 0;
         dataset->modes_d4[4] = 1;
-        dataset->modes_d4[4] = 1;
         dataset->modes_d4[5] = 0;
         dataset->modes_d5[0] = 0;
         dataset->modes_d5[1] = 0;
