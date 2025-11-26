@@ -6,6 +6,7 @@ migrar projeto ESP:
     ✘ implementar print on/off @cancelled(25-11-23 22:02)
     ✔ implementar set_alpha @done(25-11-23 23:55)
     ✔ implementar matrizes @done(25-11-23 22:02)
+    ☐ implementar leitura de sinal a cada N ciclos de sinal
     ☐ implementar medicoes de tempo
     ✔ ajustar datasetter no matlab para gerar formato ajustado @done(25-11-24 22:44)
     ☐ implementar acao de controle
