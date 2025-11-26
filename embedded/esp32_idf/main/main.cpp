@@ -154,9 +154,6 @@ extern "C" void app_main(void)
         ESP_LOGW(TAG, "COULD NOT INITIALIZE APP!!");
     }
 
-
-
-
     // Create analog task on Core 0 with sufficient stack size for helper::printf
     xTaskCreatePinnedToCore(
         analog_reading_task,  // Task function
@@ -169,5 +166,6 @@ extern "C" void app_main(void)
     );
     
     matrix_test();
-
+    
+    blink(4);
 }

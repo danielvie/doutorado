@@ -151,6 +151,56 @@ static void example_write_event_env(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_par
     }
 }
 
+// ----------------------------------------------------------------------
+// UPDATED BLE ROUTER
+// ----------------------------------------------------------------------
+void ble_router(esp_ble_gatts_cb_param_t* param) {
+    if (param->write.len > 0) {
+        auto msg = std::make_unique<NoteData>(120);
+
+        // read message
+        std::string message(reinterpret_cast<const char*>(param->write.value), param->write.len);
+        std::string message_lower = message;
+        std::transform(message_lower.begin(), message_lower.end(), message_lower.begin(), ::tolower);
+
+        // treat cases
+        uint16_t blink_d1 = 0, blink_d2 = 0;
+        if (sscanf(message_lower.c_str(), "blink:%hu,%hu", &blink_d1, &blink_d2) == 2) {
+            ble_router_blink_nn(blink_d1, blink_d2);
+        } else if (sscanf(message_lower.c_str(), "blink:%hu", &blink_d1) == 1) {
+            ble_router_blink_n(blink_d1);
+        } else if (message_lower == "blink") {
+            ble_router_blink();
+        } else if (message_lower == "on") {
+            ble_router_led_on(msg);
+        } else if (message_lower == "off") {
+            ble_router_led_off(msg);
+        } else if (message_lower == "read") {
+            ble_router_read(msg);
+        } else if (message_lower == "active_dataset") {
+            ble_router_print_active_dataset();
+        } else if (message.substr(0, 7) == "SIGNAL:") {
+            auto payload = message.substr(7);
+            ble_router_set_signal(payload);
+        } else if (message.substr(0, 10) == "SET_ALPHA:") {
+            auto payload = message.substr(10);
+            ble_router_message_set_alpha(payload);
+        } else if (message_lower == "status_matrix_a") {
+            ble_router_status_matrix(SignalSet::SET_A);
+        } else if (message_lower == "status_matrix_b") {
+            ble_router_status_matrix(SignalSet::SET_B);
+        } else if (message_lower == "status") {
+            ble_router_status();
+        } else if (message_lower == "start") {
+            signal_start_continuous();
+        } else if (message_lower == "stop") {
+            signal_stop();
+        } else {
+            ESP_LOGI(TAG, "Unrecognized write: '%s' (len=%u)", message.c_str(), message.length());
+        }
+    }
+}
+
 void ble_router_blink_nn(uint16_t blink_d1, uint16_t blink_d2) {
     // blink:%hu,%hu
     if (blink_d1 > 0 && blink_d2 > 0) {
@@ -237,7 +287,6 @@ void ble_router_print_active_dataset(void) {
     note_ble_send(*msg);
 }
 
-
 void ble_router_message_set_alpha(std::string& message) {
 
     // get set that is not active
@@ -297,56 +346,6 @@ void ble_router_status(void) {
     note_ble_send(*msg);
     note_print_info(*msg);
 
-}
-
-// ----------------------------------------------------------------------
-// UPDATED BLE ROUTER
-// ----------------------------------------------------------------------
-void ble_router(esp_ble_gatts_cb_param_t* param) {
-    if (param->write.len > 0) {
-        auto msg = std::make_unique<NoteData>(120);
-
-        // read message
-        std::string message(reinterpret_cast<const char*>(param->write.value), param->write.len);
-        std::string message_lower = message;
-        std::transform(message_lower.begin(), message_lower.end(), message_lower.begin(), ::tolower);
-
-        // treat cases
-        uint16_t blink_d1 = 0, blink_d2 = 0;
-        if (sscanf(message_lower.c_str(), "blink:%hu,%hu", &blink_d1, &blink_d2) == 2) {
-            ble_router_blink_nn(blink_d1, blink_d2);
-        } else if (sscanf(message_lower.c_str(), "blink:%hu", &blink_d1) == 1) {
-            ble_router_blink_n(blink_d1);
-        } else if (message_lower == "blink") {
-            ble_router_blink();
-        } else if (message_lower == "on") {
-            ble_router_led_on(msg);
-        } else if (message_lower == "off") {
-            ble_router_led_off(msg);
-        } else if (message_lower == "read") {
-            ble_router_read(msg);
-        } else if (message_lower == "active_dataset") {
-            ble_router_print_active_dataset();
-        } else if (message.substr(0, 7) == "SIGNAL:") {
-            auto payload = message.substr(7);
-            ble_router_set_signal(payload);
-        } else if (message.substr(0, 10) == "SET_ALPHA:") {
-            auto payload = message.substr(10);
-            ble_router_message_set_alpha(payload);
-        } else if (message_lower == "status_matrix_a") {
-            ble_router_status_matrix(SignalSet::SET_A);
-        } else if (message_lower == "status_matrix_b") {
-            ble_router_status_matrix(SignalSet::SET_B);
-        } else if (message_lower == "status") {
-            ble_router_status();
-        } else if (message_lower == "start") {
-            signal_start_continuous();
-        } else if (message_lower == "stop") {
-            signal_stop();
-        } else {
-            ESP_LOGI(TAG, "Unrecognized write: '%s' (len=%u)", message.c_str(), message.length());
-        }
-    }
 }
 
 static void profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t* param) {
