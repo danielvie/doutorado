@@ -84,7 +84,19 @@ void note_add_matrix(NoteData &buffer, MatrixData &M) {
     note_add_text(buffer, "];\n");
 }
 
-void note_print_info(NoteData &buffer) {
+void note_logi(NoteData &buffer, const char* TAG) {
+    ESP_LOGI(TAG, "%s", buffer.buffer);
+}
+
+void note_logw(NoteData &buffer, const char* TAG) {
+    ESP_LOGW(TAG, "%s", buffer.buffer);
+}
+
+void note_loge(NoteData &buffer, const char* TAG) {
+    ESP_LOGE(TAG, "%s", buffer.buffer);
+}
+
+void note_print_buffer(NoteData &buffer) {
     char temp_log_buffer[buffer.size + 128]; 
     char *ptr = temp_log_buffer;
     

@@ -191,6 +191,8 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
             ble_router_status_matrix(SignalSet::SET_B);
         } else if (message_lower == "status") {
             ble_router_status();
+        } else if (message_lower == "log_duration") {
+            ble_router_log_duration();
         } else if (message_lower == "start") {
             signal_start_continuous();
         } else if (message_lower == "stop") {
@@ -232,7 +234,8 @@ void ble_router_led_on(std::unique_ptr<NoteData>& msg) {
     note_clear(*msg);
     note_add_text(*msg, "\nSTATUS\n");
     note_add_text(*msg, "LED::ON");
-    ble_send_message(msg->buffer, msg->size);
+
+    note_ble_send(*msg);
 }
 
 void ble_router_led_off(std::unique_ptr<NoteData>& msg) {
@@ -243,7 +246,8 @@ void ble_router_led_off(std::unique_ptr<NoteData>& msg) {
     note_clear(*msg);
     note_add_text(*msg, "\nSTATUS\n");
     note_add_text(*msg, "LED::OFF");
-    ble_send_message(msg->buffer, msg->size);
+
+    note_ble_send(*msg);
 }
 
 void ble_router_read(std::unique_ptr<NoteData>& msg) {
@@ -254,8 +258,9 @@ void ble_router_read(std::unique_ptr<NoteData>& msg) {
     note_clear(*msg);
     note_add_text(*msg, "\nSTATUS\n");
     note_add_text(*msg, "an3: %.4f\nan5: %.4f\nan6: %.4f\n", an3, an5, an6);
-    note_print_info(*msg);
-    ble_send_message(msg->buffer, msg->size);
+
+    note_logi(*msg, TAG);
+    note_ble_send(*msg);
 }
 
 void ble_router_set_signal(std::string& message) {
@@ -267,12 +272,13 @@ void ble_router_set_signal(std::string& message) {
     auto msg = std::make_unique<NoteData>(120);
     note_clear(*msg);
     note_add_text(*msg, "SIGNAL UPDATED OK");
-    ble_send_message(msg->buffer, msg->size);
+
+    note_ble_send(*msg);
 }
 
 void ble_router_print_active_dataset(void) {
     // (message_lower == "active_dataset")
-    auto msg = std::make_unique<NoteData>(BLE_MESSAGE_MAX_LEN);
+    auto msg = std::make_unique<NoteData>(NOTE_BLE_BUFFER_SIZE);
     
     DataSet* ds = get_dataset_active();
 
@@ -283,7 +289,7 @@ void ble_router_print_active_dataset(void) {
     note_add_array_u32(*msg, "d5  ", ds->modes_d5, ds->size);
     note_add_array_u32(*msg, "d6  ", ds->modes_d6, ds->size);
     
-    note_print_info(*msg);
+    note_logi(*msg, TAG);
     note_ble_send(*msg);
 }
 
@@ -310,7 +316,7 @@ void ble_router_message_set_alpha(std::string& message) {
 void ble_router_status_matrix(SignalSet set) {
     // status_matrix_a
     
-    auto msg = std::make_unique<NoteData>(500);
+    auto msg = std::make_unique<NoteData>(NOTE_BLE_BUFFER_SIZE);
     
     DataSet* ds;
     if (set == SignalSet::SET_A) {
@@ -322,14 +328,15 @@ void ble_router_status_matrix(SignalSet set) {
     note_add_text(*msg, "\nSTATUS\n");
     note_add_text(*msg, "\n== status matrix %s ==\n", get_signal_set_label(set).c_str());
     note_add_matrix(*msg, ds->gain_k);
+
+    note_logi(*msg, TAG);
     note_ble_send(*msg);
-    note_print_info(*msg);
 }
 
 void ble_router_status(void) {
     // status_matrix_a
     
-    auto msg = std::make_unique<NoteData>(500);
+    auto msg = std::make_unique<NoteData>(NOTE_BLE_BUFFER_SIZE);
     
     // DataSet* ds = get_dataset_active();
     
@@ -343,9 +350,21 @@ void ble_router_status(void) {
     note_add_text(*msg, "matrix a: %s\n", is_valid(g_dataset_a).c_str());
     note_add_text(*msg, "matrix b: %s\n", is_valid(g_dataset_b).c_str());
 
+    note_logi(*msg, TAG);
     note_ble_send(*msg);
-    note_print_info(*msg);
+}
 
+void ble_router_log_duration(void) {
+    auto msg = std::make_unique<NoteData>(NOTE_BLE_BUFFER_SIZE);
+    
+    note_add_text(*msg, "\nSTATUS time duration:\n\n");
+    note_add_text(*msg, "read and send   : %d us\n", g_log_duration.read_and_send_analog_us);
+    note_add_text(*msg, "matrix multiply : %d us\n", g_log_duration.matrix_multiply_us);
+    note_add_text(*msg, "dtk condition   : %d us\n", g_log_duration.dtk_condition);
+    note_add_text(*msg, "update dtk sig  : %d us\n", g_log_duration.update_signal_with_dtk);
+    
+    note_ble_send(*msg);
+    ESP_LOGI(TAG, "%s", msg->buffer);
 }
 
 static void profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t* param) {

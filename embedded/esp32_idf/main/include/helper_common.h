@@ -13,6 +13,15 @@
 #include "helper_led.h"
 #include "freertos/FreeRTOS.h"
 
+struct LogDuration {
+    int64_t read_and_send_analog_us;
+    int64_t matrix_multiply_us;
+    int64_t dtk_condition;
+    int64_t update_signal_with_dtk;
+};
+
+extern LogDuration g_log_duration;
+
 enum class BLEMode {
     SILENT,
     VERBOSE,

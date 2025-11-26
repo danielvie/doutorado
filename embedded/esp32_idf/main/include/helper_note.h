@@ -18,6 +18,7 @@ struct MatrixData;
 // --- Global Variable Declarations ---
 // The static buffer to store text. 'extern' indicates that this variable is defined elsewhere.
 static const int NOTE_BUFFER_SIZE = 2048;
+static const int NOTE_BLE_BUFFER_SIZE = 497;
 static const int NOTE_TEMP_BUFFER_SIZE = 256;
 
 /* use example: 
@@ -67,5 +68,8 @@ void note_add_array_u32(NoteData& buffer, std::string name, uint32_t* data, size
 void note_add_array_i32(NoteData& buffer, std::string name, int32_t* data, size_t data_len);
 void note_add_matrix(NoteData& buffer, MatrixData& M);
 
-void note_print_info(NoteData& buffer);
+void note_logi(NoteData &buffer, const char* TAG);
+void note_logw(NoteData &buffer, const char* TAG);
+void note_loge(NoteData &buffer, const char* TAG);
+void note_print_buffer(NoteData& buffer);
 void note_ble_send(NoteData &buffer, BLEMode mode = BLEMode::VERBOSE);

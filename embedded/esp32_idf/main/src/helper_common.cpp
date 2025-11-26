@@ -9,6 +9,13 @@
 
 #include "helper_common.h"
 
+LogDuration g_log_duration = {
+    .read_and_send_analog_us = -42,
+    .matrix_multiply_us = -42,
+    .dtk_condition = -42,
+    .update_signal_with_dtk = -42,
+};
+
 void blink(uint8_t N) {
     for (uint8_t i = 0; i < N; i++) {
         led_on();
