@@ -13,7 +13,7 @@
 #include "esp_log.h"
 
 /* Defines */
-#define BLINK_GPIO CONFIG_EXAMPLE_BLINK_GPIO
+#define BLINK_GPIO 2
 
 #ifdef __cplusplus
 extern "C" {

@@ -17,21 +17,21 @@ uint8_t get_led_state(void)
 
 void led_on(void)
 {
-    gpio_set_level(static_cast<gpio_num_t>(CONFIG_EXAMPLE_BLINK_GPIO), true);
+    gpio_set_level(static_cast<gpio_num_t>(BLINK_GPIO), true);
     led_state = 1;
 }
 
 void led_off(void)
 {
-    gpio_set_level(static_cast<gpio_num_t>(CONFIG_EXAMPLE_BLINK_GPIO), false);
+    gpio_set_level(static_cast<gpio_num_t>(BLINK_GPIO), false);
     led_state = 0;
 }
 
 void led_init(void)
 {
     // ESP_LOGI(TAG, "example configured to blink gpio led!");
-    gpio_reset_pin(static_cast<gpio_num_t>(CONFIG_EXAMPLE_BLINK_GPIO));
+    gpio_reset_pin(static_cast<gpio_num_t>(BLINK_GPIO));
     /* Set the GPIO as a push/pull output */
-    gpio_set_direction(static_cast<gpio_num_t>(CONFIG_EXAMPLE_BLINK_GPIO), GPIO_MODE_OUTPUT);
+    gpio_set_direction(static_cast<gpio_num_t>(BLINK_GPIO), GPIO_MODE_OUTPUT);
     led_off();
 }
