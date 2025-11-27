@@ -14,7 +14,7 @@ let g_paired_device: any = null; // Stores the device reference after first succ
 
 // Function reference for status updates to the UI
 let g_fn_update_status: any = null; // Will be set to a callback function from the UI component
-let g_fn_ble_status: any = null; // Will be set to a callback function from the UI component
+// let g_fn_ble_status: any = null; // Will be set to a callback function from the UI component
 let g_fn_set_app_status_message: any = null; // Will be set to a callback function from the UI component
 let g_fn_probe: any = null;
 
