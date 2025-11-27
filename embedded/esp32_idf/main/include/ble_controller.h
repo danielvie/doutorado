@@ -48,6 +48,7 @@ void ble_router_message_set_alpha(std::string& message);
 
 void ble_router(esp_ble_gatts_cb_param_t *param);
 
+void ble_router_ble_read(Status status);
 void ble_router_blink(void);
 void ble_router_blink_n(uint16_t blink_d1);
 void ble_router_blink_nn(uint16_t blink_d1, uint16_t blink_d2);
@@ -58,6 +59,8 @@ void ble_router_message_set_alpha(std::string& message);
 void ble_router_print_active_dataset(void);
 void ble_router_read(std::unique_ptr<NoteData>& msg);
 void ble_router_set_signal(std::string& message);
+void ble_router_signal_start();
+void ble_router_signal_stop();
 void ble_router_status(void);
 void ble_router_status_matrix(SignalSet set);
 

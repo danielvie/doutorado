@@ -31,10 +31,11 @@ struct DataSet {
     MatrixData gain_k;
 };
 
-
-
 extern DataSet g_dataset_a;
 extern DataSet g_dataset_b;
+
+extern volatile uint32_t g_cycle_count;
+extern volatile uint32_t g_cycle_nrun;
 
 extern volatile SignalSet g_active_set;
 extern volatile bool g_ds_update_pending;

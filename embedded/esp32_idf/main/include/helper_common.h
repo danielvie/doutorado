@@ -27,6 +27,11 @@ enum class BLEMode {
     VERBOSE,
 };
 
+enum class Status {
+    ON,
+    OFF,
+};
+
 enum class SignalSet { 
     SET_A,      // Signal set A is active
     SET_B       // Signal set B is active
@@ -35,6 +40,7 @@ enum class SignalSet {
 enum class BLEAnalogReadState {
     IDLE,
     READING,
+    DISABLED,
 };
 
 enum class SignalState {
@@ -68,4 +74,6 @@ struct Bin num2bin(uint32_t num);
 void parse_section(const std::string &section, std::vector<uint32_t> &result);
 int parse_signal(const std::string &s, std::vector<uint32_t> &time, std::vector<uint32_t> &mode);
 
-std::string get_signal_set_label(SignalSet set);
+std::string get_label(SignalSet set);
+std::string get_label(BLEAnalogReadState state);
+std::string get_label(SignalState state);

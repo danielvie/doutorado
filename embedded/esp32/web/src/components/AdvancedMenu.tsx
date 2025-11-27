@@ -100,8 +100,8 @@ function AdvancedMenu(props: IProps) {
                 <button onClick={() => ble_send_command("SET_PRINT_OFF")} className="btn">PRINT OFF</button>
             </div>
             <div className="flex gap-2">
-                <button onClick={() => ble_send_command("BLE_MESSAGE_ON")} className="btn">BLE_MESSAGE_ON</button>
-                <button onClick={() => ble_send_command("BLE_MESSAGE_OFF")} className="btn">BLE_MESSAGE_OFF</button>
+                <button onClick={() => ble_send_command("BLE_READ_ON")} className="btn">BLE_READ_ON</button>
+                <button onClick={() => ble_send_command("BLE_READ_OFF")} className="btn">BLE_READ_OFF</button>
                 <button onClick={() => ble_send_command(`CYCLE_NRUN:${cycles}`)} className="btn">SET CYCLES ({cycles})</button>
             </div>
 

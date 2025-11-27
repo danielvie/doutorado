@@ -23,6 +23,9 @@ static TaskHandle_t s_signal_task_handle = NULL;
 DataSet g_dataset_a;
 DataSet g_dataset_b;
 
+volatile uint32_t g_cycle_count = 0;
+volatile uint32_t g_cycle_nrun = 1;
+
 // Track which set is currently active in the loop
 volatile SignalSet g_active_set = SignalSet::SET_A;
 
@@ -195,8 +198,12 @@ static void signal_loop_task(void* arg) {
             }
             
             // trigger analog reading if needed
-            if (i == 0 && g_system_state.ble_an_read_state == BLEAnalogReadState::READING) {
-                 // TODO: Implement analog read trigger
+            if (i == 0 && g_system_state.ble_an_read_state == BLEAnalogReadState::IDLE) {
+                // TODO: Implement analog read trigger
+                g_cycle_count = (g_cycle_count + 1) % g_cycle_nrun;
+                if (g_cycle_count == 0) {
+                    g_system_state.ble_an_read_state = BLEAnalogReadState::READING;
+                }
             }
         }
     }
@@ -251,7 +258,12 @@ void signal_stop() {
     }
 
     ESP_LOGI(TAG, "Stopping Signal...");
+
+    // updating signal when stop
     g_system_state.signal_state = SignalState::IDLE;
+    if (g_system_state.ble_an_read_state != BLEAnalogReadState::DISABLED) {
+        g_system_state.ble_an_read_state = BLEAnalogReadState::IDLE;
+    }
 }
 
 DataSet* get_dataset_active(void) {

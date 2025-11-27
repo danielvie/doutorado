@@ -76,13 +76,37 @@ int parse_signal(const std::string &s, std::vector<uint32_t> &time, std::vector<
     return 1; // Success
 }
 
-std::string get_signal_set_label(SignalSet set) {
+std::string get_label(SignalSet set) {
     switch (set) {
-    case SignalSet::SET_A:
-        return "SET_A";
-    case SignalSet::SET_B:
-        return "SET_B";
-    default:
-        return "-ERROR";
+        case SignalSet::SET_A:
+            return "SET_A";
+        case SignalSet::SET_B:
+            return "SET_B";
+        default:
+            return "-ERROR";
+    }
+}
+
+std::string get_label(SignalState state) {
+    switch (state) {
+        case SignalState::IDLE:
+            return "IDLE";
+        case SignalState::RUNNING:
+            return "RUNNING";
+        default:
+            return "-ERROR";
+    }
+}
+
+std::string get_label(BLEAnalogReadState state) {
+    switch (state) {
+        case BLEAnalogReadState::DISABLED:
+            return "DISABLED";
+        case BLEAnalogReadState::IDLE:
+            return "IDLE";
+        case BLEAnalogReadState::READING:
+            return "READING";
+        default:
+            return "-ERROR";
     }
 }

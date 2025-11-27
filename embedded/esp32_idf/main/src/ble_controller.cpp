@@ -193,10 +193,14 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
             ble_router_status();
         } else if (message_lower == "log_duration") {
             ble_router_log_duration();
+        } else if (message_lower == "ble_read_on") {
+            ble_router_ble_read(Status::ON);
+        } else if (message_lower == "ble_read_off") {
+            ble_router_ble_read(Status::OFF);
         } else if (message_lower == "start") {
-            signal_start_continuous();
+            ble_router_signal_start();
         } else if (message_lower == "stop") {
-            signal_stop();
+            ble_router_signal_stop();
         } else {
             ESP_LOGI(TAG, "Unrecognized write: '%s' (len=%u)", message.c_str(), message.length());
         }
@@ -283,7 +287,7 @@ void ble_router_print_active_dataset(void) {
     DataSet* ds = get_dataset_active();
 
     note_add_text(*msg, "\nSTATUS\n");
-    note_add_text(*msg, "== active dataset (%s) == \n", get_signal_set_label(g_active_set).c_str());
+    note_add_text(*msg, "== active dataset (%s) == \n", get_label(g_active_set).c_str());
     note_add_array_u32(*msg, "time", ds->time_durations, ds->size);
     note_add_array_u32(*msg, "d4  ", ds->modes_d4, ds->size);
     note_add_array_u32(*msg, "d5  ", ds->modes_d5, ds->size);
@@ -326,7 +330,7 @@ void ble_router_status_matrix(SignalSet set) {
     }
     
     note_add_text(*msg, "\nSTATUS\n");
-    note_add_text(*msg, "\n== status matrix %s ==\n", get_signal_set_label(set).c_str());
+    note_add_text(*msg, "\n== status matrix %s ==\n", get_label(set).c_str());
     note_add_matrix(*msg, ds->gain_k);
 
     note_logi(*msg, TAG);
@@ -346,9 +350,11 @@ void ble_router_status(void) {
     
     note_add_text(*msg, "\nSTATUS\n");
     note_add_text(*msg, "\n== status ==\n");
-    note_add_text(*msg, "active  : %s\n", get_signal_set_label(g_active_set).c_str());
-    note_add_text(*msg, "matrix a: %s\n", is_valid(g_dataset_a).c_str());
-    note_add_text(*msg, "matrix b: %s\n", is_valid(g_dataset_b).c_str());
+    note_add_text(*msg, "active       : %s\n", get_label(g_active_set).c_str());
+    note_add_text(*msg, "matrix a     : %s\n", is_valid(g_dataset_a).c_str());
+    note_add_text(*msg, "matrix b     : %s\n", is_valid(g_dataset_b).c_str());
+    note_add_text(*msg, "signal state : %s\n", get_label(g_system_state.signal_state).c_str());
+    note_add_text(*msg, "ble state    : %s\n", get_label(g_system_state.ble_an_read_state).c_str());
 
     note_logi(*msg, TAG);
     note_ble_send(*msg);
@@ -365,6 +371,28 @@ void ble_router_log_duration(void) {
     
     note_ble_send(*msg);
     ESP_LOGI(TAG, "%s", msg->buffer);
+}
+
+void ble_router_ble_read(Status status) {
+    switch (status)
+    {
+    case Status::ON:
+        g_system_state.ble_an_read_state = BLEAnalogReadState::IDLE;
+        break;
+    case Status::OFF:
+        g_system_state.ble_an_read_state = BLEAnalogReadState::DISABLED;
+        break;
+    }
+}
+
+void ble_router_signal_start() {
+    // start
+    signal_start_continuous();
+}
+
+void ble_router_signal_stop() {
+    // stop
+    signal_stop();
 }
 
 static void profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t* param) {
