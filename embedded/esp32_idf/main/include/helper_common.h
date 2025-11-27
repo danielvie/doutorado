@@ -32,6 +32,22 @@ enum class SignalSet {
     SET_B       // Signal set B is active
 };
 
+enum class BLEAnalogReadState {
+    IDLE,
+    READING,
+};
+
+enum class SignalState {
+    IDLE,
+    RUNNING,
+};
+
+struct SystemState {
+    SignalState signal_state;
+    BLEAnalogReadState ble_an_read_state;
+};
+
+extern volatile SystemState g_system_state;
 
 /**
  * Binary representation structure for digital output control

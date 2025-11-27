@@ -16,6 +16,11 @@ LogDuration g_log_duration = {
     .update_signal_with_dtk = -42,
 };
 
+volatile SystemState g_system_state = {
+    .signal_state = SignalState::IDLE,
+    .ble_an_read_state = BLEAnalogReadState::IDLE,
+};
+
 void blink(uint8_t N) {
     for (uint8_t i = 0; i < N; i++) {
         led_on();

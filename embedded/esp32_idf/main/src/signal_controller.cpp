@@ -13,16 +13,8 @@ const uint32_t MASK_OUT_6 = (1U << PIN_OUT_6);
 const uint32_t MASK_OUT_5 = (1U << PIN_OUT_5);
 const uint32_t MASK_OUT_4 = (1U << PIN_OUT_4);
 
-// ---------------------------------------------------------------------------
-// STATE MANAGEMENT
-// ---------------------------------------------------------------------------
-enum SignalState {
-    SIGNAL_IDLE,
-    SIGNAL_RUNNING
-};
-
 static TaskHandle_t s_signal_task_handle = NULL;
-static volatile SignalState s_signal_state = SIGNAL_IDLE;
+// static volatile SignalState s_signal_state = SignalState::IDLE;
 
 // ---------------------------------------------------------------------------
 // DOUBLE BUFFERING DATA
@@ -160,7 +152,7 @@ static void signal_loop_task(void* arg) {
     // -------------------------------------------------------
     portDISABLE_INTERRUPTS();
 
-    while (s_signal_state == SIGNAL_RUNNING) {
+    while (g_system_state.signal_state == SignalState::RUNNING) {
         
         // ---------------------------------------------------
         // CHECK FOR UPDATES (Start of Loop)
@@ -197,8 +189,14 @@ static void signal_loop_task(void* arg) {
                             (dataset->modes_d5[i] << PIN_OUT_5) | 
                             (dataset->modes_d4[i] << PIN_OUT_4);
 
+            // wait in microseconds 
             if (us > 0) {
                 esp_rom_delay_us(us);
+            }
+            
+            // trigger analog reading if needed
+            if (i == 0 && g_system_state.ble_an_read_state == BLEAnalogReadState::READING) {
+                 // TODO: Implement analog read trigger
             }
         }
     }
@@ -222,7 +220,7 @@ static void signal_loop_task(void* arg) {
 }
 
 void signal_start_continuous() {
-    if (s_signal_state == SIGNAL_RUNNING || s_signal_task_handle != NULL) {
+    if (g_system_state.signal_state == SignalState::RUNNING || s_signal_task_handle != NULL) {
         ESP_LOGW(TAG, "Signal already running!");
         return;
     }
@@ -232,7 +230,7 @@ void signal_start_continuous() {
         return;
     }
 
-    s_signal_state = SIGNAL_RUNNING;
+    g_system_state.signal_state = SignalState::RUNNING;
     
     // Pin to Core 1 (APP_CPU)
     xTaskCreatePinnedToCore(
@@ -247,13 +245,13 @@ void signal_start_continuous() {
 }
 
 void signal_stop() {
-    if (s_signal_state == SIGNAL_IDLE) {
+    if (g_system_state.signal_state == SignalState::IDLE) {
         ESP_LOGW(TAG, "Signal is not running");
         return;
     }
 
     ESP_LOGI(TAG, "Stopping Signal...");
-    s_signal_state = SIGNAL_IDLE;
+    g_system_state.signal_state = SignalState::IDLE;
 }
 
 DataSet* get_dataset_active(void) {
