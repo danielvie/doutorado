@@ -12,6 +12,7 @@
 #include "helper_analog.h"
 #include "helper_note.h"
 #include "helper_led.h"
+#include "helper_common.h"
 #include "signal_controller.h" 
 
 #include "helper_matrix.h"
@@ -33,6 +34,7 @@ static const char *TAG = "BLE_LED";
 TaskHandle_t blink_task_handle = NULL;
 volatile uint16_t blink_delay1_ms = 200;
 volatile uint16_t blink_delay2_ms = 500;
+
 
 void blink_stop_task(void)
 {
@@ -97,24 +99,31 @@ esp_err_t app_init() {
     // Initialize BLE controller
     ret = ble_controller_init();
     if (ret) {
-        ESP_LOGE(TAG, "BLE controller init failed: %s", esp_err_to_name(ret));
+        ESP_LOGE("INIT", "BLE controller init failed: %s", esp_err_to_name(ret));
         return ret;
     }
     
+    // create semaphore
+    sem_analog_read_trigger = xSemaphoreCreateBinary();
+    if (sem_analog_read_trigger == NULL) {
+        ESP_LOGE("INIT", "Failed to create semaphore");
+    }
+
     return ret;
 }
 
 static void analog_reading_task(void* arg) {
     ESP_LOGI(TAG, "Analog Task Started");
 
+    float an3, an5, an6;
     for (;;) {
 
         // only send message if client is connected
         if (ble_is_connected()) {
             // Read Values (in V)
-            float an3 = analog_read_port(AnalogPort::AN3);
-            float an5 = analog_read_port(AnalogPort::AN5);
-            float an6 = analog_read_port(AnalogPort::AN6);
+            an3 = analog_read_port(AnalogPort::AN3);
+            an5 = analog_read_port(AnalogPort::AN5);
+            an6 = analog_read_port(AnalogPort::AN6);
 
             // Prepare BLE Message
             auto msg = std::make_unique<NoteData>(128);
@@ -124,12 +133,38 @@ static void analog_reading_task(void* arg) {
             note_add_text(*msg, "an3:%.4f an5:%.4f an6:%.4f", an3, an5, an6);
 
             // Send
-            // ble_send_message(msg->buffer, msg->size);
             note_ble_send(*msg, BLEMode::SILENT);
         }
 
         // Wait 500ms
-        vTaskDelay(pdMS_TO_TICKS(500));
+        vTaskDelay(pdMS_TO_TICKS(g_analog_monitor_period_ms));
+    }
+    vTaskDelete(NULL);
+}
+
+static void analog_action_task(void* arg) {
+    ESP_LOGI(TAG, "Analog Action Task Started");
+    float an3, an5, an6;
+
+    for (;;) {
+        if (xSemaphoreTake(sem_analog_read_trigger, portMAX_DELAY) == pdPASS) {
+            ESP_LOGI("AnalogRead", "New data Received!");
+
+            an3 = analog_read_port(AnalogPort::AN3);
+            an5 = analog_read_port(AnalogPort::AN5);
+            an6 = analog_read_port(AnalogPort::AN6);
+            
+            ESP_LOGI("AnalogRead", "  -> an3: %f, an5: %f, an6: %f\n", an3, an5, an6);
+                
+            g_system_state.ble_an_read_state = BLEAnalogReadState::IDLE;
+        }
+
+        // if (xQueueReceive(data_queue, &data, portMAX_DELAY) == pdPASS) {
+        //     ESP_LOGI("AnalogRead", "New data Received!");
+        //     ESP_LOGI("AnalogRead", "  -> an3: %f, an5: %f, an6: %f\n", data.an3, data.an5, data.an6);
+            
+        //     g_system_state.ble_an_read_state = BLEAnalogReadState::IDLE;
+        // }
     }
     vTaskDelete(NULL);
 }
@@ -162,7 +197,18 @@ extern "C" void app_main(void)
         NULL,                 // Task parameter
         tskIDLE_PRIORITY + 1, // Priority
         NULL,                 // Task handle
-        0                     // CPU core
+        CORE_0                // CPU core
+    );
+    
+    // task to receive command for ble readings
+    xTaskCreatePinnedToCore(
+        analog_action_task,   // Task function
+        "Analog Action Task", // Task name (corrected name)
+        4096,                 // Stack size (bytes) - increased for helper::printf
+        NULL,                 // Task parameter
+        tskIDLE_PRIORITY + 1, // Priority
+        NULL,                 // Task handle
+        CORE_0                // CPU core
     );
     
     matrix_test();

@@ -24,7 +24,7 @@ DataSet g_dataset_a;
 DataSet g_dataset_b;
 
 volatile uint32_t g_cycle_count = 0;
-volatile uint32_t g_cycle_nrun = 1;
+volatile uint32_t g_cycle_nrun = 10000;
 
 // Track which set is currently active in the loop
 volatile SignalSet g_active_set = SignalSet::SET_A;
@@ -199,10 +199,12 @@ static void signal_loop_task(void* arg) {
             
             // trigger analog reading if needed
             if (i == 0 && g_system_state.ble_an_read_state == BLEAnalogReadState::IDLE) {
-                // TODO: Implement analog read trigger
                 g_cycle_count = (g_cycle_count + 1) % g_cycle_nrun;
                 if (g_cycle_count == 0) {
+                    // TODO: Implement analog read trigger
                     g_system_state.ble_an_read_state = BLEAnalogReadState::READING;
+                    
+                    xSemaphoreGive(sem_analog_read_trigger);
                 }
             }
         }
@@ -247,7 +249,7 @@ void signal_start_continuous() {
         NULL,               
         10,                 
         &s_signal_task_handle, 
-        1                   
+        CORE_1                   
     );
 }
 

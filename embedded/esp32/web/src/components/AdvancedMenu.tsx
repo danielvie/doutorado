@@ -21,7 +21,8 @@ enum EMATRIX {
 function AdvancedMenu(props: IProps) {
 
     const [chunk, set_chunk] = useState('1')
-    const [cycles, set_cycles] = useState('100')
+    const [cycles, set_cycles] = useState('10000')
+    const [monitor_period_ms, set_monitor_period_ms] = useState('500')
 
     function handle_status_matrix(matrix: EMATRIX) {
         if (matrix == EMATRIX.A) {
@@ -42,6 +43,12 @@ function AdvancedMenu(props: IProps) {
         const value = e.target.value
         
         set_cycles(value)
+    }
+
+    function handle_set_monitor_period_ms(e: React.ChangeEvent<HTMLInputElement>) {
+        const value = e.target.value
+        
+        set_monitor_period_ms(value)
     }
     
     function handle_log_last(chunk: number) {
@@ -67,7 +74,10 @@ function AdvancedMenu(props: IProps) {
                 <input type="number" className="h-10 w-14 p-2" onChange={handle_set_chunk} value={chunk} />
 
                 <span>cycle_nrun:</span>
-                <input id="in-alpha" type="number" className="h-10 w-14 p-2" onChange={handle_set_cycles} value={cycles} />
+                <input id="in-alpha" type="number" className="h-10 w-20 p-2" onChange={handle_set_cycles} value={cycles} />
+
+                <span>monitor period (ms):</span>
+                <input id="in-alpha" type="number" className="h-10 w-20 p-2" onChange={handle_set_monitor_period_ms} value={monitor_period_ms} />
             </div>
 
 
@@ -102,7 +112,10 @@ function AdvancedMenu(props: IProps) {
             <div className="flex gap-2">
                 <button onClick={() => ble_send_command("BLE_READ_ON")} className="btn">BLE_READ_ON</button>
                 <button onClick={() => ble_send_command("BLE_READ_OFF")} className="btn">BLE_READ_OFF</button>
-                <button onClick={() => ble_send_command(`CYCLE_NRUN:${cycles}`)} className="btn">SET CYCLES ({cycles})</button>
+            </div>
+            <div className="flex gap-2">
+                <button onClick={() => ble_send_command(`CYCLES:${cycles}`)} className="btn">SET CYCLES ({cycles})</button>
+                <button onClick={() => ble_send_command(`AN_MONITOR_MS:${monitor_period_ms}`)} className="btn">AN MONITOR MS ({monitor_period_ms})</button>
             </div>
 
             <div className="flex gap-2">

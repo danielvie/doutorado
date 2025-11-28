@@ -9,6 +9,12 @@
 
 #include "helper_common.h"
 
+// .. globals
+volatile uint32_t g_analog_monitor_period_ms = 500;
+
+// .. semaphore
+SemaphoreHandle_t sem_analog_read_trigger;
+
 LogDuration g_log_duration = {
     .read_and_send_analog_us = -42,
     .matrix_multiply_us = -42,

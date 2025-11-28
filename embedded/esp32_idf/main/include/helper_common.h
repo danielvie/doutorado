@@ -12,7 +12,19 @@
 
 #include "helper_led.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
 
+#define CORE_0 0
+#define CORE_1 1
+
+// .. globals
+extern volatile uint32_t g_analog_monitor_period_ms;
+
+
+// .. defining semaphore for reading data
+extern SemaphoreHandle_t sem_analog_read_trigger;
+
+// .. data structures
 struct LogDuration {
     int64_t read_and_send_analog_us;
     int64_t matrix_multiply_us;
@@ -54,6 +66,8 @@ struct SystemState {
 };
 
 extern volatile SystemState g_system_state;
+
+
 
 /**
  * Binary representation structure for digital output control

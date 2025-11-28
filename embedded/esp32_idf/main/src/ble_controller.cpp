@@ -171,6 +171,10 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
             ble_router_blink_n(blink_d1);
         } else if (message_lower == "blink") {
             ble_router_blink();
+        } else if (sscanf(message_lower.c_str(), "cycles:%lu", &g_cycle_nrun) == 1) {
+            ESP_LOGI(TAG, "Setting `g_cycle_nrun= %d`", g_cycle_nrun);
+        } else if (sscanf(message_lower.c_str(), "an_monitor_ms:%lu", &g_analog_monitor_period_ms) == 1) {
+            ESP_LOGI(TAG, "Setting `g_analog_monitor_period_ms = %d`", g_analog_monitor_period_ms);
         } else if (message_lower == "on") {
             ble_router_led_on(msg);
         } else if (message_lower == "off") {
@@ -317,6 +321,32 @@ void ble_router_message_set_alpha(std::string& message) {
     g_ds_update_pending = true; // mark for set update
 }
 
+void ble_router_status(void) {
+    // status_matrix_a
+    
+    auto msg = std::make_unique<NoteData>(NOTE_BLE_BUFFER_SIZE);
+    
+    // DataSet* ds = get_dataset_active();
+    
+    auto is_valid = [](DataSet& ds_) {
+        return matrix_isvalid(ds_.gain_k) ? std::string("valid") : std::string("not valid");
+    };
+    
+    note_add_text(*msg, "\nSTATUS\n");
+    note_add_text(*msg, "\n== status ==\n");
+    note_add_text(*msg, "active          : %s\n", get_label(g_active_set).c_str());
+    note_add_text(*msg, "matrix a        : %s\n", is_valid(g_dataset_a).c_str());
+    note_add_text(*msg, "matrix b        : %s\n", is_valid(g_dataset_b).c_str());
+    note_add_text(*msg, "signal state    : %s\n", get_label(g_system_state.signal_state).c_str());
+    note_add_text(*msg, "ble state       : %s\n", get_label(g_system_state.ble_an_read_state).c_str());
+    note_add_text(*msg, "g_cycles_nrun   : %d\n", g_cycle_count);
+    note_add_text(*msg, "g_cycles_nrun   : %d\n", g_cycle_nrun);
+    note_add_text(*msg, "g_an_monitor_ms : %d\n", g_analog_monitor_period_ms);
+
+    note_logi(*msg, TAG);
+    note_ble_send(*msg);
+}
+
 void ble_router_status_matrix(SignalSet set) {
     // status_matrix_a
     
@@ -332,29 +362,6 @@ void ble_router_status_matrix(SignalSet set) {
     note_add_text(*msg, "\nSTATUS\n");
     note_add_text(*msg, "\n== status matrix %s ==\n", get_label(set).c_str());
     note_add_matrix(*msg, ds->gain_k);
-
-    note_logi(*msg, TAG);
-    note_ble_send(*msg);
-}
-
-void ble_router_status(void) {
-    // status_matrix_a
-    
-    auto msg = std::make_unique<NoteData>(NOTE_BLE_BUFFER_SIZE);
-    
-    // DataSet* ds = get_dataset_active();
-    
-    auto is_valid = [](DataSet& ds_) {
-        return matrix_isvalid(ds_.gain_k) ? std::string("valid") : std::string("not valid");
-    };
-    
-    note_add_text(*msg, "\nSTATUS\n");
-    note_add_text(*msg, "\n== status ==\n");
-    note_add_text(*msg, "active       : %s\n", get_label(g_active_set).c_str());
-    note_add_text(*msg, "matrix a     : %s\n", is_valid(g_dataset_a).c_str());
-    note_add_text(*msg, "matrix b     : %s\n", is_valid(g_dataset_b).c_str());
-    note_add_text(*msg, "signal state : %s\n", get_label(g_system_state.signal_state).c_str());
-    note_add_text(*msg, "ble state    : %s\n", get_label(g_system_state.ble_an_read_state).c_str());
 
     note_logi(*msg, TAG);
     note_ble_send(*msg);

@@ -90,6 +90,7 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
         borderWidth: 2,
         pointRadius: 0, // Hide individual data points for smoother appearance
         fill: false, // Don't fill area under the line
+        tension: 0, // Disable curve softening (spline)
       },
       {
         label: "an5 -> v_c1", // Voltage across capacitor 1
@@ -98,6 +99,7 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
         borderWidth: 2,
         pointRadius: 0, // Hide individual data points for smoother appearance
         fill: false, // Don't fill area under the line
+        tension: 0, // Disable curve softening (spline)
       },
       {
         label: "an6 -> v_c2", // Voltage across capacitor 2
@@ -106,8 +108,15 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
         borderWidth: 2,
         pointRadius: 0, // Hide individual data points for smoother appearance
         fill: false, // Don't fill area under the line
+        tension: 0, // Disable curve softening (spline)
       },
     ],
+  };
+
+  const options = {
+    animation: false as const,
+    responsive: true,
+    maintainAspectRatio: false,
   };
   
   function fun_process_scale(value: string): string {
@@ -175,8 +184,8 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
       
       <div className="bg-info w-full h-[2px] my-2"></div>
 
-      <div className="bg-gray-4 p-3 rounded-md">
-        <Line data={chartData} />
+      <div className="bg-gray-4 p-3 rounded-md h-64">
+        <Line data={chartData} options={options} />
       </div>
 
       <div className="bg-info w-full h-[2px] my-2"></div>
