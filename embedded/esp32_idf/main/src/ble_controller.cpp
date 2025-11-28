@@ -339,8 +339,7 @@ void ble_router_status(void) {
     note_add_text(*msg, "matrix b        : %s\n", is_valid(g_dataset_b).c_str());
     note_add_text(*msg, "signal state    : %s\n", get_label(g_system_state.signal_state).c_str());
     note_add_text(*msg, "ble state       : %s\n", get_label(g_system_state.ble_an_read_state).c_str());
-    note_add_text(*msg, "g_cycles_nrun   : %d\n", g_cycle_count);
-    note_add_text(*msg, "g_cycles_nrun   : %d\n", g_cycle_nrun);
+    note_add_text(*msg, "cycles          : %d of %d\n", g_cycle_count, g_cycle_nrun);
     note_add_text(*msg, "g_an_monitor_ms : %d\n", g_analog_monitor_period_ms);
 
     note_logi(*msg, TAG);
