@@ -2,31 +2,31 @@ function [y,t,m,dtk_out] = run(self, nsim)
     % Main simulation loop with MPC control
     % Runs nsim simulation cycles with optional MPC control
     
-    % ========== INITIALIZATION ==========
+    % initialization
     [y, t, m, dtk_out, config, simulation_state] = initialize_simulation(self, nsim);
     
-    % ========== SIMULATION LOOP ==========
+    % simulation loop
     for i = 1:nsim
         
-        % ========== MPC CONTROL COMPUTATION ==========
+        % mpc control computation
         if simulation_state.mpc_on
-            [dtk, exitflag, time_qp, simulation_state] = compute_mpc_control_cycle(self, config, simulation_state);
+            [dtk, exitflag, time_qp, simulation_state] = compute_control(self, config, simulation_state);
             
-            % ========== CONSTRAINT APPLICATION ==========
+            % constraint application
             [config, time_us] = apply_time_constraints(self, config, dtk);
             
-            % ========== DATA LOGGING ==========
+            % data logging
             log_simulation_data(self, config, simulation_state, dtk, exitflag, time_qp, time_us);
         else
             dtk = zeros([numel(config.Omega)-1, 1]);
         end
         
-        % ========== SIMULATION CYCLE EXECUTION ==========
+        % simulation cycle execution
         [y, t, m, dtk_out, config, simulation_state] = execute_simulation_cycle(self, config, y, t, m, dtk_out, dtk, i, simulation_state);
     end
 end
 
-%% ========== HELPER FUNCTIONS ==========
+%% helper functions
 
 function [y, t, m, dtk_out, config, simulation_state] = initialize_simulation(self, nsim)
     % Initialize all simulation variables and state
@@ -60,34 +60,40 @@ function [y, t, m, dtk_out, config, simulation_state] = initialize_simulation(se
     simulation_state.dtk_prev = zeros([numel(config.Omega)-1, 1]);
 end
 
-function [dtk, exitflag, time_qp, simulation_state] = compute_mpc_control_cycle(self, config, simulation_state)
+function [dtk, exitflag, time_qp, simulation_state] = compute_control(self, config, simulation_state)
     % Compute MPC control signal for current cycle
     
     time_qp = tic;
     
-    if self.m_state_mode == Enums.StateMode.AUGMENTED
-        % Augmented state mode with Nd counter
-        simulation_state.Nd_counter = simulation_state.Nd_counter + 1;
-        
-        if simulation_state.Nd_counter < simulation_state.Nd 
-            % Repeat previous control until Nd is reached
-            dtk = simulation_state.dtk_prev;
-            exitflag = 44; % flag indicating value is not computed
-        else
-            % Compute new control
-            [dtk, exitflag] = compute_proportional_control(config, simulation_state.x0);
-            simulation_state.Nd_counter = 1;
-        end
-    else
-        % Original state mode
-        [dtk, exitflag] = compute_proportional_control(config, simulation_state.x0);
+    switch self.m_state_mode
+        case Enums.StateMode.ORIGINAL
+            % Original state mode
+            [dtk, exitflag] = compute_control_proportional(config, simulation_state.x0);
+
+        case Enums.StateMode.AUGMENTED
+            % Augmented state mode with Nd counter
+            simulation_state.Nd_counter = simulation_state.Nd_counter + 1;
+            
+            if simulation_state.Nd_counter < simulation_state.Nd
+                % Repeat previous control until Nd is reached
+                dtk = simulation_state.dtk_prev;
+                exitflag = 44; % flag indicating value is not computed
+            else
+                % Compute new control
+                [dtk, exitflag] = compute_control_proportional(config, simulation_state.x0);
+                simulation_state.Nd_counter = 1;
+            end
+            
+        otherwise
+            error('Unkown StateMode: %s', string(self.m_state_mode));
+            
     end
-    
+
     % Update previous control
     simulation_state.dtk_prev = dtk;
 end
 
-function [dtk, exitflag] = compute_proportional_control(config, x0)
+function [dtk, exitflag] = compute_control_proportional(config, x0)
     % Compute proportional control law
     ek = x0 - config.mpc.x_target;
     k = config.mpc.K;
