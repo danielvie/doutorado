@@ -1,8 +1,8 @@
 classdef Simulation < handle
     properties
         m_config;
+        m_config_mpc;
         m_set_alpha_cache;
-        m_mpc_config;
         m_state_mode;
         m_log;
     end
@@ -26,8 +26,8 @@ classdef Simulation < handle
                 self.set_config(sim_name);
             end
             
-            % default mpc_config
-            self.m_mpc_config = self.get_mpc_config();
+            % default config_mpc
+            self.m_config_mpc = self.get_config_mpc();
             
             % default state mode
             self.m_state_mode = Enums.StateMode.ORIGINAL;
@@ -52,6 +52,8 @@ classdef Simulation < handle
         % .. setters
         success = set_config(self, sim_name);
 
+        set_config_mpc(self, config_mpc);
+
         set_offset(self, offset);
 
         set_traj_phase_with_iref(self, iref);
@@ -62,7 +64,7 @@ classdef Simulation < handle
         save_set_alpha_cache(self);
         
         % .. getters
-        mpc_config = get_mpc_config(self);
+        config_mpc = get_config_mpc(self);
         [Phi, Gamma] = get_phi_gamma(self);
         c = get_switching_constraints(self);
 

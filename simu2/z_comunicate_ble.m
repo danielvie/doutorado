@@ -15,10 +15,10 @@ s.m_state_mode = Enums.StateMode.AUGMENTED;
 
 % s.set_alpha_and_mpc_cached(0.5);
 
-mpc_config = s.get_mpc_config();
-mpc_config.Nd = 15;
-mpc_config.Np = 25;
-s.set_mpc_config(mpc_config);
+config_mpc = s.get_config_mpc();
+config_mpc.Nd = 15;
+config_mpc.Np = 25;
+s.set_config_mpc(config_mpc);
 s.set_mpc();
 
 b.simulation = s;
@@ -43,7 +43,7 @@ b.set_control_on(true);
 % b.set_verbose(false);
 
 
-b.set_cycles_nrun(mpc_config.Nd);
+b.set_cycles_nrun(config_mpc.Nd);
 b.s(0.5);
 b.msg_start();
 

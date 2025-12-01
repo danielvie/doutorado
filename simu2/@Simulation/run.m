@@ -55,7 +55,7 @@ function [y, t, m, dtk_out, config, simulation_state] = initialize_simulation(se
     simulation_state.t0 = 0.0;
     simulation_state.x0 = config.x0;
     simulation_state.mpc_on = isfield(config, 'mpc') && config.mpc.on == 1;
-    simulation_state.Nd = self.m_mpc_config.Nd;
+    simulation_state.Nd = self.m_config_mpc.Nd;
     simulation_state.Nd_counter = 1;
     simulation_state.dtk_prev = zeros([numel(config.Omega)-1, 1]);
 end

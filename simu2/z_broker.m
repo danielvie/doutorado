@@ -11,10 +11,10 @@ s = Simulation();
 s.set_config(Enums.SimName.LAB_CIRCUIT);
 s.m_state_mode = Enums.StateMode.AUGMENTED;
 
-mpc_config = s.get_mpc_config();
-mpc_config.Nd = 15;
-mpc_config.Np = 25;
-s.set_mpc_config(mpc_config);
+config_mpc = s.get_config_mpc();
+config_mpc.Nd = 15;
+config_mpc.Np = 25;
+s.set_config_mpc(config_mpc);
 s.set_mpc();
 
 b.simulation = s;
@@ -23,7 +23,7 @@ b.s(0.5);
 
 b.set_control_on(false);
 
-b.set_cycles_nrun(mpc_config.Nd);
+b.set_cycles_nrun(config_mpc.Nd);
 % b.msg_start();
 
 % broker commands:

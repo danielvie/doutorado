@@ -17,10 +17,10 @@ function set_mpc(self)
     % - Computes MPC optimization matrices and constraints.
     % - Creates an MPC configuration structure and updates the simulation object.
     
-    mpc_config = self.m_mpc_config;
+    config_mpc = self.m_config_mpc;
 
-    Np = mpc_config.Np; % Default prediction horizon if not provided
-    Nd = mpc_config.Nd; % Default repeated controls if not provided
+    Np = config_mpc.Np; % Default prediction horizon if not provided
+    Nd = config_mpc.Nd; % Default repeated controls if not provided
     
     % reading config values
     config = self.m_config;
