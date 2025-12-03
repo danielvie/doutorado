@@ -1,5 +1,15 @@
 
 
+Tasks:
+    ☐ remover intrucoes do template
+    ☐ adicionar informacoes Zenodo no artigo (DOI)
+    ☐ Secao 1: Terminar contextualizacao teorica
+    ☐ Secao 2: Explicar explicitamente o motivo da utilizacao de dois MOSFETs para implementar as chaves do meio
+    ☐ Secao 5: Expander o texto. Esta muito curto. Necessario um "passo-a-passo" da montagem
+    ☐ Secao 5: explicar o uso do KiCad
+    ☐ Secao 5: Explicar instalacao dos rubber pads e jumper wires para pontos de teste
+    ☐ Secao 5: corrigir referencias quebradas
+    ☐ Secao 7: secao esta vazia
 
 Tasks today:
     ✔ add description of how to use the software @done(25-08-31 19:52)
@@ -8,12 +18,7 @@ Tasks today:
         ✔ 2. send custom messages @done(25-08-31 19:52)
         ✔ 3. time signal and mode signal @done(25-08-31 19:52)
         ✔ 4. all up, all down, start signal @done(25-08-31 19:52)
-    ☐ create zenodo account and upload files
-
-
-
-
-
+    ✔ create zenodo account and upload files @done(25-12-03 00:10)
 
 Tasks artigo:
     ☐ #artigo Fotos e biografias.
