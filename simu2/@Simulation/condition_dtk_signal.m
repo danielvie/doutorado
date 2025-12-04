@@ -1,76 +1,46 @@
-function [dtk_us_new, ts_us_final] = condition_dtk_signal(time_us, dtk_us, time_constraint_us)
+function [control_dtk_prime, time_prime] = condition_dtk_signal(time_increment, control_dtk, min_gap)
+    % time_increment: Increment array [N-1 x 1]
+    % control_dtk: Diff array [N-2 x 1]
+    % min_gap: Scalar minimum gap required
+
+    % time_reference: Reference array [N x 1]
+    time_reference = Utils.time_array_from_diff(time_increment);
+
+    % 1. Create the "Augmented" control_dtk that aligns with time_reference
+    time_control_aug = [0; control_dtk(:); 0]; 
     
-    dtk_len = numel(dtk_us);
-    time_us_len = numel(time_us);
-    ts_us_len = time_us_len+1;
-
-    % create ts_us_ref
-    ts_us_ref = zeros(1, dtk_len+2);
-    ts_us_ref(end) = sum(time_us);
-    for i = 1:dtk_len
-        ts_us_ref(i+1) = ts_us_ref(i) + time_us(i);
-    end
-
-    % normalize dtk to the cycle range
-    if sum(dtk_us) > ts_us_ref(end)
-        dtk_us = dtk_us/sum(dtk_us) * ts_us_ref(end);
-    end
-
-    % impose constraint on dtk_us based on time_us
-    for i = 1:dtk_len
-        if (time_us(i) + dtk_us(i) < time_constraint_us)
-            dtk_us(i) = time_constraint_us - time_us(i);
-        end
-    end
-
-    % adjust ts_us with dtk_us
-    ts_us = ts_us_ref;
-    for i = 1:dtk_len
-        ts_us(i+1) = ts_us(i+1) + dtk_us(i);
-    end
-
-    % impose time constraint for `ts_us`
-    for i = 1:(ts_us_len-2)
-        if (ts_us(i+1) - ts_us(i)) < time_constraint_us
-            ts_us(i+1) = ts_us(i) + time_constraint_us;
-        end
-    end
-
-    % adjust final time
-    ts_us_end = ts_us(end);
-    if ts_us(end-1) > ts_us_end
-        ts_us(1:end-1) = ts_us(1:end-1)/ts_us(end-1)*(ts_us_end - time_constraint_us*dtk_len);
-    end
-
-    % impose time constraint for `ts_us`
-    for i = 1:(ts_us_len-1)
-        if (ts_us(i+1) - ts_us(i)) < time_constraint_us
-            ts_us(i+1) = ts_us(i) + time_constraint_us;
-        end
-    end
-
-    dtk_us_new = dtk_us*0;
-    for i = 1:dtk_len
-        dtk_us_new(i) = ts_us(i+1) - ts_us_ref(i+1);
-    end
-
-    ts_us_final = ts_us_ref;
-    for i = 1:dtk_len
-        ts_us_final(i+1) = ts_us_final(i+1) + dtk_us_new(i);
-    end
-
-    ts_us_final_2 = zeros(1, time_us_len);
+    % 2. Calculate the existing gaps in time_reference
+    gaps_time_ref = diff(time_reference(:));
     
-    time_us_2 = time_us;
-    for i = 1:dtk_len
-        time_us_2(i) = time_us_2(i) + dtk_us_new(i);
+    % 3. Calculate how control_dtk affects the gaps
+    gap_change = diff(time_control_aug);
+    
+    % We only care when gap_change is negative (shrinking the gap).
+    % When gap_change < 0, dividing flips the inequality:
+    % alpha <= (min_gap - gaps_time_ref) / gap_change
+    alpha = 1.0; % Start assuming we can apply 100% of control_dtk
+    
+    % Find indices where control_dtk is trying to shrink the gap
+    shrinking_indices = gap_change < 0;
+    
+    if any(shrinking_indices)
+        % Calculate limits for these specific gaps
+        numerator = min_gap - gaps_time_ref(shrinking_indices);
+        denominator = gap_change(shrinking_indices);
+        
+        max_possible_alphas = numerator ./ denominator;
+        
+        % The strict limit is the minimum of all allowed alphas
+        limit = min(max_possible_alphas);
+        
+        % We clamp alpha between 0 and 1. 
+        % (If limit < 0, it means even 0% of control_dtk isn't enough, 
+        % likely meaning original time_reference violated constraints).
+        alpha = max(0, min(1, limit));
     end
-
-    for i = 1:dtk_len
-        ts_us_final_2(i+1) = ts_us_final_2(i) + time_us_2(i);
-    end
-
-    % disp("ts_us_final_2:");
-    % disp(ts_us_final_2);
-
+    
+    % 4. Apply the conditioned control 
+    time_prime = time_reference(:) + alpha * time_control_aug;
+    control_dtk_prime = alpha*time_control_aug(2:end-1);
 end
+    

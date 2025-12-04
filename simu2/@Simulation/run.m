@@ -110,17 +110,15 @@ function [config, time_us] = apply_time_constraints(self, config, dtk)
     time_constraint_us = self.m_config.c_time(1) * 1e6;
     
     % Apply constraints using fix_dtk function
-    dtk_us_i = round(dtk_us);
-    dtk_us = self.condition_dtk_signal(time_us, dtk_us_i, time_constraint_us);
-    
+    dtk_us = self.condition_dtk_signal(time_us, dtk_us, time_constraint_us);
+    dtk_us = round(dtk_us);
+
     % Compute new time vector
     Ts = self.compute_ts_from_dtk(self.m_config, dtk_us * 1e-6);
     
     % Validate time vector (ensure no negative time steps)
     ts_us_diff = diff(Ts * 1e6);
-    if any(ts_us_diff < 0)
-        error("ASSERT :: time cannot be negative!");
-    end
+    assert(all(ts_us_diff > 0), "apply_time_constraints :: time cannot be negative!");
     
     % Update configuration with new time vector
     config.Ts = Ts;
