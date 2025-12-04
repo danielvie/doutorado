@@ -3,32 +3,31 @@ function [y,t,m,dtk_out] = run(self, nsim)
     % Runs nsim simulation cycles with optional MPC control
     
     % initialization
-    [y, t, m, dtk_out, config, simulation_state] = initialize_simulation(self, nsim);
+    [y, t, m, dtk_out, config, simulation_state] = run_initialize_simulation(self, nsim);
     
     % simulation loop
     for i = 1:nsim
         
         % mpc control computation
         if simulation_state.mpc_on
-            [dtk, exitflag, time_qp, simulation_state] = compute_control(self, config, simulation_state);
+            [dtk, exitflag, time_qp, simulation_state] = run_compute_control(self, config, simulation_state);
             
             % constraint application
-            [config, time_us] = apply_time_constraints(self, config, dtk);
+            [config, time_us] = run_apply_time_constraints(self, config, dtk);
             
             % data logging
-            log_simulation_data(self, config, simulation_state, dtk, exitflag, time_qp, time_us);
+            run_log_simulation_data(self, config, simulation_state, dtk, exitflag, time_qp, time_us);
         else
             dtk = zeros([numel(config.Omega)-1, 1]);
         end
         
         % simulation cycle execution
-        [y, t, m, dtk_out, config, simulation_state] = execute_simulation_cycle(self, config, y, t, m, dtk_out, dtk, i, simulation_state);
+        [y, t, m, dtk_out, config, simulation_state] = run_execute_simulation_cycle(self, config, y, t, m, dtk_out, dtk, i, simulation_state);
     end
 end
 
-%% helper functions
-
-function [y, t, m, dtk_out, config, simulation_state] = initialize_simulation(self, nsim)
+% .. helper functions
+function [y, t, m, dtk_out, config, simulation_state] = run_initialize_simulation(self, nsim)
     % Initialize all simulation variables and state
     
     % Output array dimensions
@@ -60,7 +59,7 @@ function [y, t, m, dtk_out, config, simulation_state] = initialize_simulation(se
     simulation_state.dtk_prev = zeros([numel(config.Omega)-1, 1]);
 end
 
-function [dtk, exitflag, time_qp, simulation_state] = compute_control(self, config, simulation_state)
+function [dtk, exitflag, time_qp, simulation_state] = run_compute_control(self, config, simulation_state)
     % Compute MPC control signal for current cycle
     
     time_qp = tic;
@@ -101,7 +100,7 @@ function [dtk, exitflag] = compute_control_proportional(config, x0)
     exitflag = 1;
 end
 
-function [config, time_us] = apply_time_constraints(self, config, dtk)
+function [config, time_us] = run_apply_time_constraints(self, config, dtk)
     % Apply time constraints to control signal and update configuration
     
     % Get base time vector and convert control to microseconds
@@ -118,7 +117,7 @@ function [config, time_us] = apply_time_constraints(self, config, dtk)
     
     % Validate time vector (ensure no negative time steps)
     ts_us_diff = diff(Ts * 1e6);
-    assert(all(ts_us_diff > 0), "apply_time_constraints :: time cannot be negative!");
+    assert(all(ts_us_diff > 0), "run_apply_time_constraints :: time cannot be negative!");
     
     % Update configuration with new time vector
     config.Ts = Ts;
@@ -127,7 +126,7 @@ function [config, time_us] = apply_time_constraints(self, config, dtk)
     time_us = arrayfun(@round, diff(Ts * 1e6));
 end
 
-function log_simulation_data(self, config, simulation_state, dtk, exitflag, time_qp, time_us)
+function run_log_simulation_data(self, config, simulation_state, dtk, exitflag, time_qp, time_us)
     % Log all simulation data for current iteration
     
     % Update iteration counter
@@ -152,7 +151,7 @@ function log_simulation_data(self, config, simulation_state, dtk, exitflag, time
     self.m_log.run.dtk_prev = [self.m_log.run.dtk_prev; simulation_state.dtk_prev'];
 end
 
-function [y, t, m, dtk_out, config, simulation_state] = execute_simulation_cycle(self, config, y, t, m, dtk_out, dtk, iteration, simulation_state)
+function [y, t, m, dtk_out, config, simulation_state] = run_execute_simulation_cycle(self, config, y, t, m, dtk_out, dtk, iteration, simulation_state)
     % Execute one simulation cycle and update all state variables
     
     modes_len = numel(self.m_config.Omega);
