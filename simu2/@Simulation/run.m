@@ -22,7 +22,7 @@ function [y,t,m,dtk_out] = run(self, nsim)
         end
         
         % simulation cycle execution
-        [y, t, m, dtk_out, config, simulation_state] = run_execute_simulation_cycle(self, config, y, t, m, dtk_out, dtk, i, simulation_state);
+        [y, t, m, dtk_out, config, simulation_state] = run_simulation_cycle(self, config, y, t, m, dtk_out, dtk, i, simulation_state);
     end
 end
 
@@ -67,7 +67,7 @@ function [dtk, exitflag, time_qp, simulation_state] = run_compute_control(self, 
     switch self.m_state_mode
         case Enums.StateMode.ORIGINAL
             % Original state mode
-            [dtk, exitflag] = compute_control_proportional(config, simulation_state.x0);
+            [dtk, exitflag] = run_compute_control_proportional(config, simulation_state.x0);
 
         case Enums.StateMode.AUGMENTED
             % Augmented state mode with Nd counter
@@ -79,7 +79,7 @@ function [dtk, exitflag, time_qp, simulation_state] = run_compute_control(self, 
                 exitflag = 44; % flag indicating value is not computed
             else
                 % Compute new control
-                [dtk, exitflag] = compute_control_proportional(config, simulation_state.x0);
+                [dtk, exitflag] = run_compute_control_proportional(config, simulation_state.x0);
                 simulation_state.Nd_counter = 1;
             end
             
@@ -92,7 +92,7 @@ function [dtk, exitflag, time_qp, simulation_state] = run_compute_control(self, 
     simulation_state.dtk_prev = dtk;
 end
 
-function [dtk, exitflag] = compute_control_proportional(config, x0)
+function [dtk, exitflag] = run_compute_control_proportional(config, x0)
     % Compute proportional control law
     ek = x0 - config.mpc.x_target;
     k = config.mpc.K;
@@ -151,7 +151,7 @@ function run_log_simulation_data(self, config, simulation_state, dtk, exitflag, 
     self.m_log.run.dtk_prev = [self.m_log.run.dtk_prev; simulation_state.dtk_prev'];
 end
 
-function [y, t, m, dtk_out, config, simulation_state] = run_execute_simulation_cycle(self, config, y, t, m, dtk_out, dtk, iteration, simulation_state)
+function [y, t, m, dtk_out, config, simulation_state] = run_simulation_cycle(self, config, y, t, m, dtk_out, dtk, iteration, simulation_state)
     % Execute one simulation cycle and update all state variables
     
     modes_len = numel(self.m_config.Omega);
