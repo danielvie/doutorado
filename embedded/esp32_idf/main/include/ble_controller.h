@@ -58,6 +58,7 @@ void ble_router_log_duration(void);
 void ble_router_message_set_alpha(std::string& message);
 void ble_router_print_active_dataset(void);
 void ble_router_read(std::unique_ptr<NoteData>& msg);
+void ble_router_set_port(uint16_t port, uint16_t value);
 void ble_router_set_signal(std::string& message);
 void ble_router_signal_start();
 void ble_router_signal_stop();

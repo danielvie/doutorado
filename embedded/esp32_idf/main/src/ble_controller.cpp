@@ -171,6 +171,10 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
             ble_router_blink_n(blink_d1);
         } else if (message_lower == "blink") {
             ble_router_blink();
+        } else if (sscanf(message_lower.c_str(), "port:%hu,%hu", &blink_d1, &blink_d2) == 2) {
+            uint16_t port = blink_d1;
+            uint16_t value = blink_d2;
+            ble_router_set_port(port, value);
         } else if (sscanf(message_lower.c_str(), "cycles:%lu", &g_cycle_nrun) == 1) {
             ESP_LOGI(TAG, "Setting `g_cycle_nrun= %d`", g_cycle_nrun);
         } else if (sscanf(message_lower.c_str(), "an_monitor_ms:%lu", &g_analog_monitor_period_ms) == 1) {
@@ -282,6 +286,41 @@ void ble_router_set_signal(std::string& message) {
     note_add_text(*msg, "SIGNAL UPDATED OK");
 
     note_ble_send(*msg);
+}
+
+void ble_router_set_port(uint16_t port, uint16_t value) {
+    ESP_LOGI(TAG, "Setting %d to port %d", value, port);
+
+    switch(port) {
+        case 6:
+            gpio_set_level(PIN_OUT_6, value);
+            break;
+        case 5:
+            gpio_set_level(PIN_OUT_5, value);
+            break;
+        case 4:
+            gpio_set_level(PIN_OUT_4, value);
+            break;
+        case 3:
+            gpio_set_level(PIN_OUT_3, value);
+            break;
+        case 2:
+            gpio_set_level(PIN_OUT_2, value);
+            break;
+        case 1:
+            gpio_set_level(PIN_OUT_1, value);
+            break;
+        default:
+            ESP_LOGE(TAG, "could not find a valid config");
+            break;
+    }
+
+
+    // auto msg = std::make_unique<NoteData>(120);
+    // note_clear(*msg);
+    // note_add_text(*msg, "SIGNAL UPDATED OK");
+
+    // note_ble_send(*msg);
 }
 
 void ble_router_print_active_dataset(void) {
