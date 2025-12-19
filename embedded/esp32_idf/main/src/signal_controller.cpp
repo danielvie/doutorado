@@ -34,7 +34,7 @@ void signal_controller_init() {
     gpio_config_t io_conf = {};
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_OUTPUT;
-    io_conf.pin_bit_mask = (1ULL << PIN_OUT_6) | (1ULL << PIN_OUT_5) | (1ULL << PIN_OUT_4) | (1ULL << PIN_OUT_3) | (1ULL << PIN_OUT_2) | (1ULL << PIN_OUT_1);
+    io_conf.pin_bit_mask = (1ULL << PIN_OUT_6) | (1ULL << PIN_OUT_5) | (1ULL << PIN_OUT_4) | (1ULL << PIN_OUT_6_) | (1ULL << PIN_OUT_2_) | (1ULL << PIN_OUT_1_);
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
     gpio_config(&io_conf);
@@ -43,9 +43,9 @@ void signal_controller_init() {
     gpio_set_level(PIN_OUT_6, 0);
     gpio_set_level(PIN_OUT_5, 0);
     gpio_set_level(PIN_OUT_4, 0);
-    gpio_set_level(PIN_OUT_3, 0);
-    gpio_set_level(PIN_OUT_2, 0);
-    gpio_set_level(PIN_OUT_1, 0);
+    gpio_set_level(PIN_OUT_6_, 0);
+    gpio_set_level(PIN_OUT_2_, 0);
+    gpio_set_level(PIN_OUT_1_, 0);
 
     // 2. Populate Default Pattern into Set A
     g_dataset_a.time_durations[0] = 10; 

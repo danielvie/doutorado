@@ -302,13 +302,13 @@ void ble_router_set_port(uint16_t port, uint16_t value) {
             gpio_set_level(PIN_OUT_4, value);
             break;
         case 3:
-            gpio_set_level(PIN_OUT_3, value);
+            gpio_set_level(PIN_OUT_6_, value);
             break;
         case 2:
-            gpio_set_level(PIN_OUT_2, value);
+            gpio_set_level(PIN_OUT_2_, value);
             break;
         case 1:
-            gpio_set_level(PIN_OUT_1, value);
+            gpio_set_level(PIN_OUT_1_, value);
             break;
         default:
             ESP_LOGE(TAG, "could not find a valid config");

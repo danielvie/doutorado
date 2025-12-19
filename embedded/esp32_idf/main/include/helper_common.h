@@ -21,9 +21,9 @@
 #define PIN_OUT_6  GPIO_NUM_23 // Bit 2 (4)
 #define PIN_OUT_5  GPIO_NUM_22 // Bit 1 (2)
 #define PIN_OUT_4  GPIO_NUM_21 // Bit 0 (1)
-#define PIN_OUT_3  GPIO_NUM_19 // 
-#define PIN_OUT_2  GPIO_NUM_18 // 
-#define PIN_OUT_1  GPIO_NUM_17 // 
+#define PIN_OUT_6_  GPIO_NUM_19 // 
+#define PIN_OUT_2_  GPIO_NUM_18 // 
+#define PIN_OUT_1_  GPIO_NUM_17 // 
 
 
 // .. globals
