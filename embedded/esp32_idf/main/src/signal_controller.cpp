@@ -10,6 +10,11 @@ const uint32_t MASK_OUT_6 = (1U << PIN_OUT_6);
 const uint32_t MASK_OUT_5 = (1U << PIN_OUT_5);
 const uint32_t MASK_OUT_4 = (1U << PIN_OUT_4);
 
+// mask negative
+const uint32_t MASK_OUT_6_ = (1U << PIN_OUT_6_);
+const uint32_t MASK_OUT_5_ = (1U << PIN_OUT_5_);
+const uint32_t MASK_OUT_4_ = (1U << PIN_OUT_4_);
+
 static TaskHandle_t s_signal_task_handle = NULL;
 // static volatile SignalState s_signal_state = SignalState::IDLE;
 
@@ -34,7 +39,7 @@ void signal_controller_init() {
     gpio_config_t io_conf = {};
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_OUTPUT;
-    io_conf.pin_bit_mask = (1ULL << PIN_OUT_6) | (1ULL << PIN_OUT_5) | (1ULL << PIN_OUT_4) | (1ULL << PIN_OUT_6_) | (1ULL << PIN_OUT_2_) | (1ULL << PIN_OUT_1_);
+    io_conf.pin_bit_mask = (1ULL << PIN_OUT_6) | (1ULL << PIN_OUT_5) | (1ULL << PIN_OUT_4) | (1ULL << PIN_OUT_6_) | (1ULL << PIN_OUT_5_) | (1ULL << PIN_OUT_4_);
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
     gpio_config(&io_conf);
@@ -44,8 +49,8 @@ void signal_controller_init() {
     gpio_set_level(PIN_OUT_5, 0);
     gpio_set_level(PIN_OUT_4, 0);
     gpio_set_level(PIN_OUT_6_, 0);
-    gpio_set_level(PIN_OUT_2_, 0);
-    gpio_set_level(PIN_OUT_1_, 0);
+    gpio_set_level(PIN_OUT_5_, 0);
+    gpio_set_level(PIN_OUT_4_, 0);
 
     // 2. Populate Default Pattern into Set A
     g_dataset_a.time_durations[0] = 10; 
@@ -184,17 +189,26 @@ static void signal_loop_task(void* arg) {
         for (int i = 0; i < sz; i++) {
             uint32_t us  = dataset->time_durations[i];
             
-            // clear all 3 pins
-            GPIO.out_w1tc = MASK_OUT_6 | MASK_OUT_5 | MASK_OUT_4;
+            // clear all 6 pins
+            GPIO.out_w1tc = MASK_OUT_6  | MASK_OUT_5  | MASK_OUT_4 |
+                            MASK_OUT_6_ | MASK_OUT_5_ | MASK_OUT_4_;
             
-            // calculate bits
-            GPIO.out_w1ts = (dataset->modes_d6[i] << PIN_OUT_6) | 
-                            (dataset->modes_d5[i] << PIN_OUT_5) | 
-                            (dataset->modes_d4[i] << PIN_OUT_4);
-
             // wait in microseconds 
             if (us > 0) {
-                esp_rom_delay_us(us);
+                esp_rom_delay_us(1);
+            }
+
+            // calculate bits
+            GPIO.out_w1ts =  (dataset->modes_d6[i] << PIN_OUT_6) |
+                            (~dataset->modes_d6[i] << PIN_OUT_6_) |
+                             (dataset->modes_d5[i] << PIN_OUT_5) |
+                            (~dataset->modes_d5[i] << PIN_OUT_5_) |
+                             (dataset->modes_d4[i] << PIN_OUT_4) |
+                            (~dataset->modes_d4[i] << PIN_OUT_4_);
+
+            // wait in microseconds 
+            if (us > 1) {
+                esp_rom_delay_us(us - 1);
             }
             
             // trigger analog reading if needed
@@ -221,6 +235,9 @@ static void signal_loop_task(void* arg) {
     gpio_set_level(PIN_OUT_6, 0);
     gpio_set_level(PIN_OUT_5, 0);
     gpio_set_level(PIN_OUT_4, 0);
+    gpio_set_level(PIN_OUT_6_, 0);
+    gpio_set_level(PIN_OUT_5_, 0);
+    gpio_set_level(PIN_OUT_4_, 0);
     
     led_off();
 
