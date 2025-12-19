@@ -160,6 +160,12 @@ static void signal_loop_task(void* arg) {
     // -------------------------------------------------------
     portDISABLE_INTERRUPTS();
 
+    // Track last applied modes to detect transitions
+    // Initialize to a value that forces a transition on first run (e.g. 2)
+    uint32_t last_d6 = 2;
+    uint32_t last_d5 = 2;
+    uint32_t last_d4 = 2;
+
     while (g_system_state.signal_state == SignalState::RUNNING) {
         
         // ---------------------------------------------------
@@ -189,27 +195,54 @@ static void signal_loop_task(void* arg) {
         for (int i = 0; i < sz; i++) {
             uint32_t us  = dataset->time_durations[i];
             
-            // clear all 6 pins
-            GPIO.out_w1tc = MASK_OUT_6  | MASK_OUT_5  | MASK_OUT_4 |
-                            MASK_OUT_6_ | MASK_OUT_5_ | MASK_OUT_4_;
-            
-            // wait in microseconds 
-            if (us > 0) {
+            // Get current modes (0 or 1)
+            uint32_t d6 = dataset->modes_d6[i] ? 1 : 0;
+            uint32_t d5 = dataset->modes_d5[i] ? 1 : 0;
+            uint32_t d4 = dataset->modes_d4[i] ? 1 : 0;
+
+            // Check for transitions
+            bool change_6 = (d6 != last_d6);
+            bool change_5 = (d5 != last_d5);
+            bool change_4 = (d4 != last_d4);
+
+            // Determine which pins need to go to Dead Time (Low)
+            uint32_t clear_mask = 0;
+            if (change_6) clear_mask |= (MASK_OUT_6 | MASK_OUT_6_);
+            if (change_5) clear_mask |= (MASK_OUT_5 | MASK_OUT_5_);
+            if (change_4) clear_mask |= (MASK_OUT_4 | MASK_OUT_4_);
+
+            // Determine the new state (High pins)
+            uint32_t set_mask = 0;
+            if (d6) set_mask |= MASK_OUT_6; else set_mask |= MASK_OUT_6_;
+            if (d5) set_mask |= MASK_OUT_5; else set_mask |= MASK_OUT_5_;
+            if (d4) set_mask |= MASK_OUT_4; else set_mask |= MASK_OUT_4_;
+
+            // Apply Dead Time if needed
+            if (clear_mask) {
+                GPIO.out_w1tc = clear_mask;
                 esp_rom_delay_us(1);
+                
+                // Apply new state
+                GPIO.out_w1ts = set_mask;
+                
+                // Wait remaining time
+                if (us > 1) {
+                    esp_rom_delay_us(us - 1);
+                }
+            } else {
+                // No transition, just ensure state (redundant but safe)
+                GPIO.out_w1ts = set_mask;
+                
+                // Wait full time
+                if (us > 0) {
+                    esp_rom_delay_us(us);
+                }
             }
 
-            // calculate bits
-            GPIO.out_w1ts =  (dataset->modes_d6[i] << PIN_OUT_6) |
-                            (~dataset->modes_d6[i] << PIN_OUT_6_) |
-                             (dataset->modes_d5[i] << PIN_OUT_5) |
-                            (~dataset->modes_d5[i] << PIN_OUT_5_) |
-                             (dataset->modes_d4[i] << PIN_OUT_4) |
-                            (~dataset->modes_d4[i] << PIN_OUT_4_);
-
-            // wait in microseconds 
-            if (us > 1) {
-                esp_rom_delay_us(us - 1);
-            }
+            // Update last state
+            last_d6 = d6;
+            last_d5 = d5;
+            last_d4 = d4;
             
             // trigger analog reading if needed
             if (i == 0 && g_system_state.ble_an_read_state == BLEAnalogReadState::IDLE) {
