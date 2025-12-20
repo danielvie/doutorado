@@ -13,6 +13,7 @@
 #include "helper_led.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
+#include "esp_cpu.h"
 
 #define CORE_0 0
 #define CORE_1 1

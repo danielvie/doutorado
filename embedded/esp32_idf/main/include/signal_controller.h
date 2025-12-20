@@ -37,6 +37,9 @@ extern DataSet g_dataset_b;
 extern volatile uint32_t g_cycle_count;
 extern volatile uint32_t g_cycle_nrun;
 
+extern volatile uint32_t g_cycle_us_delay_up;
+extern volatile uint32_t g_cycle_us_delay_down;
+
 extern volatile SignalSet g_active_set;
 extern volatile bool g_ds_update_pending;
 extern volatile uint32_t g_cycle_us_delay_up;
