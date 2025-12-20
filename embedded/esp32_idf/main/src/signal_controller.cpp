@@ -34,6 +34,8 @@ volatile SignalSet g_active_set = SignalSet::SET_A;
 // Flag to tell the loop that the OTHER set has new data and we should swap
 volatile bool g_ds_update_pending = false;
 
+volatile uint32_t g_cycle_us_delay_up = 200;
+
 void signal_controller_init() {
     // 1. Configure GPIOs
     gpio_config_t io_conf = {};
@@ -220,7 +222,8 @@ static void signal_loop_task(void* arg) {
             // Apply Dead Time if needed
             if (clear_mask) {
                 GPIO.out_w1tc = clear_mask;
-                esp_rom_delay_us(1); 
+                helper_delay_cycles(g_cycle_us_delay_up);
+                // esp_rom_delay_us(1); 
                 // TODO: 1.16 us subida ou 1.12 us descida. investigar melhora de precisao
                 // TODO: colocar pino de gatilho para debug
                 // TODO: rever logica de inicializacao da ESP

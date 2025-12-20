@@ -100,3 +100,8 @@ int parse_signal(const std::string &s, std::vector<uint32_t> &time, std::vector<
 std::string get_label(SignalSet set);
 std::string get_label(BLEAnalogReadState state);
 std::string get_label(SignalState state);
+
+static inline void __attribute__((always_inline)) helper_delay_cycles(uint32_t cycles) {
+    uint32_t start = esp_cpu_get_cycle_count();
+    while (esp_cpu_get_cycle_count() - start < cycles) { }
+}

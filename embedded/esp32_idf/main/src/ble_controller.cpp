@@ -177,6 +177,10 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
             ble_router_set_port(port, value);
         } else if (sscanf(message_lower.c_str(), "cycles:%lu", &g_cycle_nrun) == 1) {
             ESP_LOGI(TAG, "Setting `g_cycle_nrun= %d`", g_cycle_nrun);
+        } else if (sscanf(message_lower.c_str(), "us_delay_up:%lu", &g_cycle_us_delay_up) == 1) {
+            ESP_LOGI(TAG, "Setting `g_cycle_us_delay_up= %d`", g_cycle_us_delay_up);
+        } else if (sscanf(message_lower.c_str(), "us_delay_down:%lu", &g_cycle_us_delay_down) == 1) {
+            ESP_LOGI(TAG, "Setting `g_cycle_us_delay_down= %d`", g_cycle_us_delay_down);
         } else if (sscanf(message_lower.c_str(), "an_monitor_ms:%lu", &g_analog_monitor_period_ms) == 1) {
             ESP_LOGI(TAG, "Setting `g_analog_monitor_period_ms = %d`", g_analog_monitor_period_ms);
         } else if (message_lower == "on") {
@@ -373,13 +377,14 @@ void ble_router_status(void) {
     
     note_add_text(*msg, "\nSTATUS\n");
     note_add_text(*msg, "\n== status ==\n");
-    note_add_text(*msg, "active          : %s\n", get_label(g_active_set).c_str());
-    note_add_text(*msg, "matrix a        : %s\n", is_valid(g_dataset_a).c_str());
-    note_add_text(*msg, "matrix b        : %s\n", is_valid(g_dataset_b).c_str());
-    note_add_text(*msg, "signal state    : %s\n", get_label(g_system_state.signal_state).c_str());
-    note_add_text(*msg, "ble state       : %s\n", get_label(g_system_state.ble_an_read_state).c_str());
-    note_add_text(*msg, "cycles          : %d of %d\n", g_cycle_count, g_cycle_nrun);
-    note_add_text(*msg, "g_an_monitor_ms : %d\n", g_analog_monitor_period_ms);
+    note_add_text(*msg, "active              : %s\n", get_label(g_active_set).c_str());
+    note_add_text(*msg, "matrix a            : %s\n", is_valid(g_dataset_a).c_str());
+    note_add_text(*msg, "matrix b            : %s\n", is_valid(g_dataset_b).c_str());
+    note_add_text(*msg, "signal state        : %s\n", get_label(g_system_state.signal_state).c_str());
+    note_add_text(*msg, "ble state           : %s\n", get_label(g_system_state.ble_an_read_state).c_str());
+    note_add_text(*msg, "cycles              : %d of %d\n", g_cycle_count, g_cycle_nrun);
+    note_add_text(*msg, "g_an_monitor_ms     : %d\n", g_analog_monitor_period_ms);
+    note_add_text(*msg, "us cycles (up, down): %d\n", g_cycle_us_delay_up, g_cycle_us_delay_down);
 
     note_logi(*msg, TAG);
     note_ble_send(*msg);
