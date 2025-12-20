@@ -35,6 +35,7 @@ volatile SignalSet g_active_set = SignalSet::SET_A;
 volatile bool g_ds_update_pending = false;
 
 volatile uint32_t g_cycle_us_delay_up = 200;
+volatile uint32_t g_cycle_us_delay_down = 200;
 
 void signal_controller_init() {
     // 1. Configure GPIOs
