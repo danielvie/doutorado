@@ -5,15 +5,14 @@ static const char *TAG = "SIG_CTRL";
 // ---------------------------------------------------------------------------
 // HARDWARE CONFIGURATION
 // ---------------------------------------------------------------------------
-
 const uint32_t MASK_OUT_6 = (1U << PIN_OUT_6);
 const uint32_t MASK_OUT_5 = (1U << PIN_OUT_5);
 const uint32_t MASK_OUT_4 = (1U << PIN_OUT_4);
-
-// mask negative
 const uint32_t MASK_OUT_6_ = (1U << PIN_OUT_6_);
 const uint32_t MASK_OUT_5_ = (1U << PIN_OUT_5_);
 const uint32_t MASK_OUT_4_ = (1U << PIN_OUT_4_);
+
+const uint32_t MASK_OUT_SIG = (1U << PIN_OUT_SIG);
 
 static TaskHandle_t s_signal_task_handle = NULL;
 // static volatile SignalState s_signal_state = SignalState::IDLE;
@@ -54,6 +53,7 @@ void signal_controller_init() {
     gpio_set_level(PIN_OUT_6_, 0);
     gpio_set_level(PIN_OUT_5_, 0);
     gpio_set_level(PIN_OUT_4_, 0);
+    gpio_set_level(PIN_OUT_SIG, 0);
 
     // 2. Populate Default Pattern into Set A
     g_dataset_a.time_durations[0] = 10; 
