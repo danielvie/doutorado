@@ -1,140 +1,189 @@
 // Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
+// src/App.tsx
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "./App.css";
-import RealtimeChart, { DataPoint } from "./components/Chart";
-import { _create_signal } from "./helper";
 
-import Control from "./components/Control";
-import AdvancedMenu from "./components/AdvancedMenu";
-import { ble_app_set_status_msg } from "./components/bluetooth";
+// Components
+import RealtimeChart, { DataPoint } from "./components/Chart";
+import MenuAdvancedButtons from "./components/MenuAdvancedButtons";
+import ImageModal from "./components/ImageModal";
+
+// New Modular Components
+import { MenuConnectionToolbar } from "./components/MenuConnectionToolbar";
+import { MenuControlSignal } from "./components/MenuControlSignal";
+import { MenuControlManual } from "./components/MenuControlManual";
+
+// Services
+import {
+  ble_app_set_status_msg,
+  ble_set_fn_probe,
+  ble_is_connected,
+  ble_set_update_status,
+} from "./components/bluetooth";
+
+const initial_time = new Date();
 
 function App() {
+  // --- UI State ---
+  const [showAdvanced, setShowAdvanced] = useState(true);
+  const [showChart, setShowChart] = useState(true);
+  const [showImages, setShowImages] = useState(false);
 
-  const [has_advanced_menu, set_has_advanced_menu] = useState(true);
-  const [advanced_menu_label, set_advanced_menu_label] = useState("advanced menu <<");
-  const [chart_label, set_chart_label] = useState("chart <<");
-  const [has_chart, set_has_chart] = useState(true);
-  const [alpha, set_alpha] = useState("0.5");
-  const [data, set_data] = useState<DataPoint[]>([]);
-  const [images_show, set_images_show] = useState(false);
-  const [images_swap, set_images_swap] = useState(true);
-  const [analog_scale, set_analog_scale] = useState(1.0);
-  const [filter_alpha, set_filter_alpha] = useState(0);
-  const [status_msg, set_status_msg] = useState('.');
+  // --- Logic State ---
+  const [isConnected, setIsConnected] = useState(false);
+  const [connStatusText, setConnStatusText] = useState("Ready");
+  const [statusMsg, setStatusMsg] = useState(".");
+
+  const [alpha, setAlpha] = useState("0.5");
+  const [data, setData] = useState<DataPoint[]>([]);
+
+  // Chart Config
+  const [analogScale] = useState(1.0); // If you need setters, add them
+  const [filterAlpha] = useState(0);
+
+  // --- 1. Global BLE Setup ---
+  useEffect(() => {
+    // A. Bind Loggers
+    ble_app_set_status_msg(setStatusMsg);
+    ble_set_update_status(setConnStatusText);
+
+    // B. Connection Polling (Global)
+    const interval = setInterval(() => {
+      setIsConnected(ble_is_connected());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // --- 2. Data Ingestion ---
+  const handleProbeData = useCallback(
+    (values: { an3: string; an5: string; an6: string }) => {
+      const timeOffset = (
+        new Date().getTime() - initial_time.getTime()
+      ).toString();
+      setData((prev) => [
+        ...prev,
+        {
+          time: timeOffset,
+          an3: parseFloat(values.an3),
+          an5: parseFloat(values.an5),
+          an6: parseFloat(values.an6),
+        },
+      ]);
+    },
+    [],
+  );
 
   useEffect(() => {
-    ble_app_set_status_msg(set_status_msg)
-  }, [])
-  
+    ble_set_fn_probe(handleProbeData);
+  }, [handleProbeData]);
 
-  function handle_toggle_chart() {
-    set_has_chart(v => {
-      // adjust label for the advanced menu
-      const label = v ? "chart >>" : "chart <<"
-      set_chart_label(label)
-
-      // return the toggled value
-      return !v
-    })
-  }
-
-  function handle_toggle_advanced_menu() {
-    set_has_advanced_menu((v) => {
-      // adjust label for the advanced menu
-      const label = v ? "advanced menu >>" : "advanced menu <<"
-      set_advanced_menu_label(label)
-
-      // return the toggled value
-      return !v
-    })
-  }
-  
-  const images_1 = <>
-      <img src="circuit.png" alt="Circuit" className="max-h-[60%] w-10/12" />
-      <img src="hw_esp32_pins.png" alt="ESP Pins" className="max-h-[60%] w-10/12" />
-  </>
-
-  const images_2 = <>
-      <img src="hw_measure_points.png" alt="ESP Pins" className="h-full border-2 border-gray-500" />
-  </>
-  
-  const images = <div className="fixed inset-0 flex items-center justify-center z-50 p-4 rounded-lg shadow-lg bg-panel/80">
-    <div onClick={() => set_images_show(false)} className="flex flex-col h-full space-y-4 items-center">
-      {images_swap ? images_1 : images_2}
-    </div>
-    <div onClick={() => set_images_swap(v => !v)} className="arrow-r absolute left-10/12"></div>
-  </div>
-
-  const col_control = <div>
-    <Control
-      alpha={alpha}
-      set_alpha={set_alpha}
-      data={data}
-      set_data={set_data}
-      set_show_images={set_images_show}
-      analog_scale={analog_scale}
-      set_analog_scale={set_analog_scale}
-      filter_alpha={filter_alpha}
-      set_filter_alpha={set_filter_alpha}
-    ></Control>
-
-    {/* toggle buttons */}
-    <div className="w-[584px] mx-2 p-2 col-span-1 text-left bg-panel rounded-md flex flex-col gap-2">
-      <div>
-        <button onClick={handle_toggle_chart} className="btn info">{chart_label}</button>
-      </div>
-      <div>
-        <button onClick={handle_toggle_advanced_menu} className="btn info">{advanced_menu_label}</button>
-      </div>
-    </div>
-  </div>
-  
-  const col_chart = <div className="col-span-1">
-    {has_chart
-      ?
-      <RealtimeChart
-        data={data.slice(-500)}
-        analog_scale={analog_scale}
-        filter_alpha={filter_alpha}
-      />
-      : ""
-    }
-  </div>
-  
-  const col_advanced_menu = <div className="col-span-1">
-    {has_advanced_menu
-      ? <AdvancedMenu
-        alpha={alpha}
-        set_alpha={set_alpha}
-        status_msg={status_msg}
-        set_status_msg={set_status_msg}
-      ></AdvancedMenu>
-      : ""
-    }
-  </div>
-  
-  const col_status_msg = <div className="col-span-1">
-    <div className="col-span-1 bg-panel rounded-md text-left font-mono whitespace-break-spaces p-3">
-      <button onClick={() => set_status_msg("")} className="cursor-pointer">[clear]</button>
-      {status_msg}
-    </div>
-  </div>
-
+  // --- Render ---
   return (
     <>
-      <div className="grid grid-cols-1 tablet:grid-cols-2 gap-2 p-2 ">
-        {col_control}
-        {col_chart}
-        {col_status_msg}
-        {col_advanced_menu}
+      <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 p-4 max-w-[1600px] mx-auto">
+        {/* === Left Column: CONTROLS === */}
+        <div className="flex flex-col gap-2">
+          <h1 className="text-4xl font-bold text-center mb-2">
+            ESP32 Web Control
+          </h1>
+
+          {/* 1. Global Toolbar */}
+          <MenuConnectionToolbar
+            isConnected={isConnected}
+            data={data}
+            onClearData={() => setData([])}
+            onShowImages={() => setShowImages(true)}
+          />
+
+          {/* 2. Specific Controls */}
+          <MenuControlManual />
+
+          <MenuControlSignal
+            alpha={alpha}
+            setAlpha={setAlpha}
+            isConnected={isConnected}
+          />
+
+          {/* 3. View Toggles */}
+          <div className="p-3 bg-panel-background rounded-md flex gap-2 shadow-sm">
+            <button
+              onClick={() => setShowChart((p) => !p)}
+              className="btn info flex-1"
+            >
+              {showChart ? "Chart >>" : "Chart <<"}
+            </button>
+            <button
+              onClick={() => setShowAdvanced((p) => !p)}
+              className="btn info flex-1"
+            >
+              {showAdvanced ? "Advanced Menu >>" : "Advanced Menu <<"}
+            </button>
+          </div>
+
+          {/* 4. Connection Footer */}
+          <div
+            className={`px-3 py-1 rounded text-center font-bold transition-colors ${
+              isConnected
+                ? "bg-green-900/50 text-green-200"
+                : "bg-red-900/50 text-red-200"
+            }`}
+          >
+            Status: {connStatusText} —{" "}
+            {isConnected ? "CONNECTED" : "DISCONNECTED"}
+          </div>
+        </div>
+
+        {/* === Right Column: DATA & LOGS === */}
+        <div className="flex flex-col gap-2">
+          {/* Chart */}
+          {showChart && (
+            <div className="h-96 tablet:h-auto min-h-[400px]">
+              <RealtimeChart
+                data={data.slice(-500)}
+                analog_scale={analogScale}
+                filter_alpha={filterAlpha}
+              />
+            </div>
+          )}
+
+          {/* System Log */}
+          <div className="bg-panel-background rounded-md p-3 shadow-sm border border-gray">
+            <div className="flex justify-between items-center mb-2 border-b border-bar pb-1">
+              <span className="text-xs text-text-shade uppercase font-bold">
+                System Log
+              </span>
+              <button
+                onClick={() => setStatusMsg("")}
+                className="text-xs text-accent hover:text-accent-shade"
+              >
+                [Clear]
+              </button>
+            </div>
+            <div className="font-mono text-left text-sm whitespace-pre-wrap text-text min-h-[3rem] max-h-40 overflow-y-auto">
+              {statusMsg?.trim().slice(0, 1000) || (
+                <span className="text-text-shade italic">No messages...</span>
+              )}
+            </div>
+          </div>
+
+          {/* Advanced Menu */}
+          {showAdvanced && (
+            <div className="bg-panel-background rounded-md p-4 shadow-sm">
+              <MenuAdvancedButtons
+                alpha={alpha}
+                set_alpha={setAlpha}
+                status_msg={statusMsg}
+                set_status_msg={setStatusMsg}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
-      {images_show ?
-        images
-        : ""
-      }
-
+      {/* Overlays */}
+      <ImageModal isOpen={showImages} onClose={() => setShowImages(false)} />
     </>
   );
 }

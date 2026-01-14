@@ -1,15 +1,101 @@
+@import "tailwindcss";
+
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+@theme {
+    --breakpoint-tablet: 1300px;
+
+    /*https://www.realtimecolors.com/?colors=e6e6e6-262626-184781-dddbff-ff9e3d&fonts=Inter-Inter*/
+    --color-text: oklch(0.92 0 89.88);
+    --color-text-dim: oklch(0.27 0 286.28);
+    --color-text-shade: oklch(0.7 0 286.28);
+
+    --color-background: oklch(0.27 0 0);
+
+    --color-gray: oklch(0.31 0 0);
+    --color-gray-shade: oklch(0.36 0 0);
+    --color-gray-light: oklch(0.6 0 0);
+    --color-gray-dim: oklch(0.25 0 0);
+
+    --color-primary: oklch(0.39 0.11 255.71);
+    --color-primary-shade: oklch(0.45 0.11 255.71);
+
+    --color-secondary: oklch(0.9 0.049 287.92);
+    --color-secondary-shade: oklch(0.8 0.049 287.92);
+
+    --color-accent: oklch(0.67 0.12 71);
+    --color-accent-shade: oklch(0.75 0.12 71);
+
+    --background-image-gradient: linear-gradient(
+        to right,
+        var(--color-primary),
+        var(--color-secondary)
+    );
+
+    --color-error: oklch(0.55 0.16 24.18);
+    --color-error-shade: oklch(0.65 0.16 24.18);
+    --color-success: oklch(0.75 0.15 130.89);
+    --color-success-shade: oklch(0.9 0.12 130.66);
+
+    /* panel */
+    --color-panel-background: var(--color-gray);
+
+    /* input */
+    --color-input-background: var(--color-gray-shade);
+    --color-input-border: var(--color-gray-dim);
+
+    /* miselaneos */
+    --color-info: var(--color-gray-shade);
+    --color-bar: var(--color-gray-light);
+}
+
+/* Custom component styles */
+.btn {
+    @apply p-2 text-xl
+            border-[1px] border-primary-shade rounded-md
+            bg-primary hover:bg-primary-shade
+            transition duration-300;
+}
+
+/* Custom component styles */
+.btn.send {
+    @apply bg-accent text-text-dim border-accent font-mono hover:bg-accent-shade;
+}
+
+.btn.success {
+    @apply text-text-dim border-success bg-success hover:bg-success-shade;
+}
+
+.btn.danger {
+    @apply text-text border-error bg-error hover:bg-error-shade;
+}
+
+.btn.info {
+    @apply font-mono px-2 py-1 border-2 border-gray-dim bg-gray-shade hover:bg-gray;
+}
+
+.input {
+    @apply bg-input-background rounded-md border-2 border-input-border font-mono
+            p-2 min-h-10
+            focus:outline-none focus:border-accent;
+}
+
+:root {
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+
+    color-scheme: light dark;
+    color: hsl(0, 0%, 80%);
+    background-color: var(--color-background);
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }

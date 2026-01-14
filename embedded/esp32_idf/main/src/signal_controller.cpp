@@ -33,8 +33,9 @@ volatile SignalSet g_active_set = SignalSet::SET_A;
 // Flag to tell the loop that the OTHER set has new data and we should swap
 volatile bool g_ds_update_pending = false;
 
-volatile uint32_t g_cycle_us_delay_up = 222;
-volatile uint32_t g_cycle_us_delay_down = 222;
+// delay -> cycle 1/240mhz = 1/240 ~= 4.166 ns
+volatile uint32_t g_cycle_us_delay_up = 215;
+volatile uint32_t g_cycle_us_delay_down = 215;
 
 void signal_controller_init() {
     // 1. Configure GPIOs
