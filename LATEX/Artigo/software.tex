@@ -1,9 +1,108 @@
 \section{Software description}
 
-This chapter will elaborate on the software architecture. It is composed of a two-parts: a high-precision ESP32-based signal generator
-and a web-based remote control panel. This integration enables real-time configuration, control, and monitoring of the hardware
-directly from a web browser via Bluetooth Low Energy (BLE). We will deconstruct the architecture of both the ESP32 firmware
-and the React web application.
+The Software was build using a real-time signal generation engine designed to leverage the 
+ESP32's dual-core architecture and high clock frequency to achieve microsecond-level precision. 
+The system is built using the ESP-IDF framework, which allows for granular control over hardware 
+resources.
+
+
+\subsection{Hardware Configuration and Task Pinning}
+
+To ensure deterministic performance, specific hardware-level configurations are defined in the 
+project using the \textbf{idf menuconfig}.
+
+\begin{itemize}
+    \item \textbf{CPU Frequency:} The system is locked at \textbf{240 MHz} to provide the maximum 
+        timing resolution for the signal generation loops.
+
+    \item \textbf{Dual-Core Execution:} The ESP32's dual-core capability is used to separate 
+        time-critical signal generation from non-deterministic communication.
+
+    \item \textbf{Watchdog Management:} To prevent system resets during continuous signal 
+    generation, the Task Watchdog Timer (TWDT) is explicitly disabled for \textbf{Core 1}
+    (\verb|CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU1|). This allows the signal task to occupy the 
+        CPU cycles without yielding.
+\end{itemize}
+
+\subsection{The Real-Time Signal Engine}
+
+The core logic for signal generation is implemented in \verb|signal_controller.cpp|. This engine avoids 
+high-level APIs in favor of direct hardware manipulation to minimize latency.
+
+\subsubsection{Atomic Register Access and Dead-Time}
+In power electronics, "Dead-Time" is essential to prevent short circuits during switch transitions. 
+The firmware implemented this by clearing all relevant pins before setting new states using atomic
+registers:
+
+\begin{itemize}
+    \item \verb|GPIO.out_w1tc| \textbf{(Write 1 to Clear):}  Immediately pulls the designated pins 
+            \textbf{LOW} to begin the dead-time interval.
+    \item \verb|helper_delay_cycles|: Enforces a precise delay based on CPU clock cycles for the 
+            dead-time duration.
+    \item \verb|GPIO.out_w1ts| \textbf{(Write 1 to Set):} Simultaneously pulls the next set of 
+            pins \textbf{HIGH} once the dead-time has elapsed.
+\end{itemize}
+
+\subsubsection{Double-Buffering Mechanism}
+
+The system utilizes a double-buffering scheme (\verb|g_dataset_a| and \verb|g_dataset_b|) to allow on-the-fly 
+signal updates without halting operation.
+
+The active set is used by the high-priority signal task to generate the current waveform.
+
+The inactive set remains available for the BLE task to write new data received from the user interface.
+
+Once a new pattern is parsed, the \verb|g_ds_update_pending| flag is set. At the beginning of the next 
+signal cycle, the task swaps the active buffer, ensuring a seamless transition.
+
+\subsection{BLE Command Routing}
+
+The communication layer in \verb|ble_controller.cpp| acts as a command router for the hardware. It parses 
+GATT write events and maps them to specific firmware actions:
+
+
+\begin{table}[ht]
+    \centering
+    \caption{Firmware Command Actions}
+    \begin{tabular}{lp{8cm}} % 'l' for left-aligned, 'p{8cm}' for a wrapping column
+        \toprule
+        \textbf{Command Prefix} & \textbf{Firmware Action} \\
+        \midrule
+        SIGNAL: & Parses timing and mode vectors into the inactive dataset. \\
+        \addlinespace
+        SET\_ALPHA: & Automatically calculates the Phase-Shifted Modulation pattern for a given alpha value. \\
+        \addlinespace
+        START / STOP & Transitions the system between RUNNING and IDLE states. \\
+        \addlinespace
+        STATUS & Aggregates system metrics (active set, cycle count, voltages) for transmission to the client. \\
+        \bottomrule
+    \end{tabular}
+    \label{table:firmware_commands}
+\end{table}
+
+\subsubsection{Analog Monitoring and Calibration}
+
+The Analog Task on Core 0 periodically samples the converter voltages. Because the \verb|ESP32 ADC| 
+exhibits non-linear behavior, \verb|helper_analog.cpp| utilizes a linear interpolation lookup table 
+(\verb|esp32_calibration|) to map raw ADC counts to accurate voltage values. These calibrated 
+values are then packaged into BLE notifications for real-time visualization on the web interface.
+
+\vspace{10pt}
+\hrule
+\vspace{10pt}
+
+IK BEN HIER
+
+IK BEN HIER
+
+IK BEN HIER
+
+IK BEN HIER
+
+\vspace{10pt}
+\hrule
+\vspace{10pt}
+
 
 \subsection{System Architecture}
 
@@ -324,4 +423,3 @@ generation). This dual-task structure allows the system to manage sensor inputs 
     \caption{State Diagram of the SW Operation Modes}
     \label{fig:state_diagram}
 \end{figure}
-
