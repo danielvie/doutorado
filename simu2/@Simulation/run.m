@@ -54,51 +54,28 @@ function [y, t, m, dtk_out, config, simulation_state] = run_initialize_simulatio
     simulation_state.t0 = 0.0;
     simulation_state.x0 = config.x0;
     simulation_state.mpc_on = isfield(config, 'mpc') && config.mpc.on == 1;
-    simulation_state.Nd = self.m_config_mpc.Nd;
-    simulation_state.Nd_counter = 1;
+
+    if ~isempty(self.m_controller)
+        self.m_controller.reset();
+    end
+
     simulation_state.dtk_prev = zeros([numel(config.Omega)-1, 1]);
 end
 
 function [dtk, exitflag, time_qp, simulation_state] = run_compute_control(self, config, simulation_state)
     % Compute MPC control signal for current cycle
     
-    time_qp = tic;
-    
-    switch self.m_state_mode
-        case Enums.StateMode.ORIGINAL
-            % Original state mode
-            [dtk, exitflag] = run_compute_control_proportional(config, simulation_state.x0);
-
-        case Enums.StateMode.AUGMENTED
-            % Augmented state mode with Nd counter
-            simulation_state.Nd_counter = simulation_state.Nd_counter + 1;
-            
-            if simulation_state.Nd_counter < simulation_state.Nd
-                % Repeat previous control until Nd is reached
-                dtk = simulation_state.dtk_prev;
-                exitflag = 44; % flag indicating value is not computed
-            else
-                % Compute new control
-                [dtk, exitflag] = run_compute_control_proportional(config, simulation_state.x0);
-                simulation_state.Nd_counter = 1;
-            end
-            
-        otherwise
-            error('Unkown StateMode: %s', string(self.m_state_mode));
-            
+    if isempty(self.m_controller)
+        error('No controller set. Please use s.set_controller()');
     end
+    
+    [dtk, exitflag, info] = self.m_controller.compute_control(simulation_state.x0, config.mpc.x_target);
+    time_qp = info.time_qp;
 
     % Update previous control
     simulation_state.dtk_prev = dtk;
 end
 
-function [dtk, exitflag] = run_compute_control_proportional(config, x0)
-    % Compute proportional control law
-    ek = x0 - config.mpc.x_target;
-    k = config.mpc.K;
-    dtk = -k * ek;
-    exitflag = 1;
-end
 
 function [config, time_us] = run_apply_time_constraints(self, config, dtk)
     % Apply time constraints to control signal and update configuration

@@ -5,6 +5,7 @@ classdef Simulation < handle
         m_set_alpha_cache;
         m_state_mode;
         m_log;
+        m_controller; % Controllers.Controller instance
     end
 
     methods(Hidden = true)
@@ -63,6 +64,8 @@ classdef Simulation < handle
         set_traj_phase_alpha_and_mpc(self, alpha);
         save_set_alpha_cache(self);
         
+        set_controller(self, controller);
+
         % .. getters
         config_mpc = get_config_mpc(self);
         [Phi, Gamma] = get_phi_gamma(self);

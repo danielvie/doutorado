@@ -26,6 +26,12 @@ config_mpc.Np = 25;
 s.set_config_mpc(config_mpc);
 s.set_mpc();
 
+% Setup Controller (Strategy Pattern)
+K = s.get_gain_k();
+% For original mode, use Nd = 1. For Augmented/Hold mode, use config_mpc.Nd
+controller = Controllers.Proportional(K, 1); 
+s.set_controller(controller);
+
 % number of simulation cycles
 nsim = 5000;
 
