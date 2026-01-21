@@ -33,7 +33,7 @@ controller = Controllers.Proportional(K, 1);
 s.set_controller(controller);
 
 % number of simulation cycles
-nsim = 10000;
+nsim = 5000;
 
 % add error in IC
 % s.m_config.x0 = s.m_config.x0 + [0.6; 0.1; 0.1];

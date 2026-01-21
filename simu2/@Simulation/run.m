@@ -9,7 +9,13 @@ function [y,t,m,dtk_out] = run(self, nsim)
     for k = 1:nsim
         
         % A. Control Step: Compute dtk (timing deviation)
-        [dtk, exitflag, qp_info] = self.step_control(state.x0, current_config.mpc.x_target);
+        if current_config.mpc.on
+            [dtk, exitflag, qp_info] = self.step_control(state.x0, current_config.mpc.x_target);
+        else
+             dtk = zeros(numel(current_config.Omega)-1, 1);
+             exitflag = 0;
+             qp_info = struct('time_qp', 0);
+        end
         
         % B. Actuation Step: Convert dtk to cycle timings (Ts)
         [current_config, time_metrics] = self.step_actuation(current_config, dtk);
