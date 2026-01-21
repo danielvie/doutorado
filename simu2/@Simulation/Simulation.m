@@ -12,7 +12,7 @@ classdef Simulation < handle
         set_traj_phase(self, params);
         res = can_compute_phase(self);
     end
-    
+
     methods(Static)
         [dtk_us_new, ts_us_final] = condition_dtk_signal(time_us, dtk_us, time_constraint_us);
     end
@@ -26,10 +26,10 @@ classdef Simulation < handle
             else
                 self.set_config(sim_name);
             end
-            
+
             % default config_mpc
             self.m_config_mpc = self.get_config_mpc();
-            
+
             % default state mode
             self.m_state_mode = Enums.StateMode.ORIGINAL;
 
@@ -45,7 +45,7 @@ classdef Simulation < handle
             log_struct.time_qp = [];
             log_struct.dtk = [];
             log_struct.dtk_prev = [];
-            
+
             self.m_log.run = log_struct;
             self.m_log.signal = log_struct;
         end
@@ -63,7 +63,7 @@ classdef Simulation < handle
 
         set_traj_phase_alpha_and_mpc(self, alpha);
         save_set_alpha_cache(self);
-        
+
         set_controller(self, controller);
 
         % .. getters
@@ -80,13 +80,13 @@ classdef Simulation < handle
 
         % .. simulation
         [y,t,u,m,dtk_out] = run(self, nsim);
-        
+
         [dtk, exitflag, info] = step_control(self, x0, x_target);
         [config, metrics] = step_actuation(self, config, dtk);
-        
+
         [dtk, exitflag, time_qp] = run_mpc(self, state_run, config, x0, dtk_prev);
-        [y,t,m,xr] = sim_cycle(self, config);
-        [y,t,m,xr] = sim_cycle2(self, config);
+        [y, t, m, xr] = sim_cycle_switching(self, config);
+        [y, t, m, u, xr] = sim_cycle_dense(self, config);
 
         [time_us, dtk] = signal_process(self, state, dtk_prev);
 
