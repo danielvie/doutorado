@@ -80,6 +80,10 @@ classdef Simulation < handle
 
         % .. simulation
         [y,t,u,m,dtk_out] = run(self, nsim);
+        
+        [dtk, exitflag, info] = step_control(self, x0, x_target);
+        [config, metrics] = step_actuation(self, config, dtk);
+        
         [dtk, exitflag, time_qp] = run_mpc(self, state_run, config, x0, dtk_prev);
         [y,t,m,xr] = sim_cycle(self, config);
         [y,t,m,xr] = sim_cycle2(self, config);
