@@ -53,7 +53,8 @@ function [y, t, m, dtk_out, config, simulation_state] = run_initialize_simulatio
     simulation_state = struct();
     simulation_state.t0 = 0.0;
     simulation_state.x0 = config.x0;
-    simulation_state.mpc_on = isfield(config, 'mpc') && config.mpc.on == 1;
+    % simplified check knowing config is Data.Config
+    simulation_state.mpc_on = config.mpc.on == 1;
 
     if ~isempty(self.m_controller)
         self.m_controller.reset();

@@ -16,6 +16,8 @@
 
 function config = patino_2()
 
+	config = Data.Config();
+
 	% simulation name 
 	config.sim_name = Enums.SimName.PATINO_2;
 

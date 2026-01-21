@@ -5,6 +5,8 @@
 
 function config = intduplo()
       
+      config = Data.Config();
+
       % simulation name 
       config.sim_name = Enums.SimName.INTEGRADOR_DUPLO;
 

@@ -15,6 +15,8 @@
 %}
 
 function config = lab_circuit()
+    
+    config = Data.Config();
 
 	% simulation name 
 	config.sim_name = Enums.SimName.LAB_CIRCUIT;

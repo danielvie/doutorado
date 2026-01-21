@@ -70,7 +70,7 @@ function [Phi, Gamma] = construcao_modelo_instantes(Ac, Bc, tr, xr, config)
 
     % Gamma(:,N) = (A2*Xr(p,:)' + b2);
     
-    if (isfield(config, 'kawa')) 
+    if ~isempty(config.kawa) 
         if (config.kawa == 1)
             disp('USANDO MODELO EXTENDIDO');
             disp('USANDO MODELO EXTENDIDO');

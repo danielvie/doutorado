@@ -14,7 +14,7 @@ function Ts_out  = quantizacao(self, Ts, type)
     end
 
     % ler valor de quant pelo tipo
-    if isfield(config, name)
+    if ~isempty(config.(name))
         quant = config.(name);
     else 
         quant = -1;
