@@ -49,26 +49,30 @@ s.m_config.mpc.on = false;
 % getting variables from simulation
 vars = Utils.getAllVars();
 
-% creating results object
-res = Results.Patino2(vars);
+% --- NEW RESULTS ARCHITECTURE ---
+% 1. Create Standardized Data Container
+sim_data = Results.SimulationData(vars);
+
+% 2. Create Specialized Plotter
+plotter = Results.BuckBoostPlotter(sim_data);
 
 % saving in workspace
 assignin('base', 's', s);
-assignin('base', 'res', res);
-
-assignin('base', 'log', s.m_log);
-
 
 % plotting states
 figure(1);
-res.plot_xi();
+plotter.plot_states();
 
 % plotting trajectory
 figure(2);
-res.plot_traj();
+plotter.plot_trajectory_comparison();
 
-
-% plotting u signals
+% plotting commands
 figure(3);
-res.plot_u_signals(50);
+plotter.plot_control_signals(1, 50);
+
+% plotting metrics
+stats = sim_data.calculate_metrics();
+disp('Simulation Metrics:');
+disp(stats);
 end
