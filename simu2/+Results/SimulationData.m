@@ -34,8 +34,7 @@ classdef SimulationData < handle
             
             if isfield(vars, 's')
                 self.config = vars.s.m_config;
-                % Note: self.config is a Data.Config object, not a struct.
-                % Access properties directly.
+
                 if ~isempty(self.config.mpc) && isfield(self.config.mpc, 'x_target')
                     self.target = self.config.mpc.x_target;
                 end
