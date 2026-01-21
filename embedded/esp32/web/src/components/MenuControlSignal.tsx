@@ -18,14 +18,14 @@ const ModeDisplay: React.FC<{
         {expanded ? "<< Hide Bits" : "Show Bits >>"}
       </button>
       {expanded && (
-        <div className="flex flex-col gap-2 bg-gray-800 p-2 rounded">
+        <div className="flex flex-col gap-2 bg-gray p-2 rounded">
           {[
             { label: "D4 (u_1)", val: d4 },
             { label: "D5 (u_2)", val: d5 },
             { label: "D6 (u_3)", val: d6 },
           ].map((row) => (
             <div key={row.label} className="flex gap-2 items-center">
-              <span className="w-20 font-mono text-sm text-gray-300">
+              <span className="w-25 font-mono text-sm text-text">
                 {row.label}:
               </span>
               <div className="input w-full font-mono text-sm overflow-x-auto">
@@ -70,7 +70,7 @@ export const MenuControlSignal: React.FC<Props> = ({
       .toFixed(1);
   }, [timeStr]);
 
-  const binValues = useMemo(() => {
+  const bin_values = useMemo(() => {
     const modes = modeStr.split(",");
     const d4: string[] = [],
       d5: string[] = [],
@@ -129,8 +129,8 @@ export const MenuControlSignal: React.FC<Props> = ({
         </button>
       </div>
 
-      <div className="ml-20">
-        <ModeDisplay {...binValues} />
+      <div>
+        <ModeDisplay {...bin_values} />
       </div>
     </div>
   );

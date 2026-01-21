@@ -1,50 +1,57 @@
 @startuml
-hide empty description
-state "Overall System Flow" as Overall_Flow {
-    [*] --> Setup
-    Setup --> BLE_States
-    Setup --> Signal_States
+skinparam monochrome true
+skinparam shadowing false
+
+state "System Initialization" as Init
+[*] --> Init : Power On / Reset
+Init --> Concurrent_Execution : app_init() complete
+
+state Concurrent_Execution {
+  
+  state "Core 0: Management & BLE" as Core0 {
+    [*] --> BLE_Idle
+    
+    BLE_Idle --> Parsing_Command : GATT Write Event
+    state Parsing_Command {
+      [*] --> Check_Prefix
+      Check_Prefix --> Update_Buffer : "SIGNAL:" or "SET_ALPHA:"
+      Update_Buffer --> Signal_Pending : Parse Success\nSet g_ds_update_pending
+      Check_Prefix --> Toggle_State : "START" or "STOP"
+    }
+    Parsing_Command --> BLE_Idle : Command Handled
+    
+    --
+    
+    [*] --> Analog_Idle
+    Analog_Idle --> Sampling : Triggered by Timer/Command
+    Sampling --> Calibrating : Raw ADC Data
+    Calibrating --> Notifying : LUT Interpolation
+    Notifying --> Analog_Idle : BLE Notify Sent
+  }
+
+  ||
+
+  state "Core 1: Signal Engine" as Core1 {
+    [*] --> Signal_Idle
+    
+    Signal_Idle --> Signal_Running : Start Signal Command
+    
+    state Signal_Running {
+      [*] --> Active_Loop
+      Active_Loop --> Buffer_Swap : [g_ds_update_pending == true]
+      Buffer_Swap --> Active_Loop : Pointer Swapped
+      
+      state Active_Loop {
+        state "Dead Time" as DT
+        state "Apply State" as State
+        [*] -> DT : Clear Pins (w1tc)
+        DT -> State : Delay Cycles
+        State -> DT : Set Pins (w1ts)
+      }
+    }
+    
+    Signal_Running --> Signal_Idle : Stop Signal Command
+  }
 }
-
-state "BLE Task States" as BLE_States {
-    state BLE_IDLE
-    state ANALOG_READ
-    state ANALOG_READING
-    state SIGNAL_READING
-
-    BLE_IDLE : No active BLE operations
-    ANALOG_READ : Request to read analog sensors
-    ANALOG_READING : Currently reading analog sensors
-    SIGNAL_READING : Currently processing new signal data
-
-    BLE_IDLE --> ANALOG_READ
-    ANALOG_READ --> ANALOG_READING
-    ANALOG_READING --> BLE_IDLE
-    BLE_IDLE --> SIGNAL_READING
-    SIGNAL_READING --> BLE_IDLE
-}
-
-state "Signal Task States" as Signal_States {
-    state IDLE
-    state HIGH_ALL
-    state SIGNAL_RUN
-
-    IDLE : No signal generation, all outputs low
-    HIGH_ALL : All outputs forced high (constant)
-    SIGNAL_RUN : Active signal pattern generation
-
-    IDLE --> SIGNAL_RUN
-    IDLE --> HIGH_ALL
-    HIGH_ALL --> IDLE
-    SIGNAL_RUN --> IDLE
-    SIGNAL_RUN --> HIGH_ALL
-}
-
-' note bottom of SIGNAL_RUN
-'     Timer ISR manages transitions within
-'     the SIGNAL_RUN state by updating
-'     current_state and setting next alarm.
-'     It also triggers ANALOG_READ state.
-' end note
 
 @enduml

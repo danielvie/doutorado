@@ -1,289 +1,196 @@
-\section{Software description}
+\section{Software Architecture and Implementation}
 
-The Software was build using a real-time signal generation engine designed to leverage the 
-ESP32's dual-core architecture and high clock frequency to achieve microsecond-level precision. 
-The system is built using the ESP-IDF framework, which allows for granular control over hardware 
-resources.
+The software system is designed as a platform for real-time control and experimental monitoring, 
+consisting of a high-precision firmware engine for the ESP32 and a responsive web interface. 
+The integration leverages the Bluetooth Low Energy (BLE) protocol to establish the link between 
+the embedded hardware and the user's browser.
 
+\section{Firmware Design and Hardware-Level Optimization}
 
-\subsection{Hardware Configuration and Task Pinning}
-
-To ensure deterministic performance, specific hardware-level configurations are defined in the 
-project using the \textbf{idf menuconfig}.
+The ESP32 firmware is developed using the ESP-IDF framework to fine control the hardware's dual-core 
+capabilities and real-time features. To ensure deterministic performance, specific hardware-level 
+configurations are defined in the project using the \textbf{idf menuconfig}.
 
 \begin{itemize}
-    \item \textbf{CPU Frequency:} The system is locked at \textbf{240 MHz} to provide the maximum 
-        timing resolution for the signal generation loops.
+	\item \textbf{CPU Frequency:} The system is locked at \textbf{240 MHz} to provide the maximum
+	      timing resolution for the signal generation loops.
 
-    \item \textbf{Dual-Core Execution:} The ESP32's dual-core capability is used to separate 
-        time-critical signal generation from non-deterministic communication.
+	\item \textbf{Dual-Core Execution:} The ESP32's dual-core capability is used to separate
+	      time-critical signal generation from non-deterministic communication.
 
-    \item \textbf{Watchdog Management:} To prevent system resets during continuous signal 
-    generation, the Task Watchdog Timer (TWDT) is explicitly disabled for \textbf{Core 1}
-    (\verb|CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU1|). This allows the signal task to occupy the 
-        CPU cycles without yielding.
+	\item \textbf{Watchdog Management:} To prevent system resets during continuous signal
+	      generation, the Task Watchdog Timer (TWDT) is explicitly disabled for \textbf{Core 1}
+	      (\verb|CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU1|). This allows the signal task to occupy the
+	      CPU cycles without yielding.
 \end{itemize}
 
 \subsection{The Real-Time Signal Engine}
 
-The core logic for signal generation is implemented in \verb|signal_controller.cpp|. This engine avoids 
-high-level APIs in favor of direct hardware manipulation to minimize latency.
-
-\subsubsection{Atomic Register Access and Dead-Time}
-In power electronics, "Dead-Time" is essential to prevent short circuits during switch transitions. 
-The firmware implemented this by clearing all relevant pins before setting new states using atomic
-registers:
+The implementation of the signal engine in \verb|signal_controller.cpp| prioritizes speed and timing 
+consistency. Rather than relying on standard high-level APIs, the engine utilizes atomic register 
+manipulation to perform simultaneous GPIO updates. Key highlights of this implementation include:
 
 \begin{itemize}
-    \item \verb|GPIO.out_w1tc| \textbf{(Write 1 to Clear):}  Immediately pulls the designated pins 
-            \textbf{LOW} to begin the dead-time interval.
-    \item \verb|helper_delay_cycles|: Enforces a precise delay based on CPU clock cycles for the 
-            dead-time duration.
-    \item \verb|GPIO.out_w1ts| \textbf{(Write 1 to Set):} Simultaneously pulls the next set of 
-            pins \textbf{HIGH} once the dead-time has elapsed.
-\end{itemize}
+\item \textbf{Atomic Switching for Precision:} To protect the voltage converter from 
+"shoot-through" currents, the firmware enforces a precise dead-time interval during switching 
+transitions. As shown in Listing \ref{lst:switching}, the system utilizes atomic registers 
+(\verb|GPIO.out_w1tc| and \verb|GPIO.out_w1ts|) to pull pins low immediately before applying a 
+sub-microsecond delay calibrated to the 240 MHz clock. 
 
-\subsubsection{Double-Buffering Mechanism}
+\begin{lstlisting}[caption={Atomic Switching and Dead-Time Implementation}, label={lst:switching}] 
+// From signal_controller.cpp 
+if (clear_mask) { 
+    GPIO.out_w1tc = clear_mask; // Atomic clear (Dead Time start)
 
-The system utilizes a double-buffering scheme (\verb|g_dataset_a| and \verb|g_dataset_b|) to allow on-the-fly 
-signal updates without halting operation.
+    uint32_t delay_val = is_rising ? g_cycle_us_delay_up : g_cycle_us_delay_down;
+    helper_delay_cycles(delay_val); 
 
-The active set is used by the high-priority signal task to generate the current waveform.
-
-The inactive set remains available for the BLE task to write new data received from the user interface.
-
-Once a new pattern is parsed, the \verb|g_ds_update_pending| flag is set. At the beginning of the next 
-signal cycle, the task swaps the active buffer, ensuring a seamless transition.
-
-\subsection{BLE Command Routing}
-
-The communication layer in \verb|ble_controller.cpp| acts as a command router for the hardware. It parses 
-GATT write events and maps them to specific firmware actions:
-
-
-\begin{table}[ht]
-    \centering
-    \caption{Firmware Command Actions}
-    \begin{tabular}{lp{8cm}} % 'l' for left-aligned, 'p{8cm}' for a wrapping column
-        \toprule
-        \textbf{Command Prefix} & \textbf{Firmware Action} \\
-        \midrule
-        SIGNAL: & Parses timing and mode vectors into the inactive dataset. \\
-        \addlinespace
-        SET\_ALPHA: & Automatically calculates the Phase-Shifted Modulation pattern for a given alpha value. \\
-        \addlinespace
-        START / STOP & Transitions the system between RUNNING and IDLE states. \\
-        \addlinespace
-        STATUS & Aggregates system metrics (active set, cycle count, voltages) for transmission to the client. \\
-        \bottomrule
-    \end{tabular}
-    \label{table:firmware_commands}
-\end{table}
-
-\subsubsection{Analog Monitoring and Calibration}
-
-The Analog Task on Core 0 periodically samples the converter voltages. Because the \verb|ESP32 ADC| 
-exhibits non-linear behavior, \verb|helper_analog.cpp| utilizes a linear interpolation lookup table 
-(\verb|esp32_calibration|) to map raw ADC counts to accurate voltage values. These calibrated 
-values are then packaged into BLE notifications for real-time visualization on the web interface.
-
-\vspace{10pt}
-\hrule
-\vspace{10pt}
-
-IK BEN HIER
-
-IK BEN HIER
-
-IK BEN HIER
-
-IK BEN HIER
-
-\vspace{10pt}
-\hrule
-\vspace{10pt}
-
-
-\subsection{System Architecture}
-
-\begin{enumerate}
-    \item \textbf{The Embedded System (ESP32 Firmware)}: A C++ application running on an ESP32 microcontroller. Its sole
-          purpose is to generate precise digital signals on its GPIO pins and report back sensor data. It acts as a Bluetooth
-          GATT server, waiting for commands and sending out data.
-    \item \textbf{The Web Control Interface (React App)}: A web application built with React and TypeScript. It serves as
-          the user's command center to define the signal patterns, send commands to the ESP32 and visualize incoming sensor
-          data on a live chart. It acts as a Bluetooth GATT client, connecting to and controlling the ESP32.
-\end{enumerate}
-
-The bridge between these two parts is the Web Bluetooth API, which allows the browser-based application to communicate
-wirelessly and directly with the ESP32 hardware.
-
-\subsection{Part 1: The Embedded System (ESP32 Firmware)}
-The firmware is built to be a robust, real-time signal generation engine leveraging features of the ESP32
-and the FreeRTOS operating system to achieve high performance and reliability.
-
-\subsubsection{FreeRTOS: The Real-Time Engine}
-The ESP32 SDK is build on top of FreeRTOS, a real-time operating system designed for embedded devices.
-A RTOS guarantees that tasks can be executed with precise timing and this project uses FreeRTOS for:
-
-\begin{itemize}
-    \item \textbf{Multitasking:} The firmware runs two primary tasks concurrently: `signalTask` and `bleTask`. The `bleTask'
-          handles all the non-time-critical Bluetooth communication, while the `signalTask' focuses on managing the signal
-          state machine
-    \item \textbf{Task Pinning:} The ESP32 has a dual-core processor. To prevent the BLE stack from interfering with signal
-          timing, both tasks are "pinned" to a specific CPU core using `xTaskCreatePinnedToCore' This prevents that a spike in
-          Bluetooth activity on Core 1 will not delay the signal generation logic running alongside it.
-    \item \textbf{Priority Management:} The `signalTask' is assigned a high priority, ensuring it gets processor time
-          when it needs, to enforce the real-time guarantees.
-\end{itemize}
-
-Here is how the tasks are created and pinned to CORE\_1 and CORE\_0
-
-\begin{lstlisting}[caption={Example of FreeRTOS Task Creation}]
-// from main.cpp
-
-// Create BLE task on Core 1 with high stack size for BLE operations
-xTaskCreatePinnedToCore(
-    bleTask,                    // Task function
-    "BLE Task",                 // Task name
-    8192,                       // Stack size (bytes)
-    NULL,                       // Task parameter
-    2,                          // Priority
-    NULL,                       // Task handle
-    CORE_1                      // CPU core 1
-);
-
-// Create signal task on Core 1 with high priority for precise timing
-xTaskCreatePinnedToCore(
-    signalTask,                 // Task function
-    "Signal Task",              // Task name
-    2048,                       // Stack size (bytes)
-    NULL,                       // Task parameter
-    configMAX_PRIORITIES - 2,   // High priority (second highest)
-    NULL,                       // Task handle
-    CORE_0                      // CPU core 0
-);
+    GPIO.out_w1ts = set_mask;   // Atomic set (Dead Time end)
+} 
 \end{lstlisting}
 
-\subsubsection{ESP32 Hardware Timers}
-Software delays like `delay()' are not capable of generating signals with microsecond accuracy.
-So, this system uses one of the ESP32's built-in hardware timers.
+	\item \textbf{Double-Buffering Logic:} To allow dynamic parameter updates without halting the 
+		hardware output, the firmware maintains an "active" and "inactive" dataset. While 
+		\textbf{Core 1} drives the converter using the active set, \textbf{Core 0} parses new 
+		commands into the inactive set.
 
-\begin{itemize}
-    \item \textbf{How it Works:} The timer is a dedicated hardware that counts at a very high frequency.
-          It is configure with a prescaler (TIMER\_DIVIDER), which divides the CPU's main clock (240MHz) to create
-          a slower, more manageable timer clock (3MHz in this case).
-    \item \textbf{Interrupt Service Routine (ISR):} The timer is set to trigger a hardware interrupt when its counter reaches
-          a "alarm" value. This interrupt executes a function (Interrupt Service Routine). In this project, the `timer\_group\_isr\_callback'
-          is the ISR. This function contains the code needed to switch the GPIO pins to their next state and set the alarm for the next
-          interrupt.
-    \item \textbf{IRAM Execution:} For maximum speed and to avoid delays from flash memory access, the ISR is loaded into the ESP32's
-          Instruction RAM (IRAM) using the IRAM\_ATTR attribute.
+	\item \textbf{Seamless Synchnization:} As illustrated in Listing \ref{lst:buffer}, a synchronization flag 
+		(\verb|g_ds_update_pending|) triggers a pointer swap at the start of the next signal cycle, 
+		ensuring a glitch-free transition between experimental patterns. 
+		
+
+\begin{lstlisting}[caption={Double-Buffer Synchronization Mechanism}, label={lst:buffer}] 
+// From signal_controller.cpp 
+if (g_ds_update_pending) { 
+	if (g_active_set == SignalSet::SET_A) {
+		dataset = &g_dataset_b; 
+		g_active_set = SignalSet::SET_B; 
+	} else { 
+		dataset = &g_dataset_a; 
+		g_active_set = SignalSet::SET_A; 
+	} 
+
+	g_ds_update_pending = false; 
+} 
+\end{lstlisting}
 \end{itemize}
 
+\subsection{Data Acquisition and Calibration}
 
-\begin{lstlisting}[caption={Core ISR logic}]
-// from main.cpp
+Real-time monitoring is achieved through a dedicated task that samples the voltages across the 
+converter's flying capacitors and the load. Given the non-linear response of the ESP32's 
+analog-to-digital converter (ADC), the system incorporates a calibration layer using eFuse-stored 
+factory constants and a custom \textbf{Lookup Table (LUT)}.
 
-bool IRAM_ATTR timer_group_isr_callback(void *args) {
-    // Re-enable timer alarm for next interrupt
-    timer_group_enable_alarm_in_isr(TIMER_GROUP, TIMER_IDX);
+\begin{lstlisting}[caption={Linear Interpolation Calibration Function}, label={lst:calib}] 
+// From helper_analog.cpp 
 
-    // Only execute signal generation when in SIGNAL_RUN state
-    if (g_signal_task_state != SignalTaskState::SIGNAL_RUN) {
-        return true;
-    }
-
-    // Pre-calculate next state
-    uint8_t next_state = (g_current_state + 1) % g_active_num_timings;
-    uint32_t new_gpio_out_value = 0;
-
-    // Get reference to active dataset
-    DataSet& dataset = (g_active_set == SignalSet::SET_A) ? 
-                        g_dataset_a : g_dataset_b;
-
-    // Build pin state mask based on active signal pattern
-    new_gpio_out_value = (dataset.d4_vec[next_state] ? GPIO_DI4_MASK : 0) |
-                         (dataset.d5_vec[next_state] ? GPIO_DI5_MASK : 0) |
-                         (dataset.d6_vec[next_state] ? GPIO_DI6_MASK : 0);
-
-    // Write directly to the GPIO_OUT_REG for simultaneous update
-    GPIO.out = (GPIO.out & ~GPIO_PIN_MASK) | new_gpio_out_value;
-
-    // Update state
-    g_current_state = next_state;
-    timer_set_alarm_value(TIMER_GROUP, TIMER_IDX, 
-                          dataset.time_vec[g_current_state]);
-    
-    // Check for cycle completion and trigger analog reading
-    if (g_current_state == 0) {
-        g_cycle_count = (g_cycle_count + 1) % g_cycle_nrun;
-        if (g_cycle_count == 0) {
-            g_ble_task_state = BLETaskState::ANALOG_READ;
+float esp32_calibration(float value) {
+    for (int i = 0; i < calib_numel - 1; ++i) {
+        if (value >= calib_from[i] && value <= calib_from[i + 1]) {
+            float x1 = calib_from[i];
+            float y1 = calib_to[i];
+            float x2 = calib_from[i + 1];
+            float y2 = calib_to[i + 1];
+            return y1 + (value - x1) * (y2 - y1) / (x2 - x1);
         }
     }
-
-    return true;
+    return calib_to[calib_numel - 1];
 }
 \end{lstlisting}
 
-\subsubsection{Blutooth Low Energy (BLE)}
-Bluetooth Low Energy is a wireless communication protocol designed for sending small amounts of data with very low power
-consumption. It operates on a server-client model known as GATT (Generic Attribute Profile).
+This calibration utilizes linear interpolation between measured points (Listing \ref{lst:calib}) 
+to map raw ADC counts to accurate physical voltages. These values are then packaged into BLE 
+notifications for real-time visualization on the web interface.
 
-\begin{itemize}
-    \item \textbf{GAT Server (The ESP32):} The ESP32 is configured as a GAT Server. It creates and advertises a Service
-          (identified by SERVICE\_UUID).
-    \item \textbf{Characteristics (The Data Points):} Inside the service, it defines a Characteristic (identified by
-          CHARACTERISTIC\_UUID). This is the actual endpoint for communication. The firmware configures this characteristic to
-          be writable and to support notifications (to send data back to the client).
-    \item \textbf{NimBLE Library:} The project uses the NimBLE-Arduino library, a highly efficient and memory-optimized
-          BLE stack for the ESP32.
-\end{itemize}
+\subsubsection{Configuration and Control Logic}
 
-The BLE service and characteristic are defined and created in main.cpp
+The following tables (\ref{tab:system-config} and \ref{tab:ble-commands}) summarize the critical settings and commands required to reproduce the 
+system's performance and manage experimental parameters.
+
+\begin{table}[htbp]
+	\centering
+	\caption{Hardware-Level Firmware Build Configurations}
+	\label{tab:system-config}
+	\begin{tabular}{llp{8cm}}
+		\toprule
+		\textbf{Configuration Parameter} & \textbf{Value} & \textbf{Function}                                                        \\
+		\addlinespace
+		CPU Frequency                    & 240 MHz        & Maximizes timing resolution for helper\_delay\_cycles and system delays. \\
+		\addlinespace
+		FreeRTOS Cores                   & 2 Cores        & Enables task pinning for core isolation between Signal and BLE domains.  \\
+		\addlinespace
+		Task Watchdog (Core 1)           & Disabled       & Prevents system reset while the signal task maintains CPU occupancy.     \\
+		\addlinespace
+		ADC Calibration                  & LUT            & Necessary to correct native non-linearities for analog data acquisition. \\
+		\addlinespace
+		BLE Stack                        & Bluedroid      & Provides the GATT server infrastructure for remote control.              \\
+		\bottomrule
+	\end{tabular}
+\end{table}
 
 
-\begin{lstlisting}[caption={BLE service}]
-// from main.cpp
+\begin{table}[htbp]
+	\centering
+	\caption{BLE Communation and Command Router}
+	\label{tab:ble-commands}
+	\begin{tabular}{llp{8cm}}
+		\toprule
+		\textbf{Command String} & \textbf{Description} & \textbf{Operational Effect}                                                \\
+		\addlinespace
+		\verb|SIGNAL:{t;m}|     & Raw Vector Update    & Updates the timing (t) and mode (m) vectors in the inactive dataset.       \\
+		\addlinespace
+		\verb|SET_ALPHA:x|      & Automatic PSM        & Calculates a Phase-Shifted Modulation pattern for a specific duty cycle x. \\
+		\addlinespace
+		\verb|START / STOP|     & State Control        & Toggles the signal generation loop between running and idle states.        \\
+		\addlinespace
+		\verb|STATUS|           & System Metrics       & "Returns current cycle counts, active datasets, and hardware statuses."    \\
+		\bottomrule
+	\end{tabular}
+\end{table}
 
-// BLE Service and Characteristic UUIDs for remote control
-#define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
-#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
-// ... inside bleTask() ...
-NimBLEDevice::init("ESP32 Signal Controller");
-NimBLEServer *pServer = NimBLEDevice::createServer();
-// ...
-NimBLEService *pService = pServer->createService(SERVICE_UUID);
-NimBLECharacteristic *pCharacteristic = pService->createCharacteristic(
-    CHARACTERISTIC_UUID,
-    NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::NOTIFY
-);
-pCharacteristic->setCallbacks(new CharacteristicCallbacks());
-}
-\end{lstlisting}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\vspace*{20cm}
+IK BEN HIER
+
 
 \subsection{Part 2: The Web Control Interface}
 
 This is the user interface of the system for controlling the ESP32.
 It is build with web technologies to run in any browser that supports
-Web Bluetooth (like Google Chrome)
+Web Bluetooth.
 
 \subsubsection{Core Capabilities}
 
 \begin{itemize}
-    \item \textbf{React \& TypeScript:} The application is build using React, a popular
-          JavaScript library for building user interfaces, and TypeScript, which adds static
-          typing to JavaScript. This combination allow a code that is both portable and
-          maintainable.
-    \item \textbf{Web Bluetooth API:} The Web Bluetooth API is a browser standard that
-          exposes Bluetooth functionality to JavaScript, allowing the application to
-          \subitem \textbf{Scan} for nearby BLE devices
-          \subitem \textbf{Connect} to a selected device (ESP32)
-          \subitem \textbf{Discover} its services and characteristics
-          \subitem \textbf{Write} data to characteristics (to send commands)
-          \subitem \textbf{Subscribe} to notifications from characteristic (to receive sensor data)
+	\item \textbf{React \& TypeScript:} The application is build using React, a popular
+	      JavaScript library for building user interfaces, and TypeScript, which adds static
+	      typing to JavaScript. This combination allow a code that is both portable and
+	      maintainable.
+	\item \textbf{Web Bluetooth API:} The Web Bluetooth API is a browser standard that
+	      exposes Bluetooth functionality to JavaScript, allowing the application to
+	      \subitem \textbf{Scan} for nearby BLE devices
+	      \subitem \textbf{Connect} to a selected device (ESP32)
+	      \subitem \textbf{Discover} its services and characteristics
+	      \subitem \textbf{Write} data to characteristics (to send commands)
+	      \subitem \textbf{Subscribe} to notifications from characteristic (to receive sensor data)
 \end{itemize}
 
 This eliminates the need for any native software, drivers, or browser plugins. The entire control
@@ -332,18 +239,18 @@ analysis of the circuit's performance.
 
 
 \begin{figure}[h!]
-    \centering
-    \includegraphics[width=140mm]{images/hw_esp32_pins.pdf}
-    \caption{ESP32 Digital and Analog mapping}
-    \label{fig:sw_esp_pins}
+	\centering
+	\includegraphics[width=140mm]{images/hw_esp32_pins.pdf}
+	\caption{ESP32 Digital and Analog mapping}
+	\label{fig:sw_esp_pins}
 \end{figure}
 
 
 \begin{figure}[h!]
-    \centering
-    \includegraphics[width=140mm]{images/sw_web_interface.pdf}
-    \caption{Web Interface to connect and control the ESP32.}
-    \label{fig:sw_web_interface}
+	\centering
+	\includegraphics[width=140mm]{images/sw_web_interface.pdf}
+	\caption{Web Interface to connect and control the ESP32.}
+	\label{fig:sw_web_interface}
 \end{figure}
 
 The web interface provides single-page application for interacting
@@ -352,58 +259,55 @@ a command center for controlling the circuit and analyzing its performance. The 
 features of the interface:
 
 \begin{itemize}
-    \item \textbf{1. Connect/Disconnect:} Establish or terminate a BLE connection to the ESP32.
-    \item \textbf{2. Enter command:} Allows sending custom command to ESP32 through BLE.
-    \item \textbf{3. SEND command:} Sends the custom command.
-    \item \textbf{4. Alpha:} Input tor selecting the alpha value to compute the signal.
-    \item \textbf{5. Time:} Time vector in micro seconds ($\mu s$)
+	\item \textbf{1. Connect/Disconnect:} Establish or terminate a BLE connection to the ESP32.
+	\item \textbf{2. Status command:} Sends the command to get the status of the ESP32 program.
+	\item \textbf{3. copy:} Copy the logged data to use in plot or analysis.
+	\item \textbf{4. Clear Data:} Clear the logged data.
+	\item \textbf{5. $<img>$:} When clicked on the image, the web interface then shows the schematics of the circuit and the connections of the
+	      ESP32. This is used as a reference while connecting the circuit.
 
-        each element is a amount of $\mu s$ that the mode is going to be executed.
+	\item \textbf{6. Enter command:} Send raw command to ESP32 through BLE.
 
-    \item \textbf{6. Mode:} Mode vector for the digital output
-        
-        the mode is the decimal representation of the three digital outputs.
-        The digital output is set to send value to D4, D5 and D6 (figure \ref{fig:sw_esp_pins}). 
+	\item \textbf{7. SEND:} Send the raw command to the ESP32.
 
-        When 6.1 is clicked then the interface shows the decomposed values for each channel D4, D5 and D6.
+	\item \textbf{8. START:} Commands the ESP32 to start reproducing the signal created.
+	\item \textbf{9. STOP (Low):} Commands the ESP32 to set all digital outputs to LOW (0).
+	\item \textbf{10. HIGH:} Commands the ESP32 to set all digital outputs to HIGH (1).
 
-        \begin{figure}[h!]
-            \centering
-            \includegraphics[width=90mm]{images/sw_web_interface_modes_bin.png}
-            \caption{Binary command values for D4, D5, D6 signal}
-            \label{fig:sw_web_interface_modes_bin}
-        \end{figure}
-        
-        The example in figure \ref{fig:sw_web_interface}, generates the digital signals
-        d4: [0, 0, 0, 1, 1, 1], d5: [0, 1, 1, 1, 0, 0], d6: [1, 1, 0, 0, 0, 1] as seen 
-        in figure \ref{fig:sw_web_interface_modes_bin}.
+	\item \textbf{11. Alpha:} Input tor selecting the alpha value to compute the signal.
+	\item \textbf{12. Time:} Time vector in micro seconds ($\mu s$)
 
-        represented in Figure \ref{fig:sw_signal}.
-        
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=140mm]{images/sw_signal.pdf}
-    \caption{Signal for $\alpha$ of 0.4}
-    \label{fig:sw_signal}
-\end{figure}
+	      each element is a amount of $\mu s$ that the mode is going to be executed.
 
-    \item \textbf{7. SEND:} Sends the signal to the ESP32.
-    \item \textbf{8. START SIGNAL:} Commands the ESP32 to start reproducing the signal created.
-    \item \textbf{9. LOW:} Commands the ESP32 to set all digital outputs to LOW (0).
-    \item \textbf{10. HIGH:} Commands the ESP32 to set all digital outputs to HIGH (1).
-    \item \textbf{11. chart toggle:} Collapses or expand the Chart to show the voltage reading via BLE.
-    \item \textbf{12. advanced menu:} Collapses or expand the menu with pre-configured facility commands to send messages via BLE.
-    \item \textbf{13. Monitor Chart:} When `Start Listening` is active, then the Monitor chart shows the values of the analog readings from the ESP32.
-    \item \textbf{14. Start Listening:} Allow the web-interface to show the messages sent by ESP32 via BLE.
+	\item \textbf{13. Mode:} Mode vector for the digital output
 
-        the values are status messages and analog data that populates the Monitor Chart
+	      the mode is the decimal representation of the three digital outputs.
+	      The digital output is set to send value to D4, D5 and D6 (figure \ref{fig:sw_esp_pins}).
 
-    \item \textbf{15. copy:} Copy the data populating the monitor charts to the clipboard.
-    \item \textbf{16. clear data:} Clear the data populating the monitor charts.
-    \item \textbf{17. $<img>$:} When clicked on the image, the web interface then shows the schematics of the circuit and the connections of the 
-        ESP32. This is used as a reference while connecting the circuit.
+	      When 13.1 is clicked then the interface shows the decomposed values for each channel D4, D5 and D6.
 
+	      The example in figure \ref{fig:sw_web_interface}, generates the digital signals
+	      d4: [0, 0, 0, 1, 1, 1], d5: [0, 1, 1, 1, 0, 0], d6: [1, 1, 0, 0, 0, 1] as result of the
+		  signal generated by the Alpha of 0.5.
 
+	      The signal is represented in Figure \ref{fig:sw_signal}.
+
+	      \begin{figure}[h!]
+		      \centering
+		      \includegraphics[width=140mm]{images/sw_signal.pdf}
+		      \caption{Signal for $\alpha$ of 0.4}
+		      \label{fig:sw_signal}
+	      \end{figure}
+
+	\item \textbf{13.1. UPLOAD:} Shows the Binary representation of the signal modes.
+
+	\item \textbf{14. UPLOAD:} Send the Signal (Time and Mode) to the ESP32.
+
+	\item \textbf{15. Chart Toggle:} Collapses or expand the Chart to show the voltage reading via BLE.
+	\item \textbf{16. Advanced Menu Toggle:} Collapses or expand the menu with pre-configured facility commands to send messages via BLE.
+	\item \textbf{17. Monitor Chart:} When `Start Listening` is active, then the Monitor chart shows the values of the analog readings from the ESP32.
+	\item \textbf{18. System Log:} Displays the log messages from the ESP32.
+	\item \textbf{19. Advanced Menu:} Collection of buttons with preconfigured commands.
 \end{itemize}
 
 The system's behavior is described by a state diagram in Figure \ref{fig:state_diagram} that shows the
@@ -418,8 +322,8 @@ generated), HIGH\_ALL (where all outputs are forced high), and SIGNAL\_RUN (for 
 generation). This dual-task structure allows the system to manage sensor inputs and signal outputs independently.
 
 \begin{figure}[h]
-    \centering
-    \includegraphics[scale=0.5]{images/sw_state_machine.png}
-    \caption{State Diagram of the SW Operation Modes}
-    \label{fig:state_diagram}
+	\centering
+	\includegraphics[scale=0.5]{images/sw_state_machine.png}
+	\caption{State Diagram of the SW Operation Modes}
+	\label{fig:state_diagram}
 \end{figure}
