@@ -1,4 +1,4 @@
-classdef Config
+classdef Config < handle
     properties
         sim_name
         Omega

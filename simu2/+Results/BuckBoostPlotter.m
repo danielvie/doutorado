@@ -44,7 +44,7 @@ classdef BuckBoostPlotter < handle
                 
                 % Add start/end markers for clarity
                 plot3(v1_off(1), v2_off(1), i_off(1), 'ro', 'MarkerFaceColor', 'r', 'HandleVisibility', 'off');
-                plot3(v1_off(end), v2_off(end), i_off(end), 'rs', 'MarkerFaceColor', 'r', 'HandleVisibility', 'off');
+                plot3(v1_off(end), v2_off(end), i_off(end), 'ms', 'MarkerFaceColor', 'r', 'HandleVisibility', 'off');
             end
             
 

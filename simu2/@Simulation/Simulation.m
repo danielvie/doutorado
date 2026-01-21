@@ -6,10 +6,11 @@ classdef Simulation < handle
         m_state_mode;
         m_log;
         m_controller; % Controllers.Controller instance
+        m_planner;    % Trajectory.Planner instance
     end
 
     methods(Hidden = true)
-        set_traj_phase(self, params);
+        % set_traj_phase(self, params); % Deprecated
         res = can_compute_phase(self);
     end
     
@@ -30,6 +31,9 @@ classdef Simulation < handle
             % default config_mpc
             self.m_config_mpc = self.get_config_mpc();
             
+            % Setup Planner
+            self.m_planner = Trajectory.Planner(self.m_config);
+
             % default state mode
             self.m_state_mode = Enums.StateMode.ORIGINAL;
 
@@ -57,11 +61,21 @@ classdef Simulation < handle
 
         set_offset(self, offset);
 
-        set_traj_phase_with_iref(self, iref);
-        set_traj_phase_with_alpha(self, alpha);
-        set_mpc(self, Np);
+        % Trajectory Methods (Delegated)
+        function set_traj_phase_with_iref(self, iref)
+            self.m_planner.set_reference_current(iref);
+        end
 
-        set_traj_phase_alpha_and_mpc(self, alpha);
+        function set_traj_phase_with_alpha(self, alpha)
+            self.m_planner.set_alpha(alpha);
+        end
+        
+        set_mpc(self);
+
+        function set_traj_phase_alpha_and_mpc(self, alpha)
+             self.m_planner.set_alpha(alpha);
+             self.set_mpc();
+        end
         save_set_alpha_cache(self);
         
         set_controller(self, controller);
@@ -94,8 +108,13 @@ classdef Simulation < handle
         fig = project_feasibility_region(self);
 
         % .. aliases
-        alpha(self, value);
-        iref(self, value);
+        function alpha(self, val)
+             self.m_planner.set_alpha(val);
+        end
+
+        function iref(self, val)
+             self.m_planner.set_reference_current(val);
+        end
 
         % .. automation
         project_with_alpha(self, alpha, folder, flag_save);
