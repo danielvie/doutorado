@@ -13,13 +13,13 @@
 #include "helper_note.h"
 #include "helper_led.h"
 #include "helper_common.h"
-#include "signal_controller.h" 
+#include "signal_controller.h"
 
 #include "helper_matrix.h"
 
 
 // REQUIRED to read the clock speed
-#include "esp_rom_sys.h" 
+#include "esp_rom_sys.h"
 
 #include <stdbool.h>
 #include "freertos/FreeRTOS.h"
@@ -69,7 +69,7 @@ void blink_create_task() {
             blink_task_handle = NULL;
         }
     }
-    
+
     auto msg = std::make_unique<NoteData>(120);
     note_clear(*msg);
     note_add_text(*msg, "\nSTATUS\n");
@@ -81,7 +81,7 @@ esp_err_t app_init() {
     esp_err_t ret;
 
     led_init();
-    
+
     // initialize analog ports (ADC)
     analog_init();
 
@@ -102,7 +102,7 @@ esp_err_t app_init() {
         ESP_LOGE("INIT", "BLE controller init failed: %s", esp_err_to_name(ret));
         return ret;
     }
-    
+
     // create semaphore
     sem_analog_read_trigger = xSemaphoreCreateBinary();
     if (sem_analog_read_trigger == NULL) {
@@ -153,16 +153,16 @@ static void analog_action_task(void* arg) {
             an3 = analog_read_port(AnalogPort::AN3);
             an5 = analog_read_port(AnalogPort::AN5);
             an6 = analog_read_port(AnalogPort::AN6);
-            
+
             ESP_LOGI("AnalogRead", "  -> an3: %f, an5: %f, an6: %f\n", an3, an5, an6);
-                
+
             g_system_state.ble_an_read_state = BLEAnalogReadState::IDLE;
         }
 
         // if (xQueueReceive(data_queue, &data, portMAX_DELAY) == pdPASS) {
         //     ESP_LOGI("AnalogRead", "New data Received!");
         //     ESP_LOGI("AnalogRead", "  -> an3: %f, an5: %f, an6: %f\n", data.an3, data.an5, data.an6);
-            
+
         //     g_system_state.ble_an_read_state = BLEAnalogReadState::IDLE;
         // }
     }
@@ -173,11 +173,11 @@ extern "C" void app_main(void)
 {
     // print clock speed
     uint32_t cpu_freq_mhz = esp_rom_get_cpu_ticks_per_us();
-    
+
     ESP_LOGW(TAG, "================================================");
     ESP_LOGW(TAG, "           CPU FREQUENCY: %lu MHz", cpu_freq_mhz);
     ESP_LOGW(TAG, "================================================");
-    
+
     if (cpu_freq_mhz < 240) {
         ESP_LOGE(TAG, "WARNING: ESP32 is running SLOW (%lu MHz).", cpu_freq_mhz);
         ESP_LOGE(TAG, "Please run 'idf.py menuconfig' -> Component config -> ESP System Settings -> CPU frequency -> 240 MHz");
@@ -189,6 +189,10 @@ extern "C" void app_main(void)
         ESP_LOGW(TAG, "COULD NOT INITIALIZE APP!!");
     }
 
+    ESP_LOGE("mijn test", "ik ben hier, u haaaa");
+    ESP_LOGE("mijn test", "ik ben hier, u haaaa");
+
+
     // Create analog task on Core 0 with sufficient stack size for helper::printf
     xTaskCreatePinnedToCore(
         analog_reading_task,  // Task function
@@ -199,7 +203,7 @@ extern "C" void app_main(void)
         NULL,                 // Task handle
         CORE_0                // CPU core
     );
-    
+
     // task to receive command for ble readings
     xTaskCreatePinnedToCore(
         analog_action_task,   // Task function
@@ -210,8 +214,8 @@ extern "C" void app_main(void)
         NULL,                 // Task handle
         CORE_0                // CPU core
     );
-    
+
     matrix_test();
-    
+
     blink(4);
 }

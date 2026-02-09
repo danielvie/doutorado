@@ -10,6 +10,7 @@
 import { StrictMode } from "react"; // Import for React's strict mode
 import { createRoot } from "react-dom/client"; // Modern React 18+ way to create root
 import App from "./App.tsx"; // Import the main App component
+import "./App.css"; // Import styles
 
 // Create a React root using the DOM element with id 'root'
 // The '!' tells TypeScript that we're certain this element exists

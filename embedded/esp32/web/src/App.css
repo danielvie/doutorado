@@ -1,101 +1,92 @@
 @import "tailwindcss";
 
-#root {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 2rem;
-    text-align: center;
-}
-
 @theme {
-    --breakpoint-tablet: 1300px;
+    --color-background: oklch(0.14 0.05 260);
+    /* Deep Navy/Black */
+    --color-surface: oklch(0.18 0.06 260);
+    /* Slightly lighter surface */
+    --color-surface-hover: oklch(0.22 0.07 260);
 
-    /*https://www.realtimecolors.com/?colors=e6e6e6-262626-184781-dddbff-ff9e3d&fonts=Inter-Inter*/
-    --color-text: oklch(0.92 0 89.88);
-    --color-text-dim: oklch(0.27 0 286.28);
-    --color-text-shade: oklch(0.7 0 286.28);
+    --color-primary: oklch(0.65 0.18 260);
+    /* Electric Blue */
+    --color-secondary: oklch(0.7 0.16 300);
+    /* Purple/Pink */
 
-    --color-background: oklch(0.27 0 0);
-
-    --color-gray: oklch(0.31 0 0);
-    --color-gray-shade: oklch(0.36 0 0);
-    --color-gray-light: oklch(0.6 0 0);
-    --color-gray-dim: oklch(0.25 0 0);
-
-    --color-primary: oklch(0.39 0.11 255.71);
-    --color-primary-shade: oklch(0.45 0.11 255.71);
-
-    --color-secondary: oklch(0.9 0.049 287.92);
-    --color-secondary-shade: oklch(0.8 0.049 287.92);
-
-    --color-accent: oklch(0.67 0.12 71);
-    --color-accent-shade: oklch(0.75 0.12 71);
-
-    --background-image-gradient: linear-gradient(
-        to right,
-        var(--color-primary),
-        var(--color-secondary)
-    );
-
-    --color-error: oklch(0.55 0.16 24.18);
-    --color-error-shade: oklch(0.65 0.16 24.18);
-    --color-success: oklch(0.75 0.15 130.89);
-    --color-success-shade: oklch(0.9 0.12 130.66);
-
-    /* panel */
-    --color-panel-background: var(--color-gray);
-
-    /* input */
-    --color-input-background: var(--color-gray-shade);
-    --color-input-border: var(--color-gray-dim);
-
-    /* miselaneos */
-    --color-info: var(--color-gray-shade);
-    --color-bar: var(--color-gray-light);
+    --color-success: oklch(0.65 0.18 150);
+    /* Neon Green */
+    --color-error: oklch(0.6 0.2 25);
+    /* Bright Red */
+    --color-warning: oklch(0.75 0.15 80);
+    /* Orange */
 }
 
-/* Custom component styles */
-.btn {
-    @apply p-2 text-xl
-            border-[1px] border-primary-shade rounded-md
-            bg-primary hover:bg-primary-shade
-            transition duration-300;
-}
-
-/* Custom component styles */
-.btn.send {
-    @apply bg-accent text-text-dim border-accent font-mono hover:bg-accent-shade;
-}
-
-.btn.success {
-    @apply text-text-dim border-success bg-success hover:bg-success-shade;
-}
-
-.btn.danger {
-    @apply text-text border-error bg-error hover:bg-error-shade;
-}
-
-.btn.info {
-    @apply font-mono px-2 py-1 border-2 border-gray-dim bg-gray-shade hover:bg-gray;
-}
-
-.input {
-    @apply bg-input-background rounded-md border-2 border-input-border font-mono
-            p-2 min-h-10
-            focus:outline-none focus:border-accent;
-}
-
+/* Base Reset & Typography */
 :root {
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
-    font-weight: 400;
-
-    color-scheme: light dark;
-    color: hsl(0, 0%, 80%);
+    font-family: "Inter", system-ui, sans-serif;
     background-color: var(--color-background);
+    color: #e2e8f0;
+    line-height: 1.5;
+}
 
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(
+        circle at top center,
+        oklch(0.2 0.1 260) 0%,
+        var(--color-background) 80%
+    );
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: oklch(0.3 0.05 260);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.4 0.08 260);
+}
+
+/* Utility Class Enhancements (if any needed outside Tailwind) */
+.glass-panel {
+    @apply bg-gray-900/60 backdrop-blur-md border border-white/10 shadow-xl;
+}
+
+/* Form Elements */
+input[type="range"] {
+    @apply h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    @apply appearance-none w-4 h-4 bg-purple-500 rounded-full shadow-lg transition-transform hover:scale-110;
+}
+
+.quickactions button {
+    @apply p-1 rounded-sm cursor-pointer transition-all duration-200;
+}
+
+.quickactions button:hover {
+    filter: brightness(1.2) saturate(1.2);
+}
+
+.btn-action {
+    @apply px-4 py-3 rounded text-sm font-bold text-white shadow hover:opacity-90 active:scale-95 transition-all;
+}
+.btn-alpha {
+    @apply px-4 py-2 bg-gray-700 text-gray-200 text-sm font-bold rounded shadow hover:bg-gray-600
+    border border-gray-600 hover:border-gray-500 transition-all active:scale-95;
+}
+
+.btn-alpha-active {
+    filter: brightness(1.2) saturate(1.2);
 }

@@ -27,9 +27,17 @@ export function _create_signal(alpha: number) {
     const dtSwitch_us = dtSwitch.map((v) => v * 1e6);
 
     // Return formatted strings for time and mode values
+    // Return formatted strings for time and mode values
+    const binaryModes = Omega.map(val => (val - 1).toString(2).padStart(3, '0'));
+
     return {
-        time: dtSwitch_us.map(Math.round).join(", "), // Rounded to integers, comma-separated
-        mode: Omega.map((it) => (it - 1)).join(", "), // Convert to 0-based indexing, comma-separated
+        time: dtSwitch_us.map(Math.round).join(", "),
+        mode: Omega.map((it) => (it - 1)).join(", "),
+        binary: {
+            s1: binaryModes.map(b => b[2]).join(""), // Switch 1 (LSB)
+            s2: binaryModes.map(b => b[1]).join(""), // Switch 2
+            s3: binaryModes.map(b => b[0]).join("")  // Switch 3 (MSB)
+        }
     };
 }
 
@@ -39,7 +47,7 @@ export function industrial_solution(
     nSwitches: number,
     T: number,
 ) {
-    
+
     // Step 1: Define t0,i; ton,i; toff,i and initial state of the ith switch cell
     // t0 = initial time for each switch
     // ton = turn-on time for each switch

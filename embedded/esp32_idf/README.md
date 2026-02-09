@@ -1,3 +1,32 @@
+
+# How to compile
+
+with idf installed (e.g.: $env:USERPROFILE/esp/v5.5.1/esp-idf)
+
+run 
+
+. $env:USERPROFILE/esp/{version}/esp-idf/install.ps1
+
+then
+
+. $env:USERPROFILE/esp/{version}/esp-idf/export.ps1
+
+. $env:USERPROFILE/esp/v5.5.1/esp-idf/export.ps1
+
+
+# Commands
+
+```json
+  {
+    "label": "ESP-IDF: Build & Flash & Monitor",
+    "command": ". $env:USERPROFILE/esp/v5.5.1/esp-idf/export.ps1; idf.py build; idf.py flash; idf.py monitor -p COM11;",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+  },
+```
+
+
+
 | Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C5 | ESP32-C6 | ESP32-C61 | ESP32-H2 | ESP32-S3 |
 | ----------------- | ----- | -------- | -------- | -------- | -------- | --------- | -------- | -------- |
 
