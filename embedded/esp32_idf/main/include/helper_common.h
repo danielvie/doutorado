@@ -2,22 +2,23 @@
 
 #pragma once
 
+#include <chrono>
 #include <iostream>
+#include <memory>
+#include <numeric>
+#include <random>
 #include <sstream>
 #include <vector>
-#include <numeric>
-#include <chrono>
-#include <random>
-#include <memory>
 
-#include "helper_led.h"
+
+#include "esp_cpu.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
-#include "esp_cpu.h"
+#include "helper_led.h"
+
 
 #define CORE_0 0
 #define CORE_1 1
-
 
 #define PIN_OUT_6   GPIO_NUM_23 // Bit 2 (4)
 #define PIN_OUT_6_  GPIO_NUM_22 // 
@@ -27,10 +28,8 @@
 #define PIN_OUT_4_  GPIO_NUM_17 // 
 #define PIN_OUT_SIG GPIO_NUM_16 // 
 
-
 // .. globals
 extern volatile uint32_t g_analog_monitor_period_ms;
-
 
 // .. defining semaphore for reading data
 extern SemaphoreHandle_t sem_analog_read_trigger;
@@ -71,14 +70,18 @@ enum class SignalState {
     RUNNING,
 };
 
+enum class ControlState {
+    OFF,
+    ON,
+};
+
 struct SystemState {
     SignalState signal_state;
     BLEAnalogReadState ble_an_read_state;
+    ControlState control_state;
 };
 
 extern volatile SystemState g_system_state;
-
-
 
 /**
  * Binary representation structure for digital output control
@@ -102,6 +105,7 @@ int parse_signal(const std::string &s, std::vector<uint32_t> &time, std::vector<
 std::string get_label(SignalSet set);
 std::string get_label(BLEAnalogReadState state);
 std::string get_label(SignalState state);
+std::string get_label(ControlState state);
 
 static inline void __attribute__((always_inline)) helper_delay_cycles(uint32_t cycles) {
     uint32_t start = esp_cpu_get_cycle_count();

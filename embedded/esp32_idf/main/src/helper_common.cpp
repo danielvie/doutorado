@@ -1,4 +1,5 @@
-// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
+// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the
+// MIT license.
 
 /**
  * Helper Functions Implementation for ESP32 Signal Controller
@@ -25,7 +26,15 @@ LogDuration g_log_duration = {
 volatile SystemState g_system_state = {
     .signal_state = SignalState::IDLE,
     .ble_an_read_state = BLEAnalogReadState::IDLE,
+    .control_state = ControlState::OFF,
 };
+
+// .. control globals
+volatile bool g_control_enabled = false;
+volatile float g_adc_an3 = 0.0f;
+volatile float g_adc_an5 = 0.0f;
+volatile float g_adc_an6 = 0.0f;
+volatile bool g_adc_fresh = false;
 
 void blink(uint8_t N) {
     for (uint8_t i = 0; i < N; i++) {
@@ -48,7 +57,6 @@ struct Bin num2bin(uint32_t num) {
     return b;
 }
 
-
 void parse_section(const std::string &section, std::vector<uint32_t> &result) {
     std::stringstream ss(section);
     std::string item;
@@ -59,8 +67,8 @@ void parse_section(const std::string &section, std::vector<uint32_t> &result) {
     }
 }
 
-
-int parse_signal(const std::string &s, std::vector<uint32_t> &time, std::vector<uint32_t> &mode) {
+int parse_signal(const std::string &s, std::vector<uint32_t> &time,
+                 std::vector<uint32_t> &mode) {
     // Clear any existing values to start fresh
     time.clear();
     mode.clear();
@@ -71,7 +79,8 @@ int parse_signal(const std::string &s, std::vector<uint32_t> &time, std::vector<
         return 0;
     }
 
-    // Extract timing section (before semicolon) and mode section (after semicolon)
+    // Extract timing section (before semicolon) and mode section (after
+    // semicolon)
     std::string timeSection = s.substr(0, semicolonPos);
     std::string modeSection = s.substr(semicolonPos + 1);
 
@@ -84,35 +93,46 @@ int parse_signal(const std::string &s, std::vector<uint32_t> &time, std::vector<
 
 std::string get_label(SignalSet set) {
     switch (set) {
-        case SignalSet::SET_A:
-            return "SET_A";
-        case SignalSet::SET_B:
-            return "SET_B";
-        default:
-            return "-ERROR";
+    case SignalSet::SET_A:
+        return "SET_A";
+    case SignalSet::SET_B:
+        return "SET_B";
+    default:
+        return "-ERROR";
     }
 }
 
 std::string get_label(SignalState state) {
     switch (state) {
-        case SignalState::IDLE:
-            return "IDLE";
-        case SignalState::RUNNING:
-            return "RUNNING";
-        default:
-            return "-ERROR";
+    case SignalState::IDLE:
+        return "IDLE";
+    case SignalState::RUNNING:
+        return "RUNNING";
+    default:
+        return "-ERROR";
     }
 }
 
 std::string get_label(BLEAnalogReadState state) {
     switch (state) {
-        case BLEAnalogReadState::DISABLED:
-            return "DISABLED";
-        case BLEAnalogReadState::IDLE:
-            return "IDLE";
-        case BLEAnalogReadState::READING:
-            return "READING";
-        default:
-            return "-ERROR";
+    case BLEAnalogReadState::DISABLED:
+        return "DISABLED";
+    case BLEAnalogReadState::IDLE:
+        return "IDLE";
+    case BLEAnalogReadState::READING:
+        return "READING";
+    default:
+        return "-ERROR";
+    }
+}
+
+std::string get_label(ControlState state) {
+    switch (state) {
+    case ControlState::OFF:
+        return "OFF";
+    case ControlState::ON:
+        return "ON";
+    default:
+        return "-ERROR";
     }
 }

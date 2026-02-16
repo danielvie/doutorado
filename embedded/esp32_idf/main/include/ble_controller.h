@@ -9,10 +9,11 @@
 
 #include "helper_analog.h"
 #include "helper_common.h"
-#include "helper_note.h"
-#include "helper_led.h"
 #include "helper_datasetter.h"
+#include "helper_led.h"
+#include "helper_note.h"
 #include "signal_controller.h"
+
 
 #include <algorithm>
 #include <cstring>
@@ -26,13 +27,12 @@ extern "C" {
 #include "esp_bt_main.h"
 #include "esp_err.h"
 #include "esp_gap_ble_api.h"
-#include "esp_gap_ble_api.h"
 #include "esp_gatt_common_api.h"
-#include "esp_gatts_api.h"
 #include "esp_gatts_api.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+
 }
 
 // Initialize BLE stack and register GATT server
@@ -62,6 +62,7 @@ void ble_router_set_port(uint16_t port, uint16_t value);
 void ble_router_set_signal(std::string& message);
 void ble_router_signal_start();
 void ble_router_signal_stop();
+void ble_router_ctrl(ControlState state);
 void ble_router_status(void);
 void ble_router_status_matrix(SignalSet set);
 
