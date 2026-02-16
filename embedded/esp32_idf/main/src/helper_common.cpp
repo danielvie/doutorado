@@ -1,5 +1,4 @@
-// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the
-// MIT license.
+// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
 
 /**
  * Helper Functions Implementation for ESP32 Signal Controller
@@ -56,6 +55,7 @@ struct Bin num2bin(uint32_t num) {
 
     return b;
 }
+
 
 void parse_section(const std::string &section, std::vector<uint32_t> &result) {
     std::stringstream ss(section);
