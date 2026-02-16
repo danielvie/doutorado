@@ -201,17 +201,45 @@ static void signal_loop_task(void *arg) {
         // ---------------------------------------------------
         if (g_control_enabled && g_adc_fresh) {
             g_adc_fresh = false;
-            float dtk[CONTROL_MAX_DTK];
 
-            // compute control action
-            // save the result in dtk
-            bool res = compute_control_correction(dataset, g_adc_an3, g_adc_an5,
-                                                  g_adc_an6, dtk);
+            if (dataset->gain_k.is_valid && dataset->size > 1) {
+                float dtk[CONTROL_MAX_DTK];
+                const uint32_t N = dataset->size;
+                const uint32_t p = N - 1;
 
-            // update time durations
-            if (res) {
-                update_time_durations(dataset, dtk, dataset->size - 1,
-                                      dataset->size);
+                // 1. read analog signals
+                float an3 = g_adc_an3;
+                float an5 = g_adc_an5;
+                float an6 = g_adc_an6;
+
+                // 2. compute `ek = x - x_target`
+                float e1 = an3 - dataset->target[0];
+                float e2 = an5 - dataset->target[1];
+                float e3 = an6 - dataset->target[2];
+
+                // 3. compute `dtk = -K * ek`
+                uint32_t t0 = esp_cpu_get_cycle_count();
+
+                // Compute K * ek
+                matrix_multiply_vector3(dataset->gain_k, e1, e2, e3, dtk);
+
+                // Negate to get -K * ek
+                for (uint32_t j = 0; j < p; j++) {
+                    dtk[j] = -dtk[j];
+                }
+
+                uint32_t t1 = esp_cpu_get_cycle_count();
+                g_log_duration.matrix_multiply_us = (t1 - t0) / 240;
+
+                // 4. compute conditioning `dtk = condition_dtk(dtk)`
+                condition_dtk(dtk, p, dataset->time_durations);
+
+                // 5. update Ts from dtk
+                update_time_durations(dataset, dtk, p, N);
+
+                for (uint32_t j = 0; j < p && j < MAX_SIGNAL_SIZE; j++) {
+                    dataset->time_us_diff[j] = (int32_t)roundf(dtk[j]);
+                }
             }
         }
 
