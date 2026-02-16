@@ -55,9 +55,6 @@ function [dtk, fval, exitflag] = dualmode_switching(ek, H, Hf, Phi1Np, Qbar, Rba
     
     x0  = zeros(size(f_qp, 1), 1);
     [Dtk, fval, exitflag] = quadprog(H_qp,f_qp,A_qp,b_qp,Aeq_qp,beq_qp,lb_qp,ub_qp,x0,options);
-    disp('----------------------');
-    disp('[koka] ik ben hier');
-    disp('----------------------');
 
 %     options = optimoptions('quadprog', 'Algorithm', 'interior-point-convex');
 %     

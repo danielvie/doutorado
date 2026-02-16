@@ -12,9 +12,9 @@ function [y,t,m,dtk_out] = run(self, nsim)
         if current_config.mpc.on
             [dtk, exitflag, qp_info] = self.step_control(state.x0, current_config.mpc.x_target);
         else
-             dtk = zeros(numel(current_config.Omega)-1, 1);
-             exitflag = 0;
-             qp_info = struct('time_qp', 0);
+            dtk = zeros(numel(current_config.Omega)-1, 1);
+            exitflag = 0;
+            qp_info = struct('time_qp', 0);
         end
 
         % B. Actuation Step: Convert dtk to cycle timings (Ts)
@@ -25,8 +25,8 @@ function [y,t,m,dtk_out] = run(self, nsim)
 
         % D. Storage & State Update
         [state, buffers] = update_and_log(self, state, buffers, current_config, ...
-                                          y_cycle, t_cycle, m_cycle, ...
-                                          dtk, time_metrics, qp_info, exitflag, k);
+            y_cycle, t_cycle, m_cycle, ...
+            dtk, time_metrics, qp_info, exitflag, k);
 
         % E. Propagate State to Config (for next cycle physics)
         current_config.x0 = state.x0;
@@ -49,22 +49,37 @@ function [buffers, config, state] = initialize_run(self, nsim)
     config = self.m_config;
     modes_len = numel(config.Omega);
     states_len = numel(config.x0);
+    p = modes_len - 1; % number of control variables
 
-    % Memory Allocation
-    buffers.y = zeros(nsim*modes_len + 1, states_len);
-    buffers.t = zeros(nsim*modes_len + 1, 1);
-    buffers.m = zeros(nsim*modes_len + 1, 1);
-    buffers.dtk_out = zeros(modes_len - 1, nsim);
+    % Memory Allocation (main simulation buffers)
+    buffers.y       = zeros(nsim*modes_len + 1, states_len);
+    buffers.t       = zeros(nsim*modes_len + 1, 1);
+    buffers.m       = zeros(nsim*modes_len + 1, 1);
+    buffers.dtk_out = zeros(p, nsim);
 
     % Initial Conditions (t=0)
     buffers.y(1, :) = config.x0';
-    buffers.t(1) = 0.0;
-    buffers.m(1) = config.Omega(1);
+    buffers.t(1)    = 0.0;
+    buffers.m(1)    = config.Omega(1);
+
+    % Pre-allocate log arrays (avoids O(n^2) concatenation in hot loop)
+    log_pre          = struct();
+    log_pre.iter     = zeros(nsim, 1);
+    log_pre.exitflag = zeros(nsim, 1);
+    log_pre.time_us  = zeros(nsim, modes_len);
+    log_pre.x0       = zeros(nsim, states_len);
+    log_pre.ek       = zeros(nsim, states_len);
+    log_pre.ts       = zeros(nsim, modes_len + 1);
+    log_pre.x_target = zeros(nsim, states_len);
+    log_pre.time_qp  = zeros(nsim, 1);
+    log_pre.dtk      = zeros(nsim, p);
+    log_pre.dtk_prev = zeros(nsim, p);
+    self.m_log.run   = log_pre;
 
     % Simulation State
-    state.x0 = config.x0;
-    state.t0 = 0.0;
-    state.dtk_prev = zeros(modes_len-1, 1);
+    state.x0       = config.x0;
+    state.t0       = 0.0;
+    state.dtk_prev = zeros(p, 1);
 
     % Reset Controller
     if ~isempty(self.m_controller)
@@ -72,7 +87,8 @@ function [buffers, config, state] = initialize_run(self, nsim)
     end
 end
 
-function [state, buffers] = update_and_log(self, state, buffers, config, y_cycle, t_cycle, m_cycle, dtk, time_metrics, qp_info, exitflag, k)
+function [state, buffers] = update_and_log(self, state, buffers, config, ...
+    y_cycle, t_cycle, m_cycle, dtk, time_metrics, qp_info, exitflag, k)
     % Updates buffers, simulation state, and internal logger
 
     modes_len = numel(config.Omega);
@@ -82,33 +98,24 @@ function [state, buffers] = update_and_log(self, state, buffers, config, y_cycle
     idx_end   = idx_start + modes_len - 1;
 
     buffers.y(idx_start:idx_end, :) = y_cycle;
-    buffers.t(idx_start:idx_end)    = t_cycle + state.t0; % Absolute time
+    buffers.t(idx_start:idx_end)    = t_cycle + state.t0;
     buffers.m(idx_start:idx_end)    = m_cycle;
     buffers.dtk_out(:, k)           = dtk;
 
     % 2. Update Simulation State for next iteration
-    state.t0 = state.t0 + t_cycle(end);
-    state.x0 = y_cycle(end, :)';
+    state.t0       = state.t0 + t_cycle(end);
+    state.x0       = y_cycle(end, :)';
     state.dtk_prev = dtk;
 
-    % 3. Detailed Logging (Internal structure)
-    % Helper to append to self.m_log (keeping existing structure)
-    log = self.m_log.run;
-
-    % Append logic (simplified for readability, could be optimized)
-    new_iter      = k;
-    if isempty(log.iter), new_iter = 1; else, new_iter = log.iter(end)+1; end
-
-    log.iter      = [log.iter;      new_iter];
-    log.exitflag  = [log.exitflag;  exitflag];
-    log.time_us   = [log.time_us;   time_metrics.time_us];
-    log.x0        = [log.x0;        state.x0'];
-    log.ek        = [log.ek;        (state.x0 - config.mpc.x_target)'];
-    log.ts        = [log.ts;        config.Ts];
-    log.x_target  = [log.x_target;  config.mpc.x_target'];
-    log.time_qp   = [log.time_qp;   qp_info.time_qp];
-    log.dtk       = [log.dtk;       dtk'];
-    log.dtk_prev  = [log.dtk_prev;  state.dtk_prev'];
-
-    self.m_log.run = log;
+    % 3. Detailed Logging (pre-allocated, index-based insertion)
+    self.m_log.run.iter(k)        = k;
+    self.m_log.run.exitflag(k)    = exitflag;
+    self.m_log.run.time_us(k, :)  = time_metrics.time_us;
+    self.m_log.run.x0(k, :)       = state.x0';
+    self.m_log.run.ek(k, :)       = (state.x0 - config.mpc.x_target)';
+    self.m_log.run.ts(k, :)       = config.Ts;
+    self.m_log.run.x_target(k, :) = config.mpc.x_target';
+    self.m_log.run.time_qp(k)     = qp_info.time_qp;
+    self.m_log.run.dtk(k, :)      = dtk';
+    self.m_log.run.dtk_prev(k, :) = state.dtk_prev';
 end
