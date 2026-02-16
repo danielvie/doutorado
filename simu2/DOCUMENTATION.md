@@ -174,7 +174,8 @@ simu2/
 │
 ├── +Controllers/                   # Controller strategies (package)
 │   ├── Controller.m                # Abstract base class
-│   └── Proportional.m              # Proportional (LQR) controller with downsampling
+│   ├── Proportional.m              # Proportional (LQR) controller with downsampling
+│   └── MpcController.m             # MPC QP controller (quadprog) ★ NEW
 │
 ├── +Mpc/                           # MPC formulation (package)
 │   ├── construcao_modelo_instantes.m    # Linearized model (Φ, Γ) at switching instants
@@ -303,7 +304,39 @@ Implements proportional (LQR) feedback: $\delta t_k = -K \cdot e_k$, where $e_k 
 - When `counter < Nd`: returns `last_dtk` (hold), `exitflag = 44`
 - When `counter >= Nd`: computes `dtk = -K * ek`, resets counter, `exitflag = 1`
 
-### 4.4 `Data.Config` (value class)
+### 4.4 `Controllers.MpcController` (concrete controller)
+
+**File:** `+Controllers/MpcController.m`
+
+Solves the dual-mode MPC QP problem via `Mpc.dualmode_switching` (uses `quadprog`). Falls back to proportional control ($-K \cdot e_k$) when the QP is infeasible.
+
+**Properties:**
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `mpc` | struct | MPC data struct (from `config.mpc`, computed by `set_mpc`) |
+| `state_mode` | `Enums.StateMode` | `ORIGINAL` or `AUGMENTED` (delay compensation) |
+| `Nd` | int | Downsampling factor (1 = compute every step) |
+| `counter` | int | Internal counter for downsampling |
+| `last_dtk` | vector | Cached control for hold mode |
+| `dtk_prev` | vector | Previous control action (used in augmented mode) |
+
+**Constructor:**
+
+```matlab
+% After calling s.set_mpc():
+mpc_data = s.m_config.mpc;
+ctrl = Controllers.MpcController(mpc_data);
+ctrl = Controllers.MpcController(mpc_data, 'Nd', 3);
+ctrl = Controllers.MpcController(mpc_data, 'StateMode', Enums.StateMode.AUGMENTED);
+```
+
+**Behavior:**
+- When `counter < Nd`: returns `last_dtk` (hold), `exitflag = 44`
+- When `counter >= Nd`: solves QP via `Mpc.dualmode_switching`, `exitflag` from `quadprog`
+- On QP failure (`exitflag ~= 1`): falls back to `dtk = -K * ek` and logs warning
+
+### 4.5 `Data.Config` (value class)
 
 **File:** `+Data/Config.m`
 
@@ -797,6 +830,23 @@ s.set_mpc();
 K = s.get_gain_k();
 s.set_controller(Controllers.Proportional(K, 1));
 
+[y, t, m] = s.run(5000);
+```
+
+### Run with MPC controller (QP solver)
+
+```matlab
+s = Simulation(Enums.SimName.LAB_CIRCUIT);
+s.set_traj_phase_with_alpha(0.5);
+s.set_mpc();
+
+% Use the MPC controller instead of Proportional
+mpc_data = s.m_config.mpc;
+ctrl = Controllers.MpcController(mpc_data);
+% Or with downsampling: ctrl = Controllers.MpcController(mpc_data, 'Nd', 3);
+s.set_controller(ctrl);
+
+s.m_config.x0 = [0; 0; 0];
 [y, t, m] = s.run(5000);
 ```
 

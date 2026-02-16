@@ -28,8 +28,10 @@ s.set_mpc();
 
 % Setup Controller (Strategy Pattern)
 K = s.get_gain_k();
+time_us = s.get_time_us();
+min_gap_us = s.m_config.c_time(1) * 1e6;
 % For original mode, use Nd = 1. For Augmented/Hold mode, use config_mpc.Nd
-controller = Controllers.Proportional(K, 1); 
+controller = Controllers.Proportional(K, 1, time_us, min_gap_us); 
 s.set_controller(controller);
 
 % number of simulation cycles

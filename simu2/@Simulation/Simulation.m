@@ -14,9 +14,7 @@ classdef Simulation < handle
         res = can_compute_phase(self);
     end
 
-    methods(Static)
-        [dtk_us_new, ts_us_final] = condition_dtk_signal(time_us, dtk_us, time_constraint_us);
-    end
+
 
     methods
         % .. constructor
