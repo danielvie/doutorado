@@ -112,34 +112,34 @@ simu2/
 ├── SIMULATION_FLOW.md              # Legacy simulation flow documentation
 ├── DOCUMENTATION.md                # This file
 │
-├── @Simulation/                    # Core simulation class (class folder)
+├── @Simulation/                    # Core simulation coordinator (class folder)
 │   ├── Simulation.m                # Class definition & constructor
-│   ├── run.m                       # Main simulation loop
+│   ├── run.m                       # Main simulation loop (pre-allocated buffers)
 │   ├── set_config.m                # Load circuit configuration by name
-│   ├── set_traj_phase.m            # Set trajectory from params (hidden)
-│   ├── set_traj_phase_with_alpha.m # Set trajectory from duty cycle α
-│   ├── set_traj_phase_with_iref.m  # Set trajectory from reference current
+│   ├── set_traj_phase.m            # Set trajectory from params (hidden, legacy)
+│   ├── set_traj_phase_with_alpha.m # Delegates to Trajectory.Planner.set_alpha()
+│   ├── set_traj_phase_with_iref.m  # Delegates to Trajectory.Planner.set_reference_current()
 │   ├── set_mpc.m                   # Configure MPC matrices and constraints
 │   ├── set_controller.m            # Assign controller (Strategy pattern)
 │   ├── set_offset.m                # Set offset for states
 │   ├── set_config_mpc.m            # Set MPC config struct
 │   ├── step_control.m              # Delegate control to m_controller
 │   ├── step_actuation.m            # Convert dtk to timing (Ts), apply constraints
-│   ├── sim_cycle_switching.m       # Simulate cycle at switching instants only
-│   ├── sim_cycle_dense.m           # Dense simulation for plotting (lsim-based)
+│   ├── sim_cycle_switching.m       # → Delegates to Dynamics.propagate_switching()
+│   ├── sim_cycle_dense.m           # → Delegates to Dynamics.propagate_dense()
 │   ├── run_mpc.m                   # Legacy MPC computation (uses K*ek)
 │   ├── compute_ts_from_dtk.m       # Apply dtk adjustments to Ts vector
 │   ├── condition_dtk_signal.m      # Constraint conditioning (static method)
 │   ├── signal_process.m            # Signal processing for hardware interface
-│   ├── get_phi_gamma.m             # Compute Φ and Γ linearized matrices
-│   ├── get_switching_constraints.m # Compute switching constraint vector c
+│   ├── get_phi_gamma.m             # → Delegates to Dynamics.linearize()
+│   ├── get_switching_constraints.m # → Delegates to Dynamics.switching_constraints()
 │   ├── get_config_mpc.m            # Get MPC configuration struct
 │   ├── get_gain_k.m                # Get LQR gain K
 │   ├── get_mode.m                  # Get mode sequence (0-indexed)
-│   ├── get_mode_bin.m              # Get mode sequence in binary form
+│   ├── get_mode_bin.m              # → Delegates to Hardware.mode_to_binary()
 │   ├── get_time_us.m               # Get time intervals in microseconds
 │   ├── get_target.m                # Get MPC target state
-│   ├── get_msg_control_signal.m    # Format BLE message with control data
+│   ├── get_msg_control_signal.m    # → Delegates to Hardware.format_control_message()
 │   ├── project_feasibility_region.m# Compute and plot feasibility region
 │   ├── project_with_alpha.m        # Projection automation for given α
 │   ├── quantizacao.m               # Time quantization (hardware emulation)
@@ -147,6 +147,16 @@ simu2/
 │   ├── alpha.m                     # Alias: set_traj_phase_with_alpha
 │   ├── iref.m                      # Alias: set_traj_phase_with_iref
 │   └── name.m                      # Get simulation name string
+│
+├── +Dynamics/                      # Physics & linearization (package) ★ NEW
+│   ├── propagate_switching.m       # State propagation at switching instants (expm)
+│   ├── propagate_dense.m           # Dense state propagation (lsim-based)
+│   ├── linearize.m                 # Compute Φ and Γ linearized matrices
+│   └── switching_constraints.m     # Compute switching constraint vector c
+│
+├── +Hardware/                      # Hardware signal formatting (package) ★ NEW
+│   ├── format_control_message.m    # Format BLE MESSAGE_DATA string
+│   └── mode_to_binary.m            # Convert mode sequence to binary switch states
 │
 ├── @BTBroker/                      # Bluetooth hardware broker (class folder)
 │   ├── BTBroker.m                  # Class definition (BLE connection to ESP32)
@@ -192,7 +202,7 @@ simu2/
 │   └── BuckBoostPlotter.m          # Visualization class (states, trajectory, control)
 │
 ├── +Trajectory/                    # Trajectory planning (package)
-│   └── Planner.m                   # Trajectory generation from α or i_ref
+│   └── Planner.m                   # Trajectory generation from α or i_ref ★ REFACTORED
 │
 ├── +Enums/                         # Enumerations (package)
 │   ├── SimName.m                   # INTEGRADOR_DUPLO, PATINO_1, PATINO_2, LAB_CIRCUIT
@@ -227,7 +237,7 @@ simu2/
 
 **File:** `@Simulation/Simulation.m`
 
-The central orchestrator of the simulation framework.
+The central **coordinator** that delegates to specialized packages for physics, trajectory, and hardware. After decomposition, its methods are thin wrappers that delegate to `+Dynamics`, `+Trajectory`, `+Hardware`, and `+Controllers`.
 
 **Properties:**
 
@@ -239,6 +249,19 @@ The central orchestrator of the simulation framework.
 | `m_state_mode` | `Enums.StateMode` | `ORIGINAL` or `AUGMENTED` |
 | `m_log` | `struct` | Logging structure with `.run` and `.signal` sub-structs |
 | `m_controller` | `Controllers.Controller` | Active controller instance (Strategy pattern) |
+| `m_planner` | `Trajectory.Planner` | Trajectory planner instance (created for Buck-Boost configs) |
+
+**Delegation pattern:**
+
+| Old responsibility | Now delegated to |
+|---|---|
+| State propagation | `Dynamics.propagate_switching()`, `Dynamics.propagate_dense()` |
+| Linearization (Φ, Γ) | `Dynamics.linearize()` |
+| Switching constraints | `Dynamics.switching_constraints()` |
+| Trajectory from α/i_ref | `Trajectory.Planner.set_alpha()`, `.set_reference_current()` |
+| BLE message formatting | `Hardware.format_control_message()` |
+| Mode-to-binary | `Hardware.mode_to_binary()` |
+| Control computation | `Controllers.Controller.compute_control()` |
 
 **Constructor:**
 
@@ -246,7 +269,7 @@ The central orchestrator of the simulation framework.
 s = Simulation(Enums.SimName.LAB_CIRCUIT);
 ```
 
-Loads a circuit configuration via `set_config()`, initializes default MPC config, sets state mode to `ORIGINAL`, and creates the log structure.
+Loads a circuit configuration via `set_config()`, initializes default MPC config, sets state mode to `ORIGINAL`, creates the log structure, and instantiates a `Trajectory.Planner` for Buck-Boost configs.
 
 ### 4.2 `Controllers.Controller` (abstract handle class)
 
@@ -426,20 +449,26 @@ end
 ### 5.3 Trajectory Setup Pipeline
 
 ```
-set_traj_phase_with_alpha(α)
+set_traj_phase_with_alpha(α)              [@Simulation - coordinator]
   │
-  ├── Compute circuit params (iMax = E/R, iLref = α·iMax)
+  ├── Guard: can_compute_phase()
   │
-  └── set_traj_phase(params)
-        │
-        ├── Utils.industrial_solution(α, n, T)
-        │     → Returns: Ω (mode sequence), ΔT (time intervals)
-        │
-        ├── Filter ΔT < 1e-16 (remove negligible intervals)
-        │
-        ├── config.Omega = Ω
-        ├── config.Ts    = Utils.get_ts(ΔT)  (cumulative)
-        └── config.x0    = Utils.get_x0(config) (periodic orbit)
+  ├── m_planner.set_alpha(α, config)      [Trajectory.Planner - computation]
+  │     │
+  │     ├── Utils.industrial_solution(α, n, T)
+  │     │     → Returns: Ω (mode sequence), ΔT (time intervals)
+  │     │
+  │     ├── Filter ΔT < 1e-16 (remove negligible intervals)
+  │     │
+  │     ├── Ts = Utils.get_ts(ΔT)  (cumulative)
+  │     ├── x0 = Utils.get_x0(temp_config) (periodic orbit)
+  │     └── Returns: [Omega, Ts, x0]
+  │
+  └── Apply results to config              [@Simulation - config update]
+        ├── config.Omega = Omega
+        ├── config.Ts    = Ts
+        ├── config.x0    = x0
+        └── config.xref  = [E/3; 2E/3; iLref]
 ```
 
 ### 5.4 State Propagation (`sim_cycle_switching`)

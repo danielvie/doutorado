@@ -5,7 +5,8 @@ classdef Simulation < handle
         m_set_alpha_cache;
         m_state_mode;
         m_log;
-        m_controller; % Controllers.Controller instance
+        m_controller;  % Controllers.Controller instance
+        m_planner;     % Trajectory.Planner instance
     end
 
     methods(Hidden = true)
@@ -32,6 +33,11 @@ classdef Simulation < handle
 
             % default state mode
             self.m_state_mode = Enums.StateMode.ORIGINAL;
+
+            % initialize Trajectory.Planner (only for Buck-Boost configs)
+            if self.can_compute_phase()
+                self.m_planner = Trajectory.Planner(self.m_config.circuit_params);
+            end
 
             % log structure
             log_struct = struct();

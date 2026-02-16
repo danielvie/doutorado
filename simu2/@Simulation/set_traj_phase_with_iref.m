@@ -7,15 +7,19 @@ function set_traj_phase_with_iref(self, iref)
 
     disp(['set traj phase with iref: ', num2str(iref)]);
 
-	% dynamics of the system (Buck-Boost converter)
-	params = self.m_config.circuit_params;
-    
-    params.iLref = iref;
-    params.iMax = params.E/params.R;
-    params.alpha = params.iLref / params.iMax;
+    % Delegate to Trajectory.Planner
+    [Omega, Ts, x0] = self.m_planner.set_reference_current(iref, self.m_config);
 
-    params.n = 3; % number of switching cells
-    params.T = 0.28*1e-3; % period of the complete cycle
-    
-    self.set_traj_phase(params);
+    % Apply computed trajectory to config
+    self.m_config.Omega = Omega;
+    self.m_config.Ts    = Ts;
+    self.m_config.x0    = x0;
+
+    % Update derived params
+    params = self.m_config.circuit_params;
+    params.iMax = params.E / params.R;
+    alpha = iref / params.iMax;
+
+    self.m_config.xref = [1/3*params.E; 2/3*params.E; iref];
+    self.m_config.mpc.x_target = self.m_config.xref;
 end
