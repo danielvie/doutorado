@@ -43,9 +43,7 @@ void signal_controller_init() {
     gpio_config_t io_conf = {};
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_OUTPUT;
-    io_conf.pin_bit_mask = (1ULL << PIN_OUT_6) | (1ULL << PIN_OUT_5) |
-                           (1ULL << PIN_OUT_4) | (1ULL << PIN_OUT_6_) |
-                           (1ULL << PIN_OUT_5_) | (1ULL << PIN_OUT_4_);
+    io_conf.pin_bit_mask = (1ULL << PIN_OUT_6) | (1ULL << PIN_OUT_5) | (1ULL << PIN_OUT_4) | (1ULL << PIN_OUT_6_) | (1ULL << PIN_OUT_5_) | (1ULL << PIN_OUT_4_);
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
     gpio_config(&io_conf);
@@ -60,9 +58,9 @@ void signal_controller_init() {
     gpio_set_level(PIN_OUT_SIG, 0);
 
     // 2. Populate Default Pattern into Set A
-    g_dataset_a.time_durations[0] = 10;
-    g_dataset_a.time_durations[1] = 20;
-    g_dataset_a.time_durations[2] = 10;
+    g_dataset_a.time_durations[0] = 10; 
+    g_dataset_a.time_durations[1] = 20; 
+    g_dataset_a.time_durations[2] = 10; 
     g_dataset_a.time_durations[3] = 20;
 
     // Mode 7 (111)
@@ -88,26 +86,25 @@ void signal_controller_init() {
     g_active_set = SignalSet::SET_A;
     g_ds_update_pending = false;
 
-    ESP_LOGI(TAG, "Signal Controller Initialized. Default Pattern Size: %d",
-             g_dataset_a.size);
+    ESP_LOGI(TAG, "Signal Controller Initialized. Default Pattern Size: %d", g_dataset_a.size);
 }
 
 // ---------------------------------------------------------------------------
 // DATA UPDATE LOGIC (Called from BLE Task)
 // ---------------------------------------------------------------------------
-void signal_update_from_string(const std::string &message) {
+void signal_update_from_string(const std::string& message) {
 
     // 1. Determine which dataset is INACTIVE (Safe to write to)
-    DataSet *target_dataset = nullptr;
+    DataSet* target_dataset = nullptr;
     SignalSet target_signalset;
 
-    // We read the volatile variable once.
+    // We read the volatile variable once. 
     // If Set A is active, we write to Set B.
     if (g_active_set == SignalSet::SET_A) {
-        target_dataset = &g_dataset_b;
+        target_dataset   = &g_dataset_b;
         target_signalset = SignalSet::SET_B;
     } else {
-        target_dataset = &g_dataset_a;
+        target_dataset   = &g_dataset_a;
         target_signalset = SignalSet::SET_A;
     }
 
@@ -142,8 +139,8 @@ void signal_update_from_string(const std::string &message) {
     }
     target_dataset->size = (uint8_t)count;
 
-    ESP_LOGI(TAG, "Parsed %d segments into %s. Requesting swap...",
-             target_dataset->size,
+    ESP_LOGI(TAG, "Parsed %d segments into %s. Requesting swap...", 
+             target_dataset->size, 
              (target_signalset == SignalSet::SET_A ? "Set A" : "Set B"));
 
     // mark upadte pending
@@ -153,16 +150,14 @@ void signal_update_from_string(const std::string &message) {
 // ---------------------------------------------------------------------------
 // CONTINUOUS LOOP TASK (High Priority)
 // ---------------------------------------------------------------------------
-static void signal_loop_task(void *arg) {
-    ESP_LOGI(TAG, "Continuous Signal Task Started on Core %d",
-             xPortGetCoreID());
-
+static void signal_loop_task(void* arg) {
+    ESP_LOGI(TAG, "Continuous Signal Task Started on Core %d", xPortGetCoreID());
+    
     // Pointer to the data we are currently looping over
     // Start with whatever init set up (Set A)
-    DataSet *dataset = &g_dataset_a;
+    DataSet* dataset = &g_dataset_a;
 
-    // turn led on to indicate signal running (might need refactor to account
-    // for blink signal)
+    // turn led on to indicate signal running (might need refactor to account for blink signal)
     led_on();
 
     // -------------------------------------------------------
@@ -211,7 +206,7 @@ static void signal_loop_task(void *arg) {
         uint8_t sz = dataset->size;
 
         for (int i = 0; i < sz; i++) {
-            uint32_t us = dataset->time_durations[i];
+            uint32_t us  = dataset->time_durations[i];
 
             // Get current modes (0 or 1)
             uint32_t d6 = dataset->modes_d6[i] ? 1 : 0;
@@ -225,37 +220,23 @@ static void signal_loop_task(void *arg) {
 
             // Determine which pins need to go to Dead Time (Low)
             uint32_t clear_mask = 0;
-            if (change_6)
-                clear_mask |= (MASK_OUT_6 | MASK_OUT_6_);
-            if (change_5)
-                clear_mask |= (MASK_OUT_5 | MASK_OUT_5_);
-            if (change_4)
-                clear_mask |= (MASK_OUT_4 | MASK_OUT_4_);
+            if (change_6) clear_mask |= (MASK_OUT_6 | MASK_OUT_6_);
+            if (change_5) clear_mask |= (MASK_OUT_5 | MASK_OUT_5_);
+            if (change_4) clear_mask |= (MASK_OUT_4 | MASK_OUT_4_);
 
             // Determine the new state (High pins)
             uint32_t set_mask = 0;
-            if (d6)
-                set_mask |= MASK_OUT_6;
-            else
-                set_mask |= MASK_OUT_6_;
-            if (d5)
-                set_mask |= MASK_OUT_5;
-            else
-                set_mask |= MASK_OUT_5_;
-            if (d4)
-                set_mask |= MASK_OUT_4;
-            else
-                set_mask |= MASK_OUT_4_;
+            if (d6) set_mask |= MASK_OUT_6; else set_mask |= MASK_OUT_6_;
+            if (d5) set_mask |= MASK_OUT_5; else set_mask |= MASK_OUT_5_;
+            if (d4) set_mask |= MASK_OUT_4; else set_mask |= MASK_OUT_4_;
 
             // Apply Dead Time if needed
             if (clear_mask) {
                 GPIO.out_w1tc = clear_mask;
 
                 // Determine delay based on direction
-                bool is_rising =
-                    (change_6 && d6) || (change_5 && d5) || (change_4 && d4);
-                uint32_t delay_cycles_val =
-                    is_rising ? g_dead_time_cycles_up : g_dead_time_cycles_down;
+                bool is_rising = (change_6 && d6) || (change_5 && d5) || (change_4 && d4);
+                uint32_t delay_cycles_val = is_rising ? g_dead_time_cycles_up : g_dead_time_cycles_down;
 
                 helper_delay_cycles(delay_cycles_val);
 
@@ -282,12 +263,10 @@ static void signal_loop_task(void *arg) {
             last_d4 = d4;
 
             // trigger analog reading if needed
-            if (i == 0 && g_system_state.ble_an_read_state !=
-                              BLEAnalogReadState::DISABLED) {
+            if (i == 0 && g_system_state.ble_an_read_state != BLEAnalogReadState::DISABLED) {
                 g_cycle_count = (g_cycle_count + 1) % g_cycle_nrun;
                 if (g_cycle_count == 0) {
-                    g_system_state.ble_an_read_state =
-                        BLEAnalogReadState::READING;
+                    g_system_state.ble_an_read_state = BLEAnalogReadState::READING;
                     xSemaphoreGive(sem_analog_read_trigger);
                 }
             }
@@ -316,8 +295,7 @@ static void signal_loop_task(void *arg) {
 }
 
 void signal_start_continuous() {
-    if (g_system_state.signal_state == SignalState::RUNNING ||
-        s_signal_task_handle != NULL) {
+    if (g_system_state.signal_state == SignalState::RUNNING || s_signal_task_handle != NULL) {
         ESP_LOGW(TAG, "Signal already running!");
         return;
     }
@@ -330,8 +308,15 @@ void signal_start_continuous() {
     g_system_state.signal_state = SignalState::RUNNING;
 
     // Pin to Core 1 (APP_CPU)
-    xTaskCreatePinnedToCore(signal_loop_task, "sig_loop", 4096, NULL, 10,
-                            &s_signal_task_handle, CORE_1);
+    xTaskCreatePinnedToCore(
+        signal_loop_task,   
+        "sig_loop",         
+        4096,               
+        NULL,               
+        10,                 
+        &s_signal_task_handle, 
+        CORE_1                   
+    );
 }
 
 void signal_stop() {
@@ -349,12 +334,11 @@ void signal_stop() {
     }
 }
 
-DataSet *get_dataset_active(void) {
-    DataSet *dataset =
-        (g_active_set == SignalSet::SET_A) ? &g_dataset_a : &g_dataset_b;
+DataSet* get_dataset_active(void) {
+    DataSet *dataset = (g_active_set == SignalSet::SET_A) ? &g_dataset_a : &g_dataset_b;
     return dataset;
 }
 
 // Placeholder for interface compatibility
-void signal_execute_sequence(const uint16_t *durations, const uint8_t *modes,
-                             int segment_count, int repeats) {}
+void signal_execute_sequence(const uint16_t* durations, const uint8_t* modes, int segment_count, int repeats) {
+}

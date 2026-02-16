@@ -1,4 +1,5 @@
-// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
+// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the
+// MIT license.
 
 #pragma once
 
@@ -10,29 +11,34 @@
 #include <sstream>
 #include <vector>
 
-
 #include "esp_cpu.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "helper_led.h"
 
-
 #define CORE_0 0
 #define CORE_1 1
 
-#define PIN_OUT_6   GPIO_NUM_23 // Bit 2 (4)
-#define PIN_OUT_6_  GPIO_NUM_22 // 
-#define PIN_OUT_5   GPIO_NUM_21 // Bit 1 (2)
-#define PIN_OUT_5_  GPIO_NUM_19 // 
-#define PIN_OUT_4   GPIO_NUM_18 // Bit 0 (1)
-#define PIN_OUT_4_  GPIO_NUM_17 // 
-#define PIN_OUT_SIG GPIO_NUM_16 // 
+#define PIN_OUT_6 GPIO_NUM_23   // Bit 2 (4)
+#define PIN_OUT_6_ GPIO_NUM_22  //
+#define PIN_OUT_5 GPIO_NUM_21   // Bit 1 (2)
+#define PIN_OUT_5_ GPIO_NUM_19  //
+#define PIN_OUT_4 GPIO_NUM_18   // Bit 0 (1)
+#define PIN_OUT_4_ GPIO_NUM_17  //
+#define PIN_OUT_SIG GPIO_NUM_16 //
 
 // .. globals
 extern volatile uint32_t g_analog_monitor_period_ms;
 
 // .. defining semaphore for reading data
 extern SemaphoreHandle_t sem_analog_read_trigger;
+
+// .. control and adc globals
+extern volatile bool g_control_enabled;
+extern volatile float g_adc_an3;
+extern volatile float g_adc_an5;
+extern volatile float g_adc_an6;
+extern volatile bool g_adc_fresh;
 
 // .. data structures
 struct LogDuration {
@@ -54,9 +60,9 @@ enum class Status {
     OFF,
 };
 
-enum class SignalSet { 
-    SET_A,      // Signal set A is active
-    SET_B       // Signal set B is active
+enum class SignalSet {
+    SET_A, // Signal set A is active
+    SET_B  // Signal set B is active
 };
 
 enum class BLEAnalogReadState {
@@ -100,14 +106,17 @@ struct Bin {
 void blink(uint8_t N);
 struct Bin num2bin(uint32_t num);
 void parse_section(const std::string &section, std::vector<uint32_t> &result);
-int parse_signal(const std::string &s, std::vector<uint32_t> &time, std::vector<uint32_t> &mode);
+int parse_signal(const std::string &s, std::vector<uint32_t> &time,
+                 std::vector<uint32_t> &mode);
 
 std::string get_label(SignalSet set);
 std::string get_label(BLEAnalogReadState state);
 std::string get_label(SignalState state);
 std::string get_label(ControlState state);
 
-static inline void __attribute__((always_inline)) helper_delay_cycles(uint32_t cycles) {
+static inline void __attribute__((always_inline))
+helper_delay_cycles(uint32_t cycles) {
     uint32_t start = esp_cpu_get_cycle_count();
-    while (esp_cpu_get_cycle_count() - start < cycles) { }
+    while (esp_cpu_get_cycle_count() - start < cycles) {
+    }
 }
