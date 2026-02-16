@@ -102,8 +102,9 @@ static inline void update_time_durations(DataSet *dataset, const float *dtk_us,
     g_log_duration.update_signal_with_dtk = (t5 - t4) / 240;
 }
 
-static inline bool compute_control(DataSet *dataset, float an3, float an5,
-                                   float an6, float *dtk_us) {
+static inline bool compute_control_correction(DataSet *dataset, float an3,
+                                              float an5, float an6,
+                                              float *dtk_us) {
     const uint32_t N = dataset->size;
     const uint32_t p = N - 1;
 
