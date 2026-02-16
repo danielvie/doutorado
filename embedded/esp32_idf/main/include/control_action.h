@@ -102,13 +102,13 @@ static inline void update_time_durations(DataSet *dataset, const float *dtk_us,
     g_log_duration.update_signal_with_dtk = (t5 - t4) / 240;
 }
 
-static inline void control_action(DataSet *dataset, float an3, float an5,
-                                  float an6) {
+static inline bool compute_control(DataSet *dataset, float an3, float an5,
+                                   float an6, float *dtk_us) {
     const uint32_t N = dataset->size;
     const uint32_t p = N - 1;
 
     if (p == 0 || !dataset->gain_k.is_valid) {
-        return;
+        return false;
     }
 
     // 1. Compute error
@@ -117,8 +117,6 @@ static inline void control_action(DataSet *dataset, float an3, float an5,
     float e3 = an6 - dataset->target[2];
 
     // 2. Compute control: dtk = -K * e
-    float dtk_us[CONTROL_MAX_DTK];
-
     uint32_t t0 = esp_cpu_get_cycle_count();
     matrix_multiply_vector3(dataset->gain_k, e1, e2, e3, dtk_us);
     uint32_t t1 = esp_cpu_get_cycle_count();
@@ -132,13 +130,12 @@ static inline void control_action(DataSet *dataset, float an3, float an5,
     // 3. Condition dtk
     condition_dtk(dtk_us, p, dataset->time_durations);
 
-    // 4. Update durations
-    update_time_durations(dataset, dtk_us, p, N);
-
     // Store dtk for telemetry
     for (uint32_t j = 0; j < p && j < MAX_SIGNAL_SIZE; j++) {
         dataset->time_us_diff[j] = (int32_t)roundf(dtk_us[j]);
     }
+
+    return true;
 }
 
 #endif // CONTROL_ACTION_H

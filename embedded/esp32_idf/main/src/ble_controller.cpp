@@ -228,9 +228,9 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
             ble_router_signal_start();
         } else if (strcmp(msg_lower, "stop") == 0) {
             ble_router_signal_stop();
-        } else if (strcmp(msg_lower, "ctrl_on") == 0) {
+        } else if (strcmp(msg_lower, "control_on") == 0) {
             ble_router_ctrl(ControlState::ON);
-        } else if (strcmp(msg_lower, "ctrl_off") == 0) {
+        } else if (strcmp(msg_lower, "control_off") == 0) {
             ble_router_ctrl(ControlState::OFF);
         } else {
             ESP_LOGI(TAG, "Unrecognized write: '%s' (len=%u)", msg_buf, len);
