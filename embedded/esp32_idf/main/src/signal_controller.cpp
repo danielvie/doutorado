@@ -204,6 +204,7 @@ static void signal_loop_task(void *arg) {
             float dtk[CONTROL_MAX_DTK];
 
             // compute control action
+            // save the result in dtk
             bool res = compute_control_correction(dataset, g_adc_an3, g_adc_an5,
                                                   g_adc_an6, dtk);
 

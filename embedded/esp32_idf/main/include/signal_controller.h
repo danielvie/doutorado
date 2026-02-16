@@ -24,10 +24,10 @@ struct DataSet {
     uint32_t time_durations[MAX_SIGNAL_SIZE];
     uint32_t modes_d4[MAX_SIGNAL_SIZE];
     uint32_t modes_d5[MAX_SIGNAL_SIZE];
-    uint32_t modes_d6[MAX_SIGNAL_SIZE]; 
+    uint32_t modes_d6[MAX_SIGNAL_SIZE];
     uint32_t size;
     int32_t time_us_diff[MAX_SIGNAL_SIZE];
-    float target[3]; 
+    float target[3];
     MatrixData gain_k;
 };
 
@@ -45,7 +45,6 @@ extern volatile bool g_ds_update_pending;
 extern volatile uint32_t g_dead_time_cycles_up;
 extern volatile uint32_t g_dead_time_cycles_down;
 
-
 /**
  * @brief Initialize the GPIOs and populate the custom signal pattern.
  */
@@ -57,7 +56,7 @@ void signal_controller_init();
  * Safe to call from BLE/Core0.
  * @param message The raw message string (e.g., "SIGNAL:...")
  */
-void signal_update_from_string(const std::string& message);
+void signal_update_from_string(const std::string &message);
 
 /**
  * @brief Starts generating the signal continuously in a loop.
@@ -70,10 +69,10 @@ void signal_start_continuous();
  */
 void signal_stop();
 
-
-DataSet* get_dataset_active(void);
+DataSet *get_dataset_active(void);
 
 /**
  * @brief (Internal) Placeholder
  */
-void signal_execute_sequence(const uint16_t* durations, const uint8_t* modes, int segment_count, int repeats);
+void signal_execute_sequence(const uint16_t *durations, const uint8_t *modes,
+                             int segment_count, int repeats);

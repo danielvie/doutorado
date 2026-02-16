@@ -64,7 +64,6 @@ classdef Proportional < Controllers.Controller
                 dtk = -self.K * ek;
 
                 % Apply switching constraint conditioning
-                % (MPC handles this via QP constraints, but proportional needs it)
                 if ~isempty(self.time_us) && ~isempty(self.min_gap_us)
                     dtk_us = dtk * 1e6;
                     dtk_us = Controllers.condition_dtk( ...

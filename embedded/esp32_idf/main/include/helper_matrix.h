@@ -1,14 +1,14 @@
-// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
+// Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the
+// MIT license.
 
 #ifndef MATRIX_MATH_H
 #define MATRIX_MATH_H
 
 #include "helper_note.h"
 
+#include <memory>
 #include <stdint.h>
 #include <vector>
-#include <memory>
-
 
 extern "C" {
 #include "esp_log.h"
@@ -24,12 +24,12 @@ struct MatrixData {
 };
 
 extern "C" {
-    
-bool matrix_isvalid(MatrixData& M);
-bool matrix_multiply_vector3(MatrixData& M, float x1, float x2, float x3, float* result);
-void matrix_print(MatrixData& M);
-void matrix_test();
 
+bool matrix_isvalid(MatrixData &M);
+bool matrix_multiply_vector3(const MatrixData &M, float x1, float x2, float x3,
+                             float *result);
+void matrix_print(MatrixData &M);
+void matrix_test();
 }
 
 #endif // MATRIX_MATH_H

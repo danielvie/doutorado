@@ -321,8 +321,10 @@ void ble_router_ctrl(ControlState state) {
     note_add_text(*msg, "\nSTATUS\n");
     if (g_control_enabled) {
         note_add_text(*msg, "CONTROL::ON");
+        ESP_LOGI(TAG, "CONTROL::ON");
     } else {
         note_add_text(*msg, "CONTROL::OFF");
+        ESP_LOGI(TAG, "CONTROL::OFF");
     }
 
     note_ble_send(*msg);

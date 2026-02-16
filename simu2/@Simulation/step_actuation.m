@@ -5,11 +5,8 @@ function [config, metrics] = step_actuation(self, config, dtk)
     % (e.g., Proportional applies constraint conditioning internally,
     %  MPC handles it via QP constraints).
 
-    % Convert to microseconds and round to integer (hardware resolution)
-    dtk_us = round(dtk * 1e6);
-
     % Compute new time vector
-    Ts = self.compute_ts_from_dtk(self.m_config, dtk_us * 1e-6);
+    Ts = self.compute_ts_from_dtk(self.m_config, dtk);
 
     % Validate: all intervals must be positive
     ts_us_diff = diff(Ts * 1e6);
