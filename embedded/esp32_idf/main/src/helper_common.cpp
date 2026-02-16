@@ -42,8 +42,8 @@ struct Bin num2bin(uint32_t num) {
     b.b2 = num & 0x2;
     b.b3 = num & 0x4;
     b.b4 = num & 0x8;
-    b.b5 = num & 0x16;
-    b.b6 = num & 0x32;
+    b.b5 = num & 0x10;
+    b.b6 = num & 0x20;
 
     return b;
 }

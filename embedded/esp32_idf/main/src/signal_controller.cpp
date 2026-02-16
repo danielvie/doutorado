@@ -34,8 +34,8 @@ volatile SignalSet g_active_set = SignalSet::SET_A;
 volatile bool g_ds_update_pending = false;
 
 // delay -> cycle 1/240mhz = 1/240 ~= 4.166 ns
-volatile uint32_t g_cycle_us_delay_up = 215;
-volatile uint32_t g_cycle_us_delay_down = 215;
+volatile uint32_t g_dead_time_cycles_up = 215;
+volatile uint32_t g_dead_time_cycles_down = 215;
 
 void signal_controller_init() {
     // 1. Configure GPIOs
@@ -227,7 +227,7 @@ static void signal_loop_task(void* arg) {
                 
                 // Determine delay based on direction
                 bool is_rising = (change_6 && d6) || (change_5 && d5) || (change_4 && d4);
-                uint32_t delay_cycles_val = is_rising ? g_cycle_us_delay_up : g_cycle_us_delay_down;
+                uint32_t delay_cycles_val = is_rising ? g_dead_time_cycles_up : g_dead_time_cycles_down;
 
                 helper_delay_cycles(delay_cycles_val);
                 
