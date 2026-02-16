@@ -93,7 +93,7 @@ void signal_controller_init() {
 // DATA UPDATE LOGIC (Called from BLE Task)
 // ---------------------------------------------------------------------------
 void signal_update_from_string(const std::string& message) {
-
+    
     // 1. Determine which dataset is INACTIVE (Safe to write to)
     DataSet* target_dataset = nullptr;
     SignalSet target_signalset;
@@ -172,7 +172,7 @@ static void signal_loop_task(void* arg) {
     uint32_t last_d4 = 2;
 
     while (g_system_state.signal_state == SignalState::RUNNING) {
-
+        
         // ---------------------------------------------------
         // CHECK FOR UPDATES (Start of Loop)
         // ---------------------------------------------------
@@ -207,7 +207,7 @@ static void signal_loop_task(void* arg) {
 
         for (int i = 0; i < sz; i++) {
             uint32_t us  = dataset->time_durations[i];
-
+            
             // Get current modes (0 or 1)
             uint32_t d6 = dataset->modes_d6[i] ? 1 : 0;
             uint32_t d5 = dataset->modes_d5[i] ? 1 : 0;
@@ -233,16 +233,16 @@ static void signal_loop_task(void* arg) {
             // Apply Dead Time if needed
             if (clear_mask) {
                 GPIO.out_w1tc = clear_mask;
-
+                
                 // Determine delay based on direction
                 bool is_rising = (change_6 && d6) || (change_5 && d5) || (change_4 && d4);
                 uint32_t delay_cycles_val = is_rising ? g_dead_time_cycles_up : g_dead_time_cycles_down;
 
                 helper_delay_cycles(delay_cycles_val);
-
+                
                 // Apply new state
                 GPIO.out_w1ts = set_mask;
-
+                
                 // Wait remaining time
                 if (us > 1) {
                     esp_rom_delay_us(us - 1);
@@ -250,7 +250,7 @@ static void signal_loop_task(void* arg) {
             } else {
                 // No transition, just ensure state (redundant but safe)
                 GPIO.out_w1ts = set_mask;
-
+                
                 // Wait full time
                 if (us > 0) {
                     esp_rom_delay_us(us);
@@ -261,12 +261,13 @@ static void signal_loop_task(void* arg) {
             last_d6 = d6;
             last_d5 = d5;
             last_d4 = d4;
-
+            
             // trigger analog reading if needed
             if (i == 0 && g_system_state.ble_an_read_state != BLEAnalogReadState::DISABLED) {
                 g_cycle_count = (g_cycle_count + 1) % g_cycle_nrun;
                 if (g_cycle_count == 0) {
                     g_system_state.ble_an_read_state = BLEAnalogReadState::READING;
+                    
                     xSemaphoreGive(sem_analog_read_trigger);
                 }
             }
@@ -279,7 +280,7 @@ static void signal_loop_task(void* arg) {
     portENABLE_INTERRUPTS();
 
     ESP_LOGI(TAG, "Continuous Signal Task Stopped");
-
+    
     // Ensure pins are low
     gpio_set_level(PIN_OUT_6, 0);
     gpio_set_level(PIN_OUT_5, 0);
@@ -287,7 +288,7 @@ static void signal_loop_task(void* arg) {
     gpio_set_level(PIN_OUT_6_, 0);
     gpio_set_level(PIN_OUT_5_, 0);
     gpio_set_level(PIN_OUT_4_, 0);
-
+    
     led_off();
 
     s_signal_task_handle = NULL;
@@ -299,14 +300,14 @@ void signal_start_continuous() {
         ESP_LOGW(TAG, "Signal already running!");
         return;
     }
-
+    
     if (g_dataset_a.size == 0) {
         ESP_LOGE(TAG, "Pattern empty, cannot start");
         return;
     }
 
     g_system_state.signal_state = SignalState::RUNNING;
-
+    
     // Pin to Core 1 (APP_CPU)
     xTaskCreatePinnedToCore(
         signal_loop_task,   
