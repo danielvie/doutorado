@@ -295,19 +295,9 @@ static void signal_loop_task(void *arg) {
                 clear_mask |= (MASK_OUT_4 | MASK_OUT_4_);
 
             // Determine the new state (High pins)
-            uint32_t set_mask = 0;
-            if (d6)
-                set_mask |= MASK_OUT_6;
-            else
-                set_mask |= MASK_OUT_6_;
-            if (d5)
-                set_mask |= MASK_OUT_5;
-            else
-                set_mask |= MASK_OUT_5_;
-            if (d4)
-                set_mask |= MASK_OUT_4;
-            else
-                set_mask |= MASK_OUT_4_;
+            uint32_t set_mask = (d6 ? MASK_OUT_6 : MASK_OUT_6_)
+                              | (d5 ? MASK_OUT_5 : MASK_OUT_5_)
+                              | (d4 ? MASK_OUT_4 : MASK_OUT_4_);
 
             // Apply Dead Time if needed
             if (clear_mask) {
