@@ -4,57 +4,13 @@
 // Test
 // =====================================================================
 
-struct TestData {
+struct DataAnalogRead {
     float an3;
     float an5;
     float an6;
-    uint32_t N;
-    uint32_t p;
 };
 
-void set_test_values(TestData &td, DataSet &ds) {
-    ds.size = 6;
-
-    ds.time_durations[0] = 47;
-    ds.time_durations[1] = 47;
-    ds.time_durations[2] = 47;
-    ds.time_durations[3] = 47;
-    ds.time_durations[4] = 47;
-    ds.time_durations[5] = 47;
-
-    ds.target[0] = 1.6667f;
-    ds.target[1] = 3.3367f;
-    ds.target[2] = 0.0344f;
-
-    // K (5×3)
-    ds.gain_k.rows = 5;
-    ds.gain_k.cols = 3;
-    ds.gain_k.size = 15;
-    ds.gain_k.is_valid = true;
-
-    ds.gain_k.values[0] = -0.0023f;
-    ds.gain_k.values[1] = 0.0023f;
-    ds.gain_k.values[2] = -0.0283f;
-    ds.gain_k.values[3] = -0.0045f;
-    ds.gain_k.values[4] = -0.0023f;
-    ds.gain_k.values[5] = 0.0285f;
-    ds.gain_k.values[6] = -0.0046f;
-    ds.gain_k.values[7] = -0.0091f;
-    ds.gain_k.values[8] = -0.0564f;
-    ds.gain_k.values[9] = 0.0023f;
-    ds.gain_k.values[10] = -0.0022f;
-    ds.gain_k.values[11] = 0.0299f;
-    ds.gain_k.values[12] = 0.0046f;
-    ds.gain_k.values[13] = 0.0023f;
-    ds.gain_k.values[14] = -0.0296f;
-
-    td.an3 = -0.0077f;
-    td.an5 = 0.0073f;
-    td.an6 = 0.0337f;
-
-    td.N = ds.size;
-    td.p = td.N - 1;
-}
+void set_test_values(DataAnalogRead &an, DataSet &ds);
 
 int main() {
     printf("====== CONTROL COMPUTATION TEST ======\n\n");
@@ -62,20 +18,20 @@ int main() {
     // -----------------------------------------------------------------
     // 1. Build test DataSet
     // -----------------------------------------------------------------
-    TestData td = {};
+    DataAnalogRead an = {};
     DataSet ds = {};
 
-    set_test_values(td, ds);
+    set_test_values(an, ds);
 
     // -----------------------------------------------------------------
     // 2. Simulated ADC readings
     // -----------------------------------------------------------------
-    float an3 = td.an3;
-    float an5 = td.an5;
-    float an6 = td.an6;
+    float an3 = an.an3;
+    float an5 = an.an5;
+    float an6 = an.an6;
 
-    const uint32_t N = td.N;
-    const uint32_t p = td.p;
+    const uint32_t N = ds.size;
+    const uint32_t p = N - 1;
 
     printf("Dataset:    size=%u, p=%u\n", N, p);
     printf("Durations:  [");
@@ -125,4 +81,57 @@ int main() {
 
     printf("\n====== TEST COMPLETE ======\n");
     return 0;
+}
+
+void set_test_values(DataAnalogRead &an, DataSet &ds) {
+
+    // ============================================
+    // C++ Test Values  (k = 10, log = run)
+    // ============================================
+
+    // --- time_durations ---
+    ds.size = 6;
+    ds.time_durations[0] = 37;
+    ds.time_durations[1] = 56;
+    ds.time_durations[2] = 37;
+    ds.time_durations[3] = 56;
+    ds.time_durations[4] = 37;
+    ds.time_durations[5] = 56;
+
+    // --- x_target ---
+    ds.target[0] = 1.66448f;
+    ds.target[1] = 3.3377f;
+    ds.target[2] = 0.0548073f;
+
+    // --- gain_k (K matrix, row-major) ---
+    ds.gain_k.rows = 5;
+    ds.gain_k.cols = 3;
+    ds.gain_k.size = 15;
+    ds.gain_k.is_valid = true;
+    ds.gain_k.values[0] = 0.00142105f;
+    ds.gain_k.values[1] = 0.00288248f;
+    ds.gain_k.values[2] = 0.0284068f;
+    ds.gain_k.values[3] = -0.00143276f;
+    ds.gain_k.values[4] = -0.00290369f;
+    ds.gain_k.values[5] = -0.0286929f;
+    ds.gain_k.values[6] = -0.00284902f;
+    ds.gain_k.values[7] = -0.00137942f;
+    ds.gain_k.values[8] = 0.0285511f;
+    ds.gain_k.values[9] = 0.00287031f;
+    ds.gain_k.values[10] = 0.00139108f;
+    ds.gain_k.values[11] = -0.0288429f;
+    ds.gain_k.values[12] = 0.00284935f;
+    ds.gain_k.values[13] = -0.0027968f;
+    ds.gain_k.values[14] = 0.0579364f;
+
+    // --- x (measured state) ---
+    an.an3 = 0.0102315f;
+    an.an5 = 0.0249179f;
+    an.an6 = 0.0334794f;
+
+    // --- Verification ---
+    // Expected ek:       [-1.65425, -3.31278, -0.0213279]
+    // Expected dtk_raw:  [0.0125057, -0.0126014, -0.00867377, 0.00874139,
+    // -0.00331601] Expected dtk_cond: [2.63988e-05, -2.66012e-05,
+    // -1.80676e-05, 1.82081e-05, -6.67325e-06]
 }

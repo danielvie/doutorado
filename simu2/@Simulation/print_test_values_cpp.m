@@ -96,10 +96,10 @@ function out = build_output(k, log_source, K, x_target, x, ek, time_dur, dtk_bef
     out = [out, sprintf('// --- x (measured state) ---\n')];
     adc_names = {'an3', 'an5', 'an6'};
     for i = 1:min(numel(x), numel(adc_names))
-        out = [out, sprintf('float %s = %.6gf;\n', adc_names{i}, x(i))];
+        out = [out, sprintf('an.%s = %.6gf;\n', adc_names{i}, x(i))];
     end
     for i = (numel(adc_names)+1):numel(x)
-        out = [out, sprintf('float x%d = %.6gf;\n', i, x(i))];
+        out = [out, sprintf('an.%d = %.6gf;\n', i, x(i))];
     end
     out = [out, sprintf('\n')];
 

@@ -15,7 +15,7 @@ s = Simulation(Enums.SimName.LAB_CIRCUIT);
 
 % compute trajectory with alpha
 % s.set_traj_phase_with_alpha(0.3);
-s.set_traj_phase_with_alpha(0.5);
+s.set_traj_phase_with_alpha(0.8);
 
 % set MPC parameters
 
