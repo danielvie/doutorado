@@ -3,6 +3,7 @@ function print_test_values_cpp(self, k, log_source)
     %
     % Extracts key controller variables from a log entry and formats them
     % as ready-to-paste C++ code for embedded controller unit tests.
+    % Output is also copied to the clipboard.
     %
     % Usage:
     %   s.print_test_values_cpp(5)              % from 'run' log (default)
@@ -36,78 +37,93 @@ function print_test_values_cpp(self, k, log_source)
     dtk_before = -K * ek;               % raw control law
     dtk_after  = log.dtk(k, :)';        % conditioned (from log)
 
+    % --- Build output string ---
+    out = build_output(k, log_source, K, x_target, x, ek, time_dur, dtk_before, dtk_after);
+
+    % --- Print and copy to clipboard ---
+    fprintf('%s', out);
+    clipboard('copy', out);
+    fprintf('(Copied to clipboard)\n');
+end
+
+
+% -------------------------------------------------------------------------
+% Local helpers
+% -------------------------------------------------------------------------
+
+function out = build_output(k, log_source, K, x_target, x, ek, time_dur, dtk_before, dtk_after)
     N = numel(time_dur);                 % number of time_duration elements
     [p, n_states] = size(K);             % p rows, n_states cols
     max_idx = p * n_states - 1;          % for right-aligning indices
     idx_width = numel(num2str(max_idx)); % digit width for alignment
 
-    % --- Print C++ code ---
-    fprintf('\n// ============================================\n');
-    fprintf('// C++ Test Values  (k = %d, log = %s)\n', k, log_source);
-    fprintf('// ============================================\n\n');
+    out = '';
+
+    out = [out, sprintf('\n// ============================================\n')];
+    out = [out, sprintf('// C++ Test Values  (k = %d, log = %s)\n', k, log_source)];
+    out = [out, sprintf('// ============================================\n\n')];
 
     % time_durations (uint32_t, no f suffix)
-    fprintf('// --- time_durations ---\n');
-    fprintf('ds.size = %d;\n', N);
+    out = [out, sprintf('// --- time_durations ---\n')];
+    out = [out, sprintf('ds.size = %d;\n', N)];
     for i = 1:N
-        fprintf('ds.time_durations[%d] = %d;\n', i-1, time_dur(i));
+        out = [out, sprintf('ds.time_durations[%d] = %d;\n', i-1, time_dur(i))];
     end
-    fprintf('\n');
+    out = [out, sprintf('\n')];
 
     % x_target
-    fprintf('// --- x_target ---\n');
+    out = [out, sprintf('// --- x_target ---\n')];
     for i = 1:numel(x_target)
-        fprintf('ds.target[%d] = %.6gf;\n', i-1, x_target(i));
+        out = [out, sprintf('ds.target[%d] = %.6gf;\n', i-1, x_target(i))];
     end
-    fprintf('\n');
+    out = [out, sprintf('\n')];
 
     % K (gain_k, row-major)
-    fprintf('// --- gain_k (K matrix, row-major) ---\n');
-    fprintf('ds.gain_k.rows = %d;\n', p);
-    fprintf('ds.gain_k.cols = %d;\n', n_states);
-    fprintf('ds.gain_k.size = %d;\n', p * n_states);
-    fprintf('ds.gain_k.is_valid = true;\n');
+    out = [out, sprintf('// --- gain_k (K matrix, row-major) ---\n')];
+    out = [out, sprintf('ds.gain_k.rows = %d;\n', p)];
+    out = [out, sprintf('ds.gain_k.cols = %d;\n', n_states)];
+    out = [out, sprintf('ds.gain_k.size = %d;\n', p * n_states)];
+    out = [out, sprintf('ds.gain_k.is_valid = true;\n')];
     for r = 1:p
         for c = 1:n_states
             idx = (r-1) * n_states + (c-1);
-            fprintf('ds.gain_k.values[%*d] = %.6gf;\n', idx_width, idx, K(r, c));
+            out = [out, sprintf('ds.gain_k.values[%*d] = %.6gf;\n', idx_width, idx, K(r, c))];
         end
     end
-    fprintf('\n');
+    out = [out, sprintf('\n')];
 
     % x (measured state / ADC readings)
-    fprintf('// --- x (measured state) ---\n');
+    out = [out, sprintf('// --- x (measured state) ---\n')];
     adc_names = {'an3', 'an5', 'an6'};
     for i = 1:min(numel(x), numel(adc_names))
-        fprintf('float %s = %.6gf;\n', adc_names{i}, x(i));
+        out = [out, sprintf('float %s = %.6gf;\n', adc_names{i}, x(i))];
     end
-    % fallback for states beyond 3
     for i = (numel(adc_names)+1):numel(x)
-        fprintf('float x%d = %.6gf;\n', i, x(i));
+        out = [out, sprintf('float x%d = %.6gf;\n', i, x(i))];
     end
-    fprintf('\n');
+    out = [out, sprintf('\n')];
 
     % Verification comments
-    fprintf('// --- Verification ---\n');
+    out = [out, sprintf('// --- Verification ---\n')];
 
-    fprintf('// Expected ek:       [');
+    out = [out, '// Expected ek:       ['];
     for i = 1:numel(ek)
-        if i > 1, fprintf(', '); end
-        fprintf('%.6g', ek(i));
+        if i > 1, out = [out, ', ']; end
+        out = [out, sprintf('%.6g', ek(i))];
     end
-    fprintf(']\n');
+    out = [out, sprintf(']\n')];
 
-    fprintf('// Expected dtk_raw:  [');
+    out = [out, '// Expected dtk_raw:  ['];
     for i = 1:numel(dtk_before)
-        if i > 1, fprintf(', '); end
-        fprintf('%.6g', dtk_before(i));
+        if i > 1, out = [out, ', ']; end
+        out = [out, sprintf('%.6g', dtk_before(i))];
     end
-    fprintf(']\n');
+    out = [out, sprintf(']\n')];
 
-    fprintf('// Expected dtk_cond: [');
+    out = [out, '// Expected dtk_cond: ['];
     for i = 1:numel(dtk_after)
-        if i > 1, fprintf(', '); end
-        fprintf('%.6g', dtk_after(i));
+        if i > 1, out = [out, ', ']; end
+        out = [out, sprintf('%.6g', dtk_after(i))];
     end
-    fprintf(']\n\n');
+    out = [out, sprintf(']\n\n')];
 end

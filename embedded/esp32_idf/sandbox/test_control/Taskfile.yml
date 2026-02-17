@@ -7,13 +7,13 @@ tasks:
   build:
     aliases: ["b"]
     cmds:
-      - cmake -B build
+      - cmake -G Ninja -B build
       - cmake --build build
 
   main:
     deps: ["build"]
     cmds:
-      - ./build/debug/main.exe
+      - ./build/main.exe
       
   clean:
     aliases: ["c"]
