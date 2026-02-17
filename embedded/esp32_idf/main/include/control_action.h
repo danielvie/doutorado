@@ -143,4 +143,6 @@ static inline bool compute_control_correction(DataSet *dataset, float an3,
     return true;
 }
 
+
 #endif // CONTROL_ACTION_H
+

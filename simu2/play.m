@@ -42,11 +42,12 @@ nsim = 5000;
 s.m_config.x0 = [0.0; 0.0; 0.0];
 
 % running simulation
+s.m_config.mpc.on = false;
+[y_off, t_off, m_off] = s.run(nsim);
+
 s.m_config.mpc.on = true;
 [y, t, m] = s.run(nsim);
 
-s.m_config.mpc.on = false;
-[y_off, t_off, m_off] = s.run(nsim);
 
 % getting variables from simulation
 vars = Utils.getAllVars();

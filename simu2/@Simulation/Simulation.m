@@ -107,5 +107,9 @@ classdef Simulation < handle
         % .. helpers
         name_out = name(self);
         Ts_out  = quantizacao(self, Ts, type);
+
+        % .. diagnostics
+        print_test_values(self, k, log_source);
+        print_test_values_cpp(self, k, log_source);
     end
 end
