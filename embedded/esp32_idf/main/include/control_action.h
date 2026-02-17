@@ -13,6 +13,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <math.h>
 
 // Configuration
 #define CONTROL_MIN_GAP_US 3 // Minimum dwell time per switching segment (µs)
@@ -73,9 +74,11 @@ static inline void condition_dtk(float *dtk_us, uint32_t p,
     g_log_duration.dtk_condition = (t3 - t2) / 240;
 }
 
-// Updates time durations based on dtk values
-static inline void update_time_durations(DataSet *dataset, const float *dtk_us,
-                                         uint32_t p, uint32_t N) {
+// Computes duration corrections based on dtk values
+static inline void compute_duration_corrections(const uint32_t *time_durations,
+                                                const float *dtk_us,
+                                                int32_t *corrections,
+                                                uint32_t p, uint32_t N) {
     uint32_t t4 = esp_cpu_get_cycle_count();
 
     for (uint32_t i = 0; i < N; i++) {
@@ -89,13 +92,14 @@ static inline void update_time_durations(DataSet *dataset, const float *dtk_us,
             delta_i = -dtk_us[p - 1];
         }
 
-        int32_t new_duration =
-            (int32_t)dataset->time_durations[i] + (int32_t)roundf(delta_i);
+        int32_t correction = (int32_t)roundf(delta_i);
+        int32_t final_duration = (int32_t)time_durations[i] + correction;
 
-        if (new_duration < 1)
-            new_duration = 1;
+        if (final_duration < 1) {
+            correction = 1 - (int32_t)time_durations[i];
+        }
 
-        dataset->time_durations[i] = (uint32_t)new_duration;
+        corrections[i] = correction;
     }
 
     uint32_t t5 = esp_cpu_get_cycle_count();

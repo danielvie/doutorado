@@ -43,7 +43,11 @@ esp_err_t ble_send_message(const char* data, uint16_t len, BLEMode mode = BLEMod
 
 // Router function to handle incoming BLE write commands
 void ble_router_set_signal(std::string& message);
+
 void ble_router_print_active_dataset(void);
+void ble_router_print_dataset_a(void);
+void ble_router_print_dataset_b(void);
+
 void ble_router_message_set_alpha(std::string& message);
 
 void ble_router(esp_ble_gatts_cb_param_t *param);
@@ -56,7 +60,6 @@ void ble_router_led_off(NoteData& msg);
 void ble_router_led_on(NoteData& msg);
 void ble_router_log_duration(void);
 void ble_router_message_set_alpha(std::string& message);
-void ble_router_print_active_dataset(void);
 void ble_router_read(NoteData& msg);
 void ble_router_set_port(uint16_t port, uint16_t value);
 void ble_router_set_signal(std::string& message);

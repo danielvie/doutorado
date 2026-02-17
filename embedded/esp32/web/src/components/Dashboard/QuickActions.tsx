@@ -2,6 +2,7 @@ import { useState } from "react";
 import { bleManager } from "../../services/BleManager";
 import { useBleStore } from "../../store/bleStore";
 import { Zap } from "lucide-react";
+import StatusBox from "./StatusBox";
 
 enum EMATRIX {
   A = "A",
@@ -11,7 +12,7 @@ enum EMATRIX {
 export const QuickActions = () => {
   const { alpha, setAlpha } = useBleStore();
   const [chunk, setChunk] = useState(10);
-  const [cycles, setCycles] = useState(1);
+  const [cycles, setCycles] = useState(100);
   const [monitor_period_ms, setMonitorPeriodMs] = useState(100);
 
   const handle_set_chunk = (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -54,6 +55,8 @@ export const QuickActions = () => {
         </div>
       </div>
 
+
+      <StatusBox />
       <div className="flex flex-col gap-2 quickactions">
         {/* ... (inputs section remains same, I need to match context effectively) */}
         <div className="flex items-center gap-2 text-sm text-gray-400">
@@ -134,11 +137,28 @@ export const QuickActions = () => {
           >
             MATRIX B
           </button>
+        </div>
+
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => ble_send_command("ACTIVE_DATASET")}
             className="btn-action bg-teal-700"
           >
             DATASET
+          </button>
+
+          <button
+            onClick={() => ble_send_command("PRINT_DATASET_A")}
+            className="btn-action bg-teal-700"
+          >
+            DATASET A
+          </button>
+
+          <button
+            onClick={() => ble_send_command("PRINT_DATASET_B")}
+            className="btn-action bg-teal-700"
+          >
+            DATASET B
           </button>
         </div>
 

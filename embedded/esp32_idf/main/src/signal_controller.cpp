@@ -38,6 +38,33 @@ volatile bool g_ds_update_pending = false;
 volatile uint32_t g_dead_time_cycles_up = 215;
 volatile uint32_t g_dead_time_cycles_down = 215;
 
+// Helper to populate a default pattern (so datasets are never empty/invalid)
+static void signal_init_default_dataset(DataSet &ds) {
+    ds.time_durations[0] = 10;
+    ds.time_durations[1] = 20;
+    ds.time_durations[2] = 10;
+    ds.time_durations[3] = 20;
+
+    // Mode 7 (111)
+    ds.modes_d6[0] = 1;
+    ds.modes_d5[0] = 1;
+    ds.modes_d4[0] = 1;
+    // Mode 0 (000)
+    ds.modes_d6[1] = 0;
+    ds.modes_d5[1] = 0;
+    ds.modes_d4[1] = 0;
+    // Mode 7 (111)
+    ds.modes_d6[2] = 1;
+    ds.modes_d5[2] = 1;
+    ds.modes_d4[2] = 1;
+    // Mode 0 (000)
+    ds.modes_d6[3] = 0;
+    ds.modes_d5[3] = 0;
+    ds.modes_d4[3] = 0;
+
+    ds.size = 4;
+}
+
 void signal_controller_init() {
     // 1. Configure GPIOs
     gpio_config_t io_conf = {};
@@ -59,30 +86,9 @@ void signal_controller_init() {
     gpio_set_level(PIN_OUT_4_, 0);
     gpio_set_level(PIN_OUT_SIG, 0);
 
-    // 2. Populate Default Pattern into Set A
-    g_dataset_a.time_durations[0] = 10;
-    g_dataset_a.time_durations[1] = 20;
-    g_dataset_a.time_durations[2] = 10;
-    g_dataset_a.time_durations[3] = 20;
-
-    // Mode 7 (111)
-    g_dataset_a.modes_d6[0] = 1;
-    g_dataset_a.modes_d5[0] = 1;
-    g_dataset_a.modes_d4[0] = 1;
-    // Mode 0 (000)
-    g_dataset_a.modes_d6[1] = 0;
-    g_dataset_a.modes_d5[1] = 0;
-    g_dataset_a.modes_d4[1] = 0;
-    // Mode 7 (111)
-    g_dataset_a.modes_d6[2] = 1;
-    g_dataset_a.modes_d5[2] = 1;
-    g_dataset_a.modes_d4[2] = 1;
-    // Mode 0 (000)
-    g_dataset_a.modes_d6[3] = 0;
-    g_dataset_a.modes_d5[3] = 0;
-    g_dataset_a.modes_d4[3] = 0;
-
-    g_dataset_a.size = 4;
+    // 2. Populate Default Pattern into Set A and Set B
+    signal_init_default_dataset(g_dataset_a);
+    signal_init_default_dataset(g_dataset_b);
 
     // Ensure Set A is active initially
     g_active_set = SignalSet::SET_A;
@@ -159,7 +165,13 @@ static void signal_loop_task(void *arg) {
 
     // Pointer to the data we are currently looping over
     // Start with whatever init set up (Set A)
-    DataSet *dataset = &g_dataset_a;
+    const DataSet *dataset = &g_dataset_a;
+
+    // Local buffer for duration corrections
+    static int32_t current_correction[MAX_SIGNAL_SIZE];
+    for (int i = 0; i < MAX_SIGNAL_SIZE; ++i) {
+        current_correction[i] = 0;
+    }
 
     // turn led on to indicate signal running (might need refactor to account
     // for blink signal)
@@ -194,6 +206,11 @@ static void signal_loop_task(void *arg) {
             }
             // Clear flag
             g_ds_update_pending = false;
+
+            // Reset corrections on dataset swap
+            for (int i = 0; i < MAX_SIGNAL_SIZE; ++i) {
+                current_correction[i] = 0;
+            }
         }
 
         // ---------------------------------------------------
@@ -235,11 +252,8 @@ static void signal_loop_task(void *arg) {
                 condition_dtk(dtk, p, dataset->time_durations);
 
                 // 5. update Ts from dtk
-                update_time_durations(dataset, dtk, p, N);
-
-                for (uint32_t j = 0; j < p && j < MAX_SIGNAL_SIZE; j++) {
-                    dataset->time_us_diff[j] = (int32_t)roundf(dtk[j]);
-                }
+                compute_duration_corrections(dataset->time_durations, dtk,
+                                             current_correction, p, N);
             }
         }
 
@@ -251,6 +265,15 @@ static void signal_loop_task(void *arg) {
 
         for (int i = 0; i < sz; i++) {
             uint32_t us = dataset->time_durations[i];
+
+            // Apply control correction if enabled
+            if (g_control_enabled) {
+                int32_t corrected = (int32_t)us + current_correction[i];
+                if (corrected < 1) {
+                    corrected = 1;
+                }
+                us = (uint32_t)corrected;
+            }
 
             // Get current modes (0 or 1)
             uint32_t d6 = dataset->modes_d6[i] ? 1 : 0;
@@ -321,13 +344,10 @@ static void signal_loop_task(void *arg) {
             last_d4 = d4;
 
             // trigger analog reading if needed
-            if (i == 0 && g_system_state.ble_an_read_state !=
-                              BLEAnalogReadState::DISABLED) {
+            if (i == 0 && g_system_state.ble_an_read_state != BLEAnalogReadState::DISABLED) {
                 g_cycle_count = (g_cycle_count + 1) % g_cycle_nrun;
                 if (g_cycle_count == 0) {
-                    g_system_state.ble_an_read_state =
-                        BLEAnalogReadState::READING;
-
+                    g_system_state.ble_an_read_state = BLEAnalogReadState::READING;
                     xSemaphoreGive(sem_analog_read_trigger);
                 }
             }

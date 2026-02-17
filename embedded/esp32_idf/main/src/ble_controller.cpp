@@ -206,6 +206,10 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
             ble_router_read(s_router_msg);
         } else if (strcmp(msg_lower, "active_dataset") == 0) {
             ble_router_print_active_dataset();
+        } else if (strcmp(msg_lower, "print_dataset_a") == 0) {
+            ble_router_print_dataset_a();
+        } else if (strcmp(msg_lower, "print_dataset_b") == 0) {
+            ble_router_print_dataset_b();
         } else if (strncmp(msg_buf, "SIGNAL:", 7) == 0) {
             std::string payload(msg_buf + 7);
             ble_router_set_signal(payload);
@@ -306,8 +310,10 @@ void ble_router_set_signal(std::string& message) {
 
     auto msg = std::make_unique<NoteData>(120);
     note_clear(*msg);
-    note_add_text(*msg, "SIGNAL UPDATED OK");
+    note_add_text(*msg, "\nSTATUS\n");
+    note_add_text(*msg, "SIGNAL..UPDATED");
 
+    ESP_LOGI(TAG, "SIGNAL UPDATED");
     note_ble_send(*msg);
 }
 
@@ -364,14 +370,11 @@ void ble_router_set_port(uint16_t port, uint16_t value) {
     // note_ble_send(*msg);
 }
 
-void ble_router_print_active_dataset(void) {
-    // (message_lower == "active_dataset")
+void _ble_router_print_dataset(DataSet *ds, SignalSet set) {
     auto msg = std::make_unique<NoteData>(NOTE_BLE_BUFFER_SIZE);
 
-    DataSet* ds = get_dataset_active();
-
     note_add_text(*msg, "\nSTATUS\n");
-    note_add_text(*msg, "== active dataset (%s) == \n", get_label(g_active_set).c_str());
+    note_add_text(*msg, "== active dataset (%s) == \n", get_label(set).c_str());
     note_add_array_u32(*msg, "time", ds->time_durations, ds->size);
     note_add_array_u32(*msg, "d4  ", ds->modes_d4, ds->size);
     note_add_array_u32(*msg, "d5  ", ds->modes_d5, ds->size);
@@ -379,6 +382,27 @@ void ble_router_print_active_dataset(void) {
 
     note_logi(*msg, TAG);
     note_ble_send(*msg);
+}
+
+void ble_router_print_dataset_a(void) {
+    // (message_lower == "print_dataset_a")
+
+    DataSet* ds = &g_dataset_a;
+    _ble_router_print_dataset(ds, SignalSet::SET_A);
+}
+
+void ble_router_print_dataset_b(void) {
+    // (message_lower == "print_dataset_b")
+
+    DataSet* ds = &g_dataset_b;
+    _ble_router_print_dataset(ds, SignalSet::SET_B);
+}
+
+void ble_router_print_active_dataset(void) {
+    // (message_lower == "active_dataset")
+
+    DataSet* ds = get_dataset_active();
+    _ble_router_print_dataset(ds, g_active_set);
 }
 
 void ble_router_message_set_alpha(std::string& message) {
