@@ -46,6 +46,11 @@ class BleManager {
     }
 
     async send(command: string) {
+        const { isConnected } = useBleStore.getState();
+        if (!isConnected) {
+            console.log("Not connected, trying to reconnect...");
+            await this.connect();
+        }
         await this.service.send(command);
     }
 

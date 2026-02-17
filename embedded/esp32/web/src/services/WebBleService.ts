@@ -14,19 +14,34 @@ export class WebBleService implements IBleService {
             useBleStore.getState();
 
         try {
-            setSystemStatus("Requesting Device...");
-            // @ts-ignore - Navigator.bluetooth types might be missing in some environments
-            const device = await navigator.bluetooth.requestDevice({
-                filters: [{ services: [SERVICE_UUID] }],
-            });
+            if (this.device) {
+                if (this.device.gatt?.connected) {
+                    addLog("Already connected");
+                    setIsConnected(true);
+                    setSystemStatus("Connected");
+                    return;
+                }
+                setSystemStatus("Reconnecting to Device...");
+                addLog("Reconnecting using stored reference...");
+            } else {
+                setSystemStatus("Requesting Device...");
+                // @ts-ignore - Navigator.bluetooth types might be missing in some environments
+                const device = await navigator.bluetooth.requestDevice({
+                    filters: [{ services: [SERVICE_UUID] }],
+                });
 
-            this.device = device;
-            setDevice(device);
+                this.device = device;
+                setDevice(device);
 
-            device.addEventListener("gattserverdisconnected", this.handleDisconnect);
+                device.addEventListener("gattserverdisconnected", this.handleDisconnect);
+            }
+
+            if (!this.device || !this.device.gatt) {
+                 throw new Error("Device or GATT not available");
+            }
 
             setSystemStatus("Connecting to GATT Server...");
-            this.gattServer = (await device.gatt?.connect()) || null;
+            this.gattServer = (await this.device.gatt.connect()) || null;
 
             if (!this.gattServer) throw new Error("GATT Server not found");
 
@@ -42,6 +57,9 @@ export class WebBleService implements IBleService {
             setError(error.message);
             setSystemStatus("Connection Failed");
             addLog(`Error: ${error.message}`);
+            // If we fail to connect with stored device, maybe we should not clear it 
+            // so user can try again, OR user might want to scan again. 
+            // For now, adhere to keeping reference.
             throw error;
         }
     }
