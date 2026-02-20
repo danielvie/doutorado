@@ -152,7 +152,7 @@ Figure \ref{cap4_graf_proj_ex1_1} presents the feasibility region $\mathcal{D}$ 
 A larger prediction horizon reflected in a larger feasibility region enables the use of the predictive control law 
 with initial conditions farther from the target.
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=14cm]{Cap4/fig/graf_proj_integrador.pdf}
     \caption{Feasibility Region Double Integrator}
@@ -166,7 +166,7 @@ a initial condition \highlight{$x_0 = \big[1.5 \; V, -0.5 \; A\big]$}.
 Figure \ref{cap4_graf_integrador_traj_off} shows the simulation without the MPC control being applied running for 5 cycles and we can see that the
 the trajectory is diverging from the initial position of the target cyclic trajectory \highlight{$\bar{x}_0 = \big[-0.5 \; V, -1.0 \; A\big]$} position.
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=14cm]{Cap4/fig/graf_integrador_traj_off.pdf}
     \caption{State Trajectory MPC off, 4 cycles}
@@ -179,14 +179,14 @@ resulting trajectory and Figure \ref{cap4_graf_integrador_u_signal} shows the as
 of the system to the target cyclic trajectory, we also that the command signal gets in sync with the reference command.
 
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=14cm]{Cap4/fig/graf_integrador_traj_on.pdf}
     \caption{State Trajectory MPC on, 50 cicles}
     \label{cap4_graf_integrador_traj_on}
 \end{figure}
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=14cm]{Cap4/fig/graf_integrador_u_signal.pdf}
     \caption{Operation mode switch}
