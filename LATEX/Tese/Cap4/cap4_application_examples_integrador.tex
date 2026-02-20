@@ -65,7 +65,7 @@ illustrated in Figure \ref{cap2_fig_sig_ref_integrador}.
 \end{figure}
 
 The original problem has the same dynamics during all operations, so we need to construct the associated \highlight{$A_i, b_i$} for each operation mode. 
-One solution is to create 3 unique pairs
+One solution is to create three unique pairs
 
 \begin{equation}
     \label{cap4-eq-dynamic-system-integrador}
@@ -162,9 +162,9 @@ with initial conditions farther from the target.
 
 
 The simulation uses the system \eqref{cap4_eq_dynamics_integrador} with the command signal \eqref{cap4_eq_signal_integrador} and with 
-a initial condition \highlight{$x_0 = \big[1.5 \; V, -0.5 \; A\big]$}.
+a initial condition \highlight{$x_0 = \big[1.5 , -0.5 \big]$}.
 Figure \ref{cap4_graf_integrador_traj_off} shows the simulation without the MPC control being applied running for 5 cycles and we can see that the
-the trajectory is diverging from the initial position of the target cyclic trajectory \highlight{$\bar{x}_0 = \big[-0.5 \; V, -1.0 \; A\big]$} position.
+the trajectory is diverging from the initial position of the target cyclic trajectory \highlight{$\bar{x}_0 = \big[-0.5 , -1.0 \big]$} position.
 
 \begin{figure}[!ht]
     \centering

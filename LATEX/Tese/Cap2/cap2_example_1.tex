@@ -12,7 +12,8 @@ with the topology shown in Figure \ref{cap2-circuit-ex-1}.
     \label{cap2-circuit-ex-1}
 \end{figure}
 
-The state variables are the capacitor voltage \highlight{$v_c$} and the inductor current \highlight{$i_L$}. Its dynamics are given by the equation:
+The state variables are the capacitor voltage \highlight{$v_c$} and the inductor 
+current \highlight{$i_L$}. Its dynamics are given by the equation:
 
 \begin{equation}
     \dot{x} = \begin{cases}
@@ -92,8 +93,8 @@ The optimization generates the switching time duration and this relates to $\tau
 \end{equation}
 
 \noindent
-where \highlight{$dx$} is the array of switching time duration and it's constrained by
-a lower bound that has to be greater or equal to \highlight{$t_{min}$}
+where \highlight{$dx$} is the vector of switching time durations, subject to a minimum dwell-time 
+constraint \highlight{$t_{min}$}:
 
 \noindent
 \begin{equation}

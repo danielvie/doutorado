@@ -1,5 +1,6 @@
-We need to compute the initial condition for the system for each evaluation of the cost function so that we have a periodic trajectory, 
-meaning that the last states of the trajectory are the same as the initial condition.
+We need to compute the initial condition for the system for each evaluation of the cost 
+function so that we have a periodic trajectory, meaning that the final states of the trajectory
+are the same as the initial condition.
 
 We can have different dynamics for each switching instant, so the system behaves as 
 
@@ -54,7 +55,8 @@ From \eqref{cap2-get-x0-multi-equations} we can establish the relation between \
     x(t_N) &= F_{N-1} F_{N-2}\ldots F_0 x(0) + \green{c}
 \end{align}
 
-We know that \highlight{$x(t_N) = x(0)$}, so the solution for \highlight{$x(0)$} is
+We impose the periodicity condition \highlight{$x(t_N) = x(0)$}, resulting in the 
+following expression for the initial state \highlight{$x(0)$}:
 
 \noindent
 \begin{align}

@@ -50,7 +50,7 @@ with \highlight{$S_u$, $b_u$} and \highlight{$S_x$, $b_x$} of suitable dimension
 
 
 At each time $k$, the control action $u[k]$ will be determined by solving an 
-an optimization problem with the cost given by
+optimization problem with the cost given by
 
 
 \begin{equation}
@@ -68,7 +68,7 @@ related through the following equations:
 
 \noindent
 \begin{equation}
-    \hat{x}[k + i + 1|k] = A \hat{x}[k+i|k] + B
+    \hat{x}[k + i + 1|k] = A \hat{x}[k+i|k] + Bu
 \end{equation}
 
 \noindent
@@ -77,12 +77,13 @@ related through the following equations:
 \end{equation}
 
 
-The expression for \highlight{$J$} consists of a \blue{terminal cost} term and a trajectory \orange{cost term}. 
+The expression for \highlight{$J$} consists of a \blue{terminal cost} term and a trajectory 
+\orange{cost term}.
 
-With \highlight{$P_f$}, \highlight{$Q$}, \highlight{$R$} being symmetric and positive-definite, 
-with \highlight{$P_f$} chosen so that the terminal cost \highlight{$\norma{x}{P_f}$} term corresponds 
-to the value function of an infinite horizon Discrete-Time Linear Quadratic Regulator (DLQR) designed width
-weights $Q$, $R$.
+The weighting matrices \highlight{$P_f$}, \highlight{$Q$}, and \highlight{$R$} are symmetric and 
+positive-definite. Usually, \highlight{$P_f$} is chosen such that the terminal cost 
+\highlight{$\norma{x}{P_f}$} corresponds to the value function of an infinite-horizon 
+Discrete-Time Linear Quadratic Regulator (DLQR) designed using the weighting matrices $Q$ and $R$.
 
 By using the notation
 

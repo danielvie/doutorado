@@ -34,7 +34,7 @@ and the associated mode sequence for the target cyclic trajectory is shown in Fi
 \end{figure}
 
 \noindent
-with \highlight{$u(i)$} being 
+with \highlight{$u(i)$} given in Table \ref{cap4_table_ui} 
 
 \noindent
 \begin{table}[H]
@@ -67,7 +67,7 @@ The time switch values are defined as \highlight{$\tau^\infty = \big[0, 0.0639, 
 trajectory is denoted as \highlight{$\bar{x}_{ref} = \big[10 \;\mathrm{V}, 20 \;\mathrm{V}, 1 \;\mathrm{A}\big]$}. Additionally, the 
 maximum period value for the trajectory cycle is specified as \highlight{$T_{p_{max}} = 4\times 10^{-4} $}, 
 while the initial state of the nominal target trajectory is given by \highlight{$x_0 = \big[9.5143 \;\mathrm{V}, 19.8211 \;\mathrm{V}, 1.0314 \;\mathrm{A}\big]$}. 
-The time step of the simulation if \highlight{$t_{step} = 1 \times 10^{-7} \;\mathrm{s}$} and the weight matrix used in the 
+The time step of the simulation is \highlight{$t_{step} = 1 \times 10^{-7} \;\mathrm{s}$} and the weight matrix used in the 
 computation of the trajectory is \highlight{$Q = diag([10, 5, 20000])$}.
 
 \subsubsection{Prediction Matrices}
@@ -162,10 +162,12 @@ Figure \ref{cap4_graf_proj_patino2} presents the feasibility region $\mathcal{D}
 Figure \ref{cap4_graf_patino2_traj} shows the trajectory for the Multilevel converter, 
 \highlightblue{in blue} we see the trajectory without using the MPC controller, and 
 \highlightorange{in orange} we see the trajectory using the MPC controller.
-They are starting from \highlight{$x_0 = \big[7.5143 \;\mathrm{V}, 20.8211 \;\mathrm{V}, 0.0314 \;\mathrm{A}\big]$}, the trajectory
-with the MPC off goes to a point far from the targeted position 
-\highlight{$\bar{x}_0 = \big[9.5143 \;\mathrm{V}, $} \highlight{$19.8211 \;\mathrm{V}, 1.0314 \;\mathrm{A}\big]$}, but the trajectory with the MPC on
-goes drives the system to the desired target.
+Both trajectories start from \highlight{$x_0 = \big[7.5143 \;\mathrm{V}, 20.8211 \;\mathrm{V}, 0.0314 \;\mathrm{A}\big]$}.
+The trajectory with the MPC off drifts away from the desired behavior, 
+converging to a different limit cycle. However, the trajectory with the MPC on
+successfully drives the system to the target position \highlight{$\bar{x}_0 = \big[9.5143 \;\mathrm{V}, $} \highlight{$19.8211 \;\mathrm{V}, 1.0314 \;\mathrm{A}\big]$}.
+It is important to note that \highlight{$\bar{x}_0$} represents the initial condition of the target cyclic trajectory;
+therefore, converging to this point is equivalent to converging to the desired limit cycle.
 
 
 \begin{figure}[H]

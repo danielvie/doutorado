@@ -1,0 +1,15 @@
+CORRECOES PROF RUBENS:
+    ? Equação 2.5 colocar em notação usual de intervalo. @done(26-02-19 22:31)
+    ? A seção 2.2.1 precisa ser melhor escrita especificando as variáveis de otimização e as restrições. @done(26-02-19 23:08)
+    ? Fig. 2.6 por que tensões variam, se deveriam ser cíclicas? @done(26-02-19 23:08)
+        - erro numerico na simulacao, deve estar corrigido agora
+    ? Seção 3.5 qual é o propósito?
+        `x \in \mathbb{R}^n : S_x x \leq b_x`
+        - boa pergunta. tenho que entender melhor esse capitudo de feasibility
+        - para responder o proposito de 3.5
+    ? Restrições sobre x(k) em (3.56), por quê?
+        - qual o proposito? ainda no contexto de Feasibility Region
+    ? Eq. (4.7), termo roxo.
+    ? Fig. 4.13 what do you mean by "goes to a point"? Is it not a cycle? If so, what is the associated cost and how does it compare with the optimum you determined previously? @done(26-02-19 23:18)
+    ? Fig. (2.4), deveria ser 0.59!!
+

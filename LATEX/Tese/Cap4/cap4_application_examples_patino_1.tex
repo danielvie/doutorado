@@ -30,14 +30,14 @@ where
 
 
 \noindent
-and the operation mode is characterized by the index \highlight{$\Omega = \big[1, 2\big]$}. 
-The time switch values are defined as \highlight{$\tau^\infty = \big[0, 0.2513, 0.5914 \big] \;\mathrm{s}$}, 
-and the reference state vector for this trajectory is denoted as \highlight{$\bar{x}_{ref} = \big[2 \;\mathrm{V}, -1 \;\mathrm{A}\big]$}. 
-Additionally, the maximum period value for the trajectory cycle is specified as \highlight{$T_{p_{max}} = 1 \;\mathrm{s}$}, 
-while the initial state of the nominal target trajectory is given by \highlight{$x_0 = \big[1.8708 \;\mathrm{V}, -1.1198 \;\mathrm{A}\big]$}.
-The time step of the simulation if \highlight{$t_{step} = 1 \times 10^{-5} \;\mathrm{s}$} and the weight matrix used in the 
-computation of the trajectory is \highlight{$Q$} is a diagonal matrix of ones.
-
+The operation mode is characterized by the index vector \highlight{$\Omega = [1, 2]$}, with 
+associated time switch values \highlight{$\tau^\infty = [0, 0.2513, 0.5914] \;\mathrm{s}$}. The 
+trajectory is defined by a reference state vector \highlight{$\bar{x}_{ref} = [2 \;\mathrm{V}, -1 
+\;\mathrm{A}]$} and a maximum cycle period \highlight{$T_{p_{max}} = 1 \;\mathrm{s}$}. Furthermore, 
+the nominal target trajectory originates from the initial state \highlight{$x_0 = [1.8708 
+\;\mathrm{V}, -1.1198 \;\mathrm{A}]$}. Simulation parameters include a time step of 
+\highlight{$t_{step} = 1 \times 10^{-5} \;\mathrm{s}$} and an identity weight matrix 
+\highlight{$Q = I$}.
 \subsubsection{Prediction Matrices}
 
 The prediction matrices are constructed using  \eqref{eq_Phi} and \eqref{eq_Gamma}, and the result is
@@ -97,7 +97,7 @@ Figure \ref{cap4_graf_proj_patino1} presents the feasibility region \highlight{$
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=14cm]{Cap4/fig/graf_proj_patino1.pdf}
-    \caption{Buck-Boost Feasibility Region antes}
+    \caption{Buck-Boost Feasibility Region}
     \label{cap4_graf_proj_patino1}
 \end{figure}
 
