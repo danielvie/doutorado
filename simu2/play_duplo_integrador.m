@@ -44,6 +44,9 @@ function var_out = play_duplo_integrador(save_fig)
     f3 = figure(3);
     plot_control_signal(t_off, m_off, t, m, "double integrator Control Signal", "time (s)", "mode");
 
+    f4 = figure(4);
+    plot_xi(t_off, y_off, t, y);
+
     % output vars
     var_out = Utils.getAllVars();
 
@@ -52,6 +55,7 @@ function var_out = play_duplo_integrador(save_fig)
         save_figure(f1, 'duplo_integrador_traj_off', addr);
         save_figure(f2, 'duplo_integrador_traj_on', addr);
         save_figure(f3, 'duplo_integrador_control', addr);
+        save_figure(f4, 'duplo_integrador_xi', addr);
     end
 end
 
@@ -91,4 +95,21 @@ function plot_control_signal(t_off, m_off, t, m, tit, x_label, y_label)
     v = f.Parent.YTick;
     p = abs(v - floor(v)) < 0.1;
     f.Parent.YTick = v(p);
+end
+
+function plot_xi(t_off, y_off, t, y)
+    subplot(2,1,1);
+    plot(t_off, y_off(:,1), 'r', 'LineWidth', 1.5); hold on;
+    plot(t, y(:,1), 'b--', 'LineWidth', 1.5); hold off;
+    ylabel('Position (x_1)'); grid on;
+    legend('MPC off', 'MPC on');
+    title('Double Integrator States');
+    set(gca, 'FontSize', 12);
+
+    subplot(2,1,2);
+    plot(t_off, y_off(:,2), 'r', 'LineWidth', 1.5); hold on;
+    plot(t, y(:,2), 'b--', 'LineWidth', 1.5); hold off;
+    ylabel('Velocity (x_2)'); grid on;
+    xlabel('Time (s)');
+    set(gca, 'FontSize', 12);
 end

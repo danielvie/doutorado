@@ -41,10 +41,14 @@ function var_out = play_patino1(save_fig)
     f2 = figure(2);
     plot_u_signal(t_off, m_off, t, m);
 
+    f3 = figure(3);
+    plot_xi(t_off, y_off, t, y);
+
     if (save_fig)
         addr = 'outputs';
         save_figure(f1, 'patino1_traj', addr);
         save_figure(f2, 'patino1_control', addr);
+        save_figure(f3, 'patino1_xi', addr);
     end
 end
 
@@ -84,4 +88,21 @@ function plot_u_signal(t_off, m_off, t, m)
     v = f.Parent.YTick;
     p = abs(v - floor(v)) < 0.1;
     f.Parent.YTick = v(p);
+end
+
+function plot_xi(t_off, y_off, t, y)
+    subplot(2,1,1);
+    plot(t_off, y_off(:,1), 'r', 'LineWidth', 1.5); hold on;
+    plot(t, y(:,1), 'b--', 'LineWidth', 1.5); hold off;
+    ylabel('Voltage v_C [V]'); grid on;
+    legend('MPC off', 'MPC on');
+    title('Patino1 States over Time');
+    set(gca, 'FontSize', 12);
+
+    subplot(2,1,2);
+    plot(t_off, y_off(:,2), 'r', 'LineWidth', 1.5); hold on;
+    plot(t, y(:,2), 'b--', 'LineWidth', 1.5); hold off;
+    ylabel('Current i_L [A]'); grid on;
+    xlabel('Time (s)');
+    set(gca, 'FontSize', 12);
 end

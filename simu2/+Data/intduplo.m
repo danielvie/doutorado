@@ -25,8 +25,6 @@ function config = intduplo()
       C = eye(2);
       D = [0;0];
 
-      % config.ur     = [1, 0, 1, 0]; % controle associado com modo
-      
       config.A = {A, A, A};
       config.b = {b_1, b_2, b_3};
       config.C = C;

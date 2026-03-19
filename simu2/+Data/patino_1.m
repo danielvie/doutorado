@@ -56,11 +56,7 @@ function config = patino_1()
       % initial state
       config.x0    = [1.870801; -1.119853];
       
-      % Target for MPC
-      config.mpc.x_target = config.xref;
-      
-      % config OTMIN
-      config.otmin     = struct();
+      % configuration for trajectory optimization (otmin)
       config.otmin.x0  = [0.25, 0.25];
       config.otmin.lb  = [0.25, 0.25];
       config.otmin.ub  = [1.50, 1.50];

@@ -64,20 +64,4 @@ function config = lab_circuit()
     % constraint time (t_min)
     config.c_time = [1, 1]*(3*1e-6);
 
-	% % config OTMIN
-	% % tmin   = 0.022*1e-3;
-	% % tmax   = 0.400*1e-3;
-	% % x0     = [diff(config.Ts), config.x0];
-	% % lb     = [ones(1, ndt)*0.022*1e-3, config.x0 - [1, 1, 0.1]];
-	% % ub     = [ones(1, ndt)*0.088*1e-3, config.x0 + [1, 1, 0.1]];
-	% Ndt              = numel(config.Ts) - 1; % nro de elementos dt
-	% config.otmin     = struct();
-	% config.otmin.x0  = ones(Ndt, 1)*0.044*1e-3;
-	% config.otmin.lb  = ones(Ndt, 1)*0.022*1e-3; %[22e-6, 22e-6, ..., 22e-6]
-	% config.otmin.ub  = ones(Ndt, 1)*config.Tpmax;
-	% config.otmin.A   = ones(1, Ndt);
-	% config.otmin.b   = config.Tpmax;
-	% config.otmin.Aeq = [];
-	% config.otmin.beq = [];
-
 end
