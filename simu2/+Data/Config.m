@@ -19,6 +19,7 @@ classdef Config
         quant_traj
         quant_sim
         kawa
+        otmin
     end
     
     methods

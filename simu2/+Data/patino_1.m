@@ -42,10 +42,10 @@ function config = patino_1()
       config.tstep = 1e-5;
       
       % reference state vector (vc_ref, il_ref)
-      config.xref  = [2, -1];
-
+      config.xref  = [2; -1];
+      
       % weighting matrix for the trajectory computation
-      config.Q     = diag([1,1]);
+      config.Q     = diag([1, 1]);
 
 	% max value for the period of the trajectory cycle
       config.Tpmax = 1;
@@ -55,6 +55,9 @@ function config = patino_1()
 
       % initial state
       config.x0    = [1.870801; -1.119853];
+      
+      % Target for MPC
+      config.mpc.x_target = config.xref;
       
       % config OTMIN
       config.otmin     = struct();

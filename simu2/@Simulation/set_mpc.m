@@ -33,10 +33,18 @@ function set_mpc(self)
     % ?? augmented
     if self.m_state_mode == Enums.StateMode.AUGMENTED
         [Aa, Ba] = Mpc.construcao_modelo_aumentado(Phi, Gamma, Nd);
-        Q  = eye(size(Aa, 2)); 
-    else
-        Q  = eye(size(Phi, 2)); 
     end
+
+    if ~isempty(config_mpc.Q)
+        Q = config_mpc.Q;
+    else
+        if self.m_state_mode == Enums.StateMode.AUGMENTED
+            Q  = eye(size(Aa, 2)); 
+        else
+            Q  = eye(size(Phi, 2)); 
+        end
+    end
+    
     R  = eye(p);
 
     % parametros das restricoes de chaveamento
