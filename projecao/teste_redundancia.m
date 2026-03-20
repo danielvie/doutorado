@@ -1,9 +1,11 @@
 function t = teste_redundancia(S,b,c,d)
-
-% A restrição c'*x <= d será redundante se e somente se t <= 0
-
-Sa = [S;c'];
-ba = [b;d+1]; % Para limitar superiormente o custo
-
-x = linprog(-c,Sa,ba);
-t = (c'*x - d);
+    options = optimoptions('linprog','Display','none');
+    [x,~,exitflag] = linprog(-c,S,b,[],[],[],[],options);
+    if exitflag == 1
+        t = (c'*x - d);
+    elseif exitflag == -3
+        t = 1; % unbounded means it can go arbitrarily high, clearly not redundant and cuts the space
+    else
+        t = -1; 
+    end
+end
