@@ -95,7 +95,7 @@ classdef Simulation < handle
         [time_us, dtk] = signal_process(self, state, dtk_prev);
 
         % .. projection
-        fig = project_feasibility_region(self, horizons, x_eq_in);
+        fig = project_feasibility_region(self, horizons);
 
         % .. aliases
         alpha(self, value);
