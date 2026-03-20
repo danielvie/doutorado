@@ -76,7 +76,7 @@ function res = play_patino2(save_fig, nsim_in)
     plot_traj_comparison_3(y_mpc, y_prop, y_off, x0_target, 'MPC', 'PROP', 'OFF');
 
     % 5 PROJECAO DA REGIAO DE FACTIBILIDADE
-    f6 = s.project_feasibility_region();
+    f6 = s.project_feasibility_region([], x0_target);
     hold on;
     % Plot trajectory on top of projection
     plot3(y_mpc(:,1), y_mpc(:,2), y_mpc(:,3), 'k', 'LineWidth', 2.5, 'DisplayName', 'Trajetória MPC');

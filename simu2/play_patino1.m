@@ -9,8 +9,8 @@ function var_out = play_patino1(save_fig)
     % 2 CONSTRUINDO MPC
     mpc = Interface.config_mpc();
     mpc.Nd = 1;
-    mpc.Np = 2;
-    mpc.Q  = diag([10, 1]);
+    mpc.Np = 15;
+    mpc.Q  = diag([10, 10]);
     
     s.set_mpc(mpc);
     
@@ -21,22 +21,31 @@ function var_out = play_patino1(save_fig)
     
 
     % 3 RODANDO SIMULACAO
-    nsim = 40;
-    s.m_config.x0 = s.m_config.x0 + [0.2; 0.5];
+    nsim = 60;
+    
+    % Store the nominal equilibrium state for the projection center
+    x0_nominal = s.m_config.x0;
+    
+    % Perturbing the state for the simulation initial condition
+    x0_pertubed = s.m_config.x0 + [1.2; 0.5];
 
     % simulacao sem controle mpc
     s.m_config.mpc.on = false;
+    % fprintf('DEBUG: Running with MPC.on = %d\n', s.m_config.mpc.on);
+    s.m_config.x0 = x0_pertubed;
     [y_off, t_off, m_off] = s.run(nsim);
 
     % simulacao com controle mpc
     s.m_config.mpc.on = true;
+    % fprintf('DEBUG: Running with MPC.on = %d\n', s.m_config.mpc.on);
+    s.m_config.x0 = x0_pertubed;
     [y, t, m] = s.run(nsim);
 
     var_out = Utils.getAllVars();
 
     % 4 PLOT DOS RESULTADOS
     f1 = figure(1);
-    plot_traj(y_off, y, s.m_config.x0, "Patino1 Trajectory", "V_{c} [V]", "I_{L} [A]");
+    plot_traj(y_off, y, x0_nominal, "Patino1 Trajectory", "V_{c} [V]", "I_{L} [A]");
 
     f2 = figure(2);
     plot_u_signal(t_off, m_off, t, m);
@@ -44,11 +53,21 @@ function var_out = play_patino1(save_fig)
     f3 = figure(3);
     plot_xi(t_off, y_off, t, y);
 
+    % 5 PROJECAO DA REGIAO DE FACTIBILIDADE
+    % Use the actual simulation target as the projection center
+    f4 = s.project_feasibility_region([], x0_nominal);
+    hold on;
+    % Plot trajectory on top of projection
+    plot(y(:,1), y(:,2), 'k', 'LineWidth', 2.5, 'DisplayName', 'Trajetória MPC');
+    legend('show');
+    hold off;
+
     if (save_fig)
         addr = 'outputs';
         save_figure(f1, 'patino1_traj', addr);
         save_figure(f2, 'patino1_control', addr);
         save_figure(f3, 'patino1_xi', addr);
+        save_figure(f4, 'patino1_feasibility_projection', addr);
     end
 end
 

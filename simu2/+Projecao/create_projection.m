@@ -39,18 +39,40 @@ function var_out = create_projection(config)
     [K,~]    = dlqr(A,B,Q,R); % Projeto DLQR
     Af       = A-B*K;
     Gamma    = [eye(size(A,2));-K];
-    Spsi     = blkdiag(Sx,Su); 
-    bpsi     = [bx;bu];
+    n = size(A, 1);
+    p = size(B, 2);
+
+    Spsi = blkdiag(Sx, Su);
+    bpsi = [bx; bu];
     max_iter = 100;
     tol      = 0;
 
-    [Sf,bf] = Projecao.determina_oinf(Af,Gamma,Spsi,bpsi,max_iter,tol);
-
-    % Restoring the 1e5 scaling: MPT has fixed internal tolerances (e.g. 1e-6),
-    % without this scaling, the small values in bf are grouped as zero, which
-    % cuts off massive valid chunks of the polytope.
-    Sf = Sf*1e5;
-    bf = bf*1e5;
+    if isfield(config, 'Sf') && ~isempty(config.Sf)
+        Sf = config.Sf;
+        bf = config.bf;
+        Si = {}; bi = {}; % Not needed for projection building
+    else
+        [Sf,bf,Si,bi] = Projecao.determina_oinf(Af,Gamma,Spsi,bpsi,max_iter,tol);
+        
+        % Consistent fallback: check if the terminal set O_inf is valid BEFORE building Sw.
+        % This ensures all N horizons use the SAME Sf/bf, preserving the nesting property.
+        % A valid O_inf must satisfy Sf*0 <= bf, i.e. bf >= 0 (origin must be feasible).
+        % If any bf < -tol, determina_oinf ran one extra iteration and accumulated a
+        % contradictory constraint row. Use the second-to-last iteration set instead.
+        if isempty(Sf) || isempty(bf) || any(bf < -1e-9)
+            if ~isempty(Si) && numel(Si) >= 2
+                Sf = Si{end-1};
+                bf = bi{end-1};
+                disp('Warning: terminal set O_inf is infeasible. Using second-to-last MAS iteration.');
+            elseif ~isempty(Si)
+                Sf = Si{end};
+                bf = bi{end};
+                disp('Warning: terminal set O_inf is infeasible. Using last MAS iteration.');
+            else
+                error('create_projection: could not characterize MAS (Sf/bf invalid).');
+            end
+        end
+    end
     
     Sun = Su;
     An  = A;
@@ -89,8 +111,15 @@ function var_out = create_projection(config)
             zeros(size(Sx,1),p*N)   Sx
         ];
     bw = [bxn; bun; bx];
-    
     H_mat = [Sw bw];
+    
+    % Normalize H-matrix for numerical stability (Mandatory since 1e5 scaling is removed)
+    for k = 1:size(H_mat,1)
+        nrm = norm(H_mat(k,1:end-1));
+        if nrm > 1e-12
+            H_mat(k,:) = H_mat(k,:) / nrm;
+        end
+    end
     
     Pw = Polyhedron('H', H_mat);
     % Project onto state dimensions 

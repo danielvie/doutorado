@@ -1,13 +1,14 @@
-function fig = project_feasibility_region(self, horizons)
+function fig = project_feasibility_region(self, horizons, x_eq_in)
     % project_feasibility_region - Project the feasibility region of the system.
     % 
     % Note: This function uses the package +Projecao to create the projections.
     % 
-    % Syntax: fig = project_feasibility_region(self, horizons)
+    % Syntax: fig = project_feasibility_region(self, horizons, x_eq_in)
     %
     % Inputs:
     %   self     - Instance of the Simulation class.
     %   horizons - (Optional) Array of prediction horizons (e.g., [1, 2, 4]).
+    %   x_eq_in  - (Optional) Custom equilibrium state vector to center the projection.
     %
     % Outputs:
     %   fig - Figure handle for the plot.
@@ -22,10 +23,12 @@ function fig = project_feasibility_region(self, horizons)
     % Retrieve system matrices (Phi and Gamma) and the equilibrium state
     [Phi, Gamma] = self.get_phi_gamma();
     
-    % The linearized model (Phi, Gamma) is defined at the beginning of the cycle.
-    % The center of the projection should be this equilibrium state.
-    xr = Utils.get_xr(self.m_config);
-    x_eq = xr(1, :)';
+    % The center of the projection should be the target equilibrium state.
+    if nargin >= 3 && ~isempty(x_eq_in)
+        x_eq = x_eq_in;
+    else
+        x_eq = self.get_target();
+    end
 
     % Create a configuration structure
     config = struct();
@@ -58,9 +61,13 @@ function fig = project_feasibility_region(self, horizons)
     p2(1) = 1;
     L = toeplitz(p1, p2);
 
-    % Define state and input constraints
-    config.Sx = zeros(0, numel_x); % Empty state constraint matrix
-    config.bx = zeros(0, 1);       % No state constraints by default
+    % Define state and input constraints.
+    % IMPORTANT: Use zeros(1, numel_x) (one zero row), NOT zeros(0, numel_x).
+    % The zero-row constraint 0*x <= 0 anchors the LP in determina_oinf at the origin,
+    % allowing linprog to properly test redundancy. Without it, the set starts unbounded
+    % and the MAS characterization never converges.
+    config.Sx = zeros(1, numel_x);
+    config.bx = 0;
     config.Su = -L;
     config.bu = -c;
 
@@ -71,21 +78,50 @@ function fig = project_feasibility_region(self, horizons)
     % Generate projections for specified prediction horizons
     projections = cell(numel(horizons), 1);
     labels = cell(numel(horizons), 1);
+    all_D = cell(numel(horizons), 1);
     
+    % --- Pass 1: Compute raw projections in error space ---
     for i = 1:numel(horizons)
         config.N = horizons(i);
         res = Projecao.create_projection(config);
-        v = res.D;
-        % Shift the projection to account for the equilibrium point
-        v = v + x_eq;
         
-        % Wrap the Polyhedron in a struct with a 'D' property to maintain compatibility
-        % with the legacy plotter functions in +Projecao/+plotter/
+        % CRITICAL: Capture the Sf/bf from the very first horizon call (N=1)
+        % and reuse them for all subsequent horizons to guarantee mathematical nesting.
+        if i == 1
+            config.Sf = res.Sf;
+            config.bf = res.bf;
+        end
+        
+        all_D{i} = res.D;
+        labels{i} = sprintf('N_p = %d', horizons(i));
+    end
+
+    % --- Compute a single consistent offset from the N=1 (smallest) region ---
+    % The equilibrium corresponds to a vertex/boundary of the N=1 region.
+    % We find the vertex closest to the error-space origin [0;0] as the anchor,
+    % then shift ALL regions so that anchor maps to x_eq.
+    % This preserves nesting since all regions get the same translation.
+    D1 = all_D{1};
+    if ~D1.isEmptySet() && ~isempty(D1.V)
+        verts = D1.V;
+        dists = sum(verts.^2, 2);
+        [~, idx] = min(dists);
+        anchor = verts(idx, :)';
+    else
+        anchor = zeros(numel_x, 1);
+    end
+    offset = x_eq - anchor;
+
+    % --- Pass 2: Apply consistent offset to all regions ---
+    for i = 1:numel(horizons)
+        v = all_D{i} + offset;
         proj_struct = struct();
         proj_struct.D = v;
-        projections{i} = proj_struct;
         
-        labels{i} = sprintf('N_p = %d', horizons(i));
+        % deslocando origem
+        proj_struct.D = proj_struct.D + config.xbar;
+        
+        projections{i} = proj_struct;
     end
 
     % Create a new figure for plotting

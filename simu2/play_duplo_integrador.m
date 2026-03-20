@@ -22,6 +22,11 @@ function var_out = play_duplo_integrador(save_fig)
 
     % 3 RODANDO SIMULACAO
     nsim = 40;
+    
+    % Store the nominal equilibrium state for the projection center
+    x0_nominal = s.m_config.x0;
+    
+    % Perturbing the state for the simulation initial condition
     s.m_config.x0 = s.m_config.x0 + [2; 0.5];
 
     % simulacao sem controle mpc
@@ -39,13 +44,21 @@ function var_out = play_duplo_integrador(save_fig)
     plot_traj(y_off(1:end,:), s.m_config.x0, "double integrator MPC off", "v_c", "i_L");
 
     f2 = figure(2);
-    plot_traj(y, s.m_config.x0, "double integrator MPC on", "v_c", "i_L");
+    plot_traj(y, x0_nominal, "double integrator MPC on", "v_c", "i_L");
 
     f3 = figure(3);
     plot_control_signal(t_off, m_off, t, m, "double integrator Control Signal", "time (s)", "mode");
 
     f4 = figure(4);
     plot_xi(t_off, y_off, t, y);
+
+    % 5 PROJECAO DA REGIAO DE FACTIBILIDADE
+    f5 = s.project_feasibility_region([], x0_nominal);
+    hold on;
+    % Plot trajectory on top of projection
+    plot(y(:,1), y(:,2), 'k', 'LineWidth', 2.5, 'DisplayName', 'Trajetória MPC');
+    legend('show');
+    hold off;
 
     % output vars
     var_out = Utils.getAllVars();
@@ -56,6 +69,7 @@ function var_out = play_duplo_integrador(save_fig)
         save_figure(f2, 'duplo_integrador_traj_on', addr);
         save_figure(f3, 'duplo_integrador_control', addr);
         save_figure(f4, 'duplo_integrador_xi', addr);
+        save_figure(f5, 'duplo_integrador_feasibility_projection', addr);
     end
 end
 
