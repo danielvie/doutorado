@@ -65,8 +65,7 @@ function var_out = create_projection(config)
     % [Sf,bf_til] = determina_oinf(Af,Gamma,Spsi,bpsi-[Sx*xbar;Su*ubar],max_iter,tol);
     % bf = bf_til + Sf*xbar;
     
-    Sf = Sf*1e5;
-    bf = bf*1e5;
+    % removed ad-hoc 1e5 scaling that causes ill-conditioning in Sw matrix
 
     Sun = Su;
     An  = A;
@@ -109,7 +108,16 @@ function var_out = create_projection(config)
         ];
     bw = [bxn; bun; bx];
     
-    Pw = Polyhedron('H',[Sw bw]);
+    % Normalize constraints to improve MPT3 numerical conditioning
+    H_mat = [Sw bw];
+    for k = 1:size(H_mat,1)
+        nrm = norm(H_mat(k,1:end-1));
+        if nrm > 1e-12
+            H_mat(k,:) = H_mat(k,:) / nrm;
+        end
+    end
+    
+    Pw = Polyhedron('H', H_mat);
     D  = projection(Pw,p*N+1: p*N+n);
 
     P   = Projecao();

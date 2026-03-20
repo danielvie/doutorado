@@ -64,8 +64,8 @@ function vout = projecao_patino2(savefig_in)
     ] * 1e-4;
 
 
-    config.Sx = zeros(1, numel_x);
-    config.bx = 0;
+    config.Sx = zeros(0, numel_x);
+    config.bx = zeros(0, 1);
     % config.Sx = eye(3)
     % config.bx = [30; 20; 20];
 
