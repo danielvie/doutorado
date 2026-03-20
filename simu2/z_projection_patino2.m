@@ -95,14 +95,16 @@ function z_test_patino2_projection()
     end
 
     % ==========================================================
-    % 4. Formatting and Plotting the Figure
+    % 4. Formatting and Plotting the Figure (3D + 2D Projections)
     % ==========================================================
     colors = {'r', 'g', 'b', 'm'};
 
+    % Create figure with 2x2 subplots
     figure('Name', 'Feasibility Regions', 'Color', 'w');
-    hold on; grid on;
 
-    % Store handles for the legend
+    % 4a. 3D Plot
+    subplot(2, 2, 1);
+    hold on; grid on;
     h_leg = zeros(length(horizons), 1);
 
     % Plot from largest horizon to smallest so smaller sets aren't hidden
@@ -110,29 +112,74 @@ function z_test_patino2_projection()
         P = domains{i};
 
         % Normalize H-rep rows before plotting to fix CDD vertex enumeration
-        % numerical inconsistencies ("Numerical inconsistency is found").
-        % The backward reachability iterations accumulate hyperplanes with
-        % widely varying row norms, causing CDD's floating-point vertex
-        % enumeration to fail. Normalizing each row to unit length fixes this.
         P = normalize_hrep(P);
 
         % Plot the polyhedron (MPT3 natively handles 3D plotting for Dim=3)
         plot(P, 'color', colors{i}, 'alpha', 0.2, 'linewidth', 1.0);
 
-        % Create dummy plot for the legend (Using plot3 for 3D axes consistency)
+        % Create dummy plot for the legend
         h_leg(i) = plot3(NaN, NaN, NaN, 's', 'MarkerFaceColor', colors{i}, 'MarkerEdgeColor', 'k', 'MarkerSize', 10);
     end
 
     xlabel('Error State x_1');
     ylabel('Error State x_2');
     zlabel('Error State x_3');
-    title('Feasibility Regions for PATINO\_2 (Backward Reachability)');
-    view(3); % Force 3D view for 3 states
-
-    legend_labels = arrayfun(@(n) sprintf('N_p = %d', n), horizons, 'UniformOutput', false);
-    legend(h_leg, legend_labels, 'Location', 'best');
-
+    title('3D View');
+    view(3);
+    legend(h_leg, arrayfun(@(n) sprintf('N_p = %d', n), horizons, 'UniformOutput', false), 'Location', 'best');
     hold off;
+
+    % 4b. XY Projection (x1 vs x2)
+    subplot(2, 2, 2);
+    hold on; grid on;
+    for i = length(horizons):-1:1
+        P = domains{i};
+        P = normalize_hrep(P);
+        % Project onto dimensions 1 and 2
+        P_xy = projection(P, [1, 2]);
+        plot(P_xy, 'color', colors{i}, 'alpha', 0.3, 'linewidth', 1.0);
+    end
+    xlabel('Error State x_1');
+    ylabel('Error State x_2');
+    title('XY Projection');
+    legend(arrayfun(@(n) sprintf('N_p = %d', n), horizons, 'UniformOutput', false), 'Location', 'best');
+    hold off;
+
+    % 4c. YZ Projection (x2 vs x3)
+    subplot(2, 2, 3);
+    hold on; grid on;
+    for i = length(horizons):-1:1
+        P = domains{i};
+        P = normalize_hrep(P);
+        % Project onto dimensions 2 and 3
+        P_yz = projection(P, [2, 3]);
+        plot(P_yz, 'color', colors{i}, 'alpha', 0.3, 'linewidth', 1.0);
+    end
+    xlabel('Error State x_2');
+    ylabel('Error State x_3');
+    title('YZ Projection');
+    legend(arrayfun(@(n) sprintf('N_p = %d', n), horizons, 'UniformOutput', false), 'Location', 'best');
+    hold off;
+
+    % 4d. ZX Projection (x1 vs x3)
+    subplot(2, 2, 4);
+    hold on; grid on;
+    for i = length(horizons):-1:1
+        P = domains{i};
+        P = normalize_hrep(P);
+        % Project onto dimensions 1 and 3
+        P_zx = projection(P, [1, 3]);
+        plot(P_zx, 'color', colors{i}, 'alpha', 0.3, 'linewidth', 1.0);
+    end
+    xlabel('Error State x_1');
+    ylabel('Error State x_3');
+    title('ZX Projection');
+    legend(arrayfun(@(n) sprintf('N_p = %d', n), horizons, 'UniformOutput', false), 'Location', 'best');
+    hold off;
+
+    % Add overall title
+    sgtitle('Feasibility Regions for PATINO\_2 (Backward Reachability)');
+
     disp('Done.');
 end
 

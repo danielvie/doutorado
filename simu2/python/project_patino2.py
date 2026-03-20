@@ -300,17 +300,44 @@ def main():
             print(f"      Np={k}: {v_count} vertices, full-dim={pc.is_fulldim(R_curr)}")
 
     # 7. Visualization
-    print("[*] Rendering 3D Feasibility Regions...")
-    fig = plt.figure(figsize=(12, 8), facecolor="white")
-    ax = fig.add_subplot(111, projection="3d")
+    print("[*] Rendering Feasibility Regions...")
     colors = {1: "red", 2: "green", 4: "blue"}
 
-    plotted = False
+    # Helper function to project 3D polytope onto 2D plane
+    def project_2d(polytope_3d, dims):
+        """
+        Project a 3D polytope onto a 2D plane.
+        dims: tuple of two indices, e.g., (0, 1) for XY, (1, 2) for YZ, (0, 2) for ZX
+        """
+        if polytope_3d is None or pc.is_empty(polytope_3d):
+            return None
+
+        verts = pc.extreme(polytope_3d)
+        if verts is None or len(verts) < 3:
+            return None
+
+        # Extract the 2D coordinates
+        verts_2d = verts[:, dims]
+
+        # Compute convex hull in 2D
+        try:
+            hull = ConvexHull(verts_2d)
+            return verts_2d[hull.vertices]
+        except Exception:
+            # Fallback: return vertices without hull
+            return verts_2d
+
+    # Create figure with 2x2 subplots: 3D + 3 2D projections
+    fig = plt.figure(figsize=(16, 12), facecolor="white")
+
+    # 3D plot
+    ax_3d = fig.add_subplot(2, 2, 1, projection="3d")
+    plotted_3d = False
+
     for k in sorted(horizons, reverse=True):
         raw = results.get(k)
         if raw is None:
             continue
-        # Fast empty check without calling pc.is_empty (which is slow)
         try:
             if not hasattr(raw, "A") or raw.A.size == 0:
                 continue
@@ -324,11 +351,11 @@ def main():
             v = pc.extreme(P)
             if v is None or len(v) < 4:
                 print(
-                    f"    [!] Skipping Np={k}: {len(v) if v is not None else 0} vertices."
+                    f"    [!] Skipping Np={k} in 3D: {len(v) if v is not None else 0} vertices."
                 )
                 continue
             hull = ConvexHull(v)
-            ax.plot_trisurf(
+            ax_3d.plot_trisurf(
                 v[:, 0],
                 v[:, 1],
                 v[:, 2],
@@ -338,20 +365,83 @@ def main():
                 edgecolor="black",
                 linewidth=0.3,
             )
-            ax.plot([], [], color=colors[k], label=f"Np = {k}", alpha=0.6, linewidth=6)
-            plotted = True
+            ax_3d.plot(
+                [], [], [], color=colors[k], label=f"Np = {k}", alpha=0.6, linewidth=6
+            )
+            plotted_3d = True
         except Exception as e:
-            print(f"    [!] Plotting failed for Np={k}: {type(e).__name__}: {e}")
+            print(f"    [!] 3D plotting failed for Np={k}: {type(e).__name__}: {e}")
 
-    if plotted:
-        ax.set_title("Feasibility Regions (Python / Apple Silicon)")
-        ax.set_xlabel("Error State x1")
-        ax.set_ylabel("Error State x2")
-        ax.set_zlabel("Error State x3")
-        ax.legend(loc="best")
-        ax.view_init(elev=30, azim=45)
-        plt.grid(True)
+    if plotted_3d:
+        ax_3d.set_title("3D View")
+        ax_3d.set_xlabel("x1")
+        ax_3d.set_ylabel("x2")
+        ax_3d.set_zlabel("x3")
+        ax_3d.legend(loc="best")
+        ax_3d.view_init(elev=30, azim=45)
+
+    # 2D projections: list of (subplot_index, dims, xlabel, ylabel, title)
+    projections = [
+        (2, (0, 1), "x1", "x2", "XY Projection"),
+        (3, (1, 2), "x2", "x3", "YZ Projection"),
+        (4, (0, 2), "x1", "x3", "ZX Projection"),
+    ]
+
+    for subplot_idx, dims, xlabel, ylabel, title in projections:
+        ax_2d = fig.add_subplot(2, 2, subplot_idx)
+        plotted_2d = False
+
+        for k in sorted(horizons, reverse=True):
+            raw = results.get(k)
+            if raw is None:
+                continue
+
+            verts_2d = project_2d(raw, dims)
+            if verts_2d is None or len(verts_2d) < 3:
+                continue
+
+            try:
+                # Sort vertices for proper polygon filling
+                centroid = np.mean(verts_2d, axis=0)
+                angles = np.arctan2(
+                    verts_2d[:, 1] - centroid[1], verts_2d[:, 0] - centroid[0]
+                )
+                verts_sorted = verts_2d[np.argsort(angles)]
+
+                ax_2d.fill(
+                    verts_sorted[:, 0],
+                    verts_sorted[:, 1],
+                    color=colors[k],
+                    alpha=0.3,
+                    label=f"Np = {k}",
+                )
+                ax_2d.plot(
+                    np.append(verts_sorted[:, 0], verts_sorted[0, 0]),
+                    np.append(verts_sorted[:, 1], verts_sorted[0, 1]),
+                    color=colors[k],
+                    linewidth=2,
+                )
+                plotted_2d = True
+            except Exception as e:
+                print(f"    [!] 2D plotting failed for Np={k} {title}: {e}")
+
+        if plotted_2d:
+            ax_2d.set_title(title)
+            ax_2d.set_xlabel(f"Error State {xlabel}")
+            ax_2d.set_ylabel(f"Error State {ylabel}")
+            ax_2d.legend(loc="best")
+            ax_2d.grid(True, linestyle="--", alpha=0.4)
+            ax_2d.axis("equal")
+
+    if plotted_3d or any(
+        project_2d(results.get(k), (0, 1)) is not None for k in horizons
+    ):
+        fig.suptitle(
+            "Feasibility Regions for PATINO_2 (Backward Reachability)", fontsize=14
+        )
+        plt.tight_layout()
         fig.savefig("feasibility_regions_patino2.png", dpi=150, bbox_inches="tight")
+        print("[*] Figure saved to: feasibility_regions_patino2.png")
         plt.show()
     else:
         print("[!] Nothing to plot.")
