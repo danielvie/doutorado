@@ -103,6 +103,7 @@ classdef Simulation < handle
 
         % .. automation
         project_with_alpha(self, alpha, folder, flag_save);
+        export_python_data(self, filename);
 
         % .. helpers
         name_out = name(self);
