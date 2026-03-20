@@ -81,16 +81,11 @@ function fig = project_feasibility_region(self, horizons, x_eq_in)
     all_D = cell(numel(horizons), 1);
     
     % --- Pass 1: Compute raw projections in error space ---
+    % Each horizon computes its own terminal set (Sf/bf) independently,
+    % matching the standalone projecao_patino1.m behavior.
     for i = 1:numel(horizons)
         config.N = horizons(i);
-        res = Projecao.create_projection(config);
-        
-        % CRITICAL: Capture the Sf/bf from the very first horizon call (N=1)
-        % and reuse them for all subsequent horizons to guarantee mathematical nesting.
-        if i == 1
-            config.Sf = res.Sf;
-            config.bf = res.bf;
-        end
+        res = Projecao.create_projection_ref(config);
         
         all_D{i} = res.D;
         labels{i} = sprintf('N_p = %d', horizons(i));
