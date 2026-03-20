@@ -59,6 +59,54 @@ $$x = [v_{C1}, v_{C2}, i_L]^T$$
 ### Control Strategy
 The controller computes small time shifts $\delta t_k$ applied to a nominal switching sequence. This ensures that the system reaches its equilibrium state while respecting hardware limits ($t_{min}$) and avoiding overlapping switching events.
 
+## 🎮 Advanced Simulation Example (Patino 2)
+Here is a comprehensive example showing how to run the `PATINO_2` simulation, customize the Model Predictive Controller (MPC) parameters, change the controller type, and enable augmented state mode.
+
+```matlab
+% 1. Create a simulation object for Patino 2
+s = Simulation(Enums.SimName.PATINO_2);
+
+% --- State Mode (Augmented states) ---
+% By default, the simulation uses ORIGINAL states. You can switch to AUGMENTED
+% state mode if your dynamics or delay compensation require an expanded state vector:
+s.m_state_mode = Enums.StateMode.AUGMENTED;
+
+% 2. Retrieve and customize MPC configuration
+config_mpc = s.get_config_mpc();
+config_mpc.Nd = 1;              % Downsampling factor
+config_mpc.Np = 2;              % Prediction horizon
+config_mpc.Q = diag([1, 1, 1]); % Custom weighting matrix for the 3 states
+
+% Build and apply MPC matrices (generates s.m_config.mpc data)
+s.set_config_mpc(config_mpc);
+s.set_mpc();
+
+% --- Controller Selection ---
+% You must explicitly instantiate a controller and attach it to the simulation.
+% 
+% Option A: Use the MPC Controller (solves the QP optimization at each step)
+mpc_data = s.m_config.mpc;
+controller = Controllers.MpcController(mpc_data);
+
+% Option B: Use the Proportional Controller (LQR-based fallback/alternative)
+% K = s.get_gain_k();
+% time_us = s.get_time_us();
+% controller = Controllers.Proportional(K, 1, time_us, 3*1e-6);
+
+% Attach chosen controller
+s.set_controller(controller);
+
+% 3. Run the simulation (With Controller)
+nsim = 100;
+s.m_config.mpc.on = true;   % Enable control action
+[y, t, m] = s.run(nsim);
+
+% 4. (Optional) Run open loop for comparison
+s.m_config.mpc.on = false;  % Disable control action
+s.m_config.x0 = s.m_config.x0 + [-1.2; -1.3; -0.9]; % Introduce initial error
+[y_off, t_off, m_off] = s.run(nsim);
+```
+
 ---
 **Author:** Daniel Vieira  
 **Context:** PhD Research (DOUTORADO)

@@ -12,82 +12,112 @@ function res = play_patino2(save_fig, nsim_in)
     s = Simulation(Enums.SimName.PATINO_2);
 
     % 2 CONSTRUINDO MPC
-    config_mpc = s.get_config_mpc();
-    config_mpc.Nd = 1;
-    config_mpc.Np = 2;
-    config_mpc.Q  = diag([1, 1, 1]);
+    mpc = Interface.config_mpc();
+    mpc.Nd = 1;
+    mpc.Np = 2;
+    mpc.Q  = diag([1, 1, 1]);
     
-    s.set_config_mpc(config_mpc);
-    s.set_mpc();
+    s.set_mpc(mpc);
     
     % Instantiating the MPC controller
-    mpc_data = s.m_config.mpc;
-    controller = Controllers.MpcController(mpc_data);
-    s.set_controller(controller);
+    controller_mpc = Controllers.MpcController(s.m_config.mpc);
+
+
+    K = s.get_gain_k();
+    time_us = s.get_time_us();
+    controller_prop = Controllers.Proportional(K, 1, time_us, 3*1e-6);
+
+    s.set_controller(controller_mpc);
+    
 
     % 3 RODANDO SIMULACAO
+    % O estado inicial nominal (x_target)
+    x0_target = s.m_config.x0;
     
-    % primeira run mpc=true
-    s.m_config.mpc.on = true;
-    [y, t, m] = s.run(nsim);
+    % Aplicando perturbação para forçar os controladores a agir
+    x0_perturbed = x0_target + [-1.2; -1.3; -.9];
 
-    % mpc=false
+    % 1. Controle MPC
+    s.m_config.mpc.on = true;
+    s.m_config.x0 = x0_perturbed;
+    s.set_controller(controller_mpc);
+    [y_mpc, t_mpc, m_mpc] = s.run(nsim);
+
+    % 2. Controle Proporcional
+    s.m_config.mpc.on = true;
+    s.m_config.x0 = x0_perturbed;
+    s.set_controller(controller_prop);
+    [y_prop, t_prop, m_prop] = s.run(nsim);
+
+    % 3. Controle OFF
     s.m_config.mpc.on = false;
-    s.m_config.x0  = s.m_config.x0 + [-1.2; -1.3; -.9];
+    s.m_config.x0 = x0_perturbed;
+    s.set_controller(controller_prop);
     [y_off, t_off, m_off] = s.run(nsim);
 
-    % mpc=true (quanti) - em simu2 o run processa normal
-    s.m_config.mpc.on = true;
-    [y_quant, t_quant, m_quant] = s.run(nsim);
 
     var_out = Utils.getAllVars();
     res = var_out;
 
     % 4 PLOT DOS RESULTADOS
     f1 = figure(1);
-    plot_xi_quant(t, y, t_quant, y_quant);
+    plot_xi_comparison(t_mpc, y_mpc, t_prop, y_prop, 'MPC', 'PROP');
 
     f2 = figure(2);
-    plot_traj_quant(y, y_quant, s.m_config.x0);
+    plot_traj_comparison(y_mpc, y_prop, x0_target, 'MPC', 'PROP');
+
+    f3 = figure(3);
+    plot_traj_comparison(y_mpc, y_off, x0_target, 'MPC', 'OFF');
+
+    f4 = figure(4);
+    plot_traj_comparison(y_prop, y_off, x0_target, 'PROP', 'OFF');
+
+    f5 = figure(5);
+    plot_traj_comparison_3(y_mpc, y_prop, y_off, x0_target, 'MPC', 'PROP', 'OFF');
 
     if (save_fig)
         addr = 'outputs';
-        save_figure(f1, 'patino2_xi_quant', addr);
-        save_figure(f2, 'patino2_traj_quant', addr);
+        save_figure(f1, 'patino2_xi_mpc_vs_prop', addr);
+        save_figure(f2, 'patino2_traj_mpc_vs_prop', addr);
+        save_figure(f3, 'patino2_traj_mpc_vs_off', addr);
+        save_figure(f4, 'patino2_traj_prop_vs_off', addr);
+        save_figure(f5, 'patino2_traj_mpc_vs_prop_vs_off', addr);
     end
 end
 
-function plot_xi_helper(t, yi, t_quant, yi_quant, tit, x_label, y_label)
-    plot(t, yi); hold on;
-    plot(t_quant, yi_quant); hold off;
+function plot_xi_helper(t_mpc, yi_mpc, t_prop, yi_prop, tit, x_label, y_label)
+    plot(t_mpc, yi_mpc, 'b', 'linew', 1.2); hold on;
+    plot(t_prop, yi_prop, 'r--', 'linew', 1.2); hold off;
 
     grid on;
     title(tit)
     xlabel(x_label);
     ylabel(y_label);
-    set(gca,'fontsize', 15);
+    set(gca,'fontsize', 14);
 end
 
-function plot_xi_quant(t, y, t_quant, y_quant)
+function plot_xi_comparison(t1, y1, t2, y2, name1, name2)
+    if nargin < 6
+        name1 = 'Sim 1';
+        name2 = 'Sim 2';
+    end
     subplot(3,1,1);
-    plot_xi_helper(t, y(:,1), t_quant, y_quant(:,1), 'Voltage C_1 Multilevel Converter', 't - time(s)', 'V_{c1} [V]')
+    plot_xi_helper(t1, y1(:,1), t2, y2(:,1), 'Voltage C_1', 't [s]', 'V_{c1} [V]')
+    legend(name1, name2);
     subplot(3,1,2);
-    plot_xi_helper(t, y(:,2), t_quant, y_quant(:,2), 'Voltage C_2 Multilevel Converter', 't - time(s)', 'V_{c2} [V]')
+    plot_xi_helper(t1, y1(:,2), t2, y2(:,2), 'Voltage C_2', 't [s]', 'V_{c2} [V]')
     subplot(3,1,3);
-    plot_xi_helper(t, y(:,3), t_quant, y_quant(:,3), 'Current i_L Multilevel Converter', 't - time(s)', 'i_{L} [A]')
+    plot_xi_helper(t1, y1(:,3), t2, y2(:,3), 'Current i_L', 't [s]', 'i_{L} [A]')
 end
 
-function plot_traj_helper(Y, Y2, x0, tit, x_label, y_label, z_label, leg)
-    y1 = Y(:,1); y2 = Y(:,2); y3 = Y(:,3);
-    y_1 = Y2(:,1); y_2 = Y2(:,2); y_3 = Y2(:,3);
-
-    plot3(y1, y2, y3); hold on;
-    plot3(y_1, y_2, y_3);
+function plot_traj_helper(Y1, Y2, x0, tit, x_label, y_label, z_label, leg)
+    plot3(Y1(:,1), Y1(:,2), Y1(:,3), 'b', 'linew', 1.5); hold on;
+    plot3(Y2(:,1), Y2(:,2), Y2(:,3), 'r--');
 
     % markers
-    plot3(y1(1), y2(1), y3(1), 'ro', 'markers', 15, 'linew', 2);
-    plot3(y1(end), y2(end), y3(end), 'k.', 'markers', 50);
-    plot3(y_1(end), y_2(end), y_3(end), 'k*', 'markers', 15, 'linew', 2);
+    plot3(Y1(1,1), Y1(1,2), Y1(1,3), 'ro', 'markers', 15, 'linew', 2);
+    plot3(Y1(end,1), Y1(end,2), Y1(end,3), 'b.', 'markers', 40);
+    plot3(Y2(end,1), Y2(end,2), Y2(end,3), 'r*', 'markers', 10);
     plot3(x0(1), x0(2), x0(3), 'rx', 'markers', 25, 'linew', 3);
 
     legend(leg{:});
@@ -97,10 +127,48 @@ function plot_traj_helper(Y, Y2, x0, tit, x_label, y_label, z_label, leg)
     xlabel(x_label);
     ylabel(y_label);
     zlabel(z_label);
-    set(gca,'fontsize', 15);
+    set(gca,'fontsize', 14);
 end
 
-function plot_traj_quant(y, y_quant, x0)
-    leg = {'trajectory MPC', 'trajectory MPC quant', 'start', 'end MPC', 'end MPC quant', 'target x_0', 'location', 'southeast'};
-    plot_traj_helper(y, y_quant, x0, "Multilevel Converter Trajectory", "V_{c1} [V]", "V_{c2} [V]", "I_{L} [A]", leg);
+function plot_traj_comparison(y1, y2, x0, name1, name2)
+    if nargin < 5
+        name1 = 'Sim 1';
+        name2 = 'Sim 2';
+    end
+    tit = sprintf("Multilevel Converter Trajectory: %s vs %s", name1, name2);
+    leg = {sprintf('trajectory %s', name1), sprintf('trajectory %s', name2), 'start', sprintf('end %s', name1), sprintf('end %s', name2), 'target x_0', 'location', 'best'};
+    plot_traj_helper(y1, y2, x0, tit, "V_{c1} [V]", "V_{c2} [V]", "I_{L} [A]", leg);
+end
+
+function plot_traj_helper_3(Y1, Y2, Y3, x0, tit, x_label, y_label, z_label, leg)
+    plot3(Y1(:,1), Y1(:,2), Y1(:,3), 'b', 'linew', 1.5); hold on;
+    plot3(Y2(:,1), Y2(:,2), Y2(:,3), 'r--', 'linew', 1.5);
+    plot3(Y3(:,1), Y3(:,2), Y3(:,3), 'k:', 'linew', 1.5);
+
+    % markers
+    plot3(Y1(1,1), Y1(1,2), Y1(1,3), 'ro', 'markers', 15, 'linew', 2);
+    plot3(Y1(end,1), Y1(end,2), Y1(end,3), 'b.', 'markers', 40);
+    plot3(Y2(end,1), Y2(end,2), Y2(end,3), 'r*', 'markers', 10);
+    plot3(Y3(end,1), Y3(end,2), Y3(end,3), 'ks', 'markers', 10);
+    plot3(x0(1), x0(2), x0(3), 'rx', 'markers', 25, 'linew', 3);
+
+    legend(leg{:});
+    hold off;
+    grid on;
+    title(tit)
+    xlabel(x_label);
+    ylabel(y_label);
+    zlabel(z_label);
+    set(gca,'fontsize', 14);
+end
+
+function plot_traj_comparison_3(y1, y2, y3, x0, name1, name2, name3)
+    if nargin < 7
+        name1 = 'Sim 1';
+        name2 = 'Sim 2';
+        name3 = 'Sim 3';
+    end
+    tit = sprintf("Multilevel Converter Trajectory: %s vs %s vs %s", name1, name2, name3);
+    leg = {sprintf('trajectory %s', name1), sprintf('trajectory %s', name2), sprintf('trajectory %s', name3), 'start', sprintf('end %s', name1), sprintf('end %s', name2), sprintf('end %s', name3), 'target x_0', 'location', 'best'};
+    plot_traj_helper_3(y1, y2, y3, x0, tit, "V_{c1} [V]", "V_{c2} [V]", "I_{L} [A]", leg);
 end

@@ -7,18 +7,18 @@ function var_out = play_patino1(save_fig)
     s = Simulation(Enums.SimName.PATINO_1);
 
     % 2 CONSTRUINDO MPC
-    config_mpc = s.get_config_mpc();
-    config_mpc.Nd = 1;
-    config_mpc.Np = 2;
-    config_mpc.Q  = diag([10, 1]);
+    mpc = Interface.config_mpc();
+    mpc.Nd = 1;
+    mpc.Np = 2;
+    mpc.Q  = diag([10, 1]);
     
-    s.set_config_mpc(config_mpc);
-    s.set_mpc();
+    s.set_mpc(mpc);
     
     % Instantiating the MPC controller
-    mpc_data = s.m_config.mpc;
-    controller = Controllers.MpcController(mpc_data);
+    controller = Controllers.MpcController(s.m_config.mpc);
     s.set_controller(controller);
+    
+    
 
     % 3 RODANDO SIMULACAO
     nsim = 40;
