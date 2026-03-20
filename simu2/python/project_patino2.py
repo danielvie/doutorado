@@ -365,9 +365,9 @@ def main():
                 continue
             hull = ConvexHull(v)
             ax.plot_trisurf(
-                v[:, 0],
-                v[:, 1],
-                v[:, 2],
+                v[:, 1],  # x2 (swapped)
+                v[:, 0],  # x1 (swapped)
+                v[:, 2],  # x3
                 triangles=hull.simplices,
                 color=colors[k],
                 alpha=0.2,
@@ -383,8 +383,8 @@ def main():
 
     if plotted:
         ax.set_title("Feasibility Regions for PATINO_2 (Backward Reachability)")
-        ax.set_xlabel(f"Error State x1 [{x1_min:.2f}, {x1_max:.2f}]")
-        ax.set_ylabel(f"Error State x2 [{x2_min:.2f}, {x2_max:.2f}]")
+        ax.set_xlabel(f"Error State x2 [{x2_min:.2f}, {x2_max:.2f}]")
+        ax.set_ylabel(f"Error State x1 [{x1_min:.2f}, {x1_max:.2f}]")
         ax.set_zlabel(f"Error State x3 [{x3_min:.2f}, {x3_max:.2f}]")
         ax.legend(loc="best")
         ax.view_init(elev=30, azim=45)
