@@ -54,8 +54,10 @@ function var_out = play_patino1(save_fig)
     plot_xi(t_off, y_off, t, y);
 
     % 5 PROJECAO DA REGIAO DE FACTIBILIDADE
-    % Use the actual simulation target as the projection center
-    f4 = s.project_feasibility_region([], x0_nominal);
+    % Use the same values that matched in z_test_final
+    s.m_config.Ts = [0, 0.05, 0.10]; 
+    s.m_config.c_time = [0.05, 0.04];
+    s.project_feasibility_region([1, 2, 4], [-0.5; -1.0]);
     hold on;
     % Plot trajectory on top of projection
     plot(y(:,1), y(:,2), 'k', 'LineWidth', 2.5, 'DisplayName', 'Trajetória MPC');
