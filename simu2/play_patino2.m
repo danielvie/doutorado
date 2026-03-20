@@ -41,19 +41,19 @@ function res = play_patino2(save_fig, nsim_in)
     s.m_config.mpc.on = true;
     s.m_config.x0 = x0_perturbed;
     s.set_controller(controller_mpc);
-    [y_mpc, t_mpc, m_mpc] = s.run(nsim);
+    [y_mpc, t_mpc, ~] = s.run(nsim);
 
     % 2. Controle Proporcional
     s.m_config.mpc.on = true;
     s.m_config.x0 = x0_perturbed;
     s.set_controller(controller_prop);
-    [y_prop, t_prop, m_prop] = s.run(nsim);
+    [y_prop, t_prop, ~] = s.run(nsim);
 
     % 3. Controle OFF
     s.m_config.mpc.on = false;
     s.m_config.x0 = x0_perturbed;
     s.set_controller(controller_prop);
-    [y_off, t_off, m_off] = s.run(nsim);
+    [y_off, ~, ~] = s.run(nsim);
 
 
     var_out = Utils.getAllVars();
@@ -75,6 +75,14 @@ function res = play_patino2(save_fig, nsim_in)
     f5 = figure(5);
     plot_traj_comparison_3(y_mpc, y_prop, y_off, x0_target, 'MPC', 'PROP', 'OFF');
 
+    % 5 PROJECAO DA REGIAO DE FACTIBILIDADE
+    f6 = s.project_feasibility_region();
+    hold on;
+    % Plot trajectory on top of projection
+    plot3(y_mpc(:,1), y_mpc(:,2), y_mpc(:,3), 'k', 'LineWidth', 2.5, 'DisplayName', 'Trajetória MPC');
+    legend('show');
+    hold off;
+
     if (save_fig)
         addr = 'outputs';
         save_figure(f1, 'patino2_xi_mpc_vs_prop', addr);
@@ -82,6 +90,7 @@ function res = play_patino2(save_fig, nsim_in)
         save_figure(f3, 'patino2_traj_mpc_vs_off', addr);
         save_figure(f4, 'patino2_traj_prop_vs_off', addr);
         save_figure(f5, 'patino2_traj_mpc_vs_prop_vs_off', addr);
+        save_figure(f6, 'patino2_feasibility_projection', addr);
     end
 end
 

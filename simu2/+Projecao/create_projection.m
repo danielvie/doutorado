@@ -13,30 +13,10 @@ function var_out = create_projection(config)
     %       Sx, bx     - State constraints (Sx * x <= bx).
     %       Su, bu     - Input constraints (Su * u <= bu).
     %       xbar, ubar - Equilibrium state and input.
-    %       N          - Prediction horizon (default: 10).
+    %       N          - Prediction horizon.
     %
     % Outputs:
     %   var_out - A structure containing all computed variables
-
-
-    % aula 8
-    
-    % a projecao pode ser realizada empregando a funcao 'projection' do MPT Toolbox
-    % {aula8, slide 33}
-    
-    % sendo Sf, bf obtidos na caracterizacao de O_inf com os valores de equilibrio xbar, ubar considerados
-    % {aula8, slide 10}
-
-
-    %{
-        input:
-            config:
-                A, B, C: dynamic matrices
-                Q, R, Pf: weight parameters
-                Sx, bx, Su, bu: restrictions
-                N: ?? [default: 10]
-    %}
-
 
     % LENDO PARAMETROS
     A = config.A;
@@ -50,13 +30,13 @@ function var_out = create_projection(config)
     Su = config.Su;
     bu = config.bu;
 
-    xbar = config.xbar;
-    ubar = config.ubar;
+    % xbar = config.xbar;
+    % ubar = config.ubar;
 
     N = config.N;
 
     % CALCULO DA REGIAO DE FACTIBILIDADE
-    [K,~]    = dlqr(A,B,Q,R); % Projeto DLQR com pesos unitários
+    [K,~]    = dlqr(A,B,Q,R); % Projeto DLQR
     Af       = A-B*K;
     Gamma    = [eye(size(A,2));-K];
     Spsi     = blkdiag(Sx,Su); 
@@ -64,29 +44,14 @@ function var_out = create_projection(config)
     max_iter = 100;
     tol      = 0;
 
-
-    %{
-        Af: ???
-        Gamma: ???
-        Spsi: ???
-        bpsi: ???
-        oinf: maximo conjunto admissivel
-            O_inf = {x \in R^n : S_f x <= b_f}
-        
-        a abordagem considera o controle a ser aplicado a cada instante k sendo obtido
-        resolvendo um problema de otmizacao envolvendo um horizonte de N passos escolhidos 
-        pelo projetista.
-    %}
-
-
     [Sf,bf] = Projecao.determina_oinf(Af,Gamma,Spsi,bpsi,max_iter,tol);
 
-    % [Sf,bf_til] = determina_oinf(Af,Gamma,Spsi,bpsi-[Sx*xbar;Su*ubar],max_iter,tol);
-    % bf = bf_til + Sf*xbar;
-    
+    % Restoring the 1e5 scaling: MPT has fixed internal tolerances (e.g. 1e-6),
+    % without this scaling, the small values in bf are grouped as zero, which
+    % cuts off massive valid chunks of the polytope.
     Sf = Sf*1e5;
     bf = bf*1e5;
-
+    
     Sun = Su;
     An  = A;
     for i = 2:N
@@ -97,8 +62,6 @@ function var_out = create_projection(config)
 
     n = size(B,1);
     p = size(B,2);
-    % Bn = zeros(n*N,p*N);
-
 
     Baux = mat2cell(zeros(n*N,p*N),n*ones(N,1),p*ones(1,N));
     for i = 1:N
@@ -107,7 +70,6 @@ function var_out = create_projection(config)
         end
     end
     Bn = cell2mat(Baux);
-
 
     if N > 1
         Sxn = Sx;
@@ -128,19 +90,20 @@ function var_out = create_projection(config)
         ];
     bw = [bxn; bun; bx];
     
-    Pw = Polyhedron('H',[Sw bw]);
-    D  = projection(Pw,p*N+1: p*N+n);
+    H_mat = [Sw bw];
+    
+    Pw = Polyhedron('H', H_mat);
+    % Project onto state dimensions 
+    % State variables are at the end of the decision vector in Sw [u1...uN x]
+    D = Pw.projection(p*N+1: p*N+n);
+    
+    % Ensure irredundant representation (Guarantees the boundaries mathematically)
+    D.minHRep();
+    % Compute and minimize V-representation to fix rendering bugs with missing faces
+    D.computeVRep();
+    D.minVRep();
 
-    % P   = Projecao();
-    % P.D = D;
 
-    % GETTING ALL VARIABLES AS REPONSE PARAMETER
+    % GETTING ALL VARIABLES AS RESPONSE PARAMETER
     var_out = Utils.getAllVars();
-    % varnames = who;
-    % var_out  = struct();
-    % for i = 1:numel(varnames)
-    %     vi = varnames{i};
-    % 
-    %     var_out.(vi) = eval(vi);
-    % end
 end
