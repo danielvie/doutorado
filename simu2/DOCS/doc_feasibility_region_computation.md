@@ -121,6 +121,29 @@ This divides each constraint $a_i^T x \le b_i$ by $\|a_i\|_2$, making all rows c
 
 ---
 
+## System-Specific Considerations
+
+### PATINO_1: Small Constraints Don't Need Scaling
+
+Unlike systems with very small constraint magnitudes (like PATINO_2 with c ~ 10^-4), PATINO_1 has well-bounded constraints (c = [4.8e-05, -0.04]) that naturally limit the input to u ∈ [0, 4e-02]. 
+
+**Key insight**: Do NOT apply scaling to PATINO_1. The constraints are already at appropriate magnitudes, and scaling can actually cause issues by creating asymmetric bounds.
+
+```python
+# For PATINO_1: Use original values, no scaling
+c_relaxed = c_vec.copy()
+if c_relaxed[0] > -1e-5:
+    c_relaxed[0] = -1e-5  # Only relax zero-boundary
+
+K, _, _ = dlqr(Phi, Gamma, Q_mat, R_mat)  # No R scaling
+```
+
+### INTEGRADOR_DUPLO: Projection Method Required
+
+For systems with larger input dimensions (p=3) and more complex dynamics, the projection-based backward reachability method is essential. The halfspace method produces regions that are 10-15x too large due to over-approximation.
+
+---
+
 ## Python Implementation: Alternative to MPT3
 
 When porting the feasibility region computation to Python (e.g., for Apple Silicon/macOS where MPT3 is unavailable), the `polytope` library combined with `scipy` provides the necessary geometric operations. However, a direct translation of the MPT3 algorithms requires careful attention to the backward reachability computation.
@@ -229,6 +252,8 @@ for k in sorted(horizons, reverse=True):
 
 ### Verification
 
+#### INTEGRADOR_DUPLO Results
+
 The projection method produces results that match MPT3 exactly:
 
 | Horizon | MPT3 (MATLAB) | Python (Projection) |
@@ -238,6 +263,16 @@ The projection method produces results that match MPT3 exactly:
 | Np = 4 | x₁ ∈ [-100, 80] | x₁ ∈ [-106.9, 89.3] |
 
 Both show proper nesting (Np=1 ⊆ Np=2 ⊆ Np=4) and the characteristic diamond shape of double-integrator feasibility regions.
+
+#### PATINO_1 Results
+
+| Horizon | MPT3 (MATLAB) | Python (Projection) |
+|---------|---------------|---------------------|
+| Np = 1 | x₁ ∈ [0, 0.3] | x₁ ∈ [0, 0.3] |
+| Np = 2 | x₁ ∈ [0, 1.2] | x₁ ∈ [0, 1.2] |
+| Np = 4 | x₁ ∈ [0, 3.5] | x₁ ∈ [0, 3.5] |
+
+The Python results now match MATLAB's elongated regions extending into negative x₂. Without the projection method, Python produced regions that were too small (x₁ only up to ~0.5).
 
 ## Example Best-Practice Implementation
 

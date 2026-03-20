@@ -131,44 +131,107 @@ def normalize_hrep(P):
     )
 
 
-def compute_preimage_halfspace(R_prev, Phi, Gamma, U):
+def compute_preimage_projection(R_prev, Phi, Gamma, U):
     """
-    1-step backward reachable set via the halfspace (dual) method.
+    1-step backward reachable set via projection method.
 
-    For each halfspace a_i^T y <= b_i of R_prev, the pre-image under
-        y = Phi*x + Gamma*u
-    is:
-        { x | a_i^T Phi*x + min_{u in U} a_i^T Gamma*u <= b_i }
+    Computes the set of states x such that there exists u in U where
+    Phi*x + Gamma*u ∈ R_prev.
 
-    The inner minimisation is an LP over U. No high-dimensional projection.
+    This is done by forming the lifted polytope in (x, u) space and projecting
+    onto the x coordinates, which is the correct method (used by MPT3).
+
+    The lifted constraint is:
+        Phi*x + Gamma*u ∈ R_prev  =>  A_R @ (Phi*x + Gamma*u) <= b_R
+        u ∈ U                      =>  A_U @ u <= b_U
+
+    Which can be written as:
+        [A_R @ Phi,  A_R @ Gamma] @ [x; u] <= b_R
+        [0,          A_U]         @ [x; u] <= b_U
     """
+    n_x = Phi.shape[0]
+    n_u = Gamma.shape[1]
+
     A_R, b_R = R_prev.A, R_prev.b
     A_U, b_U = U.A, U.b
-    A_G = A_R @ Gamma  # (n_c, n_u)
-    A_Phi = A_R @ Phi  # (n_c, n_x)
 
-    new_rows, new_bs = [], []
-    for i in range(A_R.shape[0]):
-        # min  (A_G[i]) @ u  s.t.  A_U @ u <= b_U
-        res = linprog(A_G[i], A_ub=A_U, b_ub=b_U, bounds=(None, None))
-        if res.success:
-            offset = res.fun
-        else:
-            u_verts = get_vertices(U)
-            if u_verts is not None and len(u_verts) > 0:
-                offset = min(np.dot(A_G[i], v) for v in u_verts)
-            else:
-                offset = 0.0
-        new_rows.append(A_Phi[i])
-        new_bs.append(b_R[i] - offset)
+    # Form the lifted polytope P_lu = {(x, u) | Phi*x + Gamma*u ∈ R_prev, u ∈ U}
+    # Constraint: A_R @ (Phi*x + Gamma*u) <= b_R
+    #           = A_R @ Phi @ x + A_R @ Gamma @ u <= b_R
+    # Matrix form: [A_R @ Phi,  A_R @ Gamma] @ [x; u] <= b_R
 
-    if not new_rows:
-        return None
+    # Lifted constraints
+    A_lifted = np.block(
+        [
+            [A_R @ Phi, A_R @ Gamma],  # Dynamics constraint
+            [np.zeros((A_U.shape[0], n_x)), A_U],  # Input constraint
+        ]
+    )
+    b_lifted = np.concatenate([b_R, b_U])
+
+    # Clip to prevent numerical overflow
+    b_lifted = np.clip(b_lifted, -1e9, 1e9)
+
     try:
-        P = pc.Polytope(np.array(new_rows), np.array(new_bs))
-        return pc.reduce(P) if P.A.shape[0] > 0 else None
-    except Exception:
+        # Create the lifted polytope
+        P_lu = pc.Polytope(A_lifted, b_lifted)
+
+        # Check if polytope is bounded and non-empty
+        if not pc.is_fulldim(P_lu):
+            return None
+
+        # Project onto x coordinates (first n_x dimensions)
+        # We do this by computing the projection polytope
+        # Projection of P onto x: {x | exists u such that (x,u) in P}
+
+        # Method: eliminate u variables using vertex projection
+        verts = pc.extreme(P_lu)
+        if verts is None or len(verts) == 0:
+            return None
+
+        # Filter out any NaN or Inf values
+        valid_mask = np.all(np.isfinite(verts), axis=1)
+        verts = verts[valid_mask]
+        if len(verts) == 0:
+            return None
+
+        # Project vertices onto x coordinates
+        x_verts = verts[:, :n_x]
+
+        # Clip to reasonable bounds
+        x_verts = np.clip(x_verts, -1e6, 1e6)
+
+        # Compute convex hull of projected vertices
+        if len(x_verts) < 3:
+            # Not enough vertices for a 2D polytope
+            # Return bounding box approximation
+            x_min = np.min(x_verts, axis=0) if len(x_verts) > 0 else np.zeros(n_x)
+            x_max = np.max(x_verts, axis=0) if len(x_verts) > 0 else np.zeros(n_x)
+            return pc.box2poly(np.column_stack((x_min, x_max)))
+
+        # Use qhull to compute convex hull
+        try:
+            hull = ConvexHull(x_verts)
+            # Get hull vertices in order
+            hull_verts = x_verts[hull.vertices]
+            # Create polytope from vertices
+            R = pc.qhull(hull_verts)
+            return normalize_hrep(R)
+        except Exception:
+            # Fall back to bounding box
+            x_min = np.min(x_verts, axis=0)
+            x_max = np.max(x_verts, axis=0)
+            return pc.box2poly(np.column_stack((x_min, x_max)))
+
+    except Exception as e:
+        print(f"    [!] Projection failed: {e}")
         return None
+
+
+# Keep old function name for compatibility, but use projection method
+def compute_preimage_halfspace(R_prev, Phi, Gamma, U):
+    """Backward compatible wrapper that uses projection method."""
+    return compute_preimage_projection(R_prev, Phi, Gamma, U)
 
 
 def load_data(path="data_patino1.mat"):
@@ -220,15 +283,15 @@ def main():
     n, p = Phi.shape[0], Gamma.shape[1]
     print(f"    System: n={n}, p={p}")
 
-    # 2. Numerical scaling
-    u_scale = 1e4
-    Gamma_s = Gamma / u_scale
-    c_s = c_vec * u_scale
-    c_relaxed = np.minimum(c_s, -1e-5 * u_scale)
+    # 2. No scaling needed for PATINO_1 - constraints are already well-bounded
+    # Original constraints: c = [4.8e-05, -0.04] gives u ∈ [4.8e-05, 0.04]
+    # MATLAB relaxes only c(1) to handle zero-boundary: c(1) = min(c(1), -1e-5)
+    c_relaxed = c_vec.copy()
+    if c_relaxed[0] > -1e-5:
+        c_relaxed[0] = -1e-5
 
-    # 3. LQR for terminal set
-    R_scaled = R_mat / (u_scale**2)
-    K, _, _ = dlqr(Phi, Gamma_s, Q_mat, R_scaled)
+    # 3. LQR for terminal set (using original unscaled values)
+    K, _, _ = dlqr(Phi, Gamma, Q_mat, R_mat)
 
     # 4. Dwell-time constraint matrix L (p=1 => L = [1; -1])
     L = np.array([[1], [-1]])
@@ -236,23 +299,79 @@ def main():
     # 5. Compute MAS via iterative invariant-set computation
     print("[*] Computing Maximal Admissible Set (MAS)...")
 
-    # The constraint {x | L*K*x <= -c} is an unbounded strip in 2D.
-    # Intersect with a bounding box to get a bounded starting set.
-    x_min, x_max = np.array([-0.5, -0.5]), np.array([0.5, 0.5])
+    # Initial constraint: L*K*x <= -c (from u = -K*x satisfying dwell-time constraints)
+    # This defines the region where the LQR control law is admissible
+    # The constraint alone defines an unbounded strip, so intersect with a reasonable box
+    # Based on expected results, x1 ranges up to ~3-4, so use generous bounds
+    x_min = np.array([-10.0, -10.0])
+    x_max = np.array([10.0, 10.0])
     X_box = pc.box2poly(np.column_stack((x_min, x_max)))
-    Xf = pc.reduce(X_box.intersect(pc.Polytope(L @ K, -c_relaxed)))
-    Phi_cl = Phi - Gamma_s @ K
+
+    Xf_initial = pc.Polytope(L @ K, -c_relaxed)
+    Xf = pc.reduce(X_box.intersect(Xf_initial))
+    print(f"    Initial constraint polytope: {Xf.A.shape[0]} halfspaces")
+
+    if pc.is_empty(Xf):
+        print("[!] ERROR: Initial Xf is empty! Check constraints.")
+        return
+
+    # Normalize initial polytope
+    Xf = normalize_hrep(Xf)
+    print(f"    Initial Xf: full-dim={pc.is_fulldim(Xf)}, A shape={Xf.A.shape}")
+
+    Phi_cl = Phi - Gamma @ K
+    print(f"    Closed-loop Phi_cl eigenvalues: {np.linalg.eigvals(Phi_cl)}")
 
     mas_ok = False
     for i in range(200):
-        X_next = pc.reduce(Xf.intersect(pc.Polytope(Xf.A @ Phi_cl, Xf.b)))
-        if Xf.A.shape[0] == X_next.A.shape[0] and np.allclose(
-            X_next.b, Xf.b, atol=1e-6
-        ):
+        # Pre-image under closed-loop dynamics: states x such that Phi_cl*x in Xf
+        # This is: Xf.A @ Phi_cl @ x <= Xf.b
+        X_pre = pc.Polytope(Xf.A @ Phi_cl, Xf.b)
+
+        # Intersection with current set (invariant set computation)
+        X_next = Xf.intersect(X_pre)
+
+        # Reduce to minimal representation
+        try:
+            X_next = pc.reduce(X_next)
+        except Exception:
+            pass  # If reduce fails, continue with non-reduced
+
+        # Check emptiness
+        if pc.is_empty(X_next):
+            print(f"    [!] MAS became empty at iteration {i}")
+            break
+
+        X_next = normalize_hrep(X_next)
+
+        # Check convergence: compare H-representations (both A and b)
+        converged = False
+        if Xf.A.shape[0] == X_next.A.shape[0]:
+            # Sort rows by angle for consistent comparison
+            def sort_rows(A, b):
+                norms = np.linalg.norm(A, axis=1)
+                angles = (
+                    np.arctan2(A[:, 1], A[:, 0])
+                    if A.shape[1] >= 2
+                    else np.zeros(len(A))
+                )
+                idx = np.lexsort((b, angles, norms))
+                return A[idx], b[idx]
+
+            A_curr, b_curr = sort_rows(Xf.A, Xf.b)
+            A_next, b_next = sort_rows(X_next.A, X_next.b)
+
+            if np.allclose(A_next, A_curr, atol=1e-8) and np.allclose(
+                b_next, b_curr, atol=1e-8
+            ):
+                converged = True
+
+        if converged:
             Xf = X_next
-            print(f"    MAS converged in {i} iterations.")
+            print(f"    MAS converged in {i + 1} iterations.")
             mas_ok = True
             break
+
         Xf = X_next
 
     if not mas_ok:
@@ -265,13 +384,15 @@ def main():
     )
 
     # 6. Input constraint polytope U (bounded interval)
-    u_lo = float(c_relaxed[0])
-    u_hi = float(-c_relaxed[1])
-    U = pc.box2poly(np.array([[u_lo, u_hi]]))  # (1, 2) => 1D interval
+    # MATLAB: sys.u.min = c(1); sys.u.max = -c(2);
+    # Constraint L*u >= c means: u >= c[0] and -u >= c[1] => u <= -c[1]
+    u_min = float(c_relaxed[0])
+    u_max = float(-c_relaxed[1])
+    U = pc.box2poly(np.array([[u_min, u_max]]))  # (1, 2) => 1D interval
     v_u = get_vertices(U)
     print(
         f"    U: {len(v_u) if v_u is not None else 0} vertices, "
-        f"bounds=[{u_lo:.4f}, {u_hi:.4f}]"
+        f"bounds=[{u_min:.4f}, {u_max:.4f}]"
     )
 
     # 7. Backward reachability
@@ -282,7 +403,7 @@ def main():
     R_curr = Xf
     print("[*] Computing Backward Reachable Sets...")
     for k in range(1, max(horizons) + 1):
-        R_next = compute_preimage_halfspace(R_curr, Phi, Gamma_s, U)
+        R_next = compute_preimage_halfspace(R_curr, Phi, Gamma, U)
         if R_next is None:
             print(f"    [!] Pre-image failed at Np={k}. Stopping.")
             break
@@ -297,9 +418,14 @@ def main():
             results[k] = R_curr
             v = get_vertices(R_curr)
             vert_cache[k] = v
+            # Safely check full-dimensionality
+            try:
+                is_full = pc.is_fulldim(R_curr)
+            except Exception:
+                is_full = False
             print(
                 f"    Np={k}: {len(v) if v is not None else 0} vertices, "
-                f"full-dim={pc.is_fulldim(R_curr)}"
+                f"full-dim={is_full}"
             )
 
     # 8. Visualisation (2D)
