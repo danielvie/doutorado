@@ -96,30 +96,12 @@ function fig = project_feasibility_region(self, horizons, x_eq_in)
         labels{i} = sprintf('N_p = %d', horizons(i));
     end
 
-    % --- Compute a single consistent offset from the N=1 (smallest) region ---
-    % The equilibrium corresponds to a vertex/boundary of the N=1 region.
-    % We find the vertex closest to the error-space origin [0;0] as the anchor,
-    % then shift ALL regions so that anchor maps to x_eq.
-    % This preserves nesting since all regions get the same translation.
-    D1 = all_D{1};
-    if ~D1.isEmptySet() && ~isempty(D1.V)
-        verts = D1.V;
-        dists = sum(verts.^2, 2);
-        [~, idx] = min(dists);
-        anchor = verts(idx, :)';
-    else
-        anchor = zeros(numel_x, 1);
-    end
-    offset = x_eq - anchor;
-
-    % --- Pass 2: Apply consistent offset to all regions ---
+    % --- Pass 2: Apply consistent offset to all regions (just the equilibrium point) ---
     for i = 1:numel(horizons)
-        v = all_D{i} + offset;
         proj_struct = struct();
-        proj_struct.D = v;
         
-        % deslocando origem
-        proj_struct.D = proj_struct.D + config.xbar;
+        % deslocando para o ponto de equilibrio
+        proj_struct.D = all_D{i} + config.xbar;
         
         projections{i} = proj_struct;
     end

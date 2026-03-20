@@ -39,6 +39,13 @@ while ( (i <= max_iter) && (flag_redund == 0) )
         cj = SGAi(j,:)';
         dj = bpsi(j);
         
+        % Normalize the hyperplane (cj, dj) before processing to avoid numerical issues
+        norm_cj = norm(cj);
+        if norm_cj > 1e-12
+            cj = cj / norm_cj;
+            dj = dj / norm_cj;
+        end
+        
         % A restricao eh redundante se e somente se t(j) <= tol
         tj = Projecao.teste_redundancia(S,b,cj,dj);
         if tj > tol % Se a restricao nao for redundante

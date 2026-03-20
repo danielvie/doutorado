@@ -19,7 +19,8 @@ function plot_projection(f, v1, v2, v3, xbar, varargin)
 
     % labels
     if ~isempty(varargin)
-        legend(varargin{:});
+        % Reverse the labels to match the reversed plotting order (v3, v2, v1)
+        legend(varargin{end:-1:1});
     else
         legend("N_p = 4", "N_p = 2", "N_p = 1");
     end
