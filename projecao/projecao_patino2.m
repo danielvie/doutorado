@@ -81,18 +81,28 @@ function vout = projecao_patino2(savefig_in)
     v2 = create_projection(config);
     config.N  = 3;
     v3 = create_projection(config);
+    config.N  = 4;
+    v4 = create_projection(config);
 
     % deslocando origem 
     v1.D = v1.D + config.xbar;
     v2.D = v2.D + config.xbar;
     v3.D = v3.D + config.xbar;
+    v4.D = v4.D + config.xbar;
 
     % PP = Polyhedron('H',[[eye(3);-eye(3)] 1000*ones(6,1)]);
     % PP = intersect(v.D,PP);
     % clf, plot(PP2)
 
     f1 = figure(2);
-    plotter.patino2.plot_projection(f1, v1, v2, v3, config.xbar, "N_p = 4", "N_p = 2", "N_p = 1")
+    
+    volumes = {
+        struct('v', v4, 'label', "N_p = 4"),
+        struct('v', v3, 'label', "N_p = 3"),
+        struct('v', v2, 'label', "N_p = 2"),
+        struct('v', v1, 'label', "N_p = 1")
+    };
+    plotter.patino2.plot_projection(f1, volumes, config.xbar);
 
     vnames = who;
     vout = {};
