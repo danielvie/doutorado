@@ -11,8 +11,21 @@ if nargin < 6, tol = 0; end
 
 r = length(bpsi); % No. restricoes
 SpsiGamma = Spsi*Gamma;
-S = SpsiGamma; 
-b = bpsi;
+
+S = [];
+b = [];
+for k = 1:r
+    ck = SpsiGamma(k, :)';
+    dk = bpsi(k);
+    nrm = norm(ck);
+    if nrm > 1e-12
+        ck = ck / nrm;
+        dk = dk / nrm;
+    end
+    S = [S; ck'];
+    b = [b; dk];
+end
+
 flag_redund = 0;
 i = 1;
 
@@ -23,14 +36,22 @@ while ( (i <= max_iter) && (flag_redund == 0) )
                      % pois todas as novas restricoes serao redundantes
     SGAi = SpsiGamma*(Af^i);
     for j = 1:r % Teste de redundancia de cada restricao
-        c = SGAi(j,:)';
-        d = bpsi(j);
+        cj = SGAi(j,:)';
+        dj = bpsi(j);
+        
+        % Normalize the hyperplane (cj, dj) before processing
+        norm_cj = norm(cj);
+        if norm_cj > 1e-12
+            cj = cj / norm_cj;
+            dj = dj / norm_cj;
+        end
+        
         % A restricao eh redundante se e somente se t(j) <= tol 5
-        t(j) = teste_redundancia(S,b,c,d);
-        if t(j) > tol % Se a restricao nao for redundante
+        tj = teste_redundancia(S,b,cj,dj);
+        if tj > tol % Se a restricao nao for redundante
             flag_redund = 0; % Pelo menos uma restricao nao foi redundante
             % Agrega-se essa restricao aas anteriores
-            S = [S;c']; b = [b;d];
+            S = [S;cj']; b = [b;dj];
         end
     end
     i = i + 1;

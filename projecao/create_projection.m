@@ -108,7 +108,6 @@ function var_out = create_projection(config)
         ];
     bw = [bxn; bun; bx];
     
-    % Normalize constraints to improve MPT3 numerical conditioning
     H_mat = [Sw bw];
     for k = 1:size(H_mat,1)
         nrm = norm(H_mat(k,1:end-1));
@@ -118,7 +117,11 @@ function var_out = create_projection(config)
     end
     
     Pw = Polyhedron('H', H_mat);
-    D  = projection(Pw,p*N+1: p*N+n);
+    % Project onto state dimensions 
+    D = Pw.projection(p*N+1: p*N+n);
+    
+    % Ensure irredundant representation (Guarantees the boundaries mathematically)
+    D.minHRep();
 
     P   = Projecao();
     P.D = D;
