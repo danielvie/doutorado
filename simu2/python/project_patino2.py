@@ -14,8 +14,10 @@ How to use with your research data:
    >> uv run --project python python python/project_patino2.py
 """
 
+import argparse
 import os
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import polytope as pc
@@ -108,58 +110,68 @@ def robust_qhull(vertices):
         return None
 
 
-def compute_preimage_halfspace(R_prev, Phi, Gamma, U):
+def compute_preimage_projection(R_prev, Phi, Gamma, U):
     """
-    Compute 1-step backward reachable set via the dual halfspace method.
+    1-step backward reachable set via projection method.
 
-    For each halfspace a_i^T y <= b_i in R_prev, the pre-image under
-    x -> Phi*x + Gamma*u is:
-        { x | a_i^T Phi*x + min_{u in U} a_i^T Gamma*u <= b_i }
+    Computes the set of states x such that there exists u in U where
+    Phi*x + Gamma*u ∈ R_prev.
 
-    The inner minimization is a linear program over the polytope U.
-    This avoids any high-dimensional projection.
-
-    Returns a new Polyhedron R_pre in the state-space (3D).
+    This is done by forming the lifted polytope in (x, u) space and projecting
+    onto the x coordinates, which is the correct method (used by MPT3).
     """
-    from scipy.optimize import linprog
+    n_x = Phi.shape[0]
+    n_u = Gamma.shape[1]
 
     A_R, b_R = R_prev.A, R_prev.b
-    n_x = Phi.shape[1]
-    n_u = Gamma.shape[1]
-    n_constraints = A_R.shape[0]
-
     A_U, b_U = U.A, U.b
-    A_G = A_R @ Gamma  # (n_c, n_u)
-    A_Phi = A_R @ Phi  # (n_c, n_x)
 
-    new_A_rows = []
-    new_b_vals = []
+    # Form the lifted polytope P_lu = {(x, u) | Phi*x + Gamma*u ∈ R_prev, u ∈ U}
+    A_lifted = np.block(
+        [
+            [A_R @ Phi, A_R @ Gamma],  # Dynamics constraint
+            [np.zeros((A_U.shape[0], n_x)), A_U],  # Input constraint
+        ]
+    )
+    b_lifted = np.concatenate([b_R, b_U])
 
-    for i in range(n_constraints):
-        # Solve: min  a_G_i^T u  s.t.  A_U @ u <= b_U
-        c = A_G[i]
-        res = linprog(c, A_ub=A_U, b_ub=b_U, bounds=(None, None))
+    try:
+        # Create the lifted polytope
+        P_lu = pc.Polytope(A_lifted, b_lifted)
 
-        if res.success:
-            offset = res.fun
-        else:
-            # Fallback: use worst-case bound from vertices
-            u_verts = pc.extreme(U)
-            offset = min(np.dot(A_G[i], u) for u in u_verts)
+        # Project onto x coordinates (first n_x dimensions)
+        verts = pc.extreme(P_lu)
+        if verts is None or len(verts) == 0:
+            return None
 
-        new_A_rows.append(A_Phi[i])
-        new_b_vals.append(b_R[i] - offset)
+        # Project vertices onto x coordinates
+        x_verts = verts[:, :n_x]
 
-    if not new_A_rows:
+        # Compute convex hull of projected vertices
+        if len(x_verts) < 3:
+            x_min = np.min(x_verts, axis=0) if len(x_verts) > 0 else np.zeros(n_x)
+            x_max = np.max(x_verts, axis=0) if len(x_verts) > 0 else np.zeros(n_x)
+            return pc.box2poly(np.column_stack((x_min, x_max)))
+
+        try:
+            hull = ConvexHull(x_verts)
+            hull_verts = x_verts[hull.vertices]
+            R = pc.qhull(hull_verts)
+            return normalize_hrep(R)
+        except Exception:
+            # Fall back to bounding box
+            x_min = np.min(x_verts, axis=0)
+            x_max = np.max(x_verts, axis=0)
+            return pc.box2poly(np.column_stack((x_min, x_max)))
+
+    except Exception as e:
+        print(f"    [!] Projection failed: {e}")
         return None
 
-    A_new = np.array(new_A_rows)
-    b_new = np.array(new_b_vals)
 
-    P = pc.Polytope(A_new, b_new)
-    if pc.is_empty(P):
-        return None
-    return pc.reduce(P)
+def compute_preimage_halfspace(R_prev, Phi, Gamma, U):
+    """Backward compatible wrapper that uses projection method."""
+    return compute_preimage_projection(R_prev, Phi, Gamma, U)
 
 
 def load_data(path="data_patino_2.mat"):
@@ -200,6 +212,18 @@ def load_data(path="data_patino_2.mat"):
 
 
 def main():
+    parser = argparse.ArgumentParser(
+        description="Compute feasibility regions for PATINO_2"
+    )
+    parser.add_argument(
+        "--save-only", action="store_true", help="Save figure without displaying"
+    )
+    args = parser.parse_args()
+
+    # Use Agg backend only when --save-only is specified
+    if args.save_only:
+        matplotlib.use("Agg")
+
     # 1. Load system data
     Phi, Gamma, c, Q_mat, R_mat = load_data()
     n, p = Phi.shape[0], Gamma.shape[1]
@@ -299,51 +323,36 @@ def main():
             )
             print(f"      Np={k}: {v_count} vertices, full-dim={pc.is_fulldim(R_curr)}")
 
-    # 7. Visualization
-    print("[*] Rendering Feasibility Regions...")
+    # 7. Visualization (3D only with min/max labels)
+    print("[*] Rendering 3D Feasibility Regions...")
+
+    # Compute min/max values for each state variable
+    x1_min, x1_max = float("inf"), float("-inf")
+    x2_min, x2_max = float("inf"), float("-inf")
+    x3_min, x3_max = float("inf"), float("-inf")
+
+    for k in horizons:
+        raw = results.get(k)
+        if raw is None:
+            continue
+        P = normalize_hrep(raw)
+        if P is None:
+            continue
+        v = pc.extreme(P)
+        if v is not None and len(v) > 0:
+            x1_min, x1_max = min(x1_min, np.min(v[:, 0])), max(x1_max, np.max(v[:, 0]))
+            x2_min, x2_max = min(x2_min, np.min(v[:, 1])), max(x2_max, np.max(v[:, 1]))
+            x3_min, x3_max = min(x3_min, np.min(v[:, 2])), max(x3_max, np.max(v[:, 2]))
+
     colors = {1: "red", 2: "green", 4: "blue"}
-
-    # Helper function to project 3D polytope onto 2D plane
-    def project_2d(polytope_3d, dims):
-        """
-        Project a 3D polytope onto a 2D plane.
-        dims: tuple of two indices, e.g., (0, 1) for XY, (1, 2) for YZ, (0, 2) for ZX
-        """
-        if polytope_3d is None or pc.is_empty(polytope_3d):
-            return None
-
-        verts = pc.extreme(polytope_3d)
-        if verts is None or len(verts) < 3:
-            return None
-
-        # Extract the 2D coordinates
-        verts_2d = verts[:, dims]
-
-        # Compute convex hull in 2D
-        try:
-            hull = ConvexHull(verts_2d)
-            return verts_2d[hull.vertices]
-        except Exception:
-            # Fallback: return vertices without hull
-            return verts_2d
-
-    # Create figure with 2x2 subplots: 3D + 3 2D projections
-    fig = plt.figure(figsize=(16, 12), facecolor="white")
-
-    # 3D plot
-    ax_3d = fig.add_subplot(2, 2, 1, projection="3d")
-    plotted_3d = False
+    fig = plt.figure(figsize=(10, 8), facecolor="white")
+    ax = fig.add_subplot(111, projection="3d")
+    plotted = False
 
     for k in sorted(horizons, reverse=True):
         raw = results.get(k)
         if raw is None:
             continue
-        try:
-            if not hasattr(raw, "A") or raw.A.size == 0:
-                continue
-        except Exception:
-            continue
-
         P = normalize_hrep(raw)
         if P is None:
             continue
@@ -351,98 +360,39 @@ def main():
             v = pc.extreme(P)
             if v is None or len(v) < 4:
                 print(
-                    f"    [!] Skipping Np={k} in 3D: {len(v) if v is not None else 0} vertices."
+                    f"    [!] Skipping Np={k}: {len(v) if v is not None else 0} vertices."
                 )
                 continue
             hull = ConvexHull(v)
-            ax_3d.plot_trisurf(
+            ax.plot_trisurf(
                 v[:, 0],
                 v[:, 1],
                 v[:, 2],
                 triangles=hull.simplices,
                 color=colors[k],
-                alpha=0.15,
+                alpha=0.2,
                 edgecolor="black",
                 linewidth=0.3,
             )
-            ax_3d.plot(
+            ax.plot(
                 [], [], [], color=colors[k], label=f"Np = {k}", alpha=0.6, linewidth=6
             )
-            plotted_3d = True
+            plotted = True
         except Exception as e:
-            print(f"    [!] 3D plotting failed for Np={k}: {type(e).__name__}: {e}")
+            print(f"    [!] Plotting failed for Np={k}: {e}")
 
-    if plotted_3d:
-        ax_3d.set_title("3D View")
-        ax_3d.set_xlabel("x1")
-        ax_3d.set_ylabel("x2")
-        ax_3d.set_zlabel("x3")
-        ax_3d.legend(loc="best")
-        ax_3d.view_init(elev=30, azim=45)
-
-    # 2D projections: list of (subplot_index, dims, xlabel, ylabel, title)
-    projections = [
-        (2, (0, 1), "x1", "x2", "XY Projection"),
-        (3, (1, 2), "x2", "x3", "YZ Projection"),
-        (4, (0, 2), "x1", "x3", "ZX Projection"),
-    ]
-
-    for subplot_idx, dims, xlabel, ylabel, title in projections:
-        ax_2d = fig.add_subplot(2, 2, subplot_idx)
-        plotted_2d = False
-
-        for k in sorted(horizons, reverse=True):
-            raw = results.get(k)
-            if raw is None:
-                continue
-
-            verts_2d = project_2d(raw, dims)
-            if verts_2d is None or len(verts_2d) < 3:
-                continue
-
-            try:
-                # Sort vertices for proper polygon filling
-                centroid = np.mean(verts_2d, axis=0)
-                angles = np.arctan2(
-                    verts_2d[:, 1] - centroid[1], verts_2d[:, 0] - centroid[0]
-                )
-                verts_sorted = verts_2d[np.argsort(angles)]
-
-                ax_2d.fill(
-                    verts_sorted[:, 0],
-                    verts_sorted[:, 1],
-                    color=colors[k],
-                    alpha=0.3,
-                    label=f"Np = {k}",
-                )
-                ax_2d.plot(
-                    np.append(verts_sorted[:, 0], verts_sorted[0, 0]),
-                    np.append(verts_sorted[:, 1], verts_sorted[0, 1]),
-                    color=colors[k],
-                    linewidth=2,
-                )
-                plotted_2d = True
-            except Exception as e:
-                print(f"    [!] 2D plotting failed for Np={k} {title}: {e}")
-
-        if plotted_2d:
-            ax_2d.set_title(title)
-            ax_2d.set_xlabel(f"Error State {xlabel}")
-            ax_2d.set_ylabel(f"Error State {ylabel}")
-            ax_2d.legend(loc="best")
-            ax_2d.grid(True, linestyle="--", alpha=0.4)
-            ax_2d.axis("equal")
-
-    if plotted_3d or any(
-        project_2d(results.get(k), (0, 1)) is not None for k in horizons
-    ):
-        fig.suptitle(
-            "Feasibility Regions for PATINO_2 (Backward Reachability)", fontsize=14
-        )
-        plt.tight_layout()
+    if plotted:
+        ax.set_title("Feasibility Regions for PATINO_2 (Backward Reachability)")
+        ax.set_xlabel(f"Error State x1 [{x1_min:.2f}, {x1_max:.2f}]")
+        ax.set_ylabel(f"Error State x2 [{x2_min:.2f}, {x2_max:.2f}]")
+        ax.set_zlabel(f"Error State x3 [{x3_min:.2f}, {x3_max:.2f}]")
+        ax.legend(loc="best")
+        ax.view_init(elev=30, azim=45)
         fig.savefig("feasibility_regions_patino2.png", dpi=150, bbox_inches="tight")
         print("[*] Figure saved to: feasibility_regions_patino2.png")
-        plt.show()
+
+        if not args.save_only:
+            plt.show()
     else:
         print("[!] Nothing to plot.")
 

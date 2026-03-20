@@ -95,16 +95,36 @@ function z_test_patino2_projection()
     end
 
     % ==========================================================
-    % 4. Formatting and Plotting the Figure (3D + 2D Projections)
+    % 4. Formatting and Plotting the Figure (3D only with min/max labels)
     % ==========================================================
     colors = {'r', 'g', 'b', 'm'};
 
-    % Create figure with 2x2 subplots
-    figure('Name', 'Feasibility Regions', 'Color', 'w');
+    % Compute min/max values for each state variable across all horizons
+    disp('Computing state variable ranges...');
+    x1_min = inf; x1_max = -inf;
+    x2_min = inf; x2_max = -inf;
+    x3_min = inf; x3_max = -inf;
 
-    % 4a. 3D Plot
-    subplot(2, 2, 1);
+    for i = 1:length(horizons)
+        P = domains{i};
+        % Normalize H-rep before getting vertices
+        P = normalize_hrep(P);
+        % Get vertices using V property
+        V = P.V;
+        if ~isempty(V)
+            x1_min = min(x1_min, min(V(:,1)));
+            x1_max = max(x1_max, max(V(:,1)));
+            x2_min = min(x2_min, min(V(:,2)));
+            x2_max = max(x2_max, max(V(:,2)));
+            x3_min = min(x3_min, min(V(:,3)));
+            x3_max = max(x3_max, max(V(:,3)));
+        end
+    end
+
+    figure('Name', 'Feasibility Regions', 'Color', 'w');
     hold on; grid on;
+
+    % Store handles for the legend
     h_leg = zeros(length(horizons), 1);
 
     % Plot from largest horizon to smallest so smaller sets aren't hidden
@@ -117,68 +137,21 @@ function z_test_patino2_projection()
         % Plot the polyhedron (MPT3 natively handles 3D plotting for Dim=3)
         plot(P, 'color', colors{i}, 'alpha', 0.2, 'linewidth', 1.0);
 
-        % Create dummy plot for the legend
+        % Create dummy plot for the legend (Using plot3 for 3D axes consistency)
         h_leg(i) = plot3(NaN, NaN, NaN, 's', 'MarkerFaceColor', colors{i}, 'MarkerEdgeColor', 'k', 'MarkerSize', 10);
     end
 
-    xlabel('Error State x_1');
-    ylabel('Error State x_2');
-    zlabel('Error State x_3');
-    title('3D View');
-    view(3);
-    legend(h_leg, arrayfun(@(n) sprintf('N_p = %d', n), horizons, 'UniformOutput', false), 'Location', 'best');
-    hold off;
+    % Create labels with min/max values
+    xlabel(sprintf('Error State x_1 [%.2f, %.2f]', x1_min, x1_max));
+    ylabel(sprintf('Error State x_2 [%.2f, %.2f]', x2_min, x2_max));
+    zlabel(sprintf('Error State x_3 [%.2f, %.2f]', x3_min, x3_max));
+    title('Feasibility Regions for PATINO\_2 (Backward Reachability)');
+    view(3); % Force 3D view for 3 states
 
-    % 4b. XY Projection (x1 vs x2)
-    subplot(2, 2, 2);
-    hold on; grid on;
-    for i = length(horizons):-1:1
-        P = domains{i};
-        P = normalize_hrep(P);
-        % Project onto dimensions 1 and 2
-        P_xy = projection(P, [1, 2]);
-        plot(P_xy, 'color', colors{i}, 'alpha', 0.3, 'linewidth', 1.0);
-    end
-    xlabel('Error State x_1');
-    ylabel('Error State x_2');
-    title('XY Projection');
-    legend(arrayfun(@(n) sprintf('N_p = %d', n), horizons, 'UniformOutput', false), 'Location', 'best');
-    hold off;
+    legend_labels = arrayfun(@(n) sprintf('N_p = %d', n), horizons, 'UniformOutput', false);
+    legend(h_leg, legend_labels, 'Location', 'best');
 
-    % 4c. YZ Projection (x2 vs x3)
-    subplot(2, 2, 3);
-    hold on; grid on;
-    for i = length(horizons):-1:1
-        P = domains{i};
-        P = normalize_hrep(P);
-        % Project onto dimensions 2 and 3
-        P_yz = projection(P, [2, 3]);
-        plot(P_yz, 'color', colors{i}, 'alpha', 0.3, 'linewidth', 1.0);
-    end
-    xlabel('Error State x_2');
-    ylabel('Error State x_3');
-    title('YZ Projection');
-    legend(arrayfun(@(n) sprintf('N_p = %d', n), horizons, 'UniformOutput', false), 'Location', 'best');
     hold off;
-
-    % 4d. ZX Projection (x1 vs x3)
-    subplot(2, 2, 4);
-    hold on; grid on;
-    for i = length(horizons):-1:1
-        P = domains{i};
-        P = normalize_hrep(P);
-        % Project onto dimensions 1 and 3
-        P_zx = projection(P, [1, 3]);
-        plot(P_zx, 'color', colors{i}, 'alpha', 0.3, 'linewidth', 1.0);
-    end
-    xlabel('Error State x_1');
-    ylabel('Error State x_3');
-    title('ZX Projection');
-    legend(arrayfun(@(n) sprintf('N_p = %d', n), horizons, 'UniformOutput', false), 'Location', 'best');
-    hold off;
-
-    % Add overall title
-    sgtitle('Feasibility Regions for PATINO\_2 (Backward Reachability)');
 
     disp('Done.');
 end

@@ -201,7 +201,7 @@ def main():
         description="Compute feasibility regions for INTEGRADOR_DUPLO"
     )
     parser.add_argument(
-        "--save-only", action="store_true", help="Save figure without displaying"
+        "--show", action="store_true", help="Display figure (default: save only)"
     )
     parser.add_argument(
         "--output",
@@ -210,8 +210,8 @@ def main():
     )
     args = parser.parse_args()
 
-    # Configure matplotlib for headless if needed
-    if args.save_only:
+    # Configure matplotlib for headless by default
+    if not args.show:
         matplotlib.use("Agg")
 
     # 1. Load data
@@ -423,7 +423,7 @@ def main():
         fig.savefig(args.output, dpi=150, bbox_inches="tight")
         print(f"[*] Figure saved to: {args.output}")
 
-        if not args.save_only:
+        if args.show:
             plt.show()
     else:
         print("[!] Nothing to plot.")
