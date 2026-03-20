@@ -1,0 +1,13 @@
+[project]
+name = "python"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "control>=0.10.2",
+    "matplotlib>=3.10.8",
+    "numpy>=2.4.3",
+    "polytope>=0.2.5",
+    "scipy>=1.17.1",
+]
