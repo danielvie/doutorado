@@ -1,4 +1,4 @@
-function set_mpc(self)
+function set_mpc(self, config_mpc)
     % set_mpc - Configures the Model Predictive Control (MPC) parameters for the simulation.
     %
     % This function initializes the MPC optimization problem by computing the necessary
@@ -6,8 +6,8 @@ function set_mpc(self)
     % It stores the resulting MPC configuration in the simulation object's configuration.
     %
     % Inputs:
-    %   self - Instance of the Simulation class.
-    %   Np   - Prediction horizon
+    %   self       - Instance of the Simulation class.
+    %   config_mpc - (Optional) Interface.config_mpc object to update simulation parameters.
     %
     % Outputs:
     %   None. The function modifies the simulation object's configuration in place.
@@ -16,7 +16,11 @@ function set_mpc(self)
     % - Reads system configuration and dynamics matrices.
     % - Computes MPC optimization matrices and constraints.
     % - Creates an MPC configuration structure and updates the simulation object.
-    
+
+    if nargin > 1
+        self.m_config_mpc = config_mpc;
+    end
+
     config_mpc = self.m_config_mpc;
 
     Np = config_mpc.Np; % Default prediction horizon if not provided
@@ -24,6 +28,7 @@ function set_mpc(self)
     
     % reading config values
     config = self.m_config;
+
 
     [Phi, Gamma] = self.get_phi_gamma();
 
@@ -91,10 +96,7 @@ function set_mpc(self)
     mpc_opt.p        = p;
     
     mpc_opt.options  = optimoptions('quadprog', 'Algorithm', 'active-set');
-    % config.mpc          = mpc_opt;
     
-    mpc_opt.vars     = rmfield(Utils.getAllVars(), 'mpc_opt');
-
     % updating config values of object
     self.m_config.mpc = mpc_opt;
 end
