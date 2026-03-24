@@ -17,8 +17,11 @@ Usage:
        >> uv run --project python python/project_patino1.py
 """
 
+import argparse
 import os
+import sys
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import polytope as pc
@@ -278,6 +281,23 @@ def load_data(path="data_patino1.mat"):
 
 
 def main():
+    parser = argparse.ArgumentParser(
+        description="Compute feasibility regions for PATINO_1"
+    )
+    parser.add_argument(
+        "--save-only", action="store_true", help="Save figure without displaying it (default: show)"
+    )
+    parser.add_argument(
+        "--output",
+        default="feasibility_regions_patino1.png",
+        help="Output filename",
+    )
+    args = parser.parse_args()
+
+    # Configure matplotlib for headless if save-only
+    if args.save_only:
+        matplotlib.use("Agg")
+
     # 1. Load data
     Phi, Gamma, c_vec, Q_mat, R_mat = load_data()
     n, p = Phi.shape[0], Gamma.shape[1]
@@ -464,9 +484,13 @@ def main():
         ax.axis("equal")
         ax.grid(True, linestyle="--", alpha=0.4)
         plt.tight_layout()
-        # Save figure for headless environments (e.g., Apple Silicon terminal)
-        fig.savefig("feasibility_regions_patino1.png", dpi=150, bbox_inches="tight")
-        plt.show()
+        
+        # Save figure
+        fig.savefig(args.output, dpi=150, bbox_inches="tight")
+        print(f"[*] Figure saved to: {args.output}")
+
+        if not args.save_only:
+            plt.show()
     else:
         print("[!] Nothing to plot.")
 

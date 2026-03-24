@@ -38,13 +38,11 @@ function var_out = play_patino1(save_fig)
 
     % simulacao sem controle mpc
     s.m_config.mpc.on = false;
-    % fprintf('DEBUG: Running with MPC.on = %d\n', s.m_config.mpc.on);
     s.m_config.x0 = x0_pertubed;
     [y_off, t_off, m_off] = s.run(nsim);
 
     % simulacao com controle mpc
     s.m_config.mpc.on = true;
-    % fprintf('DEBUG: Running with MPC.on = %d\n', s.m_config.mpc.on);
     s.m_config.x0 = x0_pertubed;
     [y, t, m] = s.run(nsim);
 

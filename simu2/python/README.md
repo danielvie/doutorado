@@ -21,15 +21,21 @@ LAB_CIRCUIT), enabling computation on macOS Apple Silicon without MATLAB.
 # Install dependencies
 uv sync
 
-# Run PATINO_1
+# Run PATINO_1 (opens interactive plot window)
 uv run python python/project_patino1.py
 
-# Run PATINO_2
-uv run python python/project_patino2.py
+# Run PATINO_2 and save without opening a window
+uv run python python/project_patino2.py --save-only
 
-# Run INTEGRADOR_DUPLO
-uv run python python/project_integrador_duplo.py
+# Run INTEGRADOR_DUPLO with a custom output file
+uv run python python/project_integrador_duplo.py --output custom_plot.png
 ```
+
+### Command Line Arguments
+
+All three Python scripts optionally support the following arguments:
+- `--save-only`: Saves the visualization to disk without opening an interactive GUI window (ideal for SSH, headless, or CI workflows).
+- `--output <filename.png>`: (Only for PATINO_1 and INTEGRADOR_DUPLO) Specifies a custom filename for the generated plot.
 
 Each script auto-detects a `.mat` file with real system data; if none is found it
 falls back to a representative template so the pipeline can be validated immediately.
@@ -54,8 +60,7 @@ c = s.get_switching_constraints();
 save patino2_data.mat Phi Gamma c
 ```
 
-Place the `.mat` file in the `simu2/` root directory (not inside `python/`).
-Both scripts search the project root automatically.
+Place the `.mat` file in either the `simu2/` root directory or directly inside the `python/` folder. Both scripts search the project directories automatically.
 
 ## How It Works
 
@@ -105,6 +110,4 @@ All are installed automatically by `uv sync` via `pyproject.toml`.
   `scipy.optimize.linprog` — no additional setup required.
 - The 3D renderer (`project_patino2.py`) requires at least 4 non-coplanar
   vertices per polyhedron; degenerate cases are skipped with a warning.
-figures are saved as `feasibility_regions_patino1.png`,
-`feasibility_regions_patino2.png`, and `feasibility_regions_integrador_duplo.png`
-in the project root for headless environments.
+- For headless environments (e.g., CI pipelines or remote SSH sessions), always pass the `--save-only` flag to prevent matplotlib from attempting to open a GUI window.
