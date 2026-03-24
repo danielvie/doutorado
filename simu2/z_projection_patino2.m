@@ -1,5 +1,5 @@
 % Define function for the projection test using Backward Reachable Sets
-function z_test_patino2_projection()
+function z_projection_patino2()
     disp('Initializing simulation Patino 2...');
     s = Simulation(Enums.SimName.PATINO_2);
 

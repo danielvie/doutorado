@@ -17,11 +17,12 @@ function var_out = play_duplo_integrador(save_fig)
     % Instantiating the MPC controller
     controller = Controllers.MpcController(s.m_config.mpc);
     s.set_controller(controller);
-    
-    
+
+    % Use Dense Strategy for the integrador duplo simulation (to emulate lsim behavior)
+    s.set_step_strategy(Dynamics.DenseStrategy());
 
     % 3 RODANDO SIMULACAO
-    nsim = 40;
+    nsim = 30;
     
     % Store the nominal equilibrium state for the projection center
     x0_nominal = s.m_config.x0;
@@ -52,13 +53,13 @@ function var_out = play_duplo_integrador(save_fig)
     f4 = figure(4);
     plot_xi(t_off, y_off, t, y);
 
-    % 5 PROJECAO DA REGIAO DE FACTIBILIDADE
-    f5 = s.project_feasibility_region([], x0_nominal);
-    hold on;
-    % Plot trajectory on top of projection
-    plot(y(:,1), y(:,2), 'k', 'LineWidth', 2.5, 'DisplayName', 'Trajetória MPC');
-    legend('show');
-    hold off;
+    % % 5 PROJECAO DA REGIAO DE FACTIBILIDADE
+    % f5 = s.project_feasibility_region([], x0_nominal);
+    % hold on;
+    % % Plot trajectory on top of projection
+    % plot(y(:,1), y(:,2), 'k', 'LineWidth', 2.5, 'DisplayName', 'Trajetória MPC');
+    % legend('show');
+    % hold off;
 
     % output vars
     var_out = Utils.getAllVars();
@@ -69,7 +70,7 @@ function var_out = play_duplo_integrador(save_fig)
         save_figure(f2, 'duplo_integrador_traj_on', addr);
         save_figure(f3, 'duplo_integrador_control', addr);
         save_figure(f4, 'duplo_integrador_xi', addr);
-        save_figure(f5, 'duplo_integrador_feasibility_projection', addr);
+        % save_figure(f5, 'duplo_integrador_feasibility_projection', addr);
     end
 end
 

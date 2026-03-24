@@ -21,7 +21,7 @@ function [y,t,m,dtk_out] = run(self, nsim)
         [current_config, time_metrics] = self.step_actuation(current_config, dtk);
 
         % C. Physics Step: Simulate the cycle
-        [y_cycle, t_cycle, m_cycle] = self.sim_cycle_switching(current_config);
+        [y_cycle, t_cycle, m_cycle, ~] = self.m_step_strategy.propagate(current_config);
 
         % D. Storage & State Update
         [state, buffers] = update_and_log(self, state, buffers, current_config, ...
@@ -33,9 +33,9 @@ function [y,t,m,dtk_out] = run(self, nsim)
     end
 
     % --- 3. Output Formatting ---
-    y = buffers.y;
-    t = buffers.t;
-    m = buffers.m;
+    y = buffers.y(1:buffers.idx_current, :);
+    t = buffers.t(1:buffers.idx_current);
+    m = buffers.m(1:buffers.idx_current);
     dtk_out = buffers.dtk_out;
 end
 
@@ -52,15 +52,18 @@ function [buffers, config, state] = initialize_run(self, nsim)
     p = modes_len - 1; % number of control variables
 
     % Memory Allocation (main simulation buffers)
-    buffers.y       = zeros(nsim*modes_len + 1, states_len);
-    buffers.t       = zeros(nsim*modes_len + 1, 1);
-    buffers.m       = zeros(nsim*modes_len + 1, 1);
+    % Initial allocation handles either switching or small dense scenarios
+    init_size = max(nsim*modes_len + 1, 1000);
+    buffers.y       = zeros(init_size, states_len);
+    buffers.t       = zeros(init_size, 1);
+    buffers.m       = zeros(init_size, 1);
     buffers.dtk_out = zeros(p, nsim);
 
     % Initial Conditions (t=0)
     buffers.y(1, :) = config.x0';
     buffers.t(1)    = 0.0;
     buffers.m(1)    = config.Omega(1);
+    buffers.idx_current = 1;
 
     % Pre-allocate log arrays (avoids O(n^2) concatenation in hot loop)
     log_pre          = struct();
@@ -91,15 +94,24 @@ function [state, buffers] = update_and_log(self, state, buffers, config, ...
     y_cycle, t_cycle, m_cycle, dtk, time_metrics, qp_info, exitflag, k)
     % Updates buffers, simulation state, and internal logger
 
-    modes_len = numel(config.Omega);
-
     % 1. Update Result Buffers
-    idx_start = (k-1) * modes_len + 2;
-    idx_end   = idx_start + modes_len - 1;
+    n_seg = size(y_cycle, 1);
+    idx_start = buffers.idx_current + 1;
+    idx_end   = buffers.idx_current + n_seg;
+    
+    % Dynamic reallocation if buffer is too small
+    if idx_end > size(buffers.y, 1)
+        pad = max(1000, n_seg * 2); 
+        buffers.y = [buffers.y; zeros(pad, size(buffers.y, 2))];
+        buffers.t = [buffers.t; zeros(pad, 1)];
+        buffers.m = [buffers.m; zeros(pad, 1)];
+    end
 
     buffers.y(idx_start:idx_end, :) = y_cycle;
     buffers.t(idx_start:idx_end)    = t_cycle + state.t0;
     buffers.m(idx_start:idx_end)    = m_cycle;
+    buffers.idx_current = idx_end;
+    
     buffers.dtk_out(:, k)           = dtk;
 
     % 2. Update Simulation State for next iteration

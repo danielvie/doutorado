@@ -7,14 +7,13 @@ classdef Simulation < handle
         m_log;
         m_controller;  % Controllers.Controller instance
         m_planner;     % Trajectory.Planner instance
+        m_step_strategy; % Dynamics.StepStrategy instance
     end
 
     methods(Hidden = true)
         set_traj_phase(self, params);
         res = can_compute_phase(self);
     end
-
-
 
     methods
         % .. constructor
@@ -31,6 +30,9 @@ classdef Simulation < handle
 
             % default state mode
             self.m_state_mode = Enums.StateMode.ORIGINAL;
+
+            % default step strategy (switching)
+            self.m_step_strategy = Dynamics.SwitchingStrategy();
 
             % initialize Trajectory.Planner (only for Buck-Boost configs)
             if self.can_compute_phase()
@@ -69,6 +71,9 @@ classdef Simulation < handle
         save_set_alpha_cache(self);
 
         set_controller(self, controller);
+        function set_step_strategy(self, strategy)
+            self.m_step_strategy = strategy;
+        end
 
         % .. getters
         config_mpc = get_config_mpc(self);

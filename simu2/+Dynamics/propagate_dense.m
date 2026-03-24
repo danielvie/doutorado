@@ -72,7 +72,8 @@ function [y, t, m, u, xr] = propagate_dense(config)
 
         % Run linear simulation (shift time to 0 for lsim)
         xi0_col = reshape(xi0_curr, [], 1);
-        [yi_seg, ~, xi_seg] = lsim(Ai, Bi, C, D, ui_seg, ti_seg - ti_seg(1), xi0_col);
+        yi_seg = lsim(Ai, Bi, C, D, ui_seg, ti_seg - ti_seg(1), xi0_col);
+        xi_seg = yi_seg;
 
         % Propagate remainder if lsim didn't reach end of interval
         x_end_sim = xi_seg(end, :);

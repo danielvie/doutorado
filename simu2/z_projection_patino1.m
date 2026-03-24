@@ -1,5 +1,5 @@
 % Define function for the projection test
-function z_test_patino1_projection()
+function z_projection_patino1()
     disp('Initializing simulation Patino 1...');
     s = Simulation(Enums.SimName.PATINO_1);
 

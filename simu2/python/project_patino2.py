@@ -22,7 +22,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import polytope as pc
 from control import dlqr
-from mpl_toolkits.mplot3d import Axes3D
 from scipy.io import loadmat
 from scipy.linalg import toeplitz
 from scipy.spatial import ConvexHull
@@ -66,8 +65,7 @@ def vertices_to_hrep(vertices):
         A = eqs[:, :-1]
         b = -eqs[:, -1]
         return A, b
-    except Exception as e:
-        print(f"        ConvexHull failed: {e}")
+    except Exception:
         return None, None
 
 
@@ -93,8 +91,8 @@ def robust_qhull(vertices):
 
     # Fallback: compute H-rep from V-rep manually
     A, b = vertices_to_hrep(vertices)
-    if A is not None:
-        P = pc.Polytope(A, b)
+    if A is not None and b is not None:
+        P = pc.Polytope(A, b)  # type: ignore
         if not pc.is_empty(P):
             return P
 
@@ -121,7 +119,7 @@ def compute_preimage_projection(R_prev, Phi, Gamma, U):
     onto the x coordinates, which is the correct method (used by MPT3).
     """
     n_x = Phi.shape[0]
-    n_u = Gamma.shape[1]
+    # n_u = Gamma.shape[1]
 
     A_R, b_R = R_prev.A, R_prev.b
     A_U, b_U = U.A, U.b
@@ -137,6 +135,8 @@ def compute_preimage_projection(R_prev, Phi, Gamma, U):
 
     try:
         # Create the lifted polytope
+        if b_lifted is None:
+            return None
         P_lu = pc.Polytope(A_lifted, b_lifted)
 
         # Project onto x coordinates (first n_x dimensions)
@@ -199,7 +199,7 @@ def load_data(path="data_patino_2.mat"):
             except Exception as e:
                 print(f"[!] Error loading .mat file: {e}")
 
-    print(f"[!] No .mat file found. Using default PATINO_2 template.")
+    print("[!] No .mat file found. Using default PATINO_2 template.")
     n, p = 3, 8
     Phi = np.array(
         [[0.992, 0.005, 0.001], [0.001, 0.985, 0.008], [0.005, 0.002, 0.970]]
@@ -226,7 +226,7 @@ def main():
 
     # 1. Load system data
     Phi, Gamma, c, Q_mat, R_mat = load_data()
-    n, p = Phi.shape[0], Gamma.shape[1]
+    _n, p = Phi.shape[0], Gamma.shape[1]
 
     # 2. Numerical scaling
     u_scale = 1e4
