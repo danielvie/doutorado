@@ -6,11 +6,14 @@ function var_out = play_patino1(save_fig)
     % 1 INIT
     s = Simulation(Enums.SimName.PATINO_1);
 
+    % add constraints
+    s.m_config.c_time = [0.25, 0.25];
+
     % 2 CONSTRUINDO MPC
     mpc = Interface.config_mpc();
     mpc.Nd = 1;
-    mpc.Np = 15;
-    mpc.Q  = diag([10, 10]);
+    mpc.Np = 2;
+    mpc.Q  = diag([10, 1]);
     
     s.set_mpc(mpc);
     
@@ -21,13 +24,17 @@ function var_out = play_patino1(save_fig)
     
 
     % 3 RODANDO SIMULACAO
-    nsim = 60;
+    nsim = 40;
     
     % Store the nominal equilibrium state for the projection center
     x0_nominal = s.m_config.x0;
     
     % Perturbing the state for the simulation initial condition
-    x0_pertubed = s.m_config.x0 + [1.2; 0.5];
+    % Adjusted back to [0.2; 0.5] from [1.2; 0.5] to match original trajectory
+    x0_pertubed = s.m_config.x0 + [0.2; 0.5];
+
+    % Set the StepStrategy to Dense to generate the continuous trajectory like lsim
+    s.set_step_strategy(Dynamics.DenseStrategy());
 
     % simulacao sem controle mpc
     s.m_config.mpc.on = false;
@@ -45,10 +52,12 @@ function var_out = play_patino1(save_fig)
 
     % 4 PLOT DOS RESULTADOS
     f1 = figure(1);
-    plot_traj(y_off, y, x0_nominal, "Patino1 Trajectory", "V_{c} [V]", "I_{L} [A]");
+    plot_traj(y_off, y, x0_nominal, "Buck-Boost Converter MPC", "x_1 - Voltage Capacitor C", "x_2 - Current Inductor L");
 
     f2 = figure(2);
-    plot_u_signal(t_off, m_off, t, m);
+    cycles = 10;
+    t_limit = cycles * s.m_config.Ts(end);
+    plot_u_signal(t_off, m_off, t, m, t_limit);
 
     f3 = figure(3);
     plot_xi(t_off, y_off, t, y);
@@ -93,7 +102,7 @@ function plot_traj(y_off, y, x0, tit, x_label, y_label)
     set(gca,'fontsize', 15);
 end
 
-function plot_u_signal(t_off, m_off, t, m)
+function plot_u_signal(t_off, m_off, t, m, t_limit)
     f = stairs(t_off, m_off, 'linew', 2);
     hold on;
     stairs(t, m, 'linew', 2, 'linestyle', '--');
@@ -105,6 +114,10 @@ function plot_u_signal(t_off, m_off, t, m)
     ylabel("mode");
     set(gca,'fontsize', 15);
     legend('modes target trajectory', 'modes simulation');
+
+    if nargin >= 5 && ~isempty(t_limit)
+        xlim([0, t_limit]);
+    end
 
     v = f.Parent.YTick;
     p = abs(v - floor(v)) < 0.1;

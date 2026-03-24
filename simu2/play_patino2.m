@@ -75,14 +75,6 @@ function res = play_patino2(save_fig, nsim_in)
     f5 = figure(5);
     plot_traj_comparison_3(y_mpc, y_prop, y_off, x0_target, 'MPC', 'PROP', 'OFF');
 
-    % 5 PROJECAO DA REGIAO DE FACTIBILIDADE
-    f6 = s.project_feasibility_region([], x0_target);
-    hold on;
-    % Plot trajectory on top of projection
-    plot3(y_mpc(:,1), y_mpc(:,2), y_mpc(:,3), 'k', 'LineWidth', 2.5, 'DisplayName', 'Trajetória MPC');
-    legend('show');
-    hold off;
-
     if (save_fig)
         addr = 'outputs';
         save_figure(f1, 'patino2_xi_mpc_vs_prop', addr);
@@ -151,7 +143,7 @@ end
 
 function plot_traj_helper_3(Y1, Y2, Y3, x0, tit, x_label, y_label, z_label, leg)
     plot3(Y1(:,1), Y1(:,2), Y1(:,3), 'b', 'linew', 1.5); hold on;
-    plot3(Y2(:,1), Y2(:,2), Y2(:,3), 'r--', 'linew', 1.5);
+    plot3(Y2(:,1), Y2(:,2), Y2(:,3), 'r', 'linew', 1.5);
     plot3(Y3(:,1), Y3(:,2), Y3(:,3), 'k:', 'linew', 1.5);
 
     % markers
