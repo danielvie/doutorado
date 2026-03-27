@@ -51,10 +51,10 @@ void setup()
     adc1_config_width(ADC_WIDTH_BIT_12);                        // 12-bit resolution (0-4095)
     adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_12); // 0-3.3V range
     adc1_config_channel_atten(ADC1_CHANNEL_3, ADC_ATTEN_DB_12);
-    adc1_config_channel_atten(ADC1_CHANNEL_6, ADC_ATTEN_DB_12);
-    adc1_config_channel_atten(ADC1_CHANNEL_7, ADC_ATTEN_DB_12);
     adc1_config_channel_atten(ADC1_CHANNEL_4, ADC_ATTEN_DB_12);
     adc1_config_channel_atten(ADC1_CHANNEL_5, ADC_ATTEN_DB_12);
+    adc1_config_channel_atten(ADC1_CHANNEL_6, ADC_ATTEN_DB_12);
+    adc1_config_channel_atten(ADC1_CHANNEL_7, ADC_ATTEN_DB_12);
 
     // Configure LED GPIO pin
     pinMode(LED, OUTPUT);

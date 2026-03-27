@@ -6,12 +6,12 @@ static const char *TAG = "SIG_CTRL";
 // ---------------------------------------------------------------------------
 // HARDWARE CONFIGURATION
 // ---------------------------------------------------------------------------
-const uint32_t MASK_OUT_6 = (1U << PIN_OUT_6);
-const uint32_t MASK_OUT_5 = (1U << PIN_OUT_5);
-const uint32_t MASK_OUT_4 = (1U << PIN_OUT_4);
-const uint32_t MASK_OUT_6_ = (1U << PIN_OUT_6_);
-const uint32_t MASK_OUT_5_ = (1U << PIN_OUT_5_);
-const uint32_t MASK_OUT_4_ = (1U << PIN_OUT_4_);
+const uint32_t MASK_U1_LOW  = (1U << PIN_U1_LOW);
+const uint32_t MASK_U1_HIGH = (1U << PIN_U1_HIGH);
+const uint32_t MASK_U2_LOW  = (1U << PIN_U2_LOW);
+const uint32_t MASK_U2_HIGH = (1U << PIN_U2_HIGH);
+const uint32_t MASK_U3_LOW  = (1U << PIN_U3_LOW);
+const uint32_t MASK_U3_HIGH = (1U << PIN_U3_HIGH);
 
 const uint32_t MASK_OUT_SIG = (1U << PIN_OUT_SIG);
 
@@ -70,20 +70,20 @@ void signal_controller_init() {
     gpio_config_t io_conf = {};
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_OUTPUT;
-    io_conf.pin_bit_mask = (1ULL << PIN_OUT_6) | (1ULL << PIN_OUT_5) |
-                           (1ULL << PIN_OUT_4) | (1ULL << PIN_OUT_6_) |
-                           (1ULL << PIN_OUT_5_) | (1ULL << PIN_OUT_4_);
+    io_conf.pin_bit_mask = (1ULL << PIN_U1_LOW) | (1ULL << PIN_U2_LOW) |
+                           (1ULL << PIN_U3_LOW) | (1ULL << PIN_U1_HIGH) |
+                           (1ULL << PIN_U2_HIGH) | (1ULL << PIN_U3_HIGH);
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
     gpio_config(&io_conf);
 
     // Initialize LOW
-    gpio_set_level(PIN_OUT_6, 0);
-    gpio_set_level(PIN_OUT_5, 0);
-    gpio_set_level(PIN_OUT_4, 0);
-    gpio_set_level(PIN_OUT_6_, 0);
-    gpio_set_level(PIN_OUT_5_, 0);
-    gpio_set_level(PIN_OUT_4_, 0);
+    gpio_set_level(PIN_U1_LOW, 0);
+    gpio_set_level(PIN_U2_LOW, 0);
+    gpio_set_level(PIN_U3_LOW, 0);
+    gpio_set_level(PIN_U1_HIGH, 0);
+    gpio_set_level(PIN_U2_HIGH, 0);
+    gpio_set_level(PIN_U3_HIGH, 0);
     gpio_set_level(PIN_OUT_SIG, 0);
 
     // 2. Populate Default Pattern into Set A and Set B
@@ -288,16 +288,19 @@ static void signal_loop_task(void *arg) {
             // Determine which pins need to go to Dead Time (Low)
             uint32_t clear_mask = 0;
             if (change_6)
-                clear_mask |= (MASK_OUT_6 | MASK_OUT_6_);
+                clear_mask |= (MASK_U1_LOW | MASK_U1_HIGH);
             if (change_5)
-                clear_mask |= (MASK_OUT_5 | MASK_OUT_5_);
+                clear_mask |= (MASK_U2_LOW | MASK_U2_HIGH);
             if (change_4)
-                clear_mask |= (MASK_OUT_4 | MASK_OUT_4_);
+                clear_mask |= (MASK_U3_LOW | MASK_U3_HIGH);
 
-            // Determine the new state (High pins)
-            uint32_t set_mask = (d6 ? MASK_OUT_6 : MASK_OUT_6_)
-                              | (d5 ? MASK_OUT_5 : MASK_OUT_5_)
-                              | (d4 ? MASK_OUT_4 : MASK_OUT_4_);
+            // Determine the new state and the complement (pins that must be cleared)
+            uint32_t set_mask = (d6 ? MASK_U1_HIGH : MASK_U1_LOW)
+                              | (d5 ? MASK_U2_HIGH : MASK_U2_LOW)
+                              | (d4 ? MASK_U3_HIGH : MASK_U3_LOW);
+            uint32_t clr_mask = (d6 ? MASK_U1_LOW  : MASK_U1_HIGH)
+                              | (d5 ? MASK_U2_LOW  : MASK_U2_HIGH)
+                              | (d4 ? MASK_U3_LOW  : MASK_U3_HIGH);
 
             // Apply Dead Time if needed
             if (clear_mask) {
@@ -311,7 +314,8 @@ static void signal_loop_task(void *arg) {
 
                 helper_delay_cycles(delay_cycles_val);
 
-                // Apply new state
+                // Apply new state, clear complement
+                GPIO.out_w1tc = clr_mask;
                 GPIO.out_w1ts = set_mask;
 
                 // Wait remaining time
@@ -319,7 +323,8 @@ static void signal_loop_task(void *arg) {
                     esp_rom_delay_us(us - 1);
                 }
             } else {
-                // No transition, just ensure state (redundant but safe)
+                // No transition, but still enforce correct state on both sides
+                GPIO.out_w1tc = clr_mask;
                 GPIO.out_w1ts = set_mask;
 
                 // Wait full time
@@ -352,12 +357,12 @@ static void signal_loop_task(void *arg) {
     ESP_LOGI(TAG, "Continuous Signal Task Stopped");
 
     // Ensure pins are low
-    gpio_set_level(PIN_OUT_6, 0);
-    gpio_set_level(PIN_OUT_5, 0);
-    gpio_set_level(PIN_OUT_4, 0);
-    gpio_set_level(PIN_OUT_6_, 0);
-    gpio_set_level(PIN_OUT_5_, 0);
-    gpio_set_level(PIN_OUT_4_, 0);
+    gpio_set_level(PIN_U1_LOW, 0);
+    gpio_set_level(PIN_U2_LOW, 0);
+    gpio_set_level(PIN_U3_LOW, 0);
+    gpio_set_level(PIN_U1_HIGH, 0);
+    gpio_set_level(PIN_U2_HIGH, 0);
+    gpio_set_level(PIN_U3_HIGH, 0);
 
     led_off();
 

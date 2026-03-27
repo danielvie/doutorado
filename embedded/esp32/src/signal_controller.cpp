@@ -397,6 +397,9 @@ void initialize_signal_controller() {
     g_num_timings = active->size_vec;
 
     // Configure GPIO pins as outputs and set initial low state
+    pinMode(GPIO_DI1, OUTPUT);
+    pinMode(GPIO_DI2, OUTPUT);
+    pinMode(GPIO_DI3, OUTPUT);
     pinMode(GPIO_DI4, OUTPUT);
     pinMode(GPIO_DI5, OUTPUT);
     pinMode(GPIO_DI6, OUTPUT);

@@ -228,6 +228,10 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
             ble_router_ble_read(Status::ON);
         } else if (strcmp(msg_lower, "ble_read_off") == 0) {
             ble_router_ble_read(Status::OFF);
+        } else if (strcmp(msg_lower, "high") == 0) {
+            ble_router_all_high();
+        } else if (strcmp(msg_lower, "low") == 0) {
+            ble_router_all_low();
         } else if (strcmp(msg_lower, "start") == 0) {
             ble_router_signal_start();
         } else if (strcmp(msg_lower, "stop") == 0) {
@@ -341,22 +345,22 @@ void ble_router_set_port(uint16_t port, uint16_t value) {
 
     switch(port) {
         case 6:
-            gpio_set_level(PIN_OUT_6, value);
+            gpio_set_level(PIN_U1_LOW, value);
             break;
         case 5:
-            gpio_set_level(PIN_OUT_5, value);
+            gpio_set_level(PIN_U2_LOW, value);
             break;
         case 4:
-            gpio_set_level(PIN_OUT_4, value);
+            gpio_set_level(PIN_U3_LOW, value);
             break;
         case 3:
-            gpio_set_level(PIN_OUT_6_, value);
+            gpio_set_level(PIN_U1_HIGH, value);
             break;
         case 2:
-            gpio_set_level(PIN_OUT_5_, value);
+            gpio_set_level(PIN_U2_HIGH, value);
             break;
         case 1:
-            gpio_set_level(PIN_OUT_4_, value);
+            gpio_set_level(PIN_U3_HIGH, value);
             break;
         default:
             ESP_LOGE(TAG, "could not find a valid config");
@@ -496,6 +500,26 @@ void ble_router_ble_read(Status status) {
         g_system_state.ble_an_read_state = BLEAnalogReadState::DISABLED;
         break;
     }
+}
+
+void ble_router_all_high() {
+    ESP_LOGI(TAG, "Setting ALL ports HIGH");
+    gpio_set_level(PIN_U1_LOW,  1);
+    gpio_set_level(PIN_U2_LOW,  1);
+    gpio_set_level(PIN_U3_LOW,  1);
+    gpio_set_level(PIN_U1_HIGH, 1);
+    gpio_set_level(PIN_U2_HIGH, 1);
+    gpio_set_level(PIN_U3_HIGH, 1);
+}
+
+void ble_router_all_low() {
+    ESP_LOGI(TAG, "Setting ALL ports LOW");
+    gpio_set_level(PIN_U1_LOW,  0);
+    gpio_set_level(PIN_U2_LOW,  0);
+    gpio_set_level(PIN_U3_LOW,  0);
+    gpio_set_level(PIN_U1_HIGH, 0);
+    gpio_set_level(PIN_U2_HIGH, 0);
+    gpio_set_level(PIN_U3_HIGH, 0);
 }
 
 void ble_router_signal_start() {

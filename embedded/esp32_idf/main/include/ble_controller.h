@@ -65,6 +65,8 @@ void ble_router_set_port(uint16_t port, uint16_t value);
 void ble_router_set_signal(std::string& message);
 void ble_router_signal_start();
 void ble_router_signal_stop();
+void ble_router_all_high(void);
+void ble_router_all_low(void);
 void ble_router_ctrl(ControlState state);
 void ble_router_status(void);
 void ble_router_status_matrix(SignalSet set);

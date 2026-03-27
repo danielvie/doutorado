@@ -20,9 +20,12 @@
 #define TIMER_IDX TIMER_0
 
 // Digital output pins for signal generation
-#define GPIO_DI4 21              // Primary digital output pin 4
-#define GPIO_DI5 22              // Primary digital output pin 5
 #define GPIO_DI6 23              // Primary digital output pin 6
+#define GPIO_DI5 22              // Primary digital output pin 5
+#define GPIO_DI4 21              // Primary digital output pin 4
+#define GPIO_DI3 19              // Primary digital output pin 3 (changed)
+#define GPIO_DI2 18              // Primary digital output pin 2
+#define GPIO_DI1  4              // Primary digital output pin 1
 
 // Maximum number of timing elements in a signal pattern
 #define MAX_ELEMENTS_SIGNAL 30

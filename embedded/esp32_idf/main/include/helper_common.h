@@ -19,13 +19,15 @@
 #define CORE_1 1
 
 
-#define PIN_OUT_6   GPIO_NUM_23 // Bit 2 (4)
-#define PIN_OUT_6_  GPIO_NUM_22 //
-#define PIN_OUT_5   GPIO_NUM_21 // Bit 1 (2)
-#define PIN_OUT_5_  GPIO_NUM_19 //
-#define PIN_OUT_4   GPIO_NUM_18 // Bit 0 (1)
-#define PIN_OUT_4_  GPIO_NUM_17 //
-#define PIN_OUT_SIG GPIO_NUM_16 //
+#define PIN_U1_LOW   GPIO_NUM_23 // Bit 2 (4)
+#define PIN_U1_HIGH  GPIO_NUM_22 //
+
+#define PIN_U2_LOW   GPIO_NUM_21 // Bit 1 (2)
+#define PIN_U2_HIGH  GPIO_NUM_19 //
+#define PIN_U3_LOW   GPIO_NUM_18 // Bit 0 (1)
+
+#define PIN_U3_HIGH  GPIO_NUM_17 //
+#define PIN_OUT_SIG  GPIO_NUM_4  //
 
 
 // .. globals
