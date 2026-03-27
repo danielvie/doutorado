@@ -97,7 +97,7 @@ function z_projection_patino2()
     % ==========================================================
     % 4. Formatting and Plotting the Figure (3D only with min/max labels)
     % ==========================================================
-    colors = {'r', 'g', 'b', 'm'};
+    colors = {'b', 'r', [0, 0.5, 0], 'm'};
 
     % Compute min/max values for each state variable across all horizons
     disp('Computing state variable ranges...');
@@ -142,10 +142,10 @@ function z_projection_patino2()
     end
 
     % Create labels with min/max values
-    xlabel(sprintf('Error State x_1 [%.2f, %.2f]', x1_min, x1_max));
-    ylabel(sprintf('Error State x_2 [%.2f, %.2f]', x2_min, x2_max));
-    zlabel(sprintf('Error State x_3 [%.2f, %.2f]', x3_min, x3_max));
-    title('Feasibility Regions for PATINO\_2 (Backward Reachability)');
+    xlabel(sprintf('Error State x_1 (Voltage C_1) [%.2f, %.2f]', x1_min, x1_max));
+    ylabel(sprintf('Error State x_2 (Voltage C_2) [%.2f, %.2f]', x2_min, x2_max));
+    zlabel(sprintf('Error State x_3 (Current Inductor L) [%.2f, %.2f]', x3_min, x3_max));
+    title('Multilevel Converter Feasibility Regions');
     view(3); % Force 3D view for 3 states
 
     legend_labels = arrayfun(@(n) sprintf('N_p = %d', n), horizons, 'UniformOutput', false);

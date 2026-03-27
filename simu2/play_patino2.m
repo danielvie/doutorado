@@ -3,7 +3,7 @@ function res = play_patino2(save_fig, nsim_in)
         save_fig = false;
     end
     
-    nsim = 100;
+    nsim = 8;
     if (nargin > 1)
         nsim = nsim_in;
     end
@@ -35,25 +35,34 @@ function res = play_patino2(save_fig, nsim_in)
     x0_target = s.m_config.x0;
     
     % Aplicando perturbação para forçar os controladores a agir
-    x0_perturbed = x0_target + [-1.2; -1.3; -.9];
+    % x0_perturbed = x0_target + [-1.2; -1.3; -.9];
+    x0_perturbed = [7.51; 20.82; 0.03];
+
+
+    fprintf("x0: \n");
+    disp(x0_target);
+    
+    fprintf("x0_perturbed: \n");
+    disp(x0_perturbed);
+    
 
     % 1. Controle MPC
     s.m_config.mpc.on = true;
     s.m_config.x0 = x0_perturbed;
     s.set_controller(controller_mpc);
-    [y_mpc, t_mpc, ~] = s.run(nsim);
+    [y_mpc, t_mpc, m_mpc] = s.run(nsim);
 
     % 2. Controle Proporcional
     s.m_config.mpc.on = true;
     s.m_config.x0 = x0_perturbed;
     s.set_controller(controller_prop);
-    [y_prop, t_prop, ~] = s.run(nsim);
+    [y_prop, t_prop, m_prop] = s.run(nsim);
 
     % 3. Controle OFF
     s.m_config.mpc.on = false;
     s.m_config.x0 = x0_perturbed;
     s.set_controller(controller_prop);
-    [y_off, ~, ~] = s.run(nsim);
+    [y_off, t_off, m_off] = s.run(nsim);
 
 
     var_out = Utils.getAllVars();
@@ -64,25 +73,33 @@ function res = play_patino2(save_fig, nsim_in)
     plot_xi_comparison(t_mpc, y_mpc, t_prop, y_prop, 'MPC', 'PROP');
 
     f2 = figure(2);
-    plot_traj_comparison(y_mpc, y_prop, x0_target, 'MPC', 'PROP');
+    plot_u_signal_comparison(t_off, m_off, t_mpc, m_mpc, 'OFF', 'MPC', 10, nsim);
 
     f3 = figure(3);
-    plot_traj_comparison(y_mpc, y_off, x0_target, 'MPC', 'OFF');
+    plot_u_signal_comparison(t_off, m_off, t_prop, m_prop, 'OFF', 'PROP', 10, nsim);
 
     f4 = figure(4);
-    plot_traj_comparison(y_prop, y_off, x0_target, 'PROP', 'OFF');
+    plot_traj_comparison(y_mpc, y_prop, x0_target, 'MPC', 'PROP');
 
     f5 = figure(5);
+    plot_traj_comparison(y_mpc, y_off, x0_target, 'MPC', 'OFF');
+
+    f6 = figure(6);
+    plot_traj_comparison(y_prop, y_off, x0_target, 'PROP', 'OFF');
+
+    f7 = figure(7);
     plot_traj_comparison_3(y_mpc, y_prop, y_off, x0_target, 'MPC', 'PROP', 'OFF');
+
 
     if (save_fig)
         addr = 'outputs';
         save_figure(f1, 'patino2_xi_mpc_vs_prop', addr);
-        save_figure(f2, 'patino2_traj_mpc_vs_prop', addr);
-        save_figure(f3, 'patino2_traj_mpc_vs_off', addr);
-        save_figure(f4, 'patino2_traj_prop_vs_off', addr);
-        save_figure(f5, 'patino2_traj_mpc_vs_prop_vs_off', addr);
-        save_figure(f6, 'patino2_feasibility_projection', addr);
+        save_figure(f2, 'patino2_u_signal_mpc', addr);
+        save_figure(f3, 'patino2_u_signal_prop', addr);
+        save_figure(f4, 'patino2_traj_mpc_vs_prop', addr);
+        save_figure(f5, 'patino2_traj_mpc_vs_off', addr);
+        save_figure(f6, 'patino2_traj_prop_vs_off', addr);
+        save_figure(f7, 'patino2_traj_mpc_vs_prop_vs_off', addr);
     end
 end
 
@@ -172,4 +189,32 @@ function plot_traj_comparison_3(y1, y2, y3, x0, name1, name2, name3)
     tit = sprintf("Multilevel Converter Trajectory: %s vs %s vs %s", name1, name2, name3);
     leg = {sprintf('trajectory %s', name1), sprintf('trajectory %s', name2), sprintf('trajectory %s', name3), 'start', sprintf('end %s', name1), sprintf('end %s', name2), sprintf('end %s', name3), 'target x_0', 'location', 'best'};
     plot_traj_helper_3(y1, y2, y3, x0, tit, "V_{c1} [V]", "V_{c2} [V]", "I_{L} [A]", leg);
+end
+
+function plot_u_signal_comparison(t1, m1, t2, m2, name1, name2, ncycles, total_nsim)
+    % determine how many elements to plot (default to 10 cycles if not specified)
+    if nargin < 7
+        ncycles = 10;
+    end
+    
+    ncycles = min(ncycles, total_nsim);
+    
+    nelements1 = floor((length(m1) / total_nsim) * ncycles);
+    nelements2 = floor((length(m2) / total_nsim) * ncycles);
+    
+    stairs(t1(1:nelements1), m1(1:nelements1), 'b', 'linew', 1.5); hold on;
+    stairs(t2(1:nelements2), m2(1:nelements2), 'r--', 'linew', 1.5);
+    hold off;
+    
+    grid on;
+    legend(name1, name2);
+    title(sprintf('Control Signal Comparison: %s vs %s', name1, name2));
+    xlabel('time (s)');
+    ylabel('mode');
+    set(gca, 'fontsize', 14);
+    
+    % integer ticks for Y axis
+    ax = gca;
+    v = ax.YTick;
+    ax.YTick = v(abs(v - round(v)) < 1e-4);
 end

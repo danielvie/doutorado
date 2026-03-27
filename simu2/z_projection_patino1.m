@@ -59,7 +59,7 @@ function z_projection_patino1()
     % ==========================================================
     horizons = [1, 2, 4];
     domains = cell(length(horizons), 1);
-    colors = {'r', 'g', 'b', 'm'};
+    colors = {'r', [0, 0.5, 0], 'b', 'm'};
 
     figure('Name', 'Feasibility Regions', 'Color', 'w');
     hold on; grid on;

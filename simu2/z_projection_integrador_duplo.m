@@ -87,7 +87,7 @@ function z_test_integrador_duplo_projection()
     % ==========================================================
     % 4. Formatting and Plotting the Figure
     % ==========================================================
-    colors = {'r', 'g', 'b', 'm'};
+    colors = {'r', [0, 0.5, 0], 'b', 'm'};
 
     figure('Name', 'Feasibility Regions', 'Color', 'w');
     hold on; grid on;
