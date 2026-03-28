@@ -27,18 +27,28 @@ export const SignalControl = () => {
   };
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex flex-col gap-4 shadow-lg">
-      <div className="flex items-center gap-2 mb-2 border-b border-gray-800 pb-2">
-        <Activity className="w-5 h-5 text-purple-400" />
-        <h2 className="font-bold text-lg text-gray-200">Signal Generator</h2>
+    <div className="panel p-6 flex flex-col gap-6 h-fit shrink-0">
+      <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+          <div className="flex items-center gap-3">
+              <div className="p-2 bg-amber-50 rounded-md text-amber-600">
+                  <Activity className="w-5 h-5" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">Signal Generator</h2>
+          </div>
+          <div className="px-3 py-1 bg-gray-100 rounded-md border border-gray-300">
+              <span className="text-xs font-bold text-gray-700 uppercase tracking-widest">Oscillator Output</span>
+          </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        <div className="flex-1">
-          <label className="text-xs text-gray-500 font-bold uppercase mb-1 block">
-            Duty Cycle (Alpha)
-          </label>
-          <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
+          <div className="flex justify-between items-end">
+             <label className="text-xs text-gray-700 font-bold uppercase tracking-widest ml-1">
+               Duty Cycle (Alpha)
+             </label>
+             <span className="text-3xl font-bold text-blue-700 leading-none">{alpha}</span>
+          </div>
+          <div className="flex items-center gap-4">
             <input
               type="range"
               min="0.1"
@@ -46,82 +56,83 @@ export const SignalControl = () => {
               step="0.01"
               value={alpha}
               onChange={(e) => setAlpha(e.target.value)}
-              className="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+              className="flex-1"
             />
-            <input
-              type="number"
-              value={alpha}
-              onChange={(e) => setAlpha(e.target.value)}
-              className="w-16 bg-gray-950 border border-gray-700 rounded p-1 text-center font-mono text-sm focus:border-purple-500 focus:outline-none"
-            />
+            <button
+              onClick={handleUpload}
+              className="btn-primary shrink-0 px-6 py-2.5"
+            >
+              <Upload size={18} />
+              SYNC
+            </button>
           </div>
         </div>
-        <button
-          onClick={handleUpload}
-          className="h-10 px-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold flex items-center gap-2 transition-colors shadow-lg shadow-purple-900/20"
-        >
-          <Upload size={16} />
-          UPLOAD
-        </button>
       </div>
 
-      <div className="space-y-2">
-        <div>
-          <div className="flex justify-between text-xs text-gray-500 mb-1">
-            <span>TIME VECTOR</span>
-            <span>{timeStr.split(", ").length} items</span>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-between items-center px-1">
+            <span className="text-xs text-gray-700 font-bold uppercase tracking-widest">Time Vector</span>
+            <span className="text-xs text-gray-500 font-mono font-semibold">{timeStr.split(", ").length} pts</span>
           </div>
-          <div className="bg-gray-950 p-2 rounded border border-gray-800 font-mono text-xs text-gray-400 break-all h-16 overflow-y-auto">
+          <div className="bg-gray-50 px-4 py-2.5 rounded-md border border-gray-300 font-mono text-xs text-gray-800 whitespace-nowrap overflow-x-auto custom-scrollbar shadow-inner">
             {timeStr}
           </div>
         </div>
-        <div>
-          <div className="flex justify-between text-xs text-gray-500 mb-1">
-            <span>MODE VECTOR</span>
-            <div className="flex gap-2">
-              <button
+        
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-between items-center px-1">
+            <span className="text-xs text-gray-700 font-bold uppercase tracking-widest">Mode Vector</span>
+            <button
                 onClick={() => setShowBinary(!showBinary)}
-                className="text-purple-400 hover:text-purple-300 underline"
+                className="text-xs text-blue-600 hover:text-blue-800 underline uppercase font-bold tracking-widest transition-colors"
               >
                 {showBinary ? "Hide Binary" : "Show Binary"}
-              </button>
-              <span>{modeStr.split(", ").length} items</span>
-            </div>
+            </button>
           </div>
-          <div className="bg-gray-950 p-2 rounded border border-gray-800 font-mono text-xs text-gray-400 break-all">
+          <div className="bg-gray-50 px-4 py-2.5 rounded-md border border-gray-300 font-mono text-xs text-gray-800 whitespace-nowrap overflow-x-auto custom-scrollbar shadow-inner">
             {modeStr}
           </div>
         </div>
+      </div>
 
-        {showBinary && (
-          <div className="grid grid-cols-3 gap-2 mt-2 pt-2 border-t border-gray-800/50 animate-in fade-in slide-in-from-top-1">
-            <div className="bg-gray-950/50 p-2 rounded border border-gray-800">
-              <div className="text-[10px] text-gray-500 uppercase font-bold mb-1">
-                D4 (u_1)
-              </div>
-              <div className="font-mono text-xs text-emerald-400 break-all tracking-widest leading-loose">
-                {binaryData.s1.split("").join(" ")}
-              </div>
-            </div>
-            <div className="bg-gray-950/50 p-2 rounded border border-gray-800">
-              <div className="text-[10px] text-gray-500 uppercase font-bold mb-1">
-                D5 (u_2)
-              </div>
-              <div className="font-mono text-xs text-amber-400 break-all tracking-widest leading-loose">
-                {binaryData.s2.split("").join(" ")}
-              </div>
-            </div>
-            <div className="bg-gray-950/50 p-2 rounded border border-gray-800">
-              <div className="text-[10px] text-gray-500 uppercase font-bold mb-1">
-                D6 (u_3)
-              </div>
-              <div className="font-mono text-xs text-blue-400 break-all tracking-widest leading-loose">
-                {binaryData.s3.split("").join(" ")}
-              </div>
+      {showBinary && (
+          <div className="pt-6 border-t border-gray-200 animate-fade-in-up">
+            <h3 className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-3 px-1">Mode &rarr; Binary Mapping</h3>
+            <div className="bg-white border border-gray-300 rounded-lg overflow-x-auto custom-scrollbar shadow-sm">
+              <table className="w-full text-center text-sm font-mono border-collapse">
+                <thead>
+                  <tr className="bg-gray-100 border-b border-gray-300">
+                    <th className="py-2.5 px-4 text-left font-bold text-gray-700 border-r border-gray-300 bg-gray-200/50 sticky left-0 z-10 w-24">MODE</th>
+                    {modeStr.split(",").map((m, idx) => m.trim() !== "" && (
+                      <th key={idx} className="py-2.5 px-3 font-bold text-gray-900 border-r border-gray-200 last:border-0 min-w-[40px]">{m.trim()}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-gray-200 hover:bg-green-50/30 transition-colors">
+                    <td className="py-2 px-4 text-left font-bold text-green-700 border-r border-gray-300 bg-gray-50 sticky left-0 z-10">U1 <span className="text-[10px] text-gray-500 ml-1">D4</span></td>
+                    {binaryData.s1.split("").map((bit, idx) => (
+                      <td key={idx} className="py-2 px-3 font-semibold text-green-800 border-r border-gray-200 last:border-0">{bit}</td>
+                    ))}
+                  </tr>
+                  <tr className="border-b border-gray-200 hover:bg-amber-50/30 transition-colors">
+                    <td className="py-2 px-4 text-left font-bold text-amber-700 border-r border-gray-300 bg-gray-50 sticky left-0 z-10">U2 <span className="text-[10px] text-gray-500 ml-1">D5</span></td>
+                    {binaryData.s2.split("").map((bit, idx) => (
+                      <td key={idx} className="py-2 px-3 font-semibold text-amber-800 border-r border-gray-200 last:border-0">{bit}</td>
+                    ))}
+                  </tr>
+                  <tr className="hover:bg-blue-50/30 transition-colors">
+                    <td className="py-2 px-4 text-left font-bold text-blue-700 border-r border-gray-300 bg-gray-50 sticky left-0 z-10">U3 <span className="text-[10px] text-gray-500 ml-1">D6</span></td>
+                    {binaryData.s3.split("").map((bit, idx) => (
+                      <td key={idx} className="py-2 px-3 font-semibold text-blue-800 border-r border-gray-200 last:border-0">{bit}</td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         )}
-      </div>
     </div>
   );
 };

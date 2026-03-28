@@ -1,2 +1,33 @@
-.cache/
+# ESP-IDF build output
+build/
+sdkconfig.old
 
+# Dependency manager cache
+.cache/
+managed_components/
+
+# Editor & IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Compiled objects and binaries
+*.o
+*.a
+*.elf
+*.bin
+*.map

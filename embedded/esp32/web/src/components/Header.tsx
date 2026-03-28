@@ -14,47 +14,43 @@ export const Header = () => {
     };
 
     return (
-        <header className="flex flex-col md:flex-row justify-between items-center p-4 bg-gray-900 border-b border-gray-800 shadow-md gap-4">
-            <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-full ${isConnected ? 'bg-green-900/50' : 'bg-red-900/50'}`}>
-                    {isConnected ? <BluetoothConnected className="text-green-400" /> : <BluetoothOff className="text-red-400" />}
+        <header className="bg-white border-b border-gray-200 py-4 px-6 md:px-10 flex flex-col md:flex-row justify-between items-center gap-4 shadow-sm sticky top-0 z-50">
+            <div className="flex items-center gap-4">
+                <div className={`p-2 rounded-lg ${isConnected ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                    {isConnected ? <BluetoothConnected size={24} /> : <BluetoothOff size={24} />}
                 </div>
                 <div>
-                    <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                        ESP32 Control Center
+                    <h1 className="text-2xl font-bold text-gray-900">
+                        ESP32 Dashboard
                     </h1>
-                    <div className="flex items-center gap-2 text-xs text-gray-400">
-                        <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span>
-                        {systemStatus}
+                    <div className="flex items-center gap-2 mt-0.5">
+                        <div className={`w-2.5 h-2.5 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
+                        <span className="text-xs font-bold text-gray-600 uppercase tracking-widest">{systemStatus}</span>
                     </div>
                 </div>
             </div>
 
-            <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 bg-gray-800 p-1 rounded-lg border border-gray-700">
+            <div className="flex items-center gap-4">
+                <div className="flex bg-gray-100/80 p-1.5 rounded-lg border border-gray-200">
                     <button
                         onClick={() => bleManager.setMockMode(false)}
-                        className={`px-3 py-1 rounded text-xs font-bold transition-all ${!isMockMode ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+                        className={`px-5 py-2 rounded-md text-sm font-bold transition-all ${!isMockMode ? 'bg-white text-gray-900 shadow border border-gray-200' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200/50'}`}
                     >
-                        Real BLE
+                        Live
                     </button>
                     <button
                         onClick={() => bleManager.setMockMode(true)}
-                        className={`px-3 py-1 rounded text-xs font-bold transition-all ${isMockMode ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+                        className={`px-5 py-2 rounded-md text-sm font-bold transition-all ${isMockMode ? 'bg-white text-gray-900 shadow border border-gray-200' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200/50'}`}
                     >
-                        Mock Mode
+                        Simulated
                     </button>
                 </div>
 
                 <button
                     onClick={handleToggleConnection}
-                    className={`flex items-center gap-2 px-6 py-2 rounded-lg font-bold transition-all shadow-lg active:scale-95
-                        ${isConnected
-                            ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-900/20'
-                            : 'bg-green-600 hover:bg-green-700 text-white shadow-green-900/20'}`
-                    }
+                    className={isConnected ? 'btn-danger px-6 py-2.5 text-sm font-bold shadow-md' : 'btn-primary px-6 py-2.5 text-sm font-bold shadow-md hover:bg-blue-700 hover:scale-105 transition-all'}
                 >
-                    <Bluetooth className="w-4 h-4" />
+                    <Bluetooth className="w-5 h-5" />
                     {isConnected ? "Disconnect" : "Connect"}
                 </button>
             </div>

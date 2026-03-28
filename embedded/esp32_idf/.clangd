@@ -1,3 +1,46 @@
+# clangd configuration for ESP-IDF / ESP32 (Zed editor on Windows)
+# ESP-IDF: C:/Users/daniel/esp/v5.5.1/esp-idf
+# Toolchain: xtensa-esp-elf  esp-14.2.0_20241119
+
 CompileFlags:
-  Remove: [-f*, -m*]
-  CompilationDatabase: "build"
+  # Point clangd at the compile_commands.json produced by idf.py build
+  CompilationDatabase: build
+
+  # Strip flags that clangd/clang cannot parse but gcc/xtensa-gcc accepts.
+  # -f*  : gcc-specific code-generation flags
+  # -m*  : machine-specific flags (xtensa ABI, memory model, …)
+  # -w   : suppress-all-warnings (we want linting warnings)
+  Remove:
+    - -f*
+    - -m*
+    - -w
+
+  # Tell clangd which compiler front-end to impersonate so it picks up
+  # the right built-in macros and include paths automatically.
+  Add:
+    - --target=xtensa-esp32-elf
+
+Diagnostics:
+  # Suppress noisy warnings that are common in ESP-IDF generated headers
+  Suppress:
+    - -Wunused-variable
+    - pp_including_mainfile_in_preamble
+
+InlayHints:
+  Enabled: yes
+  ParameterNames: yes
+  DeducedTypes: yes
+
+Index:
+  Background: Build
+
+---
+# Query-driver glob: clangd will call this binary with -print-sysroot /
+# -print-multiarch etc. to discover the cross-compiler's system headers.
+# This must match the actual executable on disk.
+If:
+  PathMatch: .*\.(c|cc|cpp|cxx|h|hpp)$
+
+CompileFlags:
+  Add:
+    - --query-driver=C:/Users/daniel/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/bin/xtensa-esp32-elf-gcc.exe

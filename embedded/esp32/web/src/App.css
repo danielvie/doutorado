@@ -1,92 +1,111 @@
 @import "tailwindcss";
 
 @theme {
-    --color-background: oklch(0.14 0.05 260);
-    /* Deep Navy/Black */
-    --color-surface: oklch(0.18 0.06 260);
-    /* Slightly lighter surface */
-    --color-surface-hover: oklch(0.22 0.07 260);
-
-    --color-primary: oklch(0.65 0.18 260);
-    /* Electric Blue */
-    --color-secondary: oklch(0.7 0.16 300);
-    /* Purple/Pink */
-
-    --color-success: oklch(0.65 0.18 150);
-    /* Neon Green */
-    --color-error: oklch(0.6 0.2 25);
-    /* Bright Red */
-    --color-warning: oklch(0.75 0.15 80);
-    /* Orange */
+    --color-background: #e2e8f0;
+    --color-surface: #f8fafc;
+    --color-primary: #2563eb;
+    --color-primary-hover: #1d4ed8;
+    --color-accent: #f59e0b;
+    --color-success: #10b981;
+    --color-error: #ef4444;
+    --color-text-main: #0f172a;
+    --color-text-muted: #64748b;
+    --color-border: #cbd5e1;
 }
 
-/* Base Reset & Typography */
 :root {
-    font-family: "Inter", system-ui, sans-serif;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
     background-color: var(--color-background);
-    color: #e2e8f0;
+    color: var(--color-text-main);
     line-height: 1.5;
 }
 
 body {
     margin: 0;
     min-height: 100vh;
-    background: radial-gradient(
-        circle at top center,
-        oklch(0.2 0.1 260) 0%,
-        var(--color-background) 80%
-    );
+    background-color: var(--color-background);
 }
 
-/* Scrollbar Styling */
+h1, h2, h3, .font-heading {
+    font-family: "Inter", sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+
+/* Light Dashboard Panel */
+.panel {
+    @apply bg-gray-50 border border-gray-300 rounded-lg shadow-sm overflow-hidden;
+}
+
+/* Base button styles */
+.btn {
+    @apply px-4 py-2 font-medium rounded-md transition-colors text-sm flex items-center gap-2 justify-center cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-primary {
+    @apply px-4 py-2 font-medium rounded-md transition-colors text-sm flex items-center gap-2 justify-center cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 shadow-sm border border-transparent;
+}
+
+.btn-secondary {
+    @apply px-4 py-2 font-medium rounded-md transition-colors text-sm flex items-center gap-2 justify-center cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100 border border-gray-300 shadow-sm;
+}
+
+.btn-danger {
+    @apply px-4 py-2 font-medium rounded-md transition-colors text-sm flex items-center gap-2 justify-center cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-sm border border-transparent;
+}
+
+.btn-success {
+    @apply px-4 py-2 font-medium rounded-md transition-colors text-sm flex items-center gap-2 justify-center cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed bg-green-600 text-white hover:bg-green-700 active:bg-green-800 shadow-sm border border-transparent;
+}
+
+/* Form Inputs */
+input[type="text"], input[type="number"], select {
+    @apply bg-white border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm;
+}
+
+input[type="range"] {
+    @apply h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    @apply appearance-none w-4 h-4 bg-blue-600 rounded-full shadow-sm hover:scale-110 active:bg-blue-700 transition-transform;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Improved Scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
 }
-
 ::-webkit-scrollbar-track {
     background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-    background: oklch(0.3 0.05 260);
+    background: #cbd5e1;
     border-radius: 4px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-    background: oklch(0.4 0.08 260);
+    background: #94a3b8;
 }
 
-/* Utility Class Enhancements (if any needed outside Tailwind) */
-.glass-panel {
-    @apply bg-gray-900/60 backdrop-blur-md border border-white/10 shadow-xl;
+/* Dashboard Grid Layout */
+.dashboard-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(12, 1fr);
 }
 
-/* Form Elements */
-input[type="range"] {
-    @apply h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-    @apply appearance-none w-4 h-4 bg-purple-500 rounded-full shadow-lg transition-transform hover:scale-110;
-}
-
-.quickactions button {
-    @apply p-1 rounded-sm cursor-pointer transition-all duration-200;
-}
-
-.quickactions button:hover {
-    filter: brightness(1.2) saturate(1.2);
-}
-
-.btn-action {
-    @apply px-4 py-3 rounded text-sm font-bold text-white shadow hover:opacity-90 active:scale-95 transition-all;
-}
-.btn-alpha {
-    @apply px-4 py-2 bg-gray-700 text-gray-200 text-sm font-bold rounded shadow hover:bg-gray-600
-    border border-gray-600 hover:border-gray-500 transition-all active:scale-95;
-}
-
-.btn-alpha-active {
-    filter: brightness(1.2) saturate(1.2);
+.col-main { grid-column: span 12; }
+@media (min-width: 1280px) {
+    .col-main { grid-column: span 8; }
+    .col-side { grid-column: span 4; }
 }

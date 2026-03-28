@@ -7,22 +7,18 @@ import { QuickActions } from "./components/Dashboard/QuickActions";
 function App() {
   return (
     <Layout>
-      <div className="flex flex-col gap-6">
+      <div className="dashboard-grid">
 
-        {/* Top Row: Chart & Signal Generator */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          <div className="xl:col-span-2">
-            <RealtimeChart />
-          </div>
-          <div className="flex flex-col gap-6">
-            <SignalControl />
-            <QuickActions />
-          </div>
+        {/* Left Column: Chart & Console */}
+        <div className="col-main flex flex-col gap-6">
+          <RealtimeChart />
+          <ManualControl />
         </div>
 
-        {/* Bottom Row: Manual Control & Logs */}
-        <div className="grid grid-cols-1">
-          <ManualControl />
+        {/* Right Column: Signal Generator & Quick Actions */}
+        <div className="col-side flex flex-col gap-6">
+          <SignalControl />
+          <QuickActions />
         </div>
 
       </div>

@@ -25,6 +25,9 @@ export class WebBleService implements IBleService {
                 addLog("Reconnecting using stored reference...");
             } else {
                 setSystemStatus("Requesting Device...");
+                if (!navigator.bluetooth) {
+                    throw new Error("Web Bluetooth API is not available. Ensure you are using a supported browser (Chrome/Edge) and accessing via HTTPS or localhost.");
+                }
                 // @ts-ignore - Navigator.bluetooth types might be missing in some environments
                 const device = await navigator.bluetooth.requestDevice({
                     filters: [{ services: [SERVICE_UUID] }],

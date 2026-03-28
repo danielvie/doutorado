@@ -18,5 +18,6 @@
   ],
   "idf.flashType": "UART",
   "idf.port": "/dev/tty.usbserial-0001",
-  "idf.currentSetup": "/Users/danielvieira/esp/v5.5.1/esp-idf"
+  "idf.currentSetup": "/Users/danielvieira/esp/v5.5.1/esp-idf",
+  "idf.portWin": "COM3"
 }
