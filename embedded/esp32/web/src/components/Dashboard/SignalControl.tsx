@@ -97,33 +97,33 @@ export const SignalControl = () => {
       </div>
 
       {showBinary && (
-          <div className="pt-6 border-t border-gray-200 animate-fade-in-up">
-            <h3 className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-3 px-1">Mode &rarr; Binary Mapping</h3>
+          <div className="mt-6 bg-gray-200/60 p-5 rounded-xl border border-gray-300 shadow-sm animate-fade-in-up">
+            <h3 className="text-xs font-bold text-gray-900 uppercase tracking-widest mb-4 px-3 py-2 bg-white/80 rounded-md shadow-sm border border-white inline-block">Mode &rarr; Binary Mapping</h3>
             <div className="bg-white border border-gray-300 rounded-lg overflow-x-auto custom-scrollbar shadow-sm">
               <table className="w-full text-center text-sm font-mono border-collapse">
                 <thead>
-                  <tr className="bg-gray-100 border-b border-gray-300">
-                    <th className="py-2.5 px-4 text-left font-bold text-gray-700 border-r border-gray-300 bg-gray-200/50 sticky left-0 z-10 w-24">MODE</th>
+                  <tr className="bg-blue-100 border-b border-gray-400 border-b-2">
+                    <th className="py-2.5 px-4 text-left font-bold text-blue-800 border-r border-blue-200 bg-blue-100/50 sticky left-0 z-10 w-24 shadow-[2px_0_4px_rgba(0,0,0,0.02)]">MODE</th>
                     {modeStr.split(",").map((m, idx) => m.trim() !== "" && (
-                      <th key={idx} className="py-2.5 px-3 font-bold text-gray-900 border-r border-gray-200 last:border-0 min-w-[40px]">{m.trim()}</th>
+                      <th key={idx} className="py-2.5 px-3 font-bold text-blue-900 border-r border-blue-200/50 last:border-0 min-w-[40px]">{m.trim()}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-b border-gray-200 hover:bg-green-50/30 transition-colors">
-                    <td className="py-2 px-4 text-left font-bold text-green-700 border-r border-gray-300 bg-gray-50 sticky left-0 z-10">U1 <span className="text-[10px] text-gray-500 ml-1">D4</span></td>
+                  <tr className="border-b border-gray-200 hover:bg-green-50/50 transition-colors">
+                    <td className="py-2 px-4 text-left font-bold text-green-700 border-r border-gray-300 bg-gray-50 sticky left-0 z-10 shadow-[2px_0_4px_rgba(0,0,0,0.02)]">U1 <span className="text-[10px] text-gray-500 ml-1">D4</span></td>
                     {binaryData.s1.split("").map((bit, idx) => (
                       <td key={idx} className="py-2 px-3 font-semibold text-green-800 border-r border-gray-200 last:border-0">{bit}</td>
                     ))}
                   </tr>
-                  <tr className="border-b border-gray-200 hover:bg-amber-50/30 transition-colors">
-                    <td className="py-2 px-4 text-left font-bold text-amber-700 border-r border-gray-300 bg-gray-50 sticky left-0 z-10">U2 <span className="text-[10px] text-gray-500 ml-1">D5</span></td>
+                  <tr className="border-b border-gray-200 hover:bg-amber-50/50 transition-colors">
+                    <td className="py-2 px-4 text-left font-bold text-amber-700 border-r border-gray-300 bg-gray-50 sticky left-0 z-10 shadow-[2px_0_4px_rgba(0,0,0,0.02)]">U2 <span className="text-[10px] text-gray-500 ml-1">D5</span></td>
                     {binaryData.s2.split("").map((bit, idx) => (
                       <td key={idx} className="py-2 px-3 font-semibold text-amber-800 border-r border-gray-200 last:border-0">{bit}</td>
                     ))}
                   </tr>
-                  <tr className="hover:bg-blue-50/30 transition-colors">
-                    <td className="py-2 px-4 text-left font-bold text-blue-700 border-r border-gray-300 bg-gray-50 sticky left-0 z-10">U3 <span className="text-[10px] text-gray-500 ml-1">D6</span></td>
+                  <tr className="hover:bg-blue-50/50 transition-colors">
+                    <td className="py-2 px-4 text-left font-bold text-blue-700 border-r border-gray-300 bg-gray-50 sticky left-0 z-10 shadow-[2px_0_4px_rgba(0,0,0,0.02)]">U3 <span className="text-[10px] text-gray-500 ml-1">D6</span></td>
                     {binaryData.s3.split("").map((bit, idx) => (
                       <td key={idx} className="py-2 px-3 font-semibold text-blue-800 border-r border-gray-200 last:border-0">{bit}</td>
                     ))}
