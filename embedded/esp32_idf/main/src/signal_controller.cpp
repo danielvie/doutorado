@@ -1,5 +1,7 @@
 #include "signal_controller.h"
 #include "control_action.h"
+#include "soc/io_mux_reg.h"
+#include "hal/gpio_ll.h"
 
 static const char *TAG = "SIG_CTRL";
 
@@ -76,6 +78,12 @@ void signal_controller_init() {
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
     gpio_config(&io_conf);
+
+    // Force IO_MUX back to GPIO matrix for PIN_U1_LOW (GPIO23).
+    // The SPI flash driver claims GPIO23 at boot via the IO_MUX; this
+    // re-routes it through the GPIO matrix so out_w1ts/out_w1tc work on it.
+    gpio_ll_func_sel(&GPIO, PIN_U1_LOW, PIN_FUNC_GPIO);
+    gpio_set_direction(PIN_U1_LOW, GPIO_MODE_OUTPUT);
 
     // Initialize LOW
     gpio_set_level(PIN_U1_LOW, 0);

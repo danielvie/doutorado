@@ -119,6 +119,22 @@ export const QuickActions = () => {
         </div>
 
         <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={() => ble_send_command("HIGH")}
+                    className="btn-action bg-green-600"
+                  >
+                    HIGH
+                  </button>
+                  <button
+                    onClick={() => ble_send_command("LOW")}
+                    className="btn-action bg-red-600"
+                  >
+                    LOW
+                  </button>
+                </div>
+                
+        
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => ble_send_command("STATUS")}
             className="btn-action bg-cyan-700"
