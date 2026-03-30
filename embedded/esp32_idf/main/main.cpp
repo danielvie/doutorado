@@ -9,6 +9,7 @@
 #include <memory>
 
 #include "ble_controller.h"
+// #include "esp_log_level.h"
 #include "helper_analog.h"
 #include "helper_note.h"
 #include "helper_led.h"
@@ -17,15 +18,13 @@
 
 #include "helper_matrix.h"
 
-
-
 // REQUIRED to read the clock speed
 #include "esp_rom_sys.h"
 
 #include <stdbool.h>
-#include "freertos/FreeRTOS.h"
+// #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "esp_system.h"
+// #include "esp_system.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
 

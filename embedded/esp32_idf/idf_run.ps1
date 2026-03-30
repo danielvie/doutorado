@@ -31,21 +31,33 @@ $EspClangPath = "$EspressifToolsPath\tools\esp-clang\esp-19.1.2_20250312\esp-cla
 $env:IDF_PATH = $EspIdfPath
 $env:IDF_TOOLS_PATH = $EspressifToolsPath
 
-# Add toolchain to PATH
-$env:PATH = "$ToolchainPath\xtensa-esp-elf\bin;" + $env:PATH
+# Helper function to add a directory to PATH only if not already present
+# This prevents CMake from detecting environment changes and reconfiguring
+function Add-ToPath {
+    param([string]$Dir)
+    if (-not $Dir) { return }
+    $normalizedDir = $Dir.TrimEnd('\').TrimEnd('/')
+    $currentPaths = $env:PATH -split ';' | ForEach-Object { $_.Trim() }
+    if ($normalizedDir -notin $currentPaths) {
+        $env:PATH = "$Dir;$env:PATH"
+    }
+}
 
-# Add ESP-IDF tools to PATH
-$env:PATH = "$EspIdfPath\tools;" + $env:PATH
+# Add toolchain to PATH (idempotent)
+Add-ToPath "$ToolchainPath\xtensa-esp-elf\bin"
 
-# Add Python venv to PATH (activate it)
-$env:PATH = "$PythonVenvPath\Scripts;" + $env:PATH
-$env:PATH = "$PythonVenvPath;" + $env:PATH
+# Add ESP-IDF tools to PATH (idempotent)
+Add-ToPath "$EspIdfPath\tools"
+
+# Add Python venv to PATH (activate it, idempotent)
+Add-ToPath "$PythonVenvPath\Scripts"
+Add-ToPath "$PythonVenvPath"
 
 # Set Python executable from venv
 $env:PYTHON = "$PythonVenvPath\Scripts\python.exe"
 
-# Add esp-clang to PATH (for clangd, etc.)
-$env:PATH = "$EspClangPath;" + $env:PATH
+# Add esp-clang to PATH (for clangd, etc., idempotent)
+Add-ToPath "$EspClangPath"
 
 # Set ESP_ROM_ELF_DIR for gdbinit generation
 $env:ESP_ROM_ELF_DIR = "$EspressifToolsPath\tools\esp-rom-elfs\20241011"
