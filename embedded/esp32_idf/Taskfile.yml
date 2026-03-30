@@ -1,0 +1,145 @@
+# Taskfile.yml - ESP-IDF Project Tasks
+# Requires Task: https://taskfile.dev
+# Task binary: C:\SANDBOX\APP\bin\task.exe
+# Task binary: C:\SANDBOX\APP\bin\task.exe
+
+version: "3"
+
+vars:
+  PROJECT_DIR: "{{.TASKFILE_DIR}}"
+  IDF_PATH: "C:/Users/daniel/esp/v5.5.1/esp-idf"
+  PYTHON_ENV: "C:/Users/daniel/.espressif/python_env/idf5.5_py3.13_env"
+  TOOLS_PATH: "C:/Users/daniel/.espressif"
+  TARGET: "esp32"
+  PORT: "COM3"
+
+env:
+  IDF_PATH: "{{.IDF_PATH}}"
+  IDF_TOOLS_PATH: "{{.TOOLS_PATH}}"
+  ESPPORT: "{{.PORT}}"
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  build:
+    desc: Build the project
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" build
+
+  flash:
+    desc: Flash the project to the target
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" flash
+
+  monitor:
+    desc: Monitor the serial output
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" monitor
+
+  flash-monitor:
+    desc: Flash and then monitor
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" flash monitor
+
+  build-flash-monitor:
+    desc: Build, flash, and monitor (full workflow)
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" build flash monitor
+
+  menuconfig:
+    desc: Open menuconfig
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" menuconfig
+
+  clean:
+    desc: Clean the build directory
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" fullclean
+
+  reconfigure:
+    desc: Re-run CMake configuration
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" reconfigure
+
+  set-target:
+    desc: Set the target chip (default esp32)
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" set-target {{.TARGET}}
+
+  size:
+    desc: Show firmware size information
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" size
+
+  size-files:
+    desc: Show per-file size information
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" size-files
+
+  erase-flash:
+    desc: Erase the entire flash
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" erase-flash
+
+  gdb:
+    desc: Start GDB for debugging
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" gdb
+
+  gdbgui:
+    desc: Start GDB GUI
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" gdbgui
+
+  openocd:
+    desc: Start OpenOCD server
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" openocd
+
+  flash-auto:
+    desc: Flash with auto-detected port (clears ESPPORT)
+    env:
+      ESPPORT: ""
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" flash
+
+  monitor-auto:
+    desc: Monitor with auto-detected port (clears ESPPORT)
+    env:
+      ESPPORT: ""
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" monitor
+
+  flash-monitor-auto:
+    desc: Flash then monitor with auto-detected port
+    aliases: [fma]
+    env:
+      ESPPORT: ""
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" flash monitor
+
+  build-flash-monitor-auto:
+    desc: Build, flash, and monitor with auto-detected port
+    aliases: [bfma]
+    env:
+      ESPPORT: ""
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" build flash monitor
+
+  df:
+    desc: Build and flash (shortcut)
+    cmds:
+      - task: build-flash-monitor
+
+  fm:
+    desc: Flash and monitor (shortcut)
+    cmds:
+      - task: flash-monitor
+
+  bfm:
+    desc: Build, flash, and monitor (shortcut)
+    cmds:
+      - task: build-flash-monitor
