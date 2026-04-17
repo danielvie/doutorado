@@ -181,10 +181,13 @@ tasks:
 
   setup:clangd:
     desc: Setup clangd and Zed configuration for current OS
-    vars:
-      SETUP_SCRIPT: "{{.PROJECT_DIR}}/.clangd.d/setup_clangd.{{.SCRIPT_EXT}}"
     cmds:
-      - '{{.INTERPRETER}} "{{.SETUP_SCRIPT}}"'
+      - >
+        {{if eq .OS "windows"}}
+          powershell -NoProfile -ExecutionPolicy Bypass -Command "Copy-Item -Path '.clangd.d/windows.yaml' -Destination '.clangd' -Force; Copy-Item -Path '.zed.d/settings-windows.json' -Destination '.zed/settings.json' -Force"
+        {{else}}
+          bash -c "cp .clangd.d/macos.yaml .clangd && cp .zed.d/settings-macos.json .zed/settings.json"
+        {{end}}
       - 'echo "✓ Configuration complete. Reload Zed to apply changes."'
 
   web:install:

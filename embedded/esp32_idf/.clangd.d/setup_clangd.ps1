@@ -1,5 +1,5 @@
-# Setup script for Windows - copies clangd and Zed configurations
-# Usage: .\.clangd.d\setup_clangd.ps1
+﻿# Setup script for Windows - copies clangd and Zed configurations
+# Usage: .\clangd.d\setup_clangd.ps1
 
 $ErrorActionPreference = "Stop"
 
@@ -12,7 +12,7 @@ $clangdDest = Join-Path $projectDir ".clangd"
 
 if (Test-Path $clangdSource) {
     Copy-Item -Path $clangdSource -Destination $clangdDest -Force
-    Write-Host "✓ Copied Windows clangd config to .clangd" -ForegroundColor Green
+    Write-Host "âœ“ Copied Windows clangd config to .clangd" -ForegroundColor Green
     Write-Host "  Source: $clangdSource"
 } else {
     Write-Error "Windows clangd config not found at $clangdSource"
@@ -29,7 +29,7 @@ if (Test-Path $zedSource) {
         New-Item -ItemType Directory -Path $zedDestDir -Force | Out-Null
     }
     Copy-Item -Path $zedSource -Destination $zedDest -Force
-    Write-Host "✓ Copied Windows Zed settings to .zed/settings.json" -ForegroundColor Green
+    Write-Host "âœ“ Copied Windows Zed settings to .zed/settings.json" -ForegroundColor Green
     Write-Host "  Source: $zedSource"
 } else {
     Write-Warning "Windows Zed settings not found at $zedSource"
