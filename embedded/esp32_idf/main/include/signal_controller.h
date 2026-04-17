@@ -25,10 +25,6 @@ struct DataSet {
     uint32_t modes_d4[MAX_SIGNAL_SIZE];
     uint32_t modes_d5[MAX_SIGNAL_SIZE];
     uint32_t modes_d6[MAX_SIGNAL_SIZE];
-    uint32_t set_mask[MAX_SIGNAL_SIZE];
-    uint32_t clr_mask[MAX_SIGNAL_SIZE];
-    uint32_t clear_mask[MAX_SIGNAL_SIZE];
-    bool is_rising[MAX_SIGNAL_SIZE];
     uint32_t size;
     int32_t time_us_diff[MAX_SIGNAL_SIZE];
     float target[3];
