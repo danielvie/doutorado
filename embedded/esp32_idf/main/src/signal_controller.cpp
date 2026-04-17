@@ -290,33 +290,25 @@ static void signal_loop_task(void *arg) {
             uint32_t clr_mask = dataset->clr_mask[i];
             bool is_rising = dataset->is_rising[i];
 
-            // Apply Dead Time if needed
+            // 1. Check for transitions requiring Dead Time Action
             if (clear_mask) {
                 GPIO.out_w1tc = clear_mask;
 
-                // Determine delay based on direction
                 uint32_t delay_cycles_val =
                     is_rising ? g_dead_time_cycles_up : g_dead_time_cycles_down;
-
                 helper_delay_cycles(delay_cycles_val);
 
-                // Apply new state, clear complement
-                GPIO.out_w1tc = clr_mask;
-                GPIO.out_w1ts = set_mask;
+                // Offset time tracking for the transition cost
+                if (us > 0) us--; 
+            }
 
-                // Wait remaining time
-                if (us > 1) {
-                    esp_rom_delay_us(us - 1);
-                }
-            } else {
-                // No transition, but still enforce correct state on both sides
-                GPIO.out_w1tc = clr_mask;
-                GPIO.out_w1ts = set_mask;
+            // 2. Main Final Pulse Setup (Deduplicated hardware writes)
+            GPIO.out_w1tc = clr_mask;
+            GPIO.out_w1ts = set_mask;
 
-                // Wait full time
-                if (us > 0) {
-                    esp_rom_delay_us(us);
-                }
+            // 3. Enforce Sequence Sustained Period Delay
+            if (us > 0) {
+                esp_rom_delay_us(us);
             }
 
             // trigger analog reading if needed
