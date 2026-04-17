@@ -188,8 +188,8 @@ extern "C" void app_main(void)
         ESP_LOGW(TAG, "COULD NOT INITIALIZE APP!!");
     }
 
-    ESP_LOGE("mijn test", "ik ben hier, u haaaa");
-    ESP_LOGE("mijn test", "ik ben hier, u haaaa");
+    ESP_LOGE("mijn zoveelste test", "ik ben hier, u haaaa");
+    ESP_LOGE("ik ben stout", "ik ben hier, u haaaa");
 
 
     // Create analog task on Core 0 with sufficient stack size for helper::printf

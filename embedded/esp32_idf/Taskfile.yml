@@ -1,17 +1,40 @@
-# Taskfile.yml - ESP-IDF Project Tasks
+# Taskfile.yml - ESP-IDF Project Tasks (Cross-Platform)
 # Requires Task: https://taskfile.dev
-# Task binary: C:\SANDBOX\APP\bin\task.exe
-# Task binary: C:\SANDBOX\APP\bin\task.exe
+#
+# Supports: Windows, macOS, Linux
 
 version: "3"
 
 vars:
   PROJECT_DIR: "{{.TASKFILE_DIR}}"
-  IDF_PATH: "C:/Users/daniel/esp/v5.5.1/esp-idf"
-  PYTHON_ENV: "C:/Users/daniel/.espressif/python_env/idf5.5_py3.13_env"
-  TOOLS_PATH: "C:/Users/daniel/.espressif"
-  TARGET: "esp32"
-  PORT: "COM3"
+
+  # OS Detection: windows, darwin (macOS), linux
+  OS: "{{OS}}"
+
+  # Windows paths and settings
+  IDF_PATH_WIN: "C:/Users/daniel/esp/v5.5.1/esp-idf"
+  PYTHON_ENV_WIN: "C:/Users/daniel/.espressif/python_env/idf5.5_py3.13_env"
+  TOOLS_PATH_WIN: "C:/Users/daniel/.espressif"
+  PORT_WIN: "COM3"
+
+  # macOS/Linux paths and settings
+  IDF_PATH_UNIX: "/Users/danielvieira/esp/v5.5.1/esp-idf"
+  PYTHON_ENV_UNIX: "/Users/danielvieira/.espressif/python_env/idf5.5_py3.12_env"
+  TOOLS_PATH_UNIX: "/Users/danielvieira/.espressif"
+  PORT_UNIX: "/dev/tty.usbserial-0001"
+
+  # Select paths based on OS
+  IDF_PATH: '{{if eq .OS "windows"}}{{.IDF_PATH_WIN}}{{else}}{{.IDF_PATH_UNIX}}{{end}}'
+  PYTHON_ENV: '{{if eq .OS "windows"}}{{.PYTHON_ENV_WIN}}{{else}}{{.PYTHON_ENV_UNIX}}{{end}}'
+  TOOLS_PATH: '{{if eq .OS "windows"}}{{.TOOLS_PATH_WIN}}{{else}}{{.TOOLS_PATH_UNIX}}{{end}}'
+  PORT: '{{if eq .OS "windows"}}{{.PORT_WIN}}{{else}}{{.PORT_UNIX}}{{end}}'
+
+  # Script selection based on OS
+  SCRIPT_EXT: '{{if eq .OS "windows"}}ps1{{else}}sh{{end}}'
+  IDF_RUN_SCRIPT: "{{.PROJECT_DIR}}/idf_run.{{.SCRIPT_EXT}}"
+
+  # Interpreter based on OS
+  INTERPRETER: '{{if eq .OS "windows"}}powershell -NoProfile -ExecutionPolicy Bypass -File{{else}}bash{{end}}'
 
 env:
   IDF_PATH: "{{.IDF_PATH}}"
@@ -24,94 +47,106 @@ tasks:
     cmds:
       - task --list
 
+  info:
+    desc: Show OS detection and configuration info
+    cmds:
+      - 'echo "Operating System: {{.OS}}"'
+      - 'echo "IDF_PATH: {{.IDF_PATH}}"'
+      - 'echo "TOOLS_PATH: {{.TOOLS_PATH}}"'
+      - 'echo "PORT: {{.PORT}}"'
+      - 'echo "Script: {{.IDF_RUN_SCRIPT}}"'
+      - 'echo "Interpreter: {{.INTERPRETER}}"'
+
   build:
     desc: Build the project
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" build
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" build'
 
   flash:
     desc: Flash the project to the target
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" flash
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" flash'
 
   monitor:
     desc: Monitor the serial output
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" monitor
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" monitor'
 
   flash-monitor:
     desc: Flash and then monitor
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" flash monitor
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" flash monitor'
 
   build-flash-monitor:
     desc: Build, flash, and monitor (full workflow)
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" build flash monitor
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" build flash monitor'
 
   menuconfig:
     desc: Open menuconfig
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" menuconfig
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" menuconfig'
 
   clean:
     desc: Clean the build directory
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" fullclean
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" fullclean'
 
   reconfigure:
     desc: Re-run CMake configuration
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" reconfigure
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" reconfigure'
 
   set-target:
     desc: Set the target chip (default esp32)
+    vars:
+      TARGET: "esp32"
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" set-target {{.TARGET}}
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" set-target {{.TARGET}}'
 
   size:
     desc: Show firmware size information
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" size
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" size'
 
   size-files:
     desc: Show per-file size information
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" size-files
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" size-files'
 
   erase-flash:
     desc: Erase the entire flash
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" erase-flash
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" erase-flash'
 
   gdb:
     desc: Start GDB for debugging
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" gdb
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" gdb'
 
   gdbgui:
     desc: Start GDB GUI
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" gdbgui
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" gdbgui'
 
   openocd:
     desc: Start OpenOCD server
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" openocd
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" openocd'
 
   flash-auto:
     desc: Flash with auto-detected port (clears ESPPORT)
     env:
       ESPPORT: ""
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" flash
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" flash'
 
   monitor-auto:
     desc: Monitor with auto-detected port (clears ESPPORT)
     env:
       ESPPORT: ""
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" monitor
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" monitor'
 
   flash-monitor-auto:
     desc: Flash then monitor with auto-detected port
@@ -119,7 +154,7 @@ tasks:
     env:
       ESPPORT: ""
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" flash monitor
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" flash monitor'
 
   build-flash-monitor-auto:
     desc: Build, flash, and monitor with auto-detected port
@@ -127,7 +162,7 @@ tasks:
     env:
       ESPPORT: ""
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File "{{.PROJECT_DIR}}/idf_run.ps1" build flash monitor
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" build flash monitor'
 
   df:
     desc: Build and flash (shortcut)
@@ -143,3 +178,15 @@ tasks:
     desc: Build, flash, and monitor (shortcut)
     cmds:
       - task: build-flash-monitor
+
+  web:install:
+    desc: install webserver dependencies
+    dir: web
+    cmds:
+      - bun install
+
+  web:
+    desc: run webserver
+    dir: web
+    cmds:
+      - task
