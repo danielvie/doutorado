@@ -65,6 +65,7 @@ static void signal_init_default_dataset(DataSet &ds) {
     ds.modes_d4[3] = 0;
 
     ds.size = 4;
+    compute_masks(&ds);
 }
 
 void signal_controller_init() {
@@ -152,6 +153,9 @@ void signal_update_from_string(const std::string &message) {
         target_dataset->modes_d6[i] = (m & 4) ? 1 : 0;
     }
     target_dataset->size = (uint8_t)count;
+    
+    // Apply precomputations on our new dataset!
+    compute_masks(target_dataset);
 
     ESP_LOGI(TAG, "Parsed %d segments into %s. Requesting swap...",
              target_dataset->size,
@@ -187,11 +191,7 @@ static void signal_loop_task(void *arg) {
     // -------------------------------------------------------
     portDISABLE_INTERRUPTS();
 
-    // Track last applied modes to detect transitions
-    // Initialize to a value that forces a transition on first run (e.g. 2)
-    uint32_t last_d6 = 2;
-    uint32_t last_d5 = 2;
-    uint32_t last_d4 = 2;
+
 
     while (g_system_state.signal_state == SignalState::RUNNING) {
 
@@ -280,40 +280,17 @@ static void signal_loop_task(void *arg) {
                 us = (uint32_t)corrected;
             }
 
-            // Get current modes (0 or 1)
-            uint32_t d6 = dataset->modes_d6[i] ? 1 : 0;
-            uint32_t d5 = dataset->modes_d5[i] ? 1 : 0;
-            uint32_t d4 = dataset->modes_d4[i] ? 1 : 0;
-
-            // Check for transitions
-            bool change_6 = (d6 != last_d6);
-            bool change_5 = (d5 != last_d5);
-            bool change_4 = (d4 != last_d4);
-
-            // Determine which pins need to go to Dead Time (Low)
-            uint32_t clear_mask = 0;
-            if (change_6)
-                clear_mask |= (MASK_U1_LOW | MASK_U1_HIGH);
-            if (change_5)
-                clear_mask |= (MASK_U2_LOW | MASK_U2_HIGH);
-            if (change_4)
-                clear_mask |= (MASK_U3_LOW | MASK_U3_HIGH);
-
-            // Determine the new state and the complement (pins that must be cleared)
-            uint32_t set_mask = (d6 ? MASK_U1_HIGH : MASK_U1_LOW)
-                              | (d5 ? MASK_U2_HIGH : MASK_U2_LOW)
-                              | (d4 ? MASK_U3_HIGH : MASK_U3_LOW);
-            uint32_t clr_mask = (d6 ? MASK_U1_LOW  : MASK_U1_HIGH)
-                              | (d5 ? MASK_U2_LOW  : MASK_U2_HIGH)
-                              | (d4 ? MASK_U3_LOW  : MASK_U3_HIGH);
+            // Fetch statically precomputed mode profiles
+            uint32_t clear_mask = dataset->clear_mask[i];
+            uint32_t set_mask = dataset->set_mask[i];
+            uint32_t clr_mask = dataset->clr_mask[i];
+            bool is_rising = dataset->is_rising[i];
 
             // Apply Dead Time if needed
             if (clear_mask) {
                 GPIO.out_w1tc = clear_mask;
 
                 // Determine delay based on direction
-                bool is_rising =
-                    (change_6 && d6) || (change_5 && d5) || (change_4 && d4);
                 uint32_t delay_cycles_val =
                     is_rising ? g_dead_time_cycles_up : g_dead_time_cycles_down;
 
@@ -337,11 +314,6 @@ static void signal_loop_task(void *arg) {
                     esp_rom_delay_us(us);
                 }
             }
-
-            // Update last state
-            last_d6 = d6;
-            last_d5 = d5;
-            last_d4 = d4;
 
             // trigger analog reading if needed
             if (i == 0 && g_system_state.ble_an_read_state != BLEAnalogReadState::DISABLED) {
