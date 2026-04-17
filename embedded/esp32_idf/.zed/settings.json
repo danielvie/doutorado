@@ -1,27 +1,27 @@
 {
   "languages": {
     "C": {
-      "language_servers": ["clangd"]
+      "language_servers": ["clangd"],
     },
     "C++": {
-      "language_servers": ["clangd"]
-    }
+      "language_servers": ["clangd"],
+    },
   },
   "lsp": {
     "clangd": {
       "binary": {
-        "path": "C:/Users/daniel/.espressif/tools/esp-clang/esp-19.1.2_20250312/esp-clang/bin/clangd.exe",
+        "path": "clangd",
         "arguments": [
           "--background-index",
           "--clang-tidy",
           "--completion-style=detailed",
           "--header-insertion=iwyu",
-          "--compile-commands-dir=build"
-        ]
-      }
-    }
+          "--compile-commands-dir=build",
+        ],
+      },
+    },
   },
   "tasks": {
-    "variables": {}
-  }
+    "variables": {},
+  },
 }

@@ -1,9 +1,9 @@
-# clangd configuration for ESP-IDF / ESP32 (Zed editor on Windows)
-# ESP-IDF: C:/Users/daniel/esp/v5.5.1/esp-idf
+# clangd configuration for ESP-IDF / ESP32 (Zed editor on macOS)
+# ESP-IDF: ~/esp/v5.5.1/esp-idf
 # Toolchain: xtensa-esp-elf  esp-14.2.0_20241119
 #
 # The cross-compiler system include paths are listed explicitly because
-# --query-driver does not work reliably with this clangd build on Windows.
+# --query-driver does not work reliably with this clangd build on macOS.
 
 CompileFlags:
   CompilationDatabase: build
@@ -17,12 +17,12 @@ CompileFlags:
   # Impersonate the xtensa cross-compiler and add its system include paths.
   Add:
     - --target=xtensa-esp32-elf
-    - -isystemC:/Users/daniel/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/xtensa-esp-elf/include/c++/14.2.0
-    - -isystemC:/Users/daniel/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/xtensa-esp-elf/include/c++/14.2.0/xtensa-esp-elf/esp32
-    - -isystemC:/Users/daniel/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/xtensa-esp-elf/include/c++/14.2.0/backward
-    - -isystemC:/Users/daniel/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include
-    - -isystemC:/Users/daniel/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include-fixed
-    - -isystemC:/Users/daniel/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/xtensa-esp-elf/include
+    - -isystem/Users/danielvieira/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/xtensa-esp-elf/include/c++/14.2.0
+    - -isystem/Users/danielvieira/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/xtensa-esp-elf/include/c++/14.2.0/xtensa-esp-elf/esp32
+    - -isystem/Users/danielvieira/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/xtensa-esp-elf/include/c++/14.2.0/backward
+    - -isystem/Users/danielvieira/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include
+    - -isystem/Users/danielvieira/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include-fixed
+    - -isystem/Users/danielvieira/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/xtensa-esp-elf/include
 
 Diagnostics:
   Suppress:
