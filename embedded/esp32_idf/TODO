@@ -1,7 +1,7 @@
 
 
 updates para reunial:
-    ☐ teste com alpha definido
-    ☐ teste com controle ligado em alpha definido
-    ☐ adicione um comando de `help` no BLE que envia de volta os comandos disponiveis
-    ☐ fechar malha com PID para controlar tensao
+    [x] teste com alpha definido
+    [x] teste com controle ligado em alpha definido
+    [x] adicione um comando de `help` na interface `web` que mostra comandos disponiveis
+    [x] fechar malha com PID para controlar tensao

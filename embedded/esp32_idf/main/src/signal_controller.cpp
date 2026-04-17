@@ -224,10 +224,10 @@ static void signal_loop_task(void *arg) {
         // ---------------------------------------------------
         // CONTROL ACTION (if enabled and ADC data is fresh)
         // ---------------------------------------------------
-        if (g_control_enabled && g_adc_fresh) {
+        if ((g_control_enabled || g_pid_enabled) && g_adc_fresh) {
             g_adc_fresh = false;
 
-            if (dataset->gain_k.is_valid && dataset->size > 1) {
+            if (g_control_enabled && dataset->gain_k.is_valid && dataset->size > 1) {
                 float dtk[CONTROL_MAX_DTK];
                 const uint32_t N = dataset->size;
                 const uint32_t p = N - 1;
@@ -262,6 +262,28 @@ static void signal_loop_task(void *arg) {
                 // 5. update Ts from dtk
                 compute_duration_corrections(dataset->time_durations, dtk,
                                              current_correction, p, N);
+            } else if (g_pid_enabled && dataset->size > 1) {
+                const uint32_t N = dataset->size;
+                const uint32_t p = N - 1;
+                
+                // Read feedback (assuming AN3 is what we want to track against target)
+                float an3 = g_adc_an3;
+                float e = g_pid_config.target - an3;
+                
+                g_pid_config.err_sum += e;
+                float de = e - g_pid_config.prev_err;
+                g_pid_config.prev_err = e;
+                
+                float u = (g_pid_config.kp * e) + (g_pid_config.ki * g_pid_config.err_sum) + (g_pid_config.kd * de);
+                
+                float dtk[CONTROL_MAX_DTK];
+                for (uint32_t j = 0; j < p; j++) {
+                    dtk[j] = u;
+                }
+                
+                condition_dtk(dtk, p, dataset->time_durations);
+                compute_duration_corrections(dataset->time_durations, dtk,
+                                             current_correction, p, N);
             }
         }
 
@@ -275,7 +297,7 @@ static void signal_loop_task(void *arg) {
             uint32_t us = dataset->time_durations[i];
 
             // Apply control correction if enabled
-            if (g_control_enabled) {
+            if (g_control_enabled || g_pid_enabled) {
                 int32_t corrected = (int32_t)us + current_correction[i];
                 if (corrected < 1) {
                     corrected = 1;

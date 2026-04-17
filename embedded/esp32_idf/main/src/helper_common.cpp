@@ -35,6 +35,9 @@ volatile float g_adc_an5 = 0.0f;
 volatile float g_adc_an6 = 0.0f;
 volatile bool g_adc_fresh = false;
 
+volatile bool g_pid_enabled = false;
+volatile PIDConfig g_pid_config = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+
 void blink(uint8_t N) {
     for (uint8_t i = 0; i < N; i++) {
         led_on();
@@ -132,6 +135,8 @@ std::string get_label(ControlState state) {
         return "OFF";
     case ControlState::ON:
         return "ON";
+    case ControlState::ON_PID:
+        return "ON_PID";
     default:
         return "-ERROR";
     }
