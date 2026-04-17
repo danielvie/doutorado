@@ -186,6 +186,10 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
             uint16_t port = blink_d1;
             uint16_t value = blink_d2;
             ble_router_set_port(port, value);
+        } else if (sscanf(msg_lower, "port:%hu,high", &blink_d1) == 1) {
+            ble_router_set_port(blink_d1, 1);
+        } else if (sscanf(msg_lower, "port:%hu,low", &blink_d1) == 1) {
+            ble_router_set_port(blink_d1, 0);
         } else if (sscanf(msg_lower, "cycles:%lu", &g_cycle_nrun) == 1) {
             ESP_LOGI(TAG, "Setting `g_cycle_nrun= %d`", g_cycle_nrun);
         } else if (sscanf(msg_lower, "us_delay:%lu", &g_dead_time_cycles_up) == 1) {
