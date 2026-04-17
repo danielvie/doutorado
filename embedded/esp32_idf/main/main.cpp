@@ -216,6 +216,5 @@ extern "C" void app_main(void)
 
     matrix_test();
 
-
     blink(4);
 }

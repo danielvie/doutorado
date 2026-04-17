@@ -4,4 +4,4 @@ updates para reunial:
     [x] teste com alpha definido
     [x] teste com controle ligado em alpha definido
     [x] adicione um comando de `help` na interface `web` que mostra comandos disponiveis
-    [x] fechar malha com PID para controlar tensao
+    ☐ fechar malha com PID para controlar tensao

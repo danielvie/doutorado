@@ -44,18 +44,6 @@ extern volatile float g_adc_an5;
 extern volatile float g_adc_an6;
 extern volatile bool g_adc_fresh;
 
-struct PIDConfig {
-    float kp;
-    float ki;
-    float kd;
-    float err_sum;
-    float prev_err;
-    float target;
-};
-
-extern volatile bool g_pid_enabled;
-extern volatile PIDConfig g_pid_config;
-
 // .. data structures
 struct LogDuration {
     int64_t read_and_send_analog_us;
@@ -95,7 +83,6 @@ enum class SignalState {
 enum class ControlState {
     OFF,
     ON,
-    ON_PID,
 };
 
 struct SystemState {

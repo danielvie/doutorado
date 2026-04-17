@@ -240,24 +240,10 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
             ble_router_signal_start();
         } else if (strcmp(msg_lower, "stop") == 0) {
             ble_router_signal_stop();
-        } else if (strcmp(msg_lower, "control_on") == 0 || strcmp(msg_lower, "control_matrix") == 0) {
+        } else if (strcmp(msg_lower, "control_on") == 0) {
             ble_router_ctrl(ControlState::ON);
-        } else if (strcmp(msg_lower, "control_pid") == 0) {
-            ble_router_ctrl(ControlState::ON_PID);
         } else if (strcmp(msg_lower, "control_off") == 0) {
             ble_router_ctrl(ControlState::OFF);
-        } else if (strncmp(msg_lower, "set_pid_gains:", 14) == 0) {
-            float pkp, pki, pkd;
-            if (sscanf(msg_lower + 14, "%f,%f,%f", &pkp, &pki, &pkd) == 3) {
-                g_pid_config.kp = pkp; g_pid_config.ki = pki; g_pid_config.kd = pkd;
-                ESP_LOGI(TAG, "PID gains updated");
-            }
-        } else if (strncmp(msg_lower, "set_pid_target:", 15) == 0) {
-            float ptgt;
-            if (sscanf(msg_lower + 15, "%f", &ptgt) == 1) {
-                g_pid_config.target = ptgt;
-                ESP_LOGI(TAG, "PID target updated");
-            }
         } else {
             ESP_LOGI(TAG, "Unrecognized write: '%s' (len=%u)", msg_buf, len);
         }
@@ -343,7 +329,6 @@ void ble_router_ctrl(ControlState state) {
     auto msg = std::make_unique<NoteData>(NOTE_BLE_BUFFER_SIZE);
 
     g_control_enabled = (state == ControlState::ON);
-    g_pid_enabled = (state == ControlState::ON_PID);
     g_system_state.control_state = state;
 
     note_clear(*msg);
@@ -351,12 +336,9 @@ void ble_router_ctrl(ControlState state) {
     if (g_control_enabled) {
         note_add_text(*msg, "CONTROL::ON");
         ESP_LOGI(TAG, "CONTROL::ON");
-    } else if (g_pid_enabled) {
-        note_add_text(*msg, "PID::ON");
-        ESP_LOGI(TAG, "PID::ON");
     } else {
-        note_add_text(*msg, "CONTROL::OFF\nPID::OFF");
-        ESP_LOGI(TAG, "CONTROL::OFF, PID::OFF");
+        note_add_text(*msg, "CONTROL::OFF");
+        ESP_LOGI(TAG, "CONTROL::OFF");
     }
 
     note_ble_send(*msg);
