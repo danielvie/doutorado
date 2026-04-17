@@ -176,10 +176,13 @@ static void signal_loop_task(void *arg) {
     // Start with whatever init set up (Set A)
     const DataSet *dataset = &g_dataset_a;
 
-    // Local buffer for duration corrections
+    // Local buffers for corrections and predictions
     static int32_t current_correction[MAX_SIGNAL_SIZE];
+    static float dtk_buffer[MAX_SIGNAL_SIZE];
+
     for (int i = 0; i < MAX_SIGNAL_SIZE; ++i) {
         current_correction[i] = 0;
+        dtk_buffer[i] = 0.0f;
     }
 
     // turn led on to indicate signal running (might need refactor to account
@@ -225,7 +228,6 @@ static void signal_loop_task(void *arg) {
             g_adc_fresh = false;
 
             if (dataset->gain_k.is_valid && dataset->size > 1) {
-                float dtk[CONTROL_MAX_DTK];
                 const uint32_t N = dataset->size;
                 const uint32_t p = N - 1;
 
@@ -242,22 +244,24 @@ static void signal_loop_task(void *arg) {
                 // 3. compute `dtk = -K * ek`
                 uint32_t t0 = esp_cpu_get_cycle_count();
 
-                // Compute K * ek
-                matrix_multiply_vector3(dataset->gain_k, e1, e2, e3, dtk);
-
-                // Negate to get -K * ek
+                const float* k_ptr = dataset->gain_k.values;
+                const int cols = dataset->gain_k.cols; // Always 3 for our system
+                
                 for (uint32_t j = 0; j < p; j++) {
-                    dtk[j] = -dtk[j];
+                    // Accumulate matrix MAC operations and negate the sum directly
+                    dtk_buffer[j] = -(k_ptr[j * cols + 0] * e1 + 
+                                      k_ptr[j * cols + 1] * e2 + 
+                                      k_ptr[j * cols + 2] * e3);
                 }
 
                 uint32_t t1 = esp_cpu_get_cycle_count();
                 g_log_duration.matrix_multiply_us = (t1 - t0) / 240;
 
                 // 4. compute conditioning `dtk = condition_dtk(dtk)`
-                condition_dtk(dtk, p, dataset->time_durations);
+                condition_dtk(dtk_buffer, p, dataset->time_durations);
 
                 // 5. update Ts from dtk
-                compute_duration_corrections(dataset->time_durations, dtk,
+                compute_duration_corrections(dataset->time_durations, dtk_buffer,
                                              current_correction, p, N);
             }
         }
