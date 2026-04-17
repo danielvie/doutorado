@@ -44,7 +44,7 @@ int calib_numel = sizeof(calib_from) / sizeof(calib_from[0]);
 
 float esp32_calibration(float value) {
 
-    // return value;
+
     // lower boundary
     if (value <= calib_from[0]) {
         return calib_to[0];

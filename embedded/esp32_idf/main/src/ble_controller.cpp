@@ -371,11 +371,7 @@ void ble_router_set_port(uint16_t port, uint16_t value) {
             break;
     }
 
-    // auto msg = std::make_unique<NoteData>(120);
-    // note_clear(*msg);
-    // note_add_text(*msg, "SIGNAL UPDATED OK");
 
-    // note_ble_send(*msg);
 }
 
 void _ble_router_print_dataset(DataSet *ds, SignalSet set) {
@@ -438,7 +434,7 @@ void ble_router_status(void) {
 
     auto msg = std::make_unique<NoteData>(NOTE_BLE_BUFFER_SIZE);
 
-    // DataSet* ds = get_dataset_active();
+
 
     auto is_valid = [](DataSet& ds_) {
         return matrix_isvalid(ds_.gain_k) ? std::string("valid") : std::string("not valid");

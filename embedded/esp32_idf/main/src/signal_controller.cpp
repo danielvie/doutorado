@@ -18,7 +18,7 @@ const uint32_t MASK_U3_HIGH = (1U << PIN_U3_HIGH);
 const uint32_t MASK_OUT_SIG = (1U << PIN_OUT_SIG);
 
 static TaskHandle_t s_signal_task_handle = NULL;
-// static volatile SignalState s_signal_state = SignalState::IDLE;
+
 
 // ---------------------------------------------------------------------------
 // DOUBLE BUFFERING DATA
@@ -130,10 +130,7 @@ void signal_update_from_string(const std::string &message) {
     std::vector<uint32_t> modes;
 
     // // clean "SIGNAL:{}" prefix
-    // std::string clean_msg = message;
-    // if (clean_msg.rfind("SIGNAL:", 0) == 0) {
-    //     clean_msg = clean_msg.substr(7);
-    // }
+
 
     if (parse_signal(message, times, modes) != 1) {
         ESP_LOGE(TAG, "Failed to parse signal string");

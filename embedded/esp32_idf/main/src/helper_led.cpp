@@ -29,7 +29,7 @@ void led_off(void)
 
 void led_init(void)
 {
-    // ESP_LOGI(TAG, "example configured to blink gpio led!");
+
     gpio_reset_pin(static_cast<gpio_num_t>(BLINK_GPIO));
     /* Set the GPIO as a push/pull output */
     gpio_set_direction(static_cast<gpio_num_t>(BLINK_GPIO), GPIO_MODE_OUTPUT);
