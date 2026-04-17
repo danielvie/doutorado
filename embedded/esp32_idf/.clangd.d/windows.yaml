@@ -1,0 +1,35 @@
+# clangd configuration for ESP-IDF / ESP32 (Windows)
+# ESP-IDF: C:/Users/daniel/esp/v5.5.1/esp-idf
+# Toolchain: xtensa-esp-elf  esp-14.2.0_20241119
+
+CompileFlags:
+  CompilationDatabase: build
+
+  # Strip flags that clangd/clang cannot parse but gcc/xtensa-gcc accepts.
+  Remove:
+    - -f*
+    - -m*
+    - -w
+
+  # Impersonate the xtensa cross-compiler and add its system include paths.
+  Add:
+    - --target=xtensa-esp32-elf
+    - -isystemC:/Users/daniel/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/xtensa-esp-elf/include/c++/14.2.0
+    - -isystemC:/Users/daniel/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/xtensa-esp-elf/include/c++/14.2.0/xtensa-esp-elf/esp32
+    - -isystemC:/Users/daniel/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/xtensa-esp-elf/include/c++/14.2.0/backward
+    - -isystemC:/Users/daniel/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include
+    - -isystemC:/Users/daniel/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include-fixed
+    - -isystemC:/Users/daniel/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/xtensa-esp-elf/include
+
+Diagnostics:
+  Suppress:
+    - -Wunused-variable
+    - pp_including_mainfile_in_preamble
+
+InlayHints:
+  Enabled: yes
+  ParameterNames: yes
+  DeducedTypes: yes
+
+Index:
+  Background: Build

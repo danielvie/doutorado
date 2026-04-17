@@ -179,6 +179,14 @@ tasks:
     cmds:
       - task: build-flash-monitor
 
+  setup:clangd:
+    desc: Setup clangd and Zed configuration for current OS
+    vars:
+      SETUP_SCRIPT: "{{.PROJECT_DIR}}/.clangd.d/setup_clangd.{{.SCRIPT_EXT}}"
+    cmds:
+      - '{{.INTERPRETER}} "{{.SETUP_SCRIPT}}"'
+      - 'echo "✓ Configuration complete. Reload Zed to apply changes."'
+
   web:install:
     desc: install webserver dependencies
     dir: web

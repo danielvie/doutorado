@@ -10,7 +10,7 @@
   "lsp": {
     "clangd": {
       "binary": {
-        "path": "/Users/danielvieira/.espressif/tools/esp-clang/esp-19.1.2_20250312/esp-clang/bin/clangd",
+        "path": "C:/Users/daniel/.espressif/tools/esp-clang/esp-19.1.2_20250312/esp-clang/bin/clangd.exe",
         "arguments": [
           "--background-index",
           "--clang-tidy",
