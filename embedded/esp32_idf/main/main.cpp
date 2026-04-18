@@ -157,10 +157,11 @@ static void analog_action_task(void* arg) {
             ESP_LOGI("AnalogRead", "  -> an3: %f, an5: %f, an6: %f\n", an3, an5, an6);
 
             // Store readings for control loop (Core 1)
-            g_adc_an3 = an3;
-            g_adc_an5 = an5;
-            g_adc_an6 = an6;
-            g_adc_fresh = true;
+            // Use release semantics: all ADC values visible before fresh flag
+            g_adc_an3.store(an3, std::memory_order_release);
+            g_adc_an5.store(an5, std::memory_order_release);
+            g_adc_an6.store(an6, std::memory_order_release);
+            g_adc_fresh.store(true, std::memory_order_release);
 
             g_system_state.ble_an_read_state = BLEAnalogReadState::IDLE;
         }

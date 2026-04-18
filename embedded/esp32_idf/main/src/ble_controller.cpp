@@ -6,6 +6,8 @@
 
 #include "ble_controller.h"
 
+#include <atomic>
+
 #define PROFILE_NUM 1
 #define PROFILE_APP_ID 0
 
@@ -50,7 +52,7 @@ struct gatts_profile_inst {
     esp_gatts_cb_t gatts_cb;
     uint16_t gatts_if;
     uint16_t app_id;
-    uint16_t conn_id;
+    std::atomic<uint16_t> conn_id;
     uint16_t service_handle;
     esp_gatt_srvc_id_t service_id;
     uint16_t char_handle;
@@ -62,7 +64,7 @@ static struct gatts_profile_inst gl_profile_tab[PROFILE_NUM] = {
         .gatts_cb = NULL,
         .gatts_if = ESP_GATT_IF_NONE,
         .app_id = 0,
-        .conn_id = 0xFFFF,
+        .conn_id = ATOMIC_VAR_INIT(0xFFFF),
         .service_handle = 0,
         .service_id = {},
         .char_handle = 0,
@@ -693,5 +695,5 @@ esp_err_t ble_controller_init(void) {
 }
 
 bool ble_is_connected() {
-    return (gl_profile_tab[PROFILE_APP_ID].conn_id != 0xFFFF);
+    return (gl_profile_tab[PROFILE_APP_ID].conn_id.load(std::memory_order_acquire) != 0xFFFF);
 }

@@ -9,6 +9,7 @@
 #include <chrono>
 #include <random>
 #include <memory>
+#include <atomic>
 
 #include "helper_led.h"
 #include "freertos/FreeRTOS.h"
@@ -38,11 +39,11 @@ extern volatile uint32_t g_analog_monitor_period_ms;
 extern SemaphoreHandle_t sem_analog_read_trigger;
 
 // .. control and adc globals
-extern volatile bool g_control_enabled;
-extern volatile float g_adc_an3;
-extern volatile float g_adc_an5;
-extern volatile float g_adc_an6;
-extern volatile bool g_adc_fresh;
+extern std::atomic<bool> g_control_enabled;
+extern std::atomic<float> g_adc_an3;
+extern std::atomic<float> g_adc_an5;
+extern std::atomic<float> g_adc_an6;
+extern std::atomic<bool> g_adc_fresh;
 
 // .. data structures
 struct LogDuration {

@@ -129,11 +129,6 @@ tasks:
     cmds:
       - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" gdbgui'
 
-  openocd:
-    desc: Start OpenOCD server
-    cmds:
-      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" openocd'
-
   flash-auto:
     desc: Flash with auto-detected port (clears ESPPORT)
     env:
@@ -179,6 +174,18 @@ tasks:
     cmds:
       - task: build-flash-monitor
 
+  web:install:
+    desc: install webserver dependencies
+    dir: web
+    cmds:
+      - bun install
+
+  web:run:
+    desc: run webserver
+    dir: web
+    cmds:
+      - task
+
   setup:clangd:
     desc: Setup clangd and Zed configuration for current OS
     cmds:
@@ -189,15 +196,3 @@ tasks:
           bash -c "cp .clangd.d/macos.yaml .clangd && cp .zed.d/settings-macos.json .zed/settings.json"
         {{end}}
       - 'echo "✓ Configuration complete. Reload Zed to apply changes."'
-
-  web:install:
-    desc: install webserver dependencies
-    dir: web
-    cmds:
-      - bun install
-
-  web:
-    desc: run webserver
-    dir: web
-    cmds:
-      - task

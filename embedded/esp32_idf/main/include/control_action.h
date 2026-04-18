@@ -20,13 +20,8 @@
 #define CONTROL_MAX_DTK (MAX_SIGNAL_SIZE - 1)
 
 // Control state flag (shared between cores)
-extern volatile bool g_control_enabled;
-
-// ADC shared readings
-extern volatile float g_adc_an3;
-extern volatile float g_adc_an5;
-extern volatile float g_adc_an6;
-extern volatile bool g_adc_fresh;
+// Note: g_control_enabled, g_adc_an3, g_adc_an5, g_adc_an6, g_adc_fresh
+// are declared in helper_common.h
 
 // Control API
 

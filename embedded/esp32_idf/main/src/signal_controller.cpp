@@ -224,17 +224,17 @@ static void signal_loop_task(void *arg) {
         // ---------------------------------------------------
         // CONTROL ACTION (if enabled and ADC data is fresh)
         // ---------------------------------------------------
-        if (g_control_enabled && g_adc_fresh) {
-            g_adc_fresh = false;
+        if (g_control_enabled && g_adc_fresh.load(std::memory_order_acquire)) {
+            g_adc_fresh.store(false, std::memory_order_release);
 
             if (dataset->gain_k.is_valid && dataset->size > 1) {
                 const uint32_t N = dataset->size;
                 const uint32_t p = N - 1;
 
-                // 1. read analog signals
-                float an3 = g_adc_an3;
-                float an5 = g_adc_an5;
-                float an6 = g_adc_an6;
+                // 1. read analog signals (acquire semantics ensures all values visible)
+                float an3 = g_adc_an3.load(std::memory_order_acquire);
+                float an5 = g_adc_an5.load(std::memory_order_acquire);
+                float an6 = g_adc_an6.load(std::memory_order_acquire);
 
                 // 2. compute `ek = x - x_target`
                 float e1 = an3 - dataset->target[0];

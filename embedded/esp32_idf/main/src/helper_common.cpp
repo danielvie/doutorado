@@ -29,11 +29,11 @@ volatile SystemState g_system_state = {
 };
 
 // .. control globals
-volatile bool g_control_enabled = false;
-volatile float g_adc_an3 = 0.0f;
-volatile float g_adc_an5 = 0.0f;
-volatile float g_adc_an6 = 0.0f;
-volatile bool g_adc_fresh = false;
+std::atomic<bool> g_control_enabled = false;
+std::atomic<float> g_adc_an3 = 0.0f;
+std::atomic<float> g_adc_an5 = 0.0f;
+std::atomic<float> g_adc_an6 = 0.0f;
+std::atomic<bool> g_adc_fresh = false;
 
 void blink(uint8_t N) {
     for (uint8_t i = 0; i < N; i++) {

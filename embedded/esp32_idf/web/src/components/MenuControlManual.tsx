@@ -4,6 +4,10 @@ import { ble_send_command } from "./bluetooth";
 export const MenuControlManual: React.FC = () => {
   const [commandMsg, setCommandMsg] = useState("");
 
+  const sendCommand = () => {
+    ble_send_command(commandMsg);
+  };
+
   return (
     <div className="bg-panel-background p-6 rounded-lg shadow-lg border border-gray">
       {/* Command Input */}
@@ -15,10 +19,7 @@ export const MenuControlManual: React.FC = () => {
           className="flex-1 input px-3 py-2"
           placeholder="Enter command..."
         />
-        <button
-          onClick={() => ble_send_command(commandMsg)}
-          className="btn send"
-        >
+        <button onClick={sendCommand} className="btn send">
           SEND
         </button>
       </div>
