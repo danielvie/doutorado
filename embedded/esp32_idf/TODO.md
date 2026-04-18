@@ -39,3 +39,6 @@
 - [x] `ble_is_connected()` race condition fixed — `conn_id` changed to `std::atomic<uint16_t>`
 - [x] `g_adc_*` globals fixed — changed to `std::atomic<float>` with release/acquire semantics
 
+## Skills
+
+- [x] SKILL_naming_variables.md created — Naming conventions from TigerBeetle TIGER_STYLE.md

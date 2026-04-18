@@ -1,4143 +1,689 @@
 // Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
 
 #include "helper_datasetter.h"
+#include <cmath>
+#include <functional>
+#include <map>
 
 static const float TOL = 0.001;
 bool helper_eql_float(const float a, const float b) {
     return std::fabs(a - b) < TOL;
 }
 
-void helper_set_dataset_from_alpha(DataSet *dataset, const float alpha) {
-
-    if (helper_eql_float(alpha, 0.10)) {
-        // alpha: 0.10
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 28;
-        dataset->time_durations[1] = 65;
-        dataset->time_durations[2] = 28;
-        dataset->time_durations[3] = 65;
-        dataset->time_durations[4] = 28;
-        dataset->time_durations[5] = 65;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.666804;
-        dataset->target[1] = 3.333469;
-        dataset->target[2] = 0.006804;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0464731;
-        dataset->gain_k.values[1] = -0.0237292;
-        dataset->gain_k.values[2] = 0.0597880;
-        dataset->gain_k.values[3] = -0.0118889;
-        dataset->gain_k.values[4] = 0.0115526;
-        dataset->gain_k.values[5] = -0.0284607;
-        dataset->gain_k.values[6] = 0.0110946;
-        dataset->gain_k.values[7] = -0.0113114;
-        dataset->gain_k.values[8] = 0.0291281;
-        dataset->gain_k.values[9] = -0.0116095;
-        dataset->gain_k.values[10] = -0.0231720;
-        dataset->gain_k.values[11] = -0.0278441;
-        dataset->gain_k.values[12] = 0.0107936;
-        dataset->gain_k.values[13] = 0.0221058;
-        dataset->gain_k.values[14] = 0.0285782;
-    }
-    else if (helper_eql_float(alpha, 0.11)) {
-        // alpha: 0.11
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 31;
-        dataset->time_durations[1] = 63;
-        dataset->time_durations[2] = 31;
-        dataset->time_durations[3] = 63;
-        dataset->time_durations[4] = 31;
-        dataset->time_durations[5] = 63;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.666833;
-        dataset->target[1] = 3.333497;
-        dataset->target[2] = 0.007487;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0422581;
-        dataset->gain_k.values[1] = -0.0215808;
-        dataset->gain_k.values[2] = 0.0597604;
-        dataset->gain_k.values[3] = -0.0108080;
-        dataset->gain_k.values[4] = 0.0104992;
-        dataset->gain_k.values[5] = -0.0284367;
-        dataset->gain_k.values[6] = 0.0100918;
-        dataset->gain_k.values[7] = -0.0102876;
-        dataset->gain_k.values[8] = 0.0291276;
-        dataset->gain_k.values[9] = -0.0105609;
-        dataset->gain_k.values[10] = -0.0210685;
-        dataset->gain_k.values[11] = -0.0278167;
-        dataset->gain_k.values[12] = 0.0098253;
-        dataset->gain_k.values[13] = 0.0201124;
-        dataset->gain_k.values[14] = 0.0285717;
-    }
-    else if (helper_eql_float(alpha, 0.12)) {
-        // alpha: 0.12
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 34;
-        dataset->time_durations[1] = 60;
-        dataset->time_durations[2] = 34;
-        dataset->time_durations[3] = 60;
-        dataset->time_durations[4] = 34;
-        dataset->time_durations[5] = 60;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.666864;
-        dataset->target[1] = 3.333528;
-        dataset->target[2] = 0.008171;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0387402;
-        dataset->gain_k.values[1] = -0.0197868;
-        dataset->gain_k.values[2] = 0.0597289;
-        dataset->gain_k.values[3] = -0.0099067;
-        dataset->gain_k.values[4] = 0.0096212;
-        dataset->gain_k.values[5] = -0.0284129;
-        dataset->gain_k.values[6] = 0.0092555;
-        dataset->gain_k.values[7] = -0.0094342;
-        dataset->gain_k.values[8] = 0.0291275;
-        dataset->gain_k.values[9] = -0.0096849;
-        dataset->gain_k.values[10] = -0.0193136;
-        dataset->gain_k.values[11] = -0.0277907;
-        dataset->gain_k.values[12] = 0.0090163;
-        dataset->gain_k.values[13] = 0.0184493;
-        dataset->gain_k.values[14] = 0.0285666;
-    }
-    else if (helper_eql_float(alpha, 0.13)) {
-        // alpha: 0.13
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 36;
-        dataset->time_durations[1] = 57;
-        dataset->time_durations[2] = 36;
-        dataset->time_durations[3] = 57;
-        dataset->time_durations[4] = 36;
-        dataset->time_durations[5] = 57;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.666898;
-        dataset->target[1] = 3.333562;
-        dataset->target[2] = 0.008855;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0357599;
-        dataset->gain_k.values[1] = -0.0182663;
-        dataset->gain_k.values[2] = 0.0596946;
-        dataset->gain_k.values[3] = -0.0091438;
-        dataset->gain_k.values[4] = 0.0088780;
-        dataset->gain_k.values[5] = -0.0283889;
-        dataset->gain_k.values[6] = 0.0085476;
-        dataset->gain_k.values[7] = -0.0087120;
-        dataset->gain_k.values[8] = 0.0291276;
-        dataset->gain_k.values[9] = -0.0089423;
-        dataset->gain_k.values[10] = -0.0178273;
-        dataset->gain_k.values[11] = -0.0277655;
-        dataset->gain_k.values[12] = 0.0083305;
-        dataset->gain_k.values[13] = 0.0170409;
-        dataset->gain_k.values[14] = 0.0285625;
-    }
-    else if (helper_eql_float(alpha, 0.14)) {
-        // alpha: 0.14
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 39;
-        dataset->time_durations[1] = 54;
-        dataset->time_durations[2] = 39;
-        dataset->time_durations[3] = 54;
-        dataset->time_durations[4] = 39;
-        dataset->time_durations[5] = 54;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.666935;
-        dataset->target[1] = 3.333599;
-        dataset->target[2] = 0.009539;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0332030;
-        dataset->gain_k.values[1] = -0.0169614;
-        dataset->gain_k.values[2] = 0.0596582;
-        dataset->gain_k.values[3] = -0.0084896;
-        dataset->gain_k.values[4] = 0.0082409;
-        dataset->gain_k.values[5] = -0.0283649;
-        dataset->gain_k.values[6] = 0.0079406;
-        dataset->gain_k.values[7] = -0.0080928;
-        dataset->gain_k.values[8] = 0.0291280;
-        dataset->gain_k.values[9] = -0.0083049;
-        dataset->gain_k.values[10] = -0.0165526;
-        dataset->gain_k.values[11] = -0.0277408;
-        dataset->gain_k.values[12] = 0.0077418;
-        dataset->gain_k.values[13] = 0.0158328;
-        dataset->gain_k.values[14] = 0.0285591;
-    }
-    else if (helper_eql_float(alpha, 0.15)) {
-        // alpha: 0.15
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 42;
-        dataset->time_durations[1] = 51;
-        dataset->time_durations[2] = 42;
-        dataset->time_durations[3] = 51;
-        dataset->time_durations[4] = 42;
-        dataset->time_durations[5] = 51;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.666975;
-        dataset->target[1] = 3.333638;
-        dataset->target[2] = 0.010224;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0309853;
-        dataset->gain_k.values[1] = -0.0158292;
-        dataset->gain_k.values[2] = 0.0596202;
-        dataset->gain_k.values[3] = -0.0079225;
-        dataset->gain_k.values[4] = 0.0076887;
-        dataset->gain_k.values[5] = -0.0283406;
-        dataset->gain_k.values[6] = 0.0074143;
-        dataset->gain_k.values[7] = -0.0075561;
-        dataset->gain_k.values[8] = 0.0291286;
-        dataset->gain_k.values[9] = -0.0077519;
-        dataset->gain_k.values[10] = -0.0154472;
-        dataset->gain_k.values[11] = -0.0277165;
-        dataset->gain_k.values[12] = 0.0072309;
-        dataset->gain_k.values[13] = 0.0147852;
-        dataset->gain_k.values[14] = 0.0285561;
-    }
-    else if (helper_eql_float(alpha, 0.16)) {
-        // alpha: 0.16
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 45;
-        dataset->time_durations[1] = 49;
-        dataset->time_durations[2] = 45;
-        dataset->time_durations[3] = 49;
-        dataset->time_durations[4] = 45;
-        dataset->time_durations[5] = 49;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.667017;
-        dataset->target[1] = 3.333680;
-        dataset->target[2] = 0.010909;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0290436;
-        dataset->gain_k.values[1] = -0.0148378;
-        dataset->gain_k.values[2] = 0.0595810;
-        dataset->gain_k.values[3] = -0.0074263;
-        dataset->gain_k.values[4] = 0.0072054;
-        dataset->gain_k.values[5] = -0.0283162;
-        dataset->gain_k.values[6] = 0.0069538;
-        dataset->gain_k.values[7] = -0.0070865;
-        dataset->gain_k.values[8] = 0.0291294;
-        dataset->gain_k.values[9] = -0.0072675;
-        dataset->gain_k.values[10] = -0.0144796;
-        dataset->gain_k.values[11] = -0.0276925;
-        dataset->gain_k.values[12] = 0.0067835;
-        dataset->gain_k.values[13] = 0.0138682;
-        dataset->gain_k.values[14] = 0.0285535;
-    }
-    else if (helper_eql_float(alpha, 0.17)) {
-        // alpha: 0.17
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 48;
-        dataset->time_durations[1] = 46;
-        dataset->time_durations[2] = 48;
-        dataset->time_durations[3] = 46;
-        dataset->time_durations[4] = 48;
-        dataset->time_durations[5] = 46;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.667063;
-        dataset->target[1] = 3.333725;
-        dataset->target[2] = 0.011595;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0273295;
-        dataset->gain_k.values[1] = -0.0139624;
-        dataset->gain_k.values[2] = 0.0595407;
-        dataset->gain_k.values[3] = -0.0069884;
-        dataset->gain_k.values[4] = 0.0067789;
-        dataset->gain_k.values[5] = -0.0282915;
-        dataset->gain_k.values[6] = 0.0065473;
-        dataset->gain_k.values[7] = -0.0066720;
-        dataset->gain_k.values[8] = 0.0291302;
-        dataset->gain_k.values[9] = -0.0068398;
-        dataset->gain_k.values[10] = -0.0136255;
-        dataset->gain_k.values[11] = -0.0276685;
-        dataset->gain_k.values[12] = 0.0063884;
-        dataset->gain_k.values[13] = 0.0130588;
-        dataset->gain_k.values[14] = 0.0285512;
-    }
-    else if (helper_eql_float(alpha, 0.18)) {
-        // alpha: 0.18
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 50;
-        dataset->time_durations[1] = 43;
-        dataset->time_durations[2] = 50;
-        dataset->time_durations[3] = 43;
-        dataset->time_durations[4] = 50;
-        dataset->time_durations[5] = 43;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.667110;
-        dataset->target[1] = 3.333772;
-        dataset->target[2] = 0.012281;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0258052;
-        dataset->gain_k.values[1] = -0.0131837;
-        dataset->gain_k.values[2] = 0.0594996;
-        dataset->gain_k.values[3] = -0.0065991;
-        dataset->gain_k.values[4] = 0.0063997;
-        dataset->gain_k.values[5] = -0.0282666;
-        dataset->gain_k.values[6] = 0.0061859;
-        dataset->gain_k.values[7] = -0.0063036;
-        dataset->gain_k.values[8] = 0.0291312;
-        dataset->gain_k.values[9] = -0.0064594;
-        dataset->gain_k.values[10] = -0.0128661;
-        dataset->gain_k.values[11] = -0.0276446;
-        dataset->gain_k.values[12] = 0.0060370;
-        dataset->gain_k.values[13] = 0.0123391;
-        dataset->gain_k.values[14] = 0.0285491;
-    }
-    else if (helper_eql_float(alpha, 0.19)) {
-        // alpha: 0.19
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 53;
-        dataset->time_durations[1] = 40;
-        dataset->time_durations[2] = 53;
-        dataset->time_durations[3] = 40;
-        dataset->time_durations[4] = 53;
-        dataset->time_durations[5] = 40;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.667161;
-        dataset->target[1] = 3.333823;
-        dataset->target[2] = 0.012968;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0244408;
-        dataset->gain_k.values[1] = -0.0124867;
-        dataset->gain_k.values[2] = 0.0594577;
-        dataset->gain_k.values[3] = -0.0062507;
-        dataset->gain_k.values[4] = 0.0060604;
-        dataset->gain_k.values[5] = -0.0282414;
-        dataset->gain_k.values[6] = 0.0058625;
-        dataset->gain_k.values[7] = -0.0059739;
-        dataset->gain_k.values[8] = 0.0291323;
-        dataset->gain_k.values[9] = -0.0061189;
-        dataset->gain_k.values[10] = -0.0121865;
-        dataset->gain_k.values[11] = -0.0276207;
-        dataset->gain_k.values[12] = 0.0057224;
-        dataset->gain_k.values[13] = 0.0116950;
-        dataset->gain_k.values[14] = 0.0285472;
-    }
-    else if (helper_eql_float(alpha, 0.20)) {
-        // alpha: 0.20
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 56;
-        dataset->time_durations[1] = 37;
-        dataset->time_durations[2] = 56;
-        dataset->time_durations[3] = 37;
-        dataset->time_durations[4] = 56;
-        dataset->time_durations[5] = 37;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.667214;
-        dataset->target[1] = 3.333876;
-        dataset->target[2] = 0.013655;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0232125;
-        dataset->gain_k.values[1] = -0.0118591;
-        dataset->gain_k.values[2] = 0.0594152;
-        dataset->gain_k.values[3] = -0.0059372;
-        dataset->gain_k.values[4] = 0.0057550;
-        dataset->gain_k.values[5] = -0.0282159;
-        dataset->gain_k.values[6] = 0.0055714;
-        dataset->gain_k.values[7] = -0.0056772;
-        dataset->gain_k.values[8] = 0.0291334;
-        dataset->gain_k.values[9] = -0.0058123;
-        dataset->gain_k.values[10] = -0.0115747;
-        dataset->gain_k.values[11] = -0.0275968;
-        dataset->gain_k.values[12] = 0.0054391;
-        dataset->gain_k.values[13] = 0.0111152;
-        dataset->gain_k.values[14] = 0.0285453;
-    }
-    else if (helper_eql_float(alpha, 0.21)) {
-        // alpha: 0.21
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 59;
-        dataset->time_durations[1] = 35;
-        dataset->time_durations[2] = 59;
-        dataset->time_durations[3] = 35;
-        dataset->time_durations[4] = 59;
-        dataset->time_durations[5] = 35;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.667270;
-        dataset->target[1] = 3.333931;
-        dataset->target[2] = 0.014343;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0221008;
-        dataset->gain_k.values[1] = -0.0112910;
-        dataset->gain_k.values[2] = 0.0593722;
-        dataset->gain_k.values[3] = -0.0056536;
-        dataset->gain_k.values[4] = 0.0054786;
-        dataset->gain_k.values[5] = -0.0281902;
-        dataset->gain_k.values[6] = 0.0053080;
-        dataset->gain_k.values[7] = -0.0054087;
-        dataset->gain_k.values[8] = 0.0291346;
-        dataset->gain_k.values[9] = -0.0055349;
-        dataset->gain_k.values[10] = -0.0110211;
-        dataset->gain_k.values[11] = -0.0275728;
-        dataset->gain_k.values[12] = 0.0051827;
-        dataset->gain_k.values[13] = 0.0105905;
-        dataset->gain_k.values[14] = 0.0285436;
-    }
-    else if (helper_eql_float(alpha, 0.22)) {
-        // alpha: 0.22
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 62;
-        dataset->time_durations[1] = 32;
-        dataset->time_durations[2] = 62;
-        dataset->time_durations[3] = 32;
-        dataset->time_durations[4] = 62;
-        dataset->time_durations[5] = 32;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.667329;
-        dataset->target[1] = 3.333990;
-        dataset->target[2] = 0.015031;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0210900;
-        dataset->gain_k.values[1] = -0.0107744;
-        dataset->gain_k.values[2] = 0.0593287;
-        dataset->gain_k.values[3] = -0.0053957;
-        dataset->gain_k.values[4] = 0.0052274;
-        dataset->gain_k.values[5] = -0.0281642;
-        dataset->gain_k.values[6] = 0.0050685;
-        dataset->gain_k.values[7] = -0.0051646;
-        dataset->gain_k.values[8] = 0.0291360;
-        dataset->gain_k.values[9] = -0.0052825;
-        dataset->gain_k.values[10] = -0.0105178;
-        dataset->gain_k.values[11] = -0.0275487;
-        dataset->gain_k.values[12] = 0.0049495;
-        dataset->gain_k.values[13] = 0.0101134;
-        dataset->gain_k.values[14] = 0.0285419;
-    }
-    else if (helper_eql_float(alpha, 0.23)) {
-        // alpha: 0.23
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 64;
-        dataset->time_durations[1] = 29;
-        dataset->time_durations[2] = 64;
-        dataset->time_durations[3] = 29;
-        dataset->time_durations[4] = 64;
-        dataset->time_durations[5] = 29;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.667390;
-        dataset->target[1] = 3.334051;
-        dataset->target[2] = 0.015720;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0201668;
-        dataset->gain_k.values[1] = -0.0103025;
-        dataset->gain_k.values[2] = 0.0592847;
-        dataset->gain_k.values[3] = -0.0051603;
-        dataset->gain_k.values[4] = 0.0049979;
-        dataset->gain_k.values[5] = -0.0281379;
-        dataset->gain_k.values[6] = 0.0048498;
-        dataset->gain_k.values[7] = -0.0049417;
-        dataset->gain_k.values[8] = 0.0291374;
-        dataset->gain_k.values[9] = -0.0050521;
-        dataset->gain_k.values[10] = -0.0100582;
-        dataset->gain_k.values[11] = -0.0275245;
-        dataset->gain_k.values[12] = 0.0047365;
-        dataset->gain_k.values[13] = 0.0096778;
-        dataset->gain_k.values[14] = 0.0285403;
-    }
-    else if (helper_eql_float(alpha, 0.24)) {
-        // alpha: 0.24
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 67;
-        dataset->time_durations[1] = 26;
-        dataset->time_durations[2] = 67;
-        dataset->time_durations[3] = 26;
-        dataset->time_durations[4] = 67;
-        dataset->time_durations[5] = 26;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.667454;
-        dataset->target[1] = 3.334115;
-        dataset->target[2] = 0.016409;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0193204;
-        dataset->gain_k.values[1] = -0.0098699;
-        dataset->gain_k.values[2] = 0.0592403;
-        dataset->gain_k.values[3] = -0.0049445;
-        dataset->gain_k.values[4] = 0.0047875;
-        dataset->gain_k.values[5] = -0.0281113;
-        dataset->gain_k.values[6] = 0.0046493;
-        dataset->gain_k.values[7] = -0.0047374;
-        dataset->gain_k.values[8] = 0.0291388;
-        dataset->gain_k.values[9] = -0.0048408;
-        dataset->gain_k.values[10] = -0.0096368;
-        dataset->gain_k.values[11] = -0.0275002;
-        dataset->gain_k.values[12] = 0.0045413;
-        dataset->gain_k.values[13] = 0.0092784;
-        dataset->gain_k.values[14] = 0.0285386;
-    }
-    else if (helper_eql_float(alpha, 0.25)) {
-        // alpha: 0.25
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 70;
-        dataset->time_durations[1] = 23;
-        dataset->time_durations[2] = 70;
-        dataset->time_durations[3] = 23;
-        dataset->time_durations[4] = 70;
-        dataset->time_durations[5] = 23;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.667521;
-        dataset->target[1] = 3.334181;
-        dataset->target[2] = 0.017098;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0185416;
-        dataset->gain_k.values[1] = -0.0094717;
-        dataset->gain_k.values[2] = 0.0591956;
-        dataset->gain_k.values[3] = -0.0047460;
-        dataset->gain_k.values[4] = 0.0045940;
-        dataset->gain_k.values[5] = -0.0280844;
-        dataset->gain_k.values[6] = 0.0044649;
-        dataset->gain_k.values[7] = -0.0045494;
-        dataset->gain_k.values[8] = 0.0291403;
-        dataset->gain_k.values[9] = -0.0046464;
-        dataset->gain_k.values[10] = -0.0092492;
-        dataset->gain_k.values[11] = -0.0274757;
-        dataset->gain_k.values[12] = 0.0043616;
-        dataset->gain_k.values[13] = 0.0089110;
-        dataset->gain_k.values[14] = 0.0285370;
-    }
-    else if (helper_eql_float(alpha, 0.26)) {
-        // alpha: 0.26
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 73;
-        dataset->time_durations[1] = 21;
-        dataset->time_durations[2] = 73;
-        dataset->time_durations[3] = 21;
-        dataset->time_durations[4] = 73;
-        dataset->time_durations[5] = 21;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.667591;
-        dataset->target[1] = 3.334251;
-        dataset->target[2] = 0.017788;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0178226;
-        dataset->gain_k.values[1] = -0.0091041;
-        dataset->gain_k.values[2] = 0.0591505;
-        dataset->gain_k.values[3] = -0.0045628;
-        dataset->gain_k.values[4] = 0.0044152;
-        dataset->gain_k.values[5] = -0.0280573;
-        dataset->gain_k.values[6] = 0.0042946;
-        dataset->gain_k.values[7] = -0.0043758;
-        dataset->gain_k.values[8] = 0.0291419;
-        dataset->gain_k.values[9] = -0.0044670;
-        dataset->gain_k.values[10] = -0.0088913;
-        dataset->gain_k.values[11] = -0.0274511;
-        dataset->gain_k.values[12] = 0.0041957;
-        dataset->gain_k.values[13] = 0.0085718;
-        dataset->gain_k.values[14] = 0.0285354;
-    }
-    else if (helper_eql_float(alpha, 0.27)) {
-        // alpha: 0.27
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 76;
-        dataset->time_durations[1] = 18;
-        dataset->time_durations[2] = 76;
-        dataset->time_durations[3] = 18;
-        dataset->time_durations[4] = 76;
-        dataset->time_durations[5] = 18;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.667663;
-        dataset->target[1] = 3.334323;
-        dataset->target[2] = 0.018479;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0171568;
-        dataset->gain_k.values[1] = -0.0087637;
-        dataset->gain_k.values[2] = 0.0591051;
-        dataset->gain_k.values[3] = -0.0043932;
-        dataset->gain_k.values[4] = 0.0042497;
-        dataset->gain_k.values[5] = -0.0280298;
-        dataset->gain_k.values[6] = 0.0041369;
-        dataset->gain_k.values[7] = -0.0042151;
-        dataset->gain_k.values[8] = 0.0291435;
-        dataset->gain_k.values[9] = -0.0043008;
-        dataset->gain_k.values[10] = -0.0085599;
-        dataset->gain_k.values[11] = -0.0274263;
-        dataset->gain_k.values[12] = 0.0040420;
-        dataset->gain_k.values[13] = 0.0082577;
-        dataset->gain_k.values[14] = 0.0285338;
-    }
-    else if (helper_eql_float(alpha, 0.28)) {
-        // alpha: 0.28
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 78;
-        dataset->time_durations[1] = 15;
-        dataset->time_durations[2] = 78;
-        dataset->time_durations[3] = 15;
-        dataset->time_durations[4] = 78;
-        dataset->time_durations[5] = 15;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.667738;
-        dataset->target[1] = 3.334398;
-        dataset->target[2] = 0.019169;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0165384;
-        dataset->gain_k.values[1] = -0.0084474;
-        dataset->gain_k.values[2] = 0.0590593;
-        dataset->gain_k.values[3] = -0.0042357;
-        dataset->gain_k.values[4] = 0.0040960;
-        dataset->gain_k.values[5] = -0.0280021;
-        dataset->gain_k.values[6] = 0.0039905;
-        dataset->gain_k.values[7] = -0.0040659;
-        dataset->gain_k.values[8] = 0.0291452;
-        dataset->gain_k.values[9] = -0.0041464;
-        dataset->gain_k.values[10] = -0.0082522;
-        dataset->gain_k.values[11] = -0.0274013;
-        dataset->gain_k.values[12] = 0.0038994;
-        dataset->gain_k.values[13] = 0.0079660;
-        dataset->gain_k.values[14] = 0.0285322;
-    }
-    else if (helper_eql_float(alpha, 0.29)) {
-        // alpha: 0.29
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 81;
-        dataset->time_durations[1] = 12;
-        dataset->time_durations[2] = 81;
-        dataset->time_durations[3] = 12;
-        dataset->time_durations[4] = 81;
-        dataset->time_durations[5] = 12;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.667815;
-        dataset->target[1] = 3.334476;
-        dataset->target[2] = 0.019861;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0159626;
-        dataset->gain_k.values[1] = -0.0081530;
-        dataset->gain_k.values[2] = 0.0590133;
-        dataset->gain_k.values[3] = -0.0040891;
-        dataset->gain_k.values[4] = 0.0039529;
-        dataset->gain_k.values[5] = -0.0279741;
-        dataset->gain_k.values[6] = 0.0038541;
-        dataset->gain_k.values[7] = -0.0039269;
-        dataset->gain_k.values[8] = 0.0291469;
-        dataset->gain_k.values[9] = -0.0040028;
-        dataset->gain_k.values[10] = -0.0079657;
-        dataset->gain_k.values[11] = -0.0273762;
-        dataset->gain_k.values[12] = 0.0037665;
-        dataset->gain_k.values[13] = 0.0076945;
-        dataset->gain_k.values[14] = 0.0285306;
-    }
-    else if (helper_eql_float(alpha, 0.30)) {
-        // alpha: 0.30
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 84;
-        dataset->time_durations[1] = 9;
-        dataset->time_durations[2] = 84;
-        dataset->time_durations[3] = 9;
-        dataset->time_durations[4] = 84;
-        dataset->time_durations[5] = 9;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.667896;
-        dataset->target[1] = 3.334556;
-        dataset->target[2] = 0.020553;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0154251;
-        dataset->gain_k.values[1] = -0.0078781;
-        dataset->gain_k.values[2] = 0.0589670;
-        dataset->gain_k.values[3] = -0.0039522;
-        dataset->gain_k.values[4] = 0.0038193;
-        dataset->gain_k.values[5] = -0.0279457;
-        dataset->gain_k.values[6] = 0.0037269;
-        dataset->gain_k.values[7] = -0.0037972;
-        dataset->gain_k.values[8] = 0.0291487;
-        dataset->gain_k.values[9] = -0.0038686;
-        dataset->gain_k.values[10] = -0.0076983;
-        dataset->gain_k.values[11] = -0.0273509;
-        dataset->gain_k.values[12] = 0.0036425;
-        dataset->gain_k.values[13] = 0.0074410;
-        dataset->gain_k.values[14] = 0.0285290;
-    }
-    else if (helper_eql_float(alpha, 0.31)) {
-        // alpha: 0.31
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 87;
-        dataset->time_durations[1] = 7;
-        dataset->time_durations[2] = 87;
-        dataset->time_durations[3] = 7;
-        dataset->time_durations[4] = 87;
-        dataset->time_durations[5] = 7;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.667979;
-        dataset->target[1] = 3.334639;
-        dataset->target[2] = 0.021245;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0149223;
-        dataset->gain_k.values[1] = -0.0076209;
-        dataset->gain_k.values[2] = 0.0589204;
-        dataset->gain_k.values[3] = -0.0038242;
-        dataset->gain_k.values[4] = 0.0036943;
-        dataset->gain_k.values[5] = -0.0279171;
-        dataset->gain_k.values[6] = 0.0036078;
-        dataset->gain_k.values[7] = -0.0036759;
-        dataset->gain_k.values[8] = 0.0291505;
-        dataset->gain_k.values[9] = -0.0037432;
-        dataset->gain_k.values[10] = -0.0074482;
-        dataset->gain_k.values[11] = -0.0273255;
-        dataset->gain_k.values[12] = 0.0035264;
-        dataset->gain_k.values[13] = 0.0072038;
-        dataset->gain_k.values[14] = 0.0285273;
-    }
-    else if (helper_eql_float(alpha, 0.32)) {
-        // alpha: 0.32
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 90;
-        dataset->time_durations[1] = 7;
-        dataset->time_durations[2] = 90;
-        dataset->time_durations[3] = 7;
-        dataset->time_durations[4] = 90;
-        dataset->time_durations[5] = 7;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.668064;
-        dataset->target[1] = 3.334725;
-        dataset->target[2] = 0.021938;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0144508;
-        dataset->gain_k.values[1] = -0.0073797;
-        dataset->gain_k.values[2] = 0.0588735;
-        dataset->gain_k.values[3] = -0.0037043;
-        dataset->gain_k.values[4] = 0.0035771;
-        dataset->gain_k.values[5] = -0.0278882;
-        dataset->gain_k.values[6] = 0.0034962;
-        dataset->gain_k.values[7] = -0.0035621;
-        dataset->gain_k.values[8] = 0.0291524;
-        dataset->gain_k.values[9] = -0.0036256;
-        dataset->gain_k.values[10] = -0.0072137;
-        dataset->gain_k.values[11] = -0.0272998;
-        dataset->gain_k.values[12] = 0.0034177;
-        dataset->gain_k.values[13] = 0.0069815;
-        dataset->gain_k.values[14] = 0.0285256;
-    }
-    else if (helper_eql_float(alpha, 0.33)) {
-        // alpha: 0.33
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 92;
-        dataset->time_durations[1] = 7;
-        dataset->time_durations[2] = 92;
-        dataset->time_durations[3] = 7;
-        dataset->time_durations[4] = 92;
-        dataset->time_durations[5] = 7;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 0;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 0;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 0;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 0;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 0;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 0;
-        dataset->target[0] = 1.668153;
-        dataset->target[1] = 3.334814;
-        dataset->target[2] = 0.022631;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0140079;
-        dataset->gain_k.values[1] = -0.0071531;
-        dataset->gain_k.values[2] = 0.0588264;
-        dataset->gain_k.values[3] = -0.0035916;
-        dataset->gain_k.values[4] = 0.0034670;
-        dataset->gain_k.values[5] = -0.0278590;
-        dataset->gain_k.values[6] = 0.0033913;
-        dataset->gain_k.values[7] = -0.0034552;
-        dataset->gain_k.values[8] = 0.0291543;
-        dataset->gain_k.values[9] = -0.0035151;
-        dataset->gain_k.values[10] = -0.0069934;
-        dataset->gain_k.values[11] = -0.0272740;
-        dataset->gain_k.values[12] = 0.0033155;
-        dataset->gain_k.values[13] = 0.0067727;
-        dataset->gain_k.values[14] = 0.0285238;
-    }
-    else if (helper_eql_float(alpha, 0.34)) {
-        // alpha: 0.34
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 91;
-        dataset->time_durations[1] = 7;
-        dataset->time_durations[2] = 91;
-        dataset->time_durations[3] = 7;
-        dataset->time_durations[4] = 91;
-        dataset->time_durations[5] = 7;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.668151;
-        dataset->target[1] = 3.334905;
-        dataset->target[2] = 0.023325;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0034342;
-        dataset->gain_k.values[1] = 0.0034012;
-        dataset->gain_k.values[2] = -0.0281438;
-        dataset->gain_k.values[3] = -0.0066228;
-        dataset->gain_k.values[4] = -0.0033663;
-        dataset->gain_k.values[5] = 0.0285213;
-        dataset->gain_k.values[6] = -0.0066277;
-        dataset->gain_k.values[7] = -0.0133035;
-        dataset->gain_k.values[8] = -0.0556097;
-        dataset->gain_k.values[9] = 0.0034097;
-        dataset->gain_k.values[10] = -0.0032281;
-        dataset->gain_k.values[11] = 0.0293120;
-        dataset->gain_k.values[12] = 0.0067505;
-        dataset->gain_k.values[13] = 0.0033998;
-        dataset->gain_k.values[14] = -0.0300200;
-    }
-    else if (helper_eql_float(alpha, 0.35)) {
-        // alpha: 0.35
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 89;
-        dataset->time_durations[1] = 7;
-        dataset->time_durations[2] = 89;
-        dataset->time_durations[3] = 7;
-        dataset->time_durations[4] = 89;
-        dataset->time_durations[5] = 7;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.668099;
-        dataset->target[1] = 3.334999;
-        dataset->target[2] = 0.024018;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0033327;
-        dataset->gain_k.values[1] = 0.0033069;
-        dataset->gain_k.values[2] = -0.0281590;
-        dataset->gain_k.values[3] = -0.0064336;
-        dataset->gain_k.values[4] = -0.0032660;
-        dataset->gain_k.values[5] = 0.0285124;
-        dataset->gain_k.values[6] = -0.0064450;
-        dataset->gain_k.values[7] = -0.0129256;
-        dataset->gain_k.values[8] = -0.0556674;
-        dataset->gain_k.values[9] = 0.0033099;
-        dataset->gain_k.values[10] = -0.0031374;
-        dataset->gain_k.values[11] = 0.0293562;
-        dataset->gain_k.values[12] = 0.0065578;
-        dataset->gain_k.values[13] = 0.0032993;
-        dataset->gain_k.values[14] = -0.0299860;
-    }
-    else if (helper_eql_float(alpha, 0.36)) {
-        // alpha: 0.36
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 86;
-        dataset->time_durations[1] = 7;
-        dataset->time_durations[2] = 86;
-        dataset->time_durations[3] = 7;
-        dataset->time_durations[4] = 86;
-        dataset->time_durations[5] = 7;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.668042;
-        dataset->target[1] = 3.335096;
-        dataset->target[2] = 0.024711;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0032370;
-        dataset->gain_k.values[1] = 0.0032176;
-        dataset->gain_k.values[2] = -0.0281731;
-        dataset->gain_k.values[3] = -0.0062550;
-        dataset->gain_k.values[4] = -0.0031714;
-        dataset->gain_k.values[5] = 0.0285049;
-        dataset->gain_k.values[6] = -0.0062720;
-        dataset->gain_k.values[7] = -0.0125688;
-        dataset->gain_k.values[8] = -0.0557237;
-        dataset->gain_k.values[9] = 0.0032157;
-        dataset->gain_k.values[10] = -0.0030517;
-        dataset->gain_k.values[11] = 0.0293991;
-        dataset->gain_k.values[12] = 0.0063756;
-        dataset->gain_k.values[13] = 0.0032044;
-        dataset->gain_k.values[14] = -0.0299537;
-    }
-    else if (helper_eql_float(alpha, 0.37)) {
-        // alpha: 0.37
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 83;
-        dataset->time_durations[1] = 10;
-        dataset->time_durations[2] = 83;
-        dataset->time_durations[3] = 10;
-        dataset->time_durations[4] = 83;
-        dataset->time_durations[5] = 10;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.667979;
-        dataset->target[1] = 3.335196;
-        dataset->target[2] = 0.025403;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0031465;
-        dataset->gain_k.values[1] = 0.0031329;
-        dataset->gain_k.values[2] = -0.0281861;
-        dataset->gain_k.values[3] = -0.0060862;
-        dataset->gain_k.values[4] = -0.0030823;
-        dataset->gain_k.values[5] = 0.0284988;
-        dataset->gain_k.values[6] = -0.0061082;
-        dataset->gain_k.values[7] = -0.0122314;
-        dataset->gain_k.values[8] = -0.0557789;
-        dataset->gain_k.values[9] = 0.0031268;
-        dataset->gain_k.values[10] = -0.0029705;
-        dataset->gain_k.values[11] = 0.0294406;
-        dataset->gain_k.values[12] = 0.0062032;
-        dataset->gain_k.values[13] = 0.0031148;
-        dataset->gain_k.values[14] = -0.0299230;
-    }
-    else if (helper_eql_float(alpha, 0.38)) {
-        // alpha: 0.38
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 80;
-        dataset->time_durations[1] = 13;
-        dataset->time_durations[2] = 80;
-        dataset->time_durations[3] = 13;
-        dataset->time_durations[4] = 80;
-        dataset->time_durations[5] = 13;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.667911;
-        dataset->target[1] = 3.335298;
-        dataset->target[2] = 0.026094;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0030609;
-        dataset->gain_k.values[1] = 0.0030525;
-        dataset->gain_k.values[2] = -0.0281981;
-        dataset->gain_k.values[3] = -0.0059264;
-        dataset->gain_k.values[4] = -0.0029980;
-        dataset->gain_k.values[5] = 0.0284939;
-        dataset->gain_k.values[6] = -0.0059527;
-        dataset->gain_k.values[7] = -0.0119119;
-        dataset->gain_k.values[8] = -0.0558329;
-        dataset->gain_k.values[9] = 0.0030427;
-        dataset->gain_k.values[10] = -0.0028936;
-        dataset->gain_k.values[11] = 0.0294810;
-        dataset->gain_k.values[12] = 0.0060398;
-        dataset->gain_k.values[13] = 0.0030300;
-        dataset->gain_k.values[14] = -0.0298938;
-    }
-    else if (helper_eql_float(alpha, 0.39)) {
-        // alpha: 0.39
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 77;
-        dataset->time_durations[1] = 16;
-        dataset->time_durations[2] = 77;
-        dataset->time_durations[3] = 16;
-        dataset->time_durations[4] = 77;
-        dataset->time_durations[5] = 16;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.667837;
-        dataset->target[1] = 3.335403;
-        dataset->target[2] = 0.026786;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0029797;
-        dataset->gain_k.values[1] = 0.0029761;
-        dataset->gain_k.values[2] = -0.0282092;
-        dataset->gain_k.values[3] = -0.0057749;
-        dataset->gain_k.values[4] = -0.0029183;
-        dataset->gain_k.values[5] = 0.0284901;
-        dataset->gain_k.values[6] = -0.0058049;
-        dataset->gain_k.values[7] = -0.0116089;
-        dataset->gain_k.values[8] = -0.0558859;
-        dataset->gain_k.values[9] = 0.0029631;
-        dataset->gain_k.values[10] = -0.0028206;
-        dataset->gain_k.values[11] = 0.0295203;
-        dataset->gain_k.values[12] = 0.0058847;
-        dataset->gain_k.values[13] = 0.0029496;
-        dataset->gain_k.values[14] = -0.0298660;
-    }
-    else if (helper_eql_float(alpha, 0.40)) {
-        // alpha: 0.40
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 75;
-        dataset->time_durations[1] = 19;
-        dataset->time_durations[2] = 75;
-        dataset->time_durations[3] = 19;
-        dataset->time_durations[4] = 75;
-        dataset->time_durations[5] = 19;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.667758;
-        dataset->target[1] = 3.335511;
-        dataset->target[2] = 0.027476;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0029026;
-        dataset->gain_k.values[1] = 0.0029034;
-        dataset->gain_k.values[2] = -0.0282194;
-        dataset->gain_k.values[3] = -0.0056311;
-        dataset->gain_k.values[4] = -0.0028428;
-        dataset->gain_k.values[5] = 0.0284874;
-        dataset->gain_k.values[6] = -0.0056643;
-        dataset->gain_k.values[7] = -0.0113211;
-        dataset->gain_k.values[8] = -0.0559378;
-        dataset->gain_k.values[9] = 0.0028875;
-        dataset->gain_k.values[10] = -0.0027512;
-        dataset->gain_k.values[11] = 0.0295586;
-        dataset->gain_k.values[12] = 0.0057374;
-        dataset->gain_k.values[13] = 0.0028733;
-        dataset->gain_k.values[14] = -0.0298394;
-    }
-    else if (helper_eql_float(alpha, 0.41)) {
-        // alpha: 0.41
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 72;
-        dataset->time_durations[1] = 21;
-        dataset->time_durations[2] = 72;
-        dataset->time_durations[3] = 21;
-        dataset->time_durations[4] = 72;
-        dataset->time_durations[5] = 21;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.667673;
-        dataset->target[1] = 3.335621;
-        dataset->target[2] = 0.028167;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0028293;
-        dataset->gain_k.values[1] = 0.0028341;
-        dataset->gain_k.values[2] = -0.0282289;
-        dataset->gain_k.values[3] = -0.0054944;
-        dataset->gain_k.values[4] = -0.0027710;
-        dataset->gain_k.values[5] = 0.0284856;
-        dataset->gain_k.values[6] = -0.0055304;
-        dataset->gain_k.values[7] = -0.0110474;
-        dataset->gain_k.values[8] = -0.0559889;
-        dataset->gain_k.values[9] = 0.0028157;
-        dataset->gain_k.values[10] = -0.0026852;
-        dataset->gain_k.values[11] = 0.0295960;
-        dataset->gain_k.values[12] = 0.0055971;
-        dataset->gain_k.values[13] = 0.0028008;
-        dataset->gain_k.values[14] = -0.0298139;
-    }
-    else if (helper_eql_float(alpha, 0.42)) {
-        // alpha: 0.42
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 69;
-        dataset->time_durations[1] = 24;
-        dataset->time_durations[2] = 69;
-        dataset->time_durations[3] = 24;
-        dataset->time_durations[4] = 69;
-        dataset->time_durations[5] = 24;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.667583;
-        dataset->target[1] = 3.335735;
-        dataset->target[2] = 0.028857;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0027596;
-        dataset->gain_k.values[1] = 0.0027679;
-        dataset->gain_k.values[2] = -0.0282375;
-        dataset->gain_k.values[3] = -0.0053643;
-        dataset->gain_k.values[4] = -0.0027029;
-        dataset->gain_k.values[5] = 0.0284847;
-        dataset->gain_k.values[6] = -0.0054027;
-        dataset->gain_k.values[7] = -0.0107868;
-        dataset->gain_k.values[8] = -0.0560390;
-        dataset->gain_k.values[9] = 0.0027474;
-        dataset->gain_k.values[10] = -0.0026223;
-        dataset->gain_k.values[11] = 0.0296324;
-        dataset->gain_k.values[12] = 0.0054635;
-        dataset->gain_k.values[13] = 0.0027318;
-        dataset->gain_k.values[14] = -0.0297896;
-    }
-    else if (helper_eql_float(alpha, 0.43)) {
-        // alpha: 0.43
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 66;
-        dataset->time_durations[1] = 27;
-        dataset->time_durations[2] = 66;
-        dataset->time_durations[3] = 27;
-        dataset->time_durations[4] = 66;
-        dataset->time_durations[5] = 27;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.667488;
-        dataset->target[1] = 3.335850;
-        dataset->target[2] = 0.029546;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0026931;
-        dataset->gain_k.values[1] = 0.0027048;
-        dataset->gain_k.values[2] = -0.0282455;
-        dataset->gain_k.values[3] = -0.0052403;
-        dataset->gain_k.values[4] = -0.0026380;
-        dataset->gain_k.values[5] = 0.0284846;
-        dataset->gain_k.values[6] = -0.0052808;
-        dataset->gain_k.values[7] = -0.0105384;
-        dataset->gain_k.values[8] = -0.0560884;
-        dataset->gain_k.values[9] = 0.0026824;
-        dataset->gain_k.values[10] = -0.0025623;
-        dataset->gain_k.values[11] = 0.0296681;
-        dataset->gain_k.values[12] = 0.0053361;
-        dataset->gain_k.values[13] = 0.0026660;
-        dataset->gain_k.values[14] = -0.0297661;
-    }
-    else if (helper_eql_float(alpha, 0.44)) {
-        // alpha: 0.44
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 63;
-        dataset->time_durations[1] = 30;
-        dataset->time_durations[2] = 63;
-        dataset->time_durations[3] = 30;
-        dataset->time_durations[4] = 63;
-        dataset->time_durations[5] = 30;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.667387;
-        dataset->target[1] = 3.335969;
-        dataset->target[2] = 0.030235;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0026296;
-        dataset->gain_k.values[1] = 0.0026444;
-        dataset->gain_k.values[2] = -0.0282527;
-        dataset->gain_k.values[3] = -0.0051221;
-        dataset->gain_k.values[4] = -0.0025763;
-        dataset->gain_k.values[5] = 0.0284853;
-        dataset->gain_k.values[6] = -0.0051643;
-        dataset->gain_k.values[7] = -0.0103014;
-        dataset->gain_k.values[8] = -0.0561369;
-        dataset->gain_k.values[9] = 0.0026203;
-        dataset->gain_k.values[10] = -0.0025050;
-        dataset->gain_k.values[11] = 0.0297030;
-        dataset->gain_k.values[12] = 0.0052145;
-        dataset->gain_k.values[13] = 0.0026034;
-        dataset->gain_k.values[14] = -0.0297436;
-    }
-    else if (helper_eql_float(alpha, 0.45)) {
-        // alpha: 0.45
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 61;
-        dataset->time_durations[1] = 33;
-        dataset->time_durations[2] = 61;
-        dataset->time_durations[3] = 33;
-        dataset->time_durations[4] = 61;
-        dataset->time_durations[5] = 33;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.667280;
-        dataset->target[1] = 3.336091;
-        dataset->target[2] = 0.030923;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0025690;
-        dataset->gain_k.values[1] = 0.0025866;
-        dataset->gain_k.values[2] = -0.0282593;
-        dataset->gain_k.values[3] = -0.0050091;
-        dataset->gain_k.values[4] = -0.0025173;
-        dataset->gain_k.values[5] = 0.0284867;
-        dataset->gain_k.values[6] = -0.0050528;
-        dataset->gain_k.values[7] = -0.0100749;
-        dataset->gain_k.values[8] = -0.0561847;
-        dataset->gain_k.values[9] = 0.0025611;
-        dataset->gain_k.values[10] = -0.0024503;
-        dataset->gain_k.values[11] = 0.0297371;
-        dataset->gain_k.values[12] = 0.0050982;
-        dataset->gain_k.values[13] = 0.0025435;
-        dataset->gain_k.values[14] = -0.0297219;
-    }
-    else if (helper_eql_float(alpha, 0.46)) {
-        // alpha: 0.46
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 58;
-        dataset->time_durations[1] = 35;
-        dataset->time_durations[2] = 58;
-        dataset->time_durations[3] = 35;
-        dataset->time_durations[4] = 58;
-        dataset->time_durations[5] = 35;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.667168;
-        dataset->target[1] = 3.336215;
-        dataset->target[2] = 0.031611;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0025111;
-        dataset->gain_k.values[1] = 0.0025313;
-        dataset->gain_k.values[2] = -0.0282653;
-        dataset->gain_k.values[3] = -0.0049012;
-        dataset->gain_k.values[4] = -0.0024611;
-        dataset->gain_k.values[5] = 0.0284886;
-        dataset->gain_k.values[6] = -0.0049460;
-        dataset->gain_k.values[7] = -0.0098584;
-        dataset->gain_k.values[8] = -0.0562318;
-        dataset->gain_k.values[9] = 0.0025046;
-        dataset->gain_k.values[10] = -0.0023979;
-        dataset->gain_k.values[11] = 0.0297706;
-        dataset->gain_k.values[12] = 0.0049870;
-        dataset->gain_k.values[13] = 0.0024863;
-        dataset->gain_k.values[14] = -0.0297010;
-    }
-    else if (helper_eql_float(alpha, 0.47)) {
-        // alpha: 0.47
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 55;
-        dataset->time_durations[1] = 38;
-        dataset->time_durations[2] = 55;
-        dataset->time_durations[3] = 38;
-        dataset->time_durations[4] = 55;
-        dataset->time_durations[5] = 38;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.667051;
-        dataset->target[1] = 3.336342;
-        dataset->target[2] = 0.032299;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0024556;
-        dataset->gain_k.values[1] = 0.0024782;
-        dataset->gain_k.values[2] = -0.0282708;
-        dataset->gain_k.values[3] = -0.0047979;
-        dataset->gain_k.values[4] = -0.0024073;
-        dataset->gain_k.values[5] = 0.0284912;
-        dataset->gain_k.values[6] = -0.0048436;
-        dataset->gain_k.values[7] = -0.0096511;
-        dataset->gain_k.values[8] = -0.0562782;
-        dataset->gain_k.values[9] = 0.0024504;
-        dataset->gain_k.values[10] = -0.0023477;
-        dataset->gain_k.values[11] = 0.0298034;
-        dataset->gain_k.values[12] = 0.0048804;
-        dataset->gain_k.values[13] = 0.0024315;
-        dataset->gain_k.values[14] = -0.0296808;
-    }
-    else if (helper_eql_float(alpha, 0.48)) {
-        // alpha: 0.48
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 52;
-        dataset->time_durations[1] = 41;
-        dataset->time_durations[2] = 52;
-        dataset->time_durations[3] = 41;
-        dataset->time_durations[4] = 52;
-        dataset->time_durations[5] = 41;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.666928;
-        dataset->target[1] = 3.336471;
-        dataset->target[2] = 0.032986;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0024025;
-        dataset->gain_k.values[1] = 0.0024273;
-        dataset->gain_k.values[2] = -0.0282757;
-        dataset->gain_k.values[3] = -0.0046989;
-        dataset->gain_k.values[4] = -0.0023558;
-        dataset->gain_k.values[5] = 0.0284943;
-        dataset->gain_k.values[6] = -0.0047454;
-        dataset->gain_k.values[7] = -0.0094525;
-        dataset->gain_k.values[8] = -0.0563240;
-        dataset->gain_k.values[9] = 0.0023986;
-        dataset->gain_k.values[10] = -0.0022996;
-        dataset->gain_k.values[11] = 0.0298356;
-        dataset->gain_k.values[12] = 0.0047783;
-        dataset->gain_k.values[13] = 0.0023791;
-        dataset->gain_k.values[14] = -0.0296613;
-    }
-    else if (helper_eql_float(alpha, 0.49)) {
-        // alpha: 0.49
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 49;
-        dataset->time_durations[1] = 44;
-        dataset->time_durations[2] = 49;
-        dataset->time_durations[3] = 44;
-        dataset->time_durations[4] = 49;
-        dataset->time_durations[5] = 44;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.666800;
-        dataset->target[1] = 3.336604;
-        dataset->target[2] = 0.033672;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0023516;
-        dataset->gain_k.values[1] = 0.0023784;
-        dataset->gain_k.values[2] = -0.0282800;
-        dataset->gain_k.values[3] = -0.0046041;
-        dataset->gain_k.values[4] = -0.0023066;
-        dataset->gain_k.values[5] = 0.0284980;
-        dataset->gain_k.values[6] = -0.0046511;
-        dataset->gain_k.values[7] = -0.0092620;
-        dataset->gain_k.values[8] = -0.0563692;
-        dataset->gain_k.values[9] = 0.0023489;
-        dataset->gain_k.values[10] = -0.0022534;
-        dataset->gain_k.values[11] = 0.0298672;
-        dataset->gain_k.values[12] = 0.0046804;
-        dataset->gain_k.values[13] = 0.0023289;
-        dataset->gain_k.values[14] = -0.0296424;
-    }
-    else if (helper_eql_float(alpha, 0.50)) {
-        // alpha: 0.50
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 47;
-        dataset->time_durations[1] = 47;
-        dataset->time_durations[2] = 47;
-        dataset->time_durations[3] = 47;
-        dataset->time_durations[4] = 47;
-        dataset->time_durations[5] = 47;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.666666;
-        dataset->target[1] = 3.336739;
-        dataset->target[2] = 0.034358;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0023027;
-        dataset->gain_k.values[1] = 0.0023314;
-        dataset->gain_k.values[2] = -0.0282839;
-        dataset->gain_k.values[3] = -0.0045131;
-        dataset->gain_k.values[4] = -0.0022593;
-        dataset->gain_k.values[5] = 0.0285021;
-        dataset->gain_k.values[6] = -0.0045605;
-        dataset->gain_k.values[7] = -0.0090792;
-        dataset->gain_k.values[8] = -0.0564138;
-        dataset->gain_k.values[9] = 0.0023013;
-        dataset->gain_k.values[10] = -0.0022091;
-        dataset->gain_k.values[11] = 0.0298983;
-        dataset->gain_k.values[12] = 0.0045863;
-        dataset->gain_k.values[13] = 0.0022807;
-        dataset->gain_k.values[14] = -0.0296241;
-    }
-    else if (helper_eql_float(alpha, 0.51)) {
-        // alpha: 0.51
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 44;
-        dataset->time_durations[1] = 49;
-        dataset->time_durations[2] = 44;
-        dataset->time_durations[3] = 49;
-        dataset->time_durations[4] = 44;
-        dataset->time_durations[5] = 49;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.666527;
-        dataset->target[1] = 3.336877;
-        dataset->target[2] = 0.035044;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0022557;
-        dataset->gain_k.values[1] = 0.0022862;
-        dataset->gain_k.values[2] = -0.0282873;
-        dataset->gain_k.values[3] = -0.0044257;
-        dataset->gain_k.values[4] = -0.0022140;
-        dataset->gain_k.values[5] = 0.0285066;
-        dataset->gain_k.values[6] = -0.0044733;
-        dataset->gain_k.values[7] = -0.0089036;
-        dataset->gain_k.values[8] = -0.0564578;
-        dataset->gain_k.values[9] = 0.0022555;
-        dataset->gain_k.values[10] = -0.0021665;
-        dataset->gain_k.values[11] = 0.0299289;
-        dataset->gain_k.values[12] = 0.0044959;
-        dataset->gain_k.values[13] = 0.0022344;
-        dataset->gain_k.values[14] = -0.0296063;
-    }
-    else if (helper_eql_float(alpha, 0.52)) {
-        // alpha: 0.52
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 41;
-        dataset->time_durations[1] = 52;
-        dataset->time_durations[2] = 41;
-        dataset->time_durations[3] = 52;
-        dataset->time_durations[4] = 41;
-        dataset->time_durations[5] = 52;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.666382;
-        dataset->target[1] = 3.337017;
-        dataset->target[2] = 0.035729;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0022105;
-        dataset->gain_k.values[1] = 0.0022427;
-        dataset->gain_k.values[2] = -0.0282902;
-        dataset->gain_k.values[3] = -0.0043417;
-        dataset->gain_k.values[4] = -0.0021705;
-        dataset->gain_k.values[5] = 0.0285115;
-        dataset->gain_k.values[6] = -0.0043894;
-        dataset->gain_k.values[7] = -0.0087348;
-        dataset->gain_k.values[8] = -0.0565012;
-        dataset->gain_k.values[9] = 0.0022115;
-        dataset->gain_k.values[10] = -0.0021255;
-        dataset->gain_k.values[11] = 0.0299590;
-        dataset->gain_k.values[12] = 0.0044090;
-        dataset->gain_k.values[13] = 0.0021899;
-        dataset->gain_k.values[14] = -0.0295890;
-    }
-    else if (helper_eql_float(alpha, 0.53)) {
-        // alpha: 0.53
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 38;
-        dataset->time_durations[1] = 55;
-        dataset->time_durations[2] = 38;
-        dataset->time_durations[3] = 55;
-        dataset->time_durations[4] = 38;
-        dataset->time_durations[5] = 55;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.666232;
-        dataset->target[1] = 3.337160;
-        dataset->target[2] = 0.036414;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0021671;
-        dataset->gain_k.values[1] = 0.0022007;
-        dataset->gain_k.values[2] = -0.0282927;
-        dataset->gain_k.values[3] = -0.0042609;
-        dataset->gain_k.values[4] = -0.0021287;
-        dataset->gain_k.values[5] = 0.0285168;
-        dataset->gain_k.values[6] = -0.0043086;
-        dataset->gain_k.values[7] = -0.0085724;
-        dataset->gain_k.values[8] = -0.0565442;
-        dataset->gain_k.values[9] = 0.0021692;
-        dataset->gain_k.values[10] = -0.0020860;
-        dataset->gain_k.values[11] = 0.0299886;
-        dataset->gain_k.values[12] = 0.0043254;
-        dataset->gain_k.values[13] = 0.0021471;
-        dataset->gain_k.values[14] = -0.0295722;
-    }
-    else if (helper_eql_float(alpha, 0.54)) {
-        // alpha: 0.54
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 35;
-        dataset->time_durations[1] = 58;
-        dataset->time_durations[2] = 35;
-        dataset->time_durations[3] = 58;
-        dataset->time_durations[4] = 35;
-        dataset->time_durations[5] = 58;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.666077;
-        dataset->target[1] = 3.337306;
-        dataset->target[2] = 0.037098;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0021253;
-        dataset->gain_k.values[1] = 0.0021603;
-        dataset->gain_k.values[2] = -0.0282948;
-        dataset->gain_k.values[3] = -0.0041832;
-        dataset->gain_k.values[4] = -0.0020885;
-        dataset->gain_k.values[5] = 0.0285225;
-        dataset->gain_k.values[6] = -0.0042306;
-        dataset->gain_k.values[7] = -0.0084161;
-        dataset->gain_k.values[8] = -0.0565866;
-        dataset->gain_k.values[9] = 0.0021285;
-        dataset->gain_k.values[10] = -0.0020480;
-        dataset->gain_k.values[11] = 0.0300178;
-        dataset->gain_k.values[12] = 0.0042448;
-        dataset->gain_k.values[13] = 0.0021059;
-        dataset->gain_k.values[14] = -0.0295558;
-    }
-    else if (helper_eql_float(alpha, 0.55)) {
-        // alpha: 0.55
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 33;
-        dataset->time_durations[1] = 61;
-        dataset->time_durations[2] = 33;
-        dataset->time_durations[3] = 61;
-        dataset->time_durations[4] = 33;
-        dataset->time_durations[5] = 61;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.665916;
-        dataset->target[1] = 3.337455;
-        dataset->target[2] = 0.037782;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0020849;
-        dataset->gain_k.values[1] = 0.0021213;
-        dataset->gain_k.values[2] = -0.0282965;
-        dataset->gain_k.values[3] = -0.0041083;
-        dataset->gain_k.values[4] = -0.0020498;
-        dataset->gain_k.values[5] = 0.0285285;
-        dataset->gain_k.values[6] = -0.0041555;
-        dataset->gain_k.values[7] = -0.0082654;
-        dataset->gain_k.values[8] = -0.0566286;
-        dataset->gain_k.values[9] = 0.0020893;
-        dataset->gain_k.values[10] = -0.0020114;
-        dataset->gain_k.values[11] = 0.0300465;
-        dataset->gain_k.values[12] = 0.0041672;
-        dataset->gain_k.values[13] = 0.0020662;
-        dataset->gain_k.values[14] = -0.0295398;
-    }
-    else if (helper_eql_float(alpha, 0.56)) {
-        // alpha: 0.56
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 30;
-        dataset->time_durations[1] = 63;
-        dataset->time_durations[2] = 30;
-        dataset->time_durations[3] = 63;
-        dataset->time_durations[4] = 30;
-        dataset->time_durations[5] = 63;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.665749;
-        dataset->target[1] = 3.337607;
-        dataset->target[2] = 0.038465;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0020461;
-        dataset->gain_k.values[1] = 0.0020837;
-        dataset->gain_k.values[2] = -0.0282978;
-        dataset->gain_k.values[3] = -0.0040361;
-        dataset->gain_k.values[4] = -0.0020125;
-        dataset->gain_k.values[5] = 0.0285348;
-        dataset->gain_k.values[6] = -0.0040830;
-        dataset->gain_k.values[7] = -0.0081202;
-        dataset->gain_k.values[8] = -0.0566701;
-        dataset->gain_k.values[9] = 0.0020516;
-        dataset->gain_k.values[10] = -0.0019761;
-        dataset->gain_k.values[11] = 0.0300748;
-        dataset->gain_k.values[12] = 0.0040924;
-        dataset->gain_k.values[13] = 0.0020280;
-        dataset->gain_k.values[14] = -0.0295242;
-    }
-    else if (helper_eql_float(alpha, 0.57)) {
-        // alpha: 0.57
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 27;
-        dataset->time_durations[1] = 66;
-        dataset->time_durations[2] = 27;
-        dataset->time_durations[3] = 66;
-        dataset->time_durations[4] = 27;
-        dataset->time_durations[5] = 66;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.665577;
-        dataset->target[1] = 3.337761;
-        dataset->target[2] = 0.039148;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0020086;
-        dataset->gain_k.values[1] = 0.0020474;
-        dataset->gain_k.values[2] = -0.0282987;
-        dataset->gain_k.values[3] = -0.0039665;
-        dataset->gain_k.values[4] = -0.0019766;
-        dataset->gain_k.values[5] = 0.0285413;
-        dataset->gain_k.values[6] = -0.0040129;
-        dataset->gain_k.values[7] = -0.0079800;
-        dataset->gain_k.values[8] = -0.0567111;
-        dataset->gain_k.values[9] = 0.0020151;
-        dataset->gain_k.values[10] = -0.0019420;
-        dataset->gain_k.values[11] = 0.0301027;
-        dataset->gain_k.values[12] = 0.0040201;
-        dataset->gain_k.values[13] = 0.0019911;
-        dataset->gain_k.values[14] = -0.0295089;
-    }
-    else if (helper_eql_float(alpha, 0.58)) {
-        // alpha: 0.58
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 24;
-        dataset->time_durations[1] = 69;
-        dataset->time_durations[2] = 24;
-        dataset->time_durations[3] = 69;
-        dataset->time_durations[4] = 24;
-        dataset->time_durations[5] = 69;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.665400;
-        dataset->target[1] = 3.337918;
-        dataset->target[2] = 0.039830;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0019724;
-        dataset->gain_k.values[1] = 0.0020123;
-        dataset->gain_k.values[2] = -0.0282993;
-        dataset->gain_k.values[3] = -0.0038994;
-        dataset->gain_k.values[4] = -0.0019420;
-        dataset->gain_k.values[5] = 0.0285481;
-        dataset->gain_k.values[6] = -0.0039452;
-        dataset->gain_k.values[7] = -0.0078448;
-        dataset->gain_k.values[8] = -0.0567517;
-        dataset->gain_k.values[9] = 0.0019799;
-        dataset->gain_k.values[10] = -0.0019091;
-        dataset->gain_k.values[11] = 0.0301303;
-        dataset->gain_k.values[12] = 0.0039504;
-        dataset->gain_k.values[13] = 0.0019556;
-        dataset->gain_k.values[14] = -0.0294940;
-    }
-    else if (helper_eql_float(alpha, 0.59)) {
-        // alpha: 0.59
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 21;
-        dataset->time_durations[1] = 72;
-        dataset->time_durations[2] = 21;
-        dataset->time_durations[3] = 72;
-        dataset->time_durations[4] = 21;
-        dataset->time_durations[5] = 72;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.665217;
-        dataset->target[1] = 3.338078;
-        dataset->target[2] = 0.040512;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0019374;
-        dataset->gain_k.values[1] = 0.0019783;
-        dataset->gain_k.values[2] = -0.0282995;
-        dataset->gain_k.values[3] = -0.0038345;
-        dataset->gain_k.values[4] = -0.0019085;
-        dataset->gain_k.values[5] = 0.0285552;
-        dataset->gain_k.values[6] = -0.0038797;
-        dataset->gain_k.values[7] = -0.0077141;
-        dataset->gain_k.values[8] = -0.0567919;
-        dataset->gain_k.values[9] = 0.0019460;
-        dataset->gain_k.values[10] = -0.0018773;
-        dataset->gain_k.values[11] = 0.0301575;
-        dataset->gain_k.values[12] = 0.0038830;
-        dataset->gain_k.values[13] = 0.0019212;
-        dataset->gain_k.values[14] = -0.0294794;
-    }
-    else if (helper_eql_float(alpha, 0.60)) {
-        // alpha: 0.60
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 19;
-        dataset->time_durations[1] = 75;
-        dataset->time_durations[2] = 19;
-        dataset->time_durations[3] = 75;
-        dataset->time_durations[4] = 19;
-        dataset->time_durations[5] = 75;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.665029;
-        dataset->target[1] = 3.338240;
-        dataset->target[2] = 0.041193;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0019036;
-        dataset->gain_k.values[1] = 0.0019455;
-        dataset->gain_k.values[2] = -0.0282993;
-        dataset->gain_k.values[3] = -0.0037718;
-        dataset->gain_k.values[4] = -0.0018763;
-        dataset->gain_k.values[5] = 0.0285624;
-        dataset->gain_k.values[6] = -0.0038164;
-        dataset->gain_k.values[7] = -0.0075878;
-        dataset->gain_k.values[8] = -0.0568317;
-        dataset->gain_k.values[9] = 0.0019131;
-        dataset->gain_k.values[10] = -0.0018465;
-        dataset->gain_k.values[11] = 0.0301843;
-        dataset->gain_k.values[12] = 0.0038179;
-        dataset->gain_k.values[13] = 0.0018880;
-        dataset->gain_k.values[14] = -0.0294650;
-    }
-    else if (helper_eql_float(alpha, 0.61)) {
-        // alpha: 0.61
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 16;
-        dataset->time_durations[1] = 77;
-        dataset->time_durations[2] = 16;
-        dataset->time_durations[3] = 77;
-        dataset->time_durations[4] = 16;
-        dataset->time_durations[5] = 77;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.664835;
-        dataset->target[1] = 3.338405;
-        dataset->target[2] = 0.041874;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0018709;
-        dataset->gain_k.values[1] = 0.0019137;
-        dataset->gain_k.values[2] = -0.0282989;
-        dataset->gain_k.values[3] = -0.0037112;
-        dataset->gain_k.values[4] = -0.0018451;
-        dataset->gain_k.values[5] = 0.0285699;
-        dataset->gain_k.values[6] = -0.0037550;
-        dataset->gain_k.values[7] = -0.0074657;
-        dataset->gain_k.values[8] = -0.0568711;
-        dataset->gain_k.values[9] = 0.0018814;
-        dataset->gain_k.values[10] = -0.0018167;
-        dataset->gain_k.values[11] = 0.0302108;
-        dataset->gain_k.values[12] = 0.0037549;
-        dataset->gain_k.values[13] = 0.0018559;
-        dataset->gain_k.values[14] = -0.0294509;
-    }
-    else if (helper_eql_float(alpha, 0.62)) {
-        // alpha: 0.62
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 13;
-        dataset->time_durations[1] = 80;
-        dataset->time_durations[2] = 13;
-        dataset->time_durations[3] = 80;
-        dataset->time_durations[4] = 13;
-        dataset->time_durations[5] = 80;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.664636;
-        dataset->target[1] = 3.338573;
-        dataset->target[2] = 0.042555;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0018392;
-        dataset->gain_k.values[1] = 0.0018829;
-        dataset->gain_k.values[2] = -0.0282981;
-        dataset->gain_k.values[3] = -0.0036526;
-        dataset->gain_k.values[4] = -0.0018149;
-        dataset->gain_k.values[5] = 0.0285776;
-        dataset->gain_k.values[6] = -0.0036956;
-        dataset->gain_k.values[7] = -0.0073475;
-        dataset->gain_k.values[8] = -0.0569100;
-        dataset->gain_k.values[9] = 0.0018507;
-        dataset->gain_k.values[10] = -0.0017879;
-        dataset->gain_k.values[11] = 0.0302370;
-        dataset->gain_k.values[12] = 0.0036939;
-        dataset->gain_k.values[13] = 0.0018249;
-        dataset->gain_k.values[14] = -0.0294371;
-    }
-    else if (helper_eql_float(alpha, 0.63)) {
-        // alpha: 0.63
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 10;
-        dataset->time_durations[1] = 83;
-        dataset->time_durations[2] = 10;
-        dataset->time_durations[3] = 83;
-        dataset->time_durations[4] = 10;
-        dataset->time_durations[5] = 83;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.664431;
-        dataset->target[1] = 3.338744;
-        dataset->target[2] = 0.043235;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0018086;
-        dataset->gain_k.values[1] = 0.0018531;
-        dataset->gain_k.values[2] = -0.0282970;
-        dataset->gain_k.values[3] = -0.0035959;
-        dataset->gain_k.values[4] = -0.0017857;
-        dataset->gain_k.values[5] = 0.0285854;
-        dataset->gain_k.values[6] = -0.0036381;
-        dataset->gain_k.values[7] = -0.0072331;
-        dataset->gain_k.values[8] = -0.0569486;
-        dataset->gain_k.values[9] = 0.0018210;
-        dataset->gain_k.values[10] = -0.0017600;
-        dataset->gain_k.values[11] = 0.0302629;
-        dataset->gain_k.values[12] = 0.0036349;
-        dataset->gain_k.values[13] = 0.0017948;
-        dataset->gain_k.values[14] = -0.0294235;
-    }
-    else if (helper_eql_float(alpha, 0.64)) {
-        // alpha: 0.64
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 7;
-        dataset->time_durations[1] = 86;
-        dataset->time_durations[2] = 7;
-        dataset->time_durations[3] = 86;
-        dataset->time_durations[4] = 7;
-        dataset->time_durations[5] = 86;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.664221;
-        dataset->target[1] = 3.338917;
-        dataset->target[2] = 0.043914;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0017789;
-        dataset->gain_k.values[1] = 0.0018242;
-        dataset->gain_k.values[2] = -0.0282956;
-        dataset->gain_k.values[3] = -0.0035410;
-        dataset->gain_k.values[4] = -0.0017575;
-        dataset->gain_k.values[5] = 0.0285934;
-        dataset->gain_k.values[6] = -0.0035822;
-        dataset->gain_k.values[7] = -0.0071223;
-        dataset->gain_k.values[8] = -0.0569869;
-        dataset->gain_k.values[9] = 0.0017922;
-        dataset->gain_k.values[10] = -0.0017330;
-        dataset->gain_k.values[11] = 0.0302885;
-        dataset->gain_k.values[12] = 0.0035777;
-        dataset->gain_k.values[13] = 0.0017657;
-        dataset->gain_k.values[14] = -0.0294101;
-    }
-    else if (helper_eql_float(alpha, 0.65)) {
-        // alpha: 0.65
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 7;
-        dataset->time_durations[1] = 89;
-        dataset->time_durations[2] = 7;
-        dataset->time_durations[3] = 89;
-        dataset->time_durations[4] = 7;
-        dataset->time_durations[5] = 89;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.664006;
-        dataset->target[1] = 3.339093;
-        dataset->target[2] = 0.044594;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0017501;
-        dataset->gain_k.values[1] = 0.0017961;
-        dataset->gain_k.values[2] = -0.0282939;
-        dataset->gain_k.values[3] = -0.0034878;
-        dataset->gain_k.values[4] = -0.0017302;
-        dataset->gain_k.values[5] = 0.0286016;
-        dataset->gain_k.values[6] = -0.0035281;
-        dataset->gain_k.values[7] = -0.0070149;
-        dataset->gain_k.values[8] = -0.0570248;
-        dataset->gain_k.values[9] = 0.0017643;
-        dataset->gain_k.values[10] = -0.0017068;
-        dataset->gain_k.values[11] = 0.0303137;
-        dataset->gain_k.values[12] = 0.0035222;
-        dataset->gain_k.values[13] = 0.0017375;
-        dataset->gain_k.values[14] = -0.0293970;
-    }
-    else if (helper_eql_float(alpha, 0.66)) {
-        // alpha: 0.66
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 7;
-        dataset->time_durations[1] = 91;
-        dataset->time_durations[2] = 7;
-        dataset->time_durations[3] = 91;
-        dataset->time_durations[4] = 7;
-        dataset->time_durations[5] = 91;
-        dataset->modes_d4[0] = 0;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 0;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 0;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 0;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 0;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 0;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.663785;
-        dataset->target[1] = 3.339272;
-        dataset->target[2] = 0.045272;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = -0.0017222;
-        dataset->gain_k.values[1] = 0.0017689;
-        dataset->gain_k.values[2] = -0.0282919;
-        dataset->gain_k.values[3] = -0.0034362;
-        dataset->gain_k.values[4] = -0.0017037;
-        dataset->gain_k.values[5] = 0.0286099;
-        dataset->gain_k.values[6] = -0.0034755;
-        dataset->gain_k.values[7] = -0.0069107;
-        dataset->gain_k.values[8] = -0.0570623;
-        dataset->gain_k.values[9] = 0.0017372;
-        dataset->gain_k.values[10] = -0.0016814;
-        dataset->gain_k.values[11] = 0.0303387;
-        dataset->gain_k.values[12] = 0.0034685;
-        dataset->gain_k.values[13] = 0.0017102;
-        dataset->gain_k.values[14] = -0.0293840;
-    }
-    else if (helper_eql_float(alpha, 0.67)) {
-        // alpha: 0.67
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 7;
-        dataset->time_durations[1] = 92;
-        dataset->time_durations[2] = 7;
-        dataset->time_durations[3] = 92;
-        dataset->time_durations[4] = 7;
-        dataset->time_durations[5] = 92;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.663649;
-        dataset->target[1] = 3.339362;
-        dataset->target[2] = 0.045950;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0016977;
-        dataset->gain_k.values[1] = 0.0034382;
-        dataset->gain_k.values[2] = 0.0282985;
-        dataset->gain_k.values[3] = -0.0017192;
-        dataset->gain_k.values[4] = -0.0034713;
-        dataset->gain_k.values[5] = -0.0288312;
-        dataset->gain_k.values[6] = -0.0033974;
-        dataset->gain_k.values[7] = -0.0016378;
-        dataset->gain_k.values[8] = 0.0285809;
-        dataset->gain_k.values[9] = 0.0034310;
-        dataset->gain_k.values[10] = 0.0016594;
-        dataset->gain_k.values[11] = -0.0291264;
-        dataset->gain_k.values[12] = 0.0033990;
-        dataset->gain_k.values[13] = -0.0033516;
-        dataset->gain_k.values[14] = 0.0586565;
-    }
-    else if (helper_eql_float(alpha, 0.68)) {
-        // alpha: 0.68
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 7;
-        dataset->time_durations[1] = 90;
-        dataset->time_durations[2] = 7;
-        dataset->time_durations[3] = 90;
-        dataset->time_durations[4] = 7;
-        dataset->time_durations[5] = 90;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.663697;
-        dataset->target[1] = 3.339267;
-        dataset->target[2] = 0.046629;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0016725;
-        dataset->gain_k.values[1] = 0.0033878;
-        dataset->gain_k.values[2] = 0.0283097;
-        dataset->gain_k.values[3] = -0.0016932;
-        dataset->gain_k.values[4] = -0.0034202;
-        dataset->gain_k.values[5] = -0.0288214;
-        dataset->gain_k.values[6] = -0.0033477;
-        dataset->gain_k.values[7] = -0.0016144;
-        dataset->gain_k.values[8] = 0.0285797;
-        dataset->gain_k.values[9] = 0.0033805;
-        dataset->gain_k.values[10] = 0.0016351;
-        dataset->gain_k.values[11] = -0.0291035;
-        dataset->gain_k.values[12] = 0.0033494;
-        dataset->gain_k.values[13] = -0.0033013;
-        dataset->gain_k.values[14] = 0.0585990;
-    }
-    else if (helper_eql_float(alpha, 0.69)) {
-        // alpha: 0.69
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 7;
-        dataset->time_durations[1] = 87;
-        dataset->time_durations[2] = 7;
-        dataset->time_durations[3] = 87;
-        dataset->time_durations[4] = 7;
-        dataset->time_durations[5] = 87;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.663747;
-        dataset->target[1] = 3.339166;
-        dataset->target[2] = 0.047308;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0016481;
-        dataset->gain_k.values[1] = 0.0033389;
-        dataset->gain_k.values[2] = 0.0283204;
-        dataset->gain_k.values[3] = -0.0016680;
-        dataset->gain_k.values[4] = -0.0033705;
-        dataset->gain_k.values[5] = -0.0288115;
-        dataset->gain_k.values[6] = -0.0032994;
-        dataset->gain_k.values[7] = -0.0015917;
-        dataset->gain_k.values[8] = 0.0285783;
-        dataset->gain_k.values[9] = 0.0033314;
-        dataset->gain_k.values[10] = 0.0016116;
-        dataset->gain_k.values[11] = -0.0290808;
-        dataset->gain_k.values[12] = 0.0033013;
-        dataset->gain_k.values[13] = -0.0032525;
-        dataset->gain_k.values[14] = 0.0585419;
-    }
-    else if (helper_eql_float(alpha, 0.70)) {
-        // alpha: 0.70
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 9;
-        dataset->time_durations[1] = 84;
-        dataset->time_durations[2] = 9;
-        dataset->time_durations[3] = 84;
-        dataset->time_durations[4] = 9;
-        dataset->time_durations[5] = 84;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.663800;
-        dataset->target[1] = 3.339060;
-        dataset->target[2] = 0.047987;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0016244;
-        dataset->gain_k.values[1] = 0.0032914;
-        dataset->gain_k.values[2] = 0.0283306;
-        dataset->gain_k.values[3] = -0.0016435;
-        dataset->gain_k.values[4] = -0.0033222;
-        dataset->gain_k.values[5] = -0.0288014;
-        dataset->gain_k.values[6] = -0.0032525;
-        dataset->gain_k.values[7] = -0.0015696;
-        dataset->gain_k.values[8] = 0.0285767;
-        dataset->gain_k.values[9] = 0.0032836;
-        dataset->gain_k.values[10] = 0.0015887;
-        dataset->gain_k.values[11] = -0.0290583;
-        dataset->gain_k.values[12] = 0.0032544;
-        dataset->gain_k.values[13] = -0.0032050;
-        dataset->gain_k.values[14] = 0.0584852;
-    }
-    else if (helper_eql_float(alpha, 0.71)) {
-        // alpha: 0.71
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 12;
-        dataset->time_durations[1] = 81;
-        dataset->time_durations[2] = 12;
-        dataset->time_durations[3] = 81;
-        dataset->time_durations[4] = 12;
-        dataset->time_durations[5] = 81;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.663855;
-        dataset->target[1] = 3.338949;
-        dataset->target[2] = 0.048667;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0016014;
-        dataset->gain_k.values[1] = 0.0032452;
-        dataset->gain_k.values[2] = 0.0283403;
-        dataset->gain_k.values[3] = -0.0016197;
-        dataset->gain_k.values[4] = -0.0032752;
-        dataset->gain_k.values[5] = -0.0287911;
-        dataset->gain_k.values[6] = -0.0032070;
-        dataset->gain_k.values[7] = -0.0015482;
-        dataset->gain_k.values[8] = 0.0285749;
-        dataset->gain_k.values[9] = 0.0032372;
-        dataset->gain_k.values[10] = 0.0015664;
-        dataset->gain_k.values[11] = -0.0290360;
-        dataset->gain_k.values[12] = 0.0032089;
-        dataset->gain_k.values[13] = -0.0031590;
-        dataset->gain_k.values[14] = 0.0584289;
-    }
-    else if (helper_eql_float(alpha, 0.72)) {
-        // alpha: 0.72
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 15;
-        dataset->time_durations[1] = 78;
-        dataset->time_durations[2] = 15;
-        dataset->time_durations[3] = 78;
-        dataset->time_durations[4] = 15;
-        dataset->time_durations[5] = 78;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.663913;
-        dataset->target[1] = 3.338832;
-        dataset->target[2] = 0.049348;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0015791;
-        dataset->gain_k.values[1] = 0.0032004;
-        dataset->gain_k.values[2] = 0.0283494;
-        dataset->gain_k.values[3] = -0.0015966;
-        dataset->gain_k.values[4] = -0.0032295;
-        dataset->gain_k.values[5] = -0.0287807;
-        dataset->gain_k.values[6] = -0.0031627;
-        dataset->gain_k.values[7] = -0.0015273;
-        dataset->gain_k.values[8] = 0.0285730;
-        dataset->gain_k.values[9] = 0.0031920;
-        dataset->gain_k.values[10] = 0.0015448;
-        dataset->gain_k.values[11] = -0.0290139;
-        dataset->gain_k.values[12] = 0.0031646;
-        dataset->gain_k.values[13] = -0.0031142;
-        dataset->gain_k.values[14] = 0.0583730;
-    }
-    else if (helper_eql_float(alpha, 0.73)) {
-        // alpha: 0.73
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 18;
-        dataset->time_durations[1] = 76;
-        dataset->time_durations[2] = 18;
-        dataset->time_durations[3] = 76;
-        dataset->time_durations[4] = 18;
-        dataset->time_durations[5] = 76;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.663974;
-        dataset->target[1] = 3.338710;
-        dataset->target[2] = 0.050028;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0015573;
-        dataset->gain_k.values[1] = 0.0031568;
-        dataset->gain_k.values[2] = 0.0283581;
-        dataset->gain_k.values[3] = -0.0015741;
-        dataset->gain_k.values[4] = -0.0031850;
-        dataset->gain_k.values[5] = -0.0287701;
-        dataset->gain_k.values[6] = -0.0031197;
-        dataset->gain_k.values[7] = -0.0015070;
-        dataset->gain_k.values[8] = 0.0285708;
-        dataset->gain_k.values[9] = 0.0031481;
-        dataset->gain_k.values[10] = 0.0015238;
-        dataset->gain_k.values[11] = -0.0289920;
-        dataset->gain_k.values[12] = 0.0031215;
-        dataset->gain_k.values[13] = -0.0030706;
-        dataset->gain_k.values[14] = 0.0583173;
-    }
-    else if (helper_eql_float(alpha, 0.74)) {
-        // alpha: 0.74
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 21;
-        dataset->time_durations[1] = 73;
-        dataset->time_durations[2] = 21;
-        dataset->time_durations[3] = 73;
-        dataset->time_durations[4] = 21;
-        dataset->time_durations[5] = 73;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.664038;
-        dataset->target[1] = 3.338582;
-        dataset->target[2] = 0.050710;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0015362;
-        dataset->gain_k.values[1] = 0.0031144;
-        dataset->gain_k.values[2] = 0.0283664;
-        dataset->gain_k.values[3] = -0.0015522;
-        dataset->gain_k.values[4] = -0.0031416;
-        dataset->gain_k.values[5] = -0.0287595;
-        dataset->gain_k.values[6] = -0.0030778;
-        dataset->gain_k.values[7] = -0.0014873;
-        dataset->gain_k.values[8] = 0.0285685;
-        dataset->gain_k.values[9] = 0.0031053;
-        dataset->gain_k.values[10] = 0.0015033;
-        dataset->gain_k.values[11] = -0.0289702;
-        dataset->gain_k.values[12] = 0.0030795;
-        dataset->gain_k.values[13] = -0.0030283;
-        dataset->gain_k.values[14] = 0.0582621;
-    }
-    else if (helper_eql_float(alpha, 0.75)) {
-        // alpha: 0.75
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 23;
-        dataset->time_durations[1] = 70;
-        dataset->time_durations[2] = 23;
-        dataset->time_durations[3] = 70;
-        dataset->time_durations[4] = 23;
-        dataset->time_durations[5] = 70;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.664105;
-        dataset->target[1] = 3.338449;
-        dataset->target[2] = 0.051392;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0015157;
-        dataset->gain_k.values[1] = 0.0030731;
-        dataset->gain_k.values[2] = 0.0283742;
-        dataset->gain_k.values[3] = -0.0015310;
-        dataset->gain_k.values[4] = -0.0030994;
-        dataset->gain_k.values[5] = -0.0287486;
-        dataset->gain_k.values[6] = -0.0030371;
-        dataset->gain_k.values[7] = -0.0014681;
-        dataset->gain_k.values[8] = 0.0285661;
-        dataset->gain_k.values[9] = 0.0030636;
-        dataset->gain_k.values[10] = 0.0014833;
-        dataset->gain_k.values[11] = -0.0289486;
-        dataset->gain_k.values[12] = 0.0030386;
-        dataset->gain_k.values[13] = -0.0029871;
-        dataset->gain_k.values[14] = 0.0582071;
-    }
-    else if (helper_eql_float(alpha, 0.76)) {
-        // alpha: 0.76
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 26;
-        dataset->time_durations[1] = 67;
-        dataset->time_durations[2] = 26;
-        dataset->time_durations[3] = 67;
-        dataset->time_durations[4] = 26;
-        dataset->time_durations[5] = 67;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.664174;
-        dataset->target[1] = 3.338310;
-        dataset->target[2] = 0.052074;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0014957;
-        dataset->gain_k.values[1] = 0.0030330;
-        dataset->gain_k.values[2] = 0.0283815;
-        dataset->gain_k.values[3] = -0.0015103;
-        dataset->gain_k.values[4] = -0.0030582;
-        dataset->gain_k.values[5] = -0.0287377;
-        dataset->gain_k.values[6] = -0.0029975;
-        dataset->gain_k.values[7] = -0.0014494;
-        dataset->gain_k.values[8] = 0.0285634;
-        dataset->gain_k.values[9] = 0.0030229;
-        dataset->gain_k.values[10] = 0.0014639;
-        dataset->gain_k.values[11] = -0.0289272;
-        dataset->gain_k.values[12] = 0.0029988;
-        dataset->gain_k.values[13] = -0.0029470;
-        dataset->gain_k.values[14] = 0.0581524;
-    }
-    else if (helper_eql_float(alpha, 0.77)) {
-        // alpha: 0.77
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 29;
-        dataset->time_durations[1] = 64;
-        dataset->time_durations[2] = 29;
-        dataset->time_durations[3] = 64;
-        dataset->time_durations[4] = 29;
-        dataset->time_durations[5] = 64;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.664246;
-        dataset->target[1] = 3.338166;
-        dataset->target[2] = 0.052756;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0014763;
-        dataset->gain_k.values[1] = 0.0029939;
-        dataset->gain_k.values[2] = 0.0283884;
-        dataset->gain_k.values[3] = -0.0014901;
-        dataset->gain_k.values[4] = -0.0030181;
-        dataset->gain_k.values[5] = -0.0287266;
-        dataset->gain_k.values[6] = -0.0029589;
-        dataset->gain_k.values[7] = -0.0014312;
-        dataset->gain_k.values[8] = 0.0285606;
-        dataset->gain_k.values[9] = 0.0029833;
-        dataset->gain_k.values[10] = 0.0014450;
-        dataset->gain_k.values[11] = -0.0289059;
-        dataset->gain_k.values[12] = 0.0029600;
-        dataset->gain_k.values[13] = -0.0029080;
-        dataset->gain_k.values[14] = 0.0580980;
-    }
-    else if (helper_eql_float(alpha, 0.78)) {
-        // alpha: 0.78
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 32;
-        dataset->time_durations[1] = 62;
-        dataset->time_durations[2] = 32;
-        dataset->time_durations[3] = 62;
-        dataset->time_durations[4] = 32;
-        dataset->time_durations[5] = 62;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.664321;
-        dataset->target[1] = 3.338016;
-        dataset->target[2] = 0.053440;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0014574;
-        dataset->gain_k.values[1] = 0.0029558;
-        dataset->gain_k.values[2] = 0.0283949;
-        dataset->gain_k.values[3] = -0.0014705;
-        dataset->gain_k.values[4] = -0.0029790;
-        dataset->gain_k.values[5] = -0.0287155;
-        dataset->gain_k.values[6] = -0.0029213;
-        dataset->gain_k.values[7] = -0.0014135;
-        dataset->gain_k.values[8] = 0.0285576;
-        dataset->gain_k.values[9] = 0.0029447;
-        dataset->gain_k.values[10] = 0.0014266;
-        dataset->gain_k.values[11] = -0.0288847;
-        dataset->gain_k.values[12] = 0.0029222;
-        dataset->gain_k.values[13] = -0.0028700;
-        dataset->gain_k.values[14] = 0.0580439;
-    }
-    else if (helper_eql_float(alpha, 0.79)) {
-        // alpha: 0.79
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 35;
-        dataset->time_durations[1] = 59;
-        dataset->time_durations[2] = 35;
-        dataset->time_durations[3] = 59;
-        dataset->time_durations[4] = 35;
-        dataset->time_durations[5] = 59;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.664398;
-        dataset->target[1] = 3.337861;
-        dataset->target[2] = 0.054123;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0014390;
-        dataset->gain_k.values[1] = 0.0029187;
-        dataset->gain_k.values[2] = 0.0284011;
-        dataset->gain_k.values[3] = -0.0014514;
-        dataset->gain_k.values[4] = -0.0029409;
-        dataset->gain_k.values[5] = -0.0287042;
-        dataset->gain_k.values[6] = -0.0028847;
-        dataset->gain_k.values[7] = -0.0013963;
-        dataset->gain_k.values[8] = 0.0285544;
-        dataset->gain_k.values[9] = 0.0029070;
-        dataset->gain_k.values[10] = 0.0014086;
-        dataset->gain_k.values[11] = -0.0288637;
-        dataset->gain_k.values[12] = 0.0028853;
-        dataset->gain_k.values[13] = -0.0028329;
-        dataset->gain_k.values[14] = 0.0579900;
-    }
-    else if (helper_eql_float(alpha, 0.80)) {
-        // alpha: 0.80
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 37;
-        dataset->time_durations[1] = 56;
-        dataset->time_durations[2] = 37;
-        dataset->time_durations[3] = 56;
-        dataset->time_durations[4] = 37;
-        dataset->time_durations[5] = 56;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.664479;
-        dataset->target[1] = 3.337700;
-        dataset->target[2] = 0.054807;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0014210;
-        dataset->gain_k.values[1] = 0.0028825;
-        dataset->gain_k.values[2] = 0.0284068;
-        dataset->gain_k.values[3] = -0.0014328;
-        dataset->gain_k.values[4] = -0.0029037;
-        dataset->gain_k.values[5] = -0.0286929;
-        dataset->gain_k.values[6] = -0.0028490;
-        dataset->gain_k.values[7] = -0.0013794;
-        dataset->gain_k.values[8] = 0.0285511;
-        dataset->gain_k.values[9] = 0.0028703;
-        dataset->gain_k.values[10] = 0.0013911;
-        dataset->gain_k.values[11] = -0.0288429;
-        dataset->gain_k.values[12] = 0.0028493;
-        dataset->gain_k.values[13] = -0.0027968;
-        dataset->gain_k.values[14] = 0.0579364;
-    }
-    else if (helper_eql_float(alpha, 0.81)) {
-        // alpha: 0.81
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 40;
-        dataset->time_durations[1] = 53;
-        dataset->time_durations[2] = 40;
-        dataset->time_durations[3] = 53;
-        dataset->time_durations[4] = 40;
-        dataset->time_durations[5] = 53;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.664562;
-        dataset->target[1] = 3.337534;
-        dataset->target[2] = 0.055492;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0014036;
-        dataset->gain_k.values[1] = 0.0028472;
-        dataset->gain_k.values[2] = 0.0284121;
-        dataset->gain_k.values[3] = -0.0014146;
-        dataset->gain_k.values[4] = -0.0028674;
-        dataset->gain_k.values[5] = -0.0286814;
-        dataset->gain_k.values[6] = -0.0028142;
-        dataset->gain_k.values[7] = -0.0013630;
-        dataset->gain_k.values[8] = 0.0285476;
-        dataset->gain_k.values[9] = 0.0028345;
-        dataset->gain_k.values[10] = 0.0013740;
-        dataset->gain_k.values[11] = -0.0288222;
-        dataset->gain_k.values[12] = 0.0028143;
-        dataset->gain_k.values[13] = -0.0027616;
-        dataset->gain_k.values[14] = 0.0578830;
-    }
-    else if (helper_eql_float(alpha, 0.82)) {
-        // alpha: 0.82
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 43;
-        dataset->time_durations[1] = 50;
-        dataset->time_durations[2] = 43;
-        dataset->time_durations[3] = 50;
-        dataset->time_durations[4] = 43;
-        dataset->time_durations[5] = 50;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.664647;
-        dataset->target[1] = 3.337362;
-        dataset->target[2] = 0.056177;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0013865;
-        dataset->gain_k.values[1] = 0.0028128;
-        dataset->gain_k.values[2] = 0.0284171;
-        dataset->gain_k.values[3] = -0.0013969;
-        dataset->gain_k.values[4] = -0.0028319;
-        dataset->gain_k.values[5] = -0.0286699;
-        dataset->gain_k.values[6] = -0.0027803;
-        dataset->gain_k.values[7] = -0.0013470;
-        dataset->gain_k.values[8] = 0.0285440;
-        dataset->gain_k.values[9] = 0.0027994;
-        dataset->gain_k.values[10] = 0.0013573;
-        dataset->gain_k.values[11] = -0.0288016;
-        dataset->gain_k.values[12] = 0.0027800;
-        dataset->gain_k.values[13] = -0.0027273;
-        dataset->gain_k.values[14] = 0.0578299;
-    }
-    else if (helper_eql_float(alpha, 0.83)) {
-        // alpha: 0.83
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 46;
-        dataset->time_durations[1] = 48;
-        dataset->time_durations[2] = 46;
-        dataset->time_durations[3] = 48;
-        dataset->time_durations[4] = 46;
-        dataset->time_durations[5] = 48;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.664736;
-        dataset->target[1] = 3.337185;
-        dataset->target[2] = 0.056862;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0013699;
-        dataset->gain_k.values[1] = 0.0027792;
-        dataset->gain_k.values[2] = 0.0284217;
-        dataset->gain_k.values[3] = -0.0013796;
-        dataset->gain_k.values[4] = -0.0027973;
-        dataset->gain_k.values[5] = -0.0286583;
-        dataset->gain_k.values[6] = -0.0027472;
-        dataset->gain_k.values[7] = -0.0013314;
-        dataset->gain_k.values[8] = 0.0285402;
-        dataset->gain_k.values[9] = 0.0027653;
-        dataset->gain_k.values[10] = 0.0013411;
-        dataset->gain_k.values[11] = -0.0287812;
-        dataset->gain_k.values[12] = 0.0027466;
-        dataset->gain_k.values[13] = -0.0026938;
-        dataset->gain_k.values[14] = 0.0577769;
-    }
-    else if (helper_eql_float(alpha, 0.84)) {
-        // alpha: 0.84
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 49;
-        dataset->time_durations[1] = 45;
-        dataset->time_durations[2] = 49;
-        dataset->time_durations[3] = 45;
-        dataset->time_durations[4] = 49;
-        dataset->time_durations[5] = 45;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.664827;
-        dataset->target[1] = 3.337003;
-        dataset->target[2] = 0.057548;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0013537;
-        dataset->gain_k.values[1] = 0.0027465;
-        dataset->gain_k.values[2] = 0.0284260;
-        dataset->gain_k.values[3] = -0.0013628;
-        dataset->gain_k.values[4] = -0.0027634;
-        dataset->gain_k.values[5] = -0.0286466;
-        dataset->gain_k.values[6] = -0.0027148;
-        dataset->gain_k.values[7] = -0.0013162;
-        dataset->gain_k.values[8] = 0.0285362;
-        dataset->gain_k.values[9] = 0.0027319;
-        dataset->gain_k.values[10] = 0.0013252;
-        dataset->gain_k.values[11] = -0.0287609;
-        dataset->gain_k.values[12] = 0.0027139;
-        dataset->gain_k.values[13] = -0.0026611;
-        dataset->gain_k.values[14] = 0.0577242;
-    }
-    else if (helper_eql_float(alpha, 0.85)) {
-        // alpha: 0.85
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 51;
-        dataset->time_durations[1] = 42;
-        dataset->time_durations[2] = 51;
-        dataset->time_durations[3] = 42;
-        dataset->time_durations[4] = 51;
-        dataset->time_durations[5] = 42;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.664922;
-        dataset->target[1] = 3.336815;
-        dataset->target[2] = 0.058235;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0013379;
-        dataset->gain_k.values[1] = 0.0027145;
-        dataset->gain_k.values[2] = 0.0284299;
-        dataset->gain_k.values[3] = -0.0013463;
-        dataset->gain_k.values[4] = -0.0027304;
-        dataset->gain_k.values[5] = -0.0286348;
-        dataset->gain_k.values[6] = -0.0026833;
-        dataset->gain_k.values[7] = -0.0013013;
-        dataset->gain_k.values[8] = 0.0285321;
-        dataset->gain_k.values[9] = 0.0026993;
-        dataset->gain_k.values[10] = 0.0013097;
-        dataset->gain_k.values[11] = -0.0287407;
-        dataset->gain_k.values[12] = 0.0026820;
-        dataset->gain_k.values[13] = -0.0026292;
-        dataset->gain_k.values[14] = 0.0576717;
-    }
-    else if (helper_eql_float(alpha, 0.86)) {
-        // alpha: 0.86
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 54;
-        dataset->time_durations[1] = 39;
-        dataset->time_durations[2] = 54;
-        dataset->time_durations[3] = 39;
-        dataset->time_durations[4] = 54;
-        dataset->time_durations[5] = 39;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.665018;
-        dataset->target[1] = 3.336621;
-        dataset->target[2] = 0.058922;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0013224;
-        dataset->gain_k.values[1] = 0.0026832;
-        dataset->gain_k.values[2] = 0.0284334;
-        dataset->gain_k.values[3] = -0.0013303;
-        dataset->gain_k.values[4] = -0.0026981;
-        dataset->gain_k.values[5] = -0.0286230;
-        dataset->gain_k.values[6] = -0.0026525;
-        dataset->gain_k.values[7] = -0.0012868;
-        dataset->gain_k.values[8] = 0.0285278;
-        dataset->gain_k.values[9] = 0.0026674;
-        dataset->gain_k.values[10] = 0.0012945;
-        dataset->gain_k.values[11] = -0.0287207;
-        dataset->gain_k.values[12] = 0.0026509;
-        dataset->gain_k.values[13] = -0.0025981;
-        dataset->gain_k.values[14] = 0.0576194;
-    }
-    else if (helper_eql_float(alpha, 0.87)) {
-        // alpha: 0.87
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 57;
-        dataset->time_durations[1] = 36;
-        dataset->time_durations[2] = 57;
-        dataset->time_durations[3] = 36;
-        dataset->time_durations[4] = 57;
-        dataset->time_durations[5] = 36;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.665118;
-        dataset->target[1] = 3.336422;
-        dataset->target[2] = 0.059609;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0013074;
-        dataset->gain_k.values[1] = 0.0026527;
-        dataset->gain_k.values[2] = 0.0284367;
-        dataset->gain_k.values[3] = -0.0013146;
-        dataset->gain_k.values[4] = -0.0026665;
-        dataset->gain_k.values[5] = -0.0286111;
-        dataset->gain_k.values[6] = -0.0026224;
-        dataset->gain_k.values[7] = -0.0012726;
-        dataset->gain_k.values[8] = 0.0285233;
-        dataset->gain_k.values[9] = 0.0026362;
-        dataset->gain_k.values[10] = 0.0012797;
-        dataset->gain_k.values[11] = -0.0287008;
-        dataset->gain_k.values[12] = 0.0026204;
-        dataset->gain_k.values[13] = -0.0025677;
-        dataset->gain_k.values[14] = 0.0575673;
-    }
-    else if (helper_eql_float(alpha, 0.88)) {
-        // alpha: 0.88
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 60;
-        dataset->time_durations[1] = 34;
-        dataset->time_durations[2] = 60;
-        dataset->time_durations[3] = 34;
-        dataset->time_durations[4] = 60;
-        dataset->time_durations[5] = 34;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.665220;
-        dataset->target[1] = 3.336217;
-        dataset->target[2] = 0.060297;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0012927;
-        dataset->gain_k.values[1] = 0.0026229;
-        dataset->gain_k.values[2] = 0.0284396;
-        dataset->gain_k.values[3] = -0.0012992;
-        dataset->gain_k.values[4] = -0.0026356;
-        dataset->gain_k.values[5] = -0.0285991;
-        dataset->gain_k.values[6] = -0.0025930;
-        dataset->gain_k.values[7] = -0.0012587;
-        dataset->gain_k.values[8] = 0.0285187;
-        dataset->gain_k.values[9] = 0.0026057;
-        dataset->gain_k.values[10] = 0.0012652;
-        dataset->gain_k.values[11] = -0.0286810;
-        dataset->gain_k.values[12] = 0.0025907;
-        dataset->gain_k.values[13] = -0.0025380;
-        dataset->gain_k.values[14] = 0.0575153;
-    }
-    else if (helper_eql_float(alpha, 0.89)) {
-        // alpha: 0.89
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 63;
-        dataset->time_durations[1] = 31;
-        dataset->time_durations[2] = 63;
-        dataset->time_durations[3] = 31;
-        dataset->time_durations[4] = 63;
-        dataset->time_durations[5] = 31;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.665326;
-        dataset->target[1] = 3.336007;
-        dataset->target[2] = 0.060985;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0012783;
-        dataset->gain_k.values[1] = 0.0025938;
-        dataset->gain_k.values[2] = 0.0284422;
-        dataset->gain_k.values[3] = -0.0012843;
-        dataset->gain_k.values[4] = -0.0026054;
-        dataset->gain_k.values[5] = -0.0285871;
-        dataset->gain_k.values[6] = -0.0025643;
-        dataset->gain_k.values[7] = -0.0012452;
-        dataset->gain_k.values[8] = 0.0285140;
-        dataset->gain_k.values[9] = 0.0025759;
-        dataset->gain_k.values[10] = 0.0012511;
-        dataset->gain_k.values[11] = -0.0286613;
-        dataset->gain_k.values[12] = 0.0025616;
-        dataset->gain_k.values[13] = -0.0025090;
-        dataset->gain_k.values[14] = 0.0574635;
-    }
-    else if (helper_eql_float(alpha, 0.90)) {
-        // alpha: 0.90
-
-        dataset->size = 6;
-        dataset->time_durations[0] = 65;
-        dataset->time_durations[1] = 28;
-        dataset->time_durations[2] = 65;
-        dataset->time_durations[3] = 28;
-        dataset->time_durations[4] = 65;
-        dataset->time_durations[5] = 28;
-        dataset->modes_d4[0] = 1;
-        dataset->modes_d4[1] = 0;
-        dataset->modes_d4[2] = 1;
-        dataset->modes_d4[3] = 1;
-        dataset->modes_d4[4] = 1;
-        dataset->modes_d4[5] = 1;
-        dataset->modes_d5[0] = 1;
-        dataset->modes_d5[1] = 1;
-        dataset->modes_d5[2] = 1;
-        dataset->modes_d5[3] = 1;
-        dataset->modes_d5[4] = 1;
-        dataset->modes_d5[5] = 0;
-        dataset->modes_d6[0] = 1;
-        dataset->modes_d6[1] = 1;
-        dataset->modes_d6[2] = 1;
-        dataset->modes_d6[3] = 0;
-        dataset->modes_d6[4] = 1;
-        dataset->modes_d6[5] = 1;
-        dataset->target[0] = 1.665434;
-        dataset->target[1] = 3.335792;
-        dataset->target[2] = 0.061674;
-
-        dataset->gain_k.rows = 5;
-        dataset->gain_k.cols = 3;
-        dataset->gain_k.size = 15;
-        dataset->gain_k.values[0] = 0.0012643;
-        dataset->gain_k.values[1] = 0.0025653;
-        dataset->gain_k.values[2] = 0.0284445;
-        dataset->gain_k.values[3] = -0.0012696;
-        dataset->gain_k.values[4] = -0.0025758;
-        dataset->gain_k.values[5] = -0.0285750;
-        dataset->gain_k.values[6] = -0.0025362;
-        dataset->gain_k.values[7] = -0.0012319;
-        dataset->gain_k.values[8] = 0.0285091;
-        dataset->gain_k.values[9] = 0.0025468;
-        dataset->gain_k.values[10] = 0.0012373;
-        dataset->gain_k.values[11] = -0.0286417;
-        dataset->gain_k.values[12] = 0.0025331;
-        dataset->gain_k.values[13] = -0.0024806;
-        dataset->gain_k.values[14] = 0.0574119;
+// Helper to set dataset common fields (avoids repetition in lambdas)
+static void set_dataset_common(DataSet* d, int td0, int td1,
+                                const int* m4, const int* m5, const int* m6,
+                                float t0, float t1, float t2,
+                                const double* vals) {
+    d->size = 6;
+    d->time_durations[0] = td0; d->time_durations[1] = td1; d->time_durations[2] = td0;
+    d->time_durations[3] = td1; d->time_durations[4] = td0; d->time_durations[5] = td1;
+    for (int i = 0; i < 6; i++) {
+        d->modes_d4[i] = m4[i];
+        d->modes_d5[i] = m5[i];
+        d->modes_d6[i] = m6[i];
+    }
+    d->target[0] = t0; d->target[1] = t1; d->target[2] = t2;
+    d->gain_k.rows = 5; d->gain_k.cols = 3; d->gain_k.size = 15;
+    for (int i = 0; i < 15; i++) d->gain_k.values[i] = vals[i];
+}
+
+// Static map for O(log n) lookup instead of O(n) else-if chain
+static const std::map<float, std::function<void(DataSet*)>> ALPHA_DATASET_MAP = {
+    {0.10f, [](DataSet* d) {
+        set_dataset_common(d, 28, 65,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.666804f, 3.333469f, 0.006804f,
+            (const double[]){-0.0464731, -0.0237292, 0.0597880, -0.0118889, 0.0115526, -0.0284607, 0.0110946, -0.0113114, 0.0291281, -0.0116095, -0.0231720, -0.0278441, 0.0107936, 0.0221058, 0.0285782}});
+    }},
+    {0.11f, [](DataSet* d) {
+        set_dataset_common(d, 31, 63,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.666833f, 3.333497f, 0.007487f,
+            (const double[]){-0.0422581, -0.0215808, 0.0597604, -0.0108080, 0.0104992, -0.0284367, 0.0100918, -0.0102876, 0.0291276, -0.0105609, -0.0210685, -0.0278167, 0.0098253, 0.0201124, 0.0285717}});
+    }},
+    {0.12f, [](DataSet* d) {
+        set_dataset_common(d, 34, 60,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.666864f, 3.333528f, 0.008171f,
+            (const double[]){-0.0387402, -0.0197868, 0.0597289, -0.0099067, 0.0096212, -0.0284129, 0.0092555, -0.0094342, 0.0291275, -0.0096849, -0.0193136, -0.0277907, 0.0090163, 0.0184493, 0.0285666}});
+    }},
+    {0.13f, [](DataSet* d) {
+        set_dataset_common(d, 36, 57,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.666898f, 3.333562f, 0.008855f,
+            (const double[]){-0.0357599, -0.0182663, 0.0596946, -0.0091438, 0.0088780, -0.0283889, 0.0085476, -0.0087120, 0.0291276, -0.0089423, -0.0178273, -0.0277655, 0.0083305, 0.0170409, 0.0285625}});
+    }},
+    {0.14f, [](DataSet* d) {
+        set_dataset_common(d, 39, 54,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.666935f, 3.333599f, 0.009539f,
+            (const double[]){-0.0332030, -0.0169614, 0.0596582, -0.0084896, 0.0082409, -0.0283649, 0.0079406, -0.0080928, 0.0291280, -0.0083049, -0.0165526, -0.0277408, 0.0077418, 0.0158328, 0.0285591}});
+    }},
+    {0.15f, [](DataSet* d) {
+        set_dataset_common(d, 42, 51,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.666975f, 3.333638f, 0.010224f,
+            (const double[]){-0.0309853, -0.0158292, 0.0596202, -0.0079225, 0.0076887, -0.0283406, 0.0074143, -0.0075561, 0.0291286, -0.0077519, -0.0154472, -0.0277165, 0.0072309, 0.0147852, 0.0285561}});
+    }},
+    {0.16f, [](DataSet* d) {
+        set_dataset_common(d, 45, 49,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.667017f, 3.33368f, 0.010909f,
+            (const double[]){-0.0290436, -0.0148378, 0.0595810, -0.0074263, 0.0072054, -0.0283162, 0.0069538, -0.0070865, 0.0291294, -0.0072675, -0.0144796, -0.0276925, 0.0067835, 0.0138682, 0.0285535}});
+    }},
+    {0.17f, [](DataSet* d) {
+        set_dataset_common(d, 48, 46,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.667063f, 3.333725f, 0.011595f,
+            (const double[]){-0.0273295, -0.0139624, 0.0595407, -0.0069884, 0.0067789, -0.0282915, 0.0065473, -0.0066720, 0.0291302, -0.0068398, -0.0136255, -0.0276685, 0.0063884, 0.0130588, 0.0285512}});
+    }},
+    {0.18f, [](DataSet* d) {
+        set_dataset_common(d, 50, 43,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.66711f, 3.333772f, 0.012281f,
+            (const double[]){-0.0258052, -0.0131837, 0.0594996, -0.0065991, 0.0063997, -0.0282666, 0.0061859, -0.0063036, 0.0291312, -0.0064594, -0.0128661, -0.0276446, 0.0060370, 0.0123391, 0.0285491}});
+    }},
+    {0.19f, [](DataSet* d) {
+        set_dataset_common(d, 53, 40,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.667161f, 3.333823f, 0.012968f,
+            (const double[]){-0.0244408, -0.0124867, 0.0594577, -0.0062507, 0.0060604, -0.0282414, 0.0058625, -0.0059739, 0.0291323, -0.0061189, -0.0121865, -0.0276207, 0.0057224, 0.0116950, 0.0285472}});
+    }},
+    {0.20f, [](DataSet* d) {
+        set_dataset_common(d, 56, 37,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.667214f, 3.333876f, 0.013655f,
+            (const double[]){-0.0232125, -0.0118591, 0.0594152, -0.0059372, 0.0057550, -0.0282159, 0.0055714, -0.0056772, 0.0291334, -0.0058123, -0.0115747, -0.0275968, 0.0054391, 0.0111152, 0.0285453}});
+    }},
+    {0.21f, [](DataSet* d) {
+        set_dataset_common(d, 59, 35,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.66727f, 3.333931f, 0.014343f,
+            (const double[]){-0.0221008, -0.0112910, 0.0593722, -0.0056536, 0.0054786, -0.0281902, 0.0053080, -0.0054087, 0.0291346, -0.0055349, -0.0110211, -0.0275728, 0.0051827, 0.0105905, 0.0285436}});
+    }},
+    {0.22f, [](DataSet* d) {
+        set_dataset_common(d, 62, 32,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.667329f, 3.33399f, 0.015031f,
+            (const double[]){-0.0210900, -0.0107744, 0.0593287, -0.0053957, 0.0052274, -0.0281642, 0.0050685, -0.0051646, 0.0291360, -0.0052825, -0.0105178, -0.0275487, 0.0049495, 0.0101134, 0.0285419}});
+    }},
+    {0.23f, [](DataSet* d) {
+        set_dataset_common(d, 64, 29,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.66739f, 3.334051f, 0.01572f,
+            (const double[]){-0.0201668, -0.0103025, 0.0592847, -0.0051603, 0.0049979, -0.0281379, 0.0048498, -0.0049417, 0.0291374, -0.0050521, -0.0100582, -0.0275245, 0.0047365, 0.0096778, 0.0285403}});
+    }},
+    {0.24f, [](DataSet* d) {
+        set_dataset_common(d, 67, 26,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.667454f, 3.334115f, 0.016409f,
+            (const double[]){-0.0193204, -0.0098699, 0.0592403, -0.0049445, 0.0047875, -0.0281113, 0.0046493, -0.0047374, 0.0291388, -0.0048408, -0.0096368, -0.0275002, 0.0045413, 0.0092784, 0.0285386}});
+    }},
+    {0.25f, [](DataSet* d) {
+        set_dataset_common(d, 70, 23,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.667521f, 3.334181f, 0.017098f,
+            (const double[]){-0.0185416, -0.0094717, 0.0591956, -0.0047460, 0.0045940, -0.0280844, 0.0044649, -0.0045494, 0.0291403, -0.0046464, -0.0092492, -0.0274757, 0.0043616, 0.0089110, 0.0285370}});
+    }},
+    {0.26f, [](DataSet* d) {
+        set_dataset_common(d, 73, 21,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.667591f, 3.334251f, 0.017788f,
+            (const double[]){-0.0178226, -0.0091041, 0.0591505, -0.0045628, 0.0044152, -0.0280573, 0.0042946, -0.0043758, 0.0291419, -0.0044670, -0.0088913, -0.0274511, 0.0041957, 0.0085718, 0.0285354}});
+    }},
+    {0.27f, [](DataSet* d) {
+        set_dataset_common(d, 76, 18,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.667663f, 3.334323f, 0.018479f,
+            (const double[]){-0.0171568, -0.0087637, 0.0591051, -0.0043932, 0.0042497, -0.0280298, 0.0041369, -0.0042151, 0.0291435, -0.0043008, -0.0085599, -0.0274263, 0.0040420, 0.0082577, 0.0285338}});
+    }},
+    {0.28f, [](DataSet* d) {
+        set_dataset_common(d, 78, 15,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.667738f, 3.334398f, 0.019169f,
+            (const double[]){-0.0165384, -0.0084474, 0.0590593, -0.0042357, 0.0040960, -0.0280021, 0.0039905, -0.0040659, 0.0291452, -0.0041464, -0.0082522, -0.0274013, 0.0038994, 0.0079660, 0.0285322}});
+    }},
+    {0.29f, [](DataSet* d) {
+        set_dataset_common(d, 81, 12,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.667815f, 3.334476f, 0.019861f,
+            (const double[]){-0.0159626, -0.0081530, 0.0590133, -0.0040891, 0.0039529, -0.0279741, 0.0038541, -0.0039269, 0.0291469, -0.0040028, -0.0079657, -0.0273762, 0.0037665, 0.0076945, 0.0285306}});
+    }},
+    {0.30f, [](DataSet* d) {
+        set_dataset_common(d, 84, 9,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.667896f, 3.334556f, 0.020553f,
+            (const double[]){-0.0154251, -0.0078781, 0.0589670, -0.0039522, 0.0038193, -0.0279457, 0.0037269, -0.0037972, 0.0291487, -0.0038686, -0.0076983, -0.0273509, 0.0036425, 0.0074410, 0.0285290}});
+    }},
+    {0.31f, [](DataSet* d) {
+        set_dataset_common(d, 87, 7,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.667979f, 3.334639f, 0.021245f,
+            (const double[]){-0.0149223, -0.0076209, 0.0589204, -0.0038242, 0.0036943, -0.0279171, 0.0036078, -0.0036759, 0.0291505, -0.0037432, -0.0074482, -0.0273255, 0.0035264, 0.0072038, 0.0285273}});
+    }},
+    {0.32f, [](DataSet* d) {
+        set_dataset_common(d, 90, 7,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.668064f, 3.334725f, 0.021938f,
+            (const double[]){-0.0144508, -0.0073797, 0.0588735, -0.0037043, 0.0035771, -0.0278882, 0.0034962, -0.0035621, 0.0291524, -0.0036256, -0.0072137, -0.0272998, 0.0034177, 0.0069815, 0.0285256}});
+    }},
+    {0.33f, [](DataSet* d) {
+        set_dataset_common(d, 92, 7,
+            (const int[]){0, 0, 0, 0, 1, 0},
+            (const int[]){0, 0, 1, 0, 0, 0},
+            (const int[]){1, 0, 0, 0, 0, 0},
+            1.668153f, 3.334814f, 0.022631f,
+            (const double[]){-0.0140079, -0.0071531, 0.0588264, -0.0035916, 0.0034670, -0.0278590, 0.0033913, -0.0034552, 0.0291543, -0.0035151, -0.0069934, -0.0272740, 0.0033155, 0.0067727, 0.0285238}});
+    }},
+    {0.34f, [](DataSet* d) {
+        set_dataset_common(d, 91, 7,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.668151f, 3.334905f, 0.023325f,
+            (const double[]){-0.0034342, 0.0034012, -0.0281438, -0.0066228, -0.0033663, 0.0285213, -0.0066277, -0.0133035, -0.0556097, 0.0034097, -0.0032281, 0.0293120, 0.0067505, 0.0033998, -0.0300200}});
+    }},
+    {0.35f, [](DataSet* d) {
+        set_dataset_common(d, 89, 7,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.668099f, 3.334999f, 0.024018f,
+            (const double[]){-0.0033327, 0.0033069, -0.0281590, -0.0064336, -0.0032660, 0.0285124, -0.0064450, -0.0129256, -0.0556674, 0.0033099, -0.0031374, 0.0293562, 0.0065578, 0.0032993, -0.0299860}});
+    }},
+    {0.36f, [](DataSet* d) {
+        set_dataset_common(d, 86, 7,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.668042f, 3.335096f, 0.024711f,
+            (const double[]){-0.0032370, 0.0032176, -0.0281731, -0.0062550, -0.0031714, 0.0285049, -0.0062720, -0.0125688, -0.0557237, 0.0032157, -0.0030517, 0.0293991, 0.0063756, 0.0032044, -0.0299537}});
+    }},
+    {0.37f, [](DataSet* d) {
+        set_dataset_common(d, 83, 10,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.667979f, 3.335196f, 0.025403f,
+            (const double[]){-0.0031465, 0.0031329, -0.0281861, -0.0060862, -0.0030823, 0.0284988, -0.0061082, -0.0122314, -0.0557789, 0.0031268, -0.0029705, 0.0294406, 0.0062032, 0.0031148, -0.0299230}});
+    }},
+    {0.38f, [](DataSet* d) {
+        set_dataset_common(d, 80, 13,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.667911f, 3.335298f, 0.026094f,
+            (const double[]){-0.0030609, 0.0030525, -0.0281981, -0.0059264, -0.0029980, 0.0284939, -0.0059527, -0.0119119, -0.0558329, 0.0030427, -0.0028936, 0.0294810, 0.0060398, 0.0030300, -0.0298938}});
+    }},
+    {0.39f, [](DataSet* d) {
+        set_dataset_common(d, 77, 16,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.667837f, 3.335403f, 0.026786f,
+            (const double[]){-0.0029797, 0.0029761, -0.0282092, -0.0057749, -0.0029183, 0.0284901, -0.0058049, -0.0116089, -0.0558859, 0.0029631, -0.0028206, 0.0295203, 0.0058847, 0.0029496, -0.0298660}});
+    }},
+    {0.40f, [](DataSet* d) {
+        set_dataset_common(d, 75, 19,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.667758f, 3.335511f, 0.027476f,
+            (const double[]){-0.0029026, 0.0029034, -0.0282194, -0.0056311, -0.0028428, 0.0284874, -0.0056643, -0.0113211, -0.0559378, 0.0028875, -0.0027512, 0.0295586, 0.0057374, 0.0028733, -0.0298394}});
+    }},
+    {0.41f, [](DataSet* d) {
+        set_dataset_common(d, 72, 21,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.667673f, 3.335621f, 0.028167f,
+            (const double[]){-0.0028293, 0.0028341, -0.0282289, -0.0054944, -0.0027710, 0.0284856, -0.0055304, -0.0110474, -0.0559889, 0.0028157, -0.0026852, 0.0295960, 0.0055971, 0.0028008, -0.0298139}});
+    }},
+    {0.42f, [](DataSet* d) {
+        set_dataset_common(d, 69, 24,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.667583f, 3.335735f, 0.028857f,
+            (const double[]){-0.0027596, 0.0027679, -0.0282375, -0.0053643, -0.0027029, 0.0284847, -0.0054027, -0.0107868, -0.0560390, 0.0027474, -0.0026223, 0.0296324, 0.0054635, 0.0027318, -0.0297896}});
+    }},
+    {0.43f, [](DataSet* d) {
+        set_dataset_common(d, 66, 27,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.667488f, 3.33585f, 0.029546f,
+            (const double[]){-0.0026931, 0.0027048, -0.0282455, -0.0052403, -0.0026380, 0.0284846, -0.0052808, -0.0105384, -0.0560884, 0.0026824, -0.0025623, 0.0296681, 0.0053361, 0.0026660, -0.0297661}});
+    }},
+    {0.44f, [](DataSet* d) {
+        set_dataset_common(d, 63, 30,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.667387f, 3.335969f, 0.030235f,
+            (const double[]){-0.0026296, 0.0026444, -0.0282527, -0.0051221, -0.0025763, 0.0284853, -0.0051643, -0.0103014, -0.0561369, 0.0026203, -0.0025050, 0.0297030, 0.0052145, 0.0026034, -0.0297436}});
+    }},
+    {0.45f, [](DataSet* d) {
+        set_dataset_common(d, 61, 33,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.66728f, 3.336091f, 0.030923f,
+            (const double[]){-0.0025690, 0.0025866, -0.0282593, -0.0050091, -0.0025173, 0.0284867, -0.0050528, -0.0100749, -0.0561847, 0.0025611, -0.0024503, 0.0297371, 0.0050982, 0.0025435, -0.0297219}});
+    }},
+    {0.46f, [](DataSet* d) {
+        set_dataset_common(d, 58, 35,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.667168f, 3.336215f, 0.031611f,
+            (const double[]){-0.0025111, 0.0025313, -0.0282653, -0.0049012, -0.0024611, 0.0284886, -0.0049460, -0.0098584, -0.0562318, 0.0025046, -0.0023979, 0.0297706, 0.0049870, 0.0024863, -0.0297010}});
+    }},
+    {0.47f, [](DataSet* d) {
+        set_dataset_common(d, 55, 38,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.667051f, 3.336342f, 0.032299f,
+            (const double[]){-0.0024556, 0.0024782, -0.0282708, -0.0047979, -0.0024073, 0.0284912, -0.0048436, -0.0096511, -0.0562782, 0.0024504, -0.0023477, 0.0298034, 0.0048804, 0.0024315, -0.0296808}});
+    }},
+    {0.48f, [](DataSet* d) {
+        set_dataset_common(d, 52, 41,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.666928f, 3.336471f, 0.032986f,
+            (const double[]){-0.0024025, 0.0024273, -0.0282757, -0.0046989, -0.0023558, 0.0284943, -0.0047454, -0.0094525, -0.0563240, 0.0023986, -0.0022996, 0.0298356, 0.0047783, 0.0023791, -0.0296613}});
+    }},
+    {0.49f, [](DataSet* d) {
+        set_dataset_common(d, 49, 44,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.6668f, 3.336604f, 0.033672f,
+            (const double[]){-0.0023516, 0.0023784, -0.0282800, -0.0046041, -0.0023066, 0.0284980, -0.0046511, -0.0092620, -0.0563692, 0.0023489, -0.0022534, 0.0298672, 0.0046804, 0.0023289, -0.0296424}});
+    }},
+    {0.50f, [](DataSet* d) {
+        set_dataset_common(d, 47, 47,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.666666f, 3.336739f, 0.034358f,
+            (const double[]){-0.0023027, 0.0023314, -0.0282839, -0.0045131, -0.0022593, 0.0285021, -0.0045605, -0.0090792, -0.0564138, 0.0023013, -0.0022091, 0.0298983, 0.0045863, 0.0022807, -0.0296241}});
+    }},
+    {0.51f, [](DataSet* d) {
+        set_dataset_common(d, 44, 49,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.666527f, 3.336877f, 0.035044f,
+            (const double[]){-0.0022557, 0.0022862, -0.0282873, -0.0044257, -0.0022140, 0.0285066, -0.0044733, -0.0089036, -0.0564578, 0.0022555, -0.0021665, 0.0299289, 0.0044959, 0.0022344, -0.0296063}});
+    }},
+    {0.52f, [](DataSet* d) {
+        set_dataset_common(d, 41, 52,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.666382f, 3.337017f, 0.035729f,
+            (const double[]){-0.0022105, 0.0022427, -0.0282902, -0.0043417, -0.0021705, 0.0285115, -0.0043894, -0.0087348, -0.0565012, 0.0022115, -0.0021255, 0.0299590, 0.0044090, 0.0021899, -0.0295890}});
+    }},
+    {0.53f, [](DataSet* d) {
+        set_dataset_common(d, 38, 55,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.666232f, 3.33716f, 0.036414f,
+            (const double[]){-0.0021671, 0.0022007, -0.0282927, -0.0042609, -0.0021287, 0.0285168, -0.0043086, -0.0085724, -0.0565442, 0.0021692, -0.0020860, 0.0299886, 0.0043254, 0.0021471, -0.0295722}});
+    }},
+    {0.54f, [](DataSet* d) {
+        set_dataset_common(d, 35, 58,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.666077f, 3.337306f, 0.037098f,
+            (const double[]){-0.0021253, 0.0021603, -0.0282948, -0.0041832, -0.0020885, 0.0285225, -0.0042306, -0.0084161, -0.0565866, 0.0021285, -0.0020480, 0.0300178, 0.0042448, 0.0021059, -0.0295558}});
+    }},
+    {0.55f, [](DataSet* d) {
+        set_dataset_common(d, 33, 61,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.665916f, 3.337455f, 0.037782f,
+            (const double[]){-0.0020849, 0.0021213, -0.0282965, -0.0041083, -0.0020498, 0.0285285, -0.0041555, -0.0082654, -0.0566286, 0.0020893, -0.0020114, 0.0300465, 0.0041672, 0.0020662, -0.0295398}});
+    }},
+    {0.56f, [](DataSet* d) {
+        set_dataset_common(d, 30, 63,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.665749f, 3.337607f, 0.038465f,
+            (const double[]){-0.0020461, 0.0020837, -0.0282978, -0.0040361, -0.0020125, 0.0285348, -0.0040830, -0.0081202, -0.0566701, 0.0020516, -0.0019761, 0.0300748, 0.0040924, 0.0020280, -0.0295242}});
+    }},
+    {0.57f, [](DataSet* d) {
+        set_dataset_common(d, 27, 66,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.665577f, 3.337761f, 0.039148f,
+            (const double[]){-0.0020086, 0.0020474, -0.0282987, -0.0039665, -0.0019766, 0.0285413, -0.0040129, -0.0079800, -0.0567111, 0.0020151, -0.0019420, 0.0301027, 0.0040201, 0.0019911, -0.0295089}});
+    }},
+    {0.58f, [](DataSet* d) {
+        set_dataset_common(d, 24, 69,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.6654f, 3.337918f, 0.03983f,
+            (const double[]){-0.0019724, 0.0020123, -0.0282993, -0.0038994, -0.0019420, 0.0285481, -0.0039452, -0.0078448, -0.0567517, 0.0019799, -0.0019091, 0.0301303, 0.0039504, 0.0019556, -0.0294940}});
+    }},
+    {0.59f, [](DataSet* d) {
+        set_dataset_common(d, 21, 72,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.665217f, 3.338078f, 0.040512f,
+            (const double[]){-0.0019374, 0.0019783, -0.0282995, -0.0038345, -0.0019085, 0.0285552, -0.0038797, -0.0077141, -0.0567919, 0.0019460, -0.0018773, 0.0301575, 0.0038830, 0.0019212, -0.0294794}});
+    }},
+    {0.60f, [](DataSet* d) {
+        set_dataset_common(d, 19, 75,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.665029f, 3.33824f, 0.041193f,
+            (const double[]){-0.0019036, 0.0019455, -0.0282993, -0.0037718, -0.0018763, 0.0285624, -0.0038164, -0.0075878, -0.0568317, 0.0019131, -0.0018465, 0.0301843, 0.0038179, 0.0018880, -0.0294650}});
+    }},
+    {0.61f, [](DataSet* d) {
+        set_dataset_common(d, 16, 77,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.664835f, 3.338405f, 0.041874f,
+            (const double[]){-0.0018709, 0.0019137, -0.0282989, -0.0037112, -0.0018451, 0.0285699, -0.0037550, -0.0074657, -0.0568711, 0.0018814, -0.0018167, 0.0302108, 0.0037549, 0.0018559, -0.0294509}});
+    }},
+    {0.62f, [](DataSet* d) {
+        set_dataset_common(d, 13, 80,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.664636f, 3.338573f, 0.042555f,
+            (const double[]){-0.0018392, 0.0018829, -0.0282981, -0.0036526, -0.0018149, 0.0285776, -0.0036956, -0.0073475, -0.0569100, 0.0018507, -0.0017879, 0.0302370, 0.0036939, 0.0018249, -0.0294371}});
+    }},
+    {0.63f, [](DataSet* d) {
+        set_dataset_common(d, 10, 83,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.664431f, 3.338744f, 0.043235f,
+            (const double[]){-0.0018086, 0.0018531, -0.0282970, -0.0035959, -0.0017857, 0.0285854, -0.0036381, -0.0072331, -0.0569486, 0.0018210, -0.0017600, 0.0302629, 0.0036349, 0.0017948, -0.0294235}});
+    }},
+    {0.64f, [](DataSet* d) {
+        set_dataset_common(d, 7, 86,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.664221f, 3.338917f, 0.043914f,
+            (const double[]){-0.0017789, 0.0018242, -0.0282956, -0.0035410, -0.0017575, 0.0285934, -0.0035822, -0.0071223, -0.0569869, 0.0017922, -0.0017330, 0.0302885, 0.0035777, 0.0017657, -0.0294101}});
+    }},
+    {0.65f, [](DataSet* d) {
+        set_dataset_common(d, 7, 89,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.664006f, 3.339093f, 0.044594f,
+            (const double[]){-0.0017501, 0.0017961, -0.0282939, -0.0034878, -0.0017302, 0.0286016, -0.0035281, -0.0070149, -0.0570248, 0.0017643, -0.0017068, 0.0303137, 0.0035222, 0.0017375, -0.0293970}});
+    }},
+    {0.66f, [](DataSet* d) {
+        set_dataset_common(d, 7, 91,
+            (const int[]){0, 0, 0, 1, 1, 1},
+            (const int[]){0, 1, 1, 1, 0, 0},
+            (const int[]){1, 1, 0, 0, 0, 1},
+            1.663785f, 3.339272f, 0.045272f,
+            (const double[]){-0.0017222, 0.0017689, -0.0282919, -0.0034362, -0.0017037, 0.0286099, -0.0034755, -0.0069107, -0.0570623, 0.0017372, -0.0016814, 0.0303387, 0.0034685, 0.0017102, -0.0293840}});
+    }},
+    {0.67f, [](DataSet* d) {
+        set_dataset_common(d, 7, 92,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.663649f, 3.339362f, 0.04595f,
+            (const double[]){0.0016977, 0.0034382, 0.0282985, -0.0017192, -0.0034713, -0.0288312, -0.0033974, -0.0016378, 0.0285809, 0.0034310, 0.0016594, -0.0291264, 0.0033990, -0.0033516, 0.0586565}});
+    }},
+    {0.68f, [](DataSet* d) {
+        set_dataset_common(d, 7, 90,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.663697f, 3.339267f, 0.046629f,
+            (const double[]){0.0016725, 0.0033878, 0.0283097, -0.0016932, -0.0034202, -0.0288214, -0.0033477, -0.0016144, 0.0285797, 0.0033805, 0.0016351, -0.0291035, 0.0033494, -0.0033013, 0.0585990}});
+    }},
+    {0.69f, [](DataSet* d) {
+        set_dataset_common(d, 7, 87,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.663747f, 3.339166f, 0.047308f,
+            (const double[]){0.0016481, 0.0033389, 0.0283204, -0.0016680, -0.0033705, -0.0288115, -0.0032994, -0.0015917, 0.0285783, 0.0033314, 0.0016116, -0.0290808, 0.0033013, -0.0032525, 0.0585419}});
+    }},
+    {0.70f, [](DataSet* d) {
+        set_dataset_common(d, 9, 84,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.6638f, 3.33906f, 0.047987f,
+            (const double[]){0.0016244, 0.0032914, 0.0283306, -0.0016435, -0.0033222, -0.0288014, -0.0032525, -0.0015696, 0.0285767, 0.0032836, 0.0015887, -0.0290583, 0.0032544, -0.0032050, 0.0584852}});
+    }},
+    {0.71f, [](DataSet* d) {
+        set_dataset_common(d, 12, 81,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.663855f, 3.338949f, 0.048667f,
+            (const double[]){0.0016014, 0.0032452, 0.0283403, -0.0016197, -0.0032752, -0.0287911, -0.0032070, -0.0015482, 0.0285749, 0.0032372, 0.0015664, -0.0290360, 0.0032089, -0.0031590, 0.0584289}});
+    }},
+    {0.72f, [](DataSet* d) {
+        set_dataset_common(d, 15, 78,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.663913f, 3.338832f, 0.049348f,
+            (const double[]){0.0015791, 0.0032004, 0.0283494, -0.0015966, -0.0032295, -0.0287807, -0.0031627, -0.0015273, 0.0285730, 0.0031920, 0.0015448, -0.0290139, 0.0031646, -0.0031142, 0.0583730}});
+    }},
+    {0.73f, [](DataSet* d) {
+        set_dataset_common(d, 18, 76,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.663974f, 3.33871f, 0.050028f,
+            (const double[]){0.0015573, 0.0031568, 0.0283581, -0.0015741, -0.0031850, -0.0287701, -0.0031197, -0.0015070, 0.0285708, 0.0031481, 0.0015238, -0.0289920, 0.0031215, -0.0030706, 0.0583173}});
+    }},
+    {0.74f, [](DataSet* d) {
+        set_dataset_common(d, 21, 73,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.664038f, 3.338582f, 0.05071f,
+            (const double[]){0.0015362, 0.0031144, 0.0283664, -0.0015522, -0.0031416, -0.0287595, -0.0030778, -0.0014873, 0.0285685, 0.0031053, 0.0015033, -0.0289702, 0.0030795, -0.0030283, 0.0582621}});
+    }},
+    {0.75f, [](DataSet* d) {
+        set_dataset_common(d, 23, 70,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.664105f, 3.338449f, 0.051392f,
+            (const double[]){0.0015157, 0.0030731, 0.0283742, -0.0015310, -0.0030994, -0.0287486, -0.0030371, -0.0014681, 0.0285661, 0.0030636, 0.0014833, -0.0289486, 0.0030386, -0.0029871, 0.0582071}});
+    }},
+    {0.76f, [](DataSet* d) {
+        set_dataset_common(d, 26, 67,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.664174f, 3.33831f, 0.052074f,
+            (const double[]){0.0014957, 0.0030330, 0.0283815, -0.0015103, -0.0030582, -0.0287377, -0.0029975, -0.0014494, 0.0285634, 0.0030229, 0.0014639, -0.0289272, 0.0029988, -0.0029470, 0.0581524}});
+    }},
+    {0.77f, [](DataSet* d) {
+        set_dataset_common(d, 29, 64,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.664246f, 3.338166f, 0.052756f,
+            (const double[]){0.0014763, 0.0029939, 0.0283884, -0.0014901, -0.0030181, -0.0287266, -0.0029589, -0.0014312, 0.0285606, 0.0029833, 0.0014450, -0.0289059, 0.0029600, -0.0029080, 0.0580980}});
+    }},
+    {0.78f, [](DataSet* d) {
+        set_dataset_common(d, 32, 62,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.664321f, 3.338016f, 0.05344f,
+            (const double[]){0.0014574, 0.0029558, 0.0283949, -0.0014705, -0.0029790, -0.0287155, -0.0029213, -0.0014135, 0.0285576, 0.0029447, 0.0014266, -0.0288847, 0.0029222, -0.0028700, 0.0580439}});
+    }},
+    {0.79f, [](DataSet* d) {
+        set_dataset_common(d, 35, 59,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.664398f, 3.337861f, 0.054123f,
+            (const double[]){0.0014390, 0.0029187, 0.0284011, -0.0014514, -0.0029409, -0.0287042, -0.0028847, -0.0013963, 0.0285544, 0.0029070, 0.0014086, -0.0288637, 0.0028853, -0.0028329, 0.0579900}});
+    }},
+    {0.80f, [](DataSet* d) {
+        set_dataset_common(d, 37, 56,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.664479f, 3.3377f, 0.054807f,
+            (const double[]){0.0014210, 0.0028825, 0.0284068, -0.0014328, -0.0029037, -0.0286929, -0.0028490, -0.0013794, 0.0285511, 0.0028703, 0.0013911, -0.0288429, 0.0028493, -0.0027968, 0.0579364}});
+    }},
+    {0.81f, [](DataSet* d) {
+        set_dataset_common(d, 40, 53,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.664562f, 3.337534f, 0.055492f,
+            (const double[]){0.0014036, 0.0028472, 0.0284121, -0.0014146, -0.0028674, -0.0286814, -0.0028142, -0.0013630, 0.0285476, 0.0028345, 0.0013740, -0.0288222, 0.0028143, -0.0027616, 0.0578830}});
+    }},
+    {0.82f, [](DataSet* d) {
+        set_dataset_common(d, 43, 50,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.664647f, 3.337362f, 0.056177f,
+            (const double[]){0.0013865, 0.0028128, 0.0284171, -0.0013969, -0.0028319, -0.0286699, -0.0027803, -0.0013470, 0.0285440, 0.0027994, 0.0013573, -0.0288016, 0.0027800, -0.0027273, 0.0578299}});
+    }},
+    {0.83f, [](DataSet* d) {
+        set_dataset_common(d, 46, 48,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.664736f, 3.337185f, 0.056862f,
+            (const double[]){0.0013699, 0.0027792, 0.0284217, -0.0013796, -0.0027973, -0.0286583, -0.0027472, -0.0013314, 0.0285402, 0.0027653, 0.0013411, -0.0287812, 0.0027466, -0.0026938, 0.0577769}});
+    }},
+    {0.84f, [](DataSet* d) {
+        set_dataset_common(d, 49, 45,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.664827f, 3.337003f, 0.057548f,
+            (const double[]){0.0013537, 0.0027465, 0.0284260, -0.0013628, -0.0027634, -0.0286466, -0.0027148, -0.0013162, 0.0285362, 0.0027319, 0.0013252, -0.0287609, 0.0027139, -0.0026611, 0.0577242}});
+    }},
+    {0.85f, [](DataSet* d) {
+        set_dataset_common(d, 51, 42,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.664922f, 3.336815f, 0.058235f,
+            (const double[]){0.0013379, 0.0027145, 0.0284299, -0.0013463, -0.0027304, -0.0286348, -0.0026833, -0.0013013, 0.0285321, 0.0026993, 0.0013097, -0.0287407, 0.0026820, -0.0026292, 0.0576717}});
+    }},
+    {0.86f, [](DataSet* d) {
+        set_dataset_common(d, 54, 39,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.665018f, 3.336621f, 0.058922f,
+            (const double[]){0.0013224, 0.0026832, 0.0284334, -0.0013303, -0.0026981, -0.0286230, -0.0026525, -0.0012868, 0.0285278, 0.0026674, 0.0012945, -0.0287207, 0.0026509, -0.0025981, 0.0576194}});
+    }},
+    {0.87f, [](DataSet* d) {
+        set_dataset_common(d, 57, 36,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.665118f, 3.336422f, 0.059609f,
+            (const double[]){0.0013074, 0.0026527, 0.0284367, -0.0013146, -0.0026665, -0.0286111, -0.0026224, -0.0012726, 0.0285233, 0.0026362, 0.0012797, -0.0287008, 0.0026204, -0.0025677, 0.0575673}});
+    }},
+    {0.88f, [](DataSet* d) {
+        set_dataset_common(d, 60, 34,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.66522f, 3.336217f, 0.060297f,
+            (const double[]){0.0012927, 0.0026229, 0.0284396, -0.0012992, -0.0026356, -0.0285991, -0.0025930, -0.0012587, 0.0285187, 0.0026057, 0.0012652, -0.0286810, 0.0025907, -0.0025380, 0.0575153}});
+    }},
+    {0.89f, [](DataSet* d) {
+        set_dataset_common(d, 63, 31,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.665326f, 3.336007f, 0.060985f,
+            (const double[]){0.0012783, 0.0025938, 0.0284422, -0.0012843, -0.0026054, -0.0285871, -0.0025643, -0.0012452, 0.0285140, 0.0025759, 0.0012511, -0.0286613, 0.0025616, -0.0025090, 0.0574635}});
+    }},
+    {0.90f, [](DataSet* d) {
+        set_dataset_common(d, 65, 28,
+            (const int[]){1, 0, 1, 1, 1, 1},
+            (const int[]){1, 1, 1, 1, 1, 0},
+            (const int[]){1, 1, 1, 0, 1, 1},
+            1.665434f, 3.335792f, 0.061674f,
+            (const double[]){0.0012643, 0.0025653, 0.0284445, -0.0012696, -0.0025758, -0.0285750, -0.0025362, -0.0012319, 0.0285091, 0.0025468, 0.0012373, -0.0286417, 0.0025331, -0.0024806, 0.0574119}});
+    }},
+};
+
+// O(log n) lookup using std::map::find
+void helper_set_dataset_from_alpha(DataSet *dataset, float alpha) {
+    auto it = ALPHA_DATASET_MAP.find(alpha);
+    if (it != ALPHA_DATASET_MAP.end()) {
+        it->second(dataset);
     }
 }

@@ -16,8 +16,11 @@
 #include <vector>
 
 extern const uint32_t MASK_U1_LOW;
+extern const uint32_t MASK_U1_HIGH;
+extern const uint32_t MASK_U2_LOW;
 extern const uint32_t MASK_U2_HIGH;
-extern const uint32_t MASK_U2_HIGH;
+extern const uint32_t MASK_U3_LOW;
+extern const uint32_t MASK_U3_HIGH;
 
 #define MAX_SIGNAL_SIZE 100
 struct DataSet {

@@ -10,49 +10,49 @@ enum EMATRIX {
 }
 
 export const QuickActions = () => {
-  const [chunk, setChunk] = useState(10);
+  const [chunk, set_chunk] = useState(10);
   const [cycles, setCycles] = useState(100);
-  const [monitor_period_ms, setMonitorPeriodMs] = useState(100);
-  const [cmd, setCmd] = useState("");
-  const [commandHistory, setCommandHistory] = useState<string[]>([]);
-  const historyIndexRef = useRef(-1);
-  const historyRef = useRef<string[]>([]);
+  const [monitor_period_ms, set_monitor_period_ms] = useState(100);
+  const [cmd, set_cmd] = useState("");
+  const [command_history, set_command_history] = useState<string[]>([]);
+  const history_index_ref = useRef(-1);
+  const history_ref = useRef<string[]>([]);
 
   // Keep historyRef in sync with commandHistory state
   useEffect(() => {
-    historyRef.current = commandHistory;
-  }, [commandHistory]);
+    history_ref.current = command_history;
+  }, [command_history]);
 
   const handle_set_chunk = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setChunk(parseInt(e.target.value));
+    set_chunk(parseInt(e.target.value));
   const handle_set_cycles = (e: React.ChangeEvent<HTMLInputElement>) =>
     setCycles(parseInt(e.target.value));
   const handle_set_monitor_period_ms = (
     e: React.ChangeEvent<HTMLInputElement>,
-  ) => setMonitorPeriodMs(parseInt(e.target.value));
+  ) => set_monitor_period_ms(parseInt(e.target.value));
 
   const ble_send_command = (cmd: string) => bleManager.send(cmd);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const history = historyRef.current;
+    const history = history_ref.current;
     if (e.key === "ArrowUp") {
       e.preventDefault();
       if (history.length === 0) return;
-      const newIndex = historyIndexRef.current + 1;
+      const newIndex = history_index_ref.current + 1;
       if (newIndex < history.length) {
-        historyIndexRef.current = newIndex;
-        setCmd(history[newIndex]);
+        history_index_ref.current = newIndex;
+        set_cmd(history[newIndex]);
       }
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
       if (history.length === 0) return;
-      const newIndex = historyIndexRef.current - 1;
+      const newIndex = history_index_ref.current - 1;
       if (newIndex >= 0) {
-        historyIndexRef.current = newIndex;
-        setCmd(history[newIndex]);
+        history_index_ref.current = newIndex;
+        set_cmd(history[newIndex]);
       } else {
-        historyIndexRef.current = -1;
-        setCmd("");
+        history_index_ref.current = -1;
+        set_cmd("");
       }
     }
   };
@@ -60,10 +60,10 @@ export const QuickActions = () => {
   const handleSend = (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!cmd.trim()) return;
-    setCommandHistory((prev) => [...prev, cmd.trim()]);
-    historyIndexRef.current = -1;
+    set_command_history((prev) => [...prev, cmd.trim()]);
+    history_index_ref.current = -1;
     bleManager.send(cmd);
-    setCmd("");
+    set_cmd("");
   };
 
   const handle_status_matrix = (matrix: EMATRIX) => {
@@ -93,7 +93,7 @@ export const QuickActions = () => {
             <input
               type="text"
               value={cmd}
-              onChange={(e) => setCmd(e.target.value)}
+              onChange={(e) => set_cmd(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Enter custom command..."
               className="flex-1 font-mono text-sm bg-white border-2 border-gray-200 focus:border-blue-500 rounded-md px-3 py-2 shadow-sm"
