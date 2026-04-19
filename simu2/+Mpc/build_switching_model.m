@@ -1,4 +1,4 @@
-function [Phi, Gamma] = construcao_modelo_instantes(Ac, Bc, tr, xr, config)
+function [Phi, Gamma] = build_switching_model(Ac, Bc, tr, xr, config)
 
     % Phi   = F_{N} F_{N-1} ... F_1
 

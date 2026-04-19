@@ -3,8 +3,8 @@ function success = set_config(self, sim_name)
     success = true;
     switch sim_name
         case Enums.SimName.INTEGRADOR_DUPLO
-            disp('loading config `integrador duplo`');
-            self.m_config = Data.intduplo();
+            disp('loading config `double integrator`');
+            self.m_config = Data.double_integrator();
         case Enums.SimName.PATINO_1
             disp('loading config `patino_1`');
             self.m_config = Data.patino_1();

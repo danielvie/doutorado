@@ -37,7 +37,7 @@ function set_mpc(self, config_mpc)
 
     % ?? augmented
     if self.m_state_mode == Enums.StateMode.AUGMENTED
-        [Aa, Ba] = Mpc.construcao_modelo_aumentado(Phi, Gamma, Nd);
+        [Aa, Ba] = Mpc.build_augmented_model(Phi, Gamma, Nd);
     end
 
     if ~isempty(config_mpc.Q)
@@ -52,7 +52,7 @@ function set_mpc(self, config_mpc)
     
     R  = eye(p);
 
-    % parametros das restricoes de chaveamento
+    % switching constraints parameters
     c = self.get_switching_constraints();
 
     % c = [
@@ -70,13 +70,13 @@ function set_mpc(self, config_mpc)
     % ?? augmented
     if self.m_state_mode == Enums.StateMode.AUGMENTED
         [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,K,~] = ...
-        Mpc.matrizes_ss_mpc_dualmode_switching(Aa,Ba,Q,R,Np,c);
+        Mpc.ss_mpc_dualmode_matrices(Aa,Ba,Q,R,Np,c);
     else
         [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,K,~] = ...
-        Mpc.matrizes_ss_mpc_dualmode_switching(Phi,Gamma,Q,R,Np,c);
+        Mpc.ss_mpc_dualmode_matrices(Phi,Gamma,Q,R,Np,c);
     end
 
-    % criando estrutura com dados MPC
+    % creating MPC data structure
     mpc_opt          = struct();
     mpc_opt.on       = true;
 

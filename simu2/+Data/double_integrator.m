@@ -3,7 +3,7 @@
 % CONFIG
 % --------------------------------------
 
-function config = intduplo()
+function config = double_integrator()
       
       config = Data.Config();
 

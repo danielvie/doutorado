@@ -1,4 +1,4 @@
-function [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,K,L] = matrizes_ss_mpc_dualmode_switching(Phi, Gamma, Q, R, Np, c)
+function [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,K,L] = ss_mpc_dualmode_matrices(Phi, Gamma, Q, R, Np, c)
     % Restricao (at each cycle): L*dt <= c
     % f = Phi * Xi(k)
  
@@ -35,14 +35,14 @@ function [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,K,L] = matrizes_ss_mpc_
     
     PhiNp = Phi^Np;
     
-    % Determinacao do ganho terminal K
+    % Determination of terminal gain K
     K = dlqr(Phi,Gamma,Q,R);
     % disp('ganho terminal K:')
     % disp(K)
     Phib = Phi - Gamma*K;
     
-    % Determinacao da matriz de custo terminal Pf
-    % Eq. Laypunov:
+    % Determination of terminal cost matrix Pf
+    % Eq. Lyapunov:
     % Phib'*Pf*Phib - Pf + Phib'*Q*Phib + K'*R*K = 0
     Pf = dlyap(Phib',Phib'*Q*Phib + K'*R*K);
     

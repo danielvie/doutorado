@@ -10,7 +10,7 @@ function [Phi, Gamma] = linearize(config)
     %       .Ts     : Switching time sequence
     %       .Omega  : Mode index sequence
     %       .x0     : Periodic orbit equilibrium state
-    %       (and all fields required by Mpc.construcao_modelo_instantes)
+    %       (and all fields required by Mpc.build_switching_model)
     %
     % Outputs:
     %   Phi   - (n x n) One-cycle state transition matrix
@@ -20,7 +20,7 @@ function [Phi, Gamma] = linearize(config)
     tr  = Ts(2:end);
     xr  = Utils.get_xr(config);
 
-    [Phi, Gamma] = Mpc.construcao_modelo_instantes(config.A, config.b, tr, xr, config);
+    [Phi, Gamma] = Mpc.build_switching_model(config.A, config.b, tr, xr, config);
 
     % Print if no output is given (interactive use)
     if nargout == 0

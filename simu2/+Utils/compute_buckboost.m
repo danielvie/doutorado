@@ -6,7 +6,7 @@ function [A, b, C, D] = compute_buckboost(params)
 	L  = params.L;
 	R  = params.R;
 	
-    % construcao das matrizes dinamica
+    % construction of dynamic matrices
     A = cell(1,8);
     b = cell(1,8);
     

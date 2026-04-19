@@ -1,8 +1,8 @@
-function [Aa, Ba] = construcao_modelo_aumentado(Phi, Gamma, Nd)
-    % construcao_modelo_aumentado - compute the extended model for the propagation
-    % matrices for a block of commants contidering a delay in the control command
+function [Aa, Ba] = build_augmented_model(Phi, Gamma, Nd)
+    % build_augmented_model - compute the extended model for the propagation
+    % matrices for a block of commands considering a delay in the control command
     % 
-    % Syntax: [Aa, Ba] = Mpc.construcao_modelo_aumentado(Phi, Gamma, Nd)
+    % Syntax: [Aa, Ba] = Mpc.build_augmented_model(Phi, Gamma, Nd)
     %
     % Inputs:
     %   Phi - Matrix of propagation dynamics
@@ -13,7 +13,7 @@ function [Aa, Ba] = construcao_modelo_aumentado(Phi, Gamma, Nd)
     %   Aa - Matrix of propagation dynamics (block)
     %   Ba - Matrix of propagation control (block)
 
-    % CONSTRUINDO MODELO EXTENDIDO
+    % BUILDING EXTENDED MODEL
     % notes for LAB_CIRCUIT
     % e(tn) = Phi e(t0) + Gamma deltat
     % Phi [3x3]

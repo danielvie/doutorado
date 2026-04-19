@@ -178,9 +178,9 @@ simu2/
 │   └── MpcController.m             # MPC QP controller (quadprog) ★ NEW
 │
 ├── +Mpc/                           # MPC formulation (package)
-│   ├── construcao_modelo_instantes.m    # Linearized model (Φ, Γ) at switching instants
-│   ├── construcao_modelo_aumentado.m    # Augmented model for control delay
-│   ├── matrizes_ss_mpc_dualmode_switching.m  # MPC matrices (H, Hf, K, Pf, Sf, bf)
+│   ├── build_switching_model.m          # Linearized model (Φ, Γ) at switching instants
+│   ├── build_augmented_model.m          # Augmented model for control delay
+│   ├── ss_mpc_dualmode_matrices.m       # MPC matrices (H, Hf, K, Pf, Sf, bf)
 │   └── dualmode_switching.m             # QP solver wrapper (quadprog)
 │
 ├── +Data/                          # Circuit configurations (package)
@@ -188,7 +188,7 @@ simu2/
 │   ├── lab_circuit.m               # Lab prototype (3-cell, E=5V)
 │   ├── patino_1.m                  # Patiño benchmark 1 (2-mode, simple)
 │   ├── patino_2.m                  # Patiño benchmark 2 (3-cell, E=30V)
-│   └── intduplo.m                  # Double integrator (academic example)
+│   └── double_integrator.m         # Double integrator (academic example)
 │
 ├── +Projecao/                      # Feasibility region projection (package)
 │   ├── create_projection.m         # Compute feasibility polytope
@@ -525,7 +525,7 @@ This formulation handles the affine term $b_i$ (constant input) exactly via the 
 
 ### 6.1 Linearized Model at Switching Instants
 
-**File:** `+Mpc/construcao_modelo_instantes.m`
+**File:** `+Mpc/build_switching_model.m`
 
 The system is linearized around the nominal trajectory to obtain:
 
@@ -545,7 +545,7 @@ where $\bar{x}(t_j)$ is the reference state at switching instant $j$.
 
 ### 6.2 MPC Optimization
 
-**File:** `+Mpc/matrizes_ss_mpc_dualmode_switching.m`
+**File:** `+Mpc/ss_mpc_dualmode_matrices.m`
 
 The prediction model over $N_p$ steps:
 
@@ -593,7 +593,7 @@ where:
 
 ### 6.4 Augmented Model (for Control Delay)
 
-**File:** `+Mpc/construcao_modelo_aumentado.m`
+**File:** `+Mpc/build_augmented_model.m`
 
 When `StateMode = AUGMENTED`, accounts for $N_d$-step control delay:
 
@@ -651,7 +651,7 @@ Before applying $\delta t_k$, a scaling factor $\alpha \in [0, 1]$ is computed t
 | Circuit | Simple Buck (R=L=C=E=1) |
 | Modes | [1, 2] |
 
-### 7.4 Double Integrator (`Data.intduplo`)
+### 7.4 Double Integrator (`Data.double_integrator`)
 
 | Parameter | Value |
 |-----------|-------|

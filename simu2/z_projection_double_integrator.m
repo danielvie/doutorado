@@ -1,6 +1,6 @@
 % Define function for the projection test using Backward Reachable Sets
-function z_test_integrador_duplo_projection()
-    disp('Initializing simulation Integrador Duplo...');
+function z_test_double_integrator_projection()
+    disp('Initializing simulation Double Integrator...');
     s = Simulation(Enums.SimName.INTEGRADOR_DUPLO);
 
     disp('Extracting system dynamics...');
@@ -112,7 +112,7 @@ function z_test_integrador_duplo_projection()
 
     xlabel('Error State x_1');
     ylabel('Error State x_2');
-    title('Feasibility Regions for INTEGRADOR\_DUPLO (Backward Reachability)');
+    title('Feasibility Regions for DOUBLE\_INTEGRATOR (Backward Reachability)');
 
     legend_labels = arrayfun(@(n) sprintf('N_p = %d', n), horizons, 'UniformOutput', false);
     legend(h_leg, legend_labels, 'Location', 'best');
