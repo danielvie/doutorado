@@ -2,6 +2,19 @@
 
 Copy-paste snippets for common tasks.
 
+## Quick Tasks (t.m)
+
+```matlab
+t('play')           % Run main simulation
+t('play_patino1')   % Patino 1 benchmark
+t('play_patino2')   % Patino 2 benchmark
+t('play_integrador')% Double integrator
+t('test')           % Run tests
+t('demo', 'broker') % Run broker demo
+t('clean')          % Clean outputs
+t('docs')           % Open documentation
+```
+
 ## Simulation Setup
 
 ```matlab

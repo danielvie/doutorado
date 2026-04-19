@@ -4,6 +4,19 @@ MATLAB framework for Model Predictive Control of DC-DC converters using variable
 
 ## Quick Start
 
+### Using Task Runner (Recommended)
+
+```matlab
+t('play')              % Run main LAB_CIRCUIT simulation
+t('play_patino1')      % Patino 1 benchmark
+t('play_patino2')      % Patino 2 benchmark
+t('play_integrador')   % Double integrator
+t('test')              % Run test suite
+t('demo', 'projection')% Run feasibility demo
+```
+
+### Manual Control
+
 ```matlab
 % Basic simulation
 s = Simulation(Enums.SimName.LAB_CIRCUIT);
@@ -48,6 +61,20 @@ Instead of traditional PWM duty-cycle control, this framework computes **time de
 **Setup:**
 ```matlab
 addpath('C:/path/to/simu2');
+```
+
+## Project Structure
+
+```
++Controllers/   +Data/      +Dynamics/   +Enums/
++Hardware/      +Interface/ +Mpc/        +Results/
++Trajectory/    +Utils/     +z_run/      @BTBroker/
+@Simulation/
+
+Core engine:     +* packages, @* classes
+Run scripts:     +z_run/+Scripts/ (+Tests/, +Demos/)
+Entry point:     t.m
+Documentation:   DOCS/
 ```
 
 ## Supported Configurations

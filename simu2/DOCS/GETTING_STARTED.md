@@ -2,7 +2,25 @@
 
 Step-by-step tutorial for first-time users.
 
-## 1. Your First Simulation
+## Quick Run (Using Task Runner)
+
+The fastest way to run pre-configured simulations:
+
+```matlab
+t('play')              % Main LAB_CIRCUIT simulation
+t('play_patino1')      % Patino 1 benchmark
+t('play_patino2')      % Patino 2 benchmark
+t('play_integrador')   % Double integrator example
+t('test')              % Run test suite
+t('demo', 'projection') % Run demo
+```
+
+Scripts are organized in `+z_run` package:
+- `z_run.Scripts.*` - Simulation entry points
+- `z_run.Tests.*` - Test suite
+- `z_run.Demos.*` - Interactive demos
+
+## 1. Your First Simulation (Manual)
 
 ```matlab
 % Create simulation object
