@@ -20,12 +20,12 @@ const DEFAULT_LAYOUT = {
   "slot-5": "help"
 };
 
-const DEFAULT_SLOT_SIZES: Record<string, PanelSize> = {
-  "slot-1": "2x1",
-  "slot-2": "1x1",
-  "slot-3": "1x1",
-  "slot-4": "1x1",
-  "slot-5": "1x1"
+const DEFAULT_ITEM_SIZES: Record<string, PanelSize> = {
+  "chart": "2x1",
+  "quick": "1x1",
+  "manual": "1x1",
+  "signal": "1x1",
+  "help": "1x1"
 };
 
 function App() {
@@ -34,31 +34,24 @@ function App() {
     return saved ? JSON.parse(saved) : DEFAULT_LAYOUT;
   });
 
-  const [slotSizes, setSlotSizes] = useState<Record<string, PanelSize>>(() => {
-    const saved = localStorage.getItem("dashboard-slot-sizes");
-    return saved ? JSON.parse(saved) : DEFAULT_SLOT_SIZES;
+  const [itemSizes, setItemSizes] = useState<Record<string, PanelSize>>(() => {
+    const saved = localStorage.getItem("dashboard-item-sizes");
+    return saved ? JSON.parse(saved) : DEFAULT_ITEM_SIZES;
   });
 
-  // Unique instance ID for this dashboard to prevent cross-dashboard dragging if multiple instances exist
   const [instanceId] = useState(() => Math.random().toString(36).substring(7));
 
   useEffect(() => {
     return monitorForElements({
       onDrop({ source, location }) {
         const destination = location.current.dropTargets[0];
-        if (!destination) {
-          console.log("No destination found");
-          return;
-        }
+        if (!destination) return;
 
         const sourceId = source.data.id as string;
         const destinationId = destination.data.id as string;
 
-        console.log(`Swapping ${sourceId} with ${destinationId}`);
-
         if (sourceId === destinationId) return;
 
-        // Find the slots in the current layout
         setLayout(prevLayout => {
           const sourceSlot = Object.keys(prevLayout).find(key => prevLayout[key] === sourceId);
           const destinationSlot = Object.keys(prevLayout).find(key => prevLayout[key] === destinationId);
@@ -75,12 +68,12 @@ function App() {
         });
       },
     });
-  }, [instanceId]); // We use a stable dependency but the state update uses functional form
+  }, [instanceId]);
 
-  const handleSlotSizeChange = (slotId: string, size: PanelSize) => {
-    const newSizes = { ...slotSizes, [slotId]: size };
-    setSlotSizes(newSizes);
-    localStorage.setItem("dashboard-slot-sizes", JSON.stringify(newSizes));
+  const handleItemSizeChange = (itemId: string, size: PanelSize) => {
+    const newSizes = { ...itemSizes, [itemId]: size };
+    setItemSizes(newSizes);
+    localStorage.setItem("dashboard-item-sizes", JSON.stringify(newSizes));
   };
 
   const getSlotForItem = (itemId: string) => {
@@ -96,10 +89,10 @@ function App() {
     }
   };
 
-  const renderItemContent = (itemId: string, slotId: string) => {
+  const renderItemContent = (itemId: string) => {
     const props = {
-      currentSize: slotSizes[slotId] || '1x1',
-      onSizeChange: (size: PanelSize) => handleSlotSizeChange(slotId, size)
+      currentSize: itemSizes[itemId] || '1x1',
+      onSizeChange: (size: PanelSize) => handleItemSizeChange(itemId, size)
     };
 
     switch (itemId) {
@@ -115,7 +108,6 @@ function App() {
   return (
     <Layout>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch grid-flow-dense">
-        {/* We sort the items by their current slot to ensure they appear in the correct visual order in the grid */}
         {[...ITEM_IDS]
           .sort((a, b) => {
             const slotA = getSlotForItem(a);
@@ -123,13 +115,12 @@ function App() {
             return slotA.localeCompare(slotB);
           })
           .map((itemId) => {
-            const slotId = getSlotForItem(itemId);
-            const sizeClass = getSizeClass(slotSizes[slotId] || '1x1');
+            const sizeClass = getSizeClass(itemSizes[itemId] || '1x1');
             
             return (
               <div key={itemId} className={`${sizeClass}`}>
                 <DashboardItem id={itemId} instanceId={instanceId}>
-                  {renderItemContent(itemId, slotId)}
+                  {renderItemContent(itemId)}
                 </DashboardItem>
               </div>
             );
