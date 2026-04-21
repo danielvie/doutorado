@@ -39,13 +39,13 @@ jobs:
       # Step 3: Install dependencies
       - name: Install dependencies
         run: |
-          cd embedded/esp32/web
+          cd embedded/esp32_idf/web
           bun install
 
       # Step 4: Build React App
       - name: Build react app
         run: |
-          cd embedded/esp32/web
+          cd embedded/esp32_idf/web
           bun run build
 
       # Step 5: Set up Go environment
@@ -57,7 +57,7 @@ jobs:
       # Step 6: Build cross-platform executables
       - name: Build Executable for ${{ matrix.suffix }}
         run: |
-          cd embedded/esp32/web
+          cd embedded/esp32_idf/web
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o web_server_daniel${{ matrix.extension }} ./go_server/server.go
           mv web_server_daniel${{ matrix.extension }} web_server_daniel-${{ matrix.suffix }}${{ matrix.extension }}
 
@@ -66,7 +66,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: web_server_daniel-${{ matrix.suffix }}
-          path: embedded/esp32/web/web_server_daniel-${{ matrix.suffix }}${{ matrix.extension }}
+          path: embedded/esp32_idf/web/web_server_daniel-${{ matrix.suffix }}${{ matrix.extension }}
 
   release:
     needs: build
