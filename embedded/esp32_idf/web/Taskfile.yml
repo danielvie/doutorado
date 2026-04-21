@@ -20,3 +20,8 @@ tasks:
     aliases: [p]
     cmds:
      - bun run play/play.ts
+     
+  agentation:
+    desc: "Run the agentation server"
+    cmds:
+      - npx agentation-mcp server

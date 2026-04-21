@@ -1,12 +1,15 @@
 import { useEffect, useRef } from "react";
 import { useBleStore } from "../../store/bleStore";
-import { Terminal as TerminalIcon, Trash2 } from "lucide-react";
+import { Terminal as TerminalIcon, Trash2, GripVertical } from "lucide-react";
 
 export const ManualControl = () => {
     return (
         <div className="panel p-6 flex flex-col gap-6 h-full">
             <div className="flex items-center justify-between border-b border-gray-200 pb-4">
                 <div className="flex items-center gap-3">
+                    <div className="p-1.5 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing transition-colors" data-swapy-handle>
+                        <GripVertical size={20} />
+                    </div>
                     <div className="p-2 bg-blue-50 rounded-md text-blue-600">
                         <TerminalIcon className="w-5 h-5" />
                     </div>

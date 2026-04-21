@@ -14,7 +14,7 @@ import {
     ChartData,
 } from "chart.js";
 import { useDataStore } from "../../store/dataStore";
-import { Maximize2, Minimize2, Activity } from "lucide-react";
+import { Maximize2, Minimize2, Activity, GripVertical } from "lucide-react";
 
 // Register Chart.js components
 ChartJS.register(
@@ -135,10 +135,13 @@ export const RealtimeChart = () => {
     }), []);
 
     return (
-        <div className={`panel p-6 flex flex-col transition-all duration-300 ${isExpanded ? 'fixed inset-4 z-50 h-auto' : 'h-[600px] shrink-0'}`}>
+        <div className={`panel p-6 flex flex-col transition-all duration-300 ${isExpanded ? 'fixed inset-4 z-50 h-auto' : 'h-full min-h-[600px]'}`}>
             {/* Header */}
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-3">
+                    <div className="p-1.5 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing transition-colors" data-swapy-handle>
+                        <GripVertical size={20} />
+                    </div>
                     <div className="p-2 bg-blue-50 text-blue-600 rounded-md">
                         <Activity className="w-5 h-5" />
                     </div>

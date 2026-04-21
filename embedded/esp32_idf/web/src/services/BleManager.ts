@@ -1,12 +1,10 @@
 import { IBleService } from "./BleService.interface";
-import { MockBleService } from "./MockBleService";
 import { WebBleService } from "./WebBleService";
 import { useBleStore } from "../store/bleStore";
 import { useDataStore } from "../store/dataStore";
 
 class BleManager {
     private service: IBleService;
-    private isMock: boolean = false;
     private startTime: number;
 
     constructor() {
@@ -14,19 +12,7 @@ class BleManager {
         this.startTime = Date.now();
     }
 
-    // Switch between real and mock services
-    setMockMode(enable: boolean) {
-        if (this.isMock === enable) return;
 
-        // Disconnect current service if connected
-        this.service.disconnect().catch(console.error);
-
-        this.isMock = enable;
-        this.service = enable ? new MockBleService() : new WebBleService();
-
-        useBleStore.getState().setMockMode(enable);
-        useBleStore.getState().addLog(`Switched to ${enable ? "Mock" : "Real"} BLE Mode`);
-    }
 
     async connect() {
         const { isConnected } = useBleStore.getState();

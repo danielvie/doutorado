@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { bleManager } from "../../services/BleManager";
 import { useBleStore } from "../../store/bleStore";
-import { Zap, Send } from "lucide-react";
+import { Zap, Send, GripVertical } from "lucide-react";
 import StatusBox from "./StatusBox";
 
 enum EMATRIX {
@@ -71,9 +71,12 @@ export const QuickActions = () => {
   };
 
   return (
-    <div className="panel p-6 flex flex-col gap-6 h-fit shrink-0">
+    <div className="panel p-6 flex flex-col gap-6 h-full">
       <div className="flex justify-between items-center border-b border-gray-200 pb-4">
         <div className="flex items-center gap-3">
+          <div className="p-1.5 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing transition-colors" data-swapy-handle>
+            <GripVertical size={20} />
+          </div>
           <div className="p-2 bg-amber-50 rounded-md text-amber-600">
             <Zap className="w-5 h-5" />
           </div>

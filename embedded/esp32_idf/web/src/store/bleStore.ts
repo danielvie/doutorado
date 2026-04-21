@@ -8,7 +8,6 @@ interface BleState {
     systemStatus: string; // e.g. "Ready", "Connected", "Disconnected"
     device: BluetoothDevice | null; // Keep reference if needed for direct ops
     lastStatusMessage: string | null;
-    isMockMode: boolean;
     alpha: string;
     showHelp: boolean;
 
@@ -21,7 +20,6 @@ interface BleState {
     clearLogs: () => void;
     setSystemStatus: (status: string) => void;
     setDevice: (device: BluetoothDevice | null) => void;
-    setMockMode: (isMock: boolean) => void;
     setAlpha: (alpha: string) => void;
     setShowHelp: (show: boolean) => void;
 }
@@ -33,7 +31,6 @@ export const useBleStore = create<BleState>((set) => ({
     statusLogs: [],
     systemStatus: "Ready",
     device: null,
-    isMockMode: false, // Default to false (Real BLE)
     lastStatusMessage: null,
     showHelp: false,
 
@@ -46,7 +43,6 @@ export const useBleStore = create<BleState>((set) => ({
     clearLogs: () => set({ statusLogs: [] }),
     setSystemStatus: (status) => set({ systemStatus: status }),
     setDevice: (device) => set({ device }),
-    setMockMode: (isMock) => set({ isMockMode: isMock }),
     alpha: "0.5",
     setAlpha: (alpha) => set({ alpha }),
     setShowHelp: (show) => set({ showHelp: show }),

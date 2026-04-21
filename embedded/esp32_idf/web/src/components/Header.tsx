@@ -3,7 +3,7 @@ import { useBleStore } from "../store/bleStore";
 import { bleManager } from "../services/BleManager";
 
 export const Header = () => {
-    const { isConnected, systemStatus, isMockMode } = useBleStore();
+    const { isConnected, systemStatus } = useBleStore();
 
     const handleToggleConnection = () => {
         if (isConnected) {
@@ -31,21 +31,6 @@ export const Header = () => {
             </div>
 
             <div className="flex items-center gap-4">
-                <div className="flex bg-gray-100/80 p-1.5 rounded-lg border border-gray-200">
-                    <button
-                        onClick={() => bleManager.setMockMode(false)}
-                        className={`px-5 py-2 rounded-md text-sm font-bold transition-all ${!isMockMode ? 'bg-white text-gray-900 shadow border border-gray-200' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200/50'}`}
-                    >
-                        Live
-                    </button>
-                    <button
-                        onClick={() => bleManager.setMockMode(true)}
-                        className={`px-5 py-2 rounded-md text-sm font-bold transition-all ${isMockMode ? 'bg-white text-gray-900 shadow border border-gray-200' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200/50'}`}
-                    >
-                        Simulated
-                    </button>
-                </div>
-
                 <button
                     onClick={handleToggleConnection}
                     className={isConnected ? 'btn-danger px-6 py-2.5 text-sm font-bold shadow-md' : 'btn-primary px-6 py-2.5 text-sm font-bold shadow-md hover:bg-blue-700 hover:scale-105 transition-all'}
