@@ -57,7 +57,6 @@ export const SizeSelector: React.FC<SizeSelectorProps> = ({ currentSize, onSizeC
         <>
           <div className="fixed inset-0 z-[60]" onClick={() => setIsOpen(false)} />
           <div className="absolute left-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 p-4 z-[70] min-w-[160px] animate-fade-in-up">
-            <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 text-center">Select Width</h4>
             <div className="flex gap-2 w-fit mx-auto">
               {[1, 2, 3].map(w => {
                   const sizeId = `${w}x1` as PanelSize;
