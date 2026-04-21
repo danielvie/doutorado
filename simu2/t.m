@@ -22,36 +22,36 @@ function t(task, varargin)
         help t;
         return;
     end
-    
+
     switch lower(task)
         case 'play'
             play();
-            
+
         case 'play_patino1'
             z_run.Scripts.play_patino1();
-            
+
         case 'play_patino2'
             z_run.Scripts.play_patino2();
-            
+
         case 'play_integrador'
             z_run.Scripts.play_integrador_duplo();
-            
+
         case 'test'
             run_tests();
-            
+
         case 'demo'
             if nargin < 2
                 fprintf('Available demos: projection, broker, feasibility\n');
             else
                 run_demo(varargin{1});
             end
-            
+
         case 'clean'
             clean_files();
-            
+
         case 'docs'
             open_docs();
-            
+
         otherwise
             fprintf('Unknown task: %s\n', task);
             help t;
@@ -60,9 +60,20 @@ end
 
 function run_tests()
     fprintf('Running test suite...\n');
+    z_run.Tests.check_constraints_patino1();
+    z_run.Tests.check_diff();
+    z_run.Tests.check_dtk_sign();
+    z_run.Tests.check_exitflag();
+    z_run.Tests.check_matrices();
+    z_run.Tests.check_prop();
+    z_run.Tests.check_values();
     z_run.Tests.test_basic();
     z_run.Tests.test_dlqr_behavior();
     z_run.Tests.test_industrial_solution();
+    z_run.Tests.test_mpc_on();
+    z_run.Tests.test_patino_params();
+    z_run.Tests.test_status();
+    z_run.Tests.test_who();
     fprintf('Tests complete.\n');
 end
 

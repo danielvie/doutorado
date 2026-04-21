@@ -12,7 +12,9 @@ t('play_patino1')      % Patino 1 benchmark
 t('play_patino2')      % Patino 2 benchmark
 t('play_integrador')   % Double integrator
 t('test')              % Run test suite
-t('demo', 'projection')% Run feasibility demo
+t('demo', 'projection') % Feasibility projection demo
+t('demo', 'broker')     % Bluetooth broker demo
+t('demo', 'feasibility')% Feasibility region demo
 ```
 
 ### Manual Control
@@ -48,6 +50,8 @@ Instead of traditional PWM duty-cycle control, this framework computes **time de
 | [`DOCS/COOKBOOK.md`](DOCS/COOKBOOK.md)               | Common commands and patterns |
 | [`DOCS/THEORY.md`](DOCS/THEORY.md)                   | Physics and MPC mathematics  |
 | [`DOCS/API_REFERENCE.md`](DOCS/API_REFERENCE.md)     | Class and function reference |
+
+> Additional subdirectories (`legacy/`, `agent/`) contain internal drafts and research notes.
 
 ## Installation
 

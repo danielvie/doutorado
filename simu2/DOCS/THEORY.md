@@ -127,3 +127,37 @@ Equilibrium $x_0$ satisfies:
 $$x_0 = (I - FF)^{-1} \cdot c$$
 
 Where $FF = F_N \cdots F_1$ (full cycle propagation).
+
+## Feasibility Region Projection
+
+The feasibility region is the set of initial errors $e_0 = x_0 - x_{target}$ for which the MPC optimization remains feasible over a prediction horizon $N_p$.
+
+### Constraint Polytope
+
+At each prediction step, the error evolves as:
+
+$$\mathbf{e} = H \cdot \mathbf{u} + \Phi_{1:N_p} \cdot e_k$$
+
+Subject to:
+- Switching constraints: $L \cdot \delta t \leq c$
+- Terminal set: $S_f \cdot e_{N_p} \leq b_f$
+
+### Projection via MPT3
+
+The region is computed by projecting the high-dimensional constraint polytope onto the state-error subspace using the MPT Toolbox:
+
+1. Build the lifted constraint set in $(e_0, \mathbf{u})$ space
+2. Eliminate the optimization variables $\mathbf{u}$ via projection
+3. The resulting polytope in $e_0$-space defines the feasibility region
+
+### Visualization
+
+`Simulation.project_feasibility_region(horizons)` plots 2D projections (typically $v_{C1}$ vs $v_{C2}$, $v_{C1}$ vs $i_L$, $v_{C2}$ vs $i_L$) for different horizons:
+
+```matlab
+s.alpha(0.5);
+s.set_mpc();
+fig = s.project_feasibility_region([1, 2, 4, 8]);
+```
+
+Larger $N_p$ generally expands the feasibility region because the controller has more degrees of freedom to recover from disturbances.

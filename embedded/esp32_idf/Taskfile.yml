@@ -180,6 +180,13 @@ tasks:
     cmds:
       - bun install
 
+
+  web:agentation:
+    desc: run agentation server
+    dir: web
+    cmds:
+      - task agentation
+
   web:run:
     desc: run webserver
     dir: web

@@ -1,15 +1,21 @@
 import { GripVertical } from "lucide-react";
+import { PanelSize, SizeSelector } from "./Dashboard/SizeSelector";
 
-export const HelpPanel = () => {
+export const HelpPanel: React.FC<{
+    currentSize?: PanelSize;
+    onSizeChange?: (size: PanelSize) => void;
+    dragHandleRef?: React.RefObject<HTMLDivElement>;
+}> = ({ currentSize = '1x1', onSizeChange = () => {}, dragHandleRef }) => {
 
     return (
         <div className="panel p-6 flex flex-col gap-6 h-full">
             <div className="flex justify-between items-center border-b border-gray-200 pb-4">
-                <div className="flex items-center gap-3">
-                    <div className="p-1.5 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing transition-colors" data-swapy-handle>
+                <div className="flex items-center gap-1.5">
+                    <div ref={dragHandleRef} className="p-1.5 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing transition-colors">
                         <GripVertical size={20} />
                     </div>
-                    <div className="p-2 bg-purple-50 rounded-md text-purple-600">
+                    <SizeSelector currentSize={currentSize} onSizeChange={onSizeChange} />
+                    <div className="p-2 bg-purple-50 rounded-md text-purple-600 ml-1.5">
                         <span className="text-xl">📖</span>
                     </div>
                     <h2 className="text-xl font-bold text-gray-900">BLE Commands Guide</h2>

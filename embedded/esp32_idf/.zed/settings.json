@@ -1,10 +1,14 @@
 {
   "languages": {
     "C": {
-      "language_servers": ["clangd"]
+      "language_servers": [
+        "clangd"
+      ]
     },
     "C++": {
-      "language_servers": ["clangd"]
+      "language_servers": [
+        "clangd"
+      ]
     }
   },
   "lsp": {
@@ -24,5 +28,15 @@
   },
   "tasks": {
     "variables": {}
+  },
+  "context_servers": {
+    "agentation": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "agentation-mcp",
+        "server"
+      ]
+    }
   }
 }

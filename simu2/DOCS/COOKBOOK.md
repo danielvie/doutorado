@@ -56,6 +56,16 @@ ctrl = Controllers.MpcController(mpc_data, 'StateMode', Enums.StateMode.AUGMENTE
 s.m_config.mpc.on = false;
 ```
 
+## Step Strategies
+
+```matlab
+% Fast propagation at switching instants (default, control loops)
+s.set_step_strategy(Dynamics.SwitchingStrategy());
+
+% High-resolution propagation for detailed plots
+s.set_step_strategy(Dynamics.DenseStrategy());
+```
+
 ## Visualization
 
 ```matlab
@@ -63,10 +73,12 @@ vars = Utils.getAllVars();
 sim_data = Results.SimulationData(vars);
 plotter = Results.BuckBoostPlotter(sim_data);
 
+```matlab
 plotter.plot_states();                          % vC1, vC2, iL vs time
 plotter.plot_trajectory_comparison();           % MPC vs open loop 3D
 plotter.plot_control_signals(1, 50);            % First 50 cycles
 plotter.plot_trajectory_projections();          % 2D projections
+plotter.plot_trajectory_animated();             % Animated 3D evolution
 ```
 
 ## Feasibility Regions

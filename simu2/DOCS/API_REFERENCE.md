@@ -16,6 +16,8 @@ s.iref(i_ref)              % Set trajectory from reference current
 s.set_mpc()                % Compute MPC matrices
 s.set_controller(ctrl)     % Assign controller (Strategy pattern)
 s.set_config_mpc(cfg)      % Set MPC parameters (Np, Nd, Q)
+s.set_step_strategy(strat) % Dynamics.SwitchingStrategy (default) or DenseStrategy
+s.set_offset(offset)       % Add offset to equilibrium state
 ```
 
 ### Execution
@@ -25,15 +27,37 @@ s.set_config_mpc(cfg)      % Set MPC parameters (Np, Nd, Q)
 
 ### Getters
 ```matlab
+config_mpc = s.get_config_mpc()       % Default MPC parameters struct
 [Phi, Gamma] = s.get_phi_gamma()      % Linearized model
 K = s.get_gain_k()                    % LQR gain
 c = s.get_switching_constraints()     % Constraint vector
 target = s.get_target()               % Target state
+mode = s.get_mode()                   % Current mode sequence
+time_us = s.get_time_us()             % Nominal switching intervals [us]
+msg = s.get_msg_control_signal()      % BLE formatted message
 ```
 
 ### Visualization
 ```matlab
 fig = s.project_feasibility_region(horizons)  % Default: [1,2,4]
+```
+
+### Automation
+```matlab
+s.project_with_alpha(alpha, folder, flag_save)  % Batch feasibility plots
+s.export_python_data(filename)                  % Export data for Python
+```
+
+### Helpers
+```matlab
+name_out = s.name()         % Simulation name string
+Ts_out  = s.quantizacao(Ts, type)  % Quantize times (QuantType enum)
+```
+
+### Diagnostics
+```matlab
+s.print_test_values(k, log_source)     % Print state for debugging
+s.print_test_values_cpp(k, log_source) % Print C++ compatible values
 ```
 
 ### Properties
@@ -70,12 +94,30 @@ ctrl = Controllers.MpcController(mpc_data, 'StateMode', Enums.StateMode.AUGMENTE
 
 ---
 
+## +Dynamics
+
+### Step Strategy (Abstract)
+```matlab
+[y, t, m, u, xr] = strategy.propagate(config)
+```
+
+### SwitchingStrategy (default)
+Fast propagation at switching instants only.
+
+### DenseStrategy
+High-resolution propagation using `lsim` for detailed plots.
+
+---
+
 ## +Results
 
 ### SimulationData
 ```matlab
 data = Results.SimulationData(vars)  % vars from Utils.getAllVars()
 data.t, data.y, data.m               % Time, states, modes
+data.target                          % Target state vector
+data.config                          % Simulation configuration
+stats = data.calculate_metrics()     % RMSE and final error
 ```
 
 ### BuckBoostPlotter
@@ -85,6 +127,19 @@ p.plot_states()
 p.plot_trajectory_comparison()
 p.plot_control_signals(start, n)
 p.plot_trajectory_projections()
+p.plot_trajectory_animated()      % Animated 3D phase evolution
+```
+
+---
+
+## +Trajectory
+
+### Planner
+```matlab
+planner = Trajectory.Planner(circuit_params, n, T)
+[Omega, Ts, x0] = planner.set_alpha(alpha, config)
+[Omega, Ts, x0] = planner.set_reference_current(iref, config)
+planner.result   % Last computed struct (.Omega, .Ts, .x0, .alpha)
 ```
 
 ---
@@ -126,6 +181,7 @@ b.last(n)                % Last n calculations
 |------|--------|
 | `SimName` | `LAB_CIRCUIT`, `PATINO_1`, `PATINO_2`, `INTEGRADOR_DUPLO` |
 | `StateMode` | `ORIGINAL`, `AUGMENTED` |
+| `QuantType` | `Traj`, `Sim` |
 
 ---
 

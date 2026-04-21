@@ -12,7 +12,9 @@ t('play_patino1')      % Patino 1 benchmark
 t('play_patino2')      % Patino 2 benchmark
 t('play_integrador')   % Double integrator example
 t('test')              % Run test suite
-t('demo', 'projection') % Run demo
+t('demo', 'projection') % Feasibility projection demo
+t('demo', 'broker')    % Bluetooth broker demo
+t('demo', 'feasibility') % Feasibility region demo
 ```
 
 Scripts are organized in `+z_run` package:

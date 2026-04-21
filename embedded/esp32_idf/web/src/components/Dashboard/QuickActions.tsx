@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { bleManager } from "../../services/BleManager";
-import { useBleStore } from "../../store/bleStore";
 import { Zap, Send, GripVertical } from "lucide-react";
+import { PanelSize, SizeSelector } from "./SizeSelector";
 import StatusBox from "./StatusBox";
 
 enum EMATRIX {
@@ -9,7 +9,11 @@ enum EMATRIX {
   B = "B",
 }
 
-export const QuickActions = () => {
+export const QuickActions: React.FC<{
+  currentSize?: PanelSize;
+  onSizeChange?: (size: PanelSize) => void;
+  dragHandleRef?: React.RefObject<HTMLDivElement>;
+}> = ({ currentSize = '1x1', onSizeChange = () => {}, dragHandleRef }) => {
   const [chunk, set_chunk] = useState(10);
   const [cycles, setCycles] = useState(100);
   const [monitor_period_ms, set_monitor_period_ms] = useState(100);
@@ -73,11 +77,12 @@ export const QuickActions = () => {
   return (
     <div className="panel p-6 flex flex-col gap-6 h-full">
       <div className="flex justify-between items-center border-b border-gray-200 pb-4">
-        <div className="flex items-center gap-3">
-          <div className="p-1.5 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing transition-colors" data-swapy-handle>
+        <div className="flex items-center gap-1.5">
+          <div ref={dragHandleRef} className="p-1.5 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing transition-colors">
             <GripVertical size={20} />
           </div>
-          <div className="p-2 bg-amber-50 rounded-md text-amber-600">
+          <SizeSelector currentSize={currentSize} onSizeChange={onSizeChange} />
+          <div className="p-2 bg-amber-50 rounded-md text-amber-600 ml-1.5">
             <Zap className="w-5 h-5" />
           </div>
           <h2 className="text-xl font-bold text-gray-900">Quick Actions</h2>

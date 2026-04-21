@@ -15,6 +15,7 @@ import {
 } from "chart.js";
 import { useDataStore } from "../../store/dataStore";
 import { Maximize2, Minimize2, Activity, GripVertical } from "lucide-react";
+import { PanelSize, SizeSelector } from "./SizeSelector";
 
 // Register Chart.js components
 ChartJS.register(
@@ -43,7 +44,11 @@ const MetricDisplay: React.FC<{
     </div>
 );
 
-export const RealtimeChart = () => {
+export const RealtimeChart: React.FC<{
+    currentSize?: PanelSize;
+    onSizeChange?: (size: PanelSize) => void;
+    dragHandleRef?: React.RefObject<HTMLDivElement>;
+}> = ({ currentSize = '2x1', onSizeChange = () => {}, dragHandleRef }) => {
     const { data } = useDataStore();
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -138,11 +143,12 @@ export const RealtimeChart = () => {
         <div className={`panel p-6 flex flex-col transition-all duration-300 ${isExpanded ? 'fixed inset-4 z-50 h-auto' : 'h-full min-h-[600px]'}`}>
             {/* Header */}
             <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-3">
-                    <div className="p-1.5 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing transition-colors" data-swapy-handle>
+                <div className="flex items-center gap-1.5">
+                    <div ref={dragHandleRef} className="p-1.5 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing transition-colors">
                         <GripVertical size={20} />
                     </div>
-                    <div className="p-2 bg-blue-50 text-blue-600 rounded-md">
+                    <SizeSelector currentSize={currentSize} onSizeChange={onSizeChange} />
+                    <div className="p-2 bg-blue-50 text-blue-600 rounded-md ml-1.5">
                         <Activity className="w-5 h-5" />
                     </div>
                     <div>
@@ -153,7 +159,7 @@ export const RealtimeChart = () => {
                         </div>
                     </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
                     <button onClick={() => setIsExpanded(!isExpanded)} className="p-2 bg-gray-50 border border-gray-200 hover:bg-gray-100 rounded-md text-gray-600 transition-colors">
                         {isExpanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
                     </button>
