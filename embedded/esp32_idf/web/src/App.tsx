@@ -46,28 +46,36 @@ function App() {
     return monitorForElements({
       onDrop({ source, location }) {
         const destination = location.current.dropTargets[0];
-        if (!destination) return;
+        if (!destination) {
+          console.log("No destination found");
+          return;
+        }
 
         const sourceId = source.data.id as string;
         const destinationId = destination.data.id as string;
 
+        console.log(`Swapping ${sourceId} with ${destinationId}`);
+
         if (sourceId === destinationId) return;
 
-        // Find the slots
-        const sourceSlot = Object.keys(layout).find(key => layout[key] === sourceId);
-        const destinationSlot = Object.keys(layout).find(key => layout[key] === destinationId);
+        // Find the slots in the current layout
+        setLayout(prevLayout => {
+          const sourceSlot = Object.keys(prevLayout).find(key => prevLayout[key] === sourceId);
+          const destinationSlot = Object.keys(prevLayout).find(key => prevLayout[key] === destinationId);
 
-        if (sourceSlot && destinationSlot) {
-          const newLayout = { ...layout };
-          newLayout[sourceSlot] = destinationId;
-          newLayout[destinationSlot] = sourceId;
+          if (sourceSlot && destinationSlot) {
+            const newLayout = { ...prevLayout };
+            newLayout[sourceSlot] = destinationId;
+            newLayout[destinationSlot] = sourceId;
 
-          localStorage.setItem("dashboard-layout", JSON.stringify(newLayout));
-          setLayout(newLayout);
-        }
+            localStorage.setItem("dashboard-layout", JSON.stringify(newLayout));
+            return newLayout;
+          }
+          return prevLayout;
+        });
       },
     });
-  }, [layout]);
+  }, [instanceId]); // We use a stable dependency but the state update uses functional form
 
   const handleSlotSizeChange = (slotId: string, size: PanelSize) => {
     const newSizes = { ...slotSizes, [slotId]: size };
@@ -83,6 +91,7 @@ function App() {
     switch (size) {
       case '1x1': return 'col-span-1';
       case '2x1': return 'sm:col-span-2 lg:col-span-2';
+      case '3x1': return 'col-span-1 sm:col-span-2 lg:col-span-3';
       default: return 'col-span-1';
     }
   };
@@ -106,18 +115,25 @@ function App() {
   return (
     <Layout>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch grid-flow-dense">
-        {ITEM_IDS.map((itemId) => {
-          const slotId = getSlotForItem(itemId);
-          const sizeClass = getSizeClass(slotSizes[slotId] || '1x1');
-          
-          return (
-            <div key={itemId} className={`${sizeClass}`}>
-              <DashboardItem id={itemId} instanceId={instanceId}>
-                {renderItemContent(itemId, slotId)}
-              </DashboardItem>
-            </div>
-          );
-        })}
+        {/* We sort the items by their current slot to ensure they appear in the correct visual order in the grid */}
+        {[...ITEM_IDS]
+          .sort((a, b) => {
+            const slotA = getSlotForItem(a);
+            const slotB = getSlotForItem(b);
+            return slotA.localeCompare(slotB);
+          })
+          .map((itemId) => {
+            const slotId = getSlotForItem(itemId);
+            const sizeClass = getSizeClass(slotSizes[slotId] || '1x1');
+            
+            return (
+              <div key={itemId} className={`${sizeClass}`}>
+                <DashboardItem id={itemId} instanceId={instanceId}>
+                  {renderItemContent(itemId, slotId)}
+                </DashboardItem>
+              </div>
+            );
+          })}
       </div>
       {process.env.NODE_ENV === "development" && <Agentation endpoint="http://localhost:4747" />}
     </Layout>
