@@ -180,7 +180,6 @@ tasks:
     cmds:
       - bun install
 
-
   web:agentation:
     desc: run agentation server
     dir: web
@@ -192,6 +191,10 @@ tasks:
     dir: web
     cmds:
       - task
+
+  web:all:
+    desc: run webserver + agentation server
+    deps: [web:run, web:agentation]
 
   setup:clangd:
     desc: Setup clangd and Zed configuration for current OS

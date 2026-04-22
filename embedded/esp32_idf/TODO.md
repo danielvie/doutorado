@@ -42,3 +42,17 @@
 ## Skills
 
 - [x] SKILL_naming_variables.md created — Naming conventions from TigerBeetle TIGER_STYLE.md
+
+## Current Review Tasks
+
+- [x] Read and analyze project structure
+- [x] Analyze architecture and patterns
+- [x] Assess security risks
+- [x] Evaluate performance and real-time constraints
+- [x] Identify maintainability issues
+- [x] Synthesize and deliver review report
+
+## Web UI Implementation Tasks
+
+- [x] Change HelpPanel background to red (annotation mo9siljh-jjdi08)
+- [x] Resolve annotation in agentation
