@@ -1,44 +1,75 @@
-import { Bluetooth, BluetoothConnected, BluetoothOff } from "lucide-react";
+import { Bluetooth } from "lucide-react";
 import { useBleStore } from "../store/bleStore";
 import { bleManager } from "../services/BleManager";
 
+const ROUTINE_STATUSES = [
+  "Ready",
+  "Connected",
+  "Disconnected",
+  "Requesting Device...",
+  "Connecting to GATT Server...",
+  "Reconnecting to Device...",
+];
+
 export const Header = () => {
-    const { isConnected, systemStatus } = useBleStore();
+  const { isConnected, systemStatus } = useBleStore();
 
-    const handleToggleConnection = () => {
-        if (isConnected) {
-            bleManager.disconnect();
-        } else {
-            bleManager.connect();
-        }
-    };
+  const handleToggleConnection = () => {
+    if (isConnected) {
+      bleManager.disconnect();
+    } else {
+      bleManager.connect();
+    }
+  };
 
-    return (
-        <header className="bg-white border-b border-gray-200 py-4 px-6 md:px-10 flex flex-col md:flex-row justify-between items-center gap-4 shadow-sm sticky top-0 z-50">
-            <div className="flex items-center gap-4">
-                <div className={`p-2 rounded-lg ${isConnected ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                    {isConnected ? <BluetoothConnected size={24} /> : <BluetoothOff size={24} />}
-                </div>
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">
-                        ESP32 Dashboard
-                    </h1>
-                    <div className="flex items-center gap-2 mt-0.5">
-                        <div className={`w-2.5 h-2.5 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
-                        <span className="text-xs font-bold text-gray-600 uppercase tracking-widest">{systemStatus}</span>
-                    </div>
-                </div>
+  const is_connecting = [
+    "Requesting Device...",
+    "Connecting to GATT Server...",
+    "Reconnecting to Device...",
+  ].includes(systemStatus);
+
+  const is_failed = systemStatus === "Connection Failed";
+  const show_status = !ROUTINE_STATUSES.includes(systemStatus);
+
+  let button_class =
+    "btn-primary px-4 py-2 text-sm font-bold shadow-sm hover:bg-blue-700 transition-colors";
+  let button_text = "Connect";
+
+  if (isConnected) {
+    button_class = "btn-danger px-4 py-2 text-sm font-bold shadow-sm";
+    button_text = "Disconnect";
+  } else if (is_connecting) {
+    button_class =
+      "btn bg-gray-200 text-gray-500 px-4 py-2 text-sm font-bold shadow-sm cursor-not-allowed";
+    button_text = "Connecting...";
+  } else if (is_failed) {
+    button_class = "btn-warning px-4 py-2 text-sm font-bold shadow-sm";
+    button_text = "Retry";
+  }
+
+  return (
+    <header className="bg-white border-b border-gray-200 py-2 px-4 md:px-6 flex items-center justify-between gap-4 shadow-sm sticky top-0 z-50">
+      <div className="flex items-center gap-3 w-full">
+        <div className="flex items-center gap-10 w-full">
+          <h1 className="text-lg font-bold text-gray-900">ESP32 Dashboard</h1>
+          {show_status && (
+            <div className="flex flex-grow gap-2 items-center justify-end">
+              <span className="text-xs font-bold text-gray-600/80 uppercase tracking-widest">
+                {systemStatus}
+              </span>
             </div>
+          )}
+        </div>
+      </div>
 
-            <div className="flex items-center gap-4">
-                <button
-                    onClick={handleToggleConnection}
-                    className={isConnected ? 'btn-danger px-6 py-2.5 text-sm font-bold shadow-md' : 'btn-primary px-6 py-2.5 text-sm font-bold shadow-md hover:bg-blue-700 hover:scale-105 transition-all'}
-                >
-                    <Bluetooth className="w-5 h-5" />
-                    {isConnected ? "Disconnect" : "Connect"}
-                </button>
-            </div>
-        </header>
-    );
+      <button
+        onClick={handleToggleConnection}
+        disabled={is_connecting}
+        className={button_class}
+      >
+        <Bluetooth className="w-4 h-4" />
+        {button_text}
+      </button>
+    </header>
+  );
 };

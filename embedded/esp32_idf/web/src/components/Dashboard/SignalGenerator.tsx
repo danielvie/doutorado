@@ -5,7 +5,7 @@ import { useBleStore } from "../../store/bleStore";
 import { Upload, Activity, GripVertical } from "lucide-react";
 import { PanelSize, SizeSelector } from "./SizeSelector";
 
-export const SignalControl: React.FC<{
+export const SignalGenerator: React.FC<{
   currentSize?: PanelSize;
   onSizeChange?: (size: PanelSize) => void;
   dragHandleRef?: React.RefObject<HTMLDivElement>;
@@ -50,9 +50,6 @@ export const SignalControl: React.FC<{
                   <GripVertical size={20} />
               </div>
               <SizeSelector currentSize={currentSize} onSizeChange={onSizeChange} />
-              <div className="p-2 bg-amber-50 rounded-md text-amber-600 ml-1.5">
-                  <Activity className="w-5 h-5" />
-              </div>
               <h2 className="text-xl font-bold text-gray-900">Signal Generator</h2>
           </div>
           <div className="px-3 py-1 bg-gray-100 rounded-md border border-gray-300">

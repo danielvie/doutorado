@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { Layout } from "./components/Layout";
-import { RealtimeChart } from "./components/Dashboard/RealtimeChart";
-import { SignalControl } from "./components/Dashboard/SignalControl";
-import { ManualControl } from "./components/Dashboard/ManualControl";
+import { SignalAnalysis } from "./components/Dashboard/SignalAnalysis";
+import { SignalGenerator } from "./components/Dashboard/SignalGenerator";
+import { SystemLogs } from "./components/Dashboard/SystemLogs";
 import { QuickActions } from "./components/Dashboard/QuickActions";
 import { HelpPanel } from "./components/HelpPanel";
 import { Agentation } from "agentation"
@@ -96,10 +96,10 @@ function App() {
     };
 
     switch (itemId) {
-      case "chart": return <RealtimeChart {...props} />;
+      case "chart": return <SignalAnalysis {...props} />;
       case "quick": return <QuickActions {...props} />;
-      case "manual": return <ManualControl {...props} />;
-      case "signal": return <SignalControl {...props} />;
+      case "manual": return <SystemLogs {...props} />;
+      case "signal": return <SignalGenerator {...props} />;
       case "help": return <HelpPanel {...props} />;
       default: return null;
     }

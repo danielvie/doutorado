@@ -3,7 +3,7 @@ import { useBleStore } from "../../store/bleStore";
 import { Terminal as TerminalIcon, Trash2, GripVertical } from "lucide-react";
 import { PanelSize, SizeSelector } from "./SizeSelector";
 
-export const ManualControl: React.FC<{
+export const SystemLogs: React.FC<{
     currentSize?: PanelSize;
     onSizeChange?: (size: PanelSize) => void;
     dragHandleRef?: React.RefObject<HTMLDivElement>;
@@ -16,9 +16,6 @@ export const ManualControl: React.FC<{
                         <GripVertical size={20} />
                     </div>
                     <SizeSelector currentSize={currentSize} onSizeChange={onSizeChange} />
-                    <div className="p-2 bg-blue-50 rounded-md text-blue-600 ml-1.5">
-                        <TerminalIcon className="w-5 h-5" />
-                    </div>
                     <h2 className="text-xl font-bold text-gray-900">System Logs</h2>
                 </div>
                 <div className="px-3 py-1 bg-gray-100 rounded-md border border-gray-300">

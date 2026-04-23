@@ -44,7 +44,7 @@ const MetricDisplay: React.FC<{
     </div>
 );
 
-export const RealtimeChart: React.FC<{
+export const SignalAnalysis: React.FC<{
     currentSize?: PanelSize;
     onSizeChange?: (size: PanelSize) => void;
     dragHandleRef?: React.RefObject<HTMLDivElement>;
@@ -148,9 +148,6 @@ export const RealtimeChart: React.FC<{
                         <GripVertical size={20} />
                     </div>
                     <SizeSelector currentSize={currentSize} onSizeChange={onSizeChange} />
-                    <div className="p-2 bg-blue-50 text-blue-600 rounded-md ml-1.5">
-                        <Activity className="w-5 h-5" />
-                    </div>
                     <div>
                         <h2 className="text-xl font-bold text-gray-900">Signal Analysis</h2>
                         <div className="flex items-center gap-2">

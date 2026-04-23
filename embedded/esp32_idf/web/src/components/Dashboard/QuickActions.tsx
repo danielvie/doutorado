@@ -82,9 +82,6 @@ export const QuickActions: React.FC<{
             <GripVertical size={20} />
           </div>
           <SizeSelector currentSize={currentSize} onSizeChange={onSizeChange} />
-          <div className="p-2 bg-amber-50 rounded-md text-amber-600 ml-1.5">
-            <Zap className="w-5 h-5" />
-          </div>
           <h2 className="text-xl font-bold text-gray-900">Quick Actions</h2>
         </div>
       </div>
