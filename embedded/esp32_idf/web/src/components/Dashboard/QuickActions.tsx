@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { bleManager } from "../../services/BleManager";
-import { Zap, Send, GripVertical } from "lucide-react";
+import { Send, GripVertical } from "lucide-react";
 import { PanelSize, SizeSelector } from "./SizeSelector";
 import StatusBox from "./StatusBox";
 

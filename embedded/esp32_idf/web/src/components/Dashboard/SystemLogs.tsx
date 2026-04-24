@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useBleStore } from "../../store/bleStore";
-import { Terminal as TerminalIcon, Trash2, GripVertical } from "lucide-react";
+import { Trash2, GripVertical } from "lucide-react";
 import { PanelSize, SizeSelector } from "./SizeSelector";
 
 export const SystemLogs: React.FC<{

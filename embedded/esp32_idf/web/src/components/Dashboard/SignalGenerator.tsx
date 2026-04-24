@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { _create_signal } from "../../helper";
 import { bleManager } from "../../services/BleManager";
 import { useBleStore } from "../../store/bleStore";
-import { Upload, Activity, GripVertical } from "lucide-react";
+import { Upload, GripVertical } from "lucide-react";
 import { PanelSize, SizeSelector } from "./SizeSelector";
 
 export const SignalGenerator: React.FC<{
