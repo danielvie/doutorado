@@ -63,3 +63,69 @@
 - [x] Identify the root cause of the build error
 - [x] Apply the minimal code or configuration fix
 - [x] Re-run `task build` and verify success
+
+## Dataset Generator Tasks
+
+- [x] Analyze current generated dataset flow between MATLAB and ESP-IDF
+- [x] Replace oversized alpha-to-lambda map with a more compact generated representation
+- [x] Update `helper_datasetter.cpp` to compute lookup index from alpha
+- [x] Generate `helper_datasetter.cpp` and `helper_datasetter.h` from MATLAB
+- [x] Keep generated dataset values aligned with current simulation output
+- [x] Verify embedded compile compatibility of generated files
+
+## Annotation Implementation Tasks
+
+- [x] Update dashboard size selector to support height presets (`1x1`, `1x2`) where needed
+- [x] Make annotated panel maximize to fullscreen
+- [x] Limit oversized tall panels like `Quick Actions` with internal scrolling
+- [x] Verify affected dashboard components still render correctly
+- [x] Resolve accepted annotations after implementation
+
+## Follow-up Annotation Fix Tasks
+
+- [x] Fix `Signal Analysis` size selector so the panel can return to `1x1`
+- [x] Reduce `System Logs` panel height to better match the dashboard grid
+- [x] Reduce `Signal Generator` panel height to better match the dashboard grid
+- [x] Reduce oversized `SizeSelector` dropdown height in `HelpPanel`
+- [x] Resolve accepted follow-up annotations after implementation
+
+## Overflow Matching Tasks
+
+- [x] Lock dashboard row height to the configured size so `1x1` panels visually match
+- [x] Add internal scrolling to `Signal Analysis` when content exceeds the configured panel height
+- [x] Verify other dashboard panels keep matching heights with overflow constrained inside the card
+- [x] Remove `Quick Actions` height cap so it fills the configured grid height
+- [x] Resolve overflow-matching annotations after implementation
+
+## 3x Height Support Tasks
+
+- [x] Extend dashboard panel size types to support `x3` heights
+- [x] Update the size selector UI to expose a `3x` height option
+- [x] Add grid row-span mappings for `1x3`, `2x3`, and `3x3`
+- [x] Verify oversized panels use internal scrolling correctly with `x3` heights
+- [x] Resolve `3x` height support annotations after implementation
+
+## Signal Analysis Annotation Fix Tasks
+
+- [x] Make the `Signal Analysis` chart area grow correctly when the panel height is `x3`
+- [x] Ensure `Signal Analysis` fullscreen stays above the other dashboard panels
+- [x] Verify `Signal Analysis` sizing and fullscreen behavior after the fixes
+- [x] Resolve `Signal Analysis` annotations after implementation
+
+## Latest Annotation Fix Tasks
+
+- [x] Center the `Signal Analysis` fullscreen panel correctly
+- [x] Make the `Signal Analysis` chart fit `2x` height without triggering an unnecessary scrollbar
+- [x] Reorganize `Signal Generator` layout so controls are not packed or misaligned
+- [x] Add more vertical spacing between the top controls and the vector sections in `Signal Generator`
+- [x] Add a side note showing the `sum()` of the elements for the annotated `Signal Generator` input field
+- [x] Verify `Signal Analysis` and `Signal Generator` after the latest annotation fixes
+- [x] Resolve the latest annotations after implementation
+
+## Final Signal Analysis Height-Fit Task
+
+- [x] Make the `Signal Analysis` chart area shrink to match the panel height without remaining too tall
+- [ ] Remove the forced extra inner height in `Signal Analysis` so the chart matches the panel without cropping
+- [x] Fix the fullscreen alignment root cause in `Signal Analysis` by removing the transformed ancestor behavior that breaks fixed positioning
+- [x] Fix `Signal Analysis` fullscreen positioning relative to the dashboard content area so it occupies the usable area and stays centered below the header
+- [x] Fix the remaining fullscreen offset root cause from the layout transform wrapper so `Signal Analysis` fullscreen is truly viewport-centered

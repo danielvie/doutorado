@@ -6,8 +6,11 @@ import { SignalGenerator } from "./components/Dashboard/SignalGenerator";
 import { SystemLogs } from "./components/Dashboard/SystemLogs";
 import { QuickActions } from "./components/Dashboard/QuickActions";
 import { HelpPanel } from "./components/HelpPanel";
-import { Agentation } from "agentation"
+import { Agentation } from "agentation";
 import { PanelSize } from "./components/Dashboard/SizeSelector";
+
+type DashboardLayout = Record<string, string>;
+type DashboardItemSizes = Record<string, PanelSize>;
 import { DashboardItem } from "./components/Dashboard/DashboardItem";
 
 const ITEM_IDS = ["chart", "quick", "manual", "signal", "help"];
@@ -17,26 +20,28 @@ const DEFAULT_LAYOUT = {
   "slot-2": "quick",
   "slot-3": "manual",
   "slot-4": "signal",
-  "slot-5": "help"
+  "slot-5": "help",
 };
 
-const DEFAULT_ITEM_SIZES: Record<string, PanelSize> = {
-  "chart": "2x1",
-  "quick": "1x1",
-  "manual": "1x1",
-  "signal": "1x1",
-  "help": "1x1"
+const DEFAULT_ITEM_SIZES: DashboardItemSizes = {
+  chart: "2x2",
+  quick: "1x1",
+  manual: "1x1",
+  signal: "1x1",
+  help: "1x1",
 };
 
 function App() {
-  const [layout, setLayout] = useState<Record<string, string>>(() => {
+  const [layout, setLayout] = useState<DashboardLayout>(() => {
     const saved = localStorage.getItem("dashboard-layout");
-    return saved ? JSON.parse(saved) : DEFAULT_LAYOUT;
+    return saved ? { ...DEFAULT_LAYOUT, ...JSON.parse(saved) } : DEFAULT_LAYOUT;
   });
 
-  const [itemSizes, setItemSizes] = useState<Record<string, PanelSize>>(() => {
+  const [itemSizes, setItemSizes] = useState<DashboardItemSizes>(() => {
     const saved = localStorage.getItem("dashboard-item-sizes");
-    return saved ? JSON.parse(saved) : DEFAULT_ITEM_SIZES;
+    return saved
+      ? { ...DEFAULT_ITEM_SIZES, ...JSON.parse(saved) }
+      : DEFAULT_ITEM_SIZES;
   });
 
   const [instanceId] = useState(() => Math.random().toString(36).substring(7));
@@ -52,9 +57,13 @@ function App() {
 
         if (sourceId === destinationId) return;
 
-        setLayout(prevLayout => {
-          const sourceSlot = Object.keys(prevLayout).find(key => prevLayout[key] === sourceId);
-          const destinationSlot = Object.keys(prevLayout).find(key => prevLayout[key] === destinationId);
+        setLayout((prevLayout) => {
+          const sourceSlot = Object.keys(prevLayout).find(
+            (key) => prevLayout[key] === sourceId,
+          );
+          const destinationSlot = Object.keys(prevLayout).find(
+            (key) => prevLayout[key] === destinationId,
+          );
 
           if (sourceSlot && destinationSlot) {
             const newLayout = { ...prevLayout };
@@ -77,37 +86,61 @@ function App() {
   };
 
   const getSlotForItem = (itemId: string) => {
-    return Object.keys(layout).find(slotId => layout[slotId] === itemId) || "";
+    return (
+      Object.keys(layout).find((slotId) => layout[slotId] === itemId) || ""
+    );
   };
 
   const getSizeClass = (size: PanelSize) => {
     switch (size) {
-      case '1x1': return 'col-span-1';
-      case '2x1': return 'sm:col-span-2 lg:col-span-2';
-      case '3x1': return 'col-span-1 sm:col-span-2 lg:col-span-3';
-      default: return 'col-span-1';
+      case "1x1":
+        return "col-span-1 row-span-1";
+      case "1x2":
+        return "col-span-1 row-span-2";
+      case "1x3":
+        return "col-span-1 row-span-3";
+      case "2x1":
+        return "sm:col-span-2 lg:col-span-2 row-span-1";
+      case "2x2":
+        return "sm:col-span-2 lg:col-span-2 row-span-2";
+      case "2x3":
+        return "sm:col-span-2 lg:col-span-2 row-span-3";
+      case "3x1":
+        return "col-span-1 sm:col-span-2 lg:col-span-3 row-span-1";
+      case "3x2":
+        return "col-span-1 sm:col-span-2 lg:col-span-3 row-span-2";
+      case "3x3":
+        return "col-span-1 sm:col-span-2 lg:col-span-3 row-span-3";
+      default:
+        return "col-span-1 row-span-1";
     }
   };
 
   const renderItemContent = (itemId: string) => {
     const props = {
-      currentSize: itemSizes[itemId] || '1x1',
-      onSizeChange: (size: PanelSize) => handleItemSizeChange(itemId, size)
+      currentSize: itemSizes[itemId] || DEFAULT_ITEM_SIZES[itemId] || "1x1",
+      onSizeChange: (size: PanelSize) => handleItemSizeChange(itemId, size),
     };
 
     switch (itemId) {
-      case "chart": return <SignalAnalysis {...props} />;
-      case "quick": return <QuickActions {...props} />;
-      case "manual": return <SystemLogs {...props} />;
-      case "signal": return <SignalGenerator {...props} />;
-      case "help": return <HelpPanel {...props} />;
-      default: return null;
+      case "chart":
+        return <SignalAnalysis {...props} />;
+      case "quick":
+        return <QuickActions {...props} />;
+      case "manual":
+        return <SystemLogs {...props} />;
+      case "signal":
+        return <SignalGenerator {...props} />;
+      case "help":
+        return <HelpPanel {...props} />;
+      default:
+        return null;
     }
   };
 
   return (
     <Layout>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch grid-flow-dense">
+      <div className="grid auto-rows-[290px] grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch grid-flow-dense">
         {[...ITEM_IDS]
           .sort((a, b) => {
             const slotA = getSlotForItem(a);
@@ -115,10 +148,10 @@ function App() {
             return slotA.localeCompare(slotB);
           })
           .map((itemId) => {
-            const sizeClass = getSizeClass(itemSizes[itemId] || '1x1');
-            
+            const sizeClass = getSizeClass(itemSizes[itemId] || "1x1");
+
             return (
-              <div key={itemId} className={`${sizeClass}`}>
+              <div key={itemId} className={sizeClass}>
                 <DashboardItem id={itemId} instanceId={instanceId}>
                   {renderItemContent(itemId)}
                 </DashboardItem>
@@ -126,7 +159,9 @@ function App() {
             );
           })}
       </div>
-      {process.env.NODE_ENV === "development" && <Agentation endpoint="http://localhost:4747" />}
+      {process.env.NODE_ENV === "development" && (
+        <Agentation endpoint="http://localhost:4747" />
+      )}
     </Layout>
   );
 }
