@@ -140,7 +140,7 @@ function App() {
 
   return (
     <Layout>
-      <div className="grid auto-rows-[290px] grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch grid-flow-dense">
+      <div className="grid auto-rows-[290px] grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch grid-flow-dense">
         {[...ITEM_IDS]
           .sort((a, b) => {
             const slotA = getSlotForItem(a);

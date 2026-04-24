@@ -51,3 +51,10 @@ Current docs: README.md, DOCS/API_REFERENCE.md, DOCS/COOKBOOK.md, DOCS/GETTING_S
   - Performance: expm in hot loops, quadprog complexity, buffer pre-allocation
   - Maintainability: FIXME/TODO comments, mixed Portuguese/English, dead code
   - Dependencies: MPT3, Optimization Toolbox, Instrument Control Toolbox
+
+- [x] **Analyze lookup generation flow** - Compare `+z_run/+Demos/z_create_lookup.m` with embedded `helper_datasetter.cpp/.h`
+- [x] **Design compact generated format** - Replace verbose per-alpha generated code with table-driven/indexed output
+- [x] **Update z_create_lookup.m** - Generate both `helper_datasetter.cpp` and `helper_datasetter.h`
+- [x] **Add alpha computation logic** - Compute lookup index/selection in C++ instead of storing large dispatch code
+- [x] **Regenerate embedded lookup files** - Sync generated files with current simulation outputs
+- [x] **Validate generated interface** - Confirm generated files still match embedded `DataSet` layout and expected alpha range

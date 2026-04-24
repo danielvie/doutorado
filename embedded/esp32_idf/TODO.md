@@ -129,3 +129,4 @@
 - [x] Fix the fullscreen alignment root cause in `Signal Analysis` by removing the transformed ancestor behavior that breaks fixed positioning
 - [x] Fix `Signal Analysis` fullscreen positioning relative to the dashboard content area so it occupies the usable area and stays centered below the header
 - [x] Fix the remaining fullscreen offset root cause from the layout transform wrapper so `Signal Analysis` fullscreen is truly viewport-centered
+- [x] Reduce the gap between dashboard panels

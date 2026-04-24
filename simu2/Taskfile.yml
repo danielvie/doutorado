@@ -1,0 +1,32 @@
+version: "3"
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  run:
+    desc: Run main simulation
+    cmds:
+      - matlab -batch "cd('{{.TASKFILE_DIR}}'); t('play');"
+
+  test:
+    desc: Run simulation test suite
+    cmds:
+      - matlab -batch "cd('{{.TASKFILE_DIR}}'); t('test');"
+
+  clean:
+    desc: Clean generated outputs
+    cmds:
+      - matlab -batch "cd('{{.TASKFILE_DIR}}'); t('clean');"
+
+  lookup:
+    desc: Regenerate embedded helper_datasetter files from simulation
+    cmds:
+      - matlab -batch "cd('{{.TASKFILE_DIR}}'); z_run.Demos.z_create_lookup();"
+
+  demo:
+    desc: Run projection demo
+    cmds:
+      - matlab -batch "cd('{{.TASKFILE_DIR}}'); t('demo', 'projection');"
