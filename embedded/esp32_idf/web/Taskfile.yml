@@ -3,21 +3,31 @@ version: '3'
 tasks:
 
   default:
-    deps: [m]
+    cmds:
+      - task --list
 
-  main:
-    aliases: [m]
+  run:
+    aliases: [r]
+    desc: "run dev"
     cmds:
      - bun run dev
 
+  run:all:
+    aliases: [r]
+    desc: "run dev + agentation"
+    deps: [run, agentation]
+
+
   build:
     aliases: [b]
+    desc: "builds the project"
     cmds:
      - bun run build
      - go build -o webserver.exe ./go_server/server.go
 
   play:
     aliases: [p]
+    desc: "run play script"
     cmds:
      - bun run play/play.ts
      
