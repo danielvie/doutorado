@@ -2,6 +2,14 @@
 
 * [tese.pdf](LATEX_tese/tese.pdf)
 
+
+## Support Images
+
+- DOUTORADO/LATEX/Artigo/images/
+- DOUTORADO/LATEX/Artigo/images_support/
+
+
+
 ## 15/09/22
 
   * [ ] Passar linearizacao para antes do controle preditivo
