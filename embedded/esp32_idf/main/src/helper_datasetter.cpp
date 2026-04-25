@@ -352,4 +352,5 @@ void helper_set_dataset_from_alpha(DataSet *dataset, float alpha) {
     for (uint32_t gain_index = 0; gain_index < gain_k_size; ++gain_index) {
         dataset->gain_k.values[gain_index] = gain_k_values[alpha_index][gain_index];
     }
+    dataset->alpha = alpha;
 }

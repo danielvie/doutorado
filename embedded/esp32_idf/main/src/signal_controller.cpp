@@ -67,6 +67,7 @@ static void signal_init_default_dataset(DataSet &ds) {
     ds.modes_d4[3] = 0;
 
     ds.size = 4;
+    ds.alpha = NAN;
 }
 
 void signal_controller_init() {
@@ -154,6 +155,7 @@ void signal_update_from_string(const std::string &message) {
         target_dataset->modes_d6[i] = (m & 4) ? 1 : 0;
     }
     target_dataset->size = (uint8_t)count;
+    target_dataset->alpha = NAN;
 
     ESP_LOGI(TAG, "Parsed %d segments into %s. Requesting swap...",
              target_dataset->size,

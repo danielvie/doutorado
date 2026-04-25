@@ -7,6 +7,7 @@
 #include "ble_controller.h"
 
 #include <atomic>
+#include <cmath>
 
 #define PROFILE_NUM 1
 #define PROFILE_APP_ID 0
@@ -429,6 +430,13 @@ void ble_router_message_set_alpha(std::string& message) {
     helper_set_dataset_from_alpha(dataset, alpha);
 
     g_ds_update_pending = true; // mark for set update
+    
+    // reply status
+    auto msg = std::make_unique<NoteData>(120);
+    note_clear(*msg);
+    note_add_text(*msg, "\nSTATUS\n");
+    note_add_text(*msg, "SET_ALPHA::%.2f\n", alpha);
+    note_ble_send(*msg);
 }
 
 void ble_router_status(void) {
@@ -436,15 +444,20 @@ void ble_router_status(void) {
 
     auto msg = std::make_unique<NoteData>(NOTE_BLE_BUFFER_SIZE);
 
-
-
     auto is_valid = [](DataSet& ds_) {
         return matrix_isvalid(ds_.gain_k) ? std::string("valid") : std::string("not valid");
     };
 
+    DataSet* active_ds = get_dataset_active();
+
     note_add_text(*msg, "\nSTATUS\n");
     note_add_text(*msg, "\n== status ==\n");
     note_add_text(*msg, "active         : %s\n", get_label(g_active_set).c_str());
+    if (std::isnan(active_ds->alpha)) {
+        note_add_text(*msg, "alpha          : not set\n");
+    } else {
+        note_add_text(*msg, "alpha          : %.2f\n", active_ds->alpha);
+    }
     note_add_text(*msg, "matrix a       : %s\n", is_valid(g_dataset_a).c_str());
     note_add_text(*msg, "matrix b       : %s\n", is_valid(g_dataset_b).c_str());
     note_add_text(*msg, "signal state   : %s\n", get_label(g_system_state.signal_state).c_str());

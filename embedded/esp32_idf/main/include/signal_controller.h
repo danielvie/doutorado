@@ -14,6 +14,7 @@
 #include "soc/gpio_struct.h"
 #include <string>
 #include <vector>
+#include <cmath>
 
 extern const uint32_t MASK_U1_LOW;
 extern const uint32_t MASK_U1_HIGH;
@@ -32,6 +33,7 @@ struct DataSet {
     int32_t time_us_diff[MAX_SIGNAL_SIZE];
     float target[3];
     MatrixData gain_k;
+    float alpha;
 };
 
 extern DataSet g_dataset_a;

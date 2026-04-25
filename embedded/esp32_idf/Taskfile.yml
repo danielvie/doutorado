@@ -77,6 +77,11 @@ tasks:
     cmds:
       - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" flash monitor'
 
+  build-flash:
+    desc: Build, flash, and monitor (full workflow)
+    cmds:
+      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" build flash'
+
   build-flash-monitor:
     desc: Build, flash, and monitor (full workflow)
     cmds:
@@ -159,10 +164,10 @@ tasks:
     cmds:
       - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" build flash monitor'
 
-  df:
+  bf:
     desc: Build and flash (shortcut)
     cmds:
-      - task: build-flash-monitor
+      - task: build-flash
 
   fm:
     desc: Flash and monitor (shortcut)
@@ -173,6 +178,11 @@ tasks:
     desc: Build, flash, and monitor (shortcut)
     cmds:
       - task: build-flash-monitor
+
+  ports:
+    desc: List available serial ports
+    cmds:
+      - '{{if eq .OS "windows"}}{{.PYTHON_ENV_WIN}}/Scripts/python{{else}}{{.PYTHON_ENV_UNIX}}/bin/python{{end}} -m serial.tools.list_ports'
 
   web:install:
     desc: install webserver dependencies

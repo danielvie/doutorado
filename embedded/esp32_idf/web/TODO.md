@@ -1,5 +1,10 @@
 # TODO — React Compiler Integration
 
+# TODO - Mock frequency
+- [x] Move `monitorPeriodMs` to global `bleStore`
+- [x] Update `QuickActions` to read/write `monitorPeriodMs` from store
+- [x] Update `Header` mock interval to use `monitorPeriodMs`
+
 - [ ] Install babel-plugin-react-compiler and eslint-plugin-react-compiler
 - [ ] Configure babel plugin in vite.config.ts
 - [ ] Configure eslint plugin in eslint.config.js

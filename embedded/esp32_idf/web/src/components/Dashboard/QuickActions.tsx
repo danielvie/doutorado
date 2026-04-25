@@ -18,7 +18,8 @@ export const QuickActions: React.FC<{
   const setAlpha = useBleStore((s) => s.setAlpha);
   const [chunk, set_chunk] = useState(10);
   const [cycles, setCycles] = useState(100);
-  const [monitor_period_ms, set_monitor_period_ms] = useState(100);
+  const monitor_period_ms = useBleStore((s) => s.monitorPeriodMs);
+  const set_monitor_period_ms = useBleStore((s) => s.setMonitorPeriodMs);
 
   const handle_set_chunk = (e: React.ChangeEvent<HTMLInputElement>) =>
     set_chunk(parseInt(e.target.value));

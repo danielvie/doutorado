@@ -10,6 +10,7 @@ interface BleState {
     lastStatusMessage: string | null;
     alpha: string;
     showHelp: boolean;
+    monitorPeriodMs: number;
 
     // Actions
     setLastStatusMessage: (message: string | null) => void;
@@ -22,6 +23,7 @@ interface BleState {
     setDevice: (device: BluetoothDevice | null) => void;
     setAlpha: (alpha: string) => void;
     setShowHelp: (show: boolean) => void;
+    setMonitorPeriodMs: (ms: number) => void;
 }
 
 export const useBleStore = create<BleState>((set) => ({
@@ -33,6 +35,7 @@ export const useBleStore = create<BleState>((set) => ({
     device: null,
     lastStatusMessage: null,
     showHelp: false,
+    monitorPeriodMs: 100,
 
     setLastStatusMessage: (message) => set({ lastStatusMessage: message }),
     setIsConnected: (connected) => set({ isConnected: connected }),
@@ -46,4 +49,5 @@ export const useBleStore = create<BleState>((set) => ({
     alpha: "0.5",
     setAlpha: (alpha) => set({ alpha }),
     setShowHelp: (show) => set({ showHelp: show }),
+    setMonitorPeriodMs: (ms) => set({ monitorPeriodMs: ms }),
 }));

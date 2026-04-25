@@ -16,6 +16,7 @@ const ROUTINE_STATUSES = [
 export const Header = () => {
   const isConnected = useBleStore((s) => s.isConnected);
   const systemStatus = useBleStore((s) => s.systemStatus);
+  const monitorPeriodMs = useBleStore((s) => s.monitorPeriodMs);
   const [isMocking, setIsMocking] = useState(false);
   const addDataPoint = useDataStore((state) => state.addDataPoint);
 
@@ -31,10 +32,10 @@ export const Header = () => {
           an5: Math.sin(t * 2 + Math.PI / 4) * 5 + 20,
           an6: Math.sin(t * 0.5) * 15 + 80,
         });
-      }, 10);
+      }, monitorPeriodMs);
     }
     return () => clearInterval(interval);
-  }, [isMocking, addDataPoint]);
+  }, [isMocking, addDataPoint, monitorPeriodMs]);
 
   const handleToggleConnection = () => {
     if (isConnected) {
