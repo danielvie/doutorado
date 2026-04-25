@@ -1,6 +1,8 @@
-import { Bluetooth } from "lucide-react";
+import { Bluetooth, Activity } from "lucide-react";
 import { useBleStore } from "../store/bleStore";
 import { bleManager } from "../services/BleManager";
+import { useDataStore } from "../store/dataStore";
+import { useState, useEffect } from "react";
 
 const ROUTINE_STATUSES = [
   "Ready",
@@ -13,6 +15,25 @@ const ROUTINE_STATUSES = [
 
 export const Header = () => {
   const { isConnected, systemStatus } = useBleStore();
+  const [isMocking, setIsMocking] = useState(false);
+  const addDataPoint = useDataStore((state) => state.addDataPoint);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isMocking) {
+      let t = 0;
+      interval = setInterval(() => {
+        t += 0.05;
+        addDataPoint({
+          time: new Date().toLocaleTimeString('en-US', { hour12: false }),
+          an3: Math.sin(t) * 10 + 50,
+          an5: Math.sin(t * 2 + Math.PI / 4) * 5 + 20,
+          an6: Math.sin(t * 0.5) * 15 + 80,
+        });
+      }, 10);
+    }
+    return () => clearInterval(interval);
+  }, [isMocking, addDataPoint]);
 
   const handleToggleConnection = () => {
     if (isConnected) {
@@ -32,18 +53,18 @@ export const Header = () => {
   const show_status = !ROUTINE_STATUSES.includes(systemStatus);
 
   let button_class =
-    "btn-primary px-4 py-2 text-sm font-bold shadow-sm hover:bg-blue-700 transition-colors";
+    "btn-primary px-4 py-2 text-sm font-bold shadow-sm hover:bg-blue-700 transition-colors flex items-center gap-2 rounded-md";
   let button_text = "Connect";
 
   if (isConnected) {
-    button_class = "btn-danger px-4 py-2 text-sm font-bold shadow-sm";
+    button_class = "btn-danger px-4 py-2 text-sm font-bold shadow-sm flex items-center gap-2 rounded-md";
     button_text = "Disconnect";
   } else if (is_connecting) {
     button_class =
-      "btn bg-gray-200 text-gray-500 px-4 py-2 text-sm font-bold shadow-sm cursor-not-allowed";
+      "btn bg-gray-200 text-gray-500 px-4 py-2 text-sm font-bold shadow-sm cursor-not-allowed flex items-center gap-2 rounded-md";
     button_text = "Connecting...";
   } else if (is_failed) {
-    button_class = "btn-warning px-4 py-2 text-sm font-bold shadow-sm";
+    button_class = "btn-warning px-4 py-2 text-sm font-bold shadow-sm flex items-center gap-2 rounded-md";
     button_text = "Retry";
   }
 
@@ -62,14 +83,28 @@ export const Header = () => {
         </div>
       </div>
 
-      <button
-        onClick={handleToggleConnection}
-        disabled={is_connecting}
-        className={button_class}
-      >
-        <Bluetooth className="w-4 h-4" />
-        {button_text}
-      </button>
+      <div className="flex items-center gap-2 shrink-0">
+        <button
+          onClick={() => setIsMocking(!isMocking)}
+          className={`px-4 py-2 text-sm font-bold shadow-sm transition-colors flex items-center gap-2 rounded-md ${
+            isMocking
+              ? "bg-gray-700 text-white hover:bg-gray-600"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+          }`}
+        >
+          <Activity className="w-4 h-4" />
+          {isMocking ? "Stop Mock" : "Mock Data"}
+        </button>
+
+        <button
+          onClick={handleToggleConnection}
+          disabled={is_connecting}
+          className={button_class}
+        >
+          <Bluetooth className="w-4 h-4" />
+          {button_text}
+        </button>
+      </div>
     </header>
   );
 };
