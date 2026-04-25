@@ -290,6 +290,7 @@ export const SignalAnalysis: React.FC<{
             <input
               type="number"
               value={localMaxPoints}
+              step={10}
               onChange={(e) => setLocalMaxPoints(parseInt(e.target.value) || 0)}
               className="w-24 px-1.5 py-0.5 text-xs font-mono bg-white border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none transition-all text-center"
               title="Maximum data points to display"

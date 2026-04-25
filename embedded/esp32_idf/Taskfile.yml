@@ -186,11 +186,17 @@ tasks:
     cmds:
       - task agentation
 
+  web:build:
+    desc: build webserver
+    dir: web
+    cmds:
+      - task build
+
   web:run:
     desc: run webserver
     dir: web
     cmds:
-      - task
+      - task run
 
   web:all:
     desc: run webserver + agentation server
