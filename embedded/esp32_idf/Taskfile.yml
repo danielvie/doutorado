@@ -59,6 +59,7 @@ tasks:
 
   build:
     desc: Build the project
+    deps: [proto:gen]
     cmds:
       - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" build'
 

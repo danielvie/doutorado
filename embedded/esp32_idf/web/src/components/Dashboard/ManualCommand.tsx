@@ -71,7 +71,7 @@ export const ManualCommand: React.FC<{
               onChange={(e) => set_cmd(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Enter BLE command..."
-              className="w-full font-mono text-sm bg-gray-50 border-2 border-gray-200 focus:border-blue-500 focus:bg-white rounded-lg px-3 py-2.5 shadow-sm transition-all outline-none"
+              className="w-full font-mono text-sm bg-gray-50 border-2 border-gray-200 focus:border-blue-500 focus:bg-white px-3 py-2.5 transition-all shadow-none"
             />
             {command_history.length > 0 && (
               <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-blue-400 transition-colors pointer-events-none">

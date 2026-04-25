@@ -10,10 +10,32 @@
 #endif
 
 /* Enum definitions */
-typedef enum _SystemStatus_SignalState {
-    SystemStatus_SignalState_STOPPED = 0,
-    SystemStatus_SignalState_RUNNING = 1
-} SystemStatus_SignalState;
+typedef enum _BleSignalSet {
+    BleSignalSet_BLE_SET_A = 0,
+    BleSignalSet_BLE_SET_B = 1
+} BleSignalSet;
+
+typedef enum _BleAnalogReadState {
+    BleAnalogReadState_BLE_READ_IDLE = 0,
+    BleAnalogReadState_BLE_READING = 1,
+    BleAnalogReadState_BLE_READ_DISABLED = 2
+} BleAnalogReadState;
+
+typedef enum _BleSignalState {
+    BleSignalState_BLE_SIG_IDLE = 0,
+    BleSignalState_BLE_SIG_RUNNING = 1
+} BleSignalState;
+
+typedef enum _BleControlState {
+    BleControlState_BLE_CTRL_OFF = 0,
+    BleControlState_BLE_CTRL_ON = 1
+} BleControlState;
+
+typedef enum _BleLogLevel {
+    BleLogLevel_BLE_LOG_INFO = 0,
+    BleLogLevel_BLE_LOG_WARN = 1,
+    BleLogLevel_BLE_LOG_ERROR = 2
+} BleLogLevel;
 
 /* Struct definitions */
 /* Telemetry message containing analog port readings */
@@ -24,12 +46,28 @@ typedef struct _Telemetry {
     uint32_t timestamp_ms;
 } Telemetry;
 
-/* System status message (alternative to string-based status) */
+/* System status message */
 typedef struct _SystemStatus {
-    SystemStatus_SignalState state;
+    BleSignalSet active_set;
+    BleSignalState signal_state;
+    BleAnalogReadState ble_read_state;
+    BleControlState control_state;
     float alpha;
-    uint32_t cycle_count;
+    bool has_alpha;
+    bool matrix_a_valid;
+    bool matrix_b_valid;
+    uint32_t current_cycles;
+    uint32_t total_cycles;
+    uint32_t monitor_ms;
+    uint32_t us_cycles_up;
+    uint32_t us_cycles_down;
 } SystemStatus;
+
+/* General purpose log message */
+typedef struct _LogMessage {
+    BleLogLevel level;
+    char text[128];
+} LogMessage;
 
 /* Top-level message for BLE communication */
 typedef struct _BlePacket {
@@ -37,6 +75,7 @@ typedef struct _BlePacket {
     union {
         Telemetry telemetry;
         SystemStatus status;
+        LogMessage log;
     } payload;
 } BlePacket;
 
@@ -46,21 +85,44 @@ extern "C" {
 #endif
 
 /* Helper constants for enums */
-#define _SystemStatus_SignalState_MIN SystemStatus_SignalState_STOPPED
-#define _SystemStatus_SignalState_MAX SystemStatus_SignalState_RUNNING
-#define _SystemStatus_SignalState_ARRAYSIZE ((SystemStatus_SignalState)(SystemStatus_SignalState_RUNNING+1))
+#define _BleSignalSet_MIN BleSignalSet_BLE_SET_A
+#define _BleSignalSet_MAX BleSignalSet_BLE_SET_B
+#define _BleSignalSet_ARRAYSIZE ((BleSignalSet)(BleSignalSet_BLE_SET_B+1))
+
+#define _BleAnalogReadState_MIN BleAnalogReadState_BLE_READ_IDLE
+#define _BleAnalogReadState_MAX BleAnalogReadState_BLE_READ_DISABLED
+#define _BleAnalogReadState_ARRAYSIZE ((BleAnalogReadState)(BleAnalogReadState_BLE_READ_DISABLED+1))
+
+#define _BleSignalState_MIN BleSignalState_BLE_SIG_IDLE
+#define _BleSignalState_MAX BleSignalState_BLE_SIG_RUNNING
+#define _BleSignalState_ARRAYSIZE ((BleSignalState)(BleSignalState_BLE_SIG_RUNNING+1))
+
+#define _BleControlState_MIN BleControlState_BLE_CTRL_OFF
+#define _BleControlState_MAX BleControlState_BLE_CTRL_ON
+#define _BleControlState_ARRAYSIZE ((BleControlState)(BleControlState_BLE_CTRL_ON+1))
+
+#define _BleLogLevel_MIN BleLogLevel_BLE_LOG_INFO
+#define _BleLogLevel_MAX BleLogLevel_BLE_LOG_ERROR
+#define _BleLogLevel_ARRAYSIZE ((BleLogLevel)(BleLogLevel_BLE_LOG_ERROR+1))
 
 
-#define SystemStatus_state_ENUMTYPE SystemStatus_SignalState
+#define SystemStatus_active_set_ENUMTYPE BleSignalSet
+#define SystemStatus_signal_state_ENUMTYPE BleSignalState
+#define SystemStatus_ble_read_state_ENUMTYPE BleAnalogReadState
+#define SystemStatus_control_state_ENUMTYPE BleControlState
+
+#define LogMessage_level_ENUMTYPE BleLogLevel
 
 
 
 /* Initializer values for message structs */
 #define Telemetry_init_default                   {0, 0, 0, 0}
-#define SystemStatus_init_default                {_SystemStatus_SignalState_MIN, 0, 0}
+#define SystemStatus_init_default                {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+#define LogMessage_init_default                  {_BleLogLevel_MIN, ""}
 #define BlePacket_init_default                   {0, {Telemetry_init_default}}
 #define Telemetry_init_zero                      {0, 0, 0, 0}
-#define SystemStatus_init_zero                   {_SystemStatus_SignalState_MIN, 0, 0}
+#define SystemStatus_init_zero                   {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+#define LogMessage_init_zero                     {_BleLogLevel_MIN, ""}
 #define BlePacket_init_zero                      {0, {Telemetry_init_zero}}
 
 /* Field tags (for use in manual encoding/decoding) */
@@ -68,11 +130,24 @@ extern "C" {
 #define Telemetry_an5_tag                        2
 #define Telemetry_an6_tag                        3
 #define Telemetry_timestamp_ms_tag               4
-#define SystemStatus_state_tag                   1
-#define SystemStatus_alpha_tag                   2
-#define SystemStatus_cycle_count_tag             3
+#define SystemStatus_active_set_tag              1
+#define SystemStatus_signal_state_tag            2
+#define SystemStatus_ble_read_state_tag          3
+#define SystemStatus_control_state_tag           4
+#define SystemStatus_alpha_tag                   5
+#define SystemStatus_has_alpha_tag               6
+#define SystemStatus_matrix_a_valid_tag          7
+#define SystemStatus_matrix_b_valid_tag          8
+#define SystemStatus_current_cycles_tag          9
+#define SystemStatus_total_cycles_tag            10
+#define SystemStatus_monitor_ms_tag              11
+#define SystemStatus_us_cycles_up_tag            12
+#define SystemStatus_us_cycles_down_tag          13
+#define LogMessage_level_tag                     1
+#define LogMessage_text_tag                      2
 #define BlePacket_telemetry_tag                  1
 #define BlePacket_status_tag                     2
+#define BlePacket_log_tag                        3
 
 /* Struct field encoding specification for nanopb */
 #define Telemetry_FIELDLIST(X, a) \
@@ -84,33 +159,54 @@ X(a, STATIC,   SINGULAR, UINT32,   timestamp_ms,      4)
 #define Telemetry_DEFAULT NULL
 
 #define SystemStatus_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UENUM,    state,             1) \
-X(a, STATIC,   SINGULAR, FLOAT,    alpha,             2) \
-X(a, STATIC,   SINGULAR, UINT32,   cycle_count,       3)
+X(a, STATIC,   SINGULAR, UENUM,    active_set,        1) \
+X(a, STATIC,   SINGULAR, UENUM,    signal_state,      2) \
+X(a, STATIC,   SINGULAR, UENUM,    ble_read_state,    3) \
+X(a, STATIC,   SINGULAR, UENUM,    control_state,     4) \
+X(a, STATIC,   SINGULAR, FLOAT,    alpha,             5) \
+X(a, STATIC,   SINGULAR, BOOL,     has_alpha,         6) \
+X(a, STATIC,   SINGULAR, BOOL,     matrix_a_valid,    7) \
+X(a, STATIC,   SINGULAR, BOOL,     matrix_b_valid,    8) \
+X(a, STATIC,   SINGULAR, UINT32,   current_cycles,    9) \
+X(a, STATIC,   SINGULAR, UINT32,   total_cycles,     10) \
+X(a, STATIC,   SINGULAR, UINT32,   monitor_ms,       11) \
+X(a, STATIC,   SINGULAR, UINT32,   us_cycles_up,     12) \
+X(a, STATIC,   SINGULAR, UINT32,   us_cycles_down,   13)
 #define SystemStatus_CALLBACK NULL
 #define SystemStatus_DEFAULT NULL
 
+#define LogMessage_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UENUM,    level,             1) \
+X(a, STATIC,   SINGULAR, STRING,   text,              2)
+#define LogMessage_CALLBACK NULL
+#define LogMessage_DEFAULT NULL
+
 #define BlePacket_FIELDLIST(X, a) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload,telemetry,payload.telemetry),   1) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (payload,status,payload.status),   2)
+X(a, STATIC,   ONEOF,    MESSAGE,  (payload,status,payload.status),   2) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (payload,log,payload.log),   3)
 #define BlePacket_CALLBACK NULL
 #define BlePacket_DEFAULT NULL
 #define BlePacket_payload_telemetry_MSGTYPE Telemetry
 #define BlePacket_payload_status_MSGTYPE SystemStatus
+#define BlePacket_payload_log_MSGTYPE LogMessage
 
 extern const pb_msgdesc_t Telemetry_msg;
 extern const pb_msgdesc_t SystemStatus_msg;
+extern const pb_msgdesc_t LogMessage_msg;
 extern const pb_msgdesc_t BlePacket_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define Telemetry_fields &Telemetry_msg
 #define SystemStatus_fields &SystemStatus_msg
+#define LogMessage_fields &LogMessage_msg
 #define BlePacket_fields &BlePacket_msg
 
 /* Maximum encoded size of messages (where known) */
-#define BlePacket_size                           23
+#define BlePacket_size                           135
+#define LogMessage_size                          132
 #define PROTO_MESSAGING_PB_H_MAX_SIZE            BlePacket_size
-#define SystemStatus_size                        13
+#define SystemStatus_size                        49
 #define Telemetry_size                           21
 
 #ifdef __cplusplus

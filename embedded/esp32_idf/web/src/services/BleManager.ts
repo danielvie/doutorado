@@ -61,11 +61,28 @@ class BleManager {
                         an6: t.an6 || 0,
                     });
                 } else if (packet.status) {
-                    // Handle binary status
-                    const { state, alpha, cycle_count } = packet.status;
-                    const statusStr = `STATUS: Binary (State:${state}, Alpha:${alpha?.toFixed(2)}, Cycles:${cycle_count})`;
+                    const s = packet.status;
+                    const statusLines = [
+                        "== status (Binary) ==",
+                        `active         : ${s.active_set || "NONE"}`,
+                        `alpha          : ${s.has_alpha ? s.alpha?.toFixed(2) : "not set"}`,
+                        `matrix a       : ${s.matrix_a_valid ? "valid" : "not valid"}`,
+                        `matrix b       : ${s.matrix_b_valid ? "valid" : "not valid"}`,
+                        `signal state   : ${s.signal_state || "UNKNOWN"}`,
+                        `ble state      : ${s.ble_read_state || "UNKNOWN"}`,
+                        `control state  : ${s.control_state || "UNKNOWN"}`,
+                        `cycles         : ${s.current_cycles} of ${s.total_cycles}`,
+                        `g_an_monitor_ms: ${s.monitor_ms}`,
+                        `us cycles up   : ${s.us_cycles_up}`,
+                        `us cycles down : ${s.us_cycles_down}`,
+                    ];
+                    
+                    const statusStr = statusLines.join("\n");
                     useBleStore.getState().addLog(statusStr);
                     useBleStore.getState().setLastStatusMessage(statusStr);
+                } else if (packet.log) {
+                    const l = packet.log;
+                    useBleStore.getState().addLog(`${l.level || "INFO"}: ${l.text}`);
                 }
                 return;
             } catch (err) {

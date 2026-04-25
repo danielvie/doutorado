@@ -1,5 +1,32 @@
 syntax = "proto3";
 
+enum BleSignalSet {
+    BLE_SET_A = 0;
+    BLE_SET_B = 1;
+}
+
+enum BleAnalogReadState {
+    BLE_READ_IDLE = 0;
+    BLE_READING = 1;
+    BLE_READ_DISABLED = 2;
+}
+
+enum BleSignalState {
+    BLE_SIG_IDLE = 0;
+    BLE_SIG_RUNNING = 1;
+}
+
+enum BleControlState {
+    BLE_CTRL_OFF = 0;
+    BLE_CTRL_ON = 1;
+}
+
+enum BleLogLevel {
+    BLE_LOG_INFO = 0;
+    BLE_LOG_WARN = 1;
+    BLE_LOG_ERROR = 2;
+}
+
 // Telemetry message containing analog port readings
 message Telemetry {
     float an3 = 1;
@@ -10,13 +37,29 @@ message Telemetry {
 
 // System status message
 message SystemStatus {
-    enum SignalState {
-        STOPPED = 0;
-        RUNNING = 1;
-    }
-    SignalState state = 1;
-    float alpha = 2;
-    uint32 cycle_count = 3;
+    BleSignalSet active_set = 1;
+    BleSignalState signal_state = 2;
+    BleAnalogReadState ble_read_state = 3;
+    BleControlState control_state = 4;
+    
+    float alpha = 5; 
+    bool has_alpha = 6;
+    
+    bool matrix_a_valid = 7;
+    bool matrix_b_valid = 8;
+    
+    uint32 current_cycles = 9;
+    uint32 total_cycles = 10;
+    
+    uint32 monitor_ms = 11;
+    uint32 us_cycles_up = 12;
+    uint32 us_cycles_down = 13;
+}
+
+// General purpose log message
+message LogMessage {
+    BleLogLevel level = 1;
+    string text = 2;
 }
 
 // Top-level message for BLE communication
@@ -24,5 +67,6 @@ message BlePacket {
     oneof payload {
         Telemetry telemetry = 1;
         SystemStatus status = 2;
+        LogMessage log = 3;
     }
 }

@@ -189,6 +189,10 @@ static void signal_loop_task(void *arg) {
     // for blink signal)
     led_on();
 
+    // turn led on to indicate signal running (might need refactor to account
+    // for blink signal)
+    led_on();
+
     // -------------------------------------------------------
     // DISABLE INTERRUPTS MANUALLY
     // -------------------------------------------------------
@@ -357,8 +361,6 @@ static void signal_loop_task(void *arg) {
     // RE-ENABLE INTERRUPTS
     // -------------------------------------------------------
     portENABLE_INTERRUPTS();
-
-    ESP_LOGI(TAG, "Continuous Signal Task Stopped");
 
     // Ensure pins are low
     gpio_set_level(PIN_U1_LOW, 0);

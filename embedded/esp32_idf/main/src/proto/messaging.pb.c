@@ -12,7 +12,18 @@ PB_BIND(Telemetry, Telemetry, AUTO)
 PB_BIND(SystemStatus, SystemStatus, AUTO)
 
 
+PB_BIND(LogMessage, LogMessage, AUTO)
+
+
 PB_BIND(BlePacket, BlePacket, AUTO)
+
+
+
+
+
+
+
+
 
 
 

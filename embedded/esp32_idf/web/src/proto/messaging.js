@@ -1,3 +1,57 @@
+export const encodeBleSignalSet = {
+  BLE_SET_A: 0,
+  BLE_SET_B: 1,
+};
+
+export const decodeBleSignalSet = {
+  0: "BLE_SET_A",
+  1: "BLE_SET_B",
+};
+
+export const encodeBleAnalogReadState = {
+  BLE_READ_IDLE: 0,
+  BLE_READING: 1,
+  BLE_READ_DISABLED: 2,
+};
+
+export const decodeBleAnalogReadState = {
+  0: "BLE_READ_IDLE",
+  1: "BLE_READING",
+  2: "BLE_READ_DISABLED",
+};
+
+export const encodeBleSignalState = {
+  BLE_SIG_IDLE: 0,
+  BLE_SIG_RUNNING: 1,
+};
+
+export const decodeBleSignalState = {
+  0: "BLE_SIG_IDLE",
+  1: "BLE_SIG_RUNNING",
+};
+
+export const encodeBleControlState = {
+  BLE_CTRL_OFF: 0,
+  BLE_CTRL_ON: 1,
+};
+
+export const decodeBleControlState = {
+  0: "BLE_CTRL_OFF",
+  1: "BLE_CTRL_ON",
+};
+
+export const encodeBleLogLevel = {
+  BLE_LOG_INFO: 0,
+  BLE_LOG_WARN: 1,
+  BLE_LOG_ERROR: 2,
+};
+
+export const decodeBleLogLevel = {
+  0: "BLE_LOG_INFO",
+  1: "BLE_LOG_WARN",
+  2: "BLE_LOG_ERROR",
+};
+
 export function encodeTelemetry(message) {
   let bb = popByteBuffer();
   _encodeTelemetry(message, bb);
@@ -87,29 +141,95 @@ export function encodeSystemStatus(message) {
 }
 
 function _encodeSystemStatus(message, bb) {
-  // optional SignalState state = 1;
-  let $state = message.state;
-  if ($state !== undefined) {
-    writeVarint32(bb, 10);
-    let nested = popByteBuffer();
-    _encodeSignalState($state, nested);
-    writeVarint32(bb, nested.limit);
-    writeByteBuffer(bb, nested);
-    pushByteBuffer(nested);
+  // optional BleSignalSet active_set = 1;
+  let $active_set = message.active_set;
+  if ($active_set !== undefined) {
+    writeVarint32(bb, 8);
+    writeVarint32(bb, encodeBleSignalSet[$active_set]);
   }
 
-  // optional float alpha = 2;
+  // optional BleSignalState signal_state = 2;
+  let $signal_state = message.signal_state;
+  if ($signal_state !== undefined) {
+    writeVarint32(bb, 16);
+    writeVarint32(bb, encodeBleSignalState[$signal_state]);
+  }
+
+  // optional BleAnalogReadState ble_read_state = 3;
+  let $ble_read_state = message.ble_read_state;
+  if ($ble_read_state !== undefined) {
+    writeVarint32(bb, 24);
+    writeVarint32(bb, encodeBleAnalogReadState[$ble_read_state]);
+  }
+
+  // optional BleControlState control_state = 4;
+  let $control_state = message.control_state;
+  if ($control_state !== undefined) {
+    writeVarint32(bb, 32);
+    writeVarint32(bb, encodeBleControlState[$control_state]);
+  }
+
+  // optional float alpha = 5;
   let $alpha = message.alpha;
   if ($alpha !== undefined) {
-    writeVarint32(bb, 21);
+    writeVarint32(bb, 45);
     writeFloat(bb, $alpha);
   }
 
-  // optional uint32 cycle_count = 3;
-  let $cycle_count = message.cycle_count;
-  if ($cycle_count !== undefined) {
-    writeVarint32(bb, 24);
-    writeVarint32(bb, $cycle_count);
+  // optional bool has_alpha = 6;
+  let $has_alpha = message.has_alpha;
+  if ($has_alpha !== undefined) {
+    writeVarint32(bb, 48);
+    writeByte(bb, $has_alpha ? 1 : 0);
+  }
+
+  // optional bool matrix_a_valid = 7;
+  let $matrix_a_valid = message.matrix_a_valid;
+  if ($matrix_a_valid !== undefined) {
+    writeVarint32(bb, 56);
+    writeByte(bb, $matrix_a_valid ? 1 : 0);
+  }
+
+  // optional bool matrix_b_valid = 8;
+  let $matrix_b_valid = message.matrix_b_valid;
+  if ($matrix_b_valid !== undefined) {
+    writeVarint32(bb, 64);
+    writeByte(bb, $matrix_b_valid ? 1 : 0);
+  }
+
+  // optional uint32 current_cycles = 9;
+  let $current_cycles = message.current_cycles;
+  if ($current_cycles !== undefined) {
+    writeVarint32(bb, 72);
+    writeVarint32(bb, $current_cycles);
+  }
+
+  // optional uint32 total_cycles = 10;
+  let $total_cycles = message.total_cycles;
+  if ($total_cycles !== undefined) {
+    writeVarint32(bb, 80);
+    writeVarint32(bb, $total_cycles);
+  }
+
+  // optional uint32 monitor_ms = 11;
+  let $monitor_ms = message.monitor_ms;
+  if ($monitor_ms !== undefined) {
+    writeVarint32(bb, 88);
+    writeVarint32(bb, $monitor_ms);
+  }
+
+  // optional uint32 us_cycles_up = 12;
+  let $us_cycles_up = message.us_cycles_up;
+  if ($us_cycles_up !== undefined) {
+    writeVarint32(bb, 96);
+    writeVarint32(bb, $us_cycles_up);
+  }
+
+  // optional uint32 us_cycles_down = 13;
+  let $us_cycles_down = message.us_cycles_down;
+  if ($us_cycles_down !== undefined) {
+    writeVarint32(bb, 104);
+    writeVarint32(bb, $us_cycles_down);
   }
 }
 
@@ -127,23 +247,137 @@ function _decodeSystemStatus(bb) {
       case 0:
         break end_of_message;
 
-      // optional SignalState state = 1;
+      // optional BleSignalSet active_set = 1;
       case 1: {
-        let limit = pushTemporaryLength(bb);
-        message.state = _decodeSignalState(bb);
-        bb.limit = limit;
+        message.active_set = decodeBleSignalSet[readVarint32(bb)];
         break;
       }
 
-      // optional float alpha = 2;
+      // optional BleSignalState signal_state = 2;
       case 2: {
+        message.signal_state = decodeBleSignalState[readVarint32(bb)];
+        break;
+      }
+
+      // optional BleAnalogReadState ble_read_state = 3;
+      case 3: {
+        message.ble_read_state = decodeBleAnalogReadState[readVarint32(bb)];
+        break;
+      }
+
+      // optional BleControlState control_state = 4;
+      case 4: {
+        message.control_state = decodeBleControlState[readVarint32(bb)];
+        break;
+      }
+
+      // optional float alpha = 5;
+      case 5: {
         message.alpha = readFloat(bb);
         break;
       }
 
-      // optional uint32 cycle_count = 3;
-      case 3: {
-        message.cycle_count = readVarint32(bb) >>> 0;
+      // optional bool has_alpha = 6;
+      case 6: {
+        message.has_alpha = !!readByte(bb);
+        break;
+      }
+
+      // optional bool matrix_a_valid = 7;
+      case 7: {
+        message.matrix_a_valid = !!readByte(bb);
+        break;
+      }
+
+      // optional bool matrix_b_valid = 8;
+      case 8: {
+        message.matrix_b_valid = !!readByte(bb);
+        break;
+      }
+
+      // optional uint32 current_cycles = 9;
+      case 9: {
+        message.current_cycles = readVarint32(bb) >>> 0;
+        break;
+      }
+
+      // optional uint32 total_cycles = 10;
+      case 10: {
+        message.total_cycles = readVarint32(bb) >>> 0;
+        break;
+      }
+
+      // optional uint32 monitor_ms = 11;
+      case 11: {
+        message.monitor_ms = readVarint32(bb) >>> 0;
+        break;
+      }
+
+      // optional uint32 us_cycles_up = 12;
+      case 12: {
+        message.us_cycles_up = readVarint32(bb) >>> 0;
+        break;
+      }
+
+      // optional uint32 us_cycles_down = 13;
+      case 13: {
+        message.us_cycles_down = readVarint32(bb) >>> 0;
+        break;
+      }
+
+      default:
+        skipUnknownField(bb, tag & 7);
+    }
+  }
+
+  return message;
+}
+
+export function encodeLogMessage(message) {
+  let bb = popByteBuffer();
+  _encodeLogMessage(message, bb);
+  return toUint8Array(bb);
+}
+
+function _encodeLogMessage(message, bb) {
+  // optional BleLogLevel level = 1;
+  let $level = message.level;
+  if ($level !== undefined) {
+    writeVarint32(bb, 8);
+    writeVarint32(bb, encodeBleLogLevel[$level]);
+  }
+
+  // optional string text = 2;
+  let $text = message.text;
+  if ($text !== undefined) {
+    writeVarint32(bb, 18);
+    writeString(bb, $text);
+  }
+}
+
+export function decodeLogMessage(binary) {
+  return _decodeLogMessage(wrapByteBuffer(binary));
+}
+
+function _decodeLogMessage(bb) {
+  let message = {};
+
+  end_of_message: while (!isAtEnd(bb)) {
+    let tag = readVarint32(bb);
+
+    switch (tag >>> 3) {
+      case 0:
+        break end_of_message;
+
+      // optional BleLogLevel level = 1;
+      case 1: {
+        message.level = decodeBleLogLevel[readVarint32(bb)];
+        break;
+      }
+
+      // optional string text = 2;
+      case 2: {
+        message.text = readString(bb, readVarint32(bb));
         break;
       }
 
@@ -183,6 +417,17 @@ function _encodeBlePacket(message, bb) {
     writeByteBuffer(bb, nested);
     pushByteBuffer(nested);
   }
+
+  // optional LogMessage log = 3;
+  let $log = message.log;
+  if ($log !== undefined) {
+    writeVarint32(bb, 26);
+    let nested = popByteBuffer();
+    _encodeLogMessage($log, nested);
+    writeVarint32(bb, nested.limit);
+    writeByteBuffer(bb, nested);
+    pushByteBuffer(nested);
+  }
 }
 
 export function decodeBlePacket(binary) {
@@ -211,6 +456,14 @@ function _decodeBlePacket(bb) {
       case 2: {
         let limit = pushTemporaryLength(bb);
         message.status = _decodeSystemStatus(bb);
+        bb.limit = limit;
+        break;
+      }
+
+      // optional LogMessage log = 3;
+      case 3: {
+        let limit = pushTemporaryLength(bb);
+        message.log = _decodeLogMessage(bb);
         bb.limit = limit;
         break;
       }

@@ -13,6 +13,7 @@
 #include "helper_led.h"
 #include "helper_datasetter.h"
 #include "signal_controller.h"
+#include "proto/messaging.pb.h"
 
 
 #include <algorithm>
@@ -42,8 +43,8 @@ esp_err_t ble_controller_init(void);
 esp_err_t ble_send_message(const char* data, uint16_t len, BLEMode mode = BLEMode::VERBOSE);
 
 // Send a Protobuf message to the connected client
-struct _BlePacket; // Forward declaration for Nanopb struct
-esp_err_t ble_send_protobuf(const struct _BlePacket* packet);
+esp_err_t ble_send_log(BleLogLevel level, const char* text);
+esp_err_t ble_send_protobuf(const BlePacket* packet);
 
 // Router function to handle incoming BLE write commands
 void ble_router_set_signal(std::string& message);

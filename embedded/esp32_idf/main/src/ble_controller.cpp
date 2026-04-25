@@ -169,6 +169,14 @@ esp_err_t ble_send_protobuf(const BlePacket* packet) {
     return ble_send_message((const char*)buffer, stream.bytes_written + 1, BLEMode::SILENT);
 }
 
+esp_err_t ble_send_log(BleLogLevel level, const char* text) {
+    BlePacket packet = BlePacket_init_zero;
+    packet.which_payload = BlePacket_log_tag;
+    packet.payload.log.level = level;
+    strncpy(packet.payload.log.text, text, sizeof(packet.payload.log.text) - 1);
+    return ble_send_protobuf(&packet);
+}
+
 static void example_write_event_env(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t* param) {
     esp_gatt_status_t status = ESP_GATT_OK;
     if (param->write.need_rsp) {
@@ -462,36 +470,43 @@ void ble_router_message_set_alpha(std::string& message) {
 }
 
 void ble_router_status(void) {
-    // status_matrix_a
-
-    auto msg = std::make_unique<NoteData>(NOTE_BLE_BUFFER_SIZE);
-
-    auto is_valid = [](DataSet& ds_) {
-        return matrix_isvalid(ds_.gain_k) ? std::string("valid") : std::string("not valid");
-    };
-
+    BlePacket packet = BlePacket_init_zero;
+    packet.which_payload = BlePacket_status_tag;
+    
+    SystemStatus* status = &packet.payload.status;
     DataSet* active_ds = get_dataset_active();
 
-    note_add_text(*msg, "\nSTATUS\n");
-    note_add_text(*msg, "\n== status ==\n");
-    note_add_text(*msg, "active         : %s\n", get_label(g_active_set).c_str());
-    if (std::isnan(active_ds->alpha)) {
-        note_add_text(*msg, "alpha          : not set\n");
-    } else {
-        note_add_text(*msg, "alpha          : %.2f\n", active_ds->alpha);
-    }
-    note_add_text(*msg, "matrix a       : %s\n", is_valid(g_dataset_a).c_str());
-    note_add_text(*msg, "matrix b       : %s\n", is_valid(g_dataset_b).c_str());
-    note_add_text(*msg, "signal state   : %s\n", get_label(g_system_state.signal_state).c_str());
-    note_add_text(*msg, "ble state      : %s\n", get_label(g_system_state.ble_an_read_state).c_str());
-    note_add_text(*msg, "control state  : %s\n", get_label(g_system_state.control_state).c_str());
-    note_add_text(*msg, "cycles         : %d of %d\n", g_cycle_count, g_cycle_nrun);
-    note_add_text(*msg, "g_an_monitor_ms: %d\n", g_analog_monitor_period_ms);
-    note_add_text(*msg, "us cycles up   : %d\n", g_dead_time_cycles_up);
-    note_add_text(*msg, "us cycles down : %d\n", g_dead_time_cycles_down);
+    // Map Enums
+    status->active_set = (g_active_set == SignalSet::SET_A) ? BleSignalSet_BLE_SET_A : BleSignalSet_BLE_SET_B;
+    status->signal_state = (g_system_state.signal_state == SignalState::IDLE) ? BleSignalState_BLE_SIG_IDLE : BleSignalState_BLE_SIG_RUNNING;
+    
+    if (g_system_state.ble_an_read_state == BLEAnalogReadState::IDLE) status->ble_read_state = BleAnalogReadState_BLE_READ_IDLE;
+    else if (g_system_state.ble_an_read_state == BLEAnalogReadState::READING) status->ble_read_state = BleAnalogReadState_BLE_READING;
+    else status->ble_read_state = BleAnalogReadState_BLE_READ_DISABLED;
 
-    note_logi(*msg, TAG);
-    note_ble_send(*msg);
+    status->control_state = (g_system_state.control_state == ControlState::OFF) ? BleControlState_BLE_CTRL_OFF : BleControlState_BLE_CTRL_ON;
+
+    // Data values
+    if (!std::isnan(active_ds->alpha)) {
+        status->alpha = active_ds->alpha;
+        status->has_alpha = true;
+    } else {
+        status->has_alpha = false;
+    }
+
+    status->matrix_a_valid = matrix_isvalid(g_dataset_a.gain_k);
+    status->matrix_b_valid = matrix_isvalid(g_dataset_b.gain_k);
+    
+    status->current_cycles = g_cycle_count;
+    status->total_cycles = g_cycle_nrun;
+    status->monitor_ms = g_analog_monitor_period_ms;
+    status->us_cycles_up = g_dead_time_cycles_up;
+    status->us_cycles_down = g_dead_time_cycles_down;
+
+    ble_send_protobuf(&packet);
+    
+    // For now, keep the console log for serial debugging
+    ESP_LOGI(TAG, "Sent binary STATUS update");
 }
 
 void ble_router_status_matrix(SignalSet set) {

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useBleStore } from "../../store/bleStore";
 import { Trash2 } from "lucide-react";
 import { PanelSize } from "./SizeSelector";
@@ -28,6 +28,13 @@ const LogViewer: React.FC = () => {
   const statusLogs = useBleStore((s) => s.statusLogs);
   const clearLogs = useBleStore((s) => s.clearLogs);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+  const handleCopy = (log: string, index: number) => {
+    navigator.clipboard.writeText(log);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 1500);
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -63,7 +70,9 @@ const LogViewer: React.FC = () => {
         {[...statusLogs].reverse().map((log, i) => (
           <div
             key={i}
-            className="text-gray-800 border-b border-gray-200 pb-2 last:border-0 break-words group font-semibold"
+            onClick={() => handleCopy(log, i)}
+            className="text-gray-800 border-b border-gray-200 pb-2 last:border-0 break-words group font-semibold whitespace-pre-wrap cursor-pointer hover:bg-blue-50/50 rounded transition-colors relative"
+            title="Click to copy log"
           >
             <span className="text-gray-500 mr-3">
               [{new Date().toLocaleTimeString()}]
@@ -71,6 +80,11 @@ const LogViewer: React.FC = () => {
             <span className="group-hover:text-blue-700 transition-colors">
               {log}
             </span>
+            {copiedIndex === i && (
+              <span className="absolute right-2 top-0 text-[10px] text-green-600 font-bold bg-green-50 px-1 rounded animate-bounce">
+                COPIED
+              </span>
+            )}
           </div>
         ))}
       </div>
