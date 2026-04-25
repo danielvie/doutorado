@@ -14,7 +14,8 @@ const ROUTINE_STATUSES = [
 ];
 
 export const Header = () => {
-  const { isConnected, systemStatus } = useBleStore();
+  const isConnected = useBleStore((s) => s.isConnected);
+  const systemStatus = useBleStore((s) => s.systemStatus);
   const [isMocking, setIsMocking] = useState(false);
   const addDataPoint = useDataStore((state) => state.addDataPoint);
 

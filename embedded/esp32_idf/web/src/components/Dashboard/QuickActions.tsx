@@ -14,7 +14,8 @@ export const QuickActions: React.FC<{
   onSizeChange?: (size: PanelSize) => void;
   dragHandleRef?: React.RefObject<HTMLDivElement>;
 }> = ({ currentSize = "1x1", onSizeChange = () => {}, dragHandleRef }) => {
-  const { alpha, setAlpha } = useBleStore();
+  const alpha = useBleStore((s) => s.alpha);
+  const setAlpha = useBleStore((s) => s.setAlpha);
   const [chunk, set_chunk] = useState(10);
   const [cycles, setCycles] = useState(100);
   const [monitor_period_ms, set_monitor_period_ms] = useState(100);

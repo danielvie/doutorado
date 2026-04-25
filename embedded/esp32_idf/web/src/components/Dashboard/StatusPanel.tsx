@@ -8,7 +8,7 @@ export const StatusPanel: React.FC<{
   onSizeChange?: (size: PanelSize) => void;
   dragHandleRef?: React.RefObject<HTMLDivElement>;
 }> = ({ currentSize = "1x1", onSizeChange = () => {}, dragHandleRef }) => {
-  const { lastStatusMessage } = useBleStore();
+  const lastStatusMessage = useBleStore((s) => s.lastStatusMessage);
 
   return (
     <div className="panel p-3 flex flex-col gap-3 h-full min-h-0 overflow-hidden">

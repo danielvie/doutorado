@@ -53,7 +53,10 @@ export const SignalAnalysis: React.FC<{
   onSizeChange?: (size: PanelSize) => void;
   dragHandleRef?: React.RefObject<HTMLDivElement>;
 }> = ({ currentSize = "2x1", onSizeChange = () => {}, dragHandleRef }) => {
-  const { data, clearData, maxPoints, setMaxPoints } = useDataStore();
+  const data = useDataStore((s) => s.data);
+  const clearData = useDataStore((s) => s.clearData);
+  const maxPoints = useDataStore((s) => s.maxPoints);
+  const setMaxPoints = useDataStore((s) => s.setMaxPoints);
   const [is_expanded, set_is_expanded] = useState(false);
   const [localMaxPoints, setLocalMaxPoints] = useState(maxPoints);
 

@@ -34,7 +34,8 @@ export const SystemLogs: React.FC<{
 };
 
 const LogViewer: React.FC = () => {
-  const { statusLogs, clearLogs } = useBleStore();
+  const statusLogs = useBleStore((s) => s.statusLogs);
+  const clearLogs = useBleStore((s) => s.clearLogs);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

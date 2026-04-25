@@ -10,7 +10,8 @@ export const SignalGenerator: React.FC<{
   onSizeChange?: (size: PanelSize) => void;
   dragHandleRef?: React.RefObject<HTMLDivElement>;
 }> = ({ currentSize = "1x1", onSizeChange = () => {}, dragHandleRef }) => {
-  const { alpha, setAlpha } = useBleStore();
+  const alpha = useBleStore((s) => s.alpha);
+  const setAlpha = useBleStore((s) => s.setAlpha);
   const [timeStr, setTimeStr] = useState("");
   const [modeStr, setModeStr] = useState("");
   const [binaryData, setBinaryData] = useState({ s1: "", s2: "", s3: "" });
