@@ -9,23 +9,31 @@ export interface DataPoint {
 
 interface DataState {
     data: DataPoint[];
+    maxPoints: number;
 
     // Actions
     addDataPoint: (point: DataPoint) => void;
     clearData: () => void;
+    setMaxPoints: (max: number) => void;
 }
 
 export const useDataStore = create<DataState>((set) => ({
     data: [],
+    maxPoints: 1000,
 
     addDataPoint: (point) =>
         set((state) => {
-            // Keep last 1000 points optimized for chart
+            // Keep last maxPoints points optimized for chart
             const newData = [...state.data, point];
-            if (newData.length > 1000) {
-                return { data: newData.slice(newData.length - 1000) };
+            if (newData.length > state.maxPoints) {
+                return { data: newData.slice(newData.length - state.maxPoints) };
             }
             return { data: newData };
         }),
     clearData: () => set({ data: [] }),
+    setMaxPoints: (max) => set((state) => {
+        // Trim data if current data exceeds new max
+        const newData = state.data.length > max ? state.data.slice(state.data.length - max) : state.data;
+        return { maxPoints: max, data: newData };
+    }),
 }));

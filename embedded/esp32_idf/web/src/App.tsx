@@ -7,6 +7,7 @@ import { SystemLogs } from "./components/Dashboard/SystemLogs";
 import { QuickActions } from "./components/Dashboard/QuickActions";
 import { StatusPanel } from "./components/Dashboard/StatusPanel";
 import { HelpPanel } from "./components/HelpPanel";
+import { ManualCommand } from "./components/Dashboard/ManualCommand";
 import { Agentation } from "agentation";
 import { PanelSize } from "./components/Dashboard/SizeSelector";
 
@@ -14,7 +15,7 @@ type DashboardLayout = Record<string, string>;
 type DashboardItemSizes = Record<string, PanelSize>;
 import { DashboardItem } from "./components/Dashboard/DashboardItem";
 
-const ITEM_IDS = ["chart", "quick", "manual", "signal", "help", "status"];
+const ITEM_IDS = ["chart", "quick", "manual", "signal", "help", "status", "logs"];
 
 const DEFAULT_LAYOUT = {
   "slot-1": "chart",
@@ -23,6 +24,7 @@ const DEFAULT_LAYOUT = {
   "slot-4": "signal",
   "slot-5": "help",
   "slot-6": "status",
+  "slot-7": "logs",
 };
 
 const DEFAULT_ITEM_SIZES: DashboardItemSizes = {
@@ -32,6 +34,7 @@ const DEFAULT_ITEM_SIZES: DashboardItemSizes = {
   signal: "1x1",
   help: "1x1",
   status: "1x1",
+  logs: "1x1",
 };
 
 function App() {
@@ -131,6 +134,8 @@ function App() {
       case "quick":
         return <QuickActions {...props} />;
       case "manual":
+        return <ManualCommand {...props} />;
+      case "logs":
         return <SystemLogs {...props} />;
       case "signal":
         return <SignalGenerator {...props} />;

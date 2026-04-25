@@ -18,15 +18,6 @@ export const QuickActions: React.FC<{
   const [chunk, set_chunk] = useState(10);
   const [cycles, setCycles] = useState(100);
   const [monitor_period_ms, set_monitor_period_ms] = useState(100);
-  const [cmd, set_cmd] = useState("");
-  const [command_history, set_command_history] = useState<string[]>([]);
-  const history_index_ref = useRef(-1);
-  const history_ref = useRef<string[]>([]);
-
-  // Keep historyRef in sync with commandHistory state
-  useEffect(() => {
-    history_ref.current = command_history;
-  }, [command_history]);
 
   const handle_set_chunk = (e: React.ChangeEvent<HTMLInputElement>) =>
     set_chunk(parseInt(e.target.value));
@@ -41,39 +32,6 @@ export const QuickActions: React.FC<{
   const handle_set_alpha = (a: string) => {
     setAlpha(a.toString());
     bleManager.send(`SET_ALPHA:${a}`);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const history = history_ref.current;
-    if (e.key === "ArrowUp") {
-      e.preventDefault();
-      if (history.length === 0) return;
-      const newIndex = history_index_ref.current + 1;
-      if (newIndex < history.length) {
-        history_index_ref.current = newIndex;
-        set_cmd(history[newIndex]);
-      }
-    } else if (e.key === "ArrowDown") {
-      e.preventDefault();
-      if (history.length === 0) return;
-      const newIndex = history_index_ref.current - 1;
-      if (newIndex >= 0) {
-        history_index_ref.current = newIndex;
-        set_cmd(history[newIndex]);
-      } else {
-        history_index_ref.current = -1;
-        set_cmd("");
-      }
-    }
-  };
-
-  const handleSend = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!cmd.trim()) return;
-    set_command_history((prev) => [...prev, cmd.trim()]);
-    history_index_ref.current = -1;
-    bleManager.send(cmd);
-    set_cmd("");
   };
 
   const handle_status_matrix = (matrix: EMATRIX) => {
@@ -97,71 +55,6 @@ export const QuickActions: React.FC<{
 
       <div className="flex-1 min-h-0 overflow-y-auto pr-2">
         <div className="flex flex-col gap-4">
-          {/* Manual Command */}
-          <section className="flex flex-col gap-2">
-            <h3 className="text-[10px] font-bold text-gray-700 uppercase tracking-widest bg-gray-200/50 p-1.5 rounded-md">
-              Manual Command
-            </h3>
-            <form onSubmit={handleSend} className="flex gap-3">
-              <input
-                type="text"
-                value={cmd}
-                onChange={(e) => set_cmd(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Enter custom command..."
-                className="flex-1 font-mono text-sm bg-white border-2 border-gray-200 focus:border-blue-500 rounded-md px-3 py-2 shadow-sm"
-              />
-              <button
-                type="submit"
-                className="btn-primary shrink-0 transition-transform active:scale-95 px-6"
-              >
-                <Send size={18} />
-              </button>
-            </form>
-          </section>
-
-          {/* Parametric Control */}
-          <section className="flex flex-col gap-2">
-            <h3 className="text-[10px] font-bold text-gray-700 uppercase tracking-widest bg-gray-200/50 p-1.5 rounded-md">
-              Parameter Matrix
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-gray-700 font-bold uppercase ml-1">
-                  Chunk
-                </label>
-                <input
-                  type="number"
-                  onChange={handle_set_chunk}
-                  value={chunk}
-                  className="w-full text-sm font-semibold text-gray-800 bg-gray-50 border-gray-300"
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-gray-700 font-bold uppercase ml-1">
-                  Cycles
-                </label>
-                <input
-                  type="number"
-                  onChange={handle_set_cycles}
-                  value={cycles}
-                  className="w-full text-sm font-semibold text-gray-800 bg-gray-50 border-gray-300"
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-gray-700 font-bold uppercase ml-1">
-                  Monitor (ms)
-                </label>
-                <input
-                  type="number"
-                  onChange={handle_set_monitor_period_ms}
-                  value={monitor_period_ms}
-                  className="w-full text-sm font-semibold text-gray-800 bg-gray-50 border-gray-300"
-                />
-              </div>
-            </div>
-          </section>
-
           {/* Global Controls */}
           <section className="flex flex-col gap-2">
             <h3 className="text-[10px] font-bold text-gray-700 uppercase tracking-widest bg-gray-200/50 p-1.5 rounded-md">
@@ -270,6 +163,77 @@ export const QuickActions: React.FC<{
             </div>
           </section>
 
+          {/* Parametric Control */}
+          <section className="flex flex-col gap-2">
+            <h3 className="text-[10px] font-bold text-gray-700 uppercase tracking-widest bg-gray-200/50 p-1.5 rounded-md">
+              Parametric Control
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-gray-700 font-bold uppercase ml-1">
+                  Chunk
+                </label>
+                <div className="flex gap-1">
+                  <input
+                    type="number"
+                    onChange={handle_set_chunk}
+                    value={chunk}
+                    className="flex-1 min-w-0 text-sm font-semibold text-gray-800 bg-gray-50 border-gray-300 rounded px-2 h-8"
+                  />
+                  <button
+                    onClick={() => ble_send_command(`chunk:${chunk}`)}
+                    className="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded border border-indigo-100 hover:bg-indigo-100 transition-colors shrink-0"
+                    title="Send Chunk"
+                  >
+                    <Send size={12} />
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-gray-700 font-bold uppercase ml-1">
+                  Cycles
+                </label>
+                <div className="flex gap-1">
+                  <input
+                    type="number"
+                    onChange={handle_set_cycles}
+                    value={cycles}
+                    className="flex-1 min-w-0 text-sm font-semibold text-gray-800 bg-gray-50 border-gray-300 rounded px-2 h-8"
+                  />
+                  <button
+                    onClick={() => ble_send_command(`cycles:${cycles}`)}
+                    className="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded border border-indigo-100 hover:bg-indigo-100 transition-colors shrink-0"
+                    title="Send Cycles"
+                  >
+                    <Send size={12} />
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-gray-700 font-bold uppercase ml-1">
+                  Monitor (ms)
+                </label>
+                <div className="flex gap-1">
+                  <input
+                    type="number"
+                    onChange={handle_set_monitor_period_ms}
+                    value={monitor_period_ms}
+                    className="flex-1 min-w-0 text-sm font-semibold text-gray-800 bg-gray-50 border-gray-300 rounded px-2 h-8"
+                  />
+                  <button
+                    onClick={() =>
+                      ble_send_command(`an_monitor_ms:${monitor_period_ms}`)
+                    }
+                    className="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded border border-indigo-100 hover:bg-indigo-100 transition-colors shrink-0"
+                    title="Send Monitor"
+                  >
+                    <Send size={12} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* System Config */}
           <section className="flex flex-col gap-2">
             <h3 className="text-[10px] font-bold text-gray-700 uppercase tracking-widest bg-gray-200/50 p-1.5 rounded-md">
@@ -277,6 +241,24 @@ export const QuickActions: React.FC<{
             </h3>
             <div className="flex flex-wrap gap-2">
               {[
+                {
+                  cmd: `chunk:${chunk}`,
+                  label: `SET CHUNK: ${chunk}`,
+                  color:
+                    "text-indigo-800 bg-indigo-50 border-indigo-200 hover:bg-indigo-100",
+                },
+                {
+                  cmd: `cycles:${cycles}`,
+                  label: `SET CYCLES: ${cycles}`,
+                  color:
+                    "text-indigo-800 bg-indigo-50 border-indigo-200 hover:bg-indigo-100",
+                },
+                {
+                  cmd: `an_monitor_ms:${monitor_period_ms}`,
+                  label: `SET MONITOR: ${monitor_period_ms}ms`,
+                  color:
+                    "text-indigo-800 bg-indigo-50 border-indigo-200 hover:bg-indigo-100",
+                },
                 {
                   cmd: "CONTROL_ON",
                   label: "Control On",
@@ -317,7 +299,7 @@ export const QuickActions: React.FC<{
                 <button
                   key={item.cmd}
                   onClick={() => ble_send_command(item.cmd)}
-                  className={`px-4 py-2 rounded-md font-bold text-xs border transition-colors uppercase ${item.color} shadow-sm`}
+                  className={`px-3 py-1.5 rounded-md font-bold text-[10px] border transition-colors uppercase ${item.color} shadow-sm`}
                 >
                   {item.label}
                 </button>

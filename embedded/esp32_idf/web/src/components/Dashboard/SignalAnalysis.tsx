@@ -14,7 +14,7 @@ import {
   ChartData,
 } from "chart.js";
 import { useDataStore } from "../../store/dataStore";
-import { Maximize2, Minimize2, Activity, GripVertical } from "lucide-react";
+import { Maximize2, Minimize2, Activity, GripVertical, BrushCleaning } from "lucide-react";
 import { PanelSize, SizeSelector } from "./SizeSelector";
 
 // Register Chart.js components
@@ -53,8 +53,18 @@ export const SignalAnalysis: React.FC<{
   onSizeChange?: (size: PanelSize) => void;
   dragHandleRef?: React.RefObject<HTMLDivElement>;
 }> = ({ currentSize = "2x1", onSizeChange = () => {}, dragHandleRef }) => {
-  const { data } = useDataStore();
+  const { data, clearData, maxPoints, setMaxPoints } = useDataStore();
   const [is_expanded, set_is_expanded] = useState(false);
+  const [localMaxPoints, setLocalMaxPoints] = useState(maxPoints);
+
+  // Sync local state if store changes
+  useEffect(() => {
+    setLocalMaxPoints(maxPoints);
+  }, [maxPoints]);
+
+  const handleSetMaxPoints = () => {
+    setMaxPoints(Math.max(10, localMaxPoints));
+  };
 
   useEffect(() => {
     const body_overflow_previous = document.body.style.overflow;
@@ -199,6 +209,13 @@ export const SignalAnalysis: React.FC<{
           </div>
           <div className="flex gap-2 items-center">
             <button
+              onClick={() => clearData()}
+              className="p-2 bg-gray-50 border border-gray-200 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 rounded-md text-gray-500 transition-colors"
+              title="Clear data"
+            >
+              <BrushCleaning size={18} />
+            </button>
+            <button
               onClick={() => set_is_expanded(!is_expanded)}
               className="p-2 bg-gray-50 border border-gray-200 hover:bg-gray-100 rounded-md text-gray-600 transition-colors"
               title={is_expanded ? "Exit fullscreen" : "Open fullscreen"}
@@ -232,7 +249,7 @@ export const SignalAnalysis: React.FC<{
 
         {/* Chart Area */}
         <div className="bg-white rounded-lg border border-gray-200 relative overflow-hidden p-2 flex-1 min-h-0">
-          <Line data={chartData} options={options} />
+          <Line key={maxPoints} data={chartData} options={options} />
         </div>
 
         {/* Controls */}
@@ -264,6 +281,23 @@ export const SignalAnalysis: React.FC<{
             />
             <span className="font-bold uppercase text-xs">VR REF</span>
           </label>
+
+          <div className="flex items-center gap-1.5 px-2 py-1 bg-gray-50 border border-gray-200 rounded-md ml-auto">
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Window</span>
+            <input
+              type="number"
+              value={localMaxPoints}
+              onChange={(e) => setLocalMaxPoints(parseInt(e.target.value) || 0)}
+              className="w-24 px-1.5 py-0.5 text-xs font-mono bg-white border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none transition-all text-center"
+              title="Maximum data points to display"
+            />
+            <button
+              onClick={handleSetMaxPoints}
+              className="px-2 py-0.5 text-[10px] font-bold bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors uppercase tracking-tighter"
+            >
+              Set
+            </button>
+          </div>
         </div>
       </div>
     </>
