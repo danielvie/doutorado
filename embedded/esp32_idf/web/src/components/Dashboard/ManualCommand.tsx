@@ -1,13 +1,15 @@
 import { useState, useRef, useEffect } from "react";
 import { bleManager } from "../../services/BleManager";
-import { Send, GripVertical, History, Terminal } from "lucide-react";
-import { PanelSize, SizeSelector } from "./SizeSelector";
+import { Send, History } from "lucide-react";
+import { PanelSize } from "./SizeSelector";
+import { DashboardItem } from "./DashboardItem";
 
 export const ManualCommand: React.FC<{
+  id: string;
+  instanceId: string;
   currentSize?: PanelSize;
   onSizeChange?: (size: PanelSize) => void;
-  dragHandleRef?: React.RefObject<HTMLDivElement>;
-}> = ({ currentSize = "1x1", onSizeChange = () => {}, dragHandleRef }) => {
+}> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
   const [cmd, set_cmd] = useState("");
   const [command_history, set_command_history] = useState<string[]>([]);
   const history_index_ref = useRef(-1);
@@ -52,23 +54,14 @@ export const ManualCommand: React.FC<{
   };
 
   return (
-    <div className="panel p-3 flex flex-col gap-3 h-full min-h-0 overflow-hidden">
-      <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-        <div className="flex items-center gap-1.5">
-          <div
-            ref={dragHandleRef}
-            className="p-1.5 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing transition-colors"
-          >
-            <GripVertical size={20} />
-          </div>
-          <SizeSelector currentSize={currentSize} onSizeChange={onSizeChange} />
-          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <Terminal size={20} className="text-blue-600" />
-            Console
-          </h2>
-        </div>
-      </div>
-
+    <DashboardItem
+      id={id}
+      instanceId={instanceId}
+      title="Console"
+      currentSize={currentSize}
+      onSizeChange={onSizeChange}
+      expandable={false}
+    >
       <div className="flex-1 flex flex-col gap-4 min-h-0">
         <form onSubmit={handleSend} className="flex gap-2">
           <div className="relative flex-1 group">
@@ -124,6 +117,6 @@ export const ManualCommand: React.FC<{
           </div>
         </div>
       </div>
-    </div>
+    </DashboardItem>
   );
 };

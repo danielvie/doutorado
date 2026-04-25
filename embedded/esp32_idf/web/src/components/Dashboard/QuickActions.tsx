@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { bleManager } from "../../services/BleManager";
 import { useBleStore } from "../../store/bleStore";
-import { Send, GripVertical } from "lucide-react";
-import { PanelSize, SizeSelector } from "./SizeSelector";
+import { Send } from "lucide-react";
+import { PanelSize } from "./SizeSelector";
+import { DashboardItem } from "./DashboardItem";
 
 enum EMATRIX {
   A = "A",
@@ -10,10 +11,11 @@ enum EMATRIX {
 }
 
 export const QuickActions: React.FC<{
+  id: string;
+  instanceId: string;
   currentSize?: PanelSize;
   onSizeChange?: (size: PanelSize) => void;
-  dragHandleRef?: React.RefObject<HTMLDivElement>;
-}> = ({ currentSize = "1x1", onSizeChange = () => {}, dragHandleRef }) => {
+}> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
   const alpha = useBleStore((s) => s.alpha);
   const setAlpha = useBleStore((s) => s.setAlpha);
   const [chunk, set_chunk] = useState(10);
@@ -41,23 +43,16 @@ export const QuickActions: React.FC<{
   };
 
   return (
-    <div className="panel p-3 flex flex-col gap-3 h-full min-h-0 overflow-hidden">
-      <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-        <div className="flex items-center gap-1.5">
-          <div
-            ref={dragHandleRef}
-            className="p-1.5 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing transition-colors"
-          >
-            <GripVertical size={20} />
-          </div>
-          <SizeSelector currentSize={currentSize} onSizeChange={onSizeChange} />
-          <h2 className="text-xl font-bold text-gray-900">Quick Actions</h2>
-        </div>
-      </div>
-
-      <div className="flex-1 min-h-0 overflow-y-auto pr-2">
-        <div className="flex flex-col gap-4">
-          {/* Global Controls */}
+    <DashboardItem
+      id={id}
+      instanceId={instanceId}
+      title="Quick Actions"
+      currentSize={currentSize}
+      onSizeChange={onSizeChange}
+      expandable={false}
+    >
+      <div className="flex flex-col gap-4 pr-2">
+        {/* Global Controls */}
           <section className="flex flex-col gap-2">
             <h3 className="text-[10px] font-bold text-gray-700 uppercase tracking-widest bg-gray-200/50 p-1.5 rounded-md">
               Global Execution
@@ -309,7 +304,6 @@ export const QuickActions: React.FC<{
             </div>
           </section>
         </div>
-      </div>
-    </div>
+    </DashboardItem>
   );
 };

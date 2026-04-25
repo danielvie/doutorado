@@ -14,8 +14,9 @@ import {
   ChartData,
 } from "chart.js";
 import { useDataStore } from "../../store/dataStore";
-import { Maximize2, Minimize2, Activity, GripVertical, BrushCleaning } from "lucide-react";
-import { PanelSize, SizeSelector } from "./SizeSelector";
+import { Activity, BrushCleaning } from "lucide-react";
+import { PanelSize } from "./SizeSelector";
+import { DashboardItem } from "./DashboardItem";
 
 // Register Chart.js components
 ChartJS.register(
@@ -49,15 +50,15 @@ const MetricDisplay: React.FC<{
 );
 
 export const SignalAnalysis: React.FC<{
+  id: string;
+  instanceId: string;
   currentSize?: PanelSize;
   onSizeChange?: (size: PanelSize) => void;
-  dragHandleRef?: React.RefObject<HTMLDivElement>;
-}> = ({ currentSize = "2x1", onSizeChange = () => {}, dragHandleRef }) => {
+}> = ({ id, instanceId, currentSize = "2x1", onSizeChange = () => {} }) => {
   const data = useDataStore((s) => s.data);
   const clearData = useDataStore((s) => s.clearData);
   const maxPoints = useDataStore((s) => s.maxPoints);
   const setMaxPoints = useDataStore((s) => s.setMaxPoints);
-  const [is_expanded, set_is_expanded] = useState(false);
   const [localMaxPoints, setLocalMaxPoints] = useState(maxPoints);
 
   // Sync local state if store changes
@@ -69,17 +70,6 @@ export const SignalAnalysis: React.FC<{
     setMaxPoints(Math.max(10, localMaxPoints));
   };
 
-  useEffect(() => {
-    const body_overflow_previous = document.body.style.overflow;
-
-    if (is_expanded) {
-      document.body.style.overflow = "hidden";
-    }
-
-    return () => {
-      document.body.style.overflow = body_overflow_previous;
-    };
-  }, [is_expanded]);
 
   // Config state
   const [showAn3, setShowAn3] = useState(true);
@@ -180,56 +170,16 @@ export const SignalAnalysis: React.FC<{
   );
 
   return (
-    <>
-      {is_expanded && <div className="fixed inset-0 z-[190] bg-slate-900/10" />}
-      <div
-        className={`panel p-3 flex flex-col gap-3 transition-all duration-300 overflow-hidden ${is_expanded ? "fixed top-20 bottom-4 left-4 right-4 lg:top-24 lg:bottom-8 lg:left-8 lg:right-8 z-[200] max-w-none shadow-2xl" : "h-full min-h-0"}`}
-      >
-        {/* Header */}
-        <div className="flex justify-between items-center shrink-0">
-          <div className="flex items-center gap-1.5">
-            <div
-              ref={dragHandleRef}
-              className="p-1.5 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing transition-colors"
-            >
-              <GripVertical size={20} />
-            </div>
-            <SizeSelector
-              currentSize={currentSize}
-              onSizeChange={onSizeChange}
-            />
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">
-                Signal Analysis
-              </h2>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                <span className="text-xs font-bold text-gray-600 uppercase tracking-widest">
-                  Real-time Telemetry
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-2 items-center">
-            <button
-              onClick={() => clearData()}
-              className="p-2 bg-gray-50 border border-gray-200 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 rounded-md text-gray-500 transition-colors"
-              title="Clear data"
-            >
-              <BrushCleaning size={18} />
-            </button>
-            <button
-              onClick={() => set_is_expanded(!is_expanded)}
-              className="p-2 bg-gray-50 border border-gray-200 hover:bg-gray-100 rounded-md text-gray-600 transition-colors"
-              title={is_expanded ? "Exit fullscreen" : "Open fullscreen"}
-            >
-              {is_expanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
-            </button>
-          </div>
-        </div>
-
-        {/* Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0">
+    <DashboardItem
+      id={id}
+      instanceId={instanceId}
+      title="Signal Analysis"
+      currentSize={currentSize}
+      onSizeChange={onSizeChange}
+      expandable={true}
+    >
+      {/* Metrics */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0">
           <MetricDisplay
             label="V_C1 Node"
             value={latestData.an5.toFixed(3)}
@@ -257,6 +207,13 @@ export const SignalAnalysis: React.FC<{
 
         {/* Controls */}
         <div className="flex flex-wrap gap-4 justify-center items-center shrink-0">
+          <button
+            onClick={() => clearData()}
+            className="p-1.5 bg-gray-50 border border-gray-200 hover:bg-red-50 hover:border-red-200 hover:text-red-600 rounded-md text-gray-500 transition-colors mr-2"
+            title="Clear data"
+          >
+            <BrushCleaning size={16} />
+          </button>
           <label className="flex items-center gap-2 text-sm text-gray-700 select-none cursor-pointer hover:text-gray-900 transition-colors">
             <input
               type="checkbox"
@@ -303,7 +260,6 @@ export const SignalAnalysis: React.FC<{
             </button>
           </div>
         </div>
-      </div>
-    </>
+    </DashboardItem>
   );
 };

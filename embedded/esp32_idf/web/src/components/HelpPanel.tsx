@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { GripVertical, Check, Copy } from "lucide-react";
-import { PanelSize, SizeSelector } from "./Dashboard/SizeSelector";
+import { Check, Copy } from "lucide-react";
+import { PanelSize } from "./Dashboard/SizeSelector";
+import { DashboardItem } from "./Dashboard/DashboardItem";
 
 const CommandItem: React.FC<{ commands: string; description: string }> = ({
   commands,
@@ -45,27 +46,20 @@ const CommandItem: React.FC<{ commands: string; description: string }> = ({
 };
 
 export const HelpPanel: React.FC<{
+  id: string;
+  instanceId: string;
   currentSize?: PanelSize;
   onSizeChange?: (size: PanelSize) => void;
-  dragHandleRef?: React.RefObject<HTMLDivElement>;
-}> = ({ currentSize = "1x1", onSizeChange = () => {}, dragHandleRef }) => {
+}> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
   return (
-    <div className="panel p-3 flex flex-col gap-3 h-full min-h-0">
-      <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-        <div className="flex items-center gap-1.5">
-          <div
-            ref={dragHandleRef}
-            className="p-1.5 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing transition-colors"
-          >
-            <GripVertical size={20} />
-          </div>
-          <SizeSelector currentSize={currentSize} onSizeChange={onSizeChange} />
-          <h2 className="text-xl font-bold text-gray-900">
-            BLE Commands Guide
-          </h2>
-        </div>
-      </div>
-
+    <DashboardItem
+      id={id}
+      instanceId={instanceId}
+      title="BLE Commands Guide"
+      currentSize={currentSize}
+      onSizeChange={onSizeChange}
+      expandable={false}
+    >
       <div className="flex-1 min-h-0 overflow-y-auto pr-2 custom-scrollbar">
         <ul className="text-sm font-mono text-gray-800 flex flex-col gap-3 py-1">
           <CommandItem
@@ -114,6 +108,6 @@ export const HelpPanel: React.FC<{
           />
         </ul>
       </div>
-    </div>
+    </DashboardItem>
   );
 };

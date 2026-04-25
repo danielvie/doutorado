@@ -2,14 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import { _create_signal } from "../../helper";
 import { bleManager } from "../../services/BleManager";
 import { useBleStore } from "../../store/bleStore";
-import { Upload, GripVertical } from "lucide-react";
-import { PanelSize, SizeSelector } from "./SizeSelector";
+import { Upload } from "lucide-react";
+import { PanelSize } from "./SizeSelector";
+import { DashboardItem } from "./DashboardItem";
 
 export const SignalGenerator: React.FC<{
+  id: string;
+  instanceId: string;
   currentSize?: PanelSize;
   onSizeChange?: (size: PanelSize) => void;
-  dragHandleRef?: React.RefObject<HTMLDivElement>;
-}> = ({ currentSize = "1x1", onSizeChange = () => {}, dragHandleRef }) => {
+}> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
   const alpha = useBleStore((s) => s.alpha);
   const setAlpha = useBleStore((s) => s.setAlpha);
   const [timeStr, setTimeStr] = useState("");
@@ -52,20 +54,14 @@ export const SignalGenerator: React.FC<{
   }, [timeStr]);
 
   return (
-    <div className="panel p-3 flex flex-col gap-3 h-full min-h-0 overflow-hidden">
-      <div className="flex items-center justify-between border-b border-gray-200 pb-2">
-        <div className="flex items-center gap-1.5">
-          <div
-            ref={dragHandleRef}
-            className="p-1.5 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing transition-colors"
-          >
-            <GripVertical size={20} />
-          </div>
-          <SizeSelector currentSize={currentSize} onSizeChange={onSizeChange} />
-          <h2 className="text-xl font-bold text-gray-900">Signal Generator</h2>
-        </div>
-      </div>
-
+    <DashboardItem
+      id={id}
+      instanceId={instanceId}
+      title="Signal Generator"
+      currentSize={currentSize}
+      onSizeChange={onSizeChange}
+      expandable={false}
+    >
       <div className="flex-1 min-h-0 overflow-y-auto pr-2">
         <div className="flex flex-col gap-6">
           <div className="bg-white/70 border border-gray-200 rounded-xl p-4 shadow-sm">
@@ -243,6 +239,6 @@ export const SignalGenerator: React.FC<{
           )}
         </div>
       </div>
-    </div>
+    </DashboardItem>
   );
 };

@@ -13,7 +13,6 @@ import { PanelSize } from "./components/Dashboard/SizeSelector";
 
 type DashboardLayout = Record<string, string>;
 type DashboardItemSizes = Record<string, PanelSize>;
-import { DashboardItem } from "./components/Dashboard/DashboardItem";
 
 const ITEM_IDS = ["chart", "quick", "manual", "signal", "help", "status", "logs"];
 
@@ -124,6 +123,8 @@ function App() {
 
   const renderItemContent = (itemId: string) => {
     const props = {
+      id: itemId,
+      instanceId,
       currentSize: itemSizes[itemId] || DEFAULT_ITEM_SIZES[itemId] || "1x1",
       onSizeChange: (size: PanelSize) => handleItemSizeChange(itemId, size),
     };
@@ -162,9 +163,7 @@ function App() {
 
             return (
               <div key={itemId} className={sizeClass}>
-                <DashboardItem id={itemId} instanceId={instanceId}>
-                  {renderItemContent(itemId)}
-                </DashboardItem>
+                {renderItemContent(itemId)}
               </div>
             );
           })}

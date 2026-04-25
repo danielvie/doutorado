@@ -1,35 +1,26 @@
 import { useEffect, useRef } from "react";
 import { useBleStore } from "../../store/bleStore";
-import { Trash2, GripVertical } from "lucide-react";
-import { PanelSize, SizeSelector } from "./SizeSelector";
+import { Trash2 } from "lucide-react";
+import { PanelSize } from "./SizeSelector";
+import { DashboardItem } from "./DashboardItem";
 
 export const SystemLogs: React.FC<{
+  id: string;
+  instanceId: string;
   currentSize?: PanelSize;
   onSizeChange?: (size: PanelSize) => void;
-  dragHandleRef?: React.RefObject<HTMLDivElement>;
-}> = ({ currentSize = "1x1", onSizeChange = () => {}, dragHandleRef }) => {
+}> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
   return (
-    <div className="panel p-3 flex flex-col gap-3 h-full min-h-0 overflow-hidden">
-      <div className="flex items-center justify-between border-b border-gray-200 pb-2">
-        <div className="flex items-center gap-1.5">
-          <div
-            ref={dragHandleRef}
-            className="p-1.5 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing transition-colors"
-          >
-            <GripVertical size={20} />
-          </div>
-          <SizeSelector currentSize={currentSize} onSizeChange={onSizeChange} />
-          <h2 className="text-xl font-bold text-gray-900">System Logs</h2>
-        </div>
-        <div className="px-3 py-1 bg-gray-100 rounded-md border border-gray-300">
-          <span className="text-xs font-bold text-gray-700 uppercase tracking-widest">
-            Live Terminal
-          </span>
-        </div>
-      </div>
-
+    <DashboardItem
+      id={id}
+      instanceId={instanceId}
+      title="System Logs"
+      currentSize={currentSize}
+      onSizeChange={onSizeChange}
+      expandable={false}
+    >
       <LogViewer />
-    </div>
+    </DashboardItem>
   );
 };
 
