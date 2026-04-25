@@ -22,11 +22,6 @@ export const StatusPanel: React.FC<{
           <SizeSelector currentSize={currentSize} onSizeChange={onSizeChange} />
           <h2 className="text-xl font-bold text-gray-900">Status</h2>
         </div>
-        <div className="px-3 py-1 bg-blue-100 rounded-md border border-blue-200">
-          <span className="text-xs font-bold text-blue-700 uppercase tracking-widest">
-            BLE Diagnostic
-          </span>
-        </div>
       </div>
 
       <div className="flex-1 min-h-0 flex flex-col">

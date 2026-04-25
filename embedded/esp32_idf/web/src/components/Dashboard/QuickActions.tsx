@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { bleManager } from "../../services/BleManager";
-import { Send, GripVertical } from "lucide-react";
+import { useBleStore } from "../../store/bleStore";
+import { Send, GripVertical, Gauge } from "lucide-react";
 import { PanelSize, SizeSelector } from "./SizeSelector";
 
 enum EMATRIX {
@@ -13,6 +14,7 @@ export const QuickActions: React.FC<{
   onSizeChange?: (size: PanelSize) => void;
   dragHandleRef?: React.RefObject<HTMLDivElement>;
 }> = ({ currentSize = "1x1", onSizeChange = () => {}, dragHandleRef }) => {
+  const { alpha, setAlpha } = useBleStore();
   const [chunk, set_chunk] = useState(10);
   const [cycles, setCycles] = useState(100);
   const [monitor_period_ms, set_monitor_period_ms] = useState(100);
@@ -35,6 +37,11 @@ export const QuickActions: React.FC<{
   ) => set_monitor_period_ms(parseInt(e.target.value));
 
   const ble_send_command = (cmd: string) => bleManager.send(cmd);
+
+  const handle_set_alpha = (a: string) => {
+    setAlpha(a.toString());
+    bleManager.send(`SET_ALPHA:${a}`);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const history = history_ref.current;
@@ -89,10 +96,10 @@ export const QuickActions: React.FC<{
       </div>
 
       <div className="flex-1 min-h-0 overflow-y-auto pr-2">
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-4">
           {/* Manual Command */}
-          <section className="flex flex-col gap-4">
-            <h3 className="text-xs font-bold text-gray-700 uppercase tracking-widest bg-gray-100/50 p-2 rounded-md">
+          <section className="flex flex-col gap-2">
+            <h3 className="text-[10px] font-bold text-gray-700 uppercase tracking-widest bg-gray-200/50 p-1.5 rounded-md">
               Manual Command
             </h3>
             <form onSubmit={handleSend} className="flex gap-3">
@@ -114,11 +121,11 @@ export const QuickActions: React.FC<{
           </section>
 
           {/* Parametric Control */}
-          <section className="flex flex-col gap-4">
-            <h3 className="text-xs font-bold text-gray-700 uppercase tracking-widest bg-gray-100/50 p-2 rounded-md">
+          <section className="flex flex-col gap-2">
+            <h3 className="text-[10px] font-bold text-gray-700 uppercase tracking-widest bg-gray-200/50 p-1.5 rounded-md">
               Parameter Matrix
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-gray-700 font-bold uppercase ml-1">
                   Chunk
@@ -156,8 +163,8 @@ export const QuickActions: React.FC<{
           </section>
 
           {/* Global Controls */}
-          <section className="flex flex-col gap-4">
-            <h3 className="text-xs font-bold text-gray-700 uppercase tracking-widest bg-gray-100/50 p-2 rounded-md">
+          <section className="flex flex-col gap-2">
+            <h3 className="text-[10px] font-bold text-gray-700 uppercase tracking-widest bg-gray-200/50 p-1.5 rounded-md">
               Global Execution
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
@@ -198,11 +205,41 @@ export const QuickActions: React.FC<{
                 STATUS
               </button>
             </div>
+
+            {/* Alpha Quick Selection */}
+            <div className="flex flex-col gap-1.5 mt-1">
+              <div className="flex items-center gap-1.5 ml-1">
+                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">
+                  Alpha Presets
+                </span>
+              </div>
+              <div className="grid grid-cols-5 gap-1.5">
+                {[
+                  "0.1",
+                  Math.max(0.1, parseFloat(alpha) - 0.1).toFixed(1),
+                  alpha,
+                  Math.min(0.9, parseFloat(alpha) + 0.1).toFixed(1),
+                  "0.9",
+                ].map((val, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handle_set_alpha(val)}
+                    className={`py-1 rounded font-bold text-[10px] border transition-all ${
+                      parseFloat(val) === parseFloat(alpha)
+                        ? "bg-blue-600 text-white border-blue-600 shadow-sm scale-105 z-10 cursor-default"
+                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 cursor-pointer"
+                    }`}
+                  >
+                    {val}
+                  </button>
+                ))}
+              </div>
+            </div>
           </section>
 
           {/* Diagnostic Data */}
-          <section className="flex flex-col gap-4">
-            <h3 className="text-xs font-bold text-gray-700 uppercase tracking-widest bg-gray-100/50 p-2 rounded-md">
+          <section className="flex flex-col gap-2">
+            <h3 className="text-[10px] font-bold text-gray-700 uppercase tracking-widest bg-gray-200/50 p-1.5 rounded-md">
               Diagnostic & Dataset
             </h3>
             <div className="grid grid-cols-2 gap-3">
@@ -234,8 +271,8 @@ export const QuickActions: React.FC<{
           </section>
 
           {/* System Config */}
-          <section className="flex flex-col gap-4">
-            <h3 className="text-xs font-bold text-gray-700 uppercase tracking-widest bg-gray-100/50 p-2 rounded-md">
+          <section className="flex flex-col gap-2">
+            <h3 className="text-[10px] font-bold text-gray-700 uppercase tracking-widest bg-gray-200/50 p-1.5 rounded-md">
               System Configuration
             </h3>
             <div className="flex flex-wrap gap-2">

@@ -63,11 +63,6 @@ export const SignalGenerator: React.FC<{
           <SizeSelector currentSize={currentSize} onSizeChange={onSizeChange} />
           <h2 className="text-xl font-bold text-gray-900">Signal Generator</h2>
         </div>
-        <div className="px-3 py-1 bg-gray-100 rounded-md border border-gray-300">
-          <span className="text-xs font-bold text-gray-700 uppercase tracking-widest">
-            Oscillator Output
-          </span>
-        </div>
       </div>
 
       <div className="flex-1 min-h-0 overflow-y-auto pr-2">
@@ -115,8 +110,8 @@ export const SignalGenerator: React.FC<{
                     onClick={() => handle_set_alpha(val)}
                     className={`py-1.5 rounded-md font-bold text-sm transition-colors ${
                       val === alpha
-                        ? "bg-blue-600 text-white shadow-md ring-2 ring-blue-600 ring-offset-1"
-                        : "bg-white text-gray-800 border border-gray-300 hover:bg-gray-50 shadow-sm"
+                        ? "bg-blue-600 text-white shadow-md ring-2 ring-blue-600 ring-offset-1 cursor-default"
+                        : "bg-white text-gray-800 border border-gray-300 hover:bg-gray-50 shadow-sm cursor-pointer"
                     }`}
                   >
                     {val}
