@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { bleManager } from "../../services/BleManager";
 import { useBleStore } from "../../store/bleStore";
-import { Send, GripVertical, Gauge } from "lucide-react";
+import { Send, GripVertical } from "lucide-react";
 import { PanelSize, SizeSelector } from "./SizeSelector";
 
 enum EMATRIX {

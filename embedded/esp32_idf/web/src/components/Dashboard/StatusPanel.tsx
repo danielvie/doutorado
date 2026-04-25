@@ -6,6 +6,7 @@ import { PanelSize, SizeSelector } from "./SizeSelector";
 export const StatusPanel: React.FC<{
   currentSize?: PanelSize;
   onSizeChange?: (size: PanelSize) => void;
+  dragHandleRef?: React.RefObject<HTMLDivElement>;
 }> = ({ currentSize = "1x1", onSizeChange = () => {}, dragHandleRef }) => {
   const { lastStatusMessage } = useBleStore();
 
