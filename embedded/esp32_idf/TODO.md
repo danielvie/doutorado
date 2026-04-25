@@ -130,3 +130,25 @@
 - [x] Fix `Signal Analysis` fullscreen positioning relative to the dashboard content area so it occupies the usable area and stays centered below the header
 - [x] Fix the remaining fullscreen offset root cause from the layout transform wrapper so `Signal Analysis` fullscreen is truly viewport-centered
 - [x] Reduce the gap between dashboard panels
+
+## BLE Messaging Analysis
+
+- [x] Analyze `ble_controller.h/cpp` (Firmware side)
+- [x] Analyze `web/src/components/bluetooth.ts` (App side)
+- [x] Map the messaging protocol (commands, status, notifications)
+- [x] Evaluate security risks in messaging
+- [x] Evaluate performance/latency in BLE communication
+- [x] Identify design patterns used in BLE handling
+- [x] Synthesize comprehensive analysis report
+- [x] Propose improvements for BLE messaging protocol
+
+## Protobuf Implementation
+
+- [x] Create `proto/messaging.proto` schema
+- [x] Integrate `nanopb` into ESP-IDF project
+- [x] Integrate `protobufjs` into Web App project
+- [x] Add generation tasks to `Taskfile.yml`
+- [x] Implement Protobuf encoding in `ble_controller.cpp` for telemetry
+- [x] Implement Protobuf decoding in `web/src/components/bluetooth.ts`
+- [x] Add `0x01` binary prefix to discriminate between ASCII and Protobuf
+- [x] Document architecture in `docs/BLE_PROTOBUF_ARCHITECTURE.md`

@@ -9,6 +9,11 @@
 #include <atomic>
 #include <cmath>
 
+// Nanopb
+#include <pb_encode.h>
+#include <pb_decode.h>
+#include "messaging.pb.h"
+
 #define PROFILE_NUM 1
 #define PROFILE_APP_ID 0
 
@@ -145,6 +150,23 @@ esp_err_t ble_send_message(const char* data, uint16_t len, BLEMode mode) {
     }
 
     return ret;
+}
+
+esp_err_t ble_send_protobuf(const BlePacket* packet) {
+    if (!ble_is_connected()) return ESP_FAIL;
+
+    uint8_t buffer[500];
+    buffer[0] = 0x01; // Binary prefix
+
+    pb_ostream_t stream = pb_ostream_from_buffer(buffer + 1, sizeof(buffer) - 1);
+    bool status = pb_encode(&stream, BlePacket_fields, packet);
+
+    if (!status) {
+        ESP_LOGE(TAG, "Encoding failed: %s", PB_GET_ERROR(&stream));
+        return ESP_FAIL;
+    }
+
+    return ble_send_message((const char*)buffer, stream.bytes_written + 1, BLEMode::SILENT);
 }
 
 static void example_write_event_env(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t* param) {

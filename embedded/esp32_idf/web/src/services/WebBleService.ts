@@ -89,7 +89,7 @@ export class WebBleService implements IBleService {
         addLog(`Sent: ${command}`);
     }
 
-    async subscribe(callback: (data: string) => void): Promise<void> {
+    async subscribe(callback: (data: any) => void): Promise<void> {
         if (!this.characteristic) throw new Error("No characteristic");
 
         await this.characteristic.startNotifications();
@@ -97,10 +97,8 @@ export class WebBleService implements IBleService {
         this.characteristic.addEventListener(
             "characteristicvaluechanged",
             (event: any) => {
-                const value = event.target.value;
-                const decoder = new TextDecoder();
-                const message = decoder.decode(value);
-                callback(message);
+                const value = event.target.value; // DataView
+                callback(value);
             },
         );
         const { addLog } = useBleStore.getState();

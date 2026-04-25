@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+// Telemetry message containing analog port readings
+message Telemetry {
+    float an3 = 1;
+    float an5 = 2;
+    float an6 = 3;
+    uint32 timestamp_ms = 4;
+}
+
+// System status message
+message SystemStatus {
+    enum SignalState {
+        STOPPED = 0;
+        RUNNING = 1;
+    }
+    SignalState state = 1;
+    float alpha = 2;
+    uint32 cycle_count = 3;
+}
+
+// Top-level message for BLE communication
+message BlePacket {
+    oneof payload {
+        Telemetry telemetry = 1;
+        SystemStatus status = 2;
+    }
+}

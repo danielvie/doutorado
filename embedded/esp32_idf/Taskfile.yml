@@ -222,3 +222,23 @@ tasks:
           bash -c "cp .clangd.d/macos.yaml .clangd && cp .zed.d/settings-macos.json .zed/settings.json"
         {{end}}
       - 'echo "✓ Configuration complete. Reload Zed to apply changes."'
+
+  proto:gen:firmware:
+    desc: Generate C files for Nanopb
+    cmds:
+      - 'echo "Generating Nanopb files..."'
+      - 'powershell -NoProfile -ExecutionPolicy Bypass -Command "& { . C:\Users\daniel\esp\v5.5.1\esp-idf\export.ps1; nanopb_generator -D main/src proto/messaging.proto }" '
+
+  proto:gen:web:
+    desc: Generate JS/TS files for protobufjs
+    dir: web
+    cmds:
+      - 'echo "Generating Protobuf JS files..."'
+      - 'npx pbjs --es6 src/proto/messaging.js ../proto/messaging.proto'
+      - 'npx pbjs --ts src/proto/messaging.d.ts ../proto/messaging.proto'
+
+  proto:gen:
+    desc: Generate all proto files
+    cmds:
+      - task: proto:gen:firmware
+      - task: proto:gen:web

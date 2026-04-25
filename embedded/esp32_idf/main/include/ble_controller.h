@@ -41,6 +41,10 @@ esp_err_t ble_controller_init(void);
 // Send a BLE notification message to the connected client
 esp_err_t ble_send_message(const char* data, uint16_t len, BLEMode mode = BLEMode::VERBOSE);
 
+// Send a Protobuf message to the connected client
+struct _BlePacket; // Forward declaration for Nanopb struct
+esp_err_t ble_send_protobuf(const struct _BlePacket* packet);
+
 // Router function to handle incoming BLE write commands
 void ble_router_set_signal(std::string& message);
 

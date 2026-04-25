@@ -6,6 +6,8 @@ const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
 // UUID for the characteristic used for data communication
 const CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
 
+import { decodeBlePacket } from "../proto/messaging";
+
 // Module-level variables to maintain the Bluetooth connection state
 let g_bluetooth_device: any = null; // Reference to the connected Bluetooth device
 let g_gattServer = null; // The GATT server of the connected device
@@ -216,8 +218,33 @@ export async function ble_start_notifications() {
             (event: any) => {
                 // Get the raw data from the event
                 const value = event.target.value;
+                const uint8Array = new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
 
-                // Convert the binary data to text
+                // Check for binary prefix 0x01
+                if (uint8Array[0] === 0x01) {
+                    try {
+                        // Decode Protobuf (skip the first byte prefix)
+                        const binary = uint8Array.slice(1);
+                        const packet = decodeBlePacket(binary);
+
+                        if (packet.telemetry) {
+                            const t = packet.telemetry;
+                            g_fn_probe({
+                                an3: t.an3?.toFixed(4) || "0",
+                                an5: t.an5?.toFixed(4) || "0",
+                                an6: t.an6?.toFixed(4) || "0",
+                            });
+                        } else if (packet.status) {
+                            // Handle binary status if needed
+                            console.log("Received binary status", packet.status);
+                        }
+                        return;
+                    } catch (err) {
+                        console.error("Failed to decode Protobuf packet:", err);
+                    }
+                }
+
+                // Fallback to ASCII decoding
                 const decoder = new TextDecoder();
                 let message = decoder.decode(value);
                 
@@ -229,16 +256,12 @@ export async function ble_start_notifications() {
                     return;
                 }
 
-                // Parse the message using regex to extract key:value pairs
-                // Expected format is like "an3:1.23 an5:4.56 an6:7.89"
+                // Parse the message using regex to extract key:value pairs (Legacy)
                 const regex = /(\w+):([\d.]+)/g;
                 const parsed_data: Record<string, string> = {};
-                // console.log(parsed_data)
                 let match;
                 let has_match = false;
 
-
-                // Extract all key-value pairs from the message
                 while ((match = regex.exec(message)) !== null) {
                     has_match = true;
                     const key = match[1];
@@ -246,14 +269,13 @@ export async function ble_start_notifications() {
                     parsed_data[key] = value;
                 }
 
-                // If we found at least one key-value pair, create the result object
                 if (has_match) {
                     const results = {
-                        an3: parsed_data["an3"] || "0", // Default to "0" if not present
+                        an3: parsed_data["an3"] || "0",
                         an5: parsed_data["an5"] || "0",
                         an6: parsed_data["an6"] || "0",
                     };
-                    g_fn_probe(results); // Call the probe callback with new data
+                    g_fn_probe(results);
                 }
             },
         );

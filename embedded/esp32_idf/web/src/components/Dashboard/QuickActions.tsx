@@ -213,6 +213,7 @@ export const QuickActions: React.FC<{
                 <div className="flex gap-1">
                   <input
                     type="number"
+                    step={10}
                     onChange={handle_set_monitor_period_ms}
                     value={monitor_period_ms}
                     className="flex-1 min-w-0 text-sm font-semibold text-gray-800 bg-gray-50 border-gray-300 rounded px-2 h-8"
