@@ -125,7 +125,7 @@
 ## Final Signal Analysis Height-Fit Task
 
 - [x] Make the `Signal Analysis` chart area shrink to match the panel height without remaining too tall
-- [ ] Remove the forced extra inner height in `Signal Analysis` so the chart matches the panel without cropping
+- [x] Remove the forced extra inner height in `Signal Analysis` so the chart matches the panel without cropping
 - [x] Fix the fullscreen alignment root cause in `Signal Analysis` by removing the transformed ancestor behavior that breaks fixed positioning
 - [x] Fix `Signal Analysis` fullscreen positioning relative to the dashboard content area so it occupies the usable area and stays centered below the header
 - [x] Fix the remaining fullscreen offset root cause from the layout transform wrapper so `Signal Analysis` fullscreen is truly viewport-centered

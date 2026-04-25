@@ -35,7 +35,7 @@ const MetricDisplay: React.FC<{
   color: string;
   icon?: React.ReactNode;
 }> = ({ label, value, color, icon }) => (
-  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 flex flex-col gap-1 relative overflow-hidden group">
+  <div className="bg-gray-50 p-2.5 rounded-lg border border-gray-200 flex flex-col gap-0.5 relative overflow-hidden group">
     <div className="absolute top-2 right-2 p-1 text-gray-400 group-hover:text-gray-500 transition-colors">
       {icon}
     </div>
@@ -170,10 +170,10 @@ export const SignalAnalysis: React.FC<{
     <>
       {is_expanded && <div className="fixed inset-0 z-[190] bg-slate-900/10" />}
       <div
-        className={`panel p-6 flex flex-col transition-all duration-300 overflow-hidden ${is_expanded ? "fixed top-20 bottom-4 left-4 right-4 lg:top-24 lg:bottom-8 lg:left-8 lg:right-8 z-[200] max-w-none shadow-2xl" : "h-full min-h-0"}`}
+        className={`panel p-3 flex flex-col gap-3 transition-all duration-300 overflow-hidden ${is_expanded ? "fixed top-20 bottom-4 left-4 right-4 lg:top-24 lg:bottom-8 lg:left-8 lg:right-8 z-[200] max-w-none shadow-2xl" : "h-full min-h-0"}`}
       >
         {/* Header */}
-        <div className="flex justify-between items-center mb-6 shrink-0">
+        <div className="flex justify-between items-center shrink-0">
           <div className="flex items-center gap-1.5">
             <div
               ref={dragHandleRef}
@@ -208,66 +208,62 @@ export const SignalAnalysis: React.FC<{
           </div>
         </div>
 
-        <div className="flex-1 min-h-0 pr-2">
-          <div className="flex h-full min-h-0 flex-col">
-            {/* Metrics */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-              <MetricDisplay
-                label="V_C1 Node"
-                value={latestData.an5.toFixed(3)}
-                color="#10b981"
-                icon={<Activity size={20} />}
-              />
-              <MetricDisplay
-                label="V_C2 Node"
-                value={latestData.an6.toFixed(3)}
-                color="#f59e0b"
-                icon={<Activity size={20} />}
-              />
-              <MetricDisplay
-                label="VR Feedback"
-                value={latestData.an3.toFixed(3)}
-                color="#2563eb"
-                icon={<Activity size={20} />}
-              />
-            </div>
+        {/* Metrics */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0">
+          <MetricDisplay
+            label="V_C1 Node"
+            value={latestData.an5.toFixed(3)}
+            color="#10b981"
+            icon={<Activity size={20} />}
+          />
+          <MetricDisplay
+            label="V_C2 Node"
+            value={latestData.an6.toFixed(3)}
+            color="#f59e0b"
+            icon={<Activity size={20} />}
+          />
+          <MetricDisplay
+            label="VR Feedback"
+            value={latestData.an3.toFixed(3)}
+            color="#2563eb"
+            icon={<Activity size={20} />}
+          />
+        </div>
 
-            {/* Chart Area */}
-            <div className="bg-white rounded-lg border border-gray-200 relative overflow-hidden p-4 flex-1 min-h-0">
-              <Line data={chartData} options={options} />
-            </div>
+        {/* Chart Area */}
+        <div className="bg-white rounded-lg border border-gray-200 relative overflow-hidden p-2 flex-1 min-h-0">
+          <Line data={chartData} options={options} />
+        </div>
 
-            {/* Controls */}
-            <div className="flex flex-wrap gap-6 mt-4 justify-center items-center shrink-0">
-              <label className="flex items-center gap-2 text-sm text-gray-700 select-none cursor-pointer hover:text-gray-900 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={showAn5}
-                  onChange={(e) => setShowAn5(e.target.checked)}
-                  className="rounded text-green-500 focus:ring-green-500"
-                />
-                <span className="font-bold uppercase text-xs">V_C1</span>
-              </label>
-              <label className="flex items-center gap-2 text-sm text-gray-700 select-none cursor-pointer hover:text-gray-900 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={showAn6}
-                  onChange={(e) => setShowAn6(e.target.checked)}
-                  className="rounded text-amber-500 focus:ring-amber-500"
-                />
-                <span className="font-bold uppercase text-xs">V_C2</span>
-              </label>
-              <label className="flex items-center gap-2 text-sm text-gray-700 select-none cursor-pointer hover:text-gray-900 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={showAn3}
-                  onChange={(e) => setShowAn3(e.target.checked)}
-                  className="rounded text-blue-600 focus:ring-blue-600"
-                />
-                <span className="font-bold uppercase text-xs">VR REF</span>
-              </label>
-            </div>
-          </div>
+        {/* Controls */}
+        <div className="flex flex-wrap gap-4 justify-center items-center shrink-0">
+          <label className="flex items-center gap-2 text-sm text-gray-700 select-none cursor-pointer hover:text-gray-900 transition-colors">
+            <input
+              type="checkbox"
+              checked={showAn5}
+              onChange={(e) => setShowAn5(e.target.checked)}
+              className="rounded text-green-500 focus:ring-green-500"
+            />
+            <span className="font-bold uppercase text-xs">V_C1</span>
+          </label>
+          <label className="flex items-center gap-2 text-sm text-gray-700 select-none cursor-pointer hover:text-gray-900 transition-colors">
+            <input
+              type="checkbox"
+              checked={showAn6}
+              onChange={(e) => setShowAn6(e.target.checked)}
+              className="rounded text-amber-500 focus:ring-amber-500"
+            />
+            <span className="font-bold uppercase text-xs">V_C2</span>
+          </label>
+          <label className="flex items-center gap-2 text-sm text-gray-700 select-none cursor-pointer hover:text-gray-900 transition-colors">
+            <input
+              type="checkbox"
+              checked={showAn3}
+              onChange={(e) => setShowAn3(e.target.checked)}
+              className="rounded text-blue-600 focus:ring-blue-600"
+            />
+            <span className="font-bold uppercase text-xs">VR REF</span>
+          </label>
         </div>
       </div>
     </>

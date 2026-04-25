@@ -222,8 +222,10 @@ export async function ble_start_notifications() {
                 let message = decoder.decode(value);
                 
                 if (message.includes('LOG') || message.includes('STATUS')) {
-                    console.log(message)
-                    g_fn_set_app_status_message(message);
+                    // Sanitize message: remove null bytes and other non-printable characters
+                    const sanitized = message.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, "").trim();
+                    console.log(`BLE Message (sanitized): "${sanitized}"`);
+                    g_fn_set_app_status_message(sanitized);
                     return;
                 }
 

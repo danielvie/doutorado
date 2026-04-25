@@ -9,8 +9,8 @@ export const SystemLogs: React.FC<{
   dragHandleRef?: React.RefObject<HTMLDivElement>;
 }> = ({ currentSize = "1x1", onSizeChange = () => {}, dragHandleRef }) => {
   return (
-    <div className="panel p-6 flex flex-col gap-6 h-full min-h-0 overflow-hidden">
-      <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+    <div className="panel p-3 flex flex-col gap-3 h-full min-h-0 overflow-hidden">
+      <div className="flex items-center justify-between border-b border-gray-200 pb-2">
         <div className="flex items-center gap-1.5">
           <div
             ref={dragHandleRef}

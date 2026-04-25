@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import { bleManager } from "../../services/BleManager";
 import { Send, GripVertical } from "lucide-react";
 import { PanelSize, SizeSelector } from "./SizeSelector";
-import StatusBox from "./StatusBox";
 
 enum EMATRIX {
   A = "A",
@@ -75,8 +74,8 @@ export const QuickActions: React.FC<{
   };
 
   return (
-    <div className="panel p-6 flex flex-col gap-6 h-full min-h-0 overflow-hidden">
-      <div className="flex justify-between items-center border-b border-gray-200 pb-4">
+    <div className="panel p-3 flex flex-col gap-3 h-full min-h-0 overflow-hidden">
+      <div className="flex justify-between items-center border-b border-gray-200 pb-2">
         <div className="flex items-center gap-1.5">
           <div
             ref={dragHandleRef}
@@ -88,8 +87,6 @@ export const QuickActions: React.FC<{
           <h2 className="text-xl font-bold text-gray-900">Quick Actions</h2>
         </div>
       </div>
-
-      <StatusBox />
 
       <div className="flex-1 min-h-0 overflow-y-auto pr-2">
         <div className="flex flex-col gap-8">

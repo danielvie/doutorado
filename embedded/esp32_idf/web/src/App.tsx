@@ -5,6 +5,7 @@ import { SignalAnalysis } from "./components/Dashboard/SignalAnalysis";
 import { SignalGenerator } from "./components/Dashboard/SignalGenerator";
 import { SystemLogs } from "./components/Dashboard/SystemLogs";
 import { QuickActions } from "./components/Dashboard/QuickActions";
+import { StatusPanel } from "./components/Dashboard/StatusPanel";
 import { HelpPanel } from "./components/HelpPanel";
 import { Agentation } from "agentation";
 import { PanelSize } from "./components/Dashboard/SizeSelector";
@@ -13,7 +14,7 @@ type DashboardLayout = Record<string, string>;
 type DashboardItemSizes = Record<string, PanelSize>;
 import { DashboardItem } from "./components/Dashboard/DashboardItem";
 
-const ITEM_IDS = ["chart", "quick", "manual", "signal", "help"];
+const ITEM_IDS = ["chart", "quick", "manual", "signal", "help", "status"];
 
 const DEFAULT_LAYOUT = {
   "slot-1": "chart",
@@ -21,6 +22,7 @@ const DEFAULT_LAYOUT = {
   "slot-3": "manual",
   "slot-4": "signal",
   "slot-5": "help",
+  "slot-6": "status",
 };
 
 const DEFAULT_ITEM_SIZES: DashboardItemSizes = {
@@ -29,6 +31,7 @@ const DEFAULT_ITEM_SIZES: DashboardItemSizes = {
   manual: "1x1",
   signal: "1x1",
   help: "1x1",
+  status: "1x1",
 };
 
 function App() {
@@ -133,6 +136,8 @@ function App() {
         return <SignalGenerator {...props} />;
       case "help":
         return <HelpPanel {...props} />;
+      case "status":
+        return <StatusPanel {...props} />;
       default:
         return null;
     }
@@ -140,7 +145,7 @@ function App() {
 
   return (
     <Layout>
-      <div className="grid auto-rows-[290px] grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch grid-flow-dense">
+      <div className="grid auto-rows-[290px] grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 items-stretch grid-flow-dense">
         {[...ITEM_IDS]
           .sort((a, b) => {
             const slotA = getSlotForItem(a);

@@ -51,8 +51,8 @@ export const SignalGenerator: React.FC<{
   }, [timeStr]);
 
   return (
-    <div className="panel p-6 flex flex-col gap-6 h-full min-h-0 overflow-hidden">
-      <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+    <div className="panel p-3 flex flex-col gap-3 h-full min-h-0 overflow-hidden">
+      <div className="flex items-center justify-between border-b border-gray-200 pb-2">
         <div className="flex items-center gap-1.5">
           <div
             ref={dragHandleRef}
@@ -137,7 +137,7 @@ export const SignalGenerator: React.FC<{
                     <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono font-semibold text-gray-500">
                       <span>{timeStr.split(", ").length} pts</span>
                       <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
-                        sum() {time_values_sum.toFixed(1)}
+                        {time_values_sum.toFixed(1)} us
                       </span>
                     </div>
                   </div>

@@ -7,8 +7,8 @@ export const HelpPanel: React.FC<{
   dragHandleRef?: React.RefObject<HTMLDivElement>;
 }> = ({ currentSize = "1x1", onSizeChange = () => {}, dragHandleRef }) => {
   return (
-    <div className="panel p-6 flex flex-col gap-6 h-full min-h-0">
-      <div className="flex justify-between items-center border-b border-gray-200 pb-4">
+    <div className="panel p-3 flex flex-col gap-3 h-full min-h-0">
+      <div className="flex justify-between items-center border-b border-gray-200 pb-2">
         <div className="flex items-center gap-1.5">
           <div
             ref={dragHandleRef}
@@ -17,9 +17,6 @@ export const HelpPanel: React.FC<{
             <GripVertical size={20} />
           </div>
           <SizeSelector currentSize={currentSize} onSizeChange={onSizeChange} />
-          <div className="p-2 bg-purple-50 rounded-md text-purple-600 ml-1.5">
-            <span className="text-xl">📖</span>
-          </div>
           <h2 className="text-xl font-bold text-gray-900">
             BLE Commands Guide
           </h2>
