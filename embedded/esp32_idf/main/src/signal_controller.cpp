@@ -1,4 +1,5 @@
 #include "signal_controller.h"
+#include "helper_datasetter.h"
 #include "control_action.h"
 #include "soc/io_mux_reg.h"
 #include "hal/gpio_ll.h"
@@ -382,3 +383,18 @@ DataSet *get_dataset_active(void) {
 // Placeholder for interface compatibility
 void signal_execute_sequence(const uint16_t *durations, const uint8_t *modes,
                              int segment_count, int repeats) {}
+
+void signal_set_alpha(float alpha) {
+    DataSet *dataset;
+
+    // We always update the INACTIVE set first to avoid tearing in the loop
+    if (g_active_set == SignalSet::SET_A) {
+        dataset = &g_dataset_b;
+    } else {
+        dataset = &g_dataset_a;
+    }
+
+    ESP_LOGI(TAG, "Initializing system with alpha=%.2f", alpha);
+    helper_set_dataset_from_alpha(dataset, alpha);
+    g_ds_update_pending.store(true, std::memory_order_release);
+}

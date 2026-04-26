@@ -170,12 +170,12 @@ export const QuickActions: React.FC<{
                 <label className="text-xs text-gray-700 font-bold uppercase ml-1">
                   Chunk
                 </label>
-                <div className="flex gap-1">
+                <div className="flex gap-1 p-1">
                   <input
                     type="number"
                     onChange={handle_set_chunk}
                     value={chunk}
-                    className="flex-1 min-w-0 text-sm font-semibold text-gray-800 bg-gray-50 border-gray-300 rounded px-2 h-8"
+                    className="flex-1 min-w-0 text-sm font-semibold text-gray-800 bg-white border border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-0 outline-none px-2 h-8 shadow-none transition-none rounded"
                   />
                   <button
                     onClick={() => ble_send_command(`chunk:${chunk}`)}
@@ -190,12 +190,12 @@ export const QuickActions: React.FC<{
                 <label className="text-xs text-gray-700 font-bold uppercase ml-1">
                   Cycles
                 </label>
-                <div className="flex gap-1">
+                <div className="flex gap-1 p-1">
                   <input
                     type="number"
                     onChange={handle_set_cycles}
                     value={cycles}
-                    className="flex-1 min-w-0 text-sm font-semibold text-gray-800 bg-gray-50 border-gray-300 rounded px-2 h-8"
+                    className="flex-1 min-w-0 text-sm font-semibold text-gray-800 bg-white border border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-0 outline-none px-2 h-8 shadow-none transition-none rounded"
                   />
                   <button
                     onClick={() => ble_send_command(`cycles:${cycles}`)}
@@ -210,13 +210,13 @@ export const QuickActions: React.FC<{
                 <label className="text-xs text-gray-700 font-bold uppercase ml-1">
                   Monitor (ms)
                 </label>
-                <div className="flex gap-1">
+                <div className="flex gap-1 p-1">
                   <input
                     type="number"
                     step={10}
                     onChange={handle_set_monitor_period_ms}
                     value={monitor_period_ms}
-                    className="flex-1 min-w-0 text-sm font-semibold text-gray-800 bg-gray-50 border-gray-300 rounded px-2 h-8"
+                    className="flex-1 min-w-0 text-sm font-semibold text-gray-800 bg-white border border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-0 outline-none px-2 h-8 shadow-none transition-none rounded"
                   />
                   <button
                     onClick={() =>

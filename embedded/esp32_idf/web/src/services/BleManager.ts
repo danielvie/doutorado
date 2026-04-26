@@ -91,19 +91,19 @@ class BleManager {
                     const led_state = formatEnum(getVal(s.led_mode, decodeBleLedMode));
 
                     const statusLines = [
-                        "== status (Binary) ==",
-                        `active         : ${active_set}`,
-                        `alpha          : ${s.has_alpha ? s.alpha?.toFixed(2) : "not set"}`,
-                        `matrix a       : ${s.matrix_a_valid ? "valid" : "not valid"}`,
-                        `matrix b       : ${s.matrix_b_valid ? "valid" : "not valid"}`,
-                        `signal state   : ${signal_state}`,
-                        `ble state      : ${ble_state}`,
-                        `control state  : ${control_state}`,
-                        `led state      : ${led_state}`,
-                        `cycles         : ${s.current_cycles} of ${s.total_cycles}`,
+                        "== status ==",
+                        `Active         : ${active_set}`,
+                        `Alpha          : ${s.has_alpha ? s.alpha?.toFixed(2) : "not set"}`,
+                        `Matrix A       : ${s.matrix_a_valid ? "valid" : "not valid"}`,
+                        `Matrix B       : ${s.matrix_b_valid ? "valid" : "not valid"}`,
+                        `Signal state   : ${signal_state}`,
+                        `BLE State      : ${ble_state}`,
+                        `Control State  : ${control_state}`,
+                        `Led State      : ${led_state}`,
+                        `Cycles         : ${s.current_cycles} of ${s.total_cycles}`,
                         `g_an_monitor_ms: ${s.monitor_ms}`,
-                        `us cycles up   : ${s.us_cycles_up}`,
-                        `us cycles down : ${s.us_cycles_down}`,
+                        `us cycles UP   : ${s.us_cycles_up}`,
+                        `us cycles DOWN : ${s.us_cycles_down}`,
                     ];
                     
                     const statusStr = statusLines.join("\n");

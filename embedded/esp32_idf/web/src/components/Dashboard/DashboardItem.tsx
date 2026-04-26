@@ -76,7 +76,7 @@ export const DashboardItem: React.FC<DashboardItemProps> = ({
       {isExpanded && <div className="fixed inset-0 z-[190] bg-slate-900/10" />}
       <div
         ref={ref}
-        className={`panel p-3 flex flex-col gap-3 transition-all duration-300 overflow-hidden
+        className={`panel p-3 flex flex-col gap-3 transition-[opacity,transform] duration-300 overflow-hidden
           ${isExpanded ? "fixed top-20 bottom-4 left-4 right-4 lg:top-24 lg:bottom-8 lg:left-8 lg:right-8 z-[200] max-w-none shadow-2xl" : "relative h-full min-h-0"}
           ${isDragging ? "opacity-40 scale-95 grayscale" : "opacity-100"}
           ${isOver ? "ring-2 ring-blue-500 ring-offset-4 bg-blue-50/50" : ""}

@@ -335,15 +335,7 @@ void ble_router_set_signal(std::string& message) {
     ESP_LOGI(TAG, "Updating Signal Pattern via Double Buffer...");
     signal_update_from_string(message);
 
-    // ESP_GATT_MAX_ATTR_LEN
-
-    auto msg = std::make_unique<NoteData>(120);
-    note_clear(*msg);
-    note_add_text(*msg, "\nSTATUS\n");
-    note_add_text(*msg, "SIGNAL..UPDATED");
-
     ESP_LOGI(TAG, "SIGNAL UPDATED");
-    note_ble_send(*msg);
 }
 
 void ble_router_ctrl(ControlState state) {
@@ -431,30 +423,8 @@ void ble_router_print_active_dataset(void) {
 }
 
 void ble_router_message_set_alpha(std::string& message) {
-
-    // get set that is not active
-    DataSet *dataset;
-
-    if (g_active_set == SignalSet::SET_A) {
-        dataset = &g_dataset_b;
-    } else {
-        dataset = &g_dataset_a;
-    }
-
-    // set data based on alpha
     float alpha = std::stof(message);
-
-    ESP_LOGI(TAG, "set_alpha(%.2f)", alpha);
-    helper_set_dataset_from_alpha(dataset, alpha);
-
-    g_ds_update_pending = true; // mark for set update
-    
-    // reply status
-    auto msg = std::make_unique<NoteData>(120);
-    note_clear(*msg);
-    note_add_text(*msg, "\nSTATUS\n");
-    note_add_text(*msg, "SET_ALPHA::%.2f\n", alpha);
-    note_ble_send(*msg);
+    signal_set_alpha(alpha);
 }
 
 void ble_router_status(void) {

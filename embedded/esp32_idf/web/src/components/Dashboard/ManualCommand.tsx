@@ -63,18 +63,18 @@ export const ManualCommand: React.FC<{
       expandable={false}
     >
       <div className="flex-1 flex flex-col gap-4 min-h-0">
-        <form onSubmit={handleSend} className="flex gap-2">
-          <div className="relative flex-1 group">
+        <form onSubmit={handleSend} className="flex gap-2 p-1">
+          <div className="relative flex-1">
             <input
               type="text"
               value={cmd}
               onChange={(e) => set_cmd(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Enter BLE command..."
-              className="w-full font-mono text-sm bg-gray-50 border-2 border-gray-200 focus:border-blue-500 focus:bg-white px-3 py-2.5 transition-all shadow-none"
+              className="w-full font-mono text-sm bg-white border-2 border-gray-200 hover:border-gray-400 focus:border-blue-500 focus:ring-0 outline-none px-3 py-2.5 shadow-none rounded-lg ring-0 transition-none"
             />
             {command_history.length > 0 && (
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-blue-400 transition-colors pointer-events-none">
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 transition-colors pointer-events-none">
                 <History size={16} />
               </div>
             )}

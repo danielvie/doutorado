@@ -64,7 +64,7 @@ export const SignalGenerator: React.FC<{
       onSizeChange={onSizeChange}
       expandable={false}
     >
-      <div className="flex-1 min-h-0 overflow-y-auto pr-2">
+      <div className="flex-1 min-h-0 overflow-y-auto pr-2 select-text">
         <div className="flex flex-col gap-6">
           <div className="bg-white/70 border border-gray-200 rounded-xl p-4 shadow-sm">
             <div className="flex flex-col gap-4">

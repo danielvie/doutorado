@@ -55,12 +55,12 @@ export const HelpPanel: React.FC<{
     <DashboardItem
       id={id}
       instanceId={instanceId}
-      title="BLE Commands Guide"
+      title="Help BLE Commands Guide"
       currentSize={currentSize}
       onSizeChange={onSizeChange}
       expandable={false}
     >
-      <div className="flex-1 min-h-0 overflow-y-auto pr-2 custom-scrollbar">
+      <div className="flex-1 min-h-0 overflow-y-auto pr-2 custom-scrollbar select-text">
         <ul className="text-sm font-mono text-gray-800 flex flex-col gap-3 py-1">
           <CommandItem
             commands="blink, blink:delay, blink:d1,d2"

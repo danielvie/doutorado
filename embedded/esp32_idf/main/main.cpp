@@ -67,6 +67,9 @@ esp_err_t app_init() {
         return ret;
     }
 
+    // Set initial alpha 0.5
+    signal_set_alpha(0.5f);
+
     // Initialize LED Manager (State + Queue driven)
     led_create_manager_task();
 

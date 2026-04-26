@@ -71,6 +71,11 @@ void signal_start_continuous();
  */
 void signal_stop();
 
+/**
+ * @brief Stops the continuous signal generation and forces pins LOW.
+ */
+void signal_set_alpha(float alpha);
+
 DataSet *get_dataset_active(void);
 
 /**
