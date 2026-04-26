@@ -23,25 +23,23 @@ LogDuration g_log_duration = {
 };
 
 volatile SystemState g_system_state = {
-    .signal_state = SignalState::IDLE,
-    .ble_an_read_state = BLEAnalogReadState::IDLE,
-    .control_state = ControlState::OFF,
+    .signal_state = ATOMIC_VAR_INIT(SignalState::IDLE),
+    .ble_an_read_state = ATOMIC_VAR_INIT(BLEAnalogReadState::IDLE),
+    .control_state = ATOMIC_VAR_INIT(ControlState::OFF),
+    .led_mode = ATOMIC_VAR_INIT(LedMode::NORMAL),
 };
 
 // .. control globals
+std::atomic<uint16_t> g_blink_delay1_ms = 200;
+std::atomic<uint16_t> g_blink_delay2_ms = 500;
 std::atomic<bool> g_control_enabled = false;
 std::atomic<float> g_adc_an3 = 0.0f;
 std::atomic<float> g_adc_an5 = 0.0f;
 std::atomic<float> g_adc_an6 = 0.0f;
 std::atomic<bool> g_adc_fresh = false;
 
-void blink(uint8_t N) {
-    for (uint8_t i = 0; i < N; i++) {
-        led_on();
-        vTaskDelay(pdMS_TO_TICKS(100));
-        led_off();
-        vTaskDelay(pdMS_TO_TICKS(100));
-    }
+bool led_get_desired_state() {
+    return (g_system_state.signal_state.load(std::memory_order_acquire) == SignalState::RUNNING);
 }
 
 struct Bin num2bin(uint32_t num) {

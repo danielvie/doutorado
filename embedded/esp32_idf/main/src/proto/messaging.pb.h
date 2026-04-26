@@ -31,6 +31,11 @@ typedef enum _BleControlState {
     BleControlState_BLE_CTRL_ON = 1
 } BleControlState;
 
+typedef enum _BleLedMode {
+    BleLedMode_LED_NORMAL = 0,
+    BleLedMode_LED_BLINKING = 1
+} BleLedMode;
+
 typedef enum _BleLogLevel {
     BleLogLevel_BLE_LOG_INFO = 0,
     BleLogLevel_BLE_LOG_WARN = 1,
@@ -61,6 +66,7 @@ typedef struct _SystemStatus {
     uint32_t monitor_ms;
     uint32_t us_cycles_up;
     uint32_t us_cycles_down;
+    BleLedMode led_mode;
 } SystemStatus;
 
 /* General purpose log message */
@@ -101,6 +107,10 @@ extern "C" {
 #define _BleControlState_MAX BleControlState_BLE_CTRL_ON
 #define _BleControlState_ARRAYSIZE ((BleControlState)(BleControlState_BLE_CTRL_ON+1))
 
+#define _BleLedMode_MIN BleLedMode_LED_NORMAL
+#define _BleLedMode_MAX BleLedMode_LED_BLINKING
+#define _BleLedMode_ARRAYSIZE ((BleLedMode)(BleLedMode_LED_BLINKING+1))
+
 #define _BleLogLevel_MIN BleLogLevel_BLE_LOG_INFO
 #define _BleLogLevel_MAX BleLogLevel_BLE_LOG_ERROR
 #define _BleLogLevel_ARRAYSIZE ((BleLogLevel)(BleLogLevel_BLE_LOG_ERROR+1))
@@ -110,6 +120,7 @@ extern "C" {
 #define SystemStatus_signal_state_ENUMTYPE BleSignalState
 #define SystemStatus_ble_read_state_ENUMTYPE BleAnalogReadState
 #define SystemStatus_control_state_ENUMTYPE BleControlState
+#define SystemStatus_led_mode_ENUMTYPE BleLedMode
 
 #define LogMessage_level_ENUMTYPE BleLogLevel
 
@@ -117,11 +128,11 @@ extern "C" {
 
 /* Initializer values for message structs */
 #define Telemetry_init_default                   {0, 0, 0, 0}
-#define SystemStatus_init_default                {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+#define SystemStatus_init_default                {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN}
 #define LogMessage_init_default                  {_BleLogLevel_MIN, ""}
 #define BlePacket_init_default                   {0, {Telemetry_init_default}}
 #define Telemetry_init_zero                      {0, 0, 0, 0}
-#define SystemStatus_init_zero                   {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+#define SystemStatus_init_zero                   {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN}
 #define LogMessage_init_zero                     {_BleLogLevel_MIN, ""}
 #define BlePacket_init_zero                      {0, {Telemetry_init_zero}}
 
@@ -143,6 +154,7 @@ extern "C" {
 #define SystemStatus_monitor_ms_tag              11
 #define SystemStatus_us_cycles_up_tag            12
 #define SystemStatus_us_cycles_down_tag          13
+#define SystemStatus_led_mode_tag                14
 #define LogMessage_level_tag                     1
 #define LogMessage_text_tag                      2
 #define BlePacket_telemetry_tag                  1
@@ -171,7 +183,8 @@ X(a, STATIC,   SINGULAR, UINT32,   current_cycles,    9) \
 X(a, STATIC,   SINGULAR, UINT32,   total_cycles,     10) \
 X(a, STATIC,   SINGULAR, UINT32,   monitor_ms,       11) \
 X(a, STATIC,   SINGULAR, UINT32,   us_cycles_up,     12) \
-X(a, STATIC,   SINGULAR, UINT32,   us_cycles_down,   13)
+X(a, STATIC,   SINGULAR, UINT32,   us_cycles_down,   13) \
+X(a, STATIC,   SINGULAR, UENUM,    led_mode,         14)
 #define SystemStatus_CALLBACK NULL
 #define SystemStatus_DEFAULT NULL
 
@@ -206,7 +219,7 @@ extern const pb_msgdesc_t BlePacket_msg;
 #define BlePacket_size                           135
 #define LogMessage_size                          132
 #define PROTO_MESSAGING_PB_H_MAX_SIZE            BlePacket_size
-#define SystemStatus_size                        49
+#define SystemStatus_size                        51
 #define Telemetry_size                           21
 
 #ifdef __cplusplus

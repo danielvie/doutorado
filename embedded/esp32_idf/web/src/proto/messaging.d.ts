@@ -61,6 +61,21 @@ export const decodeBleControlState: { [key: number]: BleControlState } = {
   1: BleControlState.BLE_CTRL_ON,
 };
 
+export const enum BleLedMode {
+  LED_NORMAL = "LED_NORMAL",
+  LED_BLINKING = "LED_BLINKING",
+}
+
+export const encodeBleLedMode: { [key: string]: number } = {
+  LED_NORMAL: 0,
+  LED_BLINKING: 1,
+};
+
+export const decodeBleLedMode: { [key: number]: BleLedMode } = {
+  0: BleLedMode.LED_NORMAL,
+  1: BleLedMode.LED_BLINKING,
+};
+
 export const enum BleLogLevel {
   BLE_LOG_INFO = "BLE_LOG_INFO",
   BLE_LOG_WARN = "BLE_LOG_WARN",
@@ -182,6 +197,7 @@ export interface SystemStatus {
   monitor_ms?: number;
   us_cycles_up?: number;
   us_cycles_down?: number;
+  led_mode?: BleLedMode;
 }
 
 export function encodeSystemStatus(message: SystemStatus): Uint8Array {
@@ -281,6 +297,13 @@ function _encodeSystemStatus(message: SystemStatus, bb: ByteBuffer): void {
     writeVarint32(bb, 104);
     writeVarint32(bb, $us_cycles_down);
   }
+
+  // optional BleLedMode led_mode = 14;
+  let $led_mode = message.led_mode;
+  if ($led_mode !== undefined) {
+    writeVarint32(bb, 112);
+    writeVarint32(bb, encodeBleLedMode[$led_mode]);
+  }
 }
 
 export function decodeSystemStatus(binary: Uint8Array): SystemStatus {
@@ -372,6 +395,12 @@ function _decodeSystemStatus(bb: ByteBuffer): SystemStatus {
       // optional uint32 us_cycles_down = 13;
       case 13: {
         message.us_cycles_down = readVarint32(bb) >>> 0;
+        break;
+      }
+
+      // optional BleLedMode led_mode = 14;
+      case 14: {
+        message.led_mode = decodeBleLedMode[readVarint32(bb)];
         break;
       }
 

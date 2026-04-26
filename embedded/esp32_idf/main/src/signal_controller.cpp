@@ -185,18 +185,13 @@ static void signal_loop_task(void *arg) {
         dtk_buffer[i] = 0.0f;
     }
 
-    // turn led on to indicate signal running (might need refactor to account
-    // for blink signal)
-    led_on();
-
-    // turn led on to indicate signal running
     led_on();
 
     uint32_t last_d6 = 2;
     uint32_t last_d5 = 2;
     uint32_t last_d4 = 2;
 
-    while (g_system_state.signal_state == SignalState::RUNNING) {
+    while (g_system_state.signal_state.load(std::memory_order_acquire) == SignalState::RUNNING) {
 
         // ---------------------------------------------------
         // 1. PRE-CYCLE PREPARATION (Interrupts ENABLED)
@@ -345,7 +340,7 @@ static void signal_loop_task(void *arg) {
 }
 
 void signal_start_continuous() {
-    if (g_system_state.signal_state == SignalState::RUNNING ||
+    if (g_system_state.signal_state.load(std::memory_order_acquire) == SignalState::RUNNING ||
         s_signal_task_handle != NULL) {
         ESP_LOGW(TAG, "Signal already running!");
         return;
@@ -356,7 +351,7 @@ void signal_start_continuous() {
         return;
     }
 
-    g_system_state.signal_state = SignalState::RUNNING;
+    g_system_state.signal_state.store(SignalState::RUNNING, std::memory_order_release);
 
     // Pin to Core 1 (APP_CPU)
     xTaskCreatePinnedToCore(signal_loop_task, "sig_loop", 4096, NULL, 10,
@@ -372,7 +367,7 @@ void signal_stop() {
     ESP_LOGI(TAG, "Stopping Signal...");
 
     // updating signal when stop
-    g_system_state.signal_state = SignalState::IDLE;
+    g_system_state.signal_state.store(SignalState::IDLE, std::memory_order_release);
     if (g_system_state.ble_an_read_state != BLEAnalogReadState::DISABLED) {
         g_system_state.ble_an_read_state = BLEAnalogReadState::IDLE;
     }

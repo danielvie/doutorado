@@ -286,8 +286,8 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
 void ble_router_blink_nn(uint16_t blink_d1, uint16_t blink_d2) {
     // blink:%hu,%hu
     if (blink_d1 > 0 && blink_d2 > 0) {
-        blink_delay1_ms = blink_d1;
-        blink_delay2_ms = blink_d2;
+        g_blink_delay1_ms.store(blink_d1, std::memory_order_release);
+        g_blink_delay2_ms.store(blink_d2, std::memory_order_release);
         ESP_LOGI(TAG, "Blink delays set to D1=%u ms, D2=%u ms", blink_d1, blink_d2);
         blink_create_task();
     }
@@ -295,7 +295,7 @@ void ble_router_blink_nn(uint16_t blink_d1, uint16_t blink_d2) {
 
 void ble_router_blink_n(uint16_t blink_d1) {
     if (blink_d1 > 0) {
-        blink_delay1_ms = blink_d1;
+        g_blink_delay1_ms.store(blink_d1, std::memory_order_release);
         ESP_LOGI(TAG, "Blink delay set to %u ms", blink_d1);
         blink_create_task();
     }
@@ -310,24 +310,12 @@ void ble_router_led_on(NoteData& msg) {
     ESP_LOGI(TAG, "LED ON!");
     blink_stop_task();
     led_on();
-
-    note_clear(msg);
-    note_add_text(msg, "\nSTATUS\n");
-    note_add_text(msg, "LED::ON");
-
-    note_ble_send(msg);
 }
 
 void ble_router_led_off(NoteData& msg) {
     ESP_LOGI(TAG, "LED OFF!");
     blink_stop_task();
     led_off();
-
-    note_clear(msg);
-    note_add_text(msg, "\nSTATUS\n");
-    note_add_text(msg, "LED::OFF");
-
-    note_ble_send(msg);
 }
 
 void ble_router_read(NoteData& msg) {
@@ -478,13 +466,14 @@ void ble_router_status(void) {
 
     // Map Enums
     status->active_set = (g_active_set == SignalSet::SET_A) ? BleSignalSet_BLE_SET_A : BleSignalSet_BLE_SET_B;
-    status->signal_state = (g_system_state.signal_state == SignalState::IDLE) ? BleSignalState_BLE_SIG_IDLE : BleSignalState_BLE_SIG_RUNNING;
+    status->signal_state = (g_system_state.signal_state.load(std::memory_order_acquire) == SignalState::IDLE) ? BleSignalState_BLE_SIG_IDLE : BleSignalState_BLE_SIG_RUNNING;
     
-    if (g_system_state.ble_an_read_state == BLEAnalogReadState::IDLE) status->ble_read_state = BleAnalogReadState_BLE_READ_IDLE;
-    else if (g_system_state.ble_an_read_state == BLEAnalogReadState::READING) status->ble_read_state = BleAnalogReadState_BLE_READING;
+    BLEAnalogReadState read_s = g_system_state.ble_an_read_state.load(std::memory_order_acquire);
+    if (read_s == BLEAnalogReadState::IDLE) status->ble_read_state = BleAnalogReadState_BLE_READ_IDLE;
+    else if (read_s == BLEAnalogReadState::READING) status->ble_read_state = BleAnalogReadState_BLE_READING;
     else status->ble_read_state = BleAnalogReadState_BLE_READ_DISABLED;
 
-    status->control_state = (g_system_state.control_state == ControlState::OFF) ? BleControlState_BLE_CTRL_OFF : BleControlState_BLE_CTRL_ON;
+    status->control_state = (g_system_state.control_state.load(std::memory_order_acquire) == ControlState::OFF) ? BleControlState_BLE_CTRL_OFF : BleControlState_BLE_CTRL_ON;
 
     // Data values
     if (!std::isnan(active_ds->alpha)) {
@@ -502,6 +491,7 @@ void ble_router_status(void) {
     status->monitor_ms = g_analog_monitor_period_ms;
     status->us_cycles_up = g_dead_time_cycles_up;
     status->us_cycles_down = g_dead_time_cycles_down;
+    status->led_mode = (g_system_state.led_mode.load(std::memory_order_acquire) == LedMode::NORMAL) ? BleLedMode_LED_NORMAL : BleLedMode_LED_BLINKING;
 
     ble_send_protobuf(&packet);
     
@@ -546,10 +536,10 @@ void ble_router_ble_read(Status status) {
     switch (status)
     {
     case Status::ON:
-        g_system_state.ble_an_read_state = BLEAnalogReadState::IDLE;
+        g_system_state.ble_an_read_state.store(BLEAnalogReadState::IDLE, std::memory_order_release);
         break;
     case Status::OFF:
-        g_system_state.ble_an_read_state = BLEAnalogReadState::DISABLED;
+        g_system_state.ble_an_read_state.store(BLEAnalogReadState::DISABLED, std::memory_order_release);
         break;
     }
 }
@@ -655,7 +645,7 @@ static void profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
         memset(&rsp, 0, sizeof(rsp));
         rsp.attr_value.handle = param->read.handle;
         rsp.attr_value.len = 1;
-        rsp.attr_value.value[0] = get_led_state();
+        rsp.attr_value.value[0] = led_get_desired_state() ? 1 : 0;
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id, ESP_GATT_OK, &rsp);
         break;
     }

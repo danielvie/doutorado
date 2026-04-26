@@ -88,16 +88,24 @@ enum class ControlState {
     ON,
 };
 
+enum class LedMode {
+    NORMAL = 0,
+    BLINKING = 1
+};
+
 struct SystemState {
-    SignalState signal_state;
-    BLEAnalogReadState ble_an_read_state;
-    ControlState control_state;
+    std::atomic<SignalState> signal_state;
+    std::atomic<BLEAnalogReadState> ble_an_read_state;
+    std::atomic<ControlState> control_state;
+    std::atomic<LedMode> led_mode;
 };
 
 extern std::atomic<SignalSet> g_active_set;
 extern std::atomic<bool> g_ds_update_pending;
 
 extern volatile SystemState g_system_state;
+extern std::atomic<uint16_t> g_blink_delay1_ms;
+extern std::atomic<uint16_t> g_blink_delay2_ms;
 
 
 
@@ -115,6 +123,7 @@ struct Bin {
     bool b6;
 };
 
+bool led_get_desired_state();
 void blink(uint8_t N);
 struct Bin num2bin(uint32_t num);
 void parse_section(const std::string &section, std::vector<uint32_t> &result);

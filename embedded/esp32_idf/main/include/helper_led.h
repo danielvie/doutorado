@@ -21,10 +21,11 @@ extern "C" {
     
 
 /* Public function declarations */
-uint8_t get_led_state(void);
 void led_on(void);
 void led_off(void);
 void led_init(void);
+void led_create_manager_task(void);
+void blink(uint8_t N);
 
 
 #ifdef __cplusplus

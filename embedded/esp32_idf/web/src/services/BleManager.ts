@@ -7,7 +7,8 @@ import {
     decodeBleSignalSet, 
     decodeBleSignalState, 
     decodeBleAnalogReadState, 
-    decodeBleControlState 
+    decodeBleControlState,
+    decodeBleLedMode
 } from "../proto/messaging";
 
 class BleManager {
@@ -87,6 +88,7 @@ class BleManager {
                     const signal_state = formatEnum(getVal(s.signal_state, decodeBleSignalState));
                     const ble_state = formatEnum(getVal(s.ble_read_state, decodeBleAnalogReadState));
                     const control_state = formatEnum(getVal(s.control_state, decodeBleControlState));
+                    const led_state = formatEnum(getVal(s.led_mode, decodeBleLedMode));
 
                     const statusLines = [
                         "== status (Binary) ==",
@@ -97,6 +99,7 @@ class BleManager {
                         `signal state   : ${signal_state}`,
                         `ble state      : ${ble_state}`,
                         `control state  : ${control_state}`,
+                        `led state      : ${led_state}`,
                         `cycles         : ${s.current_cycles} of ${s.total_cycles}`,
                         `g_an_monitor_ms: ${s.monitor_ms}`,
                         `us cycles up   : ${s.us_cycles_up}`,

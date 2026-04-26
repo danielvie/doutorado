@@ -40,6 +40,16 @@ export const decodeBleControlState = {
   1: "BLE_CTRL_ON",
 };
 
+export const encodeBleLedMode = {
+  LED_NORMAL: 0,
+  LED_BLINKING: 1,
+};
+
+export const decodeBleLedMode = {
+  0: "LED_NORMAL",
+  1: "LED_BLINKING",
+};
+
 export const encodeBleLogLevel = {
   BLE_LOG_INFO: 0,
   BLE_LOG_WARN: 1,
@@ -231,6 +241,13 @@ function _encodeSystemStatus(message, bb) {
     writeVarint32(bb, 104);
     writeVarint32(bb, $us_cycles_down);
   }
+
+  // optional BleLedMode led_mode = 14;
+  let $led_mode = message.led_mode;
+  if ($led_mode !== undefined) {
+    writeVarint32(bb, 112);
+    writeVarint32(bb, encodeBleLedMode[$led_mode]);
+  }
 }
 
 export function decodeSystemStatus(binary) {
@@ -322,6 +339,12 @@ function _decodeSystemStatus(bb) {
       // optional uint32 us_cycles_down = 13;
       case 13: {
         message.us_cycles_down = readVarint32(bb) >>> 0;
+        break;
+      }
+
+      // optional BleLedMode led_mode = 14;
+      case 14: {
+        message.led_mode = decodeBleLedMode[readVarint32(bb)];
         break;
       }
 

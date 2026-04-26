@@ -21,6 +21,11 @@ enum BleControlState {
     BLE_CTRL_ON = 1;
 }
 
+enum BleLedMode {
+    LED_NORMAL = 0;
+    LED_BLINKING = 1;
+}
+
 enum BleLogLevel {
     BLE_LOG_INFO = 0;
     BLE_LOG_WARN = 1;
@@ -54,6 +59,7 @@ message SystemStatus {
     uint32 monitor_ms = 11;
     uint32 us_cycles_up = 12;
     uint32 us_cycles_down = 13;
+    BleLedMode led_mode = 14;
 }
 
 // General purpose log message
