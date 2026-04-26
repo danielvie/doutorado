@@ -18,6 +18,8 @@ export const SignalGenerator: React.FC<{
   const [modeStr, setModeStr] = useState("");
   const [binaryData, setBinaryData] = useState({ s1: "", s2: "", s3: "" });
   const [showBinary, setShowBinary] = useState(false);
+  const [isEditingAlpha, setIsEditingAlpha] = useState(false);
+  const [tempAlpha, setTempAlpha] = useState(alpha);
 
   // Recalculate signal when alpha changes
   useEffect(() => {
@@ -71,9 +73,34 @@ export const SignalGenerator: React.FC<{
                   <label className="text-xs text-gray-700 font-bold uppercase tracking-widest ml-1">
                     Duty Cycle (Alpha)
                   </label>
-                  <span className="text-3xl font-bold text-blue-700 leading-none">
-                    {alpha}
-                  </span>
+                  {isEditingAlpha ? (
+                    <input
+                      autoFocus
+                      className="text-3xl font-bold text-blue-700 leading-none bg-transparent border-b-2 border-blue-500 outline-none w-24"
+                      value={tempAlpha}
+                      onChange={(e) => setTempAlpha(e.target.value)}
+                      onBlur={() => {
+                        handle_set_alpha(tempAlpha);
+                        setIsEditingAlpha(false);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handle_set_alpha(tempAlpha);
+                          setIsEditingAlpha(false);
+                        }
+                      }}
+                    />
+                  ) : (
+                    <span
+                      className="text-3xl font-bold text-blue-700 leading-none cursor-pointer hover:text-blue-500 transition-colors"
+                      onClick={() => {
+                        setTempAlpha(alpha);
+                        setIsEditingAlpha(true);
+                      }}
+                    >
+                      {alpha}
+                    </span>
+                  )}
                 </div>
                 <button
                   onClick={handleUpload}

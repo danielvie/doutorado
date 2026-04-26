@@ -2,7 +2,13 @@ import { IBleService } from "./BleService.interface";
 import { WebBleService } from "./WebBleService";
 import { useBleStore } from "../store/bleStore";
 import { useDataStore } from "../store/dataStore";
-import { decodeBlePacket } from "../proto/messaging";
+import { 
+    decodeBlePacket, 
+    decodeBleSignalSet, 
+    decodeBleSignalState, 
+    decodeBleAnalogReadState, 
+    decodeBleControlState 
+} from "../proto/messaging";
 
 class BleManager {
     private service: IBleService;
@@ -62,15 +68,35 @@ class BleManager {
                     });
                 } else if (packet.status) {
                     const s = packet.status;
+                    
+                    // Helper to get string name from enum and clean it up
+                    const formatEnum = (name: any) => {
+                        if (!name || typeof name !== 'string') return "UNKNOWN";
+                        return name.replace(/^BLE_(SIG_|READ_|CTRL_|SET_)?/, "");
+                    };
+
+                    const getVal = (val: any, decoder: any) => {
+                        // In Proto3, 0 values are omitted and arrive as undefined.
+                        // We must treat undefined as 0 (the default enum index).
+                        const numericVal = (val === undefined || val === null) ? 0 : val;
+                        if (typeof numericVal === 'string') return numericVal; 
+                        return decoder[numericVal];
+                    };
+
+                    const active_set = formatEnum(getVal(s.active_set, decodeBleSignalSet)) || "NONE";
+                    const signal_state = formatEnum(getVal(s.signal_state, decodeBleSignalState));
+                    const ble_state = formatEnum(getVal(s.ble_read_state, decodeBleAnalogReadState));
+                    const control_state = formatEnum(getVal(s.control_state, decodeBleControlState));
+
                     const statusLines = [
                         "== status (Binary) ==",
-                        `active         : ${s.active_set || "NONE"}`,
+                        `active         : ${active_set}`,
                         `alpha          : ${s.has_alpha ? s.alpha?.toFixed(2) : "not set"}`,
                         `matrix a       : ${s.matrix_a_valid ? "valid" : "not valid"}`,
                         `matrix b       : ${s.matrix_b_valid ? "valid" : "not valid"}`,
-                        `signal state   : ${s.signal_state || "UNKNOWN"}`,
-                        `ble state      : ${s.ble_read_state || "UNKNOWN"}`,
-                        `control state  : ${s.control_state || "UNKNOWN"}`,
+                        `signal state   : ${signal_state}`,
+                        `ble state      : ${ble_state}`,
+                        `control state  : ${control_state}`,
                         `cycles         : ${s.current_cycles} of ${s.total_cycles}`,
                         `g_an_monitor_ms: ${s.monitor_ms}`,
                         `us cycles up   : ${s.us_cycles_up}`,
