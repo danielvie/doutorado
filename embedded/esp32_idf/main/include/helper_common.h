@@ -40,6 +40,8 @@ extern SemaphoreHandle_t sem_analog_read_trigger;
 
 // .. control and adc globals
 extern std::atomic<bool> g_control_enabled;
+extern volatile uint32_t g_dead_time_cycles_up;
+extern volatile uint32_t g_dead_time_cycles_down;
 extern std::atomic<float> g_adc_an3;
 extern std::atomic<float> g_adc_an5;
 extern std::atomic<float> g_adc_an6;
@@ -91,6 +93,9 @@ struct SystemState {
     BLEAnalogReadState ble_an_read_state;
     ControlState control_state;
 };
+
+extern std::atomic<SignalSet> g_active_set;
+extern std::atomic<bool> g_ds_update_pending;
 
 extern volatile SystemState g_system_state;
 

@@ -42,8 +42,8 @@ extern DataSet g_dataset_b;
 extern volatile uint32_t g_cycle_count;
 extern volatile uint32_t g_cycle_nrun;
 
-extern volatile SignalSet g_active_set;
-extern volatile bool g_ds_update_pending;
+extern std::atomic<SignalSet> g_active_set;
+extern std::atomic<bool> g_ds_update_pending;
 extern volatile uint32_t g_dead_time_cycles_up;
 extern volatile uint32_t g_dead_time_cycles_down;
 

@@ -31,10 +31,10 @@ volatile uint32_t g_cycle_count = 0;
 volatile uint32_t g_cycle_nrun = 10000;
 
 // Track which set is currently active in the loop
-volatile SignalSet g_active_set = SignalSet::SET_A;
+std::atomic<SignalSet> g_active_set(SignalSet::SET_A);
 
 // Flag to tell the loop that the OTHER set has new data and we should swap
-volatile bool g_ds_update_pending = false;
+std::atomic<bool> g_ds_update_pending(false);
 
 // delay -> cycle 1/240mhz = 1/240 ~= 4.166 ns
 volatile uint32_t g_dead_time_cycles_up = 215;
@@ -189,14 +189,8 @@ static void signal_loop_task(void *arg) {
     // for blink signal)
     led_on();
 
-    // turn led on to indicate signal running (might need refactor to account
-    // for blink signal)
+    // turn led on to indicate signal running
     led_on();
-
-    // -------------------------------------------------------
-    // DISABLE INTERRUPTS MANUALLY
-    // -------------------------------------------------------
-    portDISABLE_INTERRUPTS();
 
     uint32_t last_d6 = 2;
     uint32_t last_d5 = 2;
@@ -205,56 +199,41 @@ static void signal_loop_task(void *arg) {
     while (g_system_state.signal_state == SignalState::RUNNING) {
 
         // ---------------------------------------------------
-        // CHECK FOR UPDATES (Start of Loop)
+        // 1. PRE-CYCLE PREPARATION (Interrupts ENABLED)
         // ---------------------------------------------------
-        if (g_ds_update_pending) {
-            // Swap logic
-            if (g_active_set == SignalSet::SET_A) {
-                // A was active, so B must be ready
+        
+        // CHECK FOR UPDATES (Swap logic)
+        if (g_ds_update_pending.load(std::memory_order_acquire)) {
+            if (g_active_set.load(std::memory_order_relaxed) == SignalSet::SET_A) {
                 dataset = &g_dataset_b;
-                g_active_set = SignalSet::SET_B;
+                g_active_set.store(SignalSet::SET_B, std::memory_order_relaxed);
             } else {
-                // B was active, so A must be ready
                 dataset = &g_dataset_a;
-                g_active_set = SignalSet::SET_A;
+                g_active_set.store(SignalSet::SET_A, std::memory_order_relaxed);
             }
-            // Clear flag
-            g_ds_update_pending = false;
-
-            // Reset corrections on dataset swap
-            for (int i = 0; i < MAX_SIGNAL_SIZE; ++i) {
-                current_correction[i] = 0;
-            }
+            g_ds_update_pending.store(false, std::memory_order_release);
+            for (int i = 0; i < MAX_SIGNAL_SIZE; ++i) current_correction[i] = 0;
         }
 
-        // ---------------------------------------------------
-        // CONTROL ACTION (if enabled and ADC data is fresh)
-        // ---------------------------------------------------
+        // CONTROL ACTION
         if (g_control_enabled && g_adc_fresh.load(std::memory_order_acquire)) {
             g_adc_fresh.store(false, std::memory_order_release);
-
             if (dataset->gain_k.is_valid && dataset->size > 1) {
                 const uint32_t N = dataset->size;
                 const uint32_t p = N - 1;
-
-                // 1. read analog signals (acquire semantics ensures all values visible)
                 float an3 = g_adc_an3.load(std::memory_order_acquire);
                 float an5 = g_adc_an5.load(std::memory_order_acquire);
                 float an6 = g_adc_an6.load(std::memory_order_acquire);
 
-                // 2. compute `ek = x - x_target`
                 float e1 = an3 - dataset->target[0];
                 float e2 = an5 - dataset->target[1];
                 float e3 = an6 - dataset->target[2];
 
-                // 3. compute `dtk = -K * ek`
                 uint32_t t0 = esp_cpu_get_cycle_count();
-
                 const float* k_ptr = dataset->gain_k.values;
-                const int cols = dataset->gain_k.cols; // Always 3 for our system
+                const int cols = dataset->gain_k.cols;
                 
                 for (uint32_t j = 0; j < p; j++) {
-                    // Accumulate matrix MAC operations and negate the sum directly
                     dtk_buffer[j] = -(k_ptr[j * cols + 0] * e1 + 
                                       k_ptr[j * cols + 1] * e2 + 
                                       k_ptr[j * cols + 2] * e3);
@@ -263,53 +242,40 @@ static void signal_loop_task(void *arg) {
                 uint32_t t1 = esp_cpu_get_cycle_count();
                 g_log_duration.matrix_multiply_us = (t1 - t0) / 240;
 
-                // 4. compute conditioning `dtk = condition_dtk(dtk)`
                 condition_dtk(dtk_buffer, p, dataset->time_durations);
-
-                // 5. update Ts from dtk
                 compute_duration_corrections(dataset->time_durations, dtk_buffer,
                                              current_correction, p, N);
             }
         }
 
         // ---------------------------------------------------
-        // EXECUTE PATTERN
+        // 2. EXECUTE PATTERN (Interrupts DISABLED for jitter-free timing)
         // ---------------------------------------------------
-        // Use a local size variable for slight speed opt
+        portDISABLE_INTERRUPTS();
+        
         uint8_t sz = dataset->size;
-
         for (int i = 0; i < sz; i++) {
             uint32_t us = dataset->time_durations[i];
 
-            // Apply control correction if enabled
             if (g_control_enabled) {
                 int32_t corrected = (int32_t)us + current_correction[i];
-                if (corrected < 1) {
-                    corrected = 1;
-                }
+                if (corrected < 1) corrected = 1;
                 us = (uint32_t)corrected;
             }
 
-            // Get current modes (0 or 1)
             uint32_t d6 = dataset->modes_d6[i] ? 1 : 0;
             uint32_t d5 = dataset->modes_d5[i] ? 1 : 0;
             uint32_t d4 = dataset->modes_d4[i] ? 1 : 0;
 
-            // Check for transitions
             bool change_6 = (d6 != last_d6);
             bool change_5 = (d5 != last_d5);
             bool change_4 = (d4 != last_d4);
 
-            // Determine which pins need to go to Dead Time (Low)
             uint32_t clear_mask = 0;
-            if (change_6)
-                clear_mask |= (MASK_U1_LOW | MASK_U1_HIGH);
-            if (change_5)
-                clear_mask |= (MASK_U2_LOW | MASK_U2_HIGH);
-            if (change_4)
-                clear_mask |= (MASK_U3_LOW | MASK_U3_HIGH);
+            if (change_6) clear_mask |= (MASK_U1_LOW | MASK_U1_HIGH);
+            if (change_5) clear_mask |= (MASK_U2_LOW | MASK_U2_HIGH);
+            if (change_4) clear_mask |= (MASK_U3_LOW | MASK_U3_HIGH);
 
-            // Determine the new state and the complement (pins that must be cleared)
             uint32_t set_mask = (d6 ? MASK_U1_HIGH : MASK_U1_LOW)
                               | (d5 ? MASK_U2_HIGH : MASK_U2_LOW)
                               | (d4 ? MASK_U3_HIGH : MASK_U3_LOW);
@@ -317,44 +283,46 @@ static void signal_loop_task(void *arg) {
                               | (d5 ? MASK_U2_LOW  : MASK_U2_HIGH)
                               | (d4 ? MASK_U3_LOW  : MASK_U3_HIGH);
 
-            bool is_rising =
-                (change_6 && d6) || (change_5 && d5) || (change_4 && d4);
+            bool is_rising = (change_6 && d6) || (change_5 && d5) || (change_4 && d4);
 
-            // 1. Check for transitions requiring Dead Time Action
             if (clear_mask) {
                 GPIO.out_w1tc = clear_mask;
-
-                uint32_t delay_cycles_val =
-                    is_rising ? g_dead_time_cycles_up : g_dead_time_cycles_down;
+                uint32_t delay_cycles_val = is_rising ? g_dead_time_cycles_up : g_dead_time_cycles_down;
                 helper_delay_cycles(delay_cycles_val);
-
-                // Offset time tracking for the transition cost
                 if (us > 0) us--; 
             }
 
-            // 2. Main Final Pulse Setup (Deduplicated hardware writes)
             GPIO.out_w1tc = clr_mask;
             GPIO.out_w1ts = set_mask;
 
-            // 3. Enforce Sequence Sustained Period Delay
             if (us > 0) {
                 esp_rom_delay_us(us);
             }
 
-            // trigger analog reading if needed
-            if (i == 0 && g_system_state.ble_an_read_state != BLEAnalogReadState::DISABLED) {
-                g_cycle_count = (g_cycle_count + 1) % g_cycle_nrun;
-                if (g_cycle_count == 0) {
-                    g_system_state.ble_an_read_state = BLEAnalogReadState::READING;
-                    xSemaphoreGive(sem_analog_read_trigger);
-                }
-            }
-            
-            // Update last state
             last_d6 = d6;
             last_d5 = d5;
             last_d4 = d4;
         }
+        
+        // Re-enable interrupts at the end of the pattern cycle
+        portENABLE_INTERRUPTS();
+
+        // ---------------------------------------------------
+        // 3. POST-CYCLE MAINTENANCE (Interrupts ENABLED)
+        // ---------------------------------------------------
+        
+        // Trigger periodic ADC monitoring if enabled
+        if (g_system_state.ble_an_read_state != BLEAnalogReadState::DISABLED) {
+            g_cycle_count = (g_cycle_count + 1) % g_cycle_nrun;
+            if (g_cycle_count == 0) {
+                g_system_state.ble_an_read_state = BLEAnalogReadState::READING;
+                // SAFE: interrupts are enabled
+                xSemaphoreGive(sem_analog_read_trigger);
+            }
+        }
+
+        // Yield briefly to reset Watchdog and allow background system tasks
+        vTaskDelay(0);
     }
 
     // -------------------------------------------------------
