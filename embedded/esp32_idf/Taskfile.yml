@@ -228,15 +228,20 @@ tasks:
     desc: Generate C files for Nanopb
     cmds:
       - 'echo "Generating Nanopb files..."'
-      - 'powershell -NoProfile -ExecutionPolicy Bypass -Command "& { . C:\Users\daniel\esp\v5.5.1\esp-idf\export.ps1; nanopb_generator -D main/src proto/messaging.proto }" '
+      - >
+        {{if eq .OS "windows"}}
+        powershell -NoProfile -ExecutionPolicy Bypass -Command "& { . {{.IDF_PATH_WIN}}/export.ps1; nanopb_generator -D main/src proto/messaging.proto }"
+        {{else}}
+        bash -c ". {{.IDF_PATH_UNIX}}/export.sh && nanopb_generator -D main/src proto/messaging.proto"
+        {{end}}
 
   proto:gen:web:
     desc: Generate JS/TS files for protobufjs
     dir: web
     cmds:
       - 'echo "Generating Protobuf JS files..."'
-      - 'npx pbjs --es6 src/proto/messaging.js ../proto/messaging.proto'
-      - 'npx pbjs --ts src/proto/messaging.d.ts ../proto/messaging.proto'
+      - "npx pbjs --es6 src/proto/messaging.js ../proto/messaging.proto"
+      - "npx pbjs --ts src/proto/messaging.d.ts ../proto/messaging.proto"
 
   proto:gen:
     desc: Generate all proto files
