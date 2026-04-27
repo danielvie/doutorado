@@ -234,10 +234,16 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
             g_dead_time_cycles_down = g_dead_time_cycles_up;
             ESP_LOGI(TAG, "Setting `g_dead_time_cycles_up= %d`", g_dead_time_cycles_up);
             ESP_LOGI(TAG, "Setting `g_dead_time_cycles_down= %d`", g_dead_time_cycles_down);
+            signal_precompute_steps(&g_dataset_a);
+            signal_precompute_steps(&g_dataset_b);
         } else if (sscanf(msg_lower, "us_delay_up:%lu", &g_dead_time_cycles_up) == 1) {
             ESP_LOGI(TAG, "Setting `g_dead_time_cycles_up= %d`", g_dead_time_cycles_up);
+            signal_precompute_steps(&g_dataset_a);
+            signal_precompute_steps(&g_dataset_b);
         } else if (sscanf(msg_lower, "us_delay_down:%lu", &g_dead_time_cycles_down) == 1) {
             ESP_LOGI(TAG, "Setting `g_dead_time_cycles_down= %d`", g_dead_time_cycles_down);
+            signal_precompute_steps(&g_dataset_a);
+            signal_precompute_steps(&g_dataset_b);
         } else if (sscanf(msg_lower, "an_monitor_ms:%lu", &g_analog_monitor_period_ms) == 1) {
             ESP_LOGI(TAG, "Setting `g_analog_monitor_period_ms = %d`", g_analog_monitor_period_ms);
         } else if (strcmp(msg_lower, "on") == 0) {

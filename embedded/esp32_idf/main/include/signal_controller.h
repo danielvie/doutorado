@@ -24,12 +24,29 @@ extern const uint32_t MASK_U3_LOW;
 extern const uint32_t MASK_U3_HIGH;
 
 #define MAX_SIGNAL_SIZE 100
+/**
+ * @brief Represents a single atomic transition and delay in a signal pattern.
+ * Pre-computed to minimize cycles in the high-speed execution loop.
+ */
+struct SignalStep {
+    uint32_t set_mask;    ///< Bits to set to 1 (GPIO.out_w1ts)
+    uint32_t clr_mask;    ///< Bits to set to 0 (GPIO.out_w1tc)
+    uint32_t clear_mask;  ///< Initial clear mask (to prevent shoot-through)
+    uint32_t dead_time;   ///< CPU cycles to wait during clear state
+    uint32_t duration_us; ///< Microseconds to wait after transition
+};
+
 struct DataSet {
+    // Raw data (kept for reference/updates)
     uint32_t time_durations[MAX_SIGNAL_SIZE];
     uint32_t modes_d4[MAX_SIGNAL_SIZE];
     uint32_t modes_d5[MAX_SIGNAL_SIZE];
     uint32_t modes_d6[MAX_SIGNAL_SIZE];
     uint32_t size;
+
+    // Pre-computed steps for Core 1 loop
+    SignalStep steps[MAX_SIGNAL_SIZE];
+
     int32_t time_us_diff[MAX_SIGNAL_SIZE];
     float target[3];
     MatrixData gain_k;
@@ -59,6 +76,11 @@ void signal_controller_init();
  * @param message The raw message string (e.g., "SIGNAL:...")
  */
 void signal_update_from_string(const std::string &message);
+
+/**
+ * @brief Pre-computes optimized SignalSteps for a given DataSet.
+ */
+void signal_precompute_steps(DataSet *ds);
 
 /**
  * @brief Starts generating the signal continuously in a loop.

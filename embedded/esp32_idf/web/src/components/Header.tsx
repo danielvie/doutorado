@@ -129,6 +129,11 @@ export const Header = () => {
       <ImageModal 
         isOpen={showPinsModal} 
         onClose={() => setShowPinsModal(false)} 
+        images={[
+          { id: "pinout", title: "ESP32 Pinout", src: "hw_esp32_pins.png" },
+          { id: "schematic", title: "Schematic", src: "circuit.png" },
+          { id: "measure", title: "Measurement Points", src: "hw_measure_points.png" },
+        ]}
       />
     </header>
   );

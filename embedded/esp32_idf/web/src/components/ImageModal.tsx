@@ -1,26 +1,27 @@
 import React from "react";
 import { X, ChevronRight, ChevronLeft } from "lucide-react";
 
+type ImagePage = {
+  id: string;
+  title: string;
+  src: string;
+};
+
 type ImageModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  images: ImagePage[];
 };
 
-const PAGES = [
-  { id: "pinout", title: "ESP32 Pinout", src: "hw_esp32_pins.png" },
-  { id: "schematic", title: "Schematic", src: "circuit.png" },
-  { id: "measure", title: "Measurement Points", src: "hw_measure_points.png" },
-];
-
-export default function ImageModal({ isOpen, onClose }: ImageModalProps) {
+export default function ImageModal({ isOpen, onClose, images }: ImageModalProps) {
   const [pageIndex, setPageIndex] = React.useState(0);
 
-  if (!isOpen) return null;
+  if (!isOpen || images.length === 0) return null;
 
-  const currentPage = PAGES[pageIndex];
+  const currentPage = images[pageIndex];
 
-  const next = () => setPageIndex((prev) => (prev + 1) % PAGES.length);
-  const prev = () => setPageIndex((prev) => (prev - 1 + PAGES.length) % PAGES.length);
+  const next = () => setPageIndex((prev) => (prev + 1) % images.length);
+  const prev = () => setPageIndex((prev) => (prev - 1 + images.length) % images.length);
 
   return (
     <div 
@@ -74,7 +75,7 @@ export default function ImageModal({ isOpen, onClose }: ImageModalProps) {
 
         {/* Dots Indicator */}
         <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex gap-3">
-          {PAGES.map((_, i) => (
+          {images.map((_, i) => (
             <div 
               key={i}
               className={`h-1.5 rounded-full transition-all duration-300 ${

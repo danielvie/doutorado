@@ -353,4 +353,5 @@ void helper_set_dataset_from_alpha(DataSet *dataset, float alpha) {
         dataset->gain_k.values[gain_index] = gain_k_values[alpha_index][gain_index];
     }
     dataset->alpha = alpha;
+    signal_precompute_steps(dataset);
 }

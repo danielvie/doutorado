@@ -43,6 +43,70 @@ volatile uint32_t g_dead_time_cycles_down = 215;
 
 
 
+/**
+ * @brief Pre-calculates register masks and timing data for a signal pattern.
+ * 
+ * This function translates high-level signal modes into raw hardware masks.
+ * By doing this on Core 0 (during pattern updates), we eliminate all conditional 
+ * logic and bitwise operations from the high-speed execution loop on Core 1.
+ */
+void signal_precompute_steps(DataSet *ds) {
+    if (ds->size == 0) return;
+
+    // Track state transitions between segments.
+    // To handle continuous looping, we seed the "previous" state with the last segment.
+    uint32_t last_d6 = ds->modes_d6[ds->size - 1] ? 1 : 0;
+    uint32_t last_d5 = ds->modes_d5[ds->size - 1] ? 1 : 0;
+    uint32_t last_d4 = ds->modes_d4[ds->size - 1] ? 1 : 0;
+
+    uint32_t total_us = 0;
+    for (uint32_t i = 0; i < ds->size; i++) {
+        uint32_t d6 = ds->modes_d6[i] ? 1 : 0;
+        uint32_t d5 = ds->modes_d5[i] ? 1 : 0;
+        uint32_t d4 = ds->modes_d4[i] ? 1 : 0;
+
+        // Detect which GPIOs are changing state to apply dead-time
+        bool change_6 = (d6 != last_d6);
+        bool change_5 = (d5 != last_d5);
+        bool change_4 = (d4 != last_d4);
+
+        // clear_mask: Bits to set to 0 before the transition (to prevent shoot-through)
+        uint32_t clear_mask = 0;
+        if (change_6) clear_mask |= (MASK_U1_LOW | MASK_U1_HIGH);
+        if (change_5) clear_mask |= (MASK_U2_LOW | MASK_U2_HIGH);
+        if (change_4) clear_mask |= (MASK_U3_LOW | MASK_U3_HIGH);
+
+        ds->steps[i].clear_mask = clear_mask;
+
+        // set_mask: Bits to set to 1 for the target state
+        ds->steps[i].set_mask = (d6 ? MASK_U1_HIGH : MASK_U1_LOW)
+                              | (d5 ? MASK_U2_HIGH : MASK_U2_LOW)
+                              | (d4 ? MASK_U3_HIGH : MASK_U3_LOW);
+
+        // clr_mask: Bits to set to 0 for the target state
+        ds->steps[i].clr_mask = (d6 ? MASK_U1_LOW  : MASK_U1_HIGH)
+                              | (d5 ? MASK_U2_LOW  : MASK_U2_HIGH)
+                              | (d4 ? MASK_U3_LOW  : MASK_U3_HIGH);
+        
+        // Determine if this is a rising edge (turn-on) vs falling edge for dead-time tuning
+        bool is_rising = (change_6 && d6) || (change_5 && d5) || (change_4 && d4);
+        ds->steps[i].dead_time = is_rising ? g_dead_time_cycles_up : g_dead_time_cycles_down;
+        ds->steps[i].duration_us = ds->time_durations[i];
+
+        total_us += ds->steps[i].duration_us;
+
+        last_d6 = d6;
+        last_d5 = d5;
+        last_d4 = d4;
+    }
+
+    // Safety Check: Avoid masking interrupts on Core 1 for more than 10ms.
+    // Extremely long patterns could stall cross-core communication or hardware watchdogs.
+    if (total_us > 10000) {
+        ESP_LOGW(TAG, "LATENCY WARNING: Total pattern duration (%lu us) exceeds 10ms threshold!", total_us);
+    }
+}
+
 // Helper to populate a default pattern (so datasets are never empty/invalid)
 static void signal_init_default_dataset(DataSet &ds) {
     ds.time_durations[0] = 10;
@@ -69,6 +133,7 @@ static void signal_init_default_dataset(DataSet &ds) {
 
     ds.size = 4;
     ds.alpha = NAN;
+    signal_precompute_steps(&ds);
 }
 
 void signal_controller_init() {
@@ -157,6 +222,9 @@ void signal_update_from_string(const std::string &message) {
     }
     target_dataset->size = (uint8_t)count;
     target_dataset->alpha = NAN;
+
+    // Pre-compute steps before requesting swap
+    signal_precompute_steps(target_dataset);
 
     ESP_LOGI(TAG, "Parsed %d segments into %s. Requesting swap...",
              target_dataset->size,
@@ -251,7 +319,8 @@ static void signal_loop_task(void *arg) {
         
         uint8_t sz = dataset->size;
         for (int i = 0; i < sz; i++) {
-            uint32_t us = dataset->time_durations[i];
+            const SignalStep &step = dataset->steps[i];
+            uint32_t us = step.duration_us;
 
             if (g_control_enabled) {
                 int32_t corrected = (int32_t)us + current_correction[i];
@@ -259,45 +328,18 @@ static void signal_loop_task(void *arg) {
                 us = (uint32_t)corrected;
             }
 
-            uint32_t d6 = dataset->modes_d6[i] ? 1 : 0;
-            uint32_t d5 = dataset->modes_d5[i] ? 1 : 0;
-            uint32_t d4 = dataset->modes_d4[i] ? 1 : 0;
-
-            bool change_6 = (d6 != last_d6);
-            bool change_5 = (d5 != last_d5);
-            bool change_4 = (d4 != last_d4);
-
-            uint32_t clear_mask = 0;
-            if (change_6) clear_mask |= (MASK_U1_LOW | MASK_U1_HIGH);
-            if (change_5) clear_mask |= (MASK_U2_LOW | MASK_U2_HIGH);
-            if (change_4) clear_mask |= (MASK_U3_LOW | MASK_U3_HIGH);
-
-            uint32_t set_mask = (d6 ? MASK_U1_HIGH : MASK_U1_LOW)
-                              | (d5 ? MASK_U2_HIGH : MASK_U2_LOW)
-                              | (d4 ? MASK_U3_HIGH : MASK_U3_LOW);
-            uint32_t clr_mask = (d6 ? MASK_U1_LOW  : MASK_U1_HIGH)
-                              | (d5 ? MASK_U2_LOW  : MASK_U2_HIGH)
-                              | (d4 ? MASK_U3_LOW  : MASK_U3_HIGH);
-
-            bool is_rising = (change_6 && d6) || (change_5 && d5) || (change_4 && d4);
-
-            if (clear_mask) {
-                GPIO.out_w1tc = clear_mask;
-                uint32_t delay_cycles_val = is_rising ? g_dead_time_cycles_up : g_dead_time_cycles_down;
-                helper_delay_cycles(delay_cycles_val);
+            if (step.clear_mask) {
+                GPIO.out_w1tc = step.clear_mask;
+                helper_delay_cycles(step.dead_time);
                 if (us > 0) us--; 
             }
 
-            GPIO.out_w1tc = clr_mask;
-            GPIO.out_w1ts = set_mask;
+            GPIO.out_w1tc = step.clr_mask;
+            GPIO.out_w1ts = step.set_mask;
 
             if (us > 0) {
                 esp_rom_delay_us(us);
             }
-
-            last_d6 = d6;
-            last_d5 = d5;
-            last_d4 = d4;
         }
         
         // Re-enable interrupts at the end of the pattern cycle
@@ -396,5 +438,6 @@ void signal_set_alpha(float alpha) {
 
     ESP_LOGI(TAG, "Initializing system with alpha=%.2f", alpha);
     helper_set_dataset_from_alpha(dataset, alpha);
+    signal_precompute_steps(dataset);
     g_ds_update_pending.store(true, std::memory_order_release);
 }
