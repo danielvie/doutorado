@@ -173,7 +173,12 @@ esp_err_t ble_send_log(BleLogLevel level, const char* text) {
     BlePacket packet = BlePacket_init_zero;
     packet.which_payload = BlePacket_log_tag;
     packet.payload.log.level = level;
-    strncpy(packet.payload.log.text, text, sizeof(packet.payload.log.text) - 1);
+    
+    // strncpy doesn't guarantee null termination if limit reached
+    size_t text_size = sizeof(packet.payload.log.text);
+    strncpy(packet.payload.log.text, text, text_size - 1);
+    packet.payload.log.text[text_size - 1] = '\0';
+    
     return ble_send_protobuf(&packet);
 }
 
@@ -240,7 +245,7 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
         } else if (strcmp(msg_lower, "off") == 0) {
             ble_router_led_off(s_router_msg);
         } else if (strcmp(msg_lower, "read") == 0) {
-            ble_router_read(s_router_msg);
+            ble_router_read();
         } else if (strcmp(msg_lower, "active_dataset") == 0) {
             ble_router_print_active_dataset();
         } else if (strcmp(msg_lower, "print_dataset_a") == 0) {
@@ -318,17 +323,21 @@ void ble_router_led_off(NoteData& msg) {
     led_off();
 }
 
-void ble_router_read(NoteData& msg) {
+void ble_router_read(void) {
     float an3 = analog_read_port(AnalogPort::AN3);
     float an5 = analog_read_port(AnalogPort::AN5);
     float an6 = analog_read_port(AnalogPort::AN6);
 
-    note_clear(msg);
-    note_add_text(msg, "\nSTATUS\n");
-    note_add_text(msg, "an3: %.4f\nan5: %.4f\nan6: %.4f\n", an3, an5, an6);
+    BlePacket packet = BlePacket_init_zero;
+    packet.which_payload = BlePacket_telemetry_tag;
+    packet.payload.telemetry.an3 = an3;
+    packet.payload.telemetry.an5 = an5;
+    packet.payload.telemetry.an6 = an6;
+    packet.payload.telemetry.timestamp_ms = xTaskGetTickCount() * portTICK_PERIOD_MS;
 
-    note_logi(msg, TAG);
-    note_ble_send(msg);
+    ble_send_protobuf(&packet);
+    
+    ESP_LOGI(TAG, "Manual Read - an3: %.4f, an5: %.4f, an6: %.4f", an3, an5, an6);
 }
 
 void ble_router_set_signal(std::string& message) {

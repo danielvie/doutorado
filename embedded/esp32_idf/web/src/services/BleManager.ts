@@ -133,27 +133,7 @@ class BleManager {
             return;
         }
 
-        // Parse sensor data: "an3:1.23 an5:4.56 an6:7.89"
-        const regex = /(\w+):([\d.]+)/g;
-        const parsed_data: Record<string, number> = {};
-        let match;
-        let has_match = false;
-
-        while ((match = regex.exec(data)) !== null) {
-            has_match = true;
-            const key = match[1];
-            const value = parseFloat(match[2]);
-            parsed_data[key] = value;
-        }
-
-        if (has_match) {
-            useDataStore.getState().addDataPoint({
-                time: ((Date.now() - this.startTime) / 1000).toFixed(3), // Relative time 
-                an3: parsed_data["an3"] || 0,
-                an5: parsed_data["an5"] || 0,
-                an6: parsed_data["an6"] || 0,
-            });
-        }
+        console.warn("Unrecognized ASCII data from BLE:", data);
     };
 }
 
