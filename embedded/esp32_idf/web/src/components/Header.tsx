@@ -1,8 +1,9 @@
-import { Bluetooth, Activity } from "lucide-react";
+import { Bluetooth, Activity, Cpu } from "lucide-react";
 import { useBleStore } from "../store/bleStore";
 import { bleManager } from "../services/BleManager";
 import { useDataStore } from "../store/dataStore";
 import { useState, useEffect } from "react";
+import ImageModal from "./ImageModal";
 
 const ROUTINE_STATUSES = [
   "Ready",
@@ -18,6 +19,7 @@ export const Header = () => {
   const systemStatus = useBleStore((s) => s.systemStatus);
   const monitorPeriodMs = useBleStore((s) => s.monitorPeriodMs);
   const [isMocking, setIsMocking] = useState(false);
+  const [showPinsModal, setShowPinsModal] = useState(false);
   const addDataPoint = useDataStore((state) => state.addDataPoint);
 
   useEffect(() => {
@@ -86,6 +88,15 @@ export const Header = () => {
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
+        <button
+          onClick={() => setShowPinsModal(true)}
+          className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg cursor-pointer transition-colors select-none"
+          title="Show ESP32 Pinout"
+        >
+          <Cpu className="w-4 h-4 text-blue-600" />
+          <span className="text-xs font-bold text-gray-600 uppercase tracking-widest">Hardware</span>
+        </button>
+
         <div 
           onClick={() => setIsMocking(!isMocking)}
           className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg cursor-pointer transition-colors select-none"
@@ -114,6 +125,11 @@ export const Header = () => {
           {button_text}
         </button>
       </div>
+
+      <ImageModal 
+        isOpen={showPinsModal} 
+        onClose={() => setShowPinsModal(false)} 
+      />
     </header>
   );
 };

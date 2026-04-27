@@ -1,9 +1,6 @@
-# BLE Protobuf Status Implementation
+# Add Hardware Pins Visualization
 
-- [ ] Update `proto/messaging.proto` with expanded `SystemStatus` and `LogMessage` <!-- id: 0 -->
-- [ ] Create `proto/messaging.options` for string limits <!-- id: 1 -->
-- [ ] Regenerate Protobuf files (Firmware & Web) <!-- id: 2 -->
-- [ ] Update ESP32 `ble_router_status()` to send binary status <!-- id: 3 -->
-- [ ] Update ESP32 `ble_router_print_dataset()` to use `LogMessage` or binary? (Maybe keep ASCII for datasets for now as they are large) <!-- id: 4 -->
-- [ ] Update Web App `BleManager.ts` to handle new payloads <!-- id: 5 -->
-- [ ] Update Web App UI to format and display binary status <!-- id: 6 -->
+- [ ] Add state to `Header.tsx` to control `ImageModal` <!-- id: 0 -->
+- [ ] Add "Hardware" button to `Header.tsx` with `Cpu` icon <!-- id: 1 -->
+- [ ] Integrate `ImageModal` in `Header.tsx` or `Layout.tsx` <!-- id: 2 -->
+- [ ] Refactor `ImageModal.tsx` to be more generic or specific to this request <!-- id: 3 -->
