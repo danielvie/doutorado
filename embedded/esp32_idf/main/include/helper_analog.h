@@ -19,3 +19,7 @@ enum class AnalogPort {
 
 void analog_init();
 float analog_read_port(AnalogPort port);
+
+// Latency tracking for performance monitoring
+void analog_record_latency(uint32_t us);
+void analog_get_latency_stats(uint32_t* min, uint32_t* max, uint32_t* avg);

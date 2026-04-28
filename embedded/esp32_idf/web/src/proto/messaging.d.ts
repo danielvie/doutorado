@@ -199,6 +199,9 @@ export interface SystemStatus {
   us_cycles_down?: number;
   led_mode?: BleLedMode;
   ble_congested?: boolean;
+  adc_min?: number;
+  adc_max?: number;
+  adc_avg?: number;
 }
 
 export function encodeSystemStatus(message: SystemStatus): Uint8Array {
@@ -312,6 +315,27 @@ function _encodeSystemStatus(message: SystemStatus, bb: ByteBuffer): void {
     writeVarint32(bb, 120);
     writeByte(bb, $ble_congested ? 1 : 0);
   }
+
+  // optional uint32 adc_min = 16;
+  let $adc_min = message.adc_min;
+  if ($adc_min !== undefined) {
+    writeVarint32(bb, 128);
+    writeVarint32(bb, $adc_min);
+  }
+
+  // optional uint32 adc_max = 17;
+  let $adc_max = message.adc_max;
+  if ($adc_max !== undefined) {
+    writeVarint32(bb, 136);
+    writeVarint32(bb, $adc_max);
+  }
+
+  // optional uint32 adc_avg = 18;
+  let $adc_avg = message.adc_avg;
+  if ($adc_avg !== undefined) {
+    writeVarint32(bb, 144);
+    writeVarint32(bb, $adc_avg);
+  }
 }
 
 export function decodeSystemStatus(binary: Uint8Array): SystemStatus {
@@ -415,6 +439,24 @@ function _decodeSystemStatus(bb: ByteBuffer): SystemStatus {
       // optional bool ble_congested = 15;
       case 15: {
         message.ble_congested = !!readByte(bb);
+        break;
+      }
+
+      // optional uint32 adc_min = 16;
+      case 16: {
+        message.adc_min = readVarint32(bb) >>> 0;
+        break;
+      }
+
+      // optional uint32 adc_max = 17;
+      case 17: {
+        message.adc_max = readVarint32(bb) >>> 0;
+        break;
+      }
+
+      // optional uint32 adc_avg = 18;
+      case 18: {
+        message.adc_avg = readVarint32(bb) >>> 0;
         break;
       }
 

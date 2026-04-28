@@ -1,5 +1,41 @@
-
 #include "helper_analog.h"
+#include <atomic>
+
+#define LATENCY_WINDOW_SIZE 128
+static uint32_t s_latency_buffer[LATENCY_WINDOW_SIZE] = {0};
+static std::atomic<size_t> s_latency_index(0);
+
+void analog_record_latency(uint32_t us) {
+    // Lock-free increment and wrap
+    size_t idx = s_latency_index.fetch_add(1, std::memory_order_relaxed) % LATENCY_WINDOW_SIZE;
+    s_latency_buffer[idx] = us;
+}
+
+void analog_get_latency_stats(uint32_t* min, uint32_t* max, uint32_t* avg) {
+    uint32_t current_min = 0xFFFFFFFF;
+    uint32_t current_max = 0;
+    uint64_t sum = 0;
+    uint32_t count = 0;
+
+    // Scan the window (On-demand math)
+    for (int i = 0; i < LATENCY_WINDOW_SIZE; i++) {
+        uint32_t val = s_latency_buffer[i];
+        if (val == 0) continue; // Skip uninitialized slots
+        
+        if (val < current_min) current_min = val;
+        if (val > current_max) current_max = val;
+        sum += val;
+        count++;
+    }
+
+    if (count > 0) {
+        *min = current_min;
+        *max = current_max;
+        *avg = (uint32_t)(sum / count);
+    } else {
+        *min = 0; *max = 0; *avg = 0;
+    }
+}
 
 
 // handle for the ADC unit

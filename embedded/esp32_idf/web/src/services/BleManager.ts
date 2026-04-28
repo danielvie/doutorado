@@ -105,6 +105,9 @@ class BleManager {
                         `us cycles UP   : ${s.us_cycles_up}`,
                         `us cycles DOWN : ${s.us_cycles_down}`,
                         `Congestion     : ${s.ble_congested ? "YES" : "NO"}`,
+                        `ADC Latency avg: ${s.adc_avg} us`,
+                        `ADC Latency min: ${s.adc_min} us`,
+                        `ADC Latency max: ${s.adc_max} us`,
                     ];
                     
                     const statusStr = statusLines.join("\n");

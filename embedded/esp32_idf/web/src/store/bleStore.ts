@@ -12,6 +12,7 @@ interface BleState {
     showHelp: boolean;
     monitorPeriodMs: number;
     isCongested: boolean;
+    autoRequestStatus: boolean;
 
     // Actions
     setLastStatusMessage: (message: string | null) => void;
@@ -26,6 +27,7 @@ interface BleState {
     setShowHelp: (show: boolean) => void;
     setMonitorPeriodMs: (ms: number) => void;
     setIsCongested: (congested: boolean) => void;
+    setAutoRequestStatus: (auto: boolean) => void;
 }
 
 export const useBleStore = create<BleState>((set) => ({
@@ -39,6 +41,7 @@ export const useBleStore = create<BleState>((set) => ({
     showHelp: false,
     monitorPeriodMs: 100,
     isCongested: false,
+    autoRequestStatus: false,
 
     setLastStatusMessage: (message) => set({ lastStatusMessage: message }),
     setIsConnected: (connected) => set({ isConnected: connected }),
@@ -54,4 +57,5 @@ export const useBleStore = create<BleState>((set) => ({
     setShowHelp: (show) => set({ showHelp: show }),
     setMonitorPeriodMs: (ms) => set({ monitorPeriodMs: ms }),
     setIsCongested: (congested) => set({ isCongested: congested }),
+    setAutoRequestStatus: (auto) => set({ autoRequestStatus: auto }),
 }));

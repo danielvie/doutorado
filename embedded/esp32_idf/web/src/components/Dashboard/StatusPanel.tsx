@@ -13,7 +13,21 @@ export const StatusPanel: React.FC<{
   onSizeChange?: (size: PanelSize) => void;
 }> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
   const lastStatusMessage = useBleStore((s) => s.lastStatusMessage);
+  const autoRequestStatus = useBleStore((s) => s.autoRequestStatus);
+  const setAutoRequestStatus = useBleStore((s) => s.setAutoRequestStatus);
+  const isConnected = useBleStore((s) => s.isConnected);
   const [copied, setCopied] = React.useState(false);
+
+  // Auto-request status effect
+  React.useEffect(() => {
+    if (!autoRequestStatus || !isConnected) return;
+    
+    const interval = setInterval(() => {
+      bleManager.send("STATUS");
+    }, 2000);
+    
+    return () => clearInterval(interval);
+  }, [autoRequestStatus, isConnected]);
 
   const handleCopy = () => {
     if (!lastStatusMessage) return;
@@ -54,20 +68,34 @@ export const StatusPanel: React.FC<{
                   </span>
                 )}
               </button>
-              <button
-                onClick={() => bleManager.send("STATUS")}
-                className="absolute top-2 right-14 p-2 rounded-md border bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 hover:border-blue-300 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-[10px] font-bold uppercase tracking-wider select-none"
-                title="Request Status"
-              >
-                <RefreshCw size={14} />
-                STATUS
-              </button>
+              <div className="absolute top-2 right-14 flex items-center gap-1">
+                <button
+                  onClick={() => setAutoRequestStatus(!autoRequestStatus)}
+                  className={`p-2 rounded-md border transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-[10px] font-bold uppercase tracking-wider select-none ${
+                    autoRequestStatus
+                      ? "bg-orange-50 border-orange-200 text-orange-600"
+                      : "bg-gray-50 border-gray-200 text-gray-400"
+                  }`}
+                  title="Toggle Auto-Request (1s)"
+                >
+                  Auto
+                </button>
+                <button
+                  onClick={() => bleManager.send("STATUS")}
+                  className="p-2 rounded-md border bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 hover:border-blue-300 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-[10px] font-bold uppercase tracking-wider select-none"
+                  title="Request Status Now"
+                >
+                  <RefreshCw size={14} />
+                  STATUS
+                </button>
+              </div>
               {lastStatusMessage
                 .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, "")
                 .trim()}
             </div>
           </div>
         ) : (
+
           <div className="flex-1 flex items-center justify-center text-gray-400 text-sm italic bg-gray-50/50 rounded-lg border border-dashed border-gray-200">
             Waiting for diagnostic data...
           </div>

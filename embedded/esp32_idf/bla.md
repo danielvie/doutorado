@@ -1,34 +1,18 @@
-Ran command: `t monitor`
-Viewed BLE_COMMUNICATION_ANALYSIS.md:81-97
+Edited messaging.proto
+Ran command: `gs`
+Viewed messaging.proto:48-61
+Ran command: `g res`
+Ran command: `gs`
 
-## Item 7: Unthrottled Telemetry Rate — Explained
+Excellent. Lock-free is definitely the way to go for real-time performance.
 
-**The current situation:**
+One last detail for the Protobuf:
+**Question 5: Message Structure**
+Since we are calculating Min, Max, and Avg on the ESP32, how should we send it to the dashboard?
+*   **A) Three separate fields**: `adc_min`, `adc_max`, `adc_avg`. (Clean, low bandwidth).
+*   **B) A single field with the raw buffer**: Send all 128 values and let the browser do the math. (High bandwidth, but gives you a cool histogram/graph).
 
-```c
-// main.cpp — analog_reading_task
-for (;;) {
-    if (ble_is_connected()) {
-        // read ADC, build protobuf, send
-        ble_send_protobuf(&packet);
-    }
-    vTaskDelay(pdMS_TO_TICKS(g_analog_monitor_period_ms));  // default 500ms
-}
-```
+**My Recommendation: Option A (Three separate fields).** 
+BLE bandwidth is precious. Sending 128 integers in every status heartbeat might trigger the "Congested" warning we just built. Three floats or integers is much lighter.
 
-The user (from the web UI) can send `an_monitor_ms:10` and this changes `g_analog_monitor_period_ms` to **10 ms** — that's 100 telemetry packets/second.
-
-**The problem:** There's no safety floor. Nothing stops someone from doing `an_monitor_ms:1` (1000 packets/sec). Even with all our fixes:
-- Fix 6 (congestion) will **drop** the excess packets, so the link won't clog
-- But the task still wakes up 1000×/sec, reads ADC, encodes protobuf, and calls `ble_send_protobuf` — all for packets that get thrown away
-
-**The fix would be simple:** Clamp the minimum period so the system can't be configured into a wasteful state:
-
-```c
-// In ble_router where an_monitor_ms is parsed:
-g_analog_monitor_period_ms = std::max(value, 50);  // floor at 50ms (20 Hz)
-```
-
-**Do you actually need this?** Now that fix 6 exists, the congestion flag already protects the BLE link. The remaining risk is just CPU waste from unnecessary ADC reads + protobuf encodes. If you're fine with the default 500ms and don't plan to let users set absurdly low values, this is low priority.
-
-Want me to implement it, or close it out as "mitigated by fix 6"?
+**Is Option A sufficient for your analysis, or do you want to see the distribution of the latency in the web UI?**

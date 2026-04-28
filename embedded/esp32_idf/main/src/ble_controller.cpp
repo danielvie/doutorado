@@ -506,6 +506,12 @@ void ble_router_status(void) {
     status->led_mode = (g_system_state.led_mode.load(std::memory_order_acquire) == LedMode::NORMAL) ? BleLedMode_LED_NORMAL : BleLedMode_LED_BLINKING;
     status->ble_congested = g_ble_congested;
 
+    uint32_t a_min, a_max, a_avg;
+    analog_get_latency_stats(&a_min, &a_max, &a_avg);
+    status->adc_min = a_min;
+    status->adc_max = a_max;
+    status->adc_avg = a_avg;
+
     ble_send_protobuf(&packet);
     
     // For now, keep the console log for serial debugging

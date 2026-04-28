@@ -61,6 +61,9 @@ message SystemStatus {
     uint32 us_cycles_down = 13;
     BleLedMode led_mode = 14;
     bool ble_congested = 15;
+    uint32 adc_min = 16;
+    uint32 adc_max = 17;
+    uint32 adc_avg = 18;
 }
 
 // General purpose log message
