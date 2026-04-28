@@ -20,6 +20,7 @@
 
 // REQUIRED to read the clock speed
 #include "esp_rom_sys.h"
+#include "esp_chip_info.h"
 
 #include <stdbool.h>
 #include "freertos/task.h"
@@ -131,8 +132,16 @@ extern "C" void app_main(void)
 {
     uint32_t cpu_freq_mhz = esp_rom_get_cpu_ticks_per_us();
 
+    esp_chip_info_t chip_info;
+    esp_chip_info(&chip_info);
+
     ESP_LOGW(TAG, "================================================");
-    ESP_LOGW(TAG, "           CPU FREQUENCY: %lu MHz", cpu_freq_mhz);
+    ESP_LOGW(TAG, "  Chip: %s | Rev: %d.%d | Cores: %d",
+             CONFIG_IDF_TARGET, chip_info.revision / 100, chip_info.revision % 100, chip_info.cores);
+    ESP_LOGW(TAG, "  CPU: %lu MHz | Flash: %s | BLE: %s",
+             cpu_freq_mhz,
+             (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external",
+             (chip_info.features & CHIP_FEATURE_BLE) ? "yes" : "no");
     ESP_LOGW(TAG, "================================================");
 
     esp_err_t ret = app_init();
