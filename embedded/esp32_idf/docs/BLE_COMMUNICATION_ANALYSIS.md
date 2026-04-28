@@ -74,22 +74,15 @@ void note_ble_send(NoteData &buffer, BLEMode mode) {
 
 ---
 
-### 3. No MTU Exchange Verification
+### ~~3. No MTU Exchange Verification~~ ✅ RESOLVED
 
-**Severity: MEDIUM**
+**Severity: ~~MEDIUM~~ — Fixed**
 
-`esp_ble_gatt_set_local_mtu(500)` sets the local preference, but the `ESP_GATTS_MTU_EVT` event is never handled in `profile_event_handler`. If the client doesn't initiate MTU exchange, the effective MTU stays at the BLE default of 23 bytes (20 bytes payload).
+~~`esp_ble_gatt_set_local_mtu(500)` sets the local preference, but the `ESP_GATTS_MTU_EVT` event is never handled in `profile_event_handler`. If the client doesn't initiate MTU exchange, the effective MTU stays at the BLE default of 23 bytes (20 bytes payload).~~
 
-**Impact:** At 20-byte payload, each 500-byte protobuf packet requires 25 link-layer fragments.
+~~**Impact:** At 20-byte payload, each 500-byte protobuf packet requires 25 link-layer fragments.~~
 
-**Fix:** Add to `profile_event_handler`:
-
-```c
-case ESP_GATTS_MTU_EVT:
-    ESP_LOGI(TAG, "MTU negotiated: %d", param->mtu.mtu);
-    // Store for runtime use: g_negotiated_mtu = param->mtu.mtu;
-    break;
-```
+**Fix applied:** Added `ESP_GATTS_MTU_EVT` handler that stores the negotiated MTU in `g_negotiated_mtu`. Resets to 23 on disconnect.
 
 ---
 
@@ -148,19 +141,13 @@ esp_ble_gap_set_preferred_default_phy(ESP_BLE_PHY_2M_PREF_MASK, ESP_BLE_PHY_2M_P
 
 ---
 
-### 6. No TX Flow Control
+### ~~6. No TX Flow Control~~ ✅ RESOLVED
 
-**Severity: MEDIUM**
+**Severity: ~~MEDIUM~~ — Fixed**
 
-When calling `esp_ble_gatts_send_indicate()`, if the BLE TX queue is full it returns `ESP_FAIL` and data is silently dropped. No retry, no backpressure, no congestion event handling (`ESP_GATTS_CONGEST_EVT`).
+~~When calling `esp_ble_gatts_send_indicate()`, if the BLE TX queue is full it returns `ESP_FAIL` and data is silently dropped. No retry, no backpressure, no congestion event handling (`ESP_GATTS_CONGEST_EVT`).~~
 
-**Fix:** Track congestion state and pause sending:
-
-```c
-case ESP_GATTS_CONGEST_EVT:
-    g_ble_congested = param->congest.congested;
-    break;
-```
+**Fix applied:** Added `g_ble_congested` flag toggled by `ESP_GATTS_CONGEST_EVT`. `ble_send_message()` now drops packets when congested instead of queuing them — eliminates transport delay for real-time telemetry.
 
 ---
 
@@ -180,10 +167,10 @@ case ESP_GATTS_CONGEST_EVT:
 |---|---|---|---|
 | 1 | ~~No connection interval negotiation~~ ✅ | ~~6.5× loss~~ | Done |
 | 2 | ~~`note_ble_send` sends full buffer~~ ✅ | ~~94% airtime waste~~ | Done |
-| 3 | No MTU exchange verification | Risk of 20-byte fragmentation | Low |
+| 3 | ~~No MTU exchange verification~~ ✅ | ~~20-byte fragmentation~~ | Done |
 | 4 | Blocking command processing | BLE stack stalls on heavy cmds | Medium |
 | 5 | BLE 4.2 only, no 2M PHY | ~50% PHY throughput lost | Low (config) |
-| 6 | No TX flow control | Silent data loss under load | Medium |
+| 6 | ~~No TX flow control~~ ✅ | ~~Silent data loss~~ | Done |
 | 7 | No telemetry rate limiting | Queue overflow risk | Low |
 
 ## Throughput Estimates

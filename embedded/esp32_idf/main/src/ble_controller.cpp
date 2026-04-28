@@ -22,6 +22,8 @@
 #define CHAR_UUID_STR "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
 static const char* TAG = "BLE_CTRL";
+static uint16_t g_negotiated_mtu = 23; // BLE default until exchange completes
+static volatile bool g_ble_congested = false; // TX queue backpressure flag
 
 /* Parsed UUID storage (little-endian as expected by esp-idf) */
 static uint8_t service_uuid_le[16];
@@ -122,6 +124,11 @@ esp_err_t ble_send_message(const char* data, uint16_t len, BLEMode mode) {
     if (gl_profile_tab[PROFILE_APP_ID].conn_id == 0xFFFF) {
         ESP_LOGW(TAG, "Cannot send message: no client connected");
         return ESP_FAIL;
+    }
+
+    // Drop packet if TX queue is backed up (prevents transport delay)
+    if (g_ble_congested) {
+        return ESP_ERR_NO_MEM;
     }
 
     uint16_t conn_id = gl_profile_tab[PROFILE_APP_ID].conn_id;
@@ -643,6 +650,10 @@ static void profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
     case ESP_GATTS_START_EVT:
         ESP_LOGI(TAG, "Service started");
         break;
+    case ESP_GATTS_MTU_EVT:
+        g_negotiated_mtu = param->mtu.mtu;
+        ESP_LOGI(TAG, "MTU negotiated: %d", g_negotiated_mtu);
+        break;
     case ESP_GATTS_CONNECT_EVT:
         ESP_LOGI(TAG, "Client connected");
         blink(3);
@@ -663,7 +674,15 @@ static void profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
         blink(2);
         ESP_LOGI(TAG, "Client disconnected - restart advertising");
         gl_profile_tab[PROFILE_APP_ID].conn_id = 0xFFFF;
+        g_negotiated_mtu = 23; // Reset to default
+        g_ble_congested = false;
         esp_ble_gap_start_advertising(&adv_params);
+        break;
+    case ESP_GATTS_CONGEST_EVT:
+        g_ble_congested = param->congest.congested;
+        if (g_ble_congested) {
+            ESP_LOGW(TAG, "BLE TX congested — dropping packets");
+        }
         break;
     default:
         break;
