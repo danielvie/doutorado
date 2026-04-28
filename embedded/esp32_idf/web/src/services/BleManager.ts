@@ -104,11 +104,13 @@ class BleManager {
                         `g_an_monitor_ms: ${s.monitor_ms}`,
                         `us cycles UP   : ${s.us_cycles_up}`,
                         `us cycles DOWN : ${s.us_cycles_down}`,
+                        `Congestion     : ${s.ble_congested ? "YES" : "NO"}`,
                     ];
                     
                     const statusStr = statusLines.join("\n");
                     useBleStore.getState().addLog(statusStr);
                     useBleStore.getState().setLastStatusMessage(statusStr);
+                    useBleStore.getState().setIsCongested(!!s.ble_congested);
                 } else if (packet.log) {
                     const l = packet.log;
                     useBleStore.getState().addLog(`${l.level || "INFO"}: ${l.text}`);

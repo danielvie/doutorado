@@ -248,6 +248,13 @@ function _encodeSystemStatus(message, bb) {
     writeVarint32(bb, 112);
     writeVarint32(bb, encodeBleLedMode[$led_mode]);
   }
+
+  // optional bool ble_congested = 15;
+  let $ble_congested = message.ble_congested;
+  if ($ble_congested !== undefined) {
+    writeVarint32(bb, 120);
+    writeByte(bb, $ble_congested ? 1 : 0);
+  }
 }
 
 export function decodeSystemStatus(binary) {
@@ -345,6 +352,12 @@ function _decodeSystemStatus(bb) {
       // optional BleLedMode led_mode = 14;
       case 14: {
         message.led_mode = decodeBleLedMode[readVarint32(bb)];
+        break;
+      }
+
+      // optional bool ble_congested = 15;
+      case 15: {
+        message.ble_congested = !!readByte(bb);
         break;
       }
 

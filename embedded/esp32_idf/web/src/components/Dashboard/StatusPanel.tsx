@@ -56,7 +56,7 @@ export const StatusPanel: React.FC<{
               </button>
               <button
                 onClick={() => bleManager.send("STATUS")}
-                className="absolute top-2 right-14 p-2 rounded-md border bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 hover:border-blue-300 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-[10px] font-bold uppercase tracking-wider"
+                className="absolute top-2 right-14 p-2 rounded-md border bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 hover:border-blue-300 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-[10px] font-bold uppercase tracking-wider select-none"
                 title="Request Status"
               >
                 <RefreshCw size={14} />

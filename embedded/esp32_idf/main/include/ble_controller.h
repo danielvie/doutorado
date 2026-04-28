@@ -78,5 +78,6 @@ void ble_router_status_matrix(SignalSet set);
 
 // check is there is a client connected
 bool ble_is_connected();
+bool ble_is_congested();
 
 #endif // BLE_CONTROLLER_H

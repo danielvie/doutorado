@@ -60,6 +60,7 @@ message SystemStatus {
     uint32 us_cycles_up = 12;
     uint32 us_cycles_down = 13;
     BleLedMode led_mode = 14;
+    bool ble_congested = 15;
 }
 
 // General purpose log message

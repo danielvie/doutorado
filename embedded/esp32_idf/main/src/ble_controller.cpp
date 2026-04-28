@@ -25,6 +25,26 @@ static const char* TAG = "BLE_CTRL";
 static uint16_t g_negotiated_mtu = 23; // BLE default until exchange completes
 static volatile bool g_ble_congested = false; // TX queue backpressure flag
 
+// Command queue for offloading ble_router from BLE callback
+struct BleCommand {
+    uint8_t data[500];
+    uint16_t len;
+};
+static QueueHandle_t s_cmd_queue = NULL;
+
+static void ble_command_task(void* arg) {
+    BleCommand cmd;
+    for (;;) {
+        if (xQueueReceive(s_cmd_queue, &cmd, portMAX_DELAY) == pdPASS) {
+            // Synthesize minimal param for ble_router
+            esp_ble_gatts_cb_param_t fake_param = {};
+            fake_param.write.len = cmd.len;
+            fake_param.write.value = cmd.data;
+            ble_router(&fake_param);
+        }
+    }
+}
+
 /* Parsed UUID storage (little-endian as expected by esp-idf) */
 static uint8_t service_uuid_le[16];
 static uint8_t char_uuid_le[16];
@@ -484,6 +504,7 @@ void ble_router_status(void) {
     status->us_cycles_up = g_dead_time_cycles_up;
     status->us_cycles_down = g_dead_time_cycles_down;
     status->led_mode = (g_system_state.led_mode.load(std::memory_order_acquire) == LedMode::NORMAL) ? BleLedMode_LED_NORMAL : BleLedMode_LED_BLINKING;
+    status->ble_congested = g_ble_congested;
 
     ble_send_protobuf(&packet);
     
@@ -643,8 +664,19 @@ static void profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
     }
     case ESP_GATTS_WRITE_EVT: {
         ESP_LOGI(TAG, "Write event, len=%u", param->write.len);
-        ble_router(param);
+        // ACK immediately, process command asynchronously
         example_write_event_env(gatts_if, param);
+
+        // Queue command for processing outside BLE callback
+        if (s_cmd_queue) {
+            BleCommand cmd;
+            cmd.len = param->write.len;
+            if (cmd.len > sizeof(cmd.data)) cmd.len = sizeof(cmd.data);
+            memcpy(cmd.data, param->write.value, cmd.len);
+            if (xQueueSend(s_cmd_queue, &cmd, 0) != pdPASS) {
+                ESP_LOGW(TAG, "Command queue full, dropping write");
+            }
+        }
         break;
     }
     case ESP_GATTS_START_EVT:
@@ -746,9 +778,24 @@ esp_err_t ble_controller_init(void) {
     ret = esp_ble_gatts_app_register(PROFILE_APP_ID);
     if (ret) return ret;
     ret = esp_ble_gatt_set_local_mtu(500);
-    return ret;
+    if (ret) return ret;
+
+    // Create command queue and processing task
+    s_cmd_queue = xQueueCreate(4, sizeof(BleCommand));
+    if (!s_cmd_queue) {
+        ESP_LOGE(TAG, "Failed to create command queue");
+        return ESP_FAIL;
+    }
+    xTaskCreatePinnedToCore(ble_command_task, "ble_cmd", 4096, NULL, tskIDLE_PRIORITY + 2, NULL, CORE_0);
+
+    return ESP_OK;
 }
 
+// check is there is a client connected
 bool ble_is_connected() {
     return (gl_profile_tab[PROFILE_APP_ID].conn_id.load(std::memory_order_acquire) != 0xFFFF);
+}
+
+bool ble_is_congested() {
+    return g_ble_congested;
 }

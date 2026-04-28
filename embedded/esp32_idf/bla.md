@@ -1,19 +1,34 @@
-Ran command: `zz antigra`
+Ran command: `t monitor`
+Viewed BLE_COMMUNICATION_ANALYSIS.md:81-97
 
-Yes, but indirectly.
+## Item 7: Unthrottled Telemetry Rate — Explained
 
-**1c (2M PHY) helps with throughput, not with the root cause of your delay.** Here's the distinction:
+**The current situation:**
 
-| Fix | What it does | Helps with transport delay? |
-|---|---|---|
-| **Fix 6 (congestion)** ✅ | Drops stale packets when queue is full | **Directly** — prevents backlog from forming |
-| **Fix 1a (conn interval)** ✅ | Drains the queue faster (7.5ms vs 50ms) | **Indirectly** — backlog drains 6.5× faster |
-| **Fix 1c (2M PHY)** | Each packet takes half the airtime | **Indirectly** — same effect as 1a, more room per interval |
+```c
+// main.cpp — analog_reading_task
+for (;;) {
+    if (ble_is_connected()) {
+        // read ADC, build protobuf, send
+        ble_send_protobuf(&packet);
+    }
+    vTaskDelay(pdMS_TO_TICKS(g_analog_monitor_period_ms));  // default 500ms
+}
+```
 
-2M PHY doubles the raw bit rate, so each connection interval can carry more data. This raises the ceiling before congestion kicks in. If your telemetry rate is *just barely* overwhelming the link at 1M PHY, switching to 2M could keep you below the congestion threshold entirely.
+The user (from the web UI) can send `an_monitor_ms:10` and this changes `g_analog_monitor_period_ms` to **10 ms** — that's 100 telemetry packets/second.
 
-**But** — if your send rate truly exceeds what the link can handle (even at 2M), you'll still get the backlog. Fix 6 is the one that actually *prevents* the delay by dropping stale data.
+**The problem:** There's no safety floor. Nothing stops someone from doing `an_monitor_ms:1` (1000 packets/sec). Even with all our fixes:
+- Fix 6 (congestion) will **drop** the excess packets, so the link won't clog
+- But the task still wakes up 1000×/sec, reads ADC, encodes protobuf, and calls `ble_send_protobuf` — all for packets that get thrown away
 
-So: 1c is a nice-to-have that raises headroom. Fix 6 is the one that solves your symptom. They're complementary.
+**The fix would be simple:** Clamp the minimum period so the system can't be configured into a wasteful state:
 
-One caveat: 2M PHY only works if the **client** also supports BLE 5.0 (most modern phones/laptops do, but older ones or some embedded clients don't).
+```c
+// In ble_router where an_monitor_ms is parsed:
+g_analog_monitor_period_ms = std::max(value, 50);  // floor at 50ms (20 Hz)
+```
+
+**Do you actually need this?** Now that fix 6 exists, the congestion flag already protects the BLE link. The remaining risk is just CPU waste from unnecessary ADC reads + protobuf encodes. If you're fine with the default 500ms and don't plan to let users set absurdly low values, this is low priority.
+
+Want me to implement it, or close it out as "mitigated by fix 6"?

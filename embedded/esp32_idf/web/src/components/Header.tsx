@@ -1,4 +1,4 @@
-import { Bluetooth, Activity, Cpu } from "lucide-react";
+import { Bluetooth, Activity, Cpu, AlertTriangle } from "lucide-react";
 import { useBleStore } from "../store/bleStore";
 import { bleManager } from "../services/BleManager";
 import { useDataStore } from "../store/dataStore";
@@ -16,6 +16,7 @@ const ROUTINE_STATUSES = [
 
 export const Header = () => {
   const isConnected = useBleStore((s) => s.isConnected);
+  const isCongested = useBleStore((s) => s.isCongested);
   const systemStatus = useBleStore((s) => s.systemStatus);
   const monitorPeriodMs = useBleStore((s) => s.monitorPeriodMs);
   const [isMocking, setIsMocking] = useState(false);
@@ -78,7 +79,13 @@ export const Header = () => {
         <div className="flex items-center gap-10 w-full">
           <h1 className="text-lg font-bold text-gray-900">ESP32 Dashboard</h1>
           {show_status && (
-            <div className="flex flex-grow gap-2 items-center justify-end">
+            <div className="flex flex-grow gap-4 items-center justify-end">
+              {isCongested && (
+                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-50 text-amber-600 border border-amber-200 rounded text-[10px] font-bold uppercase tracking-wider animate-pulse">
+                  <AlertTriangle className="w-3 h-3" />
+                  Congested
+                </div>
+              )}
               <span className="text-xs font-bold text-gray-600/80 uppercase tracking-widest">
                 {systemStatus}
               </span>

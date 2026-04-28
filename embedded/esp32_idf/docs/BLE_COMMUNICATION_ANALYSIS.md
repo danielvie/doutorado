@@ -86,11 +86,11 @@ void note_ble_send(NoteData &buffer, BLEMode mode) {
 
 ---
 
-### 4. Blocking Command Processing in BLE Callback
+### ~~4. Blocking Command Processing in BLE Callback~~ ✅ RESOLVED
 
-**Severity: MEDIUM**
+**Severity: ~~MEDIUM~~ — Fixed**
 
-`ble_router()` runs synchronously inside the GATTS write event handler. Some paths do heavy work:
+~~`ble_router()` runs synchronously inside the GATTS write event handler. Some paths do heavy work:~~
 
 | Command | Work in Callback |
 |---|---|
@@ -98,46 +98,19 @@ void note_ble_send(NoteData &buffer, BLEMode mode) {
 | `SET_ALPHA:` | `std::stof()`, lookup, dataset copy, precompute |
 | `status_matrix_a/b` | `make_unique<NoteData>`, matrix formatting, BLE send |
 
-**Impact:** Long processing delays ACKs and can stall subsequent packet reception.
+~~**Impact:** Long processing delays ACKs and can stall subsequent packet reception.~~
 
-**Fix:** Post commands to a FreeRTOS queue, process in a dedicated task:
-
-```c
-// In GATTS write handler:
-xQueueSend(cmd_queue, &cmd_data, 0);
-
-// Separate task:
-static void ble_command_task(void* arg) {
-    for (;;) {
-        if (xQueueReceive(cmd_queue, &cmd, portMAX_DELAY)) {
-            ble_router(&cmd);
-        }
-    }
-}
-```
+**Fix applied:** Write handler now ACKs immediately, copies data into `BleCommand` struct, and posts to a FreeRTOS queue (depth 4). `ble_command_task` on Core 0 dequeues and calls `ble_router` asynchronously.
 
 ---
 
-### 5. BLE 4.2 Only — No 2M PHY
+### 5. BLE 4.2 Only — No 2M PHY ⚠️ N/A
 
-**Severity: MEDIUM**
+**Severity: ~~MEDIUM~~ — Hardware Limitation**
 
-`sdkconfig.defaults` disables BLE 5.0:
+~~`sdkconfig.defaults` disables BLE 5.0:~~
 
-```
-CONFIG_BT_BLE_50_FEATURES_SUPPORTED=n
-CONFIG_BT_BLE_42_FEATURES_SUPPORTED=y
-```
-
-BLE 5.0's 2M PHY doubles the raw air rate, reducing per-packet airtime.
-
-**Impact:** ~50% of potential physical-layer throughput is unavailable.
-
-**Fix:** Enable BLE 5.0 in sdkconfig and negotiate 2M PHY after connect:
-
-```c
-esp_ble_gap_set_preferred_default_phy(ESP_BLE_PHY_2M_PREF_MASK, ESP_BLE_PHY_2M_PREF_MASK);
-```
+The ESP32-D0WD-V3 (this project's chip) only has a BLE 4.2 radio. 2M PHY requires ESP32-S3/C3/C6. This item cannot be fixed in software.
 
 ---
 
@@ -151,13 +124,16 @@ esp_ble_gap_set_preferred_default_phy(ESP_BLE_PHY_2M_PREF_MASK, ESP_BLE_PHY_2M_P
 
 ---
 
-### 7. Unthrottled Telemetry Rate
+### ~~7. Unthrottled Telemetry Rate~~ ✅ RESOLVED
 
-**Severity: LOW**
+**Severity: ~~LOW~~ — Fixed**
 
-`analog_reading_task` sends protobuf telemetry every `g_analog_monitor_period_ms` (default 500 ms). The BLE command `an_monitor_ms:10` can set this to 10 ms — producing 100 packets/second with no queue depth check.
+~~`analog_reading_task` sends protobuf telemetry every `g_analog_monitor_period_ms` (default 500 ms). The BLE command `an_monitor_ms:10` can set this to 10 ms — producing 100 packets/second with no queue depth check.~~
 
-**Fix:** Enforce a minimum period (e.g., 50 ms) and check `ble_is_connected()` + congestion state before sending.
+**Fix applied:** 
+1. Added a **hard floor of 50ms** (20Hz) to `g_analog_monitor_period_ms` in `ble_router` to prevent CPU/link saturation.
+2. Added `ble_congested` field to `SystemStatus` protobuf so the client is aware when packets are being dropped.
+3. Task already checks `ble_is_connected()` and `ble_send_message()` handles congestion by dropping stale data.
 
 ---
 
@@ -168,10 +144,10 @@ esp_ble_gap_set_preferred_default_phy(ESP_BLE_PHY_2M_PREF_MASK, ESP_BLE_PHY_2M_P
 | 1 | ~~No connection interval negotiation~~ ✅ | ~~6.5× loss~~ | Done |
 | 2 | ~~`note_ble_send` sends full buffer~~ ✅ | ~~94% airtime waste~~ | Done |
 | 3 | ~~No MTU exchange verification~~ ✅ | ~~20-byte fragmentation~~ | Done |
-| 4 | Blocking command processing | BLE stack stalls on heavy cmds | Medium |
-| 5 | BLE 4.2 only, no 2M PHY | ~50% PHY throughput lost | Low (config) |
+| 4 | ~~Blocking command processing~~ ✅ | ~~BLE stack stalls~~ | Done |
+| 5 | BLE 4.2 only ⚠️ | Hardware limitation | N/A |
 | 6 | ~~No TX flow control~~ ✅ | ~~Silent data loss~~ | Done |
-| 7 | No telemetry rate limiting | Queue overflow risk | Low |
+| 7 | ~~No telemetry rate limiting~~ ✅ | ~~CPU/Queue saturation~~ | Done |
 
 ## Throughput Estimates
 

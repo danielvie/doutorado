@@ -198,6 +198,7 @@ export interface SystemStatus {
   us_cycles_up?: number;
   us_cycles_down?: number;
   led_mode?: BleLedMode;
+  ble_congested?: boolean;
 }
 
 export function encodeSystemStatus(message: SystemStatus): Uint8Array {
@@ -304,6 +305,13 @@ function _encodeSystemStatus(message: SystemStatus, bb: ByteBuffer): void {
     writeVarint32(bb, 112);
     writeVarint32(bb, encodeBleLedMode[$led_mode]);
   }
+
+  // optional bool ble_congested = 15;
+  let $ble_congested = message.ble_congested;
+  if ($ble_congested !== undefined) {
+    writeVarint32(bb, 120);
+    writeByte(bb, $ble_congested ? 1 : 0);
+  }
 }
 
 export function decodeSystemStatus(binary: Uint8Array): SystemStatus {
@@ -401,6 +409,12 @@ function _decodeSystemStatus(bb: ByteBuffer): SystemStatus {
       // optional BleLedMode led_mode = 14;
       case 14: {
         message.led_mode = decodeBleLedMode[readVarint32(bb)];
+        break;
+      }
+
+      // optional bool ble_congested = 15;
+      case 15: {
+        message.ble_congested = !!readByte(bb);
         break;
       }
 
