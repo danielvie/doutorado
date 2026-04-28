@@ -647,6 +647,17 @@ static void profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
         ESP_LOGI(TAG, "Client connected");
         blink(3);
         gl_profile_tab[PROFILE_APP_ID].conn_id = param->connect.conn_id;
+
+        // Request fast connection interval for higher throughput
+        {
+            esp_ble_conn_update_params_t conn_params = {};
+            memcpy(conn_params.bda, param->connect.remote_bda, sizeof(esp_bd_addr_t));
+            conn_params.min_int = 0x06;   // 7.5 ms (BLE spec minimum)
+            conn_params.max_int = 0x06;   // 7.5 ms
+            conn_params.latency = 0;
+            conn_params.timeout = 400;    // 4s supervision timeout
+            esp_ble_gap_update_conn_params(&conn_params);
+        }
         break;
     case ESP_GATTS_DISCONNECT_EVT:
         blink(2);
