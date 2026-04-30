@@ -4,6 +4,11 @@ import {
   draggable,
   dropTargetForElements,
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import {
+  attachInstruction,
+  extractInstruction,
+  type Instruction,
+} from "@atlaskit/pragmatic-drag-and-drop-hitbox/list-item";
 import { GripVertical, Maximize2, Minimize2 } from "lucide-react";
 import { PanelSize, SizeSelector } from "./SizeSelector";
 
@@ -31,7 +36,7 @@ export const DashboardItem: React.FC<DashboardItemProps> = ({
   const ref = useRef<HTMLDivElement>(null);
   const dragHandleRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [isOver, setIsOver] = useState(false);
+  const [instruction, setInstruction] = useState<Instruction | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
@@ -49,14 +54,35 @@ export const DashboardItem: React.FC<DashboardItemProps> = ({
       }),
       dropTargetForElements({
         element: el,
-        getData: () => ({ id }),
+        getData: ({ input, element }) =>
+          attachInstruction(
+            { id, type: "dashboard-item", instanceId },
+            {
+              input,
+              element,
+              axis: "horizontal",
+              operations: {
+                "reorder-before": "available",
+                "reorder-after": "available",
+              },
+            },
+          ),
         canDrop: ({ source }) =>
           source.data.instanceId === instanceId &&
           source.data.type === "dashboard-item" &&
           source.data.id !== id,
-        onDragEnter: () => setIsOver(true),
-        onDragLeave: () => setIsOver(false),
-        onDrop: () => setIsOver(false),
+        onDragEnter: ({ self }) => {
+          setInstruction(extractInstruction(self.data));
+        },
+        onDrag: ({ self }) => {
+          setInstruction(extractInstruction(self.data));
+        },
+        onDragLeave: () => {
+          setInstruction(null);
+        },
+        onDrop: () => {
+          setInstruction(null);
+        },
       }),
     );
   }, [id, instanceId]);
@@ -79,10 +105,15 @@ export const DashboardItem: React.FC<DashboardItemProps> = ({
         className={`panel p-3 flex flex-col gap-3 transition-[opacity,transform] duration-300 overflow-hidden
           ${isExpanded ? "fixed top-20 bottom-4 left-4 right-4 lg:top-24 lg:bottom-8 lg:left-8 lg:right-8 z-[200] max-w-none shadow-2xl" : "relative h-full min-h-0"}
           ${isDragging ? "opacity-40 scale-95 grayscale" : "opacity-100"}
-          ${isOver ? "ring-2 ring-blue-500 ring-offset-4 bg-blue-50/50" : ""}
           ${className}
         `}
       >
+        {instruction?.operation === "reorder-before" && (
+          <div className="pointer-events-none absolute bottom-2 left-1 top-2 z-30 w-1.5 rounded-full bg-blue-500 shadow-[0_0_0_3px_rgba(59,130,246,0.18)]" />
+        )}
+        {instruction?.operation === "reorder-after" && (
+          <div className="pointer-events-none absolute bottom-2 right-1 top-2 z-30 w-1.5 rounded-full bg-blue-500 shadow-[0_0_0_3px_rgba(59,130,246,0.18)]" />
+        )}
         <div className="flex justify-between items-center shrink-0 border-b border-gray-200 pb-2">
           <div className="flex items-center gap-1.5">
             <div

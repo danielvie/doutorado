@@ -17,3 +17,12 @@
 [x] Fix pre-existing TS errors (QuickActions unused imports, StatusPanel missing prop)
 [x] Verify build succeeds (bun run build)
 [x] Verify dev server runs (bun run dev)
+
+# TODO - Dashboard reorder insertion
+- [x] Migrate dashboard layout state from slot map to ordered array
+- [x] Update drag targets to expose before/after insertion intent
+- [x] Show insertion indicator during drag hover
+- [x] Remove `grid-flow-dense` from dashboard grid
+- [x] Verify reorder behavior with build
+- [x] Replace clipped drop indicator with visible insertion marker
+- [x] Switch insertion feedback from top/bottom to left/right
