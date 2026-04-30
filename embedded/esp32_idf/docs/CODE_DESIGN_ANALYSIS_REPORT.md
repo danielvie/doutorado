@@ -8,218 +8,157 @@ Analysis lens: module depth, responsibility boundaries, change amplification, sc
 
 ## Executive Summary
 
-This project has a strong architectural center: a real-time ESP32 signal generator, a BLE transport layer, a shared protobuf schema, and a browser-based control/telemetry UI. The most encouraging design direction is the move from ad hoc runtime work toward precomputed execution data: `signal_precompute_steps()` translates high-level signal modes into hardware-ready masks before the high-speed loop runs. That is exactly the kind of deep module this codebase needs.
+The command-routing architecture has materially improved since the first analysis. The old ASCII command router has been removed from the active BLE path, and the UI now sends namespaced protobuf `UiCommand` messages with optional JSON payloads. BLE transport is closer to a real transport boundary: it decodes frame prefixes, dispatches OTA or UI command protobufs, and sends structured protobuf responses.
 
-The main complexity debt is not raw code volume. It is shared mutable system state crossing task, core, protocol, and UI boundaries. The firmware currently has several global control variables, a mixed text/protobuf command surface, and safety limits that are either implicit, documented elsewhere, or partially enforced. Those issues are manageable, but they should be tightened before the control loop and OTA path become more central to experiments.
+The most important remaining design debt is no longer "mixed command protocols." It is domain ownership. `ble_ui_command_router.cpp` is a better command boundary, but many handlers still mutate global firmware state directly. That is acceptable for a lab project today, but it is the next place change amplification will return as more commands are added.
 
-## System Shape
+The project's strongest deep module is still the signal execution path: `signal_precompute_steps()` converts higher-level signal data into hardware-ready `SignalStep` records before the timing-critical loop runs. The next design pass should make configuration and validation as intentional as that execution path.
 
-The system divides into four major responsibilities:
+## Current System Shape
+
+The system now divides into five major responsibilities:
 
 1. Real-time signal generation on Core 1: `main/src/signal_controller.cpp`
-2. BLE GATT transport, command routing, telemetry, and OTA dispatch on Core 0: `main/src/ble_controller.cpp`
-3. Analog acquisition and closed-loop control state handoff: `main/main.cpp`, `main/src/helper_analog.cpp`, `main/include/control_action.h`
-4. Browser client connection, decoding, logging, and OTA upload: `web/src/services/`
+2. BLE GATT transport, protobuf framing, notification sending, and OTA/UI dispatch: `main/src/ble_controller.cpp`
+3. UI command registry and namespaced command handlers: `main/src/ble_ui_command_router.cpp`
+4. Shared protobuf contract for telemetry, OTA, UI commands, and command results: `proto/messaging.proto`
+5. Browser client connection, command encoding, telemetry decoding, and dashboard controls: `web/src/services/` and `web/src/components/Dashboard/`
 
-The intended data flow is sound:
+The current command flow is:
 
 ```mermaid
 flowchart LR
-    UI["Web UI"] -->|"Text commands / OTA protobuf"| BLE["BLE controller"]
-    BLE -->|"Inactive dataset update"| DS["Dataset A/B"]
-    DS -->|"Atomic swap request"| SIG["Signal loop on Core 1"]
-    ADC["Analog tasks"] -->|"Atomic sampled values"| SIG
-    SIG -->|"Semaphore trigger"| ADC
-    BLE -->|"Protobuf notifications"| UI
+    UI["Web UI"] -->|"0x03 + UiCommand(name,json,request_id)"| BLE["BLE transport"]
+    OTA["OTA uploader"] -->|"0x02 + OtaCommand"| BLE
+    BLE -->|"UiCommand"| Router["UI command router"]
+    Router -->|"Domain calls / state updates"| Domain["Signal, analog, control, LED, debug"]
+    Router -->|"UiCommandResult"| BLE
+    BLE -->|"0x01 + BlePacket"| UI
+    Domain -->|"Telemetry/status/log packets"| BLE
 ```
 
 ## Complexity Debt Score
 
-Overall Rating: C+
+Overall Rating: B-
 
-Scaling/Performance Risks: 4
+Scaling/Performance Risks: 3
 
-- `an_monitor_ms` can still be set directly from BLE without a lower bound in `main/src/ble_controller.cpp`.
+- `system.list_commands` returns all registered commands in one fixed-size protobuf field; it is fine at the current command count, but it is a bounded capacity to watch.
 - The signal loop disables interrupts for each full pattern cycle in `main/src/signal_controller.cpp`.
-- Dataset parsing allocates vectors and parses strings in the command path.
-- OTA upload accepts chunks and file size without enforcing sequence, total written size, or digest verification.
+- Dataset parsing still allocates vectors and parses strings in the command path.
 
-Architectural Leaks: 5
+Architectural Leaks: 4
 
-- BLE router knows about LED, GPIO pins, signal datasets, control enablement, analog read state, OTA, and status formatting.
-- Global state in `helper_common` is the real integration API between modules.
-- Text commands and binary protobuf coexist without a single command contract.
-- Web client formats firmware status strings instead of rendering structured UI state from a typed domain model.
-- Documentation claims some behavior that the current code does not enforce.
+- `ble_ui_command_router.cpp` knows about signal globals, analog monitor state, control state, LED behavior, GPIO pins, and debug dataset formatting.
+- Global state in `helper_common` remains the real integration API between modules.
+- The web client still formats structured status into a text log instead of rendering a typed domain model.
+- The command router filename and public header naming are slightly inconsistent: `main/src/ble_ui_command_router.cpp` includes `main/include/ui_command_router.h`.
 
 Observability Gaps: 4
 
 - BLE send failures are returned but many callers do not act on them.
-- OTA does not report chunk sequence mismatches, digest mismatch, or oversized transfer attempts.
-- Signal loop warnings log total pattern duration but do not reject unsafe patterns.
+- OTA does not enforce chunk sequence, digest, or declared transfer size in the application layer.
+- Command results report success/failure, but command execution latency is not measured.
 - Control corrections and saturation are not emitted as structured telemetry.
 
-Safety Violations: 6
+Safety Violations: 4
 
-- `cycles:0` can make `g_cycle_count = (...) % g_cycle_nrun` divide by zero.
-- `an_monitor_ms:0` can create a busy analog telemetry loop.
-- `std::stof()` and `std::stoi()` can throw from BLE command input.
-- `parse_signal()` does not validate equal time/mode lengths.
+- `analog.set_monitor_period` rejects zero but does not enforce a practical lower bound.
+- `signal.set_pattern` delegates to string parsing without making malformed patterns visible as command failures.
 - `matrix_multiply_vector3()` assumes at least three columns and enough output space.
-- OTA accepts declared file size and chunks without hard partition-size validation in the application layer.
+- OTA accepts declared file size and chunks without hard partition-size and digest validation in the application layer.
 
-## What Is Working Well
+## What Improved
 
-### Deep signal execution module
+### Command routing is now a real boundary
 
-`signal_precompute_steps()` in `main/src/signal_controller.cpp` is a good design decision. It hides the messy details of complementary GPIO masks, dead-time selection, and transition detection behind a simple dataset-level operation. The signal loop then consumes `SignalStep` records with minimal branching. This is a deep module: the interface is small, and the implementation removes real complexity from the timing-critical path.
+The active UI command path is now:
 
-### BLE callback offload
+- `BleManager.sendCommand(name, payload)` in `web/src/services/BleManager.ts`
+- protobuf `UiCommand` in `proto/messaging.proto`
+- binary BLE write prefix `0x03`
+- `ble_router()` dispatch in `main/src/ble_controller.cpp`
+- `ble_ui_command_dispatch()` in `main/src/ble_ui_command_router.cpp`
+- protobuf `UiCommandResult` returned inside `BlePacket.command_result`
 
-The GATTS write handler copies commands into a FreeRTOS queue and processes them in `ble_command_task`. That keeps the BLE callback from becoming a heavy command interpreter. This is a strong boundary improvement, especially because commands such as `SIGNAL:` and `SET_ALPHA:` can parse, allocate, and update datasets.
+This removes the old text-command ambiguity and gives extension a clear recipe: register a namespaced command and add a handler. For a lab project, using JSON for low-frequency UI command payloads is a good tradeoff. Sensor telemetry and status remain protobuf, where binary encoding matters more.
 
-### Shared protobuf for telemetry
+### The UI no longer depends on ASCII command helpers
 
-The project already has a shared schema in `proto/messaging.proto`, firmware encoding via nanopb, and TypeScript decoding in `web/src/services/BleManager.ts`. That gives the project a path away from fragile status strings.
+The old web-side string BLE helpers and unused menu components were removed. The service interface now writes `Uint8Array` payloads only, so accidental reintroduction of ASCII command writes is less likely.
 
-### Explicit performance measurements
+### Command discoverability exists
 
-ADC latency tracking and control timing fields in `LogDuration` are a useful start. The project is already measuring some of the right things.
+`system.list_commands` returns the registered command names. This is a useful extensibility hook, especially while the firmware and UI are changing together.
+
+### Some high-risk validation moved to the boundary
+
+The new router rejects invalid JSON, unknown commands, `cycles == 0`, missing numeric fields, and invalid debug GPIO ports. This directly resolves the earlier division-by-zero risk from `cycles:0`.
 
 ## Main Design Risks
 
-### 1. Command routing is too wide
+### 1. Command handlers still own too much domain knowledge
 
-`ble_router()` in `main/src/ble_controller.cpp` is currently the system command bus. It parses command text, mutates global timing parameters, starts/stops signal generation, touches GPIO ports, enables control, triggers status serialization, and dispatches OTA protobuf commands.
+`ble_ui_command_router.cpp` is better than the old ASCII router, but it is still wide. It directly writes values such as `g_cycle_nrun`, `g_analog_monitor_period_ms`, `g_dead_time_cycles_up`, `g_dead_time_cycles_down`, `g_control_enabled`, and `g_system_state`.
 
-This causes change amplification. Adding or validating one new system behavior often means touching BLE parsing, global state, status formatting, web logs, and sometimes signal control.
-
-Recommended direction:
-
-- Introduce a small typed command layer, even if the incoming transport remains text for now.
-- Split handlers by domain: signal commands, control commands, analog commands, hardware debug commands, OTA commands.
-- Keep BLE responsible for transport, framing, and connection state; keep domain modules responsible for validating and applying commands.
-
-### 2. Shared global state is the hidden architecture
-
-The project uses atomics in several places, which is good, but the ownership model is unclear. Variables such as `g_system_state`, `g_cycle_nrun`, `g_dead_time_cycles_up`, `g_dead_time_cycles_down`, `g_adc_fresh`, and the active dataset flags form an implicit API between tasks.
-
-The sharpest example is in `signal_loop_task()`: it reads control state, ADC freshness, dataset flags, cycle counts, and analog read state while also owning timing-critical GPIO output.
+This is the next architectural pressure point. Adding a command is easy, but adding a safe command still requires knowing which globals to mutate and which secondary updates to trigger.
 
 Recommended direction:
 
-- Create explicit owner modules for signal runtime state, analog snapshot state, and BLE-visible status.
-- Replace direct external writes to timing globals with setter functions that validate units and ranges.
-- Keep global variables private to the module that owns them wherever possible.
+- Keep the command registry in `ble_ui_command_router.cpp`.
+- Move domain mutation behind narrow functions:
+  - `signal_config_set_cycle_interval(uint32_t cycles)`
+  - `signal_config_set_dead_time_cycles(uint32_t up_cycles, uint32_t down_cycles)`
+  - `analog_config_set_monitor_period_ms(uint32_t period_ms)`
+  - `control_set_enabled(bool enabled)`
+- Let those functions own validation, logging, and side effects such as recomputing datasets.
 
-### 3. Safety limits are inconsistent
+### 2. `signal.set_pattern` cannot report parse failure accurately
 
-Some limits are present: `MAX_SIGNAL_SIZE`, note buffer sizes, OTA packet-size logging on the web side, and a warning if pattern duration exceeds 10 ms.
-
-Other limits are missing or non-enforcing:
-
-- `cycles:%u` accepts zero, which can break modulo arithmetic in `signal_loop_task()`.
-- `an_monitor_ms:%u` accepts zero or extremely low values.
-- `us_delay` values are accepted without an upper bound.
-- OTA `file_size` is accepted without comparing it to the update partition size before `esp_ota_begin()`.
-- `SIGNAL:` accepts parsed input without checking that the time and mode vectors have the same length.
+The command router returns `"Signal pattern updated"` after calling `signal_update_from_string(pattern)`, but `signal_update_from_string()` returns `void`. If parsing fails inside the signal module, the command result can still look successful.
 
 Recommended direction:
 
-- Define one validation table for BLE commands: min, max, unit, and error message.
-- Convert warnings that protect real-time safety into rejections when the input is unsafe.
-- Use unit-bearing names at the interface: `dead_time_cycles`, `monitor_period_ms`, `duration_us`.
+- Change `signal_update_from_string()` to return a small result enum or `bool`.
+- Reject malformed patterns at the command boundary with a `UiCommandResult` error.
+- Validate equal time/mode lengths, nonzero segment count, duration bounds, and mode bounds before touching the inactive dataset.
 
-### 4. Text/protobuf protocol split is transitional
+### 3. Safety bounds are still partial
 
-Outbound telemetry/status has moved toward protobuf, but inbound commands are mostly text except OTA. This creates two protocol worlds:
+The current router intentionally avoids heavy validation, which is reasonable for controlled lab use. Still, a few values can affect timing and should have explicit lower or upper bounds:
 
-- `0x01` prefix: firmware-to-client protobuf packet.
-- `0x02` prefix: client-to-firmware OTA protobuf command.
-- ASCII strings: most client-to-firmware commands and some firmware-to-client legacy messages.
-
-That is workable during development, but it makes compatibility and testing harder as the system grows.
+- `analog.set_monitor_period` should probably reject values below a documented floor such as 10 ms or 50 ms.
+- `signal.set_dead_time` should have a maximum cycle value.
+- `led.blink` casts `delay*_ms` to `uint16_t`, so values above `65535` wrap.
+- `signal.set_alpha` accepts any float, even though the dataset table likely expects a smaller calibrated range.
 
 Recommended direction:
 
-- Add a `Command` protobuf with oneof fields for signal, control, analog config, LED/debug, and OTA.
-- Keep text commands as a temporary debug console path.
-- Add protocol version and capability fields to `SystemStatus`.
+- Add minimal bounds only where failure affects timing, CPU load, or hardware behavior.
+- Keep validation small and local; this does not need a large schema framework.
 
-### 5. OTA lacks integrity and ordering enforcement
+### 4. Command discoverability is bounded by one BLE response
 
-`OtaChunk` includes `seq`, and `OtaEnd` includes `sha256`, but the firmware does not currently enforce either. `web/src/services/OtaManager.ts` sends an empty SHA-256 string. This means the OTA module relies heavily on BLE write ordering and ESP-IDF image validation, but does not validate the application-level transfer.
+`system.list_commands` currently returns a compact comma-separated string inside `UiCommandResult.json`. That fits now because `UiCommandResult.json` was increased to 512 bytes. As commands grow, this response will eventually hit a fixed-size boundary.
+
+Recommended direction:
+
+- Keep the current simple implementation for now.
+- If the command list grows, return either a count plus pages or a command namespace filter, for example `{"prefix":"signal."}`.
+
+### 5. OTA still lacks application-level transfer guarantees
+
+`OtaChunk.seq` and `OtaEnd.sha256` exist in the schema, but the firmware does not enforce ordering or digest validation, and the web side currently does not provide a real digest. ESP-IDF image validation helps, but the application protocol should not expose integrity fields that are not real yet.
 
 Recommended direction:
 
 - Track expected sequence number and reject duplicates/skips.
-- Reject writes that would exceed `binary_file_size`.
+- Reject writes that would exceed the declared `file_size`.
 - Reject `file_size == 0`.
-- Compare `file_size` against `update_partition->size`.
-- Implement SHA-256 validation or remove the field until it is real.
-
-### 6. Documentation has drifted from code
-
-`docs/BLE_COMMUNICATION_ANALYSIS.md` says telemetry has a hard floor of 50 ms for `g_analog_monitor_period_ms`, but `ble_router()` still assigns `an_monitor_ms` directly. That mismatch matters because a future change may trust the documentation and accidentally create a busy loop or BLE saturation during testing.
-
-Recommended direction:
-
-- Treat architecture docs as executable expectations: each resolved item should have a code reference or test.
-- Add a short "Last verified against commit/date" section to docs that describe current behavior.
-
-## High-Value Refactoring Plan
-
-### Phase 1: Safety guards with low blast radius
-
-Add validation to existing command handlers:
-
-- Reject `cycles < 1`.
-- Clamp or reject `an_monitor_ms < 50`.
-- Bound `us_delay_*` to a documented maximum.
-- Catch parse exceptions from `std::stof()` and `std::stoi()`.
-- Validate `SIGNAL:` has equal nonzero time/mode lengths.
-
-This phase is small, but it removes several real failure modes.
-
-### Phase 2: Make domain ownership explicit
-
-Create narrow APIs:
-
-- `signal_config_set_cycle_interval(uint32_t cycles)`
-- `signal_config_set_dead_time(uint32_t up_cycles, uint32_t down_cycles)`
-- `analog_config_set_monitor_period_ms(uint32_t period_ms)`
-- `control_set_enabled(bool enabled)`
-
-The first win is not abstraction for its own sake. The win is that validation, logging, and unit semantics live beside the state they protect.
-
-### Phase 3: Split BLE routing by responsibility
-
-Keep `ble_router()` as a dispatcher only. Move handlers into focused modules:
-
-- `ble_signal_commands`
-- `ble_analog_commands`
-- `ble_control_commands`
-- `ble_debug_commands`
-- `ota_controller`
-
-That will make it easier to add protobuf commands later without dragging all firmware behavior through one large function.
-
-### Phase 4: Consolidate protocol
-
-Introduce a protobuf `BleCommand` top-level message. Keep the ASCII commands behind a `debug_text_command` field or a separate debug characteristic if needed.
-
-This reduces mismatch between firmware and web, makes testing easier, and gives OTA, signal updates, and configuration changes the same validation story.
+- Compare `file_size` against the update partition size.
+- Implement SHA-256 validation or remove the field until it is enforced.
 
 ## Priority Findings
-
-### P1: Division by zero risk in cycle configuration
-
-`cycles:%u` writes directly to `g_cycle_nrun`. Later, `signal_loop_task()` computes modulo `g_cycle_nrun`. A BLE command of `cycles:0` can therefore crash or fault the signal task. This should be rejected at the command boundary.
-
-References:
-
-- `main/src/ble_controller.cpp`: `cycles:%u` handling around line 271
-- `main/src/signal_controller.cpp`: modulo use around line 356
 
 ### P1: OTA integrity fields are not enforced
 
@@ -228,45 +167,83 @@ The schema carries `seq` and `sha256`, but firmware does not validate sequence o
 References:
 
 - `proto/messaging.proto`: `OtaChunk.seq`, `OtaEnd.sha256`
-- `main/src/ota_controller.cpp`: chunk/end handling
-- `web/src/services/OtaManager.ts`: empty SHA-256 in end command
+- `main/src/ota_controller.cpp`
+- `web/src/services/OtaManager.ts`
 
-### P2: Telemetry period has no enforced lower bound
+### P2: Signal pattern command can report false success
 
-`an_monitor_ms:%u` writes directly to `g_analog_monitor_period_ms`, and `analog_reading_task()` uses it directly in `vTaskDelay()`. A value of zero or very low values can saturate CPU/BLE and invalidate timing experiments.
-
-References:
-
-- `main/src/ble_controller.cpp`: `an_monitor_ms:%u` handling around line 287
-- `main/main.cpp`: `vTaskDelay(pdMS_TO_TICKS(g_analog_monitor_period_ms))`
-
-### P2: Signal parser can accept malformed shape
-
-`parse_signal()` returns success if it finds a semicolon and parses both sections. It does not check for equal vector lengths, nonzero segment count, duration bounds, or mode bounds. `signal_update_from_string()` then uses `times.size()` and indexes `modes[i]`, which can read past the mode vector when malformed input has more durations than modes.
+`signal.set_pattern` builds a `time;mode` string, calls `signal_update_from_string()`, and returns success. Since the signal function returns `void`, parse failure cannot be propagated into `UiCommandResult`.
 
 References:
 
-- `main/src/helper_common.cpp`: `parse_signal()`
-- `main/src/signal_controller.cpp`: copy loop in `signal_update_from_string()`
+- `main/src/ble_ui_command_router.cpp`: `handle_signal_set_pattern`
+- `main/src/signal_controller.cpp`: `signal_update_from_string`
 
-### P2: BLE router is becoming a shallow mega-module
+### P2: Router-to-domain coupling is still broad
 
-The BLE module does transport, parsing, routing, domain mutation, status serialization, and debug formatting. It is not yet unmanageable, but it is the most likely place for future change amplification.
+The new command router solves protocol confusion, but it still reaches into several domain globals directly. This keeps command addition easy, but makes safety and side effects harder to reason about over time.
 
 Reference:
 
-- `main/src/ble_controller.cpp`: `ble_router()` and related command handlers
+- `main/src/ble_ui_command_router.cpp`
+
+### P2: Telemetry period lower bound is too permissive
+
+`analog.set_monitor_period` rejects zero, but very low nonzero values can still increase CPU/BLE pressure and distort timing experiments.
+
+References:
+
+- `main/src/ble_ui_command_router.cpp`: `handle_analog_set_monitor_period`
+- `main/main.cpp`: analog read task delay
+
+### P3: Command registry capacity is implicit
+
+The command registry is a fixed array of 32 entries. That is reasonable on the ESP32, but the limit is not surfaced to the UI and `system.list_commands` is also fixed by response size.
+
+Reference:
+
+- `main/src/ble_ui_command_router.cpp`: `static UiCommandEntry s_commands[32]`
+
+## High-Value Refactoring Plan
+
+### Phase 1: Finish command result truthfulness
+
+- Make `signal_update_from_string()` return success/failure.
+- Return `invalid_argument` when `signal.set_pattern` fails.
+- Add minimal bounds for monitor period, blink delays, dead-time cycles, and alpha.
+
+### Phase 2: Move domain mutation behind narrow APIs
+
+- Add small setter functions in the owning modules.
+- Keep global variables private wherever practical.
+- Preserve the current command names and JSON payloads; this phase should not require UI changes.
+
+### Phase 3: Strengthen OTA protocol
+
+- Enforce chunk order and total byte count.
+- Validate partition size before starting.
+- Implement or remove SHA-256.
+- Emit clearer `OtaStatus` failures for each rejected condition.
+
+### Phase 4: Improve typed UI status rendering
+
+- Keep protobuf status as the source of truth.
+- Store latest decoded status as structured state in the UI.
+- Render status fields directly instead of rebuilding a text status block first.
 
 ## Suggested Success Criteria
 
 For the next design pass, we should be able to say:
 
-- Every BLE-settable numeric value has a min, max, and unit at the command boundary.
-- Signal updates either apply completely to the inactive dataset or fail without changing it.
+- Every UI command has one registered handler and one owning domain function.
+- Every BLE-settable numeric value has a min, max, and unit at the command boundary or owner boundary.
+- Signal pattern updates either apply completely to the inactive dataset or fail with a `UiCommandResult` error.
 - OTA rejects out-of-order, oversized, or digest-mismatched transfers.
 - BLE transport can be understood without knowing signal-control internals.
-- Status telemetry is structured and does not require the web client to reconstruct firmware domain meaning from text.
+- `system.list_commands` continues to work as the command count grows.
 
 ## Bottom Line
 
-The architecture is promising because the real-time signal path is already being shaped into a deep module. The next step is to make the rest of the system match that discipline: explicit ownership of shared state, typed command boundaries, and hard validation at every external input. Those changes will reduce experiment risk and make the project easier to extend without making the timing-critical code more complicated.
+The command-router refactor landed in the right direction. The system now has a clear extension path for UI commands without changing protobuf for every new command: namespaced command names plus JSON payloads inside a stable `UiCommand` envelope. That is a good lab-friendly balance.
+
+The next architectural win is to make the command handlers thinner. BLE should frame and dispatch. The command router should name operations and parse small payloads. Signal, analog, control, LED, debug, and OTA modules should own their state changes and safety rules. That will keep the project easy to extend without letting the new router become the next mega-module.
