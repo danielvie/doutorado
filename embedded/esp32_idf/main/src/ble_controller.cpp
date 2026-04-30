@@ -8,6 +8,7 @@
 
 #include <atomic>
 #include <cmath>
+#include "ota_controller.h"
 
 // Nanopb
 #include <pb_encode.h>
@@ -27,7 +28,7 @@ static volatile bool g_ble_congested = false; // TX queue backpressure flag
 
 // Command queue for offloading ble_router from BLE callback
 struct BleCommand {
-    uint8_t data[500];
+    uint8_t data[1024];
     uint16_t len;
 };
 static QueueHandle_t s_cmd_queue = NULL;
@@ -224,6 +225,18 @@ static NoteData s_router_msg(120);
 
 void ble_router(esp_ble_gatts_cb_param_t* param) {
     if (param->write.len > 0) {
+        // 1. Check for binary prefix 0x02 (OtaCommand Protobuf)
+        if (param->write.value[0] == 0x02) {
+            OtaCommand ota_cmd = OtaCommand_init_zero;
+            pb_istream_t stream = pb_istream_from_buffer(param->write.value + 1, param->write.len - 1);
+            if (pb_decode(&stream, OtaCommand_fields, &ota_cmd)) {
+                ota_controller_handle_command(&ota_cmd);
+            } else {
+                ESP_LOGE(TAG, "Failed to decode OtaCommand: %s", PB_GET_ERROR(&stream));
+            }
+            return;
+        }
+
         note_clear(s_router_msg);
 
         // Copy message to stack buffer (bounded by MTU = 500)
@@ -255,24 +268,24 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
             ble_router_set_port(blink_d1, 1);
         } else if (sscanf(msg_lower, "port:%hu,low", &blink_d1) == 1) {
             ble_router_set_port(blink_d1, 0);
-        } else if (sscanf(msg_lower, "cycles:%lu", &g_cycle_nrun) == 1) {
-            ESP_LOGI(TAG, "Setting `g_cycle_nrun= %d`", g_cycle_nrun);
-        } else if (sscanf(msg_lower, "us_delay:%lu", &g_dead_time_cycles_up) == 1) {
+        } else if (sscanf(msg_lower, "cycles:%u", (unsigned int*)&g_cycle_nrun) == 1) {
+            ESP_LOGI(TAG, "Setting `g_cycle_nrun= %u`", (unsigned int)g_cycle_nrun);
+        } else if (sscanf(msg_lower, "us_delay:%u", (unsigned int*)&g_dead_time_cycles_up) == 1) {
             g_dead_time_cycles_down = g_dead_time_cycles_up;
-            ESP_LOGI(TAG, "Setting `g_dead_time_cycles_up= %d`", g_dead_time_cycles_up);
-            ESP_LOGI(TAG, "Setting `g_dead_time_cycles_down= %d`", g_dead_time_cycles_down);
+            ESP_LOGI(TAG, "Setting `g_dead_time_cycles_up= %u`", (unsigned int)g_dead_time_cycles_up);
+            ESP_LOGI(TAG, "Setting `g_dead_time_cycles_down= %u`", (unsigned int)g_dead_time_cycles_down);
             signal_precompute_steps(&g_dataset_a);
             signal_precompute_steps(&g_dataset_b);
-        } else if (sscanf(msg_lower, "us_delay_up:%lu", &g_dead_time_cycles_up) == 1) {
-            ESP_LOGI(TAG, "Setting `g_dead_time_cycles_up= %d`", g_dead_time_cycles_up);
+        } else if (sscanf(msg_lower, "us_delay_up:%u", (unsigned int*)&g_dead_time_cycles_up) == 1) {
+            ESP_LOGI(TAG, "Setting `g_dead_time_cycles_up= %u`", (unsigned int)g_dead_time_cycles_up);
             signal_precompute_steps(&g_dataset_a);
             signal_precompute_steps(&g_dataset_b);
-        } else if (sscanf(msg_lower, "us_delay_down:%lu", &g_dead_time_cycles_down) == 1) {
-            ESP_LOGI(TAG, "Setting `g_dead_time_cycles_down= %d`", g_dead_time_cycles_down);
+        } else if (sscanf(msg_lower, "us_delay_down:%u", (unsigned int*)&g_dead_time_cycles_down) == 1) {
+            ESP_LOGI(TAG, "Setting `g_dead_time_cycles_down= %u`", (unsigned int)g_dead_time_cycles_down);
             signal_precompute_steps(&g_dataset_a);
             signal_precompute_steps(&g_dataset_b);
-        } else if (sscanf(msg_lower, "an_monitor_ms:%lu", &g_analog_monitor_period_ms) == 1) {
-            ESP_LOGI(TAG, "Setting `g_analog_monitor_period_ms = %d`", g_analog_monitor_period_ms);
+        } else if (sscanf(msg_lower, "an_monitor_ms:%u", (unsigned int*)&g_analog_monitor_period_ms) == 1) {
+            ESP_LOGI(TAG, "Setting `g_analog_monitor_period_ms = %u`", (unsigned int)g_analog_monitor_period_ms);
         } else if (strcmp(msg_lower, "on") == 0) {
             ble_router_led_on(s_router_msg);
         } else if (strcmp(msg_lower, "off") == 0) {
@@ -632,12 +645,18 @@ static void profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
 
         esp_ble_gatts_start_service(gl_profile_tab[PROFILE_APP_ID].service_handle);
 
+        esp_attr_value_t char_val = {
+            .attr_max_len = 600,
+            .attr_len     = 0,
+            .attr_value   = NULL,
+        };
+
         esp_gatt_char_prop_t property = ESP_GATT_CHAR_PROP_BIT_WRITE | ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_NOTIFY;
         esp_err_t rc = esp_ble_gatts_add_char(gl_profile_tab[PROFILE_APP_ID].service_handle,
             &gl_profile_tab[PROFILE_APP_ID].char_uuid,
             ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE,
             property,
-            NULL, NULL);
+            &char_val, NULL);
         if (rc) {
             ESP_LOGE(TAG, "add char failed: %x", rc);
         }
@@ -679,8 +698,10 @@ static void profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
             cmd.len = param->write.len;
             if (cmd.len > sizeof(cmd.data)) cmd.len = sizeof(cmd.data);
             memcpy(cmd.data, param->write.value, cmd.len);
-            if (xQueueSend(s_cmd_queue, &cmd, 0) != pdPASS) {
-                ESP_LOGW(TAG, "Command queue full, dropping write");
+            
+            // Wait up to 1000ms for room in queue (Backpressure/Flow Control)
+            if (xQueueSend(s_cmd_queue, &cmd, pdMS_TO_TICKS(1000)) != pdPASS) {
+                ESP_LOGE(TAG, "Command queue full, dropping write even after timeout!");
             }
         }
         break;
@@ -787,12 +808,14 @@ esp_err_t ble_controller_init(void) {
     if (ret) return ret;
 
     // Create command queue and processing task
-    s_cmd_queue = xQueueCreate(4, sizeof(BleCommand));
+    s_cmd_queue = xQueueCreate(20, sizeof(BleCommand));
     if (!s_cmd_queue) {
         ESP_LOGE(TAG, "Failed to create command queue");
         return ESP_FAIL;
     }
-    xTaskCreatePinnedToCore(ble_command_task, "ble_cmd", 4096, NULL, tskIDLE_PRIORITY + 2, NULL, CORE_0);
+    xTaskCreatePinnedToCore(ble_command_task, "ble_cmd", 8192, NULL, tskIDLE_PRIORITY + 5, NULL, CORE_0);
+
+    ota_controller_init();
 
     return ESP_OK;
 }

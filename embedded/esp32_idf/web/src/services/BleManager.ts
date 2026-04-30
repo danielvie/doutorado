@@ -48,6 +48,12 @@ class BleManager {
         await this.service.send(command);
     }
 
+    async sendBinary(data: Uint8Array) {
+        const { isConnected } = useBleStore.getState();
+        if (!isConnected) await this.connect();
+        await this.service.send(data);
+    }
+
     // Handle incoming data from the service
     private handleData = (value: DataView) => {
         const uint8Array = new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
@@ -117,6 +123,10 @@ class BleManager {
                 } else if (packet.log) {
                     const l = packet.log;
                     useBleStore.getState().addLog(`${l.level || "INFO"}: ${l.text}`);
+                } else if (packet.ota_status) {
+                    const s = packet.ota_status;
+                    useBleStore.getState().addLog(`OTA [${s.state}]: ${s.progress_percent}% - ${s.message || ""}`);
+                    // You might want to update a dedicated OTA store here
                 }
                 return;
             } catch (err) {

@@ -59,9 +59,24 @@ tasks:
 
   build:
     desc: Build the project
-    deps: [proto:gen]
     cmds:
       - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" build'
+
+  build:cpp:
+    desc: Build the project
+    cmds:
+      - task: build
+
+  build:all:
+    desc: Build the project
+    deps: [proto:gen]
+    cmds:
+      - task: build
+
+  build:proto:
+    desc: Build the protofile
+    cmds:
+      - task: proto:gen
 
   flash:
     desc: Flash the project to the target
@@ -102,23 +117,6 @@ tasks:
     desc: Re-run CMake configuration
     cmds:
       - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" reconfigure'
-
-  set-target:
-    desc: Set the target chip (default esp32)
-    vars:
-      TARGET: "esp32"
-    cmds:
-      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" set-target {{.TARGET}}'
-
-  size:
-    desc: Show firmware size information
-    cmds:
-      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" size'
-
-  size-files:
-    desc: Show per-file size information
-    cmds:
-      - '{{.INTERPRETER}} "{{.IDF_RUN_SCRIPT}}" size-files'
 
   erase-flash:
     desc: Erase the entire flash
@@ -213,7 +211,7 @@ tasks:
     desc: run webserver + agentation server
     deps: [web:run, web:agentation]
 
-  setup:clangd:
+  clang:setup:
     desc: Setup clangd and Zed configuration for current OS
     cmds:
       - >

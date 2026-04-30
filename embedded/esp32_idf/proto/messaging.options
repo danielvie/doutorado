@@ -1,1 +1,4 @@
+OtaChunk.data max_size:512
+OtaStatus.message max_size:64
+OtaEnd.sha256 max_size:64
 LogMessage.text max_size:128

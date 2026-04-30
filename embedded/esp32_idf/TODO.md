@@ -7,6 +7,12 @@
 - [x] Update Web Dashboard to display the new latency metrics
 
 # Upcoming Tasks
+- [x] Implement BLE OTA (Flashing via Bluetooth)
+    - [x] Create `partitions.csv` with OTA support
+    - [x] Update `sdkconfig` to use custom partitions
+    - [x] Define OTA Protobuf messages in `messaging.proto`
+    - [x] Implement `ota_controller` (ESP32) for handling chunks
+    - [x] Implement `OtaManager` (Web) for file upload and chunking
 - [ ] Refactor `ImageModal.tsx` to accept images as props (Deep Module)
 - [ ] Move Mock Data logic from `Header.tsx` to `services/MockBleService.ts`
 - [ ] Add bounds check for `us` delay in `signal_controller.cpp`

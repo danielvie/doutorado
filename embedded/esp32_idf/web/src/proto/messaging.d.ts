@@ -94,6 +94,30 @@ export const decodeBleLogLevel: { [key: number]: BleLogLevel } = {
   2: BleLogLevel.BLE_LOG_ERROR,
 };
 
+export const enum OtaState {
+  OTA_IDLE = "OTA_IDLE",
+  OTA_DOWNLOADING = "OTA_DOWNLOADING",
+  OTA_VERIFYING = "OTA_VERIFYING",
+  OTA_FINISHED = "OTA_FINISHED",
+  OTA_ERROR = "OTA_ERROR",
+}
+
+export const encodeOtaState: { [key: string]: number } = {
+  OTA_IDLE: 0,
+  OTA_DOWNLOADING: 1,
+  OTA_VERIFYING: 2,
+  OTA_FINISHED: 3,
+  OTA_ERROR: 4,
+};
+
+export const decodeOtaState: { [key: number]: OtaState } = {
+  0: OtaState.OTA_IDLE,
+  1: OtaState.OTA_DOWNLOADING,
+  2: OtaState.OTA_VERIFYING,
+  3: OtaState.OTA_FINISHED,
+  4: OtaState.OTA_ERROR,
+};
+
 export interface Telemetry {
   an3?: number;
   an5?: number;
@@ -529,10 +553,348 @@ function _decodeLogMessage(bb: ByteBuffer): LogMessage {
   return message;
 }
 
+export interface OtaStatus {
+  state?: OtaState;
+  progress_percent?: number;
+  message?: string;
+}
+
+export function encodeOtaStatus(message: OtaStatus): Uint8Array {
+  let bb = popByteBuffer();
+  _encodeOtaStatus(message, bb);
+  return toUint8Array(bb);
+}
+
+function _encodeOtaStatus(message: OtaStatus, bb: ByteBuffer): void {
+  // optional OtaState state = 1;
+  let $state = message.state;
+  if ($state !== undefined) {
+    writeVarint32(bb, 8);
+    writeVarint32(bb, encodeOtaState[$state]);
+  }
+
+  // optional uint32 progress_percent = 2;
+  let $progress_percent = message.progress_percent;
+  if ($progress_percent !== undefined) {
+    writeVarint32(bb, 16);
+    writeVarint32(bb, $progress_percent);
+  }
+
+  // optional string message = 3;
+  let $message = message.message;
+  if ($message !== undefined) {
+    writeVarint32(bb, 26);
+    writeString(bb, $message);
+  }
+}
+
+export function decodeOtaStatus(binary: Uint8Array): OtaStatus {
+  return _decodeOtaStatus(wrapByteBuffer(binary));
+}
+
+function _decodeOtaStatus(bb: ByteBuffer): OtaStatus {
+  let message: OtaStatus = {} as any;
+
+  end_of_message: while (!isAtEnd(bb)) {
+    let tag = readVarint32(bb);
+
+    switch (tag >>> 3) {
+      case 0:
+        break end_of_message;
+
+      // optional OtaState state = 1;
+      case 1: {
+        message.state = decodeOtaState[readVarint32(bb)];
+        break;
+      }
+
+      // optional uint32 progress_percent = 2;
+      case 2: {
+        message.progress_percent = readVarint32(bb) >>> 0;
+        break;
+      }
+
+      // optional string message = 3;
+      case 3: {
+        message.message = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      default:
+        skipUnknownField(bb, tag & 7);
+    }
+  }
+
+  return message;
+}
+
+export interface OtaBegin {
+  file_size?: number;
+}
+
+export function encodeOtaBegin(message: OtaBegin): Uint8Array {
+  let bb = popByteBuffer();
+  _encodeOtaBegin(message, bb);
+  return toUint8Array(bb);
+}
+
+function _encodeOtaBegin(message: OtaBegin, bb: ByteBuffer): void {
+  // optional uint32 file_size = 1;
+  let $file_size = message.file_size;
+  if ($file_size !== undefined) {
+    writeVarint32(bb, 8);
+    writeVarint32(bb, $file_size);
+  }
+}
+
+export function decodeOtaBegin(binary: Uint8Array): OtaBegin {
+  return _decodeOtaBegin(wrapByteBuffer(binary));
+}
+
+function _decodeOtaBegin(bb: ByteBuffer): OtaBegin {
+  let message: OtaBegin = {} as any;
+
+  end_of_message: while (!isAtEnd(bb)) {
+    let tag = readVarint32(bb);
+
+    switch (tag >>> 3) {
+      case 0:
+        break end_of_message;
+
+      // optional uint32 file_size = 1;
+      case 1: {
+        message.file_size = readVarint32(bb) >>> 0;
+        break;
+      }
+
+      default:
+        skipUnknownField(bb, tag & 7);
+    }
+  }
+
+  return message;
+}
+
+export interface OtaChunk {
+  seq?: number;
+  data?: Uint8Array;
+}
+
+export function encodeOtaChunk(message: OtaChunk): Uint8Array {
+  let bb = popByteBuffer();
+  _encodeOtaChunk(message, bb);
+  return toUint8Array(bb);
+}
+
+function _encodeOtaChunk(message: OtaChunk, bb: ByteBuffer): void {
+  // optional uint32 seq = 1;
+  let $seq = message.seq;
+  if ($seq !== undefined) {
+    writeVarint32(bb, 8);
+    writeVarint32(bb, $seq);
+  }
+
+  // optional bytes data = 2;
+  let $data = message.data;
+  if ($data !== undefined) {
+    writeVarint32(bb, 18);
+    writeVarint32(bb, $data.length), writeBytes(bb, $data);
+  }
+}
+
+export function decodeOtaChunk(binary: Uint8Array): OtaChunk {
+  return _decodeOtaChunk(wrapByteBuffer(binary));
+}
+
+function _decodeOtaChunk(bb: ByteBuffer): OtaChunk {
+  let message: OtaChunk = {} as any;
+
+  end_of_message: while (!isAtEnd(bb)) {
+    let tag = readVarint32(bb);
+
+    switch (tag >>> 3) {
+      case 0:
+        break end_of_message;
+
+      // optional uint32 seq = 1;
+      case 1: {
+        message.seq = readVarint32(bb) >>> 0;
+        break;
+      }
+
+      // optional bytes data = 2;
+      case 2: {
+        message.data = readBytes(bb, readVarint32(bb));
+        break;
+      }
+
+      default:
+        skipUnknownField(bb, tag & 7);
+    }
+  }
+
+  return message;
+}
+
+export interface OtaEnd {
+  sha256?: string;
+}
+
+export function encodeOtaEnd(message: OtaEnd): Uint8Array {
+  let bb = popByteBuffer();
+  _encodeOtaEnd(message, bb);
+  return toUint8Array(bb);
+}
+
+function _encodeOtaEnd(message: OtaEnd, bb: ByteBuffer): void {
+  // optional string sha256 = 1;
+  let $sha256 = message.sha256;
+  if ($sha256 !== undefined) {
+    writeVarint32(bb, 10);
+    writeString(bb, $sha256);
+  }
+}
+
+export function decodeOtaEnd(binary: Uint8Array): OtaEnd {
+  return _decodeOtaEnd(wrapByteBuffer(binary));
+}
+
+function _decodeOtaEnd(bb: ByteBuffer): OtaEnd {
+  let message: OtaEnd = {} as any;
+
+  end_of_message: while (!isAtEnd(bb)) {
+    let tag = readVarint32(bb);
+
+    switch (tag >>> 3) {
+      case 0:
+        break end_of_message;
+
+      // optional string sha256 = 1;
+      case 1: {
+        message.sha256 = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      default:
+        skipUnknownField(bb, tag & 7);
+    }
+  }
+
+  return message;
+}
+
+export interface OtaCommand {
+  begin?: OtaBegin;
+  chunk?: OtaChunk;
+  end?: OtaEnd;
+  abort?: boolean;
+}
+
+export function encodeOtaCommand(message: OtaCommand): Uint8Array {
+  let bb = popByteBuffer();
+  _encodeOtaCommand(message, bb);
+  return toUint8Array(bb);
+}
+
+function _encodeOtaCommand(message: OtaCommand, bb: ByteBuffer): void {
+  // optional OtaBegin begin = 1;
+  let $begin = message.begin;
+  if ($begin !== undefined) {
+    writeVarint32(bb, 10);
+    let nested = popByteBuffer();
+    _encodeOtaBegin($begin, nested);
+    writeVarint32(bb, nested.limit);
+    writeByteBuffer(bb, nested);
+    pushByteBuffer(nested);
+  }
+
+  // optional OtaChunk chunk = 2;
+  let $chunk = message.chunk;
+  if ($chunk !== undefined) {
+    writeVarint32(bb, 18);
+    let nested = popByteBuffer();
+    _encodeOtaChunk($chunk, nested);
+    writeVarint32(bb, nested.limit);
+    writeByteBuffer(bb, nested);
+    pushByteBuffer(nested);
+  }
+
+  // optional OtaEnd end = 3;
+  let $end = message.end;
+  if ($end !== undefined) {
+    writeVarint32(bb, 26);
+    let nested = popByteBuffer();
+    _encodeOtaEnd($end, nested);
+    writeVarint32(bb, nested.limit);
+    writeByteBuffer(bb, nested);
+    pushByteBuffer(nested);
+  }
+
+  // optional bool abort = 4;
+  let $abort = message.abort;
+  if ($abort !== undefined) {
+    writeVarint32(bb, 32);
+    writeByte(bb, $abort ? 1 : 0);
+  }
+}
+
+export function decodeOtaCommand(binary: Uint8Array): OtaCommand {
+  return _decodeOtaCommand(wrapByteBuffer(binary));
+}
+
+function _decodeOtaCommand(bb: ByteBuffer): OtaCommand {
+  let message: OtaCommand = {} as any;
+
+  end_of_message: while (!isAtEnd(bb)) {
+    let tag = readVarint32(bb);
+
+    switch (tag >>> 3) {
+      case 0:
+        break end_of_message;
+
+      // optional OtaBegin begin = 1;
+      case 1: {
+        let limit = pushTemporaryLength(bb);
+        message.begin = _decodeOtaBegin(bb);
+        bb.limit = limit;
+        break;
+      }
+
+      // optional OtaChunk chunk = 2;
+      case 2: {
+        let limit = pushTemporaryLength(bb);
+        message.chunk = _decodeOtaChunk(bb);
+        bb.limit = limit;
+        break;
+      }
+
+      // optional OtaEnd end = 3;
+      case 3: {
+        let limit = pushTemporaryLength(bb);
+        message.end = _decodeOtaEnd(bb);
+        bb.limit = limit;
+        break;
+      }
+
+      // optional bool abort = 4;
+      case 4: {
+        message.abort = !!readByte(bb);
+        break;
+      }
+
+      default:
+        skipUnknownField(bb, tag & 7);
+    }
+  }
+
+  return message;
+}
+
 export interface BlePacket {
   telemetry?: Telemetry;
   status?: SystemStatus;
   log?: LogMessage;
+  ota_status?: OtaStatus;
 }
 
 export function encodeBlePacket(message: BlePacket): Uint8Array {
@@ -574,6 +936,17 @@ function _encodeBlePacket(message: BlePacket, bb: ByteBuffer): void {
     writeByteBuffer(bb, nested);
     pushByteBuffer(nested);
   }
+
+  // optional OtaStatus ota_status = 4;
+  let $ota_status = message.ota_status;
+  if ($ota_status !== undefined) {
+    writeVarint32(bb, 34);
+    let nested = popByteBuffer();
+    _encodeOtaStatus($ota_status, nested);
+    writeVarint32(bb, nested.limit);
+    writeByteBuffer(bb, nested);
+    pushByteBuffer(nested);
+  }
 }
 
 export function decodeBlePacket(binary: Uint8Array): BlePacket {
@@ -610,6 +983,14 @@ function _decodeBlePacket(bb: ByteBuffer): BlePacket {
       case 3: {
         let limit = pushTemporaryLength(bb);
         message.log = _decodeLogMessage(bb);
+        bb.limit = limit;
+        break;
+      }
+
+      // optional OtaStatus ota_status = 4;
+      case 4: {
+        let limit = pushTemporaryLength(bb);
+        message.ota_status = _decodeOtaStatus(bb);
         bb.limit = limit;
         break;
       }

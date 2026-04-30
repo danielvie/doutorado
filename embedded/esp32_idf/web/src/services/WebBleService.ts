@@ -80,13 +80,16 @@ export class WebBleService implements IBleService {
         }
     }
 
-    async send(command: string): Promise<void> {
-        const { addLog } = useBleStore.getState();
+    async send(command: string | Uint8Array): Promise<void> {
         if (!this.characteristic) throw new Error("No characteristic");
 
-        const encoder = new TextEncoder();
-        await this.characteristic.writeValue(encoder.encode(command));
-        addLog(`Sent: ${command}`);
+        if (typeof command === "string") {
+            const encoder = new TextEncoder();
+            await this.characteristic.writeValueWithResponse(encoder.encode(command));
+        } else {
+            // Reliable binary write with hardware flow control
+            await this.characteristic.writeValueWithResponse(command);
+        }
     }
 
     async subscribe(callback: (data: any) => void): Promise<void> {

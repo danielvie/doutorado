@@ -72,11 +72,49 @@ message LogMessage {
     string text = 2;
 }
 
+// OTA Communication
+enum OtaState {
+    OTA_IDLE = 0;
+    OTA_DOWNLOADING = 1;
+    OTA_VERIFYING = 2;
+    OTA_FINISHED = 3;
+    OTA_ERROR = 4;
+}
+
+message OtaStatus {
+    OtaState state = 1;
+    uint32 progress_percent = 2;
+    string message = 3;
+}
+
+message OtaBegin {
+    uint32 file_size = 1;
+}
+
+message OtaChunk {
+    uint32 seq = 1;
+    bytes data = 2;
+}
+
+message OtaEnd {
+    string sha256 = 1;
+}
+
+message OtaCommand {
+    oneof type {
+        OtaBegin begin = 1;
+        OtaChunk chunk = 2;
+        OtaEnd end = 3;
+        bool abort = 4;
+    }
+}
+
 // Top-level message for BLE communication
 message BlePacket {
     oneof payload {
         Telemetry telemetry = 1;
         SystemStatus status = 2;
         LogMessage log = 3;
+        OtaStatus ota_status = 4;
     }
 }

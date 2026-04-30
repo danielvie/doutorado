@@ -15,7 +15,24 @@ PB_BIND(SystemStatus, SystemStatus, AUTO)
 PB_BIND(LogMessage, LogMessage, AUTO)
 
 
+PB_BIND(OtaStatus, OtaStatus, AUTO)
+
+
+PB_BIND(OtaBegin, OtaBegin, AUTO)
+
+
+PB_BIND(OtaChunk, OtaChunk, 2)
+
+
+PB_BIND(OtaEnd, OtaEnd, AUTO)
+
+
+PB_BIND(OtaCommand, OtaCommand, 2)
+
+
 PB_BIND(BlePacket, BlePacket, AUTO)
+
+
 
 
 

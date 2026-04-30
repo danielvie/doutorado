@@ -4,4 +4,5 @@ WDT is disabled on Core 1 (`CONFIG_ESP_INT_WDT_CHECK_CPU1` and `CONFIG_ESP_TASK_
 
 At the end of a task where a `web` was touched, run `task web:build` and check if there are errors.
 
-Dont start an operation when the user just asks a question. To implement something wait for: "continue", "implement", "fix", "write" commands
+DO NOT start an operation when the user is asking a question.
+NEVER start changing code when the prompt is a question.

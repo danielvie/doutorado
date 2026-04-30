@@ -6,6 +6,7 @@ import { SignalGenerator } from "./components/Dashboard/SignalGenerator";
 import { SystemLogs } from "./components/Dashboard/SystemLogs";
 import { QuickActions } from "./components/Dashboard/QuickActions";
 import { StatusPanel } from "./components/Dashboard/StatusPanel";
+import { OtaPanel } from "./components/Dashboard/OtaPanel";
 import { HelpPanel } from "./components/HelpPanel";
 import { ManualCommand } from "./components/Dashboard/ManualCommand";
 import { Agentation } from "agentation";
@@ -14,7 +15,7 @@ import { PanelSize } from "./components/Dashboard/SizeSelector";
 type DashboardLayout = Record<string, string>;
 type DashboardItemSizes = Record<string, PanelSize>;
 
-const ITEM_IDS = ["chart", "quick", "manual", "signal", "help", "status", "logs"];
+const ITEM_IDS = ["chart", "quick", "manual", "signal", "help", "status", "logs", "ota"];
 
 const DEFAULT_LAYOUT = {
   "slot-1": "chart",
@@ -24,6 +25,7 @@ const DEFAULT_LAYOUT = {
   "slot-5": "help",
   "slot-6": "status",
   "slot-7": "logs",
+  "slot-8": "ota",
 };
 
 const DEFAULT_ITEM_SIZES: DashboardItemSizes = {
@@ -34,6 +36,7 @@ const DEFAULT_ITEM_SIZES: DashboardItemSizes = {
   help: "1x1",
   status: "1x1",
   logs: "1x1",
+  ota: "1x1",
 };
 
 function App() {
@@ -144,6 +147,8 @@ function App() {
         return <HelpPanel {...props} />;
       case "status":
         return <StatusPanel {...props} />;
+      case "ota":
+        return <OtaPanel {...props} />;
       default:
         return null;
     }

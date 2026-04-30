@@ -42,6 +42,15 @@ typedef enum _BleLogLevel {
     BleLogLevel_BLE_LOG_ERROR = 2
 } BleLogLevel;
 
+/* OTA Communication */
+typedef enum _OtaState {
+    OtaState_OTA_IDLE = 0,
+    OtaState_OTA_DOWNLOADING = 1,
+    OtaState_OTA_VERIFYING = 2,
+    OtaState_OTA_FINISHED = 3,
+    OtaState_OTA_ERROR = 4
+} OtaState;
+
 /* Struct definitions */
 /* Telemetry message containing analog port readings */
 typedef struct _Telemetry {
@@ -79,6 +88,36 @@ typedef struct _LogMessage {
     char text[128];
 } LogMessage;
 
+typedef struct _OtaStatus {
+    OtaState state;
+    uint32_t progress_percent;
+    char message[64];
+} OtaStatus;
+
+typedef struct _OtaBegin {
+    uint32_t file_size;
+} OtaBegin;
+
+typedef PB_BYTES_ARRAY_T(512) OtaChunk_data_t;
+typedef struct _OtaChunk {
+    uint32_t seq;
+    OtaChunk_data_t data;
+} OtaChunk;
+
+typedef struct _OtaEnd {
+    char sha256[64];
+} OtaEnd;
+
+typedef struct _OtaCommand {
+    pb_size_t which_type;
+    union {
+        OtaBegin begin;
+        OtaChunk chunk;
+        OtaEnd end;
+        bool abort;
+    } type;
+} OtaCommand;
+
 /* Top-level message for BLE communication */
 typedef struct _BlePacket {
     pb_size_t which_payload;
@@ -86,6 +125,7 @@ typedef struct _BlePacket {
         Telemetry telemetry;
         SystemStatus status;
         LogMessage log;
+        OtaStatus ota_status;
     } payload;
 } BlePacket;
 
@@ -119,6 +159,10 @@ extern "C" {
 #define _BleLogLevel_MAX BleLogLevel_BLE_LOG_ERROR
 #define _BleLogLevel_ARRAYSIZE ((BleLogLevel)(BleLogLevel_BLE_LOG_ERROR+1))
 
+#define _OtaState_MIN OtaState_OTA_IDLE
+#define _OtaState_MAX OtaState_OTA_ERROR
+#define _OtaState_ARRAYSIZE ((OtaState)(OtaState_OTA_ERROR+1))
+
 
 #define SystemStatus_active_set_ENUMTYPE BleSignalSet
 #define SystemStatus_signal_state_ENUMTYPE BleSignalState
@@ -128,16 +172,32 @@ extern "C" {
 
 #define LogMessage_level_ENUMTYPE BleLogLevel
 
+#define OtaStatus_state_ENUMTYPE OtaState
+
+
+
+
+
 
 
 /* Initializer values for message structs */
 #define Telemetry_init_default                   {0, 0, 0, 0}
 #define SystemStatus_init_default                {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0}
 #define LogMessage_init_default                  {_BleLogLevel_MIN, ""}
+#define OtaStatus_init_default                   {_OtaState_MIN, 0, ""}
+#define OtaBegin_init_default                    {0}
+#define OtaChunk_init_default                    {0, {0, {0}}}
+#define OtaEnd_init_default                      {""}
+#define OtaCommand_init_default                  {0, {OtaBegin_init_default}}
 #define BlePacket_init_default                   {0, {Telemetry_init_default}}
 #define Telemetry_init_zero                      {0, 0, 0, 0}
 #define SystemStatus_init_zero                   {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0}
 #define LogMessage_init_zero                     {_BleLogLevel_MIN, ""}
+#define OtaStatus_init_zero                      {_OtaState_MIN, 0, ""}
+#define OtaBegin_init_zero                       {0}
+#define OtaChunk_init_zero                       {0, {0, {0}}}
+#define OtaEnd_init_zero                         {""}
+#define OtaCommand_init_zero                     {0, {OtaBegin_init_zero}}
 #define BlePacket_init_zero                      {0, {Telemetry_init_zero}}
 
 /* Field tags (for use in manual encoding/decoding) */
@@ -165,9 +225,21 @@ extern "C" {
 #define SystemStatus_adc_avg_tag                 18
 #define LogMessage_level_tag                     1
 #define LogMessage_text_tag                      2
+#define OtaStatus_state_tag                      1
+#define OtaStatus_progress_percent_tag           2
+#define OtaStatus_message_tag                    3
+#define OtaBegin_file_size_tag                   1
+#define OtaChunk_seq_tag                         1
+#define OtaChunk_data_tag                        2
+#define OtaEnd_sha256_tag                        1
+#define OtaCommand_begin_tag                     1
+#define OtaCommand_chunk_tag                     2
+#define OtaCommand_end_tag                       3
+#define OtaCommand_abort_tag                     4
 #define BlePacket_telemetry_tag                  1
 #define BlePacket_status_tag                     2
 #define BlePacket_log_tag                        3
+#define BlePacket_ota_status_tag                 4
 
 /* Struct field encoding specification for nanopb */
 #define Telemetry_FIELDLIST(X, a) \
@@ -206,31 +278,82 @@ X(a, STATIC,   SINGULAR, STRING,   text,              2)
 #define LogMessage_CALLBACK NULL
 #define LogMessage_DEFAULT NULL
 
+#define OtaStatus_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UENUM,    state,             1) \
+X(a, STATIC,   SINGULAR, UINT32,   progress_percent,   2) \
+X(a, STATIC,   SINGULAR, STRING,   message,           3)
+#define OtaStatus_CALLBACK NULL
+#define OtaStatus_DEFAULT NULL
+
+#define OtaBegin_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   file_size,         1)
+#define OtaBegin_CALLBACK NULL
+#define OtaBegin_DEFAULT NULL
+
+#define OtaChunk_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   seq,               1) \
+X(a, STATIC,   SINGULAR, BYTES,    data,              2)
+#define OtaChunk_CALLBACK NULL
+#define OtaChunk_DEFAULT NULL
+
+#define OtaEnd_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, STRING,   sha256,            1)
+#define OtaEnd_CALLBACK NULL
+#define OtaEnd_DEFAULT NULL
+
+#define OtaCommand_FIELDLIST(X, a) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (type,begin,type.begin),   1) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (type,chunk,type.chunk),   2) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (type,end,type.end),   3) \
+X(a, STATIC,   ONEOF,    BOOL,     (type,abort,type.abort),   4)
+#define OtaCommand_CALLBACK NULL
+#define OtaCommand_DEFAULT NULL
+#define OtaCommand_type_begin_MSGTYPE OtaBegin
+#define OtaCommand_type_chunk_MSGTYPE OtaChunk
+#define OtaCommand_type_end_MSGTYPE OtaEnd
+
 #define BlePacket_FIELDLIST(X, a) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload,telemetry,payload.telemetry),   1) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload,status,payload.status),   2) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (payload,log,payload.log),   3)
+X(a, STATIC,   ONEOF,    MESSAGE,  (payload,log,payload.log),   3) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (payload,ota_status,payload.ota_status),   4)
 #define BlePacket_CALLBACK NULL
 #define BlePacket_DEFAULT NULL
 #define BlePacket_payload_telemetry_MSGTYPE Telemetry
 #define BlePacket_payload_status_MSGTYPE SystemStatus
 #define BlePacket_payload_log_MSGTYPE LogMessage
+#define BlePacket_payload_ota_status_MSGTYPE OtaStatus
 
 extern const pb_msgdesc_t Telemetry_msg;
 extern const pb_msgdesc_t SystemStatus_msg;
 extern const pb_msgdesc_t LogMessage_msg;
+extern const pb_msgdesc_t OtaStatus_msg;
+extern const pb_msgdesc_t OtaBegin_msg;
+extern const pb_msgdesc_t OtaChunk_msg;
+extern const pb_msgdesc_t OtaEnd_msg;
+extern const pb_msgdesc_t OtaCommand_msg;
 extern const pb_msgdesc_t BlePacket_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define Telemetry_fields &Telemetry_msg
 #define SystemStatus_fields &SystemStatus_msg
 #define LogMessage_fields &LogMessage_msg
+#define OtaStatus_fields &OtaStatus_msg
+#define OtaBegin_fields &OtaBegin_msg
+#define OtaChunk_fields &OtaChunk_msg
+#define OtaEnd_fields &OtaEnd_msg
+#define OtaCommand_fields &OtaCommand_msg
 #define BlePacket_fields &BlePacket_msg
 
 /* Maximum encoded size of messages (where known) */
 #define BlePacket_size                           135
 #define LogMessage_size                          132
-#define PROTO_MESSAGING_PB_H_MAX_SIZE            BlePacket_size
+#define OtaBegin_size                            6
+#define OtaChunk_size                            521
+#define OtaCommand_size                          524
+#define OtaEnd_size                              65
+#define OtaStatus_size                           73
+#define PROTO_MESSAGING_PB_H_MAX_SIZE            OtaCommand_size
 #define SystemStatus_size                        74
 #define Telemetry_size                           21
 
