@@ -70,10 +70,10 @@ extern volatile uint32_t g_dead_time_cycles_down;
 void signal_controller_init();
 
 /**
- * @brief Updates the inactive signal buffer with new data.
- * Parses the string, populates the buffer, and sets a flag to swap.
+ * @brief Updates the inactive signal buffer with a pattern payload.
+ * Parses the "time;mode" string, populates the buffer, and sets a flag to swap.
  * Safe to call from BLE/Core0.
- * @param message The raw message string (e.g., "SIGNAL:...")
+ * @param message The pattern payload string.
  */
 void signal_update_from_string(const std::string &message);
 

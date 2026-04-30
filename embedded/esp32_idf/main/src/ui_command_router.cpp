@@ -7,7 +7,10 @@
 #include "ble_controller.h"
 #include "esp_log.h"
 #include "helper_common.h"
+#include "helper_led.h"
 #include "signal_controller.h"
+
+#include "driver/gpio.h"
 
 extern "C" {
 #include "cJSON.h"
@@ -91,22 +94,20 @@ static bool json_get_float(cJSON* root, const char* key, float* out) {
 }
 
 static UiCommandResultData handle_system_list_commands(const UiCommandContext& ctx) {
-    std::string json = "{\"commands\":[";
+    std::string json = "{\"commands\":\"";
     for (size_t i = 0; i < s_command_count; ++i) {
         if (i > 0) {
             json += ",";
         }
-        json += "\"";
         json += s_commands[i].name;
-        json += "\"";
     }
-    json += "]}";
+    json += "\"}";
 
-    return ok("Command list generated", json);
+    return ok("ok", json);
 }
 
 static UiCommandResultData handle_system_get_status(const UiCommandContext& ctx) {
-    ble_router_status();
+    ble_send_status();
     return ok("Status notification queued");
 }
 
@@ -189,8 +190,18 @@ static UiCommandResultData handle_analog_set_monitor_period(const UiCommandConte
 }
 
 static UiCommandResultData handle_analog_read_once(const UiCommandContext& ctx) {
-    ble_router_read();
+    ble_send_analog_read();
     return ok("Analog read notification queued");
+}
+
+static UiCommandResultData handle_analog_ble_read_enable(const UiCommandContext& ctx) {
+    g_system_state.ble_an_read_state.store(BLEAnalogReadState::IDLE, std::memory_order_release);
+    return ok("BLE analog reads enabled");
+}
+
+static UiCommandResultData handle_analog_ble_read_disable(const UiCommandContext& ctx) {
+    g_system_state.ble_an_read_state.store(BLEAnalogReadState::DISABLED, std::memory_order_release);
+    return ok("BLE analog reads disabled");
 }
 
 static UiCommandResultData handle_control_enable(const UiCommandContext& ctx) {
@@ -203,6 +214,120 @@ static UiCommandResultData handle_control_disable(const UiCommandContext& ctx) {
     g_control_enabled.store(false, std::memory_order_release);
     g_system_state.control_state.store(ControlState::OFF, std::memory_order_release);
     return ok("Control disabled");
+}
+
+static UiCommandResultData handle_led_on(const UiCommandContext& ctx) {
+    g_system_state.led_mode.store(LedMode::NORMAL, std::memory_order_release);
+    led_on();
+    return ok("LED on");
+}
+
+static UiCommandResultData handle_led_off(const UiCommandContext& ctx) {
+    g_system_state.led_mode.store(LedMode::NORMAL, std::memory_order_release);
+    led_off();
+    return ok("LED off");
+}
+
+static UiCommandResultData handle_led_blink(const UiCommandContext& ctx) {
+    uint32_t delay1_ms;
+    uint32_t delay2_ms;
+    if (json_get_u32(ctx.json, "delay1_ms", &delay1_ms) && delay1_ms > 0) {
+        g_blink_delay1_ms.store((uint16_t)delay1_ms, std::memory_order_release);
+    }
+    if (json_get_u32(ctx.json, "delay2_ms", &delay2_ms) && delay2_ms > 0) {
+        g_blink_delay2_ms.store((uint16_t)delay2_ms, std::memory_order_release);
+    }
+
+    g_system_state.led_mode.store(LedMode::BLINKING, std::memory_order_release);
+    return ok("LED blinking");
+}
+
+static UiCommandResultData handle_debug_dataset_active(const UiCommandContext& ctx) {
+    ble_send_dataset(get_dataset_active(), g_active_set);
+    return ok("Active dataset notification queued");
+}
+
+static UiCommandResultData handle_debug_dataset_a(const UiCommandContext& ctx) {
+    ble_send_dataset(&g_dataset_a, SignalSet::SET_A);
+    return ok("Dataset A notification queued");
+}
+
+static UiCommandResultData handle_debug_dataset_b(const UiCommandContext& ctx) {
+    ble_send_dataset(&g_dataset_b, SignalSet::SET_B);
+    return ok("Dataset B notification queued");
+}
+
+static UiCommandResultData handle_debug_matrix_a(const UiCommandContext& ctx) {
+    ble_send_status_matrix(SignalSet::SET_A);
+    return ok("Matrix A notification queued");
+}
+
+static UiCommandResultData handle_debug_matrix_b(const UiCommandContext& ctx) {
+    ble_send_status_matrix(SignalSet::SET_B);
+    return ok("Matrix B notification queued");
+}
+
+static UiCommandResultData handle_debug_log_duration(const UiCommandContext& ctx) {
+    ble_send_log_duration();
+    return ok("Duration log notification queued");
+}
+
+static UiCommandResultData handle_debug_gpio_set(const UiCommandContext& ctx) {
+    uint32_t port;
+    uint32_t value;
+    if (!json_get_u32(ctx.json, "port", &port)) {
+        return invalid_arg("Expected numeric port");
+    }
+    if (!json_get_u32(ctx.json, "value", &value)) {
+        return invalid_arg("Expected numeric value");
+    }
+
+    gpio_num_t pin;
+    switch (port) {
+    case 1:
+        pin = PIN_U3_HIGH;
+        break;
+    case 2:
+        pin = PIN_U2_HIGH;
+        break;
+    case 3:
+        pin = PIN_U1_HIGH;
+        break;
+    case 4:
+        pin = PIN_U3_LOW;
+        break;
+    case 5:
+        pin = PIN_U2_LOW;
+        break;
+    case 6:
+        pin = PIN_U1_LOW;
+        break;
+    default:
+        return invalid_arg("port must be 1..6");
+    }
+
+    gpio_set_level(pin, value ? 1 : 0);
+    return ok("GPIO updated");
+}
+
+static UiCommandResultData handle_debug_all_high(const UiCommandContext& ctx) {
+    gpio_set_level(PIN_U1_LOW, 1);
+    gpio_set_level(PIN_U2_LOW, 1);
+    gpio_set_level(PIN_U3_LOW, 1);
+    gpio_set_level(PIN_U1_HIGH, 1);
+    gpio_set_level(PIN_U2_HIGH, 1);
+    gpio_set_level(PIN_U3_HIGH, 1);
+    return ok("All signal pins high");
+}
+
+static UiCommandResultData handle_debug_all_low(const UiCommandContext& ctx) {
+    gpio_set_level(PIN_U1_LOW, 0);
+    gpio_set_level(PIN_U2_LOW, 0);
+    gpio_set_level(PIN_U3_LOW, 0);
+    gpio_set_level(PIN_U1_HIGH, 0);
+    gpio_set_level(PIN_U2_HIGH, 0);
+    gpio_set_level(PIN_U3_HIGH, 0);
+    return ok("All signal pins low");
 }
 
 void ui_command_router_init(void) {
@@ -218,8 +343,22 @@ void ui_command_router_init(void) {
     register_command("signal.set_dead_time", handle_signal_set_dead_time);
     register_command("analog.set_monitor_period", handle_analog_set_monitor_period);
     register_command("analog.read_once", handle_analog_read_once);
+    register_command("analog.ble_read_enable", handle_analog_ble_read_enable);
+    register_command("analog.ble_read_disable", handle_analog_ble_read_disable);
     register_command("control.enable", handle_control_enable);
     register_command("control.disable", handle_control_disable);
+    register_command("led.on", handle_led_on);
+    register_command("led.off", handle_led_off);
+    register_command("led.blink", handle_led_blink);
+    register_command("debug.dataset_active", handle_debug_dataset_active);
+    register_command("debug.dataset_a", handle_debug_dataset_a);
+    register_command("debug.dataset_b", handle_debug_dataset_b);
+    register_command("debug.matrix_a", handle_debug_matrix_a);
+    register_command("debug.matrix_b", handle_debug_matrix_b);
+    register_command("debug.log_duration", handle_debug_log_duration);
+    register_command("debug.gpio_set", handle_debug_gpio_set);
+    register_command("debug.all_high", handle_debug_all_high);
+    register_command("debug.all_low", handle_debug_all_low);
 }
 
 UiCommandResultData ui_command_dispatch(const UiCommand& command) {

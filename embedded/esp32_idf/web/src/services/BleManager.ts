@@ -42,15 +42,6 @@ class BleManager {
         await this.service.disconnect();
     }
 
-    async send(command: string) {
-        const { isConnected } = useBleStore.getState();
-        if (!isConnected) {
-            console.log("Not connected, trying to reconnect...");
-            await this.connect();
-        }
-        await this.service.send(command);
-    }
-
     async sendBinary(data: Uint8Array) {
         const { isConnected } = useBleStore.getState();
         if (!isConnected) await this.connect();
@@ -159,21 +150,7 @@ class BleManager {
             }
         }
 
-        // 2. Fallback to ASCII decoding
-        const decoder = new TextDecoder();
-        const data = decoder.decode(value);
-
-        // Log raw message if it's a LOG or STATUS
-        if (data.includes("LOG") || data.includes("STATUS")) {
-            useBleStore.getState().addLog(data);
-            if (data.includes("STATUS")) {
-                const statusMsg = data.replace("STATUS:", "").replace(/\s+$/, ""); // Remove trailing spaces
-                useBleStore.getState().setLastStatusMessage(statusMsg);
-            }
-            return;
-        }
-
-        console.warn("Unrecognized ASCII data from BLE:", data);
+        console.warn("Unrecognized binary data from BLE:", uint8Array);
     };
 }
 

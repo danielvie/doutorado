@@ -46,35 +46,13 @@ esp_err_t ble_send_message(const char* data, uint16_t len, BLEMode mode = BLEMod
 esp_err_t ble_send_log(BleLogLevel level, const char* text);
 esp_err_t ble_send_protobuf(const BlePacket* packet);
 
-// Router function to handle incoming BLE write commands
-void ble_router_set_signal(std::string& message);
-
-void ble_router_print_active_dataset(void);
-void ble_router_print_dataset_a(void);
-void ble_router_print_dataset_b(void);
-
-void ble_router_message_set_alpha(std::string& message);
-
 void ble_router(esp_ble_gatts_cb_param_t *param);
 
-void ble_router_ble_read(Status status);
-void ble_router_blink(void);
-void ble_router_blink_n(uint16_t blink_d1);
-void ble_router_blink_nn(uint16_t blink_d1, uint16_t blink_d2);
-void ble_router_led_off(NoteData& msg);
-void ble_router_led_on(NoteData& msg);
-void ble_router_log_duration(void);
-void ble_router_message_set_alpha(std::string& message);
-void ble_router_read(void);
-void ble_router_set_port(uint16_t port, uint16_t value);
-void ble_router_set_signal(std::string& message);
-void ble_router_signal_start();
-void ble_router_signal_stop();
-void ble_router_all_high(void);
-void ble_router_all_low(void);
-void ble_router_ctrl(ControlState state);
-void ble_router_status(void);
-void ble_router_status_matrix(SignalSet set);
+void ble_send_analog_read(void);
+void ble_send_dataset(DataSet* ds, SignalSet set);
+void ble_send_log_duration(void);
+void ble_send_status(void);
+void ble_send_status_matrix(SignalSet set);
 
 // check is there is a client connected
 bool ble_is_connected();

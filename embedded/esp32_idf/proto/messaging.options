@@ -7,4 +7,4 @@ UiCommand.json max_size:384
 UiCommandResult.name max_size:64
 UiCommandResult.code max_size:32
 UiCommandResult.message max_size:128
-UiCommandResult.json max_size:384
+UiCommandResult.json max_size:512

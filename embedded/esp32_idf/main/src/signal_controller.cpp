@@ -196,12 +196,9 @@ void signal_update_from_string(const std::string &message) {
         target_signalset = SignalSet::SET_A;
     }
 
-    // 2. Parse the signal string
+    // 2. Parse the signal pattern payload
     std::vector<uint32_t> times;
     std::vector<uint32_t> modes;
-
-    // // clean "SIGNAL:{}" prefix
-
 
     if (parse_signal(message, times, modes) != 1) {
         ESP_LOGE(TAG, "Failed to parse signal string");
@@ -257,10 +254,6 @@ static void signal_loop_task(void *arg) {
     }
 
     led_on();
-
-    uint32_t last_d6 = 2;
-    uint32_t last_d5 = 2;
-    uint32_t last_d4 = 2;
 
     while (g_system_state.signal_state.load(std::memory_order_acquire) == SignalState::RUNNING) {
 

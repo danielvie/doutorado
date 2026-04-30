@@ -135,13 +135,6 @@ static bool uuid_from_string_le(const char* str, uint8_t out[16]) {
     return true;
 }
 
-extern TaskHandle_t blink_task_handle;
-extern volatile uint16_t blink_delay1_ms;
-extern volatile uint16_t blink_delay2_ms;
-
-extern void blink_stop_task(void);
-extern void blink_create_task(void);
-
 esp_err_t ble_send_message(const char* data, uint16_t len, BLEMode mode) {
     if (gl_profile_tab[PROFILE_APP_ID].conn_id == 0xFFFF) {
         ESP_LOGW(TAG, "Cannot send message: no client connected");
@@ -218,12 +211,6 @@ static void example_write_event_env(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_par
     }
 }
 
-// ----------------------------------------------------------------------
-// UPDATED BLE ROUTER
-// Static NoteData reused across calls (BLE callback is single-threaded)
-// ----------------------------------------------------------------------
-static NoteData s_router_msg(120);
-
 void ble_router(esp_ble_gatts_cb_param_t* param) {
     if (param->write.len > 0) {
         // 1. Check for binary prefix 0x02 (OtaCommand Protobuf)
@@ -263,140 +250,11 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
             ble_send_protobuf(&result_packet);
             return;
         }
-
-        note_clear(s_router_msg);
-
-        // Copy message to stack buffer (bounded by MTU = 500)
-        uint16_t len = param->write.len;
-        if (len >= 500) len = 499;
-        char msg_buf[500];
-        char msg_lower[500];
-        memcpy(msg_buf, param->write.value, len);
-        msg_buf[len] = '\0';
-
-        // Make lowercase copy for case-insensitive matching
-        for (uint16_t i = 0; i <= len; i++) {
-            msg_lower[i] = (char)tolower((unsigned char)msg_buf[i]);
-        }
-
-        // treat cases
-        uint16_t blink_d1 = 0, blink_d2 = 0;
-        if (sscanf(msg_lower, "blink:%hu,%hu", &blink_d1, &blink_d2) == 2) {
-            ble_router_blink_nn(blink_d1, blink_d2);
-        } else if (sscanf(msg_lower, "blink:%hu", &blink_d1) == 1) {
-            ble_router_blink_n(blink_d1);
-        } else if (strcmp(msg_lower, "blink") == 0) {
-            ble_router_blink();
-        } else if (sscanf(msg_lower, "port:%hu,%hu", &blink_d1, &blink_d2) == 2) {
-            uint16_t port = blink_d1;
-            uint16_t value = blink_d2;
-            ble_router_set_port(port, value);
-        } else if (sscanf(msg_lower, "port:%hu,high", &blink_d1) == 1) {
-            ble_router_set_port(blink_d1, 1);
-        } else if (sscanf(msg_lower, "port:%hu,low", &blink_d1) == 1) {
-            ble_router_set_port(blink_d1, 0);
-        } else if (sscanf(msg_lower, "cycles:%u", (unsigned int*)&g_cycle_nrun) == 1) {
-            ESP_LOGI(TAG, "Setting `g_cycle_nrun= %u`", (unsigned int)g_cycle_nrun);
-        } else if (sscanf(msg_lower, "us_delay:%u", (unsigned int*)&g_dead_time_cycles_up) == 1) {
-            g_dead_time_cycles_down = g_dead_time_cycles_up;
-            ESP_LOGI(TAG, "Setting `g_dead_time_cycles_up= %u`", (unsigned int)g_dead_time_cycles_up);
-            ESP_LOGI(TAG, "Setting `g_dead_time_cycles_down= %u`", (unsigned int)g_dead_time_cycles_down);
-            signal_precompute_steps(&g_dataset_a);
-            signal_precompute_steps(&g_dataset_b);
-        } else if (sscanf(msg_lower, "us_delay_up:%u", (unsigned int*)&g_dead_time_cycles_up) == 1) {
-            ESP_LOGI(TAG, "Setting `g_dead_time_cycles_up= %u`", (unsigned int)g_dead_time_cycles_up);
-            signal_precompute_steps(&g_dataset_a);
-            signal_precompute_steps(&g_dataset_b);
-        } else if (sscanf(msg_lower, "us_delay_down:%u", (unsigned int*)&g_dead_time_cycles_down) == 1) {
-            ESP_LOGI(TAG, "Setting `g_dead_time_cycles_down= %u`", (unsigned int)g_dead_time_cycles_down);
-            signal_precompute_steps(&g_dataset_a);
-            signal_precompute_steps(&g_dataset_b);
-        } else if (sscanf(msg_lower, "an_monitor_ms:%u", (unsigned int*)&g_analog_monitor_period_ms) == 1) {
-            ESP_LOGI(TAG, "Setting `g_analog_monitor_period_ms = %u`", (unsigned int)g_analog_monitor_period_ms);
-        } else if (strcmp(msg_lower, "on") == 0) {
-            ble_router_led_on(s_router_msg);
-        } else if (strcmp(msg_lower, "off") == 0) {
-            ble_router_led_off(s_router_msg);
-        } else if (strcmp(msg_lower, "read") == 0) {
-            ble_router_read();
-        } else if (strcmp(msg_lower, "active_dataset") == 0) {
-            ble_router_print_active_dataset();
-        } else if (strcmp(msg_lower, "print_dataset_a") == 0) {
-            ble_router_print_dataset_a();
-        } else if (strcmp(msg_lower, "print_dataset_b") == 0) {
-            ble_router_print_dataset_b();
-        } else if (strncmp(msg_buf, "SIGNAL:", 7) == 0) {
-            std::string payload(msg_buf + 7);
-            ble_router_set_signal(payload);
-        } else if (strncmp(msg_buf, "SET_ALPHA:", 10) == 0) {
-            std::string payload(msg_buf + 10);
-            ble_router_message_set_alpha(payload);
-        } else if (strcmp(msg_lower, "status_matrix_a") == 0) {
-            ble_router_status_matrix(SignalSet::SET_A);
-        } else if (strcmp(msg_lower, "status_matrix_b") == 0) {
-            ble_router_status_matrix(SignalSet::SET_B);
-        } else if (strcmp(msg_lower, "status") == 0) {
-            ble_router_status();
-        } else if (strcmp(msg_lower, "log_duration") == 0) {
-            ble_router_log_duration();
-        } else if (strcmp(msg_lower, "ble_read_on") == 0) {
-            ble_router_ble_read(Status::ON);
-        } else if (strcmp(msg_lower, "ble_read_off") == 0) {
-            ble_router_ble_read(Status::OFF);
-        } else if (strcmp(msg_lower, "high") == 0) {
-            ble_router_all_high();
-        } else if (strcmp(msg_lower, "low") == 0) {
-            ble_router_all_low();
-        } else if (strcmp(msg_lower, "start") == 0) {
-            ble_router_signal_start();
-        } else if (strcmp(msg_lower, "stop") == 0) {
-            ble_router_signal_stop();
-        } else if (strcmp(msg_lower, "control_on") == 0) {
-            ble_router_ctrl(ControlState::ON);
-        } else if (strcmp(msg_lower, "control_off") == 0) {
-            ble_router_ctrl(ControlState::OFF);
-        } else {
-            ESP_LOGI(TAG, "Unrecognized write: '%s' (len=%u)", msg_buf, len);
-        }
+        ESP_LOGW(TAG, "Rejected write with unsupported binary prefix 0x%02x", param->write.value[0]);
     }
 }
 
-void ble_router_blink_nn(uint16_t blink_d1, uint16_t blink_d2) {
-    // blink:%hu,%hu
-    if (blink_d1 > 0 && blink_d2 > 0) {
-        g_blink_delay1_ms.store(blink_d1, std::memory_order_release);
-        g_blink_delay2_ms.store(blink_d2, std::memory_order_release);
-        ESP_LOGI(TAG, "Blink delays set to D1=%u ms, D2=%u ms", blink_d1, blink_d2);
-        blink_create_task();
-    }
-}
-
-void ble_router_blink_n(uint16_t blink_d1) {
-    if (blink_d1 > 0) {
-        g_blink_delay1_ms.store(blink_d1, std::memory_order_release);
-        ESP_LOGI(TAG, "Blink delay set to %u ms", blink_d1);
-        blink_create_task();
-    }
-}
-
-void ble_router_blink(void) {
-    ESP_LOGI(TAG, "Start blinking (1s period)");
-    blink_create_task();
-}
-
-void ble_router_led_on(NoteData& msg) {
-    ESP_LOGI(TAG, "LED ON!");
-    blink_stop_task();
-    led_on();
-}
-
-void ble_router_led_off(NoteData& msg) {
-    ESP_LOGI(TAG, "LED OFF!");
-    blink_stop_task();
-    led_off();
-}
-
-void ble_router_read(void) {
+void ble_send_analog_read(void) {
     float an3 = analog_read_port(AnalogPort::AN3);
     float an5 = analog_read_port(AnalogPort::AN5);
     float an6 = analog_read_port(AnalogPort::AN6);
@@ -413,63 +271,7 @@ void ble_router_read(void) {
     ESP_LOGI(TAG, "Manual Read - an3: %.4f, an5: %.4f, an6: %.4f", an3, an5, an6);
 }
 
-void ble_router_set_signal(std::string& message) {
-    ESP_LOGI(TAG, "Updating Signal Pattern via Double Buffer...");
-    signal_update_from_string(message);
-
-    ESP_LOGI(TAG, "SIGNAL UPDATED");
-}
-
-void ble_router_ctrl(ControlState state) {
-    auto msg = std::make_unique<NoteData>(NOTE_BLE_BUFFER_SIZE);
-
-    g_control_enabled = (state == ControlState::ON);
-    g_system_state.control_state = state;
-
-    note_clear(*msg);
-    note_add_text(*msg, "\nSTATUS\n");
-    if (g_control_enabled) {
-        note_add_text(*msg, "CONTROL::ON");
-        ESP_LOGI(TAG, "CONTROL::ON");
-    } else {
-        note_add_text(*msg, "CONTROL::OFF");
-        ESP_LOGI(TAG, "CONTROL::OFF");
-    }
-
-    note_ble_send(*msg);
-}
-
-void ble_router_set_port(uint16_t port, uint16_t value) {
-    ESP_LOGI(TAG, "Setting %d to port %d", value, port);
-
-    switch(port) {
-        case 6:
-            gpio_set_level(PIN_U1_LOW, value);
-            break;
-        case 5:
-            gpio_set_level(PIN_U2_LOW, value);
-            break;
-        case 4:
-            gpio_set_level(PIN_U3_LOW, value);
-            break;
-        case 3:
-            gpio_set_level(PIN_U1_HIGH, value);
-            break;
-        case 2:
-            gpio_set_level(PIN_U2_HIGH, value);
-            break;
-        case 1:
-            gpio_set_level(PIN_U3_HIGH, value);
-            break;
-        default:
-            ESP_LOGE(TAG, "could not find a valid config");
-            break;
-    }
-
-
-}
-
-void _ble_router_print_dataset(DataSet *ds, SignalSet set) {
+void ble_send_dataset(DataSet *ds, SignalSet set) {
     auto msg = std::make_unique<NoteData>(NOTE_BLE_BUFFER_SIZE);
 
     note_add_text(*msg, "\nSTATUS\n");
@@ -483,33 +285,7 @@ void _ble_router_print_dataset(DataSet *ds, SignalSet set) {
     note_ble_send(*msg);
 }
 
-void ble_router_print_dataset_a(void) {
-    // (message_lower == "print_dataset_a")
-
-    DataSet* ds = &g_dataset_a;
-    _ble_router_print_dataset(ds, SignalSet::SET_A);
-}
-
-void ble_router_print_dataset_b(void) {
-    // (message_lower == "print_dataset_b")
-
-    DataSet* ds = &g_dataset_b;
-    _ble_router_print_dataset(ds, SignalSet::SET_B);
-}
-
-void ble_router_print_active_dataset(void) {
-    // (message_lower == "active_dataset")
-
-    DataSet* ds = get_dataset_active();
-    _ble_router_print_dataset(ds, g_active_set);
-}
-
-void ble_router_message_set_alpha(std::string& message) {
-    float alpha = std::stof(message);
-    signal_set_alpha(alpha);
-}
-
-void ble_router_status(void) {
+void ble_send_status(void) {
     BlePacket packet = BlePacket_init_zero;
     packet.which_payload = BlePacket_status_tag;
     
@@ -558,9 +334,7 @@ void ble_router_status(void) {
     ESP_LOGI(TAG, "Sent binary STATUS update");
 }
 
-void ble_router_status_matrix(SignalSet set) {
-    // status_matrix_a
-
+void ble_send_status_matrix(SignalSet set) {
     auto msg = std::make_unique<NoteData>(NOTE_BLE_BUFFER_SIZE);
 
     DataSet* ds;
@@ -578,7 +352,7 @@ void ble_router_status_matrix(SignalSet set) {
     note_ble_send(*msg);
 }
 
-void ble_router_log_duration(void) {
+void ble_send_log_duration(void) {
     auto msg = std::make_unique<NoteData>(NOTE_BLE_BUFFER_SIZE);
 
     note_add_text(*msg, "\nSTATUS time duration:\n\n");
@@ -589,48 +363,6 @@ void ble_router_log_duration(void) {
 
     note_ble_send(*msg);
     ESP_LOGI(TAG, "%s", msg->buffer);
-}
-
-void ble_router_ble_read(Status status) {
-    switch (status)
-    {
-    case Status::ON:
-        g_system_state.ble_an_read_state.store(BLEAnalogReadState::IDLE, std::memory_order_release);
-        break;
-    case Status::OFF:
-        g_system_state.ble_an_read_state.store(BLEAnalogReadState::DISABLED, std::memory_order_release);
-        break;
-    }
-}
-
-void ble_router_all_high() {
-    ESP_LOGI(TAG, "Setting ALL ports HIGH");
-    gpio_set_level(PIN_U1_LOW,  1);
-    gpio_set_level(PIN_U2_LOW,  1);
-    gpio_set_level(PIN_U3_LOW,  1);
-    gpio_set_level(PIN_U1_HIGH, 1);
-    gpio_set_level(PIN_U2_HIGH, 1);
-    gpio_set_level(PIN_U3_HIGH, 1);
-}
-
-void ble_router_all_low() {
-    ESP_LOGI(TAG, "Setting ALL ports LOW");
-    gpio_set_level(PIN_U1_LOW,  0);
-    gpio_set_level(PIN_U2_LOW,  0);
-    gpio_set_level(PIN_U3_LOW,  0);
-    gpio_set_level(PIN_U1_HIGH, 0);
-    gpio_set_level(PIN_U2_HIGH, 0);
-    gpio_set_level(PIN_U3_HIGH, 0);
-}
-
-void ble_router_signal_start() {
-    // start
-    signal_start_continuous();
-}
-
-void ble_router_signal_stop() {
-    // stop
-    signal_stop();
 }
 
 static void profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t* param) {

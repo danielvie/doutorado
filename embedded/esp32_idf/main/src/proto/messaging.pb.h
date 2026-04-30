@@ -134,7 +134,7 @@ typedef struct _UiCommandResult {
     bool ok;
     char code[32];
     char message[128];
-    char json[384];
+    char json[512];
 } UiCommandResult;
 
 /* Top-level message for BLE communication */
@@ -405,7 +405,7 @@ extern const pb_msgdesc_t BlePacket_msg;
 #define BlePacket_fields &BlePacket_msg
 
 /* Maximum encoded size of messages (where known) */
-#define BlePacket_size                           625
+#define BlePacket_size                           753
 #define LogMessage_size                          132
 #define OtaBegin_size                            6
 #define OtaChunk_size                            521
@@ -415,7 +415,7 @@ extern const pb_msgdesc_t BlePacket_msg;
 #define PROTO_MESSAGING_PB_H_MAX_SIZE            BlePacket_size
 #define SystemStatus_size                        74
 #define Telemetry_size                           21
-#define UiCommandResult_size                     622
+#define UiCommandResult_size                     750
 #define UiCommand_size                           457
 
 #ifdef __cplusplus

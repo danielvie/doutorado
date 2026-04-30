@@ -110,12 +110,68 @@ export const HelpPanel: React.FC<{
             description="Requests one analog telemetry sample"
           />
           <CommandItem
+            commands="analog.ble_read_enable"
+            description="Enables continuous BLE analog read state"
+          />
+          <CommandItem
+            commands="analog.ble_read_disable"
+            description="Disables continuous BLE analog read state"
+          />
+          <CommandItem
             commands="control.enable"
             description="Enables closed-loop control"
           />
           <CommandItem
             commands="control.disable"
             description="Disables closed-loop control"
+          />
+          <CommandItem
+            commands="led.on"
+            description="Turns the onboard LED on"
+          />
+          <CommandItem
+            commands="led.off"
+            description="Turns the onboard LED off"
+          />
+          <CommandItem
+            commands='led.blink {"delay1_ms":100,"delay2_ms":100}'
+            description="Sets LED blink mode, optionally with blink delays"
+          />
+          <CommandItem
+            commands="debug.dataset_active"
+            description="Sends the active signal dataset"
+          />
+          <CommandItem
+            commands="debug.dataset_a"
+            description="Sends signal dataset A"
+          />
+          <CommandItem
+            commands="debug.dataset_b"
+            description="Sends signal dataset B"
+          />
+          <CommandItem
+            commands="debug.matrix_a"
+            description="Sends the precomputed matrix for dataset A"
+          />
+          <CommandItem
+            commands="debug.matrix_b"
+            description="Sends the precomputed matrix for dataset B"
+          />
+          <CommandItem
+            commands="debug.log_duration"
+            description="Sends cycle duration diagnostics"
+          />
+          <CommandItem
+            commands='debug.gpio_set {"port":1,"value":1}'
+            description="Sets one debug GPIO port"
+          />
+          <CommandItem
+            commands="debug.all_high"
+            description="Sets all signal GPIO pins high"
+          />
+          <CommandItem
+            commands="debug.all_low"
+            description="Sets all signal GPIO pins low"
           />
         </ul>
       </div>
