@@ -233,8 +233,8 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
 
             if (pb_decode(&stream, UiCommand_fields, &command)) {
                 ESP_LOGI(TAG, "UI command: %s", command.name);
-                UiCommandResultData result = ui_command_dispatch(command);
-                ui_command_fill_result_packet(&result_packet, command, result);
+                UiCommandResultData result = ble_ui_command_dispatch(command);
+                ble_ui_command_fill_result_packet(&result_packet, command, result);
             } else {
                 ESP_LOGE(TAG, "Failed to decode UiCommand: %s", PB_GET_ERROR(&stream));
                 UiCommand failed_command = UiCommand_init_zero;
@@ -244,7 +244,7 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
                     .message = PB_GET_ERROR(&stream),
                     .json = "",
                 };
-                ui_command_fill_result_packet(&result_packet, failed_command, result);
+                ble_ui_command_fill_result_packet(&result_packet, failed_command, result);
             }
 
             ble_send_protobuf(&result_packet);

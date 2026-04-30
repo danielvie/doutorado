@@ -157,6 +157,14 @@ static UiCommandResultData handle_signal_set_cycle_interval(const UiCommandConte
     return ok("Cycle interval updated");
 }
 
+static void set_dead_time_cycles(uint32_t up_cycles, uint32_t down_cycles) {
+    g_dead_time_cycles_up = up_cycles;
+    g_dead_time_cycles_down = down_cycles;
+    signal_precompute_steps(&g_dataset_a);
+    signal_precompute_steps(&g_dataset_b);
+    ESP_LOGI(TAG, "Set dead time up=%lu down=%lu cycles", up_cycles, down_cycles);
+}
+
 static UiCommandResultData handle_signal_set_dead_time(const UiCommandContext& ctx) {
     uint32_t up_cycles;
     uint32_t down_cycles;
@@ -167,11 +175,17 @@ static UiCommandResultData handle_signal_set_dead_time(const UiCommandContext& c
         return invalid_arg("Expected numeric down_cycles");
     }
 
-    g_dead_time_cycles_up = up_cycles;
-    g_dead_time_cycles_down = down_cycles;
-    signal_precompute_steps(&g_dataset_a);
-    signal_precompute_steps(&g_dataset_b);
-    ESP_LOGI(TAG, "Set dead time up=%lu down=%lu cycles", up_cycles, down_cycles);
+    set_dead_time_cycles(up_cycles, down_cycles);
+    return ok("Dead time updated");
+}
+
+static UiCommandResultData handle_signal_set_dead_time_all(const UiCommandContext& ctx) {
+    uint32_t cycles;
+    if (!json_get_u32(ctx.json, "cycles", &cycles)) {
+        return invalid_arg("Expected numeric cycles");
+    }
+
+    set_dead_time_cycles(cycles, cycles);
     return ok("Dead time updated");
 }
 
@@ -341,6 +355,7 @@ void ui_command_router_init(void) {
     register_command("signal.set_pattern", handle_signal_set_pattern);
     register_command("signal.set_cycle_interval", handle_signal_set_cycle_interval);
     register_command("signal.set_dead_time", handle_signal_set_dead_time);
+    register_command("signal.set_dead_time_all", handle_signal_set_dead_time_all);
     register_command("analog.set_monitor_period", handle_analog_set_monitor_period);
     register_command("analog.read_once", handle_analog_read_once);
     register_command("analog.ble_read_enable", handle_analog_ble_read_enable);
@@ -361,7 +376,7 @@ void ui_command_router_init(void) {
     register_command("debug.all_low", handle_debug_all_low);
 }
 
-UiCommandResultData ui_command_dispatch(const UiCommand& command) {
+UiCommandResultData ble_ui_command_dispatch(const UiCommand& command) {
     cJSON* json = cJSON_Parse(command.json[0] ? command.json : "{}");
     if (!json) {
         return invalid_arg("Payload must be valid JSON");
@@ -397,7 +412,7 @@ static void copy_field(char* dest, size_t dest_size, const char* value) {
     copy_field(dest, dest_size, std::string(value ? value : ""));
 }
 
-void ui_command_fill_result_packet(BlePacket* packet,
+void ble_ui_command_fill_result_packet(BlePacket* packet,
                                    const UiCommand& command,
                                    const UiCommandResultData& result) {
     *packet = BlePacket_init_zero;

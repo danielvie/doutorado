@@ -16,3 +16,22 @@
 - [ ] Refactor `ImageModal.tsx` to accept images as props (Deep Module)
 - [ ] Move Mock Data logic from `Header.tsx` to `services/MockBleService.ts`
 - [ ] Add bounds check for `us` delay in `signal_controller.cpp`
+
+# Signal Loop Organization
+- [x] Split `signal_loop_task` into focused static helpers
+- [x] Keep interrupt-disabled GPIO playback in one timing-critical helper
+- [x] Verify the refactor builds or report any build blocker
+
+# Signal Pattern Comments
+- [x] Clarify comments inside `execute_signal_pattern`
+- [x] Verify comment-only change
+
+# Help Panel Command Filter
+- [x] Add command search field to `HelpPanel`
+- [x] Render filtered command list
+- [x] Run web build and report `Agentation` unused import blocker
+
+# Shared Dead Time Command
+- [x] Add BLE UI command for equal up/down dead time
+- [x] Document command in Help panel
+- [x] Verify C++ build

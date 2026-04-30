@@ -227,7 +227,8 @@ function App() {
         })}
       </div>
       {process.env.NODE_ENV === "development" && (
-        <Agentation endpoint="http://localhost:4747" />
+        // <Agentation endpoint="http://localhost:4747" />
+        <Agentation/>
       )}
     </Layout>
   );

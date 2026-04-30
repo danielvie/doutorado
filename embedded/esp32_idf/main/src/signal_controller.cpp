@@ -236,140 +236,161 @@ void signal_update_from_string(const std::string &message) {
 // ---------------------------------------------------------------------------
 // CONTINUOUS LOOP TASK (High Priority)
 // ---------------------------------------------------------------------------
-static void signal_loop_task(void *arg) {
-    ESP_LOGI(TAG, "Continuous Signal Task Started on Core %d",
-             xPortGetCoreID());
-
-    // Pointer to the data we are currently looping over
-    // Start with whatever init set up (Set A)
+struct SignalLoopContext {
     const DataSet *dataset = &g_dataset_a;
+    int32_t current_correction[MAX_SIGNAL_SIZE];
+    float dtk_buffer[MAX_SIGNAL_SIZE];
+};
 
-    // Local buffers for corrections and predictions
-    static int32_t current_correction[MAX_SIGNAL_SIZE];
-    static float dtk_buffer[MAX_SIGNAL_SIZE];
+static bool signal_is_running() {
+    return g_system_state.signal_state.load(std::memory_order_acquire) ==
+           SignalState::RUNNING;
+}
 
+static void reset_control_corrections(SignalLoopContext &ctx) {
     for (int i = 0; i < MAX_SIGNAL_SIZE; ++i) {
-        current_correction[i] = 0;
-        dtk_buffer[i] = 0.0f;
+        ctx.current_correction[i] = 0;
+        ctx.dtk_buffer[i] = 0.0f;
+    }
+}
+
+static void apply_pending_dataset_swap(SignalLoopContext &ctx) {
+    if (!g_ds_update_pending.load(std::memory_order_acquire)) {
+        return;
     }
 
-    led_on();
-
-    while (g_system_state.signal_state.load(std::memory_order_acquire) == SignalState::RUNNING) {
-
-        // ---------------------------------------------------
-        // 1. PRE-CYCLE PREPARATION (Interrupts ENABLED)
-        // ---------------------------------------------------
-        
-        // CHECK FOR UPDATES (Swap logic)
-        if (g_ds_update_pending.load(std::memory_order_acquire)) {
-            if (g_active_set.load(std::memory_order_relaxed) == SignalSet::SET_A) {
-                dataset = &g_dataset_b;
-                g_active_set.store(SignalSet::SET_B, std::memory_order_relaxed);
-            } else {
-                dataset = &g_dataset_a;
-                g_active_set.store(SignalSet::SET_A, std::memory_order_relaxed);
-            }
-            g_ds_update_pending.store(false, std::memory_order_release);
-            for (int i = 0; i < MAX_SIGNAL_SIZE; ++i) current_correction[i] = 0;
-        }
-
-        // CONTROL ACTION
-        if (g_control_enabled && g_adc_fresh.load(std::memory_order_acquire)) {
-            g_adc_fresh.store(false, std::memory_order_release);
-            if (dataset->gain_k.is_valid && dataset->size > 1) {
-                const uint32_t N = dataset->size;
-                const uint32_t p = N - 1;
-                float an3 = g_adc_an3.load(std::memory_order_acquire);
-                float an5 = g_adc_an5.load(std::memory_order_acquire);
-                float an6 = g_adc_an6.load(std::memory_order_acquire);
-
-                float e1 = an3 - dataset->target[0];
-                float e2 = an5 - dataset->target[1];
-                float e3 = an6 - dataset->target[2];
-
-                uint32_t t0 = esp_cpu_get_cycle_count();
-                const float* k_ptr = dataset->gain_k.values;
-                const int cols = dataset->gain_k.cols;
-                
-                for (uint32_t j = 0; j < p; j++) {
-                    dtk_buffer[j] = -(k_ptr[j * cols + 0] * e1 + 
-                                      k_ptr[j * cols + 1] * e2 + 
-                                      k_ptr[j * cols + 2] * e3);
-                }
-
-                uint32_t t1 = esp_cpu_get_cycle_count();
-                g_log_duration.matrix_multiply_us = (t1 - t0) / 240;
-
-                condition_dtk(dtk_buffer, p, dataset->time_durations);
-                compute_duration_corrections(dataset->time_durations, dtk_buffer,
-                                             current_correction, p, N);
-            }
-        }
-
-        // ---------------------------------------------------
-        // 2. EXECUTE PATTERN (Interrupts DISABLED for jitter-free timing)
-        // ---------------------------------------------------
-        portDISABLE_INTERRUPTS();
-        
-        uint8_t sz = dataset->size;
-        for (int i = 0; i < sz; i++) {
-            const SignalStep &step = dataset->steps[i];
-            uint32_t us = step.duration_us;
-
-            if (g_control_enabled) {
-                int32_t corrected = (int32_t)us + current_correction[i];
-                if (corrected < 1) corrected = 1;
-                us = (uint32_t)corrected;
-            }
-
-            if (step.clear_mask) {
-                GPIO.out_w1tc = step.clear_mask;
-                helper_delay_cycles(step.dead_time);
-                if (us > 0) us--; 
-            }
-
-            GPIO.out_w1tc = step.clr_mask;
-            GPIO.out_w1ts = step.set_mask;
-
-            if (us > 0) {
-                esp_rom_delay_us(us);
-            }
-        }
-        
-        // Re-enable interrupts at the end of the pattern cycle
-        portENABLE_INTERRUPTS();
-
-        // ---------------------------------------------------
-        // 3. POST-CYCLE MAINTENANCE (Interrupts ENABLED)
-        // ---------------------------------------------------
-        
-        // Trigger periodic ADC monitoring if enabled
-        if (g_system_state.ble_an_read_state != BLEAnalogReadState::DISABLED) {
-            g_cycle_count = (g_cycle_count + 1) % g_cycle_nrun;
-            if (g_cycle_count == 0) {
-                g_system_state.ble_an_read_state = BLEAnalogReadState::READING;
-                // SAFE: interrupts are enabled
-                xSemaphoreGive(sem_analog_read_trigger);
-            }
-        }
-
-        // Yield briefly to reset Watchdog and allow background system tasks
-        vTaskDelay(0);
+    // The BLE task writes the inactive buffer, then sets this flag. Swap only
+    // between complete pattern cycles so the playback loop never sees tearing.
+    if (g_active_set.load(std::memory_order_relaxed) == SignalSet::SET_A) {
+        ctx.dataset = &g_dataset_b;
+        g_active_set.store(SignalSet::SET_B, std::memory_order_relaxed);
+    } else {
+        ctx.dataset = &g_dataset_a;
+        g_active_set.store(SignalSet::SET_A, std::memory_order_relaxed);
     }
 
-    // -------------------------------------------------------
-    // RE-ENABLE INTERRUPTS
-    // -------------------------------------------------------
+    g_ds_update_pending.store(false, std::memory_order_release);
+    reset_control_corrections(ctx);
+}
+
+static void update_control_corrections(SignalLoopContext &ctx) {
+    if (!g_control_enabled.load(std::memory_order_acquire) ||
+        !g_adc_fresh.load(std::memory_order_acquire)) {
+        return;
+    }
+
+    g_adc_fresh.store(false, std::memory_order_release);
+    if (!ctx.dataset->gain_k.is_valid || ctx.dataset->size <= 1) {
+        return;
+    }
+
+    const uint32_t N = ctx.dataset->size;
+    const uint32_t p = N - 1;
+    float an3 = g_adc_an3.load(std::memory_order_acquire);
+    float an5 = g_adc_an5.load(std::memory_order_acquire);
+    float an6 = g_adc_an6.load(std::memory_order_acquire);
+
+    float e1 = an3 - ctx.dataset->target[0];
+    float e2 = an5 - ctx.dataset->target[1];
+    float e3 = an6 - ctx.dataset->target[2];
+
+    uint32_t t0 = esp_cpu_get_cycle_count();
+    const float *k_ptr = ctx.dataset->gain_k.values;
+    const int cols = ctx.dataset->gain_k.cols;
+
+    for (uint32_t j = 0; j < p; j++) {
+        ctx.dtk_buffer[j] = -(k_ptr[j * cols + 0] * e1 +
+                              k_ptr[j * cols + 1] * e2 +
+                              k_ptr[j * cols + 2] * e3);
+    }
+
+    uint32_t t1 = esp_cpu_get_cycle_count();
+    g_log_duration.matrix_multiply_us = (t1 - t0) / 240;
+
+    condition_dtk(ctx.dtk_buffer, p, ctx.dataset->time_durations);
+    compute_duration_corrections(ctx.dataset->time_durations, ctx.dtk_buffer,
+                                 ctx.current_correction, p, N);
+}
+
+static void execute_signal_pattern(const SignalLoopContext &ctx) {
+    // Keep the interrupt-disabled block limited to GPIO writes and exact delays.
+    // No logging, allocation, parsing, or semaphore calls belong in this helper.
+    portDISABLE_INTERRUPTS();
+
+    uint8_t sz = ctx.dataset->size;
+    for (int i = 0; i < sz; i++) {
+        const SignalStep &step = ctx.dataset->steps[i];
+        uint32_t us = step.duration_us;
+
+        if (g_control_enabled.load(std::memory_order_acquire)) {
+            int32_t corrected = (int32_t)us + ctx.current_correction[i];
+            if (corrected < 1) corrected = 1;
+            us = (uint32_t)corrected;
+        }
+
+        if (step.clear_mask) {
+            GPIO.out_w1tc = step.clear_mask;
+            helper_delay_cycles(step.dead_time);
+            if (us > 0) us--;
+        }
+
+        GPIO.out_w1tc = step.clr_mask;
+        GPIO.out_w1ts = step.set_mask;
+
+        if (us > 0) {
+            esp_rom_delay_us(us);
+        }
+    }
+
+    portENABLE_INTERRUPTS();
+}
+
+static void trigger_periodic_analog_read() {
+    if (g_system_state.ble_an_read_state.load(std::memory_order_acquire) ==
+        BLEAnalogReadState::DISABLED) {
+        return;
+    }
+
+    g_cycle_count = (g_cycle_count + 1) % g_cycle_nrun;
+    if (g_cycle_count == 0) {
+        g_system_state.ble_an_read_state.store(BLEAnalogReadState::READING,
+                                               std::memory_order_release);
+        xSemaphoreGive(sem_analog_read_trigger);
+    }
+}
+
+static void stop_signal_outputs() {
     portENABLE_INTERRUPTS();
 
-    // Ensure pins are low
     gpio_set_level(PIN_U1_LOW, 0);
     gpio_set_level(PIN_U2_LOW, 0);
     gpio_set_level(PIN_U3_LOW, 0);
     gpio_set_level(PIN_U1_HIGH, 0);
     gpio_set_level(PIN_U2_HIGH, 0);
     gpio_set_level(PIN_U3_HIGH, 0);
+}
+
+static void signal_loop_task(void *arg) {
+    ESP_LOGI(TAG, "Continuous Signal Task Started on Core %d",
+             xPortGetCoreID());
+
+    static SignalLoopContext ctx;
+    ctx.dataset = &g_dataset_a;
+    reset_control_corrections(ctx);
+
+    led_on();
+
+    while (signal_is_running()) {
+        apply_pending_dataset_swap(ctx);
+        update_control_corrections(ctx);
+        execute_signal_pattern(ctx);
+        trigger_periodic_analog_read();
+
+        // Reset the watchdog and give background FreeRTOS work a scheduling point.
+        vTaskDelay(0);
+    }
+
+    stop_signal_outputs();
 
     led_off();
 

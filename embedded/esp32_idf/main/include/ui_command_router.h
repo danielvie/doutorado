@@ -13,7 +13,7 @@ struct UiCommandResultData {
 };
 
 void ui_command_router_init(void);
-UiCommandResultData ui_command_dispatch(const UiCommand& command);
-void ui_command_fill_result_packet(BlePacket* packet,
+UiCommandResultData ble_ui_command_dispatch(const UiCommand& command);
+void ble_ui_command_fill_result_packet(BlePacket* packet,
                                    const UiCommand& command,
                                    const UiCommandResultData& result);

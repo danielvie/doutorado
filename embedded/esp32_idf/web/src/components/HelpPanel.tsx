@@ -1,7 +1,118 @@
 import React, { useState } from "react";
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, Search } from "lucide-react";
 import { PanelSize } from "./Dashboard/SizeSelector";
 import { DashboardItem } from "./Dashboard/DashboardItem";
+
+const COMMANDS = [
+  {
+    commands: "system.list_commands",
+    description: "Lists registered UI commands",
+  },
+  {
+    commands: "system.get_status",
+    description: "Requests a structured status notification",
+  },
+  {
+    commands: "signal.start",
+    description: "Starts continuous signal execution",
+  },
+  {
+    commands: "signal.stop",
+    description: "Stops continuous signal execution",
+  },
+  {
+    commands: 'signal.set_alpha {"alpha":0.5}',
+    description: "Loads the precomputed dataset for an alpha value",
+  },
+  {
+    commands: 'signal.set_pattern {"time":"10,20,10,20","mode":"7,0,7,0"}',
+    description: "Uploads a custom signal pattern",
+  },
+  {
+    commands: 'signal.set_cycle_interval {"cycles":100}',
+    description: "Sets the analog trigger cycle interval",
+  },
+  {
+    commands: 'signal.set_dead_time {"up_cycles":430,"down_cycles":430}',
+    description: "Sets complementary switching dead time",
+  },
+  {
+    commands: 'signal.set_dead_time_all {"cycles":430}',
+    description: "Sets the same dead time for up and down switching",
+  },
+  {
+    commands: 'analog.set_monitor_period {"period_ms":100}',
+    description: "Sets periodic analog telemetry interval",
+  },
+  {
+    commands: "analog.read_once",
+    description: "Requests one analog telemetry sample",
+  },
+  {
+    commands: "analog.ble_read_enable",
+    description: "Enables continuous BLE analog read state",
+  },
+  {
+    commands: "analog.ble_read_disable",
+    description: "Disables continuous BLE analog read state",
+  },
+  {
+    commands: "control.enable",
+    description: "Enables closed-loop control",
+  },
+  {
+    commands: "control.disable",
+    description: "Disables closed-loop control",
+  },
+  {
+    commands: "led.on",
+    description: "Turns the onboard LED on",
+  },
+  {
+    commands: "led.off",
+    description: "Turns the onboard LED off",
+  },
+  {
+    commands: 'led.blink {"delay1_ms":100,"delay2_ms":100}',
+    description: "Sets LED blink mode, optionally with blink delays",
+  },
+  {
+    commands: "debug.dataset_active",
+    description: "Sends the active signal dataset",
+  },
+  {
+    commands: "debug.dataset_a",
+    description: "Sends signal dataset A",
+  },
+  {
+    commands: "debug.dataset_b",
+    description: "Sends signal dataset B",
+  },
+  {
+    commands: "debug.matrix_a",
+    description: "Sends the precomputed matrix for dataset A",
+  },
+  {
+    commands: "debug.matrix_b",
+    description: "Sends the precomputed matrix for dataset B",
+  },
+  {
+    commands: "debug.log_duration",
+    description: "Sends cycle duration diagnostics",
+  },
+  {
+    commands: 'debug.gpio_set {"port":1,"value":1}',
+    description: "Sets one debug GPIO port",
+  },
+  {
+    commands: "debug.all_high",
+    description: "Sets all signal GPIO pins high",
+  },
+  {
+    commands: "debug.all_low",
+    description: "Sets all signal GPIO pins low",
+  },
+];
 
 const CommandItem: React.FC<{ commands: string; description: string }> = ({
   commands,
@@ -58,6 +169,16 @@ export const HelpPanel: React.FC<{
   currentSize?: PanelSize;
   onSizeChange?: (size: PanelSize) => void;
 }> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
+  const [filter, setFilter] = useState("");
+  const normalizedFilter = filter.trim().toLowerCase();
+  const filteredCommands = normalizedFilter
+    ? COMMANDS.filter((item) =>
+        `${item.commands} ${item.description}`
+          .toLowerCase()
+          .includes(normalizedFilter),
+      )
+    : COMMANDS;
+
   return (
     <DashboardItem
       id={id}
@@ -67,112 +188,33 @@ export const HelpPanel: React.FC<{
       onSizeChange={onSizeChange}
       expandable={false}
     >
+      <div className="relative shrink-0">
+        <Search
+          size={15}
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+        />
+        <input
+          type="search"
+          value={filter}
+          onChange={(event) => setFilter(event.target.value)}
+          placeholder="Filter commands"
+          className="w-full rounded-md border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm font-medium text-gray-800 shadow-sm outline-none transition-colors placeholder:text-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+        />
+      </div>
       <div className="flex-1 min-h-0 overflow-y-auto pr-2 custom-scrollbar select-text">
         <ul className="text-sm font-mono text-gray-800 flex flex-col gap-3 py-1">
-          <CommandItem
-            commands="system.list_commands"
-            description="Lists registered UI commands"
-          />
-          <CommandItem
-            commands="system.get_status"
-            description="Requests a structured status notification"
-          />
-          <CommandItem
-            commands="signal.start"
-            description="Starts continuous signal execution"
-          />
-          <CommandItem
-            commands="signal.stop"
-            description="Stops continuous signal execution"
-          />
-          <CommandItem
-            commands='signal.set_alpha {"alpha":0.5}'
-            description="Loads the precomputed dataset for an alpha value"
-          />
-          <CommandItem
-            commands='signal.set_pattern {"time":"10,20,10,20","mode":"7,0,7,0"}'
-            description="Uploads a custom signal pattern"
-          />
-          <CommandItem
-            commands='signal.set_cycle_interval {"cycles":100}'
-            description="Sets the analog trigger cycle interval"
-          />
-          <CommandItem
-            commands='signal.set_dead_time {"up_cycles":430,"down_cycles":430}'
-            description="Sets complementary switching dead time"
-          />
-          <CommandItem
-            commands='analog.set_monitor_period {"period_ms":100}'
-            description="Sets periodic analog telemetry interval"
-          />
-          <CommandItem
-            commands="analog.read_once"
-            description="Requests one analog telemetry sample"
-          />
-          <CommandItem
-            commands="analog.ble_read_enable"
-            description="Enables continuous BLE analog read state"
-          />
-          <CommandItem
-            commands="analog.ble_read_disable"
-            description="Disables continuous BLE analog read state"
-          />
-          <CommandItem
-            commands="control.enable"
-            description="Enables closed-loop control"
-          />
-          <CommandItem
-            commands="control.disable"
-            description="Disables closed-loop control"
-          />
-          <CommandItem
-            commands="led.on"
-            description="Turns the onboard LED on"
-          />
-          <CommandItem
-            commands="led.off"
-            description="Turns the onboard LED off"
-          />
-          <CommandItem
-            commands='led.blink {"delay1_ms":100,"delay2_ms":100}'
-            description="Sets LED blink mode, optionally with blink delays"
-          />
-          <CommandItem
-            commands="debug.dataset_active"
-            description="Sends the active signal dataset"
-          />
-          <CommandItem
-            commands="debug.dataset_a"
-            description="Sends signal dataset A"
-          />
-          <CommandItem
-            commands="debug.dataset_b"
-            description="Sends signal dataset B"
-          />
-          <CommandItem
-            commands="debug.matrix_a"
-            description="Sends the precomputed matrix for dataset A"
-          />
-          <CommandItem
-            commands="debug.matrix_b"
-            description="Sends the precomputed matrix for dataset B"
-          />
-          <CommandItem
-            commands="debug.log_duration"
-            description="Sends cycle duration diagnostics"
-          />
-          <CommandItem
-            commands='debug.gpio_set {"port":1,"value":1}'
-            description="Sets one debug GPIO port"
-          />
-          <CommandItem
-            commands="debug.all_high"
-            description="Sets all signal GPIO pins high"
-          />
-          <CommandItem
-            commands="debug.all_low"
-            description="Sets all signal GPIO pins low"
-          />
+          {filteredCommands.map((item) => (
+            <CommandItem
+              key={item.commands}
+              commands={item.commands}
+              description={item.description}
+            />
+          ))}
+          {filteredCommands.length === 0 && (
+            <li className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-4 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">
+              No commands found
+            </li>
+          )}
         </ul>
       </div>
     </DashboardItem>
