@@ -70,48 +70,52 @@ export const HelpPanel: React.FC<{
       <div className="flex-1 min-h-0 overflow-y-auto pr-2 custom-scrollbar select-text">
         <ul className="text-sm font-mono text-gray-800 flex flex-col gap-3 py-1">
           <CommandItem
-            commands="blink, blink:delay, blink:d1,d2"
-            description="Controls LED blink patterns"
+            commands="system.list_commands"
+            description="Lists registered UI commands"
           />
           <CommandItem
-            commands="port:N,val | port:N,high | port:N,low"
-            description="Directly controls digital ports"
+            commands="system.get_status"
+            description="Requests a structured status notification"
           />
           <CommandItem
-            commands="cycles:N, us_delay:N, us_delay_up:N"
-            description="Adjusts control timing cycles"
+            commands="signal.start"
+            description="Starts continuous signal execution"
           />
           <CommandItem
-            commands="an_monitor_ms:N"
-            description="Sets analog read monitor period"
+            commands="signal.stop"
+            description="Stops continuous signal execution"
           />
           <CommandItem
-            commands="on, off, read, status, log_duration"
-            description="Global readout and state control"
+            commands='signal.set_alpha {"alpha":0.5}'
+            description="Loads the precomputed dataset for an alpha value"
           />
           <CommandItem
-            commands="active_dataset, print_dataset_a/b"
-            description="Dataset debug printing"
+            commands='signal.set_pattern {"time":"10,20,10,20","mode":"7,0,7,0"}'
+            description="Uploads a custom signal pattern"
           />
           <CommandItem
-            commands="SIGNAL:..., SET_ALPHA:val"
-            description="Signal update and alpha parameter"
+            commands='signal.set_cycle_interval {"cycles":100}'
+            description="Sets the analog trigger cycle interval"
           />
           <CommandItem
-            commands="status_matrix_a, status_matrix_b"
-            description="Retrieves matrix configuration"
+            commands='signal.set_dead_time {"up_cycles":430,"down_cycles":430}'
+            description="Sets complementary switching dead time"
           />
           <CommandItem
-            commands="ble_read_on, ble_read_off"
-            description="Toggles diagnostic analog reads via BLE"
+            commands='analog.set_monitor_period {"period_ms":100}'
+            description="Sets periodic analog telemetry interval"
           />
           <CommandItem
-            commands="high, low, start, stop"
-            description="Controls continuous signal execution"
+            commands="analog.read_once"
+            description="Requests one analog telemetry sample"
           />
           <CommandItem
-            commands="control_on, control_off"
-            description="Feedback loop mode switching"
+            commands="control.enable"
+            description="Enables closed-loop control"
+          />
+          <CommandItem
+            commands="control.disable"
+            description="Disables closed-loop control"
           />
         </ul>
       </div>

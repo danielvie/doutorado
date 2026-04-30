@@ -118,6 +118,25 @@ typedef struct _OtaCommand {
     } type;
 } OtaCommand;
 
+/* Extensible UI command envelope.
+ The command name is namespaced (for example "signal.start") and the payload
+ is command-owned JSON so new lab commands can be added without changing this
+ schema every time. */
+typedef struct _UiCommand {
+    char name[64];
+    char json[384];
+    uint32_t request_id;
+} UiCommand;
+
+typedef struct _UiCommandResult {
+    uint32_t request_id;
+    char name[64];
+    bool ok;
+    char code[32];
+    char message[128];
+    char json[384];
+} UiCommandResult;
+
 /* Top-level message for BLE communication */
 typedef struct _BlePacket {
     pb_size_t which_payload;
@@ -126,6 +145,7 @@ typedef struct _BlePacket {
         SystemStatus status;
         LogMessage log;
         OtaStatus ota_status;
+        UiCommandResult command_result;
     } payload;
 } BlePacket;
 
@@ -180,6 +200,8 @@ extern "C" {
 
 
 
+
+
 /* Initializer values for message structs */
 #define Telemetry_init_default                   {0, 0, 0, 0}
 #define SystemStatus_init_default                {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0}
@@ -189,6 +211,8 @@ extern "C" {
 #define OtaChunk_init_default                    {0, {0, {0}}}
 #define OtaEnd_init_default                      {""}
 #define OtaCommand_init_default                  {0, {OtaBegin_init_default}}
+#define UiCommand_init_default                   {"", "", 0}
+#define UiCommandResult_init_default             {0, "", 0, "", "", ""}
 #define BlePacket_init_default                   {0, {Telemetry_init_default}}
 #define Telemetry_init_zero                      {0, 0, 0, 0}
 #define SystemStatus_init_zero                   {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0}
@@ -198,6 +222,8 @@ extern "C" {
 #define OtaChunk_init_zero                       {0, {0, {0}}}
 #define OtaEnd_init_zero                         {""}
 #define OtaCommand_init_zero                     {0, {OtaBegin_init_zero}}
+#define UiCommand_init_zero                      {"", "", 0}
+#define UiCommandResult_init_zero                {0, "", 0, "", "", ""}
 #define BlePacket_init_zero                      {0, {Telemetry_init_zero}}
 
 /* Field tags (for use in manual encoding/decoding) */
@@ -236,10 +262,20 @@ extern "C" {
 #define OtaCommand_chunk_tag                     2
 #define OtaCommand_end_tag                       3
 #define OtaCommand_abort_tag                     4
+#define UiCommand_name_tag                       1
+#define UiCommand_json_tag                       2
+#define UiCommand_request_id_tag                 3
+#define UiCommandResult_request_id_tag           1
+#define UiCommandResult_name_tag                 2
+#define UiCommandResult_ok_tag                   3
+#define UiCommandResult_code_tag                 4
+#define UiCommandResult_message_tag              5
+#define UiCommandResult_json_tag                 6
 #define BlePacket_telemetry_tag                  1
 #define BlePacket_status_tag                     2
 #define BlePacket_log_tag                        3
 #define BlePacket_ota_status_tag                 4
+#define BlePacket_command_result_tag             5
 
 /* Struct field encoding specification for nanopb */
 #define Telemetry_FIELDLIST(X, a) \
@@ -312,17 +348,36 @@ X(a, STATIC,   ONEOF,    BOOL,     (type,abort,type.abort),   4)
 #define OtaCommand_type_chunk_MSGTYPE OtaChunk
 #define OtaCommand_type_end_MSGTYPE OtaEnd
 
+#define UiCommand_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, STRING,   name,              1) \
+X(a, STATIC,   SINGULAR, STRING,   json,              2) \
+X(a, STATIC,   SINGULAR, UINT32,   request_id,        3)
+#define UiCommand_CALLBACK NULL
+#define UiCommand_DEFAULT NULL
+
+#define UiCommandResult_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   request_id,        1) \
+X(a, STATIC,   SINGULAR, STRING,   name,              2) \
+X(a, STATIC,   SINGULAR, BOOL,     ok,                3) \
+X(a, STATIC,   SINGULAR, STRING,   code,              4) \
+X(a, STATIC,   SINGULAR, STRING,   message,           5) \
+X(a, STATIC,   SINGULAR, STRING,   json,              6)
+#define UiCommandResult_CALLBACK NULL
+#define UiCommandResult_DEFAULT NULL
+
 #define BlePacket_FIELDLIST(X, a) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload,telemetry,payload.telemetry),   1) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload,status,payload.status),   2) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload,log,payload.log),   3) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (payload,ota_status,payload.ota_status),   4)
+X(a, STATIC,   ONEOF,    MESSAGE,  (payload,ota_status,payload.ota_status),   4) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (payload,command_result,payload.command_result),   5)
 #define BlePacket_CALLBACK NULL
 #define BlePacket_DEFAULT NULL
 #define BlePacket_payload_telemetry_MSGTYPE Telemetry
 #define BlePacket_payload_status_MSGTYPE SystemStatus
 #define BlePacket_payload_log_MSGTYPE LogMessage
 #define BlePacket_payload_ota_status_MSGTYPE OtaStatus
+#define BlePacket_payload_command_result_MSGTYPE UiCommandResult
 
 extern const pb_msgdesc_t Telemetry_msg;
 extern const pb_msgdesc_t SystemStatus_msg;
@@ -332,6 +387,8 @@ extern const pb_msgdesc_t OtaBegin_msg;
 extern const pb_msgdesc_t OtaChunk_msg;
 extern const pb_msgdesc_t OtaEnd_msg;
 extern const pb_msgdesc_t OtaCommand_msg;
+extern const pb_msgdesc_t UiCommand_msg;
+extern const pb_msgdesc_t UiCommandResult_msg;
 extern const pb_msgdesc_t BlePacket_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
@@ -343,19 +400,23 @@ extern const pb_msgdesc_t BlePacket_msg;
 #define OtaChunk_fields &OtaChunk_msg
 #define OtaEnd_fields &OtaEnd_msg
 #define OtaCommand_fields &OtaCommand_msg
+#define UiCommand_fields &UiCommand_msg
+#define UiCommandResult_fields &UiCommandResult_msg
 #define BlePacket_fields &BlePacket_msg
 
 /* Maximum encoded size of messages (where known) */
-#define BlePacket_size                           135
+#define BlePacket_size                           625
 #define LogMessage_size                          132
 #define OtaBegin_size                            6
 #define OtaChunk_size                            521
 #define OtaCommand_size                          524
 #define OtaEnd_size                              65
 #define OtaStatus_size                           73
-#define PROTO_MESSAGING_PB_H_MAX_SIZE            OtaCommand_size
+#define PROTO_MESSAGING_PB_H_MAX_SIZE            BlePacket_size
 #define SystemStatus_size                        74
 #define Telemetry_size                           21
+#define UiCommandResult_size                     622
+#define UiCommand_size                           457
 
 #ifdef __cplusplus
 } /* extern "C" */

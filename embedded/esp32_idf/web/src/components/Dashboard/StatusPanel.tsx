@@ -23,7 +23,7 @@ export const StatusPanel: React.FC<{
     if (!autoRequestStatus || !isConnected) return;
     
     const interval = setInterval(() => {
-      bleManager.send("STATUS");
+      bleManager.sendCommand("system.get_status");
     }, 2000);
     
     return () => clearInterval(interval);
@@ -81,7 +81,7 @@ export const StatusPanel: React.FC<{
                   Auto
                 </button>
                 <button
-                  onClick={() => bleManager.send("STATUS")}
+                  onClick={() => bleManager.sendCommand("system.get_status")}
                   className="p-2 rounded-md border bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 hover:border-blue-300 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-[10px] font-bold uppercase tracking-wider select-none"
                   title="Request Status Now"
                 >

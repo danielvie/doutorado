@@ -109,6 +109,25 @@ message OtaCommand {
     }
 }
 
+// Extensible UI command envelope.
+// The command name is namespaced (for example "signal.start") and the payload
+// is command-owned JSON so new lab commands can be added without changing this
+// schema every time.
+message UiCommand {
+    string name = 1;
+    string json = 2;
+    uint32 request_id = 3;
+}
+
+message UiCommandResult {
+    uint32 request_id = 1;
+    string name = 2;
+    bool ok = 3;
+    string code = 4;
+    string message = 5;
+    string json = 6;
+}
+
 // Top-level message for BLE communication
 message BlePacket {
     oneof payload {
@@ -116,5 +135,6 @@ message BlePacket {
         SystemStatus status = 2;
         LogMessage log = 3;
         OtaStatus ota_status = 4;
+        UiCommandResult command_result = 5;
     }
 }

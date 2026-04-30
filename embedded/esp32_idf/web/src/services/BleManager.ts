@@ -8,16 +8,19 @@ import {
     decodeBleSignalState, 
     decodeBleAnalogReadState, 
     decodeBleControlState,
-    decodeBleLedMode
+    decodeBleLedMode,
+    encodeUiCommand,
 } from "../proto/messaging";
 
 class BleManager {
     private service: IBleService;
     private startTime: number;
+    private requestId: number;
 
     constructor() {
         this.service = new WebBleService();
         this.startTime = Date.now();
+        this.requestId = 1;
     }
 
 
@@ -52,6 +55,21 @@ class BleManager {
         const { isConnected } = useBleStore.getState();
         if (!isConnected) await this.connect();
         await this.service.send(data);
+    }
+
+    async sendCommand(name: string, payload: Record<string, unknown> = {}) {
+        const request_id = this.requestId++;
+        const encoded = encodeUiCommand({
+            name,
+            json: JSON.stringify(payload),
+            request_id,
+        });
+        const packet = new Uint8Array(encoded.length + 1);
+        packet[0] = 0x03;
+        packet.set(encoded, 1);
+
+        await this.sendBinary(packet);
+        return request_id;
     }
 
     // Handle incoming data from the service
@@ -127,6 +145,13 @@ class BleManager {
                     const s = packet.ota_status;
                     useBleStore.getState().addLog(`OTA [${s.state}]: ${s.progress_percent}% - ${s.message || ""}`);
                     // You might want to update a dedicated OTA store here
+                } else if (packet.command_result) {
+                    const r = packet.command_result;
+                    const status = r.ok ? "OK" : "ERROR";
+                    const suffix = r.json ? `\n${r.json}` : "";
+                    useBleStore.getState().addLog(
+                        `CMD ${status} [${r.name || "unknown"}] ${r.message || r.code || ""}${suffix}`,
+                    );
                 }
                 return;
             } catch (err) {

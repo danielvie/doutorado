@@ -2,3 +2,9 @@ OtaChunk.data max_size:512
 OtaStatus.message max_size:64
 OtaEnd.sha256 max_size:64
 LogMessage.text max_size:128
+UiCommand.name max_size:64
+UiCommand.json max_size:384
+UiCommandResult.name max_size:64
+UiCommandResult.code max_size:32
+UiCommandResult.message max_size:128
+UiCommandResult.json max_size:384

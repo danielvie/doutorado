@@ -890,11 +890,204 @@ function _decodeOtaCommand(bb: ByteBuffer): OtaCommand {
   return message;
 }
 
+export interface UiCommand {
+  name?: string;
+  json?: string;
+  request_id?: number;
+}
+
+export function encodeUiCommand(message: UiCommand): Uint8Array {
+  let bb = popByteBuffer();
+  _encodeUiCommand(message, bb);
+  return toUint8Array(bb);
+}
+
+function _encodeUiCommand(message: UiCommand, bb: ByteBuffer): void {
+  // optional string name = 1;
+  let $name = message.name;
+  if ($name !== undefined) {
+    writeVarint32(bb, 10);
+    writeString(bb, $name);
+  }
+
+  // optional string json = 2;
+  let $json = message.json;
+  if ($json !== undefined) {
+    writeVarint32(bb, 18);
+    writeString(bb, $json);
+  }
+
+  // optional uint32 request_id = 3;
+  let $request_id = message.request_id;
+  if ($request_id !== undefined) {
+    writeVarint32(bb, 24);
+    writeVarint32(bb, $request_id);
+  }
+}
+
+export function decodeUiCommand(binary: Uint8Array): UiCommand {
+  return _decodeUiCommand(wrapByteBuffer(binary));
+}
+
+function _decodeUiCommand(bb: ByteBuffer): UiCommand {
+  let message: UiCommand = {} as any;
+
+  end_of_message: while (!isAtEnd(bb)) {
+    let tag = readVarint32(bb);
+
+    switch (tag >>> 3) {
+      case 0:
+        break end_of_message;
+
+      // optional string name = 1;
+      case 1: {
+        message.name = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional string json = 2;
+      case 2: {
+        message.json = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional uint32 request_id = 3;
+      case 3: {
+        message.request_id = readVarint32(bb) >>> 0;
+        break;
+      }
+
+      default:
+        skipUnknownField(bb, tag & 7);
+    }
+  }
+
+  return message;
+}
+
+export interface UiCommandResult {
+  request_id?: number;
+  name?: string;
+  ok?: boolean;
+  code?: string;
+  message?: string;
+  json?: string;
+}
+
+export function encodeUiCommandResult(message: UiCommandResult): Uint8Array {
+  let bb = popByteBuffer();
+  _encodeUiCommandResult(message, bb);
+  return toUint8Array(bb);
+}
+
+function _encodeUiCommandResult(message: UiCommandResult, bb: ByteBuffer): void {
+  // optional uint32 request_id = 1;
+  let $request_id = message.request_id;
+  if ($request_id !== undefined) {
+    writeVarint32(bb, 8);
+    writeVarint32(bb, $request_id);
+  }
+
+  // optional string name = 2;
+  let $name = message.name;
+  if ($name !== undefined) {
+    writeVarint32(bb, 18);
+    writeString(bb, $name);
+  }
+
+  // optional bool ok = 3;
+  let $ok = message.ok;
+  if ($ok !== undefined) {
+    writeVarint32(bb, 24);
+    writeByte(bb, $ok ? 1 : 0);
+  }
+
+  // optional string code = 4;
+  let $code = message.code;
+  if ($code !== undefined) {
+    writeVarint32(bb, 34);
+    writeString(bb, $code);
+  }
+
+  // optional string message = 5;
+  let $message = message.message;
+  if ($message !== undefined) {
+    writeVarint32(bb, 42);
+    writeString(bb, $message);
+  }
+
+  // optional string json = 6;
+  let $json = message.json;
+  if ($json !== undefined) {
+    writeVarint32(bb, 50);
+    writeString(bb, $json);
+  }
+}
+
+export function decodeUiCommandResult(binary: Uint8Array): UiCommandResult {
+  return _decodeUiCommandResult(wrapByteBuffer(binary));
+}
+
+function _decodeUiCommandResult(bb: ByteBuffer): UiCommandResult {
+  let message: UiCommandResult = {} as any;
+
+  end_of_message: while (!isAtEnd(bb)) {
+    let tag = readVarint32(bb);
+
+    switch (tag >>> 3) {
+      case 0:
+        break end_of_message;
+
+      // optional uint32 request_id = 1;
+      case 1: {
+        message.request_id = readVarint32(bb) >>> 0;
+        break;
+      }
+
+      // optional string name = 2;
+      case 2: {
+        message.name = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional bool ok = 3;
+      case 3: {
+        message.ok = !!readByte(bb);
+        break;
+      }
+
+      // optional string code = 4;
+      case 4: {
+        message.code = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional string message = 5;
+      case 5: {
+        message.message = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional string json = 6;
+      case 6: {
+        message.json = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      default:
+        skipUnknownField(bb, tag & 7);
+    }
+  }
+
+  return message;
+}
+
 export interface BlePacket {
   telemetry?: Telemetry;
   status?: SystemStatus;
   log?: LogMessage;
   ota_status?: OtaStatus;
+  command_result?: UiCommandResult;
 }
 
 export function encodeBlePacket(message: BlePacket): Uint8Array {
@@ -947,6 +1140,17 @@ function _encodeBlePacket(message: BlePacket, bb: ByteBuffer): void {
     writeByteBuffer(bb, nested);
     pushByteBuffer(nested);
   }
+
+  // optional UiCommandResult command_result = 5;
+  let $command_result = message.command_result;
+  if ($command_result !== undefined) {
+    writeVarint32(bb, 42);
+    let nested = popByteBuffer();
+    _encodeUiCommandResult($command_result, nested);
+    writeVarint32(bb, nested.limit);
+    writeByteBuffer(bb, nested);
+    pushByteBuffer(nested);
+  }
 }
 
 export function decodeBlePacket(binary: Uint8Array): BlePacket {
@@ -991,6 +1195,14 @@ function _decodeBlePacket(bb: ByteBuffer): BlePacket {
       case 4: {
         let limit = pushTemporaryLength(bb);
         message.ota_status = _decodeOtaStatus(bb);
+        bb.limit = limit;
+        break;
+      }
+
+      // optional UiCommandResult command_result = 5;
+      case 5: {
+        let limit = pushTemporaryLength(bb);
+        message.command_result = _decodeUiCommandResult(bb);
         bb.limit = limit;
         break;
       }

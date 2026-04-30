@@ -9,6 +9,7 @@
 #include <atomic>
 #include <cmath>
 #include "ota_controller.h"
+#include "ui_command_router.h"
 
 // Nanopb
 #include <pb_encode.h>
@@ -234,6 +235,32 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
             } else {
                 ESP_LOGE(TAG, "Failed to decode OtaCommand: %s", PB_GET_ERROR(&stream));
             }
+            return;
+        }
+
+        // 2. Check for binary prefix 0x03 (UiCommand Protobuf)
+        if (param->write.value[0] == 0x03) {
+            UiCommand command = UiCommand_init_zero;
+            pb_istream_t stream = pb_istream_from_buffer(param->write.value + 1, param->write.len - 1);
+            BlePacket result_packet = BlePacket_init_zero;
+
+            if (pb_decode(&stream, UiCommand_fields, &command)) {
+                ESP_LOGI(TAG, "UI command: %s", command.name);
+                UiCommandResultData result = ui_command_dispatch(command);
+                ui_command_fill_result_packet(&result_packet, command, result);
+            } else {
+                ESP_LOGE(TAG, "Failed to decode UiCommand: %s", PB_GET_ERROR(&stream));
+                UiCommand failed_command = UiCommand_init_zero;
+                UiCommandResultData result = {
+                    .ok = false,
+                    .code = "decode_error",
+                    .message = PB_GET_ERROR(&stream),
+                    .json = "",
+                };
+                ui_command_fill_result_packet(&result_packet, failed_command, result);
+            }
+
+            ble_send_protobuf(&result_packet);
             return;
         }
 
@@ -806,6 +833,8 @@ esp_err_t ble_controller_init(void) {
     if (ret) return ret;
     ret = esp_ble_gatt_set_local_mtu(500);
     if (ret) return ret;
+
+    ui_command_router_init();
 
     // Create command queue and processing task
     s_cmd_queue = xQueueCreate(20, sizeof(BleCommand));

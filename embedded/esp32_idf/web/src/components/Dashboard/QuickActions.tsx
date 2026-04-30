@@ -31,15 +31,16 @@ export const QuickActions: React.FC<{
     e: React.ChangeEvent<HTMLInputElement>,
   ) => set_monitor_period_ms(parseInt(e.target.value));
 
-  const ble_send_command = (cmd: string) => bleManager.send(cmd);
+  const ble_send_command = (name: string, payload: Record<string, unknown> = {}) =>
+    bleManager.sendCommand(name, payload);
 
   const handle_set_alpha = (a: string) => {
     setAlpha(a.toString());
-    bleManager.send(`SET_ALPHA:${a}`);
+    ble_send_command("signal.set_alpha", { alpha: Number(a) });
   };
 
   const handle_status_matrix = (matrix: EMATRIX) => {
-    ble_send_command(`STATUS_MATRIX:${matrix}`);
+    bleManager.send(`STATUS_MATRIX:${matrix}`);
   };
 
   return (
@@ -59,37 +60,37 @@ export const QuickActions: React.FC<{
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               <button
-                onClick={() => ble_send_command("START")}
+                onClick={() => ble_send_command("signal.start")}
                 className="btn-success text-sm py-2"
               >
                 START
               </button>
               <button
-                onClick={() => ble_send_command("STOP")}
+                onClick={() => ble_send_command("signal.stop")}
                 className="btn-danger text-sm py-2"
               >
                 STOP
               </button>
               <button
-                onClick={() => ble_send_command("ON")}
+                onClick={() => bleManager.send("ON")}
                 className="btn-primary text-sm py-2"
               >
                 ON
               </button>
               <button
-                onClick={() => ble_send_command("OFF")}
+                onClick={() => bleManager.send("OFF")}
                 className="btn-secondary text-sm py-2 bg-gray-200 hover:bg-gray-300 text-gray-800"
               >
                 OFF
               </button>
               <button
-                onClick={() => ble_send_command("BLINK")}
+                onClick={() => bleManager.send("BLINK")}
                 className="btn bg-amber-500 text-white hover:bg-amber-600 text-sm py-2"
               >
                 BLINK
               </button>
               <button
-                onClick={() => ble_send_command("STATUS")}
+                onClick={() => ble_send_command("system.get_status")}
                 className="btn-secondary text-sm py-2 text-gray-800"
               >
                 STATUS
@@ -146,13 +147,13 @@ export const QuickActions: React.FC<{
                 MATRIX B
               </button>
               <button
-                onClick={() => ble_send_command("PRINT_DATASET_A")}
+                onClick={() => bleManager.send("PRINT_DATASET_A")}
                 className="btn-secondary text-xs font-bold text-gray-800"
               >
                 DATASET A
               </button>
               <button
-                onClick={() => ble_send_command("PRINT_DATASET_B")}
+                onClick={() => bleManager.send("PRINT_DATASET_B")}
                 className="btn-secondary text-xs font-bold text-gray-800"
               >
                 DATASET B
@@ -178,7 +179,7 @@ export const QuickActions: React.FC<{
                     className="flex-1 min-w-0 text-sm font-semibold text-gray-800 bg-white border border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-0 outline-none px-2 h-8 shadow-none transition-none rounded"
                   />
                   <button
-                    onClick={() => ble_send_command(`chunk:${chunk}`)}
+                    onClick={() => bleManager.send(`chunk:${chunk}`)}
                     className="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded border border-indigo-100 hover:bg-indigo-100 transition-colors shrink-0"
                     title="Send Chunk"
                   >
@@ -198,7 +199,9 @@ export const QuickActions: React.FC<{
                     className="flex-1 min-w-0 text-sm font-semibold text-gray-800 bg-white border border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-0 outline-none px-2 h-8 shadow-none transition-none rounded"
                   />
                   <button
-                    onClick={() => ble_send_command(`cycles:${cycles}`)}
+                    onClick={() =>
+                      ble_send_command("signal.set_cycle_interval", { cycles })
+                    }
                     className="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded border border-indigo-100 hover:bg-indigo-100 transition-colors shrink-0"
                     title="Send Cycles"
                   >
@@ -220,7 +223,9 @@ export const QuickActions: React.FC<{
                   />
                   <button
                     onClick={() =>
-                      ble_send_command(`an_monitor_ms:${monitor_period_ms}`)
+                      ble_send_command("analog.set_monitor_period", {
+                        period_ms: monitor_period_ms,
+                      })
                     }
                     className="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded border border-indigo-100 hover:bg-indigo-100 transition-colors shrink-0"
                     title="Send Monitor"
@@ -238,70 +243,72 @@ export const QuickActions: React.FC<{
               System Configuration
             </h3>
             <div className="flex flex-wrap gap-2">
-              {[
-                {
-                  cmd: `chunk:${chunk}`,
-                  label: `SET CHUNK: ${chunk}`,
-                  color:
-                    "text-indigo-800 bg-indigo-50 border-indigo-200 hover:bg-indigo-100",
-                },
-                {
-                  cmd: `cycles:${cycles}`,
-                  label: `SET CYCLES: ${cycles}`,
-                  color:
-                    "text-indigo-800 bg-indigo-50 border-indigo-200 hover:bg-indigo-100",
-                },
-                {
-                  cmd: `an_monitor_ms:${monitor_period_ms}`,
-                  label: `SET MONITOR: ${monitor_period_ms}ms`,
-                  color:
-                    "text-indigo-800 bg-indigo-50 border-indigo-200 hover:bg-indigo-100",
-                },
-                {
-                  cmd: "CONTROL_ON",
-                  label: "Control On",
-                  color:
-                    "text-green-800 bg-green-100 border-green-300 hover:bg-green-200",
-                },
-                {
-                  cmd: "CONTROL_OFF",
-                  label: "Control Off",
-                  color:
-                    "text-red-800 bg-red-100 border-red-300 hover:bg-red-200",
-                },
-                {
-                  cmd: "SET_PRINT_ON",
-                  label: "Print On",
-                  color:
-                    "text-blue-800 bg-blue-100 border-blue-300 hover:bg-blue-200",
-                },
-                {
-                  cmd: "SET_PRINT_OFF",
-                  label: "Print Off",
-                  color:
-                    "text-gray-800 bg-gray-200 border-gray-300 hover:bg-gray-300",
-                },
-                {
-                  cmd: "BLE_READ_ON",
-                  label: "BLE Read On",
-                  color:
-                    "text-amber-800 bg-amber-100 border-amber-300 hover:bg-amber-200",
-                },
-                {
-                  cmd: "BLE_READ_OFF",
-                  label: "BLE Read Off",
-                  color:
-                    "text-gray-800 bg-gray-200 border-gray-300 hover:bg-gray-300",
-                },
-              ].map((item) => (
-                <button
-                  key={item.cmd}
-                  onClick={() => ble_send_command(item.cmd)}
-                  className={`px-3 py-1.5 rounded-md font-bold text-[10px] border transition-colors uppercase ${item.color} shadow-sm`}
-                >
-                  {item.label}
-                </button>
-              ))}
+              <button
+                onClick={() => bleManager.send(`chunk:${chunk}`)}
+                className="px-3 py-1.5 rounded-md font-bold text-[10px] border transition-colors uppercase text-indigo-800 bg-indigo-50 border-indigo-200 hover:bg-indigo-100 shadow-sm"
+              >
+                SET CHUNK: {chunk}
+              </button>
+              <button
+                onClick={() =>
+                  ble_send_command("signal.set_cycle_interval", { cycles })
+                }
+                className="px-3 py-1.5 rounded-md font-bold text-[10px] border transition-colors uppercase text-indigo-800 bg-indigo-50 border-indigo-200 hover:bg-indigo-100 shadow-sm"
+              >
+                SET CYCLES: {cycles}
+              </button>
+              <button
+                onClick={() =>
+                  ble_send_command("analog.set_monitor_period", {
+                    period_ms: monitor_period_ms,
+                  })
+                }
+                className="px-3 py-1.5 rounded-md font-bold text-[10px] border transition-colors uppercase text-indigo-800 bg-indigo-50 border-indigo-200 hover:bg-indigo-100 shadow-sm"
+              >
+                SET MONITOR: {monitor_period_ms}ms
+              </button>
+              <button
+                onClick={() => ble_send_command("control.enable")}
+                className="px-3 py-1.5 rounded-md font-bold text-[10px] border transition-colors uppercase text-green-800 bg-green-100 border-green-300 hover:bg-green-200 shadow-sm"
+              >
+                Control On
+              </button>
+              <button
+                onClick={() => ble_send_command("control.disable")}
+                className="px-3 py-1.5 rounded-md font-bold text-[10px] border transition-colors uppercase text-red-800 bg-red-100 border-red-300 hover:bg-red-200 shadow-sm"
+              >
+                Control Off
+              </button>
+              <button
+                onClick={() => bleManager.send("SET_PRINT_ON")}
+                className="px-3 py-1.5 rounded-md font-bold text-[10px] border transition-colors uppercase text-blue-800 bg-blue-100 border-blue-300 hover:bg-blue-200 shadow-sm"
+              >
+                Print On
+              </button>
+              <button
+                onClick={() => bleManager.send("SET_PRINT_OFF")}
+                className="px-3 py-1.5 rounded-md font-bold text-[10px] border transition-colors uppercase text-gray-800 bg-gray-200 border-gray-300 hover:bg-gray-300 shadow-sm"
+              >
+                Print Off
+              </button>
+              <button
+                onClick={() => bleManager.send("BLE_READ_ON")}
+                className="px-3 py-1.5 rounded-md font-bold text-[10px] border transition-colors uppercase text-amber-800 bg-amber-100 border-amber-300 hover:bg-amber-200 shadow-sm"
+              >
+                BLE Read On
+              </button>
+              <button
+                onClick={() => bleManager.send("BLE_READ_OFF")}
+                className="px-3 py-1.5 rounded-md font-bold text-[10px] border transition-colors uppercase text-gray-800 bg-gray-200 border-gray-300 hover:bg-gray-300 shadow-sm"
+              >
+                BLE Read Off
+              </button>
+              <button
+                onClick={() => ble_send_command("system.list_commands")}
+                className="px-3 py-1.5 rounded-md font-bold text-[10px] border transition-colors uppercase text-green-800 bg-green-100 border-green-300 hover:bg-green-200 shadow-sm"
+              >
+                List Commands
+              </button>
             </div>
           </section>
         </div>

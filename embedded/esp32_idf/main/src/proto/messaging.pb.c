@@ -30,7 +30,13 @@ PB_BIND(OtaEnd, OtaEnd, AUTO)
 PB_BIND(OtaCommand, OtaCommand, 2)
 
 
-PB_BIND(BlePacket, BlePacket, AUTO)
+PB_BIND(UiCommand, UiCommand, 2)
+
+
+PB_BIND(UiCommandResult, UiCommandResult, 2)
+
+
+PB_BIND(BlePacket, BlePacket, 2)
 
 
 

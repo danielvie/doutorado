@@ -9,7 +9,6 @@
 /* Includes */
 /* ESP APIs */
 #include "driver/gpio.h"
-#include "common.h"
 #include "esp_log.h"
 
 /* Defines */

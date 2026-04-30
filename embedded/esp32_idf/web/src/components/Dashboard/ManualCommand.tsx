@@ -47,9 +47,19 @@ export const ManualCommand: React.FC<{
   const handleSend = (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!cmd.trim()) return;
-    set_command_history((prev) => [cmd.trim(), ...prev].slice(0, 50));
+    const trimmed = cmd.trim();
+    set_command_history((prev) => [trimmed, ...prev].slice(0, 50));
     history_index_ref.current = -1;
-    bleManager.send(cmd);
+
+    const jsonStart = trimmed.indexOf("{");
+    const name = jsonStart >= 0 ? trimmed.slice(0, jsonStart).trim() : trimmed;
+    try {
+      const payload =
+        jsonStart >= 0 ? JSON.parse(trimmed.slice(jsonStart)) : {};
+      bleManager.sendCommand(name, payload);
+    } catch (error: any) {
+      alert(`Invalid command JSON: ${error.message}`);
+    }
     set_cmd("");
   };
 
@@ -70,7 +80,7 @@ export const ManualCommand: React.FC<{
               value={cmd}
               onChange={(e) => set_cmd(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Enter BLE command..."
+              placeholder='system.list_commands or signal.set_alpha {"alpha":0.5}'
               className="w-full font-mono text-sm bg-white border-2 border-gray-200 hover:border-gray-400 focus:border-blue-500 focus:ring-0 outline-none px-3 py-2.5 shadow-none rounded-lg ring-0 transition-none"
             />
             {command_history.length > 0 && (

@@ -33,12 +33,15 @@ export const SignalGenerator: React.FC<{
   }, [alpha]);
 
   const handleUpload = () => {
-    bleManager.send(`SIGNAL:${timeStr};${modeStr}`);
+    bleManager.sendCommand("signal.set_pattern", {
+      time: timeStr,
+      mode: modeStr,
+    });
   };
 
   const handle_set_alpha = (a: string) => {
     setAlpha(a.toString());
-    bleManager.send(`SET_ALPHA:${a}`);
+    bleManager.sendCommand("signal.set_alpha", { alpha: Number(a) });
   };
 
   const currentAlpha = parseFloat(alpha);
