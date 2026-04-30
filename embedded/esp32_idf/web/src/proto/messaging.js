@@ -1,1575 +1,3547 @@
-export const encodeBleSignalSet = {
-  BLE_SET_A: 0,
-  BLE_SET_B: 1,
-};
-
-export const decodeBleSignalSet = {
-  0: "BLE_SET_A",
-  1: "BLE_SET_B",
-};
-
-export const encodeBleAnalogReadState = {
-  BLE_READ_IDLE: 0,
-  BLE_READING: 1,
-  BLE_READ_DISABLED: 2,
-};
-
-export const decodeBleAnalogReadState = {
-  0: "BLE_READ_IDLE",
-  1: "BLE_READING",
-  2: "BLE_READ_DISABLED",
-};
-
-export const encodeBleSignalState = {
-  BLE_SIG_IDLE: 0,
-  BLE_SIG_RUNNING: 1,
-};
-
-export const decodeBleSignalState = {
-  0: "BLE_SIG_IDLE",
-  1: "BLE_SIG_RUNNING",
-};
-
-export const encodeBleControlState = {
-  BLE_CTRL_OFF: 0,
-  BLE_CTRL_ON: 1,
-};
-
-export const decodeBleControlState = {
-  0: "BLE_CTRL_OFF",
-  1: "BLE_CTRL_ON",
-};
-
-export const encodeBleLedMode = {
-  LED_NORMAL: 0,
-  LED_BLINKING: 1,
-};
-
-export const decodeBleLedMode = {
-  0: "LED_NORMAL",
-  1: "LED_BLINKING",
-};
-
-export const encodeBleLogLevel = {
-  BLE_LOG_INFO: 0,
-  BLE_LOG_WARN: 1,
-  BLE_LOG_ERROR: 2,
-};
-
-export const decodeBleLogLevel = {
-  0: "BLE_LOG_INFO",
-  1: "BLE_LOG_WARN",
-  2: "BLE_LOG_ERROR",
-};
-
-export const encodeOtaState = {
-  OTA_IDLE: 0,
-  OTA_DOWNLOADING: 1,
-  OTA_VERIFYING: 2,
-  OTA_FINISHED: 3,
-  OTA_ERROR: 4,
-};
-
-export const decodeOtaState = {
-  0: "OTA_IDLE",
-  1: "OTA_DOWNLOADING",
-  2: "OTA_VERIFYING",
-  3: "OTA_FINISHED",
-  4: "OTA_ERROR",
-};
-
-export function encodeTelemetry(message) {
-  let bb = popByteBuffer();
-  _encodeTelemetry(message, bb);
-  return toUint8Array(bb);
-}
-
-function _encodeTelemetry(message, bb) {
-  // optional float an3 = 1;
-  let $an3 = message.an3;
-  if ($an3 !== undefined) {
-    writeVarint32(bb, 13);
-    writeFloat(bb, $an3);
-  }
-
-  // optional float an5 = 2;
-  let $an5 = message.an5;
-  if ($an5 !== undefined) {
-    writeVarint32(bb, 21);
-    writeFloat(bb, $an5);
-  }
-
-  // optional float an6 = 3;
-  let $an6 = message.an6;
-  if ($an6 !== undefined) {
-    writeVarint32(bb, 29);
-    writeFloat(bb, $an6);
-  }
-
-  // optional uint32 timestamp_ms = 4;
-  let $timestamp_ms = message.timestamp_ms;
-  if ($timestamp_ms !== undefined) {
-    writeVarint32(bb, 32);
-    writeVarint32(bb, $timestamp_ms);
-  }
-}
-
-export function decodeTelemetry(binary) {
-  return _decodeTelemetry(wrapByteBuffer(binary));
-}
-
-function _decodeTelemetry(bb) {
-  let message = {};
-
-  end_of_message: while (!isAtEnd(bb)) {
-    let tag = readVarint32(bb);
-
-    switch (tag >>> 3) {
-      case 0:
-        break end_of_message;
-
-      // optional float an3 = 1;
-      case 1: {
-        message.an3 = readFloat(bb);
-        break;
-      }
-
-      // optional float an5 = 2;
-      case 2: {
-        message.an5 = readFloat(bb);
-        break;
-      }
-
-      // optional float an6 = 3;
-      case 3: {
-        message.an6 = readFloat(bb);
-        break;
-      }
-
-      // optional uint32 timestamp_ms = 4;
-      case 4: {
-        message.timestamp_ms = readVarint32(bb) >>> 0;
-        break;
-      }
-
-      default:
-        skipUnknownField(bb, tag & 7);
-    }
-  }
-
-  return message;
-}
-
-export function encodeSystemStatus(message) {
-  let bb = popByteBuffer();
-  _encodeSystemStatus(message, bb);
-  return toUint8Array(bb);
-}
-
-function _encodeSystemStatus(message, bb) {
-  // optional BleSignalSet active_set = 1;
-  let $active_set = message.active_set;
-  if ($active_set !== undefined) {
-    writeVarint32(bb, 8);
-    writeVarint32(bb, encodeBleSignalSet[$active_set]);
-  }
-
-  // optional BleSignalState signal_state = 2;
-  let $signal_state = message.signal_state;
-  if ($signal_state !== undefined) {
-    writeVarint32(bb, 16);
-    writeVarint32(bb, encodeBleSignalState[$signal_state]);
-  }
-
-  // optional BleAnalogReadState ble_read_state = 3;
-  let $ble_read_state = message.ble_read_state;
-  if ($ble_read_state !== undefined) {
-    writeVarint32(bb, 24);
-    writeVarint32(bb, encodeBleAnalogReadState[$ble_read_state]);
-  }
-
-  // optional BleControlState control_state = 4;
-  let $control_state = message.control_state;
-  if ($control_state !== undefined) {
-    writeVarint32(bb, 32);
-    writeVarint32(bb, encodeBleControlState[$control_state]);
-  }
-
-  // optional float alpha = 5;
-  let $alpha = message.alpha;
-  if ($alpha !== undefined) {
-    writeVarint32(bb, 45);
-    writeFloat(bb, $alpha);
-  }
-
-  // optional bool has_alpha = 6;
-  let $has_alpha = message.has_alpha;
-  if ($has_alpha !== undefined) {
-    writeVarint32(bb, 48);
-    writeByte(bb, $has_alpha ? 1 : 0);
-  }
-
-  // optional bool matrix_a_valid = 7;
-  let $matrix_a_valid = message.matrix_a_valid;
-  if ($matrix_a_valid !== undefined) {
-    writeVarint32(bb, 56);
-    writeByte(bb, $matrix_a_valid ? 1 : 0);
-  }
-
-  // optional bool matrix_b_valid = 8;
-  let $matrix_b_valid = message.matrix_b_valid;
-  if ($matrix_b_valid !== undefined) {
-    writeVarint32(bb, 64);
-    writeByte(bb, $matrix_b_valid ? 1 : 0);
-  }
-
-  // optional uint32 current_cycles = 9;
-  let $current_cycles = message.current_cycles;
-  if ($current_cycles !== undefined) {
-    writeVarint32(bb, 72);
-    writeVarint32(bb, $current_cycles);
-  }
-
-  // optional uint32 total_cycles = 10;
-  let $total_cycles = message.total_cycles;
-  if ($total_cycles !== undefined) {
-    writeVarint32(bb, 80);
-    writeVarint32(bb, $total_cycles);
-  }
-
-  // optional uint32 monitor_ms = 11;
-  let $monitor_ms = message.monitor_ms;
-  if ($monitor_ms !== undefined) {
-    writeVarint32(bb, 88);
-    writeVarint32(bb, $monitor_ms);
-  }
-
-  // optional uint32 us_cycles_up = 12;
-  let $us_cycles_up = message.us_cycles_up;
-  if ($us_cycles_up !== undefined) {
-    writeVarint32(bb, 96);
-    writeVarint32(bb, $us_cycles_up);
-  }
-
-  // optional uint32 us_cycles_down = 13;
-  let $us_cycles_down = message.us_cycles_down;
-  if ($us_cycles_down !== undefined) {
-    writeVarint32(bb, 104);
-    writeVarint32(bb, $us_cycles_down);
-  }
-
-  // optional BleLedMode led_mode = 14;
-  let $led_mode = message.led_mode;
-  if ($led_mode !== undefined) {
-    writeVarint32(bb, 112);
-    writeVarint32(bb, encodeBleLedMode[$led_mode]);
-  }
-
-  // optional bool ble_congested = 15;
-  let $ble_congested = message.ble_congested;
-  if ($ble_congested !== undefined) {
-    writeVarint32(bb, 120);
-    writeByte(bb, $ble_congested ? 1 : 0);
-  }
-
-  // optional uint32 adc_min = 16;
-  let $adc_min = message.adc_min;
-  if ($adc_min !== undefined) {
-    writeVarint32(bb, 128);
-    writeVarint32(bb, $adc_min);
-  }
-
-  // optional uint32 adc_max = 17;
-  let $adc_max = message.adc_max;
-  if ($adc_max !== undefined) {
-    writeVarint32(bb, 136);
-    writeVarint32(bb, $adc_max);
-  }
-
-  // optional uint32 adc_avg = 18;
-  let $adc_avg = message.adc_avg;
-  if ($adc_avg !== undefined) {
-    writeVarint32(bb, 144);
-    writeVarint32(bb, $adc_avg);
-  }
-}
-
-export function decodeSystemStatus(binary) {
-  return _decodeSystemStatus(wrapByteBuffer(binary));
-}
-
-function _decodeSystemStatus(bb) {
-  let message = {};
-
-  end_of_message: while (!isAtEnd(bb)) {
-    let tag = readVarint32(bb);
-
-    switch (tag >>> 3) {
-      case 0:
-        break end_of_message;
-
-      // optional BleSignalSet active_set = 1;
-      case 1: {
-        message.active_set = decodeBleSignalSet[readVarint32(bb)];
-        break;
-      }
-
-      // optional BleSignalState signal_state = 2;
-      case 2: {
-        message.signal_state = decodeBleSignalState[readVarint32(bb)];
-        break;
-      }
-
-      // optional BleAnalogReadState ble_read_state = 3;
-      case 3: {
-        message.ble_read_state = decodeBleAnalogReadState[readVarint32(bb)];
-        break;
-      }
-
-      // optional BleControlState control_state = 4;
-      case 4: {
-        message.control_state = decodeBleControlState[readVarint32(bb)];
-        break;
-      }
-
-      // optional float alpha = 5;
-      case 5: {
-        message.alpha = readFloat(bb);
-        break;
-      }
-
-      // optional bool has_alpha = 6;
-      case 6: {
-        message.has_alpha = !!readByte(bb);
-        break;
-      }
-
-      // optional bool matrix_a_valid = 7;
-      case 7: {
-        message.matrix_a_valid = !!readByte(bb);
-        break;
-      }
-
-      // optional bool matrix_b_valid = 8;
-      case 8: {
-        message.matrix_b_valid = !!readByte(bb);
-        break;
-      }
-
-      // optional uint32 current_cycles = 9;
-      case 9: {
-        message.current_cycles = readVarint32(bb) >>> 0;
-        break;
-      }
-
-      // optional uint32 total_cycles = 10;
-      case 10: {
-        message.total_cycles = readVarint32(bb) >>> 0;
-        break;
-      }
-
-      // optional uint32 monitor_ms = 11;
-      case 11: {
-        message.monitor_ms = readVarint32(bb) >>> 0;
-        break;
-      }
-
-      // optional uint32 us_cycles_up = 12;
-      case 12: {
-        message.us_cycles_up = readVarint32(bb) >>> 0;
-        break;
-      }
-
-      // optional uint32 us_cycles_down = 13;
-      case 13: {
-        message.us_cycles_down = readVarint32(bb) >>> 0;
-        break;
-      }
-
-      // optional BleLedMode led_mode = 14;
-      case 14: {
-        message.led_mode = decodeBleLedMode[readVarint32(bb)];
-        break;
-      }
-
-      // optional bool ble_congested = 15;
-      case 15: {
-        message.ble_congested = !!readByte(bb);
-        break;
-      }
-
-      // optional uint32 adc_min = 16;
-      case 16: {
-        message.adc_min = readVarint32(bb) >>> 0;
-        break;
-      }
-
-      // optional uint32 adc_max = 17;
-      case 17: {
-        message.adc_max = readVarint32(bb) >>> 0;
-        break;
-      }
-
-      // optional uint32 adc_avg = 18;
-      case 18: {
-        message.adc_avg = readVarint32(bb) >>> 0;
-        break;
-      }
-
-      default:
-        skipUnknownField(bb, tag & 7);
-    }
-  }
-
-  return message;
-}
-
-export function encodeLogMessage(message) {
-  let bb = popByteBuffer();
-  _encodeLogMessage(message, bb);
-  return toUint8Array(bb);
-}
-
-function _encodeLogMessage(message, bb) {
-  // optional BleLogLevel level = 1;
-  let $level = message.level;
-  if ($level !== undefined) {
-    writeVarint32(bb, 8);
-    writeVarint32(bb, encodeBleLogLevel[$level]);
-  }
-
-  // optional string text = 2;
-  let $text = message.text;
-  if ($text !== undefined) {
-    writeVarint32(bb, 18);
-    writeString(bb, $text);
-  }
-}
-
-export function decodeLogMessage(binary) {
-  return _decodeLogMessage(wrapByteBuffer(binary));
-}
-
-function _decodeLogMessage(bb) {
-  let message = {};
-
-  end_of_message: while (!isAtEnd(bb)) {
-    let tag = readVarint32(bb);
-
-    switch (tag >>> 3) {
-      case 0:
-        break end_of_message;
-
-      // optional BleLogLevel level = 1;
-      case 1: {
-        message.level = decodeBleLogLevel[readVarint32(bb)];
-        break;
-      }
-
-      // optional string text = 2;
-      case 2: {
-        message.text = readString(bb, readVarint32(bb));
-        break;
-      }
-
-      default:
-        skipUnknownField(bb, tag & 7);
-    }
-  }
-
-  return message;
-}
-
-export function encodeOtaStatus(message) {
-  let bb = popByteBuffer();
-  _encodeOtaStatus(message, bb);
-  return toUint8Array(bb);
-}
-
-function _encodeOtaStatus(message, bb) {
-  // optional OtaState state = 1;
-  let $state = message.state;
-  if ($state !== undefined) {
-    writeVarint32(bb, 8);
-    writeVarint32(bb, encodeOtaState[$state]);
-  }
-
-  // optional uint32 progress_percent = 2;
-  let $progress_percent = message.progress_percent;
-  if ($progress_percent !== undefined) {
-    writeVarint32(bb, 16);
-    writeVarint32(bb, $progress_percent);
-  }
-
-  // optional string message = 3;
-  let $message = message.message;
-  if ($message !== undefined) {
-    writeVarint32(bb, 26);
-    writeString(bb, $message);
-  }
-}
-
-export function decodeOtaStatus(binary) {
-  return _decodeOtaStatus(wrapByteBuffer(binary));
-}
-
-function _decodeOtaStatus(bb) {
-  let message = {};
-
-  end_of_message: while (!isAtEnd(bb)) {
-    let tag = readVarint32(bb);
-
-    switch (tag >>> 3) {
-      case 0:
-        break end_of_message;
-
-      // optional OtaState state = 1;
-      case 1: {
-        message.state = decodeOtaState[readVarint32(bb)];
-        break;
-      }
-
-      // optional uint32 progress_percent = 2;
-      case 2: {
-        message.progress_percent = readVarint32(bb) >>> 0;
-        break;
-      }
-
-      // optional string message = 3;
-      case 3: {
-        message.message = readString(bb, readVarint32(bb));
-        break;
-      }
-
-      default:
-        skipUnknownField(bb, tag & 7);
-    }
-  }
-
-  return message;
-}
-
-export function encodeOtaBegin(message) {
-  let bb = popByteBuffer();
-  _encodeOtaBegin(message, bb);
-  return toUint8Array(bb);
-}
-
-function _encodeOtaBegin(message, bb) {
-  // optional uint32 file_size = 1;
-  let $file_size = message.file_size;
-  if ($file_size !== undefined) {
-    writeVarint32(bb, 8);
-    writeVarint32(bb, $file_size);
-  }
-}
-
-export function decodeOtaBegin(binary) {
-  return _decodeOtaBegin(wrapByteBuffer(binary));
-}
-
-function _decodeOtaBegin(bb) {
-  let message = {};
-
-  end_of_message: while (!isAtEnd(bb)) {
-    let tag = readVarint32(bb);
-
-    switch (tag >>> 3) {
-      case 0:
-        break end_of_message;
-
-      // optional uint32 file_size = 1;
-      case 1: {
-        message.file_size = readVarint32(bb) >>> 0;
-        break;
-      }
-
-      default:
-        skipUnknownField(bb, tag & 7);
-    }
-  }
-
-  return message;
-}
-
-export function encodeOtaChunk(message) {
-  let bb = popByteBuffer();
-  _encodeOtaChunk(message, bb);
-  return toUint8Array(bb);
-}
-
-function _encodeOtaChunk(message, bb) {
-  // optional uint32 seq = 1;
-  let $seq = message.seq;
-  if ($seq !== undefined) {
-    writeVarint32(bb, 8);
-    writeVarint32(bb, $seq);
-  }
-
-  // optional bytes data = 2;
-  let $data = message.data;
-  if ($data !== undefined) {
-    writeVarint32(bb, 18);
-    writeVarint32(bb, $data.length), writeBytes(bb, $data);
-  }
-}
-
-export function decodeOtaChunk(binary) {
-  return _decodeOtaChunk(wrapByteBuffer(binary));
-}
-
-function _decodeOtaChunk(bb) {
-  let message = {};
-
-  end_of_message: while (!isAtEnd(bb)) {
-    let tag = readVarint32(bb);
-
-    switch (tag >>> 3) {
-      case 0:
-        break end_of_message;
-
-      // optional uint32 seq = 1;
-      case 1: {
-        message.seq = readVarint32(bb) >>> 0;
-        break;
-      }
-
-      // optional bytes data = 2;
-      case 2: {
-        message.data = readBytes(bb, readVarint32(bb));
-        break;
-      }
-
-      default:
-        skipUnknownField(bb, tag & 7);
-    }
-  }
-
-  return message;
-}
-
-export function encodeOtaEnd(message) {
-  let bb = popByteBuffer();
-  _encodeOtaEnd(message, bb);
-  return toUint8Array(bb);
-}
-
-function _encodeOtaEnd(message, bb) {
-  // optional string sha256 = 1;
-  let $sha256 = message.sha256;
-  if ($sha256 !== undefined) {
-    writeVarint32(bb, 10);
-    writeString(bb, $sha256);
-  }
-}
-
-export function decodeOtaEnd(binary) {
-  return _decodeOtaEnd(wrapByteBuffer(binary));
-}
-
-function _decodeOtaEnd(bb) {
-  let message = {};
-
-  end_of_message: while (!isAtEnd(bb)) {
-    let tag = readVarint32(bb);
-
-    switch (tag >>> 3) {
-      case 0:
-        break end_of_message;
-
-      // optional string sha256 = 1;
-      case 1: {
-        message.sha256 = readString(bb, readVarint32(bb));
-        break;
-      }
-
-      default:
-        skipUnknownField(bb, tag & 7);
-    }
-  }
-
-  return message;
-}
-
-export function encodeOtaCommand(message) {
-  let bb = popByteBuffer();
-  _encodeOtaCommand(message, bb);
-  return toUint8Array(bb);
-}
-
-function _encodeOtaCommand(message, bb) {
-  // optional OtaBegin begin = 1;
-  let $begin = message.begin;
-  if ($begin !== undefined) {
-    writeVarint32(bb, 10);
-    let nested = popByteBuffer();
-    _encodeOtaBegin($begin, nested);
-    writeVarint32(bb, nested.limit);
-    writeByteBuffer(bb, nested);
-    pushByteBuffer(nested);
-  }
-
-  // optional OtaChunk chunk = 2;
-  let $chunk = message.chunk;
-  if ($chunk !== undefined) {
-    writeVarint32(bb, 18);
-    let nested = popByteBuffer();
-    _encodeOtaChunk($chunk, nested);
-    writeVarint32(bb, nested.limit);
-    writeByteBuffer(bb, nested);
-    pushByteBuffer(nested);
-  }
-
-  // optional OtaEnd end = 3;
-  let $end = message.end;
-  if ($end !== undefined) {
-    writeVarint32(bb, 26);
-    let nested = popByteBuffer();
-    _encodeOtaEnd($end, nested);
-    writeVarint32(bb, nested.limit);
-    writeByteBuffer(bb, nested);
-    pushByteBuffer(nested);
-  }
-
-  // optional bool abort = 4;
-  let $abort = message.abort;
-  if ($abort !== undefined) {
-    writeVarint32(bb, 32);
-    writeByte(bb, $abort ? 1 : 0);
-  }
-}
-
-export function decodeOtaCommand(binary) {
-  return _decodeOtaCommand(wrapByteBuffer(binary));
-}
-
-function _decodeOtaCommand(bb) {
-  let message = {};
-
-  end_of_message: while (!isAtEnd(bb)) {
-    let tag = readVarint32(bb);
-
-    switch (tag >>> 3) {
-      case 0:
-        break end_of_message;
-
-      // optional OtaBegin begin = 1;
-      case 1: {
-        let limit = pushTemporaryLength(bb);
-        message.begin = _decodeOtaBegin(bb);
-        bb.limit = limit;
-        break;
-      }
-
-      // optional OtaChunk chunk = 2;
-      case 2: {
-        let limit = pushTemporaryLength(bb);
-        message.chunk = _decodeOtaChunk(bb);
-        bb.limit = limit;
-        break;
-      }
-
-      // optional OtaEnd end = 3;
-      case 3: {
-        let limit = pushTemporaryLength(bb);
-        message.end = _decodeOtaEnd(bb);
-        bb.limit = limit;
-        break;
-      }
-
-      // optional bool abort = 4;
-      case 4: {
-        message.abort = !!readByte(bb);
-        break;
-      }
-
-      default:
-        skipUnknownField(bb, tag & 7);
-    }
-  }
-
-  return message;
-}
-
-export function encodeUiCommand(message) {
-  let bb = popByteBuffer();
-  _encodeUiCommand(message, bb);
-  return toUint8Array(bb);
-}
-
-function _encodeUiCommand(message, bb) {
-  // optional string name = 1;
-  let $name = message.name;
-  if ($name !== undefined) {
-    writeVarint32(bb, 10);
-    writeString(bb, $name);
-  }
-
-  // optional string json = 2;
-  let $json = message.json;
-  if ($json !== undefined) {
-    writeVarint32(bb, 18);
-    writeString(bb, $json);
-  }
-
-  // optional uint32 request_id = 3;
-  let $request_id = message.request_id;
-  if ($request_id !== undefined) {
-    writeVarint32(bb, 24);
-    writeVarint32(bb, $request_id);
-  }
-}
-
-export function decodeUiCommand(binary) {
-  return _decodeUiCommand(wrapByteBuffer(binary));
-}
-
-function _decodeUiCommand(bb) {
-  let message = {};
-
-  end_of_message: while (!isAtEnd(bb)) {
-    let tag = readVarint32(bb);
-
-    switch (tag >>> 3) {
-      case 0:
-        break end_of_message;
-
-      // optional string name = 1;
-      case 1: {
-        message.name = readString(bb, readVarint32(bb));
-        break;
-      }
-
-      // optional string json = 2;
-      case 2: {
-        message.json = readString(bb, readVarint32(bb));
-        break;
-      }
-
-      // optional uint32 request_id = 3;
-      case 3: {
-        message.request_id = readVarint32(bb) >>> 0;
-        break;
-      }
-
-      default:
-        skipUnknownField(bb, tag & 7);
-    }
-  }
-
-  return message;
-}
-
-export function encodeUiCommandResult(message) {
-  let bb = popByteBuffer();
-  _encodeUiCommandResult(message, bb);
-  return toUint8Array(bb);
-}
-
-function _encodeUiCommandResult(message, bb) {
-  // optional uint32 request_id = 1;
-  let $request_id = message.request_id;
-  if ($request_id !== undefined) {
-    writeVarint32(bb, 8);
-    writeVarint32(bb, $request_id);
-  }
-
-  // optional string name = 2;
-  let $name = message.name;
-  if ($name !== undefined) {
-    writeVarint32(bb, 18);
-    writeString(bb, $name);
-  }
-
-  // optional bool ok = 3;
-  let $ok = message.ok;
-  if ($ok !== undefined) {
-    writeVarint32(bb, 24);
-    writeByte(bb, $ok ? 1 : 0);
-  }
-
-  // optional string code = 4;
-  let $code = message.code;
-  if ($code !== undefined) {
-    writeVarint32(bb, 34);
-    writeString(bb, $code);
-  }
-
-  // optional string message = 5;
-  let $message = message.message;
-  if ($message !== undefined) {
-    writeVarint32(bb, 42);
-    writeString(bb, $message);
-  }
-
-  // optional string json = 6;
-  let $json = message.json;
-  if ($json !== undefined) {
-    writeVarint32(bb, 50);
-    writeString(bb, $json);
-  }
-}
-
-export function decodeUiCommandResult(binary) {
-  return _decodeUiCommandResult(wrapByteBuffer(binary));
-}
-
-function _decodeUiCommandResult(bb) {
-  let message = {};
-
-  end_of_message: while (!isAtEnd(bb)) {
-    let tag = readVarint32(bb);
-
-    switch (tag >>> 3) {
-      case 0:
-        break end_of_message;
-
-      // optional uint32 request_id = 1;
-      case 1: {
-        message.request_id = readVarint32(bb) >>> 0;
-        break;
-      }
-
-      // optional string name = 2;
-      case 2: {
-        message.name = readString(bb, readVarint32(bb));
-        break;
-      }
-
-      // optional bool ok = 3;
-      case 3: {
-        message.ok = !!readByte(bb);
-        break;
-      }
-
-      // optional string code = 4;
-      case 4: {
-        message.code = readString(bb, readVarint32(bb));
-        break;
-      }
-
-      // optional string message = 5;
-      case 5: {
-        message.message = readString(bb, readVarint32(bb));
-        break;
-      }
-
-      // optional string json = 6;
-      case 6: {
-        message.json = readString(bb, readVarint32(bb));
-        break;
-      }
-
-      default:
-        skipUnknownField(bb, tag & 7);
-    }
-  }
-
-  return message;
-}
-
-export function encodeBlePacket(message) {
-  let bb = popByteBuffer();
-  _encodeBlePacket(message, bb);
-  return toUint8Array(bb);
-}
-
-function _encodeBlePacket(message, bb) {
-  // optional Telemetry telemetry = 1;
-  let $telemetry = message.telemetry;
-  if ($telemetry !== undefined) {
-    writeVarint32(bb, 10);
-    let nested = popByteBuffer();
-    _encodeTelemetry($telemetry, nested);
-    writeVarint32(bb, nested.limit);
-    writeByteBuffer(bb, nested);
-    pushByteBuffer(nested);
-  }
-
-  // optional SystemStatus status = 2;
-  let $status = message.status;
-  if ($status !== undefined) {
-    writeVarint32(bb, 18);
-    let nested = popByteBuffer();
-    _encodeSystemStatus($status, nested);
-    writeVarint32(bb, nested.limit);
-    writeByteBuffer(bb, nested);
-    pushByteBuffer(nested);
-  }
-
-  // optional LogMessage log = 3;
-  let $log = message.log;
-  if ($log !== undefined) {
-    writeVarint32(bb, 26);
-    let nested = popByteBuffer();
-    _encodeLogMessage($log, nested);
-    writeVarint32(bb, nested.limit);
-    writeByteBuffer(bb, nested);
-    pushByteBuffer(nested);
-  }
-
-  // optional OtaStatus ota_status = 4;
-  let $ota_status = message.ota_status;
-  if ($ota_status !== undefined) {
-    writeVarint32(bb, 34);
-    let nested = popByteBuffer();
-    _encodeOtaStatus($ota_status, nested);
-    writeVarint32(bb, nested.limit);
-    writeByteBuffer(bb, nested);
-    pushByteBuffer(nested);
-  }
-
-  // optional UiCommandResult command_result = 5;
-  let $command_result = message.command_result;
-  if ($command_result !== undefined) {
-    writeVarint32(bb, 42);
-    let nested = popByteBuffer();
-    _encodeUiCommandResult($command_result, nested);
-    writeVarint32(bb, nested.limit);
-    writeByteBuffer(bb, nested);
-    pushByteBuffer(nested);
-  }
-}
-
-export function decodeBlePacket(binary) {
-  return _decodeBlePacket(wrapByteBuffer(binary));
-}
-
-function _decodeBlePacket(bb) {
-  let message = {};
-
-  end_of_message: while (!isAtEnd(bb)) {
-    let tag = readVarint32(bb);
-
-    switch (tag >>> 3) {
-      case 0:
-        break end_of_message;
-
-      // optional Telemetry telemetry = 1;
-      case 1: {
-        let limit = pushTemporaryLength(bb);
-        message.telemetry = _decodeTelemetry(bb);
-        bb.limit = limit;
-        break;
-      }
-
-      // optional SystemStatus status = 2;
-      case 2: {
-        let limit = pushTemporaryLength(bb);
-        message.status = _decodeSystemStatus(bb);
-        bb.limit = limit;
-        break;
-      }
-
-      // optional LogMessage log = 3;
-      case 3: {
-        let limit = pushTemporaryLength(bb);
-        message.log = _decodeLogMessage(bb);
-        bb.limit = limit;
-        break;
-      }
-
-      // optional OtaStatus ota_status = 4;
-      case 4: {
-        let limit = pushTemporaryLength(bb);
-        message.ota_status = _decodeOtaStatus(bb);
-        bb.limit = limit;
-        break;
-      }
-
-      // optional UiCommandResult command_result = 5;
-      case 5: {
-        let limit = pushTemporaryLength(bb);
-        message.command_result = _decodeUiCommandResult(bb);
-        bb.limit = limit;
-        break;
-      }
-
-      default:
-        skipUnknownField(bb, tag & 7);
-    }
-  }
-
-  return message;
-}
-
-function pushTemporaryLength(bb) {
-  let length = readVarint32(bb);
-  let limit = bb.limit;
-  bb.limit = bb.offset + length;
-  return limit;
-}
-
-function skipUnknownField(bb, type) {
-  switch (type) {
-    case 0: while (readByte(bb) & 0x80) { } break;
-    case 2: skip(bb, readVarint32(bb)); break;
-    case 5: skip(bb, 4); break;
-    case 1: skip(bb, 8); break;
-    default: throw new Error("Unimplemented type: " + type);
-  }
-}
-
-function stringToLong(value) {
-  return {
-    low: value.charCodeAt(0) | (value.charCodeAt(1) << 16),
-    high: value.charCodeAt(2) | (value.charCodeAt(3) << 16),
-    unsigned: false,
-  };
-}
-
-function longToString(value) {
-  let low = value.low;
-  let high = value.high;
-  return String.fromCharCode(
-    low & 0xFFFF,
-    low >>> 16,
-    high & 0xFFFF,
-    high >>> 16);
-}
-
-// The code below was modified from https://github.com/protobufjs/bytebuffer.js
-// which is under the Apache License 2.0.
-
-let f32 = new Float32Array(1);
-let f32_u8 = new Uint8Array(f32.buffer);
-
-let f64 = new Float64Array(1);
-let f64_u8 = new Uint8Array(f64.buffer);
-
-function intToLong(value) {
-  value |= 0;
-  return {
-    low: value,
-    high: value >> 31,
-    unsigned: value >= 0,
-  };
-}
-
-let bbStack = [];
-
-function popByteBuffer() {
-  const bb = bbStack.pop();
-  if (!bb) return { bytes: new Uint8Array(64), offset: 0, limit: 0 };
-  bb.offset = bb.limit = 0;
-  return bb;
-}
-
-function pushByteBuffer(bb) {
-  bbStack.push(bb);
-}
-
-function wrapByteBuffer(bytes) {
-  return { bytes, offset: 0, limit: bytes.length };
-}
-
-function toUint8Array(bb) {
-  let bytes = bb.bytes;
-  let limit = bb.limit;
-  return bytes.length === limit ? bytes : bytes.subarray(0, limit);
-}
-
-function skip(bb, offset) {
-  if (bb.offset + offset > bb.limit) {
-    throw new Error('Skip past limit');
-  }
-  bb.offset += offset;
-}
-
-function isAtEnd(bb) {
-  return bb.offset >= bb.limit;
-}
-
-function grow(bb, count) {
-  let bytes = bb.bytes;
-  let offset = bb.offset;
-  let limit = bb.limit;
-  let finalOffset = offset + count;
-  if (finalOffset > bytes.length) {
-    let newBytes = new Uint8Array(finalOffset * 2);
-    newBytes.set(bytes);
-    bb.bytes = newBytes;
-  }
-  bb.offset = finalOffset;
-  if (finalOffset > limit) {
-    bb.limit = finalOffset;
-  }
-  return offset;
-}
-
-function advance(bb, count) {
-  let offset = bb.offset;
-  if (offset + count > bb.limit) {
-    throw new Error('Read past limit');
-  }
-  bb.offset += count;
-  return offset;
-}
-
-function readBytes(bb, count) {
-  let offset = advance(bb, count);
-  return bb.bytes.subarray(offset, offset + count);
-}
-
-function writeBytes(bb, buffer) {
-  let offset = grow(bb, buffer.length);
-  bb.bytes.set(buffer, offset);
-}
-
-function readString(bb, count) {
-  // Sadly a hand-coded UTF8 decoder is much faster than subarray+TextDecoder in V8
-  let offset = advance(bb, count);
-  let fromCharCode = String.fromCharCode;
-  let bytes = bb.bytes;
-  let invalid = '\uFFFD';
-  let text = '';
-
-  for (let i = 0; i < count; i++) {
-    let c1 = bytes[i + offset], c2, c3, c4, c;
-
-    // 1 byte
-    if ((c1 & 0x80) === 0) {
-      text += fromCharCode(c1);
+/*eslint-disable block-scoped-var, id-length, no-control-regex, no-magic-numbers, no-prototype-builtins, no-redeclare, no-shadow, no-var, sort-vars*/
+import * as $protobuf from "protobufjs/minimal";
+
+// Common aliases
+const $Reader = $protobuf.Reader, $Writer = $protobuf.Writer, $util = $protobuf.util;
+
+// Exported root namespace
+const $root = $protobuf.roots["default"] || ($protobuf.roots["default"] = {});
+
+/**
+ * BleSignalSet enum.
+ * @exports BleSignalSet
+ * @enum {number}
+ * @property {number} BLE_SET_A=0 BLE_SET_A value
+ * @property {number} BLE_SET_B=1 BLE_SET_B value
+ */
+export const BleSignalSet = $root.BleSignalSet = (() => {
+    const valuesById = {}, values = Object.create(valuesById);
+    values[valuesById[0] = "BLE_SET_A"] = 0;
+    values[valuesById[1] = "BLE_SET_B"] = 1;
+    return values;
+})();
+
+/**
+ * BleAnalogReadState enum.
+ * @exports BleAnalogReadState
+ * @enum {number}
+ * @property {number} BLE_READ_IDLE=0 BLE_READ_IDLE value
+ * @property {number} BLE_READING=1 BLE_READING value
+ * @property {number} BLE_READ_DISABLED=2 BLE_READ_DISABLED value
+ */
+export const BleAnalogReadState = $root.BleAnalogReadState = (() => {
+    const valuesById = {}, values = Object.create(valuesById);
+    values[valuesById[0] = "BLE_READ_IDLE"] = 0;
+    values[valuesById[1] = "BLE_READING"] = 1;
+    values[valuesById[2] = "BLE_READ_DISABLED"] = 2;
+    return values;
+})();
+
+/**
+ * BleSignalState enum.
+ * @exports BleSignalState
+ * @enum {number}
+ * @property {number} BLE_SIG_IDLE=0 BLE_SIG_IDLE value
+ * @property {number} BLE_SIG_RUNNING=1 BLE_SIG_RUNNING value
+ */
+export const BleSignalState = $root.BleSignalState = (() => {
+    const valuesById = {}, values = Object.create(valuesById);
+    values[valuesById[0] = "BLE_SIG_IDLE"] = 0;
+    values[valuesById[1] = "BLE_SIG_RUNNING"] = 1;
+    return values;
+})();
+
+/**
+ * BleControlState enum.
+ * @exports BleControlState
+ * @enum {number}
+ * @property {number} BLE_CTRL_OFF=0 BLE_CTRL_OFF value
+ * @property {number} BLE_CTRL_ON=1 BLE_CTRL_ON value
+ */
+export const BleControlState = $root.BleControlState = (() => {
+    const valuesById = {}, values = Object.create(valuesById);
+    values[valuesById[0] = "BLE_CTRL_OFF"] = 0;
+    values[valuesById[1] = "BLE_CTRL_ON"] = 1;
+    return values;
+})();
+
+/**
+ * BleLedMode enum.
+ * @exports BleLedMode
+ * @enum {number}
+ * @property {number} LED_NORMAL=0 LED_NORMAL value
+ * @property {number} LED_BLINKING=1 LED_BLINKING value
+ */
+export const BleLedMode = $root.BleLedMode = (() => {
+    const valuesById = {}, values = Object.create(valuesById);
+    values[valuesById[0] = "LED_NORMAL"] = 0;
+    values[valuesById[1] = "LED_BLINKING"] = 1;
+    return values;
+})();
+
+/**
+ * BleLogLevel enum.
+ * @exports BleLogLevel
+ * @enum {number}
+ * @property {number} BLE_LOG_INFO=0 BLE_LOG_INFO value
+ * @property {number} BLE_LOG_WARN=1 BLE_LOG_WARN value
+ * @property {number} BLE_LOG_ERROR=2 BLE_LOG_ERROR value
+ */
+export const BleLogLevel = $root.BleLogLevel = (() => {
+    const valuesById = {}, values = Object.create(valuesById);
+    values[valuesById[0] = "BLE_LOG_INFO"] = 0;
+    values[valuesById[1] = "BLE_LOG_WARN"] = 1;
+    values[valuesById[2] = "BLE_LOG_ERROR"] = 2;
+    return values;
+})();
+
+export const Telemetry = $root.Telemetry = (() => {
+
+    /**
+     * Properties of a Telemetry.
+     * @exports ITelemetry
+     * @interface ITelemetry
+     * @property {number|null} [an3] Telemetry an3
+     * @property {number|null} [an5] Telemetry an5
+     * @property {number|null} [an6] Telemetry an6
+     * @property {number|null} [timestampMs] Telemetry timestampMs
+     */
+
+    /**
+     * Constructs a new Telemetry.
+     * @exports Telemetry
+     * @classdesc Represents a Telemetry.
+     * @implements ITelemetry
+     * @constructor
+     * @param {ITelemetry=} [properties] Properties to set
+     */
+    function Telemetry(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
     }
 
-    // 2 bytes
-    else if ((c1 & 0xE0) === 0xC0) {
-      if (i + 1 >= count) text += invalid;
-      else {
-        c2 = bytes[i + offset + 1];
-        if ((c2 & 0xC0) !== 0x80) text += invalid;
-        else {
-          c = ((c1 & 0x1F) << 6) | (c2 & 0x3F);
-          if (c < 0x80) text += invalid;
-          else {
-            text += fromCharCode(c);
-            i++;
-          }
-        }
-      }
-    }
+    /**
+     * Telemetry an3.
+     * @member {number} an3
+     * @memberof Telemetry
+     * @instance
+     */
+    Telemetry.prototype.an3 = 0;
 
-    // 3 bytes
-    else if ((c1 & 0xF0) == 0xE0) {
-      if (i + 2 >= count) text += invalid;
-      else {
-        c2 = bytes[i + offset + 1];
-        c3 = bytes[i + offset + 2];
-        if (((c2 | (c3 << 8)) & 0xC0C0) !== 0x8080) text += invalid;
-        else {
-          c = ((c1 & 0x0F) << 12) | ((c2 & 0x3F) << 6) | (c3 & 0x3F);
-          if (c < 0x0800 || (c >= 0xD800 && c <= 0xDFFF)) text += invalid;
-          else {
-            text += fromCharCode(c);
-            i += 2;
-          }
-        }
-      }
-    }
+    /**
+     * Telemetry an5.
+     * @member {number} an5
+     * @memberof Telemetry
+     * @instance
+     */
+    Telemetry.prototype.an5 = 0;
 
-    // 4 bytes
-    else if ((c1 & 0xF8) == 0xF0) {
-      if (i + 3 >= count) text += invalid;
-      else {
-        c2 = bytes[i + offset + 1];
-        c3 = bytes[i + offset + 2];
-        c4 = bytes[i + offset + 3];
-        if (((c2 | (c3 << 8) | (c4 << 16)) & 0xC0C0C0) !== 0x808080) text += invalid;
-        else {
-          c = ((c1 & 0x07) << 0x12) | ((c2 & 0x3F) << 0x0C) | ((c3 & 0x3F) << 0x06) | (c4 & 0x3F);
-          if (c < 0x10000 || c > 0x10FFFF) text += invalid;
-          else {
-            c -= 0x10000;
-            text += fromCharCode((c >> 10) + 0xD800, (c & 0x3FF) + 0xDC00);
-            i += 3;
-          }
-        }
-      }
-    }
+    /**
+     * Telemetry an6.
+     * @member {number} an6
+     * @memberof Telemetry
+     * @instance
+     */
+    Telemetry.prototype.an6 = 0;
 
-    else text += invalid;
-  }
+    /**
+     * Telemetry timestampMs.
+     * @member {number} timestampMs
+     * @memberof Telemetry
+     * @instance
+     */
+    Telemetry.prototype.timestampMs = 0;
 
-  return text;
-}
+    /**
+     * Creates a new Telemetry instance using the specified properties.
+     * @function create
+     * @memberof Telemetry
+     * @static
+     * @param {ITelemetry=} [properties] Properties to set
+     * @returns {Telemetry} Telemetry instance
+     */
+    Telemetry.create = function create(properties) {
+        return new Telemetry(properties);
+    };
 
-function writeString(bb, text) {
-  // Sadly a hand-coded UTF8 encoder is much faster than TextEncoder+set in V8
-  let n = text.length;
-  let byteCount = 0;
+    /**
+     * Encodes the specified Telemetry message. Does not implicitly {@link Telemetry.verify|verify} messages.
+     * @function encode
+     * @memberof Telemetry
+     * @static
+     * @param {ITelemetry} message Telemetry message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    Telemetry.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.an3 != null && Object.hasOwnProperty.call(message, "an3"))
+            writer.uint32(/* id 1, wireType 5 =*/13).float(message.an3);
+        if (message.an5 != null && Object.hasOwnProperty.call(message, "an5"))
+            writer.uint32(/* id 2, wireType 5 =*/21).float(message.an5);
+        if (message.an6 != null && Object.hasOwnProperty.call(message, "an6"))
+            writer.uint32(/* id 3, wireType 5 =*/29).float(message.an6);
+        if (message.timestampMs != null && Object.hasOwnProperty.call(message, "timestampMs"))
+            writer.uint32(/* id 4, wireType 0 =*/32).uint32(message.timestampMs);
+        return writer;
+    };
 
-  // Write the byte count first
-  for (let i = 0; i < n; i++) {
-    let c = text.charCodeAt(i);
-    if (c >= 0xD800 && c <= 0xDBFF && i + 1 < n) {
-      c = (c << 10) + text.charCodeAt(++i) - 0x35FDC00;
-    }
-    byteCount += c < 0x80 ? 1 : c < 0x800 ? 2 : c < 0x10000 ? 3 : 4;
-  }
-  writeVarint32(bb, byteCount);
+    /**
+     * Encodes the specified Telemetry message, length delimited. Does not implicitly {@link Telemetry.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof Telemetry
+     * @static
+     * @param {ITelemetry} message Telemetry message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    Telemetry.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
 
-  let offset = grow(bb, byteCount);
-  let bytes = bb.bytes;
-
-  // Then write the bytes
-  for (let i = 0; i < n; i++) {
-    let c = text.charCodeAt(i);
-    if (c >= 0xD800 && c <= 0xDBFF && i + 1 < n) {
-      c = (c << 10) + text.charCodeAt(++i) - 0x35FDC00;
-    }
-    if (c < 0x80) {
-      bytes[offset++] = c;
-    } else {
-      if (c < 0x800) {
-        bytes[offset++] = ((c >> 6) & 0x1F) | 0xC0;
-      } else {
-        if (c < 0x10000) {
-          bytes[offset++] = ((c >> 12) & 0x0F) | 0xE0;
-        } else {
-          bytes[offset++] = ((c >> 18) & 0x07) | 0xF0;
-          bytes[offset++] = ((c >> 12) & 0x3F) | 0x80;
-        }
-        bytes[offset++] = ((c >> 6) & 0x3F) | 0x80;
-      }
-      bytes[offset++] = (c & 0x3F) | 0x80;
-    }
-  }
-}
-
-function writeByteBuffer(bb, buffer) {
-  let offset = grow(bb, buffer.limit);
-  let from = bb.bytes;
-  let to = buffer.bytes;
-
-  // This for loop is much faster than subarray+set on V8
-  for (let i = 0, n = buffer.limit; i < n; i++) {
-    from[i + offset] = to[i];
-  }
-}
-
-function readByte(bb) {
-  return bb.bytes[advance(bb, 1)];
-}
-
-function writeByte(bb, value) {
-  let offset = grow(bb, 1);
-  bb.bytes[offset] = value;
-}
-
-function readFloat(bb) {
-  let offset = advance(bb, 4);
-  let bytes = bb.bytes;
-
-  // Manual copying is much faster than subarray+set in V8
-  f32_u8[0] = bytes[offset++];
-  f32_u8[1] = bytes[offset++];
-  f32_u8[2] = bytes[offset++];
-  f32_u8[3] = bytes[offset++];
-  return f32[0];
-}
-
-function writeFloat(bb, value) {
-  let offset = grow(bb, 4);
-  let bytes = bb.bytes;
-  f32[0] = value;
-
-  // Manual copying is much faster than subarray+set in V8
-  bytes[offset++] = f32_u8[0];
-  bytes[offset++] = f32_u8[1];
-  bytes[offset++] = f32_u8[2];
-  bytes[offset++] = f32_u8[3];
-}
-
-function readDouble(bb) {
-  let offset = advance(bb, 8);
-  let bytes = bb.bytes;
-
-  // Manual copying is much faster than subarray+set in V8
-  f64_u8[0] = bytes[offset++];
-  f64_u8[1] = bytes[offset++];
-  f64_u8[2] = bytes[offset++];
-  f64_u8[3] = bytes[offset++];
-  f64_u8[4] = bytes[offset++];
-  f64_u8[5] = bytes[offset++];
-  f64_u8[6] = bytes[offset++];
-  f64_u8[7] = bytes[offset++];
-  return f64[0];
-}
-
-function writeDouble(bb, value) {
-  let offset = grow(bb, 8);
-  let bytes = bb.bytes;
-  f64[0] = value;
-
-  // Manual copying is much faster than subarray+set in V8
-  bytes[offset++] = f64_u8[0];
-  bytes[offset++] = f64_u8[1];
-  bytes[offset++] = f64_u8[2];
-  bytes[offset++] = f64_u8[3];
-  bytes[offset++] = f64_u8[4];
-  bytes[offset++] = f64_u8[5];
-  bytes[offset++] = f64_u8[6];
-  bytes[offset++] = f64_u8[7];
-}
-
-function readInt32(bb) {
-  let offset = advance(bb, 4);
-  let bytes = bb.bytes;
-  return (
-    bytes[offset] |
-    (bytes[offset + 1] << 8) |
-    (bytes[offset + 2] << 16) |
-    (bytes[offset + 3] << 24)
-  );
-}
-
-function writeInt32(bb, value) {
-  let offset = grow(bb, 4);
-  let bytes = bb.bytes;
-  bytes[offset] = value;
-  bytes[offset + 1] = value >> 8;
-  bytes[offset + 2] = value >> 16;
-  bytes[offset + 3] = value >> 24;
-}
-
-function readInt64(bb, unsigned) {
-  return {
-    low: readInt32(bb),
-    high: readInt32(bb),
-    unsigned,
-  };
-}
-
-function writeInt64(bb, value) {
-  writeInt32(bb, value.low);
-  writeInt32(bb, value.high);
-}
-
-function readVarint32(bb) {
-  let c = 0;
-  let value = 0;
-  let b;
-  do {
-    b = readByte(bb);
-    if (c < 32) value |= (b & 0x7F) << c;
-    c += 7;
-  } while (b & 0x80);
-  return value;
-}
-
-function writeVarint32(bb, value) {
-  value >>>= 0;
-  while (value >= 0x80) {
-    writeByte(bb, (value & 0x7f) | 0x80);
-    value >>>= 7;
-  }
-  writeByte(bb, value);
-}
-
-function readVarint64(bb, unsigned) {
-  let part0 = 0;
-  let part1 = 0;
-  let part2 = 0;
-  let b;
-
-  b = readByte(bb); part0 = (b & 0x7F); if (b & 0x80) {
-    b = readByte(bb); part0 |= (b & 0x7F) << 7; if (b & 0x80) {
-      b = readByte(bb); part0 |= (b & 0x7F) << 14; if (b & 0x80) {
-        b = readByte(bb); part0 |= (b & 0x7F) << 21; if (b & 0x80) {
-
-          b = readByte(bb); part1 = (b & 0x7F); if (b & 0x80) {
-            b = readByte(bb); part1 |= (b & 0x7F) << 7; if (b & 0x80) {
-              b = readByte(bb); part1 |= (b & 0x7F) << 14; if (b & 0x80) {
-                b = readByte(bb); part1 |= (b & 0x7F) << 21; if (b & 0x80) {
-
-                  b = readByte(bb); part2 = (b & 0x7F); if (b & 0x80) {
-                    b = readByte(bb); part2 |= (b & 0x7F) << 7;
-                  }
+    /**
+     * Decodes a Telemetry message from the specified reader or buffer.
+     * @function decode
+     * @memberof Telemetry
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {Telemetry} Telemetry
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    Telemetry.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.Telemetry();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.an3 = reader.float();
+                    break;
                 }
-              }
+            case 2: {
+                    message.an5 = reader.float();
+                    break;
+                }
+            case 3: {
+                    message.an6 = reader.float();
+                    break;
+                }
+            case 4: {
+                    message.timestampMs = reader.uint32();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
             }
-          }
         }
-      }
+        return message;
+    };
+
+    /**
+     * Decodes a Telemetry message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof Telemetry
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {Telemetry} Telemetry
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    Telemetry.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a Telemetry message.
+     * @function verify
+     * @memberof Telemetry
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    Telemetry.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.an3 != null && message.hasOwnProperty("an3"))
+            if (typeof message.an3 !== "number")
+                return "an3: number expected";
+        if (message.an5 != null && message.hasOwnProperty("an5"))
+            if (typeof message.an5 !== "number")
+                return "an5: number expected";
+        if (message.an6 != null && message.hasOwnProperty("an6"))
+            if (typeof message.an6 !== "number")
+                return "an6: number expected";
+        if (message.timestampMs != null && message.hasOwnProperty("timestampMs"))
+            if (!$util.isInteger(message.timestampMs))
+                return "timestampMs: integer expected";
+        return null;
+    };
+
+    /**
+     * Creates a Telemetry message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof Telemetry
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {Telemetry} Telemetry
+     */
+    Telemetry.fromObject = function fromObject(object) {
+        if (object instanceof $root.Telemetry)
+            return object;
+        let message = new $root.Telemetry();
+        if (object.an3 != null)
+            message.an3 = Number(object.an3);
+        if (object.an5 != null)
+            message.an5 = Number(object.an5);
+        if (object.an6 != null)
+            message.an6 = Number(object.an6);
+        if (object.timestampMs != null)
+            message.timestampMs = object.timestampMs >>> 0;
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a Telemetry message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof Telemetry
+     * @static
+     * @param {Telemetry} message Telemetry
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    Telemetry.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults) {
+            object.an3 = 0;
+            object.an5 = 0;
+            object.an6 = 0;
+            object.timestampMs = 0;
+        }
+        if (message.an3 != null && message.hasOwnProperty("an3"))
+            object.an3 = options.json && !isFinite(message.an3) ? String(message.an3) : message.an3;
+        if (message.an5 != null && message.hasOwnProperty("an5"))
+            object.an5 = options.json && !isFinite(message.an5) ? String(message.an5) : message.an5;
+        if (message.an6 != null && message.hasOwnProperty("an6"))
+            object.an6 = options.json && !isFinite(message.an6) ? String(message.an6) : message.an6;
+        if (message.timestampMs != null && message.hasOwnProperty("timestampMs"))
+            object.timestampMs = message.timestampMs;
+        return object;
+    };
+
+    /**
+     * Converts this Telemetry to JSON.
+     * @function toJSON
+     * @memberof Telemetry
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    Telemetry.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for Telemetry
+     * @function getTypeUrl
+     * @memberof Telemetry
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    Telemetry.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/Telemetry";
+    };
+
+    return Telemetry;
+})();
+
+export const SystemStatus = $root.SystemStatus = (() => {
+
+    /**
+     * Properties of a SystemStatus.
+     * @exports ISystemStatus
+     * @interface ISystemStatus
+     * @property {BleSignalSet|null} [activeSet] SystemStatus activeSet
+     * @property {BleSignalState|null} [signalState] SystemStatus signalState
+     * @property {BleAnalogReadState|null} [bleReadState] SystemStatus bleReadState
+     * @property {BleControlState|null} [controlState] SystemStatus controlState
+     * @property {number|null} [alpha] SystemStatus alpha
+     * @property {boolean|null} [hasAlpha] SystemStatus hasAlpha
+     * @property {boolean|null} [matrixAValid] SystemStatus matrixAValid
+     * @property {boolean|null} [matrixBValid] SystemStatus matrixBValid
+     * @property {number|null} [currentCycles] SystemStatus currentCycles
+     * @property {number|null} [totalCycles] SystemStatus totalCycles
+     * @property {number|null} [monitorMs] SystemStatus monitorMs
+     * @property {number|null} [usCyclesUp] SystemStatus usCyclesUp
+     * @property {number|null} [usCyclesDown] SystemStatus usCyclesDown
+     * @property {BleLedMode|null} [ledMode] SystemStatus ledMode
+     * @property {boolean|null} [bleCongested] SystemStatus bleCongested
+     * @property {number|null} [adcMin] SystemStatus adcMin
+     * @property {number|null} [adcMax] SystemStatus adcMax
+     * @property {number|null} [adcAvg] SystemStatus adcAvg
+     */
+
+    /**
+     * Constructs a new SystemStatus.
+     * @exports SystemStatus
+     * @classdesc Represents a SystemStatus.
+     * @implements ISystemStatus
+     * @constructor
+     * @param {ISystemStatus=} [properties] Properties to set
+     */
+    function SystemStatus(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
     }
-  }
 
-  return {
-    low: part0 | (part1 << 28),
-    high: (part1 >>> 4) | (part2 << 24),
-    unsigned,
-  };
-}
+    /**
+     * SystemStatus activeSet.
+     * @member {BleSignalSet} activeSet
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.activeSet = 0;
 
-function writeVarint64(bb, value) {
-  let part0 = value.low >>> 0;
-  let part1 = ((value.low >>> 28) | (value.high << 4)) >>> 0;
-  let part2 = value.high >>> 24;
+    /**
+     * SystemStatus signalState.
+     * @member {BleSignalState} signalState
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.signalState = 0;
 
-  // ref: src/google/protobuf/io/coded_stream.cc
-  let size =
-    part2 === 0 ?
-      part1 === 0 ?
-        part0 < 1 << 14 ?
-          part0 < 1 << 7 ? 1 : 2 :
-          part0 < 1 << 21 ? 3 : 4 :
-        part1 < 1 << 14 ?
-          part1 < 1 << 7 ? 5 : 6 :
-          part1 < 1 << 21 ? 7 : 8 :
-      part2 < 1 << 7 ? 9 : 10;
+    /**
+     * SystemStatus bleReadState.
+     * @member {BleAnalogReadState} bleReadState
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.bleReadState = 0;
 
-  let offset = grow(bb, size);
-  let bytes = bb.bytes;
+    /**
+     * SystemStatus controlState.
+     * @member {BleControlState} controlState
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.controlState = 0;
 
-  switch (size) {
-    case 10: bytes[offset + 9] = (part2 >>> 7) & 0x01;
-    case 9: bytes[offset + 8] = size !== 9 ? part2 | 0x80 : part2 & 0x7F;
-    case 8: bytes[offset + 7] = size !== 8 ? (part1 >>> 21) | 0x80 : (part1 >>> 21) & 0x7F;
-    case 7: bytes[offset + 6] = size !== 7 ? (part1 >>> 14) | 0x80 : (part1 >>> 14) & 0x7F;
-    case 6: bytes[offset + 5] = size !== 6 ? (part1 >>> 7) | 0x80 : (part1 >>> 7) & 0x7F;
-    case 5: bytes[offset + 4] = size !== 5 ? part1 | 0x80 : part1 & 0x7F;
-    case 4: bytes[offset + 3] = size !== 4 ? (part0 >>> 21) | 0x80 : (part0 >>> 21) & 0x7F;
-    case 3: bytes[offset + 2] = size !== 3 ? (part0 >>> 14) | 0x80 : (part0 >>> 14) & 0x7F;
-    case 2: bytes[offset + 1] = size !== 2 ? (part0 >>> 7) | 0x80 : (part0 >>> 7) & 0x7F;
-    case 1: bytes[offset] = size !== 1 ? part0 | 0x80 : part0 & 0x7F;
-  }
-}
+    /**
+     * SystemStatus alpha.
+     * @member {number} alpha
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.alpha = 0;
 
-function readVarint32ZigZag(bb) {
-  let value = readVarint32(bb);
+    /**
+     * SystemStatus hasAlpha.
+     * @member {boolean} hasAlpha
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.hasAlpha = false;
 
-  // ref: src/google/protobuf/wire_format_lite.h
-  return (value >>> 1) ^ -(value & 1);
-}
+    /**
+     * SystemStatus matrixAValid.
+     * @member {boolean} matrixAValid
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.matrixAValid = false;
 
-function writeVarint32ZigZag(bb, value) {
-  // ref: src/google/protobuf/wire_format_lite.h
-  writeVarint32(bb, (value << 1) ^ (value >> 31));
-}
+    /**
+     * SystemStatus matrixBValid.
+     * @member {boolean} matrixBValid
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.matrixBValid = false;
 
-function readVarint64ZigZag(bb) {
-  let value = readVarint64(bb, /* unsigned */ false);
-  let low = value.low;
-  let high = value.high;
-  let flip = -(low & 1);
+    /**
+     * SystemStatus currentCycles.
+     * @member {number} currentCycles
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.currentCycles = 0;
 
-  // ref: src/google/protobuf/wire_format_lite.h
-  return {
-    low: ((low >>> 1) | (high << 31)) ^ flip,
-    high: (high >>> 1) ^ flip,
-    unsigned: false,
-  };
-}
+    /**
+     * SystemStatus totalCycles.
+     * @member {number} totalCycles
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.totalCycles = 0;
 
-function writeVarint64ZigZag(bb, value) {
-  let low = value.low;
-  let high = value.high;
-  let flip = high >> 31;
+    /**
+     * SystemStatus monitorMs.
+     * @member {number} monitorMs
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.monitorMs = 0;
 
-  // ref: src/google/protobuf/wire_format_lite.h
-  writeVarint64(bb, {
-    low: (low << 1) ^ flip,
-    high: ((high << 1) | (low >>> 31)) ^ flip,
-    unsigned: false,
-  });
-}
+    /**
+     * SystemStatus usCyclesUp.
+     * @member {number} usCyclesUp
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.usCyclesUp = 0;
+
+    /**
+     * SystemStatus usCyclesDown.
+     * @member {number} usCyclesDown
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.usCyclesDown = 0;
+
+    /**
+     * SystemStatus ledMode.
+     * @member {BleLedMode} ledMode
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.ledMode = 0;
+
+    /**
+     * SystemStatus bleCongested.
+     * @member {boolean} bleCongested
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.bleCongested = false;
+
+    /**
+     * SystemStatus adcMin.
+     * @member {number} adcMin
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.adcMin = 0;
+
+    /**
+     * SystemStatus adcMax.
+     * @member {number} adcMax
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.adcMax = 0;
+
+    /**
+     * SystemStatus adcAvg.
+     * @member {number} adcAvg
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.adcAvg = 0;
+
+    /**
+     * Creates a new SystemStatus instance using the specified properties.
+     * @function create
+     * @memberof SystemStatus
+     * @static
+     * @param {ISystemStatus=} [properties] Properties to set
+     * @returns {SystemStatus} SystemStatus instance
+     */
+    SystemStatus.create = function create(properties) {
+        return new SystemStatus(properties);
+    };
+
+    /**
+     * Encodes the specified SystemStatus message. Does not implicitly {@link SystemStatus.verify|verify} messages.
+     * @function encode
+     * @memberof SystemStatus
+     * @static
+     * @param {ISystemStatus} message SystemStatus message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    SystemStatus.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.activeSet != null && Object.hasOwnProperty.call(message, "activeSet"))
+            writer.uint32(/* id 1, wireType 0 =*/8).int32(message.activeSet);
+        if (message.signalState != null && Object.hasOwnProperty.call(message, "signalState"))
+            writer.uint32(/* id 2, wireType 0 =*/16).int32(message.signalState);
+        if (message.bleReadState != null && Object.hasOwnProperty.call(message, "bleReadState"))
+            writer.uint32(/* id 3, wireType 0 =*/24).int32(message.bleReadState);
+        if (message.controlState != null && Object.hasOwnProperty.call(message, "controlState"))
+            writer.uint32(/* id 4, wireType 0 =*/32).int32(message.controlState);
+        if (message.alpha != null && Object.hasOwnProperty.call(message, "alpha"))
+            writer.uint32(/* id 5, wireType 5 =*/45).float(message.alpha);
+        if (message.hasAlpha != null && Object.hasOwnProperty.call(message, "hasAlpha"))
+            writer.uint32(/* id 6, wireType 0 =*/48).bool(message.hasAlpha);
+        if (message.matrixAValid != null && Object.hasOwnProperty.call(message, "matrixAValid"))
+            writer.uint32(/* id 7, wireType 0 =*/56).bool(message.matrixAValid);
+        if (message.matrixBValid != null && Object.hasOwnProperty.call(message, "matrixBValid"))
+            writer.uint32(/* id 8, wireType 0 =*/64).bool(message.matrixBValid);
+        if (message.currentCycles != null && Object.hasOwnProperty.call(message, "currentCycles"))
+            writer.uint32(/* id 9, wireType 0 =*/72).uint32(message.currentCycles);
+        if (message.totalCycles != null && Object.hasOwnProperty.call(message, "totalCycles"))
+            writer.uint32(/* id 10, wireType 0 =*/80).uint32(message.totalCycles);
+        if (message.monitorMs != null && Object.hasOwnProperty.call(message, "monitorMs"))
+            writer.uint32(/* id 11, wireType 0 =*/88).uint32(message.monitorMs);
+        if (message.usCyclesUp != null && Object.hasOwnProperty.call(message, "usCyclesUp"))
+            writer.uint32(/* id 12, wireType 0 =*/96).uint32(message.usCyclesUp);
+        if (message.usCyclesDown != null && Object.hasOwnProperty.call(message, "usCyclesDown"))
+            writer.uint32(/* id 13, wireType 0 =*/104).uint32(message.usCyclesDown);
+        if (message.ledMode != null && Object.hasOwnProperty.call(message, "ledMode"))
+            writer.uint32(/* id 14, wireType 0 =*/112).int32(message.ledMode);
+        if (message.bleCongested != null && Object.hasOwnProperty.call(message, "bleCongested"))
+            writer.uint32(/* id 15, wireType 0 =*/120).bool(message.bleCongested);
+        if (message.adcMin != null && Object.hasOwnProperty.call(message, "adcMin"))
+            writer.uint32(/* id 16, wireType 0 =*/128).uint32(message.adcMin);
+        if (message.adcMax != null && Object.hasOwnProperty.call(message, "adcMax"))
+            writer.uint32(/* id 17, wireType 0 =*/136).uint32(message.adcMax);
+        if (message.adcAvg != null && Object.hasOwnProperty.call(message, "adcAvg"))
+            writer.uint32(/* id 18, wireType 0 =*/144).uint32(message.adcAvg);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified SystemStatus message, length delimited. Does not implicitly {@link SystemStatus.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof SystemStatus
+     * @static
+     * @param {ISystemStatus} message SystemStatus message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    SystemStatus.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a SystemStatus message from the specified reader or buffer.
+     * @function decode
+     * @memberof SystemStatus
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {SystemStatus} SystemStatus
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    SystemStatus.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.SystemStatus();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.activeSet = reader.int32();
+                    break;
+                }
+            case 2: {
+                    message.signalState = reader.int32();
+                    break;
+                }
+            case 3: {
+                    message.bleReadState = reader.int32();
+                    break;
+                }
+            case 4: {
+                    message.controlState = reader.int32();
+                    break;
+                }
+            case 5: {
+                    message.alpha = reader.float();
+                    break;
+                }
+            case 6: {
+                    message.hasAlpha = reader.bool();
+                    break;
+                }
+            case 7: {
+                    message.matrixAValid = reader.bool();
+                    break;
+                }
+            case 8: {
+                    message.matrixBValid = reader.bool();
+                    break;
+                }
+            case 9: {
+                    message.currentCycles = reader.uint32();
+                    break;
+                }
+            case 10: {
+                    message.totalCycles = reader.uint32();
+                    break;
+                }
+            case 11: {
+                    message.monitorMs = reader.uint32();
+                    break;
+                }
+            case 12: {
+                    message.usCyclesUp = reader.uint32();
+                    break;
+                }
+            case 13: {
+                    message.usCyclesDown = reader.uint32();
+                    break;
+                }
+            case 14: {
+                    message.ledMode = reader.int32();
+                    break;
+                }
+            case 15: {
+                    message.bleCongested = reader.bool();
+                    break;
+                }
+            case 16: {
+                    message.adcMin = reader.uint32();
+                    break;
+                }
+            case 17: {
+                    message.adcMax = reader.uint32();
+                    break;
+                }
+            case 18: {
+                    message.adcAvg = reader.uint32();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a SystemStatus message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof SystemStatus
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {SystemStatus} SystemStatus
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    SystemStatus.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a SystemStatus message.
+     * @function verify
+     * @memberof SystemStatus
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    SystemStatus.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.activeSet != null && message.hasOwnProperty("activeSet"))
+            switch (message.activeSet) {
+            default:
+                return "activeSet: enum value expected";
+            case 0:
+            case 1:
+                break;
+            }
+        if (message.signalState != null && message.hasOwnProperty("signalState"))
+            switch (message.signalState) {
+            default:
+                return "signalState: enum value expected";
+            case 0:
+            case 1:
+                break;
+            }
+        if (message.bleReadState != null && message.hasOwnProperty("bleReadState"))
+            switch (message.bleReadState) {
+            default:
+                return "bleReadState: enum value expected";
+            case 0:
+            case 1:
+            case 2:
+                break;
+            }
+        if (message.controlState != null && message.hasOwnProperty("controlState"))
+            switch (message.controlState) {
+            default:
+                return "controlState: enum value expected";
+            case 0:
+            case 1:
+                break;
+            }
+        if (message.alpha != null && message.hasOwnProperty("alpha"))
+            if (typeof message.alpha !== "number")
+                return "alpha: number expected";
+        if (message.hasAlpha != null && message.hasOwnProperty("hasAlpha"))
+            if (typeof message.hasAlpha !== "boolean")
+                return "hasAlpha: boolean expected";
+        if (message.matrixAValid != null && message.hasOwnProperty("matrixAValid"))
+            if (typeof message.matrixAValid !== "boolean")
+                return "matrixAValid: boolean expected";
+        if (message.matrixBValid != null && message.hasOwnProperty("matrixBValid"))
+            if (typeof message.matrixBValid !== "boolean")
+                return "matrixBValid: boolean expected";
+        if (message.currentCycles != null && message.hasOwnProperty("currentCycles"))
+            if (!$util.isInteger(message.currentCycles))
+                return "currentCycles: integer expected";
+        if (message.totalCycles != null && message.hasOwnProperty("totalCycles"))
+            if (!$util.isInteger(message.totalCycles))
+                return "totalCycles: integer expected";
+        if (message.monitorMs != null && message.hasOwnProperty("monitorMs"))
+            if (!$util.isInteger(message.monitorMs))
+                return "monitorMs: integer expected";
+        if (message.usCyclesUp != null && message.hasOwnProperty("usCyclesUp"))
+            if (!$util.isInteger(message.usCyclesUp))
+                return "usCyclesUp: integer expected";
+        if (message.usCyclesDown != null && message.hasOwnProperty("usCyclesDown"))
+            if (!$util.isInteger(message.usCyclesDown))
+                return "usCyclesDown: integer expected";
+        if (message.ledMode != null && message.hasOwnProperty("ledMode"))
+            switch (message.ledMode) {
+            default:
+                return "ledMode: enum value expected";
+            case 0:
+            case 1:
+                break;
+            }
+        if (message.bleCongested != null && message.hasOwnProperty("bleCongested"))
+            if (typeof message.bleCongested !== "boolean")
+                return "bleCongested: boolean expected";
+        if (message.adcMin != null && message.hasOwnProperty("adcMin"))
+            if (!$util.isInteger(message.adcMin))
+                return "adcMin: integer expected";
+        if (message.adcMax != null && message.hasOwnProperty("adcMax"))
+            if (!$util.isInteger(message.adcMax))
+                return "adcMax: integer expected";
+        if (message.adcAvg != null && message.hasOwnProperty("adcAvg"))
+            if (!$util.isInteger(message.adcAvg))
+                return "adcAvg: integer expected";
+        return null;
+    };
+
+    /**
+     * Creates a SystemStatus message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof SystemStatus
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {SystemStatus} SystemStatus
+     */
+    SystemStatus.fromObject = function fromObject(object) {
+        if (object instanceof $root.SystemStatus)
+            return object;
+        let message = new $root.SystemStatus();
+        switch (object.activeSet) {
+        default:
+            if (typeof object.activeSet === "number") {
+                message.activeSet = object.activeSet;
+                break;
+            }
+            break;
+        case "BLE_SET_A":
+        case 0:
+            message.activeSet = 0;
+            break;
+        case "BLE_SET_B":
+        case 1:
+            message.activeSet = 1;
+            break;
+        }
+        switch (object.signalState) {
+        default:
+            if (typeof object.signalState === "number") {
+                message.signalState = object.signalState;
+                break;
+            }
+            break;
+        case "BLE_SIG_IDLE":
+        case 0:
+            message.signalState = 0;
+            break;
+        case "BLE_SIG_RUNNING":
+        case 1:
+            message.signalState = 1;
+            break;
+        }
+        switch (object.bleReadState) {
+        default:
+            if (typeof object.bleReadState === "number") {
+                message.bleReadState = object.bleReadState;
+                break;
+            }
+            break;
+        case "BLE_READ_IDLE":
+        case 0:
+            message.bleReadState = 0;
+            break;
+        case "BLE_READING":
+        case 1:
+            message.bleReadState = 1;
+            break;
+        case "BLE_READ_DISABLED":
+        case 2:
+            message.bleReadState = 2;
+            break;
+        }
+        switch (object.controlState) {
+        default:
+            if (typeof object.controlState === "number") {
+                message.controlState = object.controlState;
+                break;
+            }
+            break;
+        case "BLE_CTRL_OFF":
+        case 0:
+            message.controlState = 0;
+            break;
+        case "BLE_CTRL_ON":
+        case 1:
+            message.controlState = 1;
+            break;
+        }
+        if (object.alpha != null)
+            message.alpha = Number(object.alpha);
+        if (object.hasAlpha != null)
+            message.hasAlpha = Boolean(object.hasAlpha);
+        if (object.matrixAValid != null)
+            message.matrixAValid = Boolean(object.matrixAValid);
+        if (object.matrixBValid != null)
+            message.matrixBValid = Boolean(object.matrixBValid);
+        if (object.currentCycles != null)
+            message.currentCycles = object.currentCycles >>> 0;
+        if (object.totalCycles != null)
+            message.totalCycles = object.totalCycles >>> 0;
+        if (object.monitorMs != null)
+            message.monitorMs = object.monitorMs >>> 0;
+        if (object.usCyclesUp != null)
+            message.usCyclesUp = object.usCyclesUp >>> 0;
+        if (object.usCyclesDown != null)
+            message.usCyclesDown = object.usCyclesDown >>> 0;
+        switch (object.ledMode) {
+        default:
+            if (typeof object.ledMode === "number") {
+                message.ledMode = object.ledMode;
+                break;
+            }
+            break;
+        case "LED_NORMAL":
+        case 0:
+            message.ledMode = 0;
+            break;
+        case "LED_BLINKING":
+        case 1:
+            message.ledMode = 1;
+            break;
+        }
+        if (object.bleCongested != null)
+            message.bleCongested = Boolean(object.bleCongested);
+        if (object.adcMin != null)
+            message.adcMin = object.adcMin >>> 0;
+        if (object.adcMax != null)
+            message.adcMax = object.adcMax >>> 0;
+        if (object.adcAvg != null)
+            message.adcAvg = object.adcAvg >>> 0;
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a SystemStatus message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof SystemStatus
+     * @static
+     * @param {SystemStatus} message SystemStatus
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    SystemStatus.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults) {
+            object.activeSet = options.enums === String ? "BLE_SET_A" : 0;
+            object.signalState = options.enums === String ? "BLE_SIG_IDLE" : 0;
+            object.bleReadState = options.enums === String ? "BLE_READ_IDLE" : 0;
+            object.controlState = options.enums === String ? "BLE_CTRL_OFF" : 0;
+            object.alpha = 0;
+            object.hasAlpha = false;
+            object.matrixAValid = false;
+            object.matrixBValid = false;
+            object.currentCycles = 0;
+            object.totalCycles = 0;
+            object.monitorMs = 0;
+            object.usCyclesUp = 0;
+            object.usCyclesDown = 0;
+            object.ledMode = options.enums === String ? "LED_NORMAL" : 0;
+            object.bleCongested = false;
+            object.adcMin = 0;
+            object.adcMax = 0;
+            object.adcAvg = 0;
+        }
+        if (message.activeSet != null && message.hasOwnProperty("activeSet"))
+            object.activeSet = options.enums === String ? $root.BleSignalSet[message.activeSet] === undefined ? message.activeSet : $root.BleSignalSet[message.activeSet] : message.activeSet;
+        if (message.signalState != null && message.hasOwnProperty("signalState"))
+            object.signalState = options.enums === String ? $root.BleSignalState[message.signalState] === undefined ? message.signalState : $root.BleSignalState[message.signalState] : message.signalState;
+        if (message.bleReadState != null && message.hasOwnProperty("bleReadState"))
+            object.bleReadState = options.enums === String ? $root.BleAnalogReadState[message.bleReadState] === undefined ? message.bleReadState : $root.BleAnalogReadState[message.bleReadState] : message.bleReadState;
+        if (message.controlState != null && message.hasOwnProperty("controlState"))
+            object.controlState = options.enums === String ? $root.BleControlState[message.controlState] === undefined ? message.controlState : $root.BleControlState[message.controlState] : message.controlState;
+        if (message.alpha != null && message.hasOwnProperty("alpha"))
+            object.alpha = options.json && !isFinite(message.alpha) ? String(message.alpha) : message.alpha;
+        if (message.hasAlpha != null && message.hasOwnProperty("hasAlpha"))
+            object.hasAlpha = message.hasAlpha;
+        if (message.matrixAValid != null && message.hasOwnProperty("matrixAValid"))
+            object.matrixAValid = message.matrixAValid;
+        if (message.matrixBValid != null && message.hasOwnProperty("matrixBValid"))
+            object.matrixBValid = message.matrixBValid;
+        if (message.currentCycles != null && message.hasOwnProperty("currentCycles"))
+            object.currentCycles = message.currentCycles;
+        if (message.totalCycles != null && message.hasOwnProperty("totalCycles"))
+            object.totalCycles = message.totalCycles;
+        if (message.monitorMs != null && message.hasOwnProperty("monitorMs"))
+            object.monitorMs = message.monitorMs;
+        if (message.usCyclesUp != null && message.hasOwnProperty("usCyclesUp"))
+            object.usCyclesUp = message.usCyclesUp;
+        if (message.usCyclesDown != null && message.hasOwnProperty("usCyclesDown"))
+            object.usCyclesDown = message.usCyclesDown;
+        if (message.ledMode != null && message.hasOwnProperty("ledMode"))
+            object.ledMode = options.enums === String ? $root.BleLedMode[message.ledMode] === undefined ? message.ledMode : $root.BleLedMode[message.ledMode] : message.ledMode;
+        if (message.bleCongested != null && message.hasOwnProperty("bleCongested"))
+            object.bleCongested = message.bleCongested;
+        if (message.adcMin != null && message.hasOwnProperty("adcMin"))
+            object.adcMin = message.adcMin;
+        if (message.adcMax != null && message.hasOwnProperty("adcMax"))
+            object.adcMax = message.adcMax;
+        if (message.adcAvg != null && message.hasOwnProperty("adcAvg"))
+            object.adcAvg = message.adcAvg;
+        return object;
+    };
+
+    /**
+     * Converts this SystemStatus to JSON.
+     * @function toJSON
+     * @memberof SystemStatus
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    SystemStatus.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for SystemStatus
+     * @function getTypeUrl
+     * @memberof SystemStatus
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    SystemStatus.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/SystemStatus";
+    };
+
+    return SystemStatus;
+})();
+
+export const LogMessage = $root.LogMessage = (() => {
+
+    /**
+     * Properties of a LogMessage.
+     * @exports ILogMessage
+     * @interface ILogMessage
+     * @property {BleLogLevel|null} [level] LogMessage level
+     * @property {string|null} [text] LogMessage text
+     */
+
+    /**
+     * Constructs a new LogMessage.
+     * @exports LogMessage
+     * @classdesc Represents a LogMessage.
+     * @implements ILogMessage
+     * @constructor
+     * @param {ILogMessage=} [properties] Properties to set
+     */
+    function LogMessage(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * LogMessage level.
+     * @member {BleLogLevel} level
+     * @memberof LogMessage
+     * @instance
+     */
+    LogMessage.prototype.level = 0;
+
+    /**
+     * LogMessage text.
+     * @member {string} text
+     * @memberof LogMessage
+     * @instance
+     */
+    LogMessage.prototype.text = "";
+
+    /**
+     * Creates a new LogMessage instance using the specified properties.
+     * @function create
+     * @memberof LogMessage
+     * @static
+     * @param {ILogMessage=} [properties] Properties to set
+     * @returns {LogMessage} LogMessage instance
+     */
+    LogMessage.create = function create(properties) {
+        return new LogMessage(properties);
+    };
+
+    /**
+     * Encodes the specified LogMessage message. Does not implicitly {@link LogMessage.verify|verify} messages.
+     * @function encode
+     * @memberof LogMessage
+     * @static
+     * @param {ILogMessage} message LogMessage message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    LogMessage.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.level != null && Object.hasOwnProperty.call(message, "level"))
+            writer.uint32(/* id 1, wireType 0 =*/8).int32(message.level);
+        if (message.text != null && Object.hasOwnProperty.call(message, "text"))
+            writer.uint32(/* id 2, wireType 2 =*/18).string(message.text);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified LogMessage message, length delimited. Does not implicitly {@link LogMessage.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof LogMessage
+     * @static
+     * @param {ILogMessage} message LogMessage message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    LogMessage.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a LogMessage message from the specified reader or buffer.
+     * @function decode
+     * @memberof LogMessage
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {LogMessage} LogMessage
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    LogMessage.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.LogMessage();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.level = reader.int32();
+                    break;
+                }
+            case 2: {
+                    message.text = reader.string();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a LogMessage message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof LogMessage
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {LogMessage} LogMessage
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    LogMessage.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a LogMessage message.
+     * @function verify
+     * @memberof LogMessage
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    LogMessage.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.level != null && message.hasOwnProperty("level"))
+            switch (message.level) {
+            default:
+                return "level: enum value expected";
+            case 0:
+            case 1:
+            case 2:
+                break;
+            }
+        if (message.text != null && message.hasOwnProperty("text"))
+            if (!$util.isString(message.text))
+                return "text: string expected";
+        return null;
+    };
+
+    /**
+     * Creates a LogMessage message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof LogMessage
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {LogMessage} LogMessage
+     */
+    LogMessage.fromObject = function fromObject(object) {
+        if (object instanceof $root.LogMessage)
+            return object;
+        let message = new $root.LogMessage();
+        switch (object.level) {
+        default:
+            if (typeof object.level === "number") {
+                message.level = object.level;
+                break;
+            }
+            break;
+        case "BLE_LOG_INFO":
+        case 0:
+            message.level = 0;
+            break;
+        case "BLE_LOG_WARN":
+        case 1:
+            message.level = 1;
+            break;
+        case "BLE_LOG_ERROR":
+        case 2:
+            message.level = 2;
+            break;
+        }
+        if (object.text != null)
+            message.text = String(object.text);
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a LogMessage message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof LogMessage
+     * @static
+     * @param {LogMessage} message LogMessage
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    LogMessage.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults) {
+            object.level = options.enums === String ? "BLE_LOG_INFO" : 0;
+            object.text = "";
+        }
+        if (message.level != null && message.hasOwnProperty("level"))
+            object.level = options.enums === String ? $root.BleLogLevel[message.level] === undefined ? message.level : $root.BleLogLevel[message.level] : message.level;
+        if (message.text != null && message.hasOwnProperty("text"))
+            object.text = message.text;
+        return object;
+    };
+
+    /**
+     * Converts this LogMessage to JSON.
+     * @function toJSON
+     * @memberof LogMessage
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    LogMessage.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for LogMessage
+     * @function getTypeUrl
+     * @memberof LogMessage
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    LogMessage.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/LogMessage";
+    };
+
+    return LogMessage;
+})();
+
+/**
+ * OtaState enum.
+ * @exports OtaState
+ * @enum {number}
+ * @property {number} OTA_IDLE=0 OTA_IDLE value
+ * @property {number} OTA_DOWNLOADING=1 OTA_DOWNLOADING value
+ * @property {number} OTA_VERIFYING=2 OTA_VERIFYING value
+ * @property {number} OTA_FINISHED=3 OTA_FINISHED value
+ * @property {number} OTA_ERROR=4 OTA_ERROR value
+ */
+export const OtaState = $root.OtaState = (() => {
+    const valuesById = {}, values = Object.create(valuesById);
+    values[valuesById[0] = "OTA_IDLE"] = 0;
+    values[valuesById[1] = "OTA_DOWNLOADING"] = 1;
+    values[valuesById[2] = "OTA_VERIFYING"] = 2;
+    values[valuesById[3] = "OTA_FINISHED"] = 3;
+    values[valuesById[4] = "OTA_ERROR"] = 4;
+    return values;
+})();
+
+export const OtaStatus = $root.OtaStatus = (() => {
+
+    /**
+     * Properties of an OtaStatus.
+     * @exports IOtaStatus
+     * @interface IOtaStatus
+     * @property {OtaState|null} [state] OtaStatus state
+     * @property {number|null} [progressPercent] OtaStatus progressPercent
+     * @property {string|null} [message] OtaStatus message
+     */
+
+    /**
+     * Constructs a new OtaStatus.
+     * @exports OtaStatus
+     * @classdesc Represents an OtaStatus.
+     * @implements IOtaStatus
+     * @constructor
+     * @param {IOtaStatus=} [properties] Properties to set
+     */
+    function OtaStatus(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * OtaStatus state.
+     * @member {OtaState} state
+     * @memberof OtaStatus
+     * @instance
+     */
+    OtaStatus.prototype.state = 0;
+
+    /**
+     * OtaStatus progressPercent.
+     * @member {number} progressPercent
+     * @memberof OtaStatus
+     * @instance
+     */
+    OtaStatus.prototype.progressPercent = 0;
+
+    /**
+     * OtaStatus message.
+     * @member {string} message
+     * @memberof OtaStatus
+     * @instance
+     */
+    OtaStatus.prototype.message = "";
+
+    /**
+     * Creates a new OtaStatus instance using the specified properties.
+     * @function create
+     * @memberof OtaStatus
+     * @static
+     * @param {IOtaStatus=} [properties] Properties to set
+     * @returns {OtaStatus} OtaStatus instance
+     */
+    OtaStatus.create = function create(properties) {
+        return new OtaStatus(properties);
+    };
+
+    /**
+     * Encodes the specified OtaStatus message. Does not implicitly {@link OtaStatus.verify|verify} messages.
+     * @function encode
+     * @memberof OtaStatus
+     * @static
+     * @param {IOtaStatus} message OtaStatus message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    OtaStatus.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.state != null && Object.hasOwnProperty.call(message, "state"))
+            writer.uint32(/* id 1, wireType 0 =*/8).int32(message.state);
+        if (message.progressPercent != null && Object.hasOwnProperty.call(message, "progressPercent"))
+            writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.progressPercent);
+        if (message.message != null && Object.hasOwnProperty.call(message, "message"))
+            writer.uint32(/* id 3, wireType 2 =*/26).string(message.message);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified OtaStatus message, length delimited. Does not implicitly {@link OtaStatus.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof OtaStatus
+     * @static
+     * @param {IOtaStatus} message OtaStatus message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    OtaStatus.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes an OtaStatus message from the specified reader or buffer.
+     * @function decode
+     * @memberof OtaStatus
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {OtaStatus} OtaStatus
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    OtaStatus.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.OtaStatus();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.state = reader.int32();
+                    break;
+                }
+            case 2: {
+                    message.progressPercent = reader.uint32();
+                    break;
+                }
+            case 3: {
+                    message.message = reader.string();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes an OtaStatus message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof OtaStatus
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {OtaStatus} OtaStatus
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    OtaStatus.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies an OtaStatus message.
+     * @function verify
+     * @memberof OtaStatus
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    OtaStatus.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.state != null && message.hasOwnProperty("state"))
+            switch (message.state) {
+            default:
+                return "state: enum value expected";
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                break;
+            }
+        if (message.progressPercent != null && message.hasOwnProperty("progressPercent"))
+            if (!$util.isInteger(message.progressPercent))
+                return "progressPercent: integer expected";
+        if (message.message != null && message.hasOwnProperty("message"))
+            if (!$util.isString(message.message))
+                return "message: string expected";
+        return null;
+    };
+
+    /**
+     * Creates an OtaStatus message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof OtaStatus
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {OtaStatus} OtaStatus
+     */
+    OtaStatus.fromObject = function fromObject(object) {
+        if (object instanceof $root.OtaStatus)
+            return object;
+        let message = new $root.OtaStatus();
+        switch (object.state) {
+        default:
+            if (typeof object.state === "number") {
+                message.state = object.state;
+                break;
+            }
+            break;
+        case "OTA_IDLE":
+        case 0:
+            message.state = 0;
+            break;
+        case "OTA_DOWNLOADING":
+        case 1:
+            message.state = 1;
+            break;
+        case "OTA_VERIFYING":
+        case 2:
+            message.state = 2;
+            break;
+        case "OTA_FINISHED":
+        case 3:
+            message.state = 3;
+            break;
+        case "OTA_ERROR":
+        case 4:
+            message.state = 4;
+            break;
+        }
+        if (object.progressPercent != null)
+            message.progressPercent = object.progressPercent >>> 0;
+        if (object.message != null)
+            message.message = String(object.message);
+        return message;
+    };
+
+    /**
+     * Creates a plain object from an OtaStatus message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof OtaStatus
+     * @static
+     * @param {OtaStatus} message OtaStatus
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    OtaStatus.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults) {
+            object.state = options.enums === String ? "OTA_IDLE" : 0;
+            object.progressPercent = 0;
+            object.message = "";
+        }
+        if (message.state != null && message.hasOwnProperty("state"))
+            object.state = options.enums === String ? $root.OtaState[message.state] === undefined ? message.state : $root.OtaState[message.state] : message.state;
+        if (message.progressPercent != null && message.hasOwnProperty("progressPercent"))
+            object.progressPercent = message.progressPercent;
+        if (message.message != null && message.hasOwnProperty("message"))
+            object.message = message.message;
+        return object;
+    };
+
+    /**
+     * Converts this OtaStatus to JSON.
+     * @function toJSON
+     * @memberof OtaStatus
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    OtaStatus.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for OtaStatus
+     * @function getTypeUrl
+     * @memberof OtaStatus
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    OtaStatus.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/OtaStatus";
+    };
+
+    return OtaStatus;
+})();
+
+export const OtaBegin = $root.OtaBegin = (() => {
+
+    /**
+     * Properties of an OtaBegin.
+     * @exports IOtaBegin
+     * @interface IOtaBegin
+     * @property {number|null} [fileSize] OtaBegin fileSize
+     */
+
+    /**
+     * Constructs a new OtaBegin.
+     * @exports OtaBegin
+     * @classdesc Represents an OtaBegin.
+     * @implements IOtaBegin
+     * @constructor
+     * @param {IOtaBegin=} [properties] Properties to set
+     */
+    function OtaBegin(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * OtaBegin fileSize.
+     * @member {number} fileSize
+     * @memberof OtaBegin
+     * @instance
+     */
+    OtaBegin.prototype.fileSize = 0;
+
+    /**
+     * Creates a new OtaBegin instance using the specified properties.
+     * @function create
+     * @memberof OtaBegin
+     * @static
+     * @param {IOtaBegin=} [properties] Properties to set
+     * @returns {OtaBegin} OtaBegin instance
+     */
+    OtaBegin.create = function create(properties) {
+        return new OtaBegin(properties);
+    };
+
+    /**
+     * Encodes the specified OtaBegin message. Does not implicitly {@link OtaBegin.verify|verify} messages.
+     * @function encode
+     * @memberof OtaBegin
+     * @static
+     * @param {IOtaBegin} message OtaBegin message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    OtaBegin.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.fileSize != null && Object.hasOwnProperty.call(message, "fileSize"))
+            writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.fileSize);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified OtaBegin message, length delimited. Does not implicitly {@link OtaBegin.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof OtaBegin
+     * @static
+     * @param {IOtaBegin} message OtaBegin message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    OtaBegin.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes an OtaBegin message from the specified reader or buffer.
+     * @function decode
+     * @memberof OtaBegin
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {OtaBegin} OtaBegin
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    OtaBegin.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.OtaBegin();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.fileSize = reader.uint32();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes an OtaBegin message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof OtaBegin
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {OtaBegin} OtaBegin
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    OtaBegin.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies an OtaBegin message.
+     * @function verify
+     * @memberof OtaBegin
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    OtaBegin.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.fileSize != null && message.hasOwnProperty("fileSize"))
+            if (!$util.isInteger(message.fileSize))
+                return "fileSize: integer expected";
+        return null;
+    };
+
+    /**
+     * Creates an OtaBegin message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof OtaBegin
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {OtaBegin} OtaBegin
+     */
+    OtaBegin.fromObject = function fromObject(object) {
+        if (object instanceof $root.OtaBegin)
+            return object;
+        let message = new $root.OtaBegin();
+        if (object.fileSize != null)
+            message.fileSize = object.fileSize >>> 0;
+        return message;
+    };
+
+    /**
+     * Creates a plain object from an OtaBegin message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof OtaBegin
+     * @static
+     * @param {OtaBegin} message OtaBegin
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    OtaBegin.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults)
+            object.fileSize = 0;
+        if (message.fileSize != null && message.hasOwnProperty("fileSize"))
+            object.fileSize = message.fileSize;
+        return object;
+    };
+
+    /**
+     * Converts this OtaBegin to JSON.
+     * @function toJSON
+     * @memberof OtaBegin
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    OtaBegin.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for OtaBegin
+     * @function getTypeUrl
+     * @memberof OtaBegin
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    OtaBegin.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/OtaBegin";
+    };
+
+    return OtaBegin;
+})();
+
+export const OtaChunk = $root.OtaChunk = (() => {
+
+    /**
+     * Properties of an OtaChunk.
+     * @exports IOtaChunk
+     * @interface IOtaChunk
+     * @property {number|null} [seq] OtaChunk seq
+     * @property {Uint8Array|null} [data] OtaChunk data
+     */
+
+    /**
+     * Constructs a new OtaChunk.
+     * @exports OtaChunk
+     * @classdesc Represents an OtaChunk.
+     * @implements IOtaChunk
+     * @constructor
+     * @param {IOtaChunk=} [properties] Properties to set
+     */
+    function OtaChunk(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * OtaChunk seq.
+     * @member {number} seq
+     * @memberof OtaChunk
+     * @instance
+     */
+    OtaChunk.prototype.seq = 0;
+
+    /**
+     * OtaChunk data.
+     * @member {Uint8Array} data
+     * @memberof OtaChunk
+     * @instance
+     */
+    OtaChunk.prototype.data = $util.newBuffer([]);
+
+    /**
+     * Creates a new OtaChunk instance using the specified properties.
+     * @function create
+     * @memberof OtaChunk
+     * @static
+     * @param {IOtaChunk=} [properties] Properties to set
+     * @returns {OtaChunk} OtaChunk instance
+     */
+    OtaChunk.create = function create(properties) {
+        return new OtaChunk(properties);
+    };
+
+    /**
+     * Encodes the specified OtaChunk message. Does not implicitly {@link OtaChunk.verify|verify} messages.
+     * @function encode
+     * @memberof OtaChunk
+     * @static
+     * @param {IOtaChunk} message OtaChunk message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    OtaChunk.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.seq != null && Object.hasOwnProperty.call(message, "seq"))
+            writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.seq);
+        if (message.data != null && Object.hasOwnProperty.call(message, "data"))
+            writer.uint32(/* id 2, wireType 2 =*/18).bytes(message.data);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified OtaChunk message, length delimited. Does not implicitly {@link OtaChunk.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof OtaChunk
+     * @static
+     * @param {IOtaChunk} message OtaChunk message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    OtaChunk.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes an OtaChunk message from the specified reader or buffer.
+     * @function decode
+     * @memberof OtaChunk
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {OtaChunk} OtaChunk
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    OtaChunk.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.OtaChunk();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.seq = reader.uint32();
+                    break;
+                }
+            case 2: {
+                    message.data = reader.bytes();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes an OtaChunk message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof OtaChunk
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {OtaChunk} OtaChunk
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    OtaChunk.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies an OtaChunk message.
+     * @function verify
+     * @memberof OtaChunk
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    OtaChunk.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.seq != null && message.hasOwnProperty("seq"))
+            if (!$util.isInteger(message.seq))
+                return "seq: integer expected";
+        if (message.data != null && message.hasOwnProperty("data"))
+            if (!(message.data && typeof message.data.length === "number" || $util.isString(message.data)))
+                return "data: buffer expected";
+        return null;
+    };
+
+    /**
+     * Creates an OtaChunk message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof OtaChunk
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {OtaChunk} OtaChunk
+     */
+    OtaChunk.fromObject = function fromObject(object) {
+        if (object instanceof $root.OtaChunk)
+            return object;
+        let message = new $root.OtaChunk();
+        if (object.seq != null)
+            message.seq = object.seq >>> 0;
+        if (object.data != null)
+            if (typeof object.data === "string")
+                $util.base64.decode(object.data, message.data = $util.newBuffer($util.base64.length(object.data)), 0);
+            else if (object.data.length >= 0)
+                message.data = object.data;
+        return message;
+    };
+
+    /**
+     * Creates a plain object from an OtaChunk message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof OtaChunk
+     * @static
+     * @param {OtaChunk} message OtaChunk
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    OtaChunk.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults) {
+            object.seq = 0;
+            if (options.bytes === String)
+                object.data = "";
+            else {
+                object.data = [];
+                if (options.bytes !== Array)
+                    object.data = $util.newBuffer(object.data);
+            }
+        }
+        if (message.seq != null && message.hasOwnProperty("seq"))
+            object.seq = message.seq;
+        if (message.data != null && message.hasOwnProperty("data"))
+            object.data = options.bytes === String ? $util.base64.encode(message.data, 0, message.data.length) : options.bytes === Array ? Array.prototype.slice.call(message.data) : message.data;
+        return object;
+    };
+
+    /**
+     * Converts this OtaChunk to JSON.
+     * @function toJSON
+     * @memberof OtaChunk
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    OtaChunk.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for OtaChunk
+     * @function getTypeUrl
+     * @memberof OtaChunk
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    OtaChunk.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/OtaChunk";
+    };
+
+    return OtaChunk;
+})();
+
+export const OtaEnd = $root.OtaEnd = (() => {
+
+    /**
+     * Properties of an OtaEnd.
+     * @exports IOtaEnd
+     * @interface IOtaEnd
+     * @property {string|null} [sha256] OtaEnd sha256
+     */
+
+    /**
+     * Constructs a new OtaEnd.
+     * @exports OtaEnd
+     * @classdesc Represents an OtaEnd.
+     * @implements IOtaEnd
+     * @constructor
+     * @param {IOtaEnd=} [properties] Properties to set
+     */
+    function OtaEnd(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * OtaEnd sha256.
+     * @member {string} sha256
+     * @memberof OtaEnd
+     * @instance
+     */
+    OtaEnd.prototype.sha256 = "";
+
+    /**
+     * Creates a new OtaEnd instance using the specified properties.
+     * @function create
+     * @memberof OtaEnd
+     * @static
+     * @param {IOtaEnd=} [properties] Properties to set
+     * @returns {OtaEnd} OtaEnd instance
+     */
+    OtaEnd.create = function create(properties) {
+        return new OtaEnd(properties);
+    };
+
+    /**
+     * Encodes the specified OtaEnd message. Does not implicitly {@link OtaEnd.verify|verify} messages.
+     * @function encode
+     * @memberof OtaEnd
+     * @static
+     * @param {IOtaEnd} message OtaEnd message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    OtaEnd.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.sha256 != null && Object.hasOwnProperty.call(message, "sha256"))
+            writer.uint32(/* id 1, wireType 2 =*/10).string(message.sha256);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified OtaEnd message, length delimited. Does not implicitly {@link OtaEnd.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof OtaEnd
+     * @static
+     * @param {IOtaEnd} message OtaEnd message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    OtaEnd.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes an OtaEnd message from the specified reader or buffer.
+     * @function decode
+     * @memberof OtaEnd
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {OtaEnd} OtaEnd
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    OtaEnd.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.OtaEnd();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.sha256 = reader.string();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes an OtaEnd message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof OtaEnd
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {OtaEnd} OtaEnd
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    OtaEnd.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies an OtaEnd message.
+     * @function verify
+     * @memberof OtaEnd
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    OtaEnd.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.sha256 != null && message.hasOwnProperty("sha256"))
+            if (!$util.isString(message.sha256))
+                return "sha256: string expected";
+        return null;
+    };
+
+    /**
+     * Creates an OtaEnd message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof OtaEnd
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {OtaEnd} OtaEnd
+     */
+    OtaEnd.fromObject = function fromObject(object) {
+        if (object instanceof $root.OtaEnd)
+            return object;
+        let message = new $root.OtaEnd();
+        if (object.sha256 != null)
+            message.sha256 = String(object.sha256);
+        return message;
+    };
+
+    /**
+     * Creates a plain object from an OtaEnd message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof OtaEnd
+     * @static
+     * @param {OtaEnd} message OtaEnd
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    OtaEnd.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults)
+            object.sha256 = "";
+        if (message.sha256 != null && message.hasOwnProperty("sha256"))
+            object.sha256 = message.sha256;
+        return object;
+    };
+
+    /**
+     * Converts this OtaEnd to JSON.
+     * @function toJSON
+     * @memberof OtaEnd
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    OtaEnd.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for OtaEnd
+     * @function getTypeUrl
+     * @memberof OtaEnd
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    OtaEnd.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/OtaEnd";
+    };
+
+    return OtaEnd;
+})();
+
+export const OtaCommand = $root.OtaCommand = (() => {
+
+    /**
+     * Properties of an OtaCommand.
+     * @exports IOtaCommand
+     * @interface IOtaCommand
+     * @property {IOtaBegin|null} [begin] OtaCommand begin
+     * @property {IOtaChunk|null} [chunk] OtaCommand chunk
+     * @property {IOtaEnd|null} [end] OtaCommand end
+     * @property {boolean|null} [abort] OtaCommand abort
+     */
+
+    /**
+     * Constructs a new OtaCommand.
+     * @exports OtaCommand
+     * @classdesc Represents an OtaCommand.
+     * @implements IOtaCommand
+     * @constructor
+     * @param {IOtaCommand=} [properties] Properties to set
+     */
+    function OtaCommand(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * OtaCommand begin.
+     * @member {IOtaBegin|null|undefined} begin
+     * @memberof OtaCommand
+     * @instance
+     */
+    OtaCommand.prototype.begin = null;
+
+    /**
+     * OtaCommand chunk.
+     * @member {IOtaChunk|null|undefined} chunk
+     * @memberof OtaCommand
+     * @instance
+     */
+    OtaCommand.prototype.chunk = null;
+
+    /**
+     * OtaCommand end.
+     * @member {IOtaEnd|null|undefined} end
+     * @memberof OtaCommand
+     * @instance
+     */
+    OtaCommand.prototype.end = null;
+
+    /**
+     * OtaCommand abort.
+     * @member {boolean|null|undefined} abort
+     * @memberof OtaCommand
+     * @instance
+     */
+    OtaCommand.prototype.abort = null;
+
+    // OneOf field names bound to virtual getters and setters
+    let $oneOfFields;
+
+    /**
+     * OtaCommand type.
+     * @member {"begin"|"chunk"|"end"|"abort"|undefined} type
+     * @memberof OtaCommand
+     * @instance
+     */
+    Object.defineProperty(OtaCommand.prototype, "type", {
+        get: $util.oneOfGetter($oneOfFields = ["begin", "chunk", "end", "abort"]),
+        set: $util.oneOfSetter($oneOfFields)
+    });
+
+    /**
+     * Creates a new OtaCommand instance using the specified properties.
+     * @function create
+     * @memberof OtaCommand
+     * @static
+     * @param {IOtaCommand=} [properties] Properties to set
+     * @returns {OtaCommand} OtaCommand instance
+     */
+    OtaCommand.create = function create(properties) {
+        return new OtaCommand(properties);
+    };
+
+    /**
+     * Encodes the specified OtaCommand message. Does not implicitly {@link OtaCommand.verify|verify} messages.
+     * @function encode
+     * @memberof OtaCommand
+     * @static
+     * @param {IOtaCommand} message OtaCommand message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    OtaCommand.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.begin != null && Object.hasOwnProperty.call(message, "begin"))
+            $root.OtaBegin.encode(message.begin, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+        if (message.chunk != null && Object.hasOwnProperty.call(message, "chunk"))
+            $root.OtaChunk.encode(message.chunk, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+        if (message.end != null && Object.hasOwnProperty.call(message, "end"))
+            $root.OtaEnd.encode(message.end, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+        if (message.abort != null && Object.hasOwnProperty.call(message, "abort"))
+            writer.uint32(/* id 4, wireType 0 =*/32).bool(message.abort);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified OtaCommand message, length delimited. Does not implicitly {@link OtaCommand.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof OtaCommand
+     * @static
+     * @param {IOtaCommand} message OtaCommand message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    OtaCommand.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes an OtaCommand message from the specified reader or buffer.
+     * @function decode
+     * @memberof OtaCommand
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {OtaCommand} OtaCommand
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    OtaCommand.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.OtaCommand();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.begin = $root.OtaBegin.decode(reader, reader.uint32());
+                    break;
+                }
+            case 2: {
+                    message.chunk = $root.OtaChunk.decode(reader, reader.uint32());
+                    break;
+                }
+            case 3: {
+                    message.end = $root.OtaEnd.decode(reader, reader.uint32());
+                    break;
+                }
+            case 4: {
+                    message.abort = reader.bool();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes an OtaCommand message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof OtaCommand
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {OtaCommand} OtaCommand
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    OtaCommand.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies an OtaCommand message.
+     * @function verify
+     * @memberof OtaCommand
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    OtaCommand.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        let properties = {};
+        if (message.begin != null && message.hasOwnProperty("begin")) {
+            properties.type = 1;
+            {
+                let error = $root.OtaBegin.verify(message.begin);
+                if (error)
+                    return "begin." + error;
+            }
+        }
+        if (message.chunk != null && message.hasOwnProperty("chunk")) {
+            if (properties.type === 1)
+                return "type: multiple values";
+            properties.type = 1;
+            {
+                let error = $root.OtaChunk.verify(message.chunk);
+                if (error)
+                    return "chunk." + error;
+            }
+        }
+        if (message.end != null && message.hasOwnProperty("end")) {
+            if (properties.type === 1)
+                return "type: multiple values";
+            properties.type = 1;
+            {
+                let error = $root.OtaEnd.verify(message.end);
+                if (error)
+                    return "end." + error;
+            }
+        }
+        if (message.abort != null && message.hasOwnProperty("abort")) {
+            if (properties.type === 1)
+                return "type: multiple values";
+            properties.type = 1;
+            if (typeof message.abort !== "boolean")
+                return "abort: boolean expected";
+        }
+        return null;
+    };
+
+    /**
+     * Creates an OtaCommand message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof OtaCommand
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {OtaCommand} OtaCommand
+     */
+    OtaCommand.fromObject = function fromObject(object) {
+        if (object instanceof $root.OtaCommand)
+            return object;
+        let message = new $root.OtaCommand();
+        if (object.begin != null) {
+            if (typeof object.begin !== "object")
+                throw TypeError(".OtaCommand.begin: object expected");
+            message.begin = $root.OtaBegin.fromObject(object.begin);
+        }
+        if (object.chunk != null) {
+            if (typeof object.chunk !== "object")
+                throw TypeError(".OtaCommand.chunk: object expected");
+            message.chunk = $root.OtaChunk.fromObject(object.chunk);
+        }
+        if (object.end != null) {
+            if (typeof object.end !== "object")
+                throw TypeError(".OtaCommand.end: object expected");
+            message.end = $root.OtaEnd.fromObject(object.end);
+        }
+        if (object.abort != null)
+            message.abort = Boolean(object.abort);
+        return message;
+    };
+
+    /**
+     * Creates a plain object from an OtaCommand message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof OtaCommand
+     * @static
+     * @param {OtaCommand} message OtaCommand
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    OtaCommand.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (message.begin != null && message.hasOwnProperty("begin")) {
+            object.begin = $root.OtaBegin.toObject(message.begin, options);
+            if (options.oneofs)
+                object.type = "begin";
+        }
+        if (message.chunk != null && message.hasOwnProperty("chunk")) {
+            object.chunk = $root.OtaChunk.toObject(message.chunk, options);
+            if (options.oneofs)
+                object.type = "chunk";
+        }
+        if (message.end != null && message.hasOwnProperty("end")) {
+            object.end = $root.OtaEnd.toObject(message.end, options);
+            if (options.oneofs)
+                object.type = "end";
+        }
+        if (message.abort != null && message.hasOwnProperty("abort")) {
+            object.abort = message.abort;
+            if (options.oneofs)
+                object.type = "abort";
+        }
+        return object;
+    };
+
+    /**
+     * Converts this OtaCommand to JSON.
+     * @function toJSON
+     * @memberof OtaCommand
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    OtaCommand.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for OtaCommand
+     * @function getTypeUrl
+     * @memberof OtaCommand
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    OtaCommand.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/OtaCommand";
+    };
+
+    return OtaCommand;
+})();
+
+export const UiCommand = $root.UiCommand = (() => {
+
+    /**
+     * Properties of an UiCommand.
+     * @exports IUiCommand
+     * @interface IUiCommand
+     * @property {string|null} [name] UiCommand name
+     * @property {string|null} [json] UiCommand json
+     * @property {number|null} [requestId] UiCommand requestId
+     */
+
+    /**
+     * Constructs a new UiCommand.
+     * @exports UiCommand
+     * @classdesc Represents an UiCommand.
+     * @implements IUiCommand
+     * @constructor
+     * @param {IUiCommand=} [properties] Properties to set
+     */
+    function UiCommand(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * UiCommand name.
+     * @member {string} name
+     * @memberof UiCommand
+     * @instance
+     */
+    UiCommand.prototype.name = "";
+
+    /**
+     * UiCommand json.
+     * @member {string} json
+     * @memberof UiCommand
+     * @instance
+     */
+    UiCommand.prototype.json = "";
+
+    /**
+     * UiCommand requestId.
+     * @member {number} requestId
+     * @memberof UiCommand
+     * @instance
+     */
+    UiCommand.prototype.requestId = 0;
+
+    /**
+     * Creates a new UiCommand instance using the specified properties.
+     * @function create
+     * @memberof UiCommand
+     * @static
+     * @param {IUiCommand=} [properties] Properties to set
+     * @returns {UiCommand} UiCommand instance
+     */
+    UiCommand.create = function create(properties) {
+        return new UiCommand(properties);
+    };
+
+    /**
+     * Encodes the specified UiCommand message. Does not implicitly {@link UiCommand.verify|verify} messages.
+     * @function encode
+     * @memberof UiCommand
+     * @static
+     * @param {IUiCommand} message UiCommand message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    UiCommand.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.name != null && Object.hasOwnProperty.call(message, "name"))
+            writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
+        if (message.json != null && Object.hasOwnProperty.call(message, "json"))
+            writer.uint32(/* id 2, wireType 2 =*/18).string(message.json);
+        if (message.requestId != null && Object.hasOwnProperty.call(message, "requestId"))
+            writer.uint32(/* id 3, wireType 0 =*/24).uint32(message.requestId);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified UiCommand message, length delimited. Does not implicitly {@link UiCommand.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof UiCommand
+     * @static
+     * @param {IUiCommand} message UiCommand message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    UiCommand.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes an UiCommand message from the specified reader or buffer.
+     * @function decode
+     * @memberof UiCommand
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {UiCommand} UiCommand
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    UiCommand.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.UiCommand();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.name = reader.string();
+                    break;
+                }
+            case 2: {
+                    message.json = reader.string();
+                    break;
+                }
+            case 3: {
+                    message.requestId = reader.uint32();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes an UiCommand message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof UiCommand
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {UiCommand} UiCommand
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    UiCommand.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies an UiCommand message.
+     * @function verify
+     * @memberof UiCommand
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    UiCommand.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.name != null && message.hasOwnProperty("name"))
+            if (!$util.isString(message.name))
+                return "name: string expected";
+        if (message.json != null && message.hasOwnProperty("json"))
+            if (!$util.isString(message.json))
+                return "json: string expected";
+        if (message.requestId != null && message.hasOwnProperty("requestId"))
+            if (!$util.isInteger(message.requestId))
+                return "requestId: integer expected";
+        return null;
+    };
+
+    /**
+     * Creates an UiCommand message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof UiCommand
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {UiCommand} UiCommand
+     */
+    UiCommand.fromObject = function fromObject(object) {
+        if (object instanceof $root.UiCommand)
+            return object;
+        let message = new $root.UiCommand();
+        if (object.name != null)
+            message.name = String(object.name);
+        if (object.json != null)
+            message.json = String(object.json);
+        if (object.requestId != null)
+            message.requestId = object.requestId >>> 0;
+        return message;
+    };
+
+    /**
+     * Creates a plain object from an UiCommand message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof UiCommand
+     * @static
+     * @param {UiCommand} message UiCommand
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    UiCommand.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults) {
+            object.name = "";
+            object.json = "";
+            object.requestId = 0;
+        }
+        if (message.name != null && message.hasOwnProperty("name"))
+            object.name = message.name;
+        if (message.json != null && message.hasOwnProperty("json"))
+            object.json = message.json;
+        if (message.requestId != null && message.hasOwnProperty("requestId"))
+            object.requestId = message.requestId;
+        return object;
+    };
+
+    /**
+     * Converts this UiCommand to JSON.
+     * @function toJSON
+     * @memberof UiCommand
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    UiCommand.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for UiCommand
+     * @function getTypeUrl
+     * @memberof UiCommand
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    UiCommand.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/UiCommand";
+    };
+
+    return UiCommand;
+})();
+
+export const UiCommandResult = $root.UiCommandResult = (() => {
+
+    /**
+     * Properties of an UiCommandResult.
+     * @exports IUiCommandResult
+     * @interface IUiCommandResult
+     * @property {number|null} [requestId] UiCommandResult requestId
+     * @property {string|null} [name] UiCommandResult name
+     * @property {boolean|null} [ok] UiCommandResult ok
+     * @property {string|null} [code] UiCommandResult code
+     * @property {string|null} [message] UiCommandResult message
+     * @property {string|null} [json] UiCommandResult json
+     */
+
+    /**
+     * Constructs a new UiCommandResult.
+     * @exports UiCommandResult
+     * @classdesc Represents an UiCommandResult.
+     * @implements IUiCommandResult
+     * @constructor
+     * @param {IUiCommandResult=} [properties] Properties to set
+     */
+    function UiCommandResult(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * UiCommandResult requestId.
+     * @member {number} requestId
+     * @memberof UiCommandResult
+     * @instance
+     */
+    UiCommandResult.prototype.requestId = 0;
+
+    /**
+     * UiCommandResult name.
+     * @member {string} name
+     * @memberof UiCommandResult
+     * @instance
+     */
+    UiCommandResult.prototype.name = "";
+
+    /**
+     * UiCommandResult ok.
+     * @member {boolean} ok
+     * @memberof UiCommandResult
+     * @instance
+     */
+    UiCommandResult.prototype.ok = false;
+
+    /**
+     * UiCommandResult code.
+     * @member {string} code
+     * @memberof UiCommandResult
+     * @instance
+     */
+    UiCommandResult.prototype.code = "";
+
+    /**
+     * UiCommandResult message.
+     * @member {string} message
+     * @memberof UiCommandResult
+     * @instance
+     */
+    UiCommandResult.prototype.message = "";
+
+    /**
+     * UiCommandResult json.
+     * @member {string} json
+     * @memberof UiCommandResult
+     * @instance
+     */
+    UiCommandResult.prototype.json = "";
+
+    /**
+     * Creates a new UiCommandResult instance using the specified properties.
+     * @function create
+     * @memberof UiCommandResult
+     * @static
+     * @param {IUiCommandResult=} [properties] Properties to set
+     * @returns {UiCommandResult} UiCommandResult instance
+     */
+    UiCommandResult.create = function create(properties) {
+        return new UiCommandResult(properties);
+    };
+
+    /**
+     * Encodes the specified UiCommandResult message. Does not implicitly {@link UiCommandResult.verify|verify} messages.
+     * @function encode
+     * @memberof UiCommandResult
+     * @static
+     * @param {IUiCommandResult} message UiCommandResult message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    UiCommandResult.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.requestId != null && Object.hasOwnProperty.call(message, "requestId"))
+            writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.requestId);
+        if (message.name != null && Object.hasOwnProperty.call(message, "name"))
+            writer.uint32(/* id 2, wireType 2 =*/18).string(message.name);
+        if (message.ok != null && Object.hasOwnProperty.call(message, "ok"))
+            writer.uint32(/* id 3, wireType 0 =*/24).bool(message.ok);
+        if (message.code != null && Object.hasOwnProperty.call(message, "code"))
+            writer.uint32(/* id 4, wireType 2 =*/34).string(message.code);
+        if (message.message != null && Object.hasOwnProperty.call(message, "message"))
+            writer.uint32(/* id 5, wireType 2 =*/42).string(message.message);
+        if (message.json != null && Object.hasOwnProperty.call(message, "json"))
+            writer.uint32(/* id 6, wireType 2 =*/50).string(message.json);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified UiCommandResult message, length delimited. Does not implicitly {@link UiCommandResult.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof UiCommandResult
+     * @static
+     * @param {IUiCommandResult} message UiCommandResult message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    UiCommandResult.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes an UiCommandResult message from the specified reader or buffer.
+     * @function decode
+     * @memberof UiCommandResult
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {UiCommandResult} UiCommandResult
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    UiCommandResult.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.UiCommandResult();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.requestId = reader.uint32();
+                    break;
+                }
+            case 2: {
+                    message.name = reader.string();
+                    break;
+                }
+            case 3: {
+                    message.ok = reader.bool();
+                    break;
+                }
+            case 4: {
+                    message.code = reader.string();
+                    break;
+                }
+            case 5: {
+                    message.message = reader.string();
+                    break;
+                }
+            case 6: {
+                    message.json = reader.string();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes an UiCommandResult message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof UiCommandResult
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {UiCommandResult} UiCommandResult
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    UiCommandResult.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies an UiCommandResult message.
+     * @function verify
+     * @memberof UiCommandResult
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    UiCommandResult.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.requestId != null && message.hasOwnProperty("requestId"))
+            if (!$util.isInteger(message.requestId))
+                return "requestId: integer expected";
+        if (message.name != null && message.hasOwnProperty("name"))
+            if (!$util.isString(message.name))
+                return "name: string expected";
+        if (message.ok != null && message.hasOwnProperty("ok"))
+            if (typeof message.ok !== "boolean")
+                return "ok: boolean expected";
+        if (message.code != null && message.hasOwnProperty("code"))
+            if (!$util.isString(message.code))
+                return "code: string expected";
+        if (message.message != null && message.hasOwnProperty("message"))
+            if (!$util.isString(message.message))
+                return "message: string expected";
+        if (message.json != null && message.hasOwnProperty("json"))
+            if (!$util.isString(message.json))
+                return "json: string expected";
+        return null;
+    };
+
+    /**
+     * Creates an UiCommandResult message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof UiCommandResult
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {UiCommandResult} UiCommandResult
+     */
+    UiCommandResult.fromObject = function fromObject(object) {
+        if (object instanceof $root.UiCommandResult)
+            return object;
+        let message = new $root.UiCommandResult();
+        if (object.requestId != null)
+            message.requestId = object.requestId >>> 0;
+        if (object.name != null)
+            message.name = String(object.name);
+        if (object.ok != null)
+            message.ok = Boolean(object.ok);
+        if (object.code != null)
+            message.code = String(object.code);
+        if (object.message != null)
+            message.message = String(object.message);
+        if (object.json != null)
+            message.json = String(object.json);
+        return message;
+    };
+
+    /**
+     * Creates a plain object from an UiCommandResult message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof UiCommandResult
+     * @static
+     * @param {UiCommandResult} message UiCommandResult
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    UiCommandResult.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults) {
+            object.requestId = 0;
+            object.name = "";
+            object.ok = false;
+            object.code = "";
+            object.message = "";
+            object.json = "";
+        }
+        if (message.requestId != null && message.hasOwnProperty("requestId"))
+            object.requestId = message.requestId;
+        if (message.name != null && message.hasOwnProperty("name"))
+            object.name = message.name;
+        if (message.ok != null && message.hasOwnProperty("ok"))
+            object.ok = message.ok;
+        if (message.code != null && message.hasOwnProperty("code"))
+            object.code = message.code;
+        if (message.message != null && message.hasOwnProperty("message"))
+            object.message = message.message;
+        if (message.json != null && message.hasOwnProperty("json"))
+            object.json = message.json;
+        return object;
+    };
+
+    /**
+     * Converts this UiCommandResult to JSON.
+     * @function toJSON
+     * @memberof UiCommandResult
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    UiCommandResult.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for UiCommandResult
+     * @function getTypeUrl
+     * @memberof UiCommandResult
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    UiCommandResult.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/UiCommandResult";
+    };
+
+    return UiCommandResult;
+})();
+
+export const BlePacket = $root.BlePacket = (() => {
+
+    /**
+     * Properties of a BlePacket.
+     * @exports IBlePacket
+     * @interface IBlePacket
+     * @property {ITelemetry|null} [telemetry] BlePacket telemetry
+     * @property {ISystemStatus|null} [status] BlePacket status
+     * @property {ILogMessage|null} [log] BlePacket log
+     * @property {IOtaStatus|null} [otaStatus] BlePacket otaStatus
+     * @property {IUiCommandResult|null} [commandResult] BlePacket commandResult
+     */
+
+    /**
+     * Constructs a new BlePacket.
+     * @exports BlePacket
+     * @classdesc Represents a BlePacket.
+     * @implements IBlePacket
+     * @constructor
+     * @param {IBlePacket=} [properties] Properties to set
+     */
+    function BlePacket(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * BlePacket telemetry.
+     * @member {ITelemetry|null|undefined} telemetry
+     * @memberof BlePacket
+     * @instance
+     */
+    BlePacket.prototype.telemetry = null;
+
+    /**
+     * BlePacket status.
+     * @member {ISystemStatus|null|undefined} status
+     * @memberof BlePacket
+     * @instance
+     */
+    BlePacket.prototype.status = null;
+
+    /**
+     * BlePacket log.
+     * @member {ILogMessage|null|undefined} log
+     * @memberof BlePacket
+     * @instance
+     */
+    BlePacket.prototype.log = null;
+
+    /**
+     * BlePacket otaStatus.
+     * @member {IOtaStatus|null|undefined} otaStatus
+     * @memberof BlePacket
+     * @instance
+     */
+    BlePacket.prototype.otaStatus = null;
+
+    /**
+     * BlePacket commandResult.
+     * @member {IUiCommandResult|null|undefined} commandResult
+     * @memberof BlePacket
+     * @instance
+     */
+    BlePacket.prototype.commandResult = null;
+
+    // OneOf field names bound to virtual getters and setters
+    let $oneOfFields;
+
+    /**
+     * BlePacket payload.
+     * @member {"telemetry"|"status"|"log"|"otaStatus"|"commandResult"|undefined} payload
+     * @memberof BlePacket
+     * @instance
+     */
+    Object.defineProperty(BlePacket.prototype, "payload", {
+        get: $util.oneOfGetter($oneOfFields = ["telemetry", "status", "log", "otaStatus", "commandResult"]),
+        set: $util.oneOfSetter($oneOfFields)
+    });
+
+    /**
+     * Creates a new BlePacket instance using the specified properties.
+     * @function create
+     * @memberof BlePacket
+     * @static
+     * @param {IBlePacket=} [properties] Properties to set
+     * @returns {BlePacket} BlePacket instance
+     */
+    BlePacket.create = function create(properties) {
+        return new BlePacket(properties);
+    };
+
+    /**
+     * Encodes the specified BlePacket message. Does not implicitly {@link BlePacket.verify|verify} messages.
+     * @function encode
+     * @memberof BlePacket
+     * @static
+     * @param {IBlePacket} message BlePacket message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    BlePacket.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.telemetry != null && Object.hasOwnProperty.call(message, "telemetry"))
+            $root.Telemetry.encode(message.telemetry, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+        if (message.status != null && Object.hasOwnProperty.call(message, "status"))
+            $root.SystemStatus.encode(message.status, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+        if (message.log != null && Object.hasOwnProperty.call(message, "log"))
+            $root.LogMessage.encode(message.log, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+        if (message.otaStatus != null && Object.hasOwnProperty.call(message, "otaStatus"))
+            $root.OtaStatus.encode(message.otaStatus, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
+        if (message.commandResult != null && Object.hasOwnProperty.call(message, "commandResult"))
+            $root.UiCommandResult.encode(message.commandResult, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
+        return writer;
+    };
+
+    /**
+     * Encodes the specified BlePacket message, length delimited. Does not implicitly {@link BlePacket.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof BlePacket
+     * @static
+     * @param {IBlePacket} message BlePacket message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    BlePacket.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a BlePacket message from the specified reader or buffer.
+     * @function decode
+     * @memberof BlePacket
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {BlePacket} BlePacket
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    BlePacket.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.BlePacket();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.telemetry = $root.Telemetry.decode(reader, reader.uint32());
+                    break;
+                }
+            case 2: {
+                    message.status = $root.SystemStatus.decode(reader, reader.uint32());
+                    break;
+                }
+            case 3: {
+                    message.log = $root.LogMessage.decode(reader, reader.uint32());
+                    break;
+                }
+            case 4: {
+                    message.otaStatus = $root.OtaStatus.decode(reader, reader.uint32());
+                    break;
+                }
+            case 5: {
+                    message.commandResult = $root.UiCommandResult.decode(reader, reader.uint32());
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a BlePacket message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof BlePacket
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {BlePacket} BlePacket
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    BlePacket.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a BlePacket message.
+     * @function verify
+     * @memberof BlePacket
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    BlePacket.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        let properties = {};
+        if (message.telemetry != null && message.hasOwnProperty("telemetry")) {
+            properties.payload = 1;
+            {
+                let error = $root.Telemetry.verify(message.telemetry);
+                if (error)
+                    return "telemetry." + error;
+            }
+        }
+        if (message.status != null && message.hasOwnProperty("status")) {
+            if (properties.payload === 1)
+                return "payload: multiple values";
+            properties.payload = 1;
+            {
+                let error = $root.SystemStatus.verify(message.status);
+                if (error)
+                    return "status." + error;
+            }
+        }
+        if (message.log != null && message.hasOwnProperty("log")) {
+            if (properties.payload === 1)
+                return "payload: multiple values";
+            properties.payload = 1;
+            {
+                let error = $root.LogMessage.verify(message.log);
+                if (error)
+                    return "log." + error;
+            }
+        }
+        if (message.otaStatus != null && message.hasOwnProperty("otaStatus")) {
+            if (properties.payload === 1)
+                return "payload: multiple values";
+            properties.payload = 1;
+            {
+                let error = $root.OtaStatus.verify(message.otaStatus);
+                if (error)
+                    return "otaStatus." + error;
+            }
+        }
+        if (message.commandResult != null && message.hasOwnProperty("commandResult")) {
+            if (properties.payload === 1)
+                return "payload: multiple values";
+            properties.payload = 1;
+            {
+                let error = $root.UiCommandResult.verify(message.commandResult);
+                if (error)
+                    return "commandResult." + error;
+            }
+        }
+        return null;
+    };
+
+    /**
+     * Creates a BlePacket message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof BlePacket
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {BlePacket} BlePacket
+     */
+    BlePacket.fromObject = function fromObject(object) {
+        if (object instanceof $root.BlePacket)
+            return object;
+        let message = new $root.BlePacket();
+        if (object.telemetry != null) {
+            if (typeof object.telemetry !== "object")
+                throw TypeError(".BlePacket.telemetry: object expected");
+            message.telemetry = $root.Telemetry.fromObject(object.telemetry);
+        }
+        if (object.status != null) {
+            if (typeof object.status !== "object")
+                throw TypeError(".BlePacket.status: object expected");
+            message.status = $root.SystemStatus.fromObject(object.status);
+        }
+        if (object.log != null) {
+            if (typeof object.log !== "object")
+                throw TypeError(".BlePacket.log: object expected");
+            message.log = $root.LogMessage.fromObject(object.log);
+        }
+        if (object.otaStatus != null) {
+            if (typeof object.otaStatus !== "object")
+                throw TypeError(".BlePacket.otaStatus: object expected");
+            message.otaStatus = $root.OtaStatus.fromObject(object.otaStatus);
+        }
+        if (object.commandResult != null) {
+            if (typeof object.commandResult !== "object")
+                throw TypeError(".BlePacket.commandResult: object expected");
+            message.commandResult = $root.UiCommandResult.fromObject(object.commandResult);
+        }
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a BlePacket message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof BlePacket
+     * @static
+     * @param {BlePacket} message BlePacket
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    BlePacket.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (message.telemetry != null && message.hasOwnProperty("telemetry")) {
+            object.telemetry = $root.Telemetry.toObject(message.telemetry, options);
+            if (options.oneofs)
+                object.payload = "telemetry";
+        }
+        if (message.status != null && message.hasOwnProperty("status")) {
+            object.status = $root.SystemStatus.toObject(message.status, options);
+            if (options.oneofs)
+                object.payload = "status";
+        }
+        if (message.log != null && message.hasOwnProperty("log")) {
+            object.log = $root.LogMessage.toObject(message.log, options);
+            if (options.oneofs)
+                object.payload = "log";
+        }
+        if (message.otaStatus != null && message.hasOwnProperty("otaStatus")) {
+            object.otaStatus = $root.OtaStatus.toObject(message.otaStatus, options);
+            if (options.oneofs)
+                object.payload = "otaStatus";
+        }
+        if (message.commandResult != null && message.hasOwnProperty("commandResult")) {
+            object.commandResult = $root.UiCommandResult.toObject(message.commandResult, options);
+            if (options.oneofs)
+                object.payload = "commandResult";
+        }
+        return object;
+    };
+
+    /**
+     * Converts this BlePacket to JSON.
+     * @function toJSON
+     * @memberof BlePacket
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    BlePacket.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for BlePacket
+     * @function getTypeUrl
+     * @memberof BlePacket
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    BlePacket.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/BlePacket";
+    };
+
+    return BlePacket;
+})();
+
+export { $root as default };

@@ -230,7 +230,7 @@ tasks:
         {{if eq .OS "windows"}}
         powershell -NoProfile -ExecutionPolicy Bypass -Command "& { . {{.IDF_PATH_WIN}}/export.ps1; nanopb_generator -D main/src proto/messaging.proto }"
         {{else}}
-        bash -c ". {{.IDF_PATH_UNIX}}/export.sh && nanopb_generator -D main/src proto/messaging.proto"
+        bash -c "export IDF_PYTHON_ENV_PATH={{.PYTHON_ENV_UNIX}} && . {{.IDF_PATH_UNIX}}/export.sh && nanopb_generator -D main/src proto/messaging.proto"
         {{end}}
 
   proto:gen:web:
@@ -238,8 +238,8 @@ tasks:
     dir: web
     cmds:
       - 'echo "Generating Protobuf JS files..."'
-      - "npx pbjs --es6 src/proto/messaging.js ../proto/messaging.proto"
-      - "npx pbjs --ts src/proto/messaging.d.ts ../proto/messaging.proto"
+      - "npx pbjs -t static-module -w es6 -o src/proto/messaging.js ../proto/messaging.proto"
+      - "npx pbts -o src/proto/messaging.d.ts src/proto/messaging.js"
 
   proto:gen:
     desc: Generate all proto files

@@ -1,6 +1,6 @@
 import { bleManager } from "./BleManager";
-import { encodeOtaCommand } from "../proto/messaging";
-import type { OtaCommand } from "../proto/messaging";
+import { encodeOtaCommand } from "../proto/messaging-helpers";
+import type { OtaCommand } from "../proto/messaging-helpers";
 
 export class OtaManager {
     private static CHUNK_SIZE = 440; // High speed chunk size

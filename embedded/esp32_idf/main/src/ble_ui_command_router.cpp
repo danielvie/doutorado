@@ -1,3 +1,4 @@
+#include "messaging.pb.h"
 #include "ui_command_router.h"
 
 #include <algorithm>
@@ -110,6 +111,13 @@ static UiCommandResultData handle_system_get_status(const UiCommandContext& ctx)
     ble_send_status();
     return ok("Status notification queued");
 }
+
+static UiCommandResultData handle_system_hello(const UiCommandContext& ctx) {
+    ble_send_log(BleLogLevel_BLE_LOG_INFO, "ik ben hier motherfucker!");
+    
+    return ok("Hello response sent");
+}
+
 
 static UiCommandResultData handle_signal_start(const UiCommandContext& ctx) {
     signal_start_continuous();
@@ -349,6 +357,7 @@ void ui_command_router_init(void) {
 
     register_command("system.list_commands", handle_system_list_commands);
     register_command("system.get_status", handle_system_get_status);
+    register_command("system.hello", handle_system_hello);
     register_command("signal.start", handle_signal_start);
     register_command("signal.stop", handle_signal_stop);
     register_command("signal.set_alpha", handle_signal_set_alpha);

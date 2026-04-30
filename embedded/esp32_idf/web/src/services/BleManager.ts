@@ -10,7 +10,7 @@ import {
     decodeBleControlState,
     decodeBleLedMode,
     encodeUiCommand,
-} from "../proto/messaging";
+} from "../proto/messaging-helpers";
 
 class BleManager {
     private service: IBleService;
