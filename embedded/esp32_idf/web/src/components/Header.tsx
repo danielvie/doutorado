@@ -106,13 +106,15 @@ export const Header = () => {
 
         <div 
           onClick={() => setIsMocking(!isMocking)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg cursor-pointer transition-colors select-none"
+          className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 
+          border border-gray-200 rounded-lg cursor-pointer transition-colors 
+          select-none"
         >
-          <Activity className={`w-4 h-4 transition-colors ${isMocking ? "text-purple-600" : "text-gray-400"}`} />
+          <Activity className={`w-4 h-4 transition-colors ${isMocking ? "text-primary" : "text-gray-400"}`} />
           <span className="text-xs font-bold text-gray-600 uppercase tracking-widest">Mock</span>
           <div
             className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-              isMocking ? "bg-purple-600" : "bg-gray-300"
+              isMocking ? "bg-primary" : "bg-gray-300"
             }`}
           >
             <span

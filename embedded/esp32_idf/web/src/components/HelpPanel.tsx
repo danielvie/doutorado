@@ -18,8 +18,15 @@ const CommandItem: React.FC<{ commands: string; description: string }> = ({
   return (
     <li
       onClick={handleCopy}
-      className="bg-gray-50 p-3 rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:bg-white transition-all cursor-pointer group relative active:scale-[0.98] border-l-4 border-l-transparent hover:border-l-purple-500"
-      title="Click to copy command"
+      className="bg-gray-50 p-3 rounded-lg 
+      shadow-sm hover:shadow-md 
+      hover:bg-white transition-all 
+      cursor-pointer 
+      group relative 
+      active:scale-[0.99] 
+      border  border-gray-200  border-l-4  
+      hover:brightness-95
+      "
     >
       <div className="flex justify-between items-start gap-2">
         <strong className="text-purple-700 block mb-1 font-mono break-all group-hover:text-purple-800">

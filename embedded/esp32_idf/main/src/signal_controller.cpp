@@ -38,9 +38,11 @@ std::atomic<SignalSet> g_active_set(SignalSet::SET_A);
 std::atomic<bool> g_ds_update_pending(false);
 
 // delay -> cycle 1/240mhz = 1/240 ~= 4.166 ns
-volatile uint32_t g_dead_time_cycles_up = 215;
-volatile uint32_t g_dead_time_cycles_down = 215;
+// volatile uint32_t g_dead_time_cycles_up = 215;
+// volatile uint32_t g_dead_time_cycles_down = 215;
 
+volatile uint32_t g_dead_time_cycles_up = 215 + 215;
+volatile uint32_t g_dead_time_cycles_down = 215 + 215;
 
 
 /**
