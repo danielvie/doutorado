@@ -1,6 +1,7 @@
 import React from "react";
 import { Upload, Cpu, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { OtaManager } from "../../services/OtaManager";
+import { bleManager } from "../../services/BleManager";
 import { useBleStore } from "../../store/bleStore";
 import { DashboardItem } from "./DashboardItem";
 import { PanelSize } from "./SizeSelector";
@@ -35,6 +36,11 @@ export const OtaPanel: React.FC<{
       await OtaManager.flash(file, (p) => setProgress(p));
       
       setStatus("success");
+      try {
+        await bleManager.reconnectAfterOta();
+      } catch (reconnectErr) {
+        console.warn("OTA completed, but reconnect failed", reconnectErr);
+      }
     } catch (err) {
       console.error("OTA failed", err);
       setStatus("error");

@@ -35,3 +35,9 @@
 - [x] Add BLE UI command for equal up/down dead time
 - [x] Document command in Help panel
 - [x] Verify C++ build
+
+# BLE OTA Reconnect Robustness
+- [x] Inspect BLE connection, OTA flash, and UI state lifecycle
+- [x] Add reconnect-safe Web Bluetooth handling after ESP32 OTA reboot
+- [x] Reuse previously granted browser Bluetooth device when available
+- [x] Verify the web build

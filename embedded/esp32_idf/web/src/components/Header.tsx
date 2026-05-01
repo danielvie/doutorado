@@ -44,7 +44,7 @@ export const Header = () => {
     if (isConnected) {
       bleManager.disconnect();
     } else {
-      bleManager.connect();
+      bleManager.connect().catch(() => {});
     }
   };
 

@@ -1,4 +1,5 @@
 import { IBleService } from "./BleService.interface";
+import type { BleConnectOptions } from "./BleService.interface";
 import { WebBleService } from "./WebBleService";
 import { useBleStore } from "../store/bleStore";
 import { useDataStore } from "../store/dataStore";
@@ -16,35 +17,43 @@ class BleManager {
     private service: IBleService;
     private startTime: number;
     private requestId: number;
+    private connectPromise: Promise<void> | null;
 
     constructor() {
         this.service = new WebBleService();
         this.startTime = Date.now();
         this.requestId = 1;
+        this.connectPromise = null;
     }
 
 
 
-    async connect() {
+    async connect(options: BleConnectOptions = {}) {
         const { isConnected } = useBleStore.getState();
         if (isConnected) return;
+        if (this.connectPromise) return this.connectPromise;
 
-        try {
-            await this.service.connect();
-            // Auto-subscribe after connection
-            await this.service.subscribe(this.handleData);
-        } catch (error) {
-            console.error("Connection failed", error);
-        }
+        this.connectPromise = this.connectAndSubscribe(options);
+        return this.connectPromise;
     }
 
     async disconnect() {
         await this.service.disconnect();
     }
 
+    async reconnectAfterOta(rebootDelayMs = 2500) {
+        const { addLog, setSystemStatus } = useBleStore.getState();
+
+        await this.disconnect();
+        setSystemStatus("Waiting for ESP32 reboot...");
+        addLog("Waiting for ESP32 reboot before reconnecting...");
+        await this.delay(rebootDelayMs);
+        await this.connect({ preferRememberedDevice: true });
+    }
+
     async sendBinary(data: Uint8Array) {
         const { isConnected } = useBleStore.getState();
-        if (!isConnected) await this.connect();
+        if (!isConnected) await this.connect({ preferRememberedDevice: true });
         await this.service.send(data);
     }
 
@@ -152,6 +161,22 @@ class BleManager {
 
         console.warn("Unrecognized binary data from BLE:", uint8Array);
     };
+
+    private async connectAndSubscribe(options: BleConnectOptions) {
+        try {
+            await this.service.connect({ preferRememberedDevice: true, ...options });
+            await this.service.subscribe(this.handleData);
+        } catch (error) {
+            console.error("Connection failed", error);
+            throw error;
+        } finally {
+            this.connectPromise = null;
+        }
+    }
+
+    private delay(ms: number): Promise<void> {
+        return new Promise((resolve) => window.setTimeout(resolve, ms));
+    }
 }
 
 export const bleManager = new BleManager();
