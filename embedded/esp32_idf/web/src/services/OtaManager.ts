@@ -5,7 +5,8 @@ import type { OtaCommand } from "../proto/messaging-helpers";
 import { useBleStore } from "../store/bleStore";
 
 export class OtaManager {
-    private static CHUNK_SIZE = 440; // High speed chunk size
+    private static CHUNK_SIZE = 440;
+    private static MAX_PACKET_SIZE = 512;
     private static ACK_BATCH_CHUNKS = 24;
     private static ACK_TIMEOUT_MS = 3000;
 
@@ -18,6 +19,9 @@ export class OtaManager {
         let sentBytes = 0;
         let lastLoggedPercent = -10;
         let chunkWriteMode: "without-response" | "with-response" = "without-response";
+        let totalSendMs = 0;
+        let totalAckWaitMs = 0;
+        let totalAckCount = 0;
         let latestStatus: OtaStatusUpdate | null = null;
         const unsubscribeOtaStatus = bleManager.onOtaStatus((status) => {
             latestStatus = status;
@@ -38,6 +42,7 @@ export class OtaManager {
             // 2. Fast but simple: send a small no-response batch, then wait for firmware ACK.
             for (let seq = 0; seq < totalChunks;) {
                 const batchEndSeq = Math.min(seq + this.ACK_BATCH_CHUNKS, totalChunks);
+                const batchStartedAt = performance.now();
 
                 for (; seq < batchEndSeq; seq++) {
                     const status = latestStatus as OtaStatusUpdate | null;
@@ -82,9 +87,15 @@ export class OtaManager {
                         this.logProgress(percent, sentBytes, totalSize, startedAt, chunkWriteMode);
                     }
                 }
+                totalSendMs += performance.now() - batchStartedAt;
 
                 if (chunkWriteMode === "without-response") {
+                    const ackStartedAt = performance.now();
                     const acked = await this.waitForAck(() => latestStatus, batchEndSeq, this.ACK_TIMEOUT_MS);
+                    const ackWaitMs = performance.now() - ackStartedAt;
+                    totalAckWaitMs += ackWaitMs;
+                    totalAckCount++;
+
                     if (!acked) {
                         throw new Error(`Timed out waiting for OTA ACK seq ${batchEndSeq}`);
                     }
@@ -102,6 +113,9 @@ export class OtaManager {
             this.log(
                 `OTA sequence sent in ${elapsedSeconds.toFixed(1)}s, average ${this.formatBytes(totalSize / elapsedSeconds)}/s`,
             );
+            this.log(
+                `OTA timing: send=${(totalSendMs / 1000).toFixed(1)}s, ackWait=${(totalAckWaitMs / 1000).toFixed(1)}s, avgAck=${totalAckCount ? totalAckWaitMs / totalAckCount : 0}ms`,
+            );
         } finally {
             unsubscribeOtaStatus();
         }
@@ -113,11 +127,10 @@ export class OtaManager {
         packet[0] = 0x02; // Binary prefix for OtaCommand
         packet.set(encoded, 1);
         
-        if (packet.length > 512) {
-            console.error(`CRITICAL: Packet size ${packet.length} exceeds BLE limit!`, cmd);
+        if (packet.length > this.MAX_PACKET_SIZE) {
+            throw new Error(`OTA packet size ${packet.length} exceeds BLE payload limit ${this.MAX_PACKET_SIZE}`);
         }
 
-        console.log(`[OTA] Sending packet of ${packet.length} bytes`);
         await bleManager.sendBinary(packet, options);
     }
 

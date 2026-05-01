@@ -115,7 +115,7 @@ static UiCommandResultData handle_system_get_status(const UiCommandContext& ctx)
 static UiCommandResultData handle_system_hello(const UiCommandContext& ctx) {
     ble_send_log(BleLogLevel_BLE_LOG_INFO, 
         "bla! \
-        terug op mac hehaaaa!!\
+        testando minha mensagem aqui!!\
         terug op mac hehaaaa!!\
         !!\
         "

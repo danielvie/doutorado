@@ -86,7 +86,7 @@ void ota_controller_handle_command(const OtaCommand* cmd) {
             send_status_update();
             break;
 
-        case OtaCommand_chunk_tag:
+        case OtaCommand_chunk_tag: {
             if (current_state != OtaState_OTA_DOWNLOADING) {
                 ESP_LOGW(TAG, "Chunk received but not in DOWNLOADING state");
                 return;
@@ -124,6 +124,7 @@ void ota_controller_handle_command(const OtaCommand* cmd) {
                  send_status_update();
             }
             break;
+        }
 
         case OtaCommand_end_tag:
             ESP_LOGI(TAG, "OTA End requested");
