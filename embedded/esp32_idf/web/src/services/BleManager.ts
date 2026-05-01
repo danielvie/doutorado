@@ -10,20 +10,31 @@ import {
     decodeBleAnalogReadState, 
     decodeBleControlState,
     decodeBleLedMode,
+    decodeOtaState,
     encodeUiCommand,
 } from "../proto/messaging-helpers";
+
+export type OtaStatusUpdate = {
+    state: number;
+    progress_percent: number;
+    message: string;
+    written_size: number;
+    expected_seq: number;
+};
 
 class BleManager {
     private service: IBleService;
     private startTime: number;
     private requestId: number;
     private connectPromise: Promise<void> | null;
+    private otaStatusListeners: Set<(status: OtaStatusUpdate) => void>;
 
     constructor() {
         this.service = new WebBleService();
         this.startTime = Date.now();
         this.requestId = 1;
         this.connectPromise = null;
+        this.otaStatusListeners = new Set();
     }
 
 
@@ -41,14 +52,25 @@ class BleManager {
         await this.service.disconnect();
     }
 
-    async reconnectAfterOta(rebootDelayMs = 2500) {
+    async reconnectAfterOta(rebootDelayMs = 4500) {
         const { addLog, setSystemStatus } = useBleStore.getState();
 
-        await this.disconnect();
         setSystemStatus("Waiting for ESP32 reboot...");
         addLog("Waiting for ESP32 reboot before reconnecting...");
         await this.delay(rebootDelayMs);
-        await this.connect({ preferRememberedDevice: true });
+
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+                await this.connect({ preferRememberedDevice: true });
+                return;
+            } catch (error) {
+                if (attempt === 3) throw error;
+
+                setSystemStatus("Waiting for ESP32 BLE...");
+                addLog(`Reconnect attempt ${attempt} failed; retrying...`);
+                await this.delay(1500);
+            }
+        }
     }
 
     async sendBinary(data: Uint8Array, options: { withoutResponse?: boolean } = {}) {
@@ -70,6 +92,11 @@ class BleManager {
 
         await this.sendBinary(packet);
         return request_id;
+    }
+
+    onOtaStatus(listener: (status: OtaStatusUpdate) => void) {
+        this.otaStatusListeners.add(listener);
+        return () => this.otaStatusListeners.delete(listener);
     }
 
     // Handle incoming data from the service
@@ -143,7 +170,11 @@ class BleManager {
                     useBleStore.getState().addLog(`${l.level || "INFO"}: ${l.text}`);
                 } else if (packet.ota_status) {
                     const s = packet.ota_status;
-                    useBleStore.getState().addLog(`OTA [${s.state}]: ${s.progress_percent}% - ${s.message || ""}`);
+                    const state = decodeOtaState[s.state] ?? s.state;
+                    this.otaStatusListeners.forEach((listener) => listener(s));
+                    if (state !== "OTA_DOWNLOADING" || s.message) {
+                        useBleStore.getState().addLog(`OTA [${state}]: ${s.progress_percent}% - ${s.message || ""}`);
+                    }
                     // You might want to update a dedicated OTA store here
                 } else if (packet.command_result) {
                     const r = packet.command_result;

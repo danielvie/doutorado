@@ -3,18 +3,26 @@
 #include <string.h>
 
 static const char* TAG = "OTA_CTRL";
+static const uint32_t OTA_ACK_CHUNK_INTERVAL = 24;
 
 static esp_ota_handle_t update_handle = 0;
 static const esp_partition_t* update_partition = NULL;
 static size_t binary_file_size = 0;
 static size_t written_size = 0;
+static uint32_t expected_seq = 0;
 static OtaState current_state = OtaState_OTA_IDLE;
 static char last_error[64] = "";
+
+static void clear_last_error(void) {
+    last_error[0] = '\0';
+}
 
 void ota_controller_init(void) {
     current_state = OtaState_OTA_IDLE;
     written_size = 0;
     binary_file_size = 0;
+    expected_seq = 0;
+    clear_last_error();
 }
 
 void ota_controller_get_status(OtaStatus* status) {
@@ -24,6 +32,8 @@ void ota_controller_get_status(OtaStatus* status) {
     } else {
         status->progress_percent = 0;
     }
+    status->written_size = written_size;
+    status->expected_seq = expected_seq;
     strncpy(status->message, last_error, sizeof(status->message) - 1);
 }
 
@@ -44,6 +54,7 @@ void ota_controller_handle_command(const OtaCommand* cmd) {
             if (current_state != OtaState_OTA_IDLE) {
                 ota_controller_abort();
             }
+            clear_last_error();
 
             update_partition = esp_ota_get_next_update_partition(NULL);
             if (update_partition == NULL) {
@@ -56,6 +67,7 @@ void ota_controller_handle_command(const OtaCommand* cmd) {
 
             binary_file_size = cmd->type.begin.file_size;
             written_size = 0;
+            expected_seq = 0;
             
             err = esp_ota_begin(update_partition, binary_file_size, &update_handle);
             if (err != ESP_OK) {
@@ -77,6 +89,19 @@ void ota_controller_handle_command(const OtaCommand* cmd) {
                 return;
             }
 
+            if (cmd->type.chunk.seq != expected_seq) {
+                uint32_t expected = expected_seq;
+                ESP_LOGE(TAG, "Unexpected OTA chunk seq=%lu expected=%lu", cmd->type.chunk.seq, expected);
+                current_state = OtaState_OTA_ERROR;
+                snprintf(last_error, sizeof(last_error), "Expected chunk %lu", expected);
+                ota_controller_abort();
+                current_state = OtaState_OTA_ERROR;
+                expected_seq = expected;
+                snprintf(last_error, sizeof(last_error), "Expected chunk %lu", expected);
+                send_status_update();
+                return;
+            }
+
             err = esp_ota_write(update_handle, cmd->type.chunk.data.bytes, cmd->type.chunk.data.size);
             if (err != ESP_OK) {
                 ESP_LOGE(TAG, "esp_ota_write failed: %s", esp_err_to_name(err));
@@ -87,8 +112,12 @@ void ota_controller_handle_command(const OtaCommand* cmd) {
             }
 
             written_size += cmd->type.chunk.data.size;
-            // Send status update every 10% or so to avoid flooding BLE
-            if (written_size % (binary_file_size / 10 + 1) < cmd->type.chunk.data.size) {
+            expected_seq++;
+            if (
+                expected_seq % OTA_ACK_CHUNK_INTERVAL == 0 ||
+                written_size >= binary_file_size ||
+                written_size % (binary_file_size / 10 + 1) < cmd->type.chunk.data.size
+            ) {
                  send_status_update();
             }
             break;
@@ -122,6 +151,7 @@ void ota_controller_handle_command(const OtaCommand* cmd) {
             }
 
             current_state = OtaState_OTA_FINISHED;
+            clear_last_error();
             ESP_LOGI(TAG, "OTA successful! Rebooting in 2 seconds...");
             send_status_update();
             
@@ -148,4 +178,6 @@ void ota_controller_abort(void) {
     current_state = OtaState_OTA_IDLE;
     written_size = 0;
     binary_file_size = 0;
+    expected_seq = 0;
+    clear_last_error();
 }

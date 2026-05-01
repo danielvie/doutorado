@@ -1,5 +1,5 @@
 import React from "react";
-import { Upload, Cpu, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Upload, Cpu, CheckCircle, AlertCircle, Loader2, X } from "lucide-react";
 import { OtaManager } from "../../services/OtaManager";
 import { bleManager } from "../../services/BleManager";
 import { useBleStore } from "../../store/bleStore";
@@ -16,12 +16,48 @@ export const OtaPanel: React.FC<{
   const [isFlashing, setIsFlashing] = React.useState(false);
   const [progress, setProgress] = React.useState(0);
   const [status, setStatus] = React.useState<"idle" | "success" | "error">("idle");
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const originalTitleRef = React.useRef<string | null>(null);
   const isConnected = useBleStore((s) => s.isConnected);
+
+  React.useEffect(() => {
+    if (isFlashing && originalTitleRef.current === null) {
+      originalTitleRef.current = document.title;
+    }
+
+    if (!isFlashing && originalTitleRef.current !== null) {
+      document.title = originalTitleRef.current;
+      originalTitleRef.current = null;
+    }
+
+    return () => {
+      if (originalTitleRef.current !== null) {
+        document.title = originalTitleRef.current;
+      }
+    };
+  }, [isFlashing]);
+
+  React.useEffect(() => {
+    if (isFlashing && originalTitleRef.current !== null) {
+      document.title = `Flashing ${progress}% - ${originalTitleRef.current}`;
+    }
+  }, [isFlashing, progress]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
       setStatus("idle");
+    }
+  };
+
+  const handleClearFile = () => {
+    if (isFlashing) return;
+
+    setFile(null);
+    setStatus("idle");
+    setProgress(0);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -64,6 +100,7 @@ export const OtaPanel: React.FC<{
           </label>
           <div className="flex items-center gap-2">
             <input
+              ref={fileInputRef}
               type="file"
               accept=".bin"
               onChange={handleFileChange}
@@ -84,6 +121,18 @@ export const OtaPanel: React.FC<{
                 {file ? file.name : "Select .bin file"}
               </span>
             </label>
+            {file && (
+              <button
+                type="button"
+                onClick={handleClearFile}
+                disabled={isFlashing}
+                title="Unselect firmware file"
+                aria-label="Unselect firmware file"
+                className="shrink-0 p-3 rounded-lg border border-gray-200 text-gray-500 hover:text-red-600 hover:border-red-200 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                <X size={18} />
+              </button>
+            )}
           </div>
         </div>
 

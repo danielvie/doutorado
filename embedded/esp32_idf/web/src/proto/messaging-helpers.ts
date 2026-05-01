@@ -6,6 +6,7 @@ import {
     BleSignalSet,
     BleSignalState,
     OtaCommand as GeneratedOtaCommand,
+    OtaState,
     UiCommand as GeneratedUiCommand,
 } from "./messaging";
 
@@ -14,6 +15,7 @@ export const decodeBleSignalState = BleSignalState as Record<number, string>;
 export const decodeBleAnalogReadState = BleAnalogReadState as Record<number, string>;
 export const decodeBleControlState = BleControlState as Record<number, string>;
 export const decodeBleLedMode = BleLedMode as Record<number, string>;
+export const decodeOtaState = OtaState as Record<number, string>;
 
 export type UiCommand = {
     name?: string;
@@ -102,9 +104,11 @@ export function decodeBlePacket(binary: Uint8Array) {
         log: packet.log,
         ota_status: packet.otaStatus
             ? {
-                  state: packet.otaStatus.state,
-                  progress_percent: packet.otaStatus.progressPercent,
-                  message: packet.otaStatus.message,
+                  state: packet.otaStatus.state ?? 0,
+                  progress_percent: packet.otaStatus.progressPercent ?? 0,
+                  message: packet.otaStatus.message ?? "",
+                  written_size: packet.otaStatus.writtenSize ?? 0,
+                  expected_seq: packet.otaStatus.expectedSeq ?? 0,
               }
             : undefined,
         command_result: packet.commandResult

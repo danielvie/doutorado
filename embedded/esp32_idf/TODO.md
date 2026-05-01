@@ -41,3 +41,39 @@
 - [x] Add reconnect-safe Web Bluetooth handling after ESP32 OTA reboot
 - [x] Reuse previously granted browser Bluetooth device when available
 - [x] Verify the web build
+
+# BLE OTA Validate Failure
+- [x] Disable lossy no-response OTA chunk writes
+- [x] Clear stale OTA error messages in firmware status
+- [x] Display OTA status defaults and state names correctly in web logs
+- [x] Verify firmware and web builds
+
+# OTA File Clear Button
+- [x] Add button to unselect selected OTA file
+- [x] Verify web build
+
+# OTA Reconnect Timing
+- [x] Stop forcing BLE disconnect immediately after OTA end
+- [x] Retry remembered-device reconnect after ESP32 reboot
+- [x] Verify web build
+
+# Fast OTA With ACK Window
+- [x] Add OTA status fields for written bytes and expected sequence
+- [x] Regenerate firmware and web protobuf files
+- [x] Enforce OTA chunk sequence in firmware
+- [x] Send browser chunks in write-without-response ACK windows
+- [x] Verify firmware and web builds
+
+# OTA Browser Title Progress
+- [x] Show OTA percentage in browser title while flashing
+- [x] Restore original browser title after flashing
+- [x] Verify web build
+
+# OTA Status Log Noise
+- [x] Suppress routine OTA downloading status log entries
+- [x] Keep OTA status notifications for ACK pacing
+- [x] Verify web build
+
+# OTA ACK Window Tuning
+- [x] Increase OTA ACK window from 6 to 24 chunks
+- [x] Verify firmware and web builds

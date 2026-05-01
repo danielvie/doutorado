@@ -85,6 +85,8 @@ message OtaStatus {
     OtaState state = 1;
     uint32 progress_percent = 2;
     string message = 3;
+    uint32 written_size = 4;
+    uint32 expected_seq = 5;
 }
 
 message OtaBegin {

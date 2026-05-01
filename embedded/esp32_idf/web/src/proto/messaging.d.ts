@@ -398,6 +398,12 @@ export class OtaStatus implements IOtaStatus {
     /** OtaStatus message. */
     public message: string;
 
+    /** OtaStatus writtenSize. */
+    public writtenSize: number;
+
+    /** OtaStatus expectedSeq. */
+    public expectedSeq: number;
+
     /**
      * Creates a new OtaStatus instance using the specified properties.
      * @param [properties] Properties to set

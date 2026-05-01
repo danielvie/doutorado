@@ -1349,6 +1349,8 @@ export const OtaStatus = $root.OtaStatus = (() => {
      * @property {OtaState|null} [state] OtaStatus state
      * @property {number|null} [progressPercent] OtaStatus progressPercent
      * @property {string|null} [message] OtaStatus message
+     * @property {number|null} [writtenSize] OtaStatus writtenSize
+     * @property {number|null} [expectedSeq] OtaStatus expectedSeq
      */
 
     /**
@@ -1391,6 +1393,22 @@ export const OtaStatus = $root.OtaStatus = (() => {
     OtaStatus.prototype.message = "";
 
     /**
+     * OtaStatus writtenSize.
+     * @member {number} writtenSize
+     * @memberof OtaStatus
+     * @instance
+     */
+    OtaStatus.prototype.writtenSize = 0;
+
+    /**
+     * OtaStatus expectedSeq.
+     * @member {number} expectedSeq
+     * @memberof OtaStatus
+     * @instance
+     */
+    OtaStatus.prototype.expectedSeq = 0;
+
+    /**
      * Creates a new OtaStatus instance using the specified properties.
      * @function create
      * @memberof OtaStatus
@@ -1420,6 +1438,10 @@ export const OtaStatus = $root.OtaStatus = (() => {
             writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.progressPercent);
         if (message.message != null && Object.hasOwnProperty.call(message, "message"))
             writer.uint32(/* id 3, wireType 2 =*/26).string(message.message);
+        if (message.writtenSize != null && Object.hasOwnProperty.call(message, "writtenSize"))
+            writer.uint32(/* id 4, wireType 0 =*/32).uint32(message.writtenSize);
+        if (message.expectedSeq != null && Object.hasOwnProperty.call(message, "expectedSeq"))
+            writer.uint32(/* id 5, wireType 0 =*/40).uint32(message.expectedSeq);
         return writer;
     };
 
@@ -1466,6 +1488,14 @@ export const OtaStatus = $root.OtaStatus = (() => {
                 }
             case 3: {
                     message.message = reader.string();
+                    break;
+                }
+            case 4: {
+                    message.writtenSize = reader.uint32();
+                    break;
+                }
+            case 5: {
+                    message.expectedSeq = reader.uint32();
                     break;
                 }
             default:
@@ -1520,6 +1550,12 @@ export const OtaStatus = $root.OtaStatus = (() => {
         if (message.message != null && message.hasOwnProperty("message"))
             if (!$util.isString(message.message))
                 return "message: string expected";
+        if (message.writtenSize != null && message.hasOwnProperty("writtenSize"))
+            if (!$util.isInteger(message.writtenSize))
+                return "writtenSize: integer expected";
+        if (message.expectedSeq != null && message.hasOwnProperty("expectedSeq"))
+            if (!$util.isInteger(message.expectedSeq))
+                return "expectedSeq: integer expected";
         return null;
     };
 
@@ -1567,6 +1603,10 @@ export const OtaStatus = $root.OtaStatus = (() => {
             message.progressPercent = object.progressPercent >>> 0;
         if (object.message != null)
             message.message = String(object.message);
+        if (object.writtenSize != null)
+            message.writtenSize = object.writtenSize >>> 0;
+        if (object.expectedSeq != null)
+            message.expectedSeq = object.expectedSeq >>> 0;
         return message;
     };
 
@@ -1587,6 +1627,8 @@ export const OtaStatus = $root.OtaStatus = (() => {
             object.state = options.enums === String ? "OTA_IDLE" : 0;
             object.progressPercent = 0;
             object.message = "";
+            object.writtenSize = 0;
+            object.expectedSeq = 0;
         }
         if (message.state != null && message.hasOwnProperty("state"))
             object.state = options.enums === String ? $root.OtaState[message.state] === undefined ? message.state : $root.OtaState[message.state] : message.state;
@@ -1594,6 +1636,10 @@ export const OtaStatus = $root.OtaStatus = (() => {
             object.progressPercent = message.progressPercent;
         if (message.message != null && message.hasOwnProperty("message"))
             object.message = message.message;
+        if (message.writtenSize != null && message.hasOwnProperty("writtenSize"))
+            object.writtenSize = message.writtenSize;
+        if (message.expectedSeq != null && message.hasOwnProperty("expectedSeq"))
+            object.expectedSeq = message.expectedSeq;
         return object;
     };
 

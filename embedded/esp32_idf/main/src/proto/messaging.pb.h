@@ -92,6 +92,8 @@ typedef struct _OtaStatus {
     OtaState state;
     uint32_t progress_percent;
     char message[64];
+    uint32_t written_size;
+    uint32_t expected_seq;
 } OtaStatus;
 
 typedef struct _OtaBegin {
@@ -206,7 +208,7 @@ extern "C" {
 #define Telemetry_init_default                   {0, 0, 0, 0}
 #define SystemStatus_init_default                {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0}
 #define LogMessage_init_default                  {_BleLogLevel_MIN, ""}
-#define OtaStatus_init_default                   {_OtaState_MIN, 0, ""}
+#define OtaStatus_init_default                   {_OtaState_MIN, 0, "", 0, 0}
 #define OtaBegin_init_default                    {0}
 #define OtaChunk_init_default                    {0, {0, {0}}}
 #define OtaEnd_init_default                      {""}
@@ -217,7 +219,7 @@ extern "C" {
 #define Telemetry_init_zero                      {0, 0, 0, 0}
 #define SystemStatus_init_zero                   {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0}
 #define LogMessage_init_zero                     {_BleLogLevel_MIN, ""}
-#define OtaStatus_init_zero                      {_OtaState_MIN, 0, ""}
+#define OtaStatus_init_zero                      {_OtaState_MIN, 0, "", 0, 0}
 #define OtaBegin_init_zero                       {0}
 #define OtaChunk_init_zero                       {0, {0, {0}}}
 #define OtaEnd_init_zero                         {""}
@@ -254,6 +256,8 @@ extern "C" {
 #define OtaStatus_state_tag                      1
 #define OtaStatus_progress_percent_tag           2
 #define OtaStatus_message_tag                    3
+#define OtaStatus_written_size_tag               4
+#define OtaStatus_expected_seq_tag               5
 #define OtaBegin_file_size_tag                   1
 #define OtaChunk_seq_tag                         1
 #define OtaChunk_data_tag                        2
@@ -317,7 +321,9 @@ X(a, STATIC,   SINGULAR, STRING,   text,              2)
 #define OtaStatus_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UENUM,    state,             1) \
 X(a, STATIC,   SINGULAR, UINT32,   progress_percent,   2) \
-X(a, STATIC,   SINGULAR, STRING,   message,           3)
+X(a, STATIC,   SINGULAR, STRING,   message,           3) \
+X(a, STATIC,   SINGULAR, UINT32,   written_size,      4) \
+X(a, STATIC,   SINGULAR, UINT32,   expected_seq,      5)
 #define OtaStatus_CALLBACK NULL
 #define OtaStatus_DEFAULT NULL
 
@@ -411,7 +417,7 @@ extern const pb_msgdesc_t BlePacket_msg;
 #define OtaChunk_size                            521
 #define OtaCommand_size                          524
 #define OtaEnd_size                              65
-#define OtaStatus_size                           73
+#define OtaStatus_size                           85
 #define PROTO_MESSAGING_PB_H_MAX_SIZE            BlePacket_size
 #define SystemStatus_size                        74
 #define Telemetry_size                           21
