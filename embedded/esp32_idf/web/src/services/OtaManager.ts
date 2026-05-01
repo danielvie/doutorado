@@ -6,9 +6,8 @@ import { useBleStore } from "../store/bleStore";
 
 export class OtaManager {
     private static CHUNK_SIZE = 440; // High speed chunk size
-    private static FAST_WINDOW_CHUNKS = 24;
-    private static ACK_TIMEOUT_MS = 10000;
-    private static FIRST_ACK_TIMEOUT_MS = 2500;
+    private static ACK_BATCH_CHUNKS = 24;
+    private static ACK_TIMEOUT_MS = 3000;
 
     static async flash(file: File, onProgress?: (percent: number) => void) {
         const buffer = await file.arrayBuffer();
@@ -19,7 +18,6 @@ export class OtaManager {
         let sentBytes = 0;
         let lastLoggedPercent = -10;
         let chunkWriteMode: "without-response" | "with-response" = "without-response";
-        let fastMode = true;
         let latestStatus: OtaStatusUpdate | null = null;
         const unsubscribeOtaStatus = bleManager.onOtaStatus((status) => {
             latestStatus = status;
@@ -28,7 +26,7 @@ export class OtaManager {
         try {
             console.log(`Starting OTA of ${totalSize} bytes`);
             this.log(
-                `OTA start: ${this.formatBytes(totalSize)}, ${totalChunks} chunks, chunk=${this.CHUNK_SIZE} bytes, window=${this.FAST_WINDOW_CHUNKS}, browser=${navigator.userAgent}`,
+                `OTA start: ${this.formatBytes(totalSize)}, ${totalChunks} chunks, chunk=${this.CHUNK_SIZE} bytes, ackBatch=${this.ACK_BATCH_CHUNKS}, browser=${navigator.userAgent}`,
             );
 
             // 1. Send OTA Begin
@@ -37,18 +35,20 @@ export class OtaManager {
             };
             await this.sendProtobuf(beginCmd);
 
-            // 2. Send chunks in small no-response windows, paced by firmware ACK status.
+            // 2. Fast but simple: send a small no-response batch, then wait for firmware ACK.
             for (let seq = 0; seq < totalChunks;) {
-                const windowStartSeq = seq;
-                const windowEndSeq = Math.min(seq + this.FAST_WINDOW_CHUNKS, totalChunks);
-                const useWithoutResponse = fastMode && windowStartSeq > 0;
-                chunkWriteMode = useWithoutResponse ? "without-response" : "with-response";
+                const batchEndSeq = Math.min(seq + this.ACK_BATCH_CHUNKS, totalChunks);
 
-                for (; seq < windowEndSeq; seq++) {
+                for (; seq < batchEndSeq; seq++) {
+                    const status = latestStatus as OtaStatusUpdate | null;
+                    if (status?.state === 4) {
+                        throw new Error(status.message || "OTA failed on ESP32");
+                    }
+
                     const offset = seq * this.CHUNK_SIZE;
                     const end = Math.min(offset + this.CHUNK_SIZE, totalSize);
                     const chunkData = data.slice(offset, end);
-                    
+
                     const chunkCmd: OtaCommand = {
                         chunk: {
                             seq,
@@ -56,10 +56,22 @@ export class OtaManager {
                         }
                     };
 
-                    await this.sendProtobuf(chunkCmd, { withoutResponse: useWithoutResponse });
+                    try {
+                        await this.sendProtobuf(chunkCmd, { withoutResponse: chunkWriteMode === "without-response" });
+                    } catch (err) {
+                        if (chunkWriteMode === "without-response") {
+                            chunkWriteMode = "with-response";
+                            this.log(
+                                `OTA write-without-response failed at seq ${seq}; falling back to write-with-response (${this.errorMessage(err)})`,
+                            );
+                            await this.sendProtobuf(chunkCmd);
+                        } else {
+                            throw err;
+                        }
+                    }
 
                     sentBytes = end;
-                    
+
                     if (onProgress) {
                         onProgress(Math.round((end / totalSize) * 100));
                     }
@@ -71,21 +83,10 @@ export class OtaManager {
                     }
                 }
 
-                if (fastMode) {
-                    const acked = await this.waitForAck(
-                        () => latestStatus,
-                        windowEndSeq,
-                        windowStartSeq === 0 ? this.FIRST_ACK_TIMEOUT_MS : this.ACK_TIMEOUT_MS,
-                    );
-
+                if (chunkWriteMode === "without-response") {
+                    const acked = await this.waitForAck(() => latestStatus, batchEndSeq, this.ACK_TIMEOUT_MS);
                     if (!acked) {
-                        if (windowStartSeq > 0) {
-                            throw new Error(`Timed out waiting for OTA ACK seq ${windowEndSeq}`);
-                        }
-
-                        fastMode = false;
-                        chunkWriteMode = "with-response";
-                        this.log("OTA fast ACK unavailable; falling back to write-with-response mode");
+                        throw new Error(`Timed out waiting for OTA ACK seq ${batchEndSeq}`);
                     }
                 }
             }
@@ -139,6 +140,12 @@ export class OtaManager {
         console.log(`[OTA] ${message}`);
     }
 
+    private static formatBytes(bytes: number) {
+        if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+        if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+        return `${Math.round(bytes)} B`;
+    }
+
     private static async waitForAck(
         getStatus: () => OtaStatusUpdate | null,
         targetExpectedSeq: number,
@@ -157,16 +164,14 @@ export class OtaManager {
                 return true;
             }
 
-            await this.delay(20);
+            await this.delay(10);
         }
 
         return false;
     }
 
-    private static formatBytes(bytes: number) {
-        if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
-        if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-        return `${Math.round(bytes)} B`;
+    private static errorMessage(err: unknown) {
+        return err instanceof Error ? err.message : String(err);
     }
 
     private static delay(ms: number): Promise<void> {

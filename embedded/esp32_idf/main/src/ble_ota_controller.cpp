@@ -3,7 +3,7 @@
 #include <string.h>
 
 static const char* TAG = "OTA_CTRL";
-static const uint32_t OTA_ACK_CHUNK_INTERVAL = 24;
+static const uint32_t OTA_ACK_CHUNK_INTERVAL = 12;
 
 static esp_ota_handle_t update_handle = 0;
 static const esp_partition_t* update_partition = NULL;
@@ -41,7 +41,10 @@ static void send_status_update() {
     BlePacket packet = BlePacket_init_zero;
     packet.which_payload = BlePacket_ota_status_tag;
     ota_controller_get_status(&packet.payload.ota_status);
-    ble_send_protobuf(&packet);
+    esp_err_t ret = ble_send_protobuf_critical(&packet);
+    if (ret != ESP_OK) {
+        ESP_LOGW(TAG, "OTA status notify failed: %s", esp_err_to_name(ret));
+    }
 }
 
 void ota_controller_handle_command(const OtaCommand* cmd) {

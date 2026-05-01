@@ -41,10 +41,12 @@ esp_err_t ble_controller_init(void);
 
 // Send a BLE notification message to the connected client
 esp_err_t ble_send_message(const char* data, uint16_t len, BLEMode mode = BLEMode::VERBOSE);
+esp_err_t ble_send_message_critical(const char* data, uint16_t len, BLEMode mode = BLEMode::VERBOSE);
 
 // Send a Protobuf message to the connected client
 esp_err_t ble_send_log(BleLogLevel level, const char* text);
 esp_err_t ble_send_protobuf(const BlePacket* packet);
+esp_err_t ble_send_protobuf_critical(const BlePacket* packet);
 
 void ble_router(esp_ble_gatts_cb_param_t *param);
 

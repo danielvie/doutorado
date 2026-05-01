@@ -135,14 +135,14 @@ static bool uuid_from_string_le(const char* str, uint8_t out[16]) {
     return true;
 }
 
-esp_err_t ble_send_message(const char* data, uint16_t len, BLEMode mode) {
+static esp_err_t ble_send_message_internal(const char* data, uint16_t len, BLEMode mode, bool critical) {
     if (gl_profile_tab[PROFILE_APP_ID].conn_id == 0xFFFF) {
         ESP_LOGW(TAG, "Cannot send message: no client connected");
         return ESP_FAIL;
     }
 
     // Drop packet if TX queue is backed up (prevents transport delay)
-    if (g_ble_congested) {
+    if (g_ble_congested && !critical) {
         return ESP_ERR_NO_MEM;
     }
 
@@ -174,7 +174,15 @@ esp_err_t ble_send_message(const char* data, uint16_t len, BLEMode mode) {
     return ret;
 }
 
-esp_err_t ble_send_protobuf(const BlePacket* packet) {
+esp_err_t ble_send_message(const char* data, uint16_t len, BLEMode mode) {
+    return ble_send_message_internal(data, len, mode, false);
+}
+
+esp_err_t ble_send_message_critical(const char* data, uint16_t len, BLEMode mode) {
+    return ble_send_message_internal(data, len, mode, true);
+}
+
+static esp_err_t ble_send_protobuf_internal(const BlePacket* packet, bool critical) {
     if (!ble_is_connected()) return ESP_FAIL;
 
     uint8_t buffer[500];
@@ -188,7 +196,19 @@ esp_err_t ble_send_protobuf(const BlePacket* packet) {
         return ESP_FAIL;
     }
 
+    if (critical) {
+        return ble_send_message_critical((const char*)buffer, stream.bytes_written + 1, BLEMode::SILENT);
+    }
+
     return ble_send_message((const char*)buffer, stream.bytes_written + 1, BLEMode::SILENT);
+}
+
+esp_err_t ble_send_protobuf(const BlePacket* packet) {
+    return ble_send_protobuf_internal(packet, false);
+}
+
+esp_err_t ble_send_protobuf_critical(const BlePacket* packet) {
+    return ble_send_protobuf_internal(packet, true);
 }
 
 esp_err_t ble_send_log(BleLogLevel level, const char* text) {
