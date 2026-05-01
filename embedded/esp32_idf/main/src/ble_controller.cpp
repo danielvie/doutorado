@@ -410,7 +410,11 @@ static void profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
             .attr_value   = NULL,
         };
 
-        esp_gatt_char_prop_t property = ESP_GATT_CHAR_PROP_BIT_WRITE | ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_NOTIFY;
+        esp_gatt_char_prop_t property =
+            ESP_GATT_CHAR_PROP_BIT_WRITE |
+            ESP_GATT_CHAR_PROP_BIT_WRITE_NR |
+            ESP_GATT_CHAR_PROP_BIT_READ |
+            ESP_GATT_CHAR_PROP_BIT_NOTIFY;
         esp_err_t rc = esp_ble_gatts_add_char(gl_profile_tab[PROFILE_APP_ID].service_handle,
             &gl_profile_tab[PROFILE_APP_ID].char_uuid,
             ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE,
@@ -447,7 +451,10 @@ static void profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatt
         break;
     }
     case ESP_GATTS_WRITE_EVT: {
-        ESP_LOGI(TAG, "Write event, len=%u", param->write.len);
+        ESP_LOGI(TAG, "Write event, len=%u, need_rsp=%d, is_prep=%d",
+            param->write.len,
+            param->write.need_rsp,
+            param->write.is_prep);
         // ACK immediately, process command asynchronously
         example_write_event_env(gatts_if, param);
 

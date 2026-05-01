@@ -43,6 +43,8 @@ export const Header = () => {
   const handleToggleConnection = () => {
     if (isConnected) {
       bleManager.disconnect();
+    } else if (systemStatus === "Connection Failed") {
+      bleManager.connect({ forceNewDevice: true }).catch(() => {});
     } else {
       bleManager.connect().catch(() => {});
     }

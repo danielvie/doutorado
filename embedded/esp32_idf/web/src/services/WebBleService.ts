@@ -16,6 +16,7 @@ export class WebBleService implements IBleService {
     async connect(options: BleConnectOptions = {}): Promise<void> {
         const { setSystemStatus, setIsConnected, setIsConnecting, addLog, setError, setDevice } =
             useBleStore.getState();
+        let usingExistingDevice = false;
 
         try {
             setIsConnecting(true);
@@ -23,6 +24,10 @@ export class WebBleService implements IBleService {
 
             if (!navigator.bluetooth) {
                 throw new Error("Web Bluetooth API is not available. Ensure you are using a supported browser (Chrome/Edge) and accessing via HTTPS or localhost.");
+            }
+
+            if (options.forceNewDevice) {
+                this.forgetDeviceReference();
             }
 
             if (!this.device && options.preferRememberedDevice) {
@@ -43,6 +48,7 @@ export class WebBleService implements IBleService {
                 }
                 setSystemStatus("Reconnecting to Device...");
                 addLog("Reconnecting using stored reference...");
+                usingExistingDevice = true;
             } else {
                 setSystemStatus("Requesting Device...");
                 const device = await navigator.bluetooth.requestDevice({
@@ -63,17 +69,21 @@ export class WebBleService implements IBleService {
             this.gattServer = await this.connectGattWithRetry(this.device);
             const service = await this.gattServer.getPrimaryService(SERVICE_UUID);
             this.characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+            addLog(
+                `BLE characteristic: write=${this.characteristic.properties.write}, writeWithoutResponse=${this.characteristic.properties.writeWithoutResponse}, notify=${this.characteristic.properties.notify}`,
+            );
 
             setIsConnected(true);
             setSystemStatus("Connected");
             addLog("Connected to ESP32");
         } catch (error: any) {
+            if (usingExistingDevice) {
+                this.forgetDeviceReference();
+                addLog("Stored BLE device reference cleared; retry will request device again.");
+            }
             setError(error.message);
             setSystemStatus("Connection Failed");
             addLog(`Error: ${error.message}`);
-            // If we fail to connect with stored device, maybe we should not clear it 
-            // so user can try again, OR user might want to scan again. 
-            // For now, adhere to keeping reference.
             throw error;
         } finally {
             setIsConnecting(false);
@@ -90,6 +100,18 @@ export class WebBleService implements IBleService {
         addLog("Device Disconnected");
     };
 
+    private forgetDeviceReference() {
+        if (this.device) {
+            this.device.removeEventListener("gattserverdisconnected", this.handleDisconnect);
+        }
+
+        this.device = null;
+        this.gattServer = null;
+        this.characteristic = null;
+        this.notificationCharacteristic = null;
+        useBleStore.getState().setDevice(null);
+    }
+
     async disconnect(): Promise<void> {
         if (this.device && this.device.gatt?.connected) {
             this.device.gatt.disconnect();
@@ -98,10 +120,20 @@ export class WebBleService implements IBleService {
         }
     }
 
-    async send(data: Uint8Array): Promise<void> {
+    async send(data: Uint8Array, options: { withoutResponse?: boolean } = {}): Promise<void> {
         if (!this.characteristic || !this.device?.gatt?.connected) {
             throw new Error("BLE characteristic is not connected");
         }
+
+        if (options.withoutResponse) {
+            if (!this.characteristic.properties.writeWithoutResponse) {
+                throw new Error("BLE characteristic does not support write without response");
+            }
+
+            await this.characteristic.writeValueWithoutResponse(data);
+            return;
+        }
+
         await this.characteristic.writeValueWithResponse(data);
     }
 

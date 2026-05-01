@@ -117,6 +117,7 @@ static UiCommandResultData handle_system_hello(const UiCommandContext& ctx) {
         "ik ben hier motherfucker! en ben ik hier opnieuw! \
         terug op mac!!\
         terug op windows!!\
+        terug op mac!!\
         "
     );
     

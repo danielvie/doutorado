@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useBleStore } from "../../store/bleStore";
-import { Trash2 } from "lucide-react";
+import { Check, ClipboardCopy, Trash2 } from "lucide-react";
 import { PanelSize } from "./SizeSelector";
 import { DashboardItem } from "./DashboardItem";
 
@@ -29,11 +29,18 @@ const LogViewer: React.FC = () => {
   const clearLogs = useBleStore((s) => s.clearLogs);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [copiedAll, setCopiedAll] = useState(false);
 
   const handleCopy = (log: string, index: number) => {
     navigator.clipboard.writeText(log);
     setCopiedIndex(index);
     setTimeout(() => setCopiedIndex(null), 1500);
+  };
+
+  const handleCopyAll = () => {
+    navigator.clipboard.writeText([...statusLogs].reverse().join("\n"));
+    setCopiedAll(true);
+    setTimeout(() => setCopiedAll(false), 1500);
   };
 
   useEffect(() => {
@@ -48,13 +55,23 @@ const LogViewer: React.FC = () => {
         <span className="text-xs text-gray-700 font-bold uppercase tracking-widest">
           System Output
         </span>
-        <button
-          onClick={clearLogs}
-          className="text-gray-500 hover:text-red-600 transition-colors p-1"
-          title="Clear Logs"
-        >
-          <Trash2 size={16} />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={handleCopyAll}
+            disabled={statusLogs.length === 0}
+            className="text-gray-500 hover:text-blue-700 disabled:text-gray-300 disabled:cursor-not-allowed transition-colors p-1"
+            title="Copy all system output"
+          >
+            {copiedAll ? <Check size={16} /> : <ClipboardCopy size={16} />}
+          </button>
+          <button
+            onClick={clearLogs}
+            className="text-gray-500 hover:text-red-600 transition-colors p-1"
+            title="Clear Logs"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
       </div>
       <div
         ref={scrollRef}

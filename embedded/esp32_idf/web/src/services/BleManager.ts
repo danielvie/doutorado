@@ -51,10 +51,10 @@ class BleManager {
         await this.connect({ preferRememberedDevice: true });
     }
 
-    async sendBinary(data: Uint8Array) {
+    async sendBinary(data: Uint8Array, options: { withoutResponse?: boolean } = {}) {
         const { isConnected } = useBleStore.getState();
         if (!isConnected) await this.connect({ preferRememberedDevice: true });
-        await this.service.send(data);
+        await this.service.send(data, options);
     }
 
     async sendCommand(name: string, payload: Record<string, unknown> = {}) {
