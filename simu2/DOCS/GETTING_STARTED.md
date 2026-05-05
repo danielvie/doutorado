@@ -7,10 +7,10 @@ Step-by-step tutorial for first-time users.
 The fastest way to run pre-configured simulations:
 
 ```matlab
-t('play')              % Main LAB_CIRCUIT simulation
-t('play_patino1')      % Patino 1 benchmark
-t('play_patino2')      % Patino 2 benchmark
-t('play_integrador')   % Double integrator example
+t('play', 'lab')        % Main LAB_CIRCUIT simulation
+t('play', 'patino1')    % Patino 1 benchmark
+t('play', 'patino2')    % Patino 2 benchmark
+t('play', 'integrador') % Double integrator example
 t('test')              % Run test suite
 t('demo', 'projection') % Feasibility projection demo
 t('demo', 'broker')    % Bluetooth broker demo
@@ -76,11 +76,11 @@ s.set_controller(ctrl);
 
 ```matlab
 % MPC ON
-s.m_config.mpc.on = true;
+s.set_control_enabled(true);
 [y, t, m] = s.run(1000);
 
 % Open Loop (no control)
-s.m_config.mpc.on = false;
+s.set_control_enabled(false);
 s.m_config.x0 = s.m_config.x0 + [-1; -1; -0.5];  % Add disturbance
 [y_off, t_off, m_off] = s.run(1000);
 ```

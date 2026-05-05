@@ -10,7 +10,7 @@ function var_out = play_patino1(save_fig)
     s.m_config.c_time = [0.25, 0.25];
 
     % 2 CONSTRUINDO MPC
-    mpc = Interface.config_mpc();
+    mpc = Options.Mpc();
     mpc.Nd = 1;
     mpc.Np = 2;
     mpc.Q  = diag([10, 1]);
@@ -37,12 +37,12 @@ function var_out = play_patino1(save_fig)
     s.set_step_strategy(Dynamics.DenseStrategy());
 
     % simulacao sem controle mpc
-    s.m_config.mpc.on = false;
+s.set_control_enabled(false);
     s.m_config.x0 = x0_pertubed;
     [y_off, t_off, m_off] = s.run(nsim);
 
     % simulacao com controle mpc
-    s.m_config.mpc.on = true;
+s.set_control_enabled(true);
     s.m_config.x0 = x0_pertubed;
     [y, t, m] = s.run(nsim);
 

@@ -1,7 +1,6 @@
 classdef Simulation < handle
     properties
         m_config;
-        m_config_mpc;
         m_set_alpha_cache;
         m_state_mode;
         m_log;
@@ -21,12 +20,10 @@ classdef Simulation < handle
 
             if nargin < 1
                 fprintf('Simulation name not provided. Using default.\n');
+                self.set_config(Enums.SimName.LAB_CIRCUIT);
             else
                 self.set_config(sim_name);
             end
-
-            % default config_mpc
-            self.m_config_mpc = self.get_config_mpc();
 
             % default state mode
             self.m_state_mode = Enums.StateMode.ORIGINAL;
@@ -59,8 +56,6 @@ classdef Simulation < handle
         % .. setters
         success = set_config(self, sim_name);
 
-        set_config_mpc(self, config_mpc);
-
         set_offset(self, offset);
 
         set_traj_phase_with_iref(self, iref);
@@ -71,12 +66,12 @@ classdef Simulation < handle
         save_set_alpha_cache(self);
 
         set_controller(self, controller);
+        set_control_enabled(self, flag);
         function set_step_strategy(self, strategy)
             self.m_step_strategy = strategy;
         end
 
         % .. getters
-        config_mpc = get_config_mpc(self);
         [Phi, Gamma] = get_phi_gamma(self);
         c = get_switching_constraints(self);
 

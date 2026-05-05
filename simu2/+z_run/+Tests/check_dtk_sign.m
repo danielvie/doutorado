@@ -1,6 +1,6 @@
 
 s = Simulation(Enums.SimName.PATINO_1);
-mpc_config = Interface.config_mpc();
+mpc_config = Options.Mpc();
 mpc_config.Np = 10;
 mpc_config.Q = diag([1, 1]);
 s.set_mpc(mpc_config);

@@ -1,7 +1,7 @@
 
 function test_patino_params()
     s = Simulation(Enums.SimName.PATINO_1);
-    mpc = Interface.config_mpc();
+mpc = Options.Mpc();
     mpc.Np = 15;
     mpc.Q = diag([10, 10]);
     s.set_mpc(mpc);

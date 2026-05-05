@@ -1,86 +1,57 @@
-function set_mpc(self, config_mpc)
-    % set_mpc - Configures the Model Predictive Control (MPC) parameters for the simulation.
-    %
-    % This function initializes the MPC optimization problem by computing the necessary
-    % matrices and constraints based on the system dynamics and switching constraints.
-    % It stores the resulting MPC configuration in the simulation object's configuration.
+function set_mpc(self, options)
+    % set_mpc - Build MPC runtime data and install the default MPC controller.
     %
     % Inputs:
-    %   self       - Instance of the Simulation class.
-    %   config_mpc - (Optional) Interface.config_mpc object to update simulation parameters.
-    %
-    % Outputs:
-    %   None. The function modifies the simulation object's configuration in place.
-    %
-    % Functionality:
-    % - Reads system configuration and dynamics matrices.
-    % - Computes MPC optimization matrices and constraints.
-    % - Creates an MPC configuration structure and updates the simulation object.
+    %   options - Optional Options.Mpc setup schema. If omitted, a default
+    %             Options.Mpc is used and a warning is printed.
 
-    if nargin > 1
-        self.m_config_mpc = config_mpc;
+    if nargin < 2
+        warning('Simulation:set_mpc:DefaultOptions', ...
+            ['set_mpc() called without Options.Mpc. Using Options.Mpc(). ', ...
+             'For explicit configuration, use: mpc_options = Options.Mpc(); s.set_mpc(mpc_options);']);
+        options = Options.Mpc();
     end
 
-    config_mpc = self.m_config_mpc;
+    if ~isa(options, 'Options.Mpc')
+        error('set_mpc expects an Options.Mpc instance.');
+    end
 
-    Np = config_mpc.Np; % Default prediction horizon if not provided
-    Nd = config_mpc.Nd; % Default repeated controls if not provided
-    
-    % reading config values
     config = self.m_config;
-
-
     [Phi, Gamma] = self.get_phi_gamma();
 
-    N  = numel(config.Omega);
-    p  = N - 1;
+    state_len = size(Phi, 1);
+    target = resolve_target(config, options, state_len);
 
-    % ?? augmented
-    if self.m_state_mode == Enums.StateMode.AUGMENTED
-        [Aa, Ba] = Mpc.build_augmented_model(Phi, Gamma, Nd);
+    state_mode = options.StateMode;
+    if ~(state_mode == Enums.StateMode.ORIGINAL || state_mode == Enums.StateMode.AUGMENTED)
+        error('Options.Mpc.StateMode must be Enums.StateMode.ORIGINAL or Enums.StateMode.AUGMENTED.');
     end
 
-    if ~isempty(config_mpc.Q)
-        Q = config_mpc.Q;
+    if state_mode == Enums.StateMode.AUGMENTED
+        [A_model, B_model] = Mpc.build_augmented_model(Phi, Gamma, options.Nd);
     else
-        if self.m_state_mode == Enums.StateMode.AUGMENTED
-            Q  = eye(size(Aa, 2)); 
-        else
-            Q  = eye(size(Phi, 2)); 
-        end
+        A_model = Phi;
+        B_model = Gamma;
     end
-    
-    R  = eye(p);
 
-    % switching constraints parameters
+    model_len = size(A_model, 1);
+    if ~isempty(options.Q)
+        validate_square_matrix(options.Q, model_len, 'Options.Mpc.Q');
+        Q = options.Q;
+    else
+        Q = eye(model_len);
+    end
+
+    p = numel(config.Omega) - 1;
+    R = eye(p);
     c = self.get_switching_constraints();
 
-    % c = [
-    %     -dtr(1) + t_min;
-    %     -dtr(2) + t_min;
-    %     -dtr(3) + t_min;
-    %     -dtr(4) + t_min;
-    %     -dtr(5) + t_min;
-    %     -dtr(6) + t_min;
-    %     -dtr(7) + t_min;
-    %     -dtr(8) + t_min;
-    %     -dtr(9) + t_min;
-    % ]; % dimensao: Nx1
+    [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,K,~] = ...
+        Mpc.ss_mpc_dualmode_matrices(A_model, B_model, Q, R, options.Np, c);
 
-    % ?? augmented
-    if self.m_state_mode == Enums.StateMode.AUGMENTED
-        [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,K,~] = ...
-        Mpc.ss_mpc_dualmode_matrices(Aa,Ba,Q,R,Np,c);
-    else
-        [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,K,~] = ...
-        Mpc.ss_mpc_dualmode_matrices(Phi,Gamma,Q,R,Np,c);
-    end
-
-    % creating MPC data structure
-    mpc_opt          = struct();
+    mpc_opt = struct();
     mpc_opt.on       = true;
-
-    mpc_opt.x_target = config.x0;
+    mpc_opt.x_target = target;
     mpc_opt.H        = H;
     mpc_opt.Hf       = Hf;
     mpc_opt.Phi1Np   = Phi1Np;
@@ -94,9 +65,33 @@ function set_mpc(self, config_mpc)
     mpc_opt.PhiNp    = PhiNp;
     mpc_opt.K        = K;
     mpc_opt.p        = p;
-    
     mpc_opt.options  = optimoptions('quadprog', 'Algorithm', 'active-set');
-    
-    % updating config values of object
+
+    controller = Controllers.MpcController(mpc_opt, ...
+        'Nd', options.Nd, ...
+        'StateMode', state_mode);
+
     self.m_config.mpc = mpc_opt;
+    self.m_state_mode = state_mode;
+    self.m_controller = controller;
+end
+
+function target = resolve_target(config, options, state_len)
+    if ~isempty(options.x_target)
+        target = options.x_target(:);
+    elseif isprop(config, 'xref') && ~isempty(config.xref)
+        target = config.xref(:);
+    else
+        error('set_mpc requires a target. Set Options.Mpc.x_target or define config.xref.');
+    end
+
+    if numel(target) ~= state_len
+        error('MPC target must have %d elements. Got %d.', state_len, numel(target));
+    end
+end
+
+function validate_square_matrix(value, expected_size, name)
+    if ~ismatrix(value) || any(size(value) ~= [expected_size, expected_size])
+        error('%s must be a %dx%d matrix.', name, expected_size, expected_size);
+    end
 end

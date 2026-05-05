@@ -1,6 +1,6 @@
 
 s = Simulation(Enums.SimName.PATINO_1);
-mpc_config = Interface.config_mpc();
+mpc_config = Options.Mpc();
 s.set_mpc(mpc_config);
 
 fprintf('Constraints c:\n');

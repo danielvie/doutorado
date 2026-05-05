@@ -19,12 +19,11 @@ s.set_traj_phase_with_alpha(0.8);
 
 % set MPC parameters
 
-config_mpc = s.get_config_mpc();
+config_mpc = Options.Mpc();
 config_mpc.Nd = 3;
 config_mpc.Np = 25;
 
-s.set_config_mpc(config_mpc);
-s.set_mpc();
+s.set_mpc(config_mpc);
 
 % Setup Controller (Strategy Pattern)
 K = s.get_gain_k();
@@ -42,10 +41,10 @@ nsim = 5000;
 s.m_config.x0 = [0.0; 0.0; 0.0];
 
 % running simulation
-s.m_config.mpc.on = false;
+s.set_control_enabled(false);
 [y_off, t_off, m_off] = s.run(nsim);
 
-s.m_config.mpc.on = true;
+s.set_control_enabled(true);
 [y, t, m] = s.run(nsim);
 
 

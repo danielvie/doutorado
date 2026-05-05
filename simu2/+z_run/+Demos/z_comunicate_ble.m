@@ -11,15 +11,14 @@ c =@(x) b.msg(x);
 
 s = Simulation();
 s.set_config(Enums.SimName.LAB_CIRCUIT);
-s.m_state_mode = Enums.StateMode.AUGMENTED;
 
 % s.set_alpha_and_mpc_cached(0.5);
 
-config_mpc = s.get_config_mpc();
+config_mpc = Options.Mpc();
 config_mpc.Nd = 15;
 config_mpc.Np = 25;
-s.set_config_mpc(config_mpc);
-s.set_mpc();
+config_mpc.StateMode = Enums.StateMode.AUGMENTED;
+s.set_mpc(config_mpc);
 
 b.simulation = s;
 

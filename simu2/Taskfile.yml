@@ -9,7 +9,7 @@ tasks:
   run:
     desc: Run main simulation
     cmds:
-      - matlab -batch "cd('{{.TASKFILE_DIR}}'); t('play');"
+      - matlab -batch "cd('{{.TASKFILE_DIR}}'); t('play', 'lab');"
 
   test:
     desc: Run simulation test suite

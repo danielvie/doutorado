@@ -3,17 +3,28 @@ clear;
 s = Simulation();
 s.set_config(Enums.SimName.LAB_CIRCUIT);
 
-config_mpc = s.get_config_mpc();
+config_mpc = Options.Mpc();
 config_mpc.Nd = 15;
 config_mpc.Np = 1; % Nd - Number of delays in the block (repeated control)
  
-s.set_config_mpc(config_mpc);
 s.set_traj_phase_with_alpha(0.5);
-s.set_mpc();
+s.set_mpc(config_mpc);
  
 msg_data = s.get_msg_control_signal();
 
-b = BTBroker();
+if ~strcmp(getenv('SIMU2_RUN_HARDWARE_TESTS'), '1')
+    warning('test_status:HardwareDisabled', ...
+        'Skipping BTBroker hardware section. Set SIMU2_RUN_HARDWARE_TESTS=1 to enable.');
+    return;
+end
+
+try
+    b = BTBroker();
+catch ME
+    warning('test_status:BTBrokerUnavailable', ...
+        'Skipping BTBroker hardware section: %s', ME.message);
+    return;
+end
 b.simulation = s;
 % b.msg(msg_data);
 b.control_on = false;

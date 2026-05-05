@@ -1,21 +1,24 @@
 % t - Task runner for common simulation workflows
 %
-% Usage: t <task>
+% Usage:
+%   t <task>
+%   t <task> <name>
 %
 % Tasks:
-%   play            - Run main simulation (LAB_CIRCUIT)
-%   play_patino1    - Run Patino 1 benchmark
-%   play_patino2    - Run Patino 2 benchmark
-%   play_integrador - Run double integrator example
+%   play <name>     - Run play script: lab, patino1, patino2, integrador
+%   projection <name> - Run projection: patino1, patino2, integrador, automate
 %   test            - Run test suite
-%   demo            - Run interactive demos
+%   demo <name>     - Run demo: projection, broker, feasibility
 %   clean           - Clean generated files
 %   docs            - Open documentation
 %
 % Examples:
-%   t play
+%   t play lab
+%   t play patino1
 %   t test
 %   t demo projection
+%   t projection patino1
+%   t projection automate
 
 function t(task, varargin)
     if nargin < 1
@@ -25,25 +28,27 @@ function t(task, varargin)
 
     switch lower(task)
         case 'play'
-            play();
-
-        case 'play_patino1'
-            z_run.Scripts.play_patino1();
-
-        case 'play_patino2'
-            z_run.Scripts.play_patino2();
-
-        case 'play_integrador'
-            z_run.Scripts.play_integrador_duplo();
+            if nargin < 2
+                fprintf('Available plays: lab, patino1, patino2, integrador\n');
+            else
+                run_play(varargin{1});
+            end
 
         case 'test'
             run_tests();
 
         case 'demo'
             if nargin < 2
-                fprintf('Available demos: projection, broker, feasibility\n');
+                fprintf('Available demos: projection, broker, feasibility (alias for projection)\n');
             else
                 run_demo(varargin{1});
+            end
+
+        case 'projection'
+            if nargin < 2
+                fprintf('Available projections: patino1, patino2, integrador, automate\n');
+            else
+                run_projection(varargin{1});
             end
 
         case 'clean'
@@ -55,6 +60,36 @@ function t(task, varargin)
         otherwise
             fprintf('Unknown task: %s\n', task);
             help t;
+    end
+end
+
+function run_play(name)
+    switch lower(name)
+        case {'lab', 'lab_circuit', 'default'}
+            z_run.Scripts.play();
+        case 'patino1'
+            z_run.Scripts.play_patino1();
+        case 'patino2'
+            z_run.Scripts.play_patino2();
+        case {'integrador', 'double_integrator'}
+            z_run.Scripts.play_integrador_duplo();
+        otherwise
+            fprintf('Play "%s" not found.\n', name);
+            fprintf('Available plays: lab, patino1, patino2, integrador\n');
+    end
+end
+
+function run_projection(name)
+    switch lower(name)
+        case 'patino1'
+            z_run.Experiments.z_projection_patino1();
+        case 'patino2'
+            z_run.Experiments.z_projection_patino2();
+        case {'integrador', 'double_integrator'}
+            z_run.Experiments.z_projection_double_integrator();
+        otherwise
+            fprintf('Projection "%s" not found.\n', name);
+            fprintf('Available projections: patino1, patino2, integrador\n');
     end
 end
 

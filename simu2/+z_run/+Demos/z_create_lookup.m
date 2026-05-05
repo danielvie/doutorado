@@ -7,9 +7,9 @@ function z_create_lookup()
 
     clc;
 
-    simulation = create_simulation();
+    [simulation, mpc_options] = create_simulation();
     alpha_values = 0.10:0.01:0.90;
-    lookup = collect_lookup(simulation, alpha_values);
+    lookup = collect_lookup(simulation, mpc_options, alpha_values);
 
     header_path = fullfile(project_root(), ...
         'embedded', 'esp32_idf', 'main', 'include', 'helper_datasetter.h');
@@ -30,17 +30,15 @@ function z_create_lookup()
     fprintf('  %s\n', source_path);
 end
 
-function simulation = create_simulation()
+function [simulation, mpc_options] = create_simulation()
     simulation = Simulation(Enums.SimName.LAB_CIRCUIT);
 
-    config_mpc = simulation.get_config_mpc();
-    config_mpc.Nd = 15;
-    config_mpc.Np = 1;
-
-    simulation.set_config_mpc(config_mpc);
+    mpc_options = Options.Mpc();
+    mpc_options.Nd = 15;
+    mpc_options.Np = 1;
 end
 
-function lookup = collect_lookup(simulation, alpha_values)
+function lookup = collect_lookup(simulation, mpc_options, alpha_values)
     alpha_count = numel(alpha_values);
 
     lookup = repmat(struct( ...
@@ -57,7 +55,7 @@ function lookup = collect_lookup(simulation, alpha_values)
         alpha_value = alpha_values(alpha_index);
 
         simulation.set_traj_phase_with_alpha(alpha_value);
-        simulation.set_mpc();
+        simulation.set_mpc(mpc_options);
 
         time_us = simulation.get_time_us();
         time_us = max(round(time_us), 7);

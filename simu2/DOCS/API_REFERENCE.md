@@ -13,9 +13,10 @@ s = Simulation(Enums.SimName)  % LAB_CIRCUIT, PATINO_1, PATINO_2, INTEGRADOR_DUP
 ```matlab
 s.alpha(α)                  % Set trajectory from duty cycle (0-1)
 s.iref(i_ref)              % Set trajectory from reference current
-s.set_mpc()                % Compute MPC matrices
+s.set_mpc()                % Configure MPC with default Options.Mpc
+s.set_mpc(options)         % Configure MPC from Options.Mpc
 s.set_controller(ctrl)     % Assign controller (Strategy pattern)
-s.set_config_mpc(cfg)      % Set MPC parameters (Np, Nd, Q)
+s.set_control_enabled(flag)% Enable/disable control
 s.set_step_strategy(strat) % Dynamics.SwitchingStrategy (default) or DenseStrategy
 s.set_offset(offset)       % Add offset to equilibrium state
 ```
@@ -27,7 +28,6 @@ s.set_offset(offset)       % Add offset to equilibrium state
 
 ### Getters
 ```matlab
-config_mpc = s.get_config_mpc()       % Default MPC parameters struct
 [Phi, Gamma] = s.get_phi_gamma()      % Linearized model
 K = s.get_gain_k()                    % LQR gain
 c = s.get_switching_constraints()     % Constraint vector
@@ -63,8 +63,7 @@ s.print_test_values_cpp(k, log_source) % Print C++ compatible values
 ### Properties
 ```matlab
 s.m_config              % Circuit configuration
-s.m_config_mpc          % MPC parameters
-s.m_config.mpc.on       % Enable/disable control
+s.m_config.mpc          % Built MPC runtime data
 s.m_config.x0           % Initial state
 s.m_log.run             % Simulation logs
 ```

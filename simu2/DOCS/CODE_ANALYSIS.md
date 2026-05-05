@@ -32,7 +32,7 @@ This is a MATLAB research framework for Model Predictive Control (MPC) of switch
 +Dynamics/      - Physics propagation strategies
 +Enums/         - Type-safe enumerations
 +Hardware/      - BLE message formatting (separated from broker)
-+Interface/     - Config structs (config_mpc)
++Options/       - Config option schemas (Mpc)
 +Mpc/           - QP matrix builders and dual-mode solver
 +Results/       - Data containers and plotters
 +Trajectory/    - Reference orbit planner

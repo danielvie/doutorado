@@ -1,5 +1,5 @@
 % Define function for the projection test using Backward Reachable Sets
-function z_test_double_integrator_projection()
+function z_projection_double_integrator()
     disp('Initializing simulation Double Integrator...');
     s = Simulation(Enums.SimName.INTEGRADOR_DUPLO);
 

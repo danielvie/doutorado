@@ -5,12 +5,13 @@ Copy-paste snippets for common tasks.
 ## Quick Tasks (t.m)
 
 ```matlab
-t('play')           % Run main simulation
-t('play_patino1')   % Patino 1 benchmark
-t('play_patino2')   % Patino 2 benchmark
-t('play_integrador')% Double integrator
+t('play', 'lab')        % Run main simulation
+t('play', 'patino1')    % Patino 1 benchmark
+t('play', 'patino2')    % Patino 2 benchmark
+t('play', 'integrador') % Double integrator
 t('test')           % Run tests
 t('demo', 'broker') % Run broker demo
+t('projection', 'patino1') % Run projection script
 t('clean')          % Clean outputs
 t('docs')           % Open documentation
 ```
@@ -27,7 +28,8 @@ s.alpha(0.5);                    % Duty cycle 50%
 s.iref(0.1);                     % Reference current 0.1A
 
 % Configure MPC (required before run)
-s.set_mpc();
+mpc_options = Options.Mpc();
+s.set_mpc(mpc_options);
 
 % Run
 [y, t, m] = s.run(1000);
@@ -53,7 +55,7 @@ ctrl = Controllers.MpcController(mpc_data, 'Nd', 3);
 ctrl = Controllers.MpcController(mpc_data, 'StateMode', Enums.StateMode.AUGMENTED);
 
 % Disable controller (open loop)
-s.m_config.mpc.on = false;
+s.set_control_enabled(false);
 ```
 
 ## Step Strategies
@@ -86,7 +88,7 @@ plotter.plot_trajectory_animated();             % Animated 3D evolution
 ```matlab
 % Plot feasibility region
 s.alpha(0.5);
-s.set_mpc();
+s.set_mpc(Options.Mpc());
 fig = s.project_feasibility_region();
 
 % Try different horizons
@@ -121,12 +123,11 @@ b.v_off();               % Disable
 ## Custom MPC Parameters
 
 ```matlab
-config_mpc = s.get_config_mpc();
-config_mpc.Np = 10;              % Prediction horizon
-config_mpc.Nd = 2;               % Downsampling
-config_mpc.Q = diag([10, 10, 1]); % State weights [vC1, vC2, iL]
-s.set_config_mpc(config_mpc);
-s.set_mpc();
+mpc_options = Options.Mpc();
+mpc_options.Np = 10;              % Prediction horizon
+mpc_options.Nd = 2;               % Downsampling
+mpc_options.Q = diag([10, 10, 1]); % State weights [vC1, vC2, iL]
+s.set_mpc(mpc_options);
 ```
 
 ## State Manipulation

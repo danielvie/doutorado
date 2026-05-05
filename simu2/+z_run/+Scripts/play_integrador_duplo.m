@@ -7,7 +7,7 @@ function var_out = play_duplo_integrador(save_fig)
     s = Simulation(Enums.SimName.INTEGRADOR_DUPLO);
 
     % 2 CONSTRUINDO MPC
-    mpc = Interface.config_mpc();
+    mpc = Options.Mpc();
     mpc.Nd = 1;
     mpc.Np = 2;
     mpc.Q  = diag([10, 1]);
@@ -31,11 +31,11 @@ function var_out = play_duplo_integrador(save_fig)
     s.m_config.x0 = s.m_config.x0 + [2; 0.5];
 
     % simulacao sem controle mpc
-    s.m_config.mpc.on = false;
+s.set_control_enabled(false);
     [y_off, t_off, m_off] = s.run(nsim);
 
     % simulacao com controle mpc
-    s.m_config.mpc.on = true;
+s.set_control_enabled(true);
     [y, t, m] = s.run(nsim);
 
     % 4 PLOT DOS RESULTADOS

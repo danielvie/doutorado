@@ -12,7 +12,7 @@ function res = play_patino2(save_fig, nsim_in)
     s = Simulation(Enums.SimName.PATINO_2);
 
     % 2 CONSTRUINDO MPC
-    mpc = Interface.config_mpc();
+    mpc = Options.Mpc();
     mpc.Nd = 1;
     mpc.Np = 2;
     mpc.Q  = diag([1, 1, 1]);
@@ -47,19 +47,19 @@ function res = play_patino2(save_fig, nsim_in)
     
 
     % 1. Controle MPC
-    s.m_config.mpc.on = true;
+s.set_control_enabled(true);
     s.m_config.x0 = x0_perturbed;
     s.set_controller(controller_mpc);
     [y_mpc, t_mpc, m_mpc] = s.run(nsim);
 
     % 2. Controle Proporcional
-    s.m_config.mpc.on = true;
+s.set_control_enabled(true);
     s.m_config.x0 = x0_perturbed;
     s.set_controller(controller_prop);
     [y_prop, t_prop, m_prop] = s.run(nsim);
 
     % 3. Controle OFF
-    s.m_config.mpc.on = false;
+s.set_control_enabled(false);
     s.m_config.x0 = x0_perturbed;
     s.set_controller(controller_prop);
     [y_off, t_off, m_off] = s.run(nsim);
