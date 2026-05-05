@@ -8,12 +8,15 @@ function msg_out = format_control_message(config)
     %       .mpc.K       : Gain matrix
     %       .Ts          : Switching time sequence
     %       .Omega       : Mode index sequence
-    %       .mpc.x_target: Target state vector
+    %       .control.x_target: Target state vector
     %
     % Outputs:
     %   msg_out - Formatted message string
 
     % gain_k
+    if isempty(config.mpc) || ~isfield(config.mpc, 'K')
+        error('MPC gain is not configured. Call set_mpc(options) before formatting a control message.');
+    end
     gain_k = config.mpc.K;
     str_gain_k_elements = arrayfun(@num2str, gain_k, 'UniformOutput', false);
     str_gain_k = strjoin(str_gain_k_elements, ',');
@@ -30,7 +33,10 @@ function msg_out = format_control_message(config)
     str_mode = strjoin(str_mode_elements, ',');
 
     % x_target
-    target = config.mpc.x_target;
+    if ~isfield(config.control, 'x_target') || isempty(config.control.x_target)
+        error('Control target is not configured. Call set_mpc(options) before formatting a control message.');
+    end
+    target = config.control.x_target;
     str_target_elements = arrayfun(@num2str, target, 'UniformOutput', false);
     str_target = strjoin(str_target_elements, ',');
 

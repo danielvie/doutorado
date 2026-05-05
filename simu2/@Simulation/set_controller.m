@@ -3,5 +3,6 @@ function set_controller(self, controller)
     if ~isa(controller, 'Controllers.Controller')
         error('Input must be a subclass of Controllers.Controller');
     end
+    controller.reset();
     self.m_controller = controller;
 end

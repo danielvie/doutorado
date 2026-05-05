@@ -63,6 +63,7 @@ s.print_test_values_cpp(k, log_source) % Print C++ compatible values
 ### Properties
 ```matlab
 s.m_config              % Circuit configuration
+s.m_config.control      % Runtime control state (.on, .x_target)
 s.m_config.mpc          % Built MPC runtime data
 s.m_config.x0           % Initial state
 s.m_log.run             % Simulation logs
@@ -196,3 +197,20 @@ After `s.run(nsim)`, access via `s.m_log.run`:
 | `ek` | nsim×n | Error $e_k = x_0 - x_{target}$ |
 | `dtk` | nsim×p | Applied control |
 | `time_qp` | nsim×1 | QP solve time [s] |
+
+## Options.Mpc
+
+```matlab
+mpc_options = Options.Mpc();
+mpc_options.Np = 10;
+mpc_options.Nd = 2;
+mpc_options.Q = diag([10, 10, 1]);
+mpc_options.x_target = [4; 8; 0.1];  % Optional override for config.xref
+mpc_options.state_mode = Enums.StateMode.AUGMENTED;
+mpc_options.solver_algorithm = 'active-set';
+mpc_options.solver_display = 'off';
+s.set_mpc(mpc_options);
+```
+
+`set_mpc()` writes solver/runtime matrices to `s.m_config.mpc`, writes enabled
+state and target to `s.m_config.control`, and installs `Controllers.MpcController`.

@@ -17,7 +17,7 @@ s.set_config(Enums.SimName.LAB_CIRCUIT);
 config_mpc = Options.Mpc();
 config_mpc.Nd = 15;
 config_mpc.Np = 25;
-config_mpc.StateMode = Enums.StateMode.AUGMENTED;
+config_mpc.state_mode = Enums.StateMode.AUGMENTED;
 s.set_mpc(config_mpc);
 
 b.simulation = s;

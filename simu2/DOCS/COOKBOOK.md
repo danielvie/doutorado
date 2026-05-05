@@ -52,7 +52,9 @@ s.set_controller(ctrl);
 ctrl = Controllers.MpcController(mpc_data, 'Nd', 3);
 
 % MPC with augmented state (delay compensation)
-ctrl = Controllers.MpcController(mpc_data, 'StateMode', Enums.StateMode.AUGMENTED);
+mpc_options = Options.Mpc();
+mpc_options.state_mode = Enums.StateMode.AUGMENTED;
+s.set_mpc(mpc_options);
 
 % Disable controller (open loop)
 s.set_control_enabled(false);
@@ -127,6 +129,9 @@ mpc_options = Options.Mpc();
 mpc_options.Np = 10;              % Prediction horizon
 mpc_options.Nd = 2;               % Downsampling
 mpc_options.Q = diag([10, 10, 1]); % State weights [vC1, vC2, iL]
+mpc_options.state_mode = Enums.StateMode.ORIGINAL;
+mpc_options.solver_algorithm = 'active-set';
+mpc_options.solver_display = 'off';
 s.set_mpc(mpc_options);
 ```
 

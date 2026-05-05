@@ -155,15 +155,15 @@ Current docs: README.md, DOCS/API_REFERENCE.md, DOCS/COOKBOOK.md, DOCS/GETTING_S
 
 ## Current Request: Move StateMode to Options.Mpc
 
-- [x] Add `StateMode` to `Options.Mpc`
-- [x] Use `options.StateMode` in `set_mpc`
+- [x] Add `state_mode` to `Options.Mpc`
+- [x] Use `options.state_mode` in `set_mpc`
 - [x] Update active scripts to set state mode through options
 - [x] Run `t('test')`
 
 ## Current Request: Implement Completed MPC Architecture Grilling
 
-- [ ] Add generic `config.control` runtime state
-- [ ] Move target/control enabled usage from `mpc` to `control`
-- [ ] Apply remaining `Options.Mpc` naming/solver metadata decisions
-- [ ] Update runtime guards, controller reset, docs, and active call sites
-- [ ] Run `t('test')`
+- [x] Add generic `config.control` runtime state
+- [x] Move target/control enabled usage from `mpc` to `control`
+- [x] Apply remaining `Options.Mpc` naming/solver metadata decisions
+- [x] Update runtime guards, controller reset, docs, and active call sites
+- [x] Run `t('test')`

@@ -46,7 +46,7 @@ config_mpc.Np = 1; % Nd - Number of delays in the block (repeated control)
 s.set_traj_phase_with_alpha(0.5);
 s.set_mpc(config_mpc);
 
-s.m_config.mpc.x_target(3) = randn();
+s.m_config.control.x_target(3) = randn();
 
 msg_data = s.get_msg_control_signal();
 disp("msg_data:");

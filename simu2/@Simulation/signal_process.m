@@ -12,7 +12,11 @@ function [time_us, dtk] = signal_process(self, state, dtk_prev)
 
     % compute dtk
     tic;
-    [dtk, exitflag] = run_mpc(self, config, x0, dtk_prev);
+    x_target = config.control.x_target;
+    if isempty(x_target)
+        error('signal_process requires config.control.x_target. Call set_mpc(options) first.');
+    end
+    [dtk, exitflag] = run_mpc(self, config, x0, x_target, dtk_prev);
     time_qp = toc;
 
     % compute new time vector from dtk
@@ -34,14 +38,14 @@ function [time_us, dtk] = signal_process(self, state, dtk_prev)
     end
 
     % compute `ek`
-    ek  = x0 - config.mpc.x_target;
+    ek  = x0 - x_target;
 
     % log rest of data
     self.m_log.signal.exitflag = [self.m_log.signal.exitflag; exitflag];
     self.m_log.signal.time_us = [self.m_log.signal.time_us; time_us];
     self.m_log.signal.x0 = [self.m_log.signal.x0; x0'];
     self.m_log.signal.ek = [self.m_log.signal.ek; ek'];
-    self.m_log.signal.x_target = [self.m_log.signal.x_target; config.mpc.x_target'];
+    self.m_log.signal.x_target = [self.m_log.signal.x_target; x_target'];
 
     self.m_log.signal.time_qp = [self.m_log.signal.time_qp; time_qp];
 

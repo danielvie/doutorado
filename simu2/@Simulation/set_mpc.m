@@ -22,9 +22,9 @@ function set_mpc(self, options)
     state_len = size(Phi, 1);
     target = resolve_target(config, options, state_len);
 
-    state_mode = options.StateMode;
+    state_mode = options.state_mode;
     if ~(state_mode == Enums.StateMode.ORIGINAL || state_mode == Enums.StateMode.AUGMENTED)
-        error('Options.Mpc.StateMode must be Enums.StateMode.ORIGINAL or Enums.StateMode.AUGMENTED.');
+        error('Options.Mpc.state_mode must be Enums.StateMode.ORIGINAL or Enums.StateMode.AUGMENTED.');
     end
 
     if state_mode == Enums.StateMode.AUGMENTED
@@ -50,8 +50,9 @@ function set_mpc(self, options)
         Mpc.ss_mpc_dualmode_matrices(A_model, B_model, Q, R, options.Np, c);
 
     mpc_opt = struct();
-    mpc_opt.on       = true;
-    mpc_opt.x_target = target;
+    mpc_opt.Np       = options.Np;
+    mpc_opt.Nd       = options.Nd;
+    mpc_opt.state_mode = state_mode;
     mpc_opt.H        = H;
     mpc_opt.Hf       = Hf;
     mpc_opt.Phi1Np   = Phi1Np;
@@ -65,15 +66,19 @@ function set_mpc(self, options)
     mpc_opt.PhiNp    = PhiNp;
     mpc_opt.K        = K;
     mpc_opt.p        = p;
-    mpc_opt.options  = optimoptions('quadprog', 'Algorithm', 'active-set');
+    mpc_opt.solver_options = optimoptions('quadprog', ...
+        'Algorithm', options.solver_algorithm, ...
+        'Display', options.solver_display);
 
     controller = Controllers.MpcController(mpc_opt, ...
         'Nd', options.Nd, ...
         'StateMode', state_mode);
 
     self.m_config.mpc = mpc_opt;
+    self.m_config.control.on = true;
+    self.m_config.control.x_target = target;
     self.m_state_mode = state_mode;
-    self.m_controller = controller;
+    self.set_controller(controller);
 end
 
 function target = resolve_target(config, options, state_len)

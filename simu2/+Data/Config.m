@@ -14,6 +14,7 @@ classdef Config
         Ts
         x0
         circuit_params
+        control
         mpc
         c_time
         quant_traj
@@ -26,10 +27,13 @@ classdef Config
         function self = Config()
             % Default initialization of complex properties
             
-            % MPC default configuration
+            % Runtime control state
+            self.control = struct();
+            self.control.on = false;
+            self.control.x_target = [];
+
+            % MPC runtime data
             self.mpc = struct();
-            self.mpc.on = false;
-            self.mpc.x_target = [];
             
             % Circuit parameters for physical models
             self.circuit_params = struct('E', [], 'C1', [], 'C2', [], 'L', [], 'R', []);

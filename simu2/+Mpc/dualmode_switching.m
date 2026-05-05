@@ -1,4 +1,4 @@
-function [dtk, fval, exitflag] = dualmode_switching(ek, H, Hf, Phi1Np, Qbar, Rbar, Lbar, cbar, Pf, Sf, bf, PhiNp, p)
+function [dtk, fval, exitflag] = dualmode_switching(ek, H, Hf, Phi1Np, Qbar, Rbar, Lbar, cbar, Pf, Sf, bf, PhiNp, p, options)
     
     % dtk: optimization result
     % fval: objective function value at solution
@@ -50,8 +50,9 @@ function [dtk, fval, exitflag] = dualmode_switching(ek, H, Hf, Phi1Np, Qbar, Rba
     %    Aeq.x == b,
     %    lb <= x <= ub,
 
-    % options = optimoptions('quadprog', 'Algorithm', 'interior-point-convex');
-    options = optimoptions('quadprog', 'Algorithm', 'active-set', 'Display', 'off');
+    if nargin < 14 || isempty(options)
+        options = optimoptions('quadprog', 'Algorithm', 'active-set', 'Display', 'off');
+    end
     
     x0  = zeros(size(f_qp, 1), 1);
     [Dtk, fval, exitflag] = quadprog(H_qp,f_qp,A_qp,b_qp,Aeq_qp,beq_qp,lb_qp,ub_qp,x0,options);

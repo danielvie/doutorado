@@ -35,9 +35,7 @@ classdef SimulationData < handle
             if isfield(vars, 's')
                 self.config = vars.s.m_config;
 
-                if ~isempty(self.config.mpc) && isfield(self.config.mpc, 'x_target')
-                    self.target = self.config.mpc.x_target;
-                end
+                self.target = self.config.control.x_target;
             end
         end
         

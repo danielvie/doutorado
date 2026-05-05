@@ -21,5 +21,4 @@ function set_traj_phase_with_iref(self, iref)
     alpha = iref / params.iMax;
 
     self.m_config.xref = [1/3*params.E; 2/3*params.E; iref];
-    self.m_config.mpc.x_target = self.m_config.xref;
 end

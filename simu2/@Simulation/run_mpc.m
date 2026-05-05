@@ -1,7 +1,7 @@
-function [dtk, exitflag] = run_mpc(self, config, x0, dtk_prev)
+function [dtk, exitflag] = run_mpc(self, config, x0, x_target, dtk_prev)
 
     % compute `ek`
-    ek  = x0 - config.mpc.x_target;
+    ek  = x0 - x_target;
     
     % compute ek_input
     if self.m_state_mode == Enums.StateMode.AUGMENTED

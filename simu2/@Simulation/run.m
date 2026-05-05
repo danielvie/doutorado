@@ -9,8 +9,8 @@ function [y,t,m,dtk_out] = run(self, nsim)
     for k = 1:nsim
 
         % A. Control Step: Compute dtk (timing deviation)
-        if current_config.mpc.on
-            [dtk, exitflag, qp_info] = self.step_control(state.x0, current_config.mpc.x_target);
+        if current_config.control.on
+            [dtk, exitflag, qp_info] = self.step_control(state.x0, current_config.control.x_target);
         else
             dtk = zeros(numel(current_config.Omega)-1, 1);
             exitflag = 0;
@@ -50,6 +50,15 @@ function [buffers, config, state] = initialize_run(self, nsim)
     modes_len = numel(config.Omega);
     states_len = numel(config.x0);
     p = modes_len - 1; % number of control variables
+
+    if config.control.on
+        if isempty(self.m_controller)
+            error('Control is enabled, but no controller is configured. Call set_mpc(options) or set_control_enabled(false).');
+        end
+        if isempty(config.control.x_target)
+            error('Control is enabled, but config.control.x_target is empty. Call set_mpc(options).');
+        end
+    end
 
     % Memory Allocation (main simulation buffers)
     % Initial allocation handles either switching or small dense scenarios
@@ -124,10 +133,21 @@ function [state, buffers] = update_and_log(self, state, buffers, config, ...
     self.m_log.run.exitflag(k)    = exitflag;
     self.m_log.run.time_us(k, :)  = time_metrics.time_us;
     self.m_log.run.x0(k, :)       = state.x0';
-    self.m_log.run.ek(k, :)       = (state.x0 - config.mpc.x_target)';
+    [target_for_log, error_for_log] = control_log_values(config, state.x0);
+    self.m_log.run.ek(k, :)       = error_for_log';
     self.m_log.run.ts(k, :)       = config.Ts;
-    self.m_log.run.x_target(k, :) = config.mpc.x_target';
+    self.m_log.run.x_target(k, :) = target_for_log';
     self.m_log.run.time_qp(k)     = qp_info.time_qp;
     self.m_log.run.dtk(k, :)      = dtk';
     self.m_log.run.dtk_prev(k, :) = state.dtk_prev';
+end
+
+function [target, error_state] = control_log_values(config, x0)
+    if isempty(config.control.x_target)
+        target = nan(size(x0));
+        error_state = nan(size(x0));
+    else
+        target = config.control.x_target;
+        error_state = x0 - target;
+    end
 end
