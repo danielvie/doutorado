@@ -300,6 +300,10 @@ static UiCommandResultData handle_debug_log_duration(const UiCommandContext& ctx
     return ok("Duration log notification queued");
 }
 
+static UiCommandResultData handle_debug_signal_timing(const UiCommandContext& ctx) {
+    return ok("Signal timing snapshot", signal_get_timing_snapshot_json());
+}
+
 static UiCommandResultData handle_debug_gpio_set(const UiCommandContext& ctx) {
     uint32_t port;
     uint32_t value;
@@ -386,6 +390,7 @@ void ui_command_router_init(void) {
     register_command("debug.matrix_a", handle_debug_matrix_a);
     register_command("debug.matrix_b", handle_debug_matrix_b);
     register_command("debug.log_duration", handle_debug_log_duration);
+    register_command("debug.signal_timing", handle_debug_signal_timing);
     register_command("debug.gpio_set", handle_debug_gpio_set);
     register_command("debug.all_high", handle_debug_all_high);
     register_command("debug.all_low", handle_debug_all_low);

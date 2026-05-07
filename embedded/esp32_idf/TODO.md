@@ -77,3 +77,49 @@
 # OTA ACK Window Tuning
 - [x] Increase OTA ACK window from 6 to 24 chunks
 - [x] Verify firmware and web builds
+
+# Cycle-Based Signal Timing
+- [x] Add derived cycle duration cache to signal steps
+- [x] Use cycle-based delay in signal playback
+- [x] Remove fixed 1 us subtraction after dead-time
+- [x] Verify firmware build
+
+# Signal Generator Alpha Presets
+- [x] Replace five contextual alpha buttons with 0.1 through 0.9 presets
+- [x] Move SYNC button into the Time Vector subpanel
+- [x] Verify web build
+
+# Signal Generator Vector Copy
+- [x] Add Time Vector copy button
+- [x] Add Mode Vector copy button
+- [x] Verify web build
+
+# Signal Generator Copy Feedback
+- [x] Add copied feedback to vector copy buttons
+- [x] Move vector copy buttons beside the vector fields
+- [x] Verify web build
+
+# Signal Timing Observability
+- [x] Add signal timing snapshot in firmware
+- [x] Add debug command to return timing snapshot JSON
+- [x] Add Quick Actions button for timing snapshot
+- [x] Verify firmware build
+- [x] Verify web build
+
+# Signal Timing Status Display
+- [x] Format timing command result for readability
+- [x] Show timing command result in Status panel
+- [x] Verify web build
+
+# Status Panel Rerun Command
+- [x] Remember the command that last populated the Status panel
+- [x] Change the Status button to rerun the remembered command
+- [x] Verify web build
+
+# Status Panel Auto Command
+- [x] Make Auto poll the same command as RERUN
+- [x] Verify web build
+
+# Signal Generator Total Copy
+- [x] Add copy button for time, mode, and total duration
+- [x] Verify web build

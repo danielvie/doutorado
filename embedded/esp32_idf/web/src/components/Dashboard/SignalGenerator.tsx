@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { _create_signal } from "../../helper";
 import { bleManager } from "../../services/BleManager";
 import { useBleStore } from "../../store/bleStore";
-import { Upload } from "lucide-react";
+import { Check, Copy, Upload } from "lucide-react";
 import { PanelSize } from "./SizeSelector";
 import { DashboardItem } from "./DashboardItem";
 
@@ -20,6 +20,9 @@ export const SignalGenerator: React.FC<{
   const [showBinary, setShowBinary] = useState(false);
   const [isEditingAlpha, setIsEditingAlpha] = useState(false);
   const [tempAlpha, setTempAlpha] = useState(alpha);
+  const [copiedVector, setCopiedVector] = useState<
+    "time" | "mode" | "combined" | null
+  >(null);
 
   // Recalculate signal when alpha changes
   useEffect(() => {
@@ -44,11 +47,31 @@ export const SignalGenerator: React.FC<{
     bleManager.sendCommand("signal.set_alpha", { alpha: Number(a) });
   };
 
-  const currentAlpha = parseFloat(alpha);
-  const minAlpha = 0.1;
-  const maxAlpha = 0.9;
-  const prevAlpha = Math.max(minAlpha, currentAlpha - 0.1).toFixed(1);
-  const nextAlpha = Math.min(maxAlpha, currentAlpha + 0.1).toFixed(1);
+  const copyVector = async (label: "time" | "mode", value: string) => {
+    await navigator.clipboard.writeText(`${label}: ${value}`);
+    setCopiedVector(label);
+    window.setTimeout(() => setCopiedVector(null), 1200);
+  };
+
+  const copySignalSummary = async () => {
+    await navigator.clipboard.writeText(
+      `time: ${timeStr}\nmode: ${modeStr}\nT: ${time_values_sum.toFixed(1)} us`,
+    );
+    setCopiedVector("combined");
+    window.setTimeout(() => setCopiedVector(null), 1200);
+  };
+
+  const alphaPresets = [
+    "0.1",
+    "0.2",
+    "0.3",
+    "0.4",
+    "0.5",
+    "0.6",
+    "0.7",
+    "0.8",
+    "0.9",
+  ];
 
   const time_values_sum = useMemo(() => {
     return timeStr
@@ -105,13 +128,6 @@ export const SignalGenerator: React.FC<{
                     </span>
                   )}
                 </div>
-                <button
-                  onClick={handleUpload}
-                  className="btn-primary shrink-0 px-6 py-2.5"
-                >
-                  <Upload size={18} />
-                  SYNC
-                </button>
               </div>
 
               <input
@@ -124,16 +140,10 @@ export const SignalGenerator: React.FC<{
                 className="w-full"
               />
 
-              <div className="grid grid-cols-5 gap-2">
-                {[
-                  minAlpha.toString(),
-                  prevAlpha,
-                  alpha,
-                  nextAlpha,
-                  maxAlpha.toString(),
-                ].map((val, idx) => (
+              <div className="grid grid-cols-5 grid-rows-2 gap-2">
+                {alphaPresets.map((val) => (
                   <button
-                    key={idx}
+                    key={val}
                     onClick={() => handle_set_alpha(val)}
                     className={`py-1.5 rounded-md font-bold text-sm transition-colors ${
                       val === alpha
@@ -161,11 +171,62 @@ export const SignalGenerator: React.FC<{
                       <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
                         {time_values_sum.toFixed(1)} us
                       </span>
+                      <button
+                        type="button"
+                        onClick={copySignalSummary}
+                        className={`h-6 w-6 rounded-md border shadow-sm transition-colors flex items-center justify-center ${
+                          copiedVector === "combined"
+                            ? "bg-green-50 text-green-700 border-green-300"
+                            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                        }`}
+                        aria-label="Copy signal summary"
+                        title={
+                          copiedVector === "combined"
+                            ? "Copied signal summary"
+                            : "Copy signal summary"
+                        }
+                      >
+                        {copiedVector === "combined" ? (
+                          <Check size={13} />
+                        ) : (
+                          <Copy size={13} />
+                        )}
+                      </button>
                     </div>
                   </div>
+                  <button
+                    onClick={handleUpload}
+                    className="btn-primary shrink-0 px-6 py-2.5"
+                  >
+                    <Upload size={18} />
+                    SYNC
+                  </button>
                 </div>
-                <div className="bg-gray-50 px-4 py-2.5 rounded-md border border-gray-300 font-mono text-xs text-gray-800 whitespace-nowrap overflow-x-auto custom-scrollbar shadow-inner">
-                  {timeStr}
+                <div className="flex items-stretch gap-2">
+                  <div className="flex-1 min-w-0 bg-gray-50 px-4 py-2.5 rounded-md border border-gray-300 font-mono text-xs text-gray-800 whitespace-nowrap overflow-x-auto custom-scrollbar shadow-inner">
+                    {timeStr}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => copyVector("time", timeStr)}
+                    className={`w-10 shrink-0 rounded-md border shadow-sm transition-colors flex items-center justify-center ${
+                      copiedVector === "time"
+                        ? "bg-green-50 text-green-700 border-green-300"
+                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                    }`}
+                    aria-label="Copy time vector"
+                    title={
+                      copiedVector === "time"
+                        ? "Copied time vector"
+                        : "Copy time vector"
+                    }
+                  >
+                    {copiedVector === "time" ? (
+                      <Check size={16} />
+                    ) : (
+                      <Copy size={16} />
+                    )}
+                  </button>
                 </div>
               </div>
 
@@ -181,8 +242,31 @@ export const SignalGenerator: React.FC<{
                     {showBinary ? "Hide Binary" : "Show Binary"}
                   </button>
                 </div>
-                <div className="bg-gray-50 px-4 py-2.5 rounded-md border border-gray-300 font-mono text-xs text-gray-800 whitespace-nowrap overflow-x-auto custom-scrollbar shadow-inner">
-                  {modeStr}
+                <div className="flex items-stretch gap-2">
+                  <div className="flex-1 min-w-0 bg-gray-50 px-4 py-2.5 rounded-md border border-gray-300 font-mono text-xs text-gray-800 whitespace-nowrap overflow-x-auto custom-scrollbar shadow-inner">
+                    {modeStr}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => copyVector("mode", modeStr)}
+                    className={`w-10 shrink-0 rounded-md border shadow-sm transition-colors flex items-center justify-center ${
+                      copiedVector === "mode"
+                        ? "bg-green-50 text-green-700 border-green-300"
+                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                    }`}
+                    aria-label="Copy mode vector"
+                    title={
+                      copiedVector === "mode"
+                        ? "Copied mode vector"
+                        : "Copy mode vector"
+                    }
+                  >
+                    {copiedVector === "mode" ? (
+                      <Check size={16} />
+                    ) : (
+                      <Copy size={16} />
+                    )}
+                  </button>
                 </div>
               </div>
             </div>

@@ -1,0 +1,3 @@
+- [x] Read `Tese/tese.tex` and map its structure.
+- [x] Identify likely LaTeX/build, metadata, and consistency issues.
+- [x] Report findings with file references.

@@ -26,6 +26,7 @@ class BleManager {
     private service: IBleService;
     private startTime: number;
     private requestId: number;
+    private pendingCommands: Map<number, { name: string; payload: Record<string, unknown> }>;
     private connectPromise: Promise<void> | null;
     private otaStatusListeners: Set<(status: OtaStatusUpdate) => void>;
 
@@ -33,6 +34,7 @@ class BleManager {
         this.service = new WebBleService();
         this.startTime = Date.now();
         this.requestId = 1;
+        this.pendingCommands = new Map();
         this.connectPromise = null;
         this.otaStatusListeners = new Set();
     }
@@ -81,6 +83,7 @@ class BleManager {
 
     async sendCommand(name: string, payload: Record<string, unknown> = {}) {
         const request_id = this.requestId++;
+        this.pendingCommands.set(request_id, { name, payload });
         const encoded = encodeUiCommand({
             name,
             json: JSON.stringify(payload),
@@ -164,6 +167,10 @@ class BleManager {
                     const statusStr = statusLines.join("\n");
                     useBleStore.getState().addLog(statusStr);
                     useBleStore.getState().setLastStatusMessage(statusStr);
+                    useBleStore.getState().setLastStatusCommand({
+                        name: "system.get_status",
+                        payload: {},
+                    });
                     useBleStore.getState().setIsCongested(!!s.ble_congested);
                 } else if (packet.log) {
                     const l = packet.log;
@@ -178,8 +185,38 @@ class BleManager {
                     // You might want to update a dedicated OTA store here
                 } else if (packet.command_result) {
                     const r = packet.command_result;
+                    const sourceCommand = this.pendingCommands.get(r.request_id);
+                    this.pendingCommands.delete(r.request_id);
                     const status = r.ok ? "OK" : "ERROR";
                     const suffix = r.json ? `\n${r.json}` : "";
+                    if (r.name === "debug.signal_timing" && r.json) {
+                        try {
+                            const t = JSON.parse(r.json);
+                            const timingLines = [
+                                "== signal timing ==",
+                                `Samples          : ${t.samples ?? 0}`,
+                                `Playback         : ${Number(t.playback_us ?? 0).toFixed(2)} us`,
+                                `Playback min     : ${Number(t.playback_min_us ?? 0).toFixed(2)} us`,
+                                `Playback max     : ${Number(t.playback_max_us ?? 0).toFixed(2)} us`,
+                                `Playback avg     : ${Number(t.playback_avg_us ?? 0).toFixed(2)} us`,
+                                `Loop             : ${Number(t.loop_us ?? 0).toFixed(2)} us`,
+                                `Expected         : ${Number(t.expected_us ?? 0).toFixed(2)} us`,
+                                `Overhead         : ${Number(t.overhead_us ?? 0).toFixed(2)} us`,
+                                `Dead time        : ${Number(t.dead_time_us ?? 0).toFixed(2)} us`,
+                                `Correction sum   : ${t.correction_sum_us ?? 0} us`,
+                                `Steps            : ${t.steps ?? 0}`,
+                            ];
+                            useBleStore.getState().setLastStatusMessage(timingLines.join("\n"));
+                            useBleStore.getState().setLastStatusCommand(
+                                sourceCommand ?? { name: r.name, payload: {} },
+                            );
+                        } catch {
+                            useBleStore.getState().setLastStatusMessage(r.json);
+                            useBleStore.getState().setLastStatusCommand(
+                                sourceCommand ?? { name: r.name, payload: {} },
+                            );
+                        }
+                    }
                     useBleStore.getState().addLog(
                         `CMD ${status} [${r.name || "unknown"}] ${r.message || r.code || ""}${suffix}`,
                     );

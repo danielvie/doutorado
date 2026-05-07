@@ -3,8 +3,10 @@
 #include "control_action.h"
 #include "soc/io_mux_reg.h"
 #include "hal/gpio_ll.h"
+#include <cstdio>
 
 static const char *TAG = "SIG_CTRL";
+static constexpr uint32_t CYCLES_PER_US = 240;
 
 // ---------------------------------------------------------------------------
 // HARDWARE CONFIGURATION
@@ -19,6 +21,88 @@ const uint32_t MASK_U3_HIGH = (1U << PIN_U3_HIGH);
 const uint32_t MASK_OUT_SIG = (1U << PIN_OUT_SIG);
 
 static TaskHandle_t s_signal_task_handle = NULL;
+
+struct SignalTimingSample {
+    uint32_t expected_cycles = 0;
+    uint32_t dead_time_cycles = 0;
+    uint32_t step_count = 0;
+    int32_t correction_sum_us = 0;
+};
+
+static volatile uint32_t s_timing_sample_count = 0;
+static volatile uint32_t s_timing_playback_cycles = 0;
+static volatile uint32_t s_timing_playback_min_cycles = 0;
+static volatile uint32_t s_timing_playback_max_cycles = 0;
+static volatile uint32_t s_timing_playback_avg_cycles = 0;
+static volatile uint32_t s_timing_loop_cycles = 0;
+static volatile uint32_t s_timing_expected_cycles = 0;
+static volatile uint32_t s_timing_dead_time_cycles = 0;
+static volatile uint32_t s_timing_step_count = 0;
+static volatile int32_t s_timing_correction_sum_us = 0;
+
+static void update_signal_timing_snapshot(uint32_t playback_cycles,
+                                          uint32_t loop_cycles,
+                                          const SignalTimingSample &sample) {
+    const uint32_t count = s_timing_sample_count + 1;
+    s_timing_sample_count = count;
+    s_timing_playback_cycles = playback_cycles;
+    s_timing_loop_cycles = loop_cycles;
+    s_timing_expected_cycles = sample.expected_cycles;
+    s_timing_dead_time_cycles = sample.dead_time_cycles;
+    s_timing_step_count = sample.step_count;
+    s_timing_correction_sum_us = sample.correction_sum_us;
+
+    if (count == 1 || playback_cycles < s_timing_playback_min_cycles) {
+        s_timing_playback_min_cycles = playback_cycles;
+    }
+    if (playback_cycles > s_timing_playback_max_cycles) {
+        s_timing_playback_max_cycles = playback_cycles;
+    }
+    if (count == 1) {
+        s_timing_playback_avg_cycles = playback_cycles;
+    } else {
+        s_timing_playback_avg_cycles =
+            ((s_timing_playback_avg_cycles * 7U) + playback_cycles) / 8U;
+    }
+}
+
+std::string signal_get_timing_snapshot_json() {
+    const uint32_t sample_count = s_timing_sample_count;
+    const uint32_t playback_cycles = s_timing_playback_cycles;
+    const uint32_t playback_min_cycles = s_timing_playback_min_cycles;
+    const uint32_t playback_max_cycles = s_timing_playback_max_cycles;
+    const uint32_t playback_avg_cycles = s_timing_playback_avg_cycles;
+    const uint32_t loop_cycles = s_timing_loop_cycles;
+    const uint32_t expected_cycles = s_timing_expected_cycles;
+    const uint32_t dead_time_cycles = s_timing_dead_time_cycles;
+    const uint32_t step_count = s_timing_step_count;
+    const int32_t correction_sum_us = s_timing_correction_sum_us;
+    const int32_t overhead_cycles =
+        (int32_t)playback_cycles - (int32_t)expected_cycles;
+
+    char json[512];
+    snprintf(json, sizeof(json),
+             "{\"samples\":%lu,"
+             "\"playback_cycles\":%lu,\"playback_us\":%.2f,"
+             "\"playback_min_us\":%.2f,\"playback_max_us\":%.2f,"
+             "\"playback_avg_us\":%.2f,"
+             "\"loop_cycles\":%lu,\"loop_us\":%.2f,"
+             "\"expected_cycles\":%lu,\"expected_us\":%.2f,"
+             "\"overhead_cycles\":%ld,\"overhead_us\":%.2f,"
+             "\"dead_time_cycles\":%lu,\"dead_time_us\":%.2f,"
+             "\"correction_sum_us\":%ld,\"steps\":%lu}",
+             sample_count,
+             playback_cycles, (double)playback_cycles / CYCLES_PER_US,
+             (double)playback_min_cycles / CYCLES_PER_US,
+             (double)playback_max_cycles / CYCLES_PER_US,
+             (double)playback_avg_cycles / CYCLES_PER_US,
+             loop_cycles, (double)loop_cycles / CYCLES_PER_US,
+             expected_cycles, (double)expected_cycles / CYCLES_PER_US,
+             overhead_cycles, (double)overhead_cycles / CYCLES_PER_US,
+             dead_time_cycles, (double)dead_time_cycles / CYCLES_PER_US,
+             correction_sum_us, step_count);
+    return std::string(json);
+}
 
 
 // ---------------------------------------------------------------------------
@@ -94,6 +178,7 @@ void signal_precompute_steps(DataSet *ds) {
         bool is_rising = (change_6 && d6) || (change_5 && d5) || (change_4 && d4);
         ds->steps[i].dead_time = is_rising ? g_dead_time_cycles_up : g_dead_time_cycles_down;
         ds->steps[i].duration_us = ds->time_durations[i];
+        ds->steps[i].duration_cycles = ds->steps[i].duration_us * CYCLES_PER_US;
 
         total_us += ds->steps[i].duration_us;
 
@@ -312,33 +397,39 @@ static void update_control_corrections(SignalLoopContext &ctx) {
                                  ctx.current_correction, p, N);
 }
 
-static void execute_signal_pattern(const SignalLoopContext &ctx) {
+static void execute_signal_pattern(const SignalLoopContext &ctx,
+                                   SignalTimingSample &timing) {
     // Keep the interrupt-disabled block limited to GPIO writes and exact delays.
     // No logging, allocation, parsing, or semaphore calls belong in this helper.
     portDISABLE_INTERRUPTS();
 
     uint8_t sz = ctx.dataset->size;
+    timing = {};
     for (int i = 0; i < sz; i++) {
         const SignalStep &step = ctx.dataset->steps[i];
-        uint32_t us = step.duration_us;
+        uint32_t cycles = step.duration_cycles;
+        timing.step_count++;
 
         if (g_control_enabled.load(std::memory_order_acquire)) {
-            int32_t corrected = (int32_t)us + ctx.current_correction[i];
+            int32_t corrected = (int32_t)step.duration_us + ctx.current_correction[i];
             if (corrected < 1) corrected = 1;
-            us = (uint32_t)corrected;
+            cycles = (uint32_t)corrected * CYCLES_PER_US;
+            timing.correction_sum_us += ctx.current_correction[i];
         }
 
         if (step.clear_mask) {
             GPIO.out_w1tc = step.clear_mask;
             helper_delay_cycles(step.dead_time);
-            if (us > 0) us--;
+            timing.dead_time_cycles += step.dead_time;
+            timing.expected_cycles += step.dead_time;
         }
 
         GPIO.out_w1tc = step.clr_mask;
         GPIO.out_w1ts = step.set_mask;
 
-        if (us > 0) {
-            esp_rom_delay_us(us);
+        if (cycles > 0) {
+            helper_delay_cycles(cycles);
+            timing.expected_cycles += cycles;
         }
     }
 
@@ -381,13 +472,19 @@ static void signal_loop_task(void *arg) {
     led_on();
 
     while (signal_is_running()) {
+        uint32_t loop_start = esp_cpu_get_cycle_count();
         apply_pending_dataset_swap(ctx);
         update_control_corrections(ctx);
-        execute_signal_pattern(ctx);
+        SignalTimingSample timing;
+        uint32_t playback_start = esp_cpu_get_cycle_count();
+        execute_signal_pattern(ctx, timing);
+        uint32_t playback_cycles = esp_cpu_get_cycle_count() - playback_start;
         trigger_periodic_analog_read();
 
         // Reset the watchdog and give background FreeRTOS work a scheduling point.
         vTaskDelay(0);
+        uint32_t loop_cycles = esp_cpu_get_cycle_count() - loop_start;
+        update_signal_timing_snapshot(playback_cycles, loop_cycles, timing);
     }
 
     stop_signal_outputs();

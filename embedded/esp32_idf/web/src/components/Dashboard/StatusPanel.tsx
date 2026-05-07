@@ -13,21 +13,26 @@ export const StatusPanel: React.FC<{
   onSizeChange?: (size: PanelSize) => void;
 }> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
   const lastStatusMessage = useBleStore((s) => s.lastStatusMessage);
+  const lastStatusCommand = useBleStore((s) => s.lastStatusCommand);
   const autoRequestStatus = useBleStore((s) => s.autoRequestStatus);
   const setAutoRequestStatus = useBleStore((s) => s.setAutoRequestStatus);
   const isConnected = useBleStore((s) => s.isConnected);
   const [copied, setCopied] = React.useState(false);
+  const rerunCommand = lastStatusCommand ?? {
+    name: "system.get_status",
+    payload: {},
+  };
 
   // Auto-request status effect
   React.useEffect(() => {
     if (!autoRequestStatus || !isConnected) return;
     
     const interval = setInterval(() => {
-      bleManager.sendCommand("system.get_status");
+      bleManager.sendCommand(rerunCommand.name, rerunCommand.payload);
     }, 2000);
     
     return () => clearInterval(interval);
-  }, [autoRequestStatus, isConnected]);
+  }, [autoRequestStatus, isConnected, rerunCommand.name, rerunCommand.payload]);
 
   const handleCopy = () => {
     if (!lastStatusMessage) return;
@@ -37,6 +42,10 @@ export const StatusPanel: React.FC<{
     navigator.clipboard.writeText(cleanMessage);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const rerunLastStatusCommand = () => {
+    bleManager.sendCommand(rerunCommand.name, rerunCommand.payload);
   };
 
   return (
@@ -76,17 +85,17 @@ export const StatusPanel: React.FC<{
                       ? "bg-orange-50 border-orange-200 text-orange-600"
                       : "bg-gray-50 border-gray-200 text-gray-400"
                   }`}
-                  title="Toggle Auto-Request (1s)"
+                  title={`Auto rerun ${rerunCommand.name}`}
                 >
                   Auto
                 </button>
                 <button
-                  onClick={() => bleManager.sendCommand("system.get_status")}
+                  onClick={rerunLastStatusCommand}
                   className="p-2 rounded-md border bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 hover:border-blue-300 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-[10px] font-bold uppercase tracking-wider select-none"
-                  title="Request Status Now"
+                  title={`Rerun ${rerunCommand.name}`}
                 >
                   <RefreshCw size={14} />
-                  STATUS
+                  RERUN
                 </button>
               </div>
               {lastStatusMessage

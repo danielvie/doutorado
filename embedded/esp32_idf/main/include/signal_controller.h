@@ -34,6 +34,7 @@ struct SignalStep {
     uint32_t clear_mask;  ///< Initial clear mask (to prevent shoot-through)
     uint32_t dead_time;   ///< CPU cycles to wait during clear state
     uint32_t duration_us; ///< Microseconds to wait after transition
+    uint32_t duration_cycles; ///< Derived delay cycles for the hot playback loop
 };
 
 struct DataSet {
@@ -81,6 +82,11 @@ void signal_update_from_string(const std::string &message);
  * @brief Pre-computes optimized SignalSteps for a given DataSet.
  */
 void signal_precompute_steps(DataSet *ds);
+
+/**
+ * @brief Returns a compact JSON snapshot of the latest signal-loop timing.
+ */
+std::string signal_get_timing_snapshot_json();
 
 /**
  * @brief Starts generating the signal continuously in a loop.
