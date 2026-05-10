@@ -152,6 +152,12 @@ export const QuickActions: React.FC<{
               >
                 TIMING
               </button>
+              <button
+                onClick={() => ble_send_command("debug.dataset_active")}
+                className="btn-secondary text-xs font-bold text-gray-800"
+              >
+                SIGNAL
+              </button>
             </div>
           </section>
 

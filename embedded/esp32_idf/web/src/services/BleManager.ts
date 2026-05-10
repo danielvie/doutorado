@@ -225,9 +225,14 @@ class BleManager {
             } catch (err) {
                 console.error("Failed to decode Protobuf packet:", err);
             }
+        } else {
+            // Handle raw text notifications
+            const text = new TextDecoder().decode(uint8Array);
+            if (text.trim()) {
+                useBleStore.getState().addLog(text);
+                useBleStore.getState().setLastStatusMessage(text);
+            }
         }
-
-        console.warn("Unrecognized binary data from BLE:", uint8Array);
     };
 
     private async connectAndSubscribe(options: BleConnectOptions) {

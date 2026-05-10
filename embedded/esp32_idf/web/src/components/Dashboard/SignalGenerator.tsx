@@ -23,6 +23,10 @@ export const SignalGenerator: React.FC<{
   const [copiedVector, setCopiedVector] = useState<
     "time" | "mode" | "combined" | null
   >(null);
+  const [isEditingTime, setIsEditingTime] = useState(false);
+  const [tempTime, setTempTime] = useState("");
+  const [isEditingMode, setIsEditingMode] = useState(false);
+  const [tempMode, setTempMode] = useState("");
 
   // Recalculate signal when alpha changes
   useEffect(() => {
@@ -203,9 +207,34 @@ export const SignalGenerator: React.FC<{
                   </button>
                 </div>
                 <div className="flex items-stretch gap-2">
-                  <div className="flex-1 min-w-0 bg-gray-50 px-4 py-2.5 rounded-md border border-gray-300 font-mono text-xs text-gray-800 whitespace-nowrap overflow-x-auto custom-scrollbar shadow-inner">
-                    {timeStr}
-                  </div>
+                  {isEditingTime ? (
+                    <input
+                      autoFocus
+                      className="flex-1 min-w-0 bg-white px-4 py-2.5 rounded-md border border-blue-400 font-mono text-xs text-gray-800 outline-none shadow-inner w-full"
+                      value={tempTime}
+                      onChange={(e) => setTempTime(e.target.value)}
+                      onBlur={() => {
+                        setTimeStr(tempTime);
+                        setIsEditingTime(false);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          setTimeStr(tempTime);
+                          setIsEditingTime(false);
+                        }
+                      }}
+                    />
+                  ) : (
+                    <div
+                      className="flex-1 min-w-0 bg-gray-50 px-4 py-2.5 rounded-md border border-gray-300 font-mono text-xs text-gray-800 whitespace-nowrap overflow-x-auto custom-scrollbar shadow-inner cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => {
+                        setTempTime(timeStr);
+                        setIsEditingTime(true);
+                      }}
+                    >
+                      {timeStr}
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={() => copyVector("time", timeStr)}
@@ -243,9 +272,34 @@ export const SignalGenerator: React.FC<{
                   </button>
                 </div>
                 <div className="flex items-stretch gap-2">
-                  <div className="flex-1 min-w-0 bg-gray-50 px-4 py-2.5 rounded-md border border-gray-300 font-mono text-xs text-gray-800 whitespace-nowrap overflow-x-auto custom-scrollbar shadow-inner">
-                    {modeStr}
-                  </div>
+                  {isEditingMode ? (
+                    <input
+                      autoFocus
+                      className="flex-1 min-w-0 bg-white px-4 py-2.5 rounded-md border border-blue-400 font-mono text-xs text-gray-800 outline-none shadow-inner w-full"
+                      value={tempMode}
+                      onChange={(e) => setTempMode(e.target.value)}
+                      onBlur={() => {
+                        setModeStr(tempMode);
+                        setIsEditingMode(false);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          setModeStr(tempMode);
+                          setIsEditingMode(false);
+                        }
+                      }}
+                    />
+                  ) : (
+                    <div
+                      className="flex-1 min-w-0 bg-gray-50 px-4 py-2.5 rounded-md border border-gray-300 font-mono text-xs text-gray-800 whitespace-nowrap overflow-x-auto custom-scrollbar shadow-inner cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => {
+                        setTempMode(modeStr);
+                        setIsEditingMode(true);
+                      }}
+                    >
+                      {modeStr}
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={() => copyVector("mode", modeStr)}
