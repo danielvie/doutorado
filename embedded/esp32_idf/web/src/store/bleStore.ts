@@ -14,6 +14,7 @@ interface BleState {
     monitorPeriodMs: number;
     isCongested: boolean;
     autoRequestStatus: boolean;
+    manualCommandDraft: { command: string; version: number };
 
     // Actions
     setLastStatusMessage: (message: string | null) => void;
@@ -30,6 +31,7 @@ interface BleState {
     setMonitorPeriodMs: (ms: number) => void;
     setIsCongested: (congested: boolean) => void;
     setAutoRequestStatus: (auto: boolean) => void;
+    setManualCommandDraft: (command: string) => void;
 }
 
 export const useBleStore = create<BleState>((set) => ({
@@ -45,6 +47,7 @@ export const useBleStore = create<BleState>((set) => ({
     monitorPeriodMs: 100,
     isCongested: false,
     autoRequestStatus: false,
+    manualCommandDraft: { command: "", version: 0 },
 
     setLastStatusMessage: (message) => set({ lastStatusMessage: message }),
     setLastStatusCommand: (command) => set({ lastStatusCommand: command }),
@@ -62,4 +65,11 @@ export const useBleStore = create<BleState>((set) => ({
     setMonitorPeriodMs: (ms) => set({ monitorPeriodMs: ms }),
     setIsCongested: (congested) => set({ isCongested: congested }),
     setAutoRequestStatus: (auto) => set({ autoRequestStatus: auto }),
+    setManualCommandDraft: (command) =>
+        set((state) => ({
+            manualCommandDraft: {
+                command,
+                version: state.manualCommandDraft.version + 1,
+            },
+        })),
 }));

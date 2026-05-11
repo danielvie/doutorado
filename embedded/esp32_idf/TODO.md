@@ -10,3 +10,22 @@
 - [x] Fix `debug.signal_timing` BLE encoding overflow
 - [x] Remove remaining inter-cycle final-state stretch for short CPU-loop patterns
 - [x] Verify firmware/web build after follow-up fixes
+- [x] Change dead-time command handling to accept microseconds
+- [x] Convert requested dead time to compensated CPU cycles
+- [x] Update BLE command help examples
+- [x] Verify build after dead-time command changes
+- [x] Collapse dead-time conversion helpers into one readable function
+- [x] Verify build after dead-time helper simplification
+- [x] Add BLE command to set dead-time tail overhead compensation
+- [x] Apply tail overhead when converting dead time from microseconds to cycles
+- [x] Update BLE help examples for tail overhead command
+- [x] Verify build after tail overhead command change
+- [x] Add shared manual command draft state
+- [x] Add HelpPanel button to write commands into the manual console input
+- [x] Focus the manual console input after command insertion
+- [x] Verify web build after HelpPanel command insertion change
+- [x] Rename status dead-time fields from cycle-oriented names to time-oriented names
+- [x] Include dead-time tail overhead in status packets
+- [x] Regenerate protobuf code for firmware and web
+- [x] Update web status rendering to show dead-time microseconds and tail overhead
+- [x] Verify firmware and web builds after status changes

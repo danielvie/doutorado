@@ -3,6 +3,7 @@ import { bleManager } from "../../services/BleManager";
 import { Send, History } from "lucide-react";
 import { PanelSize } from "./SizeSelector";
 import { DashboardItem } from "./DashboardItem";
+import { useBleStore } from "../../store/bleStore";
 
 export const ManualCommand: React.FC<{
   id: string;
@@ -12,13 +13,22 @@ export const ManualCommand: React.FC<{
 }> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
   const [cmd, set_cmd] = useState("");
   const [command_history, set_command_history] = useState<string[]>([]);
+  const manualCommandDraft = useBleStore((state) => state.manualCommandDraft);
   const history_index_ref = useRef(-1);
   const history_ref = useRef<string[]>([]);
+  const input_ref = useRef<HTMLInputElement>(null);
 
   // Keep historyRef in sync with commandHistory state
   useEffect(() => {
     history_ref.current = command_history;
   }, [command_history]);
+
+  useEffect(() => {
+    if (!manualCommandDraft.command) return;
+    set_cmd(manualCommandDraft.command);
+    history_index_ref.current = -1;
+    input_ref.current?.focus();
+  }, [manualCommandDraft]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const history = history_ref.current;
@@ -76,6 +86,7 @@ export const ManualCommand: React.FC<{
         <form onSubmit={handleSend} className="flex gap-2 p-1">
           <div className="relative flex-1">
             <input
+              ref={input_ref}
               type="text"
               value={cmd}
               onChange={(e) => set_cmd(e.target.value)}

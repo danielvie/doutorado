@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Check, Copy, Search } from "lucide-react";
 import { PanelSize } from "./Dashboard/SizeSelector";
 import { DashboardItem } from "./Dashboard/DashboardItem";
+import { useBleStore } from "../store/bleStore";
 
 const COMMANDS = [
   {
@@ -33,12 +34,16 @@ const COMMANDS = [
     description: "Sets the analog trigger cycle interval",
   },
   {
-    commands: 'signal.set_dead_time {"up_cycles":430,"down_cycles":430}',
+    commands: 'signal.set_dead_time {"up_time_us":2,"down_time_us":2}',
     description: "Sets complementary switching dead time",
   },
   {
-    commands: 'signal.set_dead_time_all {"cycles":430}',
+    commands: 'signal.set_dead_time_all {"time_us":2}',
     description: "Sets the same dead time for up and down switching",
+  },
+  {
+    commands: 'signal.set_dead_time_tail_overhead {"cycles":38}',
+    description: "Sets GPIO tail overhead compensation for dead time",
   },
   {
     commands: 'analog.set_monitor_period {"period_ms":100}',
@@ -119,20 +124,25 @@ const CommandItem: React.FC<{ commands: string; description: string }> = ({
   description,
 }) => {
   const [copied, setCopied] = useState(false);
+  const setManualCommandDraft = useBleStore((state) => state.setManualCommandDraft);
 
-  const handleCopy = () => {
+  const handleCopy = (event: React.MouseEvent) => {
+    event.stopPropagation();
     navigator.clipboard.writeText(commands);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleUseCommand = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setManualCommandDraft(commands);
+  };
+
   return (
     <li
-      onClick={handleCopy}
       className="bg-gray-50 p-3 rounded-lg 
       shadow-sm hover:shadow-md 
       hover:bg-white transition-all 
-      cursor-pointer 
       group relative 
       active:scale-[0.99] 
       border  border-gray-200  border-l-4  
@@ -143,12 +153,29 @@ const CommandItem: React.FC<{ commands: string; description: string }> = ({
         <strong className="text-purple-700 block mb-1 font-mono break-all group-hover:text-purple-800">
           {commands}
         </strong>
-        <div className="shrink-0 pt-0.5">
-          {copied ? (
-            <Check size={14} className="text-green-500 animate-in zoom-in duration-200" />
-          ) : (
-            <Copy size={14} className="text-gray-300 group-hover:text-gray-400 opacity-0 group-hover:opacity-100 transition-all" />
-          )}
+        <div className="shrink-0 pt-0.5 flex items-center gap-1">
+          <button
+            type="button"
+            onClick={handleUseCommand}
+            title="Use command"
+            aria-label="Write command to console input"
+            className="grid h-6 w-6 place-items-center rounded-md border border-gray-200 bg-white text-gray-500 opacity-0 shadow-sm transition-all hover:border-blue-300 hover:text-blue-600 hover:shadow group-hover:opacity-100"
+          >
+            <span className="text-sm font-bold leading-none">&gt;</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleCopy}
+            title="Copy command"
+            aria-label="Copy command"
+            className="grid h-6 w-6 place-items-center rounded-md border border-gray-200 bg-white text-gray-400 opacity-0 shadow-sm transition-all hover:border-gray-300 hover:text-gray-600 hover:shadow group-hover:opacity-100"
+          >
+            {copied ? (
+              <Check size={14} className="text-green-500 animate-in zoom-in duration-200" />
+            ) : (
+              <Copy size={14} />
+            )}
+          </button>
         </div>
       </div>
       <span className="text-xs text-gray-600 font-sans tracking-wide block">

@@ -179,11 +179,11 @@ export class SystemStatus implements ISystemStatus {
     /** SystemStatus monitorMs. */
     public monitorMs: number;
 
-    /** SystemStatus usCyclesUp. */
-    public usCyclesUp: number;
+    /** SystemStatus deadTimeUpUs. */
+    public deadTimeUpUs: number;
 
-    /** SystemStatus usCyclesDown. */
-    public usCyclesDown: number;
+    /** SystemStatus deadTimeDownUs. */
+    public deadTimeDownUs: number;
 
     /** SystemStatus ledMode. */
     public ledMode: BleLedMode;
@@ -199,6 +199,9 @@ export class SystemStatus implements ISystemStatus {
 
     /** SystemStatus adcAvg. */
     public adcAvg: number;
+
+    /** SystemStatus deadTimeTailOverheadCycles. */
+    public deadTimeTailOverheadCycles: number;
 
     /**
      * Creates a new SystemStatus instance using the specified properties.

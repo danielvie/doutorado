@@ -387,13 +387,14 @@ export const SystemStatus = $root.SystemStatus = (() => {
      * @property {number|null} [currentCycles] SystemStatus currentCycles
      * @property {number|null} [totalCycles] SystemStatus totalCycles
      * @property {number|null} [monitorMs] SystemStatus monitorMs
-     * @property {number|null} [usCyclesUp] SystemStatus usCyclesUp
-     * @property {number|null} [usCyclesDown] SystemStatus usCyclesDown
+     * @property {number|null} [deadTimeUpUs] SystemStatus deadTimeUpUs
+     * @property {number|null} [deadTimeDownUs] SystemStatus deadTimeDownUs
      * @property {BleLedMode|null} [ledMode] SystemStatus ledMode
      * @property {boolean|null} [bleCongested] SystemStatus bleCongested
      * @property {number|null} [adcMin] SystemStatus adcMin
      * @property {number|null} [adcMax] SystemStatus adcMax
      * @property {number|null} [adcAvg] SystemStatus adcAvg
+     * @property {number|null} [deadTimeTailOverheadCycles] SystemStatus deadTimeTailOverheadCycles
      */
 
     /**
@@ -500,20 +501,20 @@ export const SystemStatus = $root.SystemStatus = (() => {
     SystemStatus.prototype.monitorMs = 0;
 
     /**
-     * SystemStatus usCyclesUp.
-     * @member {number} usCyclesUp
+     * SystemStatus deadTimeUpUs.
+     * @member {number} deadTimeUpUs
      * @memberof SystemStatus
      * @instance
      */
-    SystemStatus.prototype.usCyclesUp = 0;
+    SystemStatus.prototype.deadTimeUpUs = 0;
 
     /**
-     * SystemStatus usCyclesDown.
-     * @member {number} usCyclesDown
+     * SystemStatus deadTimeDownUs.
+     * @member {number} deadTimeDownUs
      * @memberof SystemStatus
      * @instance
      */
-    SystemStatus.prototype.usCyclesDown = 0;
+    SystemStatus.prototype.deadTimeDownUs = 0;
 
     /**
      * SystemStatus ledMode.
@@ -554,6 +555,14 @@ export const SystemStatus = $root.SystemStatus = (() => {
      * @instance
      */
     SystemStatus.prototype.adcAvg = 0;
+
+    /**
+     * SystemStatus deadTimeTailOverheadCycles.
+     * @member {number} deadTimeTailOverheadCycles
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.deadTimeTailOverheadCycles = 0;
 
     /**
      * Creates a new SystemStatus instance using the specified properties.
@@ -601,10 +610,10 @@ export const SystemStatus = $root.SystemStatus = (() => {
             writer.uint32(/* id 10, wireType 0 =*/80).uint32(message.totalCycles);
         if (message.monitorMs != null && Object.hasOwnProperty.call(message, "monitorMs"))
             writer.uint32(/* id 11, wireType 0 =*/88).uint32(message.monitorMs);
-        if (message.usCyclesUp != null && Object.hasOwnProperty.call(message, "usCyclesUp"))
-            writer.uint32(/* id 12, wireType 0 =*/96).uint32(message.usCyclesUp);
-        if (message.usCyclesDown != null && Object.hasOwnProperty.call(message, "usCyclesDown"))
-            writer.uint32(/* id 13, wireType 0 =*/104).uint32(message.usCyclesDown);
+        if (message.deadTimeUpUs != null && Object.hasOwnProperty.call(message, "deadTimeUpUs"))
+            writer.uint32(/* id 12, wireType 0 =*/96).uint32(message.deadTimeUpUs);
+        if (message.deadTimeDownUs != null && Object.hasOwnProperty.call(message, "deadTimeDownUs"))
+            writer.uint32(/* id 13, wireType 0 =*/104).uint32(message.deadTimeDownUs);
         if (message.ledMode != null && Object.hasOwnProperty.call(message, "ledMode"))
             writer.uint32(/* id 14, wireType 0 =*/112).int32(message.ledMode);
         if (message.bleCongested != null && Object.hasOwnProperty.call(message, "bleCongested"))
@@ -615,6 +624,8 @@ export const SystemStatus = $root.SystemStatus = (() => {
             writer.uint32(/* id 17, wireType 0 =*/136).uint32(message.adcMax);
         if (message.adcAvg != null && Object.hasOwnProperty.call(message, "adcAvg"))
             writer.uint32(/* id 18, wireType 0 =*/144).uint32(message.adcAvg);
+        if (message.deadTimeTailOverheadCycles != null && Object.hasOwnProperty.call(message, "deadTimeTailOverheadCycles"))
+            writer.uint32(/* id 19, wireType 0 =*/152).uint32(message.deadTimeTailOverheadCycles);
         return writer;
     };
 
@@ -696,11 +707,11 @@ export const SystemStatus = $root.SystemStatus = (() => {
                     break;
                 }
             case 12: {
-                    message.usCyclesUp = reader.uint32();
+                    message.deadTimeUpUs = reader.uint32();
                     break;
                 }
             case 13: {
-                    message.usCyclesDown = reader.uint32();
+                    message.deadTimeDownUs = reader.uint32();
                     break;
                 }
             case 14: {
@@ -721,6 +732,10 @@ export const SystemStatus = $root.SystemStatus = (() => {
                 }
             case 18: {
                     message.adcAvg = reader.uint32();
+                    break;
+                }
+            case 19: {
+                    message.deadTimeTailOverheadCycles = reader.uint32();
                     break;
                 }
             default:
@@ -812,12 +827,12 @@ export const SystemStatus = $root.SystemStatus = (() => {
         if (message.monitorMs != null && message.hasOwnProperty("monitorMs"))
             if (!$util.isInteger(message.monitorMs))
                 return "monitorMs: integer expected";
-        if (message.usCyclesUp != null && message.hasOwnProperty("usCyclesUp"))
-            if (!$util.isInteger(message.usCyclesUp))
-                return "usCyclesUp: integer expected";
-        if (message.usCyclesDown != null && message.hasOwnProperty("usCyclesDown"))
-            if (!$util.isInteger(message.usCyclesDown))
-                return "usCyclesDown: integer expected";
+        if (message.deadTimeUpUs != null && message.hasOwnProperty("deadTimeUpUs"))
+            if (!$util.isInteger(message.deadTimeUpUs))
+                return "deadTimeUpUs: integer expected";
+        if (message.deadTimeDownUs != null && message.hasOwnProperty("deadTimeDownUs"))
+            if (!$util.isInteger(message.deadTimeDownUs))
+                return "deadTimeDownUs: integer expected";
         if (message.ledMode != null && message.hasOwnProperty("ledMode"))
             switch (message.ledMode) {
             default:
@@ -838,6 +853,9 @@ export const SystemStatus = $root.SystemStatus = (() => {
         if (message.adcAvg != null && message.hasOwnProperty("adcAvg"))
             if (!$util.isInteger(message.adcAvg))
                 return "adcAvg: integer expected";
+        if (message.deadTimeTailOverheadCycles != null && message.hasOwnProperty("deadTimeTailOverheadCycles"))
+            if (!$util.isInteger(message.deadTimeTailOverheadCycles))
+                return "deadTimeTailOverheadCycles: integer expected";
         return null;
     };
 
@@ -935,10 +953,10 @@ export const SystemStatus = $root.SystemStatus = (() => {
             message.totalCycles = object.totalCycles >>> 0;
         if (object.monitorMs != null)
             message.monitorMs = object.monitorMs >>> 0;
-        if (object.usCyclesUp != null)
-            message.usCyclesUp = object.usCyclesUp >>> 0;
-        if (object.usCyclesDown != null)
-            message.usCyclesDown = object.usCyclesDown >>> 0;
+        if (object.deadTimeUpUs != null)
+            message.deadTimeUpUs = object.deadTimeUpUs >>> 0;
+        if (object.deadTimeDownUs != null)
+            message.deadTimeDownUs = object.deadTimeDownUs >>> 0;
         switch (object.ledMode) {
         default:
             if (typeof object.ledMode === "number") {
@@ -963,6 +981,8 @@ export const SystemStatus = $root.SystemStatus = (() => {
             message.adcMax = object.adcMax >>> 0;
         if (object.adcAvg != null)
             message.adcAvg = object.adcAvg >>> 0;
+        if (object.deadTimeTailOverheadCycles != null)
+            message.deadTimeTailOverheadCycles = object.deadTimeTailOverheadCycles >>> 0;
         return message;
     };
 
@@ -991,13 +1011,14 @@ export const SystemStatus = $root.SystemStatus = (() => {
             object.currentCycles = 0;
             object.totalCycles = 0;
             object.monitorMs = 0;
-            object.usCyclesUp = 0;
-            object.usCyclesDown = 0;
+            object.deadTimeUpUs = 0;
+            object.deadTimeDownUs = 0;
             object.ledMode = options.enums === String ? "LED_NORMAL" : 0;
             object.bleCongested = false;
             object.adcMin = 0;
             object.adcMax = 0;
             object.adcAvg = 0;
+            object.deadTimeTailOverheadCycles = 0;
         }
         if (message.activeSet != null && message.hasOwnProperty("activeSet"))
             object.activeSet = options.enums === String ? $root.BleSignalSet[message.activeSet] === undefined ? message.activeSet : $root.BleSignalSet[message.activeSet] : message.activeSet;
@@ -1021,10 +1042,10 @@ export const SystemStatus = $root.SystemStatus = (() => {
             object.totalCycles = message.totalCycles;
         if (message.monitorMs != null && message.hasOwnProperty("monitorMs"))
             object.monitorMs = message.monitorMs;
-        if (message.usCyclesUp != null && message.hasOwnProperty("usCyclesUp"))
-            object.usCyclesUp = message.usCyclesUp;
-        if (message.usCyclesDown != null && message.hasOwnProperty("usCyclesDown"))
-            object.usCyclesDown = message.usCyclesDown;
+        if (message.deadTimeUpUs != null && message.hasOwnProperty("deadTimeUpUs"))
+            object.deadTimeUpUs = message.deadTimeUpUs;
+        if (message.deadTimeDownUs != null && message.hasOwnProperty("deadTimeDownUs"))
+            object.deadTimeDownUs = message.deadTimeDownUs;
         if (message.ledMode != null && message.hasOwnProperty("ledMode"))
             object.ledMode = options.enums === String ? $root.BleLedMode[message.ledMode] === undefined ? message.ledMode : $root.BleLedMode[message.ledMode] : message.ledMode;
         if (message.bleCongested != null && message.hasOwnProperty("bleCongested"))
@@ -1035,6 +1056,8 @@ export const SystemStatus = $root.SystemStatus = (() => {
             object.adcMax = message.adcMax;
         if (message.adcAvg != null && message.hasOwnProperty("adcAvg"))
             object.adcAvg = message.adcAvg;
+        if (message.deadTimeTailOverheadCycles != null && message.hasOwnProperty("deadTimeTailOverheadCycles"))
+            object.deadTimeTailOverheadCycles = message.deadTimeTailOverheadCycles;
         return object;
     };
 
