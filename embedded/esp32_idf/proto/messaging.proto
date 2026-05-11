@@ -57,8 +57,7 @@ message SystemStatus {
     uint32 total_cycles = 10;
     
     uint32 monitor_ms = 11;
-    uint32 dead_time_up_us = 12;
-    uint32 dead_time_down_us = 13;
+    uint32 dead_time_us = 12;
     BleLedMode led_mode = 14;
     bool ble_congested = 15;
     uint32 adc_min = 16;

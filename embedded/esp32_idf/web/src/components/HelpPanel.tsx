@@ -34,15 +34,11 @@ const COMMANDS = [
     description: "Sets the analog trigger cycle interval",
   },
   {
-    commands: 'signal.set_dead_time {"up_time_us":2,"down_time_us":2}',
-    description: "Sets complementary switching dead time",
+    commands: 'signal.set_dead_time {"time_us":2}',
+    description: "Sets symmetric complementary switching dead time",
   },
   {
-    commands: 'signal.set_dead_time_all {"time_us":2}',
-    description: "Sets the same dead time for up and down switching",
-  },
-  {
-    commands: 'signal.set_dead_time_tail_overhead {"cycles":38}',
+    commands: 'signal.set_dead_time_tail_overhead {"cycles":35}',
     description: "Sets GPIO tail overhead compensation for dead time",
   },
   {

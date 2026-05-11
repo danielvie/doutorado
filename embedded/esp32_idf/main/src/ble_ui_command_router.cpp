@@ -34,9 +34,8 @@ struct UiCommandEntry {
 
 static UiCommandEntry s_commands[32];
 static size_t s_command_count = 0;
-volatile uint32_t g_dead_time_tail_overhead_cycles = 38;
-volatile uint32_t g_dead_time_up_time_us = 0;
-volatile uint32_t g_dead_time_down_time_us = 0;
+volatile uint32_t g_dead_time_tail_overhead_cycles = 35;
+volatile uint32_t g_dead_time_us = 0;
 static bool s_dead_time_request_valid = false;
 
 static UiCommandResultData ok(const char* message = "ok", const std::string& json = "") {
@@ -176,9 +175,8 @@ static UiCommandResultData handle_signal_set_cycle_interval(const UiCommandConte
     return ok("Cycle interval updated");
 }
 
-static void set_dead_time_us(uint32_t up_time_us, uint32_t down_time_us) {
-    g_dead_time_up_time_us = up_time_us;
-    g_dead_time_down_time_us = down_time_us;
+static void set_dead_time_us(uint32_t time_us) {
+    g_dead_time_us = time_us;
     s_dead_time_request_valid = true;
 
     // Measure the delay helper overhead so requested dead time stays close to wall time.
@@ -196,56 +194,35 @@ static void set_dead_time_us(uint32_t up_time_us, uint32_t down_time_us) {
 
     // Convert the user-facing microsecond values to raw CPU cycles.
     const uint32_t ticks_per_us = esp_rom_get_cpu_ticks_per_us();
-    const uint64_t requested_up_cycles = (uint64_t)up_time_us * ticks_per_us;
-    const uint64_t requested_down_cycles = (uint64_t)down_time_us * ticks_per_us;
+    const uint64_t requested_cycles = (uint64_t)time_us * ticks_per_us;
 
     // Subtract only the helper overhead; clamp tiny requests to zero instead of underflowing.
-    const uint64_t compensated_up =
-        requested_up_cycles > overhead_cycles ? requested_up_cycles - overhead_cycles : 0;
-    const uint64_t compensated_down =
-        requested_down_cycles > overhead_cycles ? requested_down_cycles - overhead_cycles : 0;
+    const uint64_t compensated_cycles =
+        requested_cycles > overhead_cycles ? requested_cycles - overhead_cycles : 0;
 
-    // Store the compensated cycles used by the hot signal loop.
-    const uint32_t up_cycles =
-        compensated_up > UINT32_MAX ? UINT32_MAX : (uint32_t)compensated_up;
-    const uint32_t down_cycles =
-        compensated_down > UINT32_MAX ? UINT32_MAX : (uint32_t)compensated_down;
+    // Store the same compensated cycle count for both directions in the hot signal loop.
+    const uint32_t cycles =
+        compensated_cycles > UINT32_MAX ? UINT32_MAX : (uint32_t)compensated_cycles;
 
-    g_dead_time_cycles_up = up_cycles;
-    g_dead_time_cycles_down = down_cycles;
+    g_dead_time_cycles_up = cycles;
+    g_dead_time_cycles_down = cycles;
     signal_precompute_steps(&g_dataset_a);
     signal_precompute_steps(&g_dataset_b);
     ESP_LOGI(TAG,
-             "Set dead time up=%lu us (%lu cycles) down=%lu us (%lu cycles), overhead=%lu cycles, tail=%lu cycles",
-             up_time_us,
-             up_cycles,
-             down_time_us,
-             down_cycles,
+             "Set dead time=%lu us (%lu cycles), overhead=%lu cycles, tail=%lu cycles",
+             time_us,
+             cycles,
              overhead_cycles,
              g_dead_time_tail_overhead_cycles);
 }
 
 static UiCommandResultData handle_signal_set_dead_time(const UiCommandContext& ctx) {
-    uint32_t up_time_us;
-    uint32_t down_time_us;
-    if (!json_get_u32(ctx.json, "up_time_us", &up_time_us)) {
-        return invalid_arg("Expected numeric up_time_us");
-    }
-    if (!json_get_u32(ctx.json, "down_time_us", &down_time_us)) {
-        return invalid_arg("Expected numeric down_time_us");
-    }
-
-    set_dead_time_us(up_time_us, down_time_us);
-    return ok("Dead time updated");
-}
-
-static UiCommandResultData handle_signal_set_dead_time_all(const UiCommandContext& ctx) {
     uint32_t time_us;
     if (!json_get_u32(ctx.json, "time_us", &time_us)) {
         return invalid_arg("Expected numeric time_us");
     }
 
-    set_dead_time_us(time_us, time_us);
+    set_dead_time_us(time_us);
     return ok("Dead time updated");
 }
 
@@ -257,7 +234,7 @@ static UiCommandResultData handle_signal_set_dead_time_tail_overhead(const UiCom
 
     g_dead_time_tail_overhead_cycles = cycles;
     if (s_dead_time_request_valid) {
-        set_dead_time_us(g_dead_time_up_time_us, g_dead_time_down_time_us);
+        set_dead_time_us(g_dead_time_us);
     }
 
     ESP_LOGI(TAG, "Set dead time tail overhead to %lu cycles", cycles);
@@ -435,7 +412,6 @@ void ui_command_router_init(void) {
     register_command("signal.set_pattern", handle_signal_set_pattern);
     register_command("signal.set_cycle_interval", handle_signal_set_cycle_interval);
     register_command("signal.set_dead_time", handle_signal_set_dead_time);
-    register_command("signal.set_dead_time_all", handle_signal_set_dead_time_all);
     register_command("signal.set_dead_time_tail_overhead", handle_signal_set_dead_time_tail_overhead);
     register_command("analog.set_monitor_period", handle_analog_set_monitor_period);
     register_command("analog.read_once", handle_analog_read_once);

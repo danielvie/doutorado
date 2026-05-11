@@ -179,11 +179,8 @@ export class SystemStatus implements ISystemStatus {
     /** SystemStatus monitorMs. */
     public monitorMs: number;
 
-    /** SystemStatus deadTimeUpUs. */
-    public deadTimeUpUs: number;
-
-    /** SystemStatus deadTimeDownUs. */
-    public deadTimeDownUs: number;
+    /** SystemStatus deadTimeUs. */
+    public deadTimeUs: number;
 
     /** SystemStatus ledMode. */
     public ledMode: BleLedMode;

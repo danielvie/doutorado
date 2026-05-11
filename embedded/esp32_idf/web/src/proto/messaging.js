@@ -387,8 +387,7 @@ export const SystemStatus = $root.SystemStatus = (() => {
      * @property {number|null} [currentCycles] SystemStatus currentCycles
      * @property {number|null} [totalCycles] SystemStatus totalCycles
      * @property {number|null} [monitorMs] SystemStatus monitorMs
-     * @property {number|null} [deadTimeUpUs] SystemStatus deadTimeUpUs
-     * @property {number|null} [deadTimeDownUs] SystemStatus deadTimeDownUs
+     * @property {number|null} [deadTimeUs] SystemStatus deadTimeUs
      * @property {BleLedMode|null} [ledMode] SystemStatus ledMode
      * @property {boolean|null} [bleCongested] SystemStatus bleCongested
      * @property {number|null} [adcMin] SystemStatus adcMin
@@ -501,20 +500,12 @@ export const SystemStatus = $root.SystemStatus = (() => {
     SystemStatus.prototype.monitorMs = 0;
 
     /**
-     * SystemStatus deadTimeUpUs.
-     * @member {number} deadTimeUpUs
+     * SystemStatus deadTimeUs.
+     * @member {number} deadTimeUs
      * @memberof SystemStatus
      * @instance
      */
-    SystemStatus.prototype.deadTimeUpUs = 0;
-
-    /**
-     * SystemStatus deadTimeDownUs.
-     * @member {number} deadTimeDownUs
-     * @memberof SystemStatus
-     * @instance
-     */
-    SystemStatus.prototype.deadTimeDownUs = 0;
+    SystemStatus.prototype.deadTimeUs = 0;
 
     /**
      * SystemStatus ledMode.
@@ -610,10 +601,8 @@ export const SystemStatus = $root.SystemStatus = (() => {
             writer.uint32(/* id 10, wireType 0 =*/80).uint32(message.totalCycles);
         if (message.monitorMs != null && Object.hasOwnProperty.call(message, "monitorMs"))
             writer.uint32(/* id 11, wireType 0 =*/88).uint32(message.monitorMs);
-        if (message.deadTimeUpUs != null && Object.hasOwnProperty.call(message, "deadTimeUpUs"))
-            writer.uint32(/* id 12, wireType 0 =*/96).uint32(message.deadTimeUpUs);
-        if (message.deadTimeDownUs != null && Object.hasOwnProperty.call(message, "deadTimeDownUs"))
-            writer.uint32(/* id 13, wireType 0 =*/104).uint32(message.deadTimeDownUs);
+        if (message.deadTimeUs != null && Object.hasOwnProperty.call(message, "deadTimeUs"))
+            writer.uint32(/* id 12, wireType 0 =*/96).uint32(message.deadTimeUs);
         if (message.ledMode != null && Object.hasOwnProperty.call(message, "ledMode"))
             writer.uint32(/* id 14, wireType 0 =*/112).int32(message.ledMode);
         if (message.bleCongested != null && Object.hasOwnProperty.call(message, "bleCongested"))
@@ -707,11 +696,7 @@ export const SystemStatus = $root.SystemStatus = (() => {
                     break;
                 }
             case 12: {
-                    message.deadTimeUpUs = reader.uint32();
-                    break;
-                }
-            case 13: {
-                    message.deadTimeDownUs = reader.uint32();
+                    message.deadTimeUs = reader.uint32();
                     break;
                 }
             case 14: {
@@ -827,12 +812,9 @@ export const SystemStatus = $root.SystemStatus = (() => {
         if (message.monitorMs != null && message.hasOwnProperty("monitorMs"))
             if (!$util.isInteger(message.monitorMs))
                 return "monitorMs: integer expected";
-        if (message.deadTimeUpUs != null && message.hasOwnProperty("deadTimeUpUs"))
-            if (!$util.isInteger(message.deadTimeUpUs))
-                return "deadTimeUpUs: integer expected";
-        if (message.deadTimeDownUs != null && message.hasOwnProperty("deadTimeDownUs"))
-            if (!$util.isInteger(message.deadTimeDownUs))
-                return "deadTimeDownUs: integer expected";
+        if (message.deadTimeUs != null && message.hasOwnProperty("deadTimeUs"))
+            if (!$util.isInteger(message.deadTimeUs))
+                return "deadTimeUs: integer expected";
         if (message.ledMode != null && message.hasOwnProperty("ledMode"))
             switch (message.ledMode) {
             default:
@@ -953,10 +935,8 @@ export const SystemStatus = $root.SystemStatus = (() => {
             message.totalCycles = object.totalCycles >>> 0;
         if (object.monitorMs != null)
             message.monitorMs = object.monitorMs >>> 0;
-        if (object.deadTimeUpUs != null)
-            message.deadTimeUpUs = object.deadTimeUpUs >>> 0;
-        if (object.deadTimeDownUs != null)
-            message.deadTimeDownUs = object.deadTimeDownUs >>> 0;
+        if (object.deadTimeUs != null)
+            message.deadTimeUs = object.deadTimeUs >>> 0;
         switch (object.ledMode) {
         default:
             if (typeof object.ledMode === "number") {
@@ -1011,8 +991,7 @@ export const SystemStatus = $root.SystemStatus = (() => {
             object.currentCycles = 0;
             object.totalCycles = 0;
             object.monitorMs = 0;
-            object.deadTimeUpUs = 0;
-            object.deadTimeDownUs = 0;
+            object.deadTimeUs = 0;
             object.ledMode = options.enums === String ? "LED_NORMAL" : 0;
             object.bleCongested = false;
             object.adcMin = 0;
@@ -1042,10 +1021,8 @@ export const SystemStatus = $root.SystemStatus = (() => {
             object.totalCycles = message.totalCycles;
         if (message.monitorMs != null && message.hasOwnProperty("monitorMs"))
             object.monitorMs = message.monitorMs;
-        if (message.deadTimeUpUs != null && message.hasOwnProperty("deadTimeUpUs"))
-            object.deadTimeUpUs = message.deadTimeUpUs;
-        if (message.deadTimeDownUs != null && message.hasOwnProperty("deadTimeDownUs"))
-            object.deadTimeDownUs = message.deadTimeDownUs;
+        if (message.deadTimeUs != null && message.hasOwnProperty("deadTimeUs"))
+            object.deadTimeUs = message.deadTimeUs;
         if (message.ledMode != null && message.hasOwnProperty("ledMode"))
             object.ledMode = options.enums === String ? $root.BleLedMode[message.ledMode] === undefined ? message.ledMode : $root.BleLedMode[message.ledMode] : message.ledMode;
         if (message.bleCongested != null && message.hasOwnProperty("bleCongested"))

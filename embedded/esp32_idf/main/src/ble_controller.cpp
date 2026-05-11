@@ -337,8 +337,7 @@ void ble_send_status(void) {
     status->current_cycles = g_cycle_count;
     status->total_cycles = g_cycle_nrun;
     status->monitor_ms = g_analog_monitor_period_ms;
-    status->dead_time_up_us = g_dead_time_up_time_us;
-    status->dead_time_down_us = g_dead_time_down_time_us;
+    status->dead_time_us = g_dead_time_us;
     status->dead_time_tail_overhead_cycles = g_dead_time_tail_overhead_cycles;
     status->led_mode = (g_system_state.led_mode.load(std::memory_order_acquire) == LedMode::NORMAL) ? BleLedMode_LED_NORMAL : BleLedMode_LED_BLINKING;
     status->ble_congested = g_ble_congested;

@@ -29,3 +29,8 @@
 - [x] Regenerate protobuf code for firmware and web
 - [x] Update web status rendering to show dead-time microseconds and tail overhead
 - [x] Verify firmware and web builds after status changes
+- [x] Collapse dead-time command payload to symmetric `time_us`
+- [x] Collapse status dead-time fields to one `dead_time_us`
+- [x] Regenerate protobuf code after symmetric dead-time schema change
+- [x] Update web help and status rendering for symmetric dead time
+- [x] Verify firmware and web builds after symmetric dead-time change

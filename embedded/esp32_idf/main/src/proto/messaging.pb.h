@@ -73,8 +73,7 @@ typedef struct _SystemStatus {
     uint32_t current_cycles;
     uint32_t total_cycles;
     uint32_t monitor_ms;
-    uint32_t dead_time_up_us;
-    uint32_t dead_time_down_us;
+    uint32_t dead_time_us;
     BleLedMode led_mode;
     bool ble_congested;
     uint32_t adc_min;
@@ -207,7 +206,7 @@ extern "C" {
 
 /* Initializer values for message structs */
 #define Telemetry_init_default                   {0, 0, 0, 0}
-#define SystemStatus_init_default                {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0, 0}
+#define SystemStatus_init_default                {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0, 0}
 #define LogMessage_init_default                  {_BleLogLevel_MIN, ""}
 #define OtaStatus_init_default                   {_OtaState_MIN, 0, "", 0, 0}
 #define OtaBegin_init_default                    {0}
@@ -218,7 +217,7 @@ extern "C" {
 #define UiCommandResult_init_default             {0, "", 0, "", "", ""}
 #define BlePacket_init_default                   {0, {Telemetry_init_default}}
 #define Telemetry_init_zero                      {0, 0, 0, 0}
-#define SystemStatus_init_zero                   {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0, 0}
+#define SystemStatus_init_zero                   {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0, 0}
 #define LogMessage_init_zero                     {_BleLogLevel_MIN, ""}
 #define OtaStatus_init_zero                      {_OtaState_MIN, 0, "", 0, 0}
 #define OtaBegin_init_zero                       {0}
@@ -245,8 +244,7 @@ extern "C" {
 #define SystemStatus_current_cycles_tag          9
 #define SystemStatus_total_cycles_tag            10
 #define SystemStatus_monitor_ms_tag              11
-#define SystemStatus_dead_time_up_us_tag         12
-#define SystemStatus_dead_time_down_us_tag       13
+#define SystemStatus_dead_time_us_tag            12
 #define SystemStatus_led_mode_tag                14
 #define SystemStatus_ble_congested_tag           15
 #define SystemStatus_adc_min_tag                 16
@@ -304,8 +302,7 @@ X(a, STATIC,   SINGULAR, BOOL,     matrix_b_valid,    8) \
 X(a, STATIC,   SINGULAR, UINT32,   current_cycles,    9) \
 X(a, STATIC,   SINGULAR, UINT32,   total_cycles,     10) \
 X(a, STATIC,   SINGULAR, UINT32,   monitor_ms,       11) \
-X(a, STATIC,   SINGULAR, UINT32,   dead_time_up_us,  12) \
-X(a, STATIC,   SINGULAR, UINT32,   dead_time_down_us,  13) \
+X(a, STATIC,   SINGULAR, UINT32,   dead_time_us,     12) \
 X(a, STATIC,   SINGULAR, UENUM,    led_mode,         14) \
 X(a, STATIC,   SINGULAR, BOOL,     ble_congested,    15) \
 X(a, STATIC,   SINGULAR, UINT32,   adc_min,          16) \
@@ -422,7 +419,7 @@ extern const pb_msgdesc_t BlePacket_msg;
 #define OtaEnd_size                              65
 #define OtaStatus_size                           85
 #define PROTO_MESSAGING_PB_H_MAX_SIZE            BlePacket_size
-#define SystemStatus_size                        81
+#define SystemStatus_size                        75
 #define Telemetry_size                           21
 #define UiCommandResult_size                     750
 #define UiCommand_size                           457
