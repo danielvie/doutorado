@@ -192,19 +192,30 @@ class BleManager {
                     if (r.name === "debug.signal_timing" && r.json) {
                         try {
                             const t = JSON.parse(r.json);
+                            const metric = (longKey: string, shortKey: string) =>
+                                Number(t[longKey] ?? t[shortKey] ?? 0);
+                            const value = (longKey: string, shortKey: string) =>
+                                t[longKey] ?? t[shortKey] ?? 0;
                             const timingLines = [
                                 "== signal timing ==",
-                                `Samples          : ${t.samples ?? 0}`,
-                                `Playback         : ${Number(t.playback_us ?? 0).toFixed(2)} us`,
-                                `Playback min     : ${Number(t.playback_min_us ?? 0).toFixed(2)} us`,
-                                `Playback max     : ${Number(t.playback_max_us ?? 0).toFixed(2)} us`,
-                                `Playback avg     : ${Number(t.playback_avg_us ?? 0).toFixed(2)} us`,
-                                `Loop             : ${Number(t.loop_us ?? 0).toFixed(2)} us`,
-                                `Expected         : ${Number(t.expected_us ?? 0).toFixed(2)} us`,
-                                `Overhead         : ${Number(t.overhead_us ?? 0).toFixed(2)} us`,
-                                `Dead time        : ${Number(t.dead_time_us ?? 0).toFixed(2)} us`,
-                                `Correction sum   : ${t.correction_sum_us ?? 0} us`,
-                                `Steps            : ${t.steps ?? 0}`,
+                                `Samples          : ${value("samples", "s")}`,
+                                `Playback         : ${metric("playback_us", "pb").toFixed(2)} us`,
+                                `Playback min     : ${metric("playback_min_us", "pmin").toFixed(2)} us`,
+                                `Playback max     : ${metric("playback_max_us", "pmax").toFixed(2)} us`,
+                                `Playback avg     : ${metric("playback_avg_us", "pavg").toFixed(2)} us`,
+                                `Loop             : ${metric("loop_us", "loop").toFixed(2)} us`,
+                                `Expected         : ${metric("expected_us", "exp").toFixed(2)} us`,
+                                `Requested period : ${metric("requested_period_us", "req").toFixed(2)} us`,
+                                `Scheduled period : ${metric("scheduled_period_us", "sch").toFixed(2)} us`,
+                                `Measured period  : ${metric("measured_period_us", "meas").toFixed(2)} us`,
+                                `Overhead         : ${metric("overhead_us", "oh").toFixed(2)} us`,
+                                `Dead time        : ${metric("dead_time_us", "dt").toFixed(2)} us`,
+                                `Overruns         : ${value("overrun_count", "ov")}`,
+                                `Timing faults    : ${value("timing_fault_count", "tf")}`,
+                                `Clamped segments : ${value("clamped_segment_count", "cl")}`,
+                                `Skipped maint.   : ${value("maintenance_skipped_count", "ms")}`,
+                                `Correction sum   : ${value("correction_sum_us", "corr")} us`,
+                                `Steps            : ${value("steps", "steps")}`,
                             ];
                             useBleStore.getState().setLastStatusMessage(timingLines.join("\n"));
                             useBleStore.getState().setLastStatusCommand(

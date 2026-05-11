@@ -7,6 +7,9 @@
 
 static const char *TAG = "SIG_CTRL";
 static constexpr uint32_t CYCLES_PER_US = 240;
+static constexpr uint32_t MIN_ACTIVE_HOLD_CYCLES = CYCLES_PER_US;
+static constexpr uint32_t MIN_MAINTENANCE_PERIOD_CYCLES = 50 * CYCLES_PER_US;
+static constexpr uint32_t SHORT_PATTERN_BATCH_CYCLES = 256;
 
 // ---------------------------------------------------------------------------
 // HARDWARE CONFIGURATION
@@ -24,8 +27,15 @@ static TaskHandle_t s_signal_task_handle = NULL;
 
 struct SignalTimingSample {
     uint32_t expected_cycles = 0;
+    uint32_t requested_period_cycles = 0;
+    uint32_t scheduled_period_cycles = 0;
+    uint32_t measured_period_cycles = 0;
     uint32_t dead_time_cycles = 0;
     uint32_t step_count = 0;
+    uint32_t overrun_count = 0;
+    uint32_t timing_fault_count = 0;
+    uint32_t clamped_segment_count = 0;
+    uint32_t maintenance_skipped_count = 0;
     int32_t correction_sum_us = 0;
 };
 
@@ -36,8 +46,15 @@ static volatile uint32_t s_timing_playback_max_cycles = 0;
 static volatile uint32_t s_timing_playback_avg_cycles = 0;
 static volatile uint32_t s_timing_loop_cycles = 0;
 static volatile uint32_t s_timing_expected_cycles = 0;
+static volatile uint32_t s_timing_requested_period_cycles = 0;
+static volatile uint32_t s_timing_scheduled_period_cycles = 0;
+static volatile uint32_t s_timing_measured_period_cycles = 0;
 static volatile uint32_t s_timing_dead_time_cycles = 0;
 static volatile uint32_t s_timing_step_count = 0;
+static volatile uint32_t s_timing_overrun_count = 0;
+static volatile uint32_t s_timing_fault_count = 0;
+static volatile uint32_t s_timing_clamped_segment_count = 0;
+static volatile uint32_t s_timing_maintenance_skipped_count = 0;
 static volatile int32_t s_timing_correction_sum_us = 0;
 
 static void update_signal_timing_snapshot(uint32_t playback_cycles,
@@ -48,8 +65,15 @@ static void update_signal_timing_snapshot(uint32_t playback_cycles,
     s_timing_playback_cycles = playback_cycles;
     s_timing_loop_cycles = loop_cycles;
     s_timing_expected_cycles = sample.expected_cycles;
+    s_timing_requested_period_cycles = sample.requested_period_cycles;
+    s_timing_scheduled_period_cycles = sample.scheduled_period_cycles;
+    s_timing_measured_period_cycles = sample.measured_period_cycles;
     s_timing_dead_time_cycles = sample.dead_time_cycles;
     s_timing_step_count = sample.step_count;
+    s_timing_overrun_count += sample.overrun_count;
+    s_timing_fault_count += sample.timing_fault_count;
+    s_timing_clamped_segment_count += sample.clamped_segment_count;
+    s_timing_maintenance_skipped_count += sample.maintenance_skipped_count;
     s_timing_correction_sum_us = sample.correction_sum_us;
 
     if (count == 1 || playback_cycles < s_timing_playback_min_cycles) {
@@ -74,32 +98,42 @@ std::string signal_get_timing_snapshot_json() {
     const uint32_t playback_avg_cycles = s_timing_playback_avg_cycles;
     const uint32_t loop_cycles = s_timing_loop_cycles;
     const uint32_t expected_cycles = s_timing_expected_cycles;
+    const uint32_t requested_period_cycles = s_timing_requested_period_cycles;
+    const uint32_t scheduled_period_cycles = s_timing_scheduled_period_cycles;
+    const uint32_t measured_period_cycles = s_timing_measured_period_cycles;
     const uint32_t dead_time_cycles = s_timing_dead_time_cycles;
     const uint32_t step_count = s_timing_step_count;
+    const uint32_t overrun_count = s_timing_overrun_count;
+    const uint32_t timing_fault_count = s_timing_fault_count;
+    const uint32_t clamped_segment_count = s_timing_clamped_segment_count;
+    const uint32_t maintenance_skipped_count = s_timing_maintenance_skipped_count;
     const int32_t correction_sum_us = s_timing_correction_sum_us;
     const int32_t overhead_cycles =
         (int32_t)playback_cycles - (int32_t)expected_cycles;
 
-    char json[512];
+    char json[320];
     snprintf(json, sizeof(json),
-             "{\"samples\":%lu,"
-             "\"playback_cycles\":%lu,\"playback_us\":%.2f,"
-             "\"playback_min_us\":%.2f,\"playback_max_us\":%.2f,"
-             "\"playback_avg_us\":%.2f,"
-             "\"loop_cycles\":%lu,\"loop_us\":%.2f,"
-             "\"expected_cycles\":%lu,\"expected_us\":%.2f,"
-             "\"overhead_cycles\":%ld,\"overhead_us\":%.2f,"
-             "\"dead_time_cycles\":%lu,\"dead_time_us\":%.2f,"
-             "\"correction_sum_us\":%ld,\"steps\":%lu}",
+             "{\"s\":%lu,"
+             "\"pb\":%.2f,\"pmin\":%.2f,\"pmax\":%.2f,\"pavg\":%.2f,"
+             "\"loop\":%.2f,\"exp\":%.2f,"
+             "\"req\":%.2f,\"sch\":%.2f,\"meas\":%.2f,"
+             "\"oh\":%.2f,\"dt\":%.2f,"
+             "\"ov\":%lu,\"tf\":%lu,\"cl\":%lu,\"ms\":%lu,"
+             "\"corr\":%ld,\"steps\":%lu}",
              sample_count,
-             playback_cycles, (double)playback_cycles / CYCLES_PER_US,
+             (double)playback_cycles / CYCLES_PER_US,
              (double)playback_min_cycles / CYCLES_PER_US,
              (double)playback_max_cycles / CYCLES_PER_US,
              (double)playback_avg_cycles / CYCLES_PER_US,
-             loop_cycles, (double)loop_cycles / CYCLES_PER_US,
-             expected_cycles, (double)expected_cycles / CYCLES_PER_US,
-             overhead_cycles, (double)overhead_cycles / CYCLES_PER_US,
-             dead_time_cycles, (double)dead_time_cycles / CYCLES_PER_US,
+             (double)loop_cycles / CYCLES_PER_US,
+             (double)expected_cycles / CYCLES_PER_US,
+             (double)requested_period_cycles / CYCLES_PER_US,
+             (double)scheduled_period_cycles / CYCLES_PER_US,
+             (double)measured_period_cycles / CYCLES_PER_US,
+             (double)overhead_cycles / CYCLES_PER_US,
+             (double)dead_time_cycles / CYCLES_PER_US,
+             overrun_count, timing_fault_count,
+             clamped_segment_count, maintenance_skipped_count,
              correction_sum_us, step_count);
     return std::string(json);
 }
@@ -397,42 +431,79 @@ static void update_control_corrections(SignalLoopContext &ctx) {
                                  ctx.current_correction, p, N);
 }
 
+static inline void wait_until_cycle(uint32_t deadline) {
+    while ((int32_t)(esp_cpu_get_cycle_count() - deadline) < 0) {
+    }
+}
+
 static void execute_signal_pattern(const SignalLoopContext &ctx,
-                                   SignalTimingSample &timing) {
+                                   SignalTimingSample &timing,
+                                   uint32_t repeat_count) {
     // Keep the interrupt-disabled block limited to GPIO writes and exact delays.
     // No logging, allocation, parsing, or semaphore calls belong in this helper.
     portDISABLE_INTERRUPTS();
 
     uint8_t sz = ctx.dataset->size;
     timing = {};
-    for (int i = 0; i < sz; i++) {
-        const SignalStep &step = ctx.dataset->steps[i];
-        uint32_t cycles = step.duration_cycles;
-        timing.step_count++;
+    uint32_t pattern_start = esp_cpu_get_cycle_count();
+    uint32_t next_edge = pattern_start;
 
-        if (g_control_enabled.load(std::memory_order_acquire)) {
-            int32_t corrected = (int32_t)step.duration_us + ctx.current_correction[i];
-            if (corrected < 1) corrected = 1;
-            cycles = (uint32_t)corrected * CYCLES_PER_US;
-            timing.correction_sum_us += ctx.current_correction[i];
-        }
+    for (uint32_t repeat = 0; repeat < repeat_count; ++repeat) {
+        for (int i = 0; i < sz; i++) {
+            const SignalStep &step = ctx.dataset->steps[i];
+            uint32_t cycles = step.duration_cycles;
+            uint32_t dead_time = step.clear_mask ? step.dead_time : 0;
+            if (repeat == 0) {
+                timing.step_count++;
+                timing.requested_period_cycles += step.duration_cycles;
+            }
 
-        if (step.clear_mask) {
-            GPIO.out_w1tc = step.clear_mask;
-            helper_delay_cycles(step.dead_time);
-            timing.dead_time_cycles += step.dead_time;
-            timing.expected_cycles += step.dead_time;
-        }
+            if (g_control_enabled.load(std::memory_order_acquire)) {
+                int32_t corrected = (int32_t)step.duration_us + ctx.current_correction[i];
+                if (corrected < 1) corrected = 1;
+                cycles = (uint32_t)corrected * CYCLES_PER_US;
+                if (repeat == 0) {
+                    timing.correction_sum_us += ctx.current_correction[i];
+                }
+            }
 
-        GPIO.out_w1tc = step.clr_mask;
-        GPIO.out_w1ts = step.set_mask;
+            const uint32_t minimum_cycles = dead_time + MIN_ACTIVE_HOLD_CYCLES;
+            if (cycles < minimum_cycles) {
+                cycles = minimum_cycles;
+                if (repeat == 0) {
+                    timing.timing_fault_count++;
+                    timing.clamped_segment_count++;
+                }
+            }
 
-        if (cycles > 0) {
-            helper_delay_cycles(cycles);
-            timing.expected_cycles += cycles;
+            next_edge += cycles;
+            if (repeat == 0) {
+                timing.expected_cycles += cycles;
+                timing.scheduled_period_cycles += cycles;
+            }
+
+            if (step.clear_mask) {
+                GPIO.out_w1tc = step.clear_mask;
+                helper_delay_cycles(dead_time);
+                if (repeat == 0) {
+                    timing.dead_time_cycles += dead_time;
+                }
+            }
+
+            GPIO.out_w1tc = step.clr_mask;
+            GPIO.out_w1ts = step.set_mask;
+
+            uint32_t now = esp_cpu_get_cycle_count();
+            if ((int32_t)(now - next_edge) > 0) {
+                timing.overrun_count++;
+            } else {
+                wait_until_cycle(next_edge);
+            }
         }
     }
 
+    timing.measured_period_cycles =
+        (esp_cpu_get_cycle_count() - pattern_start) / repeat_count;
     portENABLE_INTERRUPTS();
 }
 
@@ -448,6 +519,15 @@ static void trigger_periodic_analog_read() {
                                                std::memory_order_release);
         xSemaphoreGive(sem_analog_read_trigger);
     }
+}
+
+static uint32_t get_nominal_pattern_cycles(const SignalLoopContext &ctx) {
+    uint32_t cycles = 0;
+    uint8_t sz = ctx.dataset->size;
+    for (int i = 0; i < sz; ++i) {
+        cycles += ctx.dataset->steps[i].duration_cycles;
+    }
+    return cycles;
 }
 
 static void stop_signal_outputs() {
@@ -477,12 +557,19 @@ static void signal_loop_task(void *arg) {
         update_control_corrections(ctx);
         SignalTimingSample timing;
         uint32_t playback_start = esp_cpu_get_cycle_count();
-        execute_signal_pattern(ctx, timing);
-        uint32_t playback_cycles = esp_cpu_get_cycle_count() - playback_start;
-        trigger_periodic_analog_read();
-
-        // Reset the watchdog and give background FreeRTOS work a scheduling point.
-        vTaskDelay(0);
+        const uint32_t nominal_cycles = get_nominal_pattern_cycles(ctx);
+        const uint32_t repeat_count =
+            nominal_cycles < MIN_MAINTENANCE_PERIOD_CYCLES
+                ? SHORT_PATTERN_BATCH_CYCLES
+                : 1;
+        execute_signal_pattern(ctx, timing, repeat_count);
+        uint32_t playback_cycles =
+            (esp_cpu_get_cycle_count() - playback_start) / repeat_count;
+        if (timing.scheduled_period_cycles >= MIN_MAINTENANCE_PERIOD_CYCLES) {
+            trigger_periodic_analog_read();
+        } else {
+            timing.maintenance_skipped_count++;
+        }
         uint32_t loop_cycles = esp_cpu_get_cycle_count() - loop_start;
         update_signal_timing_snapshot(playback_cycles, loop_cycles, timing);
     }
