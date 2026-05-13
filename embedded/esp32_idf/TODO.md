@@ -34,3 +34,15 @@
 - [x] Regenerate protobuf code after symmetric dead-time schema change
 - [x] Update web help and status rendering for symmetric dead time
 - [x] Verify firmware and web builds after symmetric dead-time change
+- [x] Analyze `signal_loop_task` logic and related data selection helpers
+- [x] Create docs HTML explaining output waveforms, dead-time details, data acquisition, and data selection
+- [x] Verify the HTML documentation file exists and references the current implementation accurately
+- [x] Update dead-time zoom to use distinct HIGH and LOW colors
+- [x] Add time-aligned comparison chart for transitions with and without dead time
+- [x] Verify updated documentation sections are present
+- [x] Extend dead-time comparison chart to include the next transition
+- [x] Verify extended comparison chart labels are present
+- [x] Simplify overlapping labels in dead-time comparison chart
+- [x] Verify comparison chart text no longer overlaps waveform lanes
+- [x] Fix dead-time comparison chart B transition to show only binary 1-to-0 and 0-to-1 levels
+- [x] Verify the B transition SVG polyline no longer uses an intermediate level

@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>signal_loop_task Logic</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172026;
+      --muted: #5e6b73;
+      --line: #d8e0e5;
+      --panel: #f7f9fa;
+      --u1: #136f63;
+      --u2: #8f4e00;
+      --u3: #3157a4;
+      --dead: #d44545;
+      --core: #6b4fa3;
+      --low: #0f7b78;
+      --high: #b55317;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: #ffffff;
+      line-height: 1.55;
+    }
+
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 22px 56px;
+    }
+
+    h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+    h1 { font-size: 34px; }
+    h2 { font-size: 24px; margin-top: 34px; padding-top: 8px; border-top: 1px solid var(--line); }
+    h3 { font-size: 18px; margin-top: 22px; }
+    p { margin: 0 0 12px; }
+    code { background: #eef2f4; padding: 1px 5px; border-radius: 4px; }
+
+    .lede {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .fact, .note {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .fact strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .chart {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+      padding: 10px;
+      margin: 14px 0;
+    }
+
+    svg { max-width: 100%; height: auto; display: block; }
+    .axis { stroke: #87939b; stroke-width: 1; }
+    .tick { stroke: #b8c2c8; stroke-width: 1; }
+    .label { fill: var(--muted); font-size: 13px; }
+    .small { fill: var(--muted); font-size: 12px; }
+    .wire { fill: none; stroke-width: 4; stroke-linejoin: round; stroke-linecap: round; }
+    .u1 { stroke: var(--u1); }
+    .u2 { stroke: var(--u2); }
+    .u3 { stroke: var(--u3); }
+    .low-wire { stroke: var(--low); }
+    .high-wire { stroke: var(--high); }
+    .low-fill { fill: var(--low); }
+    .high-fill { fill: var(--high); }
+    .dead { fill: rgba(212, 69, 69, 0.15); stroke: var(--dead); stroke-width: 1; }
+    .phase { fill: rgba(49, 87, 164, 0.08); stroke: #b8c2c8; }
+    .box { fill: #ffffff; stroke: #b8c2c8; stroke-width: 1.2; rx: 6; }
+    .arrow { stroke: #4f5d66; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+    .hot { fill: rgba(107, 79, 163, 0.13); stroke: var(--core); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 20px;
+      font-size: 14px;
+    }
+
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+    }
+
+    th { background: #eef2f4; }
+
+    ol, ul { margin-top: 8px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+
+    @media (max-width: 760px) {
+      main { padding: 24px 14px 42px; }
+      h1 { font-size: 28px; }
+      .grid { grid-template-columns: 1fr; }
+      table { font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>signal_loop_task Logic</h1>
+  <p class="lede">
+    This page documents the current signal generation logic in
+    <code>main/src/signal_controller.cpp</code>. It is written as both reference
+    documentation and a tutorial for how the component turns dataset segments
+    into three synchronized digital outputs with dead-time protection.
+  </p>
+
+  <div class="grid">
+    <div class="fact"><strong>Execution core</strong>Continuous playback runs in <code>signal_loop_task</code>, pinned by <code>signal_start_continuous()</code> to Core 1.</div>
+    <div class="fact"><strong>Timing unit</strong>The loop converts microseconds to CPU cycles with <code>CYCLES_PER_US = 240</code>.</div>
+    <div class="fact"><strong>Output model</strong>Each logical channel controls a LOW pin and a HIGH pin. Only one side is enabled after dead time.</div>
+  </div>
+
+  <h2>Output Mapping</h2>
+  <p>
+    The dataset stores three mode bits per segment. During precompute, those
+    bits are translated into GPIO masks so the hot loop can write raw GPIO
+    registers without branching over pin names.
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>Dataset bit</th><th>Logical output</th><th>Bit value 0</th><th>Bit value 1</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>modes_d6</code></td><td>U1</td><td><code>PIN_U1_LOW</code> GPIO23</td><td><code>PIN_U1_HIGH</code> GPIO22</td></tr>
+      <tr><td><code>modes_d5</code></td><td>U2</td><td><code>PIN_U2_LOW</code> GPIO21</td><td><code>PIN_U2_HIGH</code> GPIO19</td></tr>
+      <tr><td><code>modes_d4</code></td><td>U3</td><td><code>PIN_U3_LOW</code> GPIO18</td><td><code>PIN_U3_HIGH</code> GPIO17</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Generated Wave Schematic</h2>
+  <p>
+    The drawing below shows a representative four-segment pattern. The exact
+    widths come from <code>DataSet::time_durations[]</code>. The important behavior
+    is that segment boundaries are scheduled from absolute cycle deadlines, and
+    a changed channel first has both complementary pins forced off.
+  </p>
+
+  <div class="chart" aria-label="Three digital output waveforms">
+    <svg viewBox="0 0 1040 360" role="img">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="#4f5d66"></path>
+        </marker>
+      </defs>
+
+      <text x="16" y="24" class="label">Example mode sequence: 001 -> 101 -> 100 -> 110</text>
+      <line x1="140" y1="310" x2="980" y2="310" class="axis"></line>
+
+      <g>
+        <rect x="140" y="44" width="180" height="286" class="phase"></rect>
+        <rect x="320" y="44" width="260" height="286" class="phase"></rect>
+        <rect x="580" y="44" width="160" height="286" class="phase"></rect>
+        <rect x="740" y="44" width="240" height="286" class="phase"></rect>
+        <text x="196" y="333" class="small">t0</text>
+        <text x="424" y="333" class="small">t1</text>
+        <text x="628" y="333" class="small">t2</text>
+        <text x="836" y="333" class="small">t3</text>
+      </g>
+
+      <g>
+        <line x1="320" y1="44" x2="320" y2="310" class="tick"></line>
+        <line x1="580" y1="44" x2="580" y2="310" class="tick"></line>
+        <line x1="740" y1="44" x2="740" y2="310" class="tick"></line>
+      </g>
+
+      <g>
+        <text x="24" y="82" class="label">U1 HIGH</text>
+        <text x="24" y="108" class="small">d6 = 1</text>
+        <polyline points="140,118 320,118 320,70 580,70 580,70 740,70 740,70 980,70" class="wire u1"></polyline>
+
+        <text x="24" y="172" class="label">U2 HIGH</text>
+        <text x="24" y="198" class="small">d5 = 1</text>
+        <polyline points="140,208 320,208 320,208 580,208 580,208 740,208 740,160 980,160" class="wire u2"></polyline>
+
+        <text x="24" y="262" class="label">U3 HIGH</text>
+        <text x="24" y="288" class="small">d4 = 1</text>
+        <polyline points="140,250 320,250 320,250 580,250 580,298 740,298 740,298 980,298" class="wire u3"></polyline>
+      </g>
+
+      <g>
+        <rect x="316" y="52" width="8" height="252" class="dead"></rect>
+        <rect x="576" y="52" width="8" height="252" class="dead"></rect>
+        <rect x="736" y="52" width="8" height="252" class="dead"></rect>
+        <text x="292" y="42" class="small">dead</text>
+        <text x="552" y="42" class="small">dead</text>
+        <text x="712" y="42" class="small">dead</text>
+      </g>
+    </svg>
+  </div>
+
+  <h3>How to read the chart</h3>
+  <ul>
+    <li>Each segment chooses one state for U1, U2, and U3 from the mode bits.</li>
+    <li>A high line means the HIGH-side pin is active. The matching LOW-side pin is active when the line is low.</li>
+    <li>The red bands are transition windows where changed channels are cleared before the next pin state is asserted.</li>
+    <li>Unchanged channels are included in the final set/clear masks, but they do not require the initial dead-time clear.</li>
+  </ul>
+
+  <h2>Dead-Time Detail</h2>
+  <p>
+    Dead time is inserted only when a channel changes state. During
+    <code>signal_precompute_steps()</code>, the new mode is compared against the
+    previous segment. The previous segment for index 0 is the final segment, so
+    the repeated pattern has the same protection at the wraparound boundary.
+  </p>
+
+  <div class="chart" aria-label="Dead time comparison">
+    <svg viewBox="0 0 1040 450" role="img">
+      <text x="18" y="28" class="label">Two transitions aligned in time: without dead time vs with dead time</text>
+      <text x="18" y="48" class="small">Dead time does not move the scheduled boundaries; it shortens the active time after each changed edge.</text>
+
+      <line x1="250" y1="70" x2="250" y2="382" class="tick"></line>
+      <line x1="390" y1="70" x2="390" y2="382" class="tick"></line>
+      <line x1="650" y1="70" x2="650" y2="382" class="tick"></line>
+      <line x1="790" y1="70" x2="790" y2="382" class="tick"></line>
+      <line x1="940" y1="70" x2="940" y2="382" class="tick"></line>
+      <text x="206" y="410" class="small">boundary A</text>
+      <text x="358" y="410" class="small">A + dead</text>
+      <text x="606" y="410" class="small">boundary B</text>
+      <text x="758" y="410" class="small">B + dead</text>
+      <text x="906" y="410" class="small">next_edge</text>
+
+      <text x="42" y="92" class="label">No dead-time</text>
+      <text x="150" y="150" class="small low-fill">LOW pin</text>
+      <polyline points="210,144 250,144 250,188 650,188 650,144 940,144" class="wire low-wire"></polyline>
+      <text x="150" y="196" class="small high-fill">HIGH pin</text>
+      <polyline points="210,188 250,188 250,144 650,144 650,188 940,188" class="wire high-wire"></polyline>
+      <rect x="244" y="128" width="12" height="76" fill="rgba(181, 83, 23, 0.12)" stroke="#b55317"></rect>
+      <rect x="644" y="128" width="12" height="76" fill="rgba(15, 123, 120, 0.12)" stroke="#0f7b78"></rect>
+      <text x="270" y="120" class="small">A: immediate</text>
+      <text x="670" y="120" class="small">B: immediate</text>
+
+      <text x="42" y="282" class="label">With dead-time</text>
+      <rect x="250" y="266" width="140" height="96" class="dead"></rect>
+      <rect x="650" y="266" width="140" height="96" class="dead"></rect>
+      <text x="150" y="352" class="small low-fill">LOW pin</text>
+      <polyline points="210,312 250,312 250,368 790,368 790,312 940,312" class="wire low-wire"></polyline>
+      <text x="150" y="318" class="small high-fill">HIGH pin</text>
+      <polyline points="210,368 390,368 390,312 650,312 650,368 940,368" class="wire high-wire"></polyline>
+      <text x="286" y="258" class="small">dead A</text>
+      <text x="686" y="258" class="small">dead B</text>
+      <text x="410" y="292" class="small">delayed</text>
+      <text x="810" y="292" class="small">delayed</text>
+      <text x="42" y="432" class="small">With dead-time, the new side turns on after each red window instead of exactly at the boundary.</text>
+    </svg>
+  </div>
+
+  <div class="chart" aria-label="Dead time zoom">
+    <svg viewBox="0 0 1040 315" role="img">
+      <defs>
+        <marker id="arrow2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="#4f5d66"></path>
+        </marker>
+      </defs>
+
+      <text x="18" y="28" class="label">Zoom: one changed complementary output, for example U1 LOW -> U1 HIGH</text>
+      <line x1="120" y1="260" x2="940" y2="260" class="axis"></line>
+      <line x1="310" y1="56" x2="310" y2="260" class="tick"></line>
+      <line x1="470" y1="56" x2="470" y2="260" class="tick"></line>
+      <line x1="800" y1="56" x2="800" y2="260" class="tick"></line>
+
+      <rect x="310" y="58" width="160" height="170" class="dead"></rect>
+      <rect x="470" y="58" width="330" height="170" class="hot"></rect>
+
+      <text x="128" y="64" class="label">GPIO action</text>
+      <rect x="130" y="86" width="150" height="42" class="box"></rect>
+      <text x="152" y="112" class="small">old state active</text>
+
+      <path d="M280,107 L310,107" class="arrow" marker-end="url(#arrow2)"></path>
+      <rect x="322" y="86" width="132" height="42" class="box"></rect>
+      <text x="339" y="105" class="small">GPIO.out_w1tc</text>
+      <text x="346" y="121" class="small">clear_mask</text>
+
+      <path d="M454,107 L470,107" class="arrow" marker-end="url(#arrow2)"></path>
+      <rect x="500" y="86" width="150" height="42" class="box"></rect>
+      <text x="524" y="105" class="small">GPIO.out_w1tc</text>
+      <text x="531" y="121" class="small">clr_mask</text>
+
+      <rect x="668" y="86" width="150" height="42" class="box"></rect>
+      <text x="692" y="105" class="small">GPIO.out_w1ts</text>
+      <text x="699" y="121" class="small">set_mask</text>
+
+      <text x="338" y="246" class="small">dead_time cycles</text>
+      <text x="530" y="246" class="small">active hold until next_edge</text>
+      <text x="240" y="284" class="small">segment boundary</text>
+      <text x="450" y="284" class="small">new state asserted</text>
+      <text x="758" y="284" class="small">scheduled edge</text>
+
+      <text x="128" y="178" class="label low-fill">U1 LOW pin</text>
+      <polyline points="220,172 310,172 310,214 800,214" class="wire low-wire"></polyline>
+      <text x="128" y="224" class="label high-fill">U1 HIGH pin</text>
+      <polyline points="220,214 470,214 470,172 800,172" class="wire high-wire"></polyline>
+    </svg>
+  </div>
+
+  <p>
+    The execution order inside <code>execute_signal_pattern()</code> is:
+  </p>
+  <ol>
+    <li>Add the segment duration to <code>next_edge</code>. This makes the schedule absolute instead of delay-chained.</li>
+    <li>If the segment is shorter than <code>dead_time + MIN_ACTIVE_HOLD_CYCLES</code>, clamp it and count a timing fault.</li>
+    <li>If <code>clear_mask</code> is nonzero, clear both LOW and HIGH pins for changed channels, then wait <code>step.dead_time</code> cycles.</li>
+    <li>Apply the final target state with <code>clr_mask</code> followed by <code>set_mask</code>.</li>
+    <li>Busy-wait until <code>next_edge</code>, or count an overrun if the edge has already passed.</li>
+  </ol>
+
+  <div class="note">
+    <strong>Dead-time selection:</strong>
+    <code>step.dead_time</code> uses <code>g_dead_time_cycles_up</code> when any
+    changed channel turns HIGH in the target segment. Otherwise it uses
+    <code>g_dead_time_cycles_down</code>. The current code stores one dead-time
+    value per segment, so mixed transitions in the same segment share the
+    rising value if at least one changed channel rises.
+  </div>
+
+  <h2>Sequence for Getting Data</h2>
+  <p>
+    Data acquisition is not performed inside the interrupt-disabled playback
+    helper. The signal loop only requests it at safe maintenance points, after
+    a pattern playback batch finishes.
+  </p>
+
+  <div class="chart" aria-label="Data acquisition sequence">
+    <svg viewBox="0 0 1040 260" role="img">
+      <defs>
+        <marker id="arrow3" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="#4f5d66"></path>
+        </marker>
+      </defs>
+
+      <rect x="32" y="70" width="150" height="64" class="box"></rect>
+      <text x="55" y="96" class="label">play pattern</text>
+      <text x="51" y="116" class="small">Core 1 hot path</text>
+
+      <path d="M182,102 L245,102" class="arrow" marker-end="url(#arrow3)"></path>
+      <rect x="250" y="70" width="172" height="64" class="box"></rect>
+      <text x="277" y="96" class="label">maintenance gate</text>
+      <text x="270" y="116" class="small">period >= 50 us</text>
+
+      <path d="M422,102 L485,102" class="arrow" marker-end="url(#arrow3)"></path>
+      <rect x="490" y="70" width="160" height="64" class="box"></rect>
+      <text x="524" y="96" class="label">cycle counter</text>
+      <text x="517" y="116" class="small">g_cycle_nrun</text>
+
+      <path d="M650,102 L713,102" class="arrow" marker-end="url(#arrow3)"></path>
+      <rect x="718" y="70" width="134" height="64" class="box"></rect>
+      <text x="742" y="96" class="label">READING</text>
+      <text x="735" y="116" class="small">BLE state</text>
+
+      <path d="M852,102 L915,102" class="arrow" marker-end="url(#arrow3)"></path>
+      <rect x="920" y="70" width="86" height="64" class="box"></rect>
+      <text x="939" y="96" class="label">give</text>
+      <text x="931" y="116" class="small">semaphore</text>
+
+      <path d="M105,137 L105,195 L760,195 L760,137" class="arrow" marker-end="url(#arrow3)"></path>
+      <text x="214" y="218" class="small">If BLE analog reads are disabled, or the modulo counter has not reached zero, no read is requested.</text>
+    </svg>
+  </div>
+
+  <ol>
+    <li><code>trigger_periodic_analog_read()</code> first checks <code>ble_an_read_state</code>; disabled means return immediately.</li>
+    <li><code>g_cycle_count</code> advances modulo <code>g_cycle_nrun</code>.</li>
+    <li>When the counter wraps to zero, the BLE analog state becomes <code>READING</code>.</li>
+    <li>The loop gives <code>sem_analog_read_trigger</code>, allowing the analog read task to do the slower work outside the hot playback section.</li>
+    <li>When fresh ADC values later arrive, <code>g_adc_fresh</code> lets <code>update_control_corrections()</code> consume them before the next playback batch.</li>
+  </ol>
+
+  <h2>Sequence for Selecting Data</h2>
+  <p>
+    The signal data is double-buffered. The running loop reads one active
+    dataset while command handlers write the inactive dataset. The swap is
+    requested with an atomic flag and applied only between playback batches.
+  </p>
+
+  <div class="chart" aria-label="Dataset selection sequence">
+    <svg viewBox="0 0 1040 300" role="img">
+      <defs>
+        <marker id="arrow4" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="#4f5d66"></path>
+        </marker>
+      </defs>
+
+      <rect x="40" y="42" width="185" height="68" class="box"></rect>
+      <text x="71" y="70" class="label">command arrives</text>
+      <text x="62" y="91" class="small">string pattern or alpha</text>
+
+      <path d="M225,76 L286,76" class="arrow" marker-end="url(#arrow4)"></path>
+      <rect x="292" y="42" width="180" height="68" class="box"></rect>
+      <text x="322" y="70" class="label">choose inactive</text>
+      <text x="314" y="91" class="small">opposite g_active_set</text>
+
+      <path d="M472,76 L533,76" class="arrow" marker-end="url(#arrow4)"></path>
+      <rect x="540" y="42" width="170" height="68" class="box"></rect>
+      <text x="570" y="70" class="label">populate data</text>
+      <text x="562" y="91" class="small">durations and modes</text>
+
+      <path d="M710,76 L771,76" class="arrow" marker-end="url(#arrow4)"></path>
+      <rect x="778" y="42" width="180" height="68" class="box"></rect>
+      <text x="802" y="70" class="label">precompute steps</text>
+      <text x="796" y="91" class="small">set, clear, duration</text>
+
+      <path d="M868,110 L868,150" class="arrow" marker-end="url(#arrow4)"></path>
+      <rect x="778" y="158" width="180" height="68" class="box"></rect>
+      <text x="808" y="186" class="label">set pending flag</text>
+      <text x="802" y="207" class="small">g_ds_update_pending</text>
+
+      <path d="M778,192 L710,192" class="arrow" marker-end="url(#arrow4)"></path>
+      <rect x="502" y="158" width="208" height="68" class="box"></rect>
+      <text x="528" y="186" class="label">signal_loop_task</text>
+      <text x="522" y="207" class="small">between playback batches</text>
+
+      <path d="M502,192 L433,192" class="arrow" marker-end="url(#arrow4)"></path>
+      <rect x="240" y="158" width="193" height="68" class="box"></rect>
+      <text x="271" y="186" class="label">swap ctx.dataset</text>
+      <text x="260" y="207" class="small">update g_active_set</text>
+
+      <path d="M240,192 L171,192" class="arrow" marker-end="url(#arrow4)"></path>
+      <rect x="40" y="158" width="131" height="68" class="box"></rect>
+      <text x="62" y="186" class="label">reset dtk</text>
+      <text x="58" y="207" class="small">corrections = 0</text>
+    </svg>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Entry point</th><th>What it writes</th><th>How selection is made</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>signal_update_from_string()</code></td>
+        <td>Parses a payload into <code>time_durations[]</code> and <code>modes_d4/d5/d6[]</code>.</td>
+        <td>Writes <code>g_dataset_b</code> when A is active, otherwise writes <code>g_dataset_a</code>.</td>
+      </tr>
+      <tr>
+        <td><code>signal_set_alpha()</code></td>
+        <td>Uses <code>helper_set_dataset_from_alpha()</code> to generate a dataset from alpha.</td>
+        <td>Uses the same inactive-buffer rule, then marks the swap pending.</td>
+      </tr>
+      <tr>
+        <td><code>apply_pending_dataset_swap()</code></td>
+        <td>Changes the loop context pointer and <code>g_active_set</code>.</td>
+        <td>Runs from <code>signal_loop_task</code> before control correction and playback, never mid-pattern.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Loop Walkthrough</h2>
+  <ol>
+    <li><code>signal_loop_task</code> starts with dataset A, clears the correction buffers, and turns the LED on.</li>
+    <li>Each iteration checks for a pending dataset swap and applies it before signal generation.</li>
+    <li>If control is enabled and fresh ADC data exists, the loop computes duration corrections from ADC error and the active dataset gain matrix.</li>
+    <li>The nominal pattern duration decides whether to batch short patterns with <code>SHORT_PATTERN_BATCH_CYCLES</code> repeats or run once.</li>
+    <li><code>execute_signal_pattern</code> disables interrupts, drives GPIO registers from precomputed masks, and records timing counters.</li>
+    <li>After playback, the task may trigger analog acquisition, updates the timing snapshot, and repeats while the signal state remains <code>RUNNING</code>.</li>
+    <li>When stopped, all six complementary outputs are forced low, the LED is turned off, and the task deletes itself.</li>
+  </ol>
+
+  <h2>Why This Shape Exists</h2>
+  <p>
+    The design separates slow work from precise work. Parsing, alpha generation,
+    matrix math, and step precompute happen outside the interrupt-disabled GPIO
+    block. The hot path only clears changed outputs, waits the configured
+    dead-time cycles, asserts the precomputed target state, and waits for the
+    next absolute edge. That keeps the waveform deterministic while still
+    allowing BLE updates, analog sampling, and control correction between
+    playback batches.
+  </p>
+</main>
+</body>
+</html>
