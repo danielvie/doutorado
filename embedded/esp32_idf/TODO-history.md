@@ -1,4 +1,4 @@
-# TODO
+# TODO History
 
 - [x] Expand Analog Data Acquisition section in `project_architecture_guide.html`
   - [x] Document architecture changes from commit 697726a to HEAD
