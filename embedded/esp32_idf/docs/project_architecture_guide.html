@@ -1,0 +1,1449 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESP32 BLE Signal Controller - Project Guide</title>
+  <style>
+    :root {
+      --ink: #182025;
+      --muted: #60707a;
+      --line: #d7e1e7;
+      --paper: #fbfcfb;
+      --panel: #f3f7f5;
+      --firmware: #16645a;
+      --web: #8a4f10;
+      --proto: #365da8;
+      --signal: #9b2f35;
+      --config: #5b4c94;
+      --code: #101820;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Candara, Tahoma, sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(24,32,37,0.035) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(rgba(24,32,37,0.025) 1px, transparent 1px) 0 0 / 28px 28px,
+        var(--paper);
+      line-height: 1.55;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 20px 70px;
+    }
+
+    h1, h2, h3, h4 { line-height: 1.18; margin: 0 0 10px; }
+    h1 { font-size: clamp(30px, 5vw, 54px); letter-spacing: 0; }
+    h2 { font-size: 24px; }
+    h3 { font-size: 18px; margin-top: 18px; }
+    h4 { font-size: 15px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    p { margin: 0 0 12px; }
+    a { color: var(--proto); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      background: #eaf0ef;
+      border: 1px solid #d7e1e7;
+      border-radius: 5px;
+      padding: 1px 5px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: .92em;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+      gap: 22px;
+      align-items: end;
+      padding: 26px 0 18px;
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .lede {
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .meta {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.78);
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 14px;
+    }
+
+    .meta strong { display: block; color: var(--ink); margin-bottom: 3px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+      padding: 5px 9px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 18px 0;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 8px 11px;
+      font: inherit;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    button:hover { background: #edf4f1; }
+
+    .index {
+      margin: 24px 0;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.84);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    .index-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .index a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 44px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 6px;
+      padding: 9px 10px;
+      color: var(--ink);
+      font-weight: 650;
+    }
+
+    .hint {
+      position: relative;
+      display: inline-grid;
+      place-items: center;
+      flex: 0 0 auto;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 1px solid #b9c8d0;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .hint::after {
+      content: attr(data-tip);
+      position: absolute;
+      z-index: 20;
+      right: 0;
+      top: 25px;
+      width: min(300px, 72vw);
+      padding: 9px 10px;
+      border-radius: 6px;
+      border: 1px solid #aebdc5;
+      background: #ffffff;
+      color: var(--ink);
+      box-shadow: 0 10px 28px rgba(16,24,32,.14);
+      font-weight: 500;
+      line-height: 1.35;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-4px);
+      transition: opacity .16s ease, transform .16s ease;
+    }
+
+    .hint:hover::after,
+    .hint:focus::after {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    details.chapter {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.9);
+      margin: 16px 0;
+      overflow: hidden;
+    }
+
+    details.chapter > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      cursor: pointer;
+      padding: 16px 18px;
+      list-style: none;
+      border-left: 6px solid var(--proto);
+      background: #ffffff;
+    }
+
+    details.chapter > summary::-webkit-details-marker { display: none; }
+    details.chapter > summary::after {
+      content: "show";
+      border: 1px solid var(--line);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    details.chapter[open] > summary::after { content: "hide"; }
+
+    details.firmware > summary { border-left-color: var(--firmware); }
+    details.web > summary { border-left-color: var(--web); }
+    details.signal > summary { border-left-color: var(--signal); }
+    details.config > summary { border-left-color: var(--config); }
+    details.proto > summary { border-left-color: var(--proto); }
+
+    .content {
+      padding: 18px;
+      border-top: 1px solid var(--line);
+      animation: reveal .2s ease;
+    }
+
+    @keyframes reveal {
+      from { opacity: .35; transform: translateY(-3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .twocol {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin: 14px 0;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 13px;
+    }
+
+    .card strong { display: block; margin-bottom: 4px; }
+    .card p { color: var(--muted); font-size: 14px; }
+
+    .chart {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 10px;
+      margin: 14px 0;
+      overflow-x: auto;
+    }
+
+    svg { display: block; max-width: 100%; height: auto; }
+    .box { fill: #fff; stroke: #b8c6cd; stroke-width: 1.3; rx: 7; }
+    .box-fw { fill: rgba(22,100,90,.09); stroke: var(--firmware); }
+    .box-web { fill: rgba(138,79,16,.09); stroke: var(--web); }
+    .box-proto { fill: rgba(54,93,168,.09); stroke: var(--proto); }
+    .box-signal { fill: rgba(155,47,53,.09); stroke: var(--signal); }
+    .box-config { fill: rgba(91,76,148,.09); stroke: var(--config); }
+    .arrow { stroke: #56666f; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+    .dash { stroke-dasharray: 6 5; }
+    .label { fill: var(--ink); font-size: 13px; font-weight: 650; }
+    .small { fill: var(--muted); font-size: 12px; }
+    .lane { fill: rgba(96,112,122,.07); stroke: #d7e1e7; }
+
+    pre {
+      margin: 12px 0;
+      padding: 14px;
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid #293640;
+      background: var(--code);
+      color: #dce8e5;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    pre code {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 16px;
+      font-size: 14px;
+      background: white;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #edf3f1; }
+    ul, ol { margin-top: 6px; padding-left: 22px; }
+    li { margin-bottom: 6px; }
+
+    .callout {
+      border-left: 4px solid var(--signal);
+      background: #fff8f4;
+      padding: 12px 14px;
+      border-radius: 6px;
+      margin: 12px 0;
+    }
+
+    .path { color: var(--muted); font-family: Consolas, "Courier New", monospace; font-size: 13px; }
+
+    @media (max-width: 900px) {
+      .hero, .twocol, .index-grid, .cards { grid-template-columns: 1fr; }
+      main { padding: 22px 14px 52px; }
+      details.chapter > summary { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div>
+      <h1>ESP32 BLE Signal Controller</h1>
+      <p class="lede">
+        A guided map of the project: ESP-IDF firmware, browser dashboard,
+        BLE/protobuf transport, real-time signal generation, analog feedback,
+        OTA update flow, and the custom ESP configuration that makes those
+        parts fit together.
+      </p>
+      <div class="chips">
+        <span class="chip">ESP-IDF v5.5.1</span>
+        <span class="chip">ESP32 dual core</span>
+        <span class="chip">BLE GATT</span>
+        <span class="chip">React + Vite</span>
+        <span class="chip">Nanopb + protobufjs</span>
+      </div>
+    </div>
+    <aside class="meta">
+      <strong>How to use this document</strong>
+      Open one chapter at a time. Start with "System Shape", then follow the
+      command flow from the web dashboard into firmware. When code helps,
+      snippets show the exact pattern used in this repository.
+    </aside>
+  </section>
+
+  <div class="toolbar" aria-label="Document controls">
+    <button type="button" data-action="open-all">Open all chapters</button>
+    <button type="button" data-action="close-all">Close all chapters</button>
+  </div>
+
+  <nav class="index" aria-label="Guide index">
+    <h2>Index</h2>
+    <div class="index-grid">
+      <a href="#system-shape">System Shape <span class="hint" tabindex="0" data-tip="The big picture: firmware, browser, BLE, protobuf, and hardware signals.">?</span></a>
+      <a href="#repo-map">Repository Map <span class="hint" tabindex="0" data-tip="Where the important folders live and what each one owns.">?</span></a>
+      <a href="#firmware">Firmware Modules <span class="hint" tabindex="0" data-tip="Boot sequence, FreeRTOS tasks, BLE, signal controller, ADC, LED, OTA, and helpers.">?</span></a>
+      <a href="#signal-flow">Signal Flow <span class="hint" tabindex="0" data-tip="How alpha or pattern data becomes GPIO transitions with dead-time protection.">?</span></a>
+      <a href="#web-app">Web Dashboard <span class="hint" tabindex="0" data-tip="React panels, BLE manager, stores, charts, commands, and OTA UI.">?</span></a>
+      <a href="#ble-router">BLE Router <span class="hint" tabindex="0" data-tip="How firmware routes BLE writes into OTA handling, UI commands, and protobuf responses.">?</span></a>
+      <a href="#ble-protobuf">BLE + Protobuf <span class="hint" tabindex="0" data-tip="Packet prefixes, protobuf envelopes, command results, telemetry, and logs.">?</span></a>
+      <a href="#ota">OTA Update <span class="hint" tabindex="0" data-tip="How the browser streams a firmware binary into the ESP32 OTA partition.">?</span></a>
+      <a href="#config">ESP Config <span class="hint" tabindex="0" data-tip="The project-specific menuconfig/sdkconfig choices that matter.">?</span></a>
+      <a href="#start">How to Start <span class="hint" tabindex="0" data-tip="Build, flash, monitor, generate protobuf code, and run the web console.">?</span></a>
+    </div>
+  </nav>
+
+  <details class="chapter proto" id="system-shape" open>
+    <summary><h2>System Shape</h2></summary>
+    <div class="content">
+      <p>
+        The project has two running programs and one shared protocol. The ESP32
+        firmware owns the real-time side: GPIO signal generation, ADC sampling,
+        BLE server, OTA receiver, and global device state. The browser dashboard
+        owns the operator side: Web Bluetooth connection, controls, charts,
+        logs, OTA upload, and local UI state.
+      </p>
+
+      <div class="chart" aria-label="System architecture diagram">
+        <svg viewBox="0 0 1040 410" role="img">
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" fill="#56666f"></path>
+            </marker>
+          </defs>
+          <rect x="32" y="44" width="250" height="120" class="box box-web"></rect>
+          <text x="58" y="78" class="label">Browser dashboard</text>
+          <text x="58" y="104" class="small">React panels, Zustand stores</text>
+          <text x="58" y="126" class="small">Web Bluetooth client</text>
+
+          <rect x="400" y="44" width="250" height="120" class="box box-proto"></rect>
+          <text x="428" y="78" class="label">BLE + protobuf contract</text>
+          <text x="428" y="104" class="small">proto/messaging.proto</text>
+          <text x="428" y="126" class="small">UiCommand, Telemetry, Status, OTA</text>
+
+          <rect x="758" y="44" width="250" height="120" class="box box-fw"></rect>
+          <text x="784" y="78" class="label">ESP32 firmware</text>
+          <text x="784" y="104" class="small">BLE GATT server on Core 0</text>
+          <text x="784" y="126" class="small">Signal loop on Core 1</text>
+
+          <path d="M282,94 L400,94" class="arrow"></path>
+          <path d="M650,94 L758,94" class="arrow"></path>
+          <path d="M758,122 L650,122" class="arrow"></path>
+          <path d="M400,122 L282,122" class="arrow"></path>
+
+          <rect x="72" y="248" width="184" height="90" class="box box-web"></rect>
+          <text x="100" y="282" class="label">User action</text>
+          <text x="100" y="306" class="small">START, alpha, OTA, status</text>
+
+          <rect x="328" y="248" width="184" height="90" class="box box-proto"></rect>
+          <text x="354" y="282" class="label">Packet prefix</text>
+          <text x="354" y="306" class="small">0x03 command, 0x02 OTA</text>
+
+          <rect x="584" y="248" width="184" height="90" class="box box-fw"></rect>
+          <text x="612" y="282" class="label">Firmware side effect</text>
+          <text x="612" y="306" class="small">state, GPIO, ADC, flash</text>
+
+          <rect x="840" y="248" width="160" height="90" class="box box-proto"></rect>
+          <text x="868" y="282" class="label">Notification</text>
+          <text x="868" y="306" class="small">0x01 packet back</text>
+
+          <path d="M256,293 L328,293" class="arrow"></path>
+          <path d="M512,293 L584,293" class="arrow"></path>
+          <path d="M768,293 L840,293" class="arrow"></path>
+          <path d="M920,248 C920,204 162,204 162,248" class="arrow dash"></path>
+        </svg>
+      </div>
+
+      <div class="callout">
+        <strong>Tutoring mental model:</strong> think of the browser as a lab
+        console, protobuf as the cable protocol, and firmware as two machines:
+        a communication/control machine on Core 0 and a timing-critical signal
+        machine on Core 1.
+      </div>
+    </div>
+  </details>
+
+  <details class="chapter" id="repo-map">
+    <summary><h2>Repository Map</h2></summary>
+    <div class="content">
+      <div class="cards">
+        <div class="card">
+          <strong><span class="path">main/</span></strong>
+          <p>ESP-IDF component: application entry point, firmware modules, generated Nanopb files, and headers.</p>
+        </div>
+        <div class="card">
+          <strong><span class="path">web/</span></strong>
+          <p>Vite/React dashboard: Web Bluetooth service, protobuf helpers, panels, stores, charts, and OTA UI.</p>
+        </div>
+        <div class="card">
+          <strong><span class="path">proto/</span></strong>
+          <p>Shared protocol schema. Generates C files for firmware and JS/TS files for the dashboard.</p>
+        </div>
+        <div class="card">
+          <strong><span class="path">docs/</span></strong>
+          <p>Analysis and teaching documents, including this guide and the detailed signal loop guide.</p>
+        </div>
+        <div class="card">
+          <strong><span class="path">sandbox/</span></strong>
+          <p>Experiments for control logic and signal conditioning. Useful for research work outside firmware constraints.</p>
+        </div>
+        <div class="card">
+          <strong><span class="path">Taskfile.yml</span></strong>
+          <p>Cross-platform task runner wrapping ESP-IDF, protobuf generation, web build/run, flash, and monitor.</p>
+        </div>
+      </div>
+
+      <pre><code>esp32_idf/
+  main/                  ESP32 firmware component
+  web/                   browser dashboard
+  proto/messaging.proto  shared BLE packet contract
+  partitions.csv         OTA-capable flash layout
+  sdkconfig              full ESP-IDF config
+  sdkconfig.defaults     minimal saved project config
+  Taskfile.yml           common commands</code></pre>
+    </div>
+  </details>
+
+  <details class="chapter firmware" id="firmware">
+    <summary><h2>Firmware Modules</h2></summary>
+    <div class="content">
+      <h3>Boot and task layout</h3>
+      <p>
+        <code>app_main()</code> is the firmware entry point. It initializes hardware,
+        BLE, signal defaults, LED management, and then starts FreeRTOS tasks.
+        The important design choice is core separation: communication and slower
+        maintenance work stay on Core 0, while waveform playback runs on Core 1.
+      </p>
+
+      <pre><code>esp_err_t app_init() {
+    led_init();
+    analog_init();
+    signal_controller_init();
+    nvs_flash_init();
+    ble_controller_init();
+    signal_set_alpha(0.5f);
+    led_create_manager_task();
+    sem_analog_read_trigger = xSemaphoreCreateBinary();
+}</code></pre>
+
+      <table>
+        <thead>
+          <tr><th>Module</th><th>Main files</th><th>Responsibility</th><th>Integrates with</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Boot/app</td>
+            <td><code>main/main.cpp</code></td>
+            <td>Initialization order, FreeRTOS tasks, CPU info, startup feedback.</td>
+            <td>All firmware modules.</td>
+          </tr>
+          <tr>
+            <td>BLE controller</td>
+            <td><code>ble_controller.cpp</code></td>
+            <td>GATT server, write queue, notifications, protobuf encode/decode.</td>
+            <td>UI command router, OTA controller, web dashboard.</td>
+          </tr>
+          <tr>
+            <td>UI command router</td>
+            <td><code>ble_ui_command_router.cpp</code></td>
+            <td>Namespaced JSON commands such as <code>signal.start</code> and <code>debug.signal_timing</code>.</td>
+            <td>Signal, ADC, LED, status, debug modules.</td>
+          </tr>
+          <tr>
+            <td>Signal controller</td>
+            <td><code>signal_controller.cpp</code></td>
+            <td>Double-buffered pattern selection, GPIO mask precompute, dead time, timing snapshots.</td>
+            <td>Control action, ADC globals, BLE commands.</td>
+          </tr>
+          <tr>
+            <td>Analog helper</td>
+            <td><code>helper_analog.cpp</code></td>
+            <td>ADC1 oneshot reads, voltage conversion, calibration table, latency window.</td>
+            <td>Telemetry, control feedback, status packets.</td>
+          </tr>
+          <tr>
+            <td>OTA controller</td>
+            <td><code>ble_ota_controller.cpp</code></td>
+            <td>Writes browser-uploaded firmware chunks to inactive OTA partition and reboots.</td>
+            <td>BLE packet prefix <code>0x02</code>, partition table.</td>
+          </tr>
+          <tr>
+            <td>LED helper</td>
+            <td><code>helper_led.cpp</code></td>
+            <td>Queue-driven LED manager, blink mode, signal-state rendering.</td>
+            <td>System state and UI commands.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>BLE router responsibility</h3>
+      <p>
+        The BLE write callback does not do the heavy command work directly.
+        Incoming bytes are copied into <code>s_cmd_queue</code>, then
+        <code>ble_command_task</code> synthesizes a minimal write event and calls
+        <code>ble_router()</code>. That keeps protobuf decoding, OTA handling, and
+        command side effects out of the BLE stack callback path.
+      </p>
+      <p>
+        <code>ble_router()</code> is deliberately small: it inspects the first byte,
+        decodes the remaining payload with Nanopb, and hands the decoded message
+        to the owning subsystem. Prefix <code>0x02</code> becomes an
+        <code>OtaCommand</code> for <code>ota_controller_handle_command()</code>.
+        Prefix <code>0x03</code> becomes a <code>UiCommand</code> for
+        <code>ble_ui_command_dispatch()</code>. The router then wraps success,
+        validation failures, unknown commands, or decode errors into a
+        <code>BlePacket.command_result</code> notification so the web request id
+        can be resolved.
+      </p>
+
+      <h3>FreeRTOS task map</h3>
+      <div class="chart" aria-label="FreeRTOS task map">
+        <svg viewBox="0 0 1040 340" role="img">
+          <defs>
+            <marker id="arrow-task" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" fill="#56666f"></path>
+            </marker>
+          </defs>
+          <rect x="44" y="50" width="430" height="230" class="lane"></rect>
+          <text x="64" y="82" class="label">Core 0: communication and maintenance</text>
+          <rect x="82" y="110" width="160" height="54" class="box box-fw"></rect>
+          <text x="105" y="142" class="small">BLE command task</text>
+          <rect x="276" y="110" width="160" height="54" class="box box-fw"></rect>
+          <text x="303" y="142" class="small">analog monitor</text>
+          <rect x="82" y="190" width="160" height="54" class="box box-fw"></rect>
+          <text x="108" y="222" class="small">analog action</text>
+          <rect x="276" y="190" width="160" height="54" class="box box-fw"></rect>
+          <text x="314" y="222" class="small">LED manager</text>
+
+          <rect x="566" y="50" width="430" height="230" class="lane"></rect>
+          <text x="586" y="82" class="label">Core 1: timing-critical signal playback</text>
+          <rect x="646" y="138" width="260" height="78" class="box box-signal"></rect>
+          <text x="690" y="170" class="label">signal_loop_task</text>
+          <text x="680" y="194" class="small">interrupt-disabled GPIO batches</text>
+
+          <path d="M242,217 C360,306 658,292 700,216" class="arrow" marker-end="url(#arrow-task)"></path>
+          <text x="392" y="306" class="small">fresh ADC globals feed control correction</text>
+        </svg>
+      </div>
+    </div>
+  </details>
+
+  <details class="chapter signal" id="signal-flow">
+    <summary><h2>Signal Flow and Control Logic</h2></summary>
+    <div class="content">
+      <p>
+        The signal subsystem converts high-level pattern data into a tight GPIO
+        loop. The slow part parses and precomputes. The fast part uses only
+        precomputed masks, cycle deadlines, and direct GPIO register writes.
+      </p>
+
+      <div class="chart" aria-label="Signal data flow">
+        <svg viewBox="0 0 1040 430" role="img">
+          <defs>
+            <marker id="arrow-signal" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" fill="#56666f"></path>
+            </marker>
+          </defs>
+          <rect x="40" y="54" width="180" height="70" class="box box-web"></rect>
+          <text x="68" y="84" class="label">UI command</text>
+          <text x="58" y="106" class="small">alpha or time/mode</text>
+
+          <rect x="298" y="54" width="180" height="70" class="box box-fw"></rect>
+          <text x="326" y="84" class="label">inactive DataSet</text>
+          <text x="322" y="106" class="small">write A or B safely</text>
+
+          <rect x="556" y="54" width="180" height="70" class="box box-fw"></rect>
+          <text x="582" y="84" class="label">precompute</text>
+          <text x="578" y="106" class="small">set/clear masks</text>
+
+          <rect x="814" y="54" width="180" height="70" class="box box-signal"></rect>
+          <text x="842" y="84" class="label">pending swap</text>
+          <text x="836" y="106" class="small">atomic flag</text>
+
+          <path d="M220,89 L298,89" class="arrow" marker-end="url(#arrow-signal)"></path>
+          <path d="M478,89 L556,89" class="arrow" marker-end="url(#arrow-signal)"></path>
+          <path d="M736,89 L814,89" class="arrow" marker-end="url(#arrow-signal)"></path>
+
+          <rect x="162" y="210" width="210" height="78" class="box box-signal"></rect>
+          <text x="190" y="242" class="label">apply swap</text>
+          <text x="184" y="264" class="small">only between pattern batches</text>
+
+          <rect x="450" y="210" width="210" height="78" class="box box-signal"></rect>
+          <text x="470" y="242" class="label">control correction</text>
+          <text x="474" y="264" class="small">ADC error x gain K</text>
+
+          <rect x="738" y="210" width="210" height="78" class="box box-signal"></rect>
+          <text x="758" y="242" class="label">execute pattern</text>
+          <text x="762" y="264" class="small">dead time + GPIO masks</text>
+
+          <path d="M904,124 C904,178 268,164 268,210" class="arrow" marker-end="url(#arrow-signal)"></path>
+          <path d="M372,249 L450,249" class="arrow" marker-end="url(#arrow-signal)"></path>
+          <path d="M660,249 L738,249" class="arrow" marker-end="url(#arrow-signal)"></path>
+
+          <rect x="392" y="340" width="250" height="56" class="box box-fw"></rect>
+          <text x="422" y="372" class="small">timing snapshot + optional ADC trigger</text>
+          <path d="M843,288 C842,350 642,368 642,368" class="arrow" marker-end="url(#arrow-signal)"></path>
+        </svg>
+      </div>
+
+      <h3>Core data structures</h3>
+      <pre><code>struct SignalStep {
+    uint32_t set_mask;        // GPIO bits to set high
+    uint32_t clr_mask;        // GPIO bits to clear low
+    uint32_t clear_mask;      // both complementary pins off during dead time
+    uint32_t dead_time;       // compensated CPU cycles
+    uint32_t duration_us;
+    uint32_t duration_cycles;
+};
+
+struct DataSet {
+    uint32_t time_durations[MAX_SIGNAL_SIZE];
+    uint32_t modes_d4[MAX_SIGNAL_SIZE];
+    uint32_t modes_d5[MAX_SIGNAL_SIZE];
+    uint32_t modes_d6[MAX_SIGNAL_SIZE];
+    SignalStep steps[MAX_SIGNAL_SIZE];
+    MatrixData gain_k;
+    float target[3];
+    float alpha;
+};</code></pre>
+
+      <h3>Why double buffering matters</h3>
+      <p>
+        BLE commands can arrive while the signal is running. The firmware avoids
+        tearing by writing the inactive dataset, precomputing all masks, and
+        setting <code>g_ds_update_pending</code>. The signal loop swaps its
+        <code>ctx.dataset</code> pointer only between pattern batches.
+      </p>
+
+      <h3>Signal loop sequence</h3>
+      <p>
+        <code>signal_start_continuous()</code> creates <code>signal_loop_task</code>
+        pinned to Core 1. Each loop iteration first applies any pending dataset
+        swap, then consumes fresh ADC globals for control correction if control
+        is enabled, then runs <code>execute_signal_pattern()</code>. Short
+        patterns are repeated in a batch before maintenance work so the task
+        does not leave the hot path too often.
+      </p>
+      <ol>
+        <li>Pick the active <code>DataSet</code> and apply control correction to segment durations when fresh ADC data exists.</li>
+        <li>Enter the interrupt-disabled GPIO playback helper.</li>
+        <li>For each segment, add its corrected duration to an absolute <code>next_edge</code> deadline.</li>
+        <li>Clear changed complementary outputs, wait the segment dead-time cycles, then apply the final <code>clr_mask</code> and <code>set_mask</code>.</li>
+        <li>Busy-wait until <code>next_edge</code>, counting overruns when the deadline is already missed.</li>
+        <li>After playback, optionally trigger analog acquisition and update the timing snapshot for status/debug commands.</li>
+      </ol>
+
+      <h3>Pattern generation and selection</h3>
+      <p>
+        Pattern data enters through <code>signal.set_alpha</code> or
+        <code>signal.set_pattern</code>. Alpha generation fills durations, mode
+        bits, target values, and gain data; explicit pattern upload fills the
+        same duration and mode arrays from the request. Both paths target the
+        inactive dataset, run <code>signal_precompute_steps()</code>, and request
+        a swap. The running loop never reads partially written pattern arrays.
+      </p>
+      <p>
+        Precompute translates the three dataset mode streams into direct GPIO
+        masks. <code>modes_d6</code> drives U1, <code>modes_d5</code> drives U2,
+        and <code>modes_d4</code> drives U3. For each logical channel, bit
+        <code>0</code> selects the LOW-side pin and bit <code>1</code> selects the
+        HIGH-side pin. The hot loop therefore uses only masks and cycle counts,
+        not pin-name branching or string parsing.
+      </p>
+
+      <h3>Alpha 0.4 example</h3>
+      <p>
+        For <code>alpha = 0.4</code>, the generated pattern has six segments:
+        durations <code>75, 19, 75, 19, 75, 19</code> us and modes
+        <code>4, 6, 2, 3, 1, 5</code>. The total period is
+        <code>T = 282 us</code>. Interpreting each decimal mode as
+        <code>d6 d5 d4</code> gives the digital distribution below.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>Segment</th><th>Duration</th><th>Mode</th><th><code>d6</code> / U1</th><th><code>d5</code> / U2</th><th><code>d4</code> / U3</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>75 us</td><td><code>4 = 100</code></td><td>HIGH</td><td>LOW</td><td>LOW</td></tr>
+          <tr><td>2</td><td>19 us</td><td><code>6 = 110</code></td><td>HIGH</td><td>HIGH</td><td>LOW</td></tr>
+          <tr><td>3</td><td>75 us</td><td><code>2 = 010</code></td><td>LOW</td><td>HIGH</td><td>LOW</td></tr>
+          <tr><td>4</td><td>19 us</td><td><code>3 = 011</code></td><td>LOW</td><td>HIGH</td><td>HIGH</td></tr>
+          <tr><td>5</td><td>75 us</td><td><code>1 = 001</code></td><td>LOW</td><td>LOW</td><td>HIGH</td></tr>
+          <tr><td>6</td><td>19 us</td><td><code>5 = 101</code></td><td>HIGH</td><td>LOW</td><td>HIGH</td></tr>
+        </tbody>
+      </table>
+
+      <div class="chart" aria-label="Alpha 0.4 generated digital signal chart">
+        <svg viewBox="0 0 1040 450" role="img">
+          <text x="22" y="30" class="label">alpha 0.4 generated pattern, T = 282 us</text>
+          <text x="22" y="52" class="small">Mode bits are d6 d5 d4. High line means the HIGH-side pin is selected; low line means the LOW-side pin is selected.</text>
+
+          <g>
+            <rect x="150" y="74" width="207" height="310" fill="rgba(22,100,90,.07)" stroke="#d7e1e7"></rect>
+            <rect x="357" y="74" width="53" height="310" fill="rgba(138,79,16,.08)" stroke="#d7e1e7"></rect>
+            <rect x="410" y="74" width="207" height="310" fill="rgba(22,100,90,.07)" stroke="#d7e1e7"></rect>
+            <rect x="617" y="74" width="53" height="310" fill="rgba(138,79,16,.08)" stroke="#d7e1e7"></rect>
+            <rect x="670" y="74" width="207" height="310" fill="rgba(22,100,90,.07)" stroke="#d7e1e7"></rect>
+            <rect x="877" y="74" width="53" height="310" fill="rgba(138,79,16,.08)" stroke="#d7e1e7"></rect>
+          </g>
+
+          <g>
+            <text x="230" y="96" class="small">4 / 100</text>
+            <text x="368" y="96" class="small">6 / 110</text>
+            <text x="490" y="96" class="small">2 / 010</text>
+            <text x="628" y="96" class="small">3 / 011</text>
+            <text x="750" y="96" class="small">1 / 001</text>
+            <text x="888" y="96" class="small">5 / 101</text>
+          </g>
+
+          <g stroke="#b8c6cd" stroke-width="1">
+            <line x1="150" y1="116" x2="930" y2="116"></line>
+            <line x1="150" y1="156" x2="930" y2="156"></line>
+            <line x1="150" y1="206" x2="930" y2="206"></line>
+            <line x1="150" y1="246" x2="930" y2="246"></line>
+            <line x1="150" y1="296" x2="930" y2="296"></line>
+            <line x1="150" y1="336" x2="930" y2="336"></line>
+          </g>
+
+          <g>
+            <text x="54" y="122" class="label">U1 HIGH</text>
+            <text x="68" y="160" class="small">U1 LOW</text>
+            <polyline points="150,116 410,116 410,156 877,156 877,116 930,116"
+                      fill="none" stroke="#16645a" stroke-width="4" stroke-linejoin="round"></polyline>
+
+            <text x="54" y="212" class="label">U2 HIGH</text>
+            <text x="68" y="250" class="small">U2 LOW</text>
+            <polyline points="150,246 357,246 357,206 670,206 670,246 930,246"
+                      fill="none" stroke="#8a4f10" stroke-width="4" stroke-linejoin="round"></polyline>
+
+            <text x="54" y="302" class="label">U3 HIGH</text>
+            <text x="68" y="340" class="small">U3 LOW</text>
+            <polyline points="150,336 617,336 617,296 930,296"
+                      fill="none" stroke="#365da8" stroke-width="4" stroke-linejoin="round"></polyline>
+          </g>
+
+          <g>
+            <line x1="150" y1="386" x2="930" y2="386" stroke="#56666f" stroke-width="1.4"></line>
+            <text x="146" y="414" class="small">0</text>
+            <text x="342" y="414" class="small">75</text>
+            <text x="394" y="414" class="small">94</text>
+            <text x="595" y="414" class="small">169</text>
+            <text x="654" y="414" class="small">188</text>
+            <text x="854" y="414" class="small">263</text>
+            <text x="908" y="414" class="small">282 us</text>
+            <text x="214" y="436" class="small">75 us</text>
+            <text x="362" y="436" class="small">19</text>
+            <text x="474" y="436" class="small">75 us</text>
+            <text x="622" y="436" class="small">19</text>
+            <text x="734" y="436" class="small">75 us</text>
+            <text x="882" y="436" class="small">19</text>
+          </g>
+        </svg>
+      </div>
+
+      <h3>Dead-time behavior</h3>
+      <p>
+        When a channel changes state, <code>clear_mask</code> first turns both
+        complementary pins off; only after <code>step.dead_time</code> does the
+        loop assert the new target pin. Unchanged channels still appear in the
+        final <code>clr_mask</code>/<code>set_mask</code>, but they do not require
+        the initial all-off window.
+      </p>
+      <p>
+        Dead time is computed per segment during precompute by comparing the new
+        mode bits against the previous segment. Segment zero compares against
+        the final segment, so the repeated waveform is protected at wraparound.
+        If any changed channel rises in the target segment, the step uses
+        <code>g_dead_time_cycles_up</code>; otherwise it uses
+        <code>g_dead_time_cycles_down</code>. The current UI command stores the
+        same compensated value in both directions.
+      </p>
+      <p>
+        The user-facing command is <code>signal.set_dead_time</code> with
+        <code>time_us</code>. The router converts microseconds to CPU cycles with
+        the current ticks-per-microsecond value, subtracts the measured
+        <code>helper_delay_cycles(0)</code> overhead plus
+        <code>g_dead_time_tail_overhead_cycles</code>, clamps tiny requests to
+        zero, and then recomputes both datasets. The companion command
+        <code>signal.set_dead_time_tail_overhead</code> adjusts the tail
+        compensation in cycles and reapplies the last valid microsecond request.
+      </p>
+      <p>
+        During playback, a segment shorter than
+        <code>dead_time + MIN_ACTIVE_HOLD_CYCLES</code> is clamped and counted as
+        a timing fault. Dead-time windows shorten the active hold after a
+        boundary; they do not move the scheduled absolute boundary. For waveform
+        diagrams, data selection, and acquisition sequencing, see
+        <a href="signal_loop_task_logic.html">signal_loop_task_logic.html</a>.
+      </p>
+    </div>
+  </details>
+
+  <details class="chapter web" id="web-app">
+    <summary><h2>Web Dashboard</h2></summary>
+    <div class="content">
+      <p>
+        The web app is a lab dashboard. It connects through the Web Bluetooth
+        API, sends protobuf commands, displays telemetry charts, lets the user
+        generate signal vectors, shows status/logs, and can perform BLE OTA.
+      </p>
+
+      <div class="cards">
+        <div class="card">
+          <strong>Layout and panels</strong>
+          <p><code>App.tsx</code> arranges dashboard panels and persists layout and panel sizes in <code>localStorage</code>.</p>
+        </div>
+        <div class="card">
+          <strong>BLE manager</strong>
+          <p><code>BleManager.ts</code> encodes commands, decodes notifications, tracks pending request ids, and updates stores.</p>
+        </div>
+        <div class="card">
+          <strong>Stores</strong>
+          <p><code>bleStore.ts</code> owns connection/log/status state. <code>dataStore.ts</code> owns chart data points.</p>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Panel</th><th>What a user does there</th><th>Firmware command or packet</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Quick Actions</td><td>Start/stop signal, LED, status, alpha presets, cycles, monitor period, control toggle.</td><td><code>signal.start</code>, <code>signal.stop</code>, <code>system.get_status</code>, etc.</td></tr>
+          <tr><td>Signal Generator</td><td>Create vectors from alpha, inspect binary mode mapping, upload pattern.</td><td><code>signal.set_alpha</code>, <code>signal.set_pattern</code></td></tr>
+          <tr><td>Signal Analysis</td><td>Plot incoming analog telemetry.</td><td><code>BlePacket.telemetry</code></td></tr>
+          <tr><td>Status Panel</td><td>Display latest status/timing/debug response.</td><td><code>BlePacket.status</code> or <code>command_result.json</code></td></tr>
+          <tr><td>OTA Panel</td><td>Select a firmware <code>.bin</code> and stream it to the ESP32.</td><td><code>OtaCommand</code> prefixed by <code>0x02</code></td></tr>
+        </tbody>
+      </table>
+
+      <pre><code>async sendCommand(name: string, payload = {}) {
+    const request_id = this.requestId++;
+    const encoded = encodeUiCommand({
+        name,
+        json: JSON.stringify(payload),
+        request_id,
+    });
+    const packet = new Uint8Array(encoded.length + 1);
+    packet[0] = 0x03;
+    packet.set(encoded, 1);
+    await this.sendBinary(packet);
+}</code></pre>
+    </div>
+  </details>
+
+  <details class="chapter proto" id="ble-router">
+    <summary><h2>BLE Router</h2></summary>
+    <div class="content">
+      <p>
+        The BLE router is the firmware boundary between raw Web Bluetooth
+        writes and project-level actions. It lives in <code>ble_controller.cpp</code>
+        as <code>ble_router()</code>, but it deliberately delegates real work to
+        the OTA controller and UI command router. Its job is to protect the BLE
+        callback path, choose the correct decoder, and normalize UI command
+        responses.
+      </p>
+
+      <h3>Write path</h3>
+      <p>
+        The GATT write event copies incoming bytes into <code>s_cmd_queue</code>.
+        <code>ble_command_task</code> reads that queue, builds a minimal write
+        object, and calls <code>ble_router()</code>. This offload keeps Nanopb
+        decoding, JSON parsing, flash writes, and signal state changes out of
+        the BLE stack callback.
+      </p>
+
+      <div class="chart" aria-label="BLE router write path">
+        <svg viewBox="0 0 1040 360" role="img">
+          <defs>
+            <marker id="arrow-router" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" fill="#56666f"></path>
+            </marker>
+          </defs>
+
+          <rect x="42" y="64" width="150" height="70" class="box box-web"></rect>
+          <text x="66" y="94" class="label">Browser</text>
+          <text x="58" y="116" class="small">Web Bluetooth write</text>
+
+          <rect x="250" y="64" width="170" height="70" class="box box-fw"></rect>
+          <text x="278" y="94" class="label">GATT write event</text>
+          <text x="276" y="116" class="small">copy bytes only</text>
+
+          <rect x="478" y="64" width="170" height="70" class="box box-fw"></rect>
+          <text x="512" y="94" class="label">s_cmd_queue</text>
+          <text x="502" y="116" class="small">BleCommand buffer</text>
+
+          <rect x="706" y="64" width="170" height="70" class="box box-fw"></rect>
+          <text x="734" y="94" class="label">ble_command_task</text>
+          <text x="732" y="116" class="small">calls ble_router</text>
+
+          <path d="M192,99 L250,99" class="arrow" marker-end="url(#arrow-router)"></path>
+          <path d="M420,99 L478,99" class="arrow" marker-end="url(#arrow-router)"></path>
+          <path d="M648,99 L706,99" class="arrow" marker-end="url(#arrow-router)"></path>
+
+          <rect x="312" y="220" width="150" height="70" class="box box-proto"></rect>
+          <text x="338" y="250" class="label">0x02 OTA</text>
+          <text x="326" y="272" class="small">OtaCommand decode</text>
+
+          <rect x="520" y="220" width="150" height="70" class="box box-proto"></rect>
+          <text x="546" y="250" class="label">0x03 UI</text>
+          <text x="536" y="272" class="small">UiCommand decode</text>
+
+          <rect x="728" y="220" width="150" height="70" class="box box-proto"></rect>
+          <text x="754" y="250" class="label">Other prefix</text>
+          <text x="752" y="272" class="small">reject and log</text>
+
+          <path d="M790,134 C780,180 388,178 388,220" class="arrow" marker-end="url(#arrow-router)"></path>
+          <path d="M790,134 C794,180 596,178 596,220" class="arrow" marker-end="url(#arrow-router)"></path>
+          <path d="M790,134 C850,178 804,178 804,220" class="arrow" marker-end="url(#arrow-router)"></path>
+        </svg>
+      </div>
+
+      <h3>Prefix decisions</h3>
+      <table>
+        <thead>
+          <tr><th>Prefix</th><th>Router action</th><th>Response behavior</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>0x02</code></td><td>Decode the bytes after the prefix as <code>OtaCommand</code> and call <code>ota_controller_handle_command()</code>.</td><td>OTA progress/status is emitted by the OTA controller as the transfer advances.</td></tr>
+          <tr><td><code>0x03</code></td><td>Decode as <code>UiCommand</code>, dispatch by command name, then fill a <code>BlePacket.command_result</code>.</td><td>The router immediately sends a <code>0x01 + BlePacket</code> result notification.</td></tr>
+          <tr><td>Anything else</td><td>Reject the write and log the unsupported binary prefix.</td><td>No command result is emitted because there is no decoded request id to match.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>UI command dispatch</h3>
+      <p>
+        <code>ble_ui_command_router.cpp</code> owns the command table. During
+        initialization, <code>ui_command_router_init()</code> registers names such
+        as <code>system.get_status</code>, <code>signal.set_alpha</code>,
+        <code>signal.set_pattern</code>, <code>signal.set_dead_time</code>,
+        <code>analog.read_once</code>, and <code>debug.signal_timing</code>.
+        Dispatch parses the JSON payload once, finds the matching handler, and
+        returns a small <code>UiCommandResultData</code>.
+      </p>
+
+      <pre><code>0x03 + UiCommand
+  name: "signal.set_dead_time"
+  json: {"time_us": 2}
+  request_id: 42
+
+ble_router()
+  decode UiCommand
+  ble_ui_command_dispatch(command)
+  ble_ui_command_fill_result_packet(...)
+  ble_send_protobuf(0x01 + BlePacket.command_result)</code></pre>
+
+      <h3>Result shape</h3>
+      <p>
+        Every UI command response includes the original request id, the command
+        name, an <code>ok</code> flag, a short machine-readable <code>code</code>,
+        a human-readable <code>message</code>, and optional JSON. Decode failures
+        use the same result envelope with <code>code = "decode_error"</code>, so
+        the web dashboard can handle success and failure through one notification
+        path.
+      </p>
+
+      <h3>Adding a UI command</h3>
+      <ol>
+        <li>Add a handler in <code>ble_ui_command_router.cpp</code> that accepts a <code>UiCommandContext</code> and returns <code>UiCommandResultData</code>.</li>
+        <li>Parse only the JSON fields the command needs, using the local helper functions.</li>
+        <li>Register the dotted command name in <code>ui_command_router_init()</code>.</li>
+        <li>Call the command from the dashboard through <code>BleManager.sendCommand()</code>; the prefix and request id are added there.</li>
+      </ol>
+
+      <h4>1. Add the handler</h4>
+      <p>
+        Handlers are plain functions in <code>ble_ui_command_router.cpp</code>.
+        They receive the decoded command and parsed JSON object through
+        <code>UiCommandContext</code>. Return <code>invalid_arg()</code> for bad
+        payloads and <code>ok()</code> after the subsystem state change succeeds.
+        The example below is the existing cycle-interval pattern; a new command
+        should follow the same shape with its own name and subsystem call.
+      </p>
+
+      <pre><code>static UiCommandResultData handle_signal_set_cycle_interval(const UiCommandContext& ctx) {
+    uint32_t cycles;
+    if (!json_get_u32(ctx.json, "cycles", &cycles)) {
+        return invalid_arg("Expected numeric cycles");
+    }
+    if (cycles == 0) {
+        return invalid_arg("cycles must be greater than zero");
+    }
+
+    g_cycle_nrun = cycles;
+    ESP_LOGI(TAG, "Set cycle interval to %lu", cycles);
+    return ok("Cycle interval updated");
+}</code></pre>
+
+      <h4>2. Register the command name</h4>
+      <p>
+        Registration is the only step that connects a dotted command name to
+        the handler. Add the new command in <code>ui_command_router_init()</code>
+        near related commands so <code>system.list_commands</code> reports it
+        with the rest of the command table.
+      </p>
+
+      <pre><code>void ui_command_router_init(void) {
+    s_command_count = 0;
+
+    register_command("system.list_commands", handle_system_list_commands);
+    register_command("system.get_status", handle_system_get_status);
+    register_command("signal.start", handle_signal_start);
+    register_command("signal.stop", handle_signal_stop);
+
+    // Command name to handler binding.
+    register_command("signal.set_cycle_interval", handle_signal_set_cycle_interval);
+    // Other command registrations continue below.
+}</code></pre>
+
+      <h4>3. Call it from the dashboard</h4>
+      <p>
+        The web side does not manually build the packet prefix. It calls
+        <code>BleManager.sendCommand()</code>, which JSON-encodes the payload,
+        assigns a request id, wraps it as <code>UiCommand</code>, and prefixes
+        the packet with <code>0x03</code>.
+      </p>
+
+      <pre><code>await bleManager.sendCommand("signal.set_cycle_interval", {
+    cycles: 10,
+});</code></pre>
+
+      <h4>4. What the router returns</h4>
+      <p>
+        For a valid request, the browser receives a
+        <code>BlePacket.command_result</code> notification similar to this. For
+        invalid JSON or a missing <code>cycles</code>, the same envelope is used
+        with <code>ok = false</code> and <code>code = "invalid_argument"</code>.
+      </p>
+
+      <pre><code>{
+  "request_id": 42,
+  "name": "signal.set_cycle_interval",
+  "ok": true,
+  "code": "ok",
+  "message": "Cycle interval updated",
+  "json": ""
+}</code></pre>
+
+      <div class="callout">
+        <strong>Design rule:</strong> <code>ble_router()</code> should stay a
+        routing boundary. Command-specific validation belongs in command
+        handlers, OTA state belongs in the OTA controller, and schema changes
+        belong in <code>proto/messaging.proto</code>.
+      </div>
+    </div>
+  </details>
+
+  <details class="chapter proto" id="ble-protobuf">
+    <summary><h2>BLE + Protobuf Integration</h2></summary>
+    <div class="content">
+      <p>
+        BLE carries three kinds of binary packets. The first byte is a project
+        prefix; the remaining bytes are protobuf encoded. This keeps OTA,
+        command requests, and device notifications distinct while sharing one
+        BLE characteristic.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>Prefix</th><th>Direction</th><th>Message</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>0x01</code></td><td>Firmware to web</td><td><code>BlePacket</code></td><td>Telemetry, status, logs, OTA status, command result.</td></tr>
+          <tr><td><code>0x02</code></td><td>Web to firmware</td><td><code>OtaCommand</code></td><td>Begin, chunk, end, or abort OTA.</td></tr>
+          <tr><td><code>0x03</code></td><td>Web to firmware</td><td><code>UiCommand</code></td><td>Namespaced JSON commands for normal operation.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="chart" aria-label="Command request response flow">
+        <svg viewBox="0 0 1040 300" role="img">
+          <defs>
+            <marker id="arrow-ble" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" fill="#56666f"></path>
+            </marker>
+          </defs>
+          <rect x="48" y="84" width="180" height="70" class="box box-web"></rect>
+          <text x="74" y="114" class="label">React panel</text>
+          <text x="70" y="136" class="small">button or input</text>
+          <rect x="302" y="84" width="180" height="70" class="box box-web"></rect>
+          <text x="330" y="114" class="label">BleManager</text>
+          <text x="324" y="136" class="small">0x03 UiCommand</text>
+          <rect x="556" y="84" width="180" height="70" class="box box-fw"></rect>
+          <text x="580" y="114" class="label">ble_router</text>
+          <text x="582" y="136" class="small">decode prefix</text>
+          <rect x="810" y="84" width="180" height="70" class="box box-fw"></rect>
+          <text x="832" y="114" class="label">command handler</text>
+          <text x="834" y="136" class="small">side effect + result</text>
+          <path d="M228,119 L302,119" class="arrow" marker-end="url(#arrow-ble)"></path>
+          <path d="M482,119 L556,119" class="arrow" marker-end="url(#arrow-ble)"></path>
+          <path d="M736,119 L810,119" class="arrow" marker-end="url(#arrow-ble)"></path>
+          <path d="M900,154 C900,236 390,236 390,154" class="arrow dash" marker-end="url(#arrow-ble)"></path>
+          <text x="492" y="258" class="small">0x01 BlePacket.command_result returns to the original request id</text>
+        </svg>
+      </div>
+
+      <h3>BLE router path</h3>
+      <p>
+        Web Bluetooth writes arrive at the GATT characteristic in
+        <code>ble_controller.cpp</code>. The write callback copies the bytes into
+        a fixed-size command queue, and <code>ble_command_task</code> later calls
+        <code>ble_router()</code>. The router is intentionally a thin boundary:
+        inspect prefix, decode protobuf, call the owning subsystem, and send a
+        protobuf notification back when a result exists.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>Step</th><th>Code path</th><th>What it owns</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Receive write</td><td><code>ble_controller.cpp</code> GATT write event</td><td>Copy bytes, acknowledge if required, avoid doing command work inside the BLE callback.</td></tr>
+          <tr><td>Offload</td><td><code>ble_command_task</code></td><td>Read queued bytes and synthesize the minimal write object consumed by <code>ble_router()</code>.</td></tr>
+          <tr><td>Route</td><td><code>ble_router()</code></td><td>Dispatch by prefix: <code>0x02</code> to OTA, <code>0x03</code> to UI commands.</td></tr>
+          <tr><td>Handle</td><td><code>ble_ui_command_router.cpp</code> or <code>ble_ota_controller.cpp</code></td><td>Run the subsystem side effect and produce status/progress/result data.</td></tr>
+          <tr><td>Notify</td><td><code>ble_send_protobuf()</code></td><td>Encode <code>BlePacket</code>, prefix it with <code>0x01</code>, and send it to the dashboard.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>UI command contract</h3>
+      <p>
+        Normal dashboard actions use <code>0x03 + UiCommand</code>. The command
+        has a dotted name, JSON payload, and <code>request_id</code>. Firmware
+        dispatches the name through the fixed table in
+        <code>ble_ui_command_router.cpp</code>, so commands such as
+        <code>signal.start</code>, <code>signal.set_pattern</code>,
+        <code>signal.set_dead_time</code>, <code>analog.read_once</code>, and
+        <code>debug.signal_timing</code> all return the same result shape.
+      </p>
+      <p>
+        Results travel back as <code>0x01 + BlePacket</code> with the
+        <code>command_result</code> oneof selected. The payload includes the
+        original <code>request_id</code>, command name, boolean
+        <code>ok</code>, short <code>code</code>, human-readable
+        <code>message</code>, and optional JSON. The dashboard keeps a pending
+        request map, then uses the matching request id to attach the result to
+        the UI log/status stream.
+      </p>
+      <p>
+        OTA deliberately bypasses the UI command table. Prefix <code>0x02</code>
+        decodes to <code>OtaCommand</code> and is sent directly to
+        <code>ota_controller_handle_command()</code>, because chunk streaming has
+        different throughput and progress semantics from normal command/response
+        requests.
+      </p>
+
+      <h3>Protobuf schema file</h3>
+      <p>
+        <code>proto/messaging.proto</code> is the shared contract between
+        firmware and the dashboard. It defines telemetry and status packets,
+        OTA transfer messages, UI commands, and UI command results. The packet
+        prefix is not part of the protobuf schema; it is a project-level byte
+        added before the encoded message so the firmware can choose the correct
+        decoder before parsing.
+      </p>
+
+      <pre><code>message UiCommand {
+    string name = 1;
+    string json = 2;
+    uint32 request_id = 3;
+}
+
+message BlePacket {
+    oneof payload {
+        Telemetry telemetry = 1;
+        SystemStatus status = 2;
+        LogMessage log = 3;
+        OtaStatus ota_status = 4;
+        UiCommandResult command_result = 5;
+    }
+}</code></pre>
+
+      <table>
+        <thead>
+          <tr><th>Schema item</th><th>Why it exists</th><th>Generated into</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>UiCommand</code></td><td>Small command envelope: dotted name, JSON payload, and request id.</td><td><code>main/src/proto</code>, <code>web/src/proto</code></td></tr>
+          <tr><td><code>UiCommandResult</code></td><td>Uniform response for command success, validation errors, decode errors, and debug JSON.</td><td><code>BlePacket.command_result</code></td></tr>
+          <tr><td><code>BlePacket</code></td><td>Firmware-to-web notification envelope for telemetry, status, logs, OTA progress, and command results.</td><td>Nanopb C structs and protobufjs classes.</td></tr>
+          <tr><td><code>OtaCommand</code></td><td>Browser-to-firmware OTA begin/chunk/end/abort stream.</td><td>Routed directly by prefix <code>0x02</code>.</td></tr>
+          <tr><td><code>messaging.options</code></td><td>Nanopb field-size limits for strings and fixed buffers.</td><td>Firmware C structs with bounded storage.</td></tr>
+        </tbody>
+      </table>
+
+      <p>
+        The schema is generated twice: Nanopb C files for firmware
+        (<code>main/src/proto</code>) and protobufjs JS/TS files for the web app
+        (<code>web/src/proto</code>). Run <code>task proto:gen</code> after editing
+        <code>proto/messaging.proto</code>.
+      </p>
+    </div>
+  </details>
+
+  <details class="chapter config" id="ota">
+    <summary><h2>OTA Update Flow</h2></summary>
+    <div class="content">
+      <p>
+        OTA is browser-driven and BLE-transported. The dashboard reads a
+        firmware binary, splits it into chunks, sends them as
+        <code>OtaCommand</code> messages, waits for periodic firmware status
+        acknowledgements, then sends <code>OtaEnd</code>. Firmware writes into the
+        inactive OTA partition and reboots after setting it as the boot target.
+      </p>
+
+      <div class="chart" aria-label="OTA flow">
+        <svg viewBox="0 0 1040 340" role="img">
+          <defs>
+            <marker id="arrow-ota" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" fill="#56666f"></path>
+            </marker>
+          </defs>
+          <rect x="48" y="70" width="154" height="64" class="box box-web"></rect>
+          <text x="76" y="100" class="label">Select .bin</text>
+          <text x="70" y="120" class="small">browser file API</text>
+          <rect x="258" y="70" width="154" height="64" class="box box-web"></rect>
+          <text x="286" y="100" class="label">Begin</text>
+          <text x="278" y="120" class="small">file size</text>
+          <rect x="468" y="70" width="154" height="64" class="box box-web"></rect>
+          <text x="496" y="100" class="label">Chunks</text>
+          <text x="490" y="120" class="small">seq + 440 bytes</text>
+          <rect x="678" y="70" width="154" height="64" class="box box-fw"></rect>
+          <text x="708" y="100" class="label">Write flash</text>
+          <text x="704" y="120" class="small">esp_ota_write</text>
+          <rect x="858" y="70" width="134" height="64" class="box box-fw"></rect>
+          <text x="884" y="100" class="label">End</text>
+          <text x="876" y="120" class="small">boot + restart</text>
+          <path d="M202,102 L258,102" class="arrow" marker-end="url(#arrow-ota)"></path>
+          <path d="M412,102 L468,102" class="arrow" marker-end="url(#arrow-ota)"></path>
+          <path d="M622,102 L678,102" class="arrow" marker-end="url(#arrow-ota)"></path>
+          <path d="M832,102 L858,102" class="arrow" marker-end="url(#arrow-ota)"></path>
+
+          <rect x="258" y="218" width="574" height="54" class="box box-proto"></rect>
+          <text x="326" y="250" class="small">Firmware sends periodic 0x01 OtaStatus: state, progress, expected_seq, written_size</text>
+          <path d="M748,134 C740,200 412,188 392,218" class="arrow dash" marker-end="url(#arrow-ota)"></path>
+        </svg>
+      </div>
+
+      <pre><code># Partition layout used by OTA
+nvs       data  nvs    0x4000
+otadata   data  ota    0x2000
+phy_init  data  phy    0x1000
+ota_0     app   ota_0  1600K
+ota_1     app   ota_1  1600K</code></pre>
+    </div>
+  </details>
+
+  <details class="chapter config" id="config">
+    <summary><h2>Custom ESP Config</h2></summary>
+    <div class="content">
+      <p>
+        This section highlights the project-specific ESP-IDF settings that
+        matter for integration. It is not a full dump of <code>sdkconfig</code>;
+        it is a curated map of the menuconfig choices reflected in the current
+        repository.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>Area</th><th>Current setting</th><th>Why it matters</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Target</td><td><code>CONFIG_IDF_TARGET="esp32"</code></td><td>Dual-core Xtensa ESP32; the project pins BLE/maintenance and signal work to separate cores.</td></tr>
+          <tr><td>CPU frequency</td><td><code>CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ=240</code></td><td>Signal timing assumes <code>CYCLES_PER_US = 240</code> in <code>signal_controller.cpp</code>.</td></tr>
+          <tr><td>BLE stack</td><td><code>CONFIG_BT_ENABLED=y</code>, Bluedroid, BLE 4.2, BLE-only controller</td><td>Enables the GATT server while avoiding Classic BT overhead.</td></tr>
+          <tr><td>Core affinity</td><td>Bluedroid and BTDM controller pinned to Core 0</td><td>Keeps the Core 1 signal task isolated from most BLE stack work.</td></tr>
+          <tr><td>Partitions</td><td><code>CONFIG_PARTITION_TABLE_CUSTOM=y</code>, <code>partitions.csv</code></td><td>Provides two 1600K OTA app slots for BLE firmware updates.</td></tr>
+          <tr><td>Flash</td><td>4 MB, DIO, 40 MHz</td><td>Standard ESP32 flash setup compatible with the custom partition table.</td></tr>
+          <tr><td>Compiler</td><td>Debug optimization and assertions enabled</td><td>Better for active firmware development and timing diagnostics than a release-only build.</td></tr>
+          <tr><td>Logging</td><td>Default INFO, log functions in IRAM</td><td>Useful during bring-up, but hot GPIO playback still avoids logging in interrupt-disabled sections.</td></tr>
+          <tr><td>FreeRTOS</td><td>Two cores, canary stack overflow checking</td><td>Matches the explicit task pinning and helps catch stack issues during development.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Minimal saved defaults</h3>
+      <pre><code># sdkconfig.defaults
+CONFIG_BT_ENABLED=y
+CONFIG_BT_BLE_50_FEATURES_SUPPORTED=n
+CONFIG_BT_BLE_42_FEATURES_SUPPORTED=y
+# CONFIG_BT_LE_50_FEATURE_SUPPORT is not set</code></pre>
+
+      <h3>Project Kconfig</h3>
+      <p>
+        <code>main/Kconfig.projbuild</code> currently exposes the example option
+        <code>EXAMPLE_SET_RAW_ADV_DATA</code>. In this project it is off, so BLE
+        advertising uses the higher-level <code>esp_ble_adv_data_t</code> structure
+        rather than raw advertising payloads.
+      </p>
+    </div>
+  </details>
+
+  <details class="chapter firmware" id="start" open>
+    <summary><h2>How to Start</h2></summary>
+    <div class="content">
+      <p>
+        The project is controlled mainly through <code>task</code>. The root
+        Taskfile wraps ESP-IDF setup scripts and protobuf generation; the web
+        Taskfile wraps Bun/Vite and the optional Go webserver build.
+      </p>
+
+      <h3>Firmware workflow</h3>
+      <pre><code># list available root tasks
+task
+
+# build firmware
+task build
+
+# flash firmware to configured port
+task flash
+
+# open serial monitor
+task monitor
+
+# build, flash, then monitor
+task build-flash-monitor
+
+# use auto-detected serial port
+task build-flash-monitor-auto</code></pre>
+
+      <h3>Web workflow</h3>
+      <pre><code># install dashboard dependencies
+task web:install
+
+# run Vite dev server
+task web:run
+
+# build the dashboard
+task web:build</code></pre>
+
+      <h3>Protobuf workflow</h3>
+      <pre><code># after editing proto/messaging.proto
+task proto:gen
+
+# firmware only
+task proto:gen:firmware
+
+# web only
+task proto:gen:web</code></pre>
+
+      <h3>First bring-up sequence</h3>
+      <ol>
+        <li>Run <code>task info</code> and confirm the IDF path, tools path, and serial port.</li>
+        <li>Run <code>task build</code>. If protobuf changed, run <code>task proto:gen</code> first.</li>
+        <li>Flash with <code>task flash</code> or <code>task flash-auto</code>.</li>
+        <li>Monitor boot logs with <code>task monitor</code>.</li>
+        <li>Start the dashboard with <code>task web:run</code>, then open the Vite URL in Chrome or Edge.</li>
+        <li>Connect through the dashboard. Use <code>STATUS</code>, then <code>START</code>, then inspect telemetry and timing.</li>
+      </ol>
+
+      <div class="callout">
+        <strong>Browser requirement:</strong> Web Bluetooth generally requires
+        Chrome or Edge and a secure context. <code>localhost</code> is accepted for
+        development.
+      </div>
+    </div>
+  </details>
+</main>
+
+<script>
+  const chapters = Array.from(document.querySelectorAll("details.chapter"));
+
+  document.querySelector('[data-action="open-all"]').addEventListener("click", () => {
+    chapters.forEach((chapter) => {
+      chapter.open = true;
+    });
+  });
+
+  document.querySelector('[data-action="close-all"]').addEventListener("click", () => {
+    chapters.forEach((chapter) => {
+      chapter.open = false;
+    });
+  });
+</script>
+</body>
+</html>

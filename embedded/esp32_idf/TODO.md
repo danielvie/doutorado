@@ -46,3 +46,18 @@
 - [x] Verify comparison chart text no longer overlaps waveform lanes
 - [x] Fix dead-time comparison chart B transition to show only binary 1-to-0 and 0-to-1 levels
 - [x] Verify the B transition SVG polyline no longer uses an intermediate level
+- [x] Analyze project structure, firmware modules, web modules, protobuf, build tooling, and ESP config
+- [x] Create a general collapsible HTML project guide in `docs`
+- [x] Include index hover descriptions, module chapters, flow charts, code snippets, ESP custom config, and how-to-start steps
+- [x] Verify the generated HTML contains the requested sections and references current project files
+- [x] Read existing project architecture guide and signal loop task logic documentation
+- [x] Add architecture guide details for BLE router, signal loop/generation, and dead-time behavior
+- [x] Verify the updated architecture guide contains the new details and references the signal-loop documentation accurately
+- [x] Add alpha 0.4 pattern example and digital signal chart to the architecture guide
+- [x] Expand BLE + Protobuf Integration with router and schema subsections
+- [x] Verify the updated architecture guide contains the requested examples and subsections
+- [x] Add a dedicated BLE Router section to the architecture guide
+- [x] Link the BLE Router section from the guide index
+- [x] Verify the BLE Router section and index link exist
+- [x] Add BLE Router handler registration code examples
+- [x] Verify the BLE Router section includes handler and dashboard call examples
