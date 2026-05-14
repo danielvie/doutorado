@@ -1,5 +1,7 @@
 # TODO
 
+- [x] Add syntax colors to `docs/project_architecture_guide.html` code blocks
+- [x] Verify the architecture guide code blocks are highlighted
 - [x] Analyze existing commands in `QuickActions.tsx` and `BleManager.ts` to identify the correct command for "signal time and mode"
 - [x] Add the "SIGNAL" button to `QuickActions.tsx` (calling `debug.dataset_active`)
 - [x] Update `BleManager.ts` to handle raw text notifications from BLE

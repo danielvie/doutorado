@@ -295,6 +295,14 @@
       color: inherit;
       font-size: inherit;
     }
+    .tok-comment { color: #91a8a2; font-style: italic; }
+    .tok-keyword { color: #7dd3fc; font-weight: 700; }
+    .tok-type { color: #a7f3d0; }
+    .tok-fn { color: #fde68a; }
+    .tok-string { color: #fda4af; }
+    .tok-number { color: #c4b5fd; }
+    .tok-literal { color: #f9a8d4; font-weight: 700; }
+    .tok-operator { color: #93c5fd; }
 
     table {
       width: 100%;
@@ -1431,6 +1439,97 @@ task proto:gen:web</code></pre>
 </main>
 
 <script>
+  const syntaxKeywords = new Set([
+    "async", "await", "const", "float", "if", "message", "oneof", "return",
+    "static", "string", "struct", "uint32", "uint32_t", "void"
+  ]);
+  const syntaxLiterals = new Set(["false", "true", "y", "n"]);
+  const syntaxTypes = new Set([
+    "BlePacket", "DataSet", "MatrixData", "OtaCommand", "SignalStep",
+    "Telemetry", "UiCommand", "UiCommandContext", "UiCommandResult",
+    "UiCommandResultData", "Uint8Array"
+  ]);
+
+  const escapeHtml = (text) => text.replace(/[&<>]/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+  })[char]);
+
+  const colorToken = (className, text) => `<span class="${className}">${escapeHtml(text)}</span>`;
+
+  const highlightCodeBlock = (code) => {
+    const source = code.textContent;
+    let html = "";
+    let index = 0;
+
+    while (index < source.length) {
+      const rest = source.slice(index);
+
+      if (rest.startsWith("//")) {
+        const end = source.indexOf("\n", index);
+        const next = end === -1 ? source.length : end;
+        html += colorToken("tok-comment", source.slice(index, next));
+        index = next;
+        continue;
+      }
+
+      if (source[index] === "#" && (index === 0 || source[index - 1] === "\n")) {
+        const end = source.indexOf("\n", index);
+        const next = end === -1 ? source.length : end;
+        html += colorToken("tok-comment", source.slice(index, next));
+        index = next;
+        continue;
+      }
+
+      const stringMatch = rest.match(/^"([^"\\]|\\.)*"|^'([^'\\]|\\.)*'/);
+      if (stringMatch) {
+        html += colorToken("tok-string", stringMatch[0]);
+        index += stringMatch[0].length;
+        continue;
+      }
+
+      const numberMatch = rest.match(/^(0x[\da-fA-F]+|\d+(?:\.\d+)?f?|\d+K)\b/);
+      if (numberMatch) {
+        html += colorToken("tok-number", numberMatch[0]);
+        index += numberMatch[0].length;
+        continue;
+      }
+
+      const wordMatch = rest.match(/^[A-Za-z_][\w:]*/);
+      if (wordMatch) {
+        const word = wordMatch[0];
+        const afterWord = source.slice(index + word.length);
+        if (syntaxKeywords.has(word)) {
+          html += colorToken("tok-keyword", word);
+        } else if (syntaxLiterals.has(word)) {
+          html += colorToken("tok-literal", word);
+        } else if (syntaxTypes.has(word) || /^[A-Z][\w:]*$/.test(word)) {
+          html += colorToken("tok-type", word);
+        } else if (/^\s*\(/.test(afterWord)) {
+          html += colorToken("tok-fn", word);
+        } else {
+          html += escapeHtml(word);
+        }
+        index += word.length;
+        continue;
+      }
+
+      if (/^[{}()[\];,.=:+\-*/&|!<>]/.test(rest)) {
+        html += colorToken("tok-operator", source[index]);
+        index += 1;
+        continue;
+      }
+
+      html += escapeHtml(source[index]);
+      index += 1;
+    }
+
+    code.innerHTML = html;
+  };
+
+  document.querySelectorAll("pre code").forEach(highlightCodeBlock);
+
   const chapters = Array.from(document.querySelectorAll("details.chapter"));
 
   document.querySelector('[data-action="open-all"]').addEventListener("click", () => {
