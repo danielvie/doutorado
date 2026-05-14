@@ -9,6 +9,9 @@
 PB_BIND(Telemetry, Telemetry, AUTO)
 
 
+PB_BIND(AnalogStatus, AnalogStatus, AUTO)
+
+
 PB_BIND(SystemStatus, SystemStatus, AUTO)
 
 

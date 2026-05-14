@@ -1,5 +1,23 @@
 # TODO
 
+- [ ] Analyze existing command, signal, LED, and timing hooks for an analog diagnostic test
+- [ ] Add firmware command to run a bounded analog diagnostic signal test
+- [ ] Store the latest diagnostic test result in memory
+- [ ] Add command to fetch the latest diagnostic test result on demand
+- [ ] Add dashboard command entry for running/fetching the diagnostic test
+- [ ] Verify firmware and web builds
+
+- [x] Align startup dead-time status with the effective 2 us default
+
+- [x] Fix web status display for omitted proto3 default numeric fields
+
+- [x] Analyze the analog acquisition improvement plan and identify the first implementation milestone
+- [x] Add firmware analog snapshot/counter status for the current oneshot producer
+- [x] Add protobuf AnalogStatus fields and regenerate generated code
+- [x] Render AnalogStatus in the web dashboard status view
+- [x] Build firmware and web to verify the first iteration
+- [x] Update analog acquisition study with first-iteration report and next steps
+
 - [x] Record accepted Q35-Q37 final grill-me decisions in the analog acquisition study
 - [x] Close the analog acquisition design questioning session in the HTML
 - [x] Auto-confirm Q38 migration-wrapper decision in the analog acquisition study

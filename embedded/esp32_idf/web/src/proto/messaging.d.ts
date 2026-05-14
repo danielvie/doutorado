@@ -137,6 +137,153 @@ export class Telemetry implements ITelemetry {
     public static getTypeUrl(typeUrlPrefix?: string): string;
 }
 
+/** Represents an AnalogStatus. */
+export class AnalogStatus implements IAnalogStatus {
+
+    /**
+     * Constructs a new AnalogStatus.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IAnalogStatus);
+
+    /** AnalogStatus seq. */
+    public seq: number;
+
+    /** AnalogStatus valid. */
+    public valid: boolean;
+
+    /** AnalogStatus timestampUs. */
+    public timestampUs: (number|Long);
+
+    /** AnalogStatus ageUs. */
+    public ageUs: number;
+
+    /** AnalogStatus targetTriplesPerCycle. */
+    public targetTriplesPerCycle: number;
+
+    /** AnalogStatus measuredTriplesPerSecond. */
+    public measuredTriplesPerSecond: number;
+
+    /** AnalogStatus rawAn3. */
+    public rawAn3: number;
+
+    /** AnalogStatus rawAn5. */
+    public rawAn5: number;
+
+    /** AnalogStatus rawAn6. */
+    public rawAn6: number;
+
+    /** AnalogStatus calibratedAn3. */
+    public calibratedAn3: number;
+
+    /** AnalogStatus calibratedAn5. */
+    public calibratedAn5: number;
+
+    /** AnalogStatus calibratedAn6. */
+    public calibratedAn6: number;
+
+    /** AnalogStatus latencyMinUs. */
+    public latencyMinUs: number;
+
+    /** AnalogStatus latencyAvgUs. */
+    public latencyAvgUs: number;
+
+    /** AnalogStatus latencyP95Us. */
+    public latencyP95Us: number;
+
+    /** AnalogStatus latencyMaxUs. */
+    public latencyMaxUs: number;
+
+    /** AnalogStatus overflowCount. */
+    public overflowCount: number;
+
+    /** AnalogStatus missCount. */
+    public missCount: number;
+
+    /** AnalogStatus consecutiveMisses. */
+    public consecutiveMisses: number;
+
+    /** AnalogStatus faultCode. */
+    public faultCode: number;
+
+    /**
+     * Creates a new AnalogStatus instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns AnalogStatus instance
+     */
+    public static create(properties?: IAnalogStatus): AnalogStatus;
+
+    /**
+     * Encodes the specified AnalogStatus message. Does not implicitly {@link AnalogStatus.verify|verify} messages.
+     * @param message AnalogStatus message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IAnalogStatus, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified AnalogStatus message, length delimited. Does not implicitly {@link AnalogStatus.verify|verify} messages.
+     * @param message AnalogStatus message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IAnalogStatus, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes an AnalogStatus message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns AnalogStatus
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): AnalogStatus;
+
+    /**
+     * Decodes an AnalogStatus message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns AnalogStatus
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): AnalogStatus;
+
+    /**
+     * Verifies an AnalogStatus message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates an AnalogStatus message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns AnalogStatus
+     */
+    public static fromObject(object: { [k: string]: any }): AnalogStatus;
+
+    /**
+     * Creates a plain object from an AnalogStatus message. Also converts values to other types if specified.
+     * @param message AnalogStatus
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: AnalogStatus, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this AnalogStatus to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for AnalogStatus
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
 /** Represents a SystemStatus. */
 export class SystemStatus implements ISystemStatus {
 
@@ -199,6 +346,9 @@ export class SystemStatus implements ISystemStatus {
 
     /** SystemStatus deadTimeTailOverheadCycles. */
     public deadTimeTailOverheadCycles: number;
+
+    /** SystemStatus analog. */
+    public analog?: (IAnalogStatus|null);
 
     /**
      * Creates a new SystemStatus instance using the specified properties.

@@ -19,6 +19,9 @@
 #define CORE_0 0
 #define CORE_1 1
 
+#define DEFAULT_DEAD_TIME_US 2
+#define DEFAULT_DEAD_TIME_TAIL_OVERHEAD_CYCLES 35
+
 
 #define PIN_U1_LOW   GPIO_NUM_23 // Bit 2 (4)
 #define PIN_U1_HIGH  GPIO_NUM_22 //

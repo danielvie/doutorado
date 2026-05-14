@@ -370,6 +370,663 @@ export const Telemetry = $root.Telemetry = (() => {
     return Telemetry;
 })();
 
+export const AnalogStatus = $root.AnalogStatus = (() => {
+
+    /**
+     * Properties of an AnalogStatus.
+     * @exports IAnalogStatus
+     * @interface IAnalogStatus
+     * @property {number|null} [seq] AnalogStatus seq
+     * @property {boolean|null} [valid] AnalogStatus valid
+     * @property {number|Long|null} [timestampUs] AnalogStatus timestampUs
+     * @property {number|null} [ageUs] AnalogStatus ageUs
+     * @property {number|null} [targetTriplesPerCycle] AnalogStatus targetTriplesPerCycle
+     * @property {number|null} [measuredTriplesPerSecond] AnalogStatus measuredTriplesPerSecond
+     * @property {number|null} [rawAn3] AnalogStatus rawAn3
+     * @property {number|null} [rawAn5] AnalogStatus rawAn5
+     * @property {number|null} [rawAn6] AnalogStatus rawAn6
+     * @property {number|null} [calibratedAn3] AnalogStatus calibratedAn3
+     * @property {number|null} [calibratedAn5] AnalogStatus calibratedAn5
+     * @property {number|null} [calibratedAn6] AnalogStatus calibratedAn6
+     * @property {number|null} [latencyMinUs] AnalogStatus latencyMinUs
+     * @property {number|null} [latencyAvgUs] AnalogStatus latencyAvgUs
+     * @property {number|null} [latencyP95Us] AnalogStatus latencyP95Us
+     * @property {number|null} [latencyMaxUs] AnalogStatus latencyMaxUs
+     * @property {number|null} [overflowCount] AnalogStatus overflowCount
+     * @property {number|null} [missCount] AnalogStatus missCount
+     * @property {number|null} [consecutiveMisses] AnalogStatus consecutiveMisses
+     * @property {number|null} [faultCode] AnalogStatus faultCode
+     */
+
+    /**
+     * Constructs a new AnalogStatus.
+     * @exports AnalogStatus
+     * @classdesc Represents an AnalogStatus.
+     * @implements IAnalogStatus
+     * @constructor
+     * @param {IAnalogStatus=} [properties] Properties to set
+     */
+    function AnalogStatus(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * AnalogStatus seq.
+     * @member {number} seq
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.seq = 0;
+
+    /**
+     * AnalogStatus valid.
+     * @member {boolean} valid
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.valid = false;
+
+    /**
+     * AnalogStatus timestampUs.
+     * @member {number|Long} timestampUs
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.timestampUs = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+
+    /**
+     * AnalogStatus ageUs.
+     * @member {number} ageUs
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.ageUs = 0;
+
+    /**
+     * AnalogStatus targetTriplesPerCycle.
+     * @member {number} targetTriplesPerCycle
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.targetTriplesPerCycle = 0;
+
+    /**
+     * AnalogStatus measuredTriplesPerSecond.
+     * @member {number} measuredTriplesPerSecond
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.measuredTriplesPerSecond = 0;
+
+    /**
+     * AnalogStatus rawAn3.
+     * @member {number} rawAn3
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.rawAn3 = 0;
+
+    /**
+     * AnalogStatus rawAn5.
+     * @member {number} rawAn5
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.rawAn5 = 0;
+
+    /**
+     * AnalogStatus rawAn6.
+     * @member {number} rawAn6
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.rawAn6 = 0;
+
+    /**
+     * AnalogStatus calibratedAn3.
+     * @member {number} calibratedAn3
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.calibratedAn3 = 0;
+
+    /**
+     * AnalogStatus calibratedAn5.
+     * @member {number} calibratedAn5
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.calibratedAn5 = 0;
+
+    /**
+     * AnalogStatus calibratedAn6.
+     * @member {number} calibratedAn6
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.calibratedAn6 = 0;
+
+    /**
+     * AnalogStatus latencyMinUs.
+     * @member {number} latencyMinUs
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.latencyMinUs = 0;
+
+    /**
+     * AnalogStatus latencyAvgUs.
+     * @member {number} latencyAvgUs
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.latencyAvgUs = 0;
+
+    /**
+     * AnalogStatus latencyP95Us.
+     * @member {number} latencyP95Us
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.latencyP95Us = 0;
+
+    /**
+     * AnalogStatus latencyMaxUs.
+     * @member {number} latencyMaxUs
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.latencyMaxUs = 0;
+
+    /**
+     * AnalogStatus overflowCount.
+     * @member {number} overflowCount
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.overflowCount = 0;
+
+    /**
+     * AnalogStatus missCount.
+     * @member {number} missCount
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.missCount = 0;
+
+    /**
+     * AnalogStatus consecutiveMisses.
+     * @member {number} consecutiveMisses
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.consecutiveMisses = 0;
+
+    /**
+     * AnalogStatus faultCode.
+     * @member {number} faultCode
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.faultCode = 0;
+
+    /**
+     * Creates a new AnalogStatus instance using the specified properties.
+     * @function create
+     * @memberof AnalogStatus
+     * @static
+     * @param {IAnalogStatus=} [properties] Properties to set
+     * @returns {AnalogStatus} AnalogStatus instance
+     */
+    AnalogStatus.create = function create(properties) {
+        return new AnalogStatus(properties);
+    };
+
+    /**
+     * Encodes the specified AnalogStatus message. Does not implicitly {@link AnalogStatus.verify|verify} messages.
+     * @function encode
+     * @memberof AnalogStatus
+     * @static
+     * @param {IAnalogStatus} message AnalogStatus message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    AnalogStatus.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.seq != null && Object.hasOwnProperty.call(message, "seq"))
+            writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.seq);
+        if (message.valid != null && Object.hasOwnProperty.call(message, "valid"))
+            writer.uint32(/* id 2, wireType 0 =*/16).bool(message.valid);
+        if (message.timestampUs != null && Object.hasOwnProperty.call(message, "timestampUs"))
+            writer.uint32(/* id 3, wireType 0 =*/24).uint64(message.timestampUs);
+        if (message.ageUs != null && Object.hasOwnProperty.call(message, "ageUs"))
+            writer.uint32(/* id 4, wireType 0 =*/32).uint32(message.ageUs);
+        if (message.targetTriplesPerCycle != null && Object.hasOwnProperty.call(message, "targetTriplesPerCycle"))
+            writer.uint32(/* id 5, wireType 0 =*/40).uint32(message.targetTriplesPerCycle);
+        if (message.measuredTriplesPerSecond != null && Object.hasOwnProperty.call(message, "measuredTriplesPerSecond"))
+            writer.uint32(/* id 6, wireType 0 =*/48).uint32(message.measuredTriplesPerSecond);
+        if (message.rawAn3 != null && Object.hasOwnProperty.call(message, "rawAn3"))
+            writer.uint32(/* id 7, wireType 0 =*/56).uint32(message.rawAn3);
+        if (message.rawAn5 != null && Object.hasOwnProperty.call(message, "rawAn5"))
+            writer.uint32(/* id 8, wireType 0 =*/64).uint32(message.rawAn5);
+        if (message.rawAn6 != null && Object.hasOwnProperty.call(message, "rawAn6"))
+            writer.uint32(/* id 9, wireType 0 =*/72).uint32(message.rawAn6);
+        if (message.calibratedAn3 != null && Object.hasOwnProperty.call(message, "calibratedAn3"))
+            writer.uint32(/* id 10, wireType 5 =*/85).float(message.calibratedAn3);
+        if (message.calibratedAn5 != null && Object.hasOwnProperty.call(message, "calibratedAn5"))
+            writer.uint32(/* id 11, wireType 5 =*/93).float(message.calibratedAn5);
+        if (message.calibratedAn6 != null && Object.hasOwnProperty.call(message, "calibratedAn6"))
+            writer.uint32(/* id 12, wireType 5 =*/101).float(message.calibratedAn6);
+        if (message.latencyMinUs != null && Object.hasOwnProperty.call(message, "latencyMinUs"))
+            writer.uint32(/* id 13, wireType 0 =*/104).uint32(message.latencyMinUs);
+        if (message.latencyAvgUs != null && Object.hasOwnProperty.call(message, "latencyAvgUs"))
+            writer.uint32(/* id 14, wireType 0 =*/112).uint32(message.latencyAvgUs);
+        if (message.latencyP95Us != null && Object.hasOwnProperty.call(message, "latencyP95Us"))
+            writer.uint32(/* id 15, wireType 0 =*/120).uint32(message.latencyP95Us);
+        if (message.latencyMaxUs != null && Object.hasOwnProperty.call(message, "latencyMaxUs"))
+            writer.uint32(/* id 16, wireType 0 =*/128).uint32(message.latencyMaxUs);
+        if (message.overflowCount != null && Object.hasOwnProperty.call(message, "overflowCount"))
+            writer.uint32(/* id 17, wireType 0 =*/136).uint32(message.overflowCount);
+        if (message.missCount != null && Object.hasOwnProperty.call(message, "missCount"))
+            writer.uint32(/* id 18, wireType 0 =*/144).uint32(message.missCount);
+        if (message.consecutiveMisses != null && Object.hasOwnProperty.call(message, "consecutiveMisses"))
+            writer.uint32(/* id 19, wireType 0 =*/152).uint32(message.consecutiveMisses);
+        if (message.faultCode != null && Object.hasOwnProperty.call(message, "faultCode"))
+            writer.uint32(/* id 20, wireType 0 =*/160).uint32(message.faultCode);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified AnalogStatus message, length delimited. Does not implicitly {@link AnalogStatus.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof AnalogStatus
+     * @static
+     * @param {IAnalogStatus} message AnalogStatus message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    AnalogStatus.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes an AnalogStatus message from the specified reader or buffer.
+     * @function decode
+     * @memberof AnalogStatus
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {AnalogStatus} AnalogStatus
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    AnalogStatus.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.AnalogStatus();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.seq = reader.uint32();
+                    break;
+                }
+            case 2: {
+                    message.valid = reader.bool();
+                    break;
+                }
+            case 3: {
+                    message.timestampUs = reader.uint64();
+                    break;
+                }
+            case 4: {
+                    message.ageUs = reader.uint32();
+                    break;
+                }
+            case 5: {
+                    message.targetTriplesPerCycle = reader.uint32();
+                    break;
+                }
+            case 6: {
+                    message.measuredTriplesPerSecond = reader.uint32();
+                    break;
+                }
+            case 7: {
+                    message.rawAn3 = reader.uint32();
+                    break;
+                }
+            case 8: {
+                    message.rawAn5 = reader.uint32();
+                    break;
+                }
+            case 9: {
+                    message.rawAn6 = reader.uint32();
+                    break;
+                }
+            case 10: {
+                    message.calibratedAn3 = reader.float();
+                    break;
+                }
+            case 11: {
+                    message.calibratedAn5 = reader.float();
+                    break;
+                }
+            case 12: {
+                    message.calibratedAn6 = reader.float();
+                    break;
+                }
+            case 13: {
+                    message.latencyMinUs = reader.uint32();
+                    break;
+                }
+            case 14: {
+                    message.latencyAvgUs = reader.uint32();
+                    break;
+                }
+            case 15: {
+                    message.latencyP95Us = reader.uint32();
+                    break;
+                }
+            case 16: {
+                    message.latencyMaxUs = reader.uint32();
+                    break;
+                }
+            case 17: {
+                    message.overflowCount = reader.uint32();
+                    break;
+                }
+            case 18: {
+                    message.missCount = reader.uint32();
+                    break;
+                }
+            case 19: {
+                    message.consecutiveMisses = reader.uint32();
+                    break;
+                }
+            case 20: {
+                    message.faultCode = reader.uint32();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes an AnalogStatus message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof AnalogStatus
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {AnalogStatus} AnalogStatus
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    AnalogStatus.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies an AnalogStatus message.
+     * @function verify
+     * @memberof AnalogStatus
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    AnalogStatus.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.seq != null && message.hasOwnProperty("seq"))
+            if (!$util.isInteger(message.seq))
+                return "seq: integer expected";
+        if (message.valid != null && message.hasOwnProperty("valid"))
+            if (typeof message.valid !== "boolean")
+                return "valid: boolean expected";
+        if (message.timestampUs != null && message.hasOwnProperty("timestampUs"))
+            if (!$util.isInteger(message.timestampUs) && !(message.timestampUs && $util.isInteger(message.timestampUs.low) && $util.isInteger(message.timestampUs.high)))
+                return "timestampUs: integer|Long expected";
+        if (message.ageUs != null && message.hasOwnProperty("ageUs"))
+            if (!$util.isInteger(message.ageUs))
+                return "ageUs: integer expected";
+        if (message.targetTriplesPerCycle != null && message.hasOwnProperty("targetTriplesPerCycle"))
+            if (!$util.isInteger(message.targetTriplesPerCycle))
+                return "targetTriplesPerCycle: integer expected";
+        if (message.measuredTriplesPerSecond != null && message.hasOwnProperty("measuredTriplesPerSecond"))
+            if (!$util.isInteger(message.measuredTriplesPerSecond))
+                return "measuredTriplesPerSecond: integer expected";
+        if (message.rawAn3 != null && message.hasOwnProperty("rawAn3"))
+            if (!$util.isInteger(message.rawAn3))
+                return "rawAn3: integer expected";
+        if (message.rawAn5 != null && message.hasOwnProperty("rawAn5"))
+            if (!$util.isInteger(message.rawAn5))
+                return "rawAn5: integer expected";
+        if (message.rawAn6 != null && message.hasOwnProperty("rawAn6"))
+            if (!$util.isInteger(message.rawAn6))
+                return "rawAn6: integer expected";
+        if (message.calibratedAn3 != null && message.hasOwnProperty("calibratedAn3"))
+            if (typeof message.calibratedAn3 !== "number")
+                return "calibratedAn3: number expected";
+        if (message.calibratedAn5 != null && message.hasOwnProperty("calibratedAn5"))
+            if (typeof message.calibratedAn5 !== "number")
+                return "calibratedAn5: number expected";
+        if (message.calibratedAn6 != null && message.hasOwnProperty("calibratedAn6"))
+            if (typeof message.calibratedAn6 !== "number")
+                return "calibratedAn6: number expected";
+        if (message.latencyMinUs != null && message.hasOwnProperty("latencyMinUs"))
+            if (!$util.isInteger(message.latencyMinUs))
+                return "latencyMinUs: integer expected";
+        if (message.latencyAvgUs != null && message.hasOwnProperty("latencyAvgUs"))
+            if (!$util.isInteger(message.latencyAvgUs))
+                return "latencyAvgUs: integer expected";
+        if (message.latencyP95Us != null && message.hasOwnProperty("latencyP95Us"))
+            if (!$util.isInteger(message.latencyP95Us))
+                return "latencyP95Us: integer expected";
+        if (message.latencyMaxUs != null && message.hasOwnProperty("latencyMaxUs"))
+            if (!$util.isInteger(message.latencyMaxUs))
+                return "latencyMaxUs: integer expected";
+        if (message.overflowCount != null && message.hasOwnProperty("overflowCount"))
+            if (!$util.isInteger(message.overflowCount))
+                return "overflowCount: integer expected";
+        if (message.missCount != null && message.hasOwnProperty("missCount"))
+            if (!$util.isInteger(message.missCount))
+                return "missCount: integer expected";
+        if (message.consecutiveMisses != null && message.hasOwnProperty("consecutiveMisses"))
+            if (!$util.isInteger(message.consecutiveMisses))
+                return "consecutiveMisses: integer expected";
+        if (message.faultCode != null && message.hasOwnProperty("faultCode"))
+            if (!$util.isInteger(message.faultCode))
+                return "faultCode: integer expected";
+        return null;
+    };
+
+    /**
+     * Creates an AnalogStatus message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof AnalogStatus
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {AnalogStatus} AnalogStatus
+     */
+    AnalogStatus.fromObject = function fromObject(object) {
+        if (object instanceof $root.AnalogStatus)
+            return object;
+        let message = new $root.AnalogStatus();
+        if (object.seq != null)
+            message.seq = object.seq >>> 0;
+        if (object.valid != null)
+            message.valid = Boolean(object.valid);
+        if (object.timestampUs != null)
+            if ($util.Long)
+                (message.timestampUs = $util.Long.fromValue(object.timestampUs)).unsigned = true;
+            else if (typeof object.timestampUs === "string")
+                message.timestampUs = parseInt(object.timestampUs, 10);
+            else if (typeof object.timestampUs === "number")
+                message.timestampUs = object.timestampUs;
+            else if (typeof object.timestampUs === "object")
+                message.timestampUs = new $util.LongBits(object.timestampUs.low >>> 0, object.timestampUs.high >>> 0).toNumber(true);
+        if (object.ageUs != null)
+            message.ageUs = object.ageUs >>> 0;
+        if (object.targetTriplesPerCycle != null)
+            message.targetTriplesPerCycle = object.targetTriplesPerCycle >>> 0;
+        if (object.measuredTriplesPerSecond != null)
+            message.measuredTriplesPerSecond = object.measuredTriplesPerSecond >>> 0;
+        if (object.rawAn3 != null)
+            message.rawAn3 = object.rawAn3 >>> 0;
+        if (object.rawAn5 != null)
+            message.rawAn5 = object.rawAn5 >>> 0;
+        if (object.rawAn6 != null)
+            message.rawAn6 = object.rawAn6 >>> 0;
+        if (object.calibratedAn3 != null)
+            message.calibratedAn3 = Number(object.calibratedAn3);
+        if (object.calibratedAn5 != null)
+            message.calibratedAn5 = Number(object.calibratedAn5);
+        if (object.calibratedAn6 != null)
+            message.calibratedAn6 = Number(object.calibratedAn6);
+        if (object.latencyMinUs != null)
+            message.latencyMinUs = object.latencyMinUs >>> 0;
+        if (object.latencyAvgUs != null)
+            message.latencyAvgUs = object.latencyAvgUs >>> 0;
+        if (object.latencyP95Us != null)
+            message.latencyP95Us = object.latencyP95Us >>> 0;
+        if (object.latencyMaxUs != null)
+            message.latencyMaxUs = object.latencyMaxUs >>> 0;
+        if (object.overflowCount != null)
+            message.overflowCount = object.overflowCount >>> 0;
+        if (object.missCount != null)
+            message.missCount = object.missCount >>> 0;
+        if (object.consecutiveMisses != null)
+            message.consecutiveMisses = object.consecutiveMisses >>> 0;
+        if (object.faultCode != null)
+            message.faultCode = object.faultCode >>> 0;
+        return message;
+    };
+
+    /**
+     * Creates a plain object from an AnalogStatus message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof AnalogStatus
+     * @static
+     * @param {AnalogStatus} message AnalogStatus
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    AnalogStatus.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults) {
+            object.seq = 0;
+            object.valid = false;
+            if ($util.Long) {
+                let long = new $util.Long(0, 0, true);
+                object.timestampUs = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+            } else
+                object.timestampUs = options.longs === String ? "0" : 0;
+            object.ageUs = 0;
+            object.targetTriplesPerCycle = 0;
+            object.measuredTriplesPerSecond = 0;
+            object.rawAn3 = 0;
+            object.rawAn5 = 0;
+            object.rawAn6 = 0;
+            object.calibratedAn3 = 0;
+            object.calibratedAn5 = 0;
+            object.calibratedAn6 = 0;
+            object.latencyMinUs = 0;
+            object.latencyAvgUs = 0;
+            object.latencyP95Us = 0;
+            object.latencyMaxUs = 0;
+            object.overflowCount = 0;
+            object.missCount = 0;
+            object.consecutiveMisses = 0;
+            object.faultCode = 0;
+        }
+        if (message.seq != null && message.hasOwnProperty("seq"))
+            object.seq = message.seq;
+        if (message.valid != null && message.hasOwnProperty("valid"))
+            object.valid = message.valid;
+        if (message.timestampUs != null && message.hasOwnProperty("timestampUs"))
+            if (typeof message.timestampUs === "number")
+                object.timestampUs = options.longs === String ? String(message.timestampUs) : message.timestampUs;
+            else
+                object.timestampUs = options.longs === String ? $util.Long.prototype.toString.call(message.timestampUs) : options.longs === Number ? new $util.LongBits(message.timestampUs.low >>> 0, message.timestampUs.high >>> 0).toNumber(true) : message.timestampUs;
+        if (message.ageUs != null && message.hasOwnProperty("ageUs"))
+            object.ageUs = message.ageUs;
+        if (message.targetTriplesPerCycle != null && message.hasOwnProperty("targetTriplesPerCycle"))
+            object.targetTriplesPerCycle = message.targetTriplesPerCycle;
+        if (message.measuredTriplesPerSecond != null && message.hasOwnProperty("measuredTriplesPerSecond"))
+            object.measuredTriplesPerSecond = message.measuredTriplesPerSecond;
+        if (message.rawAn3 != null && message.hasOwnProperty("rawAn3"))
+            object.rawAn3 = message.rawAn3;
+        if (message.rawAn5 != null && message.hasOwnProperty("rawAn5"))
+            object.rawAn5 = message.rawAn5;
+        if (message.rawAn6 != null && message.hasOwnProperty("rawAn6"))
+            object.rawAn6 = message.rawAn6;
+        if (message.calibratedAn3 != null && message.hasOwnProperty("calibratedAn3"))
+            object.calibratedAn3 = options.json && !isFinite(message.calibratedAn3) ? String(message.calibratedAn3) : message.calibratedAn3;
+        if (message.calibratedAn5 != null && message.hasOwnProperty("calibratedAn5"))
+            object.calibratedAn5 = options.json && !isFinite(message.calibratedAn5) ? String(message.calibratedAn5) : message.calibratedAn5;
+        if (message.calibratedAn6 != null && message.hasOwnProperty("calibratedAn6"))
+            object.calibratedAn6 = options.json && !isFinite(message.calibratedAn6) ? String(message.calibratedAn6) : message.calibratedAn6;
+        if (message.latencyMinUs != null && message.hasOwnProperty("latencyMinUs"))
+            object.latencyMinUs = message.latencyMinUs;
+        if (message.latencyAvgUs != null && message.hasOwnProperty("latencyAvgUs"))
+            object.latencyAvgUs = message.latencyAvgUs;
+        if (message.latencyP95Us != null && message.hasOwnProperty("latencyP95Us"))
+            object.latencyP95Us = message.latencyP95Us;
+        if (message.latencyMaxUs != null && message.hasOwnProperty("latencyMaxUs"))
+            object.latencyMaxUs = message.latencyMaxUs;
+        if (message.overflowCount != null && message.hasOwnProperty("overflowCount"))
+            object.overflowCount = message.overflowCount;
+        if (message.missCount != null && message.hasOwnProperty("missCount"))
+            object.missCount = message.missCount;
+        if (message.consecutiveMisses != null && message.hasOwnProperty("consecutiveMisses"))
+            object.consecutiveMisses = message.consecutiveMisses;
+        if (message.faultCode != null && message.hasOwnProperty("faultCode"))
+            object.faultCode = message.faultCode;
+        return object;
+    };
+
+    /**
+     * Converts this AnalogStatus to JSON.
+     * @function toJSON
+     * @memberof AnalogStatus
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    AnalogStatus.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for AnalogStatus
+     * @function getTypeUrl
+     * @memberof AnalogStatus
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    AnalogStatus.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/AnalogStatus";
+    };
+
+    return AnalogStatus;
+})();
+
 export const SystemStatus = $root.SystemStatus = (() => {
 
     /**
@@ -394,6 +1051,7 @@ export const SystemStatus = $root.SystemStatus = (() => {
      * @property {number|null} [adcMax] SystemStatus adcMax
      * @property {number|null} [adcAvg] SystemStatus adcAvg
      * @property {number|null} [deadTimeTailOverheadCycles] SystemStatus deadTimeTailOverheadCycles
+     * @property {IAnalogStatus|null} [analog] SystemStatus analog
      */
 
     /**
@@ -556,6 +1214,14 @@ export const SystemStatus = $root.SystemStatus = (() => {
     SystemStatus.prototype.deadTimeTailOverheadCycles = 0;
 
     /**
+     * SystemStatus analog.
+     * @member {IAnalogStatus|null|undefined} analog
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.analog = null;
+
+    /**
      * Creates a new SystemStatus instance using the specified properties.
      * @function create
      * @memberof SystemStatus
@@ -615,6 +1281,8 @@ export const SystemStatus = $root.SystemStatus = (() => {
             writer.uint32(/* id 18, wireType 0 =*/144).uint32(message.adcAvg);
         if (message.deadTimeTailOverheadCycles != null && Object.hasOwnProperty.call(message, "deadTimeTailOverheadCycles"))
             writer.uint32(/* id 19, wireType 0 =*/152).uint32(message.deadTimeTailOverheadCycles);
+        if (message.analog != null && Object.hasOwnProperty.call(message, "analog"))
+            $root.AnalogStatus.encode(message.analog, writer.uint32(/* id 20, wireType 2 =*/162).fork()).ldelim();
         return writer;
     };
 
@@ -721,6 +1389,10 @@ export const SystemStatus = $root.SystemStatus = (() => {
                 }
             case 19: {
                     message.deadTimeTailOverheadCycles = reader.uint32();
+                    break;
+                }
+            case 20: {
+                    message.analog = $root.AnalogStatus.decode(reader, reader.uint32());
                     break;
                 }
             default:
@@ -838,6 +1510,11 @@ export const SystemStatus = $root.SystemStatus = (() => {
         if (message.deadTimeTailOverheadCycles != null && message.hasOwnProperty("deadTimeTailOverheadCycles"))
             if (!$util.isInteger(message.deadTimeTailOverheadCycles))
                 return "deadTimeTailOverheadCycles: integer expected";
+        if (message.analog != null && message.hasOwnProperty("analog")) {
+            let error = $root.AnalogStatus.verify(message.analog);
+            if (error)
+                return "analog." + error;
+        }
         return null;
     };
 
@@ -963,6 +1640,11 @@ export const SystemStatus = $root.SystemStatus = (() => {
             message.adcAvg = object.adcAvg >>> 0;
         if (object.deadTimeTailOverheadCycles != null)
             message.deadTimeTailOverheadCycles = object.deadTimeTailOverheadCycles >>> 0;
+        if (object.analog != null) {
+            if (typeof object.analog !== "object")
+                throw TypeError(".SystemStatus.analog: object expected");
+            message.analog = $root.AnalogStatus.fromObject(object.analog);
+        }
         return message;
     };
 
@@ -998,6 +1680,7 @@ export const SystemStatus = $root.SystemStatus = (() => {
             object.adcMax = 0;
             object.adcAvg = 0;
             object.deadTimeTailOverheadCycles = 0;
+            object.analog = null;
         }
         if (message.activeSet != null && message.hasOwnProperty("activeSet"))
             object.activeSet = options.enums === String ? $root.BleSignalSet[message.activeSet] === undefined ? message.activeSet : $root.BleSignalSet[message.activeSet] : message.activeSet;
@@ -1035,6 +1718,8 @@ export const SystemStatus = $root.SystemStatus = (() => {
             object.adcAvg = message.adcAvg;
         if (message.deadTimeTailOverheadCycles != null && message.hasOwnProperty("deadTimeTailOverheadCycles"))
             object.deadTimeTailOverheadCycles = message.deadTimeTailOverheadCycles;
+        if (message.analog != null && message.hasOwnProperty("analog"))
+            object.analog = $root.AnalogStatus.toObject(message.analog, options);
         return object;
     };
 

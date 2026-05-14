@@ -1,9 +1,29 @@
 #include "helper_analog.h"
 #include <atomic>
+#include <cstdint>
+#include <cstring>
+
+#include "esp_timer.h"
 
 #define LATENCY_WINDOW_SIZE 128
+#define ANALOG_TARGET_TRIPLES_PER_CYCLE 4
+#define ANALOG_FAULT_REPEATED_MISS 1
 static uint32_t s_latency_buffer[LATENCY_WINDOW_SIZE] = {0};
 static std::atomic<size_t> s_latency_index(0);
+static std::atomic<uint32_t> s_seq(0);
+static std::atomic<bool> s_valid(false);
+static std::atomic<uint64_t> s_timestamp_us(0);
+static std::atomic<uint32_t> s_measured_triples_per_second(0);
+static std::atomic<uint32_t> s_raw_an3(0);
+static std::atomic<uint32_t> s_raw_an5(0);
+static std::atomic<uint32_t> s_raw_an6(0);
+static std::atomic<float> s_calibrated_an3(0.0f);
+static std::atomic<float> s_calibrated_an5(0.0f);
+static std::atomic<float> s_calibrated_an6(0.0f);
+static std::atomic<uint32_t> s_overflow_count(0);
+static std::atomic<uint32_t> s_miss_count(0);
+static std::atomic<uint32_t> s_consecutive_misses(0);
+static std::atomic<uint32_t> s_fault_code(0);
 
 void analog_record_latency(uint32_t us) {
     // Lock-free increment and wrap
@@ -35,6 +55,107 @@ void analog_get_latency_stats(uint32_t* min, uint32_t* max, uint32_t* avg) {
     } else {
         *min = 0; *max = 0; *avg = 0;
     }
+}
+
+static uint32_t analog_latency_p95() {
+    uint32_t values[LATENCY_WINDOW_SIZE];
+    uint32_t count = 0;
+
+    for (int i = 0; i < LATENCY_WINDOW_SIZE; i++) {
+        uint32_t val = s_latency_buffer[i];
+        if (val != 0) {
+            values[count++] = val;
+        }
+    }
+
+    if (count == 0) {
+        return 0;
+    }
+
+    for (uint32_t i = 1; i < count; i++) {
+        uint32_t value = values[i];
+        int j = i - 1;
+        while (j >= 0 && values[j] > value) {
+            values[j + 1] = values[j];
+            j--;
+        }
+        values[j + 1] = value;
+    }
+
+    uint32_t index = ((count * 95) + 99) / 100;
+    if (index == 0) {
+        index = 1;
+    }
+    return values[index - 1];
+}
+
+void analog_publish_triple(uint32_t raw_an3, float calibrated_an3,
+                           uint32_t raw_an5, float calibrated_an5,
+                           uint32_t raw_an6, float calibrated_an6,
+                           bool valid) {
+    uint64_t now_us = (uint64_t)esp_timer_get_time();
+    uint64_t prev_us = s_timestamp_us.exchange(now_us, std::memory_order_acq_rel);
+
+    if (prev_us > 0 && now_us > prev_us) {
+        uint64_t delta_us = now_us - prev_us;
+        s_measured_triples_per_second.store((uint32_t)(1000000ULL / delta_us), std::memory_order_release);
+    }
+
+    s_raw_an3.store(raw_an3, std::memory_order_release);
+    s_raw_an5.store(raw_an5, std::memory_order_release);
+    s_raw_an6.store(raw_an6, std::memory_order_release);
+    s_calibrated_an3.store(calibrated_an3, std::memory_order_release);
+    s_calibrated_an5.store(calibrated_an5, std::memory_order_release);
+    s_calibrated_an6.store(calibrated_an6, std::memory_order_release);
+    s_valid.store(valid, std::memory_order_release);
+
+    if (valid) {
+        s_consecutive_misses.store(0, std::memory_order_release);
+        s_fault_code.store(0, std::memory_order_release);
+    } else {
+        uint32_t misses = s_consecutive_misses.fetch_add(1, std::memory_order_acq_rel) + 1;
+        s_miss_count.fetch_add(1, std::memory_order_acq_rel);
+        if (misses >= 3) {
+            s_fault_code.store(ANALOG_FAULT_REPEATED_MISS, std::memory_order_release);
+        }
+    }
+
+    s_seq.fetch_add(1, std::memory_order_acq_rel);
+}
+
+void analog_get_status(AnalogRuntimeStatus* status) {
+    if (status == nullptr) {
+        return;
+    }
+
+    uint32_t min_us, max_us, avg_us;
+    analog_get_latency_stats(&min_us, &max_us, &avg_us);
+
+    uint64_t timestamp_us = s_timestamp_us.load(std::memory_order_acquire);
+    uint64_t now_us = (uint64_t)esp_timer_get_time();
+    uint64_t age_us = (timestamp_us > 0 && now_us >= timestamp_us) ? now_us - timestamp_us : 0;
+
+    std::memset(status, 0, sizeof(*status));
+    status->seq = s_seq.load(std::memory_order_acquire);
+    status->valid = s_valid.load(std::memory_order_acquire);
+    status->timestamp_us = timestamp_us;
+    status->age_us = (age_us > UINT32_MAX) ? UINT32_MAX : (uint32_t)age_us;
+    status->target_triples_per_cycle = ANALOG_TARGET_TRIPLES_PER_CYCLE;
+    status->measured_triples_per_second = s_measured_triples_per_second.load(std::memory_order_acquire);
+    status->raw_an3 = s_raw_an3.load(std::memory_order_acquire);
+    status->raw_an5 = s_raw_an5.load(std::memory_order_acquire);
+    status->raw_an6 = s_raw_an6.load(std::memory_order_acquire);
+    status->calibrated_an3 = s_calibrated_an3.load(std::memory_order_acquire);
+    status->calibrated_an5 = s_calibrated_an5.load(std::memory_order_acquire);
+    status->calibrated_an6 = s_calibrated_an6.load(std::memory_order_acquire);
+    status->latency_min_us = min_us;
+    status->latency_avg_us = avg_us;
+    status->latency_p95_us = analog_latency_p95();
+    status->latency_max_us = max_us;
+    status->overflow_count = s_overflow_count.load(std::memory_order_acquire);
+    status->miss_count = s_miss_count.load(std::memory_order_acquire);
+    status->consecutive_misses = s_consecutive_misses.load(std::memory_order_acquire);
+    status->fault_code = s_fault_code.load(std::memory_order_acquire);
 }
 
 
@@ -112,23 +233,37 @@ float esp32_calibration(float value) {
     return calib_to[calib_numel - 1];
 }
 
-float analog_read_port(AnalogPort port) {
+static bool analog_port_to_channel(AnalogPort port, adc_channel_t* channel) {
+    if (channel == nullptr) {
+        return false;
+    }
+
+    switch (port) {
+        case AnalogPort::AN1: *channel = ADC_CHANNEL_3; return true;
+        case AnalogPort::AN2: *channel = ADC_CHANNEL_5; return true;
+        case AnalogPort::AN3: *channel = ADC_CHANNEL_4; return true;
+        case AnalogPort::AN4: *channel = ADC_CHANNEL_7; return true;
+        case AnalogPort::AN5: *channel = ADC_CHANNEL_6; return true;
+        case AnalogPort::AN6: *channel = ADC_CHANNEL_0; return true;
+        default:
+            return false;
+    }
+}
+
+bool analog_read_port_sample(AnalogPort port, uint32_t* raw, float* calibrated) {
     if (adc1_handle == NULL) {
         ESP_LOGE(TAG_COMMON, "ADC not initialized! Call analog_init().");
-        return -99.0;
+        if (raw != nullptr) *raw = 0;
+        if (calibrated != nullptr) *calibrated = -99.0f;
+        return false;
     }
     
     adc_channel_t channel;
-    switch (port) {
-        case AnalogPort::AN1: channel = ADC_CHANNEL_3; break;
-        case AnalogPort::AN2: channel = ADC_CHANNEL_5; break;
-        case AnalogPort::AN3: channel = ADC_CHANNEL_4; break;
-        case AnalogPort::AN4: channel = ADC_CHANNEL_7; break;
-        case AnalogPort::AN5: channel = ADC_CHANNEL_6; break;
-        case AnalogPort::AN6: channel = ADC_CHANNEL_0; break;
-        default:
-            ESP_LOGW(TAG_COMMON, "Invalid Analog Port requested");
-            return -99.0;
+    if (!analog_port_to_channel(port, &channel)) {
+        ESP_LOGW(TAG_COMMON, "Invalid Analog Port requested");
+        if (raw != nullptr) *raw = 0;
+        if (calibrated != nullptr) *calibrated = -99.0f;
+        return false;
     }
     
     // read raw value
@@ -136,9 +271,19 @@ float analog_read_port(AnalogPort port) {
     if (adc_oneshot_read(adc1_handle, channel, &raw_val) == ESP_OK) {
         float voltage = ((float)raw_val/ADC_MAX)*VOLTAGE_MAX;
         voltage = esp32_calibration(voltage);
-        return voltage;
+        if (raw != nullptr) *raw = (uint32_t)raw_val;
+        if (calibrated != nullptr) *calibrated = voltage;
+        return true;
     } else {
         ESP_LOGE(TAG_COMMON, "Failed to read ADC channel %d", channel);
-        return -99.0;
+        if (raw != nullptr) *raw = 0;
+        if (calibrated != nullptr) *calibrated = -99.0f;
+        return false;
     }
+}
+
+float analog_read_port(AnalogPort port) {
+    float calibrated = -99.0f;
+    analog_read_port_sample(port, nullptr, &calibrated);
+    return calibrated;
 }

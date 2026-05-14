@@ -88,14 +88,16 @@ static void analog_reading_task(void* arg) {
     ESP_LOGI(TAG, "Analog Task Started");
 
     float an3, an5, an6;
+    uint32_t raw_an3, raw_an5, raw_an6;
     for (;;) {
         if (ble_is_connected()) {
             uint32_t start = esp_cpu_get_cycle_count();
-            an3 = analog_read_port(AnalogPort::AN3);
-            an5 = analog_read_port(AnalogPort::AN5);
-            an6 = analog_read_port(AnalogPort::AN6);
+            bool valid = analog_read_port_sample(AnalogPort::AN3, &raw_an3, &an3);
+            valid = analog_read_port_sample(AnalogPort::AN5, &raw_an5, &an5) && valid;
+            valid = analog_read_port_sample(AnalogPort::AN6, &raw_an6, &an6) && valid;
             uint32_t end = esp_cpu_get_cycle_count();
             analog_record_latency((end - start) / esp_rom_get_cpu_ticks_per_us());
+            analog_publish_triple(raw_an3, an3, raw_an5, an5, raw_an6, an6, valid);
 
             BlePacket packet = BlePacket_init_zero;
             packet.which_payload = BlePacket_telemetry_tag;
@@ -113,15 +115,17 @@ static void analog_reading_task(void* arg) {
 static void analog_action_task(void* arg) {
     ESP_LOGI(TAG, "Analog Action Task Started");
     float an3, an5, an6;
+    uint32_t raw_an3, raw_an5, raw_an6;
 
     for (;;) {
         if (xSemaphoreTake(sem_analog_read_trigger, portMAX_DELAY) == pdPASS) {
             uint32_t start = esp_cpu_get_cycle_count();
-            an3 = analog_read_port(AnalogPort::AN3);
-            an5 = analog_read_port(AnalogPort::AN5);
-            an6 = analog_read_port(AnalogPort::AN6);
+            bool valid = analog_read_port_sample(AnalogPort::AN3, &raw_an3, &an3);
+            valid = analog_read_port_sample(AnalogPort::AN5, &raw_an5, &an5) && valid;
+            valid = analog_read_port_sample(AnalogPort::AN6, &raw_an6, &an6) && valid;
             uint32_t end = esp_cpu_get_cycle_count();
             analog_record_latency((end - start) / esp_rom_get_cpu_ticks_per_us());
+            analog_publish_triple(raw_an3, an3, raw_an5, an5, raw_an6, an6, valid);
 
             g_adc_an3.store(an3, std::memory_order_release);
             g_adc_an5.store(an5, std::memory_order_release);

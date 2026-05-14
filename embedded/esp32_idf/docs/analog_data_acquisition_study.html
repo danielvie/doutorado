@@ -423,6 +423,7 @@
         <a href="#critical-gaps">Critical Gaps</a>
         <a href="#fastest-architecture">Fastest Architecture</a>
         <a href="#plan-to-improve">Plan to Improve</a>
+        <a href="#iteration-1-report">Iteration 1</a>
         <a href="#complexity-debt">Complexity Debt</a>
       </nav>
     </div>
@@ -1088,6 +1089,90 @@ g_adc_fresh.<span class="fn">store</span>(<span class="kw">true</span>);</code><
         The dashboard analog block is display-first, but must include safe command controls for actions that require an explicit user command to start, trigger, or test.
         Those controls must use BLE commands and stay off the real-time signal/acquisition/control path.
       </div>
+    </div>
+
+    <h3 id="iteration-1-report">First iteration report</h3>
+    <div class="note">
+      <p>
+        Iteration 1 implements the observability-first milestone from <strong>D32</strong>, <strong>D36</strong>, <strong>D37</strong>,
+        <strong>D39</strong>, <strong>D42</strong>, and <strong>D43</strong>. The ADC driver is still the existing oneshot producer;
+        this iteration intentionally does not change signal-loop behavior or remove the temporary <code class="inline">g_adc_an3</code>,
+        <code class="inline">g_adc_an5</code>, <code class="inline">g_adc_an6</code>, and <code class="inline">g_adc_fresh</code> wrappers.
+      </p>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Area</th>
+          <th>Implemented in iteration 1</th>
+          <th>Verification</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Analog module</td>
+          <td>
+            Added <code class="inline">AnalogRuntimeStatus</code>, raw+calibrated sample reads,
+            snapshot publishing, monotonic sequence, timestamp/age, measured triple rate, min/avg/p95/max latency,
+            miss counters, consecutive misses, overflow placeholder, and fault code.
+          </td>
+          <td>Firmware build passes with the current oneshot read path.</td>
+        </tr>
+        <tr>
+          <td>Current producers</td>
+          <td>
+            The periodic BLE monitor task, control-triggered analog action task, and manual <code class="inline">analog.read_once</code>
+            path now publish the latest complete AN3/AN5/AN6 snapshot after each triple read.
+          </td>
+          <td>Existing telemetry and control globals remain populated as before.</td>
+        </tr>
+        <tr>
+          <td>Protobuf status</td>
+          <td>
+            Added nested <code class="inline">AnalogStatus</code> to <code class="inline">SystemStatus</code> with the milestone fields:
+            seq, valid, timestamp, age, target/rate, raw and calibrated channels, latency stats, overflow count, miss counts, and fault code.
+          </td>
+          <td><code class="inline">task proto:gen</code> regenerated Nanopb and web protobuf outputs.</td>
+        </tr>
+        <tr>
+          <td>Dashboard</td>
+          <td>
+            The web BLE decoder maps <code class="inline">AnalogStatus</code>, and the status panel text now shows the analog block
+            in every <code class="inline">system.get_status</code> response.
+          </td>
+          <td><code class="inline">task web:build</code> passes.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Next implementation steps</h3>
+    <div class="plan-step">
+      <h3>N1 <span>Harden the snapshot boundary</span></h3>
+      <p>
+        Replace the current independent atomic-field publication with a seqlock-style snapshot or a small critical section so status/control consumers
+        can prove they never observe mixed-channel data. Keep the public fields unchanged.
+      </p>
+    </div>
+    <div class="plan-step">
+      <h3>N2 <span>Move signal control consumption to the snapshot API</span></h3>
+      <p>
+        Update the signal loop to consume the module-owned snapshot and compute control age/miss reasons there, then retire direct reads of
+        <code class="inline">g_adc_an3</code>, <code class="inline">g_adc_an5</code>, <code class="inline">g_adc_an6</code>, and <code class="inline">g_adc_fresh</code>.
+      </p>
+    </div>
+    <div class="plan-step">
+      <h3>N3 <span>Disable automatic BLE telemetry under control load</span></h3>
+      <p>
+        Change the legacy monitor behavior so analog data is served from the latest snapshot on demand, and periodic telemetry does not compete with
+        signal generation, acquisition, or control.
+      </p>
+    </div>
+    <div class="plan-step">
+      <h3>N4 <span>Swap the producer to ADC continuous/DMA</span></h3>
+      <p>
+        Keep the new status contract stable while replacing synchronous oneshot triples with ADC continuous frames targeting 4 calibrated triples per
+        280 us cycle. Add real overflow accounting and the 60 second acceptance run after the producer changes.
+      </p>
     </div>
 
     <h3>Target data path</h3>

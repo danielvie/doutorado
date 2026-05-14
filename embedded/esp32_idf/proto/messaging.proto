@@ -40,6 +40,29 @@ message Telemetry {
     uint32 timestamp_ms = 4;
 }
 
+message AnalogStatus {
+    uint32 seq = 1;
+    bool valid = 2;
+    uint64 timestamp_us = 3;
+    uint32 age_us = 4;
+    uint32 target_triples_per_cycle = 5;
+    uint32 measured_triples_per_second = 6;
+    uint32 raw_an3 = 7;
+    uint32 raw_an5 = 8;
+    uint32 raw_an6 = 9;
+    float calibrated_an3 = 10;
+    float calibrated_an5 = 11;
+    float calibrated_an6 = 12;
+    uint32 latency_min_us = 13;
+    uint32 latency_avg_us = 14;
+    uint32 latency_p95_us = 15;
+    uint32 latency_max_us = 16;
+    uint32 overflow_count = 17;
+    uint32 miss_count = 18;
+    uint32 consecutive_misses = 19;
+    uint32 fault_code = 20;
+}
+
 // System status message
 message SystemStatus {
     BleSignalSet active_set = 1;
@@ -64,6 +87,7 @@ message SystemStatus {
     uint32 adc_max = 17;
     uint32 adc_avg = 18;
     uint32 dead_time_tail_overhead_cycles = 19;
+    AnalogStatus analog = 20;
 }
 
 // General purpose log message

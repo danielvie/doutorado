@@ -143,6 +143,7 @@ class BleManager {
                     const ble_state = formatEnum(getVal(s.ble_read_state, decodeBleAnalogReadState));
                     const control_state = formatEnum(getVal(s.control_state, decodeBleControlState));
                     const led_state = formatEnum(getVal(s.led_mode, decodeBleLedMode));
+                    const analog = s.analog;
 
                     const statusLines = [
                         "== status ==",
@@ -163,6 +164,23 @@ class BleManager {
                         `ADC Latency min: ${s.adc_min} us`,
                         `ADC Latency max: ${s.adc_max} us`,
                     ];
+
+                    if (analog) {
+                        statusLines.push(
+                            "== analog status ==",
+                            `Seq            : ${analog.seq ?? 0}`,
+                            `Valid          : ${analog.valid ? "YES" : "NO"}`,
+                            `Age            : ${analog.age_us ?? 0} us`,
+                            `Target triples : ${analog.target_triples_per_cycle ?? 0} per cycle`,
+                            `Measured rate  : ${analog.measured_triples_per_second ?? 0} triples/s`,
+                            `Raw AN3/AN5/AN6: ${analog.raw_an3 ?? 0} / ${analog.raw_an5 ?? 0} / ${analog.raw_an6 ?? 0}`,
+                            `Cal AN3/AN5/AN6: ${(analog.calibrated_an3 ?? 0).toFixed(4)} / ${(analog.calibrated_an5 ?? 0).toFixed(4)} / ${(analog.calibrated_an6 ?? 0).toFixed(4)}`,
+                            `Latency p95    : ${analog.latency_p95_us ?? 0} us`,
+                            `Misses         : ${analog.miss_count ?? 0} total, ${analog.consecutive_misses ?? 0} consecutive`,
+                            `Overflows      : ${analog.overflow_count ?? 0}`,
+                            `Fault code     : ${analog.fault_code ?? 0}`,
+                        );
+                    }
                     
                     const statusStr = statusLines.join("\n");
                     useBleStore.getState().addLog(statusStr);

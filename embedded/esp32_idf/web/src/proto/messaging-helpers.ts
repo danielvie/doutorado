@@ -69,36 +69,69 @@ export function encodeOtaCommand(message: OtaCommand): Uint8Array {
 
 export function decodeBlePacket(binary: Uint8Array) {
     const packet = BlePacket.toObject(BlePacket.decode(binary));
+    const numberValue = (value: unknown) => (typeof value === "number" ? value : 0);
+    const booleanValue = (value: unknown) => (typeof value === "boolean" ? value : false);
 
     return {
         telemetry: packet.telemetry
             ? {
-                  an3: packet.telemetry.an3,
-                  an5: packet.telemetry.an5,
-                  an6: packet.telemetry.an6,
-                  timestamp_ms: packet.telemetry.timestampMs,
+                  an3: numberValue(packet.telemetry.an3),
+                  an5: numberValue(packet.telemetry.an5),
+                  an6: numberValue(packet.telemetry.an6),
+                  timestamp_ms: numberValue(packet.telemetry.timestampMs),
               }
             : undefined,
         status: packet.status
             ? {
-                  active_set: packet.status.activeSet,
-                  signal_state: packet.status.signalState,
-                  ble_read_state: packet.status.bleReadState,
-                  control_state: packet.status.controlState,
-                  alpha: packet.status.alpha,
-                  has_alpha: packet.status.hasAlpha,
-                  matrix_a_valid: packet.status.matrixAValid,
-                  matrix_b_valid: packet.status.matrixBValid,
-                  current_cycles: packet.status.currentCycles,
-                  total_cycles: packet.status.totalCycles,
-                  monitor_ms: packet.status.monitorMs,
-                  dead_time_us: packet.status.deadTimeUs,
-                  led_mode: packet.status.ledMode,
-                  ble_congested: packet.status.bleCongested,
-                  adc_min: packet.status.adcMin,
-                  adc_max: packet.status.adcMax,
-                  adc_avg: packet.status.adcAvg,
-                  dead_time_tail_overhead_cycles: packet.status.deadTimeTailOverheadCycles,
+                  active_set: numberValue(packet.status.activeSet),
+                  signal_state: numberValue(packet.status.signalState),
+                  ble_read_state: numberValue(packet.status.bleReadState),
+                  control_state: numberValue(packet.status.controlState),
+                  alpha: numberValue(packet.status.alpha),
+                  has_alpha: booleanValue(packet.status.hasAlpha),
+                  matrix_a_valid: booleanValue(packet.status.matrixAValid),
+                  matrix_b_valid: booleanValue(packet.status.matrixBValid),
+                  current_cycles: numberValue(packet.status.currentCycles),
+                  total_cycles: numberValue(packet.status.totalCycles),
+                  monitor_ms: numberValue(packet.status.monitorMs),
+                  dead_time_us: numberValue(packet.status.deadTimeUs),
+                  led_mode: numberValue(packet.status.ledMode),
+                  ble_congested: booleanValue(packet.status.bleCongested),
+                  adc_min: numberValue(packet.status.adcMin),
+                  adc_max: numberValue(packet.status.adcMax),
+                  adc_avg: numberValue(packet.status.adcAvg),
+                  dead_time_tail_overhead_cycles: numberValue(
+                      packet.status.deadTimeTailOverheadCycles,
+                  ),
+                  analog: packet.status.analog
+                      ? {
+                            seq: numberValue(packet.status.analog.seq),
+                            valid: booleanValue(packet.status.analog.valid),
+                            timestamp_us: numberValue(packet.status.analog.timestampUs),
+                            age_us: numberValue(packet.status.analog.ageUs),
+                            target_triples_per_cycle: numberValue(
+                                packet.status.analog.targetTriplesPerCycle,
+                            ),
+                            measured_triples_per_second:
+                                numberValue(packet.status.analog.measuredTriplesPerSecond),
+                            raw_an3: numberValue(packet.status.analog.rawAn3),
+                            raw_an5: numberValue(packet.status.analog.rawAn5),
+                            raw_an6: numberValue(packet.status.analog.rawAn6),
+                            calibrated_an3: numberValue(packet.status.analog.calibratedAn3),
+                            calibrated_an5: numberValue(packet.status.analog.calibratedAn5),
+                            calibrated_an6: numberValue(packet.status.analog.calibratedAn6),
+                            latency_min_us: numberValue(packet.status.analog.latencyMinUs),
+                            latency_avg_us: numberValue(packet.status.analog.latencyAvgUs),
+                            latency_p95_us: numberValue(packet.status.analog.latencyP95Us),
+                            latency_max_us: numberValue(packet.status.analog.latencyMaxUs),
+                            overflow_count: numberValue(packet.status.analog.overflowCount),
+                            miss_count: numberValue(packet.status.analog.missCount),
+                            consecutive_misses: numberValue(
+                                packet.status.analog.consecutiveMisses,
+                            ),
+                            fault_code: numberValue(packet.status.analog.faultCode),
+                        }
+                      : undefined,
               }
             : undefined,
         log: packet.log,

@@ -34,8 +34,8 @@ struct UiCommandEntry {
 
 static UiCommandEntry s_commands[32];
 static size_t s_command_count = 0;
-volatile uint32_t g_dead_time_tail_overhead_cycles = 35;
-volatile uint32_t g_dead_time_us = 0;
+volatile uint32_t g_dead_time_tail_overhead_cycles = DEFAULT_DEAD_TIME_TAIL_OVERHEAD_CYCLES;
+volatile uint32_t g_dead_time_us = DEFAULT_DEAD_TIME_US;
 static bool s_dead_time_request_valid = false;
 
 static UiCommandResultData ok(const char* message = "ok", const std::string& json = "") {
@@ -402,6 +402,7 @@ static UiCommandResultData handle_debug_all_low(const UiCommandContext& ctx) {
 
 void ui_command_router_init(void) {
     s_command_count = 0;
+    set_dead_time_us(g_dead_time_us);
 
     register_command("system.list_commands", handle_system_list_commands);
     register_command("system.get_status", handle_system_get_status);

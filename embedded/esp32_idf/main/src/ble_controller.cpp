@@ -275,9 +275,12 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
 }
 
 void ble_send_analog_read(void) {
-    float an3 = analog_read_port(AnalogPort::AN3);
-    float an5 = analog_read_port(AnalogPort::AN5);
-    float an6 = analog_read_port(AnalogPort::AN6);
+    float an3, an5, an6;
+    uint32_t raw_an3, raw_an5, raw_an6;
+    bool valid = analog_read_port_sample(AnalogPort::AN3, &raw_an3, &an3);
+    valid = analog_read_port_sample(AnalogPort::AN5, &raw_an5, &an5) && valid;
+    valid = analog_read_port_sample(AnalogPort::AN6, &raw_an6, &an6) && valid;
+    analog_publish_triple(raw_an3, an3, raw_an5, an5, raw_an6, an6, valid);
 
     BlePacket packet = BlePacket_init_zero;
     packet.which_payload = BlePacket_telemetry_tag;
@@ -347,6 +350,30 @@ void ble_send_status(void) {
     status->adc_min = a_min;
     status->adc_max = a_max;
     status->adc_avg = a_avg;
+
+    AnalogRuntimeStatus analog_status;
+    analog_get_status(&analog_status);
+    status->has_analog = true;
+    status->analog.seq = analog_status.seq;
+    status->analog.valid = analog_status.valid;
+    status->analog.timestamp_us = analog_status.timestamp_us;
+    status->analog.age_us = analog_status.age_us;
+    status->analog.target_triples_per_cycle = analog_status.target_triples_per_cycle;
+    status->analog.measured_triples_per_second = analog_status.measured_triples_per_second;
+    status->analog.raw_an3 = analog_status.raw_an3;
+    status->analog.raw_an5 = analog_status.raw_an5;
+    status->analog.raw_an6 = analog_status.raw_an6;
+    status->analog.calibrated_an3 = analog_status.calibrated_an3;
+    status->analog.calibrated_an5 = analog_status.calibrated_an5;
+    status->analog.calibrated_an6 = analog_status.calibrated_an6;
+    status->analog.latency_min_us = analog_status.latency_min_us;
+    status->analog.latency_avg_us = analog_status.latency_avg_us;
+    status->analog.latency_p95_us = analog_status.latency_p95_us;
+    status->analog.latency_max_us = analog_status.latency_max_us;
+    status->analog.overflow_count = analog_status.overflow_count;
+    status->analog.miss_count = analog_status.miss_count;
+    status->analog.consecutive_misses = analog_status.consecutive_misses;
+    status->analog.fault_code = analog_status.fault_code;
 
     ble_send_protobuf(&packet);
     

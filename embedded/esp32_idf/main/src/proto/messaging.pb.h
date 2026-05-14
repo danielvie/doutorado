@@ -60,6 +60,29 @@ typedef struct _Telemetry {
     uint32_t timestamp_ms;
 } Telemetry;
 
+typedef struct _AnalogStatus {
+    uint32_t seq;
+    bool valid;
+    uint64_t timestamp_us;
+    uint32_t age_us;
+    uint32_t target_triples_per_cycle;
+    uint32_t measured_triples_per_second;
+    uint32_t raw_an3;
+    uint32_t raw_an5;
+    uint32_t raw_an6;
+    float calibrated_an3;
+    float calibrated_an5;
+    float calibrated_an6;
+    uint32_t latency_min_us;
+    uint32_t latency_avg_us;
+    uint32_t latency_p95_us;
+    uint32_t latency_max_us;
+    uint32_t overflow_count;
+    uint32_t miss_count;
+    uint32_t consecutive_misses;
+    uint32_t fault_code;
+} AnalogStatus;
+
 /* System status message */
 typedef struct _SystemStatus {
     BleSignalSet active_set;
@@ -80,6 +103,8 @@ typedef struct _SystemStatus {
     uint32_t adc_max;
     uint32_t adc_avg;
     uint32_t dead_time_tail_overhead_cycles;
+    bool has_analog;
+    AnalogStatus analog;
 } SystemStatus;
 
 /* General purpose log message */
@@ -186,6 +211,7 @@ extern "C" {
 #define _OtaState_ARRAYSIZE ((OtaState)(OtaState_OTA_ERROR+1))
 
 
+
 #define SystemStatus_active_set_ENUMTYPE BleSignalSet
 #define SystemStatus_signal_state_ENUMTYPE BleSignalState
 #define SystemStatus_ble_read_state_ENUMTYPE BleAnalogReadState
@@ -206,7 +232,8 @@ extern "C" {
 
 /* Initializer values for message structs */
 #define Telemetry_init_default                   {0, 0, 0, 0}
-#define SystemStatus_init_default                {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0, 0}
+#define AnalogStatus_init_default                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+#define SystemStatus_init_default                {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0, 0, false, AnalogStatus_init_default}
 #define LogMessage_init_default                  {_BleLogLevel_MIN, ""}
 #define OtaStatus_init_default                   {_OtaState_MIN, 0, "", 0, 0}
 #define OtaBegin_init_default                    {0}
@@ -217,7 +244,8 @@ extern "C" {
 #define UiCommandResult_init_default             {0, "", 0, "", "", ""}
 #define BlePacket_init_default                   {0, {Telemetry_init_default}}
 #define Telemetry_init_zero                      {0, 0, 0, 0}
-#define SystemStatus_init_zero                   {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0, 0}
+#define AnalogStatus_init_zero                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+#define SystemStatus_init_zero                   {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0, 0, false, AnalogStatus_init_zero}
 #define LogMessage_init_zero                     {_BleLogLevel_MIN, ""}
 #define OtaStatus_init_zero                      {_OtaState_MIN, 0, "", 0, 0}
 #define OtaBegin_init_zero                       {0}
@@ -233,6 +261,26 @@ extern "C" {
 #define Telemetry_an5_tag                        2
 #define Telemetry_an6_tag                        3
 #define Telemetry_timestamp_ms_tag               4
+#define AnalogStatus_seq_tag                     1
+#define AnalogStatus_valid_tag                   2
+#define AnalogStatus_timestamp_us_tag            3
+#define AnalogStatus_age_us_tag                  4
+#define AnalogStatus_target_triples_per_cycle_tag 5
+#define AnalogStatus_measured_triples_per_second_tag 6
+#define AnalogStatus_raw_an3_tag                 7
+#define AnalogStatus_raw_an5_tag                 8
+#define AnalogStatus_raw_an6_tag                 9
+#define AnalogStatus_calibrated_an3_tag          10
+#define AnalogStatus_calibrated_an5_tag          11
+#define AnalogStatus_calibrated_an6_tag          12
+#define AnalogStatus_latency_min_us_tag          13
+#define AnalogStatus_latency_avg_us_tag          14
+#define AnalogStatus_latency_p95_us_tag          15
+#define AnalogStatus_latency_max_us_tag          16
+#define AnalogStatus_overflow_count_tag          17
+#define AnalogStatus_miss_count_tag              18
+#define AnalogStatus_consecutive_misses_tag      19
+#define AnalogStatus_fault_code_tag              20
 #define SystemStatus_active_set_tag              1
 #define SystemStatus_signal_state_tag            2
 #define SystemStatus_ble_read_state_tag          3
@@ -251,6 +299,7 @@ extern "C" {
 #define SystemStatus_adc_max_tag                 17
 #define SystemStatus_adc_avg_tag                 18
 #define SystemStatus_dead_time_tail_overhead_cycles_tag 19
+#define SystemStatus_analog_tag                  20
 #define LogMessage_level_tag                     1
 #define LogMessage_text_tag                      2
 #define OtaStatus_state_tag                      1
@@ -290,6 +339,30 @@ X(a, STATIC,   SINGULAR, UINT32,   timestamp_ms,      4)
 #define Telemetry_CALLBACK NULL
 #define Telemetry_DEFAULT NULL
 
+#define AnalogStatus_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   seq,               1) \
+X(a, STATIC,   SINGULAR, BOOL,     valid,             2) \
+X(a, STATIC,   SINGULAR, UINT64,   timestamp_us,      3) \
+X(a, STATIC,   SINGULAR, UINT32,   age_us,            4) \
+X(a, STATIC,   SINGULAR, UINT32,   target_triples_per_cycle,   5) \
+X(a, STATIC,   SINGULAR, UINT32,   measured_triples_per_second,   6) \
+X(a, STATIC,   SINGULAR, UINT32,   raw_an3,           7) \
+X(a, STATIC,   SINGULAR, UINT32,   raw_an5,           8) \
+X(a, STATIC,   SINGULAR, UINT32,   raw_an6,           9) \
+X(a, STATIC,   SINGULAR, FLOAT,    calibrated_an3,   10) \
+X(a, STATIC,   SINGULAR, FLOAT,    calibrated_an5,   11) \
+X(a, STATIC,   SINGULAR, FLOAT,    calibrated_an6,   12) \
+X(a, STATIC,   SINGULAR, UINT32,   latency_min_us,   13) \
+X(a, STATIC,   SINGULAR, UINT32,   latency_avg_us,   14) \
+X(a, STATIC,   SINGULAR, UINT32,   latency_p95_us,   15) \
+X(a, STATIC,   SINGULAR, UINT32,   latency_max_us,   16) \
+X(a, STATIC,   SINGULAR, UINT32,   overflow_count,   17) \
+X(a, STATIC,   SINGULAR, UINT32,   miss_count,       18) \
+X(a, STATIC,   SINGULAR, UINT32,   consecutive_misses,  19) \
+X(a, STATIC,   SINGULAR, UINT32,   fault_code,       20)
+#define AnalogStatus_CALLBACK NULL
+#define AnalogStatus_DEFAULT NULL
+
 #define SystemStatus_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UENUM,    active_set,        1) \
 X(a, STATIC,   SINGULAR, UENUM,    signal_state,      2) \
@@ -308,9 +381,11 @@ X(a, STATIC,   SINGULAR, BOOL,     ble_congested,    15) \
 X(a, STATIC,   SINGULAR, UINT32,   adc_min,          16) \
 X(a, STATIC,   SINGULAR, UINT32,   adc_max,          17) \
 X(a, STATIC,   SINGULAR, UINT32,   adc_avg,          18) \
-X(a, STATIC,   SINGULAR, UINT32,   dead_time_tail_overhead_cycles,  19)
+X(a, STATIC,   SINGULAR, UINT32,   dead_time_tail_overhead_cycles,  19) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  analog,           20)
 #define SystemStatus_CALLBACK NULL
 #define SystemStatus_DEFAULT NULL
+#define SystemStatus_analog_MSGTYPE AnalogStatus
 
 #define LogMessage_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UENUM,    level,             1) \
@@ -386,6 +461,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (payload,command_result,payload.command_resul
 #define BlePacket_payload_command_result_MSGTYPE UiCommandResult
 
 extern const pb_msgdesc_t Telemetry_msg;
+extern const pb_msgdesc_t AnalogStatus_msg;
 extern const pb_msgdesc_t SystemStatus_msg;
 extern const pb_msgdesc_t LogMessage_msg;
 extern const pb_msgdesc_t OtaStatus_msg;
@@ -399,6 +475,7 @@ extern const pb_msgdesc_t BlePacket_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define Telemetry_fields &Telemetry_msg
+#define AnalogStatus_fields &AnalogStatus_msg
 #define SystemStatus_fields &SystemStatus_msg
 #define LogMessage_fields &LogMessage_msg
 #define OtaStatus_fields &OtaStatus_msg
@@ -411,6 +488,7 @@ extern const pb_msgdesc_t BlePacket_msg;
 #define BlePacket_fields &BlePacket_msg
 
 /* Maximum encoded size of messages (where known) */
+#define AnalogStatus_size                        123
 #define BlePacket_size                           753
 #define LogMessage_size                          132
 #define OtaBegin_size                            6
@@ -419,7 +497,7 @@ extern const pb_msgdesc_t BlePacket_msg;
 #define OtaEnd_size                              65
 #define OtaStatus_size                           85
 #define PROTO_MESSAGING_PB_H_MAX_SIZE            BlePacket_size
-#define SystemStatus_size                        75
+#define SystemStatus_size                        201
 #define Telemetry_size                           21
 #define UiCommandResult_size                     750
 #define UiCommand_size                           457
