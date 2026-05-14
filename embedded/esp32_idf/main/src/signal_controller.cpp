@@ -357,6 +357,7 @@ void signal_update_from_string(const std::string &message) {
 // ---------------------------------------------------------------------------
 struct SignalLoopContext {
     const DataSet *dataset = &g_dataset_a;
+    uint32_t next_pattern_edge = 0;
     int32_t current_correction[MAX_SIGNAL_SIZE];
     float dtk_buffer[MAX_SIGNAL_SIZE];
 };
@@ -389,6 +390,7 @@ static void apply_pending_dataset_swap(SignalLoopContext &ctx) {
     }
 
     g_ds_update_pending.store(false, std::memory_order_release);
+    ctx.next_pattern_edge = 0;
     reset_control_corrections(ctx);
 }
 
@@ -436,7 +438,7 @@ static inline void wait_until_cycle(uint32_t deadline) {
     }
 }
 
-static void execute_signal_pattern(const SignalLoopContext &ctx,
+static void execute_signal_pattern(SignalLoopContext &ctx,
                                    SignalTimingSample &timing,
                                    uint32_t repeat_count) {
     // Keep the interrupt-disabled block limited to GPIO writes and exact delays.
@@ -445,7 +447,10 @@ static void execute_signal_pattern(const SignalLoopContext &ctx,
 
     uint8_t sz = ctx.dataset->size;
     timing = {};
-    uint32_t pattern_start = esp_cpu_get_cycle_count();
+    uint32_t pattern_start = ctx.next_pattern_edge;
+    if (pattern_start == 0) {
+        pattern_start = esp_cpu_get_cycle_count();
+    }
     uint32_t next_edge = pattern_start;
 
     for (uint32_t repeat = 0; repeat < repeat_count; ++repeat) {
@@ -476,10 +481,16 @@ static void execute_signal_pattern(const SignalLoopContext &ctx,
                 }
             }
 
-            next_edge += cycles;
             if (repeat == 0) {
                 timing.expected_cycles += cycles;
                 timing.scheduled_period_cycles += cycles;
+            }
+
+            uint32_t now = esp_cpu_get_cycle_count();
+            if ((int32_t)(now - next_edge) > 0) {
+                timing.overrun_count++;
+            } else {
+                wait_until_cycle(next_edge);
             }
 
             if (step.clear_mask) {
@@ -492,18 +503,13 @@ static void execute_signal_pattern(const SignalLoopContext &ctx,
 
             GPIO.out_w1tc = step.clr_mask;
             GPIO.out_w1ts = step.set_mask;
-
-            uint32_t now = esp_cpu_get_cycle_count();
-            if ((int32_t)(now - next_edge) > 0) {
-                timing.overrun_count++;
-            } else {
-                wait_until_cycle(next_edge);
-            }
+            next_edge += cycles;
         }
     }
 
-    timing.measured_period_cycles =
-        (esp_cpu_get_cycle_count() - pattern_start) / repeat_count;
+    ctx.next_pattern_edge = next_edge;
+
+    timing.measured_period_cycles = (next_edge - pattern_start) / repeat_count;
     portENABLE_INTERRUPTS();
 }
 
@@ -547,6 +553,7 @@ static void signal_loop_task(void *arg) {
 
     static SignalLoopContext ctx;
     ctx.dataset = &g_dataset_a;
+    ctx.next_pattern_edge = 0;
     reset_control_corrections(ctx);
 
     led_on();

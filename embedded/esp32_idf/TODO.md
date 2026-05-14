@@ -95,3 +95,17 @@
 - [x] Verify the BLE Router section and index link exist
 - [x] Add BLE Router handler registration code examples
 - [x] Verify the BLE Router section includes handler and dashboard call examples
+- [x] Analyze the 2.6 us final-signal extension in `signal_loop_task`
+- [x] Adjust the hot playback loop so GPIO transitions happen at absolute edge deadlines
+- [x] Verify the firmware build after timing-loop change
+- [x] Analyze remaining 2 us inter-batch final-state extension
+- [x] Carry absolute playback edge deadlines across `signal_loop_task` iterations
+- [x] Verify firmware build after continuous batch-boundary timing change
+- [x] Create HTML post mortem for the signal timing fix
+- [x] Add timing charts and diagrams explaining the before/after behavior
+- [x] Verify the post mortem references the current implementation accurately
+- [x] Add syntax highlighting to post mortem code blocks
+- [x] Verify highlighted code remains readable and accurate
+- [x] Add loop and maintenance code excerpts to the timing post mortem
+- [x] Add hide/show behavior to post mortem sections
+- [x] Verify the updated post mortem content references current code locations

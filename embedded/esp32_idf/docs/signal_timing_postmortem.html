@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Signal Timing Post Mortem</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #162026;
+      --muted: #5c6870;
+      --line: #d6dee4;
+      --panel: #f7f9fb;
+      --good: #19725f;
+      --bad: #b94735;
+      --warn: #9b6b08;
+      --blue: #245f9f;
+      --violet: #6c4ea1;
+      --dark: #28343c;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: #ffffff;
+      line-height: 1.55;
+    }
+
+    main {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 32px 22px 56px;
+    }
+
+    h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+    h1 { font-size: 34px; }
+    h2 { font-size: 24px; margin-top: 34px; padding-top: 10px; border-top: 1px solid var(--line); }
+    h3 { font-size: 18px; margin-top: 22px; }
+    p { margin: 0 0 12px; }
+    code { background: #eef2f5; padding: 1px 5px; border-radius: 4px; }
+
+    .lede {
+      max-width: 880px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .card, .note {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .card strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    details.section {
+      border-top: 1px solid var(--line);
+      margin-top: 18px;
+      padding-top: 8px;
+    }
+
+    details.section > summary {
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 10px 0;
+    }
+
+    details.section > summary::-webkit-details-marker { display: none; }
+
+    details.section > summary h2 {
+      border-top: 0;
+      margin: 0;
+      padding: 0;
+    }
+
+    details.section > summary::after {
+      content: "Show";
+      color: var(--blue);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 3px 9px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    details.section[open] > summary::after {
+      content: "Hide";
+    }
+
+    .chart {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+      padding: 12px;
+      margin: 14px 0;
+    }
+
+    svg { max-width: 100%; height: auto; display: block; }
+    .axis { stroke: #82909a; stroke-width: 1; }
+    .tick { stroke: #c1cad1; stroke-width: 1; }
+    .label { fill: var(--muted); font-size: 13px; }
+    .small { fill: var(--muted); font-size: 12px; }
+    .title { fill: var(--ink); font-size: 15px; font-weight: 700; }
+    .block { stroke-width: 1.4; rx: 6; }
+    .seg-a { fill: rgba(36, 95, 159, 0.13); stroke: var(--blue); }
+    .seg-b { fill: rgba(25, 114, 95, 0.13); stroke: var(--good); }
+    .seg-c { fill: rgba(108, 78, 161, 0.13); stroke: var(--violet); }
+    .extra { fill: rgba(185, 71, 53, 0.16); stroke: var(--bad); }
+    .maint { fill: rgba(155, 107, 8, 0.16); stroke: var(--warn); }
+    .edge { stroke: var(--dark); stroke-width: 2; }
+    .edge-good { stroke: var(--good); stroke-width: 2; }
+    .edge-bad { stroke: var(--bad); stroke-width: 2; }
+    .arrow { stroke: #4c5962; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+    .flow { fill: #ffffff; stroke: #b9c4cc; stroke-width: 1.3; rx: 7; }
+    .flow-hot { fill: rgba(36, 95, 159, 0.12); stroke: var(--blue); stroke-width: 1.3; rx: 7; }
+    .flow-fix { fill: rgba(25, 114, 95, 0.12); stroke: var(--good); stroke-width: 1.3; rx: 7; }
+    .code {
+      background: #101820;
+      color: #e7edf2;
+      border-radius: 8px;
+      padding: 14px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .code .kw { color: #ffcb6b; }
+    .code .type { color: #82aaff; }
+    .code .fn { color: #c3e88d; }
+    .code .member { color: #89ddff; }
+    .code .num { color: #f78c6c; }
+    .code .op { color: #c792ea; }
+    .code .comment { color: #8b9aaa; font-style: italic; }
+    .source {
+      color: var(--muted);
+      font-size: 13px;
+      margin: -4px 0 10px;
+    }
+    .section-toggle {
+      width: 100%;
+      border: 0;
+      border-top: 1px solid var(--line);
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 34px;
+      padding: 10px 0;
+      text-align: left;
+    }
+    .section-toggle h2 {
+      border-top: 0;
+      margin: 0;
+      padding: 0;
+    }
+    .section-toggle .state {
+      color: var(--blue);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 3px 9px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .section-body[hidden] { display: none; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 20px;
+      font-size: 14px;
+    }
+
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+    }
+
+    th { background: #eef2f5; }
+    ul { margin-top: 8px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+
+    @media (max-width: 820px) {
+      main { padding: 24px 14px 42px; }
+      h1 { font-size: 28px; }
+      .summary { grid-template-columns: 1fr; }
+      table { font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Signal Timing Post Mortem</h1>
+  <p class="lede">
+    This post mortem explains why the generated waveform had an extra 2 to 2.6 us
+    between the last segment of one pattern and the first segment of the next
+    pattern, and why the current fix removes that extra time from normal playback.
+  </p>
+
+  <div class="summary">
+    <div class="card"><strong>Symptom</strong>The last visible signal state was longer than requested by about 2 us.</div>
+    <div class="card"><strong>Impact</strong>The next waveform did not start exactly after the configured segment time.</div>
+    <div class="card"><strong>Cause</strong>Loop maintenance ran between playback batches while the last GPIO state stayed active.</div>
+    <div class="card"><strong>Fix</strong>Carry the next absolute edge deadline across loop iterations.</div>
+  </div>
+
+  <h2>Expected Behavior</h2>
+  <p>
+    The requested behavior is simple: if the last segment duration is
+    <code>Tlast</code>, the next wave must begin exactly after <code>Tlast</code>.
+    Runtime work such as telemetry, analog-read triggering, dataset checks, and
+    timing snapshots must not silently add time to that last state.
+  </p>
+
+  <div class="chart" aria-label="Expected timing chart">
+    <svg viewBox="0 0 1080 230" role="img">
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <path d="M0,0 L10,4 L0,8 Z" fill="#4c5962"></path>
+        </marker>
+      </defs>
+      <line class="axis" x1="90" y1="168" x2="1010" y2="168"></line>
+      <text class="title" x="90" y="34">Ideal continuous timing</text>
+      <rect class="block seg-a" x="100" y="70" width="190" height="54"></rect>
+      <rect class="block seg-b" x="290" y="70" width="170" height="54"></rect>
+      <rect class="block seg-c" x="460" y="70" width="210" height="54"></rect>
+      <rect class="block seg-a" x="670" y="70" width="190" height="54"></rect>
+      <rect class="block seg-b" x="860" y="70" width="130" height="54"></rect>
+      <text class="label" x="156" y="101">segment 1</text>
+      <text class="label" x="338" y="101">segment 2</text>
+      <text class="label" x="523" y="101">last segment</text>
+      <text class="label" x="715" y="101">next wave</text>
+      <line class="edge-good" x1="670" y1="52" x2="670" y2="154"></line>
+      <text class="small" x="604" y="184">edge N</text>
+      <text class="small" x="652" y="184">edge N+1</text>
+      <line class="arrow" x1="468" y1="146" x2="666" y2="146"></line>
+      <text class="small" x="522" y="164">exact Tlast</text>
+    </svg>
+  </div>
+
+  <h2>What Went Wrong</h2>
+  <p>
+    The original playback helper was locally accurate inside a batch, but the
+    batch boundary was not continuous. After the final segment finished, the
+    function waited until the final deadline, returned to <code>signal_loop_task</code>,
+    and then maintenance code executed before the next call to
+    <code>execute_signal_pattern()</code>. During all of that time, the final GPIO
+    state remained active.
+  </p>
+
+  <div class="chart" aria-label="Bug timing chart">
+    <svg viewBox="0 0 1080 280" role="img">
+      <defs>
+        <marker id="arrow2" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <path d="M0,0 L10,4 L0,8 Z" fill="#4c5962"></path>
+        </marker>
+      </defs>
+      <text class="title" x="90" y="34">Before the final fix: the last state was stretched</text>
+      <line class="axis" x1="90" y1="182" x2="1010" y2="182"></line>
+      <rect class="block seg-a" x="100" y="78" width="180" height="54"></rect>
+      <rect class="block seg-b" x="280" y="78" width="170" height="54"></rect>
+      <rect class="block seg-c" x="450" y="78" width="210" height="54"></rect>
+      <rect class="block extra" x="660" y="78" width="78" height="54"></rect>
+      <rect class="block maint" x="660" y="150" width="78" height="34"></rect>
+      <rect class="block seg-a" x="738" y="78" width="180" height="54"></rect>
+      <line class="edge-good" x1="660" y1="56" x2="660" y2="204"></line>
+      <line class="edge-bad" x1="738" y1="56" x2="738" y2="204"></line>
+      <text class="label" x="510" y="109">last segment</text>
+      <text class="label" x="668" y="109">extra</text>
+      <text class="label" x="782" y="109">next wave</text>
+      <text class="small" x="628" y="222">intended edge</text>
+      <text class="small" x="714" y="222">actual edge</text>
+      <text class="small" x="665" y="173">maintenance</text>
+      <line class="arrow" x1="662" y1="238" x2="734" y2="238" marker-end="url(#arrow2)"></line>
+      <text class="small" x="674" y="258">about 2 us</text>
+    </svg>
+  </div>
+
+  <h3>Why The First Change Was Not Enough</h3>
+  <p>
+    The first change moved the per-segment wait before the GPIO write, which
+    fixed compute overhead between segments inside <code>execute_signal_pattern()</code>.
+    However, it still left the batch boundary exposed: the code after
+    <code>execute_signal_pattern()</code> still ran before the next batch wrote its
+    first GPIO state.
+  </p>
+
+  <h3>Code Location: The Loop And Its Maintenance</h3>
+  <p class="source">
+    Current location: <code>main/src/signal_controller.cpp</code>, inside
+    <code>signal_loop_task()</code> around lines 561-581.
+  </p>
+  <p>
+    These statements are the maintenance work that took time between playback
+    batches. Before the final fix, that work happened after the last segment
+    had already consumed its requested time, so the final GPIO state stayed
+    active for this extra work.
+  </p>
+
+  <pre class="code"><span class="kw">while</span> (<span class="fn">signal_is_running</span>()) {
+    <span class="type">uint32_t</span> <span class="member">loop_start</span> = <span class="fn">esp_cpu_get_cycle_count</span>();
+    <span class="fn">apply_pending_dataset_swap</span>(<span class="member">ctx</span>);       <span class="comment">// pre-playback maintenance</span>
+    <span class="fn">update_control_corrections</span>(<span class="member">ctx</span>);     <span class="comment">// pre-playback maintenance</span>
+
+    <span class="type">SignalTimingSample</span> <span class="member">timing</span>;
+    <span class="type">uint32_t</span> <span class="member">playback_start</span> = <span class="fn">esp_cpu_get_cycle_count</span>();
+    <span class="kw">const</span> <span class="type">uint32_t</span> <span class="member">nominal_cycles</span> = <span class="fn">get_nominal_pattern_cycles</span>(<span class="member">ctx</span>);
+    <span class="kw">const</span> <span class="type">uint32_t</span> <span class="member">repeat_count</span> =
+        <span class="member">nominal_cycles</span> &lt; <span class="member">MIN_MAINTENANCE_PERIOD_CYCLES</span>
+            ? <span class="member">SHORT_PATTERN_BATCH_CYCLES</span>
+            : <span class="num">1</span>;
+
+    <span class="fn">execute_signal_pattern</span>(<span class="member">ctx</span>, <span class="member">timing</span>, <span class="member">repeat_count</span>);
+
+    <span class="comment">// post-playback maintenance that caused the visible inter-wave stretch</span>
+    <span class="type">uint32_t</span> <span class="member">playback_cycles</span> =
+        (<span class="fn">esp_cpu_get_cycle_count</span>() - <span class="member">playback_start</span>) / <span class="member">repeat_count</span>;
+    <span class="kw">if</span> (<span class="member">timing</span>.<span class="member">scheduled_period_cycles</span> &gt;= <span class="member">MIN_MAINTENANCE_PERIOD_CYCLES</span>) {
+        <span class="fn">trigger_periodic_analog_read</span>();
+    } <span class="kw">else</span> {
+        <span class="member">timing</span>.<span class="member">maintenance_skipped_count</span>++;
+    }
+    <span class="type">uint32_t</span> <span class="member">loop_cycles</span> = <span class="fn">esp_cpu_get_cycle_count</span>() - <span class="member">loop_start</span>;
+    <span class="fn">update_signal_timing_snapshot</span>(<span class="member">playback_cycles</span>, <span class="member">loop_cycles</span>, <span class="member">timing</span>);
+}</pre>
+
+  <table>
+    <thead>
+      <tr><th>Maintenance statement</th><th>Why it takes time</th><th>Where it is</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>playback_cycles = esp_cpu_get_cycle_count() ...</code></td>
+        <td>Reads the CPU cycle counter and divides by <code>repeat_count</code>.</td>
+        <td>After <code>execute_signal_pattern()</code>, around line 573.</td>
+      </tr>
+      <tr>
+        <td><code>trigger_periodic_analog_read()</code></td>
+        <td>May update BLE analog-read state and give <code>sem_analog_read_trigger</code>.</td>
+        <td>Called around line 576, implemented around lines 516-528.</td>
+      </tr>
+      <tr>
+        <td><code>timing.maintenance_skipped_count++</code></td>
+        <td>Records that short batched patterns skipped analog maintenance this cycle.</td>
+        <td>Fallback branch around line 578.</td>
+      </tr>
+      <tr>
+        <td><code>loop_cycles = esp_cpu_get_cycle_count() - loop_start</code></td>
+        <td>Measures total loop work for telemetry.</td>
+        <td>Around line 580.</td>
+      </tr>
+      <tr>
+        <td><code>update_signal_timing_snapshot(...)</code></td>
+        <td>Writes volatile timing counters used by <code>debug.signal_timing</code>.</td>
+        <td>Around line 581.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Code Location: The Boundary Fix</h3>
+  <p class="source">
+    Current location: <code>main/src/signal_controller.cpp</code>, inside
+    <code>execute_signal_pattern()</code> around lines 450-512.
+  </p>
+  <p>
+    The fix is that the playback function starts from the saved absolute edge
+    and saves the next edge before returning. There is no final wait after the
+    last GPIO write, so the loop maintenance now runs during the valid hold
+    time of the final segment.
+  </p>
+
+  <pre class="code"><span class="type">uint32_t</span> <span class="member">pattern_start</span> = <span class="member">ctx</span>.<span class="member">next_pattern_edge</span>;
+<span class="kw">if</span> (<span class="member">pattern_start</span> == <span class="num">0</span>) {
+    <span class="member">pattern_start</span> = <span class="fn">esp_cpu_get_cycle_count</span>();
+}
+<span class="type">uint32_t</span> <span class="member">next_edge</span> = <span class="member">pattern_start</span>;
+
+<span class="comment">// ... for each segment: wait until next_edge, write GPIO, then advance next_edge</span>
+<span class="fn">wait_until_cycle</span>(<span class="member">next_edge</span>);
+<span class="member">GPIO</span>.<span class="member">out_w1tc</span> = <span class="member">step</span>.<span class="member">clr_mask</span>;
+<span class="member">GPIO</span>.<span class="member">out_w1ts</span> = <span class="member">step</span>.<span class="member">set_mask</span>;
+<span class="member">next_edge</span> += <span class="member">cycles</span>;
+
+<span class="comment">// No wait here. The next loop iteration will honor this deadline.</span>
+<span class="member">ctx</span>.<span class="member">next_pattern_edge</span> = <span class="member">next_edge</span>;</pre>
+
+  <h2>Final Fix</h2>
+  <p>
+    The final fix makes the batch boundary part of the same absolute schedule.
+    <code>SignalLoopContext</code> now stores <code>next_pattern_edge</code>. The
+    playback helper starts from that saved deadline when it exists, and it saves
+    the next deadline before returning. The key point is that the helper no
+    longer waits at the end of the batch. It returns immediately after writing
+    the final segment, while that final segment is supposed to be held.
+  </p>
+
+  <pre class="code"><span class="kw">struct</span> <span class="type">SignalLoopContext</span> {
+    <span class="kw">const</span> <span class="type">DataSet</span> *<span class="member">dataset</span> = &amp;<span class="member">g_dataset_a</span>;
+    <span class="type">uint32_t</span> <span class="member">next_pattern_edge</span> = <span class="num">0</span>;
+    <span class="type">int32_t</span> <span class="member">current_correction</span>[<span class="member">MAX_SIGNAL_SIZE</span>];
+    <span class="type">float</span> <span class="member">dtk_buffer</span>[<span class="member">MAX_SIGNAL_SIZE</span>];
+};
+
+<span class="type">uint32_t</span> <span class="member">pattern_start</span> = <span class="member">ctx</span>.<span class="member">next_pattern_edge</span>;
+<span class="kw">if</span> (<span class="member">pattern_start</span> == <span class="num">0</span>) {
+    <span class="member">pattern_start</span> = <span class="fn">esp_cpu_get_cycle_count</span>();
+}
+
+<span class="comment">/* write each segment at its absolute edge */</span>
+
+<span class="member">ctx</span>.<span class="member">next_pattern_edge</span> = <span class="member">next_edge</span>;</pre>
+
+  <div class="chart" aria-label="Fixed timing chart">
+    <svg viewBox="0 0 1080 300" role="img">
+      <defs>
+        <marker id="arrow3" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <path d="M0,0 L10,4 L0,8 Z" fill="#4c5962"></path>
+        </marker>
+      </defs>
+      <text class="title" x="90" y="34">After the fix: maintenance is hidden inside valid hold time</text>
+      <line class="axis" x1="90" y1="184" x2="1010" y2="184"></line>
+      <rect class="block seg-a" x="100" y="78" width="180" height="54"></rect>
+      <rect class="block seg-b" x="280" y="78" width="170" height="54"></rect>
+      <rect class="block seg-c" x="450" y="78" width="210" height="54"></rect>
+      <rect class="block maint" x="520" y="150" width="102" height="34"></rect>
+      <rect class="block seg-a" x="660" y="78" width="180" height="54"></rect>
+      <rect class="block seg-b" x="840" y="78" width="150" height="54"></rect>
+      <line class="edge-good" x1="660" y1="56" x2="660" y2="204"></line>
+      <text class="label" x="510" y="109">last segment</text>
+      <text class="label" x="704" y="109">next wave</text>
+      <text class="small" x="528" y="173">loop maintenance</text>
+      <text class="small" x="622" y="224">saved deadline</text>
+      <line class="arrow" x1="454" y1="238" x2="656" y2="238" marker-end="url(#arrow3)"></line>
+      <text class="small" x="518" y="258">exact Tlast</text>
+    </svg>
+  </div>
+
+  <h2>Control Flow Diagram</h2>
+  <p>
+    The fixed design treats playback as one continuous timeline, even though
+    the FreeRTOS task still calls the helper repeatedly. The loop can do
+    maintenance between calls, but the next call is anchored to the saved edge.
+  </p>
+
+  <div class="chart" aria-label="Control flow diagram">
+    <svg viewBox="0 0 1080 360" role="img">
+      <defs>
+        <marker id="arrow4" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <path d="M0,0 L10,4 L0,8 Z" fill="#4c5962"></path>
+        </marker>
+      </defs>
+      <rect class="flow" x="70" y="56" width="190" height="70"></rect>
+      <text class="label" x="100" y="86">signal_loop_task</text>
+      <text class="small" x="104" y="106">maintenance allowed</text>
+
+      <rect class="flow-hot" x="330" y="56" width="230" height="70"></rect>
+      <text class="label" x="368" y="84">execute_signal_pattern</text>
+      <text class="small" x="370" y="106">uses absolute deadlines</text>
+
+      <rect class="flow-fix" x="630" y="56" width="220" height="70"></rect>
+      <text class="label" x="672" y="84">save next edge</text>
+      <text class="small" x="668" y="106">ctx.next_pattern_edge</text>
+
+      <rect class="flow" x="330" y="210" width="230" height="70"></rect>
+      <text class="label" x="360" y="238">next loop iteration</text>
+      <text class="small" x="362" y="260">reload saved deadline</text>
+
+      <rect class="flow-fix" x="630" y="210" width="220" height="70"></rect>
+      <text class="label" x="665" y="238">start next wave</text>
+      <text class="small" x="654" y="260">at deadline or overrun</text>
+
+      <line class="arrow" x1="260" y1="91" x2="324" y2="91" marker-end="url(#arrow4)"></line>
+      <line class="arrow" x1="560" y1="91" x2="624" y2="91" marker-end="url(#arrow4)"></line>
+      <path class="arrow" d="M740 126 C740 168 445 168 445 204" marker-end="url(#arrow4)"></path>
+      <line class="arrow" x1="560" y1="245" x2="624" y2="245" marker-end="url(#arrow4)"></line>
+    </svg>
+  </div>
+
+  <h2>Why This Fix Works</h2>
+  <table>
+    <thead>
+      <tr><th>Problem</th><th>Fix behavior</th><th>Result</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Maintenance ran after the final wait and before the next first write.</td>
+        <td>The final wait is no longer performed at the end of the batch.</td>
+        <td>Maintenance happens during valid final-state hold time.</td>
+      </tr>
+      <tr>
+        <td>Each helper call previously started from its own current cycle count.</td>
+        <td>The next helper call starts from <code>ctx.next_pattern_edge</code>.</td>
+        <td>Batch boundaries follow one continuous absolute timeline.</td>
+      </tr>
+      <tr>
+        <td>Late execution looked like a silent waveform stretch.</td>
+        <td>The helper checks <code>now - next_edge</code> before each write.</td>
+        <td>Late starts are visible through <code>overrun_count</code>.</td>
+      </tr>
+      <tr>
+        <td>New datasets could inherit an old absolute deadline.</td>
+        <td><code>apply_pending_dataset_swap()</code> resets <code>next_pattern_edge</code>.</td>
+        <td>Pattern swaps start from a clean local timeline.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>How To Validate</h2>
+  <ul>
+    <li>Measure the boundary between the last segment and the first segment of the next wave on the scope.</li>
+    <li>The measured interval should match the requested last segment duration, not duration plus about 2 us.</li>
+    <li>Run <code>debug.signal_timing</code> and watch <code>ov</code>. A rising overrun count means the CPU missed a deadline.</li>
+    <li>If <code>ov</code> stays flat, any old inter-wave 2 us stretch should be removed by the continuous deadline schedule.</li>
+  </ul>
+
+  <div class="note">
+    <strong>Limit of the fix:</strong>
+    this does not make impossible schedules possible. If the pattern duration is
+    shorter than the time needed for playback setup and required maintenance,
+    the next wave will still be late. The difference is that the lateness is now
+    reported as an overrun instead of being hidden as intentional hold time.
+  </div>
+</main>
+<script>
+  document.querySelectorAll("main > h2").forEach((heading, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "section-toggle";
+    button.setAttribute("aria-expanded", "true");
+
+    const title = heading.cloneNode(true);
+    const state = document.createElement("span");
+    state.className = "state";
+    state.textContent = "Hide";
+
+    button.append(title, state);
+
+    const body = document.createElement("div");
+    body.className = "section-body";
+    body.id = `section-body-${index}`;
+    button.setAttribute("aria-controls", body.id);
+
+    heading.replaceWith(button);
+    let node = button.nextSibling;
+    while (node && !(node.nodeType === Node.ELEMENT_NODE && node.tagName === "H2")) {
+      const next = node.nextSibling;
+      body.appendChild(node);
+      node = next;
+    }
+    button.after(body);
+
+    button.addEventListener("click", () => {
+      const hidden = body.toggleAttribute("hidden");
+      button.setAttribute("aria-expanded", String(!hidden));
+      state.textContent = hidden ? "Show" : "Hide";
+    });
+  });
+</script>
+</body>
+</html>
