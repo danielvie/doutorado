@@ -251,13 +251,21 @@ export const HelpPanel: React.FC<{
 }> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
   const [filter, setFilter] = useState("");
   const normalizedFilter = filter.trim().toLowerCase();
-  const filteredCommands = normalizedFilter
-    ? COMMANDS.filter((item) =>
-        `${item.commands} ${item.description}`
-          .toLowerCase()
-          .includes(normalizedFilter),
-      )
-    : COMMANDS;
+  const filteredCommands = React.useMemo(() => {
+    if (!filter.trim()) return COMMANDS;
+    
+    try {
+      const regex = new RegExp(filter, "i");
+      return COMMANDS.filter((item) => {
+        const target = `${item.commands} ${item.description}`;
+        return regex.test(target);
+      });
+    } catch (e) {
+      // While the user is typing an incomplete regex, it might be invalid.
+      // We return an empty list or handle as no match until the regex is valid.
+      return [];
+    }
+  }, [filter]);
 
   return (
     <DashboardItem

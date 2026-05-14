@@ -14,6 +14,7 @@
 - [x] Render analog configuration sweep protobuf result in web logs
 - [x] Verify proto generation, firmware build, and web build
 
+- [x] Implement Regex-based filtering for the HelpPanel command list
 - [x] Add `debug.test.an.get_status` HelpPanel entry and firmware command alias
 - [x] Add a copy button to the bottom of the StatusPanel in the web dashboard
 - [x] Raise continuous ADC default sample rate to meet 4-triples-per-cycle target
