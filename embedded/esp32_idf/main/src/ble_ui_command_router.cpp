@@ -372,6 +372,20 @@ static UiCommandResultData handle_analog_set_monitor_period(const UiCommandConte
     return ok("Analog monitor period updated");
 }
 
+static UiCommandResultData handle_analog_set_acquisition_period(const UiCommandContext& ctx) {
+    uint32_t period_us;
+    if (!json_get_u32(ctx.json, "period_us", &period_us)) {
+        return invalid_arg("Expected numeric period_us");
+    }
+    if (period_us > 1000000) {
+        return invalid_arg("period_us must be <= 1000000");
+    }
+
+    g_analog_acquisition_period_us = period_us;
+    ESP_LOGI(TAG, "Set analog acquisition period to %lu us", period_us);
+    return ok("Analog acquisition period updated");
+}
+
 static UiCommandResultData handle_analog_read_once(const UiCommandContext& ctx) {
     ble_send_analog_read();
     return ok("Analog read notification queued");
@@ -590,6 +604,7 @@ void ui_command_router_init(void) {
     register_command("signal.set_dead_time", handle_signal_set_dead_time);
     register_command("signal.set_dead_time_tail_overhead", handle_signal_set_dead_time_tail_overhead);
     register_command("analog.set_monitor_period", handle_analog_set_monitor_period);
+    register_command("analog.set_acquisition_period", handle_analog_set_acquisition_period);
     register_command("analog.read_once", handle_analog_read_once);
     register_command("analog.ble_read_enable", handle_analog_ble_read_enable);
     register_command("analog.ble_read_disable", handle_analog_ble_read_disable);

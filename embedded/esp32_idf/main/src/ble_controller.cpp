@@ -275,23 +275,25 @@ void ble_router(esp_ble_gatts_cb_param_t* param) {
 }
 
 void ble_send_analog_read(void) {
-    float an3, an5, an6;
-    uint32_t raw_an3, raw_an5, raw_an6;
-    bool valid = analog_read_port_sample(AnalogPort::AN3, &raw_an3, &an3);
-    valid = analog_read_port_sample(AnalogPort::AN5, &raw_an5, &an5) && valid;
-    valid = analog_read_port_sample(AnalogPort::AN6, &raw_an6, &an6) && valid;
-    analog_publish_triple(raw_an3, an3, raw_an5, an5, raw_an6, an6, valid);
+    AnalogRuntimeStatus analog_status;
+    analog_get_status(&analog_status);
 
     BlePacket packet = BlePacket_init_zero;
     packet.which_payload = BlePacket_telemetry_tag;
-    packet.payload.telemetry.an3 = an3;
-    packet.payload.telemetry.an5 = an5;
-    packet.payload.telemetry.an6 = an6;
+    packet.payload.telemetry.an3 = analog_status.calibrated_an3;
+    packet.payload.telemetry.an5 = analog_status.calibrated_an5;
+    packet.payload.telemetry.an6 = analog_status.calibrated_an6;
     packet.payload.telemetry.timestamp_ms = xTaskGetTickCount() * portTICK_PERIOD_MS;
 
     ble_send_protobuf(&packet);
     
-    ESP_LOGI(TAG, "Manual Read - an3: %.4f, an5: %.4f, an6: %.4f", an3, an5, an6);
+    ESP_LOGI(TAG,
+             "Manual Read Snapshot - seq: %lu, valid: %d, an3: %.4f, an5: %.4f, an6: %.4f",
+             analog_status.seq,
+             analog_status.valid,
+             analog_status.calibrated_an3,
+             analog_status.calibrated_an5,
+             analog_status.calibrated_an6);
 }
 
 void ble_send_dataset(DataSet *ds, SignalSet set) {

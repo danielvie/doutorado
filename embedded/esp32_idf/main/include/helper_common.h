@@ -36,6 +36,7 @@
 
 // .. globals
 extern volatile uint32_t g_analog_monitor_period_ms;
+extern volatile uint32_t g_analog_acquisition_period_us;
 
 
 // .. defining semaphore for reading data

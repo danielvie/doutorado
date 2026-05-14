@@ -46,6 +46,10 @@ const COMMANDS = [
     description: "Sets periodic analog telemetry interval",
   },
   {
+    commands: 'analog.set_acquisition_period {"period_us":1000}',
+    description: "Sets background analog acquisition spacing",
+  },
+  {
     commands: "analog.read_once",
     description: "Requests one analog telemetry sample",
   },
@@ -106,7 +110,7 @@ const COMMANDS = [
     description: "Sends signal timing diagnostics",
   },
   {
-    commands: 'debug.analog_test_run {"duration_ms":2000}',
+    commands: 'debug.analog_test_run {"duration_ms":4000}',
     description: "Runs a bounded signal plus analog diagnostic test",
   },
   {

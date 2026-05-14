@@ -1,5 +1,21 @@
 # TODO
 
+- [x] Analyze why Core 0 oneshot acquisition can disturb Core 1 signal timing
+- [x] Create HTML timing explanation with graphs and diagrams
+- [x] Include measured diagnostic runs and interpretation
+- [x] Verify the HTML contains the expected sections
+
+- [x] Add configurable background analog acquisition period
+- [x] Rate-limit oneshot background acquisition to protect signal timing
+- [x] Add dashboard/help command for acquisition period tuning
+- [x] Verify firmware and web builds after acquisition budget change
+
+- [x] Analyze current analog task ownership for the next acquisition milestone
+- [x] Add a boot-started background analog acquisition producer
+- [x] Keep signal-loop compatibility globals fed from the background producer
+- [x] Avoid duplicate forced ADC reads in periodic BLE telemetry where possible
+- [x] Verify firmware and web builds after background acquisition change
+
 - [x] Add dedicated AnalogDiagnosticResult protobuf message
 - [x] Send stored analog diagnostic results as protobuf notifications
 - [x] Hydrate analog diagnostic protobuf results in the dashboard

@@ -87,23 +87,16 @@ esp_err_t app_init() {
 static void analog_reading_task(void* arg) {
     ESP_LOGI(TAG, "Analog Task Started");
 
-    float an3, an5, an6;
-    uint32_t raw_an3, raw_an5, raw_an6;
     for (;;) {
         if (ble_is_connected()) {
-            uint32_t start = esp_cpu_get_cycle_count();
-            bool valid = analog_read_port_sample(AnalogPort::AN3, &raw_an3, &an3);
-            valid = analog_read_port_sample(AnalogPort::AN5, &raw_an5, &an5) && valid;
-            valid = analog_read_port_sample(AnalogPort::AN6, &raw_an6, &an6) && valid;
-            uint32_t end = esp_cpu_get_cycle_count();
-            analog_record_latency((end - start) / esp_rom_get_cpu_ticks_per_us());
-            analog_publish_triple(raw_an3, an3, raw_an5, an5, raw_an6, an6, valid);
+            AnalogRuntimeStatus analog_status;
+            analog_get_status(&analog_status);
 
             BlePacket packet = BlePacket_init_zero;
             packet.which_payload = BlePacket_telemetry_tag;
-            packet.payload.telemetry.an3 = an3;
-            packet.payload.telemetry.an5 = an5;
-            packet.payload.telemetry.an6 = an6;
+            packet.payload.telemetry.an3 = analog_status.calibrated_an3;
+            packet.payload.telemetry.an5 = analog_status.calibrated_an5;
+            packet.payload.telemetry.an6 = analog_status.calibrated_an6;
             packet.payload.telemetry.timestamp_ms = xTaskGetTickCount() * portTICK_PERIOD_MS;
 
             ble_send_protobuf(&packet);
@@ -113,26 +106,30 @@ static void analog_reading_task(void* arg) {
 }
 
 static void analog_action_task(void* arg) {
-    ESP_LOGI(TAG, "Analog Action Task Started");
+    ESP_LOGI(TAG, "Analog Background Acquisition Task Started");
     float an3, an5, an6;
     uint32_t raw_an3, raw_an5, raw_an6;
 
     for (;;) {
-        if (xSemaphoreTake(sem_analog_read_trigger, portMAX_DELAY) == pdPASS) {
-            uint32_t start = esp_cpu_get_cycle_count();
-            bool valid = analog_read_port_sample(AnalogPort::AN3, &raw_an3, &an3);
-            valid = analog_read_port_sample(AnalogPort::AN5, &raw_an5, &an5) && valid;
-            valid = analog_read_port_sample(AnalogPort::AN6, &raw_an6, &an6) && valid;
-            uint32_t end = esp_cpu_get_cycle_count();
-            analog_record_latency((end - start) / esp_rom_get_cpu_ticks_per_us());
-            analog_publish_triple(raw_an3, an3, raw_an5, an5, raw_an6, an6, valid);
+        uint32_t start = esp_cpu_get_cycle_count();
+        bool valid = analog_read_port_sample(AnalogPort::AN3, &raw_an3, &an3);
+        valid = analog_read_port_sample(AnalogPort::AN5, &raw_an5, &an5) && valid;
+        valid = analog_read_port_sample(AnalogPort::AN6, &raw_an6, &an6) && valid;
+        uint32_t end = esp_cpu_get_cycle_count();
+        analog_record_latency((end - start) / esp_rom_get_cpu_ticks_per_us());
+        analog_publish_triple(raw_an3, an3, raw_an5, an5, raw_an6, an6, valid);
 
-            g_adc_an3.store(an3, std::memory_order_release);
-            g_adc_an5.store(an5, std::memory_order_release);
-            g_adc_an6.store(an6, std::memory_order_release);
-            g_adc_fresh.store(true, std::memory_order_release);
+        g_adc_an3.store(an3, std::memory_order_release);
+        g_adc_an5.store(an5, std::memory_order_release);
+        g_adc_an6.store(an6, std::memory_order_release);
+        g_adc_fresh.store(valid, std::memory_order_release);
 
-            g_system_state.ble_an_read_state.store(BLEAnalogReadState::IDLE, std::memory_order_release);
+        g_system_state.ble_an_read_state.store(BLEAnalogReadState::IDLE, std::memory_order_release);
+        uint32_t period_us = g_analog_acquisition_period_us;
+        if (period_us > 0) {
+            esp_rom_delay_us(period_us);
+        } else {
+            taskYIELD();
         }
     }
 }
@@ -159,7 +156,7 @@ extern "C" void app_main(void)
     }
 
     xTaskCreatePinnedToCore(analog_reading_task, "Analog Task", 8192, NULL, tskIDLE_PRIORITY + 1, NULL, 0);
-    xTaskCreatePinnedToCore(analog_action_task, "Analog Action Task", 4096, NULL, tskIDLE_PRIORITY + 1, NULL, 0);
+    xTaskCreatePinnedToCore(analog_action_task, "Analog Acquisition", 4096, NULL, tskIDLE_PRIORITY, NULL, 0);
 
     matrix_test();
 

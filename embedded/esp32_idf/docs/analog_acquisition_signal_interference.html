@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Analog Acquisition vs Signal Timing Interference</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #5f6d7e;
+      --line: #d9e1ea;
+      --panel: #f7f9fc;
+      --blue: #1d4ed8;
+      --green: #047857;
+      --amber: #b45309;
+      --red: #b91c1c;
+      --violet: #6d28d9;
+      --code: #111827;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #fff;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 36px 0 64px; }
+    header { border-bottom: 1px solid var(--line); padding-bottom: 22px; margin-bottom: 24px; }
+    h1, h2, h3 { line-height: 1.15; margin: 0; }
+    h1 { font-size: clamp(2rem, 4vw, 4.4rem); max-width: 960px; }
+    h2 { font-size: 1.55rem; margin-top: 38px; padding-top: 8px; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+    h3 { font-size: 1.05rem; margin-top: 24px; }
+    p { margin: 12px 0; }
+    code, pre { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+    pre { overflow-x: auto; background: var(--code); color: #d1d5db; border-radius: 8px; padding: 16px; line-height: 1.5; }
+    .kicker { color: var(--blue); font-weight: 800; text-transform: uppercase; letter-spacing: .08em; font-size: .78rem; margin-bottom: 10px; }
+    .summary { max-width: 930px; color: #334155; font-size: 1.05rem; }
+    .note { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--blue); border-radius: 8px; padding: 16px 18px; margin: 18px 0; }
+    .warn { border-left-color: var(--amber); }
+    .bad { border-left-color: var(--red); }
+    .good { border-left-color: var(--green); }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+    .card { border: 1px solid var(--line); border-radius: 8px; padding: 16px; background: #fff; }
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-12 { grid-column: span 12; }
+    .metric strong { display: block; font-size: 1.8rem; line-height: 1; margin: 4px 0; }
+    .small, .metric span { color: var(--muted); font-size: .88rem; }
+    .tag { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; margin: 2px 4px 2px 0; font-size: .82rem; font-weight: 700; }
+    .tag.red { color: var(--red); border-color: #fecaca; background: #fff5f5; }
+    .tag.green { color: var(--green); border-color: #bbf7d0; background: #f0fdf4; }
+    .tag.amber { color: var(--amber); border-color: #fde68a; background: #fffbeb; }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0 22px; font-size: .94rem; }
+    th, td { border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; padding: 10px 8px; }
+    th { color: #334155; background: #f8fafc; font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; }
+    .chart { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; background: #fbfdff; margin: 12px 0 20px; }
+    .axis { stroke: #94a3b8; stroke-width: 1; }
+    .label { fill: #1f2937; font-size: 14px; font-weight: 700; }
+    .small-svg { fill: #64748b; font-size: 12px; }
+    .blue { stroke: var(--blue); fill: none; stroke-width: 3; }
+    .green { stroke: var(--green); fill: none; stroke-width: 3; }
+    .amber { stroke: var(--amber); fill: none; stroke-width: 3; }
+    .red { stroke: var(--red); fill: none; stroke-width: 3; }
+    .violet { stroke: var(--violet); fill: none; stroke-width: 3; }
+    .fill-blue { fill: #eff6ff; stroke: #60a5fa; }
+    .fill-green { fill: #ecfdf5; stroke: #34d399; }
+    .fill-amber { fill: #fffbeb; stroke: #f59e0b; }
+    .fill-red { fill: #fff1f2; stroke: #fb7185; }
+    .box { fill: #fff; stroke: #94a3b8; stroke-width: 1.2; rx: 8; }
+    .arrow { stroke: #475569; stroke-width: 1.4; fill: none; marker-end: url(#arrow); }
+    @media (max-width: 820px) { main { width: min(100% - 24px, 1180px); } .span-4, .span-6 { grid-column: span 12; } table { font-size: .86rem; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="kicker">Timing investigation · ADC background producer</div>
+    <h1>Why Core 0 Analog Acquisition Still Disturbs Core 1 Signal Timing</h1>
+    <p class="summary">
+      The diagnostic runs show that moving analog acquisition to Core 0 improves sample freshness, but oneshot ADC reads still perturb the
+      timing-critical signal path. Different cores reduce direct task contention; they do not isolate shared peripherals, interrupt paths,
+      memory/cache effects, or chip-level arbitration.
+    </p>
+  </header>
+
+  <section class="grid">
+    <div class="card metric span-4">
+      <span>Unthrottled background acquisition</span>
+      <strong>5555 triples/s</strong>
+      <span>Fresh samples, but the scoped 2 us dead-time degraded.</span>
+    </div>
+    <div class="card metric span-4">
+      <span>Rate-limited at 500 us</span>
+      <strong>1519 triples/s</strong>
+      <span>Signal stability improved, but still worse than the older no-background-acquisition behavior.</span>
+    </div>
+    <div class="card metric span-4">
+      <span>Current conclusion</span>
+      <strong>Oneshot is noisy</strong>
+      <span>Rate limiting helps, but does not make the ADC producer hard-real-time safe.</span>
+    </div>
+  </section>
+
+  <h2>Executive Answer</h2>
+  <div class="note bad">
+    <p>
+      The signal loop is pinned to Core 1 and disables interrupts around GPIO playback, but the ESP32 is still one chip. A task on Core 0 that repeatedly
+      calls <code>adc_oneshot_read()</code> can affect Core 1 through shared ADC/peripheral locks, APB and memory bus arbitration, cache/flash stalls,
+      cross-core FreeRTOS/ESP-IDF critical sections, and system interrupts. The result is not necessarily visible as a firmware timing-fault counter,
+      because the GPIO loop can still complete its average period while individual nanosecond-to-microsecond edge placement shifts enough to damage a
+      scoped 2 us dead-time.
+    </p>
+  </div>
+
+  <h2>Measured Runs</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Mode</th>
+        <th>Seq delta</th>
+        <th>Rate</th>
+        <th>ADC latency avg / p95</th>
+        <th>Signal timing</th>
+        <th>Observed result</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Old trigger/monitor path</td>
+        <td>5 over 2 s</td>
+        <td>1-2 triples/s</td>
+        <td>328 us / 544 us</td>
+        <td>7055 samples, 4 overruns</td>
+        <td>Signal timing was cleaner on the scope, but analog data was far too stale.</td>
+      </tr>
+      <tr>
+        <td>Background, unthrottled</td>
+        <td>25870 over 4 s</td>
+        <td>5555 triples/s</td>
+        <td>144 us / 175 us</td>
+        <td>543259 samples, 6 overruns</td>
+        <td>Very fresh analog data, but scoped 2 us dead-time became unstable.</td>
+      </tr>
+      <tr>
+        <td>Background, 500 us period</td>
+        <td>3180 over 4 s</td>
+        <td>1519 triples/s</td>
+        <td>292 us / 268 us</td>
+        <td>14164 samples, 2 overruns</td>
+        <td>Improved stability, still worse than old behavior.</td>
+      </tr>
+      <tr>
+        <td>Background, 250 us period</td>
+        <td>4691 over 4 s</td>
+        <td>2188 triples/s</td>
+        <td>335 us / 2036 us</td>
+        <td>80725 samples, 3 overruns</td>
+        <td>Large ADC p95 spike indicates periodic interference or stalls.</td>
+      </tr>
+      <tr>
+        <td>Background, 100 us period</td>
+        <td>7191 over 4 s</td>
+        <td>3906 triples/s</td>
+        <td>284 us / 249 us</td>
+        <td>213972 samples, 5 overruns</td>
+        <td>More samples, but still not isolated enough for the 2 us waveform requirement.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <svg class="chart" viewBox="0 0 1120 430" role="img" aria-label="Diagnostic run comparison chart">
+    <line x1="90" y1="350" x2="1040" y2="350" class="axis"></line>
+    <line x1="90" y1="50" x2="90" y2="350" class="axis"></line>
+    <text x="90" y="30" class="label">Rate vs disturbance indicators</text>
+    <text x="105" y="382" class="small-svg">Old</text>
+    <text x="300" y="382" class="small-svg">Unthrottled</text>
+    <text x="530" y="382" class="small-svg">500 us</text>
+    <text x="720" y="382" class="small-svg">250 us</text>
+    <text x="910" y="382" class="small-svg">100 us</text>
+    <text x="860" y="68" class="small-svg">Green: triples/s</text>
+    <text x="860" y="90" class="small-svg">Amber: latency p95 us</text>
+    <text x="860" y="112" class="small-svg">Red: overruns</text>
+
+    <polyline points="120,350 350,80 560,276 760,240 950,164" class="green"></polyline>
+    <polyline points="120,262 350,319 560,307 760,55 950,302" class="amber"></polyline>
+    <polyline points="120,190 350,155 560,260 760,225 950,190" class="red"></polyline>
+
+    <circle cx="120" cy="350" r="5" fill="#047857"></circle>
+    <circle cx="350" cy="80" r="5" fill="#047857"></circle>
+    <circle cx="560" cy="276" r="5" fill="#047857"></circle>
+    <circle cx="760" cy="240" r="5" fill="#047857"></circle>
+    <circle cx="950" cy="164" r="5" fill="#047857"></circle>
+
+    <circle cx="120" cy="262" r="5" fill="#b45309"></circle>
+    <circle cx="350" cy="319" r="5" fill="#b45309"></circle>
+    <circle cx="560" cy="307" r="5" fill="#b45309"></circle>
+    <circle cx="760" cy="55" r="5" fill="#b45309"></circle>
+    <circle cx="950" cy="302" r="5" fill="#b45309"></circle>
+
+    <circle cx="120" cy="190" r="5" fill="#b91c1c"></circle>
+    <circle cx="350" cy="155" r="5" fill="#b91c1c"></circle>
+    <circle cx="560" cy="260" r="5" fill="#b91c1c"></circle>
+    <circle cx="760" cy="225" r="5" fill="#b91c1c"></circle>
+    <circle cx="950" cy="190" r="5" fill="#b91c1c"></circle>
+  </svg>
+
+  <h2>Why Different Cores Are Not Isolation</h2>
+  <svg class="chart" viewBox="0 0 1120 520" role="img" aria-label="ESP32 shared resource diagram">
+    <defs>
+      <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+        <path d="M0,0 L10,4 L0,8 z" fill="#475569"></path>
+      </marker>
+    </defs>
+
+    <rect x="40" y="58" width="240" height="116" class="box fill-green"></rect>
+    <text x="64" y="92" class="label">Core 1</text>
+    <text x="64" y="118" class="small-svg">signal_loop_task</text>
+    <text x="64" y="140" class="small-svg">GPIO playback</text>
+    <text x="64" y="162" class="small-svg">interrupts disabled locally</text>
+
+    <rect x="40" y="312" width="240" height="116" class="box fill-blue"></rect>
+    <text x="64" y="346" class="label">Core 0</text>
+    <text x="64" y="372" class="small-svg">analog acquisition task</text>
+    <text x="64" y="394" class="small-svg">adc_oneshot_read x3</text>
+    <text x="64" y="416" class="small-svg">calibration + atomics</text>
+
+    <rect x="430" y="70" width="260" height="86" class="box fill-amber"></rect>
+    <text x="454" y="104" class="label">Shared APB/peripheral fabric</text>
+    <text x="454" y="130" class="small-svg">GPIO, ADC, timers, buses</text>
+
+    <rect x="430" y="214" width="260" height="86" class="box fill-red"></rect>
+    <text x="454" y="248" class="label">ESP-IDF critical sections</text>
+    <text x="454" y="274" class="small-svg">spinlocks, driver locks, IPC</text>
+
+    <rect x="430" y="358" width="260" height="86" class="box fill-amber"></rect>
+    <text x="454" y="392" class="label">Shared memory/cache/flash</text>
+    <text x="454" y="418" class="small-svg">instruction/data stalls</text>
+
+    <rect x="820" y="174" width="250" height="128" class="box fill-red"></rect>
+    <text x="844" y="208" class="label">Observable symptom</text>
+    <text x="844" y="234" class="small-svg">average loop still looks OK</text>
+    <text x="844" y="256" class="small-svg">but edge placement shifts</text>
+    <text x="844" y="278" class="small-svg">2 us dead-time degrades</text>
+
+    <line x1="280" y1="116" x2="430" y2="112" class="arrow"></line>
+    <line x1="280" y1="370" x2="430" y2="400" class="arrow"></line>
+    <line x1="280" y1="370" x2="430" y2="258" class="arrow"></line>
+    <line x1="690" y1="112" x2="820" y2="220" class="arrow"></line>
+    <line x1="690" y1="258" x2="820" y2="238" class="arrow"></line>
+    <line x1="690" y1="400" x2="820" y2="256" class="arrow"></line>
+  </svg>
+
+  <p>
+    <span class="tag green">Core pinning helps</span>
+    <span class="tag red">It does not reserve the chip</span>
+    <span class="tag amber">2 us is a very small margin</span>
+  </p>
+
+  <h2>Timing Window</h2>
+  <p>
+    The signal code clears changing complementary outputs, waits the configured dead-time cycles, then writes the final GPIO state. That wait is only about
+    480 CPU cycles for a 2 us target at 240 MHz. Any disturbance that costs tens or hundreds of cycles is large enough to be visible on a scope.
+  </p>
+
+  <svg class="chart" viewBox="0 0 1120 360" role="img" aria-label="Dead-time timing window diagram">
+    <line x1="80" y1="170" x2="1040" y2="170" class="axis"></line>
+    <text x="80" y="50" class="label">One complementary transition</text>
+
+    <rect x="150" y="110" width="130" height="42" fill="#fee2e2" stroke="#fb7185"></rect>
+    <text x="166" y="136" class="small-svg">clear changed pins</text>
+
+    <rect x="280" y="110" width="250" height="42" fill="#fffbeb" stroke="#f59e0b"></rect>
+    <text x="302" y="136" class="small-svg">2 us dead-time wait (~480 cycles)</text>
+
+    <rect x="530" y="110" width="150" height="42" fill="#dcfce7" stroke="#34d399"></rect>
+    <text x="552" y="136" class="small-svg">apply new state</text>
+
+    <path d="M370 218 C410 245 490 245 540 218" class="red"></path>
+    <text x="352" y="276" class="small-svg">Shared-resource stall or delayed GPIO write shifts the apparent blanking window</text>
+    <line x1="405" y1="152" x2="405" y2="206" stroke="#b91c1c" stroke-dasharray="4 4"></line>
+    <line x1="540" y1="152" x2="540" y2="206" stroke="#b91c1c" stroke-dasharray="4 4"></line>
+  </svg>
+
+  <h2>Current Code Paths</h2>
+  <div class="grid">
+    <div class="card span-6">
+      <h3>Core 1 hot path</h3>
+      <p>
+        <code>execute_signal_pattern()</code> disables Core 1 interrupts, uses absolute edge deadlines, clears changed GPIOs,
+        waits <code>helper_delay_cycles(dead_time)</code>, and applies the final state.
+      </p>
+      <pre><code>portDISABLE_INTERRUPTS();
+...
+GPIO.out_w1tc = step.clear_mask;
+helper_delay_cycles(dead_time);
+GPIO.out_w1tc = step.clr_mask;
+GPIO.out_w1ts = step.set_mask;
+...
+portENABLE_INTERRUPTS();</code></pre>
+      <p class="small">Source: <code>main/src/signal_controller.cpp</code>.</p>
+    </div>
+    <div class="card span-6">
+      <h3>Core 0 acquisition path</h3>
+      <p>
+        The background task repeatedly performs three blocking oneshot reads, calibration, snapshot publication, and compatibility-global writes,
+        then waits for the configured acquisition period.
+      </p>
+      <pre><code>analog_read_port_sample(AN3, ...);
+analog_read_port_sample(AN5, ...);
+analog_read_port_sample(AN6, ...);
+analog_publish_triple(...);
+g_adc_fresh.store(valid);
+esp_rom_delay_us(period_us);</code></pre>
+      <p class="small">Source: <code>main/main.cpp</code> and <code>main/src/helper_analog.cpp</code>.</p>
+    </div>
+  </div>
+
+  <h2>Interpretation</h2>
+  <div class="note warn">
+    <p>
+      The 500 us run is the most useful clue. It produces only about 1519 triples/s and still makes the scoped waveform worse than the old path.
+      That means the disturbance is not only CPU saturation. The oneshot ADC call itself, or the driver/peripheral work around it, is likely introducing
+      short stalls or arbitration delays that are significant relative to a 2 us dead-time.
+    </p>
+  </div>
+  <p>
+    The firmware counters are still useful, but they are not a substitute for the scope. <code>Playback avg</code>, <code>Loop</code>, and
+    <code>Overruns</code> summarize software timing. The scope sees actual GPIO edge placement, including sub-loop perturbations and peripheral write timing.
+  </p>
+
+  <h2>Recommended Next Step</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Option</th>
+        <th>Expected effect</th>
+        <th>Risk</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Keep rate-limited oneshot</td>
+        <td>Simple and measurable; can find a safe low rate.</td>
+        <td>May never satisfy both 2 us dead-time and high-rate acquisition.</td>
+      </tr>
+      <tr>
+        <td>ADC continuous/DMA</td>
+        <td>Moves conversion pacing into hardware/DMA, reducing driver-call frequency and per-sample CPU stalls.</td>
+        <td>More implementation work; must handle DMA frames and overflow policy.</td>
+      </tr>
+      <tr>
+        <td>External ADC or dedicated sampling hardware</td>
+        <td>Best isolation if internal ADC still disturbs timing.</td>
+        <td>Hardware change and interface latency.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note good">
+    <p>
+      The current evidence says the next firmware milestone should be ADC continuous/DMA, not further pressure on oneshot. The acceptance test should remain the same:
+      run the diagnostic, inspect the scope dead-time, and accept only rates that keep the 2 us blanking window stable while producing fresh enough analog triples.
+    </p>
+  </div>
+</main>
+</body>
+</html>
