@@ -61,6 +61,14 @@ message AnalogStatus {
     uint32 miss_count = 18;
     uint32 consecutive_misses = 19;
     uint32 fault_code = 20;
+    uint32 acquisition_mode = 21;
+    uint32 samples_read = 22;
+    uint32 samples_rejected = 23;
+    uint32 channel_order_anomalies = 24;
+    uint32 partial_triples = 25;
+    uint32 frame_drops = 26;
+    uint32 pool_flushes = 27;
+    bool calibration_lut_ready = 28;
 }
 
 // System status message

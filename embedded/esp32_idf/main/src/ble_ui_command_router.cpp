@@ -37,7 +37,7 @@ struct UiCommandEntry {
     UiCommandHandler handler;
 };
 
-static UiCommandEntry s_commands[40];
+static UiCommandEntry s_commands[48];
 static size_t s_command_count = 0;
 volatile uint32_t g_dead_time_tail_overhead_cycles = DEFAULT_DEAD_TIME_TAIL_OVERHEAD_CYCLES;
 volatile uint32_t g_dead_time_us = DEFAULT_DEAD_TIME_US;
@@ -336,7 +336,7 @@ static void analog_diagnostic_test_task(void* arg) {
     analog_test_set_message(&result, "Analog diagnostic test complete");
 
     analog_test_store_result(result);
-    ble_send_log(BleLogLevel_BLE_LOG_INFO, "Analog diagnostic test finished; fetch debug.analog_test_result");
+    ble_send_log(BleLogLevel_BLE_LOG_INFO, "Analog diagnostic test finished; fetch debug.test.an.result");
     s_analog_test_running.store(false, std::memory_order_release);
     vTaskDelete(NULL);
 }
@@ -420,8 +420,8 @@ static UiCommandResultData handle_analog_set_continuous_sample_rate(const UiComm
     if (!json_get_u32(ctx.json, "sample_hz", &sample_hz)) {
         return invalid_arg("Expected numeric sample_hz");
     }
-    if (sample_hz < 1000 || sample_hz > 100000) {
-        return invalid_arg("sample_hz must be between 1000 and 100000");
+    if (sample_hz < 20000 || sample_hz > 2000000) {
+        return invalid_arg("sample_hz must be between 20000 and 2000000 on ESP32");
     }
 
     g_analog_continuous_sample_hz = sample_hz;
@@ -568,6 +568,10 @@ static UiCommandResultData handle_debug_analog_test_result(const UiCommandContex
     return ok("Analog diagnostic test result notification queued");
 }
 
+static UiCommandResultData handle_debug_analog_dma_json(const UiCommandContext& ctx) {
+    return ok("Analog DMA debug snapshot", analog_get_dma_debug_json());
+}
+
 static UiCommandResultData handle_debug_gpio_set(const UiCommandContext& ctx) {
     uint32_t port;
     uint32_t value;
@@ -649,6 +653,7 @@ void ui_command_router_init(void) {
     register_command("analog.set_monitor_period", handle_analog_set_monitor_period);
     register_command("analog.set_acquisition_period", handle_analog_set_acquisition_period);
     register_command("analog.set_acquisition_mode", handle_analog_set_acquisition_mode);
+    register_command("debug.test.an.mode", handle_analog_set_acquisition_mode);
     register_command("analog.set_continuous_sample_rate", handle_analog_set_continuous_sample_rate);
     register_command("analog.read_once", handle_analog_read_once);
     register_command("analog.ble_read_enable", handle_analog_ble_read_enable);
@@ -667,6 +672,10 @@ void ui_command_router_init(void) {
     register_command("debug.signal_timing", handle_debug_signal_timing);
     register_command("debug.analog_test_run", handle_debug_analog_test_run);
     register_command("debug.analog_test_result", handle_debug_analog_test_result);
+    register_command("debug.analog_dma_json", handle_debug_analog_dma_json);
+    register_command("debug.test.an.run", handle_debug_analog_test_run);
+    register_command("debug.test.an.result", handle_debug_analog_test_result);
+    register_command("debug.test.an.dma_json", handle_debug_analog_dma_json);
     register_command("debug.gpio_set", handle_debug_gpio_set);
     register_command("debug.all_high", handle_debug_all_high);
     register_command("debug.all_low", handle_debug_all_low);

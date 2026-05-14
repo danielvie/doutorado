@@ -396,6 +396,14 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
      * @property {number|null} [missCount] AnalogStatus missCount
      * @property {number|null} [consecutiveMisses] AnalogStatus consecutiveMisses
      * @property {number|null} [faultCode] AnalogStatus faultCode
+     * @property {number|null} [acquisitionMode] AnalogStatus acquisitionMode
+     * @property {number|null} [samplesRead] AnalogStatus samplesRead
+     * @property {number|null} [samplesRejected] AnalogStatus samplesRejected
+     * @property {number|null} [channelOrderAnomalies] AnalogStatus channelOrderAnomalies
+     * @property {number|null} [partialTriples] AnalogStatus partialTriples
+     * @property {number|null} [frameDrops] AnalogStatus frameDrops
+     * @property {number|null} [poolFlushes] AnalogStatus poolFlushes
+     * @property {boolean|null} [calibrationLutReady] AnalogStatus calibrationLutReady
      */
 
     /**
@@ -574,6 +582,70 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
     AnalogStatus.prototype.faultCode = 0;
 
     /**
+     * AnalogStatus acquisitionMode.
+     * @member {number} acquisitionMode
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.acquisitionMode = 0;
+
+    /**
+     * AnalogStatus samplesRead.
+     * @member {number} samplesRead
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.samplesRead = 0;
+
+    /**
+     * AnalogStatus samplesRejected.
+     * @member {number} samplesRejected
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.samplesRejected = 0;
+
+    /**
+     * AnalogStatus channelOrderAnomalies.
+     * @member {number} channelOrderAnomalies
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.channelOrderAnomalies = 0;
+
+    /**
+     * AnalogStatus partialTriples.
+     * @member {number} partialTriples
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.partialTriples = 0;
+
+    /**
+     * AnalogStatus frameDrops.
+     * @member {number} frameDrops
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.frameDrops = 0;
+
+    /**
+     * AnalogStatus poolFlushes.
+     * @member {number} poolFlushes
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.poolFlushes = 0;
+
+    /**
+     * AnalogStatus calibrationLutReady.
+     * @member {boolean} calibrationLutReady
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.calibrationLutReady = false;
+
+    /**
      * Creates a new AnalogStatus instance using the specified properties.
      * @function create
      * @memberof AnalogStatus
@@ -637,6 +709,22 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
             writer.uint32(/* id 19, wireType 0 =*/152).uint32(message.consecutiveMisses);
         if (message.faultCode != null && Object.hasOwnProperty.call(message, "faultCode"))
             writer.uint32(/* id 20, wireType 0 =*/160).uint32(message.faultCode);
+        if (message.acquisitionMode != null && Object.hasOwnProperty.call(message, "acquisitionMode"))
+            writer.uint32(/* id 21, wireType 0 =*/168).uint32(message.acquisitionMode);
+        if (message.samplesRead != null && Object.hasOwnProperty.call(message, "samplesRead"))
+            writer.uint32(/* id 22, wireType 0 =*/176).uint32(message.samplesRead);
+        if (message.samplesRejected != null && Object.hasOwnProperty.call(message, "samplesRejected"))
+            writer.uint32(/* id 23, wireType 0 =*/184).uint32(message.samplesRejected);
+        if (message.channelOrderAnomalies != null && Object.hasOwnProperty.call(message, "channelOrderAnomalies"))
+            writer.uint32(/* id 24, wireType 0 =*/192).uint32(message.channelOrderAnomalies);
+        if (message.partialTriples != null && Object.hasOwnProperty.call(message, "partialTriples"))
+            writer.uint32(/* id 25, wireType 0 =*/200).uint32(message.partialTriples);
+        if (message.frameDrops != null && Object.hasOwnProperty.call(message, "frameDrops"))
+            writer.uint32(/* id 26, wireType 0 =*/208).uint32(message.frameDrops);
+        if (message.poolFlushes != null && Object.hasOwnProperty.call(message, "poolFlushes"))
+            writer.uint32(/* id 27, wireType 0 =*/216).uint32(message.poolFlushes);
+        if (message.calibrationLutReady != null && Object.hasOwnProperty.call(message, "calibrationLutReady"))
+            writer.uint32(/* id 28, wireType 0 =*/224).bool(message.calibrationLutReady);
         return writer;
     };
 
@@ -753,6 +841,38 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
                     message.faultCode = reader.uint32();
                     break;
                 }
+            case 21: {
+                    message.acquisitionMode = reader.uint32();
+                    break;
+                }
+            case 22: {
+                    message.samplesRead = reader.uint32();
+                    break;
+                }
+            case 23: {
+                    message.samplesRejected = reader.uint32();
+                    break;
+                }
+            case 24: {
+                    message.channelOrderAnomalies = reader.uint32();
+                    break;
+                }
+            case 25: {
+                    message.partialTriples = reader.uint32();
+                    break;
+                }
+            case 26: {
+                    message.frameDrops = reader.uint32();
+                    break;
+                }
+            case 27: {
+                    message.poolFlushes = reader.uint32();
+                    break;
+                }
+            case 28: {
+                    message.calibrationLutReady = reader.bool();
+                    break;
+                }
             default:
                 reader.skipType(tag & 7);
                 break;
@@ -848,6 +968,30 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
         if (message.faultCode != null && message.hasOwnProperty("faultCode"))
             if (!$util.isInteger(message.faultCode))
                 return "faultCode: integer expected";
+        if (message.acquisitionMode != null && message.hasOwnProperty("acquisitionMode"))
+            if (!$util.isInteger(message.acquisitionMode))
+                return "acquisitionMode: integer expected";
+        if (message.samplesRead != null && message.hasOwnProperty("samplesRead"))
+            if (!$util.isInteger(message.samplesRead))
+                return "samplesRead: integer expected";
+        if (message.samplesRejected != null && message.hasOwnProperty("samplesRejected"))
+            if (!$util.isInteger(message.samplesRejected))
+                return "samplesRejected: integer expected";
+        if (message.channelOrderAnomalies != null && message.hasOwnProperty("channelOrderAnomalies"))
+            if (!$util.isInteger(message.channelOrderAnomalies))
+                return "channelOrderAnomalies: integer expected";
+        if (message.partialTriples != null && message.hasOwnProperty("partialTriples"))
+            if (!$util.isInteger(message.partialTriples))
+                return "partialTriples: integer expected";
+        if (message.frameDrops != null && message.hasOwnProperty("frameDrops"))
+            if (!$util.isInteger(message.frameDrops))
+                return "frameDrops: integer expected";
+        if (message.poolFlushes != null && message.hasOwnProperty("poolFlushes"))
+            if (!$util.isInteger(message.poolFlushes))
+                return "poolFlushes: integer expected";
+        if (message.calibrationLutReady != null && message.hasOwnProperty("calibrationLutReady"))
+            if (typeof message.calibrationLutReady !== "boolean")
+                return "calibrationLutReady: boolean expected";
         return null;
     };
 
@@ -910,6 +1054,22 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
             message.consecutiveMisses = object.consecutiveMisses >>> 0;
         if (object.faultCode != null)
             message.faultCode = object.faultCode >>> 0;
+        if (object.acquisitionMode != null)
+            message.acquisitionMode = object.acquisitionMode >>> 0;
+        if (object.samplesRead != null)
+            message.samplesRead = object.samplesRead >>> 0;
+        if (object.samplesRejected != null)
+            message.samplesRejected = object.samplesRejected >>> 0;
+        if (object.channelOrderAnomalies != null)
+            message.channelOrderAnomalies = object.channelOrderAnomalies >>> 0;
+        if (object.partialTriples != null)
+            message.partialTriples = object.partialTriples >>> 0;
+        if (object.frameDrops != null)
+            message.frameDrops = object.frameDrops >>> 0;
+        if (object.poolFlushes != null)
+            message.poolFlushes = object.poolFlushes >>> 0;
+        if (object.calibrationLutReady != null)
+            message.calibrationLutReady = Boolean(object.calibrationLutReady);
         return message;
     };
 
@@ -951,6 +1111,14 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
             object.missCount = 0;
             object.consecutiveMisses = 0;
             object.faultCode = 0;
+            object.acquisitionMode = 0;
+            object.samplesRead = 0;
+            object.samplesRejected = 0;
+            object.channelOrderAnomalies = 0;
+            object.partialTriples = 0;
+            object.frameDrops = 0;
+            object.poolFlushes = 0;
+            object.calibrationLutReady = false;
         }
         if (message.seq != null && message.hasOwnProperty("seq"))
             object.seq = message.seq;
@@ -995,6 +1163,22 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
             object.consecutiveMisses = message.consecutiveMisses;
         if (message.faultCode != null && message.hasOwnProperty("faultCode"))
             object.faultCode = message.faultCode;
+        if (message.acquisitionMode != null && message.hasOwnProperty("acquisitionMode"))
+            object.acquisitionMode = message.acquisitionMode;
+        if (message.samplesRead != null && message.hasOwnProperty("samplesRead"))
+            object.samplesRead = message.samplesRead;
+        if (message.samplesRejected != null && message.hasOwnProperty("samplesRejected"))
+            object.samplesRejected = message.samplesRejected;
+        if (message.channelOrderAnomalies != null && message.hasOwnProperty("channelOrderAnomalies"))
+            object.channelOrderAnomalies = message.channelOrderAnomalies;
+        if (message.partialTriples != null && message.hasOwnProperty("partialTriples"))
+            object.partialTriples = message.partialTriples;
+        if (message.frameDrops != null && message.hasOwnProperty("frameDrops"))
+            object.frameDrops = message.frameDrops;
+        if (message.poolFlushes != null && message.hasOwnProperty("poolFlushes"))
+            object.poolFlushes = message.poolFlushes;
+        if (message.calibrationLutReady != null && message.hasOwnProperty("calibrationLutReady"))
+            object.calibrationLutReady = message.calibrationLutReady;
         return object;
     };
 

@@ -687,7 +687,7 @@
     </svg>
 
     <div class="note warn">
-      The 70 us triple spacing is the target derived from 4 triples per 280 us cycle. The current default command value of <code>12000</code> samples/s is conservative for bring-up; final target testing likely needs about <code>42900</code> channel samples/s or higher, depending on ESP-IDF sampling overhead and accepted margin.
+      The 70 us triple spacing is the target derived from 4 triples per 280 us cycle. ESP32 ADC continuous mode requires at least <code>20000</code> samples/s. Hardware bring-up showed <code>42900</code> produced only about <code>4650</code> complete triples/s, so the current target-rate command value is <code>129000</code> samples/s.
     </div>
   </section>
 
@@ -759,7 +759,7 @@
         </tr>
         <tr>
           <td>3</td>
-          <td><code>analog.set_continuous_sample_rate {"sample_hz":42900}</code></td>
+          <td><code>analog.set_continuous_sample_rate {"sample_hz":129000}</code></td>
           <td>Target-rate bring-up. If unstable, sweep down and record the threshold.</td>
         </tr>
         <tr>

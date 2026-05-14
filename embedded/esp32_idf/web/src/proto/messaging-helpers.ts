@@ -136,6 +136,18 @@ export function decodeBlePacket(binary: Uint8Array) {
                                 packet.status.analog.consecutiveMisses,
                             ),
                             fault_code: numberValue(packet.status.analog.faultCode),
+                            acquisition_mode: numberValue(packet.status.analog.acquisitionMode),
+                            samples_read: numberValue(packet.status.analog.samplesRead),
+                            samples_rejected: numberValue(packet.status.analog.samplesRejected),
+                            channel_order_anomalies: numberValue(
+                                packet.status.analog.channelOrderAnomalies,
+                            ),
+                            partial_triples: numberValue(packet.status.analog.partialTriples),
+                            frame_drops: numberValue(packet.status.analog.frameDrops),
+                            pool_flushes: numberValue(packet.status.analog.poolFlushes),
+                            calibration_lut_ready: booleanValue(
+                                packet.status.analog.calibrationLutReady,
+                            ),
                         }
                       : undefined,
               }

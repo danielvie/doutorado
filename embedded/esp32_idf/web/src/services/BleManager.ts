@@ -171,6 +171,8 @@ class BleManager {
                             `Seq            : ${analog.seq ?? 0}`,
                             `Valid          : ${analog.valid ? "YES" : "NO"}`,
                             `Age            : ${analog.age_us ?? 0} us`,
+                            `Mode           : ${(analog.acquisition_mode ?? 0) === 1 ? "continuous" : "oneshot"}`,
+                            `LUT ready      : ${analog.calibration_lut_ready ? "YES" : "NO"}`,
                             `Target triples : ${analog.target_triples_per_cycle ?? 0} per cycle`,
                             `Measured rate  : ${analog.measured_triples_per_second ?? 0} triples/s`,
                             `Raw AN3/AN5/AN6: ${analog.raw_an3 ?? 0} / ${analog.raw_an5 ?? 0} / ${analog.raw_an6 ?? 0}`,
@@ -178,6 +180,9 @@ class BleManager {
                             `Latency p95    : ${analog.latency_p95_us ?? 0} us`,
                             `Misses         : ${analog.miss_count ?? 0} total, ${analog.consecutive_misses ?? 0} consecutive`,
                             `Overflows      : ${analog.overflow_count ?? 0}`,
+                            `DMA samples    : ${analog.samples_read ?? 0} read, ${analog.samples_rejected ?? 0} rejected`,
+                            `DMA anomalies  : ${analog.channel_order_anomalies ?? 0} order, ${analog.partial_triples ?? 0} partial`,
+                            `DMA drops/flush: ${analog.frame_drops ?? 0} / ${analog.pool_flushes ?? 0}`,
                             `Fault code     : ${analog.fault_code ?? 0}`,
                         );
                     }
@@ -208,7 +213,7 @@ class BleManager {
                         useBleStore.getState().addLog(message);
                         useBleStore.getState().setLastStatusMessage(message);
                         useBleStore.getState().setLastStatusCommand({
-                            name: "debug.analog_test_result",
+                            name: "debug.test.an.result",
                             payload: {},
                         });
                     } else if (!t.valid) {
@@ -216,7 +221,7 @@ class BleManager {
                         useBleStore.getState().addLog(message);
                         useBleStore.getState().setLastStatusMessage(message);
                         useBleStore.getState().setLastStatusCommand({
-                            name: "debug.analog_test_result",
+                            name: "debug.test.an.result",
                             payload: {},
                         });
                     } else {
@@ -250,7 +255,7 @@ class BleManager {
                         useBleStore.getState().addLog(statusStr);
                         useBleStore.getState().setLastStatusMessage(statusStr);
                         useBleStore.getState().setLastStatusCommand({
-                            name: "debug.analog_test_result",
+                            name: "debug.test.an.result",
                             payload: {},
                         });
                     }

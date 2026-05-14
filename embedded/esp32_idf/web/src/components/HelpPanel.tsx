@@ -58,7 +58,15 @@ const COMMANDS = [
     description: "Returns background acquisition to safe oneshot mode",
   },
   {
-    commands: 'analog.set_continuous_sample_rate {"sample_hz":12000}',
+    commands: 'debug.test.an.mode {"mode":"continuous"}',
+    description: "Uses ADC continuous DMA for analog test acquisition",
+  },
+  {
+    commands: 'debug.test.an.mode {"mode":"oneshot"}',
+    description: "Returns analog test acquisition to safe oneshot mode",
+  },
+  {
+    commands: 'analog.set_continuous_sample_rate {"sample_hz":129000}',
     description: "Sets ADC continuous channel sample rate",
   },
   {
@@ -122,12 +130,16 @@ const COMMANDS = [
     description: "Sends signal timing diagnostics",
   },
   {
-    commands: 'debug.analog_test_run {"duration_ms":4000}',
+    commands: 'debug.test.an.run {"duration_ms":4000}',
     description: "Runs a bounded signal plus analog diagnostic test",
   },
   {
-    commands: "debug.analog_test_result",
+    commands: "debug.test.an.result",
     description: "Fetches the latest stored analog diagnostic test result",
+  },
+  {
+    commands: "debug.test.an.dma_json",
+    description: "Fetches ADC DMA per-channel debug counters",
   },
   {
     commands: 'debug.gpio_set {"port":1,"value":1}',

@@ -1,12 +1,51 @@
 # TODO
 
-- [ ] Implement DMA plan milestone 1: move continuous ADC ownership out of `main.cpp`
-- [ ] Implement DMA plan milestone 2: publish analog snapshots atomically at triple level
-- [ ] Implement DMA plan milestone 3: add DMA parser accounting and overflow invalidation
-- [ ] Implement DMA plan milestone 4: use a raw-code calibration LUT in the acquisition hot path
-- [ ] Implement DMA plan milestone 5: make signal control consume the analog snapshot API
-- [ ] Implement DMA plan milestone 6: expose control-grade fault gates/status
-- [ ] Verify firmware build and web build after DMA acquisition changes
+- [x] Raise continuous ADC default sample rate to meet 4-triples-per-cycle target
+- [x] Update HelpPanel/docs target-rate examples
+- [x] Verify firmware and web builds after rate target update
+
+- [x] Replace DMA latest-sample accumulator with per-channel queues
+- [x] Verify firmware build after queued triple parser
+
+- [x] Make DMA triple parser tolerate duplicate channel samples without dropping partial triples
+- [x] Verify firmware build after duplicate-channel parser fix
+
+- [x] Reduce DMA pacing throttle while preserving watchdog idle time
+- [x] Verify firmware build after DMA pacing adjustment
+
+- [x] Add `debug.test.an.mode` alias for analog acquisition mode
+- [x] Update HelpPanel with `debug.test.an.mode` examples
+- [x] Verify firmware and web builds after mode alias
+
+- [x] Add `debug.test.an.*` command aliases for analog tests
+- [x] Update HelpPanel to show `debug.test.an.*` labels
+- [x] Verify firmware and web builds after command rename
+
+- [x] Add analog DMA debug command with per-channel counts and raw values
+- [x] Verify firmware build after DMA debug command
+
+- [x] Add DMA acquisition pacing so Core 0 idle can feed watchdog
+- [x] Fix measured triple-rate accounting so it is not parser-speed based
+- [x] Verify firmware build after watchdog fix
+
+- [x] Deinit ADC oneshot unit before starting continuous DMA
+- [x] Recreate ADC oneshot unit when returning to oneshot mode
+- [x] Verify firmware build after ADC mode ownership fix
+
+- [x] Fix DMA parser to accept ADC channels in hardware-delivered order
+- [x] Verify firmware build after DMA parser fix
+
+- [x] Fix invalid ESP32 ADC continuous default sample rate
+- [x] Update continuous sample-rate command validation/help
+- [x] Verify firmware and web builds after ADC rate fix
+
+- [x] Implement DMA plan milestone 1: move continuous ADC ownership out of `main.cpp`
+- [x] Implement DMA plan milestone 2: publish analog snapshots atomically at triple level
+- [x] Implement DMA plan milestone 3: add DMA parser accounting and overflow invalidation
+- [x] Implement DMA plan milestone 4: use a raw-code calibration LUT in the acquisition hot path
+- [x] Implement DMA plan milestone 5: make signal control consume the analog snapshot API
+- [x] Implement DMA plan milestone 6: expose control-grade fault gates/status
+- [x] Verify firmware build and web build after DMA acquisition changes
 
 - [x] Extract current analog acquisition decisions and implemented state
 - [x] Create `docs/plan_improve_data_aquisition.html` with DMA completion plan

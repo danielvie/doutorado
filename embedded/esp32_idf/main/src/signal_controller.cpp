@@ -1,5 +1,6 @@
 #include "signal_controller.h"
 #include "helper_datasetter.h"
+#include "helper_analog.h"
 #include "control_action.h"
 #include "soc/io_mux_reg.h"
 #include "hal/gpio_ll.h"
@@ -10,6 +11,7 @@ static constexpr uint32_t CYCLES_PER_US = 240;
 static constexpr uint32_t MIN_ACTIVE_HOLD_CYCLES = CYCLES_PER_US;
 static constexpr uint32_t MIN_MAINTENANCE_PERIOD_CYCLES = 50 * CYCLES_PER_US;
 static constexpr uint32_t SHORT_PATTERN_BATCH_CYCLES = 256;
+static constexpr uint32_t CONTROL_MAX_ANALOG_AGE_US = 280;
 
 // ---------------------------------------------------------------------------
 // HARDWARE CONFIGURATION
@@ -382,6 +384,7 @@ void signal_update_from_string(const std::string &message) {
 struct SignalLoopContext {
     const DataSet *dataset = &g_dataset_a;
     uint32_t next_pattern_edge = 0;
+    uint32_t last_analog_seq = 0;
     int32_t current_correction[MAX_SIGNAL_SIZE];
     float dtk_buffer[MAX_SIGNAL_SIZE];
 };
@@ -392,6 +395,7 @@ static bool signal_is_running() {
 }
 
 static void reset_control_corrections(SignalLoopContext &ctx) {
+    ctx.last_analog_seq = 0;
     for (int i = 0; i < MAX_SIGNAL_SIZE; ++i) {
         ctx.current_correction[i] = 0;
         ctx.dtk_buffer[i] = 0.0f;
@@ -419,21 +423,31 @@ static void apply_pending_dataset_swap(SignalLoopContext &ctx) {
 }
 
 static void update_control_corrections(SignalLoopContext &ctx) {
-    if (!g_control_enabled.load(std::memory_order_acquire) ||
-        !g_adc_fresh.load(std::memory_order_acquire)) {
+    if (!g_control_enabled.load(std::memory_order_acquire)) {
         return;
     }
 
-    g_adc_fresh.store(false, std::memory_order_release);
     if (!ctx.dataset->gain_k.is_valid || ctx.dataset->size <= 1) {
         return;
     }
 
+    AnalogControlSnapshot snapshot;
+    if (!analog_read_control_snapshot(&snapshot, ctx.last_analog_seq, CONTROL_MAX_ANALOG_AGE_US)) {
+        AnalogRuntimeStatus analog_status;
+        analog_get_status(&analog_status);
+        if (analog_status.consecutive_misses >= 3) {
+            g_control_enabled.store(false, std::memory_order_release);
+            g_system_state.control_state.store(ControlState::OFF, std::memory_order_release);
+        }
+        return;
+    }
+    ctx.last_analog_seq = snapshot.seq;
+
     const uint32_t N = ctx.dataset->size;
     const uint32_t p = N - 1;
-    float an3 = g_adc_an3.load(std::memory_order_acquire);
-    float an5 = g_adc_an5.load(std::memory_order_acquire);
-    float an6 = g_adc_an6.load(std::memory_order_acquire);
+    float an3 = snapshot.an3;
+    float an5 = snapshot.an5;
+    float an6 = snapshot.an6;
 
     float e1 = an3 - ctx.dataset->target[0];
     float e2 = an5 - ctx.dataset->target[1];

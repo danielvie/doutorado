@@ -206,6 +206,30 @@ export class AnalogStatus implements IAnalogStatus {
     /** AnalogStatus faultCode. */
     public faultCode: number;
 
+    /** AnalogStatus acquisitionMode. */
+    public acquisitionMode: number;
+
+    /** AnalogStatus samplesRead. */
+    public samplesRead: number;
+
+    /** AnalogStatus samplesRejected. */
+    public samplesRejected: number;
+
+    /** AnalogStatus channelOrderAnomalies. */
+    public channelOrderAnomalies: number;
+
+    /** AnalogStatus partialTriples. */
+    public partialTriples: number;
+
+    /** AnalogStatus frameDrops. */
+    public frameDrops: number;
+
+    /** AnalogStatus poolFlushes. */
+    public poolFlushes: number;
+
+    /** AnalogStatus calibrationLutReady. */
+    public calibrationLutReady: boolean;
+
     /**
      * Creates a new AnalogStatus instance using the specified properties.
      * @param [properties] Properties to set

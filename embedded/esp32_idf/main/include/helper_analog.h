@@ -3,6 +3,7 @@
 
 #include "esp_log.h"
 #include "esp_adc/adc_oneshot.h"
+#include <string>
 
 // ADC Configuration Constants
 #define ADC_MAX 4095.0      // 12-bit ADC maximum value (2^12 - 1)
@@ -38,19 +39,49 @@ struct AnalogRuntimeStatus {
     uint32_t miss_count;
     uint32_t consecutive_misses;
     uint32_t fault_code;
+    uint32_t acquisition_mode;
+    uint32_t samples_read;
+    uint32_t samples_rejected;
+    uint32_t channel_order_anomalies;
+    uint32_t partial_triples;
+    uint32_t frame_drops;
+    uint32_t pool_flushes;
+    bool calibration_lut_ready;
 };
+
+struct AnalogControlSnapshot {
+    uint32_t seq;
+    uint32_t age_us;
+    float an3;
+    float an5;
+    float an6;
+};
+
+#define ANALOG_FAULT_NONE 0
+#define ANALOG_FAULT_REPEATED_MISS 1
+#define ANALOG_FAULT_STALE_SAMPLE 2
+#define ANALOG_FAULT_MISSING_TRIPLE 3
+#define ANALOG_FAULT_DMA_OVERFLOW 4
+#define ANALOG_FAULT_CALIBRATION_UNAVAILABLE 5
 
 void analog_init();
 float analog_read_port(AnalogPort port);
 bool analog_read_port_sample(AnalogPort port, uint32_t* raw, float* calibrated);
 float analog_calibrate_raw(uint32_t raw);
+float analog_calibrate_raw_lut(uint32_t raw);
 
 // Latency tracking for performance monitoring
 void analog_record_latency(uint32_t us);
 void analog_record_overflow();
+void analog_record_miss(uint32_t fault_code);
 void analog_get_latency_stats(uint32_t* min, uint32_t* max, uint32_t* avg);
 void analog_publish_triple(uint32_t raw_an3, float calibrated_an3,
                            uint32_t raw_an5, float calibrated_an5,
                            uint32_t raw_an6, float calibrated_an6,
                            bool valid);
 void analog_get_status(AnalogRuntimeStatus* status);
+bool analog_read_control_snapshot(AnalogControlSnapshot* snapshot,
+                                  uint32_t last_seq,
+                                  uint32_t max_age_us);
+std::string analog_get_dma_debug_json();
+void analog_acquisition_task(void* arg);

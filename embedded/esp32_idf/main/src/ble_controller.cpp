@@ -376,6 +376,14 @@ void ble_send_status(void) {
     status->analog.miss_count = analog_status.miss_count;
     status->analog.consecutive_misses = analog_status.consecutive_misses;
     status->analog.fault_code = analog_status.fault_code;
+    status->analog.acquisition_mode = analog_status.acquisition_mode;
+    status->analog.samples_read = analog_status.samples_read;
+    status->analog.samples_rejected = analog_status.samples_rejected;
+    status->analog.channel_order_anomalies = analog_status.channel_order_anomalies;
+    status->analog.partial_triples = analog_status.partial_triples;
+    status->analog.frame_drops = analog_status.frame_drops;
+    status->analog.pool_flushes = analog_status.pool_flushes;
+    status->analog.calibration_lut_ready = analog_status.calibration_lut_ready;
 
     ble_send_protobuf(&packet);
     
