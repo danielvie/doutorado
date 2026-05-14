@@ -1,5 +1,37 @@
 # TODO
 
+- [x] Record accepted Q35-Q37 final grill-me decisions in the analog acquisition study
+- [x] Close the analog acquisition design questioning session in the HTML
+- [x] Auto-confirm Q38 migration-wrapper decision in the analog acquisition study
+- [x] Limit remaining grill-me session to final meaningful Q35-Q37
+- [x] Record accepted Q31-Q34 grill-me decisions in the analog acquisition study
+- [x] Add next independent grill-me questions after Q34
+- [x] Record accepted Q27-Q30 grill-me decisions in the analog acquisition study
+- [x] Add next independent grill-me questions after Q30
+- [x] Record accepted Q23-Q26 grill-me decisions in the analog acquisition study
+- [x] Add next independent grill-me questions after Q26
+- [x] Record accepted Q19-Q22 grill-me decisions in the analog acquisition study
+- [x] Add next independent grill-me questions after Q22
+- [x] Record accepted Q15-Q18 grill-me decisions in the analog acquisition study
+- [x] Add next independent grill-me questions after Q18
+- [x] Record accepted Q11-Q14 grill-me decisions in the analog acquisition study
+- [x] Add next independent grill-me questions after Q14
+- [x] Record accepted Q8 acquisition-rate target in the analog acquisition study
+- [x] Add next independent grill-me questions after Q8
+- [x] Record accepted Q7, Q9, and Q10 grill-me decisions in the analog acquisition study
+- [x] Clarify Q8 acquisition-rate question without marking it resolved
+- [x] Record accepted Q2-Q6 grill-me decisions in the analog acquisition study
+- [x] Update BLE telemetry plan to on-demand lower-priority replies
+- [x] Record 280 us control-cycle acquisition deadline in the analog acquisition study
+- [x] Add next grill-me questions for the fast acquisition design
+- [x] Add index navigation to the analog acquisition HTML study
+- [x] Add hide/show controls for analog acquisition study sections
+- [x] Add `Plan to Improve` section with grill-me decision and implementation identifiers
+- [x] Attempt in-app browser verification for the analog acquisition HTML; file URL reload/DOM inspection is blocked by Browser Use policy, static checks passed
+- [x] Analyze the current analog acquisition flow and observability hooks
+- [x] Create focused HTML study for analog data acquisition performance
+- [x] Add flow charts and syntax-highlighted code blocks connecting behavior to code
+- [x] Verify the generated HTML references the current implementation accurately
 - [x] Add syntax colors to `docs/project_architecture_guide.html` code blocks
 - [x] Verify the architecture guide code blocks are highlighted
 - [x] Analyze existing commands in `QuickActions.tsx` and `BleManager.ts` to identify the correct command for "signal time and mode"

@@ -1,0 +1,1533 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Analog Data Acquisition Study</title>
+  <style>
+    :root {
+      --ink: #18212f;
+      --muted: #5f6d7e;
+      --line: #d9e1ea;
+      --panel: #f7f9fc;
+      --code: #111827;
+      --blue: #1d4ed8;
+      --green: #047857;
+      --amber: #b45309;
+      --red: #b91c1c;
+      --violet: #6d28d9;
+      --cyan: #0e7490;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #ffffff;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.56;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 36px 0 64px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 22px;
+      margin-bottom: 24px;
+    }
+
+    h1, h2, h3 { line-height: 1.15; margin: 0; }
+    h1 { font-size: clamp(2rem, 5vw, 4.8rem); letter-spacing: 0; max-width: 880px; }
+    h2 { font-size: 1.6rem; margin-top: 40px; padding-top: 8px; }
+    h3 { font-size: 1.05rem; margin-top: 26px; }
+
+    p { margin: 12px 0; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .kicker {
+      color: var(--blue);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: .78rem;
+      margin-bottom: 10px;
+    }
+
+    .summary {
+      max-width: 900px;
+      font-size: 1.05rem;
+      color: #334155;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(12, 1fr);
+    }
+
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 18px;
+    }
+
+    .note {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--blue);
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin: 18px 0;
+    }
+
+    .metric {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 116px;
+    }
+
+    .metric strong {
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .metric span,
+    .small {
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 2px 9px;
+      margin: 2px 4px 2px 0;
+      color: #334155;
+      background: #fff;
+      font-size: .82rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .tag.hot { color: var(--red); border-color: #fecaca; background: #fff5f5; }
+    .tag.good { color: var(--green); border-color: #bbf7d0; background: #f0fdf4; }
+    .tag.warn { color: var(--amber); border-color: #fde68a; background: #fffbeb; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 22px;
+      font-size: .95rem;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      padding: 10px 8px;
+    }
+
+    th {
+      color: #334155;
+      background: #f8fafc;
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    code, pre {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    pre {
+      margin: 12px 0 0;
+      overflow-x: auto;
+      background: var(--code);
+      color: #d1d5db;
+      border-radius: 8px;
+      padding: 16px;
+      font-size: .88rem;
+      line-height: 1.55;
+      border: 1px solid #1f2937;
+    }
+
+    code.inline {
+      background: #f1f5f9;
+      color: #0f172a;
+      border: 1px solid #e2e8f0;
+      border-radius: 5px;
+      padding: 1px 5px;
+      font-size: .9em;
+    }
+
+    .kw { color: #93c5fd; }
+    .type { color: #67e8f9; }
+    .fn { color: #facc15; }
+    .num { color: #fca5a5; }
+    .str { color: #86efac; }
+    .com { color: #9ca3af; font-style: italic; }
+    .macro { color: #c4b5fd; }
+    .member { color: #fdba74; }
+
+    .source {
+      color: var(--muted);
+      font-size: .82rem;
+      margin-top: 6px;
+    }
+
+    .chart {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdff;
+      margin: 12px 0 18px;
+    }
+
+    .axis { stroke: #94a3b8; stroke-width: 1; }
+    .flow-box { fill: #ffffff; stroke: #94a3b8; stroke-width: 1.2; rx: 8; }
+    .flow-blue { fill: #eff6ff; stroke: #60a5fa; }
+    .flow-green { fill: #ecfdf5; stroke: #34d399; }
+    .flow-amber { fill: #fffbeb; stroke: #f59e0b; }
+    .flow-red { fill: #fff1f2; stroke: #fb7185; }
+    .flow-violet { fill: #f5f3ff; stroke: #a78bfa; }
+    .arrow { stroke: #475569; stroke-width: 1.4; fill: none; marker-end: url(#arrow); }
+    .chart-label { fill: #1f2937; font-size: 14px; font-weight: 700; }
+    .chart-small { fill: #64748b; font-size: 12px; }
+
+    .callout-list {
+      display: grid;
+      gap: 10px;
+      padding: 0;
+      margin: 14px 0;
+      list-style: none;
+    }
+
+    .callout-list li {
+      border-left: 4px solid var(--line);
+      padding: 8px 12px;
+      background: #fafafa;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .risk-high { border-left-color: var(--red) !important; }
+    .risk-med { border-left-color: var(--amber) !important; }
+    .risk-low { border-left-color: var(--green) !important; }
+
+    .doc-index {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      margin: 0 0 28px;
+      padding: 14px;
+      background: rgba(255, 255, 255, .96);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 8px 26px rgba(15, 23, 42, .07);
+      backdrop-filter: blur(10px);
+    }
+
+    .doc-index strong {
+      display: block;
+      font-size: .78rem;
+      margin-bottom: 8px;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .doc-index nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .doc-index a,
+    .index-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 30px;
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: #334155;
+      font-size: .84rem;
+      font-weight: 700;
+      line-height: 1;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .doc-index a:hover,
+    .index-action:hover {
+      color: var(--blue);
+      border-color: #93c5fd;
+      text-decoration: none;
+    }
+
+    .index-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      align-self: end;
+    }
+
+    .collapsible,
+    .collapsible > h2 {
+      scroll-margin-top: 110px;
+    }
+
+    .section-toggle {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      background: transparent;
+      color: inherit;
+      padding: 0 0 10px;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .section-toggle:hover .section-title-text {
+      color: var(--blue);
+    }
+
+    .section-toggle-text {
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 5px 9px;
+      color: #475569;
+      background: #fff;
+      font-size: .78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .section-content {
+      padding-top: 2px;
+    }
+
+    .collapsible.is-collapsed .section-content {
+      display: none;
+    }
+
+    .decision-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin: 14px 0 20px;
+    }
+
+    .decision {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .decision strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .plan-step {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    .plan-step h3 {
+      margin-top: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: baseline;
+    }
+
+    .plan-step h3 span {
+      color: var(--muted);
+      font-size: .85rem;
+      font-weight: 700;
+    }
+
+    @media (max-width: 820px) {
+      main { width: min(100% - 24px, 1180px); padding-top: 24px; }
+      .span-4, .span-6, .span-8 { grid-column: span 12; }
+      .doc-index { position: static; grid-template-columns: 1fr; }
+      .index-actions { justify-content: flex-start; }
+      .decision-grid { grid-template-columns: 1fr; }
+      table { font-size: .88rem; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="kicker">Focused study · current firmware state</div>
+    <h1>Analog Data Acquisition</h1>
+    <p class="summary">
+      This document maps how the ESP32 firmware currently acquires AN3, AN5, and AN6,
+      how those readings feed BLE telemetry and control correction, and what must
+      change if acquisition should become a high-speed, measurable subsystem.
+    </p>
+    <p class="small">
+      Sources inspected: <code class="inline">main/main.cpp</code>,
+      <code class="inline">main/src/helper_analog.cpp</code>,
+      <code class="inline">main/src/signal_controller.cpp</code>,
+      <code class="inline">main/src/ble_controller.cpp</code>,
+      <code class="inline">main/src/ble_ui_command_router.cpp</code>,
+      <code class="inline">proto/messaging.proto</code>, and the web dashboard telemetry path.
+    </p>
+  </header>
+
+  <aside class="doc-index" aria-label="Document index">
+    <div>
+      <strong>Index</strong>
+      <nav>
+        <a href="#executive-finding">Executive Finding</a>
+        <a href="#current-flow">Current Flow</a>
+        <a href="#action-to-code">Action To Code</a>
+        <a href="#latency-budget">Latency Budget</a>
+        <a href="#observability-state">Observability State</a>
+        <a href="#critical-gaps">Critical Gaps</a>
+        <a href="#fastest-architecture">Fastest Architecture</a>
+        <a href="#plan-to-improve">Plan to Improve</a>
+        <a href="#complexity-debt">Complexity Debt</a>
+      </nav>
+    </div>
+    <div class="index-actions" aria-label="Section visibility actions">
+      <button class="index-action" type="button" data-expand-all>Show all</button>
+      <button class="index-action" type="button" data-collapse-all>Hide all</button>
+    </div>
+  </aside>
+
+  <section class="grid">
+    <div class="card metric span-4">
+      <span>Acquired channels</span>
+      <strong>3</strong>
+      <span>AN3, AN5, AN6 are sampled in sequence through ADC1 oneshot mode.</span>
+    </div>
+    <div class="card metric span-4">
+      <span>Read mechanism</span>
+      <strong>Blocking</strong>
+      <span>Each sample calls <code class="inline">adc_oneshot_read()</code>, then float conversion and table calibration.</span>
+    </div>
+    <div class="card metric span-4">
+      <span>Observability</span>
+      <strong>Partial</strong>
+      <span>ADC latency min/max/avg and BLE congestion state exist, but source-level drop and jitter metrics do not.</span>
+    </div>
+  </section>
+
+  <section id="executive-finding" class="collapsible" data-title="Executive Finding">
+    <h2>Executive Finding</h2>
+    <div class="note">
+      The current design is good enough for low-rate monitoring and control feedback, but it is not yet a fast acquisition pipeline.
+      The fastest safe direction is to first add precise counters, then split control acquisition from dashboard telemetry, then move the ADC path from
+      sequential oneshot reads to continuous/DMA frames or a timer-driven raw-sample path.
+    </div>
+    <p>
+      There are three acquisition consumers today:
+      <span class="tag good">periodic dashboard telemetry</span>
+      <span class="tag good">control-loop feedback</span>
+      <span class="tag warn">manual read command</span>.
+      They all share the same per-port helper, so every path inherits the same cost profile:
+      port switch, blocking ADC read, raw-to-voltage float math, linear calibration search, and error sentinel handling.
+    </p>
+  </section>
+
+  <section id="current-flow" class="collapsible" data-title="Current Flow">
+    <h2>Current Flow</h2>
+    <svg class="chart" viewBox="0 0 1120 520" role="img" aria-label="Current analog acquisition flow">
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <path d="M0,0 L10,4 L0,8 z" fill="#475569"></path>
+        </marker>
+      </defs>
+
+      <rect x="30" y="26" width="320" height="110" class="flow-box flow-blue"></rect>
+      <text x="52" y="58" class="chart-label">Boot</text>
+      <text x="52" y="84" class="chart-small">analog_init()</text>
+      <text x="52" y="106" class="chart-small">Configure ADC1 channels AN1..AN6</text>
+
+      <rect x="430" y="26" width="300" height="110" class="flow-box flow-amber"></rect>
+      <text x="452" y="58" class="chart-label">Periodic telemetry task</text>
+      <text x="452" y="84" class="chart-small">If BLE connected</text>
+      <text x="452" y="106" class="chart-small">Read AN3 → AN5 → AN6</text>
+
+      <rect x="790" y="26" width="300" height="110" class="flow-box flow-green"></rect>
+      <text x="812" y="58" class="chart-label">BLE dashboard</text>
+      <text x="812" y="84" class="chart-small">BlePacket.telemetry</text>
+      <text x="812" y="106" class="chart-small">Chart.js line chart</text>
+
+      <rect x="430" y="206" width="300" height="110" class="flow-box flow-violet"></rect>
+      <text x="452" y="238" class="chart-label">Signal loop trigger</text>
+      <text x="452" y="264" class="chart-small">Every g_cycle_nrun rollover</text>
+      <text x="452" y="286" class="chart-small">xSemaphoreGive()</text>
+
+      <rect x="790" y="206" width="300" height="110" class="flow-box flow-violet"></rect>
+      <text x="812" y="238" class="chart-label">Analog action task</text>
+      <text x="812" y="264" class="chart-small">Read AN3 → AN5 → AN6</text>
+      <text x="812" y="286" class="chart-small">Store atomics + g_adc_fresh</text>
+
+      <rect x="790" y="376" width="300" height="110" class="flow-box flow-red"></rect>
+      <text x="812" y="408" class="chart-label">Control correction</text>
+      <text x="812" y="434" class="chart-small">Next signal loop consumes fresh ADC</text>
+      <text x="812" y="456" class="chart-small">Compute error and duration correction</text>
+
+      <line x1="350" y1="81" x2="430" y2="81" class="arrow"></line>
+      <line x1="730" y1="81" x2="790" y2="81" class="arrow"></line>
+      <line x1="580" y1="136" x2="580" y2="206" class="arrow"></line>
+      <line x1="730" y1="261" x2="790" y2="261" class="arrow"></line>
+      <line x1="940" y1="316" x2="940" y2="376" class="arrow"></line>
+    </svg>
+
+    <p>
+      The periodic path is time-driven by <code class="inline">vTaskDelay(pdMS_TO_TICKS(g_analog_monitor_period_ms))</code>.
+      The control path is pattern-cycle-driven by <code class="inline">trigger_periodic_analog_read()</code>.
+      Both paths record only the three-read ADC duration into the same latency window.
+    </p>
+  </section>
+
+  <section id="action-to-code" class="collapsible" data-title="Action To Code">
+    <h2>Action To Code</h2>
+
+    <h3>1. Boot initializes ADC1 channels</h3>
+    <p>
+      Action: configure ADC1 once, using oneshot mode and 12 dB attenuation.
+      Active acquisition later uses AN3, AN5, and AN6.
+    </p>
+    <pre><code><span class="type">void</span> <span class="fn">analog_init</span>() {
+    <span class="type">adc_oneshot_unit_init_cfg_t</span> init_config1 = {
+        .<span class="member">unit_id</span> = <span class="macro">ADC_UNIT_1</span>,
+        .<span class="member">clk_src</span> = <span class="macro">ADC_RTC_CLK_SRC_DEFAULT</span>,
+        .<span class="member">ulp_mode</span> = <span class="macro">ADC_ULP_MODE_DISABLE</span>,
+    };
+    <span class="fn">adc_oneshot_new_unit</span>(&amp;init_config1, &amp;adc1_handle);
+
+    <span class="type">adc_oneshot_chan_cfg_t</span> config = {
+        .<span class="member">atten</span> = <span class="macro">ADC_ATTEN_DB_12</span>,
+        .<span class="member">bitwidth</span> = <span class="macro">ADC_BITWIDTH_DEFAULT</span>,
+    };
+
+    <span class="fn">adc_oneshot_config_channel</span>(adc1_handle, <span class="macro">ADC_CHANNEL_4</span>, &amp;config); <span class="com">// AN3</span>
+    <span class="fn">adc_oneshot_config_channel</span>(adc1_handle, <span class="macro">ADC_CHANNEL_6</span>, &amp;config); <span class="com">// AN5</span>
+    <span class="fn">adc_oneshot_config_channel</span>(adc1_handle, <span class="macro">ADC_CHANNEL_0</span>, &amp;config); <span class="com">// AN6</span>
+}</code></pre>
+    <div class="source">Current source: <code class="inline">main/src/helper_analog.cpp:45-75</code>.</div>
+
+    <h3>2. One read performs channel selection, blocking conversion, float math, and calibration</h3>
+    <p>
+      Action: map the abstract port to an ADC channel, read one raw sample, convert it to volts, then run table interpolation.
+      This helper is simple, but it is also the hot path.
+    </p>
+    <pre><code><span class="type">float</span> <span class="fn">analog_read_port</span>(<span class="type">AnalogPort</span> port) {
+    <span class="type">adc_channel_t</span> channel;
+    <span class="kw">switch</span> (port) {
+        <span class="kw">case</span> <span class="type">AnalogPort</span>::<span class="member">AN3</span>: channel = <span class="macro">ADC_CHANNEL_4</span>; <span class="kw">break</span>;
+        <span class="kw">case</span> <span class="type">AnalogPort</span>::<span class="member">AN5</span>: channel = <span class="macro">ADC_CHANNEL_6</span>; <span class="kw">break</span>;
+        <span class="kw">case</span> <span class="type">AnalogPort</span>::<span class="member">AN6</span>: channel = <span class="macro">ADC_CHANNEL_0</span>; <span class="kw">break</span>;
+    }
+
+    <span class="type">int</span> raw_val = <span class="num">0</span>;
+    <span class="kw">if</span> (<span class="fn">adc_oneshot_read</span>(adc1_handle, channel, &amp;raw_val) == <span class="macro">ESP_OK</span>) {
+        <span class="type">float</span> voltage = ((<span class="type">float</span>)raw_val / <span class="macro">ADC_MAX</span>) * <span class="macro">VOLTAGE_MAX</span>;
+        voltage = <span class="fn">esp32_calibration</span>(voltage);
+        <span class="kw">return</span> voltage;
+    }
+    <span class="kw">return</span> -<span class="num">99.0</span>;
+}</code></pre>
+    <div class="source">Current source: <code class="inline">main/src/helper_analog.cpp:115-144</code>.</div>
+
+    <h3>3. Periodic dashboard telemetry reads and sends one protobuf packet</h3>
+    <p>
+      Action: if BLE is connected, read the three channels, record the elapsed ADC time, and notify the dashboard.
+      This path is useful for human visibility, but it should not be treated as a deterministic acquisition clock.
+    </p>
+    <pre><code><span class="kw">for</span> (;;) {
+    <span class="kw">if</span> (<span class="fn">ble_is_connected</span>()) {
+        <span class="type">uint32_t</span> start = <span class="fn">esp_cpu_get_cycle_count</span>();
+        an3 = <span class="fn">analog_read_port</span>(<span class="type">AnalogPort</span>::<span class="member">AN3</span>);
+        an5 = <span class="fn">analog_read_port</span>(<span class="type">AnalogPort</span>::<span class="member">AN5</span>);
+        an6 = <span class="fn">analog_read_port</span>(<span class="type">AnalogPort</span>::<span class="member">AN6</span>);
+        <span class="type">uint32_t</span> end = <span class="fn">esp_cpu_get_cycle_count</span>();
+        <span class="fn">analog_record_latency</span>((end - start) / <span class="fn">esp_rom_get_cpu_ticks_per_us</span>());
+
+        packet.<span class="member">which_payload</span> = <span class="macro">BlePacket_telemetry_tag</span>;
+        packet.<span class="member">payload</span>.<span class="member">telemetry</span>.<span class="member">an3</span> = an3;
+        packet.<span class="member">payload</span>.<span class="member">telemetry</span>.<span class="member">an5</span> = an5;
+        packet.<span class="member">payload</span>.<span class="member">telemetry</span>.<span class="member">an6</span> = an6;
+        <span class="fn">ble_send_protobuf</span>(&amp;packet);
+    }
+    <span class="fn">vTaskDelay</span>(<span class="fn">pdMS_TO_TICKS</span>(g_analog_monitor_period_ms));
+}</code></pre>
+    <div class="source">Current source: <code class="inline">main/main.cpp:87-110</code>.</div>
+
+    <h3>4. Control acquisition is triggered by the signal loop and consumed on the next pass</h3>
+    <p>
+      Action: the signal loop gives a semaphore at cycle rollover. The action task samples the ADC and publishes the latest values as atomics.
+      The signal loop then sees <code class="inline">g_adc_fresh</code> and computes corrections.
+    </p>
+    <pre><code><span class="kw">if</span> (g_cycle_count == <span class="num">0</span>) {
+    g_system_state.<span class="member">ble_an_read_state</span>.<span class="fn">store</span>(<span class="type">BLEAnalogReadState</span>::<span class="member">READING</span>);
+    <span class="fn">xSemaphoreGive</span>(sem_analog_read_trigger);
+}
+
+<span class="com">// In analog_action_task:</span>
+an3 = <span class="fn">analog_read_port</span>(<span class="type">AnalogPort</span>::<span class="member">AN3</span>);
+an5 = <span class="fn">analog_read_port</span>(<span class="type">AnalogPort</span>::<span class="member">AN5</span>);
+an6 = <span class="fn">analog_read_port</span>(<span class="type">AnalogPort</span>::<span class="member">AN6</span>);
+g_adc_an3.<span class="fn">store</span>(an3);
+g_adc_an5.<span class="fn">store</span>(an5);
+g_adc_an6.<span class="fn">store</span>(an6);
+g_adc_fresh.<span class="fn">store</span>(<span class="kw">true</span>);</code></pre>
+    <div class="source">Current sources: <code class="inline">main/src/signal_controller.cpp:510-521</code>, <code class="inline">main/main.cpp:113-134</code>.</div>
+  </section>
+
+  <section id="latency-budget" class="collapsible" data-title="Latency Budget">
+    <h2>Latency Budget</h2>
+    <svg class="chart" viewBox="0 0 1120 330" role="img" aria-label="Analog latency budget stack">
+      <defs>
+        <marker id="arrow2" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <path d="M0,0 L10,4 L0,8 z" fill="#475569"></path>
+        </marker>
+      </defs>
+      <text x="40" y="42" class="chart-label">Current per-sample work, repeated three times</text>
+
+      <rect x="40" y="80" width="150" height="70" class="flow-box flow-blue"></rect>
+      <text x="60" y="110" class="chart-label">Port switch</text>
+      <text x="60" y="132" class="chart-small">small fixed cost</text>
+
+      <rect x="230" y="80" width="210" height="70" class="flow-box flow-red"></rect>
+      <text x="252" y="110" class="chart-label">adc_oneshot_read()</text>
+      <text x="252" y="132" class="chart-small">blocking conversion</text>
+
+      <rect x="480" y="80" width="170" height="70" class="flow-box flow-amber"></rect>
+      <text x="502" y="110" class="chart-label">Float scaling</text>
+      <text x="502" y="132" class="chart-small">raw to volts</text>
+
+      <rect x="690" y="80" width="210" height="70" class="flow-box flow-amber"></rect>
+      <text x="712" y="110" class="chart-label">Calibration loop</text>
+      <text x="712" y="132" class="chart-small">up to 32 intervals</text>
+
+      <rect x="940" y="80" width="140" height="70" class="flow-box flow-green"></rect>
+      <text x="962" y="110" class="chart-label">Return float</text>
+      <text x="962" y="132" class="chart-small">store or send</text>
+
+      <line x1="190" y1="115" x2="230" y2="115" class="arrow"></line>
+      <line x1="440" y1="115" x2="480" y2="115" class="arrow"></line>
+      <line x1="650" y1="115" x2="690" y2="115" class="arrow"></line>
+      <line x1="900" y1="115" x2="940" y2="115" class="arrow"></line>
+
+      <rect x="40" y="220" width="1040" height="42" fill="#e2e8f0" rx="6"></rect>
+      <rect x="40" y="220" width="560" height="42" fill="#fecaca" rx="6"></rect>
+      <rect x="600" y="220" width="260" height="42" fill="#fde68a"></rect>
+      <rect x="860" y="220" width="220" height="42" fill="#bbf7d0" rx="6"></rect>
+      <text x="58" y="247" class="chart-small">Most important: ADC driver wait + three sequential conversions</text>
+      <text x="616" y="247" class="chart-small">Secondary: float + table scan</text>
+      <text x="878" y="247" class="chart-small">Transport: protobuf + BLE notify</text>
+    </svg>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Hot cost</th>
+          <th>Why it matters</th>
+          <th>Current evidence</th>
+          <th>Improvement direction</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Sequential oneshot reads</td>
+          <td>Three blocking conversions serialize acquisition time and add scheduler sensitivity.</td>
+          <td><code class="inline">analog_reading_task</code> and <code class="inline">analog_action_task</code> both call AN3, AN5, AN6 one after another.</td>
+          <td>Use ADC continuous/DMA frames, or timer-triggered oneshot reads if DMA is too large a change.</td>
+        </tr>
+        <tr>
+          <td>Linear calibration search</td>
+          <td>Every channel scans a 33-point table in the acquisition path.</td>
+          <td><code class="inline">esp32_calibration()</code> loops from index 0 to <code class="inline">calib_numel - 1</code>.</td>
+          <td>Use ESP-IDF ADC calibration, binary search, fixed-point interpolation, or calibrate off the real-time path.</td>
+        </tr>
+        <tr>
+          <td>Per-sample BLE packet</td>
+          <td>BLE notification and protobuf encode happen per dashboard sample.</td>
+          <td><code class="inline">BlePacket.telemetry</code> carries only one AN3/AN5/AN6 triple.</td>
+          <td>Batch samples or downsample display telemetry while keeping local control samples fast.</td>
+        </tr>
+        <tr>
+          <td>FreeRTOS tick timing</td>
+          <td>Dashboard telemetry period is not a precise acquisition clock.</td>
+          <td>Periodic path uses <code class="inline">vTaskDelay(pdMS_TO_TICKS(...))</code>.</td>
+          <td>Use a hardware timer or continuous ADC sample clock for measured acquisition.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="observability-state" class="collapsible" data-title="Observability State">
+    <h2>Observability State</h2>
+    <p>
+      Observability is no longer empty. The system exposes ADC latency and BLE congestion, and the signal loop exposes a timing snapshot.
+      The gap is that these metrics are not yet detailed enough to guide aggressive performance work without guessing.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Signal</th>
+          <th>Current state</th>
+          <th>Useful?</th>
+          <th>Gap before optimization</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>ADC latency min/max/avg</td>
+          <td>128-slot ring buffer; status exposes <code class="inline">adc_min</code>, <code class="inline">adc_max</code>, <code class="inline">adc_avg</code>.</td>
+          <td>Yes, for a broad read-cost view.</td>
+          <td>It mixes periodic telemetry and control-triggered reads; no percentile, jitter, source, or failure count.</td>
+        </tr>
+        <tr>
+          <td>BLE congestion</td>
+          <td>Status includes <code class="inline">ble_congested</code>.</td>
+          <td>Yes, for current backpressure state.</td>
+          <td>No counter for dropped telemetry, send failures, bytes sent, or encode/send latency.</td>
+        </tr>
+        <tr>
+          <td>Signal timing</td>
+          <td><code class="inline">debug.signal_timing</code> reports playback, loop, overrun, fault, clamp, skipped-maintenance, and correction values.</td>
+          <td>Yes, very useful for output loop health.</td>
+          <td>It does not correlate a sample with the signal cycle that triggered it.</td>
+        </tr>
+        <tr>
+          <td>Telemetry timestamp</td>
+          <td>Packet uses <code class="inline">xTaskGetTickCount() * portTICK_PERIOD_MS</code>.</td>
+          <td>Useful for UI order only.</td>
+          <td>Not enough resolution for acquisition jitter or control latency analysis.</td>
+        </tr>
+        <tr>
+          <td>ADC validity</td>
+          <td>Failed reads return <code class="inline">-99.0</code> and log once at the helper.</td>
+          <td>Limited.</td>
+          <td>No structured error counter, no channel-specific failure state, and no dashboard warning.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <svg class="chart" viewBox="0 0 1120 360" role="img" aria-label="Observability coverage matrix">
+      <text x="40" y="44" class="chart-label">Coverage now vs. needed for fast acquisition</text>
+
+      <text x="40" y="92" class="chart-small">ADC read latency</text>
+      <rect x="260" y="74" width="760" height="28" fill="#e2e8f0" rx="4"></rect>
+      <rect x="260" y="74" width="440" height="28" fill="#86efac" rx="4"></rect>
+      <text x="720" y="94" class="chart-small">min / max / avg exists, needs source + jitter</text>
+
+      <text x="40" y="142" class="chart-small">BLE transport health</text>
+      <rect x="260" y="124" width="760" height="28" fill="#e2e8f0" rx="4"></rect>
+      <rect x="260" y="124" width="260" height="28" fill="#fde68a" rx="4"></rect>
+      <text x="540" y="144" class="chart-small">congested flag exists, no drop counter</text>
+
+      <text x="40" y="192" class="chart-small">Control loop timing</text>
+      <rect x="260" y="174" width="760" height="28" fill="#e2e8f0" rx="4"></rect>
+      <rect x="260" y="174" width="620" height="28" fill="#86efac" rx="4"></rect>
+      <text x="900" y="194" class="chart-small">good signal timing, weak ADC correlation</text>
+
+      <text x="40" y="242" class="chart-small">Sample identity</text>
+      <rect x="260" y="224" width="760" height="28" fill="#e2e8f0" rx="4"></rect>
+      <rect x="260" y="224" width="120" height="28" fill="#fecaca" rx="4"></rect>
+      <text x="400" y="244" class="chart-small">no seq, no source, no high-resolution timestamp</text>
+
+      <text x="40" y="292" class="chart-small">ADC failures</text>
+      <rect x="260" y="274" width="760" height="28" fill="#e2e8f0" rx="4"></rect>
+      <rect x="260" y="274" width="170" height="28" fill="#fecaca" rx="4"></rect>
+      <text x="450" y="294" class="chart-small">logs/sentinel only, no structured count</text>
+    </svg>
+  </section>
+
+  <section id="critical-gaps" class="collapsible" data-title="Critical Gaps To Implement">
+    <h2>Critical Gaps To Implement</h2>
+    <ul class="callout-list">
+      <li class="risk-high">
+        <strong>Separate telemetry acquisition from control acquisition.</strong>
+        Today both paths use the same helper and latency bucket. A faster system needs source-tagged metrics and independent rates.
+      </li>
+      <li class="risk-high">
+        <strong>Add sample sequence, source, and microsecond timestamp.</strong>
+        Without those fields, dropped BLE packets and control sample age are invisible.
+      </li>
+      <li class="risk-med">
+        <strong>Count ADC read failures per channel.</strong>
+        The <code class="inline">-99.0</code> sentinel can enter telemetry/control math unless every consumer checks it.
+      </li>
+      <li class="risk-med">
+        <strong>Count BLE send outcomes.</strong>
+        <code class="inline">ble_send_protobuf()</code> returns an error, but the analog tasks do not act on it; congestion can drop stale data without a visible drop total.
+      </li>
+      <li class="risk-med">
+        <strong>Restore a hard monitor-period floor or make telemetry intentionally lossy.</strong>
+        The current command handler only rejects zero, so a UI command can request very high notification rates.
+      </li>
+      <li class="risk-low">
+        <strong>Expose latency histogram or percentiles.</strong>
+        Min/max/avg is enough to see basic movement, but not enough to distinguish stable latency from rare jitter.
+      </li>
+    </ul>
+  </section>
+
+  <section id="fastest-architecture" class="collapsible" data-title="Fastest Possible Architecture">
+    <h2>Fastest Possible Architecture</h2>
+    <svg class="chart" viewBox="0 0 1120 520" role="img" aria-label="Target fast acquisition architecture">
+      <defs>
+        <marker id="arrow3" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <path d="M0,0 L10,4 L0,8 z" fill="#475569"></path>
+        </marker>
+      </defs>
+
+      <rect x="40" y="48" width="240" height="110" class="flow-box flow-blue"></rect>
+      <text x="64" y="80" class="chart-label">ADC hardware</text>
+      <text x="64" y="106" class="chart-small">ADC1 channels</text>
+      <text x="64" y="128" class="chart-small">fixed sample cadence</text>
+
+      <rect x="350" y="48" width="260" height="110" class="flow-box flow-green"></rect>
+      <text x="374" y="80" class="chart-label">Continuous driver</text>
+      <text x="374" y="106" class="chart-small">DMA frame ready</text>
+      <text x="374" y="128" class="chart-small">raw samples in memory</text>
+
+      <rect x="680" y="48" width="390" height="110" class="flow-box flow-green"></rect>
+      <text x="704" y="80" class="chart-label">Acquisition task</text>
+      <text x="704" y="106" class="chart-small">validate, timestamp, sequence, compute latest triple</text>
+      <text x="704" y="128" class="chart-small">record latency, drops, overflow, min/max/p95</text>
+
+      <rect x="160" y="248" width="300" height="110" class="flow-box flow-violet"></rect>
+      <text x="184" y="280" class="chart-label">Control latest sample</text>
+      <text x="184" y="306" class="chart-small">raw or fixed-point value</text>
+      <text x="184" y="328" class="chart-small">known age in microseconds</text>
+
+      <rect x="520" y="248" width="260" height="110" class="flow-box flow-amber"></rect>
+      <text x="544" y="280" class="chart-label">Telemetry batcher</text>
+      <text x="544" y="306" class="chart-small">downsample or batch</text>
+      <text x="544" y="328" class="chart-small">avoid one BLE packet/sample</text>
+
+      <rect x="840" y="248" width="230" height="110" class="flow-box flow-amber"></rect>
+      <text x="864" y="280" class="chart-label">BLE notify</text>
+      <text x="864" y="306" class="chart-small">protobuf batch</text>
+      <text x="864" y="328" class="chart-small">outcome counted</text>
+
+      <line x1="280" y1="103" x2="350" y2="103" class="arrow"></line>
+      <line x1="610" y1="103" x2="680" y2="103" class="arrow"></line>
+      <path d="M875 158 C875 202 350 195 310 248" class="arrow"></path>
+      <path d="M875 158 C875 205 650 200 650 248" class="arrow"></path>
+      <line x1="780" y1="303" x2="840" y2="303" class="arrow"></line>
+    </svg>
+
+    <h3>Recommended sequence</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Phase</th>
+          <th>Change</th>
+          <th>Why first</th>
+          <th>Verification</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>0</td>
+          <td>Add observability counters: source-tagged ADC latency, ADC failures, sample sequence, BLE send drops, and acquisition-to-control sample age.</td>
+          <td>Prevents blind optimization.</td>
+          <td>Status/debug command shows stable counters under normal and intentionally overloaded rates.</td>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>Make control sampling independent from dashboard telemetry. Keep control latest-sample updates local; downsample dashboard data.</td>
+          <td>BLE display should not set the real-time acquisition ceiling.</td>
+          <td>Control latency remains stable while dashboard monitor period changes.</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Reduce hot-path math: raw sample first, calibration later, binary search or native ADC calibration, fixed-point where practical.</td>
+          <td>Small change, measurable CPU savings.</td>
+          <td>ADC latency average and p95 fall without changing measured voltage behavior outside tolerance.</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Move to ADC continuous mode with DMA frames for AN3/AN5/AN6.</td>
+          <td>This removes software-triggered blocking conversion as the core bottleneck.</td>
+          <td>No frame overflow at target rate; sequence and timestamp prove consistent cadence.</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Batch telemetry protobufs or send compact byte arrays for charts.</td>
+          <td>BLE becomes a lossy visualization channel rather than a sample-by-sample bottleneck.</td>
+          <td>Drop count stays bounded and UI remains responsive at the selected chart rate.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="plan-to-improve" class="collapsible" data-title="Plan to Improve">
+    <h2>Plan to Improve</h2>
+    <div class="note">
+      Design target: keep the signal loop deterministic, update calibrated analog values as fast as the ADC path can safely sustain,
+      and keep BLE commands responsive by making telemetry explicitly lower priority than command replies. The control deadline is now
+      stricter than "latest value": a fresh calibrated sample, control processing, and command generation must fit inside one
+      signal cycle, currently fluctuating around <strong>280 us</strong>.
+    </div>
+
+    <h3>Grill-me decisions already resolved from the current code and constraints</h3>
+    <div class="decision-grid">
+      <div class="decision">
+        <strong>D1 · Signal loop isolation</strong>
+        No ADC driver call, BLE send, protobuf encode, allocation, logging, or calibration scan belongs inside the interrupt-disabled signal playback block.
+      </div>
+      <div class="decision">
+        <strong>D2 · Background acquisition owner</strong>
+        Analog acquisition should be owned by a dedicated acquisition path, preferably ADC continuous/DMA on ADC1 channels AN3, AN5, and AN6.
+      </div>
+      <div class="decision">
+        <strong>D3 · Calibrated publish contract</strong>
+        A sample becomes visible to control and BLE only after raw values are validated and calibrated. Consumers must not see half-updated triples.
+      </div>
+      <div class="decision">
+        <strong>D4 · BLE command responsiveness</strong>
+        BLE interaction is lower priority than signal generation, acquisition, and control. Replies may be delayed, but BLE work must not block the real-time path.
+      </div>
+      <div class="decision">
+        <strong>D5 · Observability before speed claims</strong>
+        Performance work starts by counting acquisition latency, sample age, ADC failures, DMA overflow, BLE send failures, and telemetry drops.
+      </div>
+      <div class="decision">
+        <strong>D6 · Latest-value control model</strong>
+        The control loop should consume a newly published complete calibrated snapshot each cycle and never perform a blocking ADC read.
+      </div>
+      <div class="decision">
+        <strong>D7 · 280 us cycle deadline</strong>
+        Each control cycle needs a fresh calibrated sample, control calculation, and command update before the next signal command is emitted.
+        This makes sequential oneshot reads a fallback only, not the target architecture.
+      </div>
+      <div class="decision">
+        <strong>D8 · Half-cycle freshness target</strong>
+        At the control update point, the complete calibrated AN3/AN5/AN6 triple should be less than half a cycle old, measured with <code class="inline">age_us</code>.
+      </div>
+      <div class="decision">
+        <strong>D9 · Miss policy</strong>
+        If the sample is stale or calibration misses the cycle, never block the signal loop. Reuse the previous correction, count the miss, and disable control after repeated misses.
+      </div>
+      <div class="decision">
+        <strong>D10 · Fast calibration table</strong>
+        A precomputed raw-to-calibrated lookup table or fixed-point interpolation is acceptable and preferred over the current per-sample linear calibration scan.
+      </div>
+      <div class="decision">
+        <strong>D11 · On-demand BLE telemetry</strong>
+        BLE telemetry should reply only by demand. User interaction does not need to be instant while control is running.
+      </div>
+      <div class="decision">
+        <strong>D12 · Next-cycle command application</strong>
+        A computed command applies on the next cycle boundary. The firmware should never mutate timing mid-cycle.
+      </div>
+      <div class="decision">
+        <strong>D13 · Control disable threshold</strong>
+        Disable closed-loop control after 3 consecutive control-deadline misses.
+      </div>
+      <div class="decision">
+        <strong>D14 · Sequential triple is acceptable</strong>
+        AN3, AN5, and AN6 do not require true simultaneous sampling for the first implementation. A fast sequential ADC frame is acceptable.
+      </div>
+      <div class="decision">
+        <strong>D15 · Float-first control math</strong>
+        Keep the control math in float for the first fast implementation, then move to fixed-point only if measurements prove float is the bottleneck.
+      </div>
+      <div class="decision">
+        <strong>D16 · First acquisition-rate target</strong>
+        Target 4 complete calibrated AN3/AN5/AN6 triples per 280 us control cycle, about one complete triple every 70 us.
+      </div>
+      <div class="decision">
+        <strong>D17 · ADC overflow policy</strong>
+        On DMA overflow, count the overflow, invalidate the partial frame, keep the last valid correction for that cycle, and let the 3-miss rule disable control if it repeats.
+      </div>
+      <div class="decision">
+        <strong>D18 · Calibration LUT placement</strong>
+        Keep hot calibration lookup data in internal RAM for the acquisition path; const source tables may remain flash-backed when not on the hot path.
+      </div>
+      <div class="decision">
+        <strong>D19 · Core ownership</strong>
+        Keep the signal loop on Core 1. Run acquisition/calibration on Core 0 or another non-interfering priority context, verified against BLE starvation.
+      </div>
+      <div class="decision">
+        <strong>D20 · Analog debug command</strong>
+        Add <code class="inline">debug.analog_timing</code> exposing seq, age, rate, latency, misses, overflows, and the latest calibrated triple.
+      </div>
+      <div class="decision">
+        <strong>D21 · Control fault output behavior</strong>
+        After the 3-miss threshold, disable closed-loop corrections but keep the open-loop signal pattern running and report the fault.
+      </div>
+      <div class="decision">
+        <strong>D22 · Acquisition starts at boot</strong>
+        Start acquisition after ADC initialization so snapshots and timing counters are warm before control is enabled.
+      </div>
+      <div class="decision">
+        <strong>D23 · Snapshot value format</strong>
+        Expose calibrated floats to the control loop first, while retaining raw ADC codes and optional fixed-point calibrated values for diagnostics.
+      </div>
+      <div class="decision">
+        <strong>D24 · On-demand telemetry history</strong>
+        On-demand BLE telemetry returns the latest snapshot and counters by default. Add a ring buffer only if waveform inspection is required later.
+      </div>
+      <div class="decision">
+        <strong>D25 · Calibration accuracy target</strong>
+        The fast LUT must preserve current calibrated voltage behavior within one ADC LSB equivalent or 5 mV, whichever is larger.
+      </div>
+      <div class="decision">
+        <strong>D26 · No silent slow fallback</strong>
+        If ADC continuous/DMA cannot reach the D16 target, fail control enable with a structured error and keep open-loop signal generation available.
+      </div>
+      <div class="decision">
+        <strong>D27 · Stability acceptance window</strong>
+        Prove the fast path with at least 60 seconds at target rate and zero signal timing regressions, zero unhandled overflows, and zero 3-miss trips.
+      </div>
+      <div class="decision">
+        <strong>D28 · Legacy monitor compatibility</strong>
+        Keep the old analog monitor command name, but make it configure on-demand/debug behavior rather than periodic sending while control is active.
+      </div>
+      <div class="decision">
+        <strong>D29 · Periodic analog task disabled</strong>
+        Remove or disable the existing periodic analog task when the fast acquisition engine is active; preserve compatibility only at the BLE command layer.
+      </div>
+      <div class="decision">
+        <strong>D30 · Analog acquisition module owns ADC state</strong>
+        ADC driver handles, calibration LUTs, snapshot publishing, and analog counters belong behind one analog acquisition module.
+      </div>
+      <div class="decision">
+        <strong>D31 · Not-ready BLE response</strong>
+        If BLE requests analog data before a valid sample exists, reply with structured <code class="inline">not_ready</code> plus counters and initialization state.
+      </div>
+      <div class="decision">
+        <strong>D32 · Observability-first migration</strong>
+        Implement the snapshot and counters on the existing oneshot path first, verify behavior, then swap the producer to continuous/DMA.
+      </div>
+      <div class="decision">
+        <strong>D33 · Protobuf status first</strong>
+        Analog debug/status data should be added to the protobuf status path immediately rather than starting as JSON-only command output.
+      </div>
+      <div class="decision">
+        <strong>D34 · Temporary ADC global wrappers</strong>
+        Keep temporary wrappers for <code class="inline">g_adc_an3</code>, <code class="inline">g_adc_an5</code>, <code class="inline">g_adc_an6</code>, and <code class="inline">g_adc_fresh</code> during migration, then remove direct global access.
+      </div>
+      <div class="decision">
+        <strong>D35 · Debug-only forced read</strong>
+        Keep a forced single-read calibration/debug command, but make it debug-only and unavailable while control is active.
+      </div>
+      <div class="decision">
+        <strong>D36 · First implementation milestone</strong>
+        Milestone 1 is snapshot/counter API plus protobuf-backed analog timing/status on the current oneshot producer, with no signal-loop behavior change.
+      </div>
+      <div class="decision">
+        <strong>D37 · Nested AnalogStatus schema</strong>
+        Add a nested <code class="inline">AnalogStatus</code> protobuf message instead of flattening all acquisition fields into <code class="inline">SystemStatus</code>.
+      </div>
+      <div class="decision">
+        <strong>D38 · Dashboard analog status block</strong>
+        Render analog timing/status in the web dashboard immediately once protobuf fields exist.
+      </div>
+      <div class="decision">
+        <strong>D39 · Protobuf and web build gate</strong>
+        Milestone 1 includes regenerated firmware/web protobuf outputs plus firmware and web builds.
+      </div>
+      <div class="decision">
+        <strong>D40 · Legacy ADC latency aliases</strong>
+        Keep <code class="inline">adc_min</code>, <code class="inline">adc_max</code>, and <code class="inline">adc_avg</code> during migration as aliases of new analog latency stats.
+      </div>
+      <div class="decision">
+        <strong>D41 · Keep ADC global wrappers through milestone 1</strong>
+        Keep old ADC global compatibility wrappers in milestone 1, then remove them after the signal loop consumes snapshots through the module API.
+      </div>
+      <div class="decision">
+        <strong>D42 · Milestone 1 AnalogStatus fields</strong>
+        Include seq, valid, timestamp_us, age_us, target_triples_per_cycle, measured_triples_per_second, latest raw/calibrated AN3/AN5/AN6,
+        latency min/avg/p95/max, overflow count, miss counts, consecutive misses, and fault code.
+      </div>
+      <div class="decision">
+        <strong>D43 · AnalogStatus in system status</strong>
+        Include <code class="inline">AnalogStatus</code> in every on-demand <code class="inline">system.get_status</code> response so the dashboard does not need a second round trip.
+      </div>
+      <div class="decision">
+        <strong>D44 · Dashboard controls when action is required</strong>
+        The dashboard analog block is display-first, but must include safe command controls for actions that require an explicit user command to start, trigger, or test.
+        Those controls must use BLE commands and stay off the real-time signal/acquisition/control path.
+      </div>
+    </div>
+
+    <h3>Target data path</h3>
+    <svg class="chart" viewBox="0 0 1120 470" role="img" aria-label="Plan to improve analog acquisition data path">
+      <defs>
+        <marker id="arrow4" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <path d="M0,0 L10,4 L0,8 z" fill="#475569"></path>
+        </marker>
+      </defs>
+
+      <rect x="40" y="42" width="230" height="96" class="flow-box flow-blue"></rect>
+      <text x="64" y="74" class="chart-label">I3 ADC continuous</text>
+      <text x="64" y="100" class="chart-small">ADC1 DMA frames</text>
+      <text x="64" y="122" class="chart-small">AN3, AN5, AN6 only</text>
+
+      <rect x="340" y="42" width="260" height="96" class="flow-box flow-green"></rect>
+      <text x="364" y="74" class="chart-label">I4 Acquisition task</text>
+      <text x="364" y="100" class="chart-small">Parse frame, validate order</text>
+      <text x="364" y="122" class="chart-small">Track overflow and latency</text>
+
+      <rect x="670" y="42" width="250" height="96" class="flow-box flow-green"></rect>
+      <text x="694" y="74" class="chart-label">I5 Calibration</text>
+      <text x="694" y="100" class="chart-small">Fast table or adc_cali</text>
+      <text x="694" y="122" class="chart-small">Publish only complete triples</text>
+
+      <rect x="180" y="218" width="280" height="96" class="flow-box flow-violet"></rect>
+      <text x="204" y="250" class="chart-label">I6 Latest snapshot</text>
+      <text x="204" y="276" class="chart-small">seq, timestamp_us, valid mask</text>
+      <text x="204" y="298" class="chart-small">calibrated AN3/AN5/AN6</text>
+
+      <rect x="520" y="218" width="250" height="96" class="flow-box flow-red"></rect>
+      <text x="544" y="250" class="chart-label">Signal loop</text>
+      <text x="544" y="276" class="chart-small">Reads snapshot only</text>
+      <text x="544" y="298" class="chart-small">Never waits for ADC</text>
+
+      <rect x="820" y="218" width="250" height="96" class="flow-box flow-amber"></rect>
+      <text x="844" y="250" class="chart-label">I7 On-demand BLE</text>
+      <text x="844" y="276" class="chart-small">Reply from snapshots</text>
+      <text x="844" y="298" class="chart-small">Defer behind control work</text>
+
+      <rect x="820" y="360" width="250" height="72" class="flow-box flow-amber"></rect>
+      <text x="844" y="392" class="chart-label">BLE command router</text>
+      <text x="844" y="416" class="chart-small">Allowed to lag under load</text>
+
+      <line x1="270" y1="90" x2="340" y2="90" class="arrow"></line>
+      <line x1="600" y1="90" x2="670" y2="90" class="arrow"></line>
+      <path d="M795 138 C785 190 430 170 330 218" class="arrow"></path>
+      <line x1="460" y1="266" x2="520" y2="266" class="arrow"></line>
+      <line x1="770" y1="266" x2="820" y2="266" class="arrow"></line>
+      <line x1="945" y1="314" x2="945" y2="360" class="arrow"></line>
+    </svg>
+
+    <div class="plan-step">
+      <h3>I1 <span>Define the measurement contract</span></h3>
+      <p>
+        Add a compact snapshot type owned by the analog module:
+        <code class="inline">seq</code>, <code class="inline">timestamp_us</code>,
+        raw AN3/AN5/AN6, calibrated AN3/AN5/AN6, valid mask, source, and error flags.
+        Publish it with a seqlock-style double read or a small critical section so consumers never observe mixed-channel data.
+        Add <code class="inline">age_us</code> at control consumption time so the firmware can prove the sample met the 280 us deadline
+        and the half-cycle freshness target from <strong>D8</strong>.
+        The control-facing fields should be calibrated floats for compatibility with the current control math, with raw ADC codes retained for diagnostics.
+      </p>
+      <p>
+        Verification: command/debug output can show the latest complete snapshot and prove that <code class="inline">seq</code> increases monotonically.
+        Implement this contract first on the existing oneshot producer, then preserve the same interface when the producer changes to ADC continuous/DMA.
+      </p>
+    </div>
+
+    <div class="plan-step">
+      <h3>I2 <span>Add counters before changing the ADC driver</span></h3>
+      <p>
+        Count samples produced, complete triples published, ADC read failures by channel, calibration failures,
+        min/average/p95/max publish latency, sample age at control consumption, DMA/frame overflow, telemetry batches sent,
+        telemetry drops, BLE send failures, and command replies sent.
+        Track deadline misses separately: stale sample, calibration late, control math late, and command update late.
+        Track consecutive misses so <strong>D13</strong> can disable control after 3 misses before stale feedback silently drives the plant.
+        Expose these through a nested protobuf <code class="inline">AnalogStatus</code> status/debug message as defined by <strong>D20</strong>, <strong>D33</strong>, <strong>D37</strong>, and <strong>D42</strong>.
+        When the threshold trips, report a control fault while leaving the open-loop signal pattern running.
+      </p>
+      <p>
+        Verification: every on-demand <code class="inline">system.get_status</code> response includes <code class="inline">AnalogStatus</code>, and <code class="inline">debug.analog_timing</code>
+        show the protobuf-backed counters while the current oneshot implementation still runs, and the legacy ADC latency fields mirror the new stats.
+      </p>
+    </div>
+
+    <div class="plan-step">
+      <h3>I3 <span>Move acquisition off synchronous oneshot reads</span></h3>
+      <p>
+        Replace the control-triggered ADC read with a background acquisition engine.
+        Preferred path: ADC continuous mode on ADC1 with DMA frames containing AN3, AN5, and AN6.
+        Conservative fallback: a hardware-timer-driven acquisition task that performs reads outside the signal loop.
+        The first target is 4 complete calibrated AN3/AN5/AN6 triples per 280 us cycle, about 14.3k triples/s or 42.9k channel samples/s.
+        This gives the control loop freshness margin without waiting on the ADC.
+        True simultaneous sampling is not required for the first version; publish the triple only after all three sequential channel readings are present and calibrated.
+        Keep the signal loop pinned to Core 1; run acquisition/calibration on Core 0 or a priority context proven not to interfere with Core 1 timing.
+        Start this acquisition path at boot after ADC initialization rather than waiting for control enable.
+      </p>
+      <p>
+        Constraint check: the signal loop should only read the latest snapshot and compute corrections;
+        it should never call <code class="inline">adc_oneshot_read()</code>, wait on a semaphore, or block on frame availability.
+        The old periodic analog task should be removed or disabled whenever the fast acquisition engine is active.
+        Temporary compatibility wrappers may feed the current <code class="inline">g_adc_an3</code>, <code class="inline">g_adc_an5</code>,
+        <code class="inline">g_adc_an6</code>, and <code class="inline">g_adc_fresh</code> globals during the migration.
+      </p>
+    </div>
+
+    <div class="plan-step">
+      <h3>I4 <span>Calibrate before publish, but keep calibration cheap</span></h3>
+      <p>
+        The acquisition task should convert raw readings into calibrated values before setting the snapshot as fresh.
+        Use a precomputed raw-code lookup table or fixed-point interpolation so each published sample is calibrated without the current linear search.
+        Place the hot lookup data in internal RAM when it is accessed by the acquisition path.
+        Keep calibrated floats available for current control math; optionally keep raw values for diagnostics.
+        Keep ADC driver handles, LUT ownership, snapshot publishing, and counters inside the analog acquisition module.
+      </p>
+      <p>
+        Verification: a controlled voltage input produces the same calibrated values as the old path within tolerance,
+        while the publish latency counter improves. The tolerance target is one ADC LSB equivalent or 5 mV, whichever is larger.
+      </p>
+    </div>
+
+    <div class="plan-step">
+      <h3>I5 <span>Make BLE on-demand and lower priority</span></h3>
+      <p>
+        Do not send telemetry from the ADC callback or high-priority acquisition path. Remove periodic BLE telemetry as a control-era assumption:
+        on-demand commands should copy the latest snapshot and counters, then send replies from a lower-priority BLE context.
+        If BLE is congested or control load is high, delay or drop telemetry replies before stealing time from signal generation, acquisition, or control.
+        Do not add a telemetry history ring buffer until waveform inspection requires it.
+        The dashboard should render a compact analog status block after the protobuf fields are added.
+        Add controls only where an action must be commanded to run or test the subsystem, so the user can interact with the hardware without adding automatic work to the real-time path.
+      </p>
+      <p>
+        Verification: while acquisition runs at the selected maximum rate, signal timing and control deadline counters remain clean.
+        BLE requests still eventually receive replies when the system has budget.
+      </p>
+    </div>
+
+    <div class="plan-step">
+      <h3>I6 <span>Change analog.read_once semantics</span></h3>
+      <p>
+        Make <code class="inline">analog.read_once</code> reply on demand with the latest calibrated snapshot instead of forcing a new blocking read.
+        If a forced read is still needed for lab calibration, expose it as a slower explicit debug command so normal command handling stays fast.
+        If no valid sample has been published yet, return a structured <code class="inline">not_ready</code> result with initialization state and counters.
+        The forced read command must be unavailable while control is active.
+      </p>
+    </div>
+
+    <div class="plan-step">
+      <h3>I7 <span>Ramp to the fastest stable rate</span></h3>
+      <p>
+        Start with a conservative ADC frame rate, then raise it while watching overflow, publish latency, BLE drops, command latency,
+        and signal timing counters. The maximum accepted rate is the highest rate with no signal-loop timing regression,
+        bounded command reply latency, no unhandled ADC frame overflow, and no 280 us control-deadline misses.
+        Because the command applies on the next cycle boundary, verification should confirm there is no mid-cycle mutation of the active timing array.
+        Inject or simulate overflow conditions and verify the partial frame is discarded, the overflow counter increments, and control follows the miss policy.
+        The acceptance run is at least 60 seconds at target rate with zero signal timing regressions, zero unhandled overflows, and zero 3-miss trips.
+        If hardware cannot reach the D16 target, control enable should fail with a structured error instead of silently running a slower feedback loop.
+      </p>
+    </div>
+
+    <h3>Resolved grill-me answers</h3>
+    <div class="note">
+      <p>
+        <strong>Q1 · What is the required maximum age of a sample when the control loop consumes it?</strong>
+        Accepted answer: the control loop must receive a new sample, process it, and generate the command inside one signal cycle,
+        currently around <strong>280 us</strong>. This resolves <strong>D7</strong> and makes ADC continuous/DMA the preferred path.
+      </p>
+      <p>
+        <strong>Q2 · Where in the 280 us cycle must the sample be fresh?</strong>
+        Accepted answer: at the control update point, the complete calibrated triple should be fresh, with <code class="inline">age_us</code>
+        measured and reported. This resolves <strong>D8</strong>.
+      </p>
+      <p>
+        <strong>Q3 · What should happen if the sample is stale or calibration misses the cycle?</strong>
+        Accepted answer: never block the signal loop; reuse the previous correction for that cycle, increment a miss counter,
+        and disable control after repeated misses. This resolves <strong>D9</strong>.
+      </p>
+      <p>
+        <strong>Q4 · Is a precomputed calibration lookup table acceptable for speed?</strong>
+        Accepted answer: yes. Use a raw-code-to-calibrated-value LUT or fixed-point interpolation. This resolves <strong>D10</strong>.
+      </p>
+      <p>
+        <strong>Q5 · What dashboard telemetry rate is actually needed while control runs at cycle speed?</strong>
+        Accepted answer: BLE telemetry replies by demand; the UI does not need instant interaction. Signal generation, data acquisition,
+        and control have priority. This resolves <strong>D11</strong>.
+      </p>
+      <p>
+        <strong>Q6 · Does "generate a command inside a cycle" mean the correction applies to the current pattern cycle or the next full cycle?</strong>
+        Accepted answer: apply the computed command on the next cycle and never change mid-cycle. This resolves <strong>D12</strong>.
+      </p>
+      <p>
+        <strong>Q7 · What consecutive deadline-miss threshold should disable control?</strong>
+        Accepted answer: 3 consecutive misses. This resolves <strong>D13</strong>.
+      </p>
+      <p>
+        <strong>Q9 · Do AN3, AN5, and AN6 need true simultaneous sampling?</strong>
+        Accepted answer: no for the first implementation; a fast sequential ADC frame is acceptable. This resolves <strong>D14</strong>.
+      </p>
+      <p>
+        <strong>Q10 · Should the control math stay in float for the first fast version?</strong>
+        Accepted answer: yes initially, while measuring matrix and conditioning duration. This resolves <strong>D15</strong>.
+      </p>
+      <p>
+        <strong>Q8 · What acquisition rate should we target first?</strong>
+        Accepted answer: 4 complete calibrated AN3/AN5/AN6 triples per 280 us cycle. This resolves <strong>D16</strong>.
+      </p>
+      <p>
+        <strong>Q11 · How should the firmware handle an ADC DMA overflow?</strong>
+        Accepted answer: increment an overflow counter, invalidate the current partial frame, keep the last valid correction for that cycle,
+        and let the 3-miss rule disable control after repeated deadline misses. This resolves <strong>D17</strong>.
+      </p>
+      <p>
+        <strong>Q12 · Where should calibration LUT memory live?</strong>
+        Accepted answer: hot lookup data should live in internal RAM; const source tables may remain flash-backed when not on the hot path.
+        This resolves <strong>D18</strong>.
+      </p>
+      <p>
+        <strong>Q13 · Should the acquisition task run on Core 0 or Core 1?</strong>
+        Accepted answer: keep the signal loop on Core 1; run acquisition/calibration on Core 0 or a non-interfering priority context.
+        This resolves <strong>D19</strong>.
+      </p>
+      <p>
+        <strong>Q14 · What should the public BLE debug command expose for this subsystem?</strong>
+        Accepted answer: add <code class="inline">debug.analog_timing</code> with seq, age, rate, min/avg/p95/max latency, misses, overflows,
+        and the latest calibrated triple. This resolves <strong>D20</strong>.
+      </p>
+      <p>
+        <strong>Q15 · What exact control-disabled output behavior should happen after the 3-miss threshold?</strong>
+        Accepted answer: disable closed-loop corrections but keep the open-loop signal pattern running, while reporting the fault through status/debug.
+        This resolves <strong>D21</strong>.
+      </p>
+      <p>
+        <strong>Q16 · Should acquisition start automatically at boot or only when control is enabled?</strong>
+        Accepted answer: start acquisition at boot after ADC init so snapshots and timing counters are warm before control is enabled.
+        This resolves <strong>D22</strong>.
+      </p>
+      <p>
+        <strong>Q17 · What calibrated value format should the snapshot expose to the control loop?</strong>
+        Accepted answer: expose calibrated floats first to match existing control code, while retaining raw ADC codes and optional fixed-point values for diagnostics.
+        This resolves <strong>D23</strong>.
+      </p>
+      <p>
+        <strong>Q18 · How much historical data should on-demand BLE telemetry return?</strong>
+        Accepted answer: return the latest snapshot and counters by default; add a small ring buffer only if waveform inspection is required later.
+        This resolves <strong>D24</strong>.
+      </p>
+      <p>
+        <strong>Q19 · What calibration accuracy should the fast LUT preserve?</strong>
+        Accepted answer: preserve current calibrated voltage behavior within one ADC LSB equivalent or 5 mV, whichever is larger.
+        This resolves <strong>D25</strong>.
+      </p>
+      <p>
+        <strong>Q20 · What should happen if ADC continuous/DMA cannot reach the D16 target on hardware?</strong>
+        Accepted answer: fail control enable with a structured error and keep open-loop signal generation available; do not silently fall back to slower control.
+        This resolves <strong>D26</strong>.
+      </p>
+      <p>
+        <strong>Q21 · What acceptance test duration proves the fast path is stable?</strong>
+        Accepted answer: at least 60 seconds at target rate with zero signal timing regressions, zero unhandled overflows, and zero 3-miss trips.
+        This resolves <strong>D27</strong>.
+      </p>
+      <p>
+        <strong>Q22 · Should the old periodic analog BLE monitor command remain?</strong>
+        Accepted answer: keep the command name for compatibility, but make it configure on-demand/debug behavior rather than start periodic sending while control is active.
+        This resolves <strong>D28</strong>.
+      </p>
+      <p>
+        <strong>Q23 · Should the first implementation remove the existing periodic analog task or leave it disabled behind the command layer?</strong>
+        Accepted answer: remove or disable it when the fast acquisition engine is active; keep compatibility at the BLE command layer only.
+        This resolves <strong>D29</strong>.
+      </p>
+      <p>
+        <strong>Q24 · Should the acquisition module own all ADC calibration state?</strong>
+        Accepted answer: yes. ADC driver handles, LUTs, snapshot publishing, and analog counters belong behind one analog acquisition module.
+        This resolves <strong>D30</strong>.
+      </p>
+      <p>
+        <strong>Q25 · What should happen when BLE asks for analog data while no valid sample exists yet after boot?</strong>
+        Accepted answer: reply with structured <code class="inline">not_ready</code> containing counters and initialization state.
+        This resolves <strong>D31</strong>.
+      </p>
+      <p>
+        <strong>Q26 · Should implementation begin with observability on the existing oneshot path before switching to DMA?</strong>
+        Accepted answer: yes. Add snapshot and counters first, verify behavior, then swap the producer from oneshot to continuous/DMA.
+        This resolves <strong>D32</strong>.
+      </p>
+      <p>
+        <strong>Q27 · Should analog debug data be returned as JSON command-result payload first or added to protobuf status immediately?</strong>
+        Accepted answer: add it to protobuf status immediately. This resolves <strong>D33</strong>.
+      </p>
+      <p>
+        <strong>Q28 · Should the migration keep compatibility wrappers for <code class="inline">g_adc_an3</code>, <code class="inline">g_adc_an5</code>, <code class="inline">g_adc_an6</code>, and <code class="inline">g_adc_fresh</code>?</strong>
+        Accepted answer: keep temporary wrappers for the observability phase, then remove direct global access after the signal loop reads snapshots through the module API.
+        This resolves <strong>D34</strong>.
+      </p>
+      <p>
+        <strong>Q29 · Should there be a forced single-read calibration/debug command after the fast engine exists?</strong>
+        Accepted answer: yes, but debug-only and unavailable while control is active. This resolves <strong>D35</strong>.
+      </p>
+      <p>
+        <strong>Q30 · What is the first implementation milestone?</strong>
+        Accepted answer: snapshot/counter API plus protobuf-backed analog timing/status on the current oneshot producer, with no behavior change to the signal loop.
+        This resolves <strong>D36</strong>.
+      </p>
+    </div>
+
+    <h3>Resolved grill-me answers continued</h3>
+    <div class="note">
+      <p>
+        <strong>Q31 · Should protobuf status add nested <code class="inline">AnalogStatus</code> fields or extend <code class="inline">SystemStatus</code> flatly?</strong>
+        Accepted answer: add a nested <code class="inline">AnalogStatus</code> message. This resolves <strong>D37</strong>.
+      </p>
+      <p>
+        <strong>Q32 · Should the web dashboard render analog timing status immediately?</strong>
+        Accepted answer: yes, add a compact status block for age, rate, misses, overflows, and latest calibrated values once protobuf fields exist.
+        Display status by default, and add controls only for actions that must be explicitly commanded. This resolves <strong>D38</strong>.
+      </p>
+      <p>
+        <strong>Q33 · Should the first milestone include tests for the protobuf schema and web decoding?</strong>
+        Accepted answer: yes, regenerate firmware/web protobuf outputs and run both firmware build and web build. This resolves <strong>D39</strong>.
+      </p>
+      <p>
+        <strong>Q34 · Should the old <code class="inline">adc_min</code>, <code class="inline">adc_max</code>, and <code class="inline">adc_avg</code> fields remain?</strong>
+        Accepted answer: keep them during migration as aliases of the new analog latency stats, then deprecate once dashboard status uses <code class="inline">AnalogStatus</code>.
+        This resolves <strong>D40</strong>.
+      </p>
+      <p>
+        <strong>Q38 · Should the old ADC globals be removed in the same milestone that adds <code class="inline">AnalogStatus</code>?</strong>
+        Accepted answer: no. Keep wrappers in milestone 1, then remove globals after the signal loop consumes snapshots through the module API.
+        This resolves <strong>D41</strong>.
+      </p>
+    </div>
+
+    <h3>Final resolved answers</h3>
+    <div class="note">
+      <p>
+        <strong>Q35 · Which exact fields should <code class="inline">AnalogStatus</code> contain in milestone 1?</strong>
+        Accepted answer: include seq, valid, timestamp_us, age_us, target_triples_per_cycle, measured_triples_per_second, latest raw/calibrated AN3/AN5/AN6,
+        latency min/avg/p95/max, overflow count, miss counts, consecutive misses, and fault code. This resolves <strong>D42</strong>.
+      </p>
+      <p>
+        <strong>Q36 · Should <code class="inline">AnalogStatus</code> be included in every <code class="inline">system.get_status</code> response?</strong>
+        Accepted answer: yes. It is on-demand, and including it avoids a second command round trip. This resolves <strong>D43</strong>.
+      </p>
+      <p>
+        <strong>Q37 · Should the dashboard analog status block include controls, or display only?</strong>
+        Accepted answer: add controls if an action must be commanded for it to run, otherwise display status only.
+        Controls are needed for interaction and testing, but they must send explicit BLE commands and must not add automatic work to the signal loop.
+        This resolves <strong>D44</strong>.
+      </p>
+      <p>
+        <strong>Questioning session closed.</strong>
+        The remaining migration decisions preserve the current architecture during milestone 1 for consistency. The design is ready to move from questions to implementation.
+      </p>
+    </div>
+  </section>
+
+  <section id="complexity-debt" class="collapsible" data-title="Complexity Debt">
+    <h2>Complexity Debt</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Count</th>
+          <th>Current debt</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Scaling/performance risks</td>
+          <td>4</td>
+          <td>Sequential blocking reads, per-read float calibration loop, per-sample BLE telemetry, tick-based monitor timing.</td>
+        </tr>
+        <tr>
+          <td>Architectural leaks</td>
+          <td>2</td>
+          <td>ADC helper mixes hardware read, conversion, and calibration; analog read state naming couples BLE and control-trigger behavior.</td>
+        </tr>
+        <tr>
+          <td>Observability gaps</td>
+          <td>6</td>
+          <td>No source-tagged latency, sample sequence, microsecond timestamp, read failure counters, BLE send/drop counters, or sample-age metric.</td>
+        </tr>
+        <tr>
+          <td>Safety violations</td>
+          <td>2</td>
+          <td>Failed ADC reads become <code class="inline">-99.0</code>; monitor period can be set extremely low by command.</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note">
+      Overall rating: <strong>C+</strong>. The implementation has moved beyond a blind path because latency and signal timing exist, but fast acquisition still needs a real measurement contract before deep refactoring.
+    </div>
+  </section>
+</main>
+<script>
+  document.querySelectorAll(".collapsible").forEach((section) => {
+    const heading = section.querySelector(":scope > h2");
+    if (!heading) return;
+
+    const title = section.dataset.title || heading.textContent.trim();
+    const content = document.createElement("div");
+    content.className = "section-content";
+    content.id = `${section.id || title.toLowerCase().replace(/\s+/g, "-")}-content`;
+
+    while (heading.nextSibling) {
+      content.appendChild(heading.nextSibling);
+    }
+
+    const button = document.createElement("button");
+    button.className = "section-toggle";
+    button.type = "button";
+    button.setAttribute("aria-expanded", "true");
+    button.setAttribute("aria-controls", content.id);
+    button.innerHTML = `<span class="section-title-text">${title}</span><span class="section-toggle-text">Hide</span>`;
+
+    heading.textContent = "";
+    heading.appendChild(button);
+    section.appendChild(content);
+
+    button.addEventListener("click", () => {
+      const collapsed = section.classList.toggle("is-collapsed");
+      button.setAttribute("aria-expanded", String(!collapsed));
+      button.querySelector(".section-toggle-text").textContent = collapsed ? "Show" : "Hide";
+    });
+  });
+
+  function setAllSections(collapsed) {
+    document.querySelectorAll(".collapsible").forEach((section) => {
+      section.classList.toggle("is-collapsed", collapsed);
+      const button = section.querySelector(".section-toggle");
+      if (!button) return;
+      button.setAttribute("aria-expanded", String(!collapsed));
+      button.querySelector(".section-toggle-text").textContent = collapsed ? "Show" : "Hide";
+    });
+  }
+
+  document.querySelector("[data-expand-all]")?.addEventListener("click", () => setAllSections(false));
+  document.querySelector("[data-collapse-all]")?.addEventListener("click", () => setAllSections(true));
+</script>
+</body>
+</html>
