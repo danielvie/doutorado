@@ -66,7 +66,7 @@ const COMMANDS = [
     description: "Returns analog test acquisition to safe oneshot mode",
   },
   {
-    commands: 'analog.set_continuous_sample_rate {"sample_hz":129000}',
+    commands: 'analog.set_continuous_sample_rate {"sample_hz":250000}',
     description: "Sets ADC continuous channel sample rate",
   },
   {
@@ -140,6 +140,23 @@ const COMMANDS = [
   {
     commands: "debug.test.an.dma_json",
     description: "Fetches ADC DMA per-channel debug counters",
+  },
+  {
+    commands:
+      'debug.test.an.config_run {"duration_ms":4000,"sample_hz":[129000,250000,500000]}',
+    description: "Runs the analog acquisition configuration sweep",
+  },
+  {
+    commands: "debug.test.an.config_result",
+    description: "Fetches the latest analog configuration sweep result",
+  },
+  {
+    commands: "debug.test.an.get_status",
+    description: "Alias for system.get_status within the analog test namespace",
+  },
+  {
+    commands: 'debug.test.an.set_continuous_sample_rate {"sample_hz":250000}',
+    description: "Alias for analog.set_continuous_sample_rate within the analog test namespace",
   },
   {
     commands: 'debug.gpio_set {"port":1,"value":1}',

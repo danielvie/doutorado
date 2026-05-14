@@ -552,7 +552,7 @@
           <tr>
             <td>Analog helper</td>
             <td><code>helper_analog.cpp</code></td>
-            <td>ADC1 oneshot reads, voltage conversion, calibration table, latency window.</td>
+            <td>ADC1 continuous/DMA acquisition, oneshot fallback, voltage conversion, calibration LUT, latency window.</td>
             <td>Telemetry, control feedback, status packets.</td>
           </tr>
           <tr>
@@ -569,6 +569,36 @@
           </tr>
         </tbody>
       </table>
+
+      <h3>Analog acquisition default and fallback</h3>
+      <p>
+        The accepted lab default is ADC continuous/DMA acquisition at
+        <code>250000</code> samples/s. This setting was validated with a stable
+        oscilloscope dead-time check, zero DMA anomalies, zero overflow, and
+        roughly <code>50k</code> complete AN3/AN5/AN6 triples per second during
+        the analog diagnostic run. Firmware boots in continuous mode so the
+        acquisition producer is already warm before signal/control tests.
+      </p>
+      <pre><code># accepted acquisition default
+debug.test.an.mode {"mode":"continuous"}
+debug.test.an.set_continuous_sample_rate {"sample_hz":250000}
+
+# 60 second validation run
+debug.test.an.run {"duration_ms":60000}
+debug.test.an.result</code></pre>
+      <p>
+        If you need the old safe monitor behavior, switch back to rate-limited
+        oneshot acquisition. This is useful when isolating DMA-related timing
+        questions or comparing dashboard/status behavior against the previous
+        implementation.
+      </p>
+      <pre><code># old safe fallback
+debug.test.an.mode {"mode":"oneshot"}
+analog.set_acquisition_period {"period_us":1000}
+
+# return to accepted DMA default
+debug.test.an.mode {"mode":"continuous"}
+debug.test.an.set_continuous_sample_rate {"sample_hz":250000}</code></pre>
 
       <h3>BLE router responsibility</h3>
       <p>

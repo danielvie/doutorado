@@ -190,6 +190,34 @@ message AnalogDiagnosticResult {
     string message = 25;
 }
 
+message AnalogConfigCaseResult {
+    uint32 sample_hz = 1;
+    uint32 duration_ms = 2;
+    uint64 elapsed_us = 3;
+    uint32 seq_delta = 4;
+    uint32 rate_tps = 5;
+    uint32 age_us = 6;
+    uint32 miss_delta = 7;
+    uint32 overflow_delta = 8;
+    uint32 fault_code = 9;
+    uint32 latency_avg_us = 10;
+    uint32 latency_p95_us = 11;
+    uint32 playback_avg_us_x100 = 12;
+    uint32 loop_us_x100 = 13;
+    uint32 overruns_delta = 14;
+    uint32 timing_faults_delta = 15;
+    uint32 dma_samples_delta = 16;
+    uint32 dma_anomalies_delta = 17;
+}
+
+message AnalogConfigTestResult {
+    bool valid = 1;
+    bool running = 2;
+    uint32 case_count = 3;
+    repeated AnalogConfigCaseResult cases = 4;
+    string message = 5;
+}
+
 // Top-level message for BLE communication
 message BlePacket {
     oneof payload {
@@ -199,5 +227,6 @@ message BlePacket {
         OtaStatus ota_status = 4;
         UiCommandResult command_result = 5;
         AnalogDiagnosticResult analog_diagnostic_result = 6;
+        AnalogConfigTestResult analog_config_test_result = 7;
     }
 }

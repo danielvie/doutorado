@@ -1,5 +1,21 @@
 # TODO
 
+- [x] Set accepted continuous DMA sample rate as firmware/web default
+- [x] Document continuous default and oneshot fallback in project architecture guide
+- [x] Verify firmware and web builds after accepted default update
+
+- [x] Add DMA sample/anomaly deltas to analog config sweep protobuf result
+- [x] Raise analog acquisition task priority above idle
+- [x] Verify proto generation, firmware build, and web build after sweep instrumentation
+
+- [x] Change boot default analog acquisition mode to continuous
+- [x] Add protobuf message for analog configuration sweep results
+- [x] Add `debug.test.an.config_run` and `.config_result` commands
+- [x] Render analog configuration sweep protobuf result in web logs
+- [x] Verify proto generation, firmware build, and web build
+
+- [x] Add `debug.test.an.get_status` HelpPanel entry and firmware command alias
+- [x] Add a copy button to the bottom of the StatusPanel in the web dashboard
 - [x] Raise continuous ADC default sample rate to meet 4-triples-per-cycle target
 - [x] Update HelpPanel/docs target-rate examples
 - [x] Verify firmware and web builds after rate target update

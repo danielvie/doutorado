@@ -12,8 +12,8 @@
 // .. globals
 volatile uint32_t g_analog_monitor_period_ms = 500;
 volatile uint32_t g_analog_acquisition_period_us = 1000;
-volatile uint32_t g_analog_acquisition_mode = ANALOG_ACQ_MODE_ONESHOT;
-volatile uint32_t g_analog_continuous_sample_hz = 129000;
+volatile uint32_t g_analog_acquisition_mode = ANALOG_ACQ_MODE_CONTINUOUS;
+volatile uint32_t g_analog_continuous_sample_hz = 250000;
 
 // .. semaphore
 SemaphoreHandle_t sem_analog_read_trigger;

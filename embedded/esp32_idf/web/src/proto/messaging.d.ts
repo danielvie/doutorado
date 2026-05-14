@@ -1394,6 +1394,246 @@ export class AnalogDiagnosticResult implements IAnalogDiagnosticResult {
     public static getTypeUrl(typeUrlPrefix?: string): string;
 }
 
+/** Represents an AnalogConfigCaseResult. */
+export class AnalogConfigCaseResult implements IAnalogConfigCaseResult {
+
+    /**
+     * Constructs a new AnalogConfigCaseResult.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IAnalogConfigCaseResult);
+
+    /** AnalogConfigCaseResult sampleHz. */
+    public sampleHz: number;
+
+    /** AnalogConfigCaseResult durationMs. */
+    public durationMs: number;
+
+    /** AnalogConfigCaseResult elapsedUs. */
+    public elapsedUs: (number|Long);
+
+    /** AnalogConfigCaseResult seqDelta. */
+    public seqDelta: number;
+
+    /** AnalogConfigCaseResult rateTps. */
+    public rateTps: number;
+
+    /** AnalogConfigCaseResult ageUs. */
+    public ageUs: number;
+
+    /** AnalogConfigCaseResult missDelta. */
+    public missDelta: number;
+
+    /** AnalogConfigCaseResult overflowDelta. */
+    public overflowDelta: number;
+
+    /** AnalogConfigCaseResult faultCode. */
+    public faultCode: number;
+
+    /** AnalogConfigCaseResult latencyAvgUs. */
+    public latencyAvgUs: number;
+
+    /** AnalogConfigCaseResult latencyP95Us. */
+    public latencyP95Us: number;
+
+    /** AnalogConfigCaseResult playbackAvgUsX100. */
+    public playbackAvgUsX100: number;
+
+    /** AnalogConfigCaseResult loopUsX100. */
+    public loopUsX100: number;
+
+    /** AnalogConfigCaseResult overrunsDelta. */
+    public overrunsDelta: number;
+
+    /** AnalogConfigCaseResult timingFaultsDelta. */
+    public timingFaultsDelta: number;
+
+    /** AnalogConfigCaseResult dmaSamplesDelta. */
+    public dmaSamplesDelta: number;
+
+    /** AnalogConfigCaseResult dmaAnomaliesDelta. */
+    public dmaAnomaliesDelta: number;
+
+    /**
+     * Creates a new AnalogConfigCaseResult instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns AnalogConfigCaseResult instance
+     */
+    public static create(properties?: IAnalogConfigCaseResult): AnalogConfigCaseResult;
+
+    /**
+     * Encodes the specified AnalogConfigCaseResult message. Does not implicitly {@link AnalogConfigCaseResult.verify|verify} messages.
+     * @param message AnalogConfigCaseResult message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IAnalogConfigCaseResult, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified AnalogConfigCaseResult message, length delimited. Does not implicitly {@link AnalogConfigCaseResult.verify|verify} messages.
+     * @param message AnalogConfigCaseResult message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IAnalogConfigCaseResult, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes an AnalogConfigCaseResult message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns AnalogConfigCaseResult
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): AnalogConfigCaseResult;
+
+    /**
+     * Decodes an AnalogConfigCaseResult message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns AnalogConfigCaseResult
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): AnalogConfigCaseResult;
+
+    /**
+     * Verifies an AnalogConfigCaseResult message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates an AnalogConfigCaseResult message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns AnalogConfigCaseResult
+     */
+    public static fromObject(object: { [k: string]: any }): AnalogConfigCaseResult;
+
+    /**
+     * Creates a plain object from an AnalogConfigCaseResult message. Also converts values to other types if specified.
+     * @param message AnalogConfigCaseResult
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: AnalogConfigCaseResult, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this AnalogConfigCaseResult to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for AnalogConfigCaseResult
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
+/** Represents an AnalogConfigTestResult. */
+export class AnalogConfigTestResult implements IAnalogConfigTestResult {
+
+    /**
+     * Constructs a new AnalogConfigTestResult.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IAnalogConfigTestResult);
+
+    /** AnalogConfigTestResult valid. */
+    public valid: boolean;
+
+    /** AnalogConfigTestResult running. */
+    public running: boolean;
+
+    /** AnalogConfigTestResult caseCount. */
+    public caseCount: number;
+
+    /** AnalogConfigTestResult cases. */
+    public cases: IAnalogConfigCaseResult[];
+
+    /** AnalogConfigTestResult message. */
+    public message: string;
+
+    /**
+     * Creates a new AnalogConfigTestResult instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns AnalogConfigTestResult instance
+     */
+    public static create(properties?: IAnalogConfigTestResult): AnalogConfigTestResult;
+
+    /**
+     * Encodes the specified AnalogConfigTestResult message. Does not implicitly {@link AnalogConfigTestResult.verify|verify} messages.
+     * @param message AnalogConfigTestResult message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IAnalogConfigTestResult, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified AnalogConfigTestResult message, length delimited. Does not implicitly {@link AnalogConfigTestResult.verify|verify} messages.
+     * @param message AnalogConfigTestResult message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IAnalogConfigTestResult, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes an AnalogConfigTestResult message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns AnalogConfigTestResult
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): AnalogConfigTestResult;
+
+    /**
+     * Decodes an AnalogConfigTestResult message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns AnalogConfigTestResult
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): AnalogConfigTestResult;
+
+    /**
+     * Verifies an AnalogConfigTestResult message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates an AnalogConfigTestResult message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns AnalogConfigTestResult
+     */
+    public static fromObject(object: { [k: string]: any }): AnalogConfigTestResult;
+
+    /**
+     * Creates a plain object from an AnalogConfigTestResult message. Also converts values to other types if specified.
+     * @param message AnalogConfigTestResult
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: AnalogConfigTestResult, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this AnalogConfigTestResult to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for AnalogConfigTestResult
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
 /** Represents a BlePacket. */
 export class BlePacket implements IBlePacket {
 
@@ -1421,8 +1661,11 @@ export class BlePacket implements IBlePacket {
     /** BlePacket analogDiagnosticResult. */
     public analogDiagnosticResult?: (IAnalogDiagnosticResult|null);
 
+    /** BlePacket analogConfigTestResult. */
+    public analogConfigTestResult?: (IAnalogConfigTestResult|null);
+
     /** BlePacket payload. */
-    public payload?: ("telemetry"|"status"|"log"|"otaStatus"|"commandResult"|"analogDiagnosticResult");
+    public payload?: ("telemetry"|"status"|"log"|"otaStatus"|"commandResult"|"analogDiagnosticResult"|"analogConfigTestResult");
 
     /**
      * Creates a new BlePacket instance using the specified properties.

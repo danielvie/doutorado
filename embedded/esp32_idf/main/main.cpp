@@ -127,7 +127,7 @@ extern "C" void app_main(void)
     }
 
     xTaskCreatePinnedToCore(analog_reading_task, "Analog Task", 8192, NULL, tskIDLE_PRIORITY + 1, NULL, 0);
-    xTaskCreatePinnedToCore(analog_acquisition_task, "Analog Acquisition", 4096, NULL, tskIDLE_PRIORITY, NULL, 0);
+    xTaskCreatePinnedToCore(analog_acquisition_task, "Analog Acquisition", 4096, NULL, tskIDLE_PRIORITY + 2, NULL, 0);
 
     matrix_test();
 

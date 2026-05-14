@@ -259,6 +259,51 @@ class BleManager {
                             payload: {},
                         });
                     }
+                } else if (packet.analog_config_test_result) {
+                    const t = packet.analog_config_test_result;
+                    if (!t.valid) {
+                        const message = t.message || "No analog config sweep result is available";
+                        useBleStore.getState().addLog(message);
+                        useBleStore.getState().setLastStatusMessage(message);
+                        useBleStore.getState().setLastStatusCommand({
+                            name: "debug.test.an.config_result",
+                            payload: {},
+                        });
+                    } else {
+                        const lines = [
+                            "== analog config sweep ==",
+                            `Running        : ${t.running ? "YES" : "NO"}`,
+                            `Valid          : ${t.valid ? "YES" : "NO"}`,
+                            `Cases          : ${t.case_count}`,
+                        ];
+                        for (const item of t.cases ?? []) {
+                            lines.push(
+                                `-- ${item.sample_hz} samples/s --`,
+                                `Duration       : ${item.duration_ms} ms`,
+                                `Elapsed        : ${item.elapsed_us.toFixed(0)} us`,
+                                `Seq delta      : ${item.seq_delta}`,
+                                `Rate           : ${item.rate_tps} triples/s`,
+                                `DMA samples    : ${item.dma_samples_delta}`,
+                                `DMA anomalies  : ${item.dma_anomalies_delta}`,
+                                `Age            : ${item.age_us} us`,
+                                `Miss/Overflow  : ${item.miss_delta} / ${item.overflow_delta}`,
+                                `Latency avg/p95: ${item.latency_avg_us} / ${item.latency_p95_us} us`,
+                                `Playback/Loop  : ${item.playback_avg_us.toFixed(2)} / ${item.loop_us.toFixed(2)} us`,
+                                `Overrun/Fault  : ${item.overruns_delta} / ${item.timing_faults_delta}`,
+                                `Fault code     : ${item.fault_code}`,
+                            );
+                        }
+                        if (t.message) {
+                            lines.push(`Message        : ${t.message}`);
+                        }
+                        const statusStr = lines.join("\n");
+                        useBleStore.getState().addLog(statusStr);
+                        useBleStore.getState().setLastStatusMessage(statusStr);
+                        useBleStore.getState().setLastStatusCommand({
+                            name: "debug.test.an.config_result",
+                            payload: {},
+                        });
+                    }
                 } else if (packet.command_result) {
                     const r = packet.command_result;
                     const sourceCommand = this.pendingCommands.get(r.request_id);

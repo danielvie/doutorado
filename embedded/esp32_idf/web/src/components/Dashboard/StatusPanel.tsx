@@ -110,6 +110,23 @@ export const StatusPanel: React.FC<{
               {lastStatusMessage
                 .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, "")
                 .trim()}
+              
+              <div className="mt-6 pt-4 border-t border-gray-100 flex justify-end sticky bottom-0 bg-white/80 backdrop-blur-sm -mx-4 px-4 pb-2">
+                <button
+                  onClick={handleCopy}
+                  className={`p-2 px-4 rounded-md border transition-all flex items-center gap-2 shadow-sm active:scale-95 ${
+                    copied
+                      ? "bg-green-50 border-green-200 text-green-600"
+                      : "bg-gray-50 border-gray-200 text-gray-500 hover:text-blue-600 hover:bg-white hover:border-blue-200"
+                  }`}
+                  title="Copy Status"
+                >
+                  {copied ? <Check size={16} /> : <Copy size={16} />}
+                  <span className="text-[11px] font-bold uppercase tracking-wider">
+                    {copied ? "Copied to Clipboard" : "Copy Full Status"}
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
         ) : (

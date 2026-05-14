@@ -201,5 +201,57 @@ export function decodeBlePacket(binary: Uint8Array) {
                   message: packet.analogDiagnosticResult.message ?? "",
               }
             : undefined,
+        analog_config_test_result: packet.analogConfigTestResult
+            ? {
+                  valid: booleanValue(packet.analogConfigTestResult.valid),
+                  running: booleanValue(packet.analogConfigTestResult.running),
+                  case_count: numberValue(packet.analogConfigTestResult.caseCount),
+                  cases: (packet.analogConfigTestResult.cases ?? []).map(
+                      (item: {
+                          sampleHz?: unknown;
+                          durationMs?: unknown;
+                          elapsedUs?: unknown;
+                          seqDelta?: unknown;
+                          rateTps?: unknown;
+                          ageUs?: unknown;
+                          missDelta?: unknown;
+                          overflowDelta?: unknown;
+                          faultCode?: unknown;
+                          latencyAvgUs?: unknown;
+                          latencyP95Us?: unknown;
+                          playbackAvgUsX100?: unknown;
+                          loopUsX100?: unknown;
+                          overrunsDelta?: unknown;
+                          timingFaultsDelta?: unknown;
+                          dmaSamplesDelta?: unknown;
+                          dmaAnomaliesDelta?: unknown;
+                      }) => ({
+                          sample_hz: numberValue(item.sampleHz),
+                          duration_ms: numberValue(item.durationMs),
+                          elapsed_us: numberValue(item.elapsedUs),
+                          seq_delta: numberValue(item.seqDelta),
+                          rate_tps: numberValue(item.rateTps),
+                          age_us: numberValue(item.ageUs),
+                          miss_delta: numberValue(item.missDelta),
+                          overflow_delta: numberValue(item.overflowDelta),
+                          fault_code: numberValue(item.faultCode),
+                          latency_avg_us: numberValue(item.latencyAvgUs),
+                          latency_p95_us: numberValue(item.latencyP95Us),
+                          playback_avg_us:
+                              numberValue(item.playbackAvgUsX100) / 100,
+                          loop_us: numberValue(item.loopUsX100) / 100,
+                          overruns_delta: numberValue(item.overrunsDelta),
+                          timing_faults_delta: numberValue(
+                              item.timingFaultsDelta,
+                          ),
+                          dma_samples_delta: numberValue(item.dmaSamplesDelta),
+                          dma_anomalies_delta: numberValue(
+                              item.dmaAnomaliesDelta,
+                          ),
+                      }),
+                  ),
+                  message: packet.analogConfigTestResult.message ?? "",
+              }
+            : undefined,
     };
 }

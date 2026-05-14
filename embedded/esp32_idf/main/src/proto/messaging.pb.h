@@ -200,6 +200,35 @@ typedef struct _AnalogDiagnosticResult {
     char message[96];
 } AnalogDiagnosticResult;
 
+typedef struct _AnalogConfigCaseResult {
+    uint32_t sample_hz;
+    uint32_t duration_ms;
+    uint64_t elapsed_us;
+    uint32_t seq_delta;
+    uint32_t rate_tps;
+    uint32_t age_us;
+    uint32_t miss_delta;
+    uint32_t overflow_delta;
+    uint32_t fault_code;
+    uint32_t latency_avg_us;
+    uint32_t latency_p95_us;
+    uint32_t playback_avg_us_x100;
+    uint32_t loop_us_x100;
+    uint32_t overruns_delta;
+    uint32_t timing_faults_delta;
+    uint32_t dma_samples_delta;
+    uint32_t dma_anomalies_delta;
+} AnalogConfigCaseResult;
+
+typedef struct _AnalogConfigTestResult {
+    bool valid;
+    bool running;
+    uint32_t case_count;
+    pb_size_t cases_count;
+    AnalogConfigCaseResult cases[4];
+    char message[96];
+} AnalogConfigTestResult;
+
 /* Top-level message for BLE communication */
 typedef struct _BlePacket {
     pb_size_t which_payload;
@@ -210,6 +239,7 @@ typedef struct _BlePacket {
         OtaStatus ota_status;
         UiCommandResult command_result;
         AnalogDiagnosticResult analog_diagnostic_result;
+        AnalogConfigTestResult analog_config_test_result;
     } payload;
 } BlePacket;
 
@@ -268,6 +298,8 @@ extern "C" {
 
 
 
+
+
 /* Initializer values for message structs */
 #define Telemetry_init_default                   {0, 0, 0, 0}
 #define AnalogStatus_init_default                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
@@ -281,6 +313,8 @@ extern "C" {
 #define UiCommand_init_default                   {"", "", 0}
 #define UiCommandResult_init_default             {0, "", 0, "", "", ""}
 #define AnalogDiagnosticResult_init_default      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ""}
+#define AnalogConfigCaseResult_init_default      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+#define AnalogConfigTestResult_init_default      {0, 0, 0, 0, {AnalogConfigCaseResult_init_default, AnalogConfigCaseResult_init_default, AnalogConfigCaseResult_init_default, AnalogConfigCaseResult_init_default}, ""}
 #define BlePacket_init_default                   {0, {Telemetry_init_default}}
 #define Telemetry_init_zero                      {0, 0, 0, 0}
 #define AnalogStatus_init_zero                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
@@ -294,6 +328,8 @@ extern "C" {
 #define UiCommand_init_zero                      {"", "", 0}
 #define UiCommandResult_init_zero                {0, "", 0, "", "", ""}
 #define AnalogDiagnosticResult_init_zero         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ""}
+#define AnalogConfigCaseResult_init_zero         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+#define AnalogConfigTestResult_init_zero         {0, 0, 0, 0, {AnalogConfigCaseResult_init_zero, AnalogConfigCaseResult_init_zero, AnalogConfigCaseResult_init_zero, AnalogConfigCaseResult_init_zero}, ""}
 #define BlePacket_init_zero                      {0, {Telemetry_init_zero}}
 
 /* Field tags (for use in manual encoding/decoding) */
@@ -397,12 +433,35 @@ extern "C" {
 #define AnalogDiagnosticResult_overruns_tag      23
 #define AnalogDiagnosticResult_timing_faults_tag 24
 #define AnalogDiagnosticResult_message_tag       25
+#define AnalogConfigCaseResult_sample_hz_tag     1
+#define AnalogConfigCaseResult_duration_ms_tag   2
+#define AnalogConfigCaseResult_elapsed_us_tag    3
+#define AnalogConfigCaseResult_seq_delta_tag     4
+#define AnalogConfigCaseResult_rate_tps_tag      5
+#define AnalogConfigCaseResult_age_us_tag        6
+#define AnalogConfigCaseResult_miss_delta_tag    7
+#define AnalogConfigCaseResult_overflow_delta_tag 8
+#define AnalogConfigCaseResult_fault_code_tag    9
+#define AnalogConfigCaseResult_latency_avg_us_tag 10
+#define AnalogConfigCaseResult_latency_p95_us_tag 11
+#define AnalogConfigCaseResult_playback_avg_us_x100_tag 12
+#define AnalogConfigCaseResult_loop_us_x100_tag  13
+#define AnalogConfigCaseResult_overruns_delta_tag 14
+#define AnalogConfigCaseResult_timing_faults_delta_tag 15
+#define AnalogConfigCaseResult_dma_samples_delta_tag 16
+#define AnalogConfigCaseResult_dma_anomalies_delta_tag 17
+#define AnalogConfigTestResult_valid_tag         1
+#define AnalogConfigTestResult_running_tag       2
+#define AnalogConfigTestResult_case_count_tag    3
+#define AnalogConfigTestResult_cases_tag         4
+#define AnalogConfigTestResult_message_tag       5
 #define BlePacket_telemetry_tag                  1
 #define BlePacket_status_tag                     2
 #define BlePacket_log_tag                        3
 #define BlePacket_ota_status_tag                 4
 #define BlePacket_command_result_tag             5
 #define BlePacket_analog_diagnostic_result_tag   6
+#define BlePacket_analog_config_test_result_tag  7
 
 /* Struct field encoding specification for nanopb */
 #define Telemetry_FIELDLIST(X, a) \
@@ -557,13 +616,45 @@ X(a, STATIC,   SINGULAR, STRING,   message,          25)
 #define AnalogDiagnosticResult_CALLBACK NULL
 #define AnalogDiagnosticResult_DEFAULT NULL
 
+#define AnalogConfigCaseResult_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   sample_hz,         1) \
+X(a, STATIC,   SINGULAR, UINT32,   duration_ms,       2) \
+X(a, STATIC,   SINGULAR, UINT64,   elapsed_us,        3) \
+X(a, STATIC,   SINGULAR, UINT32,   seq_delta,         4) \
+X(a, STATIC,   SINGULAR, UINT32,   rate_tps,          5) \
+X(a, STATIC,   SINGULAR, UINT32,   age_us,            6) \
+X(a, STATIC,   SINGULAR, UINT32,   miss_delta,        7) \
+X(a, STATIC,   SINGULAR, UINT32,   overflow_delta,    8) \
+X(a, STATIC,   SINGULAR, UINT32,   fault_code,        9) \
+X(a, STATIC,   SINGULAR, UINT32,   latency_avg_us,   10) \
+X(a, STATIC,   SINGULAR, UINT32,   latency_p95_us,   11) \
+X(a, STATIC,   SINGULAR, UINT32,   playback_avg_us_x100,  12) \
+X(a, STATIC,   SINGULAR, UINT32,   loop_us_x100,     13) \
+X(a, STATIC,   SINGULAR, UINT32,   overruns_delta,   14) \
+X(a, STATIC,   SINGULAR, UINT32,   timing_faults_delta,  15) \
+X(a, STATIC,   SINGULAR, UINT32,   dma_samples_delta,  16) \
+X(a, STATIC,   SINGULAR, UINT32,   dma_anomalies_delta,  17)
+#define AnalogConfigCaseResult_CALLBACK NULL
+#define AnalogConfigCaseResult_DEFAULT NULL
+
+#define AnalogConfigTestResult_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, BOOL,     valid,             1) \
+X(a, STATIC,   SINGULAR, BOOL,     running,           2) \
+X(a, STATIC,   SINGULAR, UINT32,   case_count,        3) \
+X(a, STATIC,   REPEATED, MESSAGE,  cases,             4) \
+X(a, STATIC,   SINGULAR, STRING,   message,           5)
+#define AnalogConfigTestResult_CALLBACK NULL
+#define AnalogConfigTestResult_DEFAULT NULL
+#define AnalogConfigTestResult_cases_MSGTYPE AnalogConfigCaseResult
+
 #define BlePacket_FIELDLIST(X, a) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload,telemetry,payload.telemetry),   1) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload,status,payload.status),   2) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload,log,payload.log),   3) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload,ota_status,payload.ota_status),   4) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload,command_result,payload.command_result),   5) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (payload,analog_diagnostic_result,payload.analog_diagnostic_result),   6)
+X(a, STATIC,   ONEOF,    MESSAGE,  (payload,analog_diagnostic_result,payload.analog_diagnostic_result),   6) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (payload,analog_config_test_result,payload.analog_config_test_result),   7)
 #define BlePacket_CALLBACK NULL
 #define BlePacket_DEFAULT NULL
 #define BlePacket_payload_telemetry_MSGTYPE Telemetry
@@ -572,6 +663,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (payload,analog_diagnostic_result,payload.ana
 #define BlePacket_payload_ota_status_MSGTYPE OtaStatus
 #define BlePacket_payload_command_result_MSGTYPE UiCommandResult
 #define BlePacket_payload_analog_diagnostic_result_MSGTYPE AnalogDiagnosticResult
+#define BlePacket_payload_analog_config_test_result_MSGTYPE AnalogConfigTestResult
 
 extern const pb_msgdesc_t Telemetry_msg;
 extern const pb_msgdesc_t AnalogStatus_msg;
@@ -585,6 +677,8 @@ extern const pb_msgdesc_t OtaCommand_msg;
 extern const pb_msgdesc_t UiCommand_msg;
 extern const pb_msgdesc_t UiCommandResult_msg;
 extern const pb_msgdesc_t AnalogDiagnosticResult_msg;
+extern const pb_msgdesc_t AnalogConfigCaseResult_msg;
+extern const pb_msgdesc_t AnalogConfigTestResult_msg;
 extern const pb_msgdesc_t BlePacket_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
@@ -600,9 +694,13 @@ extern const pb_msgdesc_t BlePacket_msg;
 #define UiCommand_fields &UiCommand_msg
 #define UiCommandResult_fields &UiCommandResult_msg
 #define AnalogDiagnosticResult_fields &AnalogDiagnosticResult_msg
+#define AnalogConfigCaseResult_fields &AnalogConfigCaseResult_msg
+#define AnalogConfigTestResult_fields &AnalogConfigTestResult_msg
 #define BlePacket_fields &BlePacket_msg
 
 /* Maximum encoded size of messages (where known) */
+#define AnalogConfigCaseResult_size              109
+#define AnalogConfigTestResult_size              551
 #define AnalogDiagnosticResult_size              243
 #define AnalogStatus_size                        175
 #define BlePacket_size                           753

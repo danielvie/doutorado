@@ -4862,6 +4862,914 @@ export const AnalogDiagnosticResult = $root.AnalogDiagnosticResult = (() => {
     return AnalogDiagnosticResult;
 })();
 
+export const AnalogConfigCaseResult = $root.AnalogConfigCaseResult = (() => {
+
+    /**
+     * Properties of an AnalogConfigCaseResult.
+     * @exports IAnalogConfigCaseResult
+     * @interface IAnalogConfigCaseResult
+     * @property {number|null} [sampleHz] AnalogConfigCaseResult sampleHz
+     * @property {number|null} [durationMs] AnalogConfigCaseResult durationMs
+     * @property {number|Long|null} [elapsedUs] AnalogConfigCaseResult elapsedUs
+     * @property {number|null} [seqDelta] AnalogConfigCaseResult seqDelta
+     * @property {number|null} [rateTps] AnalogConfigCaseResult rateTps
+     * @property {number|null} [ageUs] AnalogConfigCaseResult ageUs
+     * @property {number|null} [missDelta] AnalogConfigCaseResult missDelta
+     * @property {number|null} [overflowDelta] AnalogConfigCaseResult overflowDelta
+     * @property {number|null} [faultCode] AnalogConfigCaseResult faultCode
+     * @property {number|null} [latencyAvgUs] AnalogConfigCaseResult latencyAvgUs
+     * @property {number|null} [latencyP95Us] AnalogConfigCaseResult latencyP95Us
+     * @property {number|null} [playbackAvgUsX100] AnalogConfigCaseResult playbackAvgUsX100
+     * @property {number|null} [loopUsX100] AnalogConfigCaseResult loopUsX100
+     * @property {number|null} [overrunsDelta] AnalogConfigCaseResult overrunsDelta
+     * @property {number|null} [timingFaultsDelta] AnalogConfigCaseResult timingFaultsDelta
+     * @property {number|null} [dmaSamplesDelta] AnalogConfigCaseResult dmaSamplesDelta
+     * @property {number|null} [dmaAnomaliesDelta] AnalogConfigCaseResult dmaAnomaliesDelta
+     */
+
+    /**
+     * Constructs a new AnalogConfigCaseResult.
+     * @exports AnalogConfigCaseResult
+     * @classdesc Represents an AnalogConfigCaseResult.
+     * @implements IAnalogConfigCaseResult
+     * @constructor
+     * @param {IAnalogConfigCaseResult=} [properties] Properties to set
+     */
+    function AnalogConfigCaseResult(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * AnalogConfigCaseResult sampleHz.
+     * @member {number} sampleHz
+     * @memberof AnalogConfigCaseResult
+     * @instance
+     */
+    AnalogConfigCaseResult.prototype.sampleHz = 0;
+
+    /**
+     * AnalogConfigCaseResult durationMs.
+     * @member {number} durationMs
+     * @memberof AnalogConfigCaseResult
+     * @instance
+     */
+    AnalogConfigCaseResult.prototype.durationMs = 0;
+
+    /**
+     * AnalogConfigCaseResult elapsedUs.
+     * @member {number|Long} elapsedUs
+     * @memberof AnalogConfigCaseResult
+     * @instance
+     */
+    AnalogConfigCaseResult.prototype.elapsedUs = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+
+    /**
+     * AnalogConfigCaseResult seqDelta.
+     * @member {number} seqDelta
+     * @memberof AnalogConfigCaseResult
+     * @instance
+     */
+    AnalogConfigCaseResult.prototype.seqDelta = 0;
+
+    /**
+     * AnalogConfigCaseResult rateTps.
+     * @member {number} rateTps
+     * @memberof AnalogConfigCaseResult
+     * @instance
+     */
+    AnalogConfigCaseResult.prototype.rateTps = 0;
+
+    /**
+     * AnalogConfigCaseResult ageUs.
+     * @member {number} ageUs
+     * @memberof AnalogConfigCaseResult
+     * @instance
+     */
+    AnalogConfigCaseResult.prototype.ageUs = 0;
+
+    /**
+     * AnalogConfigCaseResult missDelta.
+     * @member {number} missDelta
+     * @memberof AnalogConfigCaseResult
+     * @instance
+     */
+    AnalogConfigCaseResult.prototype.missDelta = 0;
+
+    /**
+     * AnalogConfigCaseResult overflowDelta.
+     * @member {number} overflowDelta
+     * @memberof AnalogConfigCaseResult
+     * @instance
+     */
+    AnalogConfigCaseResult.prototype.overflowDelta = 0;
+
+    /**
+     * AnalogConfigCaseResult faultCode.
+     * @member {number} faultCode
+     * @memberof AnalogConfigCaseResult
+     * @instance
+     */
+    AnalogConfigCaseResult.prototype.faultCode = 0;
+
+    /**
+     * AnalogConfigCaseResult latencyAvgUs.
+     * @member {number} latencyAvgUs
+     * @memberof AnalogConfigCaseResult
+     * @instance
+     */
+    AnalogConfigCaseResult.prototype.latencyAvgUs = 0;
+
+    /**
+     * AnalogConfigCaseResult latencyP95Us.
+     * @member {number} latencyP95Us
+     * @memberof AnalogConfigCaseResult
+     * @instance
+     */
+    AnalogConfigCaseResult.prototype.latencyP95Us = 0;
+
+    /**
+     * AnalogConfigCaseResult playbackAvgUsX100.
+     * @member {number} playbackAvgUsX100
+     * @memberof AnalogConfigCaseResult
+     * @instance
+     */
+    AnalogConfigCaseResult.prototype.playbackAvgUsX100 = 0;
+
+    /**
+     * AnalogConfigCaseResult loopUsX100.
+     * @member {number} loopUsX100
+     * @memberof AnalogConfigCaseResult
+     * @instance
+     */
+    AnalogConfigCaseResult.prototype.loopUsX100 = 0;
+
+    /**
+     * AnalogConfigCaseResult overrunsDelta.
+     * @member {number} overrunsDelta
+     * @memberof AnalogConfigCaseResult
+     * @instance
+     */
+    AnalogConfigCaseResult.prototype.overrunsDelta = 0;
+
+    /**
+     * AnalogConfigCaseResult timingFaultsDelta.
+     * @member {number} timingFaultsDelta
+     * @memberof AnalogConfigCaseResult
+     * @instance
+     */
+    AnalogConfigCaseResult.prototype.timingFaultsDelta = 0;
+
+    /**
+     * AnalogConfigCaseResult dmaSamplesDelta.
+     * @member {number} dmaSamplesDelta
+     * @memberof AnalogConfigCaseResult
+     * @instance
+     */
+    AnalogConfigCaseResult.prototype.dmaSamplesDelta = 0;
+
+    /**
+     * AnalogConfigCaseResult dmaAnomaliesDelta.
+     * @member {number} dmaAnomaliesDelta
+     * @memberof AnalogConfigCaseResult
+     * @instance
+     */
+    AnalogConfigCaseResult.prototype.dmaAnomaliesDelta = 0;
+
+    /**
+     * Creates a new AnalogConfigCaseResult instance using the specified properties.
+     * @function create
+     * @memberof AnalogConfigCaseResult
+     * @static
+     * @param {IAnalogConfigCaseResult=} [properties] Properties to set
+     * @returns {AnalogConfigCaseResult} AnalogConfigCaseResult instance
+     */
+    AnalogConfigCaseResult.create = function create(properties) {
+        return new AnalogConfigCaseResult(properties);
+    };
+
+    /**
+     * Encodes the specified AnalogConfigCaseResult message. Does not implicitly {@link AnalogConfigCaseResult.verify|verify} messages.
+     * @function encode
+     * @memberof AnalogConfigCaseResult
+     * @static
+     * @param {IAnalogConfigCaseResult} message AnalogConfigCaseResult message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    AnalogConfigCaseResult.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.sampleHz != null && Object.hasOwnProperty.call(message, "sampleHz"))
+            writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.sampleHz);
+        if (message.durationMs != null && Object.hasOwnProperty.call(message, "durationMs"))
+            writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.durationMs);
+        if (message.elapsedUs != null && Object.hasOwnProperty.call(message, "elapsedUs"))
+            writer.uint32(/* id 3, wireType 0 =*/24).uint64(message.elapsedUs);
+        if (message.seqDelta != null && Object.hasOwnProperty.call(message, "seqDelta"))
+            writer.uint32(/* id 4, wireType 0 =*/32).uint32(message.seqDelta);
+        if (message.rateTps != null && Object.hasOwnProperty.call(message, "rateTps"))
+            writer.uint32(/* id 5, wireType 0 =*/40).uint32(message.rateTps);
+        if (message.ageUs != null && Object.hasOwnProperty.call(message, "ageUs"))
+            writer.uint32(/* id 6, wireType 0 =*/48).uint32(message.ageUs);
+        if (message.missDelta != null && Object.hasOwnProperty.call(message, "missDelta"))
+            writer.uint32(/* id 7, wireType 0 =*/56).uint32(message.missDelta);
+        if (message.overflowDelta != null && Object.hasOwnProperty.call(message, "overflowDelta"))
+            writer.uint32(/* id 8, wireType 0 =*/64).uint32(message.overflowDelta);
+        if (message.faultCode != null && Object.hasOwnProperty.call(message, "faultCode"))
+            writer.uint32(/* id 9, wireType 0 =*/72).uint32(message.faultCode);
+        if (message.latencyAvgUs != null && Object.hasOwnProperty.call(message, "latencyAvgUs"))
+            writer.uint32(/* id 10, wireType 0 =*/80).uint32(message.latencyAvgUs);
+        if (message.latencyP95Us != null && Object.hasOwnProperty.call(message, "latencyP95Us"))
+            writer.uint32(/* id 11, wireType 0 =*/88).uint32(message.latencyP95Us);
+        if (message.playbackAvgUsX100 != null && Object.hasOwnProperty.call(message, "playbackAvgUsX100"))
+            writer.uint32(/* id 12, wireType 0 =*/96).uint32(message.playbackAvgUsX100);
+        if (message.loopUsX100 != null && Object.hasOwnProperty.call(message, "loopUsX100"))
+            writer.uint32(/* id 13, wireType 0 =*/104).uint32(message.loopUsX100);
+        if (message.overrunsDelta != null && Object.hasOwnProperty.call(message, "overrunsDelta"))
+            writer.uint32(/* id 14, wireType 0 =*/112).uint32(message.overrunsDelta);
+        if (message.timingFaultsDelta != null && Object.hasOwnProperty.call(message, "timingFaultsDelta"))
+            writer.uint32(/* id 15, wireType 0 =*/120).uint32(message.timingFaultsDelta);
+        if (message.dmaSamplesDelta != null && Object.hasOwnProperty.call(message, "dmaSamplesDelta"))
+            writer.uint32(/* id 16, wireType 0 =*/128).uint32(message.dmaSamplesDelta);
+        if (message.dmaAnomaliesDelta != null && Object.hasOwnProperty.call(message, "dmaAnomaliesDelta"))
+            writer.uint32(/* id 17, wireType 0 =*/136).uint32(message.dmaAnomaliesDelta);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified AnalogConfigCaseResult message, length delimited. Does not implicitly {@link AnalogConfigCaseResult.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof AnalogConfigCaseResult
+     * @static
+     * @param {IAnalogConfigCaseResult} message AnalogConfigCaseResult message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    AnalogConfigCaseResult.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes an AnalogConfigCaseResult message from the specified reader or buffer.
+     * @function decode
+     * @memberof AnalogConfigCaseResult
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {AnalogConfigCaseResult} AnalogConfigCaseResult
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    AnalogConfigCaseResult.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.AnalogConfigCaseResult();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.sampleHz = reader.uint32();
+                    break;
+                }
+            case 2: {
+                    message.durationMs = reader.uint32();
+                    break;
+                }
+            case 3: {
+                    message.elapsedUs = reader.uint64();
+                    break;
+                }
+            case 4: {
+                    message.seqDelta = reader.uint32();
+                    break;
+                }
+            case 5: {
+                    message.rateTps = reader.uint32();
+                    break;
+                }
+            case 6: {
+                    message.ageUs = reader.uint32();
+                    break;
+                }
+            case 7: {
+                    message.missDelta = reader.uint32();
+                    break;
+                }
+            case 8: {
+                    message.overflowDelta = reader.uint32();
+                    break;
+                }
+            case 9: {
+                    message.faultCode = reader.uint32();
+                    break;
+                }
+            case 10: {
+                    message.latencyAvgUs = reader.uint32();
+                    break;
+                }
+            case 11: {
+                    message.latencyP95Us = reader.uint32();
+                    break;
+                }
+            case 12: {
+                    message.playbackAvgUsX100 = reader.uint32();
+                    break;
+                }
+            case 13: {
+                    message.loopUsX100 = reader.uint32();
+                    break;
+                }
+            case 14: {
+                    message.overrunsDelta = reader.uint32();
+                    break;
+                }
+            case 15: {
+                    message.timingFaultsDelta = reader.uint32();
+                    break;
+                }
+            case 16: {
+                    message.dmaSamplesDelta = reader.uint32();
+                    break;
+                }
+            case 17: {
+                    message.dmaAnomaliesDelta = reader.uint32();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes an AnalogConfigCaseResult message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof AnalogConfigCaseResult
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {AnalogConfigCaseResult} AnalogConfigCaseResult
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    AnalogConfigCaseResult.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies an AnalogConfigCaseResult message.
+     * @function verify
+     * @memberof AnalogConfigCaseResult
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    AnalogConfigCaseResult.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.sampleHz != null && message.hasOwnProperty("sampleHz"))
+            if (!$util.isInteger(message.sampleHz))
+                return "sampleHz: integer expected";
+        if (message.durationMs != null && message.hasOwnProperty("durationMs"))
+            if (!$util.isInteger(message.durationMs))
+                return "durationMs: integer expected";
+        if (message.elapsedUs != null && message.hasOwnProperty("elapsedUs"))
+            if (!$util.isInteger(message.elapsedUs) && !(message.elapsedUs && $util.isInteger(message.elapsedUs.low) && $util.isInteger(message.elapsedUs.high)))
+                return "elapsedUs: integer|Long expected";
+        if (message.seqDelta != null && message.hasOwnProperty("seqDelta"))
+            if (!$util.isInteger(message.seqDelta))
+                return "seqDelta: integer expected";
+        if (message.rateTps != null && message.hasOwnProperty("rateTps"))
+            if (!$util.isInteger(message.rateTps))
+                return "rateTps: integer expected";
+        if (message.ageUs != null && message.hasOwnProperty("ageUs"))
+            if (!$util.isInteger(message.ageUs))
+                return "ageUs: integer expected";
+        if (message.missDelta != null && message.hasOwnProperty("missDelta"))
+            if (!$util.isInteger(message.missDelta))
+                return "missDelta: integer expected";
+        if (message.overflowDelta != null && message.hasOwnProperty("overflowDelta"))
+            if (!$util.isInteger(message.overflowDelta))
+                return "overflowDelta: integer expected";
+        if (message.faultCode != null && message.hasOwnProperty("faultCode"))
+            if (!$util.isInteger(message.faultCode))
+                return "faultCode: integer expected";
+        if (message.latencyAvgUs != null && message.hasOwnProperty("latencyAvgUs"))
+            if (!$util.isInteger(message.latencyAvgUs))
+                return "latencyAvgUs: integer expected";
+        if (message.latencyP95Us != null && message.hasOwnProperty("latencyP95Us"))
+            if (!$util.isInteger(message.latencyP95Us))
+                return "latencyP95Us: integer expected";
+        if (message.playbackAvgUsX100 != null && message.hasOwnProperty("playbackAvgUsX100"))
+            if (!$util.isInteger(message.playbackAvgUsX100))
+                return "playbackAvgUsX100: integer expected";
+        if (message.loopUsX100 != null && message.hasOwnProperty("loopUsX100"))
+            if (!$util.isInteger(message.loopUsX100))
+                return "loopUsX100: integer expected";
+        if (message.overrunsDelta != null && message.hasOwnProperty("overrunsDelta"))
+            if (!$util.isInteger(message.overrunsDelta))
+                return "overrunsDelta: integer expected";
+        if (message.timingFaultsDelta != null && message.hasOwnProperty("timingFaultsDelta"))
+            if (!$util.isInteger(message.timingFaultsDelta))
+                return "timingFaultsDelta: integer expected";
+        if (message.dmaSamplesDelta != null && message.hasOwnProperty("dmaSamplesDelta"))
+            if (!$util.isInteger(message.dmaSamplesDelta))
+                return "dmaSamplesDelta: integer expected";
+        if (message.dmaAnomaliesDelta != null && message.hasOwnProperty("dmaAnomaliesDelta"))
+            if (!$util.isInteger(message.dmaAnomaliesDelta))
+                return "dmaAnomaliesDelta: integer expected";
+        return null;
+    };
+
+    /**
+     * Creates an AnalogConfigCaseResult message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof AnalogConfigCaseResult
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {AnalogConfigCaseResult} AnalogConfigCaseResult
+     */
+    AnalogConfigCaseResult.fromObject = function fromObject(object) {
+        if (object instanceof $root.AnalogConfigCaseResult)
+            return object;
+        let message = new $root.AnalogConfigCaseResult();
+        if (object.sampleHz != null)
+            message.sampleHz = object.sampleHz >>> 0;
+        if (object.durationMs != null)
+            message.durationMs = object.durationMs >>> 0;
+        if (object.elapsedUs != null)
+            if ($util.Long)
+                (message.elapsedUs = $util.Long.fromValue(object.elapsedUs)).unsigned = true;
+            else if (typeof object.elapsedUs === "string")
+                message.elapsedUs = parseInt(object.elapsedUs, 10);
+            else if (typeof object.elapsedUs === "number")
+                message.elapsedUs = object.elapsedUs;
+            else if (typeof object.elapsedUs === "object")
+                message.elapsedUs = new $util.LongBits(object.elapsedUs.low >>> 0, object.elapsedUs.high >>> 0).toNumber(true);
+        if (object.seqDelta != null)
+            message.seqDelta = object.seqDelta >>> 0;
+        if (object.rateTps != null)
+            message.rateTps = object.rateTps >>> 0;
+        if (object.ageUs != null)
+            message.ageUs = object.ageUs >>> 0;
+        if (object.missDelta != null)
+            message.missDelta = object.missDelta >>> 0;
+        if (object.overflowDelta != null)
+            message.overflowDelta = object.overflowDelta >>> 0;
+        if (object.faultCode != null)
+            message.faultCode = object.faultCode >>> 0;
+        if (object.latencyAvgUs != null)
+            message.latencyAvgUs = object.latencyAvgUs >>> 0;
+        if (object.latencyP95Us != null)
+            message.latencyP95Us = object.latencyP95Us >>> 0;
+        if (object.playbackAvgUsX100 != null)
+            message.playbackAvgUsX100 = object.playbackAvgUsX100 >>> 0;
+        if (object.loopUsX100 != null)
+            message.loopUsX100 = object.loopUsX100 >>> 0;
+        if (object.overrunsDelta != null)
+            message.overrunsDelta = object.overrunsDelta >>> 0;
+        if (object.timingFaultsDelta != null)
+            message.timingFaultsDelta = object.timingFaultsDelta >>> 0;
+        if (object.dmaSamplesDelta != null)
+            message.dmaSamplesDelta = object.dmaSamplesDelta >>> 0;
+        if (object.dmaAnomaliesDelta != null)
+            message.dmaAnomaliesDelta = object.dmaAnomaliesDelta >>> 0;
+        return message;
+    };
+
+    /**
+     * Creates a plain object from an AnalogConfigCaseResult message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof AnalogConfigCaseResult
+     * @static
+     * @param {AnalogConfigCaseResult} message AnalogConfigCaseResult
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    AnalogConfigCaseResult.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults) {
+            object.sampleHz = 0;
+            object.durationMs = 0;
+            if ($util.Long) {
+                let long = new $util.Long(0, 0, true);
+                object.elapsedUs = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+            } else
+                object.elapsedUs = options.longs === String ? "0" : 0;
+            object.seqDelta = 0;
+            object.rateTps = 0;
+            object.ageUs = 0;
+            object.missDelta = 0;
+            object.overflowDelta = 0;
+            object.faultCode = 0;
+            object.latencyAvgUs = 0;
+            object.latencyP95Us = 0;
+            object.playbackAvgUsX100 = 0;
+            object.loopUsX100 = 0;
+            object.overrunsDelta = 0;
+            object.timingFaultsDelta = 0;
+            object.dmaSamplesDelta = 0;
+            object.dmaAnomaliesDelta = 0;
+        }
+        if (message.sampleHz != null && message.hasOwnProperty("sampleHz"))
+            object.sampleHz = message.sampleHz;
+        if (message.durationMs != null && message.hasOwnProperty("durationMs"))
+            object.durationMs = message.durationMs;
+        if (message.elapsedUs != null && message.hasOwnProperty("elapsedUs"))
+            if (typeof message.elapsedUs === "number")
+                object.elapsedUs = options.longs === String ? String(message.elapsedUs) : message.elapsedUs;
+            else
+                object.elapsedUs = options.longs === String ? $util.Long.prototype.toString.call(message.elapsedUs) : options.longs === Number ? new $util.LongBits(message.elapsedUs.low >>> 0, message.elapsedUs.high >>> 0).toNumber(true) : message.elapsedUs;
+        if (message.seqDelta != null && message.hasOwnProperty("seqDelta"))
+            object.seqDelta = message.seqDelta;
+        if (message.rateTps != null && message.hasOwnProperty("rateTps"))
+            object.rateTps = message.rateTps;
+        if (message.ageUs != null && message.hasOwnProperty("ageUs"))
+            object.ageUs = message.ageUs;
+        if (message.missDelta != null && message.hasOwnProperty("missDelta"))
+            object.missDelta = message.missDelta;
+        if (message.overflowDelta != null && message.hasOwnProperty("overflowDelta"))
+            object.overflowDelta = message.overflowDelta;
+        if (message.faultCode != null && message.hasOwnProperty("faultCode"))
+            object.faultCode = message.faultCode;
+        if (message.latencyAvgUs != null && message.hasOwnProperty("latencyAvgUs"))
+            object.latencyAvgUs = message.latencyAvgUs;
+        if (message.latencyP95Us != null && message.hasOwnProperty("latencyP95Us"))
+            object.latencyP95Us = message.latencyP95Us;
+        if (message.playbackAvgUsX100 != null && message.hasOwnProperty("playbackAvgUsX100"))
+            object.playbackAvgUsX100 = message.playbackAvgUsX100;
+        if (message.loopUsX100 != null && message.hasOwnProperty("loopUsX100"))
+            object.loopUsX100 = message.loopUsX100;
+        if (message.overrunsDelta != null && message.hasOwnProperty("overrunsDelta"))
+            object.overrunsDelta = message.overrunsDelta;
+        if (message.timingFaultsDelta != null && message.hasOwnProperty("timingFaultsDelta"))
+            object.timingFaultsDelta = message.timingFaultsDelta;
+        if (message.dmaSamplesDelta != null && message.hasOwnProperty("dmaSamplesDelta"))
+            object.dmaSamplesDelta = message.dmaSamplesDelta;
+        if (message.dmaAnomaliesDelta != null && message.hasOwnProperty("dmaAnomaliesDelta"))
+            object.dmaAnomaliesDelta = message.dmaAnomaliesDelta;
+        return object;
+    };
+
+    /**
+     * Converts this AnalogConfigCaseResult to JSON.
+     * @function toJSON
+     * @memberof AnalogConfigCaseResult
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    AnalogConfigCaseResult.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for AnalogConfigCaseResult
+     * @function getTypeUrl
+     * @memberof AnalogConfigCaseResult
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    AnalogConfigCaseResult.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/AnalogConfigCaseResult";
+    };
+
+    return AnalogConfigCaseResult;
+})();
+
+export const AnalogConfigTestResult = $root.AnalogConfigTestResult = (() => {
+
+    /**
+     * Properties of an AnalogConfigTestResult.
+     * @exports IAnalogConfigTestResult
+     * @interface IAnalogConfigTestResult
+     * @property {boolean|null} [valid] AnalogConfigTestResult valid
+     * @property {boolean|null} [running] AnalogConfigTestResult running
+     * @property {number|null} [caseCount] AnalogConfigTestResult caseCount
+     * @property {Array.<IAnalogConfigCaseResult>|null} [cases] AnalogConfigTestResult cases
+     * @property {string|null} [message] AnalogConfigTestResult message
+     */
+
+    /**
+     * Constructs a new AnalogConfigTestResult.
+     * @exports AnalogConfigTestResult
+     * @classdesc Represents an AnalogConfigTestResult.
+     * @implements IAnalogConfigTestResult
+     * @constructor
+     * @param {IAnalogConfigTestResult=} [properties] Properties to set
+     */
+    function AnalogConfigTestResult(properties) {
+        this.cases = [];
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * AnalogConfigTestResult valid.
+     * @member {boolean} valid
+     * @memberof AnalogConfigTestResult
+     * @instance
+     */
+    AnalogConfigTestResult.prototype.valid = false;
+
+    /**
+     * AnalogConfigTestResult running.
+     * @member {boolean} running
+     * @memberof AnalogConfigTestResult
+     * @instance
+     */
+    AnalogConfigTestResult.prototype.running = false;
+
+    /**
+     * AnalogConfigTestResult caseCount.
+     * @member {number} caseCount
+     * @memberof AnalogConfigTestResult
+     * @instance
+     */
+    AnalogConfigTestResult.prototype.caseCount = 0;
+
+    /**
+     * AnalogConfigTestResult cases.
+     * @member {Array.<IAnalogConfigCaseResult>} cases
+     * @memberof AnalogConfigTestResult
+     * @instance
+     */
+    AnalogConfigTestResult.prototype.cases = $util.emptyArray;
+
+    /**
+     * AnalogConfigTestResult message.
+     * @member {string} message
+     * @memberof AnalogConfigTestResult
+     * @instance
+     */
+    AnalogConfigTestResult.prototype.message = "";
+
+    /**
+     * Creates a new AnalogConfigTestResult instance using the specified properties.
+     * @function create
+     * @memberof AnalogConfigTestResult
+     * @static
+     * @param {IAnalogConfigTestResult=} [properties] Properties to set
+     * @returns {AnalogConfigTestResult} AnalogConfigTestResult instance
+     */
+    AnalogConfigTestResult.create = function create(properties) {
+        return new AnalogConfigTestResult(properties);
+    };
+
+    /**
+     * Encodes the specified AnalogConfigTestResult message. Does not implicitly {@link AnalogConfigTestResult.verify|verify} messages.
+     * @function encode
+     * @memberof AnalogConfigTestResult
+     * @static
+     * @param {IAnalogConfigTestResult} message AnalogConfigTestResult message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    AnalogConfigTestResult.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.valid != null && Object.hasOwnProperty.call(message, "valid"))
+            writer.uint32(/* id 1, wireType 0 =*/8).bool(message.valid);
+        if (message.running != null && Object.hasOwnProperty.call(message, "running"))
+            writer.uint32(/* id 2, wireType 0 =*/16).bool(message.running);
+        if (message.caseCount != null && Object.hasOwnProperty.call(message, "caseCount"))
+            writer.uint32(/* id 3, wireType 0 =*/24).uint32(message.caseCount);
+        if (message.cases != null && message.cases.length)
+            for (let i = 0; i < message.cases.length; ++i)
+                $root.AnalogConfigCaseResult.encode(message.cases[i], writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
+        if (message.message != null && Object.hasOwnProperty.call(message, "message"))
+            writer.uint32(/* id 5, wireType 2 =*/42).string(message.message);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified AnalogConfigTestResult message, length delimited. Does not implicitly {@link AnalogConfigTestResult.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof AnalogConfigTestResult
+     * @static
+     * @param {IAnalogConfigTestResult} message AnalogConfigTestResult message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    AnalogConfigTestResult.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes an AnalogConfigTestResult message from the specified reader or buffer.
+     * @function decode
+     * @memberof AnalogConfigTestResult
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {AnalogConfigTestResult} AnalogConfigTestResult
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    AnalogConfigTestResult.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.AnalogConfigTestResult();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.valid = reader.bool();
+                    break;
+                }
+            case 2: {
+                    message.running = reader.bool();
+                    break;
+                }
+            case 3: {
+                    message.caseCount = reader.uint32();
+                    break;
+                }
+            case 4: {
+                    if (!(message.cases && message.cases.length))
+                        message.cases = [];
+                    message.cases.push($root.AnalogConfigCaseResult.decode(reader, reader.uint32()));
+                    break;
+                }
+            case 5: {
+                    message.message = reader.string();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes an AnalogConfigTestResult message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof AnalogConfigTestResult
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {AnalogConfigTestResult} AnalogConfigTestResult
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    AnalogConfigTestResult.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies an AnalogConfigTestResult message.
+     * @function verify
+     * @memberof AnalogConfigTestResult
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    AnalogConfigTestResult.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.valid != null && message.hasOwnProperty("valid"))
+            if (typeof message.valid !== "boolean")
+                return "valid: boolean expected";
+        if (message.running != null && message.hasOwnProperty("running"))
+            if (typeof message.running !== "boolean")
+                return "running: boolean expected";
+        if (message.caseCount != null && message.hasOwnProperty("caseCount"))
+            if (!$util.isInteger(message.caseCount))
+                return "caseCount: integer expected";
+        if (message.cases != null && message.hasOwnProperty("cases")) {
+            if (!Array.isArray(message.cases))
+                return "cases: array expected";
+            for (let i = 0; i < message.cases.length; ++i) {
+                let error = $root.AnalogConfigCaseResult.verify(message.cases[i]);
+                if (error)
+                    return "cases." + error;
+            }
+        }
+        if (message.message != null && message.hasOwnProperty("message"))
+            if (!$util.isString(message.message))
+                return "message: string expected";
+        return null;
+    };
+
+    /**
+     * Creates an AnalogConfigTestResult message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof AnalogConfigTestResult
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {AnalogConfigTestResult} AnalogConfigTestResult
+     */
+    AnalogConfigTestResult.fromObject = function fromObject(object) {
+        if (object instanceof $root.AnalogConfigTestResult)
+            return object;
+        let message = new $root.AnalogConfigTestResult();
+        if (object.valid != null)
+            message.valid = Boolean(object.valid);
+        if (object.running != null)
+            message.running = Boolean(object.running);
+        if (object.caseCount != null)
+            message.caseCount = object.caseCount >>> 0;
+        if (object.cases) {
+            if (!Array.isArray(object.cases))
+                throw TypeError(".AnalogConfigTestResult.cases: array expected");
+            message.cases = [];
+            for (let i = 0; i < object.cases.length; ++i) {
+                if (typeof object.cases[i] !== "object")
+                    throw TypeError(".AnalogConfigTestResult.cases: object expected");
+                message.cases[i] = $root.AnalogConfigCaseResult.fromObject(object.cases[i]);
+            }
+        }
+        if (object.message != null)
+            message.message = String(object.message);
+        return message;
+    };
+
+    /**
+     * Creates a plain object from an AnalogConfigTestResult message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof AnalogConfigTestResult
+     * @static
+     * @param {AnalogConfigTestResult} message AnalogConfigTestResult
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    AnalogConfigTestResult.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.arrays || options.defaults)
+            object.cases = [];
+        if (options.defaults) {
+            object.valid = false;
+            object.running = false;
+            object.caseCount = 0;
+            object.message = "";
+        }
+        if (message.valid != null && message.hasOwnProperty("valid"))
+            object.valid = message.valid;
+        if (message.running != null && message.hasOwnProperty("running"))
+            object.running = message.running;
+        if (message.caseCount != null && message.hasOwnProperty("caseCount"))
+            object.caseCount = message.caseCount;
+        if (message.cases && message.cases.length) {
+            object.cases = [];
+            for (let j = 0; j < message.cases.length; ++j)
+                object.cases[j] = $root.AnalogConfigCaseResult.toObject(message.cases[j], options);
+        }
+        if (message.message != null && message.hasOwnProperty("message"))
+            object.message = message.message;
+        return object;
+    };
+
+    /**
+     * Converts this AnalogConfigTestResult to JSON.
+     * @function toJSON
+     * @memberof AnalogConfigTestResult
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    AnalogConfigTestResult.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for AnalogConfigTestResult
+     * @function getTypeUrl
+     * @memberof AnalogConfigTestResult
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    AnalogConfigTestResult.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/AnalogConfigTestResult";
+    };
+
+    return AnalogConfigTestResult;
+})();
+
 export const BlePacket = $root.BlePacket = (() => {
 
     /**
@@ -4874,6 +5782,7 @@ export const BlePacket = $root.BlePacket = (() => {
      * @property {IOtaStatus|null} [otaStatus] BlePacket otaStatus
      * @property {IUiCommandResult|null} [commandResult] BlePacket commandResult
      * @property {IAnalogDiagnosticResult|null} [analogDiagnosticResult] BlePacket analogDiagnosticResult
+     * @property {IAnalogConfigTestResult|null} [analogConfigTestResult] BlePacket analogConfigTestResult
      */
 
     /**
@@ -4939,17 +5848,25 @@ export const BlePacket = $root.BlePacket = (() => {
      */
     BlePacket.prototype.analogDiagnosticResult = null;
 
+    /**
+     * BlePacket analogConfigTestResult.
+     * @member {IAnalogConfigTestResult|null|undefined} analogConfigTestResult
+     * @memberof BlePacket
+     * @instance
+     */
+    BlePacket.prototype.analogConfigTestResult = null;
+
     // OneOf field names bound to virtual getters and setters
     let $oneOfFields;
 
     /**
      * BlePacket payload.
-     * @member {"telemetry"|"status"|"log"|"otaStatus"|"commandResult"|"analogDiagnosticResult"|undefined} payload
+     * @member {"telemetry"|"status"|"log"|"otaStatus"|"commandResult"|"analogDiagnosticResult"|"analogConfigTestResult"|undefined} payload
      * @memberof BlePacket
      * @instance
      */
     Object.defineProperty(BlePacket.prototype, "payload", {
-        get: $util.oneOfGetter($oneOfFields = ["telemetry", "status", "log", "otaStatus", "commandResult", "analogDiagnosticResult"]),
+        get: $util.oneOfGetter($oneOfFields = ["telemetry", "status", "log", "otaStatus", "commandResult", "analogDiagnosticResult", "analogConfigTestResult"]),
         set: $util.oneOfSetter($oneOfFields)
     });
 
@@ -4989,6 +5906,8 @@ export const BlePacket = $root.BlePacket = (() => {
             $root.UiCommandResult.encode(message.commandResult, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
         if (message.analogDiagnosticResult != null && Object.hasOwnProperty.call(message, "analogDiagnosticResult"))
             $root.AnalogDiagnosticResult.encode(message.analogDiagnosticResult, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
+        if (message.analogConfigTestResult != null && Object.hasOwnProperty.call(message, "analogConfigTestResult"))
+            $root.AnalogConfigTestResult.encode(message.analogConfigTestResult, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
         return writer;
     };
 
@@ -5047,6 +5966,10 @@ export const BlePacket = $root.BlePacket = (() => {
                 }
             case 6: {
                     message.analogDiagnosticResult = $root.AnalogDiagnosticResult.decode(reader, reader.uint32());
+                    break;
+                }
+            case 7: {
+                    message.analogConfigTestResult = $root.AnalogConfigTestResult.decode(reader, reader.uint32());
                     break;
                 }
             default:
@@ -5143,6 +6066,16 @@ export const BlePacket = $root.BlePacket = (() => {
                     return "analogDiagnosticResult." + error;
             }
         }
+        if (message.analogConfigTestResult != null && message.hasOwnProperty("analogConfigTestResult")) {
+            if (properties.payload === 1)
+                return "payload: multiple values";
+            properties.payload = 1;
+            {
+                let error = $root.AnalogConfigTestResult.verify(message.analogConfigTestResult);
+                if (error)
+                    return "analogConfigTestResult." + error;
+            }
+        }
         return null;
     };
 
@@ -5187,6 +6120,11 @@ export const BlePacket = $root.BlePacket = (() => {
             if (typeof object.analogDiagnosticResult !== "object")
                 throw TypeError(".BlePacket.analogDiagnosticResult: object expected");
             message.analogDiagnosticResult = $root.AnalogDiagnosticResult.fromObject(object.analogDiagnosticResult);
+        }
+        if (object.analogConfigTestResult != null) {
+            if (typeof object.analogConfigTestResult !== "object")
+                throw TypeError(".BlePacket.analogConfigTestResult: object expected");
+            message.analogConfigTestResult = $root.AnalogConfigTestResult.fromObject(object.analogConfigTestResult);
         }
         return message;
     };
@@ -5233,6 +6171,11 @@ export const BlePacket = $root.BlePacket = (() => {
             object.analogDiagnosticResult = $root.AnalogDiagnosticResult.toObject(message.analogDiagnosticResult, options);
             if (options.oneofs)
                 object.payload = "analogDiagnosticResult";
+        }
+        if (message.analogConfigTestResult != null && message.hasOwnProperty("analogConfigTestResult")) {
+            object.analogConfigTestResult = $root.AnalogConfigTestResult.toObject(message.analogConfigTestResult, options);
+            if (options.oneofs)
+                object.payload = "analogConfigTestResult";
         }
         return object;
     };

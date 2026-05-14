@@ -9,3 +9,5 @@ UiCommandResult.code max_size:32
 UiCommandResult.message max_size:128
 UiCommandResult.json max_size:512
 AnalogDiagnosticResult.message max_size:96
+AnalogConfigTestResult.cases max_count:4
+AnalogConfigTestResult.message max_size:96
