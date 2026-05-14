@@ -37,7 +37,7 @@ struct UiCommandEntry {
     UiCommandHandler handler;
 };
 
-static UiCommandEntry s_commands[32];
+static UiCommandEntry s_commands[40];
 static size_t s_command_count = 0;
 volatile uint32_t g_dead_time_tail_overhead_cycles = DEFAULT_DEAD_TIME_TAIL_OVERHEAD_CYCLES;
 volatile uint32_t g_dead_time_us = DEFAULT_DEAD_TIME_US;
@@ -108,6 +108,14 @@ static bool json_get_float(cJSON* root, const char* key, float* out) {
 
     *out = (float)value->valuedouble;
     return true;
+}
+
+static const char* json_get_string(cJSON* root, const char* key) {
+    cJSON* value = cJSON_GetObjectItem(root, key);
+    if (!cJSON_IsString(value)) {
+        return nullptr;
+    }
+    return value->valuestring;
 }
 
 static UiCommandResultData handle_system_list_commands(const UiCommandContext& ctx) {
@@ -386,6 +394,41 @@ static UiCommandResultData handle_analog_set_acquisition_period(const UiCommandC
     return ok("Analog acquisition period updated");
 }
 
+static UiCommandResultData handle_analog_set_acquisition_mode(const UiCommandContext& ctx) {
+    const char* mode = json_get_string(ctx.json, "mode");
+    if (mode == nullptr) {
+        return invalid_arg("Expected string mode");
+    }
+
+    if (strcmp(mode, "oneshot") == 0) {
+        g_analog_acquisition_mode = ANALOG_ACQ_MODE_ONESHOT;
+        ESP_LOGI(TAG, "Set analog acquisition mode to oneshot");
+        return ok("Analog acquisition mode set to oneshot");
+    }
+
+    if (strcmp(mode, "continuous") == 0) {
+        g_analog_acquisition_mode = ANALOG_ACQ_MODE_CONTINUOUS;
+        ESP_LOGI(TAG, "Set analog acquisition mode to continuous");
+        return ok("Analog acquisition mode set to continuous");
+    }
+
+    return invalid_arg("mode must be oneshot or continuous");
+}
+
+static UiCommandResultData handle_analog_set_continuous_sample_rate(const UiCommandContext& ctx) {
+    uint32_t sample_hz;
+    if (!json_get_u32(ctx.json, "sample_hz", &sample_hz)) {
+        return invalid_arg("Expected numeric sample_hz");
+    }
+    if (sample_hz < 1000 || sample_hz > 100000) {
+        return invalid_arg("sample_hz must be between 1000 and 100000");
+    }
+
+    g_analog_continuous_sample_hz = sample_hz;
+    ESP_LOGI(TAG, "Set analog continuous sample rate to %lu samples/s", sample_hz);
+    return ok("Analog continuous sample rate updated");
+}
+
 static UiCommandResultData handle_analog_read_once(const UiCommandContext& ctx) {
     ble_send_analog_read();
     return ok("Analog read notification queued");
@@ -605,6 +648,8 @@ void ui_command_router_init(void) {
     register_command("signal.set_dead_time_tail_overhead", handle_signal_set_dead_time_tail_overhead);
     register_command("analog.set_monitor_period", handle_analog_set_monitor_period);
     register_command("analog.set_acquisition_period", handle_analog_set_acquisition_period);
+    register_command("analog.set_acquisition_mode", handle_analog_set_acquisition_mode);
+    register_command("analog.set_continuous_sample_rate", handle_analog_set_continuous_sample_rate);
     register_command("analog.read_once", handle_analog_read_once);
     register_command("analog.ble_read_enable", handle_analog_ble_read_enable);
     register_command("analog.ble_read_disable", handle_analog_ble_read_disable);

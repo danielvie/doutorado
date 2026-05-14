@@ -363,6 +363,73 @@ esp_rom_delay_us(period_us);</code></pre>
       run the diagnostic, inspect the scope dead-time, and accept only rates that keep the 2 us blanking window stable while producing fresh enough analog triples.
     </p>
   </div>
+
+  <h2>Recommended Implementation Path</h2>
+  <div class="note good">
+    <p>
+      Recommended path: keep rate-limited oneshot as the safe monitor mode, then implement ADC continuous/DMA as the next real acquisition engine.
+      If ADC continuous/DMA still perturbs the scoped 2 us dead-time, move the fast acquisition requirement to external or dedicated sampling hardware.
+    </p>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Step</th>
+        <th>Implementation</th>
+        <th>Acceptance gate</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1 · Safe monitor mode</td>
+        <td>
+          Keep the current rate-limited oneshot producer, but treat it as dashboard/status acquisition only.
+          Use a conservative default <code>analog.set_acquisition_period</code> value that preserves scoped dead-time.
+        </td>
+        <td>
+          Scope confirms the 2 us dead-time is stable. This mode does not need to meet the 280 us control freshness target.
+        </td>
+      </tr>
+      <tr>
+        <td>2 · ADC continuous/DMA producer</td>
+        <td>
+          Add a second acquisition engine using ADC continuous mode for AN3, AN5, and AN6.
+          Parse DMA frames into complete channel triples, reject partial or misordered frames, and publish through the existing analog snapshot API.
+        </td>
+        <td>
+          Diagnostic result shows high <code>Seq delta</code>, low sample age, no unhandled overflows, and no regression in scoped dead-time.
+        </td>
+      </tr>
+      <tr>
+        <td>3 · Cheap calibration path</td>
+        <td>
+          Keep raw capture fast. Replace the current linear calibration scan with a raw-code LUT or fixed-point interpolation before values become control-visible.
+        </td>
+        <td>
+          Calibrated values stay within one ADC LSB equivalent or 5 mV of the current behavior, whichever is larger.
+        </td>
+      </tr>
+      <tr>
+        <td>4 · Scope-gated control enable</td>
+        <td>
+          Let the signal loop consume only complete published snapshots. If a sample is stale, reuse the previous correction and count a miss.
+          Disable closed-loop correction after the configured consecutive miss threshold.
+        </td>
+        <td>
+          At target rate, the 2 us dead-time remains stable, timing faults are zero, overruns are zero or explicitly accepted, and analog age meets the control freshness target.
+        </td>
+      </tr>
+      <tr>
+        <td>5 · Hardware fallback</td>
+        <td>
+          If internal ADC continuous/DMA still disturbs signal timing, move fast acquisition to an external ADC or dedicated sampling hardware with DMA-friendly transfer.
+        </td>
+        <td>
+          External sampling must pass the same diagnostic and scope gates before closed-loop control is trusted.
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </main>
 </body>
 </html>

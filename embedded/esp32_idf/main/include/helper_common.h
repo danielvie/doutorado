@@ -22,6 +22,9 @@
 #define DEFAULT_DEAD_TIME_US 2
 #define DEFAULT_DEAD_TIME_TAIL_OVERHEAD_CYCLES 35
 
+#define ANALOG_ACQ_MODE_ONESHOT 0
+#define ANALOG_ACQ_MODE_CONTINUOUS 1
+
 
 #define PIN_U1_LOW   GPIO_NUM_23 // Bit 2 (4)
 #define PIN_U1_HIGH  GPIO_NUM_22 //
@@ -37,6 +40,8 @@
 // .. globals
 extern volatile uint32_t g_analog_monitor_period_ms;
 extern volatile uint32_t g_analog_acquisition_period_us;
+extern volatile uint32_t g_analog_acquisition_mode;
+extern volatile uint32_t g_analog_continuous_sample_hz;
 
 
 // .. defining semaphore for reading data

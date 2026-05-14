@@ -1,5 +1,27 @@
 # TODO
 
+- [ ] Implement DMA plan milestone 1: move continuous ADC ownership out of `main.cpp`
+- [ ] Implement DMA plan milestone 2: publish analog snapshots atomically at triple level
+- [ ] Implement DMA plan milestone 3: add DMA parser accounting and overflow invalidation
+- [ ] Implement DMA plan milestone 4: use a raw-code calibration LUT in the acquisition hot path
+- [ ] Implement DMA plan milestone 5: make signal control consume the analog snapshot API
+- [ ] Implement DMA plan milestone 6: expose control-grade fault gates/status
+- [ ] Verify firmware build and web build after DMA acquisition changes
+
+- [x] Extract current analog acquisition decisions and implemented state
+- [x] Create `docs/plan_improve_data_aquisition.html` with DMA completion plan
+- [x] Add expected timing/result diagram and milestone roadmap
+- [x] Verify the new HTML contains the requested sections
+
+- [x] Inspect ESP-IDF ADC continuous APIs for this project version
+- [x] Add switchable analog acquisition mode state and BLE commands
+- [x] Implement ADC continuous/DMA producer for AN3/AN5/AN6
+- [x] Preserve rate-limited oneshot as safe monitor fallback
+- [x] Verify firmware and web builds after ADC continuous implementation
+
+- [x] Add recommended analog acquisition path plan to the documentation
+- [x] Verify the recommended path plan is present
+
 - [x] Analyze why Core 0 oneshot acquisition can disturb Core 1 signal timing
 - [x] Create HTML timing explanation with graphs and diagrams
 - [x] Include measured diagnostic runs and interpretation

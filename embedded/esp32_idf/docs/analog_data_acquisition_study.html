@@ -1174,6 +1174,18 @@ g_adc_fresh.<span class="fn">store</span>(<span class="kw">true</span>);</code><
         280 us cycle. Add real overflow accounting and the 60 second acceptance run after the producer changes.
       </p>
     </div>
+    <div class="plan-step">
+      <h3>N5 <span>Scope-gated acquisition path recommendation</span></h3>
+      <p>
+        Keep rate-limited oneshot as the safe dashboard/status monitor mode, then implement ADC continuous/DMA as the next real acquisition engine.
+        The acceptance gate is scope-first: the 2 us dead-time must remain stable while diagnostic counters show fresh analog triples, zero unhandled
+        overflows, and no signal timing regression. If internal ADC continuous/DMA still disturbs the waveform, move fast acquisition to external or
+        dedicated sampling hardware.
+      </p>
+      <p>
+        Details: <code class="inline">docs/analog_acquisition_signal_interference.html</code>.
+      </p>
+    </div>
 
     <h3>Target data path</h3>
     <svg class="chart" viewBox="0 0 1120 470" role="img" aria-label="Plan to improve analog acquisition data path">

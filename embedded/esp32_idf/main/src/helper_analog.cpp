@@ -31,6 +31,10 @@ void analog_record_latency(uint32_t us) {
     s_latency_buffer[idx] = us;
 }
 
+void analog_record_overflow() {
+    s_overflow_count.fetch_add(1, std::memory_order_acq_rel);
+}
+
 void analog_get_latency_stats(uint32_t* min, uint32_t* max, uint32_t* avg) {
     uint32_t current_min = 0xFFFFFFFF;
     uint32_t current_max = 0;
@@ -233,6 +237,11 @@ float esp32_calibration(float value) {
     return calib_to[calib_numel - 1];
 }
 
+float analog_calibrate_raw(uint32_t raw) {
+    float voltage = ((float)raw / ADC_MAX) * VOLTAGE_MAX;
+    return esp32_calibration(voltage);
+}
+
 static bool analog_port_to_channel(AnalogPort port, adc_channel_t* channel) {
     if (channel == nullptr) {
         return false;
@@ -269,10 +278,8 @@ bool analog_read_port_sample(AnalogPort port, uint32_t* raw, float* calibrated) 
     // read raw value
     int raw_val = 0;
     if (adc_oneshot_read(adc1_handle, channel, &raw_val) == ESP_OK) {
-        float voltage = ((float)raw_val/ADC_MAX)*VOLTAGE_MAX;
-        voltage = esp32_calibration(voltage);
         if (raw != nullptr) *raw = (uint32_t)raw_val;
-        if (calibrated != nullptr) *calibrated = voltage;
+        if (calibrated != nullptr) *calibrated = analog_calibrate_raw((uint32_t)raw_val);
         return true;
     } else {
         ESP_LOGE(TAG_COMMON, "Failed to read ADC channel %d", channel);

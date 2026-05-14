@@ -50,6 +50,18 @@ const COMMANDS = [
     description: "Sets background analog acquisition spacing",
   },
   {
+    commands: 'analog.set_acquisition_mode {"mode":"continuous"}',
+    description: "Uses ADC continuous DMA for background acquisition",
+  },
+  {
+    commands: 'analog.set_acquisition_mode {"mode":"oneshot"}',
+    description: "Returns background acquisition to safe oneshot mode",
+  },
+  {
+    commands: 'analog.set_continuous_sample_rate {"sample_hz":12000}',
+    description: "Sets ADC continuous channel sample rate",
+  },
+  {
     commands: "analog.read_once",
     description: "Requests one analog telemetry sample",
   },

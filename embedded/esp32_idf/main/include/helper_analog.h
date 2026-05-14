@@ -43,9 +43,11 @@ struct AnalogRuntimeStatus {
 void analog_init();
 float analog_read_port(AnalogPort port);
 bool analog_read_port_sample(AnalogPort port, uint32_t* raw, float* calibrated);
+float analog_calibrate_raw(uint32_t raw);
 
 // Latency tracking for performance monitoring
 void analog_record_latency(uint32_t us);
+void analog_record_overflow();
 void analog_get_latency_stats(uint32_t* min, uint32_t* max, uint32_t* avg);
 void analog_publish_triple(uint32_t raw_an3, float calibrated_an3,
                            uint32_t raw_an5, float calibrated_an5,

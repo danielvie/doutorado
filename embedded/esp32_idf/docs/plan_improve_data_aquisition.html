@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Plan to Improve Data Acquisition</title>
+  <style>
+    :root {
+      --ink: #17201b;
+      --muted: #647067;
+      --paper: #f7f5ee;
+      --panel: #fffdf7;
+      --line: #d8d1bd;
+      --green: #2f6f4e;
+      --blue: #235c89;
+      --amber: #a86414;
+      --red: #a33d35;
+      --violet: #674a83;
+      --shadow: rgba(36, 31, 23, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(23, 32, 27, 0.045) 1px, transparent 1px),
+        linear-gradient(rgba(23, 32, 27, 0.035) 1px, transparent 1px),
+        var(--paper);
+      background-size: 28px 28px;
+      font-family: "Segoe UI", "Aptos", sans-serif;
+      line-height: 1.55;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 253, 247, 0.92);
+    }
+
+    .hero {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 42px 28px 34px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 330px;
+      gap: 34px;
+      align-items: end;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      max-width: 820px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.4rem, 6vw, 5.2rem);
+      line-height: 0.94;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 850px;
+      margin: 0;
+      color: #344039;
+      font-size: 1.05rem;
+    }
+
+    .status-tile {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: 0 16px 40px var(--shadow);
+      padding: 18px;
+      border-radius: 6px;
+    }
+
+    .status-tile strong {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .status-tile span {
+      display: block;
+      margin-top: 8px;
+      font-family: "Cascadia Mono", Consolas, monospace;
+      font-size: 0.95rem;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0 0 30px;
+    }
+
+    nav a {
+      color: var(--ink);
+      text-decoration: none;
+      border: 1px solid var(--line);
+      background: rgba(255, 253, 247, 0.82);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+    }
+
+    section {
+      margin: 0 0 34px;
+      padding: 26px;
+      border: 1px solid var(--line);
+      background: rgba(255, 253, 247, 0.88);
+      border-radius: 8px;
+      box-shadow: 0 10px 24px rgba(36, 31, 23, 0.07);
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.55rem, 3vw, 2.25rem);
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 1rem;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    code {
+      font-family: "Cascadia Mono", Consolas, monospace;
+      font-size: 0.92em;
+      background: #eee8d7;
+      border: 1px solid #ded4bc;
+      border-radius: 4px;
+      padding: 0.1em 0.32em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      background: #fffdf9;
+      border-radius: 6px;
+      padding: 16px;
+      min-height: 128px;
+    }
+
+    .card b {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-bottom: 10px;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #fff;
+      background: var(--green);
+    }
+
+    .tag.blue { background: var(--blue); }
+    .tag.amber { background: var(--amber); }
+    .tag.red { background: var(--red); }
+    .tag.violet { background: var(--violet); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+      background: #fffdf9;
+      border: 1px solid var(--line);
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #405047;
+      background: #f0ead9;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .note {
+      border-left: 5px solid var(--green);
+      background: #eef7ed;
+      padding: 14px 16px;
+      border-radius: 4px;
+      margin: 16px 0;
+    }
+
+    .note.warn {
+      border-left-color: var(--amber);
+      background: #fff2db;
+    }
+
+    .note.risk {
+      border-left-color: var(--red);
+      background: #fae8e5;
+    }
+
+    .diagram {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: #fffdf9;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      margin-top: 16px;
+    }
+
+    .svg-title {
+      font: 700 18px "Segoe UI", sans-serif;
+      fill: var(--ink);
+    }
+
+    .svg-text {
+      font: 13px "Segoe UI", sans-serif;
+      fill: #334139;
+    }
+
+    .svg-small {
+      font: 11px "Cascadia Mono", Consolas, monospace;
+      fill: #59655e;
+    }
+
+    .box {
+      fill: #fffdf9;
+      stroke: #bfb69f;
+      stroke-width: 1.4;
+      rx: 8;
+    }
+
+    .box-green { fill: #e8f4eb; stroke: var(--green); }
+    .box-blue { fill: #e7f0f8; stroke: var(--blue); }
+    .box-amber { fill: #fff0d8; stroke: var(--amber); }
+    .box-red { fill: #f9e7e3; stroke: var(--red); }
+    .box-violet { fill: #eee8f5; stroke: var(--violet); }
+    .arrow {
+      stroke: #405047;
+      stroke-width: 2;
+      fill: none;
+      marker-end: url(#arrow);
+    }
+    .axis { stroke: #7a837d; stroke-width: 1.2; }
+    .deadline { stroke: var(--red); stroke-width: 2; stroke-dasharray: 6 5; }
+    .dma { fill: #2f6f4e; }
+    .cpu { fill: #235c89; }
+    .ble { fill: #a86414; }
+    .signal { fill: #a33d35; }
+    .idle { fill: #d9d3c1; }
+
+    .milestone {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr);
+      gap: 16px;
+      padding: 14px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .milestone:first-of-type {
+      border-top: 0;
+    }
+
+    .num {
+      width: 56px;
+      height: 56px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: #fffdf7;
+      font-weight: 800;
+    }
+
+    @media (max-width: 860px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      section {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="hero">
+    <div>
+      <h1>Plan to Improve Data Acquisition</h1>
+      <p class="subtitle">
+        Focused implementation plan for finishing the analog DMA acquisition path, based on
+        <code>docs/analog_data_acquisition_study.html</code>, the signal-interference analysis, and the current firmware state.
+      </p>
+    </div>
+    <div class="status-tile">
+      <strong>Current safe default</strong>
+      <span>oneshot monitor, 1000 us spacing</span>
+      <strong style="margin-top:14px;">Current experimental path</strong>
+      <span>ADC continuous/DMA, command enabled</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <nav>
+    <a href="#summary">Summary</a>
+    <a href="#decisions">Decisions</a>
+    <a href="#current-state">Current State</a>
+    <a href="#dma-closeout">DMA Closeout</a>
+    <a href="#milestones">Milestones</a>
+    <a href="#expected-timing">Expected Timing</a>
+    <a href="#acceptance">Acceptance</a>
+  </nav>
+
+  <section id="summary">
+    <h2>Summary</h2>
+    <p>
+      The acquisition architecture is moving from synchronous ADC oneshot reads toward a producer/consumer model.
+      The signal loop must stay deterministic: it should read an already-published analog snapshot, compute the next correction, and apply that correction on the next cycle boundary.
+      It must not call ADC drivers, allocate memory, encode protobuf, send BLE data, or wait for a sample.
+    </p>
+    <p>
+      The first observability milestone is complete: analog snapshots, status counters, diagnostic results, dashboard rendering, and diagnostic commands exist.
+      The current DMA milestone is partially implemented: the firmware can switch between rate-limited oneshot and ADC continuous/DMA mode with dashboard commands.
+      The remaining work is to harden the DMA path from "experimental producer" into the control-grade acquisition engine.
+    </p>
+    <div class="note">
+      The recommended path remains: keep rate-limited oneshot as the safe dashboard monitor mode, finish ADC continuous/DMA as the real acquisition engine, then accept it only if oscilloscope timing proves the 2 us dead-time is not degraded.
+    </div>
+  </section>
+
+  <section id="decisions">
+    <h2>Decisions Defined So Far</h2>
+    <div class="grid">
+      <div class="card">
+        <span class="tag">Timing</span>
+        <b>Control cycle target</b>
+        A fresh calibrated AN3/AN5/AN6 triple, control math, and command generation must fit inside the roughly 280 us signal cycle.
+      </div>
+      <div class="card">
+        <span class="tag blue">Rate</span>
+        <b>First target rate</b>
+        Target 4 complete triples per 280 us cycle, or one complete triple about every 70 us.
+      </div>
+      <div class="card">
+        <span class="tag amber">Freshness</span>
+        <b>Consumption rule</b>
+        The signal/control path consumes the latest complete snapshot. It never blocks waiting for ADC.
+      </div>
+      <div class="card">
+        <span class="tag red">Fault</span>
+        <b>Miss policy</b>
+        If the sample is stale, reuse the previous correction, count a miss, and disable closed-loop correction after 3 consecutive misses.
+      </div>
+      <div class="card">
+        <span class="tag violet">Calibration</span>
+        <b>Hot path</b>
+        Replace the current per-sample linear calibration scan with a raw-code LUT or fixed-point interpolation in internal RAM.
+      </div>
+      <div class="card">
+        <span class="tag">Scope gate</span>
+        <b>Final authority</b>
+        No diagnostic counter can override the oscilloscope. The 2 us dead-time must stay stable during the DMA diagnostic run.
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Decision</th>
+          <th>Implementation consequence</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>AN3, AN5, and AN6 do not need true simultaneous sampling for the first version.</td>
+          <td>DMA frames can be parsed into fast sequential triples. Publish only when all three channels are present.</td>
+        </tr>
+        <tr>
+          <td>BLE telemetry is on-demand and lower priority than signal, acquisition, and control.</td>
+          <td>Periodic telemetry must be disabled or throttled while control is active. BLE replies may lag under load.</td>
+        </tr>
+        <tr>
+          <td>Acquisition starts at boot after ADC initialization.</td>
+          <td>Snapshots and counters are warm before the user enables control or runs diagnostics.</td>
+        </tr>
+        <tr>
+          <td>Do not silently fall back to a slow path for closed-loop control.</td>
+          <td>If DMA cannot meet the target, keep open-loop signal generation available and report a structured fault.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="current-state">
+    <h2>Current State</h2>
+    <p>
+      The firmware now exposes an acquisition mode switch. The default is safe oneshot acquisition; continuous ADC is explicit and command-driven.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Area</th>
+          <th>Implemented</th>
+          <th>Remaining risk</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Oneshot fallback</td>
+          <td><code>ANALOG_ACQ_MODE_ONESHOT</code> remains the boot default. The spacing is controlled by <code>analog.set_acquisition_period</code>.</td>
+          <td>This mode is useful for dashboard/status, but it is not expected to satisfy the 280 us control freshness target.</td>
+        </tr>
+        <tr>
+          <td>ADC continuous/DMA</td>
+          <td><code>analog.set_acquisition_mode {"mode":"continuous"}</code> starts the continuous path. <code>analog.set_continuous_sample_rate</code> changes sample rate.</td>
+          <td>The parser currently publishes triples opportunistically; it still needs stronger frame accounting, overflow policy, and hardware validation.</td>
+        </tr>
+        <tr>
+          <td>Snapshot/status</td>
+          <td>Complete triples publish through the existing analog snapshot/status surface and still feed compatibility globals.</td>
+          <td>The publication boundary should be hardened so mixed-channel reads are provably impossible for control consumers.</td>
+        </tr>
+        <tr>
+          <td>Diagnostic test</td>
+          <td><code>debug.analog_test_run</code> and <code>debug.analog_test_result</code> provide run summaries.</td>
+          <td>The diagnostic must be extended from "system observation" to an explicit acceptance gate for DMA and control enable.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="dma-closeout">
+    <h2>Detailed Plan to Conclude DMA Implementation</h2>
+
+    <div class="milestone">
+      <div class="num">1</div>
+      <div>
+        <h3>Extract analog acquisition into a module boundary</h3>
+        <p>
+          Move ADC continuous handle ownership, DMA frame parsing, sample-rate configuration, snapshot publishing, and counters out of <code>main.cpp</code>
+          into the analog acquisition module. Keep <code>main.cpp</code> responsible for task creation only.
+        </p>
+        <p>
+          Verification: firmware build passes, mode switching still works, and <code>system.get_status</code> reports analog snapshots after boot.
+        </p>
+      </div>
+    </div>
+
+    <div class="milestone">
+      <div class="num">2</div>
+      <div>
+        <h3>Make snapshot publication atomic at the triple level</h3>
+        <p>
+          Replace independent atomic fields with a seqlock-style snapshot: producer increments an odd sequence while writing, writes raw/calibrated values and timestamp, then increments to an even sequence.
+          Consumers retry if the sequence changes or is odd.
+        </p>
+        <p>
+          Verification: a stress diagnostic can read snapshots repeatedly without ever observing a partially updated AN3/AN5/AN6 triple.
+        </p>
+      </div>
+    </div>
+
+    <div class="milestone">
+      <div class="num">3</div>
+      <div>
+        <h3>Harden DMA frame parsing</h3>
+        <p>
+          Add explicit per-frame accounting: samples read, samples rejected, channel order anomalies, partial triples, frame drops, pool flushes, and DMA overflow count.
+          On overflow, invalidate the current partial triple, keep the last valid snapshot visible, and let the miss policy decide whether control remains enabled.
+        </p>
+        <p>
+          Verification: intentionally overload the sample rate and confirm overflows increase without publishing invalid triples or blocking the signal loop.
+        </p>
+      </div>
+    </div>
+
+    <div class="milestone">
+      <div class="num">4</div>
+      <div>
+        <h3>Move calibration to a hot LUT</h3>
+        <p>
+          Build a 4096-entry raw-code-to-calibrated-float lookup table in internal RAM during analog initialization.
+          The DMA producer then converts raw samples with one indexed load instead of scanning the calibration breakpoints for every sample.
+        </p>
+        <p>
+          Verification: compare LUT output against the current calibration function across all raw codes; error must stay within one ADC LSB equivalent or 5 mV, whichever is larger.
+        </p>
+      </div>
+    </div>
+
+    <div class="milestone">
+      <div class="num">5</div>
+      <div>
+        <h3>Wire control consumption to snapshots</h3>
+        <p>
+          Update the signal/control path to read only the analog snapshot API. Remove direct dependence on <code>g_adc_an3</code>, <code>g_adc_an5</code>, <code>g_adc_an6</code>, and <code>g_adc_fresh</code>
+          after the snapshot API is proven.
+        </p>
+        <p>
+          Verification: no ADC driver calls, BLE sends, calibration scans, logging, allocations, or waits exist inside the interrupt-disabled signal playback block.
+        </p>
+      </div>
+    </div>
+
+    <div class="milestone">
+      <div class="num">6</div>
+      <div>
+        <h3>Add control-grade fault gates</h3>
+        <p>
+          Add structured reasons for stale sample, missing triple, DMA overflow, calibration unavailable, and control math late.
+          Closed-loop control is disabled after 3 consecutive misses, but open-loop signal generation continues.
+        </p>
+        <p>
+          Verification: induced stale samples disable closed-loop corrections and the dashboard reports the exact fault reason.
+        </p>
+      </div>
+    </div>
+
+    <div class="milestone">
+      <div class="num">7</div>
+      <div>
+        <h3>Run the 60 second acceptance diagnostic</h3>
+        <p>
+          Run continuous ADC at the target rate while the diagnostic signal is active. Record analog counters, signal timing counters, BLE behavior, and oscilloscope dead-time.
+        </p>
+        <p>
+          Verification: 60 seconds at target rate, zero signal timing regression, zero unhandled overflow, zero 3-miss trips, and scoped 2 us dead-time remains stable.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="milestones">
+    <h2>Milestones to Final State</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Milestone</th>
+          <th>Goal</th>
+          <th>Done when</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>M1 - Observability baseline</td>
+          <td>AnalogStatus, diagnostic result, dashboard rendering, and current oneshot producer visibility.</td>
+          <td>Complete. Firmware and web builds pass.</td>
+        </tr>
+        <tr>
+          <td>M2 - Safe monitor fallback</td>
+          <td>Rate-limited oneshot remains available for status/dashboard acquisition.</td>
+          <td>Complete as default mode; needs final status field indicating active acquisition mode.</td>
+        </tr>
+        <tr>
+          <td>M3 - DMA experimental producer</td>
+          <td>ADC continuous mode can be enabled and publishes AN3/AN5/AN6 triples.</td>
+          <td>Implemented; needs hardware run data and parser hardening.</td>
+        </tr>
+        <tr>
+          <td>M4 - DMA control-grade producer</td>
+          <td>DMA frames are parsed, validated, calibrated through a LUT, and published atomically.</td>
+          <td>No invalid triples, counters explain every rejected sample, and target freshness is reached.</td>
+        </tr>
+        <tr>
+          <td>M5 - Snapshot-driven control</td>
+          <td>Signal/control consumes snapshots only and applies corrections at cycle boundaries.</td>
+          <td>ADC compatibility globals are removed or become read-only debug aliases.</td>
+        </tr>
+        <tr>
+          <td>M6 - Acceptance gate</td>
+          <td>60 second scope-backed validation at target rate.</td>
+          <td>2 us dead-time stable, no timing faults, no 3-miss trips, no unhandled overflow.</td>
+        </tr>
+        <tr>
+          <td>M7 - Hardware fallback decision</td>
+          <td>Decide whether internal ADC DMA is good enough.</td>
+          <td>If scope fails, move fast acquisition to external/dedicated ADC hardware; if scope passes, proceed with closed-loop tuning.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="expected-timing">
+    <h2>Expected Timing Result</h2>
+    <p>
+      The expected final behavior is that ADC conversion pacing moves into hardware/DMA while Core 0 parses short frames and publishes snapshots.
+      Core 1 should continue signal playback without observable widening or jitter in the 2 us dead-time window.
+    </p>
+
+    <svg class="diagram" viewBox="0 0 1140 520" role="img" aria-label="Expected timing diagram for DMA acquisition and signal loop">
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <path d="M0,0 L10,4 L0,8 z" fill="#405047"></path>
+        </marker>
+      </defs>
+
+      <text x="36" y="38" class="svg-title">Expected 280 us Control Cycle With DMA Acquisition</text>
+      <line x1="150" y1="76" x2="1070" y2="76" class="axis"></line>
+      <line x1="150" y1="70" x2="150" y2="84" class="axis"></line>
+      <line x1="380" y1="70" x2="380" y2="84" class="axis"></line>
+      <line x1="610" y1="70" x2="610" y2="84" class="axis"></line>
+      <line x1="840" y1="70" x2="840" y2="84" class="axis"></line>
+      <line x1="1070" y1="70" x2="1070" y2="84" class="axis"></line>
+      <text x="142" y="62" class="svg-small">0 us</text>
+      <text x="364" y="62" class="svg-small">70</text>
+      <text x="590" y="62" class="svg-small">140</text>
+      <text x="820" y="62" class="svg-small">210</text>
+      <text x="1046" y="62" class="svg-small">280 us</text>
+
+      <text x="36" y="124" class="svg-text">ADC hardware</text>
+      <rect x="150" y="104" width="210" height="32" class="dma"></rect>
+      <rect x="380" y="104" width="210" height="32" class="dma"></rect>
+      <rect x="610" y="104" width="210" height="32" class="dma"></rect>
+      <rect x="840" y="104" width="210" height="32" class="dma"></rect>
+      <text x="178" y="125" class="svg-small" fill="#fff">AN3/AN5/AN6 triple</text>
+      <text x="408" y="125" class="svg-small" fill="#fff">AN3/AN5/AN6 triple</text>
+      <text x="638" y="125" class="svg-small" fill="#fff">AN3/AN5/AN6 triple</text>
+      <text x="868" y="125" class="svg-small" fill="#fff">AN3/AN5/AN6 triple</text>
+
+      <text x="36" y="188" class="svg-text">Core 0 acquisition</text>
+      <rect x="348" y="168" width="44" height="32" class="cpu"></rect>
+      <rect x="578" y="168" width="44" height="32" class="cpu"></rect>
+      <rect x="808" y="168" width="44" height="32" class="cpu"></rect>
+      <rect x="1038" y="168" width="32" height="32" class="cpu"></rect>
+      <text x="318" y="220" class="svg-small">parse + LUT + publish</text>
+      <text x="548" y="220" class="svg-small">parse + LUT + publish</text>
+      <text x="778" y="220" class="svg-small">parse + LUT + publish</text>
+
+      <text x="36" y="278" class="svg-text">Core 1 signal/control</text>
+      <rect x="150" y="258" width="690" height="32" class="signal"></rect>
+      <rect x="840" y="258" width="120" height="32" class="cpu"></rect>
+      <rect x="960" y="258" width="110" height="32" class="signal"></rect>
+      <text x="364" y="279" class="svg-small" fill="#fff">deterministic signal playback, no ADC calls</text>
+      <text x="856" y="279" class="svg-small" fill="#fff">read snapshot</text>
+      <text x="970" y="279" class="svg-small" fill="#fff">next cycle cmd</text>
+      <line x1="840" y1="242" x2="840" y2="308" class="deadline"></line>
+      <text x="770" y="238" class="svg-small">control update point</text>
+
+      <text x="36" y="352" class="svg-text">BLE/dashboard</text>
+      <rect x="150" y="332" width="690" height="32" class="idle"></rect>
+      <rect x="880" y="332" width="160" height="32" class="ble"></rect>
+      <text x="326" y="353" class="svg-small">no periodic BLE work in the critical path</text>
+      <text x="904" y="353" class="svg-small" fill="#fff">on-demand status</text>
+
+      <line x1="852" y1="200" x2="840" y2="258" class="arrow"></line>
+      <text x="878" y="232" class="svg-small">latest complete snapshot age &lt; half-cycle target</text>
+
+      <rect x="150" y="414" width="70" height="22" class="box-red"></rect>
+      <text x="232" y="431" class="svg-small">2 us dead-time remains stable on scope</text>
+      <rect x="150" y="448" width="70" height="22" class="box-green"></rect>
+      <text x="232" y="465" class="svg-small">fresh triple cadence is hardware-paced, not driver-call paced</text>
+    </svg>
+
+    <div class="note warn">
+      The 70 us triple spacing is the target derived from 4 triples per 280 us cycle. The current default command value of <code>12000</code> samples/s is conservative for bring-up; final target testing likely needs about <code>42900</code> channel samples/s or higher, depending on ESP-IDF sampling overhead and accepted margin.
+    </div>
+  </section>
+
+  <section id="flow">
+    <h2>Final Data Flow</h2>
+    <svg class="diagram" viewBox="0 0 1140 420" role="img" aria-label="Final analog data acquisition flow">
+      <defs>
+        <marker id="arrow-flow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <path d="M0,0 L10,4 L0,8 z" fill="#405047"></path>
+        </marker>
+      </defs>
+      <rect x="42" y="56" width="190" height="88" class="box box-green"></rect>
+      <text x="68" y="90" class="svg-title">ADC1 DMA</text>
+      <text x="68" y="116" class="svg-small">AN3, AN5, AN6 frames</text>
+
+      <rect x="300" y="56" width="220" height="88" class="box box-blue"></rect>
+      <text x="326" y="90" class="svg-title">Acquisition Task</text>
+      <text x="326" y="116" class="svg-small">parse, reject, count</text>
+
+      <rect x="588" y="56" width="200" height="88" class="box box-violet"></rect>
+      <text x="614" y="90" class="svg-title">Calibration LUT</text>
+      <text x="614" y="116" class="svg-small">internal RAM lookup</text>
+
+      <rect x="856" y="56" width="220" height="88" class="box box-amber"></rect>
+      <text x="882" y="90" class="svg-title">Atomic Snapshot</text>
+      <text x="882" y="116" class="svg-small">complete triples only</text>
+
+      <rect x="210" y="246" width="240" height="88" class="box box-red"></rect>
+      <text x="236" y="280" class="svg-title">Signal Control</text>
+      <text x="236" y="306" class="svg-small">read latest, never wait</text>
+
+      <rect x="520" y="246" width="240" height="88" class="box box-blue"></rect>
+      <text x="546" y="280" class="svg-title">AnalogStatus</text>
+      <text x="546" y="306" class="svg-small">seq, age, rate, faults</text>
+
+      <rect x="830" y="246" width="240" height="88" class="box box-green"></rect>
+      <text x="856" y="280" class="svg-title">Dashboard</text>
+      <text x="856" y="306" class="svg-small">on-demand commands</text>
+
+      <line x1="232" y1="100" x2="300" y2="100" class="arrow" marker-end="url(#arrow-flow)"></line>
+      <line x1="520" y1="100" x2="588" y2="100" class="arrow" marker-end="url(#arrow-flow)"></line>
+      <line x1="788" y1="100" x2="856" y2="100" class="arrow" marker-end="url(#arrow-flow)"></line>
+      <path d="M940 144 C910 206 450 184 330 246" class="arrow" marker-end="url(#arrow-flow)"></path>
+      <path d="M966 144 C958 190 658 202 640 246" class="arrow" marker-end="url(#arrow-flow)"></path>
+      <line x1="760" y1="290" x2="830" y2="290" class="arrow" marker-end="url(#arrow-flow)"></line>
+    </svg>
+  </section>
+
+  <section id="acceptance">
+    <h2>Acceptance Procedure</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Step</th>
+          <th>Command or observation</th>
+          <th>Expected result</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><code>analog.set_acquisition_mode {"mode":"oneshot"}</code></td>
+          <td>Safe fallback works and dead-time is stable.</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><code>analog.set_acquisition_mode {"mode":"continuous"}</code></td>
+          <td>DMA starts without falling back to oneshot.</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><code>analog.set_continuous_sample_rate {"sample_hz":42900}</code></td>
+          <td>Target-rate bring-up. If unstable, sweep down and record the threshold.</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td><code>debug.analog_test_run {"duration_ms":60000}</code></td>
+          <td>60 second run completes while scope monitors the 2 us dead-time.</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td><code>debug.analog_test_result</code></td>
+          <td>High sequence delta, low age, no unhandled overflow, no 3-miss trip, no timing faults.</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>Oscilloscope dead-time measurement</td>
+          <td>2 us blanking window remains stable. If not, internal ADC DMA is not accepted for closed-loop use.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note risk">
+      If the DMA path meets firmware counters but still disturbs the scoped waveform, the next architecture is external or dedicated sampling hardware. That is a hardware isolation decision, not a firmware tuning problem.
+    </div>
+  </section>
+</main>
+</body>
+</html>
