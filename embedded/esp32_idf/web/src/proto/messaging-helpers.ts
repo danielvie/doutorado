@@ -69,7 +69,13 @@ export function encodeOtaCommand(message: OtaCommand): Uint8Array {
 
 export function decodeBlePacket(binary: Uint8Array) {
     const packet = BlePacket.toObject(BlePacket.decode(binary));
-    const numberValue = (value: unknown) => (typeof value === "number" ? value : 0);
+    const numberValue = (value: unknown) => {
+        if (typeof value === "number") return value;
+        if (value && typeof (value as { toNumber?: unknown }).toNumber === "function") {
+            return (value as { toNumber: () => number }).toNumber();
+        }
+        return 0;
+    };
     const booleanValue = (value: unknown) => (typeof value === "boolean" ? value : false);
 
     return {
@@ -152,6 +158,35 @@ export function decodeBlePacket(binary: Uint8Array) {
                   code: packet.commandResult.code,
                   message: packet.commandResult.message,
                   json: packet.commandResult.json,
+              }
+            : undefined,
+        analog_diagnostic_result: packet.analogDiagnosticResult
+            ? {
+                  valid: booleanValue(packet.analogDiagnosticResult.valid),
+                  running: booleanValue(packet.analogDiagnosticResult.running),
+                  duration_ms: numberValue(packet.analogDiagnosticResult.durationMs),
+                  elapsed_us: numberValue(packet.analogDiagnosticResult.elapsedUs),
+                  seq_delta: numberValue(packet.analogDiagnosticResult.seqDelta),
+                  miss_delta: numberValue(packet.analogDiagnosticResult.missDelta),
+                  overflow_delta: numberValue(packet.analogDiagnosticResult.overflowDelta),
+                  seq: numberValue(packet.analogDiagnosticResult.seq),
+                  age_us: numberValue(packet.analogDiagnosticResult.ageUs),
+                  rate_tps: numberValue(packet.analogDiagnosticResult.rateTps),
+                  raw_an3: numberValue(packet.analogDiagnosticResult.rawAn3),
+                  raw_an5: numberValue(packet.analogDiagnosticResult.rawAn5),
+                  raw_an6: numberValue(packet.analogDiagnosticResult.rawAn6),
+                  cal_an3: numberValue(packet.analogDiagnosticResult.calAn3),
+                  cal_an5: numberValue(packet.analogDiagnosticResult.calAn5),
+                  cal_an6: numberValue(packet.analogDiagnosticResult.calAn6),
+                  latency_avg_us: numberValue(packet.analogDiagnosticResult.latencyAvgUs),
+                  latency_p95_us: numberValue(packet.analogDiagnosticResult.latencyP95Us),
+                  fault_code: numberValue(packet.analogDiagnosticResult.faultCode),
+                  timing_samples: numberValue(packet.analogDiagnosticResult.timingSamples),
+                  playback_avg_us: numberValue(packet.analogDiagnosticResult.playbackAvgUs),
+                  loop_us: numberValue(packet.analogDiagnosticResult.loopUs),
+                  overruns: numberValue(packet.analogDiagnosticResult.overruns),
+                  timing_faults: numberValue(packet.analogDiagnosticResult.timingFaults),
+                  message: packet.analogDiagnosticResult.message ?? "",
               }
             : undefined,
     };

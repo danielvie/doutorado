@@ -201,6 +201,59 @@ class BleManager {
                         useBleStore.getState().addLog(`OTA [${state}]: ${s.progress_percent}% - ${s.message || ""}`);
                     }
                     // You might want to update a dedicated OTA store here
+                } else if (packet.analog_diagnostic_result) {
+                    const t = packet.analog_diagnostic_result;
+                    if (!t.valid && t.running) {
+                        const message = t.message || "Analog diagnostic test running";
+                        useBleStore.getState().addLog(message);
+                        useBleStore.getState().setLastStatusMessage(message);
+                        useBleStore.getState().setLastStatusCommand({
+                            name: "debug.analog_test_result",
+                            payload: {},
+                        });
+                    } else if (!t.valid) {
+                        const message = t.message || "No analog diagnostic test result is available";
+                        useBleStore.getState().addLog(message);
+                        useBleStore.getState().setLastStatusMessage(message);
+                        useBleStore.getState().setLastStatusCommand({
+                            name: "debug.analog_test_result",
+                            payload: {},
+                        });
+                    } else {
+                        const testLines = [
+                            "== analog diagnostic test ==",
+                            `Running        : ${t.running ? "YES" : "NO"}`,
+                            `Valid          : ${t.valid ? "YES" : "NO"}`,
+                            `Duration       : ${t.duration_ms} ms`,
+                            `Elapsed        : ${t.elapsed_us.toFixed(0)} us`,
+                            `Seq delta      : ${t.seq_delta}`,
+                            `Miss delta     : ${t.miss_delta}`,
+                            `Overflow delta : ${t.overflow_delta}`,
+                            `After seq      : ${t.seq}`,
+                            `After age      : ${t.age_us} us`,
+                            `After rate     : ${t.rate_tps} triples/s`,
+                            `Raw AN3/AN5/AN6: ${t.raw_an3} / ${t.raw_an5} / ${t.raw_an6}`,
+                            `Cal AN3/AN5/AN6: ${t.cal_an3.toFixed(4)} / ${t.cal_an5.toFixed(4)} / ${t.cal_an6.toFixed(4)}`,
+                            `Latency avg    : ${t.latency_avg_us} us`,
+                            `Latency p95    : ${t.latency_p95_us} us`,
+                            `Fault          : ${t.fault_code}`,
+                            `Timing samples : ${t.timing_samples}`,
+                            `Playback avg   : ${t.playback_avg_us.toFixed(2)} us`,
+                            `Loop           : ${t.loop_us.toFixed(2)} us`,
+                            `Overruns       : ${t.overruns}`,
+                            `Timing faults  : ${t.timing_faults}`,
+                        ];
+                        if (t.message) {
+                            testLines.push(`Message        : ${t.message}`);
+                        }
+                        const statusStr = testLines.join("\n");
+                        useBleStore.getState().addLog(statusStr);
+                        useBleStore.getState().setLastStatusMessage(statusStr);
+                        useBleStore.getState().setLastStatusCommand({
+                            name: "debug.analog_test_result",
+                            payload: {},
+                        });
+                    }
                 } else if (packet.command_result) {
                     const r = packet.command_result;
                     const sourceCommand = this.pendingCommands.get(r.request_id);

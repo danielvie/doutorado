@@ -4,7 +4,7 @@ import { bleManager } from "../../services/BleManager";
 import { PanelSize } from "./SizeSelector";
 import { DashboardItem } from "./DashboardItem";
 
-import { Copy, Check, RefreshCw } from "lucide-react";
+import { Copy, Check, RefreshCw, Trash2 } from "lucide-react";
 
 export const StatusPanel: React.FC<{
   id: string;
@@ -17,6 +17,7 @@ export const StatusPanel: React.FC<{
   const autoRequestStatus = useBleStore((s) => s.autoRequestStatus);
   const setAutoRequestStatus = useBleStore((s) => s.setAutoRequestStatus);
   const isConnected = useBleStore((s) => s.isConnected);
+  const clearLastStatusMessage = useBleStore((s) => s.clearLastStatusMessage);
   const [copied, setCopied] = React.useState(false);
   const rerunCommand = lastStatusCommand ?? {
     name: "system.get_status",
@@ -60,7 +61,7 @@ export const StatusPanel: React.FC<{
       <div className="flex-1 min-h-0 flex flex-col relative group">
         {lastStatusMessage ? (
           <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar relative">
-            <div className="min-h-full whitespace-pre-wrap bg-white p-4 pr-10 rounded-lg border border-gray-200 text-sm text-gray-800 leading-relaxed shadow-inner font-mono break-all transition-all relative select-text cursor-text">
+            <div className="min-h-full whitespace-pre-wrap bg-white pt-14 p-4 pr-10 rounded-lg border border-gray-200 text-sm text-gray-800 leading-relaxed shadow-inner font-mono break-all transition-all relative select-text cursor-text">
               <button
                 onClick={handleCopy}
                 className={`absolute top-2 right-2 p-2 rounded-md border transition-all flex items-center gap-1.5 shadow-sm active:scale-95 ${
@@ -78,6 +79,14 @@ export const StatusPanel: React.FC<{
                 )}
               </button>
               <div className="absolute top-2 right-14 flex items-center gap-1">
+                <button
+                  onClick={clearLastStatusMessage}
+                  className="p-2 rounded-md border bg-red-50 border-red-200 text-red-600 hover:bg-red-100 hover:border-red-300 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-[10px] font-bold uppercase tracking-wider select-none"
+                  title="Clear Status"
+                >
+                  <Trash2 size={14} />
+                  CLEAR
+                </button>
                 <button
                   onClick={() => setAutoRequestStatus(!autoRequestStatus)}
                   className={`p-2 rounded-md border transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-[10px] font-bold uppercase tracking-wider select-none ${
@@ -104,7 +113,6 @@ export const StatusPanel: React.FC<{
             </div>
           </div>
         ) : (
-
           <div className="flex-1 flex items-center justify-center text-gray-400 text-sm italic bg-gray-50/50 rounded-lg border border-dashed border-gray-200">
             Waiting for diagnostic data...
           </div>

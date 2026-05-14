@@ -54,6 +54,14 @@ struct DataSet {
     float alpha;
 };
 
+struct SignalTimingCompact {
+    uint32_t samples;
+    float playback_avg_us;
+    float loop_us;
+    uint32_t overruns;
+    uint32_t timing_faults;
+};
+
 extern DataSet g_dataset_a;
 extern DataSet g_dataset_b;
 
@@ -87,6 +95,8 @@ void signal_precompute_steps(DataSet *ds);
  * @brief Returns a compact JSON snapshot of the latest signal-loop timing.
  */
 std::string signal_get_timing_snapshot_json();
+std::string signal_get_timing_compact_fields_json();
+void signal_get_timing_compact(SignalTimingCompact* timing);
 
 /**
  * @brief Starts generating the signal continuously in a loop.

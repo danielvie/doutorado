@@ -1,11 +1,22 @@
 # TODO
 
-- [ ] Analyze existing command, signal, LED, and timing hooks for an analog diagnostic test
-- [ ] Add firmware command to run a bounded analog diagnostic signal test
-- [ ] Store the latest diagnostic test result in memory
-- [ ] Add command to fetch the latest diagnostic test result on demand
-- [ ] Add dashboard command entry for running/fetching the diagnostic test
-- [ ] Verify firmware and web builds
+- [x] Add dedicated AnalogDiagnosticResult protobuf message
+- [x] Send stored analog diagnostic results as protobuf notifications
+- [x] Hydrate analog diagnostic protobuf results in the dashboard
+- [x] Regenerate protobuf outputs and verify firmware/web builds
+
+- [x] Shorten analog diagnostic result payload below BLE notify buffer size
+- [x] Stop dashboard from rendering in-progress analog test acknowledgements as zero-valued diagnostics
+
+- [x] Compact analog diagnostic result so BLE command replies fit MTU/buffer limits
+- [x] Verify analog diagnostic result command returns displayable status
+
+- [x] Analyze existing command, signal, LED, and timing hooks for an analog diagnostic test
+- [x] Add firmware command to run a bounded analog diagnostic signal test
+- [x] Store the latest diagnostic test result in memory
+- [x] Add command to fetch the latest diagnostic test result on demand
+- [x] Add dashboard command entry for running/fetching the diagnostic test
+- [x] Verify firmware and web builds
 
 - [x] Align startup dead-time status with the effective 2 us default
 

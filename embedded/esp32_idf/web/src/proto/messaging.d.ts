@@ -1208,6 +1208,168 @@ export class UiCommandResult implements IUiCommandResult {
     public static getTypeUrl(typeUrlPrefix?: string): string;
 }
 
+/** Represents an AnalogDiagnosticResult. */
+export class AnalogDiagnosticResult implements IAnalogDiagnosticResult {
+
+    /**
+     * Constructs a new AnalogDiagnosticResult.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IAnalogDiagnosticResult);
+
+    /** AnalogDiagnosticResult valid. */
+    public valid: boolean;
+
+    /** AnalogDiagnosticResult running. */
+    public running: boolean;
+
+    /** AnalogDiagnosticResult durationMs. */
+    public durationMs: number;
+
+    /** AnalogDiagnosticResult elapsedUs. */
+    public elapsedUs: (number|Long);
+
+    /** AnalogDiagnosticResult seqDelta. */
+    public seqDelta: number;
+
+    /** AnalogDiagnosticResult missDelta. */
+    public missDelta: number;
+
+    /** AnalogDiagnosticResult overflowDelta. */
+    public overflowDelta: number;
+
+    /** AnalogDiagnosticResult seq. */
+    public seq: number;
+
+    /** AnalogDiagnosticResult ageUs. */
+    public ageUs: number;
+
+    /** AnalogDiagnosticResult rateTps. */
+    public rateTps: number;
+
+    /** AnalogDiagnosticResult rawAn3. */
+    public rawAn3: number;
+
+    /** AnalogDiagnosticResult rawAn5. */
+    public rawAn5: number;
+
+    /** AnalogDiagnosticResult rawAn6. */
+    public rawAn6: number;
+
+    /** AnalogDiagnosticResult calAn3. */
+    public calAn3: number;
+
+    /** AnalogDiagnosticResult calAn5. */
+    public calAn5: number;
+
+    /** AnalogDiagnosticResult calAn6. */
+    public calAn6: number;
+
+    /** AnalogDiagnosticResult latencyAvgUs. */
+    public latencyAvgUs: number;
+
+    /** AnalogDiagnosticResult latencyP95Us. */
+    public latencyP95Us: number;
+
+    /** AnalogDiagnosticResult faultCode. */
+    public faultCode: number;
+
+    /** AnalogDiagnosticResult timingSamples. */
+    public timingSamples: number;
+
+    /** AnalogDiagnosticResult playbackAvgUs. */
+    public playbackAvgUs: number;
+
+    /** AnalogDiagnosticResult loopUs. */
+    public loopUs: number;
+
+    /** AnalogDiagnosticResult overruns. */
+    public overruns: number;
+
+    /** AnalogDiagnosticResult timingFaults. */
+    public timingFaults: number;
+
+    /** AnalogDiagnosticResult message. */
+    public message: string;
+
+    /**
+     * Creates a new AnalogDiagnosticResult instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns AnalogDiagnosticResult instance
+     */
+    public static create(properties?: IAnalogDiagnosticResult): AnalogDiagnosticResult;
+
+    /**
+     * Encodes the specified AnalogDiagnosticResult message. Does not implicitly {@link AnalogDiagnosticResult.verify|verify} messages.
+     * @param message AnalogDiagnosticResult message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IAnalogDiagnosticResult, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified AnalogDiagnosticResult message, length delimited. Does not implicitly {@link AnalogDiagnosticResult.verify|verify} messages.
+     * @param message AnalogDiagnosticResult message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IAnalogDiagnosticResult, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes an AnalogDiagnosticResult message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns AnalogDiagnosticResult
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): AnalogDiagnosticResult;
+
+    /**
+     * Decodes an AnalogDiagnosticResult message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns AnalogDiagnosticResult
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): AnalogDiagnosticResult;
+
+    /**
+     * Verifies an AnalogDiagnosticResult message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates an AnalogDiagnosticResult message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns AnalogDiagnosticResult
+     */
+    public static fromObject(object: { [k: string]: any }): AnalogDiagnosticResult;
+
+    /**
+     * Creates a plain object from an AnalogDiagnosticResult message. Also converts values to other types if specified.
+     * @param message AnalogDiagnosticResult
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: AnalogDiagnosticResult, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this AnalogDiagnosticResult to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for AnalogDiagnosticResult
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
 /** Represents a BlePacket. */
 export class BlePacket implements IBlePacket {
 
@@ -1232,8 +1394,11 @@ export class BlePacket implements IBlePacket {
     /** BlePacket commandResult. */
     public commandResult?: (IUiCommandResult|null);
 
+    /** BlePacket analogDiagnosticResult. */
+    public analogDiagnosticResult?: (IAnalogDiagnosticResult|null);
+
     /** BlePacket payload. */
-    public payload?: ("telemetry"|"status"|"log"|"otaStatus"|"commandResult");
+    public payload?: ("telemetry"|"status"|"log"|"otaStatus"|"commandResult"|"analogDiagnosticResult");
 
     /**
      * Creates a new BlePacket instance using the specified properties.

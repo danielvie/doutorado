@@ -39,6 +39,9 @@ PB_BIND(UiCommand, UiCommand, 2)
 PB_BIND(UiCommandResult, UiCommandResult, 2)
 
 
+PB_BIND(AnalogDiagnosticResult, AnalogDiagnosticResult, AUTO)
+
+
 PB_BIND(BlePacket, BlePacket, 2)
 
 

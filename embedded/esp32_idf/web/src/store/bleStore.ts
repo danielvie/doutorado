@@ -32,6 +32,7 @@ interface BleState {
     setIsCongested: (congested: boolean) => void;
     setAutoRequestStatus: (auto: boolean) => void;
     setManualCommandDraft: (command: string) => void;
+    clearLastStatusMessage: () => void;
 }
 
 export const useBleStore = create<BleState>((set) => ({
@@ -72,4 +73,5 @@ export const useBleStore = create<BleState>((set) => ({
                 version: state.manualCommandDraft.version + 1,
             },
         })),
+    clearLastStatusMessage: () => set({ lastStatusMessage: null }),
 }));

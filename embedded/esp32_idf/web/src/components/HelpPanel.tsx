@@ -102,6 +102,18 @@ const COMMANDS = [
     description: "Sends cycle duration diagnostics",
   },
   {
+    commands: "debug.signal_timing",
+    description: "Sends signal timing diagnostics",
+  },
+  {
+    commands: 'debug.analog_test_run {"duration_ms":2000}',
+    description: "Runs a bounded signal plus analog diagnostic test",
+  },
+  {
+    commands: "debug.analog_test_result",
+    description: "Fetches the latest stored analog diagnostic test result",
+  },
+  {
     commands: 'debug.gpio_set {"port":1,"value":1}',
     description: "Sets one debug GPIO port",
   },

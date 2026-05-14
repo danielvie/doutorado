@@ -3906,6 +3906,778 @@ export const UiCommandResult = $root.UiCommandResult = (() => {
     return UiCommandResult;
 })();
 
+export const AnalogDiagnosticResult = $root.AnalogDiagnosticResult = (() => {
+
+    /**
+     * Properties of an AnalogDiagnosticResult.
+     * @exports IAnalogDiagnosticResult
+     * @interface IAnalogDiagnosticResult
+     * @property {boolean|null} [valid] AnalogDiagnosticResult valid
+     * @property {boolean|null} [running] AnalogDiagnosticResult running
+     * @property {number|null} [durationMs] AnalogDiagnosticResult durationMs
+     * @property {number|Long|null} [elapsedUs] AnalogDiagnosticResult elapsedUs
+     * @property {number|null} [seqDelta] AnalogDiagnosticResult seqDelta
+     * @property {number|null} [missDelta] AnalogDiagnosticResult missDelta
+     * @property {number|null} [overflowDelta] AnalogDiagnosticResult overflowDelta
+     * @property {number|null} [seq] AnalogDiagnosticResult seq
+     * @property {number|null} [ageUs] AnalogDiagnosticResult ageUs
+     * @property {number|null} [rateTps] AnalogDiagnosticResult rateTps
+     * @property {number|null} [rawAn3] AnalogDiagnosticResult rawAn3
+     * @property {number|null} [rawAn5] AnalogDiagnosticResult rawAn5
+     * @property {number|null} [rawAn6] AnalogDiagnosticResult rawAn6
+     * @property {number|null} [calAn3] AnalogDiagnosticResult calAn3
+     * @property {number|null} [calAn5] AnalogDiagnosticResult calAn5
+     * @property {number|null} [calAn6] AnalogDiagnosticResult calAn6
+     * @property {number|null} [latencyAvgUs] AnalogDiagnosticResult latencyAvgUs
+     * @property {number|null} [latencyP95Us] AnalogDiagnosticResult latencyP95Us
+     * @property {number|null} [faultCode] AnalogDiagnosticResult faultCode
+     * @property {number|null} [timingSamples] AnalogDiagnosticResult timingSamples
+     * @property {number|null} [playbackAvgUs] AnalogDiagnosticResult playbackAvgUs
+     * @property {number|null} [loopUs] AnalogDiagnosticResult loopUs
+     * @property {number|null} [overruns] AnalogDiagnosticResult overruns
+     * @property {number|null} [timingFaults] AnalogDiagnosticResult timingFaults
+     * @property {string|null} [message] AnalogDiagnosticResult message
+     */
+
+    /**
+     * Constructs a new AnalogDiagnosticResult.
+     * @exports AnalogDiagnosticResult
+     * @classdesc Represents an AnalogDiagnosticResult.
+     * @implements IAnalogDiagnosticResult
+     * @constructor
+     * @param {IAnalogDiagnosticResult=} [properties] Properties to set
+     */
+    function AnalogDiagnosticResult(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * AnalogDiagnosticResult valid.
+     * @member {boolean} valid
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.valid = false;
+
+    /**
+     * AnalogDiagnosticResult running.
+     * @member {boolean} running
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.running = false;
+
+    /**
+     * AnalogDiagnosticResult durationMs.
+     * @member {number} durationMs
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.durationMs = 0;
+
+    /**
+     * AnalogDiagnosticResult elapsedUs.
+     * @member {number|Long} elapsedUs
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.elapsedUs = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+
+    /**
+     * AnalogDiagnosticResult seqDelta.
+     * @member {number} seqDelta
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.seqDelta = 0;
+
+    /**
+     * AnalogDiagnosticResult missDelta.
+     * @member {number} missDelta
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.missDelta = 0;
+
+    /**
+     * AnalogDiagnosticResult overflowDelta.
+     * @member {number} overflowDelta
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.overflowDelta = 0;
+
+    /**
+     * AnalogDiagnosticResult seq.
+     * @member {number} seq
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.seq = 0;
+
+    /**
+     * AnalogDiagnosticResult ageUs.
+     * @member {number} ageUs
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.ageUs = 0;
+
+    /**
+     * AnalogDiagnosticResult rateTps.
+     * @member {number} rateTps
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.rateTps = 0;
+
+    /**
+     * AnalogDiagnosticResult rawAn3.
+     * @member {number} rawAn3
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.rawAn3 = 0;
+
+    /**
+     * AnalogDiagnosticResult rawAn5.
+     * @member {number} rawAn5
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.rawAn5 = 0;
+
+    /**
+     * AnalogDiagnosticResult rawAn6.
+     * @member {number} rawAn6
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.rawAn6 = 0;
+
+    /**
+     * AnalogDiagnosticResult calAn3.
+     * @member {number} calAn3
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.calAn3 = 0;
+
+    /**
+     * AnalogDiagnosticResult calAn5.
+     * @member {number} calAn5
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.calAn5 = 0;
+
+    /**
+     * AnalogDiagnosticResult calAn6.
+     * @member {number} calAn6
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.calAn6 = 0;
+
+    /**
+     * AnalogDiagnosticResult latencyAvgUs.
+     * @member {number} latencyAvgUs
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.latencyAvgUs = 0;
+
+    /**
+     * AnalogDiagnosticResult latencyP95Us.
+     * @member {number} latencyP95Us
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.latencyP95Us = 0;
+
+    /**
+     * AnalogDiagnosticResult faultCode.
+     * @member {number} faultCode
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.faultCode = 0;
+
+    /**
+     * AnalogDiagnosticResult timingSamples.
+     * @member {number} timingSamples
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.timingSamples = 0;
+
+    /**
+     * AnalogDiagnosticResult playbackAvgUs.
+     * @member {number} playbackAvgUs
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.playbackAvgUs = 0;
+
+    /**
+     * AnalogDiagnosticResult loopUs.
+     * @member {number} loopUs
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.loopUs = 0;
+
+    /**
+     * AnalogDiagnosticResult overruns.
+     * @member {number} overruns
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.overruns = 0;
+
+    /**
+     * AnalogDiagnosticResult timingFaults.
+     * @member {number} timingFaults
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.timingFaults = 0;
+
+    /**
+     * AnalogDiagnosticResult message.
+     * @member {string} message
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     */
+    AnalogDiagnosticResult.prototype.message = "";
+
+    /**
+     * Creates a new AnalogDiagnosticResult instance using the specified properties.
+     * @function create
+     * @memberof AnalogDiagnosticResult
+     * @static
+     * @param {IAnalogDiagnosticResult=} [properties] Properties to set
+     * @returns {AnalogDiagnosticResult} AnalogDiagnosticResult instance
+     */
+    AnalogDiagnosticResult.create = function create(properties) {
+        return new AnalogDiagnosticResult(properties);
+    };
+
+    /**
+     * Encodes the specified AnalogDiagnosticResult message. Does not implicitly {@link AnalogDiagnosticResult.verify|verify} messages.
+     * @function encode
+     * @memberof AnalogDiagnosticResult
+     * @static
+     * @param {IAnalogDiagnosticResult} message AnalogDiagnosticResult message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    AnalogDiagnosticResult.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.valid != null && Object.hasOwnProperty.call(message, "valid"))
+            writer.uint32(/* id 1, wireType 0 =*/8).bool(message.valid);
+        if (message.running != null && Object.hasOwnProperty.call(message, "running"))
+            writer.uint32(/* id 2, wireType 0 =*/16).bool(message.running);
+        if (message.durationMs != null && Object.hasOwnProperty.call(message, "durationMs"))
+            writer.uint32(/* id 3, wireType 0 =*/24).uint32(message.durationMs);
+        if (message.elapsedUs != null && Object.hasOwnProperty.call(message, "elapsedUs"))
+            writer.uint32(/* id 4, wireType 0 =*/32).uint64(message.elapsedUs);
+        if (message.seqDelta != null && Object.hasOwnProperty.call(message, "seqDelta"))
+            writer.uint32(/* id 5, wireType 0 =*/40).uint32(message.seqDelta);
+        if (message.missDelta != null && Object.hasOwnProperty.call(message, "missDelta"))
+            writer.uint32(/* id 6, wireType 0 =*/48).uint32(message.missDelta);
+        if (message.overflowDelta != null && Object.hasOwnProperty.call(message, "overflowDelta"))
+            writer.uint32(/* id 7, wireType 0 =*/56).uint32(message.overflowDelta);
+        if (message.seq != null && Object.hasOwnProperty.call(message, "seq"))
+            writer.uint32(/* id 8, wireType 0 =*/64).uint32(message.seq);
+        if (message.ageUs != null && Object.hasOwnProperty.call(message, "ageUs"))
+            writer.uint32(/* id 9, wireType 0 =*/72).uint32(message.ageUs);
+        if (message.rateTps != null && Object.hasOwnProperty.call(message, "rateTps"))
+            writer.uint32(/* id 10, wireType 0 =*/80).uint32(message.rateTps);
+        if (message.rawAn3 != null && Object.hasOwnProperty.call(message, "rawAn3"))
+            writer.uint32(/* id 11, wireType 0 =*/88).uint32(message.rawAn3);
+        if (message.rawAn5 != null && Object.hasOwnProperty.call(message, "rawAn5"))
+            writer.uint32(/* id 12, wireType 0 =*/96).uint32(message.rawAn5);
+        if (message.rawAn6 != null && Object.hasOwnProperty.call(message, "rawAn6"))
+            writer.uint32(/* id 13, wireType 0 =*/104).uint32(message.rawAn6);
+        if (message.calAn3 != null && Object.hasOwnProperty.call(message, "calAn3"))
+            writer.uint32(/* id 14, wireType 5 =*/117).float(message.calAn3);
+        if (message.calAn5 != null && Object.hasOwnProperty.call(message, "calAn5"))
+            writer.uint32(/* id 15, wireType 5 =*/125).float(message.calAn5);
+        if (message.calAn6 != null && Object.hasOwnProperty.call(message, "calAn6"))
+            writer.uint32(/* id 16, wireType 5 =*/133).float(message.calAn6);
+        if (message.latencyAvgUs != null && Object.hasOwnProperty.call(message, "latencyAvgUs"))
+            writer.uint32(/* id 17, wireType 0 =*/136).uint32(message.latencyAvgUs);
+        if (message.latencyP95Us != null && Object.hasOwnProperty.call(message, "latencyP95Us"))
+            writer.uint32(/* id 18, wireType 0 =*/144).uint32(message.latencyP95Us);
+        if (message.faultCode != null && Object.hasOwnProperty.call(message, "faultCode"))
+            writer.uint32(/* id 19, wireType 0 =*/152).uint32(message.faultCode);
+        if (message.timingSamples != null && Object.hasOwnProperty.call(message, "timingSamples"))
+            writer.uint32(/* id 20, wireType 0 =*/160).uint32(message.timingSamples);
+        if (message.playbackAvgUs != null && Object.hasOwnProperty.call(message, "playbackAvgUs"))
+            writer.uint32(/* id 21, wireType 5 =*/173).float(message.playbackAvgUs);
+        if (message.loopUs != null && Object.hasOwnProperty.call(message, "loopUs"))
+            writer.uint32(/* id 22, wireType 5 =*/181).float(message.loopUs);
+        if (message.overruns != null && Object.hasOwnProperty.call(message, "overruns"))
+            writer.uint32(/* id 23, wireType 0 =*/184).uint32(message.overruns);
+        if (message.timingFaults != null && Object.hasOwnProperty.call(message, "timingFaults"))
+            writer.uint32(/* id 24, wireType 0 =*/192).uint32(message.timingFaults);
+        if (message.message != null && Object.hasOwnProperty.call(message, "message"))
+            writer.uint32(/* id 25, wireType 2 =*/202).string(message.message);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified AnalogDiagnosticResult message, length delimited. Does not implicitly {@link AnalogDiagnosticResult.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof AnalogDiagnosticResult
+     * @static
+     * @param {IAnalogDiagnosticResult} message AnalogDiagnosticResult message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    AnalogDiagnosticResult.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes an AnalogDiagnosticResult message from the specified reader or buffer.
+     * @function decode
+     * @memberof AnalogDiagnosticResult
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {AnalogDiagnosticResult} AnalogDiagnosticResult
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    AnalogDiagnosticResult.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.AnalogDiagnosticResult();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.valid = reader.bool();
+                    break;
+                }
+            case 2: {
+                    message.running = reader.bool();
+                    break;
+                }
+            case 3: {
+                    message.durationMs = reader.uint32();
+                    break;
+                }
+            case 4: {
+                    message.elapsedUs = reader.uint64();
+                    break;
+                }
+            case 5: {
+                    message.seqDelta = reader.uint32();
+                    break;
+                }
+            case 6: {
+                    message.missDelta = reader.uint32();
+                    break;
+                }
+            case 7: {
+                    message.overflowDelta = reader.uint32();
+                    break;
+                }
+            case 8: {
+                    message.seq = reader.uint32();
+                    break;
+                }
+            case 9: {
+                    message.ageUs = reader.uint32();
+                    break;
+                }
+            case 10: {
+                    message.rateTps = reader.uint32();
+                    break;
+                }
+            case 11: {
+                    message.rawAn3 = reader.uint32();
+                    break;
+                }
+            case 12: {
+                    message.rawAn5 = reader.uint32();
+                    break;
+                }
+            case 13: {
+                    message.rawAn6 = reader.uint32();
+                    break;
+                }
+            case 14: {
+                    message.calAn3 = reader.float();
+                    break;
+                }
+            case 15: {
+                    message.calAn5 = reader.float();
+                    break;
+                }
+            case 16: {
+                    message.calAn6 = reader.float();
+                    break;
+                }
+            case 17: {
+                    message.latencyAvgUs = reader.uint32();
+                    break;
+                }
+            case 18: {
+                    message.latencyP95Us = reader.uint32();
+                    break;
+                }
+            case 19: {
+                    message.faultCode = reader.uint32();
+                    break;
+                }
+            case 20: {
+                    message.timingSamples = reader.uint32();
+                    break;
+                }
+            case 21: {
+                    message.playbackAvgUs = reader.float();
+                    break;
+                }
+            case 22: {
+                    message.loopUs = reader.float();
+                    break;
+                }
+            case 23: {
+                    message.overruns = reader.uint32();
+                    break;
+                }
+            case 24: {
+                    message.timingFaults = reader.uint32();
+                    break;
+                }
+            case 25: {
+                    message.message = reader.string();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes an AnalogDiagnosticResult message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof AnalogDiagnosticResult
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {AnalogDiagnosticResult} AnalogDiagnosticResult
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    AnalogDiagnosticResult.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies an AnalogDiagnosticResult message.
+     * @function verify
+     * @memberof AnalogDiagnosticResult
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    AnalogDiagnosticResult.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.valid != null && message.hasOwnProperty("valid"))
+            if (typeof message.valid !== "boolean")
+                return "valid: boolean expected";
+        if (message.running != null && message.hasOwnProperty("running"))
+            if (typeof message.running !== "boolean")
+                return "running: boolean expected";
+        if (message.durationMs != null && message.hasOwnProperty("durationMs"))
+            if (!$util.isInteger(message.durationMs))
+                return "durationMs: integer expected";
+        if (message.elapsedUs != null && message.hasOwnProperty("elapsedUs"))
+            if (!$util.isInteger(message.elapsedUs) && !(message.elapsedUs && $util.isInteger(message.elapsedUs.low) && $util.isInteger(message.elapsedUs.high)))
+                return "elapsedUs: integer|Long expected";
+        if (message.seqDelta != null && message.hasOwnProperty("seqDelta"))
+            if (!$util.isInteger(message.seqDelta))
+                return "seqDelta: integer expected";
+        if (message.missDelta != null && message.hasOwnProperty("missDelta"))
+            if (!$util.isInteger(message.missDelta))
+                return "missDelta: integer expected";
+        if (message.overflowDelta != null && message.hasOwnProperty("overflowDelta"))
+            if (!$util.isInteger(message.overflowDelta))
+                return "overflowDelta: integer expected";
+        if (message.seq != null && message.hasOwnProperty("seq"))
+            if (!$util.isInteger(message.seq))
+                return "seq: integer expected";
+        if (message.ageUs != null && message.hasOwnProperty("ageUs"))
+            if (!$util.isInteger(message.ageUs))
+                return "ageUs: integer expected";
+        if (message.rateTps != null && message.hasOwnProperty("rateTps"))
+            if (!$util.isInteger(message.rateTps))
+                return "rateTps: integer expected";
+        if (message.rawAn3 != null && message.hasOwnProperty("rawAn3"))
+            if (!$util.isInteger(message.rawAn3))
+                return "rawAn3: integer expected";
+        if (message.rawAn5 != null && message.hasOwnProperty("rawAn5"))
+            if (!$util.isInteger(message.rawAn5))
+                return "rawAn5: integer expected";
+        if (message.rawAn6 != null && message.hasOwnProperty("rawAn6"))
+            if (!$util.isInteger(message.rawAn6))
+                return "rawAn6: integer expected";
+        if (message.calAn3 != null && message.hasOwnProperty("calAn3"))
+            if (typeof message.calAn3 !== "number")
+                return "calAn3: number expected";
+        if (message.calAn5 != null && message.hasOwnProperty("calAn5"))
+            if (typeof message.calAn5 !== "number")
+                return "calAn5: number expected";
+        if (message.calAn6 != null && message.hasOwnProperty("calAn6"))
+            if (typeof message.calAn6 !== "number")
+                return "calAn6: number expected";
+        if (message.latencyAvgUs != null && message.hasOwnProperty("latencyAvgUs"))
+            if (!$util.isInteger(message.latencyAvgUs))
+                return "latencyAvgUs: integer expected";
+        if (message.latencyP95Us != null && message.hasOwnProperty("latencyP95Us"))
+            if (!$util.isInteger(message.latencyP95Us))
+                return "latencyP95Us: integer expected";
+        if (message.faultCode != null && message.hasOwnProperty("faultCode"))
+            if (!$util.isInteger(message.faultCode))
+                return "faultCode: integer expected";
+        if (message.timingSamples != null && message.hasOwnProperty("timingSamples"))
+            if (!$util.isInteger(message.timingSamples))
+                return "timingSamples: integer expected";
+        if (message.playbackAvgUs != null && message.hasOwnProperty("playbackAvgUs"))
+            if (typeof message.playbackAvgUs !== "number")
+                return "playbackAvgUs: number expected";
+        if (message.loopUs != null && message.hasOwnProperty("loopUs"))
+            if (typeof message.loopUs !== "number")
+                return "loopUs: number expected";
+        if (message.overruns != null && message.hasOwnProperty("overruns"))
+            if (!$util.isInteger(message.overruns))
+                return "overruns: integer expected";
+        if (message.timingFaults != null && message.hasOwnProperty("timingFaults"))
+            if (!$util.isInteger(message.timingFaults))
+                return "timingFaults: integer expected";
+        if (message.message != null && message.hasOwnProperty("message"))
+            if (!$util.isString(message.message))
+                return "message: string expected";
+        return null;
+    };
+
+    /**
+     * Creates an AnalogDiagnosticResult message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof AnalogDiagnosticResult
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {AnalogDiagnosticResult} AnalogDiagnosticResult
+     */
+    AnalogDiagnosticResult.fromObject = function fromObject(object) {
+        if (object instanceof $root.AnalogDiagnosticResult)
+            return object;
+        let message = new $root.AnalogDiagnosticResult();
+        if (object.valid != null)
+            message.valid = Boolean(object.valid);
+        if (object.running != null)
+            message.running = Boolean(object.running);
+        if (object.durationMs != null)
+            message.durationMs = object.durationMs >>> 0;
+        if (object.elapsedUs != null)
+            if ($util.Long)
+                (message.elapsedUs = $util.Long.fromValue(object.elapsedUs)).unsigned = true;
+            else if (typeof object.elapsedUs === "string")
+                message.elapsedUs = parseInt(object.elapsedUs, 10);
+            else if (typeof object.elapsedUs === "number")
+                message.elapsedUs = object.elapsedUs;
+            else if (typeof object.elapsedUs === "object")
+                message.elapsedUs = new $util.LongBits(object.elapsedUs.low >>> 0, object.elapsedUs.high >>> 0).toNumber(true);
+        if (object.seqDelta != null)
+            message.seqDelta = object.seqDelta >>> 0;
+        if (object.missDelta != null)
+            message.missDelta = object.missDelta >>> 0;
+        if (object.overflowDelta != null)
+            message.overflowDelta = object.overflowDelta >>> 0;
+        if (object.seq != null)
+            message.seq = object.seq >>> 0;
+        if (object.ageUs != null)
+            message.ageUs = object.ageUs >>> 0;
+        if (object.rateTps != null)
+            message.rateTps = object.rateTps >>> 0;
+        if (object.rawAn3 != null)
+            message.rawAn3 = object.rawAn3 >>> 0;
+        if (object.rawAn5 != null)
+            message.rawAn5 = object.rawAn5 >>> 0;
+        if (object.rawAn6 != null)
+            message.rawAn6 = object.rawAn6 >>> 0;
+        if (object.calAn3 != null)
+            message.calAn3 = Number(object.calAn3);
+        if (object.calAn5 != null)
+            message.calAn5 = Number(object.calAn5);
+        if (object.calAn6 != null)
+            message.calAn6 = Number(object.calAn6);
+        if (object.latencyAvgUs != null)
+            message.latencyAvgUs = object.latencyAvgUs >>> 0;
+        if (object.latencyP95Us != null)
+            message.latencyP95Us = object.latencyP95Us >>> 0;
+        if (object.faultCode != null)
+            message.faultCode = object.faultCode >>> 0;
+        if (object.timingSamples != null)
+            message.timingSamples = object.timingSamples >>> 0;
+        if (object.playbackAvgUs != null)
+            message.playbackAvgUs = Number(object.playbackAvgUs);
+        if (object.loopUs != null)
+            message.loopUs = Number(object.loopUs);
+        if (object.overruns != null)
+            message.overruns = object.overruns >>> 0;
+        if (object.timingFaults != null)
+            message.timingFaults = object.timingFaults >>> 0;
+        if (object.message != null)
+            message.message = String(object.message);
+        return message;
+    };
+
+    /**
+     * Creates a plain object from an AnalogDiagnosticResult message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof AnalogDiagnosticResult
+     * @static
+     * @param {AnalogDiagnosticResult} message AnalogDiagnosticResult
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    AnalogDiagnosticResult.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults) {
+            object.valid = false;
+            object.running = false;
+            object.durationMs = 0;
+            if ($util.Long) {
+                let long = new $util.Long(0, 0, true);
+                object.elapsedUs = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+            } else
+                object.elapsedUs = options.longs === String ? "0" : 0;
+            object.seqDelta = 0;
+            object.missDelta = 0;
+            object.overflowDelta = 0;
+            object.seq = 0;
+            object.ageUs = 0;
+            object.rateTps = 0;
+            object.rawAn3 = 0;
+            object.rawAn5 = 0;
+            object.rawAn6 = 0;
+            object.calAn3 = 0;
+            object.calAn5 = 0;
+            object.calAn6 = 0;
+            object.latencyAvgUs = 0;
+            object.latencyP95Us = 0;
+            object.faultCode = 0;
+            object.timingSamples = 0;
+            object.playbackAvgUs = 0;
+            object.loopUs = 0;
+            object.overruns = 0;
+            object.timingFaults = 0;
+            object.message = "";
+        }
+        if (message.valid != null && message.hasOwnProperty("valid"))
+            object.valid = message.valid;
+        if (message.running != null && message.hasOwnProperty("running"))
+            object.running = message.running;
+        if (message.durationMs != null && message.hasOwnProperty("durationMs"))
+            object.durationMs = message.durationMs;
+        if (message.elapsedUs != null && message.hasOwnProperty("elapsedUs"))
+            if (typeof message.elapsedUs === "number")
+                object.elapsedUs = options.longs === String ? String(message.elapsedUs) : message.elapsedUs;
+            else
+                object.elapsedUs = options.longs === String ? $util.Long.prototype.toString.call(message.elapsedUs) : options.longs === Number ? new $util.LongBits(message.elapsedUs.low >>> 0, message.elapsedUs.high >>> 0).toNumber(true) : message.elapsedUs;
+        if (message.seqDelta != null && message.hasOwnProperty("seqDelta"))
+            object.seqDelta = message.seqDelta;
+        if (message.missDelta != null && message.hasOwnProperty("missDelta"))
+            object.missDelta = message.missDelta;
+        if (message.overflowDelta != null && message.hasOwnProperty("overflowDelta"))
+            object.overflowDelta = message.overflowDelta;
+        if (message.seq != null && message.hasOwnProperty("seq"))
+            object.seq = message.seq;
+        if (message.ageUs != null && message.hasOwnProperty("ageUs"))
+            object.ageUs = message.ageUs;
+        if (message.rateTps != null && message.hasOwnProperty("rateTps"))
+            object.rateTps = message.rateTps;
+        if (message.rawAn3 != null && message.hasOwnProperty("rawAn3"))
+            object.rawAn3 = message.rawAn3;
+        if (message.rawAn5 != null && message.hasOwnProperty("rawAn5"))
+            object.rawAn5 = message.rawAn5;
+        if (message.rawAn6 != null && message.hasOwnProperty("rawAn6"))
+            object.rawAn6 = message.rawAn6;
+        if (message.calAn3 != null && message.hasOwnProperty("calAn3"))
+            object.calAn3 = options.json && !isFinite(message.calAn3) ? String(message.calAn3) : message.calAn3;
+        if (message.calAn5 != null && message.hasOwnProperty("calAn5"))
+            object.calAn5 = options.json && !isFinite(message.calAn5) ? String(message.calAn5) : message.calAn5;
+        if (message.calAn6 != null && message.hasOwnProperty("calAn6"))
+            object.calAn6 = options.json && !isFinite(message.calAn6) ? String(message.calAn6) : message.calAn6;
+        if (message.latencyAvgUs != null && message.hasOwnProperty("latencyAvgUs"))
+            object.latencyAvgUs = message.latencyAvgUs;
+        if (message.latencyP95Us != null && message.hasOwnProperty("latencyP95Us"))
+            object.latencyP95Us = message.latencyP95Us;
+        if (message.faultCode != null && message.hasOwnProperty("faultCode"))
+            object.faultCode = message.faultCode;
+        if (message.timingSamples != null && message.hasOwnProperty("timingSamples"))
+            object.timingSamples = message.timingSamples;
+        if (message.playbackAvgUs != null && message.hasOwnProperty("playbackAvgUs"))
+            object.playbackAvgUs = options.json && !isFinite(message.playbackAvgUs) ? String(message.playbackAvgUs) : message.playbackAvgUs;
+        if (message.loopUs != null && message.hasOwnProperty("loopUs"))
+            object.loopUs = options.json && !isFinite(message.loopUs) ? String(message.loopUs) : message.loopUs;
+        if (message.overruns != null && message.hasOwnProperty("overruns"))
+            object.overruns = message.overruns;
+        if (message.timingFaults != null && message.hasOwnProperty("timingFaults"))
+            object.timingFaults = message.timingFaults;
+        if (message.message != null && message.hasOwnProperty("message"))
+            object.message = message.message;
+        return object;
+    };
+
+    /**
+     * Converts this AnalogDiagnosticResult to JSON.
+     * @function toJSON
+     * @memberof AnalogDiagnosticResult
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    AnalogDiagnosticResult.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for AnalogDiagnosticResult
+     * @function getTypeUrl
+     * @memberof AnalogDiagnosticResult
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    AnalogDiagnosticResult.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/AnalogDiagnosticResult";
+    };
+
+    return AnalogDiagnosticResult;
+})();
+
 export const BlePacket = $root.BlePacket = (() => {
 
     /**
@@ -3917,6 +4689,7 @@ export const BlePacket = $root.BlePacket = (() => {
      * @property {ILogMessage|null} [log] BlePacket log
      * @property {IOtaStatus|null} [otaStatus] BlePacket otaStatus
      * @property {IUiCommandResult|null} [commandResult] BlePacket commandResult
+     * @property {IAnalogDiagnosticResult|null} [analogDiagnosticResult] BlePacket analogDiagnosticResult
      */
 
     /**
@@ -3974,17 +4747,25 @@ export const BlePacket = $root.BlePacket = (() => {
      */
     BlePacket.prototype.commandResult = null;
 
+    /**
+     * BlePacket analogDiagnosticResult.
+     * @member {IAnalogDiagnosticResult|null|undefined} analogDiagnosticResult
+     * @memberof BlePacket
+     * @instance
+     */
+    BlePacket.prototype.analogDiagnosticResult = null;
+
     // OneOf field names bound to virtual getters and setters
     let $oneOfFields;
 
     /**
      * BlePacket payload.
-     * @member {"telemetry"|"status"|"log"|"otaStatus"|"commandResult"|undefined} payload
+     * @member {"telemetry"|"status"|"log"|"otaStatus"|"commandResult"|"analogDiagnosticResult"|undefined} payload
      * @memberof BlePacket
      * @instance
      */
     Object.defineProperty(BlePacket.prototype, "payload", {
-        get: $util.oneOfGetter($oneOfFields = ["telemetry", "status", "log", "otaStatus", "commandResult"]),
+        get: $util.oneOfGetter($oneOfFields = ["telemetry", "status", "log", "otaStatus", "commandResult", "analogDiagnosticResult"]),
         set: $util.oneOfSetter($oneOfFields)
     });
 
@@ -4022,6 +4803,8 @@ export const BlePacket = $root.BlePacket = (() => {
             $root.OtaStatus.encode(message.otaStatus, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
         if (message.commandResult != null && Object.hasOwnProperty.call(message, "commandResult"))
             $root.UiCommandResult.encode(message.commandResult, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
+        if (message.analogDiagnosticResult != null && Object.hasOwnProperty.call(message, "analogDiagnosticResult"))
+            $root.AnalogDiagnosticResult.encode(message.analogDiagnosticResult, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
         return writer;
     };
 
@@ -4076,6 +4859,10 @@ export const BlePacket = $root.BlePacket = (() => {
                 }
             case 5: {
                     message.commandResult = $root.UiCommandResult.decode(reader, reader.uint32());
+                    break;
+                }
+            case 6: {
+                    message.analogDiagnosticResult = $root.AnalogDiagnosticResult.decode(reader, reader.uint32());
                     break;
                 }
             default:
@@ -4162,6 +4949,16 @@ export const BlePacket = $root.BlePacket = (() => {
                     return "commandResult." + error;
             }
         }
+        if (message.analogDiagnosticResult != null && message.hasOwnProperty("analogDiagnosticResult")) {
+            if (properties.payload === 1)
+                return "payload: multiple values";
+            properties.payload = 1;
+            {
+                let error = $root.AnalogDiagnosticResult.verify(message.analogDiagnosticResult);
+                if (error)
+                    return "analogDiagnosticResult." + error;
+            }
+        }
         return null;
     };
 
@@ -4201,6 +4998,11 @@ export const BlePacket = $root.BlePacket = (() => {
             if (typeof object.commandResult !== "object")
                 throw TypeError(".BlePacket.commandResult: object expected");
             message.commandResult = $root.UiCommandResult.fromObject(object.commandResult);
+        }
+        if (object.analogDiagnosticResult != null) {
+            if (typeof object.analogDiagnosticResult !== "object")
+                throw TypeError(".BlePacket.analogDiagnosticResult: object expected");
+            message.analogDiagnosticResult = $root.AnalogDiagnosticResult.fromObject(object.analogDiagnosticResult);
         }
         return message;
     };
@@ -4242,6 +5044,11 @@ export const BlePacket = $root.BlePacket = (() => {
             object.commandResult = $root.UiCommandResult.toObject(message.commandResult, options);
             if (options.oneofs)
                 object.payload = "commandResult";
+        }
+        if (message.analogDiagnosticResult != null && message.hasOwnProperty("analogDiagnosticResult")) {
+            object.analogDiagnosticResult = $root.AnalogDiagnosticResult.toObject(message.analogDiagnosticResult, options);
+            if (options.oneofs)
+                object.payload = "analogDiagnosticResult";
         }
         return object;
     };

@@ -138,6 +138,33 @@ std::string signal_get_timing_snapshot_json() {
     return std::string(json);
 }
 
+std::string signal_get_timing_compact_fields_json() {
+    SignalTimingCompact timing;
+    signal_get_timing_compact(&timing);
+
+    char json[96];
+    snprintf(json, sizeof(json),
+             "\"ts\":%lu,\"pavg\":%.2f,\"loop\":%.2f,\"ov\":%lu,\"tf\":%lu",
+             timing.samples,
+             (double)timing.playback_avg_us,
+             (double)timing.loop_us,
+             timing.overruns,
+             timing.timing_faults);
+    return std::string(json);
+}
+
+void signal_get_timing_compact(SignalTimingCompact* timing) {
+    if (timing == nullptr) {
+        return;
+    }
+
+    timing->samples = s_timing_sample_count;
+    timing->playback_avg_us = (float)((double)s_timing_playback_avg_cycles / CYCLES_PER_US);
+    timing->loop_us = (float)((double)s_timing_loop_cycles / CYCLES_PER_US);
+    timing->overruns = s_timing_overrun_count;
+    timing->timing_faults = s_timing_fault_count;
+}
+
 
 // ---------------------------------------------------------------------------
 // DOUBLE BUFFERING DATA

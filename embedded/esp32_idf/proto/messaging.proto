@@ -154,6 +154,34 @@ message UiCommandResult {
     string json = 6;
 }
 
+message AnalogDiagnosticResult {
+    bool valid = 1;
+    bool running = 2;
+    uint32 duration_ms = 3;
+    uint64 elapsed_us = 4;
+    uint32 seq_delta = 5;
+    uint32 miss_delta = 6;
+    uint32 overflow_delta = 7;
+    uint32 seq = 8;
+    uint32 age_us = 9;
+    uint32 rate_tps = 10;
+    uint32 raw_an3 = 11;
+    uint32 raw_an5 = 12;
+    uint32 raw_an6 = 13;
+    float cal_an3 = 14;
+    float cal_an5 = 15;
+    float cal_an6 = 16;
+    uint32 latency_avg_us = 17;
+    uint32 latency_p95_us = 18;
+    uint32 fault_code = 19;
+    uint32 timing_samples = 20;
+    float playback_avg_us = 21;
+    float loop_us = 22;
+    uint32 overruns = 23;
+    uint32 timing_faults = 24;
+    string message = 25;
+}
+
 // Top-level message for BLE communication
 message BlePacket {
     oneof payload {
@@ -162,5 +190,6 @@ message BlePacket {
         LogMessage log = 3;
         OtaStatus ota_status = 4;
         UiCommandResult command_result = 5;
+        AnalogDiagnosticResult analog_diagnostic_result = 6;
     }
 }

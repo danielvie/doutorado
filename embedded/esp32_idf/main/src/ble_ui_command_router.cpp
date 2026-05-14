@@ -2,17 +2,22 @@
 #include "ui_command_router.h"
 
 #include <algorithm>
+#include <atomic>
 #include <cstring>
 #include <string>
 
 #include "ble_controller.h"
 #include "esp_log.h"
 #include "esp_rom_sys.h"
+#include "esp_timer.h"
+#include "helper_analog.h"
 #include "helper_common.h"
 #include "helper_led.h"
 #include "signal_controller.h"
 
 #include "driver/gpio.h"
+#include "freertos/semphr.h"
+#include "freertos/task.h"
 
 extern "C" {
 #include "cJSON.h"
@@ -37,6 +42,13 @@ static size_t s_command_count = 0;
 volatile uint32_t g_dead_time_tail_overhead_cycles = DEFAULT_DEAD_TIME_TAIL_OVERHEAD_CYCLES;
 volatile uint32_t g_dead_time_us = DEFAULT_DEAD_TIME_US;
 static bool s_dead_time_request_valid = false;
+static std::atomic<bool> s_analog_test_running(false);
+static SemaphoreHandle_t s_analog_test_result_mutex = NULL;
+static AnalogDiagnosticResult s_analog_test_result = AnalogDiagnosticResult_init_zero;
+
+struct AnalogDiagnosticTestConfig {
+    uint32_t duration_ms;
+};
 
 static UiCommandResultData ok(const char* message = "ok", const std::string& json = "") {
     return {
@@ -216,6 +228,111 @@ static void set_dead_time_us(uint32_t time_us) {
              g_dead_time_tail_overhead_cycles);
 }
 
+static UiCommandResultData busy(const char* message) {
+    return {
+        .ok = false,
+        .code = "busy",
+        .message = message,
+        .json = "",
+    };
+}
+
+static void analog_test_set_message(AnalogDiagnosticResult* result, const char* message) {
+    if (result == nullptr) {
+        return;
+    }
+    strncpy(result->message, message ? message : "", sizeof(result->message) - 1);
+    result->message[sizeof(result->message) - 1] = '\0';
+}
+
+static void analog_test_store_result(const AnalogDiagnosticResult& result) {
+    if (s_analog_test_result_mutex &&
+        xSemaphoreTake(s_analog_test_result_mutex, pdMS_TO_TICKS(100)) == pdPASS) {
+        s_analog_test_result = result;
+        xSemaphoreGive(s_analog_test_result_mutex);
+    }
+}
+
+static AnalogDiagnosticResult analog_test_get_result() {
+    AnalogDiagnosticResult result = AnalogDiagnosticResult_init_zero;
+    if (s_analog_test_result_mutex &&
+        xSemaphoreTake(s_analog_test_result_mutex, pdMS_TO_TICKS(100)) == pdPASS) {
+        result = s_analog_test_result;
+        xSemaphoreGive(s_analog_test_result_mutex);
+    } else {
+        result.running = true;
+        analog_test_set_message(&result, "Diagnostic result is busy");
+    }
+    return result;
+}
+
+static void analog_test_send_result(const AnalogDiagnosticResult& result) {
+    BlePacket packet = BlePacket_init_zero;
+    packet.which_payload = BlePacket_analog_diagnostic_result_tag;
+    packet.payload.analog_diagnostic_result = result;
+    ble_send_protobuf(&packet);
+}
+
+static void analog_diagnostic_test_task(void* arg) {
+    AnalogDiagnosticTestConfig config = *static_cast<AnalogDiagnosticTestConfig*>(arg);
+    delete static_cast<AnalogDiagnosticTestConfig*>(arg);
+
+    AnalogRuntimeStatus before;
+    AnalogRuntimeStatus after;
+    analog_get_status(&before);
+    uint64_t start_us = (uint64_t)esp_timer_get_time();
+
+    led_on();
+    signal_start_continuous();
+    vTaskDelay(pdMS_TO_TICKS(config.duration_ms));
+    signal_stop();
+    vTaskDelay(pdMS_TO_TICKS(20));
+    led_off();
+
+    uint64_t end_us = (uint64_t)esp_timer_get_time();
+    analog_get_status(&after);
+
+    uint32_t seq_delta = after.seq >= before.seq ? after.seq - before.seq : 0;
+    uint32_t miss_delta = after.miss_count >= before.miss_count ? after.miss_count - before.miss_count : 0;
+    uint32_t overflow_delta =
+        after.overflow_count >= before.overflow_count ? after.overflow_count - before.overflow_count : 0;
+
+    SignalTimingCompact timing;
+    signal_get_timing_compact(&timing);
+
+    AnalogDiagnosticResult result = AnalogDiagnosticResult_init_zero;
+    result.valid = true;
+    result.running = false;
+    result.duration_ms = config.duration_ms;
+    result.elapsed_us = end_us - start_us;
+    result.seq_delta = seq_delta;
+    result.miss_delta = miss_delta;
+    result.overflow_delta = overflow_delta;
+    result.seq = after.seq;
+    result.age_us = after.age_us;
+    result.rate_tps = after.measured_triples_per_second;
+    result.raw_an3 = after.raw_an3;
+    result.raw_an5 = after.raw_an5;
+    result.raw_an6 = after.raw_an6;
+    result.cal_an3 = after.calibrated_an3;
+    result.cal_an5 = after.calibrated_an5;
+    result.cal_an6 = after.calibrated_an6;
+    result.latency_avg_us = after.latency_avg_us;
+    result.latency_p95_us = after.latency_p95_us;
+    result.fault_code = after.fault_code;
+    result.timing_samples = timing.samples;
+    result.playback_avg_us = timing.playback_avg_us;
+    result.loop_us = timing.loop_us;
+    result.overruns = timing.overruns;
+    result.timing_faults = timing.timing_faults;
+    analog_test_set_message(&result, "Analog diagnostic test complete");
+
+    analog_test_store_result(result);
+    ble_send_log(BleLogLevel_BLE_LOG_INFO, "Analog diagnostic test finished; fetch debug.analog_test_result");
+    s_analog_test_running.store(false, std::memory_order_release);
+    vTaskDelete(NULL);
+}
+
 static UiCommandResultData handle_signal_set_dead_time(const UiCommandContext& ctx) {
     uint32_t time_us;
     if (!json_get_u32(ctx.json, "time_us", &time_us)) {
@@ -342,6 +459,58 @@ static UiCommandResultData handle_debug_signal_timing(const UiCommandContext& ct
     return ok("Signal timing snapshot", signal_get_timing_snapshot_json());
 }
 
+static UiCommandResultData handle_debug_analog_test_run(const UiCommandContext& ctx) {
+    if (s_analog_test_running.load(std::memory_order_acquire)) {
+        return busy("Analog diagnostic test already running");
+    }
+
+    if (g_system_state.signal_state.load(std::memory_order_acquire) == SignalState::RUNNING) {
+        return busy("Signal is already running; stop it before starting the diagnostic test");
+    }
+
+    uint32_t duration_ms = 2000;
+    cJSON* duration = cJSON_GetObjectItem(ctx.json, "duration_ms");
+    if (duration != nullptr && !json_get_u32(ctx.json, "duration_ms", &duration_ms)) {
+        return invalid_arg("Expected numeric duration_ms");
+    }
+    if (duration_ms == 0 || duration_ms > 60000) {
+        return invalid_arg("duration_ms must be between 1 and 60000");
+    }
+
+    auto* config = new AnalogDiagnosticTestConfig{ .duration_ms = duration_ms };
+    s_analog_test_running.store(true, std::memory_order_release);
+    AnalogDiagnosticResult running_result = AnalogDiagnosticResult_init_zero;
+    running_result.running = true;
+    running_result.duration_ms = duration_ms;
+    analog_test_set_message(&running_result, "Analog diagnostic test running");
+    analog_test_store_result(running_result);
+
+    BaseType_t created = xTaskCreatePinnedToCore(
+        analog_diagnostic_test_task,
+        "analog_diag",
+        8192,
+        config,
+        tskIDLE_PRIORITY + 2,
+        NULL,
+        CORE_0);
+
+    if (created != pdPASS) {
+        delete config;
+        s_analog_test_running.store(false, std::memory_order_release);
+        AnalogDiagnosticResult failed_result = AnalogDiagnosticResult_init_zero;
+        analog_test_set_message(&failed_result, "Failed to start analog diagnostic test");
+        analog_test_store_result(failed_result);
+        return busy("Failed to start analog diagnostic test task");
+    }
+
+    return ok("Analog diagnostic test started");
+}
+
+static UiCommandResultData handle_debug_analog_test_result(const UiCommandContext& ctx) {
+    analog_test_send_result(analog_test_get_result());
+    return ok("Analog diagnostic test result notification queued");
+}
+
 static UiCommandResultData handle_debug_gpio_set(const UiCommandContext& ctx) {
     uint32_t port;
     uint32_t value;
@@ -402,6 +571,12 @@ static UiCommandResultData handle_debug_all_low(const UiCommandContext& ctx) {
 
 void ui_command_router_init(void) {
     s_command_count = 0;
+    if (s_analog_test_result_mutex == NULL) {
+        s_analog_test_result_mutex = xSemaphoreCreateMutex();
+        AnalogDiagnosticResult initial_result = AnalogDiagnosticResult_init_zero;
+        analog_test_set_message(&initial_result, "No analog diagnostic test has run yet");
+        analog_test_store_result(initial_result);
+    }
     set_dead_time_us(g_dead_time_us);
 
     register_command("system.list_commands", handle_system_list_commands);
@@ -430,6 +605,8 @@ void ui_command_router_init(void) {
     register_command("debug.matrix_b", handle_debug_matrix_b);
     register_command("debug.log_duration", handle_debug_log_duration);
     register_command("debug.signal_timing", handle_debug_signal_timing);
+    register_command("debug.analog_test_run", handle_debug_analog_test_run);
+    register_command("debug.analog_test_result", handle_debug_analog_test_result);
     register_command("debug.gpio_set", handle_debug_gpio_set);
     register_command("debug.all_high", handle_debug_all_high);
     register_command("debug.all_low", handle_debug_all_low);
