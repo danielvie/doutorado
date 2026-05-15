@@ -57,6 +57,7 @@ struct AnalogDiagnosticTestConfig {
 
 struct AnalogConfigSweepConfig {
     uint32_t duration_ms;
+    // Bounded to four cases because the protobuf result is fixed-size for BLE.
     uint32_t sample_hz[4];
     uint32_t sample_count;
 };
@@ -421,12 +422,15 @@ static void analog_config_sweep_task(void *arg) {
     result.valid = true;
     result.running = false;
 
+    // Sweep always owns the acquisition mode so each case compares only the
+    // sample-rate setting, not leftover manual mode state.
     g_analog_acquisition_mode = ANALOG_ACQ_MODE_CONTINUOUS;
     led_on();
 
     for (uint32_t i = 0; i < config.sample_count && i < 4; ++i) {
         const uint32_t sample_hz = config.sample_hz[i];
         g_analog_continuous_sample_hz = sample_hz;
+        // Let the ADC driver restart and publish a few frames before measuring.
         vTaskDelay(pdMS_TO_TICKS(300));
 
         AnalogRuntimeStatus before;
@@ -446,6 +450,8 @@ static void analog_config_sweep_task(void *arg) {
         analog_get_status(&after);
         signal_get_timing_compact(&timing_after);
 
+        // Store deltas so long-running counters do not hide what happened in
+        // this one configuration.
         AnalogConfigCaseResult *case_result = &result.cases[result.cases_count++];
         case_result->sample_hz = sample_hz;
         case_result->duration_ms = config.duration_ms;
@@ -771,6 +777,8 @@ handle_debug_analog_config_run(const UiCommandContext &ctx) {
     }
     if (config->duration_ms == 0 || config->duration_ms > 15000) {
         delete config;
+        // Keep the command useful from BLE without creating multi-minute tasks
+        // that block later diagnostics.
         return invalid_arg("duration_ms must be between 1 and 15000 per case");
     }
 

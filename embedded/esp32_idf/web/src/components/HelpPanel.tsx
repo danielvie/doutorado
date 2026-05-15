@@ -250,7 +250,6 @@ export const HelpPanel: React.FC<{
   onSizeChange?: (size: PanelSize) => void;
 }> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
   const [filter, setFilter] = useState("");
-  const normalizedFilter = filter.trim().toLowerCase();
   const filteredCommands = React.useMemo(() => {
     if (!filter.trim()) return COMMANDS;
     

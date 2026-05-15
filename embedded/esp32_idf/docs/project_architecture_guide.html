@@ -346,9 +346,9 @@
       <h1>ESP32 BLE Signal Controller</h1>
       <p class="lede">
         A guided map of the project: ESP-IDF firmware, browser dashboard,
-        BLE/protobuf transport, real-time signal generation, analog feedback,
-        OTA update flow, and the custom ESP configuration that makes those
-        parts fit together.
+        BLE/protobuf transport, real-time signal generation, analog data
+        acquisition, and the custom ESP configuration that makes those parts
+        fit together.
       </p>
       <div class="chips">
         <span class="chip">ESP-IDF v5.5.1</span>
@@ -1358,6 +1358,8 @@ message BlePacket {
         LogMessage log = 3;
         OtaStatus ota_status = 4;
         UiCommandResult command_result = 5;
+        AnalogDiagnosticResult analog_diagnostic_result = 6;
+        AnalogConfigTestResult analog_config_test_result = 7;
     }
 }</code></pre>
 

@@ -19,7 +19,10 @@
 #define ADC_CONTINUOUS_FRAME_TRIPLES 16
 #define ADC_CONTINUOUS_FRAME_SIZE (SOC_ADC_DIGI_RESULT_BYTES * 3 * ADC_CONTINUOUS_FRAME_TRIPLES)
 #define ADC_CONTINUOUS_STORE_SIZE (ADC_CONTINUOUS_FRAME_SIZE * 4)
+// Yield periodically so the analog task does not starve IDLE0 and trip WDT.
 #define ADC_CONTINUOUS_FRAMES_PER_IDLE_DELAY 32
+// DMA can deliver channel groups unevenly; per-channel queues let us rebuild
+// complete AN3/AN5/AN6 triples without trusting sample order.
 #define ANALOG_DMA_CHANNEL_QUEUE_SIZE 64
 
 #if (SOC_ADC_DIGI_RESULT_BYTES == 2)
@@ -169,6 +172,8 @@ void analog_publish_triple(uint32_t raw_an3, float calibrated_an3,
                            bool valid) {
     uint64_t now_us = (uint64_t)esp_timer_get_time();
     if (valid) {
+        // Report rate over a full window; per-sample deltas are too noisy for
+        // judging DMA stability from the dashboard.
         uint64_t window_start = s_rate_window_start_us.load(std::memory_order_acquire);
         if (window_start == 0) {
             s_rate_window_start_us.store(now_us, std::memory_order_release);
@@ -186,6 +191,7 @@ void analog_publish_triple(uint32_t raw_an3, float calibrated_an3,
         }
     }
 
+    // Odd seq marks "writer active"; even seq below marks a coherent snapshot.
     s_snapshot_seq.fetch_add(1, std::memory_order_acq_rel);
     s_snapshot.raw_an3.store(raw_an3, std::memory_order_relaxed);
     s_snapshot.raw_an5.store(raw_an5, std::memory_order_relaxed);
@@ -286,6 +292,8 @@ bool analog_read_control_snapshot(AnalogControlSnapshot* snapshot,
                                : ANALOG_FAULT_CALIBRATION_UNAVAILABLE);
         return false;
     }
+    // Control must act on a new sample inside the current timing budget; stale
+    // or repeated ADC data can drive corrections in the wrong direction.
     if (status.seq == last_seq || status.age_us > max_age_us) {
         analog_record_miss(ANALOG_FAULT_STALE_SAMPLE);
         return false;
@@ -343,6 +351,8 @@ static void analog_oneshot_deinit() {
     if (adc1_handle == NULL) {
         return;
     }
+    // ESP-IDF does not allow oneshot and continuous drivers to own ADC1 at the
+    // same time, so mode changes must release the old driver first.
     adc_oneshot_del_unit(adc1_handle);
     adc1_handle = NULL;
 }
@@ -533,6 +543,8 @@ static bool analog_continuous_start(uint32_t sample_hz) {
     adc_continuous_handle_cfg_t handle_config = {};
     handle_config.max_store_buf_size = ADC_CONTINUOUS_STORE_SIZE;
     handle_config.conv_frame_size = ADC_CONTINUOUS_FRAME_SIZE;
+    // Prefer fresh data over backlog; old samples are worse than dropped ones
+    // for closed-loop correction.
     handle_config.flags.flush_pool = 1;
 
     esp_err_t ret = adc_continuous_new_handle(&handle_config, &s_adc_continuous_handle);
@@ -542,6 +554,7 @@ static bool analog_continuous_start(uint32_t sample_hz) {
         return false;
     }
 
+    // Hardware channels 4, 6, 0 are the board AN3, AN5, AN6 feedback inputs.
     adc_digi_pattern_config_t pattern[3] = {};
     pattern[0].atten = ADC_ATTEN_DB_12;
     pattern[0].channel = ADC_CHANNEL_4;
@@ -616,6 +629,8 @@ static bool analog_channel_to_queue_index(uint32_t channel, uint32_t* index) {
 
 static void analog_queue_push(AnalogTripleAccumulator* acc, uint32_t index, uint32_t raw) {
     if (acc->count[index] == ANALOG_DMA_CHANNEL_QUEUE_SIZE) {
+        // Drop oldest on imbalance so one noisy channel cannot block all new
+        // triples; count it as an anomaly for diagnostics.
         acc->head[index] = (acc->head[index] + 1) % ANALOG_DMA_CHANNEL_QUEUE_SIZE;
         acc->count[index]--;
         s_channel_order_anomalies.fetch_add(1, std::memory_order_acq_rel);

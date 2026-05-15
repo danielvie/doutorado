@@ -210,6 +210,8 @@ message AnalogConfigCaseResult {
     uint32 dma_anomalies_delta = 17;
 }
 
+// Short, bounded sweep result for comparing ADC DMA sample-rate settings over
+// BLE without streaming logs from the firmware task.
 message AnalogConfigTestResult {
     bool valid = 1;
     bool running = 2;

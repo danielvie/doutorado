@@ -11,6 +11,8 @@ static constexpr uint32_t CYCLES_PER_US = 240;
 static constexpr uint32_t MIN_ACTIVE_HOLD_CYCLES = CYCLES_PER_US;
 static constexpr uint32_t MIN_MAINTENANCE_PERIOD_CYCLES = 50 * CYCLES_PER_US;
 static constexpr uint32_t SHORT_PATTERN_BATCH_CYCLES = 256;
+// Feedback older than one control period is treated as stale; the correction
+// must reflect the waveform cycle currently being scheduled.
 static constexpr uint32_t CONTROL_MAX_ANALOG_AGE_US = 280;
 
 // ---------------------------------------------------------------------------
@@ -436,6 +438,8 @@ static void update_control_corrections(SignalLoopContext &ctx) {
         AnalogRuntimeStatus analog_status;
         analog_get_status(&analog_status);
         if (analog_status.consecutive_misses >= 3) {
+            // Disable only the controller. The signal loop keeps running so a
+            // transient ADC fault does not also remove the commanded waveform.
             g_control_enabled.store(false, std::memory_order_release);
             g_system_state.control_state.store(ControlState::OFF, std::memory_order_release);
         }
