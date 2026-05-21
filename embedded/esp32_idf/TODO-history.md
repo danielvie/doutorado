@@ -10,3 +10,16 @@
   - [x] Document fault gate system and miss policy
   - [x] Document new BLE commands and diagnostic infrastructure
   - [x] Reference the implementation plan milestones
+- [x] Review `Analog Data Acquisition` against firmware implementation
+- [x] Update charts to hierarchical color semantics
+- [x] Correct descriptions/charts that do not match the code
+- [x] Run documentation/web verification if needed
+- [x] Reorganize `project_architecture_guide.html` into requested sections
+- [x] Review code created in this thread for comment gaps
+- [x] Add concise "why" comments to the DMA/control/test code
+- [x] Fix web build unused variable in `HelpPanel.tsx`
+- [x] Verify firmware and web builds after documentation/comment edits
+- [x] Convert `_create_signal` from `web/src/helper.ts` to a MATLAB function
+- [x] Adjust MATLAB `create_signal.m` to return `[Omega, dtSwitch, tSwitch]` signature and fix `industrial_solution` return bugs
+- [x] Simplify `create_signal.m` to contain only a single, unified function
+- [x] Adjust `create_signal.m` outputs to `time_vector` (rounded microseconds) and `mode_vector` (0-based modes)
