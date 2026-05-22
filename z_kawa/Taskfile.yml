@@ -1,0 +1,22 @@
+version: '3'
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+
+  run:
+    desc: Run the MATLAB signal generator syntax check
+    cmds:
+      - matlab -batch "checkcode('signal_generate.m')"
+
+  test:
+    desc: Run MATLAB code analyzer for project scripts
+    cmds:
+      - matlab -batch "checkcode('signal_generate.m'); checkcode('signal_create.m')"
+
+  clean:
+    desc: Remove generated Simulink cache/build folders
+    cmds:
+      - rm -rf slprj
