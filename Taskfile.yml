@@ -20,3 +20,8 @@ tasks:
     desc: Remove generated overview documentation
     cmds:
       - pwsh -NoProfile -Command "Remove-Item -Force docs/latex-overview.html,docs/simu2-overview.html,docs/embedded-overview.html -ErrorAction SilentlyContinue"
+
+  update-tese:
+    desc: Copy LATEX/Tese/build/tese.pdf to the project folder
+    cmds:
+      - cp LATEX/Tese/build/tese.pdf ./

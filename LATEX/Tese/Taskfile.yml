@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 tasks:
   default:
@@ -25,3 +25,8 @@ tasks:
     desc: Alias for clean
     cmds:
       - task clean
+
+  update-tese:
+    desc: Copy build/tese.pdf to the project root
+    cmds:
+      - cp build/tese.pdf ./../../tese.pdf

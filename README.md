@@ -1,6 +1,6 @@
 # DOUTORADO DANIEL VIEIRA
 
-* [tese.pdf](LATEX_tese/tese.pdf)
+* [tese.pdf](tese.pdf)
 
 
 ## Support Images
