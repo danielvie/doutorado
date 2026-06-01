@@ -21,7 +21,7 @@ length \highlight{$s^\infty (1 < s^\infty < s_{max})$}. To reduce the oscillatio
 quadratic criterion centered on the average reference value \highlight{$\bar{x}^\infty$}:
 
 \begin{equation}
-    \label{cap2_eq_optimization}
+    \label{eq:cap2:trajectory-optimization}
     J(\tau^{\infty} ,\Omega^{\infty} ,s^{\infty}, x_0) = \min_{\tau, \Omega, s} \int_0^{T_p} \Big[x(t) - \bar{x}^{\infty}\Big]^T Q \Big[x(t) - \bar{x}^{\infty}\Big] dt
 \end{equation}
 
@@ -40,7 +40,7 @@ Since the trajectory is cyclic we can impose the constraint:
     \centering
     \includegraphics[]{figures/shared/cap2_grafico_diferentes_dinamicas.eps}
     \caption{Change in dynamics over trajectory time}
-    \label{cap2_fig_diferentes_dinamicas}
+    \label{fig:cap2:different-dynamics}
 \end{figure}
 
 
@@ -49,7 +49,7 @@ Since the trajectory is cyclic we can impose the constraint:
 
     We are considering that the system dynamics will change after each switch command, this means that each 
     switching interval will have its dynamics represented by the matrices \highlight{$\big\{A_i, b_i\big\}$}. The same system 
-    dynamic can be used again in different intervals. This is illustrated in figure \ref{cap2_fig_diferentes_dinamicas},
+    dynamic can be used again in different intervals. This is illustrated in figure \ref{fig:cap2:different-dynamics},
     where a sequence of dynamics is applied in the sequence of modes \highlight{$\big[4,2,1,2,3\big]$} to generate the cyclic trajectory.
 
 \subsection{Constraints Definition}
@@ -59,7 +59,7 @@ Since the trajectory is cyclic we can impose the constraint:
     
     \noindent
     \begin{equation}
-        \label{cap2_tp_constraint}
+        \label{eq:cap2:period-constraint}
         T_p \le T_{p,max}
     \end{equation}
     
@@ -68,7 +68,7 @@ Since the trajectory is cyclic we can impose the constraint:
 
     \noindent
     \begin{equation}
-        \label{cap2_time_constraint}
+        \label{eq:cap2:dwell-time-constraint}
         (t_i - t_{i - 1}) \ge \Delta t_{i,min}\;, \quad i = 1,2,\dotso,N
     \end{equation}
 
@@ -84,8 +84,8 @@ Since the trajectory is cyclic we can impose the constraint:
 
     For optimization purposes, the function FMINCON is employed. This function works 
     in conjunction with a cost function. Its primary goal is to evaluate and 
-    discern the most cost-effective result that respects the imposed constraints in \eqref{cap2_tp_constraint} and 
-    \eqref{cap2_time_constraint}.
+    discern the most cost-effective result that respects the imposed constraints in \eqref{eq:cap2:period-constraint} and 
+    \eqref{eq:cap2:dwell-time-constraint}.
     
     The optimization algorithm solves the problem 
     

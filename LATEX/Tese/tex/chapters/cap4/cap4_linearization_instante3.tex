@@ -5,18 +5,18 @@ Repeating the procedure for \highlight{$x(t_3)$} we have
 
 \noindent
 \begin{align}
-	\label{eq_cap3_lin_x3}
+	\label{eq:cap4:linearization-x3}
 	x(t_3)  &= e^{A_3(t_3-t_2)}x(t_2) + \intlinAA{2}{3}{}{} \\
-	\label{eq_cap3_lin_xr3}
+	\label{eq:cap4:linearization-reference-x3}
 	\bar{x}(\bar{t}_3) &= e^{A_3(\bar{t}_3-\bar{t}_2)}\bar{x}(\bar{t}_2) + \intlinAbtt{2}{3}
 \end{align}
 
 \noindent
-subtracting \eqref{eq_cap3_lin_x3} from \eqref{eq_cap3_lin_xr3} 
+subtracting \eqref{eq:cap4:linearization-x3} from \eqref{eq:cap4:linearization-reference-x3} 
 
 \noindent
 \begin{equation}
-	\label{eq_cap3_lin_erro_x2x3}
+	\label{eq:cap4:linearization-error-x2-x3}
 	\begin{split}
 		x(t_3) ->  - \bar{x}(\bar{t}_3) = \green{\overbrace{e^{A_3(t_3-t_2)}x(t_2) - e^{A_3(\bar{t}_3-\bar{t}_2)}\bar{x}(\bar{t}_2)}^{\square}} \\ 
 		+ \orange{\underbrace{\intlinAA{2}{3}{}{} - \intlinAbtt{2}{3}}_{\bigcirc}}
@@ -24,7 +24,7 @@ subtracting \eqref{eq_cap3_lin_x3} from \eqref{eq_cap3_lin_xr3}
 \end{equation}
 
 \noindent 
-expanding $\green{\square}$ in \eqref{eq_cap3_lin_erro_x2x3}:
+expanding $\green{\square}$ in \eqref{eq:cap4:linearization-error-x2-x3}:
 
 \noindent
 \begin{align}
@@ -41,7 +41,7 @@ expanding $\green{\square}$ in \eqref{eq_cap3_lin_erro_x2x3}:
 		\blue{\bar{F}_3} \purple{[I + A_3(\delta t_3 - \delta t_2)]} x(t_2)
 		- \blue{\bar{F}_3} \bar{x}(\bar{t}_2)
 	} \nonumber \\
-	\label{eq_cap3_lin_x3_green}
+	\label{eq:cap4:linearization-x3-green-term}
 	&= \green{
 		\bar{F}_3 [x(t_2) - \bar{x}(\bar{t}_2)] + \bar{F}_3 A_3 x(t_2) \delta t_3
 		- \bar{F}_3 A_3 x(t_2) \delta t_2
@@ -78,17 +78,17 @@ and expanding $\orange{\bigcirc}$:
 							\bigg] - \bar{G}_3
 						} \nonumber \\
 						&= \orange{ \cancel{\bar{G}_3} - \bar{F}_3 B_3 \delta t_2 + B_3 \delta t_3 + A_3 \bar{G}_3 \delta t_3 - \cancel{\bar{G}_3} } \nonumber \\
-						\label{eq_cap3_lin_x3_orange}
+						\label{eq:cap4:linearization-x3-orange-term}
 						&= \orange{ A_3 \bar{G}_3 \delta t_3 + B_3 \delta t_3 - \bar{F}_3 B_3 \delta t_2 }
 \end{align}
 
 \noindent 
-and then replacing \eqref{eq_cap3_lin_x3_green} in \eqref{eq_cap3_lin_x3_orange} back in eq. \eqref{eq_cap3_lin_erro_x2x3} we get to the difference equation
+and then replacing \eqref{eq:cap4:linearization-x3-green-term} in \eqref{eq:cap4:linearization-x3-orange-term} back in eq. \eqref{eq:cap4:linearization-error-x2-x3} we get to the difference equation
 for \highlight{$x(t_3) - \bar{x}(\bar{t}_3)$}
 
 \noindent
 \begin{align}
-	\label{eq_xt3_xt2_1_0}
+	\label{eq:cap4:linearization-x3-x2-recurrence}
 	\begin{split}
 		x(t_3) - \bar{x}(\bar{t}_3) =  & \bar{F}_3 [\green{x(t_2) - \bar{x}_2(\bar{t}_2)}] \\
 							     & - \bar{F}_3 [A_3 \blue{x(t_2)} + B_3] \delta t_2 \\
@@ -97,7 +97,7 @@ for \highlight{$x(t_3) - \bar{x}(\bar{t}_3)$}
 \end{align}
 
 \noindent 
-from \eqref{eq_cap3_lin_erro_x2x1_resultado}, $\blue{\triangle}$ can be expanded the same way as in the past iteration and \highlight{$x(t_2)-\bar{x}(\bar{t}_2)$} can be replaced in \eqref{eq_xt3_xt2_1_0} 
+from \eqref{eq:cap4:linearization-error-x2-x1-result}, $\blue{\triangle}$ can be expanded the same way as in the past iteration and \highlight{$x(t_2)-\bar{x}(\bar{t}_2)$} can be replaced in \eqref{eq:cap4:linearization-x3-x2-recurrence} 
 
 \noindent
 \begin{align}
@@ -115,7 +115,7 @@ from \eqref{eq_cap3_lin_erro_x2x1_resultado}, $\blue{\triangle}$ can be expanded
 after rearranging the terms, one arrives at
 
 \noindent
-\boxeq{eq_cap3_lin_erro_x3x2_resultado}
+\boxeq{eq:cap4:linearization-error-x3-x2-result}
 {
 	\begin{split}
 		x(t_3) - \bar{x}(\bar{t}_3) =  & \bar{F}_3\bar{F}_2\bar{F}_1 [x(t_0) - \bar{x}(t_0)] \\

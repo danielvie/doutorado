@@ -1,19 +1,19 @@
 \section{MPC Problem}
 
-Note that the equation \eqref{eq_eNe0_result} relates to the equation \eqref{cap3-dynamic-equation} as both describe the evolution of a
-system over time. The equation \eqref{cap3-dynamic-equation} represents the system's state and input at a given time step,
-and the equation \eqref{eq_eNe0_result} describes the error between the system's predicted and actual values at two different time points.
+Note that the equation \eqref{eq:cap4:linearization-final-error-result} relates to the equation \eqref{eq:cap3:dynamic-equation} as both describe the evolution of a
+system over time. The equation \eqref{eq:cap3:dynamic-equation} represents the system's state and input at a given time step,
+and the equation \eqref{eq:cap4:linearization-final-error-result} describes the error between the system's predicted and actual values at two different time points.
 
-By referring to equation \eqref{cap3-dynamic-equation}, several substitutions can be made to 
+By referring to equation \eqref{eq:cap3:dynamic-equation}, several substitutions can be made to 
 simplify the discussion. The variable \green{$x$ is replaced with $e$}, and \orange{$u$ with 
 $\delta t$}. Additionally, the cycle index is denoted by \purple{$k$}. These substitutions result 
-in equation \eqref{eq_eNe0_result}.
+in equation \eqref{eq:cap4:linearization-final-error-result}.
 \subsection{Cost Function}
 
 The cost function for the MPC problem is given by
 
 \begin{equation}
-\label{eq_cost_funcion}
+\label{eq:cap4:mpc-cost-function}
     J = \norma{e[N_p]}{P_f} \\
     + \sum^{N_p - 1}_{j=0}\norma{e[j]}{Q} + \norma{\delta t[j]}{R}
 \end{equation}
@@ -23,7 +23,7 @@ where \highlight{$Q = Q^T > 0$}, \highlight{$R = R^T > 0$}, \highlight{$e[j]$} i
 error at cycle \highlight{$j$} and \highlight{$N_p$} is the prediction horizon spanning.
 
 
-The error \highlight{$e[j]$} is computed by equation \eqref{cap4_eq_lin_proc_result_j} and the time vector
+The error \highlight{$e[j]$} is computed by equation \eqref{eq:cap4:linearization-error-result-j} and the time vector
 \highlight{$\delta t[j]$} is the difference between the switching times of the cycle and the nominal switching of the target trajectory  
 
 \noindent

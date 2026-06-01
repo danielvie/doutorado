@@ -1,9 +1,9 @@
 \subsection{Multilevel converter}
-\label{cap4_applicaton_patino2}
+\label{sec:cap4:multilevel-converter}
 
 \subsubsection{Parameters of the Simulation}
 
-This example describes the Multilevel converter model described in session \ref{cap2_application_patino2},
+This example describes the Multilevel converter model described in session \ref{sec:cap2:multilevel-converter},
 the dynamics of this system are defined by 
 
 \begin{equation}
@@ -24,22 +24,22 @@ with \highlight{$R = 10.0 \; \mathrm{\Omega}$}, \highlight{$L = 10.0 \; \mathrm{
 \highlight{$C_2 = 40.0 \; \mathrm{\mu F}$}, \highlight{$E  = 30.0 \; \mathrm{V}$}
 
 \noindent
-and the associated mode sequence for the target cyclic trajectory is shown in Figure \ref{cap4_fig_seq_ref_patino2}.
+and the associated mode sequence for the target cyclic trajectory is shown in Figure \ref{fig:cap4:multilevel-converter-reference-sequence}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=12cm]{figures/shared/cap4_ref_signal_patino2.eps}
     \caption{Reference sequence for Multilevel converter}
-    \label{cap4_fig_seq_ref_patino2}
+    \label{fig:cap4:multilevel-converter-reference-sequence}
 \end{figure}
 
 \noindent
-with \highlight{$u(i)$} given in Table \ref{cap4_table_ui} 
+with \highlight{$u(i)$} given in Table \ref{tab:cap4:multilevel-converter-input-values} 
 
 \noindent
 \begin{table}[H]
     \caption{Values of $u_i$ for the Multilevel converter}
-    \label{cap4_table_ui}
+    \label{tab:cap4:multilevel-converter-input-values}
     \begin{center}
         \begin{tabular}{|c|c|c|c|}
             \hline
@@ -72,7 +72,7 @@ computation of the trajectory is \highlight{$Q = diag([10, 5, 20000])$}.
 
 \subsubsection{Prediction Matrices}
 
-The prediction matrices are constructed using  \eqref{eq_Phi} and \eqref{eq_Gamma}, and the result is
+The prediction matrices are constructed using  \eqref{eq:cap4:linearization-phi} and \eqref{eq:cap4:linearization-gamma}, and the result is
 
 \begin{equation}
     \Phi =
@@ -147,7 +147,7 @@ with the switching time constraints
 \subsubsection{Results}
 
 
-Figure \ref{cap4_graf_proj_patino2} presents the feasibility region $\mathcal{D}$ for three different prediction horizons 
+Figure \ref{fig:cap4:multilevel-converter-feasibility-region} presents the feasibility region $\mathcal{D}$ for three different prediction horizons 
 ($N_p = 1$, $N_p = 2$ and $N_p = 4$) for the Multilevel Converter.
 
 
@@ -155,11 +155,11 @@ Figure \ref{cap4_graf_proj_patino2} presents the feasibility region $\mathcal{D}
     \centering
     \includegraphics[width=14cm]{figures/cap4/graf_proj_patino2.pdf}
     \caption{Multilevel Converter: Feasibility Region}
-    \label{cap4_graf_proj_patino2}
+    \label{fig:cap4:multilevel-converter-feasibility-region}
 \end{figure}
 
 
-Figure \ref{cap4_graf_patino2_traj} shows the trajectory for the Multilevel converter, 
+Figure \ref{fig:cap4:multilevel-converter-state-trajectory-a} shows the trajectory for the Multilevel converter, 
 \highlightblue{in blue} we see the trajectory without using the MPC controller, and 
 \highlightorange{in orange} we see the trajectory using the MPC controller.
 Both trajectories start from \highlight{$x_0 = \big[7.5143 \;\mathrm{V}, 20.8211 \;\mathrm{V}, 0.0314 \;\mathrm{A}\big]$}.
@@ -174,30 +174,30 @@ therefore, converging to this point is equivalent to converging to the desired l
     \centering
     \includegraphics[width=14cm]{figures/cap4/graf_patino2_traj.pdf}
     \caption{Multilevel Converter: State Trajectory, $x_0 = \big[7.51, 20.82, 0.03\big]^T$}
-    \label{cap4_graf_patino2_traj}
+    \label{fig:cap4:multilevel-converter-state-trajectory-a}
 \end{figure}
 
-Note that the trajectory of Figure \ref{cap4_graf_patino2_traj} does not converge to the same periodic trajectory.
-In Figure \ref{cap4_graf_patino2_traj2} we run the simulation with a different initial condition \highlight{$x_0$} and we see 
+Note that the trajectory of Figure \ref{fig:cap4:multilevel-converter-state-trajectory-a} does not converge to the same periodic trajectory.
+In Figure \ref{fig:cap4:multilevel-converter-state-trajectory-b} we run the simulation with a different initial condition \highlight{$x_0$} and we see 
 that the trajectory with the MPC turned off converges to yet another periodic trajectory.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=14cm]{figures/cap4/graf_patino2_traj_2.pdf}
     \caption{Multilevel Converter: State Trajectory, $x_0 = \big[9.31, 19.52, 0.73\big]^T$}
-    \label{cap4_graf_patino2_traj2}
+    \label{fig:cap4:multilevel-converter-state-trajectory-b}
 \end{figure}
 
-Figure \ref{cap4_graf_patino2_xi} displays the states of the system over time.
+Figure \ref{fig:cap4:multilevel-converter-states} displays the states of the system over time.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=14cm]{figures/cap4/graf_patino2_xi.pdf}
     \caption{Multilevel Converter: States over time}
-    \label{cap4_graf_patino2_xi}
+    \label{fig:cap4:multilevel-converter-states}
 \end{figure}
 
-Figure \ref{cap4_graf_patino2_control_u_signal} displays the control signal sequence, 
+Figure \ref{fig:cap4:multilevel-converter-control-signal} displays the control signal sequence, 
 we can see the difference between the open loop and the controlled signal decreasing
 and getting in sync.
 
@@ -205,5 +205,5 @@ and getting in sync.
     \centering
     \includegraphics[width=14cm]{figures/cap4/graf_patino2_u_signal.pdf}
     \caption{Multilevel Converter: Control Signal}
-    \label{cap4_graf_patino2_control_u_signal}
+    \label{fig:cap4:multilevel-converter-control-signal}
 \end{figure}

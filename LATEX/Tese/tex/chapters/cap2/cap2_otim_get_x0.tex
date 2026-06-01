@@ -29,7 +29,7 @@ then the behavior of the other regions of the system is
     x(t_2) &= F_1 x(t_1) + g_1 \nonumber \\
     &\qquad \vdots \nonumber \\ 
     x(t_N) &= F_{N-1} x(t_{N-1}) + g_{N-1}
-    \label{cap2-get-x0-multi-equations}
+    \label{eq:cap2:x0-periodic-condition-system}
 \end{align}
 
 \noindent
@@ -44,7 +44,7 @@ with
     \int_{0}^{t_{i+1} - t_i}{e^{A_{\sigma(t_i)}\tau} b_{\sigma(t_i)} d\tau}
 \end{align}
 
-From \eqref{cap2-get-x0-multi-equations} we can establish the relation between \highlight{$x(t_N)$} and \highlight{$x(0)$}
+From \eqref{eq:cap2:x0-periodic-condition-system} we can establish the relation between \highlight{$x(t_N)$} and \highlight{$x(0)$}
 
 
 \begin{align}
@@ -63,7 +63,7 @@ following expression for the initial state \highlight{$x(0)$}:
     x(0) = F_{N-1}F_{N-2} \ldots F_0 x(0) + c \nonumber \\
     \Big(I - F_{N-1}F_{N-2} \ldots F_0\Big) x(0) = c \nonumber \\
     x(0) = \Big(I - F_{N-1}F_{N-2} \ldots F_0\Big)^{-1} c
-    \label{cap2-equacao-matriz-inversa}
+    \label{eq:cap2:x0-inverse-matrix}
 \end{align}
 
 \noindent
@@ -75,4 +75,4 @@ where
 \end{equation}
 
 \noindent
-assuming that the inverse indicated in \eqref{cap2-equacao-matriz-inversa} exists.
+assuming that the inverse indicated in \eqref{eq:cap2:x0-inverse-matrix} exists.

@@ -1,7 +1,7 @@
 
 \section{Constraints}
 
-In view of \eqref{cap3_x_in_X} and \eqref{cap3_u_in_U}, the constraints on the optimization 
+In view of \eqref{eq:cap3:state-constraint-set} and \eqref{eq:cap3:input-constraint-set}, the constraints on the optimization 
 variables can be expressed as
 
 \noindent
@@ -83,7 +83,7 @@ with
 	\mathbf{S_u} = diag_N(S_u), \mathbf{b_u} = col_N(b_u)
 \end{equation}
 
-Similarly, in light of \eqref{cap3_eq_Sx_bx}, the constraints on \highlight{$\mathbf{\hat{x}}[k]$} can be written as
+Similarly, in light of \eqref{eq:cap3:polyhedral-state-constraint}, the constraints on \highlight{$\mathbf{\hat{x}}[k]$} can be written as
 
 \begin{equation}
 	\left[
@@ -118,7 +118,7 @@ or, in short
 
 \noindent
 \begin{equation}
-	\label{cap3_sx_x_le_bx}
+	\label{eq:cap3:prediction-state-constraint}
 	\mathbf{S_x}\mathbf{\hat{x}}[k] \leq \mathbf{b_x}
 \end{equation}
 

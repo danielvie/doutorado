@@ -27,7 +27,7 @@ based on the prediction equation
 
 \noindent
 \begin{equation}
-	\label{cap3_eq_pred1}
+	\label{eq:cap3:one-step-prediction}
 	\hat{x}[k + i +1|k] = A\hat{x}[k+i|k] + B \hat{u}[k+i|k], 
 	i = 0, 1, \ldots, N 
 \end{equation}
@@ -35,7 +35,7 @@ based on the prediction equation
 \noindent
 and initial condition \highlight{$\hat{x}[k|k] = x[k]$}.
 
-From \eqref{cap3_eq_pred1}, it follows that
+From \eqref{eq:cap3:one-step-prediction}, it follows that
 
 \begin{equation}
 	\hat{x}[k+i|k] = A^i\hat{x}[k|k] + \sum_{j=0}^{i-1} A^{i - 1 -j} B \hat{u}[k+j|k]
@@ -98,7 +98,7 @@ This can be written in a shorter form as
 
 \noindent
 \begin{equation}
-	\label{cap3_eq_predicao_xk}
+	\label{eq:cap3:stacked-state-prediction}
 	\mathbf{\hat{x}}[k] = \mathbf{A}x[k] + \mathbf{B \hat{u}}[k]
 \end{equation}
 
@@ -127,7 +127,7 @@ with
 \end{equation}
 
 The vectors \highlight{$\mathbf{\hat{x}}[k]$} and \highlight{$\mathbf{\hat{u}}[k]$} are linked by 
-\eqref{cap3_eq_predicao_xk}, so the constraint \eqref{cap3_sx_x_le_bx} can be rewritten as
+\eqref{eq:cap3:stacked-state-prediction}, so the constraint \eqref{eq:cap3:prediction-state-constraint} can be rewritten as
 
 \noindent
 \begin{equation}

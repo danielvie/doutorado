@@ -1,15 +1,15 @@
 \subsection{Buck-Boost Converter}
-\label{cap2_application_patino1}
+\label{sec:cap2:buck-boost-converter}
 
 We are using an application example extracted from \citeonline{patino2010predictive}, 
 a Buck-Boost converter in Continuous Conduction Mode (CCM) 
-with the topology shown in Figure \ref{cap2-circuit-ex-1}. 
+with the topology shown in Figure \ref{fig:cap2:buck-boost-circuit}. 
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=10cm]{figures/cap2/figura_circuito_ex_1.eps} 
     \caption{Buck-Boost Converter}
-    \label{cap2-circuit-ex-1}
+    \label{fig:cap2:buck-boost-circuit}
 \end{figure}
 
 The state variables are the capacitor voltage \highlight{$v_c$} and the inductor 
@@ -26,7 +26,7 @@ current \highlight{$i_L$}. Its dynamics are given by the equation:
 where
 
 \begin{equation}
-    \label{eq_dynamics_patino1}
+    \label{eq:cap2:buck-boost-dynamics}
     \begin{matrix}
         A_1 = \left[ \begin{matrix} 0 & 0 \\ 0 & -\frac{1}{RC} \\ \end{matrix} \right] & 
         A_2 = \left[ \begin{matrix} 0 & \frac{1}{L} \\ -\frac{1}{C} & -\frac{1}{RC} \\ \end{matrix} \right] \\
@@ -79,7 +79,7 @@ where
 
 
 
-The criteria for the optimization is to compute the trajectory to minimize equation \eqref{cap2_eq_optimization} 
+The criteria for the optimization is to compute the trajectory to minimize equation \eqref{eq:cap2:trajectory-optimization} 
 with \highlight{$\bar{x}^\infty = \big[2 \;\mathrm{V}, -1 \;\mathrm{A}\big]^T$} with the weight matrix 
 \highlight{$Q = diag\big[1,1\big]$}, the maximum cycle period of 
 \highlight{$T_{p,max} = 1 \;\mathrm{s}$} and minimum dwell time of \highlight{$t_{min} = 0.25 \;\mathrm{s}$}.
@@ -140,7 +140,7 @@ and constrained by a maximum cycle time \highlight{$T_{p_{max}}$}
 The solution provided by the \highlight{FMINCON} optimization yields 
 
 \begin{equation}
-    \label{eq_ref_signal_patino1}
+    \label{eq:cap2:buck-boost-reference-signal}
     \begin{matrix}
         \tau^\infty = \big[0, 0.2513, 0.5914\big],\\
         \\
@@ -148,21 +148,21 @@ The solution provided by the \highlight{FMINCON} optimization yields
     \end{matrix}
 \end{equation}
 
-The outcome under this condition is displayed in Figure \ref{cap2_graf_patino1_traj}, showcasing 
+The outcome under this condition is displayed in Figure \ref{fig:cap2:buck-boost-state-trajectory}, showcasing 
 the cyclic trajectory around the average value \highlight{$[2, -1]^T$}. The corresponding switch command signal $u$ 
-can be seen in Figure \ref{cap2_graf_patino1_u_signal}.
+can be seen in Figure \ref{fig:cap2:buck-boost-input-signal}.
 
 
 \begin{figure}[ht]
     \centering
     \includegraphics[width=14cm]{figures/cap2/graf_patino1_traj.pdf}
     \caption{Buck-Boost Converter: State trajectory}
-    \label{cap2_graf_patino1_traj}
+    \label{fig:cap2:buck-boost-state-trajectory}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=14cm]{figures/cap2/graf_patino1_u_signal.pdf}
     \caption{Buck-Boost Converter: Switch command}
-    \label{cap2_graf_patino1_u_signal}
+    \label{fig:cap2:buck-boost-input-signal}
 \end{figure}

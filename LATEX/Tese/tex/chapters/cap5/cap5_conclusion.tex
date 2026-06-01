@@ -6,16 +6,16 @@ dynamics at switching times. This allows the method to be used in more control p
 and maintains the convenience of solving the control problem with quadratic programming 
 convex optimization, which is a mature class of optimization problems.
 
-To test the method, first, a double integrator system with fixed dynamics was implemented in session \ref{cap4_aplication_integrador}
+To test the method, first, a double integrator system with fixed dynamics was implemented in session \ref{sec:cap4:double-integrator}
 to validate the new solution. The result shows that the system diverges when not in the cyclic trajectory without the MPC controller and 
 the controller is capable of correcting the trajectory and eventually engaging with the target trajectory.
 
-The application example in session \ref{cap4_applicaton_patino1} introduces a system with changing dynamics at each switching time. 
-A cyclic trajectory was calculated in session \ref{cap2_application_patino1} to use as an input parameter to implement the control method.
+The application example in session \ref{sec:cap4:buck-boost-converter} introduces a system with changing dynamics at each switching time. 
+A cyclic trajectory was calculated in session \ref{sec:cap2:buck-boost-converter} to use as an input parameter to implement the control method.
 In this example, the circuit has stable dynamics that converge to the cyclic trajectory. Using the MPC controller reduces the time to converge
 as can be seen in the comparison of the trajectories.
 
-The multilevel converter in session \ref{cap4_applicaton_patino2} is a circuit that 
+The multilevel converter in session \ref{sec:cap4:multilevel-converter} is a circuit that 
 introduces more complexity, there are more operation modes and even modes that are repeated
 during the same cycle. The simulation without the MPC shows a trajectory that converges to a cyclic limit 
 that is different than the target cyclic trajectory. With the use of the MPC controller, we see that the system 

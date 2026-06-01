@@ -1,24 +1,24 @@
 % ========================= INSTANDE DE TEMPO 1 =========================
 % =======================================================================
 
-The solution for the state equation \eqref{eq_continuous_time_dynamics} at time \highlight{$t_1$}, starting from the initial condition \highlight{$x(t_0)$}, is of the form
+The solution for the state equation \eqref{eq:cap4:continuous-time-dynamics} at time \highlight{$t_1$}, starting from the initial condition \highlight{$x(t_0)$}, is of the form
 
 
 \noindent
 \begin{align}
-	\label{eq_cap3_lin_x1}
+	\label{eq:cap4:linearization-x1}
 	x(t_1)  &= e^{A_1(t_1-t_0)}x(t_0) + \intlinAA{0}{1}{}{} \\
-	\label{eq_cap3_lin_xr1}
+	\label{eq:cap4:linearization-reference-x1}
 	\bar{x}(\bar{t}_1) &= e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0) + \intlinAbtt{0}{1}
 \end{align}
 
 
 \noindent
-subtracting \eqref{eq_cap3_lin_xr1} from \eqref{eq_cap3_lin_x1} we get
+subtracting \eqref{eq:cap4:linearization-reference-x1} from \eqref{eq:cap4:linearization-x1} we get
 
 \noindent
 \begin{equation}
-	\label{eq_cap3_lin_erro_x0x1}
+	\label{eq:cap4:linearization-error-x0-x1}
 	\begin{split}
 		x(t_1) - \bar{x}(\bar{t}_1) = \green{\overbrace{e^{A_1(t_1-t_0)}x(t_0) - e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)}^{\square}} \\
 		+ \orange{\underbrace{\intlinAA{0}{1}{}{} - \intlinAbtt{0}{1}}_{\bigcirc}}
@@ -26,12 +26,12 @@ subtracting \eqref{eq_cap3_lin_xr1} from \eqref{eq_cap3_lin_x1} we get
 \end{equation}
 
 \noindent
-expanding \eqref{eq_cap3_lin_erro_x0x1} first in $\green{\square}$:
+expanding \eqref{eq:cap4:linearization-error-x0-x1} first in $\green{\square}$:
 
 % 2.4
 \noindent
 \begin{align}
-	\label{eq_cap3_lin_erro_x0x1_green}
+	\label{eq:cap4:linearization-error-x0-x1-green-term}
 	\green{\square} &= \green{e^{A_1(t_1-t_0)}x(t_0) - e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)} \nonumber \\
 				  &= \green{e^{A_1(\bar{t}_1 + \delta t_1 - t_0)}x(t_0) - e^{A_1(\bar{t}_1-\bar{t}_0)}\bar{x}(\bar{t}_0)} \nonumber \\
 				  &= \blue{e^{A_1(\bar{t}_1 - t_0)}} \green{e^{A_1 \delta t_1} x(t_0)} \green{-} \blue{e^{A_1(\bar{t}_1-\bar{t}_0)}}\green{\bar{x}(\bar{t}_0)} \nonumber \\
@@ -46,7 +46,7 @@ and then in $\orange{\bigcirc}$:
 % 2.5
 \noindent
 \begin{align}
-	\label{eq_cap3_lin_erro_x0x1_orange}
+	\label{eq:cap4:linearization-error-x0-x1-orange-term}
 	\orange{\bigcirc} 	&= \orange{ \intlinAA{0}{1}{}{} - \intlinAbtt{0}{1} } \nonumber \\ 
 				   	&= \orange{ \intlinCb{t_0}{\bar{t}_1+\delta t_1}{0}{1} - \intlinAbft{0}{1} } \nonumber \\
 				   	&= \orange{ e^{A_1 \delta t_1} \bigg[ \blue{\intlinAbft{0}{1}} + \purple{\intlinB{\bar{t}_1}{\bar{t}_1 + \delta t_1}{0}{1}} \bigg] }
@@ -58,10 +58,10 @@ and then in $\orange{\bigcirc}$:
 \end{align}
 
 \noindent
-the resulting equations \eqref{eq_cap3_lin_erro_x0x1_green} and \eqref{eq_cap3_lin_erro_x0x1_orange} are replaced back in \eqref{eq_cap3_lin_erro_x0x1} to complete the difference equation
+the resulting equations \eqref{eq:cap4:linearization-error-x0-x1-green-term} and \eqref{eq:cap4:linearization-error-x0-x1-orange-term} are replaced back in \eqref{eq:cap4:linearization-error-x0-x1} to complete the difference equation
 
 \noindent
-\boxeq{eq_cap3_lin_erro_x1x0_resultado}
+\boxeq{eq:cap4:linearization-error-x1-x0-result}
 {
 	x(t_1) - \bar{x}(\bar{t}_1) = \bar{F}_1 [ x(t_0) - \bar{x}(t_0) ] + [ \bar{F}_1 A_1 x(t_0) + A_1 \bar{G}_1 + B_1 ] \delta t_1
 }

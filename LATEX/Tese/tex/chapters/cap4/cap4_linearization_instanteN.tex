@@ -24,7 +24,7 @@ and then, for \highlight{$x(t_N)$} the equation is as follows
 % 2.22
 \noindent
 \begin{align}
-    \label{eq_xN_propagation}
+    \label{eq:cap4:linearization-xn-propagation}
         x(t_N) - \bar{x}(\bar{t}_N) =  & \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_1} [x(t_0) - \bar{x}(t_0)] \nonumber \\
                                  & + \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_2} [\green{\overbrace{\bar{F_1} A_1 x(t_0) + A_1 \bar{G}_1 - A_2 \bar{x}(\bar{t}_1) + B_1 - B_2}^{\square}}] \delta t_1 \nonumber \\
                                  & + \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_3} [\green{\bar{F_2} A_2 x(t_1) + A_2 \bar{G}_2 - A_3 \bar{x}(\bar{t}_2) + B_2 - B_3}] \delta t_2 \nonumber \\
@@ -36,13 +36,13 @@ and then, for \highlight{$x(t_N)$} the equation is as follows
                                  & + [\orange{\underbrace{\bar{F}_{N} A_{N-1} \bar{x}(t_{N-1}) + A_{N} \bar{G}_{N} + B_{N}}_{\bigcirc}}] \delta t_N
 \end{align}
 
-The equation \eqref{eq_xN_propagation} can be developed further to remove the dependencies on the intermediary states 
+The equation \eqref{eq:cap4:linearization-xn-propagation} can be developed further to remove the dependencies on the intermediary states 
 \highlight{$x(t_0), x(t_1), ..., x(t_{N-2})$}. By expanding $\green{\square}$ and $\orange{\bigcirc}$, the following identity holds
 
 % 2.23
 \noindent
 \begin{align}
-    \label{eq_square_xN}
+    \label{eq:cap4:linearization-xn-square-term}
     \green{\square} &= \green{\bar{F_1} A_1 x(t_0) + A_1 \bar{G}_1 - A_2 \bar{x}(\bar{t}_1) + B_1 - B_2} \nonumber \\
                     &= \green{A_1 \purple{\bar{F_1} x(t_0)} + A_1 \bar{G}_1 - A_2 \bar{x}(\bar{t}_1) + B_1 - B_2} \nonumber \\
                     &= \green{A_1 \purple{[\bar{x}(\bar{t}_1) - \bar{G}_1]} + A_1 \bar{G}_1 - A_2 \bar{x}(\bar{t}_1) + B_1 - B_2} \nonumber \\
@@ -53,7 +53,7 @@ The equation \eqref{eq_xN_propagation} can be developed further to remove the de
 % 2.24
 \noindent
 \begin{align}
-    \label{eq_circle_xN}
+    \label{eq:cap4:linearization-xn-circle-term}
     \orange{\bigcirc} &= \orange{\bar{F}_{N} A_{N} \bar{x}(t_{N-1}) + A_{N} \bar{G}_{N} + B_{N}} \nonumber \\
                      &= \orange{A_{N} \purple{\bar{F}_{N} \bar{x}(t_{N-1})} + A_{N} \bar{G}_{N} + B_{N}} \nonumber \\
                      &= \orange{A_{N} \purple{[\bar{x}(\bar{t}_N) - \bar{G}_{N}]} + A_{N} \bar{G}_{N} + B_{N}} \nonumber \\
@@ -62,10 +62,10 @@ The equation \eqref{eq_xN_propagation} can be developed further to remove the de
 \end{align}
 
 \noindent 
-replacing \eqref{eq_square_xN} and \eqref{eq_circle_xN} in \eqref{eq_xN_propagation}
+replacing \eqref{eq:cap4:linearization-xn-square-term} and \eqref{eq:cap4:linearization-xn-circle-term} in \eqref{eq:cap4:linearization-xn-propagation}
 
 \noindent
-\boxeq{eq_cap3_lin_erro_xNx0_resultado}
+\boxeq{eq:cap4:linearization-error-xn-x0-result}
 {
     \begin{split}
         x(t_N) - \bar{x}(\bar{t}_N) =  & \quad \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_1} [x(t_0) - \bar{x}(t_0)] \\
@@ -78,13 +78,13 @@ replacing \eqref{eq_square_xN} and \eqref{eq_circle_xN} in \eqref{eq_xN_propagat
 }
 
 \noindent
-and renaming the terms of \eqref{eq_cap3_lin_erro_xNx0_resultado} to
+and renaming the terms of \eqref{eq:cap4:linearization-error-xn-x0-result} to
 
 \noindent
 \begin{align}
     e(t) &= x(t) - \bar{x}(\bar{t}) \\ \nonumber \\
     \Phi &= \bar{F}_{N} \bar{F}_{N-1} \ldots \bar{F_1} \\ \nonumber \\
-    \label{eq_Phi}
+    \label{eq:cap4:linearization-phi}
     \begin{split}
         \Gamma &= \Big[ \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_2} [(A_1 - A_2) \bar{x}(\bar{t}_1) + B_1 - B_2], \\
         & \qquad \bar{F}_{N}\bar{F}_{N-1} \ldots \bar{F_3} [(A_2 - A_3) \bar{x}(\bar{t}_2) + B_2 - B_3], \\
@@ -92,7 +92,7 @@ and renaming the terms of \eqref{eq_cap3_lin_erro_xNx0_resultado} to
         & \qquad \bar{F}_{N}[(A_{N-1} - A_{N}) \bar{x}(\bar{t}_{N-1}) + B_{N-1} - B_{N}], \\
         & \qquad A_{N} \bar{x}(\bar{t}_{N}) + B_{N}\Big]
     \end{split} \\ \nonumber \\
-    \label{eq_Gamma}
+    \label{eq:cap4:linearization-gamma}
     \delta t &= [\delta t_1, \delta t_2, \ldots, \delta t_N]^T
 \end{align}
 
@@ -100,7 +100,7 @@ and renaming the terms of \eqref{eq_cap3_lin_erro_xNx0_resultado} to
 we get to the affine equation
 
 \noindent
-\boxeq{eq_eNe0_result}
+\boxeq{eq:cap4:linearization-final-error-result}
 {
     e(t_N) = \Phi e(t_0) + \Gamma \delta t
 }
@@ -110,7 +110,7 @@ that can be rewritten in terms of $j$ cycle as
 
 \noindent
 \begin{equation}
-    \label{cap4_eq_lin_proc_result_j}
+    \label{eq:cap4:linearization-error-result-j}
     e(t_{j,N}) = \Phi e(t_{j,0}) + \Gamma \delta t[j]
 \end{equation}
 

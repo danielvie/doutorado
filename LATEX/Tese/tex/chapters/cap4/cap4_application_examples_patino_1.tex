@@ -1,17 +1,17 @@
 \subsection{Buck-boost converter}
-\label{cap4_applicaton_patino1}
+\label{sec:cap4:buck-boost-converter}
 
 \subsubsection{Parameters of the Simulation}
 
-This example describes the Buck-Boost converter model described in session \ref{cap2_application_patino1},
-the associated mode sequence for the target cyclic trajectory is shown in Figure \ref{cap4_fig_seq_ref_patino1}
+This example describes the Buck-Boost converter model described in session \ref{sec:cap2:buck-boost-converter},
+the associated mode sequence for the target cyclic trajectory is shown in Figure \ref{fig:cap4:buck-boost-reference-sequence}
 
 
 \begin{figure}[!ht]
     \centering
     \includegraphics[]{figures/shared/cap4_ref_signal_patino1.eps}
     \caption{Reference sequence for Buck-Boost converter}
-    \label{cap4_fig_seq_ref_patino1}
+    \label{fig:cap4:buck-boost-reference-sequence}
 \end{figure}
 
 \noindent
@@ -40,7 +40,7 @@ the nominal target trajectory originates from the initial state \highlight{$x_0 
 \highlight{$Q = I$}.
 \subsubsection{Prediction Matrices}
 
-The prediction matrices are constructed using  \eqref{eq_Phi} and \eqref{eq_Gamma}, and the result is
+The prediction matrices are constructed using  \eqref{eq:cap4:linearization-phi} and \eqref{eq:cap4:linearization-gamma}, and the result is
 
 \begin{equation}
     \Phi =
@@ -91,18 +91,18 @@ with the switching time constraints
 
 \subsubsection{Results}
 
-Figure \ref{cap4_graf_proj_patino1} presents the feasibility region \highlight{$\mathcal{D}$} for three different prediction horizons 
+Figure \ref{fig:cap4:buck-boost-feasibility-region} presents the feasibility region \highlight{$\mathcal{D}$} for three different prediction horizons 
 ($N_p = 1$, $N_p = 2$ and $N_p = 3$) for the Buck-Boost Converter.
 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=14cm]{figures/cap4/graf_proj_patino1.pdf}
     \caption{Buck-Boost Feasibility Region}
-    \label{cap4_graf_proj_patino1}
+    \label{fig:cap4:buck-boost-feasibility-region}
 \end{figure}
 
 
-Figure \ref{cap4_graf_patino1_traj} shows the simulation of the trajectory for the system
+Figure \ref{fig:cap4:buck-boost-state-trajectory} shows the simulation of the trajectory for the system
 , \highlightblue{in blue} we see the trajectory without using the MPC controller, and 
 \highlightorange{in orange} we see the trajectory using the MPC controller.
 They are both starting from \highlight{$x_0 = \big[2.0493 \;\mathrm{V},-0.6108 \;\mathrm{A}\big]$} 
@@ -111,19 +111,19 @@ and converge to the initial position of the target cyclic trajectory
 the trajectory with the MPC controller converges faster to the 
 cyclic trajectory.
 
-Figure \ref{cap4_graf_patino1_u_signal} shows the control signal sequence, where we can see that the difference between the nominal 
+Figure \ref{fig:cap4:buck-boost-control-signal} shows the control signal sequence, where we can see that the difference between the nominal 
 target trajectory and the controlled trajectory decrease as they get in sync with each other. 
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=12cm]{figures/cap4/graf_patino1_traj.pdf}
     \caption{State Trajectory for Buck-Boost converter}
-    \label{cap4_graf_patino1_traj}
+    \label{fig:cap4:buck-boost-state-trajectory}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=12cm]{figures/cap4/graf_patino1_u_signal.pdf}
     \caption{Control Signal Sequence for Buck-Boost converter}
-    \label{cap4_graf_patino1_u_signal}
+    \label{fig:cap4:buck-boost-control-signal}
 \end{figure}

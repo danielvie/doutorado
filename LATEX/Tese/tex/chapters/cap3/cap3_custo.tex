@@ -2,7 +2,7 @@ Consider a system with discrete-time dynamics described by
 
     \begin{equation}
         x[k + 1] = A x[k] + B u[k]
-        \label{cap3-dynamic-equation}
+        \label{eq:cap3:dynamic-equation}
     \end{equation}
 
 \noindent
@@ -13,12 +13,12 @@ The goal is to drive the state \highlight{$x[k]$} to the origin from a given ini
 state and control constraints in the form
 
 \begin{equation}
-    \label{cap3_x_in_X}
+    \label{eq:cap3:state-constraint-set}
     x[k] \in \mathcal{X}
 \end{equation}
     
 \begin{equation}
-    \label{cap3_u_in_U}
+    \label{eq:cap3:input-constraint-set}
     u[k] \in \mathcal{U}
 \end{equation}
 
@@ -37,7 +37,7 @@ It is assumed that $\mathcal{U}$ and $\mathcal{X}$ are described in half-space r
 and
 
 \begin{equation}
-    \label{cap3_eq_Sx_bx}
+    \label{eq:cap3:polyhedral-state-constraint}
     \mathcal{X} = \left\{
         x \in \mathbb{R}^n : S_x x \leq b_x
     \right\}

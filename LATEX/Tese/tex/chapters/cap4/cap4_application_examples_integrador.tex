@@ -1,5 +1,5 @@
 \subsection{Double Integrator}
-\label{cap4_aplication_integrador}
+\label{sec:cap4:double-integrator}
 
 
 \subsubsection{Parameters of the Simulation}
@@ -14,7 +14,7 @@ This example describes the double integrator model used in \citeonline{matheus20
 where
 
 \begin{equation}
-    \label{cap4_eq_dynamics_integrador}
+    \label{eq:cap4:double-integrator-dynamics}
     A_c = \left[
         \begin{matrix}
             0 & 1 \\
@@ -33,7 +33,7 @@ We are using the associated input signal computed by \citeonline{matheus2020_art
 the resulting trajectory is defined by
 
 \begin{equation}
-    \label{cap4_eq_signal_integrador}
+    \label{eq:cap4:double-integrator-reference-signal}
     \bar{u} = \left[
         \begin{matrix}
             1 \\
@@ -55,20 +55,20 @@ the resulting trajectory is defined by
 
 \noindent
 where \highlight{$\bar{u}$} is the control command and \highlight{$T_s$} is the switching time values for the cyclic trajectory,
-illustrated in Figure \ref{cap2_fig_sig_ref_integrador}.
+illustrated in Figure \ref{fig:cap4:double-integrator-reference-signal}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[]{figures/shared/cap4_ref_signal_integrador.eps}
     \caption{Reference signal for Double Integrator}
-    \label{cap2_fig_sig_ref_integrador}
+    \label{fig:cap4:double-integrator-reference-signal}
 \end{figure}
 
 The original problem has the same dynamics during all operations, so we need to construct the associated \highlight{$A_i, b_i$} for each operation mode. 
 One solution is to create three unique pairs
 
 \begin{equation}
-    \label{cap4-eq-dynamic-system-integrador}
+    \label{eq:cap4:double-integrator-system}
     \begin{matrix}
         \green{A_1 = \left[ \begin{matrix} 0 & 1 \\ 0 & 0 \\ \end{matrix} \right]} &
         \orange{A_2 = \left[ \begin{matrix} 0 & 1 \\ 0 & 0 \\ \end{matrix} \right]} &
@@ -91,7 +91,7 @@ and initial state of the nominal target trajectory \highlight{$x_{0} = \big[1.5,
 
 \subsubsection{Prediction Matrices}
 
-From \eqref{eq_Phi} and \eqref{eq_Gamma} we construct
+From \eqref{eq:cap4:linearization-phi} and \eqref{eq:cap4:linearization-gamma} we construct
 
 \begin{equation}
     \Phi =
@@ -147,8 +147,8 @@ with the switching time constraints
 
 \subsubsection{Results}
 
-Figure \ref{cap4_graf_proj_ex1_1} presents the feasibility region $\mathcal{D}$ for three different prediction horizons 
-($N_p = 1$, $N_p = 2$ and $N_p = 3$) as defined in Section \ref{section_reasibility_region}. 
+Figure \ref{fig:cap4:double-integrator-feasibility-region} presents the feasibility region $\mathcal{D}$ for three different prediction horizons 
+($N_p = 1$, $N_p = 2$ and $N_p = 3$) as defined in Section \ref{sec:cap3:feasibility-region}. 
 A larger prediction horizon reflected in a larger feasibility region enables the use of the predictive control law 
 with initial conditions farther from the target.
 
@@ -156,26 +156,26 @@ with initial conditions farther from the target.
     \centering
     \includegraphics[width=14cm]{figures/cap4/graf_proj_integrador.pdf}
     \caption{Feasibility Region Double Integrator}
-    \label{cap4_graf_proj_ex1_1}
+    \label{fig:cap4:double-integrator-feasibility-region}
 \end{figure}
 
 
 
-The simulation uses the system \eqref{cap4_eq_dynamics_integrador} with the command signal \eqref{cap4_eq_signal_integrador} and with 
+The simulation uses the system \eqref{eq:cap4:double-integrator-dynamics} with the command signal \eqref{eq:cap4:double-integrator-reference-signal} and with 
 a initial condition \highlight{$x_0 = \big[1.5 , -0.5 \big]$}.
-Figure \ref{cap4_graf_integrador_traj_off} shows the simulation without the MPC control being applied running for 5 cycles and we can see that the
+Figure \ref{fig:cap4:double-integrator-trajectory-mpc-off} shows the simulation without the MPC control being applied running for 5 cycles and we can see that the
 the trajectory is diverging from the initial position of the target cyclic trajectory \highlight{$\bar{x}_0 = \big[-0.5 , -1.0 \big]$} position.
 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=14cm]{figures/cap4/graf_integrador_traj_off.pdf}
     \caption{State Trajectory MPC off, 4 cycles}
-    \label{cap4_graf_integrador_traj_off}
+    \label{fig:cap4:double-integrator-trajectory-mpc-off}
 \end{figure}
 
 
-Now, for the same condition, we can turn on the MPC controller and run the simulation for 50 cycles. Figure \ref{cap4_graf_integrador_traj_on} shows the
-resulting trajectory and Figure \ref{cap4_graf_integrador_u_signal} shows the associated command signal. We can see that the controller drives the trajectory 
+Now, for the same condition, we can turn on the MPC controller and run the simulation for 50 cycles. Figure \ref{fig:cap4:double-integrator-trajectory-mpc-on} shows the
+resulting trajectory and Figure \ref{fig:cap4:double-integrator-control-signal} shows the associated command signal. We can see that the controller drives the trajectory 
 of the system to the target cyclic trajectory, we also that the command signal gets in sync with the reference command.
 
 
@@ -183,12 +183,12 @@ of the system to the target cyclic trajectory, we also that the command signal g
     \centering
     \includegraphics[width=14cm]{figures/cap4/graf_integrador_traj_on.pdf}
     \caption{State Trajectory MPC on, 50 cicles}
-    \label{cap4_graf_integrador_traj_on}
+    \label{fig:cap4:double-integrator-trajectory-mpc-on}
 \end{figure}
 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=14cm]{figures/cap4/graf_integrador_u_signal.pdf}
     \caption{Operation mode switch}
-    \label{cap4_graf_integrador_u_signal}
+    \label{fig:cap4:double-integrator-control-signal}
 \end{figure}
