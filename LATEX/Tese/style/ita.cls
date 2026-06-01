@@ -531,7 +531,7 @@
 
   \vspace*{\stretch{2}}
 
-  \includegraphics[width=0.5\textwidth]{Cap0/ita_logo}
+  \includegraphics[width=0.5\textwidth]{figures/preliminaries/ita_logo}
 
 	\vspace*{\stretch{2}}
 

@@ -1,0 +1,27 @@
+version: '3'
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+
+  run:
+    desc: Build the thesis PDF
+    cmds:
+      - task build
+
+  build:
+    desc: Compile tese.tex into build/tese.pdf
+    cmds:
+      - latexmk -pdf tese.tex
+
+  clean:
+    desc: Remove generated LaTeX build files
+    cmds:
+      - latexmk -C tese.tex
+
+  clear:
+    desc: Alias for clean
+    cmds:
+      - task clean

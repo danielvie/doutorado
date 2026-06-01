@@ -38,6 +38,9 @@
 %   \documentclass[dsc, eng]{ita}
 %		\documentclass[dsc, eng, dv]{ita}
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\makeatletter
+\def\input@path{{style/}}
+\makeatother
 \documentclass[dsc, eng]{ita}    % ITA.cls based on standard book.cls 
 % Quando alterar a classe, por exemplo de [msc] para [msc, eng]) rode mais uma vez o botão BUILD OUTPUT caso haja erro
 \usepackage{ae}
@@ -292,7 +295,7 @@
 
 % Agradecimentos
 \begin{itathanks}
-\input{Cap0/agradecimentos}
+\input{tex/preliminaries/agradecimentos}
 \end{itathanks}
 
 % Epígrafe
@@ -310,13 +313,13 @@
 % Resumo
 \begin{abstract}
 \noindent
-\input{Cap0/resumo}
+\input{tex/preliminaries/resumo}
 \end{abstract}
 
 % Abstract
 \begin{englishabstract}
 \noindent
-\input{Cap0/abstract}
+\input{tex/preliminaries/abstract}
 \end{englishabstract}
 
 % Lista de figuras
@@ -327,11 +330,11 @@
 
 % Lista de abreviaturas
 \listofabbreviations
-\input{Cap0/listaabreviaturas} %opcional
+\input{tex/preliminaries/listaabreviaturas} %opcional
 
 % Lista de simbolos
 \listofsymbols
-\input{Cap0/listasimbolos} %opcional
+\input{tex/preliminaries/listasimbolos} %opcional
 
 % Sumario
 \tableofcontents
@@ -340,34 +343,34 @@
 % Os capitulos comecam aqui
 
 \chapter{Introduction}
-\input{Cap1/cap1_introduction.tex}
+\input{tex/chapters/cap1/cap1_introduction.tex}
 
 \chapter{Determination of Target Periodic Trajectories}
 \label{cap2-determination-of-target-periodic-traj}
-\input{Cap2/cap2}
+\input{tex/chapters/cap2/cap2}
 
 \chapter{Predictive control: Preliminaries and notation}
-\input{Cap3/cap3}
+\input{tex/chapters/cap3/cap3}
 
 \chapter{Predictive Control for Stabilization of Periodic Trajectories}
-\input{Cap4/cap4}
+\input{tex/chapters/cap4/cap4}
 
-\input{Cap5/cap5_conclusion.tex}
+\input{tex/chapters/cap5/cap5_conclusion.tex}
 
 
 % REFERENCIAS BIBLIOGRAFICAS
 \renewcommand\bibname{\itareferencesnamebabel} %renomear título do capítulo referências
-\bibliography{Referencias/referencias}
+\bibliography{bib/referencias}
 
 % Apendices
 % \appendix
 % \chapter{Tópicos de Dilema Linear} %opcional
-% \input{ApeA/apendiceA}
+% \input{tex/appendices/apendiceA}
 
 % Anexos
 % \annex
 % \chapter{Exemplo de um Primeiro Anexo} %opcional
-% \input{AneA/anexoA}
+% \input{tex/annexes/anexoA}
 
 % Glossario
 %\itaglossary
@@ -387,7 +390,7 @@
 \FRDitapalavraapresentacao{ITA, São José dos Campos. Curso de Doutorado. Programa de Pós-Graduação em Engenharia Eletrônica e Computação. 
 Área de Sistemas Aeroespaciais e Mecatrônica. Orientador: Prof.~Dr. Roberto Kawakami Harrop Galvão. 
 Doralice Serra. Defesa em 25/01/2024. Publicada em 2024.}
-\FRDitaresumo{\input{Cap0/resumo}}
+\FRDitaresumo{\input{tex/preliminaries/resumo}}
 %  Primeiro Parametro: Nacional ou Internacional -- N/I
 %  Segundo parametro: Ostensivo, Reservado, Confidencial ou Secreto -- O/R/C/S
 \FRDitaOpcoes{N}{O}
