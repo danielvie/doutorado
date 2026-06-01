@@ -1,96 +1,31 @@
+\section{Condensed MPC Optimization Problem}
 
-\section{Optimization Problem}
+The previous sections provide the two elements needed for the finite-horizon MPC problem: the condensed prediction model and the lifted constraints. Using \eqref{eq:cap3:stacked-state-prediction}, the predicted state sequence can be eliminated from the cost function, so the optimization problem can be written only in terms of the predicted input sequence \highlight{$\mathbf{\hat{u}}[k]$}.
 
-The previous sections provide the two elements needed for the finite-horizon MPC problem: the condensed prediction model and the lifted constraints. We can now rewrite the cost function as
+Starting from
 
 \noindent
 \begin{equation}
-	J = \norma{x[k|k]}{P} + \green{\overbrace{\norma{\mathbf{\hat{x}}[k]}{\mathbf{Q}}}^{\square}} + \norma{\mathbf{\hat{u}}[k]}{\mathbf{R}}
+	J = \norma{x[k]}{P} + \norma{\mathbf{\hat{x}}[k]}{\mathbf{Q}} + \norma{\mathbf{\hat{u}}[k]}{\mathbf{R}},
 \end{equation}
 
 \noindent
-\begin{align}
-	\green{\square} 
-	&= \green{\norma{\mathbf{\hat{x}}[k]}{\mathbf{Q}}} \\
-	&= \green{\Big[ \mathbf{A}x[k|k] + \mathbf{B \hat{u}}[k] \Big]^T \mathbf{Q} \Big[ \mathbf{A}x[k|k] + \mathbf{B \hat{u}}[k] \Big]} \\
-	&= \green{\Big[ \mathbf{A}x[k|k] + \mathbf{B \hat{u}}[k] \Big]^T \mathbf{Q} \Big[ \mathbf{A}x[k|k] + \mathbf{B \hat{u}}[k] \Big]} \\
-	\begin{split}
-		&= \green{\norma{\mathbf{A}x[k|k]}{\mathbf{Q}} + \Big[ \mathbf{A}x[k|k] \Big]^T \mathbf{Q} \mathbf{B \hat{u}}[k]} \\
-		&\qquad \green{ + \mathbf{\hat{u}}[k]^T \mathbf{B}^T \mathbf{Q} \mathbf{A}x[k|k] + \mathbf{\hat{u}}[k]^T \mathbf{B}^T \mathbf{Q} \mathbf{B \hat{u}}[k]}
-	\end{split}
-\end{align}
+and replacing
 
 \noindent
-replacing $\green{\square}$ back in the cost equation and reordering the elements 
-
-\noindent
-\begin{align}
-	J(\mathbf{\hat{x}}, \mathbf{\hat{u}}[k]) 
-	&= \purple{ \norma{x[k|k]}{P} + \norma{\mathbf{A}x[k|k]}{\mathbf{Q}} } \\
-	&\quad + \orange{\Big[\mathbf{A}x[k|k]\Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}[k]	+ \mathbf{\hat{u}}[k]^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x[k|k]} \\
-	&\quad + \blue{\mathbf{\hat{u}}[k]^T \mathbf{R} \mathbf{\hat{u}}[k] + \mathbf{\hat{u}}[k]^T \mathbf{B}^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}[k]}
-\end{align}
-
-The \purple{constant part} will be denoted by \purple{$c_0$}
-
-Recalling that the matrix \highlight{$\mathbf{Q}$} is symmetric, we have:
-
 \begin{equation}
-	\orange{\Big[ \mathbf{A}x[k|k] \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}[k]} = 
-	\orange{\Big\{ \mathbf{\hat{u}}[k]^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x[k|k] \Big\}^T}
+	\mathbf{\hat{x}}[k] = \mathbf{A}x[k] + \mathbf{B}\mathbf{\hat{u}}[k],
 \end{equation}
 
-As these terms are scalars, it can be concluded that they are equal to each other, therefore:
+\noindent
+the cost becomes
 
 \noindent
 \begin{equation}
-	\begin{gathered}
-		\orange{\Big[ \mathbf{A}x[k|k] \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}[k] + \mathbf{\hat{u}}[k]^T \mathbf{B}^T \mathbf{Q} \mathbf{A} x(0)} \\
-		= \orange{2\Big[ \mathbf{A}x[k|k] \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}[k]}
-	\end{gathered}
-\end{equation}
-
-Finally, it can be written
-
-\noindent
-\begin{equation}
-	\begin{gathered}
-		J(\mathbf{\hat{u}}[k]) = 
-			\blue{\mathbf{\hat{u}}[k]^T \Big(\mathbf{R} + \mathbf{B}^T \mathbf{Q} \mathbf{B} \Big) \mathbf{\hat{u}}[k]} + 
-			\orange{2 \Big[ \mathbf{A}x[k|k] \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}[k]} + 
-			\purple{c_0}
-	\end{gathered}
-\end{equation}
-
-with
-
-\noindent
-\begin{equation}
-	\purple{ c_0 } = 
-	\purple{ \norma{x(0)}{P} + \norma{\mathbf{A} x(0)}{\mathbf{Q}} }
-\end{equation}
-
-\purple{
-	\noindent
-	\begin{equation}
-		c_0 = 
-		\norma{x[k|k]}{P} + \norma{\mathbf{A} x[k|k]}{\mathbf{Q}}
-		\nonumber
-	\nonumber
-	\end{equation}
-}
-
-Note that we will now use the notation \highlight{$J(\mathbf{\hat{u}}[k])$} instead of \highlight{$J(\mathbf{\hat{x}}[k], \mathbf{\hat{u}}[k])$}, 
-since \highlight{$\mathbf{\hat{x}}[k]$} has been eliminated from the cost expression. 
-
-
-To finalize the restructuring of the optimization problem in terms of \highlight{$\mathbf{\hat{u}}[k]$}, the relation between 
-\highlight{$\mathbf{\hat{x}}[k]$} and \highlight{$\mathbf{\hat{u}}[k]$} in the restrictions must be considered.
-
-The optimization problem can be expressed as
-
-\begin{equation}
-	\min_{\mathbf{\hat{x}}[k] \in \mathbb{R}^{nN}, \mathbf{\hat{u}}[k] \in \mathbb{R}^{pN}} J(\mathbf{\hat{x}}[k],\mathbf{\hat{u}}[k])
+	J(\mathbf{\hat{u}}[k]) =
+	\mathbf{\hat{u}}[k]^T H \mathbf{\hat{u}}[k]
+	+ 2 f[k]^T \mathbf{\hat{u}}[k]
+	+ c_0[k],
 \end{equation}
 
 \noindent
@@ -98,65 +33,46 @@ where
 
 \noindent
 \begin{equation}
-    J(\mathbf{\hat{x}}[k], \mathbf{\hat{u}}[k]) = \norma{x[k|k]}{P} + \norma{\mathbf{\hat{x}}[k]}{\mathbf{Q}} + \norma{\mathbf{\hat{u}}[k]}{\mathbf{R}}
+	H = \mathbf{R} + \mathbf{B}^T \mathbf{Q} \mathbf{B},
+	\qquad
+	f[k] = \mathbf{B}^T \mathbf{Q} \mathbf{A}x[k],
 \end{equation}
 
 \noindent
-with
+and
 
 \noindent
 \begin{equation}
-    \mathbf{\hat{u}}[k] = \left[ \begin{matrix} \hat{u}[k|k] \\ \hat{u}[k + 1|k] \\ \vdots \\ \hat{u}[k + N - 1|k] \end{matrix} \right] \in \mathbb{R}^{pN},
-    \mathbf{\hat{x}}[k] = \left[ \begin{matrix} \hat{x}[k + 1|k] \\ \hat{x}[k + 2|k] \\ \vdots \\ \hat{x}[k + N|k] \end{matrix} \right] \in \mathbb{R}^{nN},
+	c_0[k] = \norma{x[k]}{P} + \norma{\mathbf{A}x[k]}{\mathbf{Q}}.
 \end{equation}
 
-\noindent
-subject to
+The term \highlight{$c_0[k]$} does not depend on the optimization variable and therefore does not affect the optimizer. It is kept here only to show the complete cost expression.
+
+Combining the condensed cost with the lifted constraints, the MPC problem solved at time \highlight{$k$} is
 
 \noindent
 \begin{equation}
-    \mathbf{S_x} \mathbf{\hat{x}}[k] \leq \mathbf{b_x}
+	\begin{aligned}
+		\mathbb{P}(x[k]): \quad
+		\min_{\mathbf{\hat{u}}[k] \in \mathbb{R}^{pN}}
+		&\quad
+		\mathbf{\hat{u}}[k]^T H \mathbf{\hat{u}}[k]
+		+ 2 f[k]^T \mathbf{\hat{u}}[k] \\
+		\text{subject to}
+		&\quad
+		\mathbf{S}\mathbf{\hat{u}}[k] \le \mathbf{b}(x[k]).
+	\end{aligned}
 \end{equation}
+
+\noindent
+The matrix \highlight{$H$} defines the quadratic part of the objective, \highlight{$f[k]$} depends on the current state, and the inequality constraints enforce admissible predicted states and inputs over the horizon.
+
+Let \highlight{$\mathbf{\hat{u}}^*[k]$} be the optimal solution of \highlight{$\mathbb{P}(x[k])$}. In receding-horizon control, only the first input of this optimal sequence is applied to the plant:
 
 \noindent
 \begin{equation}
-    \mathbf{S_u} \mathbf{\hat{u}}[k] \leq \mathbf{b_u}
-\end{equation}
-
-Thus, the cost can be rewritten as
-
-    \noindent
-    \begin{gather}
-        J(\mathbf{\hat{u}}[k]) = \mathbf{\hat{u}}[k]^T(\mathbf{R} + \mathbf{B}^T \mathbf{Q} \mathbf{B} )\mathbf{\hat{u}}[k] \nonumber \\ 
-        2 \Big[ \mathbf{A} \hat{x}[k|k] \Big]^T \mathbf{Q} \mathbf{B} \mathbf{\hat{u}}[k] + c_0 \nonumber
-    \end{gather}
-
-\noindent
-with
-
-\noindent
-\begin{equation}
-    c_0 = \norma{\hat{x}[k|k] }{P} + \norma{\mathbf{A} \hat{x}[k|k] }{\mathbf{Q}} 
-    \nonumber
+	u[k] = \hat{u}^*[k|k].
 \end{equation}
 
 \noindent
-and the constraints can be expressed as
-
-\noindent
-\begin{equation}
-    \label{eq:cap3:optimization-constraints}
-    \mathbf{S} \mathbf{\hat{u}}[k] \leq \mathbf{b}
-\end{equation}
-
-Having obtained the solution \highlight{$\mathbf{\hat{u}^*}[k|k]$} for the problem 
-\highlight{$\mathbb{P}\Big(\hat{x}[k|k]\Big)$}, the control to be applied to the plant is given by
-
-\noindent
-\begin{equation}
-    \hat{u}[k] = \hat{u}^*[k|k]
-    \nonumber
-\end{equation}
-
-\noindent
-where \highlight{$\hat{u}^*[k|k]$} corresponds to the first \highlight{$p$} elements of \highlight{$\mathbf{\hat{u}}^*[k|k]$}.
+At the next sampling instant, the state is measured again and the optimization problem is solved again with the updated state.

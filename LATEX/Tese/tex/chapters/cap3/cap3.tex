@@ -1,3 +1,9 @@
+\noindent
+Model Predictive Control (MPC) computes the control action by predicting the future behavior of the system over a finite horizon. At each sampling instant, an optimization problem is solved to find a sequence of future inputs that minimizes a performance cost while satisfying state and input constraints. Only the first input of this sequence is applied to the plant; at the next sampling instant, the prediction is updated with the new measured state and the optimization is solved again. This receding-horizon strategy is the basis for the formulation presented in this chapter.
+
+\noindent
+The objective of this chapter is to introduce the finite-horizon predictive control problem used later in this work. The system model, cost function, prediction equation, lifted constraints, condensed optimization problem, feasibility region, and block-constant input model are presented in sequence.
+
 \input{tex/chapters/cap3/cap3_custo.tex}
 \input{tex/chapters/cap3/cap3_equacao_de_predicao.tex}
 \input{tex/chapters/cap3/cap3_constraints.tex}

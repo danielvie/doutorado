@@ -46,11 +46,12 @@ and
 \noindent
 with \highlight{$S_u$, $b_u$} and \highlight{$S_x$, $b_x$} of suitable dimensions.
 
-\section{Cost Function}
+\section{System Model and Cost Function}
 
 
-At each time $k$, the control action $u[k]$ will be determined by solving an 
-optimization problem with the cost given by
+At each time $k$, MPC chooses a sequence of predicted control inputs over a prediction horizon of length $N$. The sequence is selected by minimizing a finite-horizon cost. This cost penalizes predicted state deviations, predicted input effort, and the terminal predicted state. The control action applied to the plant is the first element of the optimal sequence.
+
+The finite-horizon cost is given by
 
 
 \begin{equation}
