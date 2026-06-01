@@ -1,83 +1,43 @@
 \section{Feasibility Region}
 \label{sec:cap3:feasibility-region}
 
-We aim to determine the set \highlight{$\mathcal{D}$} of points \highlight{$x(0) \in \mathcal{X}$} for 
-which there exists \highlight{$\mathbf{\hat{u}[k]} \in \mathbb{R}^{pN}$} satisfying the constraints
+After the optimization problem has been condensed into input variables and linear inequalities, it is useful to characterize the states for which the problem is feasible. For a given current state \highlight{$x[k]$}, feasibility means that there exists at least one predicted input sequence \highlight{$\mathbf{\hat{u}}[k]$} satisfying all input and state constraints over the prediction horizon.
+
+Using the condensed constraint form obtained in \eqref{eq:cap3:optimization-constraints}, the feasibility region is defined as
 
 \noindent
 \begin{equation}
-    \left[
-    \begin{matrix}
-        \mathbf{S_x} \mathbf{B} \\
-        \mathbf{S_u} \\
-    \end{matrix}
-    \right] \mathbf{u}[k] \le
-    \left[
-    \begin{matrix}
-        \mathbf{b_x} - \mathbf{Sx} \mathbf{A} x(0) \\
-        \mathbf{b_u}
-    \end{matrix}
-    \right]
+    \mathcal{D} =
+    \left\{
+        x[k] \in \mathcal{X} :
+        \exists \mathbf{\hat{u}}[k] \in \mathbb{R}^{pN}
+        \text{ such that }
+        \mathbf{S}\mathbf{\hat{u}}[k] \le \mathbf{b}(x[k])
+    \right\}.
 \end{equation}
 
-These restrictions can be rewritten as
+\noindent
+Thus, if \highlight{$x[k] \in \mathcal{D}$}, the finite-horizon MPC problem admits at least one feasible input sequence. If \highlight{$x[k] \notin \mathcal{D}$}, the constraints cannot be satisfied for the selected prediction horizon.
+
+The same set can be computed by introducing the joint vector
 
 \noindent
 \begin{equation}
-    \left[
-    \begin{matrix}
-        \mathbf{S_x} \mathbf{B} & \mathbf{S_x} \mathbf{A} \\
-        \mathbf{S_u} & 0 \\
-    \end{matrix}
-    \right] 
+    w =
     \left[
         \begin{matrix}
-            \mathbf{u}[k] \\
-            x(0)
+            \mathbf{\hat{u}}[k] \\
+            x[k]
         \end{matrix}
-    \right]
-    \le
-    \left[
-    \begin{matrix}
-        \mathbf{b_x} \\
-        \mathbf{b_u}
-    \end{matrix}
-    \right]
+    \right].
 \end{equation}
 
 \noindent
-adding a restriction \highlight{$S_x x(0) \le b_x$}
+The condensed state and input constraints can then be written as a polyhedron in the joint space of input sequences and current states:
 
 \noindent
 \begin{equation}
-    \left[
-    \begin{matrix}
-        \mathbf{S_x} \mathbf{B} & \mathbf{S_x} \mathbf{A} \\
-        \mathbf{S_u} & 0 \\
-        0 & S_x
-    \end{matrix}
-    \right] 
-    \left[
-        \begin{matrix}
-            \mathbf{u}[k] \\
-            x(0)
-        \end{matrix}
-    \right]
-    \le
-    \left[
-    \begin{matrix}
-        \mathbf{b_x} \\
-        \mathbf{b_u} \\
-        b_x
-    \end{matrix}
-    \right]
-\end{equation}
-
-This can be written in a shorter form
-
-\noindent
-\begin{equation}
-    S_w w \le b_w
+    S_w w \le b_w,
 \end{equation}
 
 \noindent
@@ -85,14 +45,7 @@ with
 
 \noindent
 \begin{equation}
-    w = 
-    \left[ 
-        \begin{matrix} 
-            \mathbf{u}[k] \\ 
-            x(0)
-        \end{matrix}
-    \right],
-    S_w = 
+    S_w =
     \left[
         \begin{matrix}
             \mathbf{S_x} \mathbf{B} & \mathbf{S_x} \mathbf{A} \\
@@ -100,19 +53,20 @@ with
             0 & S_x
         \end{matrix}
     \right],
-    b_w = 
+    \quad
+    b_w =
     \left[
         \begin{matrix}
             \mathbf{b_x} \\
             \mathbf{b_u} \\
-            b_x \\
+            b_x
         \end{matrix}
-    \right]
+    \right].
 \end{equation}
 
-The constraint \highlight{$S_w w \le b_w$} define a polyhedron \highlight{$\mathcal{P}_w$} 
-in the space \highlight{$\mathbb{R}^{(pN+n)}$} corresponding to the variables \highlight{$\mathbf{u}[k]$}, \highlight{$x(0)$}.
+\noindent
+The last block row enforces \highlight{$x[k] \in \mathcal{X}$}. The first two block rows enforce the predicted state and input constraints over the horizon.
 
-The set \highlight{$\mathcal{D}$} is obtained by projection \highlight{$\mathcal{P}_w$} onto the subspace of its last \highlight{$n$} components.
+The polyhedron \highlight{$\mathcal{P}_w = \{w : S_w w \le b_w\}$} contains all pairs \highlight{$(\mathbf{\hat{u}}[k], x[k])$} that satisfy the constraints. The feasibility region \highlight{$\mathcal{D}$} is obtained by projecting \highlight{$\mathcal{P}_w$} onto the state coordinates, which eliminates \highlight{$\mathbf{\hat{u}}[k]$} and keeps only the states for which at least one admissible input sequence exists.
 
 The projection can be performed using the \textit{projection} function from the \textit{MPT Toolbox}.

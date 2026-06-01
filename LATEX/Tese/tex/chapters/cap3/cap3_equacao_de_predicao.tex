@@ -1,6 +1,6 @@
 \section{Prediction Equation}
 
-Consider the relationship between the vectors
+The cost function introduced above depends on the predicted state sequence. To obtain an optimization problem in terms of the input sequence, first consider the relationship between the vectors
 
 \begin{equation}
 	\mathbf{\hat{u}}[k] = \left[
@@ -134,7 +134,7 @@ The vectors \highlight{$\mathbf{\hat{x}}[k]$} and \highlight{$\mathbf{\hat{u}}[k
 	\mathbf{S_x} \mathbf{B} \mathbf{u} \le \mathbf{b_x} - \mathbf{S_x} \mathbf{A} x(0)
 \end{equation}
 
-Combined with \highlight{$\mathbf{S_u} \mathbf{u}[k] \le \mathbf{b_u}$}, it can be expressed in the form
+This expression gives the state constraints directly in terms of the input sequence and the current state. Combined with \highlight{$\mathbf{S_u} \mathbf{u}[k] \le \mathbf{b_u}$}, it can be expressed in the form
 
 \noindent
 \begin{equation}
