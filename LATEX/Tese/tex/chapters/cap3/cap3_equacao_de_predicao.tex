@@ -1,59 +1,68 @@
 \section{Prediction Equation}
 
-The cost function introduced above depends on the predicted state sequence. To obtain an optimization problem in terms of the input sequence, first consider the relationship between the vectors
+The cost function introduced above depends on the predicted state sequence. To obtain an optimization problem in terms of the input sequence, this section writes the predicted states explicitly as a function of the current state and of the predicted inputs.
+
+Consider the stacked vectors
 
 \begin{equation}
 	\mathbf{\hat{u}}[k] = \left[
 		\begin{matrix}
-			\hat{u}[k | k] \\ 
-			\hat{u}[k + 1 | k] \\ 
-			\vdots \\ 
+			\hat{u}[k | k] \\
+			\hat{u}[k + 1 | k] \\
+			\vdots \\
 			\hat{u}[k + N-1 | k]
 		\end{matrix}
 	\right],
-	\mathbf{\hat{x}}[k] = 
-		\left[
+	\qquad
+	\mathbf{\hat{x}}[k] =
+	\left[
 		\begin{matrix}
-			\hat{x}[k + 1 | k] \\ 
-			\hat{x}[k + 2 | k] \\ 
-			\vdots \\ 
+			\hat{x}[k + 1 | k] \\
+			\hat{x}[k + 2 | k] \\
+			\vdots \\
 			\hat{x}[k + N | k]
 		\end{matrix}
-	\right]
+	\right].
 \end{equation}
 
 \noindent
-based on the prediction equation
+The predicted state evolves according to
 
 \noindent
 \begin{equation}
 	\label{eq:cap3:one-step-prediction}
-	\hat{x}[k + i +1|k] = A\hat{x}[k+i|k] + B \hat{u}[k+i|k], 
-	i = 0, 1, \ldots, N 
+	\hat{x}[k + i + 1 | k] = A\hat{x}[k+i | k] + B \hat{u}[k+i | k],
+	\quad i = 0, 1, \ldots, N-1,
 \end{equation}
 
 \noindent
-and initial condition \highlight{$\hat{x}[k|k] = x[k]$}.
+with initial prediction condition
 
-From \eqref{eq:cap3:one-step-prediction}, it follows that
+\noindent
+\begin{equation}
+	\hat{x}[k|k] = x[k].
+\end{equation}
+
+By repeated substitution of \eqref{eq:cap3:one-step-prediction}, the predicted state at step \highlight{$i$} can be written as
 
 \begin{equation}
-	\hat{x}[k+i|k] = A^i\hat{x}[k|k] + \sum_{j=0}^{i-1} A^{i - 1 -j} B \hat{u}[k+j|k]
+	\hat{x}[k+i|k] = A^i x[k] + \sum_{j=0}^{i-1} A^{i - 1 -j} B \hat{u}[k+j|k],
+	\quad i = 1,2,\ldots,N.
 \end{equation}
 
 \noindent
-which can be written for \highlight{$i = 1,2,...,N$} as
+Therefore,
 
 \noindent
 \begin{align}
-	\hat{x}[k+1|k] &= A x[k] +  B \hat{u}[k|k] \\
-	\hat{x}[k+2|k] &= A^2 x[k] + A B \hat{u}[k|k] +  B \hat{u}[k+1|k] \\
+	\hat{x}[k+1|k] &= A x[k] + B \hat{u}[k|k] \\
+	\hat{x}[k+2|k] &= A^2 x[k] + A B \hat{u}[k|k] + B \hat{u}[k+1|k] \\
 	&\vdots \\
-	\hat{x}[k+N|k] &= A^N x[k] + A^{N - 1} B \hat{u}[k|k] + \cdots + A B \hat{u}[k +N - 2|k] +  B \hat{u}[k + N - 1|k]
+	\hat{x}[k+N|k] &= A^N x[k] + A^{N - 1} B \hat{u}[k|k] + \cdots + A B \hat{u}[k +N - 2|k] + B \hat{u}[k + N - 1|k].
 \end{align}
 
 \noindent
-or
+Stacking these equations gives
 
 \noindent
 \begin{equation}
@@ -62,9 +71,9 @@ or
 			\hat{x}[k+1|k] \\
 			\hat{x}[k+2|k] \\
 			\vdots \\
-			\hat{x}[k+N|k] \\
+			\hat{x}[k+N|k]
 		\end{matrix}
-	\right] = 
+	\right] =
 	\left[
 		\begin{matrix}
 			A \\
@@ -73,7 +82,7 @@ or
 			A^N
 		\end{matrix}
 	\right]
-	x(0) + 
+	x[k] +
 	\left[
 		\begin{matrix}
 			B & 0 & \cdots & 0 \\
@@ -89,21 +98,20 @@ or
 			\vdots \\
 			\hat{u}[k+N-1|k]
 		\end{matrix}
-	\right]
+	\right].
 \end{equation}
 
-This can be written in a shorter form as
-
-
+\noindent
+This can be written in compact form as
 
 \noindent
 \begin{equation}
 	\label{eq:cap3:stacked-state-prediction}
-	\mathbf{\hat{x}}[k] = \mathbf{A}x[k] + \mathbf{B \hat{u}}[k]
+	\mathbf{\hat{x}}[k] = \mathbf{A}x[k] + \mathbf{B}\mathbf{\hat{u}}[k],
 \end{equation}
 
 \noindent
-with 
+where
 
 \noindent
 \begin{equation}
@@ -114,8 +122,8 @@ with
 			\vdots \\
 			A^N
 		\end{matrix}
-	\right]
-	, 
+	\right],
+	\qquad
 	\mathbf{B} = \left[
 		\begin{matrix}
 			B  & 0 & \cdots & 0 \\
@@ -123,29 +131,7 @@ with
 			\vdots  & \vdots & \ddots & \vdots \\
 			A^{N-1}B & A^{N-2}B & \cdots & B
 		\end{matrix}
-	\right]
+	\right].
 \end{equation}
 
-The vectors \highlight{$\mathbf{\hat{x}}[k]$} and \highlight{$\mathbf{\hat{u}}[k]$} are linked by 
-\eqref{eq:cap3:stacked-state-prediction}, so the constraint \eqref{eq:cap3:prediction-state-constraint} can be rewritten as
-
-\noindent
-\begin{equation}
-	\mathbf{S_x} \mathbf{B} \mathbf{u} \le \mathbf{b_x} - \mathbf{S_x} \mathbf{A} x(0)
-\end{equation}
-
-This expression gives the state constraints directly in terms of the input sequence and the current state. Combined with \highlight{$\mathbf{S_u} \mathbf{u}[k] \le \mathbf{b_u}$}, it can be expressed in the form
-
-\noindent
-\begin{equation}
-	\mathbf{S} \mathbf{u}[k] \le \mathbf{b}
-\end{equation}
-
-\noindent
-with
-
-\noindent
-\begin{equation}
-	\mathbf{S} = \left[ \begin{matrix} \mathbf{S_x} \mathbf{B} \\ \mathbf{S_u} \end{matrix} \right], \mathbf{b} = 
-	\left[ \begin{matrix} \mathbf{b_x} - \mathbf{S_x} \mathbf{A} \hat{x}[k|k] \\ \mathbf{b_u} \end{matrix} \right]
-\end{equation}
+Equation \eqref{eq:cap3:stacked-state-prediction} is the condensed prediction model used in the following sections to lift the constraints and rewrite the optimization problem in terms of the input sequence.

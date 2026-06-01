@@ -141,3 +141,40 @@ with
 		\end{matrix}
 	\right]
 \end{equation}
+
+Using the prediction equation \eqref{eq:cap3:stacked-state-prediction}, the state constraint \eqref{eq:cap3:prediction-state-constraint} can be written directly in terms of the predicted input sequence:
+
+\noindent
+\begin{equation}
+	\mathbf{S_x} \mathbf{B} \mathbf{\hat{u}}[k] \le \mathbf{b_x} - \mathbf{S_x} \mathbf{A} x[k].
+\end{equation}
+
+\noindent
+Combined with the input constraint \highlight{$\mathbf{S_u} \mathbf{\hat{u}}[k] \le \mathbf{b_u}$}, all horizon constraints can be written in the compact form
+
+\noindent
+\begin{equation}
+	\mathbf{S} \mathbf{\hat{u}}[k] \le \mathbf{b}(x[k]),
+\end{equation}
+
+\noindent
+where
+
+\noindent
+\begin{equation}
+	\mathbf{S} =
+	\left[
+		\begin{matrix}
+			\mathbf{S_x} \mathbf{B} \\
+			\mathbf{S_u}
+		\end{matrix}
+	\right],
+	\qquad
+	\mathbf{b}(x[k]) =
+	\left[
+		\begin{matrix}
+			\mathbf{b_x} - \mathbf{S_x} \mathbf{A} x[k] \\
+			\mathbf{b_u}
+		\end{matrix}
+	\right].
+\end{equation}
