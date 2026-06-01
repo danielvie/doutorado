@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LATEX Detailed Documentation</title>
+    <style>
+      :root {
+        --ink: #182025;
+        --muted: #60707a;
+        --line: #d7e1e7;
+        --paper: #fbfcfb;
+        --panel: #f3f7f5;
+        --level-1: #365da8;
+        --level-2: #16645a;
+        --level-3: #5b4c94;
+        --code: #101820;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        font-family: "Segoe UI", Candara, Tahoma, sans-serif;
+        color: var(--ink);
+        line-height: 1.55;
+        background:
+          linear-gradient(90deg, rgba(24,32,37,0.035) 1px, transparent 1px) 0 0 / 28px 28px,
+          linear-gradient(rgba(24,32,37,0.025) 1px, transparent 1px) 0 0 / 28px 28px,
+          var(--paper);
+      }
+
+      html { scroll-behavior: smooth; }
+
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 32px 20px 70px;
+      }
+
+      h1 { font-size: clamp(30px, 5vw, 54px); line-height: 1.15; margin-bottom: 8px; }
+      h2 { font-size: 24px; margin: 0; }
+      h3 { font-size: 18px; margin-top: 24px; border-left: 4px solid var(--level-2); padding-left: 10px; }
+      h4, .sub-subsection-label { color: var(--level-3); font-weight: 700; text-transform: uppercase; font-size: 13px; letter-spacing: 0.04em; margin-top: 18px; }
+
+      p { margin: 10px 0; }
+      code { background: #edf2f0; padding: 2px 6px; border-radius: 4px; font-size: 0.92em; }
+
+      /* Hero */
+      .hero { display: grid; grid-template-columns: 1fr 280px; gap: 32px; align-items: start; margin-bottom: 28px; }
+      .lede { font-size: 18px; color: var(--muted); margin-top: 6px; }
+      .meta { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; font-size: 14px; }
+      .meta ul { list-style: none; }
+      .meta li { padding: 4px 0; border-bottom: 1px solid var(--line); }
+      .meta li:last-child { border-bottom: none; }
+      .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+      .chip { background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: 12px; color: var(--muted); }
+
+      /* Toolbar */
+      .toolbar { display: flex; gap: 10px; margin-bottom: 20px; }
+      .toolbar button { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 6px 14px; font-size: 13px; cursor: pointer; }
+      .toolbar button:hover { background: #e8efec; }
+
+      /* Index */
+      .index { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px 24px; margin-bottom: 28px; }
+      .index h2 { font-size: 18px; margin-bottom: 12px; }
+      .index-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .index a { display: block; padding: 10px 12px; background: #fff; border: 1px solid var(--line); border-radius: 6px; text-decoration: none; color: var(--ink); font-size: 14px; position: relative; }
+      .index a:hover { border-color: var(--level-1); }
+      .hint { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: var(--line); font-size: 11px; color: var(--muted); margin-left: 6px; cursor: help; position: relative; }
+      .hint::after { content: attr(data-tip); position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; font-size: 12px; padding: 6px 10px; border-radius: 6px; white-space: nowrap; max-width: 260px; white-space: normal; opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 10; }
+      .hint:hover::after, .hint:focus::after { opacity: 1; }
+
+      /* Chapters */
+      details.chapter { border: 1px solid var(--line); border-left: 4px solid var(--level-1); border-radius: 8px; margin-bottom: 18px; background: #fff; }
+      details.chapter > summary { padding: 16px 20px; cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; }
+      details.chapter > summary::-webkit-details-marker { display: none; }
+      details.chapter > summary::after { content: "show"; border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: 3px 10px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+      details.chapter[open] > summary::after { content: "hide"; }
+      details.chapter .content { padding: 0 20px 20px; }
+      details.chapter .content[style] { animation: reveal 0.2s ease; }
+      @keyframes reveal { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+      /* Cards */
+      .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0; }
+      .card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+      .card strong { display: block; margin-bottom: 4px; }
+
+      /* Charts */
+      .chart { margin: 16px 0; overflow-x: auto; }
+      .chart svg { max-width: 100%; height: auto; }
+      .box { fill: #fff; stroke: #b8c6cd; stroke-width: 1.3; rx: 7; }
+      .box-level-1, .chart-level-1 { fill: rgba(54,93,168,0.1); stroke: var(--level-1); }
+      .box-level-2, .chart-level-2 { fill: rgba(22,100,90,0.1); stroke: var(--level-2); }
+      .box-level-3, .chart-level-3 { fill: rgba(91,76,148,0.1); stroke: var(--level-3); }
+      .chart-muted { fill: rgba(96,112,122,0.08); stroke: #9aaab2; }
+      .chart-warn { fill: #fff4df; stroke: #b57418; }
+      .arrow { stroke: #56666f; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+      .dash { stroke-dasharray: 6 5; }
+      .label { fill: var(--ink); font-size: 13px; font-weight: 650; }
+      .small { fill: var(--muted); font-size: 12px; }
+      .lane { fill: rgba(96,112,122,0.07); stroke: #d7e1e7; }
+
+      /* Tables */
+      table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
+      th, td { padding: 8px 12px; border: 1px solid var(--line); text-align: left; }
+      th { background: var(--panel); font-weight: 600; }
+
+      /* Code */
+      pre { margin: 12px 0; padding: 14px; overflow-x: auto; border-radius: 8px; border: 1px solid #293640; background: var(--code); color: #dce8e5; font-size: 13px; line-height: 1.45; }
+      pre code { padding: 0; border: 0; background: transparent; color: inherit; font-size: inherit; }
+      .tok-comment { color: #91a8a2; font-style: italic; }
+      .tok-keyword { color: #7dd3fc; font-weight: 700; }
+      .tok-type { color: #a7f3d0; }
+      .tok-fn { color: #fde68a; }
+      .tok-string { color: #fda4af; }
+      .tok-number { color: #c4b5fd; }
+      .tok-literal { color: #f9a8d4; font-weight: 700; }
+      .tok-operator { color: #93c5fd; }
+
+      /* Callout */
+      .callout { background: #f0f7f4; border-left: 4px solid var(--level-2); border-radius: 6px; padding: 12px 16px; margin: 14px 0; font-size: 14px; }
+
+      /* Two-column layout */
+      .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 16px 0; }
+
+      /* Responsive */
+      @media (max-width: 900px) {
+        .hero { grid-template-columns: 1fr; }
+        .index-grid { grid-template-columns: 1fr; }
+        .cards { grid-template-columns: 1fr; }
+        .twocol { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <div>
+          <h1>LATEX Detailed Documentation</h1>
+          <p class="lede">Detailed documentation of the LATEX project design, modeling method, control problem, and reported results for the thesis and converter hardware article.</p>
+          <div class="chips"><span class="chip">Switched affine systems</span>
+<span class="chip">Dwell-time MPC</span>
+<span class="chip">Limit cycles</span>
+<span class="chip">Flying capacitor converter</span>
+<span class="chip">ESP32 hardware</span></div>
+        </div>
+        <div class="meta">
+          <ul><li><strong>Scope:</strong> <code>LATEX/</code></li>
+<li><strong>Date:</strong> 2026-06-01</li>
+<li><strong>Depth:</strong> Detailed design, modeling, and results documentation</li>
+<li><strong>Primary documents:</strong> <code>Artigo/main.tex</code>, <code>Tese/tese.tex</code></li></ul>
+        </div>
+      </section>
+
+      <div class="toolbar">
+        <button type="button" data-action="open-all">Open all sections</button>
+        <button type="button" data-action="close-all">Close all sections</button>
+      </div>
+
+      <nav class="index" aria-label="Documentation index">
+        <h2>Documentation Index</h2>
+        <div class="index-grid">
+          <a href="#project-map">Project Map <span class="hint" tabindex="0" data-tip="How the thesis and article fit together.">?</span></a>
+<a href="#problem">Problem Statement <span class="hint" tabindex="0" data-tip="The control problem and why it matters.">?</span></a>
+<a href="#source-design">Source Design <span class="hint" tabindex="0" data-tip="How LATEX sources are organized.">?</span></a>
+<a href="#modeling">Modeling Method <span class="hint" tabindex="0" data-tip="How target trajectories and converter dynamics are modeled.">?</span></a>
+<a href="#mpc-design">MPC Design <span class="hint" tabindex="0" data-tip="How switching-time perturbations become a constrained QP.">?</span></a>
+<a href="#simulation-workflow">Simulation Workflow <span class="hint" tabindex="0" data-tip="How the method is exercised in examples.">?</span></a>
+<a href="#results">Results Obtained <span class="hint" tabindex="0" data-tip="Reported simulation and hardware outcomes.">?</span></a>
+<a href="#open-items">Open Items <span class="hint" tabindex="0" data-tip="Known risks and remaining work visible in the manuscripts.">?</span></a>
+        </div>
+      </nav>
+
+      <details class="chapter level-1" id="project-map" open>
+  <summary><h2>Project Map</h2></summary>
+  <div class="content">
+
+<p>The LATEX workspace contains the scientific narrative for two connected products: the thesis develops the control method, while the article documents the experimental hardware intended to make the method reproducible in the lab.</p>
+<div class="chart" aria-label="LATEX project map">
+  <svg viewBox="0 0 1080 390" role="img">
+    <defs><marker id="pm-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#56666f"></path></marker></defs>
+    <text x="40" y="32" class="label">Research-to-hardware documentation flow</text>
+    <rect x="45" y="76" width="210" height="92" class="box box-level-1"></rect><text x="82" y="108" class="label">Control theory</text><text x="75" y="132" class="small">switched affine systems</text><text x="75" y="154" class="small">dwell-time constraints</text>
+    <path d="M 255 122 L 365 122" class="arrow" style="marker-end:url(#pm-arrow)"></path>
+    <rect x="370" y="76" width="250" height="92" class="box box-level-2"></rect><text x="410" y="108" class="label">Tese</text><text x="402" y="132" class="small">target cycles, linearization</text><text x="402" y="154" class="small">MPC and simulations</text>
+    <path d="M 620 122 L 735 122" class="arrow" style="marker-end:url(#pm-arrow)"></path>
+    <rect x="740" y="76" width="275" height="92" class="box box-level-3"></rect><text x="778" y="108" class="label">Artigo</text><text x="770" y="132" class="small">low-cost converter hardware</text><text x="770" y="154" class="small">ESP32 signal generation</text>
+    <rect x="115" y="230" width="235" height="82" class="box chart-muted"></rect><text x="150" y="262" class="label">MATLAB/simulation assets</text><text x="145" y="286" class="small">figures, trajectories, matrices</text>
+    <rect x="425" y="230" width="235" height="82" class="box chart-muted"></rect><text x="462" y="262" class="label">LaTeX manuscript assets</text><text x="455" y="286" class="small">chapters, equations, figures</text>
+    <rect x="735" y="230" width="235" height="82" class="box chart-muted"></rect><text x="782" y="262" class="label">Hardware assets</text><text x="770" y="286" class="small">PCB images, software docs</text>
+    <path d="M 232 230 L 455 168" class="arrow dash" style="marker-end:url(#pm-arrow)"></path><path d="M 542 230 L 510 168" class="arrow dash" style="marker-end:url(#pm-arrow)"></path><path d="M 852 230 L 860 168" class="arrow dash" style="marker-end:url(#pm-arrow)"></path>
+  </svg>
+</div>
+<table><tr><th>Document</th><th>Purpose</th><th>Main source</th><th>Primary output</th></tr><tr><td>Thesis</td><td>Formal development of predictive control for switched affine systems with dwell-time constraints.</td><td><code>LATEX/Tese/tese.tex</code></td><td><code>LATEX/Tese/tese.pdf</code></td></tr><tr><td>Article</td><td>Open-hardware description of a three-cell flying-capacitor voltage converter controlled by ESP32.</td><td><code>LATEX/Artigo/main.tex</code></td><td><code>LATEX/Artigo/main.pdf</code></td></tr></table>
+<div class="callout"><strong>Design reading:</strong> The thesis is the method document; the article is the reproducibility and experimental-platform document.</div>
+  </div>
+</details>
+
+      <details class="chapter level-1" id="problem" open>
+  <summary><h2>Problem Statement</h2></summary>
+  <div class="content">
+
+<p>The project addresses systems whose actuators are inherently switched. These systems are useful, but control is difficult because the actuator cannot change continuously and each command must respect timing constraints.</p>
+<div class="chart" aria-label="Control problem from state error to switching time perturbations">
+  <svg viewBox="0 0 1080 330" role="img">
+    <defs><marker id="problem-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#56666f"></path></marker></defs>
+    <text x="48" y="34" class="label">Core control problem</text>
+    <rect x="65" y="82" width="210" height="72" class="box box-level-1"></rect><text x="102" y="112" class="label">Plant</text><text x="92" y="136" class="small">switched affine dynamics</text>
+    <path d="M 275 118 L 400 118" class="arrow" style="marker-end:url(#problem-arrow)"></path>
+    <rect x="405" y="82" width="245" height="72" class="box box-level-2"></rect><text x="442" y="112" class="label">Reference cycle</text><text x="435" y="136" class="small">periodic state and switching signal</text>
+    <path d="M 650 118 L 775 118" class="arrow" style="marker-end:url(#problem-arrow)"></path>
+    <rect x="780" y="82" width="230" height="72" class="box box-level-3"></rect><text x="812" y="112" class="label">Controller action</text><text x="810" y="136" class="small">perturb switching instants</text>
+    <rect x="225" y="220" width="250" height="66" class="box chart-warn"></rect><text x="252" y="249" class="label">Constraint</text><text x="252" y="271" class="small">minimum dwell time between switches</text>
+    <rect x="610" y="220" width="250" height="66" class="box chart-warn"></rect><text x="638" y="249" class="label">Goal</text><text x="638" y="271" class="small">converge to desired limit cycle</text>
+  </svg>
+</div>
+<h3>Formal Plant Model</h3>
+<p>The thesis writes the plant as a continuous-time switched affine system:</p>
+<pre><code>dx/dt = A_sigma(t) x(t) + b_sigma(t)
+x(t) in R^n
+sigma(t) in {1, 2, ..., M}</code></pre>
+<table><tr><th>Problem element</th><th>Meaning in the project</th></tr><tr><td>Switched actuator</td><td>The input is a mode or switch command, not a continuously variable signal.</td></tr><tr><td>Dwell-time constraint</td><td>Each mode must remain active for at least a minimum duration.</td></tr><tr><td>Target behavior</td><td>A periodic trajectory or limit cycle, not only an equilibrium point.</td></tr><tr><td>Control variable</td><td>Perturbations <code>delta t</code> applied to nominal switching instants.</td></tr></table>
+<div class="callout"><strong>Problem consequence:</strong> The controller must shape timing, not only amplitude. That is why the method works with switching-time perturbations.</div>
+  </div>
+</details>
+
+      <details class="chapter level-1" id="source-design" open>
+  <summary><h2>Source Design</h2></summary>
+  <div class="content">
+
+<p>The LATEX tree separates method, examples, and hardware documentation. The thesis has a chapter-per-concept structure; the article follows the HardwareX manuscript structure.</p>
+<table><tr><th>Path</th><th>Role</th><th>Design intent</th></tr><tr><td><code>LATEX/Tese/Cap1/cap1_introduction.tex</code></td><td>Motivation and contribution.</td><td>Frames the extension from previous dwell-time MPC work to changing dynamics at switching times.</td></tr><tr><td><code>LATEX/Tese/Cap2/cap2.tex</code></td><td>Target periodic trajectory.</td><td>Defines the optimization that finds the reference cycle before MPC is applied.</td></tr><tr><td><code>LATEX/Tese/Cap3/</code></td><td>Predictive-control preliminaries.</td><td>Defines prediction equation, cost, constraints, feasibility region, and optimization form.</td></tr><tr><td><code>LATEX/Tese/Cap4/</code></td><td>Control method and examples.</td><td>States the problem, derives the cycle-error linearization, defines MPC, and reports examples.</td></tr><tr><td><code>LATEX/Tese/Cap5/cap5_conclusion.tex</code></td><td>Results and future work.</td><td>Summarizes validation cases and remaining real-hardware work.</td></tr><tr><td><code>LATEX/Artigo/main.tex</code></td><td>HardwareX article.</td><td>Documents converter motivation, topology, PCB, operation, and validation.</td></tr><tr><td><code>LATEX/Artigo/software.tex</code></td><td>Embedded software section.</td><td>Documents ESP32 real-time switching, BLE monitoring, and web interface.</td></tr></table>
+<div class="chart" aria-label="Thesis source chapter design">
+  <svg viewBox="0 0 1080 245" role="img">
+    <defs><marker id="src-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#56666f"></path></marker></defs>
+    <rect x="50" y="80" width="155" height="58" class="box box-level-1"></rect><text x="84" y="114" class="label">Cap1</text><text x="70" y="132" class="small">motivation</text>
+    <path d="M 205 109 L 245 109" class="arrow" style="marker-end:url(#src-arrow)"></path>
+    <rect x="250" y="80" width="155" height="58" class="box box-level-2"></rect><text x="284" y="114" class="label">Cap2</text><text x="278" y="132" class="small">target cycle</text>
+    <path d="M 405 109 L 445 109" class="arrow" style="marker-end:url(#src-arrow)"></path>
+    <rect x="450" y="80" width="155" height="58" class="box box-level-2"></rect><text x="484" y="114" class="label">Cap3</text><text x="470" y="132" class="small">MPC notation</text>
+    <path d="M 605 109 L 645 109" class="arrow" style="marker-end:url(#src-arrow)"></path>
+    <rect x="650" y="80" width="155" height="58" class="box box-level-3"></rect><text x="684" y="114" class="label">Cap4</text><text x="670" y="132" class="small">method/examples</text>
+    <path d="M 805 109 L 845 109" class="arrow" style="marker-end:url(#src-arrow)"></path>
+    <rect x="850" y="80" width="155" height="58" class="box chart-muted"></rect><text x="884" y="114" class="label">Cap5</text><text x="878" y="132" class="small">conclusion</text>
+  </svg>
+</div>
+<div class="callout"><strong>Build note:</strong> The thesis uses <code>ita.cls</code> and BibTeX; the article uses <code>biblatex</code> with <code>biber</code>. They should remain separate build targets.</div>
+  </div>
+</details>
+
+      <details class="chapter level-1" id="modeling" open>
+  <summary><h2>Modeling Method</h2></summary>
+  <div class="content">
+
+<p>The modeling is conducted in two stages: first define a nominal periodic trajectory, then derive local cycle-to-cycle error dynamics around that trajectory.</p>
+<h3>1. Target Periodic Trajectory</h3>
+<p>Chapter 2 searches for a cycle that minimizes oscillation around an average reference while satisfying period and dwell-time constraints.</p>
+<pre><code>minimize integral_0^Tp (x(t) - xbar)^T Q (x(t) - xbar) dt
+subject to:
+  x(0) = x(Tp)
+  Tp <= Tp_max
+  t_i - t_{i-1} >= Delta t_i,min</code></pre>
+<h3>2. Mode Sequence And Dynamics</h3>
+<p>The model allows the dynamics to change after each switching command. A mode sequence can reuse the same dynamics at different intervals, which is needed for converter examples.</p>
+<table><tr><th>Example</th><th>State model</th><th>Purpose</th></tr><tr><td>Double integrator</td><td>Same <code>A</code> matrix, different affine terms <code>b_i</code>.</td><td>Validation case against prior work.</td></tr><tr><td>Buck-boost converter</td><td>Two operation modes with capacitor voltage and inductor current states.</td><td>Changing dynamics at switching times.</td></tr><tr><td>Multilevel converter</td><td>Eight switch combinations with repeated modes in one cycle.</td><td>High-complexity converter case.</td></tr><tr><td>Hardware article converter</td><td>Three-cell flying capacitor converter with <code>u1,u2,u3</code> switch commands.</td><td>Physical platform for switched-system experiments.</td></tr></table>
+<h3>3. Converter Model Used In Article And Thesis</h3>
+<p>The multilevel converter state is built from flying capacitor voltages and load current. The thesis uses affine dynamics; the article appendix also presents an augmented autonomous form.</p>
+<pre><code>x = [vc1, vc2, iL]^T
+A_i = [[0, 0, (u2-u1)/C1],
+       [0, 0, (u3-u2)/C2],
+       [(u1-u2)/L, (u2-u3)/L, -R/L]]
+b_i = [0, 0, (E/L) u3]^T</code></pre>
+<div class="chart" aria-label="Modeling pipeline from trajectory search to physical converter">
+  <svg viewBox="0 0 1080 290" role="img">
+    <defs><marker id="model-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#56666f"></path></marker></defs>
+    <rect x="55" y="95" width="180" height="68" class="box box-level-1"></rect><text x="86" y="124" class="label">System data</text><text x="82" y="146" class="small">A_i, b_i, modes</text>
+    <path d="M 235 129 L 345 129" class="arrow" style="marker-end:url(#model-arrow)"></path>
+    <rect x="350" y="95" width="205" height="68" class="box box-level-2"></rect><text x="382" y="124" class="label">FMINCON search</text><text x="380" y="146" class="small">tau, Omega, x0</text>
+    <path d="M 555 129 L 665 129" class="arrow" style="marker-end:url(#model-arrow)"></path>
+    <rect x="670" y="95" width="190" height="68" class="box box-level-3"></rect><text x="704" y="124" class="label">Reference cycle</text><text x="700" y="146" class="small">xbar(t), sigmabar(t)</text>
+    <path d="M 860 129 L 970 129" class="arrow" style="marker-end:url(#model-arrow)"></path>
+    <rect x="975" y="95" width="70" height="68" class="box chart-muted"></rect><text x="992" y="124" class="label">MPC</text>
+  </svg>
+</div>
+<div class="callout"><strong>Modeling decision:</strong> The nominal cycle is not an afterthought; it is an input to the controller. The MPC regulates deviation from this precomputed cycle.</div>
+  </div>
+</details>
+
+      <details class="chapter level-1" id="mpc-design" open>
+  <summary><h2>MPC Design</h2></summary>
+  <div class="content">
+
+<p>The MPC design converts deviations in switching instants into a constrained quadratic program. The manipulated variable is <code>delta t</code>, the perturbation from nominal switching times.</p>
+<div class="chart" aria-label="MPC design sequence">
+  <svg viewBox="0 0 1080 330" role="img">
+    <defs><marker id="mpc-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#56666f"></path></marker></defs>
+    <text x="48" y="34" class="label">Cycle-to-cycle MPC formulation</text>
+    <rect x="55" y="82" width="205" height="72" class="box box-level-1"></rect><text x="92" y="112" class="label">Current error</text><text x="88" y="136" class="small">e[j] = x - xbar</text>
+    <path d="M 260 118 L 365 118" class="arrow" style="marker-end:url(#mpc-arrow)"></path>
+    <rect x="370" y="82" width="215" height="72" class="box box-level-2"></rect><text x="405" y="112" class="label">Linearized cycle</text><text x="398" y="136" class="small">Phi, Gamma matrices</text>
+    <path d="M 585 118 L 690 118" class="arrow" style="marker-end:url(#mpc-arrow)"></path>
+    <rect x="695" y="82" width="215" height="72" class="box box-level-3"></rect><text x="730" y="112" class="label">QP solution</text><text x="725" y="136" class="small">optimal delta t sequence</text>
+    <rect x="370" y="220" width="215" height="62" class="box chart-warn"></rect><text x="403" y="248" class="label">Constraints</text><text x="400" y="270" class="small">L delta t >= c</text>
+    <path d="M 477 220 L 477 154" class="arrow dash" style="marker-end:url(#mpc-arrow)"></path>
+  </svg>
+</div>
+<h3>Prediction Equation</h3>
+<p>The linearization relates the error at the end of a cycle to the current error and the timing perturbation. In MPC notation, <code>x</code> becomes <code>e</code> and the control input becomes <code>delta t</code>.</p>
+<pre><code>e[j+1] = Phi e[j] + Gamma delta_t[j]
+J = ||e[Np]||^2_Pf + sum_j ||e[j]||^2_Q + ||delta_t[j]||^2_R</code></pre>
+<h3>Dwell-Time Constraints</h3>
+<p>The dwell-time inequalities are rearranged into matrix form so they can be passed to the constrained optimizer.</p>
+<pre><code>t_i - t_{i-1} >= Delta t_i,min
+Delta tbar_i = tbar_i - tbar_{i-1}
+L delta_t >= c
+-S delta_t <= -c  # optimizer-compatible form</code></pre>
+<table><tr><th>Design choice</th><th>Reason</th></tr><tr><td>Linearize around reference cycle</td><td>Keeps the predictive problem local and convex near the target trajectory.</td></tr><tr><td>Use switching-time perturbations</td><td>Matches the physical actuator: the controller changes when switches occur.</td></tr><tr><td>QP formulation</td><td>Keeps the problem in a mature convex optimization class.</td></tr><tr><td>Feasibility regions</td><td>Shows which initial errors can be handled for a chosen prediction horizon.</td></tr></table>
+<div class="callout"><strong>Control interpretation:</strong> The MPC does not choose arbitrary switch sequences; it adjusts the timing of a known reference switching cycle while respecting dwell time.</div>
+  </div>
+</details>
+
+      <details class="chapter level-1" id="simulation-workflow" open>
+  <summary><h2>Simulation Workflow</h2></summary>
+  <div class="content">
+
+<p>The simulations follow a repeated workflow: compute a target cycle, build prediction matrices, inspect feasibility, then compare open-loop and MPC-controlled trajectories.</p>
+<div class="chart" aria-label="Simulation workflow">
+  <svg viewBox="0 0 1080 275" role="img">
+    <defs><marker id="sim-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#56666f"></path></marker></defs>
+    <rect x="50" y="92" width="175" height="60" class="box box-level-1"></rect><text x="82" y="126" class="label">Define model</text>
+    <path d="M 225 122 L 310 122" class="arrow" style="marker-end:url(#sim-arrow)"></path>
+    <rect x="315" y="92" width="185" height="60" class="box box-level-2"></rect><text x="346" y="126" class="label">Find target cycle</text>
+    <path d="M 500 122 L 585 122" class="arrow" style="marker-end:url(#sim-arrow)"></path>
+    <rect x="590" y="92" width="185" height="60" class="box box-level-2"></rect><text x="622" y="126" class="label">Build Phi/Gamma</text>
+    <path d="M 775 122 L 860 122" class="arrow" style="marker-end:url(#sim-arrow)"></path>
+    <rect x="865" y="92" width="175" height="60" class="box box-level-3"></rect><text x="900" y="126" class="label">Run MPC</text>
+    <rect x="255" y="205" width="220" height="48" class="box chart-muted"></rect><text x="286" y="235" class="small">Plot feasibility region D</text>
+    <rect x="595" y="205" width="240" height="48" class="box chart-muted"></rect><text x="626" y="235" class="small">Compare MPC off vs on</text>
+  </svg>
+</div>
+<table><tr><th>Case</th><th>Inputs reported</th><th>Outputs reported</th></tr><tr><td>Double integrator</td><td><code>u = [1,0,-1,0]</code>, switching times <code>[0,2,3,5,6]</code>, reference <code>[2,-1]</code>.</td><td>Feasibility regions for <code>Np=1,2,3</code>; MPC drives trajectory to target cycle.</td></tr><tr><td>Buck-boost converter</td><td><code>Omega=[1,2]</code>, <code>tau=[0,0.2513,0.5914] s</code>, reference <code>[2 V,-1 A]</code>.</td><td>Feasibility regions for <code>Np=1,2,3</code>; MPC converges faster than uncontrolled trajectory.</td></tr><tr><td>Multilevel converter</td><td><code>Omega=[1,2,4,8,3,1,5,8,5]</code>, <code>Tpmax=4e-4</code>, reference <code>[10 V,20 V,1 A]</code>.</td><td>Feasibility regions for <code>Np=1,2,4</code>; MPC reaches target limit cycle while open loop drifts to other cycles.</td></tr></table>
+<pre><code># Documentation source paths for reported simulation figures
+LATEX/Tese/Cap4/fig/graf_proj_integrador.pdf
+LATEX/Tese/Cap4/fig/graf_patino1_traj.pdf
+LATEX/Tese/Cap4/fig/graf_patino2_traj.pdf
+LATEX/Tese/Cap4/fig/graf_patino2_u_signal.pdf</code></pre>
+<div class="callout"><strong>Workflow implication:</strong> Each example is both a numerical validation and a documentation artifact; the figures in <code>Cap4/fig</code> are the evidence layer for the thesis claims.</div>
+  </div>
+</details>
+
+      <details class="chapter level-1" id="results" open>
+  <summary><h2>Results Obtained</h2></summary>
+  <div class="content">
+
+<p>The reported results show the method working across increasing complexity: a baseline double integrator, a buck-boost converter, and a multilevel converter.</p>
+<table><tr><th>Result area</th><th>Reported outcome</th><th>Interpretation</th></tr><tr><td>Double integrator</td><td>Without MPC, the trajectory diverges from the target cycle; with MPC over 50 cycles, it is driven to the target cyclic trajectory.</td><td>Validates the extended formulation against a simpler known case.</td></tr><tr><td>Buck-boost converter</td><td>Both open-loop and MPC trajectories converge, but MPC converges faster to the target cyclic trajectory.</td><td>For stable dynamics, MPC improves transient convergence.</td></tr><tr><td>Multilevel converter</td><td>Open-loop simulations converge to different limit cycles depending on initial condition; MPC drives the state to the desired target cycle.</td><td>The controller matters most in the more complex converter case.</td></tr><tr><td>Hardware article validation</td><td>Switch commands for <code>alpha=0.4</code> and <code>T=282 us</code> were captured; output resistor voltage changes after <code>alpha</code> changes from <code>0.4</code> to <code>0.8</code>.</td><td>The physical platform generates measurable switched behavior suitable for control experiments.</td></tr></table>
+<div class="chart" aria-label="Results progression">
+  <svg viewBox="0 0 1080 330" role="img">
+    <defs><marker id="res-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#56666f"></path></marker></defs>
+    <text x="48" y="36" class="label">Validation ladder</text>
+    <rect x="60" y="90" width="205" height="82" class="box box-level-1"></rect><text x="92" y="122" class="label">Double integrator</text><text x="88" y="146" class="small">baseline method check</text>
+    <path d="M 265 131 L 390 131" class="arrow" style="marker-end:url(#res-arrow)"></path>
+    <rect x="395" y="90" width="205" height="82" class="box box-level-2"></rect><text x="430" y="122" class="label">Buck-boost</text><text x="425" y="146" class="small">changing dynamics</text>
+    <path d="M 600 131 L 725 131" class="arrow" style="marker-end:url(#res-arrow)"></path>
+    <rect x="730" y="90" width="235" height="82" class="box box-level-3"></rect><text x="766" y="122" class="label">Multilevel converter</text><text x="762" y="146" class="small">repeated modes, fast timing</text>
+    <rect x="255" y="230" width="590" height="58" class="box chart-muted"></rect><text x="292" y="264" class="small">Hardware article provides the physical converter platform for future laboratory validation.</text>
+  </svg>
+</div>
+<h3>Hardware Results In The Article</h3>
+<p>The HardwareX article records practical validation evidence: oscilloscope captures of switch commands at test points TP3, TP4, and TP5 for <code>alpha=0.4</code>, and an output transition when <code>alpha</code> changes from <code>0.4</code> to <code>0.8</code>.</p>
+<pre><code>Article validation parameters:
+R_L = 4.9 ohm
+R = 68 ohm  # marked as needing measurement
+alpha = 0.4 for command captures
+T = 282 us
+alpha transition: 0.4 -> 0.8</code></pre>
+<div class="callout"><strong>Result boundary:</strong> The current thesis conclusion still treats full real-circuit implementation of the control solution as future work; the article documents the platform and switching validation.</div>
+  </div>
+</details>
+
+      <details class="chapter level-1" id="open-items" open>
+  <summary><h2>Open Items</h2></summary>
+  <div class="content">
+
+<p>The current LATEX sources contain strong technical material, but several manuscript and reproducibility issues remain visible.</p>
+<table><tr><th>Open item</th><th>Where visible</th><th>Impact</th></tr><tr><td>Article still contains draft TODOs and template guidance.</td><td><code>LATEX/Artigo/main.tex</code></td><td>Publication readiness is not complete.</td></tr><tr><td>Article design-file table is partially placeholder text.</td><td>HardwareX design files summary.</td><td>Open-hardware reproducibility claim needs final repository and file metadata.</td></tr><tr><td>Some image includes use lowercase extensions while files are uppercase.</td><td>Article validation images such as <code>PeriodT.JPG</code>.</td><td>Case-sensitive systems may fail to build.</td></tr><tr><td>Multilevel converter open-loop behavior may be affected by numerical precision.</td><td><code>Cap5/cap5_conclusion.tex</code></td><td>Needs deeper numerical analysis before final claims.</td></tr><tr><td>Real embedded implementation of MPC remains future work.</td><td>Conclusion future-work section.</td><td>The bridge from simulation to hardware is designed, but not fully closed in thesis results.</td></tr></table>
+<h3>Recommended Documentation Next Steps</h3>
+<pre><code>1. Add a LATEX/Taskfile.yml with separate article and thesis build commands.
+2. Normalize figure filename case in Article includes.
+3. Add a results matrix that maps each claim to its figure file.
+4. Separate generated build artifacts from manuscript source.
+5. Add a short "simulation-to-hardware gap" section in the article or docs.</code></pre>
+<div class="callout"><strong>Highest-value cleanup:</strong> Make the thesis result claims trace directly to figures and simulation scripts, then make the article trace hardware claims to PCB files, firmware, oscilloscope captures, and operating instructions.</div>
+  </div>
+</details>
+
+      <!-- END_CHAPTERS -->
+    </main>
+
+    <script>
+      // Toolbar controls
+      const chapters = Array.from(document.querySelectorAll("details.chapter"));
+      document.querySelector('[data-action="open-all"]').addEventListener("click", () => {
+        chapters.forEach(ch => { ch.open = true; });
+      });
+      document.querySelector('[data-action="close-all"]').addEventListener("click", () => {
+        chapters.forEach(ch => { ch.open = false; });
+      });
+
+      // Syntax highlighter
+      const syntaxKeywords = new Set([
+        "async","await","break","case","catch","class","const","continue","default",
+        "do","else","enum","export","extends","finally","for","from","function","if",
+        "import","in","instanceof","interface","let","message","new","of","oneof",
+        "return","static","string","struct","switch","throw","try","type","typeof",
+        "uint32","uint32_t","var","void","volatile","while","yield"
+      ]);
+      const syntaxLiterals = new Set(["false","true","null","undefined","NaN","Infinity"]);
+      const syntaxTypes = new Set([]);
+
+      const escapeHtml = t => t.replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"})[c]);
+      const colorToken = (cls, t) => `<span class="${cls}">${escapeHtml(t)}</span>`;
+
+      const highlightCodeBlock = code => {
+        const src = code.textContent;
+        let html = "", i = 0;
+        while (i < src.length) {
+          const rest = src.slice(i);
+          if (rest.startsWith("//")) { const end = src.indexOf("\n", i); const n = end===-1?src.length:end; html += colorToken("tok-comment", src.slice(i,n)); i=n; continue; }
+          if (src[i]==="#" && (i===0||src[i-1]==="\n")) { const end = src.indexOf("\n", i); const n = end===-1?src.length:end; html += colorToken("tok-comment", src.slice(i,n)); i=n; continue; }
+          const sm = rest.match(/^"([^"\\]|\\.)*"|^'([^'\\]|\\.)*'/);
+          if (sm) { html += colorToken("tok-string", sm[0]); i += sm[0].length; continue; }
+          const nm = rest.match(/^(0x[\da-fA-F]+|\d+(?:\.\d+)?f?|\d+K)\b/);
+          if (nm) { html += colorToken("tok-number", nm[0]); i += nm[0].length; continue; }
+          const wm = rest.match(/^[A-Za-z_][\w:]*/);
+          if (wm) {
+            const w = wm[0], after = src.slice(i+w.length);
+            if (syntaxKeywords.has(w)) html += colorToken("tok-keyword", w);
+            else if (syntaxLiterals.has(w)) html += colorToken("tok-literal", w);
+            else if (syntaxTypes.has(w)||/^[A-Z][\w:]*$/.test(w)) html += colorToken("tok-type", w);
+            else if (/^\s*\(/.test(after)) html += colorToken("tok-fn", w);
+            else html += escapeHtml(w);
+            i += w.length; continue;
+          }
+          if (/^[{}()[\];,.=:+\-*/&|!<>]/.test(rest)) { html += colorToken("tok-operator", src[i]); i++; continue; }
+          html += escapeHtml(src[i]); i++;
+        }
+        code.innerHTML = html;
+      };
+      document.querySelectorAll("pre code").forEach(highlightCodeBlock);
+    </script>
+  </body>
+</html>
