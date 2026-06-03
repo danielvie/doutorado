@@ -34,7 +34,7 @@ dead-time and microsecond-scale segment durations. Core 1's idle-task watchdog c
 disabled because the signal loop may intentionally occupy the core during continuous
 waveform generation.
 
-\begin{table}[htbp]
+\begin{table}[H]
 	\centering
 	\caption{Firmware configuration relevant to reproduction}
 	\label{tab:system-config}
@@ -53,16 +53,36 @@ waveform generation.
 
 \subsection{Signal Pattern Pipeline}
 
-The switching waveform is represented by two vectors: segment duration in
-microseconds and segment mode. The mode is the decimal encoding of three binary
-control signals, later expanded into the six complementary gate commands. For example,
-mode 5 corresponds to the binary state 101 for the three logical switch variables.
+The switching waveform is described at command level by two synchronized vectors:
+the duration of each segment, expressed in microseconds, and the segment mode. The
+mode is a compact decimal encoding of the three logical switch variables. For
+example, mode 5 corresponds to the binary state 101. This representation is useful
+for browser commands because it is short and easy to serialize, but it is not the
+form used by the real-time GPIO loop.
 
-New patterns are never written into the active buffer. When a command such as
-\verb|signal.set_pattern| or \verb|signal.set_alpha| arrives, the firmware selects the
-inactive dataset, fills the raw duration and mode arrays, expands each mode into
-individual switch states, and precomputes the GPIO masks required by the signal loop.
-Only after this preparation is complete does it set the update-pending flag.
+Figure \ref{fig:sw_signal_pipeline} summarizes the complete conversion path. A
+browser command, either an explicit \verb|signal.set_pattern| vector or an
+\verb|signal.set_alpha| request, is handled on the command side of the firmware.
+There, the compact pattern is parsed or computed, written into the inactive
+dataset, expanded into the individual logical switch arrays, and finally converted
+into a precomputed sequence of GPIO operations. The signal loop therefore consumes
+only ready-to-use \verb|SignalStep| entries, rather than decoding modes during
+playback.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=140mm]{figures/images/sw_signal_pipeline.pdf}
+	\caption{Signal pattern pipeline from uploaded durations and modes to precomputed GPIO steps.}
+	\label{fig:sw_signal_pipeline}
+\end{figure}
+
+The separation between active and inactive datasets is the mechanism that makes
+this pipeline deterministic. New patterns are never written into the dataset that
+Core 1 is currently executing. Instead, the command path selects the inactive
+dataset, fills the raw duration and mode arrays, expands each mode into individual
+switch states, and precomputes the masks required by the signal loop. Only after
+the inactive dataset contains a complete pattern does the firmware publish it by
+setting the update-pending flag.
 
 \begin{lstlisting}[caption={Updating the inactive signal buffer}, label={lst:inactive-buffer}]
 if (g_active_set == SignalSet::SET_A) {
@@ -77,9 +97,12 @@ signal_precompute_steps(target_dataset);
 g_ds_update_pending = true;
 \end{lstlisting}
 
-The running task checks this flag only between complete pattern cycles. The pointer
-swap is therefore atomic from the viewpoint of the generated waveform: the output
-never uses half of an old pattern and half of a new one.
+The running task checks this flag only between complete pattern cycles. As shown
+in the timing portion of Fig. \ref{fig:sw_signal_pipeline}, a command may arrive
+while cycle $N$ is being generated, but Core 1 continues using the current dataset
+until that cycle ends. The pointer swap occurs only at the next cycle boundary, so
+the generated waveform never combines part of the old pattern with part of the new
+one.
 
 \begin{lstlisting}[caption={Cycle-boundary buffer swap}, label={lst:buffer-swap}]
 if (g_ds_update_pending.load(std::memory_order_acquire)) {
