@@ -6,11 +6,10 @@ GPIO switching, analog acquisition, BLE services, and command execution. The web
 application is intentionally thin: it connects through Web Bluetooth, sends commands,
 and plots the status and measured voltages returned by the ESP32.
 
-This separation is important for reproducibility. A reader implementing the system
-should keep all timing-critical decisions inside the firmware and use the browser only
-as a user interface. The browser may pause, render slowly, or lose focus; the ESP32
-must continue to generate the selected switching pattern without depending on those
-events.
+The system should keep all timing-critical decisions inside the firmware and use the 
+browser only as a user interface. The browser may pause, render slowly, or lose focus; 
+the ESP32 must continue to generate the selected switching pattern without depending on 
+those events.
 
 \subsection{Firmware Task Organization}
 
@@ -71,7 +70,7 @@ playback.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=140mm]{figures/images/sw_signal_pipeline.pdf}
+	\includegraphics[width=180mm]{figures/images/sw_signal_pipeline.pdf}
 	\caption{Signal pattern pipeline from uploaded durations and modes to precomputed GPIO steps.}
 	\label{fig:sw_signal_pipeline}
 \end{figure}
@@ -84,7 +83,10 @@ switch states, and precomputes the masks required by the signal loop. Only after
 the inactive dataset contains a complete pattern does the firmware publish it by
 setting the update-pending flag.
 
-\begin{lstlisting}[caption={Updating the inactive signal buffer}, label={lst:inactive-buffer}]
+\begin{listing}[H]
+\caption{Updating the inactive signal buffer}
+\label{lst:inactive-buffer}
+\begin{minted}{cpp}
 if (g_active_set == SignalSet::SET_A) {
     target_dataset = &g_dataset_b;
 } else {
@@ -95,7 +97,8 @@ parse_signal(message, times, modes);
 // Fill time_durations[] and modes_d4/d5/d6[] here.
 signal_precompute_steps(target_dataset);
 g_ds_update_pending = true;
-\end{lstlisting}
+\end{minted}
+\end{listing}
 
 The running task checks this flag only between complete pattern cycles. As shown
 in the timing portion of Fig. \ref{fig:sw_signal_pipeline}, a command may arrive
@@ -104,7 +107,10 @@ until that cycle ends. The pointer swap occurs only at the next cycle boundary, 
 the generated waveform never combines part of the old pattern with part of the new
 one.
 
-\begin{lstlisting}[caption={Cycle-boundary buffer swap}, label={lst:buffer-swap}]
+\begin{listing}[H]
+\caption{Cycle-boundary buffer swap}
+\label{lst:buffer-swap}
+\begin{minted}{cpp}
 if (g_ds_update_pending.load(std::memory_order_acquire)) {
     if (g_active_set.load() == SignalSet::SET_A) {
         ctx.dataset = &g_dataset_b;
@@ -115,7 +121,8 @@ if (g_ds_update_pending.load(std::memory_order_acquire)) {
     }
     g_ds_update_pending.store(false, std::memory_order_release);
 }
-\end{lstlisting}
+\end{minted}
+\end{listing}
 
 \subsection{GPIO Timing Loop}
 
@@ -125,7 +132,10 @@ cycles, and the segment duration already converted to cycles. During playback, t
 loop only waits for the next edge, applies dead-time when a leg changes state, and
 writes the GPIO registers.
 
-\begin{lstlisting}[caption={Precomputed step used by the playback loop}, label={lst:signal-step}]
+\begin{listing}[H]
+\caption{Precomputed step used by the playback loop}
+\label{lst:signal-step}
+\begin{minted}{cpp}
 struct SignalStep {
     uint32_t set_mask;         // GPIO.out_w1ts
     uint32_t clr_mask;         // GPIO.out_w1tc
@@ -133,14 +143,18 @@ struct SignalStep {
     uint32_t dead_time;        // CPU cycles
     uint32_t duration_cycles;  // segment duration
 };
-\end{lstlisting}
+\end{minted}
+\end{listing}
 
 The firmware uses the ESP32 write-one-to-set and write-one-to-clear GPIO registers.
 In the code these are \verb|GPIO.out_w1ts| and \verb|GPIO.out_w1tc|. They update
 multiple pins with one write, avoiding the skew that would appear if each output were
 changed by separate high-level GPIO calls.
 
-\begin{lstlisting}[caption={Atomic GPIO transition with dead-time}, label={lst:switching}]
+\begin{listing}[H]
+\caption{Atomic GPIO transition with dead-time}
+\label{lst:switching}
+\begin{minted}{cpp}
 if (step.clear_mask) {
     GPIO.out_w1tc = step.clear_mask;
     helper_delay_cycles(step.dead_time);
@@ -148,7 +162,8 @@ if (step.clear_mask) {
 
 GPIO.out_w1tc = step.clr_mask;
 GPIO.out_w1ts = step.set_mask;
-\end{lstlisting}
+\end{minted}
+\end{listing}
 
 This approach is the main implementation rule for reproducing the firmware: parse and
 validate outside the loop, precompute all masks and durations, and reserve the
@@ -166,7 +181,10 @@ table. The table is generated at startup from measured calibration points using 
 interpolation, so runtime conversion is a simple indexed lookup in the acquisition
 path.
 
-\begin{lstlisting}[caption={Runtime ADC calibration lookup}, label={lst:calib}]
+\begin{listing}[H]
+\caption{Runtime ADC calibration lookup}
+\label{lst:calib}
+\begin{minted}{cpp}
 float analog_calibrate_raw_lut(uint32_t raw) {
     if (raw > ANALOG_ADC_MAX_CODE) {
         raw = ANALOG_ADC_MAX_CODE;
@@ -176,7 +194,8 @@ float analog_calibrate_raw_lut(uint32_t raw) {
     }
     return s_calibration_lut[raw];
 }
-\end{lstlisting}
+\end{minted}
+\end{listing}
 
 Each valid sample triple is stored as a coherent snapshot with a sequence counter. The
 signal loop can reject stale samples, while the BLE telemetry task can read the latest
@@ -214,21 +233,21 @@ characteristic, writes UI commands, decodes protobuf notifications, and plots th
 received analog values. No native driver is required, which makes the setup easier to
 repeat on a laboratory computer.
 
-\begin{figure}[h!]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=140mm]{figures/images/hw_esp32_pins.pdf}
 	\caption{ESP32 digital output and analog input mapping used by the firmware.}
 	\label{fig:sw_esp_pins}
 \end{figure}
 
-\begin{figure}[h!]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=140mm]{figures/images/sw_web_interface.pdf}
 	\caption{Browser interface for BLE connection, signal upload, and telemetry plotting.}
 	\label{fig:sw_web_interface}
 \end{figure}
 
-\begin{figure}[h!]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=140mm]{figures/images/sw_signal.pdf}
 	\caption{Example digital switching pattern generated from the phase-shift parameter.}
@@ -241,7 +260,7 @@ independently stopped or running. This state separation is what allows the exper
 to update parameters and inspect telemetry without inserting browser-dependent timing
 into the switching loop.
 
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.5]{figures/images/sw_state_machine.png}
 	\caption{Firmware operation states for BLE, analog acquisition, and signal generation.}

@@ -6,3 +6,4 @@ $ENV{'TEXINPUTS'} = './tex//' . $sep . './' . $sep . ($ENV{'TEXINPUTS'} || '');
 $ENV{'BIBINPUTS'} = './bib' . $sep . ($ENV{'BIBINPUTS'} || '');
 
 $pdf_mode = 1;
+$pdflatex = 'pdflatex -shell-escape -interaction=nonstopmode -file-line-error %O %S';

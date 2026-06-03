@@ -18,27 +18,16 @@
 \usepackage{booktabs} % For lines on tables
 
 
-\usepackage{listings}
-\lstset{
-    language=C++, % Or C, depending on your preference for highlighting
-    basicstyle=\small\ttfamily,
-    numbers=left,
-    numberstyle=\tiny\color{gray},
-    showspaces=false,
-    showtabs=false,
-    breaklines=true,
-    breakatwhitespace=true,
-    tabsize=4,
-    captionpos=b,
-    frame=single,
-    frameround=tttt,
-    framesep=5pt,
-    rulesepcolor=\color{gray},
-    backgroundcolor=\color{white},
-    commentstyle=\color{green!50!black},
-    keywordstyle=\color{blue},
-    stringstyle=\color{red!50!black},
-    identifierstyle=\color{black},
+\usepackage{minted}
+\usemintedstyle{friendly}
+\setminted{
+    fontsize=\small,
+    linenos,
+    breaklines,
+    autogobble,
+    frame=lines,
+    framesep=4pt,
+    tabsize=4
 }
 
 \usepackage{lmodern}
@@ -245,7 +234,7 @@ was developed with the help of external resources.
 
 The circuit topology is illustrated in Fig. \ref{fig:CircuitTopology}. In this diagram, the binary input variables $u_i$ and $\bar{u}_i = 1 - u_i$ ($i = 1, 2, 3$) are switch commands. If $u_i = 1$, the corresponding upper switch is closed and the lower switch is open. Conversely, if $u_i = 0$, the upper swich is open and the lower switch is closed. The input $E$ is a constant voltage. The goal consists of operating the switches over time in order to achieve a desired voltage  $v_{out}$ at the output.
 
-\begin{figure}[h]
+\begin{figure}[H]
   \label{fig:CircuitTopology}
   \begin{center}
     \includegraphics[scale=1]{figures/CircuitDiagram.pdf}
@@ -270,7 +259,7 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
   \Delta t_{on} = \alpha T \,, \; \Delta t_{off} = (1 - \alpha) T
 \end{equation}
 
-\begin{figure}[h]
+\begin{figure}[H]
   \label{fig:PSM}
   \begin{center}
     \includegraphics[scale=0.75]{figures/PhaseShiftModulation.pdf}
@@ -281,7 +270,7 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
 \red{Trocar a polaridade de u1, u2, u3}
 
 
-\begin{figure}[h]
+\begin{figure}[H]
   \label{fig:Schematics}
   \begin{center}
     \includegraphics[scale=0.7]{figures/Schematics.pdf}
@@ -417,7 +406,7 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
 
 \section{Build instructions}
 
-\begin{figure}[h]
+\begin{figure}[H]
   \label{fig:PCB}
   \begin{center}
     \includegraphics[scale=0.7]{figures/Front.pdf}
@@ -426,7 +415,7 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
   \caption{PCB layout: Front (left) and Back (right).}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
   \label{fig:Photo}
   \begin{center}
     \includegraphics[scale=0.25]{figures/DevicePhoto.jpeg}
@@ -444,7 +433,7 @@ key parameters like voltage, current, and signal integrity. The ability to measu
 these directly proved to be effective for troubleshooting and ensuring
 the circuit operates as intended under various conditions.
 
-\begin{figure}[h]
+\begin{figure}[H]
   \label{fig:circuit_measure_points}
   \begin{center}
     \includegraphics[width=140mm]{figures/images/hw_circuit_measure_points.pdf}
@@ -471,7 +460,7 @@ $R_L = 4.9 \, \Omega$, $R = 68 \, \Omega$. \red{Medir $R$.}
 
 Figure \ref{fig:Commands} presents the switch commands $u_1(t)$, $u_2(t)$, $u_3(t)$ for $\alpha = 0.4$. The waveforms were acquired at the test points TP3, TP4, TP5 using a  Tektronix TDS 2004B oscilloscope.
 
-\begin{figure}[h]
+\begin{figure}[H]
   \label{fig:Commands}
   \begin{center}
     \includegraphics[scale=1]{figures/PeriodT.jpg}
@@ -481,7 +470,7 @@ Figure \ref{fig:Commands} presents the switch commands $u_1(t)$, $u_2(t)$, $u_3(
   \caption{Commands $u_1(t)$, $u_2(t)$, $u_3(t)$ with $\alpha = 0.4$ and $T = 282 \, \mu$s.}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
   \label{fig:CommandsVoltageR}
   \begin{center}
     \includegraphics[scale=1]{figures/vR_alpha0p4_0p8.jpg}
@@ -658,7 +647,7 @@ This work was supported by Conselho Nacional de Desenvolvimento Científico e Te
 
   \section*{Appendix: Circuit simulation}
 
-  \begin{figure}[h]
+  \begin{figure}[H]
   \label{fig:PSM}
   \begin{center}
     \includegraphics[scale=0.75]{figures/Timing1.pdf}

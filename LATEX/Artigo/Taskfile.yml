@@ -25,3 +25,8 @@ tasks:
     desc: Alias for clean
     cmds:
       - task clean
+
+  getpdf:
+    desc: Copy build/main.pdf to the project root
+    cmds:
+      - cp build/main.pdf ./artigo.pdf
