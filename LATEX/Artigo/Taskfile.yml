@@ -1,0 +1,27 @@
+version: "3"
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+
+  run:
+    desc: Build the article PDF
+    cmds:
+      - task build
+
+  build:
+    desc: Compile main.tex into build/main.pdf
+    cmds:
+      - latexmk -pdf main.tex
+
+  clean:
+    desc: Remove generated LaTeX build files
+    cmds:
+      - latexmk -C main.tex
+
+  clear:
+    desc: Alias for clean
+    cmds:
+      - task clean

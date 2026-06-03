@@ -43,7 +43,7 @@
 \usepackage{lmodern}
 
 \usepackage[backend=biber]{biblatex}
-\addbibresource{references.bib}
+\addbibresource{bib/references.bib}
 
 % \bibliographystyle{plain}
 % \renewcommand\bibname{\itareferencesnamebabel} %renomear título do capítulo referências
@@ -247,7 +247,7 @@ The circuit topology is illustrated in Fig. \ref{fig:CircuitTopology}. In this d
 \begin{figure}[h]
   \label{fig:CircuitTopology}
   \begin{center}
-    \includegraphics[scale=1]{CircuitDiagram.pdf}
+    \includegraphics[scale=1]{figures/CircuitDiagram.pdf}
   \end{center}
   \caption{Circuit topology.}
 \end{figure}
@@ -272,7 +272,7 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
 \begin{figure}[h]
   \label{fig:PSM}
   \begin{center}
-    \includegraphics[scale=0.75]{PhaseShiftModulation.pdf}
+    \includegraphics[scale=0.75]{figures/PhaseShiftModulation.pdf}
   \end{center}
   \caption{Phase-shifted modulation scheme for the three-cell converter. \red{Falar que é possível trocar a ordem u1, u2, u3, como na referência Thielemans, 2012.}}
 \end{figure}
@@ -283,7 +283,7 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
 \begin{figure}[h]
   \label{fig:Schematics}
   \begin{center}
-    \includegraphics[scale=0.7]{Schematics.pdf}
+    \includegraphics[scale=0.7]{figures/Schematics.pdf}
   \end{center}
   \caption{Circuit schematics.}
 \end{figure}
@@ -419,8 +419,8 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
 \begin{figure}[h]
   \label{fig:PCB}
   \begin{center}
-    \includegraphics[scale=0.7]{Front.pdf}
-    \includegraphics[scale=0.7]{Back.pdf}
+    \includegraphics[scale=0.7]{figures/Front.pdf}
+    \includegraphics[scale=0.7]{figures/Back.pdf}
   \end{center}
   \caption{PCB layout: Front (left) and Back (right).}
 \end{figure}
@@ -428,7 +428,7 @@ where $\alpha = v_{out} / E  \in [0, 1]$ is the desired voltage fraction at the 
 \begin{figure}[h]
   \label{fig:Photo}
   \begin{center}
-    \includegraphics[scale=0.25]{DevicePhoto.jpeg}
+    \includegraphics[scale=0.25]{figures/DevicePhoto.jpeg}
   \end{center}
   \caption{Photo of the device. The $10 \Omega$ resistors R1, R2, $\ldots$, R6 are soldered on the bottom.}
 \end{figure}
@@ -446,7 +446,7 @@ the circuit operates as intended under various conditions.
 \begin{figure}[h]
   \label{fig:circuit_measure_points_2}
   \begin{center}
-    \includegraphics[scale=0.6]{images/hw_circuit_measure_points.pdf}
+    \includegraphics[scale=0.6]{figures/images/hw_circuit_measure_points.pdf}
   \end{center}
   \caption{Measurement points on the circuit board.}
 \end{figure}
@@ -455,7 +455,7 @@ the circuit operates as intended under various conditions.
 
 
 
-\include{software.tex}
+\input{tex/sections/software.tex}
 
 \section{Operation instructions}
 
@@ -473,9 +473,9 @@ Figure \ref{fig:Commands} presents the switch commands $u_1(t)$, $u_2(t)$, $u_3(
 \begin{figure}[h]
   \label{fig:Commands}
   \begin{center}
-    \includegraphics[scale=1]{PeriodT.jpg}
-    \includegraphics[scale=1]{T12.jpg}
-    \includegraphics[scale=1]{T13.jpg}
+    \includegraphics[scale=1]{figures/PeriodT.jpg}
+    \includegraphics[scale=1]{figures/T12.jpg}
+    \includegraphics[scale=1]{figures/T13.jpg}
   \end{center}
   \caption{Commands $u_1(t)$, $u_2(t)$, $u_3(t)$ with $\alpha = 0.4$ and $T = 282 \, \mu$s.}
 \end{figure}
@@ -483,7 +483,7 @@ Figure \ref{fig:Commands} presents the switch commands $u_1(t)$, $u_2(t)$, $u_3(
 \begin{figure}[h]
   \label{fig:CommandsVoltageR}
   \begin{center}
-    \includegraphics[scale=1]{vR_alpha0p4_0p8.jpg}
+    \includegraphics[scale=1]{figures/vR_alpha0p4_0p8.jpg}
   \end{center}
   \caption{Change in the voltage $v_R(t)$ following a change from $\alpha = 0.4$ to $\alpha = 0.8$.}
 \end{figure}
@@ -660,7 +660,7 @@ This work was supported by Conselho Nacional de Desenvolvimento Científico e Te
   \begin{figure}[h]
   \label{fig:PSM}
   \begin{center}
-    \includegraphics[scale=0.75]{Timing1.pdf}
+    \includegraphics[scale=0.75]{figures/Timing1.pdf}
   \end{center}
   \caption{Timing}
 \end{figure}

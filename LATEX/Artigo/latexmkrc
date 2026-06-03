@@ -1,0 +1,8 @@
+$out_dir = 'build';
+$aux_dir = 'build';
+
+my $sep = ($^O =~ /MSWin32/i) ? ';' : ':';
+$ENV{'TEXINPUTS'} = './tex//' . $sep . './' . $sep . ($ENV{'TEXINPUTS'} || '');
+$ENV{'BIBINPUTS'} = './bib' . $sep . ($ENV{'BIBINPUTS'} || '');
+
+$pdf_mode = 1;
