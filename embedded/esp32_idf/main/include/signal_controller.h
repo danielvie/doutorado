@@ -24,6 +24,9 @@ extern const uint32_t MASK_U3_LOW;
 extern const uint32_t MASK_U3_HIGH;
 
 #define MAX_SIGNAL_SIZE 100
+static constexpr uint32_t SIGNAL_TIME_TICKS_PER_US = 10;
+static constexpr uint32_t SIGNAL_CYCLES_PER_TIME_TICK = 24;
+
 /**
  * @brief Represents a single atomic transition and delay in a signal pattern.
  * Pre-computed to minimize cycles in the high-speed execution loop.
@@ -33,12 +36,12 @@ struct SignalStep {
     uint32_t clr_mask;    ///< Bits to set to 0 (GPIO.out_w1tc)
     uint32_t clear_mask;  ///< Initial clear mask (to prevent shoot-through)
     uint32_t dead_time;   ///< CPU cycles to wait during clear state
-    uint32_t duration_us; ///< Microseconds to wait after transition
+    uint32_t duration_ticks; ///< 0.1 us ticks to wait after transition
     uint32_t duration_cycles; ///< Derived delay cycles for the hot playback loop
 };
 
 struct DataSet {
-    // Raw data (kept for reference/updates)
+    // Raw data (kept for reference/updates), stored as 0.1 us ticks.
     uint32_t time_durations[MAX_SIGNAL_SIZE];
     uint32_t modes_d4[MAX_SIGNAL_SIZE];
     uint32_t modes_d5[MAX_SIGNAL_SIZE];

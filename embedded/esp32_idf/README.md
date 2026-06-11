@@ -590,6 +590,31 @@ Para sair do monitor: `Ctrl-]`
 
 ---
 
+## Usar Web Bluetooth no Brave
+
+Para conectar ao ESP32 via Web Bluetooth no Brave, habilite os recursos experimentais:
+
+1. Abra `brave://flags/#enable-experimental-web-platform-features`.
+2. Altere **Experimental Web Platform features** para **Enabled**.
+3. Reinicie o Brave.
+4. Abra `brave://settings/content/bluetoothDevices` e confirme que permissões de Bluetooth estão habilitadas.
+5. Desative o **Shields** do Brave para a página que acessa o BLE, se a conexão continuar bloqueada.
+
+Se a página estiver em HTTP, use uma origem segura:
+
+- Preferencial: `http://localhost:<porta>`.
+- Para IP/rede local, iniciar o Brave com a origem marcada como segura:
+
+```powershell
+& "C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe" `
+  --unsafely-treat-insecure-origin-as-secure=http://192.168.0.10:8000 `
+  --user-data-dir="$env:TEMP\brave-ble-test"
+```
+
+Substitua `http://192.168.0.10:8000` pela origem exata da página, incluindo porta.
+
+---
+
 ## Configuração
 
 ### sdkconfig.defaults

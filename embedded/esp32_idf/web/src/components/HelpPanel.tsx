@@ -26,16 +26,18 @@ const COMMANDS = [
     description: "Loads the precomputed dataset for an alpha value",
   },
   {
-    commands: 'signal.set_pattern {"time":"10,20,10,20","mode":"7,0,7,0"}',
-    description: "Uploads a custom signal pattern",
+    commands: 'signal.set_pattern {"time":"100,200,100,200","mode":"7,0,7,0"}',
+    description:
+      "Uploads a custom signal pattern; time values are 0.1 us ticks",
   },
   {
     commands: 'signal.set_cycle_interval {"cycles":100}',
     description: "Sets the analog trigger cycle interval",
   },
   {
-    commands: 'signal.set_dead_time {"time_us":2}',
-    description: "Sets symmetric complementary switching dead time",
+    commands: 'signal.set_dead_time {"time_tenths_us":20}',
+    description:
+      "Sets symmetric complementary switching dead time; value is 0.1 us ticks",
   },
   {
     commands: 'signal.set_dead_time_tail_overhead {"cycles":35}',
@@ -156,7 +158,8 @@ const COMMANDS = [
   },
   {
     commands: 'debug.test.an.set_continuous_sample_rate {"sample_hz":250000}',
-    description: "Alias for analog.set_continuous_sample_rate within the analog test namespace",
+    description:
+      "Alias for analog.set_continuous_sample_rate within the analog test namespace",
   },
   {
     commands: 'debug.gpio_set {"port":1,"value":1}',
@@ -177,7 +180,9 @@ const CommandItem: React.FC<{ commands: string; description: string }> = ({
   description,
 }) => {
   const [copied, setCopied] = useState(false);
-  const setManualCommandDraft = useBleStore((state) => state.setManualCommandDraft);
+  const setManualCommandDraft = useBleStore(
+    (state) => state.setManualCommandDraft,
+  );
 
   const handleCopy = (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -193,12 +198,12 @@ const CommandItem: React.FC<{ commands: string; description: string }> = ({
 
   return (
     <li
-      className="bg-gray-50 p-3 rounded-lg 
-      shadow-sm hover:shadow-md 
-      hover:bg-white transition-all 
-      group relative 
-      active:scale-[0.99] 
-      border  border-gray-200  border-l-4  
+      className="bg-gray-50 p-3 rounded-lg
+      shadow-sm hover:shadow-md
+      hover:bg-white transition-all
+      group relative
+      active:scale-[0.99]
+      border  border-gray-200  border-l-4
       hover:brightness-95
       "
     >
@@ -224,7 +229,10 @@ const CommandItem: React.FC<{ commands: string; description: string }> = ({
             className="grid h-6 w-6 place-items-center rounded-md border border-gray-200 bg-white text-gray-400 opacity-0 shadow-sm transition-all hover:border-gray-300 hover:text-gray-600 hover:shadow group-hover:opacity-100"
           >
             {copied ? (
-              <Check size={14} className="text-green-500 animate-in zoom-in duration-200" />
+              <Check
+                size={14}
+                className="text-green-500 animate-in zoom-in duration-200"
+              />
             ) : (
               <Copy size={14} />
             )}
@@ -252,14 +260,14 @@ export const HelpPanel: React.FC<{
   const [filter, setFilter] = useState("");
   const filteredCommands = React.useMemo(() => {
     if (!filter.trim()) return COMMANDS;
-    
+
     try {
       const regex = new RegExp(filter, "i");
       return COMMANDS.filter((item) => {
         const target = `${item.commands} ${item.description}`;
         return regex.test(target);
       });
-    } catch (e) {
+    } catch {
       // While the user is typing an incomplete regex, it might be invalid.
       // We return an empty list or handle as no match until the regex is valid.
       return [];

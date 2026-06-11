@@ -29,7 +29,7 @@
 static inline void condition_dtk(float *dtk_us, uint32_t p,
                                  const uint32_t *time_durations) {
     float alpha = 1.0f;
-    const int32_t min_gap = CONTROL_MIN_GAP_US;
+    const float min_gap_us = CONTROL_MIN_GAP_US;
 
     uint32_t t2 = esp_cpu_get_cycle_count();
 
@@ -46,8 +46,8 @@ static inline void condition_dtk(float *dtk_us, uint32_t p,
 
         // Only constrain when the gap is shrinking (gc < 0)
         if (gc < 0.0f) {
-            float gap_ref = (float)time_durations[i];
-            float limit = ((float)min_gap - gap_ref) / gc;
+            float gap_ref_us = (float)time_durations[i] / SIGNAL_TIME_TICKS_PER_US;
+            float limit = (min_gap_us - gap_ref_us) / gc;
             if (limit < alpha) {
                 alpha = limit;
             }
@@ -87,7 +87,8 @@ static inline void compute_duration_corrections(const uint32_t *time_durations,
             delta_i = -dtk_us[p - 1];
         }
 
-        int32_t correction = (int32_t)roundf(delta_i);
+        int32_t correction =
+            (int32_t)roundf(delta_i * SIGNAL_TIME_TICKS_PER_US);
         int32_t final_duration = (int32_t)time_durations[i] + correction;
 
         if (final_duration < 1) {

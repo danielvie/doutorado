@@ -59,7 +59,7 @@ export const SignalGenerator: React.FC<{
 
   const copySignalSummary = async () => {
     await navigator.clipboard.writeText(
-      `time: ${timeStr}\nmode: ${modeStr}\nT: ${time_values_sum.toFixed(1)} us`,
+      `time_ticks_0p1us: ${timeStr}\nmode: ${modeStr}\nT: ${time_values_sum_us.toFixed(1)} us`,
     );
     setCopiedVector("combined");
     window.setTimeout(() => setCopiedVector(null), 1200);
@@ -77,12 +77,14 @@ export const SignalGenerator: React.FC<{
     "0.9",
   ];
 
-  const time_values_sum = useMemo(() => {
-    return timeStr
+  const time_values_sum_us = useMemo(() => {
+    const ticks = timeStr
       .split(",")
       .map((value) => parseFloat(value.trim()))
       .filter((value) => !isNaN(value))
       .reduce((sum, value) => sum + value, 0);
+
+    return ticks / 10;
   }, [timeStr]);
 
   return (
@@ -170,11 +172,15 @@ export const SignalGenerator: React.FC<{
                     <span className="text-xs text-gray-700 font-bold uppercase tracking-widest">
                       Time Vector
                     </span>
+                    <span className="text-[11px] text-gray-500 font-semibold">
+                      Encoded as 0.1 us ticks: 560 = 56.0 us
+                    </span>
                     <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono font-semibold text-gray-500">
                       <span>{timeStr.split(", ").length} pts</span>
                       <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
-                        {time_values_sum.toFixed(1)} us
+                        T = {time_values_sum_us.toFixed(1)} us
                       </span>
+
                       <button
                         type="button"
                         onClick={copySignalSummary}
@@ -205,6 +211,9 @@ export const SignalGenerator: React.FC<{
                     <Upload size={18} />
                     SYNC
                   </button>
+                </div>
+                <div className="text-[11px] text-amber-700 font-semibold px-1">
+                  Values are encoded as ticks × 0.1 us (e.g. 560 = 56.0 us)
                 </div>
                 <div className="flex items-stretch gap-2">
                   {isEditingTime ? (

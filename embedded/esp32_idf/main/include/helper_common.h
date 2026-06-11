@@ -52,6 +52,7 @@ extern std::atomic<bool> g_control_enabled;
 extern volatile uint32_t g_dead_time_cycles_up;
 extern volatile uint32_t g_dead_time_cycles_down;
 extern volatile uint32_t g_dead_time_us;
+extern volatile uint32_t g_dead_time_tenths_us;
 extern volatile uint32_t g_dead_time_tail_overhead_cycles;
 extern std::atomic<float> g_adc_an3;
 extern std::atomic<float> g_adc_an5;

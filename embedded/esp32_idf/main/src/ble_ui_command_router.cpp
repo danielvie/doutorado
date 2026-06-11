@@ -8,7 +8,6 @@
 
 #include "ble_controller.h"
 #include "esp_log.h"
-#include "esp_rom_sys.h"
 #include "esp_timer.h"
 #include "helper_analog.h"
 #include "helper_common.h"
@@ -42,6 +41,8 @@ static size_t s_command_count = 0;
 volatile uint32_t g_dead_time_tail_overhead_cycles =
     DEFAULT_DEAD_TIME_TAIL_OVERHEAD_CYCLES;
 volatile uint32_t g_dead_time_us = DEFAULT_DEAD_TIME_US;
+volatile uint32_t g_dead_time_tenths_us =
+    DEFAULT_DEAD_TIME_US * SIGNAL_TIME_TICKS_PER_US;
 static bool s_dead_time_request_valid = false;
 static std::atomic<bool> s_analog_test_running(false);
 static SemaphoreHandle_t s_analog_test_result_mutex = NULL;
@@ -211,8 +212,9 @@ handle_signal_set_cycle_interval(const UiCommandContext &ctx) {
     return ok("Cycle interval updated");
 }
 
-static void set_dead_time_us(uint32_t time_us) {
-    g_dead_time_us = time_us;
+static void set_dead_time_tenths_us(uint32_t time_tenths_us) {
+    g_dead_time_tenths_us = time_tenths_us;
+    g_dead_time_us = time_tenths_us / SIGNAL_TIME_TICKS_PER_US;
     s_dead_time_request_valid = true;
 
     // Measure the delay helper overhead so requested dead time stays close to
@@ -230,9 +232,9 @@ static void set_dead_time_us(uint32_t time_us) {
     // returns.
     overhead_cycles += g_dead_time_tail_overhead_cycles;
 
-    // Convert the user-facing microsecond values to raw CPU cycles.
-    const uint32_t ticks_per_us = esp_rom_get_cpu_ticks_per_us();
-    const uint64_t requested_cycles = (uint64_t)time_us * ticks_per_us;
+    // Convert the user-facing 0.1 us value to raw CPU cycles.
+    const uint64_t requested_cycles =
+        (uint64_t)time_tenths_us * SIGNAL_CYCLES_PER_TIME_TICK;
 
     // Subtract only the helper overhead; clamp tiny requests to zero instead of
     // underflowing.
@@ -251,10 +253,14 @@ static void set_dead_time_us(uint32_t time_us) {
     signal_precompute_steps(&g_dataset_a);
     signal_precompute_steps(&g_dataset_b);
     ESP_LOGI(TAG,
-             "Set dead time=%lu us (%lu cycles), overhead=%lu cycles, tail=%lu "
+             "Set dead time=%.1f us (%lu cycles), overhead=%lu cycles, tail=%lu "
              "cycles",
-             time_us, cycles, overhead_cycles,
-             g_dead_time_tail_overhead_cycles);
+             (double)time_tenths_us / SIGNAL_TIME_TICKS_PER_US, cycles,
+             overhead_cycles, g_dead_time_tail_overhead_cycles);
+}
+
+static void set_dead_time_us(uint32_t time_us) {
+    set_dead_time_tenths_us(time_us * SIGNAL_TIME_TICKS_PER_US);
 }
 
 static UiCommandResultData busy(const char *message) {
@@ -503,9 +509,15 @@ static void analog_config_sweep_task(void *arg) {
 
 static UiCommandResultData
 handle_signal_set_dead_time(const UiCommandContext &ctx) {
+    uint32_t time_tenths_us;
+    if (json_get_u32(ctx.json, "time_tenths_us", &time_tenths_us)) {
+        set_dead_time_tenths_us(time_tenths_us);
+        return ok("Dead time updated");
+    }
+
     uint32_t time_us;
     if (!json_get_u32(ctx.json, "time_us", &time_us)) {
-        return invalid_arg("Expected numeric time_us");
+        return invalid_arg("Expected numeric time_tenths_us or time_us");
     }
 
     set_dead_time_us(time_us);
@@ -521,7 +533,7 @@ handle_signal_set_dead_time_tail_overhead(const UiCommandContext &ctx) {
 
     g_dead_time_tail_overhead_cycles = cycles;
     if (s_dead_time_request_valid) {
-        set_dead_time_us(g_dead_time_us);
+        set_dead_time_tenths_us(g_dead_time_tenths_us);
     }
 
     ESP_LOGI(TAG, "Set dead time tail overhead to %lu cycles", cycles);
@@ -911,7 +923,7 @@ void ui_command_router_init(void) {
             &initial_result, "No analog config sweep has run yet");
         analog_config_test_store_result(initial_result);
     }
-    set_dead_time_us(g_dead_time_us);
+    set_dead_time_tenths_us(g_dead_time_tenths_us);
 
     register_command("system.list_commands", handle_system_list_commands);
     register_command("system.get_status", handle_system_get_status);

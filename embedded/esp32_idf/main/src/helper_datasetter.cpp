@@ -335,7 +335,8 @@ void helper_set_dataset_from_alpha(DataSet *dataset, float alpha) {
     dataset->size = dataset_size;
 
     for (uint32_t sample_index = 0; sample_index < dataset_size; ++sample_index) {
-        dataset->time_durations[sample_index] = time_duration_values[alpha_index][sample_index];
+        dataset->time_durations[sample_index] =
+            time_duration_values[alpha_index][sample_index] * SIGNAL_TIME_TICKS_PER_US;
     }
 
     helper_apply_mode_pattern(dataset, mode_pattern_index[alpha_index]);

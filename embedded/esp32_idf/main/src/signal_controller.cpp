@@ -40,7 +40,7 @@ struct SignalTimingSample {
     uint32_t timing_fault_count = 0;
     uint32_t clamped_segment_count = 0;
     uint32_t maintenance_skipped_count = 0;
-    int32_t correction_sum_us = 0;
+    int32_t correction_sum_ticks = 0;
 };
 
 static volatile uint32_t s_timing_sample_count = 0;
@@ -59,7 +59,7 @@ static volatile uint32_t s_timing_overrun_count = 0;
 static volatile uint32_t s_timing_fault_count = 0;
 static volatile uint32_t s_timing_clamped_segment_count = 0;
 static volatile uint32_t s_timing_maintenance_skipped_count = 0;
-static volatile int32_t s_timing_correction_sum_us = 0;
+static volatile int32_t s_timing_correction_sum_ticks = 0;
 
 static void update_signal_timing_snapshot(uint32_t playback_cycles,
                                           uint32_t loop_cycles,
@@ -78,7 +78,7 @@ static void update_signal_timing_snapshot(uint32_t playback_cycles,
     s_timing_fault_count += sample.timing_fault_count;
     s_timing_clamped_segment_count += sample.clamped_segment_count;
     s_timing_maintenance_skipped_count += sample.maintenance_skipped_count;
-    s_timing_correction_sum_us = sample.correction_sum_us;
+    s_timing_correction_sum_ticks = sample.correction_sum_ticks;
 
     if (count == 1 || playback_cycles < s_timing_playback_min_cycles) {
         s_timing_playback_min_cycles = playback_cycles;
@@ -111,7 +111,7 @@ std::string signal_get_timing_snapshot_json() {
     const uint32_t timing_fault_count = s_timing_fault_count;
     const uint32_t clamped_segment_count = s_timing_clamped_segment_count;
     const uint32_t maintenance_skipped_count = s_timing_maintenance_skipped_count;
-    const int32_t correction_sum_us = s_timing_correction_sum_us;
+    const int32_t correction_sum_ticks = s_timing_correction_sum_ticks;
     const int32_t overhead_cycles =
         (int32_t)playback_cycles - (int32_t)expected_cycles;
 
@@ -123,8 +123,8 @@ std::string signal_get_timing_snapshot_json() {
              "\"req\":%.2f,\"sch\":%.2f,\"meas\":%.2f,"
              "\"oh\":%.2f,\"dt\":%.2f,"
              "\"ov\":%lu,\"tf\":%lu,\"cl\":%lu,\"ms\":%lu,"
-             "\"corr\":%ld,\"steps\":%lu}",
-             sample_count,
+             "\"corr\":%.1f,\"steps\":%lu}",
+             (unsigned long)sample_count,
              (double)playback_cycles / CYCLES_PER_US,
              (double)playback_min_cycles / CYCLES_PER_US,
              (double)playback_max_cycles / CYCLES_PER_US,
@@ -136,9 +136,11 @@ std::string signal_get_timing_snapshot_json() {
              (double)measured_period_cycles / CYCLES_PER_US,
              (double)overhead_cycles / CYCLES_PER_US,
              (double)dead_time_cycles / CYCLES_PER_US,
-             overrun_count, timing_fault_count,
-             clamped_segment_count, maintenance_skipped_count,
-             correction_sum_us, step_count);
+             (unsigned long)overrun_count, (unsigned long)timing_fault_count,
+             (unsigned long)clamped_segment_count,
+             (unsigned long)maintenance_skipped_count,
+             (double)correction_sum_ticks / SIGNAL_TIME_TICKS_PER_US,
+             (unsigned long)step_count);
     return std::string(json);
 }
 
@@ -149,11 +151,11 @@ std::string signal_get_timing_compact_fields_json() {
     char json[96];
     snprintf(json, sizeof(json),
              "\"ts\":%lu,\"pavg\":%.2f,\"loop\":%.2f,\"ov\":%lu,\"tf\":%lu",
-             timing.samples,
+             (unsigned long)timing.samples,
              (double)timing.playback_avg_us,
              (double)timing.loop_us,
-             timing.overruns,
-             timing.timing_faults);
+             (unsigned long)timing.overruns,
+             (unsigned long)timing.timing_faults);
     return std::string(json);
 }
 
@@ -187,8 +189,10 @@ std::atomic<SignalSet> g_active_set(SignalSet::SET_A);
 std::atomic<bool> g_ds_update_pending(false);
 
 // Startup fallback until the command router applies compensated DEFAULT_DEAD_TIME_US.
-volatile uint32_t g_dead_time_cycles_up = DEFAULT_DEAD_TIME_US * 240;
-volatile uint32_t g_dead_time_cycles_down = DEFAULT_DEAD_TIME_US * 240;
+volatile uint32_t g_dead_time_cycles_up =
+    DEFAULT_DEAD_TIME_US * SIGNAL_TIME_TICKS_PER_US * SIGNAL_CYCLES_PER_TIME_TICK;
+volatile uint32_t g_dead_time_cycles_down =
+    DEFAULT_DEAD_TIME_US * SIGNAL_TIME_TICKS_PER_US * SIGNAL_CYCLES_PER_TIME_TICK;
 
 
 /**
@@ -207,7 +211,7 @@ void signal_precompute_steps(DataSet *ds) {
     uint32_t last_d5 = ds->modes_d5[ds->size - 1] ? 1 : 0;
     uint32_t last_d4 = ds->modes_d4[ds->size - 1] ? 1 : 0;
 
-    uint32_t total_us = 0;
+    uint32_t total_ticks = 0;
     for (uint32_t i = 0; i < ds->size; i++) {
         uint32_t d6 = ds->modes_d6[i] ? 1 : 0;
         uint32_t d5 = ds->modes_d5[i] ? 1 : 0;
@@ -239,10 +243,11 @@ void signal_precompute_steps(DataSet *ds) {
         // Determine if this is a rising edge (turn-on) vs falling edge for dead-time tuning
         bool is_rising = (change_6 && d6) || (change_5 && d5) || (change_4 && d4);
         ds->steps[i].dead_time = is_rising ? g_dead_time_cycles_up : g_dead_time_cycles_down;
-        ds->steps[i].duration_us = ds->time_durations[i];
-        ds->steps[i].duration_cycles = ds->steps[i].duration_us * CYCLES_PER_US;
+        ds->steps[i].duration_ticks = ds->time_durations[i];
+        ds->steps[i].duration_cycles =
+            ds->steps[i].duration_ticks * SIGNAL_CYCLES_PER_TIME_TICK;
 
-        total_us += ds->steps[i].duration_us;
+        total_ticks += ds->steps[i].duration_ticks;
 
         last_d6 = d6;
         last_d5 = d5;
@@ -251,17 +256,19 @@ void signal_precompute_steps(DataSet *ds) {
 
     // Safety Check: Avoid masking interrupts on Core 1 for more than 10ms.
     // Extremely long patterns could stall cross-core communication or hardware watchdogs.
-    if (total_us > 10000) {
-        ESP_LOGW(TAG, "LATENCY WARNING: Total pattern duration (%lu us) exceeds 10ms threshold!", total_us);
+    if (total_ticks > 10000 * SIGNAL_TIME_TICKS_PER_US) {
+        ESP_LOGW(TAG,
+                 "LATENCY WARNING: Total pattern duration (%.1f us) exceeds 10ms threshold!",
+                 (double)total_ticks / SIGNAL_TIME_TICKS_PER_US);
     }
 }
 
 // Helper to populate a default pattern (so datasets are never empty/invalid)
 static void signal_init_default_dataset(DataSet &ds) {
-    ds.time_durations[0] = 10;
-    ds.time_durations[1] = 20;
-    ds.time_durations[2] = 10;
-    ds.time_durations[3] = 20;
+    ds.time_durations[0] = 100;
+    ds.time_durations[1] = 200;
+    ds.time_durations[2] = 100;
+    ds.time_durations[3] = 200;
 
     // Mode 7 (111)
     ds.modes_d6[0] = 1;
@@ -506,11 +513,12 @@ static void execute_signal_pattern(SignalLoopContext &ctx,
             }
 
             if (g_control_enabled.load(std::memory_order_acquire)) {
-                int32_t corrected = (int32_t)step.duration_us + ctx.current_correction[i];
+                int32_t corrected =
+                    (int32_t)step.duration_ticks + ctx.current_correction[i];
                 if (corrected < 1) corrected = 1;
-                cycles = (uint32_t)corrected * CYCLES_PER_US;
+                cycles = (uint32_t)corrected * SIGNAL_CYCLES_PER_TIME_TICK;
                 if (repeat == 0) {
-                    timing.correction_sum_us += ctx.current_correction[i];
+                    timing.correction_sum_ticks += ctx.current_correction[i];
                 }
             }
 
