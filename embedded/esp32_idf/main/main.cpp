@@ -124,6 +124,8 @@ extern "C" void app_main(void)
     esp_err_t ret = app_init();
     if (ret) {
         ESP_LOGW(TAG, "COULD NOT INITIALIZE APP!!");
+    } else {
+        signal_start_continuous();
     }
 
     xTaskCreatePinnedToCore(analog_reading_task, "Analog Task", 8192, NULL, tskIDLE_PRIORITY + 1, NULL, 0);
