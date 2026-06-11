@@ -45,3 +45,6 @@ master/
 # temp folders
 temp_*/
 .pio/
+
+# worktrees
+_wt

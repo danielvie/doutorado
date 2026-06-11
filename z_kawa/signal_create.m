@@ -1,9 +1,9 @@
 function [time_vector, mode_vector] = signal_create(alpha)
 % CREATE_SIGNAL Creates a switching signal based on a duty cycle.
 %   [time_vector, mode_vector] = CREATE_SIGNAL(alpha) returns:
-%       - time_vector: time intervals in microseconds (rounded)
+%       - time_vector: time intervals in microseconds, rounded to 0.1 us
 %       - mode_vector: switching modes (0-based)
-%   matching the outputs shown in the Signal Generator web interface.
+%   matching the MATLAB/Simulink signal format.
 %
 %   Example:
 %       [time_vector, mode_vector] = create_signal(0.4)
@@ -64,13 +64,15 @@ function [time_vector, mode_vector] = signal_create(alpha)
         Omega(i) = 1 + sum(OmegaBin(i, :) .* powers);
     end
 
-    % Step 5: Calculate time intervals between switching events (dtSwitch)
-    dtSwitch = diff([0, tSwitch]);
-    dtSwitch(1) = dtSwitch(1) + T - tSwitch(end);
+    % Step 5: Calculate time intervals between switching events, quantized
+    % to 0.1 us while preserving the full switching period.
+    period_us = round(T * 1e7) / 10;
+    tSwitch_us = round(tSwitch * 1e7) / 10;
+    time_vector = diff([0, tSwitch_us]);
+    time_vector(1) = time_vector(1) + period_us - tSwitch_us(end);
 
-    % Format output vectors to match Signal Generator web interface:
-    % - time_vector: time intervals in microseconds (rounded)
+    % Format output vectors for MATLAB/Simulink:
+    % - time_vector: time intervals in microseconds, rounded to 0.1 us
     % - mode_vector: switching modes (0-based)
-    time_vector = round(dtSwitch * 1e6);
     mode_vector = Omega - 1;
 end

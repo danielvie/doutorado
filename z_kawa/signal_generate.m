@@ -1,17 +1,18 @@
-function [u3High, u3Low ,u2High, u2Low ,u1High, u1Low, u] = signal_generate(time_us, mode, t_s)
+function [u3High, u3Low ,u2High, u2Low ,u1High, u1Low, u] = signal_generate(time_us, mode, dead_time_us, t_s)
 
-    % convert time to us
+    % Convert simulation time to microseconds.
     t_us = t_s*1e6;
 
-    % time_us contains the duration of each mode in one complete cycle.
-    cycle_time = sum(time_us);
-    t_cycle = mod(t_us, cycle_time);
+    % time_us contains the duration of each mode in one complete cycle,
+    % using microseconds rounded to 0.1 us precision.
+    cycle_time_us = sum(time_us);
+    t_cycle_us = mod(t_us, cycle_time_us);
 
     % Find which interval of the repeating cycle contains the current time.
-    time_end = cumsum(time_us);
-    idx = find(t_cycle < time_end, 1, 'first');
+    time_end_us = cumsum(time_us);
+    idx = find(t_cycle_us < time_end_us, 1, 'first');
 
-    dead_time_us = 2;
+    % dead_time_us = 2.0;
 
     % Convert the active mode to 3 binary bits: [U3 U2 U1].
     mode_bin = dec2bin(mode(idx), 3) - '0';
@@ -33,13 +34,13 @@ function [u3High, u3Low ,u2High, u2Low ,u1High, u1Low, u] = signal_generate(time
         segment_start_us = 0;
         previous_idx = length(mode);
     else
-        segment_start_us = time_end(idx - 1);
+        segment_start_us = time_end_us(idx - 1);
         previous_idx = idx - 1;
     end
 
     previous_mode_bin = dec2bin(mode(previous_idx), 3) - '0';
     channel_changed = mode_bin ~= previous_mode_bin;
-    in_dead_time = (t_cycle - segment_start_us) < dead_time_us;
+    in_dead_time = (t_cycle_us - segment_start_us) < dead_time_us;
 
     % Creating High/Low signals [-1,1]. A changed channel is forced to
     % [-1, -1] during dead time; otherwise exactly one side is enabled.
@@ -64,5 +65,4 @@ function [u3High, u3Low ,u2High, u2Low ,u1High, u1Low, u] = signal_generate(time
             u1Low = -1;
         end
     end
-
 end

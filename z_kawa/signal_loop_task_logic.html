@@ -136,7 +136,7 @@
 
   <div class="grid">
     <div class="fact"><strong>Execution core</strong>Continuous playback runs in <code>signal_loop_task</code>, pinned by <code>signal_start_continuous()</code> to Core 1.</div>
-    <div class="fact"><strong>Timing unit</strong>The loop converts microseconds to CPU cycles with <code>CYCLES_PER_US = 240</code>.</div>
+    <div class="fact"><strong>Timing unit</strong>The loop stores durations as 0.1 us ticks and converts them to CPU cycles with <code>SIGNAL_CYCLES_PER_TIME_TICK = 24</code>.</div>
     <div class="fact"><strong>Output model</strong>Each logical channel controls a LOW pin and a HIGH pin. Only one side is enabled after dead time.</div>
   </div>
 
