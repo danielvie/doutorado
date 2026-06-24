@@ -14,6 +14,7 @@
 #include "helper_led.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
+#include "esp_attr.h"
 #include "esp_cpu.h"
 
 #define CORE_0 0
@@ -146,7 +147,7 @@ std::string get_label(BLEAnalogReadState state);
 std::string get_label(SignalState state);
 std::string get_label(ControlState state);
 
-static inline void __attribute__((always_inline)) helper_delay_cycles(uint32_t cycles) {
+static inline void IRAM_ATTR __attribute__((always_inline)) helper_delay_cycles(uint32_t cycles) {
     uint32_t start = esp_cpu_get_cycle_count();
     while (esp_cpu_get_cycle_count() - start < cycles) { }
 }

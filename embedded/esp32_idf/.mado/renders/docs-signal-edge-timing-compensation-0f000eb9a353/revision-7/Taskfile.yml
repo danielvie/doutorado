@@ -1,0 +1,12 @@
+version: '3'
+
+tasks:
+  default:
+    desc: List available render-bundle tasks
+    cmds:
+      - task --list
+
+  render:
+    desc: Re-render this Tutorial Document from the temp bundle
+    cmds:
+      - mado --workspace ../../../.. render-from-temp . --output "docs/signal_edge_timing_compensation.rerendered.html"

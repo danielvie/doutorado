@@ -1,0 +1,47 @@
+      <section class="mado-session chapter" id="session-expected-behavior" data-mado-session-id="expected-behavior">
+        <h2><span class="mado-session-number" aria-hidden="true">4. </span><span class="mado-session-title">Expected Behavior and Limits</span></h2>
+        <div class="mado-session-content content">
+          <p>
+              The expected result is a stable standard output edge that can be aligned in 0.1 us steps without changing the stored signal duration model.
+          </p>
+          
+          <table>
+              <thead>
+                  <tr>
+                      <th>Area</th>
+                      <th>Expected result</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr>
+                      <td>Fixed standard-edge offset</td>
+                      <td>Tunable with <code>g_signal_edge_overhead_cycles</code> through <code>signal.set_edge_overhead</code>.</td>
+                  </tr>
+                  <tr>
+                      <td>Flash/cache variation</td>
+                      <td>Reduced because key timing functions are marked <code>IRAM_ATTR</code>.</td>
+                  </tr>
+                  <tr>
+                      <td>Dead-time output</td>
+                      <td>Remains separate from the standard-edge compensation path.</td>
+                  </tr>
+                  <tr>
+                      <td>Stored durations</td>
+                      <td>Remain represented as 0.1 us ticks.</td>
+                  </tr>
+                  <tr>
+                      <td>Debug visibility</td>
+                      <td><code>debug.signal_timing</code> includes <code>"eo"</code> for the active edge overhead.</td>
+                  </tr>
+              </tbody>
+          </table>
+          
+          <p>
+              This is still a software-timed GPIO loop. If future tests require hardware-enforced timing under broader BLE, ADC, or system-load conditions, the next design step should be an ESP32 waveform peripheral such as RMT or MCPWM.
+          </p>
+          
+          <p>
+              Acceptance criterion: after calibration, the standard output edge should align to the requested timing within the 0.1 us target on the oscilloscope, and repeated loops should remain stable.
+          </p>
+        </div>
+      </section>

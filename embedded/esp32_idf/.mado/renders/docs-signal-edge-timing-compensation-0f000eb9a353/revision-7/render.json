@@ -1,0 +1,40 @@
+{
+  "manifest_version": 1,
+  "document_path": "docs/signal_edge_timing_compensation.html",
+  "output_path": "docs/signal_edge_timing_compensation.html",
+  "debug_output_path": "docs/signal_edge_timing_compensation.rerendered.html",
+  "title": "ESP32 Signal Edge Timing Compensation",
+  "revision": 7,
+  "session_count": 4,
+  "header_path": "fragments/header.html",
+  "footer_path": "fragments/footer.html",
+  "aside_path": "fragments/aside.html",
+  "index_path": "fragments/index.html",
+  "sessions": [
+    {
+      "id": "overview",
+      "title": "Overview",
+      "position": 1,
+      "path": "fragments/sessions/001-overview.html"
+    },
+    {
+      "id": "implementation",
+      "title": "Implementation",
+      "position": 2,
+      "path": "fragments/sessions/002-implementation.html"
+    },
+    {
+      "id": "calibration",
+      "title": "Calibration Workflow",
+      "position": 3,
+      "path": "fragments/sessions/003-calibration.html"
+    },
+    {
+      "id": "expected-behavior",
+      "title": "Expected Behavior and Limits",
+      "position": 4,
+      "path": "fragments/sessions/004-expected-behavior.html"
+    }
+  ],
+  "warnings": []
+}

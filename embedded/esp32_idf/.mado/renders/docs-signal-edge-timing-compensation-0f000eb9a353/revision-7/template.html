@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="mado-format-version" content="{{format_version}}" />
+    <title>{{title}}</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #182025;
+        --muted: #60707a;
+        --line: #d7e1e7;
+        --paper: #fbfcfb;
+        --panel: #f3f7f5;
+        --level-1: #365da8;
+        --level-2: #16645a;
+        --level-3: #5b4c94;
+        --code: #101820;
+        
+        --radius-sm: 2px;
+        --radius-md: 4px;
+        --radius-lg: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        color: var(--ink);
+        background:
+          linear-gradient(90deg, rgba(24, 32, 37, 0.035) 1px, transparent 1px) 0 0 / 28px 28px,
+          linear-gradient(rgba(24, 32, 37, 0.025) 1px, transparent 1px) 0 0 / 28px 28px,
+          var(--paper);
+        font-family: "Segoe UI", Candara, Tahoma, sans-serif;
+        font-size: 16px;
+        line-height: 1.55;
+      }
+
+      .mado-document {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 32px 20px 70px;
+      }
+
+      .mado-hero,
+      .mado-index,
+      .mado-session,
+      .mado-footer {
+        margin-bottom: 20px;
+        padding: 20px 24px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: #fff;
+      }
+
+      .mado-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: 32px;
+        align-items: start;
+      }
+
+      .mado-hero > :only-child {
+        grid-column: 1 / -1;
+      }
+
+      .mado-title {
+        margin-bottom: 8px;
+        font-size: clamp(30px, 5vw, 54px);
+        line-height: 1.15;
+      }
+
+      .mado-header {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .mado-meta {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: var(--panel);
+        font-size: 14px;
+      }
+
+      .mado-meta ul {
+        list-style: none;
+      }
+
+      .mado-meta li {
+        padding: 4px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .mado-meta li:last-child {
+        border-bottom: 0;
+      }
+
+      .mado-index h2,
+      .mado-session h2 {
+        margin: 0;
+        font-size: 24px;
+      }
+
+      .mado-index-cards {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 14px;
+      }
+
+      .mado-index-card {
+        display: block;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        color: inherit;
+        background: var(--panel);
+        text-decoration: none;
+      }
+
+      .mado-index-card:hover,
+      .mado-index-card:focus-visible {
+        border-color: var(--level-1);
+        outline: none;
+      }
+
+      .mado-index-card strong {
+        display: block;
+      }
+
+      .mado-index-card span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .mado-session {
+        scroll-margin-top: 20px;
+      }
+
+      .mado-session:nth-child(3n + 1) h2 {
+        color: var(--level-1);
+      }
+
+      .mado-session:nth-child(3n + 2) h2 {
+        color: var(--level-2);
+      }
+
+      .mado-session:nth-child(3n) h2 {
+        color: var(--level-3);
+      }
+
+      .mado-session-content {
+        margin-top: 14px;
+      }
+
+      .mado-session-content > * + *,
+      .mado-header > * + *,
+      .mado-footer > * + * {
+        margin-top: 12px;
+      }
+
+      h3 {
+        margin-top: 24px;
+        padding-left: 10px;
+        border-left: 4px solid var(--level-2);
+        font-size: 18px;
+      }
+
+      h4 {
+        margin-top: 14px;
+        color: var(--level-3);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      ul,
+      ol {
+        padding-left: 24px;
+      }
+
+      a {
+        color: var(--level-1);
+      }
+
+      table {
+        width: 100%;
+        margin: 14px 0;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 8px 12px;
+        border: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: var(--panel);
+        font-weight: 600;
+      }
+
+      code {
+        padding: 2px 6px;
+        border-radius: var(--radius-sm);
+        background: #edf2f0;
+        font-size: 0.92em;
+      }
+
+      pre {
+        overflow-x: auto;
+        margin: 14px 0;
+        padding: 14px;
+        border-radius: var(--radius-sm);
+        color: #dce8e5;
+        background: var(--code);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .mado-foldable-code {
+        margin: 16px 0;
+      }
+
+      .mado-foldable-code > pre {
+        margin: 0;
+        border: 1px solid #3c4653;
+        border-top: 0;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+      }
+
+      .mado-code-summary {
+        cursor: pointer;
+        padding: 10px 14px;
+        border: 1px solid #3c4653;
+        border-radius: var(--radius-sm);
+        color: #dce8e5;
+        background: #2b313b;
+        font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .mado-code-summary:hover,
+      .mado-code-summary:focus-visible {
+        background: #353d49;
+      }
+
+      .mado-foldable-code[open] > .mado-code-summary {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+
+      pre code {
+        padding: 0;
+        border: 0;
+        color: inherit;
+        background: transparent;
+        font-size: inherit;
+      }
+
+      blockquote,
+      .callout {
+        margin: 14px 0;
+        padding: 12px 16px;
+        border-left: 4px solid var(--level-2);
+        border-radius: var(--radius-sm);
+        background: #f0f7f4;
+        font-size: 14px;
+      }
+
+      svg {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin: 16px 0;
+      }
+
+      .chart {
+        margin: 16px 0;
+        overflow-x: auto;
+      }
+
+      .cards,
+      .twocol {
+        display: grid;
+        gap: 14px;
+        margin: 16px 0;
+      }
+
+      .cards {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .twocol {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .card {
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: var(--panel);
+      }
+
+      .chart-muted { fill: rgba(96, 112, 122, 0.08); stroke: #9aaab2; }
+      .chart-warn { fill: #fff4df; stroke: #b57418; }
+      .chart-level-1 { fill: rgba(54, 93, 168, 0.1); stroke: var(--level-1); }
+      .chart-level-2 { fill: rgba(22, 100, 90, 0.1); stroke: var(--level-2); }
+      .chart-level-3 { fill: rgba(91, 76, 148, 0.1); stroke: var(--level-3); }
+      .arrow { fill: none; stroke: #56666f; stroke-width: 1.5; }
+      .dash { stroke-dasharray: 6 5; }
+      .label { fill: var(--ink); font-size: 13px; font-weight: 650; }
+      .small { fill: var(--muted); font-size: 12px; }
+      .lane { fill: rgba(96, 112, 122, 0.07); stroke: var(--line); }
+
+      .ts-comment { color: #91a8a2; font-style: italic; }
+      .ts-keyword, .ts-tag { color: #7dd3fc; font-weight: 700; }
+      .ts-string { color: #fda4af; }
+      .ts-number, .ts-constant { color: #c4b5fd; }
+      .ts-function, .ts-constructor { color: #fde68a; }
+      .ts-type, .ts-property, .ts-attribute, .ts-module { color: #a7f3d0; }
+      .ts-operator, .ts-punctuation { color: #93c5fd; }
+      .ts-variable, .ts-embedded { color: #e2e8f0; }
+      .ts-label { color: #fb923c; }
+      .ts-error { text-decoration: underline wavy #f87171; }
+
+      .mado-diff-block {
+        overflow: hidden;
+        margin: 16px 0;
+        border: 1px solid #3c4653;
+        border-radius: var(--radius-sm);
+        color: #dce8e5;
+        background: #1f242c;
+        font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+        font-size: 13px;
+      }
+
+      .mado-foldable-diff > .mado-diff-block {
+        margin: 0;
+        border-top: 0;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+      }
+
+      .mado-diff-header {
+        padding: 10px 14px;
+        border-bottom: 1px solid #3c4653;
+        color: #aeb8c5;
+        background: #2b313b;
+      }
+
+      .mado-diff-header strong {
+        color: #f4c56a;
+      }
+
+      .mado-diff-commit {
+        margin-left: 8px;
+        color: #8490a0;
+      }
+
+      .mado-diff-panels {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      }
+
+      .mado-diff-panel {
+        min-width: 0;
+        overflow-x: auto;
+      }
+
+      .mado-diff-panel + .mado-diff-panel {
+        border-left: 1px solid #3c4653;
+      }
+
+      .mado-diff-label {
+        position: sticky;
+        left: 0;
+        padding: 5px 12px;
+        border-bottom: 1px solid #3c4653;
+        color: #aeb8c5;
+        background: #252a33;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .mado-diff-before .mado-diff-label {
+        color: #f87171;
+      }
+
+      .mado-diff-after .mado-diff-label {
+        color: #4ade80;
+      }
+
+      .mado-diff-code {
+        min-width: max-content;
+        tab-size: 4;
+      }
+
+      .mado-diff-line {
+        display: flex;
+        min-height: 21px;
+        line-height: 21px;
+        white-space: pre;
+      }
+
+      .mado-diff-ln {
+        width: 52px;
+        min-width: 52px;
+        padding-right: 10px;
+        color: #687385;
+        text-align: right;
+        user-select: none;
+      }
+
+      .mado-diff-content {
+        flex: 1;
+        min-width: 0;
+        padding: 0 12px 0 8px;
+        border-left: 3px solid transparent;
+      }
+
+      .mado-diff-line.removed {
+        background: rgba(244, 63, 94, 0.12);
+      }
+
+      .mado-diff-line.removed .mado-diff-content {
+        border-left-color: #f14c4c;
+      }
+
+      .mado-diff-line.added {
+        background: rgba(34, 197, 94, 0.11);
+      }
+
+      .mado-diff-line.added .mado-diff-content {
+        border-left-color: #4ec94e;
+      }
+
+      .mado-diff-line mark {
+        padding: 0;
+        color: inherit;
+        background: rgba(250, 204, 21, 0.28);
+      }
+
+      .mado-diff-line.marker {
+        color: #aeb8c5;
+        font-style: italic;
+      }
+
+      .mado-code-block > .mado-diff-code {
+        overflow-x: auto;
+      }
+
+      .mado-sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      template[data-mado-diff-state] {
+        display: none;
+      }
+
+      .mado-footer {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      @media (max-width: 900px) {
+        .mado-hero,
+        .mado-index-cards,
+        .cards,
+        .twocol {
+          grid-template-columns: 1fr;
+        }
+
+        .mado-diff-panels {
+          grid-template-columns: 1fr;
+        }
+
+        .mado-diff-panel + .mado-diff-panel {
+          border-top: 1px solid #3c4653;
+          border-left: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="mado-document" data-mado-document="tutorial" data-mado-revision="{{revision}}">
+      <section class="mado-hero">
+        <div>
+          <h1 class="mado-title">{{title}}</h1>
+          <header class="mado-header">{{header}}</header>
+        </div>
+        {{aside}}
+
+      </section>
+      <nav class="mado-index" aria-label="Document index">
+        <h2>Document Index</h2>
+        <div class="mado-index-cards">{{index}}</div>
+      </nav>
+      <div class="mado-sessions">{{sessions}}</div>
+      <footer class="mado-footer">{{footer}}</footer>
+    </main>
+  </body>
+</html>
+

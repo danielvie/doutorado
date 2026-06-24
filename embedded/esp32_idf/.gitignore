@@ -31,4 +31,5 @@ __pycache__/
 *.elf
 *.bin
 *.map
+*.exe
 nul

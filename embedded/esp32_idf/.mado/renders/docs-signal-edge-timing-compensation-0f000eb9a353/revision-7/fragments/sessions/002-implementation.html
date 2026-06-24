@@ -1,0 +1,52 @@
+      <section class="mado-session chapter" id="session-implementation" data-mado-session-id="implementation">
+        <h2><span class="mado-session-number" aria-hidden="true">2. </span><span class="mado-session-title">Implementation</span></h2>
+        <div class="mado-session-content content">
+          <p>
+              The implementation keeps the existing software-timed signal loop and adds the smallest calibration surface needed for the measured problem.
+          </p>
+          
+          <table>
+              <thead>
+                  <tr>
+                      <th>File</th>
+                      <th>Change</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr>
+                      <td><code>main/include/helper_common.h</code></td>
+                      <td><code>helper_delay_cycles()</code> is marked <code>IRAM_ATTR</code>.</td>
+                  </tr>
+                  <tr>
+                      <td><code>main/include/signal_controller.h</code></td>
+                      <td>Declares the global edge overhead compensation knob.</td>
+                  </tr>
+                  <tr>
+                      <td><code>main/src/signal_controller.cpp</code></td>
+                      <td>Applies compensation in the hot signal loop, marks key timing functions as <code>IRAM_ATTR</code>, snapshots control state once, and reports <code>"eo"</code> in timing debug JSON.</td>
+                  </tr>
+                  <tr>
+                      <td><code>main/src/ble_ui_command_router.cpp</code></td>
+                      <td>Adds the <code>signal.set_edge_overhead</code> command.</td>
+                  </tr>
+              </tbody>
+          </table>
+          
+          <h3>Global compensation value</h3>
+          <details class="mado-foldable-code"><summary class="mado-code-summary">Show code: cpp</summary><pre><code class="language-cpp">volatile uint32_t g_signal_edge_overhead_cycles = 0;</code></pre></details>
+          
+          <h3>Standard edge scheduling</h3>
+          <p>
+              The requested edge remains anchored to the configured segment duration. The transition start is moved earlier by the configured overhead.
+          </p>
+          <details class="mado-foldable-code"><summary class="mado-code-summary">Show code: cpp</summary><pre><code class="language-cpp">const uint32_t transition_deadline =
+              next_edge - dead_time - edge_overhead;</code></pre></details>
+          
+          <h3>Runtime command</h3>
+          <details class="mado-foldable-code"><summary class="mado-code-summary">Show code: json</summary><pre><code class="language-json">signal.set_edge_overhead {<span class="ts-string">&quot;cycles&quot;</span>:<span class="ts-number">24</span>}</code></pre></details>
+          
+          <p>
+              Dead-time compensation and standard-edge overhead are intentionally separate. The new value should correct visible standard edge placement only.
+          </p>
+        </div>
+      </section>

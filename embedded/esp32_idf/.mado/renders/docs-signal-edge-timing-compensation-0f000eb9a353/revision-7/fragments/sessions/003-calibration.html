@@ -1,0 +1,67 @@
+      <section class="mado-session chapter" id="session-calibration" data-mado-session-id="calibration">
+        <h2><span class="mado-session-number" aria-hidden="true">3. </span><span class="mado-session-title">Calibration Workflow</span></h2>
+        <div class="mado-session-content content">
+          <p>
+              Calibration is a short oscilloscope-driven loop: measure the stable offset, convert it to cycles, set the overhead, and re-measure.
+          </p>
+          
+          <svg viewBox="0 0 860 260" role="img" aria-label="Timing relationship between transition start, edge overhead, dead time, and visible GPIO edge">
+              <title>Edge compensation timing</title>
+              <line x1="70" y1="190" x2="790" y2="190" stroke="#4b5563" stroke-width="2"></line>
+              <text x="70" y="220" fill="#102033" font-size="15">earlier</text>
+              <text x="735" y="220" fill="#102033" font-size="15">later</text>
+          
+              <line x1="635" y1="55" x2="635" y2="205" stroke="#b42318" stroke-width="2" stroke-dasharray="6 5"></line>
+              <text x="585" y="42" fill="#102033" font-size="16" font-weight="700">requested edge</text>
+          
+              <rect x="265" y="95" width="160" height="44" rx="8" fill="#eef4ff" stroke="#345995" stroke-width="2"></rect>
+              <text x="292" y="123" fill="#102033" font-size="16" font-weight="700">edge overhead</text>
+          
+              <rect x="425" y="95" width="210" height="44" rx="8" fill="#fff4e8" stroke="#a85f00" stroke-width="2"></rect>
+              <text x="490" y="123" fill="#102033" font-size="16" font-weight="700">dead-time</text>
+          
+              <circle cx="265" cy="117" r="7" fill="#345995" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="205" y="78" fill="#102033" font-size="16" font-weight="700">transition start</text>
+          
+              <circle cx="635" cy="117" r="7" fill="#2c7a4b" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="655" y="123" fill="#102033" font-size="16" font-weight="700">GPIO visible edge</text>
+          
+              <path d="M 110 160 L 265 160 L 265 117 L 635 117 L 635 80 L 760 80" fill="none" stroke="#2c7a4b" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"></path>
+          </svg>
+          
+          <table>
+              <thead>
+                  <tr>
+                      <th>Oscilloscope observation</th>
+                      <th>Suggested command</th>
+                      <th>Reason</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr>
+                      <td>Standard edge is stable at about <code>-0.1 us</code></td>
+                      <td><code>signal.set_edge_overhead {"cycles":24}</code></td>
+                      <td>24 cycles at 240 MHz equals 0.1 us.</td>
+                  </tr>
+                  <tr>
+                      <td>Standard edge is stable at about <code>-0.2 us</code></td>
+                      <td><code>signal.set_edge_overhead {"cycles":48}</code></td>
+                      <td>48 cycles at 240 MHz equals 0.2 us.</td>
+                  </tr>
+                  <tr>
+                      <td>Edge overshoots after compensation</td>
+                      <td>Reduce <code>cycles</code> in small steps.</td>
+                      <td>The configured overhead is larger than the measured fixed offset.</td>
+                  </tr>
+              </tbody>
+          </table>
+          
+          <ol>
+              <li>Generate the same standard signal pattern that showed the offset.</li>
+              <li>Measure the visible GPIO edge on the oscilloscope.</li>
+              <li>Set <code>signal.set_edge_overhead</code> to the nearest cycle value.</li>
+              <li>Run <code>debug.signal_timing</code> and confirm the <code>"eo"</code> field.</li>
+              <li>Re-measure. The oscilloscope is the acceptance test.</li>
+          </ol>
+        </div>
+      </section>

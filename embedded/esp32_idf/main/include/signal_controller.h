@@ -5,6 +5,7 @@
 #include "helper_matrix.h"
 
 #include "driver/gpio.h"
+#include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_rom_sys.h"
@@ -75,6 +76,7 @@ extern std::atomic<SignalSet> g_active_set;
 extern std::atomic<bool> g_ds_update_pending;
 extern volatile uint32_t g_dead_time_cycles_up;
 extern volatile uint32_t g_dead_time_cycles_down;
+extern volatile uint32_t g_signal_edge_overhead_cycles;
 
 /**
  * @brief Initialize the GPIOs and populate the custom signal pattern.
