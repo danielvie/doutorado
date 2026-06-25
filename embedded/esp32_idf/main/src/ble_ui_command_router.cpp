@@ -540,17 +540,7 @@ handle_signal_set_dead_time_tail_overhead(const UiCommandContext &ctx) {
     return ok("Dead time tail overhead updated");
 }
 
-static UiCommandResultData
-handle_signal_set_edge_overhead(const UiCommandContext &ctx) {
-    uint32_t cycles;
-    if (!json_get_u32(ctx.json, "cycles", &cycles)) {
-        return invalid_arg("Expected numeric cycles");
-    }
 
-    g_signal_edge_overhead_cycles = cycles;
-    ESP_LOGI(TAG, "Set signal edge overhead to %lu cycles", cycles);
-    return ok("Signal edge overhead updated");
-}
 
 static UiCommandResultData
 handle_signal_set_edge_overhead_up(const UiCommandContext &ctx) {
@@ -973,8 +963,6 @@ void ui_command_router_init(void) {
     register_command("signal.set_dead_time", handle_signal_set_dead_time);
     register_command("signal.set_dead_time_tail_overhead",
                      handle_signal_set_dead_time_tail_overhead);
-    register_command("signal.set_edge_overhead",
-                     handle_signal_set_edge_overhead);
     register_command("signal.set_edge_overhead_up",
                      handle_signal_set_edge_overhead_up);
     register_command("signal.set_edge_overhead_down",

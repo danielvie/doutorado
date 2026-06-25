@@ -4,6 +4,7 @@ import { Send, History } from "lucide-react";
 import { PanelSize } from "./SizeSelector";
 import { DashboardItem } from "./DashboardItem";
 import { useBleStore } from "../../store/bleStore";
+import { useStorage } from "../../useStorage";
 
 export const ManualCommand: React.FC<{
   id: string;
@@ -12,7 +13,10 @@ export const ManualCommand: React.FC<{
   onSizeChange?: (size: PanelSize) => void;
 }> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
   const [cmd, set_cmd] = useState("");
-  const [command_history, set_command_history] = useState<string[]>([]);
+  const [command_history, set_command_history] = useStorage<string[]>(
+    "manual-command-history",
+    [],
+  );
   const manualCommandDraft = useBleStore((state) => state.manualCommandDraft);
   const history_index_ref = useRef(-1);
   const history_ref = useRef<string[]>([]);
@@ -58,7 +62,9 @@ export const ManualCommand: React.FC<{
     e?.preventDefault();
     if (!cmd.trim()) return;
     const trimmed = cmd.trim();
-    set_command_history((prev) => [trimmed, ...prev].slice(0, 50));
+    set_command_history((prev) =>
+      [trimmed, ...prev.filter((item) => item !== trimmed)].slice(0, 50),
+    );
     history_index_ref.current = -1;
 
     const jsonStart = trimmed.indexOf("{");
@@ -67,8 +73,10 @@ export const ManualCommand: React.FC<{
       const payload =
         jsonStart >= 0 ? JSON.parse(trimmed.slice(jsonStart)) : {};
       bleManager.sendCommand(name, payload);
-    } catch (error: any) {
-      alert(`Invalid command JSON: ${error.message}`);
+    } catch (error) {
+      alert(
+        `Invalid command JSON: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
     set_cmd("");
   };
@@ -127,9 +135,7 @@ export const ManualCommand: React.FC<{
                     onClick={() => set_cmd(h)}
                     className="group flex items-center gap-2 text-gray-400 hover:text-blue-400 cursor-pointer p-1 rounded hover:bg-gray-800 transition-colors"
                   >
-                    <span className="text-gray-600 font-bold shrink-0">
-                      $
-                    </span>
+                    <span className="text-gray-600 font-bold shrink-0">$</span>
                     <span className="break-all">{h}</span>
                   </div>
                 ))}

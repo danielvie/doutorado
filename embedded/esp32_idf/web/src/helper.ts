@@ -1,7 +1,6 @@
 // Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
 //
 export const signalEdgeOverheadCommands = {
-  common: "signal.set_edge_overhead",
   up: "signal.set_edge_overhead_up",
   down: "signal.set_edge_overhead_down",
 } as const;

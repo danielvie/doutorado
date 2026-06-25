@@ -374,6 +374,12 @@ export class SystemStatus implements ISystemStatus {
     /** SystemStatus analog. */
     public analog?: (IAnalogStatus|null);
 
+    /** SystemStatus signalEdgeOverheadUpCycles. */
+    public signalEdgeOverheadUpCycles: number;
+
+    /** SystemStatus signalEdgeOverheadDownCycles. */
+    public signalEdgeOverheadDownCycles: number;
+
     /**
      * Creates a new SystemStatus instance using the specified properties.
      * @param [properties] Properties to set

@@ -1236,6 +1236,8 @@ export const SystemStatus = $root.SystemStatus = (() => {
      * @property {number|null} [adcAvg] SystemStatus adcAvg
      * @property {number|null} [deadTimeTailOverheadCycles] SystemStatus deadTimeTailOverheadCycles
      * @property {IAnalogStatus|null} [analog] SystemStatus analog
+     * @property {number|null} [signalEdgeOverheadUpCycles] SystemStatus signalEdgeOverheadUpCycles
+     * @property {number|null} [signalEdgeOverheadDownCycles] SystemStatus signalEdgeOverheadDownCycles
      */
 
     /**
@@ -1406,6 +1408,22 @@ export const SystemStatus = $root.SystemStatus = (() => {
     SystemStatus.prototype.analog = null;
 
     /**
+     * SystemStatus signalEdgeOverheadUpCycles.
+     * @member {number} signalEdgeOverheadUpCycles
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.signalEdgeOverheadUpCycles = 0;
+
+    /**
+     * SystemStatus signalEdgeOverheadDownCycles.
+     * @member {number} signalEdgeOverheadDownCycles
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.signalEdgeOverheadDownCycles = 0;
+
+    /**
      * Creates a new SystemStatus instance using the specified properties.
      * @function create
      * @memberof SystemStatus
@@ -1467,6 +1485,10 @@ export const SystemStatus = $root.SystemStatus = (() => {
             writer.uint32(/* id 19, wireType 0 =*/152).uint32(message.deadTimeTailOverheadCycles);
         if (message.analog != null && Object.hasOwnProperty.call(message, "analog"))
             $root.AnalogStatus.encode(message.analog, writer.uint32(/* id 20, wireType 2 =*/162).fork()).ldelim();
+        if (message.signalEdgeOverheadUpCycles != null && Object.hasOwnProperty.call(message, "signalEdgeOverheadUpCycles"))
+            writer.uint32(/* id 22, wireType 0 =*/176).uint32(message.signalEdgeOverheadUpCycles);
+        if (message.signalEdgeOverheadDownCycles != null && Object.hasOwnProperty.call(message, "signalEdgeOverheadDownCycles"))
+            writer.uint32(/* id 23, wireType 0 =*/184).uint32(message.signalEdgeOverheadDownCycles);
         return writer;
     };
 
@@ -1577,6 +1599,14 @@ export const SystemStatus = $root.SystemStatus = (() => {
                 }
             case 20: {
                     message.analog = $root.AnalogStatus.decode(reader, reader.uint32());
+                    break;
+                }
+            case 22: {
+                    message.signalEdgeOverheadUpCycles = reader.uint32();
+                    break;
+                }
+            case 23: {
+                    message.signalEdgeOverheadDownCycles = reader.uint32();
                     break;
                 }
             default:
@@ -1699,6 +1729,12 @@ export const SystemStatus = $root.SystemStatus = (() => {
             if (error)
                 return "analog." + error;
         }
+        if (message.signalEdgeOverheadUpCycles != null && message.hasOwnProperty("signalEdgeOverheadUpCycles"))
+            if (!$util.isInteger(message.signalEdgeOverheadUpCycles))
+                return "signalEdgeOverheadUpCycles: integer expected";
+        if (message.signalEdgeOverheadDownCycles != null && message.hasOwnProperty("signalEdgeOverheadDownCycles"))
+            if (!$util.isInteger(message.signalEdgeOverheadDownCycles))
+                return "signalEdgeOverheadDownCycles: integer expected";
         return null;
     };
 
@@ -1829,6 +1865,10 @@ export const SystemStatus = $root.SystemStatus = (() => {
                 throw TypeError(".SystemStatus.analog: object expected");
             message.analog = $root.AnalogStatus.fromObject(object.analog);
         }
+        if (object.signalEdgeOverheadUpCycles != null)
+            message.signalEdgeOverheadUpCycles = object.signalEdgeOverheadUpCycles >>> 0;
+        if (object.signalEdgeOverheadDownCycles != null)
+            message.signalEdgeOverheadDownCycles = object.signalEdgeOverheadDownCycles >>> 0;
         return message;
     };
 
@@ -1865,6 +1905,8 @@ export const SystemStatus = $root.SystemStatus = (() => {
             object.adcAvg = 0;
             object.deadTimeTailOverheadCycles = 0;
             object.analog = null;
+            object.signalEdgeOverheadUpCycles = 0;
+            object.signalEdgeOverheadDownCycles = 0;
         }
         if (message.activeSet != null && message.hasOwnProperty("activeSet"))
             object.activeSet = options.enums === String ? $root.BleSignalSet[message.activeSet] === undefined ? message.activeSet : $root.BleSignalSet[message.activeSet] : message.activeSet;
@@ -1904,6 +1946,10 @@ export const SystemStatus = $root.SystemStatus = (() => {
             object.deadTimeTailOverheadCycles = message.deadTimeTailOverheadCycles;
         if (message.analog != null && message.hasOwnProperty("analog"))
             object.analog = $root.AnalogStatus.toObject(message.analog, options);
+        if (message.signalEdgeOverheadUpCycles != null && message.hasOwnProperty("signalEdgeOverheadUpCycles"))
+            object.signalEdgeOverheadUpCycles = message.signalEdgeOverheadUpCycles;
+        if (message.signalEdgeOverheadDownCycles != null && message.hasOwnProperty("signalEdgeOverheadDownCycles"))
+            object.signalEdgeOverheadDownCycles = message.signalEdgeOverheadDownCycles;
         return object;
     };
 

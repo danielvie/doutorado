@@ -73,20 +73,22 @@ message AnalogStatus {
 
 // System status message
 message SystemStatus {
+    reserved 21;
+
     BleSignalSet active_set = 1;
     BleSignalState signal_state = 2;
     BleAnalogReadState ble_read_state = 3;
     BleControlState control_state = 4;
-    
-    float alpha = 5; 
+
+    float alpha = 5;
     bool has_alpha = 6;
-    
+
     bool matrix_a_valid = 7;
     bool matrix_b_valid = 8;
-    
+
     uint32 current_cycles = 9;
     uint32 total_cycles = 10;
-    
+
     uint32 monitor_ms = 11;
     uint32 dead_time_us = 12;
     BleLedMode led_mode = 14;
@@ -96,6 +98,8 @@ message SystemStatus {
     uint32 adc_avg = 18;
     uint32 dead_time_tail_overhead_cycles = 19;
     AnalogStatus analog = 20;
+    uint32 signal_edge_overhead_up_cycles = 22;
+    uint32 signal_edge_overhead_down_cycles = 23;
 }
 
 // General purpose log message

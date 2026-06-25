@@ -77,7 +77,6 @@ extern std::atomic<SignalSet> g_active_set;
 extern std::atomic<bool> g_ds_update_pending;
 extern volatile uint32_t g_dead_time_cycles_up;
 extern volatile uint32_t g_dead_time_cycles_down;
-extern volatile uint32_t g_signal_edge_overhead_cycles;
 extern volatile uint32_t g_signal_edge_overhead_up_cycles;
 extern volatile uint32_t g_signal_edge_overhead_down_cycles;
 

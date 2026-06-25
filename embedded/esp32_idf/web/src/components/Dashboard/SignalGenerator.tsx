@@ -1,10 +1,28 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { _create_signal } from "../../helper";
 import { bleManager } from "../../services/BleManager";
 import { useBleStore } from "../../store/bleStore";
 import { Check, Copy, Upload } from "lucide-react";
 import { PanelSize } from "./SizeSelector";
 import { DashboardItem } from "./DashboardItem";
+import { useStorage } from "../../useStorage";
+
+type BinaryData = { s1: string; s2: string; s3: string };
+type SignalPattern = { time: string; mode: string; binary: BinaryData };
+
+const binaryFromMode = (mode: string): BinaryData => {
+  const binaryModes = mode
+    .split(",")
+    .map((value) =>
+      (Number.parseInt(value.trim(), 10) || 0).toString(2).padStart(3, "0"),
+    );
+
+  return {
+    s1: binaryModes.map((value) => value[2]).join(""),
+    s2: binaryModes.map((value) => value[1]).join(""),
+    s3: binaryModes.map((value) => value[0]).join(""),
+  };
+};
 
 export const SignalGenerator: React.FC<{
   id: string;
@@ -14,9 +32,22 @@ export const SignalGenerator: React.FC<{
 }> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
   const alpha = useBleStore((s) => s.alpha);
   const setAlpha = useBleStore((s) => s.setAlpha);
-  const [timeStr, setTimeStr] = useState("");
-  const [modeStr, setModeStr] = useState("");
-  const [binaryData, setBinaryData] = useState({ s1: "", s2: "", s3: "" });
+  const [syncedSignal, setSyncedSignal] = useStorage<{
+    time: string;
+    mode: string;
+  } | null>("signal-generator-synced-pattern", null);
+  const [initialSignal] = useState<SignalPattern>(() => {
+    if (syncedSignal) {
+      return { ...syncedSignal, binary: binaryFromMode(syncedSignal.mode) };
+    }
+
+    return _create_signal(parseFloat(alpha));
+  });
+  const [timeStr, setTimeStr] = useState(initialSignal.time);
+  const [modeStr, setModeStr] = useState(initialSignal.mode);
+  const [binaryData, setBinaryData] = useState<BinaryData>(
+    initialSignal.binary,
+  );
   const [showBinary, setShowBinary] = useState(false);
   const [isEditingAlpha, setIsEditingAlpha] = useState(false);
   const [tempAlpha, setTempAlpha] = useState(alpha);
@@ -28,18 +59,20 @@ export const SignalGenerator: React.FC<{
   const [isEditingMode, setIsEditingMode] = useState(false);
   const [tempMode, setTempMode] = useState("");
 
-  // Recalculate signal when alpha changes
-  useEffect(() => {
-    const val = parseFloat(alpha);
+  const applyAlpha = (nextAlpha: string) => {
+    setAlpha(nextAlpha);
+
+    const val = parseFloat(nextAlpha);
     if (!isNaN(val) && val >= 0.1 && val <= 0.9) {
       const res = _create_signal(val);
       setTimeStr(res.time);
       setModeStr(res.mode);
       setBinaryData(res.binary);
     }
-  }, [alpha]);
+  };
 
   const handleUpload = () => {
+    setSyncedSignal({ time: timeStr, mode: modeStr });
     bleManager.sendCommand("signal.set_pattern", {
       time: timeStr,
       mode: modeStr,
@@ -47,7 +80,7 @@ export const SignalGenerator: React.FC<{
   };
 
   const handle_set_alpha = (a: string) => {
-    setAlpha(a.toString());
+    applyAlpha(a.toString());
     bleManager.sendCommand("signal.set_alpha", { alpha: Number(a) });
   };
 
@@ -142,7 +175,7 @@ export const SignalGenerator: React.FC<{
                 max="0.9"
                 step="0.01"
                 value={alpha}
-                onChange={(e) => setAlpha(e.target.value)}
+                onChange={(e) => applyAlpha(e.target.value)}
                 className="w-full"
               />
 

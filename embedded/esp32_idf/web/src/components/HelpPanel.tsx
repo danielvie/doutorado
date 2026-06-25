@@ -14,6 +14,10 @@ const COMMANDS = [
     description: "Requests a structured status notification",
   },
   {
+    commands: "system.hello",
+    description: "Sends a test BLE log response",
+  },
+  {
     commands: "signal.start",
     description: "Starts continuous signal execution",
   },
@@ -42,6 +46,15 @@ const COMMANDS = [
   {
     commands: 'signal.set_dead_time_tail_overhead {"cycles":35}',
     description: "Sets GPIO tail overhead compensation for dead time",
+  },
+
+  {
+    commands: 'signal.set_edge_overhead_up {"cycles":35}',
+    description: "Sets rising edge overhead compensation",
+  },
+  {
+    commands: 'signal.set_edge_overhead_down {"cycles":35}',
+    description: "Sets falling edge overhead compensation",
   },
   {
     commands: 'analog.set_monitor_period {"period_ms":100}',
@@ -130,6 +143,18 @@ const COMMANDS = [
   {
     commands: "debug.signal_timing",
     description: "Sends signal timing diagnostics",
+  },
+  {
+    commands: 'debug.analog_test_run {"duration_ms":4000}',
+    description: "Legacy alias for running the analog diagnostic test",
+  },
+  {
+    commands: "debug.analog_test_result",
+    description: "Legacy alias for fetching the analog diagnostic test result",
+  },
+  {
+    commands: "debug.analog_dma_json",
+    description: "Legacy alias for fetching ADC DMA per-channel debug counters",
   },
   {
     commands: 'debug.test.an.run {"duration_ms":4000}',

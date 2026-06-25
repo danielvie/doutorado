@@ -61,7 +61,7 @@ static volatile uint32_t s_timing_clamped_segment_count = 0;
 static volatile uint32_t s_timing_maintenance_skipped_count = 0;
 static volatile int32_t s_timing_correction_sum_ticks = 0;
 
-static void update_signal_timing_snapshot(uint32_t playback_cycles,
+static void signal_timing_update_snapshot(uint32_t playback_cycles,
                                           uint32_t loop_cycles,
                                           const SignalTimingSample &sample) {
     const uint32_t count = s_timing_sample_count + 1;
@@ -114,7 +114,6 @@ std::string signal_get_timing_snapshot_json() {
     const int32_t correction_sum_ticks = s_timing_correction_sum_ticks;
     const int32_t overhead_cycles =
         (int32_t)playback_cycles - (int32_t)expected_cycles;
-    const uint32_t edge_overhead = g_signal_edge_overhead_cycles;
     const uint32_t edge_overhead_up = g_signal_edge_overhead_up_cycles;
     const uint32_t edge_overhead_down = g_signal_edge_overhead_down_cycles;
 
@@ -124,7 +123,7 @@ std::string signal_get_timing_snapshot_json() {
              "\"pb\":%.2f,\"pmin\":%.2f,\"pmax\":%.2f,\"pavg\":%.2f,"
              "\"loop\":%.2f,\"exp\":%.2f,"
              "\"req\":%.2f,\"sch\":%.2f,\"meas\":%.2f,"
-             "\"oh\":%.2f,\"dt\":%.2f,\"eo\":%lu,\"eu\":%lu,\"ed\":%lu,"
+             "\"oh\":%.2f,\"dt\":%.2f,\"eu\":%lu,\"ed\":%lu,"
              "\"ov\":%lu,\"tf\":%lu,\"cl\":%lu,\"ms\":%lu,"
              "\"corr\":%.1f,\"steps\":%lu}",
              (unsigned long)sample_count,
@@ -139,7 +138,6 @@ std::string signal_get_timing_snapshot_json() {
              (double)measured_period_cycles / CYCLES_PER_US,
              (double)overhead_cycles / CYCLES_PER_US,
              (double)dead_time_cycles / CYCLES_PER_US,
-             (unsigned long)edge_overhead,
              (unsigned long)edge_overhead_up,
              (unsigned long)edge_overhead_down,
              (unsigned long)overrun_count, (unsigned long)timing_fault_count,
@@ -199,9 +197,8 @@ volatile uint32_t g_dead_time_cycles_up =
     DEFAULT_DEAD_TIME_US * SIGNAL_TIME_TICKS_PER_US * SIGNAL_CYCLES_PER_TIME_TICK;
 volatile uint32_t g_dead_time_cycles_down =
     DEFAULT_DEAD_TIME_US * SIGNAL_TIME_TICKS_PER_US * SIGNAL_CYCLES_PER_TIME_TICK;
-volatile uint32_t g_signal_edge_overhead_cycles = 0;
-volatile uint32_t g_signal_edge_overhead_up_cycles = 0;
-volatile uint32_t g_signal_edge_overhead_down_cycles = 0;
+volatile uint32_t g_signal_edge_overhead_up_cycles = DEFAULT_SIGNAL_EDGE_OVERHEAD_UP_CYCLES;
+volatile uint32_t g_signal_edge_overhead_down_cycles = DEFAULT_SIGNAL_EDGE_OVERHEAD_DOWN_CYCLES;
 
 
 /**
@@ -421,7 +418,7 @@ static void reset_control_corrections(SignalLoopContext &ctx) {
     }
 }
 
-static void apply_pending_dataset_swap(SignalLoopContext &ctx) {
+static void dataset_apply_pending_swap(SignalLoopContext &ctx) {
     if (!g_ds_update_pending.load(std::memory_order_acquire)) {
         return;
     }
@@ -441,7 +438,7 @@ static void apply_pending_dataset_swap(SignalLoopContext &ctx) {
     reset_control_corrections(ctx);
 }
 
-static void update_control_corrections(SignalLoopContext &ctx) {
+static void control_update_corrections(SignalLoopContext &ctx) {
     if (!g_control_enabled.load(std::memory_order_acquire)) {
         return;
     }
@@ -502,7 +499,6 @@ static void IRAM_ATTR execute_signal_pattern(SignalLoopContext &ctx,
                                              uint32_t repeat_count) {
     const bool control_enabled =
         g_control_enabled.load(std::memory_order_acquire);
-    const uint32_t edge_overhead = g_signal_edge_overhead_cycles;
     const uint32_t edge_overhead_up = g_signal_edge_overhead_up_cycles;
     const uint32_t edge_overhead_down = g_signal_edge_overhead_down_cycles;
 
@@ -553,7 +549,7 @@ static void IRAM_ATTR execute_signal_pattern(SignalLoopContext &ctx,
             }
 
             const uint32_t step_edge_overhead =
-                edge_overhead + (step.is_rising ? edge_overhead_up : edge_overhead_down);
+                step.is_rising ? edge_overhead_up : edge_overhead_down;
             const uint32_t transition_deadline =
                 next_edge - dead_time - step_edge_overhead;
             uint32_t now = esp_cpu_get_cycle_count();
@@ -632,8 +628,8 @@ static void signal_loop_task(void *arg) {
 
     while (signal_is_running()) {
         uint32_t loop_start = esp_cpu_get_cycle_count();
-        apply_pending_dataset_swap(ctx);
-        update_control_corrections(ctx);
+        dataset_apply_pending_swap(ctx);
+        control_update_corrections(ctx);
         SignalTimingSample timing;
         uint32_t playback_start = esp_cpu_get_cycle_count();
         const uint32_t nominal_cycles = get_nominal_pattern_cycles(ctx);
@@ -650,7 +646,7 @@ static void signal_loop_task(void *arg) {
             timing.maintenance_skipped_count++;
         }
         uint32_t loop_cycles = esp_cpu_get_cycle_count() - loop_start;
-        update_signal_timing_snapshot(playback_cycles, loop_cycles, timing);
+        signal_timing_update_snapshot(playback_cycles, loop_cycles, timing);
     }
 
     stop_signal_outputs();
