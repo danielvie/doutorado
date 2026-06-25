@@ -114,14 +114,17 @@ std::string signal_get_timing_snapshot_json() {
     const int32_t correction_sum_ticks = s_timing_correction_sum_ticks;
     const int32_t overhead_cycles =
         (int32_t)playback_cycles - (int32_t)expected_cycles;
+    const uint32_t edge_overhead = g_signal_edge_overhead_cycles;
+    const uint32_t edge_overhead_up = g_signal_edge_overhead_up_cycles;
+    const uint32_t edge_overhead_down = g_signal_edge_overhead_down_cycles;
 
-    char json[352];
+    char json[416];
     snprintf(json, sizeof(json),
              "{\"s\":%lu,"
              "\"pb\":%.2f,\"pmin\":%.2f,\"pmax\":%.2f,\"pavg\":%.2f,"
              "\"loop\":%.2f,\"exp\":%.2f,"
              "\"req\":%.2f,\"sch\":%.2f,\"meas\":%.2f,"
-             "\"oh\":%.2f,\"dt\":%.2f,\"eo\":%lu,"
+             "\"oh\":%.2f,\"dt\":%.2f,\"eo\":%lu,\"eu\":%lu,\"ed\":%lu,"
              "\"ov\":%lu,\"tf\":%lu,\"cl\":%lu,\"ms\":%lu,"
              "\"corr\":%.1f,\"steps\":%lu}",
              (unsigned long)sample_count,
@@ -136,7 +139,9 @@ std::string signal_get_timing_snapshot_json() {
              (double)measured_period_cycles / CYCLES_PER_US,
              (double)overhead_cycles / CYCLES_PER_US,
              (double)dead_time_cycles / CYCLES_PER_US,
-             (unsigned long)g_signal_edge_overhead_cycles,
+             (unsigned long)edge_overhead,
+             (unsigned long)edge_overhead_up,
+             (unsigned long)edge_overhead_down,
              (unsigned long)overrun_count, (unsigned long)timing_fault_count,
              (unsigned long)clamped_segment_count,
              (unsigned long)maintenance_skipped_count,
@@ -195,6 +200,8 @@ volatile uint32_t g_dead_time_cycles_up =
 volatile uint32_t g_dead_time_cycles_down =
     DEFAULT_DEAD_TIME_US * SIGNAL_TIME_TICKS_PER_US * SIGNAL_CYCLES_PER_TIME_TICK;
 volatile uint32_t g_signal_edge_overhead_cycles = 0;
+volatile uint32_t g_signal_edge_overhead_up_cycles = 0;
+volatile uint32_t g_signal_edge_overhead_down_cycles = 0;
 
 
 /**
@@ -245,6 +252,7 @@ void signal_precompute_steps(DataSet *ds) {
         // Determine if this is a rising edge (turn-on) vs falling edge for dead-time tuning
         bool is_rising = (change_6 && d6) || (change_5 && d5) || (change_4 && d4);
         ds->steps[i].dead_time = is_rising ? g_dead_time_cycles_up : g_dead_time_cycles_down;
+        ds->steps[i].is_rising = is_rising;
         ds->steps[i].duration_ticks = ds->time_durations[i];
         ds->steps[i].duration_cycles =
             ds->steps[i].duration_ticks * SIGNAL_CYCLES_PER_TIME_TICK;
@@ -495,6 +503,8 @@ static void IRAM_ATTR execute_signal_pattern(SignalLoopContext &ctx,
     const bool control_enabled =
         g_control_enabled.load(std::memory_order_acquire);
     const uint32_t edge_overhead = g_signal_edge_overhead_cycles;
+    const uint32_t edge_overhead_up = g_signal_edge_overhead_up_cycles;
+    const uint32_t edge_overhead_down = g_signal_edge_overhead_down_cycles;
 
     // Keep the interrupt-disabled block limited to GPIO writes and exact delays.
     // No logging, allocation, parsing, or semaphore calls belong in this helper.
@@ -542,8 +552,10 @@ static void IRAM_ATTR execute_signal_pattern(SignalLoopContext &ctx,
                 timing.scheduled_period_cycles += cycles;
             }
 
+            const uint32_t step_edge_overhead =
+                edge_overhead + (step.is_rising ? edge_overhead_up : edge_overhead_down);
             const uint32_t transition_deadline =
-                next_edge - dead_time - edge_overhead;
+                next_edge - dead_time - step_edge_overhead;
             uint32_t now = esp_cpu_get_cycle_count();
             if ((int32_t)(now - transition_deadline) > 0) {
                 timing.overrun_count++;
@@ -557,8 +569,8 @@ static void IRAM_ATTR execute_signal_pattern(SignalLoopContext &ctx,
                 if (repeat == 0) {
                     timing.dead_time_cycles += dead_time;
                 }
-            } else if (edge_overhead > 0) {
-                wait_until_cycle(next_edge - edge_overhead);
+            } else if (step_edge_overhead > 0) {
+                wait_until_cycle(next_edge - step_edge_overhead);
             }
 
             GPIO.out_w1tc = step.clr_mask;

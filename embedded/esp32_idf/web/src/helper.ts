@@ -1,5 +1,13 @@
 // Copyright 2025 ITA (Instituto Tecnologico de Aeronautica). Licensed under the MIT license.
 //
+export const signalEdgeOverheadCommands = {
+  common: "signal.set_edge_overhead",
+  up: "signal.set_edge_overhead_up",
+  down: "signal.set_edge_overhead_down",
+} as const;
+
+export const createCyclesPayload = (cycles: number) => ({ cycles });
+
 // Creates a switching signal based on a duty cycle
 export function _create_signal(alpha: number) {
   // System parameters

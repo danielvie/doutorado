@@ -39,6 +39,7 @@ struct SignalStep {
     uint32_t dead_time;   ///< CPU cycles to wait during clear state
     uint32_t duration_ticks; ///< 0.1 us ticks to wait after transition
     uint32_t duration_cycles; ///< Derived delay cycles for the hot playback loop
+    bool is_rising; ///< True when the transition turns the phase output on
 };
 
 struct DataSet {
@@ -77,6 +78,8 @@ extern std::atomic<bool> g_ds_update_pending;
 extern volatile uint32_t g_dead_time_cycles_up;
 extern volatile uint32_t g_dead_time_cycles_down;
 extern volatile uint32_t g_signal_edge_overhead_cycles;
+extern volatile uint32_t g_signal_edge_overhead_up_cycles;
+extern volatile uint32_t g_signal_edge_overhead_down_cycles;
 
 /**
  * @brief Initialize the GPIOs and populate the custom signal pattern.

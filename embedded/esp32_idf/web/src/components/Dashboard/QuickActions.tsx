@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createCyclesPayload, signalEdgeOverheadCommands } from "../../helper";
 import { bleManager } from "../../services/BleManager";
 import { useBleStore } from "../../store/bleStore";
 import { Send } from "lucide-react";
@@ -14,14 +15,24 @@ export const QuickActions: React.FC<{
   const alpha = useBleStore((s) => s.alpha);
   const setAlpha = useBleStore((s) => s.setAlpha);
   const [cycles, setCycles] = useState(100);
+  const [edge_overhead_up_cycles, set_edge_overhead_up_cycles] = useState(0);
+  const [edge_overhead_down_cycles, set_edge_overhead_down_cycles] =
+    useState(24);
   const monitor_period_ms = useBleStore((s) => s.monitorPeriodMs);
   const set_monitor_period_ms = useBleStore((s) => s.setMonitorPeriodMs);
 
+  const number_or_zero = (value: string) => Number.parseInt(value, 10) || 0;
   const handle_set_cycles = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setCycles(parseInt(e.target.value));
+    setCycles(number_or_zero(e.target.value));
+  const handle_set_edge_overhead_up_cycles = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => set_edge_overhead_up_cycles(number_or_zero(e.target.value));
+  const handle_set_edge_overhead_down_cycles = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => set_edge_overhead_down_cycles(number_or_zero(e.target.value));
   const handle_set_monitor_period_ms = (
     e: React.ChangeEvent<HTMLInputElement>,
-  ) => set_monitor_period_ms(parseInt(e.target.value));
+  ) => set_monitor_period_ms(number_or_zero(e.target.value));
 
   const ble_send_command = (name: string, payload: Record<string, unknown> = {}) =>
     bleManager.sendCommand(name, payload);
@@ -209,6 +220,58 @@ export const QuickActions: React.FC<{
                     }
                     className="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded border border-indigo-100 hover:bg-indigo-100 transition-colors shrink-0"
                     title="Send Monitor"
+                  >
+                    <Send size={12} />
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-gray-700 font-bold uppercase ml-1">
+                  Edge Up Cycles
+                </label>
+                <div className="flex gap-1 p-1">
+                  <input
+                    type="number"
+                    min={0}
+                    onChange={handle_set_edge_overhead_up_cycles}
+                    value={edge_overhead_up_cycles}
+                    className="flex-1 min-w-0 text-sm font-semibold text-gray-800 bg-white border border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-0 outline-none px-2 h-8 shadow-none transition-none rounded"
+                  />
+                  <button
+                    onClick={() =>
+                      ble_send_command(
+                        signalEdgeOverheadCommands.up,
+                        createCyclesPayload(edge_overhead_up_cycles),
+                      )
+                    }
+                    className="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded border border-indigo-100 hover:bg-indigo-100 transition-colors shrink-0"
+                    title="Send Rising Edge Overhead"
+                  >
+                    <Send size={12} />
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-gray-700 font-bold uppercase ml-1">
+                  Edge Down Cycles
+                </label>
+                <div className="flex gap-1 p-1">
+                  <input
+                    type="number"
+                    min={0}
+                    onChange={handle_set_edge_overhead_down_cycles}
+                    value={edge_overhead_down_cycles}
+                    className="flex-1 min-w-0 text-sm font-semibold text-gray-800 bg-white border border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-0 outline-none px-2 h-8 shadow-none transition-none rounded"
+                  />
+                  <button
+                    onClick={() =>
+                      ble_send_command(
+                        signalEdgeOverheadCommands.down,
+                        createCyclesPayload(edge_overhead_down_cycles),
+                      )
+                    }
+                    className="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded border border-indigo-100 hover:bg-indigo-100 transition-colors shrink-0"
+                    title="Send Falling Edge Overhead"
                   >
                     <Send size={12} />
                   </button>

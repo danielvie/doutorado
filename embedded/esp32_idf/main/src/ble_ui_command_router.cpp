@@ -36,7 +36,7 @@ struct UiCommandEntry {
     UiCommandHandler handler;
 };
 
-static UiCommandEntry s_commands[57];
+static UiCommandEntry s_commands[59];
 static size_t s_command_count = 0;
 volatile uint32_t g_dead_time_tail_overhead_cycles =
     DEFAULT_DEAD_TIME_TAIL_OVERHEAD_CYCLES;
@@ -553,6 +553,30 @@ handle_signal_set_edge_overhead(const UiCommandContext &ctx) {
 }
 
 static UiCommandResultData
+handle_signal_set_edge_overhead_up(const UiCommandContext &ctx) {
+    uint32_t cycles;
+    if (!json_get_u32(ctx.json, "cycles", &cycles)) {
+        return invalid_arg("Expected numeric cycles");
+    }
+
+    g_signal_edge_overhead_up_cycles = cycles;
+    ESP_LOGI(TAG, "Set signal rising edge overhead to %lu cycles", cycles);
+    return ok("Signal rising edge overhead updated");
+}
+
+static UiCommandResultData
+handle_signal_set_edge_overhead_down(const UiCommandContext &ctx) {
+    uint32_t cycles;
+    if (!json_get_u32(ctx.json, "cycles", &cycles)) {
+        return invalid_arg("Expected numeric cycles");
+    }
+
+    g_signal_edge_overhead_down_cycles = cycles;
+    ESP_LOGI(TAG, "Set signal falling edge overhead to %lu cycles", cycles);
+    return ok("Signal falling edge overhead updated");
+}
+
+static UiCommandResultData
 handle_analog_set_monitor_period(const UiCommandContext &ctx) {
     uint32_t period_ms;
     if (!json_get_u32(ctx.json, "period_ms", &period_ms)) {
@@ -951,6 +975,10 @@ void ui_command_router_init(void) {
                      handle_signal_set_dead_time_tail_overhead);
     register_command("signal.set_edge_overhead",
                      handle_signal_set_edge_overhead);
+    register_command("signal.set_edge_overhead_up",
+                     handle_signal_set_edge_overhead_up);
+    register_command("signal.set_edge_overhead_down",
+                     handle_signal_set_edge_overhead_down);
     register_command("analog.set_monitor_period",
                      handle_analog_set_monitor_period);
     register_command("analog.set_acquisition_period",
