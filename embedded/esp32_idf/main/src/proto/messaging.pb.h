@@ -89,6 +89,15 @@ typedef struct _AnalogStatus {
     uint32_t frame_drops;
     uint32_t pool_flushes;
     bool calibration_lut_ready;
+    /* Smallest measurement age the acquisition pipeline can deliver
+ (frame accumulation + scheduling margin). */
+    uint32_t min_snapshot_age_us;
+    /* Effective control-point age budget: active dataset cycle window,
+ clamped to min_snapshot_age_us. */
+    uint32_t control_max_age_us;
+    /* Times a frame timestamp fell back to read time because the ISR
+ timestamp ring was empty or desynchronized. */
+    uint32_t frame_ts_fallbacks;
 } AnalogStatus;
 
 /* System status message */
@@ -306,7 +315,7 @@ extern "C" {
 
 /* Initializer values for message structs */
 #define Telemetry_init_default                   {0, 0, 0, 0}
-#define AnalogStatus_init_default                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+#define AnalogStatus_init_default                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 #define SystemStatus_init_default                {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0, 0, false, AnalogStatus_init_default, 0, 0}
 #define LogMessage_init_default                  {_BleLogLevel_MIN, ""}
 #define OtaStatus_init_default                   {_OtaState_MIN, 0, "", 0, 0}
@@ -321,7 +330,7 @@ extern "C" {
 #define AnalogConfigTestResult_init_default      {0, 0, 0, 0, {AnalogConfigCaseResult_init_default, AnalogConfigCaseResult_init_default, AnalogConfigCaseResult_init_default, AnalogConfigCaseResult_init_default}, ""}
 #define BlePacket_init_default                   {0, {Telemetry_init_default}}
 #define Telemetry_init_zero                      {0, 0, 0, 0}
-#define AnalogStatus_init_zero                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+#define AnalogStatus_init_zero                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 #define SystemStatus_init_zero                   {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0, 0, false, AnalogStatus_init_zero, 0, 0}
 #define LogMessage_init_zero                     {_BleLogLevel_MIN, ""}
 #define OtaStatus_init_zero                      {_OtaState_MIN, 0, "", 0, 0}
@@ -369,6 +378,9 @@ extern "C" {
 #define AnalogStatus_frame_drops_tag             26
 #define AnalogStatus_pool_flushes_tag            27
 #define AnalogStatus_calibration_lut_ready_tag   28
+#define AnalogStatus_min_snapshot_age_us_tag     29
+#define AnalogStatus_control_max_age_us_tag      30
+#define AnalogStatus_frame_ts_fallbacks_tag      31
 #define SystemStatus_active_set_tag              1
 #define SystemStatus_signal_state_tag            2
 #define SystemStatus_ble_read_state_tag          3
@@ -506,7 +518,10 @@ X(a, STATIC,   SINGULAR, UINT32,   channel_order_anomalies,  24) \
 X(a, STATIC,   SINGULAR, UINT32,   partial_triples,  25) \
 X(a, STATIC,   SINGULAR, UINT32,   frame_drops,      26) \
 X(a, STATIC,   SINGULAR, UINT32,   pool_flushes,     27) \
-X(a, STATIC,   SINGULAR, BOOL,     calibration_lut_ready,  28)
+X(a, STATIC,   SINGULAR, BOOL,     calibration_lut_ready,  28) \
+X(a, STATIC,   SINGULAR, UINT32,   min_snapshot_age_us,  29) \
+X(a, STATIC,   SINGULAR, UINT32,   control_max_age_us,  30) \
+X(a, STATIC,   SINGULAR, UINT32,   frame_ts_fallbacks,  31)
 #define AnalogStatus_CALLBACK NULL
 #define AnalogStatus_DEFAULT NULL
 
@@ -710,7 +725,7 @@ extern const pb_msgdesc_t BlePacket_msg;
 #define AnalogConfigCaseResult_size              109
 #define AnalogConfigTestResult_size              551
 #define AnalogDiagnosticResult_size              243
-#define AnalogStatus_size                        175
+#define AnalogStatus_size                        196
 #define BlePacket_size                           753
 #define LogMessage_size                          132
 #define OtaBegin_size                            6
@@ -719,7 +734,7 @@ extern const pb_msgdesc_t BlePacket_msg;
 #define OtaEnd_size                              65
 #define OtaStatus_size                           85
 #define PROTO_MESSAGING_PB_H_MAX_SIZE            BlePacket_size
-#define SystemStatus_size                        268
+#define SystemStatus_size                        289
 #define Telemetry_size                           21
 #define UiCommandResult_size                     750
 #define UiCommand_size                           457

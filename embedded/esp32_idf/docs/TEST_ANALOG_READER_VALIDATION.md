@@ -48,6 +48,8 @@ Scope: the acquisition pipeline in `main/src/helper_analog.cpp` and its consumpt
 | 5 | CALIBRATION_UNAVAILABLE | Calibration LUT not built yet |
 | 6 | SNAPSHOT_CONTENTION | Bounded seqlock read gave up (Core-0 writer starved) |
 
+The status message also reports the freshness bookkeeping directly: `min_snapshot_age_us` (pipeline floor), `control_max_age_us` (effective age budget enforced at the control point), and `frame_ts_fallbacks` (times a frame timestamp fell back to read time because the ISR timestamp ring was empty or desynchronized). The web console prints these on the `Age` and `TS fallbacks` lines of the analog status block.
+
 ## 2. How to Test
 
 ### 2.1 Bench setup
@@ -89,7 +91,8 @@ Numeric acceptance thresholds for signal timing remain deferred until lab timing
 | Check | Expectation at 250 kHz continuous |
 |---|---|
 | `measured_triples_per_second` | ≈ sample rate ÷ 3 (~83 000); stable ±5% |
-| `age_us` at the control point | ≤ ~288 µs (frame accumulation + margin); never grows unbounded |
+| `age_us` at the control point | ≤ `control_max_age_us` (~288 µs at 250 kHz); never grows unbounded |
+| `frame_ts_fallbacks` | Flat after startup; growth means ISR timestamping is not pairing with reads and ages have silently degraded to read-time stamps |
 | `target_triples_per_cycle` | ≥ 4 triples per signal cycle window achieved by measured rate |
 | `fault_code` steady state | 0 while control runs on the example dataset |
 | `miss_count` growth | Occasional misses acceptable; `consecutive_misses` must reset to 0, controller must not auto-disable in steady state |

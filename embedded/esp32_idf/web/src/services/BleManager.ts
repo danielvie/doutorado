@@ -186,11 +186,21 @@ class BleManager {
           ];
 
           if (analog) {
+            const faultNames: Record<number, string> = {
+              0: "none",
+              1: "repeated_miss",
+              2: "stale_sample",
+              3: "missing_triple",
+              4: "dma_overflow",
+              5: "calibration_unavailable",
+              6: "snapshot_contention",
+            };
+            const faultCode = analog.fault_code ?? 0;
             statusLines.push(
               "== analog status ==",
               `Seq            : ${analog.seq ?? 0}`,
               `Valid          : ${analog.valid ? "YES" : "NO"}`,
-              `Age            : ${analog.age_us ?? 0} us`,
+              `Age            : ${analog.age_us ?? 0} us (budget ${analog.control_max_age_us ?? 0} us, floor ${analog.min_snapshot_age_us ?? 0} us)`,
               `Mode           : ${(analog.acquisition_mode ?? 0) === 1 ? "continuous" : "oneshot"}`,
               `LUT ready      : ${analog.calibration_lut_ready ? "YES" : "NO"}`,
               `Target triples : ${analog.target_triples_per_cycle ?? 0} per cycle`,
@@ -203,7 +213,8 @@ class BleManager {
               `DMA samples    : ${analog.samples_read ?? 0} read, ${analog.samples_rejected ?? 0} rejected`,
               `DMA anomalies  : ${analog.channel_order_anomalies ?? 0} order, ${analog.partial_triples ?? 0} partial`,
               `DMA drops/flush: ${analog.frame_drops ?? 0} / ${analog.pool_flushes ?? 0}`,
-              `Fault code     : ${analog.fault_code ?? 0}`,
+              `TS fallbacks   : ${analog.frame_ts_fallbacks ?? 0}`,
+              `Fault code     : ${faultCode} (${faultNames[faultCode] ?? "unknown"})`,
             );
           }
 

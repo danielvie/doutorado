@@ -47,6 +47,9 @@ struct AnalogRuntimeStatus {
     uint32_t frame_drops;
     uint32_t pool_flushes;
     bool calibration_lut_ready;
+    uint32_t min_snapshot_age_us;
+    uint32_t control_max_age_us;
+    uint32_t frame_ts_fallbacks;
 };
 
 struct AnalogControlSnapshot {
@@ -87,6 +90,10 @@ uint32_t analog_get_consecutive_misses(void);
 // accumulation + scheduling margin); control-age budgets below this value
 // would reject every sample regardless of signal timing.
 uint32_t analog_min_snapshot_age_us(void);
+// Called by the signal loop when it (re)computes its dataset-derived age
+// budget, so telemetry can report the budget actually enforced at the
+// control point.
+void analog_report_control_age_budget(uint32_t max_age_us);
 bool analog_read_control_snapshot(AnalogControlSnapshot* snapshot,
                                   uint32_t last_seq,
                                   uint32_t max_age_us);

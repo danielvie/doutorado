@@ -69,6 +69,15 @@ message AnalogStatus {
     uint32 frame_drops = 26;
     uint32 pool_flushes = 27;
     bool calibration_lut_ready = 28;
+    // Smallest measurement age the acquisition pipeline can deliver
+    // (frame accumulation + scheduling margin).
+    uint32 min_snapshot_age_us = 29;
+    // Effective control-point age budget: active dataset cycle window,
+    // clamped to min_snapshot_age_us.
+    uint32 control_max_age_us = 30;
+    // Times a frame timestamp fell back to read time because the ISR
+    // timestamp ring was empty or desynchronized.
+    uint32 frame_ts_fallbacks = 31;
 }
 
 // System status message

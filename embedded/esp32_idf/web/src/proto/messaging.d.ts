@@ -230,6 +230,15 @@ export class AnalogStatus implements IAnalogStatus {
     /** AnalogStatus calibrationLutReady. */
     public calibrationLutReady: boolean;
 
+    /** AnalogStatus minSnapshotAgeUs. */
+    public minSnapshotAgeUs: number;
+
+    /** AnalogStatus controlMaxAgeUs. */
+    public controlMaxAgeUs: number;
+
+    /** AnalogStatus frameTsFallbacks. */
+    public frameTsFallbacks: number;
+
     /**
      * Creates a new AnalogStatus instance using the specified properties.
      * @param [properties] Properties to set

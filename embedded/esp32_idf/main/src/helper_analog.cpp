@@ -84,6 +84,8 @@ static std::atomic<uint32_t> s_frame_drops(0);
 static std::atomic<uint32_t> s_pool_flushes(0);
 static std::atomic<uint32_t> s_dma_channel_counts[8];
 static std::atomic<uint32_t> s_dma_channel_last_raw[8];
+static std::atomic<uint32_t> s_frame_ts_fallbacks(0);
+static std::atomic<uint32_t> s_control_age_budget_us(0);
 static std::atomic<bool> s_calibration_lut_ready(false);
 static float s_calibration_lut[ANALOG_ADC_MAX_CODE + 1] = {0.0f};
 
@@ -129,6 +131,7 @@ static uint64_t analog_frame_ts_pop(uint64_t fallback_us) {
     uint32_t read = s_frame_ts_read.load(std::memory_order_relaxed);
     uint32_t write = s_frame_ts_write.load(std::memory_order_acquire);
     if (write == read) {
+        s_frame_ts_fallbacks.fetch_add(1, std::memory_order_acq_rel);
         return fallback_us;
     }
     uint64_t ts = s_frame_ts_ring[read % ANALOG_FRAME_TS_RING_SIZE];
@@ -344,10 +347,21 @@ void analog_get_status(AnalogRuntimeStatus* status) {
     status->frame_drops = s_frame_drops.load(std::memory_order_acquire);
     status->pool_flushes = s_pool_flushes.load(std::memory_order_acquire);
     status->calibration_lut_ready = s_calibration_lut_ready.load(std::memory_order_acquire);
+    status->min_snapshot_age_us = analog_min_snapshot_age_us();
+    // Report the budget as enforced at the control point: the signal loop's
+    // dataset-derived budget clamped to the pipeline floor.
+    uint32_t budget_us = s_control_age_budget_us.load(std::memory_order_acquire);
+    status->control_max_age_us =
+        (budget_us > status->min_snapshot_age_us) ? budget_us : status->min_snapshot_age_us;
+    status->frame_ts_fallbacks = s_frame_ts_fallbacks.load(std::memory_order_acquire);
 }
 
 uint32_t analog_get_consecutive_misses(void) {
     return s_consecutive_misses.load(std::memory_order_acquire);
+}
+
+void analog_report_control_age_budget(uint32_t max_age_us) {
+    s_control_age_budget_us.store(max_age_us, std::memory_order_release);
 }
 
 uint32_t analog_min_snapshot_age_us(void) {
@@ -903,6 +917,7 @@ static void analog_continuous_step(AnalogTripleAccumulator* acc) {
         // reads, so resync and fall back to read time for this frame.
         analog_frame_ts_clear();
         frame_ts_us = now_us;
+        s_frame_ts_fallbacks.fetch_add(1, std::memory_order_acq_rel);
     }
 
     for (uint32_t i = 0, sample_index = 0; i + SOC_ADC_DIGI_RESULT_BYTES <= out_len;

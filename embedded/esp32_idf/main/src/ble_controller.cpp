@@ -386,6 +386,9 @@ void ble_send_status(void) {
     status->analog.frame_drops = analog_status.frame_drops;
     status->analog.pool_flushes = analog_status.pool_flushes;
     status->analog.calibration_lut_ready = analog_status.calibration_lut_ready;
+    status->analog.min_snapshot_age_us = analog_status.min_snapshot_age_us;
+    status->analog.control_max_age_us = analog_status.control_max_age_us;
+    status->analog.frame_ts_fallbacks = analog_status.frame_ts_fallbacks;
 
     ble_send_protobuf(&packet);
     

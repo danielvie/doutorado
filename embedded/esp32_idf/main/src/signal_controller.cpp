@@ -425,6 +425,7 @@ static bool signal_is_running() {
 static void reset_control_corrections(SignalLoopContext &ctx) {
     ctx.last_analog_seq = 0;
     ctx.max_analog_age_us = compute_analog_age_budget_us(ctx);
+    analog_report_control_age_budget(ctx.max_analog_age_us);
     for (int i = 0; i < MAX_SIGNAL_SIZE; ++i) {
         ctx.current_correction[i] = 0;
         ctx.dtk_buffer[i] = 0.0f;

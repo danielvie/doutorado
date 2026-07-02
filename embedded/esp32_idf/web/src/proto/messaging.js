@@ -404,6 +404,9 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
      * @property {number|null} [frameDrops] AnalogStatus frameDrops
      * @property {number|null} [poolFlushes] AnalogStatus poolFlushes
      * @property {boolean|null} [calibrationLutReady] AnalogStatus calibrationLutReady
+     * @property {number|null} [minSnapshotAgeUs] AnalogStatus minSnapshotAgeUs
+     * @property {number|null} [controlMaxAgeUs] AnalogStatus controlMaxAgeUs
+     * @property {number|null} [frameTsFallbacks] AnalogStatus frameTsFallbacks
      */
 
     /**
@@ -646,6 +649,30 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
     AnalogStatus.prototype.calibrationLutReady = false;
 
     /**
+     * AnalogStatus minSnapshotAgeUs.
+     * @member {number} minSnapshotAgeUs
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.minSnapshotAgeUs = 0;
+
+    /**
+     * AnalogStatus controlMaxAgeUs.
+     * @member {number} controlMaxAgeUs
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.controlMaxAgeUs = 0;
+
+    /**
+     * AnalogStatus frameTsFallbacks.
+     * @member {number} frameTsFallbacks
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.frameTsFallbacks = 0;
+
+    /**
      * Creates a new AnalogStatus instance using the specified properties.
      * @function create
      * @memberof AnalogStatus
@@ -725,6 +752,12 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
             writer.uint32(/* id 27, wireType 0 =*/216).uint32(message.poolFlushes);
         if (message.calibrationLutReady != null && Object.hasOwnProperty.call(message, "calibrationLutReady"))
             writer.uint32(/* id 28, wireType 0 =*/224).bool(message.calibrationLutReady);
+        if (message.minSnapshotAgeUs != null && Object.hasOwnProperty.call(message, "minSnapshotAgeUs"))
+            writer.uint32(/* id 29, wireType 0 =*/232).uint32(message.minSnapshotAgeUs);
+        if (message.controlMaxAgeUs != null && Object.hasOwnProperty.call(message, "controlMaxAgeUs"))
+            writer.uint32(/* id 30, wireType 0 =*/240).uint32(message.controlMaxAgeUs);
+        if (message.frameTsFallbacks != null && Object.hasOwnProperty.call(message, "frameTsFallbacks"))
+            writer.uint32(/* id 31, wireType 0 =*/248).uint32(message.frameTsFallbacks);
         return writer;
     };
 
@@ -873,6 +906,18 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
                     message.calibrationLutReady = reader.bool();
                     break;
                 }
+            case 29: {
+                    message.minSnapshotAgeUs = reader.uint32();
+                    break;
+                }
+            case 30: {
+                    message.controlMaxAgeUs = reader.uint32();
+                    break;
+                }
+            case 31: {
+                    message.frameTsFallbacks = reader.uint32();
+                    break;
+                }
             default:
                 reader.skipType(tag & 7);
                 break;
@@ -992,6 +1037,15 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
         if (message.calibrationLutReady != null && message.hasOwnProperty("calibrationLutReady"))
             if (typeof message.calibrationLutReady !== "boolean")
                 return "calibrationLutReady: boolean expected";
+        if (message.minSnapshotAgeUs != null && message.hasOwnProperty("minSnapshotAgeUs"))
+            if (!$util.isInteger(message.minSnapshotAgeUs))
+                return "minSnapshotAgeUs: integer expected";
+        if (message.controlMaxAgeUs != null && message.hasOwnProperty("controlMaxAgeUs"))
+            if (!$util.isInteger(message.controlMaxAgeUs))
+                return "controlMaxAgeUs: integer expected";
+        if (message.frameTsFallbacks != null && message.hasOwnProperty("frameTsFallbacks"))
+            if (!$util.isInteger(message.frameTsFallbacks))
+                return "frameTsFallbacks: integer expected";
         return null;
     };
 
@@ -1070,6 +1124,12 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
             message.poolFlushes = object.poolFlushes >>> 0;
         if (object.calibrationLutReady != null)
             message.calibrationLutReady = Boolean(object.calibrationLutReady);
+        if (object.minSnapshotAgeUs != null)
+            message.minSnapshotAgeUs = object.minSnapshotAgeUs >>> 0;
+        if (object.controlMaxAgeUs != null)
+            message.controlMaxAgeUs = object.controlMaxAgeUs >>> 0;
+        if (object.frameTsFallbacks != null)
+            message.frameTsFallbacks = object.frameTsFallbacks >>> 0;
         return message;
     };
 
@@ -1119,6 +1179,9 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
             object.frameDrops = 0;
             object.poolFlushes = 0;
             object.calibrationLutReady = false;
+            object.minSnapshotAgeUs = 0;
+            object.controlMaxAgeUs = 0;
+            object.frameTsFallbacks = 0;
         }
         if (message.seq != null && message.hasOwnProperty("seq"))
             object.seq = message.seq;
@@ -1179,6 +1242,12 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
             object.poolFlushes = message.poolFlushes;
         if (message.calibrationLutReady != null && message.hasOwnProperty("calibrationLutReady"))
             object.calibrationLutReady = message.calibrationLutReady;
+        if (message.minSnapshotAgeUs != null && message.hasOwnProperty("minSnapshotAgeUs"))
+            object.minSnapshotAgeUs = message.minSnapshotAgeUs;
+        if (message.controlMaxAgeUs != null && message.hasOwnProperty("controlMaxAgeUs"))
+            object.controlMaxAgeUs = message.controlMaxAgeUs;
+        if (message.frameTsFallbacks != null && message.hasOwnProperty("frameTsFallbacks"))
+            object.frameTsFallbacks = message.frameTsFallbacks;
         return object;
     };
 

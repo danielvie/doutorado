@@ -168,6 +168,15 @@ export function decodeBlePacket(binary: Uint8Array) {
                 calibration_lut_ready: booleanValue(
                   packet.status.analog.calibrationLutReady,
                 ),
+                min_snapshot_age_us: numberValue(
+                  packet.status.analog.minSnapshotAgeUs,
+                ),
+                control_max_age_us: numberValue(
+                  packet.status.analog.controlMaxAgeUs,
+                ),
+                frame_ts_fallbacks: numberValue(
+                  packet.status.analog.frameTsFallbacks,
+                ),
               }
             : undefined,
         }
