@@ -63,6 +63,7 @@ struct AnalogControlSnapshot {
 #define ANALOG_FAULT_MISSING_TRIPLE 3
 #define ANALOG_FAULT_DMA_OVERFLOW 4
 #define ANALOG_FAULT_CALIBRATION_UNAVAILABLE 5
+#define ANALOG_FAULT_SNAPSHOT_CONTENTION 6
 
 void analog_init();
 float analog_read_port(AnalogPort port);
@@ -78,8 +79,14 @@ void analog_get_latency_stats(uint32_t* min, uint32_t* max, uint32_t* avg);
 void analog_publish_triple(uint32_t raw_an3, float calibrated_an3,
                            uint32_t raw_an5, float calibrated_an5,
                            uint32_t raw_an6, float calibrated_an6,
+                           uint64_t sample_timestamp_us,
                            bool valid);
 void analog_get_status(AnalogRuntimeStatus* status);
+uint32_t analog_get_consecutive_misses(void);
+// Smallest measurement age the acquisition pipeline can deliver (frame
+// accumulation + scheduling margin); control-age budgets below this value
+// would reject every sample regardless of signal timing.
+uint32_t analog_min_snapshot_age_us(void);
 bool analog_read_control_snapshot(AnalogControlSnapshot* snapshot,
                                   uint32_t last_seq,
                                   uint32_t max_age_us);

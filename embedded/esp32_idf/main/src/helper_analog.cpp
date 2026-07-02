@@ -24,6 +24,13 @@
 // DMA can deliver channel groups unevenly; per-channel queues let us rebuild
 // complete AN3/AN5/AN6 triples without trusting sample order.
 #define ANALOG_DMA_CHANNEL_QUEUE_SIZE 64
+// One timestamp per completed DMA frame, produced in ISR and consumed by the
+// acquisition task; sized above the driver store depth (4 frames).
+#define ANALOG_FRAME_TS_RING_SIZE 8
+// Seqlock retry bounds. The control point must never spin unbounded on Core 1
+// waiting for the Core-0 writer; giving up is a recoverable missed update.
+#define ANALOG_CONTROL_SEQLOCK_RETRIES 8
+#define ANALOG_STATUS_SEQLOCK_RETRIES 256
 
 #if (SOC_ADC_DIGI_RESULT_BYTES == 2)
 #define ADC_CONTINUOUS_OUTPUT_FORMAT ADC_DIGI_OUTPUT_FORMAT_TYPE1
@@ -85,10 +92,49 @@ static bool s_adc_continuous_started = false;
 static uint32_t s_adc_continuous_sample_hz = 0;
 static uint32_t s_adc_continuous_frames_since_delay = 0;
 
+// Frame-completion timestamps captured in the DMA ISR. Single producer (ISR)
+// and single consumer (acquisition task), so head/tail indices suffice.
+static volatile uint64_t s_frame_ts_ring[ANALOG_FRAME_TS_RING_SIZE];
+static std::atomic<uint32_t> s_frame_ts_write(0);
+static std::atomic<uint32_t> s_frame_ts_read(0);
+
 static void analog_publish_compat(uint32_t raw_an3, float an3,
                                   uint32_t raw_an5, float an5,
                                   uint32_t raw_an6, float an6,
+                                  uint64_t sample_timestamp_us,
                                   bool valid);
+
+static bool IRAM_ATTR analog_on_conv_done(adc_continuous_handle_t handle,
+                                          const adc_continuous_evt_data_t* edata,
+                                          void* user_data) {
+    uint32_t write = s_frame_ts_write.load(std::memory_order_relaxed);
+    uint32_t read = s_frame_ts_read.load(std::memory_order_acquire);
+    if (write - read < ANALOG_FRAME_TS_RING_SIZE) {
+        s_frame_ts_ring[write % ANALOG_FRAME_TS_RING_SIZE] = (uint64_t)esp_timer_get_time();
+        s_frame_ts_write.store(write + 1, std::memory_order_release);
+    }
+    return false;
+}
+
+static void analog_frame_ts_clear() {
+    s_frame_ts_read.store(s_frame_ts_write.load(std::memory_order_acquire),
+                          std::memory_order_release);
+}
+
+// Pops the completion timestamp of the oldest pending frame; frames are read
+// from the driver in FIFO order so timestamps pair one-to-one. If the ring
+// desynchronizes (dropped frames, flush) the caller resyncs via
+// analog_frame_ts_clear and falls back to read time.
+static uint64_t analog_frame_ts_pop(uint64_t fallback_us) {
+    uint32_t read = s_frame_ts_read.load(std::memory_order_relaxed);
+    uint32_t write = s_frame_ts_write.load(std::memory_order_acquire);
+    if (write == read) {
+        return fallback_us;
+    }
+    uint64_t ts = s_frame_ts_ring[read % ANALOG_FRAME_TS_RING_SIZE];
+    s_frame_ts_read.store(read + 1, std::memory_order_release);
+    return ts;
+}
 
 void analog_record_latency(uint32_t us) {
     // Lock-free increment and wrap
@@ -166,29 +212,39 @@ static uint32_t analog_latency_p95() {
     return values[index - 1];
 }
 
+// Report rate over a full window; per-sample deltas are too noisy for
+// judging DMA stability from the dashboard.
+static void analog_rate_record_triple(uint64_t now_us) {
+    uint64_t window_start = s_rate_window_start_us.load(std::memory_order_acquire);
+    if (window_start == 0) {
+        s_rate_window_start_us.store(now_us, std::memory_order_release);
+        s_rate_window_triples.store(0, std::memory_order_release);
+    } else {
+        uint32_t triples = s_rate_window_triples.fetch_add(1, std::memory_order_acq_rel) + 1;
+        uint64_t elapsed_us = now_us - window_start;
+        if (elapsed_us >= 1000000ULL) {
+            s_measured_triples_per_second.store(
+                (uint32_t)((triples * 1000000ULL) / elapsed_us),
+                std::memory_order_release);
+            s_rate_window_triples.store(0, std::memory_order_release);
+            s_rate_window_start_us.store(now_us, std::memory_order_release);
+        }
+    }
+}
+
 void analog_publish_triple(uint32_t raw_an3, float calibrated_an3,
                            uint32_t raw_an5, float calibrated_an5,
                            uint32_t raw_an6, float calibrated_an6,
+                           uint64_t sample_timestamp_us,
                            bool valid) {
     uint64_t now_us = (uint64_t)esp_timer_get_time();
     if (valid) {
-        // Report rate over a full window; per-sample deltas are too noisy for
-        // judging DMA stability from the dashboard.
-        uint64_t window_start = s_rate_window_start_us.load(std::memory_order_acquire);
-        if (window_start == 0) {
-            s_rate_window_start_us.store(now_us, std::memory_order_release);
-            s_rate_window_triples.store(0, std::memory_order_release);
-        } else {
-            uint32_t triples = s_rate_window_triples.fetch_add(1, std::memory_order_acq_rel) + 1;
-            uint64_t elapsed_us = now_us - window_start;
-            if (elapsed_us >= 1000000ULL) {
-                s_measured_triples_per_second.store(
-                    (uint32_t)((triples * 1000000ULL) / elapsed_us),
-                    std::memory_order_release);
-                s_rate_window_triples.store(0, std::memory_order_release);
-                s_rate_window_start_us.store(now_us, std::memory_order_release);
-            }
-        }
+        analog_rate_record_triple(now_us);
+    }
+    // The snapshot carries the conversion time, not the publish time, so
+    // measurement-age checks reflect when the signal was actually sampled.
+    if (sample_timestamp_us == 0 || sample_timestamp_us > now_us) {
+        sample_timestamp_us = now_us;
     }
 
     // Odd seq marks "writer active"; even seq below marks a coherent snapshot.
@@ -199,7 +255,7 @@ void analog_publish_triple(uint32_t raw_an3, float calibrated_an3,
     s_snapshot.calibrated_an3.store(calibrated_an3, std::memory_order_relaxed);
     s_snapshot.calibrated_an5.store(calibrated_an5, std::memory_order_relaxed);
     s_snapshot.calibrated_an6.store(calibrated_an6, std::memory_order_relaxed);
-    s_snapshot.timestamp_us.store(now_us, std::memory_order_relaxed);
+    s_snapshot.timestamp_us.store(sample_timestamp_us, std::memory_order_relaxed);
     s_snapshot.valid.store(valid, std::memory_order_relaxed);
 
     if (valid) {
@@ -212,6 +268,34 @@ void analog_publish_triple(uint32_t raw_an3, float calibrated_an3,
     s_snapshot_seq.fetch_add(1, std::memory_order_acq_rel);
 }
 
+// Bounded seqlock read. Returns false if a coherent snapshot could not be
+// captured within max_attempts; callers must treat that as "no data" instead
+// of spinning, so a preempted Core-0 writer can never stall the Core-1
+// control point indefinitely.
+static bool analog_snapshot_try_read(AnalogSnapshotCopy* out, uint32_t* seq_out,
+                                     uint32_t max_attempts) {
+    for (uint32_t attempt = 0; attempt < max_attempts; ++attempt) {
+        uint32_t seq_start = s_snapshot_seq.load(std::memory_order_acquire);
+        if ((seq_start & 1U) != 0) {
+            continue;
+        }
+        out->valid = s_snapshot.valid.load(std::memory_order_relaxed);
+        out->timestamp_us = s_snapshot.timestamp_us.load(std::memory_order_relaxed);
+        out->raw_an3 = s_snapshot.raw_an3.load(std::memory_order_relaxed);
+        out->raw_an5 = s_snapshot.raw_an5.load(std::memory_order_relaxed);
+        out->raw_an6 = s_snapshot.raw_an6.load(std::memory_order_relaxed);
+        out->calibrated_an3 = s_snapshot.calibrated_an3.load(std::memory_order_relaxed);
+        out->calibrated_an5 = s_snapshot.calibrated_an5.load(std::memory_order_relaxed);
+        out->calibrated_an6 = s_snapshot.calibrated_an6.load(std::memory_order_relaxed);
+        uint32_t seq_end = s_snapshot_seq.load(std::memory_order_acquire);
+        if (seq_start == seq_end && (seq_end & 1U) == 0) {
+            *seq_out = seq_end;
+            return true;
+        }
+    }
+    return false;
+}
+
 void analog_get_status(AnalogRuntimeStatus* status) {
     if (status == nullptr) {
         return;
@@ -221,25 +305,10 @@ void analog_get_status(AnalogRuntimeStatus* status) {
     analog_get_latency_stats(&min_us, &max_us, &avg_us);
 
     AnalogSnapshotCopy snapshot = {};
-    uint32_t seq_start = 0;
     uint32_t seq_end = 0;
-    for (;;) {
-        seq_start = s_snapshot_seq.load(std::memory_order_acquire);
-        if ((seq_start & 1U) != 0) {
-            continue;
-        }
-        snapshot.valid = s_snapshot.valid.load(std::memory_order_relaxed);
-        snapshot.timestamp_us = s_snapshot.timestamp_us.load(std::memory_order_relaxed);
-        snapshot.raw_an3 = s_snapshot.raw_an3.load(std::memory_order_relaxed);
-        snapshot.raw_an5 = s_snapshot.raw_an5.load(std::memory_order_relaxed);
-        snapshot.raw_an6 = s_snapshot.raw_an6.load(std::memory_order_relaxed);
-        snapshot.calibrated_an3 = s_snapshot.calibrated_an3.load(std::memory_order_relaxed);
-        snapshot.calibrated_an5 = s_snapshot.calibrated_an5.load(std::memory_order_relaxed);
-        snapshot.calibrated_an6 = s_snapshot.calibrated_an6.load(std::memory_order_relaxed);
+    if (!analog_snapshot_try_read(&snapshot, &seq_end, ANALOG_STATUS_SEQLOCK_RETRIES)) {
+        snapshot = {};
         seq_end = s_snapshot_seq.load(std::memory_order_acquire);
-        if (seq_start == seq_end && (seq_end & 1U) == 0) {
-            break;
-        }
     }
 
     uint64_t timestamp_us = snapshot.timestamp_us;
@@ -277,6 +346,29 @@ void analog_get_status(AnalogRuntimeStatus* status) {
     status->calibration_lut_ready = s_calibration_lut_ready.load(std::memory_order_acquire);
 }
 
+uint32_t analog_get_consecutive_misses(void) {
+    return s_consecutive_misses.load(std::memory_order_acquire);
+}
+
+uint32_t analog_min_snapshot_age_us(void) {
+    if (g_analog_acquisition_mode != ANALOG_ACQ_MODE_CONTINUOUS) {
+        // Oneshot publishes one triple per acquisition period; anything
+        // fresher than two periods is physically unavailable.
+        return g_analog_acquisition_period_us * 2;
+    }
+    uint32_t sample_hz = s_adc_continuous_sample_hz != 0 ? s_adc_continuous_sample_hz
+                                                         : g_analog_continuous_sample_hz;
+    if (sample_hz == 0) {
+        return 0;
+    }
+    // One full DMA frame of accumulation plus 50% scheduling margin.
+    uint32_t frame_us = (uint32_t)(((uint64_t)ADC_CONTINUOUS_FRAME_TRIPLES * 3 * 1000000ULL) / sample_hz);
+    return frame_us + frame_us / 2;
+}
+
+// Control-point read path: seqlock snapshot only. Latency statistics and the
+// p95 sort stay on the telemetry path (analog_get_status) so this cannot eat
+// into the maintenance interval between signal cycles.
 bool analog_read_control_snapshot(AnalogControlSnapshot* snapshot,
                                   uint32_t last_seq,
                                   uint32_t max_age_us) {
@@ -284,26 +376,46 @@ bool analog_read_control_snapshot(AnalogControlSnapshot* snapshot,
         return false;
     }
 
-    AnalogRuntimeStatus status;
-    analog_get_status(&status);
-    if (!status.valid || !status.calibration_lut_ready) {
-        analog_record_miss(status.calibration_lut_ready
-                               ? ANALOG_FAULT_MISSING_TRIPLE
-                               : ANALOG_FAULT_CALIBRATION_UNAVAILABLE);
+    if (!s_calibration_lut_ready.load(std::memory_order_acquire)) {
+        analog_record_miss(ANALOG_FAULT_CALIBRATION_UNAVAILABLE);
         return false;
     }
+
+    AnalogSnapshotCopy copy = {};
+    uint32_t seq_raw = 0;
+    if (!analog_snapshot_try_read(&copy, &seq_raw, ANALOG_CONTROL_SEQLOCK_RETRIES)) {
+        analog_record_miss(ANALOG_FAULT_SNAPSHOT_CONTENTION);
+        return false;
+    }
+    if (!copy.valid) {
+        analog_record_miss(ANALOG_FAULT_MISSING_TRIPLE);
+        return false;
+    }
+
+    uint64_t now_us = (uint64_t)esp_timer_get_time();
+    uint64_t age_us = (copy.timestamp_us > 0 && now_us >= copy.timestamp_us)
+                          ? now_us - copy.timestamp_us
+                          : 0;
+
+    // The caller passes the signal cycle window as the age budget, but the
+    // pipeline cannot deliver samples fresher than one DMA frame; clamp so
+    // short cycles do not reject every sample structurally.
+    uint32_t min_age_us = analog_min_snapshot_age_us();
+    uint64_t effective_max_age_us = (max_age_us > min_age_us) ? max_age_us : min_age_us;
+
     // Control must act on a new sample inside the current timing budget; stale
     // or repeated ADC data can drive corrections in the wrong direction.
-    if (status.seq == last_seq || status.age_us > max_age_us) {
+    uint32_t seq = seq_raw / 2U;
+    if (seq == last_seq || age_us > effective_max_age_us) {
         analog_record_miss(ANALOG_FAULT_STALE_SAMPLE);
         return false;
     }
 
-    snapshot->seq = status.seq;
-    snapshot->age_us = status.age_us;
-    snapshot->an3 = status.calibrated_an3;
-    snapshot->an5 = status.calibrated_an5;
-    snapshot->an6 = status.calibrated_an6;
+    snapshot->seq = seq;
+    snapshot->age_us = (age_us > UINT32_MAX) ? UINT32_MAX : (uint32_t)age_us;
+    snapshot->an3 = copy.calibrated_an3;
+    snapshot->an5 = copy.calibrated_an5;
+    snapshot->an6 = copy.calibrated_an6;
     return true;
 }
 
@@ -504,8 +616,10 @@ float analog_read_port(AnalogPort port) {
 static void analog_publish_compat(uint32_t raw_an3, float an3,
                                   uint32_t raw_an5, float an5,
                                   uint32_t raw_an6, float an6,
+                                  uint64_t sample_timestamp_us,
                                   bool valid) {
-    analog_publish_triple(raw_an3, an3, raw_an5, an5, raw_an6, an6, valid);
+    analog_publish_triple(raw_an3, an3, raw_an5, an5, raw_an6, an6,
+                          sample_timestamp_us, valid);
 
     g_adc_an3.store(an3, std::memory_order_release);
     g_adc_an5.store(an5, std::memory_order_release);
@@ -530,6 +644,7 @@ static void analog_continuous_stop() {
     s_adc_continuous_handle = NULL;
     s_adc_continuous_sample_hz = 0;
     s_adc_continuous_frames_since_delay = 0;
+    analog_frame_ts_clear();
 }
 
 static bool analog_continuous_start(uint32_t sample_hz) {
@@ -583,6 +698,18 @@ static bool analog_continuous_start(uint32_t sample_hz) {
         return false;
     }
 
+    // Frame timestamps come from the conversion-done ISR so measurement age
+    // reflects sampling time, not acquisition-task scheduling.
+    adc_continuous_evt_cbs_t evt_cbs = {};
+    evt_cbs.on_conv_done = analog_on_conv_done;
+    ret = adc_continuous_register_event_callbacks(s_adc_continuous_handle, &evt_cbs, NULL);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG_COMMON, "ADC continuous callback registration failed: %s", esp_err_to_name(ret));
+        analog_continuous_stop();
+        return false;
+    }
+
+    analog_frame_ts_clear();
     ret = adc_continuous_start(s_adc_continuous_handle);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG_COMMON, "ADC continuous start failed: %s", esp_err_to_name(ret));
@@ -598,6 +725,7 @@ static bool analog_continuous_start(uint32_t sample_hz) {
 
 struct AnalogTripleAccumulator {
     uint32_t raw[3][ANALOG_DMA_CHANNEL_QUEUE_SIZE] = {};
+    uint64_t ts_us[3][ANALOG_DMA_CHANNEL_QUEUE_SIZE] = {};
     uint8_t head[3] = {};
     uint8_t tail[3] = {};
     uint8_t count[3] = {};
@@ -627,41 +755,66 @@ static bool analog_channel_to_queue_index(uint32_t channel, uint32_t* index) {
     }
 }
 
-static void analog_queue_push(AnalogTripleAccumulator* acc, uint32_t index, uint32_t raw) {
+static void analog_queue_push(AnalogTripleAccumulator* acc, uint32_t index,
+                              uint32_t raw, uint64_t ts_us) {
     if (acc->count[index] == ANALOG_DMA_CHANNEL_QUEUE_SIZE) {
-        // Drop oldest on imbalance so one noisy channel cannot block all new
-        // triples; count it as an anomaly for diagnostics.
-        acc->head[index] = (acc->head[index] + 1) % ANALOG_DMA_CHANNEL_QUEUE_SIZE;
-        acc->count[index]--;
+        // Channel imbalance means the queues no longer describe the same
+        // conversion rounds; pairing them would feed the gain matrix samples
+        // taken far apart as if simultaneous. Flush everything and restart
+        // triple assembly from coherent data.
+        analog_reset_partial_triple(acc);
         s_channel_order_anomalies.fetch_add(1, std::memory_order_acq_rel);
         s_partial_triples.fetch_add(1, std::memory_order_acq_rel);
     }
 
     acc->raw[index][acc->tail[index]] = raw;
+    acc->ts_us[index][acc->tail[index]] = ts_us;
     acc->tail[index] = (acc->tail[index] + 1) % ANALOG_DMA_CHANNEL_QUEUE_SIZE;
     acc->count[index]++;
 }
 
-static uint32_t analog_queue_pop(AnalogTripleAccumulator* acc, uint32_t index) {
+static uint32_t analog_queue_pop(AnalogTripleAccumulator* acc, uint32_t index,
+                                 uint64_t* ts_us) {
     uint32_t raw = acc->raw[index][acc->head[index]];
+    *ts_us = acc->ts_us[index][acc->head[index]];
     acc->head[index] = (acc->head[index] + 1) % ANALOG_DMA_CHANNEL_QUEUE_SIZE;
     acc->count[index]--;
     return raw;
 }
 
+// Drains all complete triples but publishes only the newest one: the control
+// point only ever consumes the latest snapshot, so writing every triple is
+// wasted seqlock traffic. Skipped triples still count toward the rate metric.
 static void analog_publish_queued_triples(AnalogTripleAccumulator* acc) {
+    bool have_triple = false;
+    uint32_t raw_an3 = 0, raw_an5 = 0, raw_an6 = 0;
+    uint64_t triple_ts_us = 0;
+
     while (acc->count[0] > 0 && acc->count[1] > 0 && acc->count[2] > 0) {
-        uint32_t raw_an3 = analog_queue_pop(acc, 0);
-        uint32_t raw_an5 = analog_queue_pop(acc, 1);
-        uint32_t raw_an6 = analog_queue_pop(acc, 2);
+        if (have_triple) {
+            analog_rate_record_triple((uint64_t)esp_timer_get_time());
+        }
+        uint64_t ts_an3, ts_an5, ts_an6;
+        raw_an3 = analog_queue_pop(acc, 0, &ts_an3);
+        raw_an5 = analog_queue_pop(acc, 1, &ts_an5);
+        raw_an6 = analog_queue_pop(acc, 2, &ts_an6);
+        // Oldest of the three: the conservative age for the assembled triple.
+        triple_ts_us = ts_an3;
+        if (ts_an5 < triple_ts_us) triple_ts_us = ts_an5;
+        if (ts_an6 < triple_ts_us) triple_ts_us = ts_an6;
+        have_triple = true;
+    }
+
+    if (have_triple) {
         analog_publish_compat(raw_an3, analog_calibrate_raw_lut(raw_an3),
                               raw_an5, analog_calibrate_raw_lut(raw_an5),
                               raw_an6, analog_calibrate_raw_lut(raw_an6),
-                              true);
+                              triple_ts_us, true);
     }
 }
 
-static void analog_continuous_accept_sample(AnalogTripleAccumulator* acc, uint32_t channel, uint32_t raw) {
+static void analog_continuous_accept_sample(AnalogTripleAccumulator* acc, uint32_t channel,
+                                            uint32_t raw, uint64_t ts_us) {
     s_samples_read.fetch_add(1, std::memory_order_acq_rel);
     if (channel < 8) {
         s_dma_channel_counts[channel].fetch_add(1, std::memory_order_acq_rel);
@@ -674,8 +827,7 @@ static void analog_continuous_accept_sample(AnalogTripleAccumulator* acc, uint32
         return;
     }
 
-    analog_queue_push(acc, index, raw);
-    analog_publish_queued_triples(acc);
+    analog_queue_push(acc, index, raw, ts_us);
 }
 
 static void analog_oneshot_step() {
@@ -684,13 +836,16 @@ static void analog_oneshot_step() {
     float an3, an5, an6;
     uint32_t raw_an3, raw_an5, raw_an6;
 
+    // Timestamp before the first conversion: the oldest plausible sample time
+    // for the triple, so measurement age is never underestimated.
+    uint64_t sample_ts_us = (uint64_t)esp_timer_get_time();
     uint32_t start = esp_cpu_get_cycle_count();
     bool valid = analog_read_port_sample(AnalogPort::AN3, &raw_an3, &an3);
     valid = analog_read_port_sample(AnalogPort::AN5, &raw_an5, &an5) && valid;
     valid = analog_read_port_sample(AnalogPort::AN6, &raw_an6, &an6) && valid;
     uint32_t end = esp_cpu_get_cycle_count();
     analog_record_latency((end - start) / esp_rom_get_cpu_ticks_per_us());
-    analog_publish_compat(raw_an3, an3, raw_an5, an5, raw_an6, an6, valid);
+    analog_publish_compat(raw_an3, an3, raw_an5, an5, raw_an6, an6, sample_ts_us, valid);
 
     uint32_t period_us = g_analog_acquisition_period_us;
     if (period_us >= 1000) {
@@ -725,6 +880,7 @@ static void analog_continuous_step(AnalogTripleAccumulator* acc) {
         analog_record_overflow();
         s_frame_drops.fetch_add(1, std::memory_order_acq_rel);
         analog_reset_partial_triple(acc);
+        analog_frame_ts_clear();
         if (ret == ESP_ERR_INVALID_STATE) {
             s_pool_flushes.fetch_add(1, std::memory_order_acq_rel);
             adc_continuous_flush_pool(s_adc_continuous_handle);
@@ -738,10 +894,30 @@ static void analog_continuous_step(AnalogTripleAccumulator* acc) {
     if (out_len % SOC_ADC_DIGI_RESULT_BYTES != 0) {
         s_samples_rejected.fetch_add(1, std::memory_order_acq_rel);
     }
-    for (uint32_t i = 0; i + SOC_ADC_DIGI_RESULT_BYTES <= out_len; i += SOC_ADC_DIGI_RESULT_BYTES) {
-        adc_digi_output_data_t* sample = reinterpret_cast<adc_digi_output_data_t*>(&frame[i]);
-        analog_continuous_accept_sample(acc, ADC_CONTINUOUS_GET_CHANNEL(sample), ADC_CONTINUOUS_GET_DATA(sample));
+
+    uint64_t now_us = (uint64_t)esp_timer_get_time();
+    uint64_t frame_ts_us = analog_frame_ts_pop(now_us);
+    uint32_t total_samples = out_len / SOC_ADC_DIGI_RESULT_BYTES;
+    if (out_len != sizeof(frame)) {
+        // Partial frame: the ISR timestamp pairing no longer lines up with
+        // reads, so resync and fall back to read time for this frame.
+        analog_frame_ts_clear();
+        frame_ts_us = now_us;
     }
+
+    for (uint32_t i = 0, sample_index = 0; i + SOC_ADC_DIGI_RESULT_BYTES <= out_len;
+         i += SOC_ADC_DIGI_RESULT_BYTES, ++sample_index) {
+        adc_digi_output_data_t* sample = reinterpret_cast<adc_digi_output_data_t*>(&frame[i]);
+        // Backdate each sample from the frame-completion time using its
+        // position in the frame and the configured conversion rate.
+        uint64_t sample_ts_us = frame_ts_us;
+        if (sample_hz > 0 && total_samples > 0) {
+            sample_ts_us -= ((uint64_t)(total_samples - 1 - sample_index) * 1000000ULL) / sample_hz;
+        }
+        analog_continuous_accept_sample(acc, ADC_CONTINUOUS_GET_CHANNEL(sample),
+                                        ADC_CONTINUOUS_GET_DATA(sample), sample_ts_us);
+    }
+    analog_publish_queued_triples(acc);
     s_adc_continuous_frames_since_delay++;
     if (s_adc_continuous_frames_since_delay >= ADC_CONTINUOUS_FRAMES_PER_IDLE_DELAY) {
         s_adc_continuous_frames_since_delay = 0;
@@ -753,7 +929,9 @@ static void analog_continuous_step(AnalogTripleAccumulator* acc) {
 
 void analog_acquisition_task(void* arg) {
     ESP_LOGI(TAG_COMMON, "Analog Background Acquisition Task Started");
-    AnalogTripleAccumulator acc;
+    // Static: the per-channel timestamp queues are too large for the 4 KB
+    // task stack, and only one acquisition task ever exists.
+    static AnalogTripleAccumulator acc;
 
     for (;;) {
         if (g_analog_acquisition_mode == ANALOG_ACQ_MODE_CONTINUOUS) {

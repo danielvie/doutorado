@@ -129,7 +129,10 @@ extern "C" void app_main(void)
     }
 
     xTaskCreatePinnedToCore(analog_reading_task, "Analog Task", 8192, NULL, tskIDLE_PRIORITY + 1, NULL, 0);
-    xTaskCreatePinnedToCore(analog_acquisition_task, "Analog Acquisition", 4096, NULL, tskIDLE_PRIORITY + 2, NULL, 0);
+    // The acquisition task produces the control input; keep it above app
+    // housekeeping (but below the BLE host) so publishes are not delayed by
+    // telemetry work, which would inflate measurement age at the control point.
+    xTaskCreatePinnedToCore(analog_acquisition_task, "Analog Acquisition", 4096, NULL, tskIDLE_PRIORITY + 6, NULL, 0);
 
     matrix_test();
 

@@ -11,8 +11,9 @@ static constexpr uint32_t CYCLES_PER_US = 240;
 static constexpr uint32_t MIN_ACTIVE_HOLD_CYCLES = CYCLES_PER_US;
 static constexpr uint32_t MIN_MAINTENANCE_PERIOD_CYCLES = 50 * CYCLES_PER_US;
 static constexpr uint32_t SHORT_PATTERN_BATCH_CYCLES = 256;
-// Feedback older than one control period is treated as stale; the correction
-// must reflect the waveform cycle currently being scheduled.
+// Fallback age budget when the active dataset has no computable cycle window.
+// Normally the budget is derived per dataset: a control measurement must be
+// timestamped within the signal cycle window it corrects.
 static constexpr uint32_t CONTROL_MAX_ANALOG_AGE_US = 280;
 
 // ---------------------------------------------------------------------------
@@ -401,9 +402,20 @@ struct SignalLoopContext {
     const DataSet *dataset = &g_dataset_a;
     uint32_t next_pattern_edge = 0;
     uint32_t last_analog_seq = 0;
+    uint32_t max_analog_age_us = CONTROL_MAX_ANALOG_AGE_US;
     int32_t current_correction[MAX_SIGNAL_SIZE];
     float dtk_buffer[MAX_SIGNAL_SIZE];
 };
+
+static uint32_t get_nominal_pattern_cycles(const SignalLoopContext &ctx);
+
+// Current-cycle measurement budget: the signal cycle window of the active
+// dataset, in µs. analog_read_control_snapshot additionally clamps this to
+// what the acquisition pipeline can physically deliver.
+static uint32_t compute_analog_age_budget_us(const SignalLoopContext &ctx) {
+    uint32_t window_us = get_nominal_pattern_cycles(ctx) / CYCLES_PER_US;
+    return window_us > 0 ? window_us : CONTROL_MAX_ANALOG_AGE_US;
+}
 
 static bool signal_is_running() {
     return g_system_state.signal_state.load(std::memory_order_acquire) ==
@@ -412,6 +424,7 @@ static bool signal_is_running() {
 
 static void reset_control_corrections(SignalLoopContext &ctx) {
     ctx.last_analog_seq = 0;
+    ctx.max_analog_age_us = compute_analog_age_budget_us(ctx);
     for (int i = 0; i < MAX_SIGNAL_SIZE; ++i) {
         ctx.current_correction[i] = 0;
         ctx.dtk_buffer[i] = 0.0f;
@@ -448,10 +461,8 @@ static void control_update_corrections(SignalLoopContext &ctx) {
     }
 
     AnalogControlSnapshot snapshot;
-    if (!analog_read_control_snapshot(&snapshot, ctx.last_analog_seq, CONTROL_MAX_ANALOG_AGE_US)) {
-        AnalogRuntimeStatus analog_status;
-        analog_get_status(&analog_status);
-        if (analog_status.consecutive_misses >= 3) {
+    if (!analog_read_control_snapshot(&snapshot, ctx.last_analog_seq, ctx.max_analog_age_us)) {
+        if (analog_get_consecutive_misses() >= 3) {
             // Disable only the controller. The signal loop keeps running so a
             // transient ADC fault does not also remove the commanded waveform.
             g_control_enabled.store(false, std::memory_order_release);
