@@ -1,17 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import { bleManager } from "../../services/BleManager";
 import { Send, History } from "lucide-react";
-import { PanelSize } from "./SizeSelector";
 import { DashboardItem } from "./DashboardItem";
 import { useBleStore } from "../../store/bleStore";
 import { useStorage } from "../../useStorage";
 
-export const ManualCommand: React.FC<{
-  id: string;
-  instanceId: string;
-  currentSize?: PanelSize;
-  onSizeChange?: (size: PanelSize) => void;
-}> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
+export const ManualCommand: React.FC = () => {
   const [cmd, set_cmd] = useState("");
   const [command_history, set_command_history] = useStorage<string[]>(
     "manual-command-history",
@@ -82,14 +76,7 @@ export const ManualCommand: React.FC<{
   };
 
   return (
-    <DashboardItem
-      id={id}
-      instanceId={instanceId}
-      title="Console"
-      currentSize={currentSize}
-      onSizeChange={onSizeChange}
-      expandable={false}
-    >
+    <DashboardItem title="Console" expandable={false}>
       <div className="flex-1 flex flex-col gap-4 min-h-0">
         <form onSubmit={handleSend} className="flex gap-2 p-1">
           <div className="relative flex-1">

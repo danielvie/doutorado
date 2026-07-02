@@ -60,7 +60,7 @@ export const Header = () => {
   const show_status = !ROUTINE_STATUSES.includes(systemStatus);
 
   let button_class =
-    "btn-primary px-4 py-2 text-sm font-bold shadow-sm hover:bg-blue-700 transition-colors flex items-center gap-2 rounded-md";
+    "btn-primary px-4 py-2 text-sm font-bold shadow-sm transition-colors flex items-center gap-2 rounded-md";
   let button_text = "Connect";
 
   if (isConnected) {
@@ -68,7 +68,7 @@ export const Header = () => {
     button_text = "Disconnect";
   } else if (is_connecting) {
     button_class =
-      "btn bg-gray-200 text-gray-500 px-4 py-2 text-sm font-bold shadow-sm cursor-not-allowed flex items-center gap-2 rounded-md";
+      "btn bg-stone-200 text-stone-500 px-4 py-2 text-sm font-bold shadow-sm cursor-not-allowed flex items-center gap-2 rounded-md";
     button_text = "Connecting...";
   } else if (is_failed) {
     button_class = "btn-warning px-4 py-2 text-sm font-bold shadow-sm flex items-center gap-2 rounded-md";
@@ -76,10 +76,10 @@ export const Header = () => {
   }
 
   return (
-    <header className="bg-white border-b border-gray-200 py-2 px-4 md:px-6 flex items-center justify-between gap-4 shadow-sm sticky top-0 z-50">
+    <header className="bg-white/90 backdrop-blur border-b border-stone-200 py-2 px-4 md:px-6 flex items-center justify-between gap-4 shadow-sm sticky top-0 z-50">
       <div className="flex items-center gap-3 w-full">
         <div className="flex items-center gap-10 w-full">
-          <h1 className="text-lg font-bold text-gray-900">ESP32 Dashboard</h1>
+          <h1 className="text-lg font-bold text-stone-900">ESP32 Dashboard</h1>
           {show_status && (
             <div className="flex flex-grow gap-4 items-center justify-end">
               {isCongested && (
@@ -88,7 +88,7 @@ export const Header = () => {
                   Congested
                 </div>
               )}
-              <span className="text-xs font-bold text-gray-600/80 uppercase tracking-widest">
+              <span className="text-xs font-bold text-stone-600/80 uppercase tracking-widest">
                 {systemStatus}
               </span>
             </div>
@@ -99,24 +99,24 @@ export const Header = () => {
       <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={() => setShowPinsModal(true)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg cursor-pointer transition-colors select-none"
+          className="flex items-center gap-2 px-3 py-1.5 bg-stone-50 hover:bg-stone-100 border border-stone-200 rounded-lg cursor-pointer transition-colors select-none"
           title="Show ESP32 Pinout"
         >
-          <Cpu className="w-4 h-4 text-blue-600" />
-          <span className="text-xs font-bold text-gray-600 uppercase tracking-widest">Hardware</span>
+          <Cpu className="w-4 h-4 text-indigo-600" />
+          <span className="text-xs font-bold text-stone-600 uppercase tracking-widest">Hardware</span>
         </button>
 
         <div 
           onClick={() => setIsMocking(!isMocking)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 
-          border border-gray-200 rounded-lg cursor-pointer transition-colors 
+          className="flex items-center gap-2 px-3 py-1.5 bg-stone-50 hover:bg-stone-100
+          border border-stone-200 rounded-lg cursor-pointer transition-colors
           select-none"
         >
-          <Activity className={`w-4 h-4 transition-colors ${isMocking ? "text-primary" : "text-gray-400"}`} />
-          <span className="text-xs font-bold text-gray-600 uppercase tracking-widest">Mock</span>
+          <Activity className={`w-4 h-4 transition-colors ${isMocking ? "text-primary" : "text-stone-400"}`} />
+          <span className="text-xs font-bold text-stone-600 uppercase tracking-widest">Mock</span>
           <div
             className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-              isMocking ? "bg-primary" : "bg-gray-300"
+              isMocking ? "bg-primary" : "bg-stone-300"
             }`}
           >
             <span

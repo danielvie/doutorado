@@ -3,15 +3,9 @@ import { createCyclesPayload, signalEdgeOverheadCommands } from "../../helper";
 import { bleManager } from "../../services/BleManager";
 import { useBleStore } from "../../store/bleStore";
 import { Send } from "lucide-react";
-import { PanelSize } from "./SizeSelector";
 import { DashboardItem } from "./DashboardItem";
 
-export const QuickActions: React.FC<{
-  id: string;
-  instanceId: string;
-  currentSize?: PanelSize;
-  onSizeChange?: (size: PanelSize) => void;
-}> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
+export const QuickActions: React.FC = () => {
   const alpha = useBleStore((s) => s.alpha);
   const setAlpha = useBleStore((s) => s.setAlpha);
   const [cycles, setCycles] = useState(100);
@@ -43,14 +37,7 @@ export const QuickActions: React.FC<{
   };
 
   return (
-    <DashboardItem
-      id={id}
-      instanceId={instanceId}
-      title="Quick Actions"
-      currentSize={currentSize}
-      onSizeChange={onSizeChange}
-      expandable={false}
-    >
+    <DashboardItem title="Quick Actions" expandable={false}>
       <div className="flex flex-col gap-4 pr-2">
         {/* Global Controls */}
           <section className="flex flex-col gap-2">

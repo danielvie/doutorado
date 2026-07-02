@@ -1,17 +1,11 @@
 import React from "react";
 import { useBleStore } from "../../store/bleStore";
 import { bleManager } from "../../services/BleManager";
-import { PanelSize } from "./SizeSelector";
 import { DashboardItem } from "./DashboardItem";
 
 import { Copy, Check, RefreshCw, Trash2 } from "lucide-react";
 
-export const StatusPanel: React.FC<{
-  id: string;
-  instanceId: string;
-  currentSize?: PanelSize;
-  onSizeChange?: (size: PanelSize) => void;
-}> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
+export const StatusPanel: React.FC = () => {
   const lastStatusMessage = useBleStore((s) => s.lastStatusMessage);
   const lastStatusCommand = useBleStore((s) => s.lastStatusCommand);
   const autoRequestStatus = useBleStore((s) => s.autoRequestStatus);
@@ -50,14 +44,7 @@ export const StatusPanel: React.FC<{
   };
 
   return (
-    <DashboardItem
-      id={id}
-      instanceId={instanceId}
-      title="Status"
-      currentSize={currentSize}
-      onSizeChange={onSizeChange}
-      expandable={false}
-    >
+    <DashboardItem title="Status" expandable={false}>
       <div className="flex-1 min-h-0 flex flex-col relative group">
         {lastStatusMessage ? (
           <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar relative">

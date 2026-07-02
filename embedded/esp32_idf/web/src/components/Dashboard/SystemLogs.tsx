@@ -1,24 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useBleStore } from "../../store/bleStore";
 import { Check, ClipboardCopy, Trash2 } from "lucide-react";
-import { PanelSize } from "./SizeSelector";
 import { DashboardItem } from "./DashboardItem";
 
-export const SystemLogs: React.FC<{
-  id: string;
-  instanceId: string;
-  currentSize?: PanelSize;
-  onSizeChange?: (size: PanelSize) => void;
-}> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
+export const SystemLogs: React.FC = () => {
   return (
-    <DashboardItem
-      id={id}
-      instanceId={instanceId}
-      title="System Logs"
-      currentSize={currentSize}
-      onSizeChange={onSizeChange}
-      expandable={false}
-    >
+    <DashboardItem title="System Logs" expandable={false}>
       <LogViewer />
     </DashboardItem>
   );

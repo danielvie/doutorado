@@ -4,14 +4,8 @@ import { OtaManager } from "../../services/OtaManager";
 import { bleManager } from "../../services/BleManager";
 import { useBleStore } from "../../store/bleStore";
 import { DashboardItem } from "./DashboardItem";
-import { PanelSize } from "./SizeSelector";
 
-export const OtaPanel: React.FC<{
-  id: string;
-  instanceId: string;
-  currentSize?: PanelSize;
-  onSizeChange?: (size: PanelSize) => void;
-}> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
+export const OtaPanel: React.FC = () => {
   const [file, setFile] = React.useState<File | null>(null);
   const [isFlashing, setIsFlashing] = React.useState(false);
   const [progress, setProgress] = React.useState(0);
@@ -86,13 +80,7 @@ export const OtaPanel: React.FC<{
   };
 
   return (
-    <DashboardItem
-      id={id}
-      instanceId={instanceId}
-      title="BLE OTA Flasher"
-      currentSize={currentSize}
-      onSizeChange={onSizeChange}
-    >
+    <DashboardItem title="BLE OTA Flasher">
       <div className="p-4 flex flex-col gap-4 h-full">
         <div className="flex flex-col gap-2">
           <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">

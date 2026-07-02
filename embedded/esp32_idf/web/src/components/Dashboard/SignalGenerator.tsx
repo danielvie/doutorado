@@ -3,7 +3,6 @@ import { _create_signal } from "../../helper";
 import { bleManager } from "../../services/BleManager";
 import { useBleStore } from "../../store/bleStore";
 import { Check, Copy, Upload } from "lucide-react";
-import { PanelSize } from "./SizeSelector";
 import { DashboardItem } from "./DashboardItem";
 import { useStorage } from "../../useStorage";
 
@@ -24,12 +23,7 @@ const binaryFromMode = (mode: string): BinaryData => {
   };
 };
 
-export const SignalGenerator: React.FC<{
-  id: string;
-  instanceId: string;
-  currentSize?: PanelSize;
-  onSizeChange?: (size: PanelSize) => void;
-}> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
+export const SignalGenerator: React.FC = () => {
   const alpha = useBleStore((s) => s.alpha);
   const setAlpha = useBleStore((s) => s.setAlpha);
   const [syncedSignal, setSyncedSignal] = useStorage<{
@@ -121,14 +115,7 @@ export const SignalGenerator: React.FC<{
   }, [timeStr]);
 
   return (
-    <DashboardItem
-      id={id}
-      instanceId={instanceId}
-      title="Signal Generator"
-      currentSize={currentSize}
-      onSizeChange={onSizeChange}
-      expandable={false}
-    >
+    <DashboardItem title="Signal Generator" expandable={false}>
       <div className="flex-1 min-h-0 overflow-y-auto pr-2 select-text">
         <div className="flex flex-col gap-6">
           <div className="bg-white/70 border border-gray-200 rounded-xl p-4 shadow-sm">

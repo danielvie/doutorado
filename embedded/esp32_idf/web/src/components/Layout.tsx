@@ -11,7 +11,7 @@ export const Layout = ({ children }: LayoutProps) => {
       <main className="flex-1 p-2 lg:p-3 w-full max-w-[1600px] mx-auto z-10">
         <div>{children}</div>
       </main>
-      <footer className="text-center p-4 text-xs text-gray-500 font-medium">
+      <footer className="text-center p-4 text-xs text-stone-500 font-medium">
         ESP32 SYSTEM DASHBOARD • {new Date().getFullYear()} • ITA
       </footer>
     </div>

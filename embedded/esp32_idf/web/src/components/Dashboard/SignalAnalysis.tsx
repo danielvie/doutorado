@@ -15,7 +15,6 @@ import {
 } from "chart.js";
 import { useDataStore } from "../../store/dataStore";
 import { Activity, BrushCleaning } from "lucide-react";
-import { PanelSize } from "./SizeSelector";
 import { DashboardItem } from "./DashboardItem";
 
 // Register Chart.js components
@@ -49,12 +48,7 @@ const MetricDisplay: React.FC<{
   </div>
 );
 
-export const SignalAnalysis: React.FC<{
-  id: string;
-  instanceId: string;
-  currentSize?: PanelSize;
-  onSizeChange?: (size: PanelSize) => void;
-}> = ({ id, instanceId, currentSize = "2x1", onSizeChange = () => {} }) => {
+export const SignalAnalysis: React.FC = () => {
   const data = useDataStore((s) => s.data);
   const clearData = useDataStore((s) => s.clearData);
   const maxPoints = useDataStore((s) => s.maxPoints);
@@ -170,14 +164,7 @@ export const SignalAnalysis: React.FC<{
   );
 
   return (
-    <DashboardItem
-      id={id}
-      instanceId={instanceId}
-      title="Signal Analysis"
-      currentSize={currentSize}
-      onSizeChange={onSizeChange}
-      expandable={true}
-    >
+    <DashboardItem title="Signal Analysis" expandable={true}>
       {/* Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0">
           <MetricDisplay

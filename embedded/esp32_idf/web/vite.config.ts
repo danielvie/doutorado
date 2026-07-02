@@ -15,6 +15,11 @@ export default defineConfig({
     }),
     tailwindcss(),
   ],
+  define: {
+    // react-draggable (used by react-grid-layout) reads this at runtime;
+    // without a define, bare `process` crashes drag handling in the browser
+    "process.env.DRAGGABLE_DEBUG": "false",
+  },
   server: {
     port: 4000
   },

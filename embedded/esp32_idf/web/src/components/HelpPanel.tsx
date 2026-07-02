@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Check, Copy, Search } from "lucide-react";
-import { PanelSize } from "./Dashboard/SizeSelector";
 import { DashboardItem } from "./Dashboard/DashboardItem";
 import { useBleStore } from "../store/bleStore";
 
@@ -223,17 +222,14 @@ const CommandItem: React.FC<{ commands: string; description: string }> = ({
 
   return (
     <li
-      className="bg-gray-50 p-3 rounded-lg
-      shadow-sm hover:shadow-md
-      hover:bg-white transition-all
-      group relative
+      className="group relative rounded-md border border-stone-200 bg-white p-3
+      transition-all
+      hover:border-indigo-200 hover:bg-indigo-50/40 hover:shadow-sm
       active:scale-[0.99]
-      border  border-gray-200  border-l-4
-      hover:brightness-95
       "
     >
       <div className="flex justify-between items-start gap-2">
-        <strong className="text-purple-700 block mb-1 font-mono break-all group-hover:text-purple-800">
+        <strong className="text-indigo-700 block mb-1 font-mono font-semibold break-all">
           {commands}
         </strong>
         <div className="shrink-0 pt-0.5 flex items-center gap-1">
@@ -242,7 +238,7 @@ const CommandItem: React.FC<{ commands: string; description: string }> = ({
             onClick={handleUseCommand}
             title="Use command"
             aria-label="Write command to console input"
-            className="grid h-6 w-6 place-items-center rounded-md border border-gray-200 bg-white text-gray-500 opacity-0 shadow-sm transition-all hover:border-blue-300 hover:text-blue-600 hover:shadow group-hover:opacity-100"
+            className="grid h-6 w-6 place-items-center rounded-md border border-stone-200 bg-white text-stone-500 opacity-0 shadow-sm transition-all hover:border-indigo-300 hover:text-indigo-600 hover:shadow group-hover:opacity-100"
           >
             <span className="text-sm font-bold leading-none">&gt;</span>
           </button>
@@ -251,12 +247,12 @@ const CommandItem: React.FC<{ commands: string; description: string }> = ({
             onClick={handleCopy}
             title="Copy command"
             aria-label="Copy command"
-            className="grid h-6 w-6 place-items-center rounded-md border border-gray-200 bg-white text-gray-400 opacity-0 shadow-sm transition-all hover:border-gray-300 hover:text-gray-600 hover:shadow group-hover:opacity-100"
+            className="grid h-6 w-6 place-items-center rounded-md border border-stone-200 bg-white text-stone-400 opacity-0 shadow-sm transition-all hover:border-stone-300 hover:text-stone-600 hover:shadow group-hover:opacity-100"
           >
             {copied ? (
               <Check
                 size={14}
-                className="text-green-500 animate-in zoom-in duration-200"
+                className="text-emerald-500 animate-in zoom-in duration-200"
               />
             ) : (
               <Copy size={14} />
@@ -264,11 +260,11 @@ const CommandItem: React.FC<{ commands: string; description: string }> = ({
           </button>
         </div>
       </div>
-      <span className="text-xs text-gray-600 font-sans tracking-wide block">
+      <span className="text-xs text-stone-500 font-sans tracking-wide block">
         {description}
       </span>
       {copied && (
-        <div className="absolute -top-2 right-2 bg-green-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-lg animate-in slide-in-from-bottom-1 duration-200">
+        <div className="absolute -top-2 right-2 bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-lg animate-in slide-in-from-bottom-1 duration-200">
           COPIED
         </div>
       )}
@@ -276,12 +272,7 @@ const CommandItem: React.FC<{ commands: string; description: string }> = ({
   );
 };
 
-export const HelpPanel: React.FC<{
-  id: string;
-  instanceId: string;
-  currentSize?: PanelSize;
-  onSizeChange?: (size: PanelSize) => void;
-}> = ({ id, instanceId, currentSize = "1x1", onSizeChange = () => {} }) => {
+export const HelpPanel: React.FC = () => {
   const [filter, setFilter] = useState("");
   const filteredCommands = React.useMemo(() => {
     if (!filter.trim()) return COMMANDS;
@@ -300,29 +291,22 @@ export const HelpPanel: React.FC<{
   }, [filter]);
 
   return (
-    <DashboardItem
-      id={id}
-      instanceId={instanceId}
-      title="Help BLE Commands Guide"
-      currentSize={currentSize}
-      onSizeChange={onSizeChange}
-      expandable={false}
-    >
+    <DashboardItem title="Help BLE Commands Guide" expandable={false}>
       <div className="relative shrink-0">
         <Search
           size={15}
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-stone-400"
         />
         <input
           type="search"
           value={filter}
           onChange={(event) => setFilter(event.target.value)}
           placeholder="Filter commands"
-          className="w-full rounded-md border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm font-medium text-gray-800 shadow-sm outline-none transition-colors placeholder:text-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+          className="w-full rounded-md border border-stone-200 bg-white py-2 pl-9 pr-3 text-sm font-medium text-stone-800 shadow-sm outline-none transition-colors placeholder:text-stone-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
         />
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto pr-2 custom-scrollbar select-text">
-        <ul className="text-sm font-mono text-gray-800 flex flex-col gap-3 py-1">
+        <ul className="text-sm font-mono text-stone-800 flex flex-col gap-2 py-1">
           {filteredCommands.map((item) => (
             <CommandItem
               key={item.commands}
@@ -331,7 +315,7 @@ export const HelpPanel: React.FC<{
             />
           ))}
           {filteredCommands.length === 0 && (
-            <li className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-4 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <li className="rounded-md border border-dashed border-stone-300 bg-stone-50 p-4 text-center text-xs font-semibold uppercase tracking-wide text-stone-500">
               No commands found
             </li>
           )}
