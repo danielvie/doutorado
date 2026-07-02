@@ -8,7 +8,7 @@ description: Create, continue, inspect, or modify Mado HTML Tutorial Documents a
 Run commands from the repository root. Use the bundled executable, pass the repository root explicitly with `--workspace .`, and treat its JSON stdout and exit code as the command contract:
 
 ```powershell
-$mado = ".agents/skills/mado-html/bin/mado.exe"
+$mado = "mado-html"
 $workspace = "."
 ```
 

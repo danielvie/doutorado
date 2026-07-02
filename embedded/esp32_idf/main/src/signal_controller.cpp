@@ -463,13 +463,13 @@ static void control_update_corrections(SignalLoopContext &ctx) {
 
     const uint32_t N = ctx.dataset->size;
     const uint32_t p = N - 1;
-    float an3 = snapshot.an3;
-    float an5 = snapshot.an5;
-    float an6 = snapshot.an6;
+    float v_c1 = snapshot.an5;
+    float v_c2 = snapshot.an6;
+    float v_r = snapshot.an3;
 
-    float e1 = an3 - ctx.dataset->target[0];
-    float e2 = an5 - ctx.dataset->target[1];
-    float e3 = an6 - ctx.dataset->target[2];
+    float e1 = v_c1 - ctx.dataset->target[0];
+    float e2 = v_c2 - ctx.dataset->target[1];
+    float e3 = v_r - ctx.dataset->target[2];
 
     uint32_t t0 = esp_cpu_get_cycle_count();
     const float *k_ptr = ctx.dataset->gain_k.values;

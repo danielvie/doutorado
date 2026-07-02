@@ -102,8 +102,8 @@ static inline void compute_duration_corrections(const uint32_t *time_durations,
     g_log_duration.update_signal_with_dtk = (t5 - t4) / 240;
 }
 
-static inline bool compute_control_correction(DataSet *dataset, float an3,
-                                              float an5, float an6,
+static inline bool compute_control_correction(DataSet *dataset, float v_c1,
+                                              float v_c2, float v_r,
                                               float *dtk_us) {
     const uint32_t N = dataset->size;
     const uint32_t p = N - 1;
@@ -113,9 +113,9 @@ static inline bool compute_control_correction(DataSet *dataset, float an3,
     }
 
     // 1. Compute error
-    float e1 = an3 - dataset->target[0];
-    float e2 = an5 - dataset->target[1];
-    float e3 = an6 - dataset->target[2];
+    float e1 = v_c1 - dataset->target[0];
+    float e2 = v_c2 - dataset->target[1];
+    float e3 = v_r - dataset->target[2];
 
     // 2. Compute control: dtk = -K * e
     uint32_t t0 = esp_cpu_get_cycle_count();

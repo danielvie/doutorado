@@ -398,10 +398,10 @@ export const SignalGenerator: React.FC<{
                       <td className="py-2 px-4 text-left font-bold text-green-700 border-r border-gray-300 bg-gray-50 sticky left-0 z-10 shadow-[2px_0_4px_rgba(0,0,0,0.02)]">
                         U1{" "}
                         <span className="text-[10px] text-gray-500 ml-1">
-                          D4
+                          bit 2
                         </span>
                       </td>
-                      {binaryData.s1.split("").map((bit, idx) => (
+                      {binaryData.s3.split("").map((bit, idx) => (
                         <td
                           key={idx}
                           className="py-2 px-3 font-semibold text-green-800 border-r border-gray-200 last:border-0"
@@ -414,7 +414,7 @@ export const SignalGenerator: React.FC<{
                       <td className="py-2 px-4 text-left font-bold text-amber-700 border-r border-gray-300 bg-gray-50 sticky left-0 z-10 shadow-[2px_0_4px_rgba(0,0,0,0.02)]">
                         U2{" "}
                         <span className="text-[10px] text-gray-500 ml-1">
-                          D5
+                          bit 1
                         </span>
                       </td>
                       {binaryData.s2.split("").map((bit, idx) => (
@@ -430,10 +430,10 @@ export const SignalGenerator: React.FC<{
                       <td className="py-2 px-4 text-left font-bold text-blue-700 border-r border-gray-300 bg-gray-50 sticky left-0 z-10 shadow-[2px_0_4px_rgba(0,0,0,0.02)]">
                         U3{" "}
                         <span className="text-[10px] text-gray-500 ml-1">
-                          D6
+                          bit 0
                         </span>
                       </td>
-                      {binaryData.s3.split("").map((bit, idx) => (
+                      {binaryData.s1.split("").map((bit, idx) => (
                         <td
                           key={idx}
                           className="py-2 px-3 font-semibold text-blue-800 border-r border-gray-200 last:border-0"

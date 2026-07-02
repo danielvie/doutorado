@@ -9,6 +9,7 @@ managed_components/
 # Editor & IDE
 .vscode/
 .idea/
+.mado/
 *.swp
 *.swo
 *~

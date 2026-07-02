@@ -132,6 +132,9 @@ export const QuickActions: React.FC<{
             <h3 className="text-[10px] font-bold text-gray-700 uppercase tracking-widest bg-gray-200/50 p-1.5 rounded-md">
               Diagnostic & Dataset
             </h3>
+            <div className="text-[11px] text-gray-600 font-semibold px-1">
+              Control vector: <span className="font-mono">[V_C1, V_C2, VR]</span>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => ble_send_command("debug.matrix_a")}
