@@ -1,4 +1,5 @@
 #include "signal_controller.h"
+#include "signal_engine_dma.h"
 #include "helper_datasetter.h"
 #include "helper_analog.h"
 #include "control_action.h"
@@ -96,6 +97,29 @@ static void signal_timing_update_snapshot(uint32_t playback_cycles,
 }
 
 std::string signal_get_timing_snapshot_json() {
+    // Telemetry schema (D9): common core + engine-specific section.
+    // Core: engine, s (cycles/passes), req/meas cycle period, mcu (missed
+    // control updates), mm_us (matrix multiply). Engine details are nested so
+    // no engine reports fake zeros for quantities it cannot measure.
+    if (g_signal_engine.load(std::memory_order_acquire) == SignalEngine::DMA) {
+        uint32_t passes = 0;
+        uint32_t missed = 0;
+        uint32_t faults = 0;
+        float req_us = 0.0f;
+        float meas_us = 0.0f;
+        signal_dma_get_timing_core(&passes, &req_us, &meas_us, &missed,
+                                   &faults);
+
+        char core[192];
+        snprintf(core, sizeof(core),
+                 "{\"engine\":\"dma\",\"s\":%lu,\"req\":%.2f,\"meas\":%.2f,"
+                 "\"mcu\":%lu,\"mm_us\":%lld,\"dma\":{",
+                 (unsigned long)passes, (double)req_us, (double)meas_us,
+                 (unsigned long)missed,
+                 (long long)g_log_duration.matrix_multiply_us);
+        return std::string(core) + signal_dma_timing_fields_json() + "}}";
+    }
+
     const uint32_t sample_count = s_timing_sample_count;
     const uint32_t playback_cycles = s_timing_playback_cycles;
     const uint32_t playback_min_cycles = s_timing_playback_min_cycles;
@@ -118,25 +142,28 @@ std::string signal_get_timing_snapshot_json() {
     const uint32_t edge_overhead_up = g_signal_edge_overhead_up_cycles;
     const uint32_t edge_overhead_down = g_signal_edge_overhead_down_cycles;
 
-    char json[416];
+    char json[512];
     snprintf(json, sizeof(json),
-             "{\"s\":%lu,"
+             "{\"engine\":\"cpu\",\"s\":%lu,\"req\":%.2f,\"meas\":%.2f,"
+             "\"mcu\":%lu,\"mm_us\":%lld,"
+             "\"cpu\":{"
              "\"pb\":%.2f,\"pmin\":%.2f,\"pmax\":%.2f,\"pavg\":%.2f,"
-             "\"loop\":%.2f,\"exp\":%.2f,"
-             "\"req\":%.2f,\"sch\":%.2f,\"meas\":%.2f,"
+             "\"loop\":%.2f,\"exp\":%.2f,\"sch\":%.2f,"
              "\"oh\":%.2f,\"dt\":%.2f,\"eu\":%lu,\"ed\":%lu,"
              "\"ov\":%lu,\"tf\":%lu,\"cl\":%lu,\"ms\":%lu,"
-             "\"corr\":%.1f,\"steps\":%lu}",
+             "\"corr\":%.1f,\"steps\":%lu}}",
              (unsigned long)sample_count,
+             (double)requested_period_cycles / CYCLES_PER_US,
+             (double)measured_period_cycles / CYCLES_PER_US,
+             (unsigned long)maintenance_skipped_count,
+             (long long)g_log_duration.matrix_multiply_us,
              (double)playback_cycles / CYCLES_PER_US,
              (double)playback_min_cycles / CYCLES_PER_US,
              (double)playback_max_cycles / CYCLES_PER_US,
              (double)playback_avg_cycles / CYCLES_PER_US,
              (double)loop_cycles / CYCLES_PER_US,
              (double)expected_cycles / CYCLES_PER_US,
-             (double)requested_period_cycles / CYCLES_PER_US,
              (double)scheduled_period_cycles / CYCLES_PER_US,
-             (double)measured_period_cycles / CYCLES_PER_US,
              (double)overhead_cycles / CYCLES_PER_US,
              (double)dead_time_cycles / CYCLES_PER_US,
              (unsigned long)edge_overhead_up,
@@ -169,6 +196,22 @@ void signal_get_timing_compact(SignalTimingCompact* timing) {
         return;
     }
 
+    if (g_signal_engine.load(std::memory_order_acquire) == SignalEngine::DMA) {
+        uint32_t passes = 0;
+        uint32_t missed = 0;
+        uint32_t faults = 0;
+        float req_us = 0.0f;
+        float meas_us = 0.0f;
+        signal_dma_get_timing_core(&passes, &req_us, &meas_us, &missed,
+                                   &faults);
+        timing->samples = passes;
+        timing->playback_avg_us = meas_us;
+        timing->loop_us = 0.0f;
+        timing->overruns = 0;
+        timing->timing_faults = faults;
+        return;
+    }
+
     timing->samples = s_timing_sample_count;
     timing->playback_avg_us = (float)((double)s_timing_playback_avg_cycles / CYCLES_PER_US);
     timing->loop_us = (float)((double)s_timing_loop_cycles / CYCLES_PER_US);
@@ -186,6 +229,11 @@ DataSet g_dataset_b;
 
 volatile uint32_t g_cycle_count = 0;
 volatile uint32_t g_cycle_nrun = 10000;
+
+// Signal Engine selection (D1/D8): volatile, stopped-only, defaults to the
+// characterized CPU reference so flashing new firmware changes nothing until
+// an experiment opts in.
+std::atomic<SignalEngine> g_signal_engine(SignalEngine::CPU);
 
 // Track which set is currently active in the loop
 std::atomic<SignalSet> g_active_set(SignalSet::SET_A);
@@ -399,35 +447,34 @@ void signal_update_from_string(const std::string &message) {
 // CONTINUOUS LOOP TASK (High Priority)
 // ---------------------------------------------------------------------------
 struct SignalLoopContext {
-    const DataSet *dataset = &g_dataset_a;
+    SignalControlContext control;
     uint32_t next_pattern_edge = 0;
-    uint32_t last_analog_seq = 0;
-    uint32_t max_analog_age_us = CONTROL_MAX_ANALOG_AGE_US;
-    int32_t current_correction[MAX_SIGNAL_SIZE];
-    float dtk_buffer[MAX_SIGNAL_SIZE];
 };
-
-static uint32_t get_nominal_pattern_cycles(const SignalLoopContext &ctx);
-
-// Current-cycle measurement budget: the signal cycle window of the active
-// dataset, in µs. analog_read_control_snapshot additionally clamps this to
-// what the acquisition pipeline can physically deliver.
-static uint32_t compute_analog_age_budget_us(const SignalLoopContext &ctx) {
-    uint32_t window_us = get_nominal_pattern_cycles(ctx) / CYCLES_PER_US;
-    return window_us > 0 ? window_us : CONTROL_MAX_ANALOG_AGE_US;
-}
 
 static bool signal_is_running() {
     return g_system_state.signal_state.load(std::memory_order_acquire) ==
            SignalState::RUNNING;
 }
 
-static void reset_control_corrections(SignalLoopContext &ctx) {
+// Current-cycle measurement budget: the signal cycle window of the active
+// dataset, in µs. analog_read_control_snapshot additionally clamps this to
+// what the acquisition pipeline can physically deliver.
+void signal_control_reset(SignalControlContext &ctx) {
+    uint32_t window_us = 0;
+    if (ctx.dataset != nullptr) {
+        uint32_t total_ticks = 0;
+        for (uint32_t i = 0; i < ctx.dataset->size; ++i) {
+            total_ticks += ctx.dataset->steps[i].duration_ticks;
+        }
+        window_us = total_ticks / SIGNAL_TIME_TICKS_PER_US;
+    }
+
     ctx.last_analog_seq = 0;
-    ctx.max_analog_age_us = compute_analog_age_budget_us(ctx);
+    ctx.max_analog_age_us =
+        window_us > 0 ? window_us : CONTROL_MAX_ANALOG_AGE_US;
     analog_report_control_age_budget(ctx.max_analog_age_us);
     for (int i = 0; i < MAX_SIGNAL_SIZE; ++i) {
-        ctx.current_correction[i] = 0;
+        ctx.control.current_correction[i] = 0;
         ctx.dtk_buffer[i] = 0.0f;
     }
 }
@@ -440,25 +487,25 @@ static void dataset_apply_pending_swap(SignalLoopContext &ctx) {
     // The BLE task writes the inactive buffer, then sets this flag. Swap only
     // between complete pattern cycles so the playback loop never sees tearing.
     if (g_active_set.load(std::memory_order_relaxed) == SignalSet::SET_A) {
-        ctx.dataset = &g_dataset_b;
+        ctx.control.dataset = &g_dataset_b;
         g_active_set.store(SignalSet::SET_B, std::memory_order_relaxed);
     } else {
-        ctx.dataset = &g_dataset_a;
+        ctx.control.dataset = &g_dataset_a;
         g_active_set.store(SignalSet::SET_A, std::memory_order_relaxed);
     }
 
     g_ds_update_pending.store(false, std::memory_order_release);
     ctx.next_pattern_edge = 0;
-    reset_control_corrections(ctx);
+    signal_control_reset(ctx.control);
 }
 
-static void control_update_corrections(SignalLoopContext &ctx) {
+bool signal_control_update_corrections(SignalControlContext &ctx) {
     if (!g_control_enabled.load(std::memory_order_acquire)) {
-        return;
+        return false;
     }
 
     if (!ctx.dataset->gain_k.is_valid || ctx.dataset->size <= 1) {
-        return;
+        return false;
     }
 
     AnalogControlSnapshot snapshot;
@@ -469,7 +516,7 @@ static void control_update_corrections(SignalLoopContext &ctx) {
             g_control_enabled.store(false, std::memory_order_release);
             g_system_state.control_state.store(ControlState::OFF, std::memory_order_release);
         }
-        return;
+        return false;
     }
     ctx.last_analog_seq = snapshot.seq;
 
@@ -499,6 +546,7 @@ static void control_update_corrections(SignalLoopContext &ctx) {
     condition_dtk(ctx.dtk_buffer, p, ctx.dataset->time_durations);
     compute_duration_corrections(ctx.dataset->time_durations, ctx.dtk_buffer,
                                  ctx.current_correction, p, N);
+    return true;
 }
 
 static inline void IRAM_ATTR wait_until_cycle(uint32_t deadline) {
@@ -518,7 +566,7 @@ static void IRAM_ATTR execute_signal_pattern(SignalLoopContext &ctx,
     // No logging, allocation, parsing, or semaphore calls belong in this helper.
     portDISABLE_INTERRUPTS();
 
-    uint8_t sz = ctx.dataset->size;
+    uint8_t sz = ctx.control.dataset->size;
     timing = {};
     uint32_t pattern_start = ctx.next_pattern_edge;
     if (pattern_start == 0) {
@@ -528,7 +576,7 @@ static void IRAM_ATTR execute_signal_pattern(SignalLoopContext &ctx,
 
     for (uint32_t repeat = 0; repeat < repeat_count; ++repeat) {
         for (int i = 0; i < sz; i++) {
-            const SignalStep &step = ctx.dataset->steps[i];
+            const SignalStep &step = ctx.control.dataset->steps[i];
             uint32_t cycles = step.duration_cycles;
             uint32_t dead_time = step.clear_mask ? step.dead_time : 0;
             if (repeat == 0) {
@@ -538,11 +586,11 @@ static void IRAM_ATTR execute_signal_pattern(SignalLoopContext &ctx,
 
             if (control_enabled) {
                 int32_t corrected =
-                    (int32_t)step.duration_ticks + ctx.current_correction[i];
+                    (int32_t)step.duration_ticks + ctx.control.current_correction[i];
                 if (corrected < 1) corrected = 1;
                 cycles = (uint32_t)corrected * SIGNAL_CYCLES_PER_TIME_TICK;
                 if (repeat == 0) {
-                    timing.correction_sum_ticks += ctx.current_correction[i];
+                    timing.correction_sum_ticks += ctx.control.current_correction[i];
                 }
             }
 
@@ -593,7 +641,7 @@ static void IRAM_ATTR execute_signal_pattern(SignalLoopContext &ctx,
     portENABLE_INTERRUPTS();
 }
 
-static void trigger_periodic_analog_read() {
+void signal_trigger_periodic_analog_read() {
     if (g_system_state.ble_an_read_state.load(std::memory_order_acquire) ==
         BLEAnalogReadState::DISABLED) {
         return;
@@ -609,9 +657,9 @@ static void trigger_periodic_analog_read() {
 
 static uint32_t get_nominal_pattern_cycles(const SignalLoopContext &ctx) {
     uint32_t cycles = 0;
-    uint8_t sz = ctx.dataset->size;
+    uint8_t sz = ctx.control.dataset->size;
     for (int i = 0; i < sz; ++i) {
-        cycles += ctx.dataset->steps[i].duration_cycles;
+        cycles += ctx.control.dataset->steps[i].duration_cycles;
     }
     return cycles;
 }
@@ -632,16 +680,16 @@ static void signal_loop_task(void *arg) {
              xPortGetCoreID());
 
     static SignalLoopContext ctx;
-    ctx.dataset = &g_dataset_a;
+    ctx.control.dataset = get_dataset_active();
     ctx.next_pattern_edge = 0;
-    reset_control_corrections(ctx);
+    signal_control_reset(ctx.control);
 
     led_on();
 
     while (signal_is_running()) {
         uint32_t loop_start = esp_cpu_get_cycle_count();
         dataset_apply_pending_swap(ctx);
-        control_update_corrections(ctx);
+        signal_control_update_corrections(ctx.control);
         SignalTimingSample timing;
         uint32_t playback_start = esp_cpu_get_cycle_count();
         const uint32_t nominal_cycles = get_nominal_pattern_cycles(ctx);
@@ -653,7 +701,7 @@ static void signal_loop_task(void *arg) {
         uint32_t playback_cycles =
             (esp_cpu_get_cycle_count() - playback_start) / repeat_count;
         if (timing.scheduled_period_cycles >= MIN_MAINTENANCE_PERIOD_CYCLES) {
-            trigger_periodic_analog_read();
+            signal_trigger_periodic_analog_read();
         } else {
             timing.maintenance_skipped_count++;
         }
@@ -671,13 +719,20 @@ static void signal_loop_task(void *arg) {
 
 void signal_start_continuous() {
     if (g_system_state.signal_state.load(std::memory_order_acquire) == SignalState::RUNNING ||
-        s_signal_task_handle != NULL) {
+        s_signal_task_handle != NULL || signal_dma_engine_is_active()) {
         ESP_LOGW(TAG, "Signal already running!");
         return;
     }
 
     if (g_dataset_a.size == 0) {
         ESP_LOGE(TAG, "Pattern empty, cannot start");
+        return;
+    }
+
+    if (g_signal_engine.load(std::memory_order_acquire) == SignalEngine::DMA) {
+        if (!signal_dma_engine_start()) {
+            ESP_LOGE(TAG, "DMA engine failed to start; signal remains stopped");
+        }
         return;
     }
 

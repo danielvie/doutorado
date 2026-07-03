@@ -157,3 +157,19 @@ _Avoid_: immediate control, same-cycle correction
 **Missed Control Update**:
 A control update that is skipped because it cannot complete before the next signal cycle without disturbing generated signal timing.
 _Avoid_: failed control, delayed cycle, stale update
+
+**Signal Engine**:
+The runtime-selectable mechanism that plays signal cycles on the output groups; the CPU engine times transitions with the processor, while the DMA engine plays back a rendered bitstream.
+_Avoid_: mode, driver, backend
+
+**Rendered Bitstream**:
+The expansion of one signal cycle into a sequence of equal-duration samples of output-group terminal states, played back by the DMA engine without processor involvement.
+_Avoid_: buffer, waveform table, sample array
+
+**Sample Clock**:
+The fixed rate at which rendered bitstream samples are emitted, defining the timing granularity of the DMA engine.
+_Avoid_: bitrate, resolution, tick
+
+**Correction Commit Deadline**:
+The moment by which a next-cycle control action must be committed to the signal engine, before the next signal cycle begins; a correction that misses it becomes a missed control update while signal timing continues undisturbed.
+_Avoid_: relink deadline, EOF deadline, control window

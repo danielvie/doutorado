@@ -67,6 +67,49 @@ struct SignalTimingCompact {
     uint32_t timing_faults;
 };
 
+/**
+ * @brief Runtime-selectable Signal Engine (D1/D8).
+ * CPU: busy-wait engine on Core 1 with interrupts disabled.
+ * DMA: I2S1-parallel engine playing a Rendered Bitstream.
+ * Volatile selection — reboot returns to the characterized CPU reference.
+ */
+enum class SignalEngine {
+    CPU,
+    DMA,
+};
+
+extern std::atomic<SignalEngine> g_signal_engine;
+
+/**
+ * @brief Control-point state shared by both signal engines (D5).
+ * Holds the measurement bookkeeping and the per-segment Signal-Duration
+ * Corrections computed via the gain_k path.
+ */
+struct SignalControlContext {
+    const DataSet *dataset = nullptr;
+    uint32_t last_analog_seq = 0;
+    uint32_t max_analog_age_us = 0;
+    int32_t current_correction[MAX_SIGNAL_SIZE];
+    float dtk_buffer[MAX_SIGNAL_SIZE];
+};
+
+/**
+ * @brief Resets corrections and re-derives the Current-Cycle Measurement age
+ * budget from the dataset's signal cycle window.
+ */
+void signal_control_reset(SignalControlContext &ctx);
+
+/**
+ * @brief Consumes the current-cycle measurement and computes next-cycle
+ * Signal-Duration Corrections. Returns true when corrections were updated.
+ */
+bool signal_control_update_corrections(SignalControlContext &ctx);
+
+/**
+ * @brief Requests the periodic BLE analog read every g_cycle_nrun cycles.
+ */
+void signal_trigger_periodic_analog_read();
+
 extern DataSet g_dataset_a;
 extern DataSet g_dataset_b;
 
