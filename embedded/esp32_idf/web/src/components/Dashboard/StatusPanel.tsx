@@ -3,7 +3,7 @@ import { useBleStore } from "../../store/bleStore";
 import { bleManager } from "../../services/BleManager";
 import { DashboardItem } from "./DashboardItem";
 
-import { Copy, Check, RefreshCw, Trash2 } from "lucide-react";
+import { Copy, Check, RefreshCw, Search, Trash2 } from "lucide-react";
 
 export const StatusPanel: React.FC = () => {
   const lastStatusMessage = useBleStore((s) => s.lastStatusMessage);
@@ -13,6 +13,26 @@ export const StatusPanel: React.FC = () => {
   const isConnected = useBleStore((s) => s.isConnected);
   const clearLastStatusMessage = useBleStore((s) => s.clearLastStatusMessage);
   const [copied, setCopied] = React.useState(false);
+  const [filter, setFilter] = React.useState("");
+  const cleanStatusMessage = React.useMemo(
+    () =>
+      (lastStatusMessage ?? "")
+        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, "")
+        .trim(),
+    [lastStatusMessage],
+  );
+  const filteredStatus = React.useMemo(() => {
+    if (!filter.trim()) return cleanStatusMessage;
+    try {
+      const regex = new RegExp(filter, "i");
+      return cleanStatusMessage
+        .split("\n")
+        .filter((line) => regex.test(line))
+        .join("\n");
+    } catch {
+      return "Invalid regex";
+    }
+  }, [cleanStatusMessage, filter]);
   const rerunCommand = lastStatusCommand ?? {
     name: "system.get_status",
     payload: {},
@@ -30,11 +50,8 @@ export const StatusPanel: React.FC = () => {
   }, [autoRequestStatus, isConnected, rerunCommand.name, rerunCommand.payload]);
 
   const handleCopy = () => {
-    if (!lastStatusMessage) return;
-    const cleanMessage = lastStatusMessage
-      .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, "")
-      .trim();
-    navigator.clipboard.writeText(cleanMessage);
+    if (!cleanStatusMessage) return;
+    navigator.clipboard.writeText(cleanStatusMessage);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -48,7 +65,7 @@ export const StatusPanel: React.FC = () => {
       <div className="flex-1 min-h-0 flex flex-col relative group">
         {lastStatusMessage ? (
           <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar relative">
-            <div className="min-h-full whitespace-pre-wrap bg-white pt-14 p-4 pr-10 rounded-lg border border-gray-200 text-sm text-gray-800 leading-relaxed shadow-inner font-mono break-all transition-all relative select-text cursor-text">
+            <div className="min-h-full whitespace-pre-wrap bg-white pt-24 p-4 pr-10 rounded-lg border border-gray-200 text-sm text-gray-800 leading-relaxed shadow-inner font-mono break-all transition-all relative select-text cursor-text">
               <button
                 onClick={handleCopy}
                 className={`absolute top-2 right-2 p-2 rounded-md border transition-all flex items-center gap-1.5 shadow-sm active:scale-95 ${
@@ -94,9 +111,17 @@ export const StatusPanel: React.FC = () => {
                   RERUN
                 </button>
               </div>
-              {lastStatusMessage
-                .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, "")
-                .trim()}
+              <div className="absolute left-4 right-4 top-14 flex items-center gap-2">
+                <Search size={14} className="shrink-0 text-gray-400" />
+                <input
+                  type="search"
+                  value={filter}
+                  onChange={(event) => setFilter(event.target.value)}
+                  placeholder="Regex filter status lines"
+                  className="min-w-0 flex-1 rounded-md border border-gray-200 bg-gray-50 px-2 py-1 text-xs font-sans text-gray-800 outline-none transition-colors placeholder:text-gray-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+              {filteredStatus}
               
               <div className="mt-6 pt-4 border-t border-gray-100 flex justify-end sticky bottom-0 bg-white/80 backdrop-blur-sm -mx-4 px-4 pb-2">
                 <button

@@ -52,6 +52,20 @@ export const BleSignalState = $root.BleSignalState = (() => {
 })();
 
 /**
+ * BleSignalEngine enum.
+ * @exports BleSignalEngine
+ * @enum {number}
+ * @property {number} BLE_ENGINE_CPU=0 BLE_ENGINE_CPU value
+ * @property {number} BLE_ENGINE_DMA=1 BLE_ENGINE_DMA value
+ */
+export const BleSignalEngine = $root.BleSignalEngine = (() => {
+    const valuesById = {}, values = Object.create(valuesById);
+    values[valuesById[0] = "BLE_ENGINE_CPU"] = 0;
+    values[valuesById[1] = "BLE_ENGINE_DMA"] = 1;
+    return values;
+})();
+
+/**
  * BleControlState enum.
  * @exports BleControlState
  * @enum {number}
@@ -1307,6 +1321,7 @@ export const SystemStatus = $root.SystemStatus = (() => {
      * @property {IAnalogStatus|null} [analog] SystemStatus analog
      * @property {number|null} [signalEdgeOverheadUpCycles] SystemStatus signalEdgeOverheadUpCycles
      * @property {number|null} [signalEdgeOverheadDownCycles] SystemStatus signalEdgeOverheadDownCycles
+     * @property {BleSignalEngine|null} [signalEngine] SystemStatus signalEngine
      */
 
     /**
@@ -1493,6 +1508,14 @@ export const SystemStatus = $root.SystemStatus = (() => {
     SystemStatus.prototype.signalEdgeOverheadDownCycles = 0;
 
     /**
+     * SystemStatus signalEngine.
+     * @member {BleSignalEngine} signalEngine
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.signalEngine = 0;
+
+    /**
      * Creates a new SystemStatus instance using the specified properties.
      * @function create
      * @memberof SystemStatus
@@ -1558,6 +1581,8 @@ export const SystemStatus = $root.SystemStatus = (() => {
             writer.uint32(/* id 22, wireType 0 =*/176).uint32(message.signalEdgeOverheadUpCycles);
         if (message.signalEdgeOverheadDownCycles != null && Object.hasOwnProperty.call(message, "signalEdgeOverheadDownCycles"))
             writer.uint32(/* id 23, wireType 0 =*/184).uint32(message.signalEdgeOverheadDownCycles);
+        if (message.signalEngine != null && Object.hasOwnProperty.call(message, "signalEngine"))
+            writer.uint32(/* id 24, wireType 0 =*/192).int32(message.signalEngine);
         return writer;
     };
 
@@ -1676,6 +1701,10 @@ export const SystemStatus = $root.SystemStatus = (() => {
                 }
             case 23: {
                     message.signalEdgeOverheadDownCycles = reader.uint32();
+                    break;
+                }
+            case 24: {
+                    message.signalEngine = reader.int32();
                     break;
                 }
             default:
@@ -1804,6 +1833,14 @@ export const SystemStatus = $root.SystemStatus = (() => {
         if (message.signalEdgeOverheadDownCycles != null && message.hasOwnProperty("signalEdgeOverheadDownCycles"))
             if (!$util.isInteger(message.signalEdgeOverheadDownCycles))
                 return "signalEdgeOverheadDownCycles: integer expected";
+        if (message.signalEngine != null && message.hasOwnProperty("signalEngine"))
+            switch (message.signalEngine) {
+            default:
+                return "signalEngine: enum value expected";
+            case 0:
+            case 1:
+                break;
+            }
         return null;
     };
 
@@ -1938,6 +1975,22 @@ export const SystemStatus = $root.SystemStatus = (() => {
             message.signalEdgeOverheadUpCycles = object.signalEdgeOverheadUpCycles >>> 0;
         if (object.signalEdgeOverheadDownCycles != null)
             message.signalEdgeOverheadDownCycles = object.signalEdgeOverheadDownCycles >>> 0;
+        switch (object.signalEngine) {
+        default:
+            if (typeof object.signalEngine === "number") {
+                message.signalEngine = object.signalEngine;
+                break;
+            }
+            break;
+        case "BLE_ENGINE_CPU":
+        case 0:
+            message.signalEngine = 0;
+            break;
+        case "BLE_ENGINE_DMA":
+        case 1:
+            message.signalEngine = 1;
+            break;
+        }
         return message;
     };
 
@@ -1976,6 +2029,7 @@ export const SystemStatus = $root.SystemStatus = (() => {
             object.analog = null;
             object.signalEdgeOverheadUpCycles = 0;
             object.signalEdgeOverheadDownCycles = 0;
+            object.signalEngine = options.enums === String ? "BLE_ENGINE_CPU" : 0;
         }
         if (message.activeSet != null && message.hasOwnProperty("activeSet"))
             object.activeSet = options.enums === String ? $root.BleSignalSet[message.activeSet] === undefined ? message.activeSet : $root.BleSignalSet[message.activeSet] : message.activeSet;
@@ -2019,6 +2073,8 @@ export const SystemStatus = $root.SystemStatus = (() => {
             object.signalEdgeOverheadUpCycles = message.signalEdgeOverheadUpCycles;
         if (message.signalEdgeOverheadDownCycles != null && message.hasOwnProperty("signalEdgeOverheadDownCycles"))
             object.signalEdgeOverheadDownCycles = message.signalEdgeOverheadDownCycles;
+        if (message.signalEngine != null && message.hasOwnProperty("signalEngine"))
+            object.signalEngine = options.enums === String ? $root.BleSignalEngine[message.signalEngine] === undefined ? message.signalEngine : $root.BleSignalEngine[message.signalEngine] : message.signalEngine;
         return object;
     };
 

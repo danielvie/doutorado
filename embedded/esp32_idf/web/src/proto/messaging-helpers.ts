@@ -3,6 +3,7 @@ import {
   BleControlState,
   BleLedMode,
   BlePacket,
+  BleSignalEngine,
   BleSignalSet,
   BleSignalState,
   OtaCommand as GeneratedOtaCommand,
@@ -10,6 +11,7 @@ import {
   UiCommand as GeneratedUiCommand,
 } from "./messaging";
 
+export const decodeBleSignalEngine = BleSignalEngine as Record<number, string>;
 export const decodeBleSignalSet = BleSignalSet as Record<number, string>;
 export const decodeBleSignalState = BleSignalState as Record<number, string>;
 export const decodeBleAnalogReadState = BleAnalogReadState as Record<
@@ -98,6 +100,7 @@ export function decodeBlePacket(binary: Uint8Array) {
       ? {
           active_set: numberValue(packet.status.activeSet),
           signal_state: numberValue(packet.status.signalState),
+          signal_engine: numberValue(packet.status.signalEngine),
           ble_read_state: numberValue(packet.status.bleReadState),
           control_state: numberValue(packet.status.controlState),
           alpha: numberValue(packet.status.alpha),

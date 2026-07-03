@@ -19,6 +19,12 @@ export enum BleSignalState {
     BLE_SIG_RUNNING = 1
 }
 
+/** BleSignalEngine enum. */
+export enum BleSignalEngine {
+    BLE_ENGINE_CPU = 0,
+    BLE_ENGINE_DMA = 1
+}
+
 /** BleControlState enum. */
 export enum BleControlState {
     BLE_CTRL_OFF = 0,
@@ -388,6 +394,9 @@ export class SystemStatus implements ISystemStatus {
 
     /** SystemStatus signalEdgeOverheadDownCycles. */
     public signalEdgeOverheadDownCycles: number;
+
+    /** SystemStatus signalEngine. */
+    public signalEngine: BleSignalEngine;
 
     /**
      * Creates a new SystemStatus instance using the specified properties.

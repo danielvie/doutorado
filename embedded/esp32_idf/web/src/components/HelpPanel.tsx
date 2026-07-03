@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Check, Copy, Search } from "lucide-react";
+import { Check, Copy, Play, Search } from "lucide-react";
 import { DashboardItem } from "./Dashboard/DashboardItem";
 import { useBleStore } from "../store/bleStore";
+import { bleManager } from "../services/BleManager";
 
 const COMMANDS = [
   {
@@ -38,22 +39,43 @@ const COMMANDS = [
     description: "Sets the analog trigger cycle interval",
   },
   {
+    commands: 'signal.engine {"engine":"cpu"}',
+    description: "Selects cpu or dma signal engine while stopped",
+  },
+  {
+    commands: 'signal.engine {"engine":"dma"}',
+    description: "Selects cpu or dma signal engine while stopped",
+  },
+  {
+    commands: 'signal.set_dead_time {"time_tenths_us":0}',
+    description:
+      "Sets symmetric dead time to 0 ticks: no both-off interval before the target terminal turns on",
+  },
+  {
     commands: 'signal.set_dead_time {"time_tenths_us":20}',
     description:
-      "Sets symmetric complementary switching dead time; value is 0.1 us ticks",
+      "Sets both rising and falling dead time to 20 ticks = 2.0 us; current terminal turns off, both terminals stay off, then target turns on",
+  },
+  {
+    commands: 'signal.set_dead_time_down {"time_tenths_us":20}',
+    description:
+      "Sets only falling-boundary dead time: command goes LOW, both terminals stay off for 2.0 us, then complement goes HIGH",
   },
   {
     commands: 'signal.set_dead_time_tail_overhead {"cycles":35}',
-    description: "Sets GPIO tail overhead compensation for dead time",
+    description:
+      "CPU-engine calibration only: subtracts GPIO/write tail cycles from commanded dead time; DMA uses commanded ticks directly",
   },
 
   {
     commands: 'signal.set_edge_overhead_up {"cycles":35}',
-    description: "Sets rising edge overhead compensation",
+    description:
+      "CPU-engine rising-boundary edge compensation in CPU cycles; distinct from dead time",
   },
   {
     commands: 'signal.set_edge_overhead_down {"cycles":35}',
-    description: "Sets falling edge overhead compensation",
+    description:
+      "CPU-engine falling-boundary edge compensation in CPU cycles; distinct from dead time",
   },
   {
     commands: 'analog.set_monitor_period {"period_ms":100}',
@@ -207,6 +229,7 @@ const CommandItem: React.FC<{ commands: string; description: string }> = ({
   const setManualCommandDraft = useBleStore(
     (state) => state.setManualCommandDraft,
   );
+  const addCommandHistory = useBleStore((state) => state.addCommandHistory);
 
   const handleCopy = (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -218,6 +241,22 @@ const CommandItem: React.FC<{ commands: string; description: string }> = ({
   const handleUseCommand = (event: React.MouseEvent) => {
     event.stopPropagation();
     setManualCommandDraft(commands);
+  };
+
+  const handleRunCommand = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    const trimmed = commands.trim();
+    const jsonStart = trimmed.indexOf("{");
+    const name = jsonStart >= 0 ? trimmed.slice(0, jsonStart).trim() : trimmed;
+    try {
+      const payload = jsonStart >= 0 ? JSON.parse(trimmed.slice(jsonStart)) : {};
+      addCommandHistory(trimmed);
+      bleManager.sendCommand(name, payload);
+    } catch (error) {
+      alert(
+        `Invalid command JSON: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   };
 
   return (
@@ -233,6 +272,16 @@ const CommandItem: React.FC<{ commands: string; description: string }> = ({
           {commands}
         </strong>
         <div className="shrink-0 pt-0.5 flex items-center gap-1">
+          <button
+            type="button"
+            onClick={handleRunCommand}
+            title="Run command"
+            aria-label="Run command"
+            className="flex h-6 items-center gap-1 rounded-md border border-emerald-300 bg-emerald-50 px-2 text-[10px] font-bold text-emerald-700 shadow-sm transition-all hover:bg-emerald-100 hover:shadow"
+          >
+            <Play size={12} />
+            RUN
+          </button>
           <button
             type="button"
             onClick={handleUseCommand}

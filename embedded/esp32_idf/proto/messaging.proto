@@ -16,6 +16,11 @@ enum BleSignalState {
     BLE_SIG_RUNNING = 1;
 }
 
+enum BleSignalEngine {
+    BLE_ENGINE_CPU = 0;
+    BLE_ENGINE_DMA = 1;
+}
+
 enum BleControlState {
     BLE_CTRL_OFF = 0;
     BLE_CTRL_ON = 1;
@@ -109,6 +114,7 @@ message SystemStatus {
     AnalogStatus analog = 20;
     uint32 signal_edge_overhead_up_cycles = 22;
     uint32 signal_edge_overhead_down_cycles = 23;
+    BleSignalEngine signal_engine = 24;
 }
 
 // General purpose log message

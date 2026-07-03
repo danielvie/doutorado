@@ -36,12 +36,16 @@ struct UiCommandEntry {
     UiCommandHandler handler;
 };
 
-static UiCommandEntry s_commands[59];
+static UiCommandEntry s_commands[61];
 static size_t s_command_count = 0;
 volatile uint32_t g_dead_time_tail_overhead_cycles =
     DEFAULT_DEAD_TIME_TAIL_OVERHEAD_CYCLES;
 volatile uint32_t g_dead_time_us = DEFAULT_DEAD_TIME_US;
 volatile uint32_t g_dead_time_tenths_us =
+    DEFAULT_DEAD_TIME_US * SIGNAL_TIME_TICKS_PER_US;
+volatile uint32_t g_dead_time_up_tenths_us =
+    DEFAULT_DEAD_TIME_US * SIGNAL_TIME_TICKS_PER_US;
+volatile uint32_t g_dead_time_down_tenths_us =
     DEFAULT_DEAD_TIME_US * SIGNAL_TIME_TICKS_PER_US;
 static bool s_dead_time_request_valid = false;
 static std::atomic<bool> s_analog_test_running(false);
@@ -90,6 +94,8 @@ static UiCommandResultData unknown_command(const char *name) {
         .json = "",
     };
 }
+
+static UiCommandResultData busy(const char *message);
 
 static bool register_command(const char *name, UiCommandHandler handler) {
     if (s_command_count >= std::size(s_commands)) {
@@ -212,13 +218,45 @@ handle_signal_set_cycle_interval(const UiCommandContext &ctx) {
     return ok("Cycle interval updated");
 }
 
-static void set_dead_time_tenths_us(uint32_t time_tenths_us) {
-    g_dead_time_tenths_us = time_tenths_us;
-    g_dead_time_us = time_tenths_us / SIGNAL_TIME_TICKS_PER_US;
-    s_dead_time_request_valid = true;
+static UiCommandResultData handle_signal_engine(const UiCommandContext &ctx) {
+    const char *engine = json_get_string(ctx.json, "engine");
+    if (engine == nullptr) {
+        const char *current =
+            g_signal_engine.load(std::memory_order_acquire) == SignalEngine::DMA
+                ? "dma"
+                : "cpu";
+        return ok("Signal engine", std::string("{\"engine\":\"") + current + "\"}");
+    }
 
-    // Measure the delay helper overhead so requested dead time stays close to
-    // wall time.
+    if (g_system_state.signal_state.load(std::memory_order_acquire) ==
+        SignalState::RUNNING) {
+        return busy("signal.engine is stopped-only");
+    }
+
+    if (strcmp(engine, "cpu") == 0) {
+        g_signal_engine.store(SignalEngine::CPU, std::memory_order_release);
+        return ok("Signal engine set to cpu");
+    }
+    if (strcmp(engine, "dma") == 0) {
+        g_signal_engine.store(SignalEngine::DMA, std::memory_order_release);
+        return ok("Signal engine set to dma");
+    }
+
+    return invalid_arg("engine must be cpu or dma");
+}
+
+static uint32_t compensated_dead_time_cycles(uint32_t time_tenths_us,
+                                             uint32_t overhead_cycles) {
+    const uint64_t requested_cycles =
+        (uint64_t)time_tenths_us * SIGNAL_CYCLES_PER_TIME_TICK;
+    const uint64_t compensated_cycles = requested_cycles > overhead_cycles
+                                            ? requested_cycles - overhead_cycles
+                                            : 0;
+    return compensated_cycles > UINT32_MAX ? UINT32_MAX
+                                           : (uint32_t)compensated_cycles;
+}
+
+static uint32_t measure_dead_time_overhead_cycles() {
     uint32_t overhead_cycles = UINT32_MAX;
     for (uint32_t i = 0; i < 16; ++i) {
         const uint32_t start = esp_cpu_get_cycle_count();
@@ -228,35 +266,47 @@ static void set_dead_time_tenths_us(uint32_t time_tenths_us) {
             overhead_cycles = cycles;
         }
     }
-    // Add the GPIO-write tail measured on the scope after the delay helper
-    // returns.
-    overhead_cycles += g_dead_time_tail_overhead_cycles;
+    return overhead_cycles + g_dead_time_tail_overhead_cycles;
+}
 
-    // Convert the user-facing 0.1 us value to raw CPU cycles.
-    const uint64_t requested_cycles =
-        (uint64_t)time_tenths_us * SIGNAL_CYCLES_PER_TIME_TICK;
-
-    // Subtract only the helper overhead; clamp tiny requests to zero instead of
-    // underflowing.
-    const uint64_t compensated_cycles = requested_cycles > overhead_cycles
-                                            ? requested_cycles - overhead_cycles
-                                            : 0;
-
-    // Store the same compensated cycle count for both directions in the hot
-    // signal loop.
-    const uint32_t cycles = compensated_cycles > UINT32_MAX
-                                ? UINT32_MAX
-                                : (uint32_t)compensated_cycles;
-
-    g_dead_time_cycles_up = cycles;
-    g_dead_time_cycles_down = cycles;
+static void refresh_dead_time_steps() {
     signal_precompute_steps(&g_dataset_a);
     signal_precompute_steps(&g_dataset_b);
+}
+
+static void set_dead_time_tenths_us(uint32_t time_tenths_us) {
+    const uint32_t overhead_cycles = measure_dead_time_overhead_cycles();
+    const uint32_t cycles =
+        compensated_dead_time_cycles(time_tenths_us, overhead_cycles);
+
+    g_dead_time_tenths_us = time_tenths_us;
+    g_dead_time_up_tenths_us = time_tenths_us;
+    g_dead_time_down_tenths_us = time_tenths_us;
+    g_dead_time_us = time_tenths_us / SIGNAL_TIME_TICKS_PER_US;
+    s_dead_time_request_valid = true;
+    g_dead_time_cycles_up = cycles;
+    g_dead_time_cycles_down = cycles;
+    refresh_dead_time_steps();
     ESP_LOGI(TAG,
              "Set dead time=%.1f us (%lu cycles), overhead=%lu cycles, tail=%lu "
              "cycles",
              (double)time_tenths_us / SIGNAL_TIME_TICKS_PER_US, cycles,
              overhead_cycles, g_dead_time_tail_overhead_cycles);
+}
+
+static void set_dead_time_down_tenths_us(uint32_t time_tenths_us) {
+    const uint32_t overhead_cycles = measure_dead_time_overhead_cycles();
+    const uint32_t cycles =
+        compensated_dead_time_cycles(time_tenths_us, overhead_cycles);
+
+    g_dead_time_down_tenths_us = time_tenths_us;
+    s_dead_time_request_valid = true;
+    g_dead_time_cycles_down = cycles;
+    refresh_dead_time_steps();
+    ESP_LOGI(TAG,
+             "Set falling-boundary dead time=%.1f us (%lu cycles), overhead=%lu cycles",
+             (double)time_tenths_us / SIGNAL_TIME_TICKS_PER_US, cycles,
+             overhead_cycles);
 }
 
 static void set_dead_time_us(uint32_t time_us) {
@@ -525,6 +575,17 @@ handle_signal_set_dead_time(const UiCommandContext &ctx) {
 }
 
 static UiCommandResultData
+handle_signal_set_dead_time_down(const UiCommandContext &ctx) {
+    uint32_t time_tenths_us;
+    if (!json_get_u32(ctx.json, "time_tenths_us", &time_tenths_us)) {
+        return invalid_arg("Expected numeric time_tenths_us");
+    }
+
+    set_dead_time_down_tenths_us(time_tenths_us);
+    return ok("Falling-boundary dead time updated");
+}
+
+static UiCommandResultData
 handle_signal_set_dead_time_tail_overhead(const UiCommandContext &ctx) {
     uint32_t cycles;
     if (!json_get_u32(ctx.json, "cycles", &cycles)) {
@@ -533,7 +594,12 @@ handle_signal_set_dead_time_tail_overhead(const UiCommandContext &ctx) {
 
     g_dead_time_tail_overhead_cycles = cycles;
     if (s_dead_time_request_valid) {
-        set_dead_time_tenths_us(g_dead_time_tenths_us);
+        const uint32_t overhead_cycles = measure_dead_time_overhead_cycles();
+        g_dead_time_cycles_up = compensated_dead_time_cycles(
+            g_dead_time_up_tenths_us, overhead_cycles);
+        g_dead_time_cycles_down = compensated_dead_time_cycles(
+            g_dead_time_down_tenths_us, overhead_cycles);
+        refresh_dead_time_steps();
     }
 
     ESP_LOGI(TAG, "Set dead time tail overhead to %lu cycles", cycles);
@@ -960,7 +1026,9 @@ void ui_command_router_init(void) {
     register_command("signal.set_pattern", handle_signal_set_pattern);
     register_command("signal.set_cycle_interval",
                      handle_signal_set_cycle_interval);
+    register_command("signal.engine", handle_signal_engine);
     register_command("signal.set_dead_time", handle_signal_set_dead_time);
+    register_command("signal.set_dead_time_down", handle_signal_set_dead_time_down);
     register_command("signal.set_dead_time_tail_overhead",
                      handle_signal_set_dead_time_tail_overhead);
     register_command("signal.set_edge_overhead_up",

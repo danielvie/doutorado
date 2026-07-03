@@ -51,7 +51,7 @@ A timing fault after which the controller cannot safely preserve commanded signa
 _Avoid_: crash, hard error
 
 **Dead Time**:
-The intentionally inserted interval during an output-group state transition where both terminals of the changing output group are inactive before the target terminal is activated.
+The intentionally inserted interval during an output-group state transition where both terminals of the changing output group are inactive before the target terminal is activated. Dead time is applied by turning the currently active terminal off at the transition boundary, holding both terminals inactive for the configured interval, then turning the target terminal on. It is carved out of the surrounding commanded segment timing and must not extend the total signal cycle duration.
 _Avoid_: delay, edge overhead, idle segment
 
 **Edge Compensation**:

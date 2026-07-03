@@ -320,6 +320,7 @@ void ble_send_status(void) {
     // Map Enums
     status->active_set = (g_active_set == SignalSet::SET_A) ? BleSignalSet_BLE_SET_A : BleSignalSet_BLE_SET_B;
     status->signal_state = (g_system_state.signal_state.load(std::memory_order_acquire) == SignalState::IDLE) ? BleSignalState_BLE_SIG_IDLE : BleSignalState_BLE_SIG_RUNNING;
+    status->signal_engine = (g_signal_engine.load(std::memory_order_acquire) == SignalEngine::DMA) ? BleSignalEngine_BLE_ENGINE_DMA : BleSignalEngine_BLE_ENGINE_CPU;
     
     BLEAnalogReadState read_s = g_system_state.ble_an_read_state.load(std::memory_order_acquire);
     if (read_s == BLEAnalogReadState::IDLE) status->ble_read_state = BleAnalogReadState_BLE_READ_IDLE;

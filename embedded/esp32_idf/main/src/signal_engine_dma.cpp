@@ -136,6 +136,12 @@ static volatile uint32_t s_buf_len = 0;
 static volatile uint32_t s_step_count = 0;
 static volatile float s_req_cycle_us = 0.0f;
 
+static bool signal_is_running_dma_check() {
+    return g_system_state.signal_state.load(std::memory_order_acquire) ==
+               SignalState::RUNNING &&
+           s_dma_active.load(std::memory_order_acquire);
+}
+
 // ---------------------------------------------------------------------------
 // Bitstream renderer (D5, D10)
 // ---------------------------------------------------------------------------
@@ -181,15 +187,19 @@ size_t signal_render_bitstream(const DataSet *ds, const int32_t *corrections,
 
     // Commanded dead time in samples. The CPU engine's cycle-compensated
     // values embed software overhead that does not exist under DMA (D10).
-    const uint32_t dead_samples =
-        g_dead_time_tenths_us * SIGNAL_DMA_SAMPLES_PER_TICK;
+    const uint32_t dead_up_samples =
+        g_dead_time_up_tenths_us * SIGNAL_DMA_SAMPLES_PER_TICK;
+    const uint32_t dead_down_samples =
+        g_dead_time_down_tenths_us * SIGNAL_DMA_SAMPLES_PER_TICK;
 
     uint32_t cycle_samples = 0;
     for (uint32_t i = 0; i < n; ++i) {
         const SignalStep &step = ds->steps[i];
         state[i] = lanes_from_gpio_mask(step.set_mask);
         changing[i] = lanes_from_gpio_mask(step.clear_mask);
-        dead[i] = changing[i] ? dead_samples : 0;
+        dead[i] = changing[i]
+                      ? (step.is_rising ? dead_up_samples : dead_down_samples)
+                      : 0;
 
         int32_t ticks = (int32_t)step.duration_ticks;
         if (corrections != nullptr) {
@@ -403,8 +413,12 @@ static void dma_i2s_init(void) {
     I2S1.sample_rate_conf.val = 0;
     I2S1.sample_rate_conf.tx_bits_mod = 8;
     I2S1.sample_rate_conf.rx_bits_mod = 8;
-    I2S1.sample_rate_conf.tx_bck_div_num = 4;
-    I2S1.sample_rate_conf.rx_bck_div_num = 4;
+    // BCK divider = 2 (minimum). With lcd_tx_wrx2_en=1 the byte output rate
+    // is (80 MHz / clkm_div_num / tx_bck_div_num) * 2, so 2 keeps the sample
+    // clock at 80 MHz / clkm_div_num = SIGNAL_DMA_SAMPLE_RATE_HZ. A value of 4
+    // here would halve the rate and double every rendered duration.
+    I2S1.sample_rate_conf.tx_bck_div_num = 2;
+    I2S1.sample_rate_conf.rx_bck_div_num = 2;
 
     // Sample clock (D2): 80 MHz / DMA_CLKM_DIV_NUM, integer divider only.
     I2S1.clkm_conf.val = 0;

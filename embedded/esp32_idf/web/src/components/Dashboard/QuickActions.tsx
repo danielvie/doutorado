@@ -9,6 +9,9 @@ export const QuickActions: React.FC = () => {
   const alpha = useBleStore((s) => s.alpha);
   const setAlpha = useBleStore((s) => s.setAlpha);
   const [cycles, setCycles] = useState(100);
+  const [deadTimeDownTenthsUs, setDeadTimeDownTenthsUs] = useState(20);
+  const engine = useBleStore((s) => s.signalEngine);
+  const setEngine = useBleStore((s) => s.setSignalEngine);
   const [edge_overhead_up_cycles, set_edge_overhead_up_cycles] = useState(0);
   const [edge_overhead_down_cycles, set_edge_overhead_down_cycles] =
     useState(24);
@@ -27,6 +30,8 @@ export const QuickActions: React.FC = () => {
   const handle_set_monitor_period_ms = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => set_monitor_period_ms(number_or_zero(e.target.value));
+  const handle_set_dead_time_down = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setDeadTimeDownTenthsUs(number_or_zero(e.target.value));
 
   const ble_send_command = (name: string, payload: Record<string, unknown> = {}) =>
     bleManager.sendCommand(name, payload);
@@ -34,6 +39,11 @@ export const QuickActions: React.FC = () => {
   const handle_set_alpha = (a: string) => {
     setAlpha(a.toString());
     ble_send_command("signal.set_alpha", { alpha: Number(a) });
+  };
+
+  const handle_set_engine = (nextEngine: "cpu" | "dma") => {
+    setEngine(nextEngine);
+    ble_send_command("signal.engine", { engine: nextEngine });
   };
 
   return (
@@ -81,6 +91,27 @@ export const QuickActions: React.FC = () => {
               >
                 STATUS
               </button>
+            </div>
+
+            <div className="flex flex-col gap-1.5 mt-1">
+              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter ml-1">
+                Signal Engine
+              </span>
+              <div className="grid grid-cols-2 gap-1.5">
+                {(["cpu", "dma"] as const).map((value) => (
+                  <button
+                    key={value}
+                    onClick={() => handle_set_engine(value)}
+                    className={`py-1 rounded font-bold text-[10px] uppercase border transition-all ${
+                      value === engine
+                        ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    {value}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Alpha Quick Selection */}
@@ -210,6 +241,31 @@ export const QuickActions: React.FC = () => {
                     }
                     className="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded border border-indigo-100 hover:bg-indigo-100 transition-colors shrink-0"
                     title="Send Monitor"
+                  >
+                    <Send size={12} />
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-gray-700 font-bold uppercase ml-1">
+                  Dead Down (0.1 us)
+                </label>
+                <div className="flex gap-1 p-1">
+                  <input
+                    type="number"
+                    min={0}
+                    onChange={handle_set_dead_time_down}
+                    value={deadTimeDownTenthsUs}
+                    className="flex-1 min-w-0 text-sm font-semibold text-gray-800 bg-white border border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-0 outline-none px-2 h-8 shadow-none transition-none rounded"
+                  />
+                  <button
+                    onClick={() =>
+                      ble_send_command("signal.set_dead_time_down", {
+                        time_tenths_us: deadTimeDownTenthsUs,
+                      })
+                    }
+                    className="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded border border-indigo-100 hover:bg-indigo-100 transition-colors shrink-0"
+                    title="Send Falling-Boundary Dead Time"
                   >
                     <Send size={12} />
                   </button>

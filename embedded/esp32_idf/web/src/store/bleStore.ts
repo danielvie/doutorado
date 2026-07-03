@@ -12,9 +12,12 @@ interface BleState {
     alpha: string;
     showHelp: boolean;
     monitorPeriodMs: number;
+    signalEngine: "cpu" | "dma";
     isCongested: boolean;
     autoRequestStatus: boolean;
     manualCommandDraft: { command: string; version: number };
+    commandHistory: string[];
+    commandError: string | null;
 
     // Actions
     setLastStatusMessage: (message: string | null) => void;
@@ -29,9 +32,13 @@ interface BleState {
     setAlpha: (alpha: string) => void;
     setShowHelp: (show: boolean) => void;
     setMonitorPeriodMs: (ms: number) => void;
+    setSignalEngine: (engine: "cpu" | "dma") => void;
     setIsCongested: (congested: boolean) => void;
     setAutoRequestStatus: (auto: boolean) => void;
     setManualCommandDraft: (command: string) => void;
+    addCommandHistory: (command: string) => void;
+    setCommandHistory: (history: string[]) => void;
+    setCommandError: (error: string | null) => void;
     clearLastStatusMessage: () => void;
 }
 
@@ -46,9 +53,12 @@ export const useBleStore = create<BleState>((set) => ({
     lastStatusCommand: null,
     showHelp: false,
     monitorPeriodMs: 100,
+    signalEngine: "cpu",
     isCongested: false,
     autoRequestStatus: false,
     manualCommandDraft: { command: "", version: 0 },
+    commandHistory: [],
+    commandError: null,
 
     setLastStatusMessage: (message) => set({ lastStatusMessage: message }),
     setLastStatusCommand: (command) => set({ lastStatusCommand: command }),
@@ -64,6 +74,7 @@ export const useBleStore = create<BleState>((set) => ({
     setAlpha: (alpha) => set({ alpha }),
     setShowHelp: (show) => set({ showHelp: show }),
     setMonitorPeriodMs: (ms) => set({ monitorPeriodMs: ms }),
+    setSignalEngine: (engine) => set({ signalEngine: engine }),
     setIsCongested: (congested) => set({ isCongested: congested }),
     setAutoRequestStatus: (auto) => set({ autoRequestStatus: auto }),
     setManualCommandDraft: (command) =>
@@ -73,5 +84,14 @@ export const useBleStore = create<BleState>((set) => ({
                 version: state.manualCommandDraft.version + 1,
             },
         })),
+    addCommandHistory: (command) =>
+        set((state) => ({
+            commandHistory: [
+                command,
+                ...state.commandHistory.filter((item) => item !== command),
+            ].slice(0, 50),
+        })),
+    setCommandHistory: (history) => set({ commandHistory: history.slice(0, 50) }),
+    setCommandError: (error) => set({ commandError: error }),
     clearLastStatusMessage: () => set({ lastStatusMessage: null }),
 }));

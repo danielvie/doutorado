@@ -17,6 +17,8 @@ const ROUTINE_STATUSES = [
 export const Header = () => {
   const isConnected = useBleStore((s) => s.isConnected);
   const isCongested = useBleStore((s) => s.isCongested);
+  const commandError = useBleStore((s) => s.commandError);
+  const setCommandError = useBleStore((s) => s.setCommandError);
   const systemStatus = useBleStore((s) => s.systemStatus);
   const monitorPeriodMs = useBleStore((s) => s.monitorPeriodMs);
   const [isMocking, setIsMocking] = useState(false);
@@ -80,6 +82,20 @@ export const Header = () => {
       <div className="flex items-center gap-3 w-full">
         <div className="flex items-center gap-10 w-full">
           <h1 className="text-lg font-bold text-stone-900">ESP32 Dashboard</h1>
+          {commandError && (
+            <div className="flex items-center gap-2 px-3 py-1 bg-red-50 text-red-700 border border-red-200 rounded-md text-xs font-bold animate-in fade-in slide-in-from-top-1 duration-200">
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate max-w-md">CMD ERROR: {commandError}</span>
+              <button
+                onClick={() => setCommandError(null)}
+                className="shrink-0 text-red-400 hover:text-red-700 transition-colors ml-1"
+                title="Dismiss"
+                aria-label="Dismiss error"
+              >
+                ✕
+              </button>
+            </div>
+          )}
           {show_status && (
             <div className="flex flex-grow gap-4 items-center justify-end">
               {isCongested && (

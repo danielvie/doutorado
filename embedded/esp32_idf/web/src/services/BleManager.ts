@@ -5,6 +5,7 @@ import { useBleStore } from "../store/bleStore";
 import { useDataStore } from "../store/dataStore";
 import {
   decodeBlePacket,
+  decodeBleSignalEngine,
   decodeBleSignalSet,
   decodeBleSignalState,
   decodeBleAnalogReadState,
@@ -135,7 +136,7 @@ class BleManager {
           // Helper to get string name from enum and clean it up
           const formatEnum = (name: unknown) => {
             if (!name || typeof name !== "string") return "UNKNOWN";
-            return name.replace(/^BLE_(SIG_|READ_|CTRL_|SET_)?/, "");
+            return name.replace(/^BLE_(SIG_|READ_|CTRL_|SET_|ENGINE_)?/, "");
           };
 
           const getVal = (
@@ -154,6 +155,9 @@ class BleManager {
           const signal_state = formatEnum(
             getVal(s.signal_state, decodeBleSignalState),
           );
+          const signal_engine = formatEnum(
+            getVal(s.signal_engine, decodeBleSignalEngine),
+          );
           const ble_state = formatEnum(
             getVal(s.ble_read_state, decodeBleAnalogReadState),
           );
@@ -170,6 +174,7 @@ class BleManager {
             `Matrix A       : ${s.matrix_a_valid ? "valid" : "not valid"}`,
             `Matrix B       : ${s.matrix_b_valid ? "valid" : "not valid"}`,
             `Signal state   : ${signal_state}`,
+            `Signal engine  : ${signal_engine}`,
             `BLE State      : ${ble_state}`,
             `Control State  : ${control_state}`,
             `Led State      : ${led_state}`,
@@ -225,6 +230,9 @@ class BleManager {
             name: "system.get_status",
             payload: {},
           });
+          useBleStore
+            .getState()
+            .setSignalEngine(signal_engine === "DMA" ? "dma" : "cpu");
           useBleStore.getState().setIsCongested(!!s.ble_congested);
         } else if (packet.log) {
           const l = packet.log;
@@ -392,11 +400,15 @@ class BleManager {
                 );
             }
           }
-          useBleStore
-            .getState()
-            .addLog(
-              `CMD ${status} [${r.name || "unknown"}] ${r.message || r.code || ""}${suffix}`,
-            );
+          const logMsg = `CMD ${status} [${r.name || "unknown"}] ${r.message || r.code || ""}${suffix}`;
+          useBleStore.getState().addLog(logMsg);
+          if (!r.ok) {
+            useBleStore
+              .getState()
+              .setCommandError(
+                `[${r.name || "unknown"}] ${r.message || r.code || ""}`,
+              );
+          }
         }
         return;
       } catch (err) {

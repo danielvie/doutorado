@@ -12,9 +12,20 @@ export const ManualCommand: React.FC = () => {
     [],
   );
   const manualCommandDraft = useBleStore((state) => state.manualCommandDraft);
+  const sharedCommandHistory = useBleStore((state) => state.commandHistory);
+  const addCommandHistory = useBleStore((state) => state.addCommandHistory);
+  const setSharedCommandHistory = useBleStore((state) => state.setCommandHistory);
   const history_index_ref = useRef(-1);
   const history_ref = useRef<string[]>([]);
   const input_ref = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setSharedCommandHistory(command_history);
+  }, []);
+
+  useEffect(() => {
+    set_command_history(sharedCommandHistory);
+  }, [sharedCommandHistory, set_command_history]);
 
   // Keep historyRef in sync with commandHistory state
   useEffect(() => {
@@ -56,9 +67,7 @@ export const ManualCommand: React.FC = () => {
     e?.preventDefault();
     if (!cmd.trim()) return;
     const trimmed = cmd.trim();
-    set_command_history((prev) =>
-      [trimmed, ...prev.filter((item) => item !== trimmed)].slice(0, 50),
-    );
+    addCommandHistory(trimmed);
     history_index_ref.current = -1;
 
     const jsonStart = trimmed.indexOf("{");
