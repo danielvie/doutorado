@@ -82,6 +82,23 @@ export const Header = () => {
       <div className="flex items-center gap-3 w-full">
         <div className="flex items-center gap-10 w-full">
           <h1 className="text-lg font-bold text-stone-900">ESP32 Dashboard</h1>
+          
+          <div className="flex items-center gap-2">
+            {[
+              { command: "signal.start", label: "ON", className: "btn-success" },
+              { command: "signal.stop", label: "OFF", className: "btn-danger" },
+              { command: "system.get_status", label: "STATUS" },
+            ].map(({ command, label, className: class_name }) => (
+              <button
+                key={command}
+                onClick={() => bleManager.sendCommand(command)}
+                className={`btn-secondary text-sm py-2 text-gray-800 ${class_name}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          
           {commandError && (
             <div className="flex items-center gap-2 px-3 py-1 bg-red-50 text-red-700 border border-red-200 rounded-md text-xs font-bold animate-in fade-in slide-in-from-top-1 duration-200">
               <AlertTriangle className="w-3.5 h-3.5 shrink-0" />

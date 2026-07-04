@@ -233,7 +233,7 @@ volatile uint32_t g_cycle_nrun = 10000;
 // Signal Engine selection (D1/D8): volatile, stopped-only, defaults to the
 // characterized CPU reference so flashing new firmware changes nothing until
 // an experiment opts in.
-std::atomic<SignalEngine> g_signal_engine(SignalEngine::CPU);
+std::atomic<SignalEngine> g_signal_engine(SignalEngine::DMA);
 
 // Track which set is currently active in the loop
 std::atomic<SignalSet> g_active_set(SignalSet::SET_A);

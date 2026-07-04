@@ -13,11 +13,11 @@ import { SystemLogs } from "./components/Dashboard/SystemLogs";
 import { QuickActions } from "./components/Dashboard/QuickActions";
 import { StatusPanel } from "./components/Dashboard/StatusPanel";
 import { OtaPanel } from "./components/Dashboard/OtaPanel";
-import { HelpPanel } from "./components/HelpPanel";
-import { ManualCommand } from "./components/Dashboard/ManualCommand";
+import { Console } from "./components/Dashboard/Console";
+import { Parameters } from "./components/Dashboard/Parameters";
 import { Agentation } from "agentation";
 
-const ITEM_IDS = ["chart", "quick", "manual", "signal", "help", "status", "logs", "ota"];
+const ITEM_IDS = ["chart", "console", "quick", "params", "signal", "status", "logs", "ota"];
 
 const LAYOUTS_STORAGE_KEY = "dashboard-rgl-layouts";
 
@@ -29,24 +29,24 @@ const ROW_HEIGHT = 95;
 const TWO_COL_LAYOUT: GridLayout = [
   { i: "chart", x: 0, y: 0, w: 2, h: 6, minW: 2, minH: 3 },
   { i: "quick", x: 0, y: 6, w: 1, h: 3, minW: 1, minH: 2 },
-  { i: "manual", x: 1, y: 6, w: 1, h: 3, minW: 1, minH: 2 },
-  { i: "signal", x: 0, y: 9, w: 1, h: 3, minW: 1, minH: 2 },
-  { i: "help", x: 1, y: 9, w: 1, h: 3, minW: 1, minH: 2 },
-  { i: "status", x: 0, y: 12, w: 1, h: 3, minW: 1, minH: 2 },
-  { i: "logs", x: 1, y: 12, w: 1, h: 3, minW: 1, minH: 2 },
-  { i: "ota", x: 0, y: 15, w: 1, h: 3, minW: 1, minH: 2 },
+  { i: "params", x: 1, y: 6, w: 1, h: 3, minW: 1, minH: 2 },
+  { i: "console", x: 0, y: 9, w: 1, h: 6, minW: 1, minH: 2 },
+  { i: "signal", x: 1, y: 9, w: 1, h: 3, minW: 1, minH: 2 },
+  { i: "status", x: 1, y: 12, w: 1, h: 3, minW: 1, minH: 2 },
+  { i: "logs", x: 0, y: 15, w: 1, h: 3, minW: 1, minH: 2 },
+  { i: "ota", x: 1, y: 15, w: 1, h: 3, minW: 1, minH: 2 },
 ];
 
 const DEFAULT_LAYOUTS: ResponsiveLayouts = {
   lg: [
     { i: "chart", x: 0, y: 0, w: 2, h: 6, minW: 2, minH: 3 },
-    { i: "quick", x: 2, y: 0, w: 1, h: 3, minW: 1, minH: 2 },
-    { i: "manual", x: 2, y: 3, w: 1, h: 3, minW: 1, minH: 2 },
-    { i: "signal", x: 0, y: 6, w: 1, h: 3, minW: 1, minH: 2 },
-    { i: "help", x: 1, y: 6, w: 1, h: 3, minW: 1, minH: 2 },
-    { i: "status", x: 2, y: 6, w: 1, h: 3, minW: 1, minH: 2 },
-    { i: "logs", x: 0, y: 9, w: 1, h: 3, minW: 1, minH: 2 },
-    { i: "ota", x: 1, y: 9, w: 1, h: 3, minW: 1, minH: 2 },
+    { i: "console", x: 2, y: 0, w: 1, h: 6, minW: 1, minH: 2 },
+    { i: "quick", x: 0, y: 6, w: 1, h: 3, minW: 1, minH: 2 },
+    { i: "params", x: 1, y: 6, w: 1, h: 3, minW: 1, minH: 2 },
+    { i: "signal", x: 2, y: 6, w: 1, h: 3, minW: 1, minH: 2 },
+    { i: "status", x: 0, y: 9, w: 1, h: 3, minW: 1, minH: 2 },
+    { i: "logs", x: 1, y: 9, w: 1, h: 3, minW: 1, minH: 2 },
+    { i: "ota", x: 2, y: 9, w: 1, h: 3, minW: 1, minH: 2 },
   ],
   md: TWO_COL_LAYOUT,
   sm: TWO_COL_LAYOUT,
@@ -110,16 +110,16 @@ function App() {
     switch (itemId) {
       case "chart":
         return <SignalAnalysis />;
+      case "console":
+        return <Console />;
       case "quick":
         return <QuickActions />;
-      case "manual":
-        return <ManualCommand />;
+      case "params":
+        return <Parameters />;
       case "logs":
         return <SystemLogs />;
       case "signal":
         return <SignalGenerator />;
-      case "help":
-        return <HelpPanel />;
       case "status":
         return <StatusPanel />;
       case "ota":

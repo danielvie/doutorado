@@ -15,7 +15,6 @@ interface BleState {
     signalEngine: "cpu" | "dma";
     isCongested: boolean;
     autoRequestStatus: boolean;
-    manualCommandDraft: { command: string; version: number };
     commandHistory: string[];
     commandError: string | null;
 
@@ -35,7 +34,6 @@ interface BleState {
     setSignalEngine: (engine: "cpu" | "dma") => void;
     setIsCongested: (congested: boolean) => void;
     setAutoRequestStatus: (auto: boolean) => void;
-    setManualCommandDraft: (command: string) => void;
     addCommandHistory: (command: string) => void;
     setCommandHistory: (history: string[]) => void;
     setCommandError: (error: string | null) => void;
@@ -56,7 +54,6 @@ export const useBleStore = create<BleState>((set) => ({
     signalEngine: "cpu",
     isCongested: false,
     autoRequestStatus: false,
-    manualCommandDraft: { command: "", version: 0 },
     commandHistory: [],
     commandError: null,
 
@@ -77,13 +74,6 @@ export const useBleStore = create<BleState>((set) => ({
     setSignalEngine: (engine) => set({ signalEngine: engine }),
     setIsCongested: (congested) => set({ isCongested: congested }),
     setAutoRequestStatus: (auto) => set({ autoRequestStatus: auto }),
-    setManualCommandDraft: (command) =>
-        set((state) => ({
-            manualCommandDraft: {
-                command,
-                version: state.manualCommandDraft.version + 1,
-            },
-        })),
     addCommandHistory: (command) =>
         set((state) => ({
             commandHistory: [
