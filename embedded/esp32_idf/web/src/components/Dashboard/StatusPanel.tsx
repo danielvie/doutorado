@@ -1,6 +1,6 @@
 import React from "react";
 import { useBleStore } from "../../store/bleStore";
-import { bleManager } from "../../services/BleManager";
+import { sendCommand } from "../../services/commands";
 import { DashboardItem } from "./DashboardItem";
 
 import { Copy, Check, RefreshCw, Search, Trash2 } from "lucide-react";
@@ -43,7 +43,7 @@ export const StatusPanel: React.FC = () => {
     if (!autoRequestStatus || !isConnected) return;
     
     const interval = setInterval(() => {
-      bleManager.sendCommand(rerunCommand.name, rerunCommand.payload);
+      sendCommand(rerunCommand.name, rerunCommand.payload);
     }, 2000);
     
     return () => clearInterval(interval);
@@ -57,7 +57,7 @@ export const StatusPanel: React.FC = () => {
   };
 
   const rerunLastStatusCommand = () => {
-    bleManager.sendCommand(rerunCommand.name, rerunCommand.payload);
+    sendCommand(rerunCommand.name, rerunCommand.payload);
   };
 
   return (

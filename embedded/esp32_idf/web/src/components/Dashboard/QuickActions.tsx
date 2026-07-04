@@ -1,4 +1,4 @@
-import { bleManager } from "../../services/BleManager";
+import { sendCommand, useIsLive } from "../../services/commands";
 import { useBleStore } from "../../store/bleStore";
 import { DashboardItem } from "./DashboardItem";
 
@@ -13,11 +13,12 @@ const SectionTitle: React.FC<{ children: React.ReactNode }> = ({
 export const QuickActions: React.FC = () => {
   const engine = useBleStore((s) => s.signalEngine);
   const setEngine = useBleStore((s) => s.setSignalEngine);
+  const isLive = useIsLive();
 
   const ble_send_command = (
     name: string,
     payload: Record<string, unknown> = {},
-  ) => bleManager.sendCommand(name, payload);
+  ) => sendCommand(name, payload);
 
   const handle_set_engine = (nextEngine: "cpu" | "dma") => {
     setEngine(nextEngine);
@@ -26,7 +27,10 @@ export const QuickActions: React.FC = () => {
 
   return (
     <DashboardItem title="Quick Actions" expandable={false}>
-      <div className="flex flex-col gap-4 pr-2">
+      <fieldset
+        disabled={!isLive}
+        className={`flex flex-col gap-4 pr-2 transition-opacity ${isLive ? "" : "opacity-50"}`}
+      >
         {/* Signal Execution */}
         <section className="flex flex-col gap-2">
           <SectionTitle>Signal</SectionTitle>
@@ -146,7 +150,7 @@ export const QuickActions: React.FC = () => {
             </button>
           </div>
         </section>
-      </div>
+      </fieldset>
     </DashboardItem>
   );
 };

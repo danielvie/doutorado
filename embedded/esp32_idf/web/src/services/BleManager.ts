@@ -3,6 +3,7 @@ import type { BleConnectOptions } from "./BleService.interface";
 import { WebBleService } from "./WebBleService";
 import { useBleStore } from "../store/bleStore";
 import { useDataStore } from "../store/dataStore";
+import { useDeviceStore } from "../store/deviceStore";
 import {
   decodeBlePacket,
   decodeBleSignalEngine,
@@ -222,6 +223,29 @@ class BleManager {
               `Fault code     : ${faultCode} (${faultNames[faultCode] ?? "unknown"})`,
             );
           }
+
+          useDeviceStore.getState().applyStatus({
+            signalState:
+              signal_state === "RUNNING" || signal_state === "IDLE"
+                ? signal_state
+                : "UNKNOWN",
+            engine:
+              signal_engine === "CPU" || signal_engine === "DMA"
+                ? signal_engine
+                : "UNKNOWN",
+            controlState:
+              control_state === "ON" || control_state === "OFF"
+                ? control_state
+                : "UNKNOWN",
+            bleReadState: ble_state,
+            alpha: s.has_alpha ? (s.alpha ?? null) : null,
+            currentCycles: s.current_cycles ?? 0,
+            totalCycles: s.total_cycles ?? 0,
+            deadTimeUs: s.dead_time_us ?? 0,
+            congested: !!s.ble_congested,
+            analogValid: analog ? !!analog.valid : null,
+            analogFaultCode: analog?.fault_code ?? 0,
+          });
 
           const statusStr = statusLines.join("\n");
           useBleStore.getState().addLog(statusStr);

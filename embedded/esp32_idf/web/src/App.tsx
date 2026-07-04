@@ -15,9 +15,21 @@ import { StatusPanel } from "./components/Dashboard/StatusPanel";
 import { OtaPanel } from "./components/Dashboard/OtaPanel";
 import { Console } from "./components/Dashboard/Console";
 import { Parameters } from "./components/Dashboard/Parameters";
+import { SessionPanel } from "./components/Dashboard/SessionPanel";
+import { useUiStore } from "./store/uiStore";
 import { Agentation } from "agentation";
 
-const ITEM_IDS = ["chart", "console", "quick", "params", "signal", "status", "logs", "ota"];
+const ITEM_IDS = [
+  "chart",
+  "console",
+  "quick",
+  "params",
+  "signal",
+  "session",
+  "status",
+  "logs",
+  "ota",
+];
 
 const LAYOUTS_STORAGE_KEY = "dashboard-rgl-layouts";
 
@@ -32,11 +44,16 @@ const TWO_COL_LAYOUT: GridLayout = [
   { i: "params", x: 1, y: 6, w: 1, h: 3, minW: 1, minH: 2 },
   { i: "console", x: 0, y: 9, w: 1, h: 6, minW: 1, minH: 2 },
   { i: "signal", x: 1, y: 9, w: 1, h: 3, minW: 1, minH: 2 },
-  { i: "status", x: 1, y: 12, w: 1, h: 3, minW: 1, minH: 2 },
-  { i: "logs", x: 0, y: 15, w: 1, h: 3, minW: 1, minH: 2 },
-  { i: "ota", x: 1, y: 15, w: 1, h: 3, minW: 1, minH: 2 },
+  { i: "session", x: 1, y: 12, w: 1, h: 3, minW: 1, minH: 2 },
+  { i: "status", x: 0, y: 15, w: 1, h: 3, minW: 1, minH: 2 },
+  { i: "logs", x: 1, y: 15, w: 1, h: 3, minW: 1, minH: 2 },
+  { i: "ota", x: 0, y: 18, w: 1, h: 3, minW: 1, minH: 2 },
 ];
 
+// Tuning loop front and center (D1): chart dominant, the panes that change
+// what the chart shows (parameters, quick actions, signal) directly below it,
+// console beside for ad-hoc commands, observability row (session/status/logs)
+// underneath.
 const DEFAULT_LAYOUTS: ResponsiveLayouts = {
   lg: [
     { i: "chart", x: 0, y: 0, w: 2, h: 6, minW: 2, minH: 3 },
@@ -44,9 +61,10 @@ const DEFAULT_LAYOUTS: ResponsiveLayouts = {
     { i: "quick", x: 0, y: 6, w: 1, h: 3, minW: 1, minH: 2 },
     { i: "params", x: 1, y: 6, w: 1, h: 3, minW: 1, minH: 2 },
     { i: "signal", x: 2, y: 6, w: 1, h: 3, minW: 1, minH: 2 },
-    { i: "status", x: 0, y: 9, w: 1, h: 3, minW: 1, minH: 2 },
-    { i: "logs", x: 1, y: 9, w: 1, h: 3, minW: 1, minH: 2 },
-    { i: "ota", x: 2, y: 9, w: 1, h: 3, minW: 1, minH: 2 },
+    { i: "session", x: 0, y: 9, w: 1, h: 3, minW: 1, minH: 2 },
+    { i: "status", x: 1, y: 9, w: 1, h: 3, minW: 1, minH: 2 },
+    { i: "logs", x: 2, y: 9, w: 1, h: 3, minW: 1, minH: 2 },
+    { i: "ota", x: 0, y: 12, w: 1, h: 3, minW: 1, minH: 2 },
   ],
   md: TWO_COL_LAYOUT,
   sm: TWO_COL_LAYOUT,
@@ -99,6 +117,7 @@ const loadLayouts = (): ResponsiveLayouts => {
 
 function App() {
   const [layouts, setLayouts] = useState<ResponsiveLayouts>(loadLayouts);
+  const layoutLocked = useUiStore((s) => s.layoutLocked);
   const { width, containerRef, mounted } = useContainerWidth();
 
   const handleLayoutChange = (_: GridLayout, allLayouts: ResponsiveLayouts) => {
@@ -120,6 +139,8 @@ function App() {
         return <SystemLogs />;
       case "signal":
         return <SignalGenerator />;
+      case "session":
+        return <SessionPanel />;
       case "status":
         return <StatusPanel />;
       case "ota":
@@ -132,7 +153,10 @@ function App() {
   return (
     <Layout>
       {/* Cast bridges React 18 ref typing with the hook's React 19-style RefObject */}
-      <div ref={containerRef as React.RefObject<HTMLDivElement>}>
+      <div
+        ref={containerRef as React.RefObject<HTMLDivElement>}
+        className={layoutLocked ? "layout-locked" : ""}
+      >
         {mounted && (
           <ResponsiveGridLayout
             width={width}
@@ -142,7 +166,8 @@ function App() {
             rowHeight={ROW_HEIGHT}
             margin={[8, 8]}
             containerPadding={[0, 0]}
-            dragConfig={{ handle: ".rgl-drag-handle" }}
+            dragConfig={{ handle: ".rgl-drag-handle", enabled: !layoutLocked }}
+            resizeConfig={{ enabled: !layoutLocked }}
             // Keeps grid items free of CSS transforms so the fullscreen
             // (position: fixed) panel mode stays anchored to the viewport.
             positionStrategy={absoluteStrategy}

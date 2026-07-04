@@ -2,6 +2,7 @@ import { Bluetooth, Activity, Cpu, AlertTriangle } from "lucide-react";
 import { useBleStore } from "../store/bleStore";
 import { bleManager } from "../services/BleManager";
 import { useDataStore } from "../store/dataStore";
+import { useUiStore } from "../store/uiStore";
 import { useState, useEffect } from "react";
 import ImageModal from "./ImageModal";
 
@@ -21,7 +22,8 @@ export const Header = () => {
   const setCommandError = useBleStore((s) => s.setCommandError);
   const systemStatus = useBleStore((s) => s.systemStatus);
   const monitorPeriodMs = useBleStore((s) => s.monitorPeriodMs);
-  const [isMocking, setIsMocking] = useState(false);
+  const isMocking = useUiStore((s) => s.isMocking);
+  const setIsMocking = useUiStore((s) => s.setIsMocking);
   const [showPinsModal, setShowPinsModal] = useState(false);
   const addDataPoint = useDataStore((state) => state.addDataPoint);
 
@@ -82,23 +84,7 @@ export const Header = () => {
       <div className="flex items-center gap-3 w-full">
         <div className="flex items-center gap-10 w-full">
           <h1 className="text-lg font-bold text-stone-900">ESP32 Dashboard</h1>
-          
-          <div className="flex items-center gap-2">
-            {[
-              { command: "signal.start", label: "ON", className: "btn-success" },
-              { command: "signal.stop", label: "OFF", className: "btn-danger" },
-              { command: "system.get_status", label: "STATUS" },
-            ].map(({ command, label, className: class_name }) => (
-              <button
-                key={command}
-                onClick={() => bleManager.sendCommand(command)}
-                className={`btn-secondary text-sm py-2 text-gray-800 ${class_name}`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          
+
           {commandError && (
             <div className="flex items-center gap-2 px-3 py-1 bg-red-50 text-red-700 border border-red-200 rounded-md text-xs font-bold animate-in fade-in slide-in-from-top-1 duration-200">
               <AlertTriangle className="w-3.5 h-3.5 shrink-0" />

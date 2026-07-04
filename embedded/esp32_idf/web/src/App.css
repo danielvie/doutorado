@@ -160,3 +160,9 @@ input[type="range"]::-webkit-slider-thumb {
 .react-grid-item.react-draggable-dragging .panel {
     @apply border-indigo-300 shadow-lg;
 }
+
+/* Layout locked: hide drag grips and resize handles entirely */
+.layout-locked .rgl-drag-handle,
+.layout-locked .react-resizable-handle {
+    display: none;
+}

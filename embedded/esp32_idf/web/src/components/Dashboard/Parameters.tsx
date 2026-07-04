@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createCyclesPayload, signalEdgeOverheadCommands } from "../../helper";
-import { bleManager } from "../../services/BleManager";
+import { sendCommand, useIsLive } from "../../services/commands";
 import { useBleStore } from "../../store/bleStore";
 import { Send } from "lucide-react";
 import { DashboardItem } from "./DashboardItem";
@@ -58,17 +58,21 @@ export const Parameters: React.FC = () => {
     useState(24);
   const monitor_period_ms = useBleStore((s) => s.monitorPeriodMs);
   const set_monitor_period_ms = useBleStore((s) => s.setMonitorPeriodMs);
+  const isLive = useIsLive();
 
   return (
     <DashboardItem title="Parameters" expandable={false}>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pr-2">
+      <fieldset
+        disabled={!isLive}
+        className={`grid grid-cols-1 sm:grid-cols-2 gap-2 pr-2 transition-opacity ${isLive ? "" : "opacity-50"}`}
+      >
         <ParameterField
           label="Cycles"
           value={cycles}
           sendTitle="Send Cycles"
           onChange={setCycles}
           onSend={() =>
-            bleManager.sendCommand("signal.set_cycle_interval", { cycles })
+            sendCommand("signal.set_cycle_interval", { cycles })
           }
         />
         <ParameterField
@@ -78,7 +82,7 @@ export const Parameters: React.FC = () => {
           sendTitle="Send Monitor"
           onChange={set_monitor_period_ms}
           onSend={() =>
-            bleManager.sendCommand("analog.set_monitor_period", {
+            sendCommand("analog.set_monitor_period", {
               period_ms: monitor_period_ms,
             })
           }
@@ -90,7 +94,7 @@ export const Parameters: React.FC = () => {
           sendTitle="Send Falling-Boundary Dead Time"
           onChange={setDeadTimeDownTenthsUs}
           onSend={() =>
-            bleManager.sendCommand("signal.set_dead_time_down", {
+            sendCommand("signal.set_dead_time_down", {
               time_tenths_us: deadTimeDownTenthsUs,
             })
           }
@@ -102,7 +106,7 @@ export const Parameters: React.FC = () => {
           sendTitle="Send Rising Edge Overhead"
           onChange={set_edge_overhead_up_cycles}
           onSend={() =>
-            bleManager.sendCommand(
+            sendCommand(
               signalEdgeOverheadCommands.up,
               createCyclesPayload(edge_overhead_up_cycles),
             )
@@ -115,13 +119,13 @@ export const Parameters: React.FC = () => {
           sendTitle="Send Falling Edge Overhead"
           onChange={set_edge_overhead_down_cycles}
           onSend={() =>
-            bleManager.sendCommand(
+            sendCommand(
               signalEdgeOverheadCommands.down,
               createCyclesPayload(edge_overhead_down_cycles),
             )
           }
         />
-      </div>
+      </fieldset>
     </DashboardItem>
   );
 };

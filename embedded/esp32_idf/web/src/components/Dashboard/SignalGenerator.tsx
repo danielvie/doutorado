@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { _create_signal } from "../../helper";
-import { bleManager } from "../../services/BleManager";
+import { sendCommand } from "../../services/commands";
 import { useBleStore } from "../../store/bleStore";
 import { Check, Copy, Upload } from "lucide-react";
 import { DashboardItem } from "./DashboardItem";
@@ -67,7 +67,7 @@ export const SignalGenerator: React.FC = () => {
 
   const handleUpload = () => {
     setSyncedSignal({ time: timeStr, mode: modeStr });
-    bleManager.sendCommand("signal.set_pattern", {
+    sendCommand("signal.set_pattern", {
       time: timeStr,
       mode: modeStr,
     });
@@ -75,7 +75,7 @@ export const SignalGenerator: React.FC = () => {
 
   const handle_set_alpha = (a: string) => {
     applyAlpha(a.toString());
-    bleManager.sendCommand("signal.set_alpha", { alpha: Number(a) });
+    sendCommand("signal.set_alpha", { alpha: Number(a) });
   };
 
   const copyVector = async (label: "time" | "mode", value: string) => {

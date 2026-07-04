@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { bleManager } from "../../services/BleManager";
+import { sendCommand as busSendCommand } from "../../services/commands";
 import { Send, History, BookOpen, Search, Play, Copy, Check } from "lucide-react";
 import { DashboardItem } from "./DashboardItem";
 import { useBleStore } from "../../store/bleStore";
@@ -148,7 +148,7 @@ export const Console: React.FC = () => {
     try {
       const { trimmed, name, payload } = parseCommand(raw);
       addCommandHistory(trimmed);
-      bleManager.sendCommand(name, payload);
+      busSendCommand(name, payload);
       return true;
     } catch (error) {
       alert(
