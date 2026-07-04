@@ -10,6 +10,7 @@ managed_components/
 .vscode/
 .idea/
 .mado/
+.mado-html/
 *.swp
 *.swo
 *~

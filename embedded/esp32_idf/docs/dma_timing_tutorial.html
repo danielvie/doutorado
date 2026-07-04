@@ -1,0 +1,876 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="mado-format-version" content="1" />
+    <title>DMA signal engine: timing, analog reading, and data age</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #182025;
+        --muted: #60707a;
+        --line: #d7e1e7;
+        --paper: #fbfcfb;
+        --panel: #f3f7f5;
+        --level-1: #365da8;
+        --level-2: #16645a;
+        --level-3: #5b4c94;
+        --code: #101820;
+        
+        --radius-sm: 2px;
+        --radius-md: 4px;
+        --radius-lg: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        color: var(--ink);
+        background:
+          linear-gradient(90deg, rgba(24, 32, 37, 0.035) 1px, transparent 1px) 0 0 / 28px 28px,
+          linear-gradient(rgba(24, 32, 37, 0.025) 1px, transparent 1px) 0 0 / 28px 28px,
+          var(--paper);
+        font-family: "Segoe UI", Candara, Tahoma, sans-serif;
+        font-size: 16px;
+        line-height: 1.55;
+      }
+
+      .mado-document {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 32px 20px 70px;
+      }
+
+      .mado-hero,
+      .mado-index,
+      .mado-session,
+      .mado-footer {
+        margin-bottom: 20px;
+        padding: 20px 24px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: #fff;
+      }
+
+      .mado-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: 32px;
+        align-items: start;
+      }
+
+      .mado-hero > :only-child {
+        grid-column: 1 / -1;
+      }
+
+      .mado-title {
+        margin-bottom: 8px;
+        font-size: clamp(30px, 5vw, 54px);
+        line-height: 1.15;
+      }
+
+      .mado-header {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .mado-meta {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: var(--panel);
+        font-size: 14px;
+      }
+
+      .mado-meta ul {
+        list-style: none;
+      }
+
+      .mado-meta li {
+        padding: 4px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .mado-meta li:last-child {
+        border-bottom: 0;
+      }
+
+      .mado-index h2,
+      .mado-session h2 {
+        margin: 0;
+        font-size: 24px;
+      }
+
+      .mado-index-cards {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 14px;
+      }
+
+      .mado-index-card {
+        display: block;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        color: inherit;
+        background: var(--panel);
+        text-decoration: none;
+      }
+
+      .mado-index-card:hover,
+      .mado-index-card:focus-visible {
+        border-color: var(--level-1);
+        outline: none;
+      }
+
+      .mado-index-card strong {
+        display: block;
+      }
+
+      .mado-index-card span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .mado-session {
+        scroll-margin-top: 20px;
+      }
+
+      .mado-session:nth-child(3n + 1) h2 {
+        color: var(--level-1);
+      }
+
+      .mado-session:nth-child(3n + 2) h2 {
+        color: var(--level-2);
+      }
+
+      .mado-session:nth-child(3n) h2 {
+        color: var(--level-3);
+      }
+
+      .mado-session-content {
+        margin-top: 14px;
+      }
+
+      .mado-session-content > * + *,
+      .mado-header > * + *,
+      .mado-footer > * + * {
+        margin-top: 12px;
+      }
+
+      h3 {
+        margin-top: 24px;
+        padding-left: 10px;
+        border-left: 4px solid var(--level-2);
+        font-size: 18px;
+      }
+
+      h4 {
+        margin-top: 14px;
+        color: var(--level-3);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      ul,
+      ol {
+        padding-left: 24px;
+      }
+
+      a {
+        color: var(--level-1);
+      }
+
+      table {
+        width: 100%;
+        margin: 14px 0;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 8px 12px;
+        border: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: var(--panel);
+        font-weight: 600;
+      }
+
+      code {
+        padding: 2px 6px;
+        border-radius: var(--radius-sm);
+        background: #edf2f0;
+        font-size: 0.92em;
+      }
+
+      pre {
+        overflow-x: auto;
+        margin: 14px 0;
+        padding: 14px;
+        border-radius: var(--radius-sm);
+        color: #dce8e5;
+        background: var(--code);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .mado-foldable-code {
+        margin: 16px 0;
+      }
+
+      .mado-foldable-code > pre {
+        margin: 0;
+        border: 1px solid #3c4653;
+        border-top: 0;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+      }
+
+      .mado-code-summary {
+        cursor: pointer;
+        padding: 10px 14px;
+        border: 1px solid #3c4653;
+        border-radius: var(--radius-sm);
+        color: #dce8e5;
+        background: #2b313b;
+        font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .mado-code-summary:hover,
+      .mado-code-summary:focus-visible {
+        background: #353d49;
+      }
+
+      .mado-foldable-code[open] > .mado-code-summary {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+
+      pre code {
+        padding: 0;
+        border: 0;
+        color: inherit;
+        background: transparent;
+        font-size: inherit;
+      }
+
+      blockquote,
+      .callout {
+        margin: 14px 0;
+        padding: 12px 16px;
+        border-left: 4px solid var(--level-2);
+        border-radius: var(--radius-sm);
+        background: #f0f7f4;
+        font-size: 14px;
+      }
+
+      svg {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin: 16px 0;
+        color: var(--ink);
+      }
+
+      .chart {
+        margin: 16px 0;
+        overflow-x: auto;
+      }
+
+      .cards,
+      .twocol {
+        display: grid;
+        gap: 14px;
+        margin: 16px 0;
+      }
+
+      .cards {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .twocol {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .card {
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: var(--panel);
+      }
+
+      .chart-muted { fill: rgba(96, 112, 122, 0.08); stroke: #9aaab2; }
+      .chart-warn { fill: #fff4df; stroke: #b57418; }
+      .chart-level-1 { fill: rgba(54, 93, 168, 0.1); stroke: var(--level-1); }
+      .chart-level-2 { fill: rgba(22, 100, 90, 0.1); stroke: var(--level-2); }
+      .chart-level-3 { fill: rgba(91, 76, 148, 0.1); stroke: var(--level-3); }
+      .arrow { fill: none; stroke: #56666f; stroke-width: 1.5; }
+      .arrow-head { fill: #56666f; }
+      .dash { stroke-dasharray: 6 5; }
+      .label { fill: var(--ink); font-size: 13px; font-weight: 650; }
+      .small { fill: var(--muted); font-size: 12px; }
+      .lane { fill: rgba(96, 112, 122, 0.07); stroke: var(--line); }
+
+      .ts-comment { color: #91a8a2; font-style: italic; }
+      .ts-keyword, .ts-tag { color: #7dd3fc; font-weight: 700; }
+      .ts-string { color: #fda4af; }
+      .ts-number, .ts-constant { color: #c4b5fd; }
+      .ts-function, .ts-constructor { color: #fde68a; }
+      .ts-type, .ts-property, .ts-attribute, .ts-module { color: #a7f3d0; }
+      .ts-operator, .ts-punctuation { color: #93c5fd; }
+      .ts-variable, .ts-embedded { color: #e2e8f0; }
+      .ts-label { color: #fb923c; }
+      .ts-error { text-decoration: underline wavy #f87171; }
+
+      .mado-diff-block {
+        overflow: hidden;
+        margin: 16px 0;
+        border: 1px solid #3c4653;
+        border-radius: var(--radius-sm);
+        color: #dce8e5;
+        background: #1f242c;
+        font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+        font-size: 13px;
+      }
+
+      .mado-foldable-diff > .mado-diff-block {
+        margin: 0;
+        border-top: 0;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+      }
+
+      .mado-diff-header {
+        padding: 10px 14px;
+        border-bottom: 1px solid #3c4653;
+        color: #aeb8c5;
+        background: #2b313b;
+      }
+
+      .mado-diff-header strong {
+        color: #f4c56a;
+      }
+
+      .mado-diff-commit {
+        margin-left: 8px;
+        color: #8490a0;
+      }
+
+      .mado-diff-panels {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      }
+
+      .mado-diff-panel {
+        min-width: 0;
+        overflow-x: auto;
+      }
+
+      .mado-diff-panel + .mado-diff-panel {
+        border-left: 1px solid #3c4653;
+      }
+
+      .mado-diff-label {
+        position: sticky;
+        left: 0;
+        padding: 5px 12px;
+        border-bottom: 1px solid #3c4653;
+        color: #aeb8c5;
+        background: #252a33;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .mado-diff-before .mado-diff-label {
+        color: #f87171;
+      }
+
+      .mado-diff-after .mado-diff-label {
+        color: #4ade80;
+      }
+
+      .mado-diff-code {
+        min-width: max-content;
+        tab-size: 4;
+      }
+
+      .mado-diff-line {
+        display: flex;
+        min-height: 21px;
+        line-height: 21px;
+        white-space: pre;
+      }
+
+      .mado-diff-ln {
+        width: 52px;
+        min-width: 52px;
+        padding-right: 10px;
+        color: #687385;
+        text-align: right;
+        user-select: none;
+      }
+
+      .mado-diff-content {
+        flex: 1;
+        min-width: 0;
+        padding: 0 12px 0 8px;
+        border-left: 3px solid transparent;
+      }
+
+      .mado-diff-line.removed {
+        background: rgba(244, 63, 94, 0.12);
+      }
+
+      .mado-diff-line.removed .mado-diff-content {
+        border-left-color: #f14c4c;
+      }
+
+      .mado-diff-line.added {
+        background: rgba(34, 197, 94, 0.11);
+      }
+
+      .mado-diff-line.added .mado-diff-content {
+        border-left-color: #4ec94e;
+      }
+
+      .mado-diff-line mark {
+        padding: 0;
+        color: inherit;
+        background: rgba(250, 204, 21, 0.28);
+      }
+
+      .mado-diff-line.marker {
+        color: #aeb8c5;
+        font-style: italic;
+      }
+
+      .mado-code-block > .mado-diff-code {
+        overflow-x: auto;
+      }
+
+      .mado-sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      template[data-mado-diff-state] {
+        display: none;
+      }
+
+      .mado-footer {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      @media (max-width: 900px) {
+        .mado-hero,
+        .mado-index-cards,
+        .cards,
+        .twocol {
+          grid-template-columns: 1fr;
+        }
+
+        .mado-diff-panels {
+          grid-template-columns: 1fr;
+        }
+
+        .mado-diff-panel + .mado-diff-panel {
+          border-top: 1px solid #3c4653;
+          border-left: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="mado-document" data-mado-document="tutorial" data-mado-revision="9">
+      <section class="mado-hero">
+        <div>
+          <h1 class="mado-title">DMA signal engine: timing, analog reading, and data age</h1>
+          <header class="mado-header"></header>
+        </div>
+                <aside class="mado-meta" aria-label="Concept snapshot">
+          <ul>
+            <li data-mado-meta="technology-stack"><strong>Technology Stack:</strong> <span>ESP32, ESP-IDF, I2S1 parallel DMA, ADC continuous driver, FreeRTOS</span></li>
+            <li data-mado-meta="key-concepts"><strong>Key Concepts:</strong> <span>Rendered bitstream, trigger/tail EOF, self-loop, seqlock snapshot, age gate, latency vs age</span></li>
+            <li data-mado-meta="domain"><strong>Domain:</strong> <span>Embedded power-converter control</span></li>
+            <li data-mado-meta="core-question"><strong>Core Question:</strong> <span>When is the analog measurement taken relative to the signal, and can a stale value ever reach the controller?</span></li>
+          </ul>
+        </aside>
+
+
+      </section>
+      <nav class="mado-index" aria-label="Document index">
+        <h2>Document Index</h2>
+        <div class="mado-index-cards">          <a class="mado-index-card" href="#session-signal-generation">
+            <strong>1. Signal generation: timing from hardware, not code</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-analog-reading">
+            <strong>2. Reading the analog signals</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-age-vs-latency">
+            <strong>3. The age of an element vs the latency statistics</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-working-together">
+            <strong>4. How generation and reading work together</strong>
+            <span>Open this Session</span>
+          </a>
+</div>
+      </nav>
+      <div class="mado-sessions">      <section class="mado-session chapter" id="session-signal-generation" data-mado-session-id="signal-generation">
+        <h2><span class="mado-session-number" aria-hidden="true">1. </span><span class="mado-session-title">Signal generation: timing from hardware, not code</span></h2>
+        <div class="mado-session-content content">
+          <p>The DMA engine (<code>main/src/signal_engine_dma.cpp</code>) does not toggle GPIOs from software. The whole signal cycle is pre-computed as a byte stream by <code>signal_render_bitstream()</code> and the I2S1 peripheral clocks it out in 8-bit parallel mode at <strong>20&nbsp;MHz — one byte every 50&nbsp;ns</strong>. Each byte carries the state of all six gate pins, one bit per lane. Dead time is not a runtime delay: it is 40 samples of "both switches off" baked into the stream (2&nbsp;µs at the default dead time). Once the buffer plays, signal timing needs zero CPU involvement — jitter is bounded by the sample clock, not by interrupts.</p>
+          
+          <svg viewBox="0 0 680 250" role="img" aria-label="Sample-level zoom of the rendered bitstream around one transition" data-mado-component-id="bitstream-zoom">
+            <text x="160" y="24" class="label" text-anchor="middle">segment i — mode 7</text>
+            <text x="340" y="24" class="label" text-anchor="middle">dead time</text>
+            <text x="520" y="24" class="label" text-anchor="middle">segment j — mode 0</text>
+            <rect class="chart-level-1" x="60" y="36" width="40" height="36"/>
+            <rect class="chart-level-1" x="100" y="36" width="40" height="36"/>
+            <rect class="chart-level-1" x="140" y="36" width="40" height="36"/>
+            <rect class="chart-level-1" x="180" y="36" width="40" height="36"/>
+            <rect class="chart-level-1" x="220" y="36" width="40" height="36"/>
+            <rect class="chart-warn" x="260" y="36" width="40" height="36"/>
+            <rect class="chart-warn" x="300" y="36" width="40" height="36"/>
+            <rect class="chart-warn" x="340" y="36" width="40" height="36"/>
+            <rect class="chart-warn" x="380" y="36" width="40" height="36"/>
+            <rect class="chart-level-2" x="420" y="36" width="40" height="36"/>
+            <rect class="chart-level-2" x="460" y="36" width="40" height="36"/>
+            <rect class="chart-level-2" x="500" y="36" width="40" height="36"/>
+            <rect class="chart-level-2" x="540" y="36" width="40" height="36"/>
+            <rect class="chart-level-2" x="580" y="36" width="40" height="36"/>
+            <text x="8" y="98" class="small">high-side</text>
+            <polyline class="arrow" points="60,94 260,94 260,114 620,114" fill="none"/>
+            <text x="8" y="168" class="small">low-side</text>
+            <polyline class="arrow" points="60,174 420,174 420,154 620,154" fill="none"/>
+            <text x="60" y="210" class="small">1 cell = 1 sample = 50 ns (20 MHz sample clock)</text>
+            <text x="60" y="230" class="small">dead time of 2 µs = 40 samples of "both off", compressed to 4 cells here</text>
+          </svg>
+          
+          <p>The rendered buffer is wrapped in a DMA descriptor chain (<code>chain_build()</code>) with two special EOF descriptors:</p>
+          <ul>
+            <li><strong>Trigger EOF</strong> — placed <code>DMA_CONTROL_LEAD_US&nbsp;=&nbsp;120&nbsp;µs</code> of playback before the pass boundary. Its interrupt wakes the control task (Core&nbsp;1, priority&nbsp;10).</li>
+            <li><strong>Tail EOF</strong> — at the pass boundary. It counts passes and, by default, <em>links back to its own chain head</em> (self-loop).</li>
+          </ul>
+          
+          <p>The self-loop is the key safety property: if the control task does not finish inside the 120&nbsp;µs window, the hardware simply replays the same pass. That is a <em>Missed Control Update</em> — the correction is skipped, but the power signal timing is completely untouched. When the control task does finish, it re-renders the inactive buffer with new corrections and swaps one pointer (the tail descriptor's <code>next</code>), so the corrected buffer latches cleanly at the next pass boundary and the waveform can never tear.</p>
+          
+          <p>Short cycles are copied back-to-back until a pass reaches at least 200&nbsp;µs, so the control task is not woken at unsustainable rates: the default 60&nbsp;µs cycle is rendered as 4 copies, giving a 240&nbsp;µs pass.</p>
+          <figure class="mado-generated-diagram" data-mado-component-id="pass-structure" data-mado-component-kind="generated-diagram" data-mado-diagram-state="7b226964223a22706173732d737472756374757265222c226469616772616d5f74797065223a2274696d656c696e65222c226469616772616d5f666f726d6174223a22706c616e74756d6c222c22736f75726365223a22407374617274756d6c5c6e7469746c6520444d41207061737320737472756374757265202d2064656661756c74203630207573206379636c652c203420636f706965732070657220706173735c6e7363616c65203020746f203438302075735c6e7469636b732030203132302032343020333630203438305c6e5c6e6c616e65206932733a2049325320444d41206f757470757420283230204d487a2062697473747265616d295c6e7461736b2068617264776172652030203234303a2070617373204e202d2062756666657220415c6e7461736b20686172647761726520323430203234303a2070617373204e2b31202d2062756666657220422028636f72726563746564295c6e5c6e6c616e65206973723a20454f4620696e74657272757074735c6e7461736b20696f2031313820363a20747269676765725c6e7461736b20696f2032333420363a207461696c5c6e7461736b20696f2033353820363a20747269676765725c6e7461736b20696f2034373420363a207461696c5c6e5c6e6c616e652063746c3a20436f6e74726f6c207461736b2028636f726520312c207072696f203130295c6e7461736b20776169742030203132303a2069646c6520756e74696c20747269676765725c6e7461736b20637269746963616c203132302035343a20736e617073686f74202b206761696e202b2072656e646572202b2072656c696e6b5c6e7461736b207761697420313734203138363a2069646c655c6e7461736b20637269746963616c203336302035343a20736e617073686f74202b206761696e202b2072656e646572202b2072656c696e6b5c6e5c6e6d61726b6572203234303a20636f7272656374656420627566666572206c6174636865735c6e6e6f74653a207472696767657220666972657320313230207573206265666f726520746865207461696c2028444d415f434f4e54524f4c5f4c4541445f5553293b2061206d69737365642077696e646f772073656c662d6c6f6f707320616e64207265706c6179732070617373204e20756e6368616e6765645c6e40656e64756d6c5c6e222c2272656e64657265645f737667223a223c73766720786d6c6e733d5c22687474703a2f2f7777772e77332e6f72672f323030302f7376675c222076696577426f783d5c222d3130202d31302031373130203333305c2220726f6c653d5c22696d675c2220617269612d6c6162656c3d5c22706173732d7374727563747572652074696d656c696e65206469616772616d5c2220666f6e742d66616d696c793d5c2248656c7665746963612c20417269616c2c2073616e732d73657269665c2220666f6e742d73697a653d5c2231325c223e5c6e3c7469746c653e706173732d7374727563747572652074696d656c696e65206469616772616d3c2f7469746c653e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c22305c2220793d5c2231385c2220746578742d616e63686f723d5c2273746172745c2220666f6e742d7765696768743d5c22626f6c645c223e444d41207061737320737472756374757265202d2064656661756c74203630207573206379636c652c203420636f706965732070657220706173733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223133305c222079313d5c2235325c222078323d5c22313636365c222079323d5c2235325c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223133305c222079313d5c2235395c222078323d5c223133305c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223531345c222079313d5c2235395c222078323d5c223531345c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223839385c222079313d5c2235395c222078323d5c223839385c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c22313238325c222079313d5c2235395c222078323d5c22313238325c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c22313636365c222079313d5c2235395c222078323d5c22313636365c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c2238365c222078323d5c22313636365c222079323d5c2238365c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c223134325c222078323d5c22313636365c222079323d5c223134325c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c223139385c222078323d5c22313636365c222079323d5c223139385c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c223235345c222078323d5c22313636365c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223133305c222079313d5c2234355c222078323d5c223133305c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223133305c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223531345c222079313d5c2234355c222078323d5c223531345c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223531345c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e3132302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223839385c222079313d5c2234355c222078323d5c223839385c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223839385c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e3234302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c22313238325c222079313d5c2234355c222078323d5c22313238325c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22313238325c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e3336302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c22313636365c222079313d5c2234355c222078323d5c22313636365c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22313636365c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e3438302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223839385c222079313d5c2238325c222078323d5c223839385c222079323d5c223235385c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223930335c2220793d5c223237325c2220746578742d616e63686f723d5c2273746172745c223e636f7272656374656420627566666572206c6174636865733c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223130355c2220746578742d616e63686f723d5c2273746172745c223e49325320444d41206f757470757420283230204d487a2062697473747265616d293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d315c2220783d5c223133305c2220793d5c2239305c222077696474683d5c223736385c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c223531345c2220793d5c223130385c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e70617373204e202d2062756666657220413c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d315c2220783d5c223839385c2220793d5c2239305c222077696474683d5c223736385c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c22313238325c2220793d5c223130385c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e70617373204e2b31202d2062756666657220422028636f72726563746564293c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223136315c2220746578742d616e63686f723d5c2273746172745c223e454f4620696e74657272757074733c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d335c2220783d5c223530372e365c2220793d5c223134365c222077696474683d5c2231392e325c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223530372e365c2220793d5c223139305c2220746578742d616e63686f723d5c2273746172745c223e747269676765723c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d335c2220783d5c223837382e385c2220793d5c223134365c222077696474683d5c2231392e325c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223837382e385c2220793d5c223139305c2220746578742d616e63686f723d5c2273746172745c223e7461696c3c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d335c2220783d5c22313237352e365c2220793d5c223134365c222077696474683d5c2231392e325c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22313237352e365c2220793d5c223139305c2220746578742d616e63686f723d5c2273746172745c223e747269676765723c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d335c2220783d5c22313634362e385c2220793d5c223134365c222077696474683d5c2231392e325c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22313634362e385c2220793d5c223139305c2220746578742d616e63686f723d5c2273746172745c223e7461696c3c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223231375c2220746578742d616e63686f723d5c2273746172745c223e436f6e74726f6c207461736b2028636f726520312c207072696f203130293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6d757465645c2220783d5c223133305c2220793d5c223230325c222077696474683d5c223338345c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c223332325c2220793d5c223232305c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e69646c6520756e74696c20747269676765723c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d7761726e5c2220783d5c223531345c2220793d5c223230325c222077696474683d5c223137322e385c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223531345c2220793d5c223234365c2220746578742d616e63686f723d5c2273746172745c223e736e617073686f74202b206761696e202b2072656e646572202b2072656c696e6b3c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6d757465645c2220783d5c223638362e385c2220793d5c223230325c222077696474683d5c223539352e325c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c223938342e345c2220793d5c223232305c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e69646c653c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d7761726e5c2220783d5c22313238325c2220793d5c223230325c222077696474683d5c223137322e385c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22313238325c2220793d5c223234365c2220746578742d616e63686f723d5c2273746172745c223e736e617073686f74202b206761696e202b2072656e646572202b2072656c696e6b3c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223133305c2220793d5c223239305c2220746578742d616e63686f723d5c2273746172745c223e7472696767657220666972657320313230207573206265666f726520746865207461696c2028444d415f434f4e54524f4c5f4c4541445f5553293b2061206d69737365642077696e646f772073656c662d6c6f6f707320616e64207265706c6179732070617373204e20756e6368616e6765643c2f746578743e5c6e3c2f7376673e227d"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 1710 330" role="img" aria-label="pass-structure timeline diagram" font-family="Helvetica, Arial, sans-serif" font-size="12">
+          <title>pass-structure timeline diagram</title>
+          <text class="label" x="0" y="18" text-anchor="start" font-weight="bold">DMA pass structure - default 60 us cycle, 4 copies per pass</text>
+          <line class="arrow" x1="130" y1="52" x2="1666" y2="52"/>
+          <line class="lane dash" x1="130" y1="59" x2="130" y2="254"/>
+          <line class="lane dash" x1="514" y1="59" x2="514" y2="254"/>
+          <line class="lane dash" x1="898" y1="59" x2="898" y2="254"/>
+          <line class="lane dash" x1="1282" y1="59" x2="1282" y2="254"/>
+          <line class="lane dash" x1="1666" y1="59" x2="1666" y2="254"/>
+          <line class="lane" x1="0" y1="86" x2="1666" y2="86"/>
+          <line class="lane" x1="0" y1="142" x2="1666" y2="142"/>
+          <line class="lane" x1="0" y1="198" x2="1666" y2="198"/>
+          <line class="lane" x1="0" y1="254" x2="1666" y2="254"/>
+          <line class="arrow" x1="130" y1="45" x2="130" y2="59"/>
+          <text class="small" x="130" y="38" text-anchor="middle">0 us</text>
+          <line class="arrow" x1="514" y1="45" x2="514" y2="59"/>
+          <text class="small" x="514" y="38" text-anchor="middle">120 us</text>
+          <line class="arrow" x1="898" y1="45" x2="898" y2="59"/>
+          <text class="small" x="898" y="38" text-anchor="middle">240 us</text>
+          <line class="arrow" x1="1282" y1="45" x2="1282" y2="59"/>
+          <text class="small" x="1282" y="38" text-anchor="middle">360 us</text>
+          <line class="arrow" x1="1666" y1="45" x2="1666" y2="59"/>
+          <text class="small" x="1666" y="38" text-anchor="middle">480 us</text>
+          <line class="lane dash" x1="898" y1="82" x2="898" y2="258"/>
+          <text class="small" x="903" y="272" text-anchor="start">corrected buffer latches</text>
+          <text class="small" x="0" y="105" text-anchor="start">I2S DMA output (20 MHz bitstream)</text>
+          <rect class="chart-level-1" x="130" y="90" width="768" height="28" rx="0"/>
+          <text class="label" x="514" y="108" text-anchor="middle" font-weight="bold">pass N - buffer A</text>
+          <rect class="chart-level-1" x="898" y="90" width="768" height="28" rx="0"/>
+          <text class="label" x="1282" y="108" text-anchor="middle" font-weight="bold">pass N+1 - buffer B (corrected)</text>
+          <text class="small" x="0" y="161" text-anchor="start">EOF interrupts</text>
+          <rect class="chart-level-3" x="507.6" y="146" width="19.2" height="28" rx="0"/>
+          <text class="small" x="507.6" y="190" text-anchor="start">trigger</text>
+          <rect class="chart-level-3" x="878.8" y="146" width="19.2" height="28" rx="0"/>
+          <text class="small" x="878.8" y="190" text-anchor="start">tail</text>
+          <rect class="chart-level-3" x="1275.6" y="146" width="19.2" height="28" rx="0"/>
+          <text class="small" x="1275.6" y="190" text-anchor="start">trigger</text>
+          <rect class="chart-level-3" x="1646.8" y="146" width="19.2" height="28" rx="0"/>
+          <text class="small" x="1646.8" y="190" text-anchor="start">tail</text>
+          <text class="small" x="0" y="217" text-anchor="start">Control task (core 1, prio 10)</text>
+          <rect class="chart-muted" x="130" y="202" width="384" height="28" rx="0"/>
+          <text class="label" x="322" y="220" text-anchor="middle" font-weight="bold">idle until trigger</text>
+          <rect class="chart-warn" x="514" y="202" width="172.8" height="28" rx="0"/>
+          <text class="small" x="514" y="246" text-anchor="start">snapshot + gain + render + relink</text>
+          <rect class="chart-muted" x="686.8" y="202" width="595.2" height="28" rx="0"/>
+          <text class="label" x="984.4" y="220" text-anchor="middle" font-weight="bold">idle</text>
+          <rect class="chart-warn" x="1282" y="202" width="172.8" height="28" rx="0"/>
+          <text class="small" x="1282" y="246" text-anchor="start">snapshot + gain + render + relink</text>
+          <text class="small" x="130" y="290" text-anchor="start">trigger fires 120 us before the tail (DMA_CONTROL_LEAD_US); a missed window self-loops and replays pass N unchanged</text>
+          </svg></figure>
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-analog-reading" data-mado-session-id="analog-reading">
+        <h2><span class="mado-session-number" aria-hidden="true">2. </span><span class="mado-session-title">Reading the analog signals</span></h2>
+        <div class="mado-session-content content">
+          <p>The reading side (<code>main/src/helper_analog.cpp</code>) runs on Core&nbsp;0, fully decoupled from the signal engine:</p>
+          <ol>
+            <li>The ADC samples AN3/AN5/AN6 round-robin at 250&nbsp;kHz aggregate — one triple every 12&nbsp;µs, free-running, with <em>no phase relationship</em> to the signal edges.</li>
+            <li>Samples accumulate in the ADC DMA driver into frames of 16 triples (48 samples = <strong>192&nbsp;µs of signal time per frame</strong>). The driver store holds up to 4 frames; <code>flush_pool&nbsp;=&nbsp;1</code> prefers dropping old data over keeping a backlog.</li>
+            <li>When a frame completes, the <code>on_conv_done</code> ISR captures a timestamp — this is what makes the age of each sample measurable later.</li>
+            <li>The acquisition task reads the frame, <strong>backdates every sample</strong> to its true conversion time (frame timestamp minus position × sample period), assembles complete triples, and publishes <strong>only the newest one</strong> through a seqlock. Older triples in the same batch are discarded on purpose — the control point only ever wants "the latest".</li>
+          </ol>
+          <p>Because the publisher writes a single snapshot behind a sequence counter, the Core-1 reader can always grab a coherent triple without locks, and a preempted Core-0 writer can never stall the control point: the seqlock read is bounded and gives up as a recoverable miss.</p>
+          <figure class="mado-generated-diagram" data-mado-component-id="acquisition-timeline" data-mado-component-kind="generated-diagram" data-mado-diagram-state="7b226964223a226163717569736974696f6e2d74696d656c696e65222c226469616772616d5f74797065223a2274696d656c696e65222c226469616772616d5f666f726d6174223a22706c616e74756d6c222c22736f75726365223a22407374617274756d6c5c6e7469746c6520416e616c6f67206163717569736974696f6e20706970656c696e65202d206f6e65206672616d65206576657279203139322075735c6e7363616c65203020746f203438302075735c6e7469636b732030203936203139322032383820333834203438305c6e5c6e6c616e65206164633a204144432068617264776172652028323530206b487a2c20667265652d72756e6e696e67295c6e7461736b2068617264776172652030203139323a206672616d65206b20616363756d756c617465732028313620747269706c6573295c6e7461736b20686172647761726520313932203139323a206672616d65206b2b3120616363756d756c617465735c6e7461736b206861726477617265203338342039363a206672616d65206b2b3220616363756d756c617465735c6e5c6e6c616e65206973723a20636f6e762d646f6e65204953525c6e7461736b20696f2031393020363a2074696d657374616d70206672616d65206b5c6e7461736b20696f2033383220363a2074696d657374616d70206672616d65206b2b315c6e5c6e6c616e65206163713a204163717569736974696f6e207461736b2028636f72652030295c6e7461736b2077616974203130302039323a20626c6f636b656420696e206164635f636f6e74696e756f75735f726561642028746865206c6174656e63792073746174295c6e7461736b203139322032343a206261636b646174652073616d706c65732c20617373656d626c6520747269706c65732c207075626c697368206e65776573745c6e7461736b207761697420323136203136363a20626c6f636b656420696e206164635f636f6e74696e756f75735f726561645c6e7461736b203338342032343a207075626c697368206e657765737420747269706c655c6e5c6e6d61726b6572203139323a20636f6e76657273696f6e2074696d657374616d70203d207468652062697274682074696d65207573656420666f72206167655c6e6e6f7465206c616e65206163713a206c6174656e6379206d656173757265732074686520626c6f636b65642074696d653b20616765206d65617375726573206e6f77206d696e75732074686520636f6e76657273696f6e2074696d657374616d705c6e40656e64756d6c5c6e222c2272656e64657265645f737667223a223c73766720786d6c6e733d5c22687474703a2f2f7777772e77332e6f72672f323030302f7376675c222076696577426f783d5c222d3130202d31302031373130203333305c2220726f6c653d5c22696d675c2220617269612d6c6162656c3d5c226163717569736974696f6e2d74696d656c696e652074696d656c696e65206469616772616d5c2220666f6e742d66616d696c793d5c2248656c7665746963612c20417269616c2c2073616e732d73657269665c2220666f6e742d73697a653d5c2231325c223e5c6e3c7469746c653e6163717569736974696f6e2d74696d656c696e652074696d656c696e65206469616772616d3c2f7469746c653e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c22305c2220793d5c2231385c2220746578742d616e63686f723d5c2273746172745c2220666f6e742d7765696768743d5c22626f6c645c223e416e616c6f67206163717569736974696f6e20706970656c696e65202d206f6e65206672616d65206576657279203139322075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223133305c222079313d5c2235325c222078323d5c22313636365c222079323d5c2235325c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223133305c222079313d5c2235395c222078323d5c223133305c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223433372e325c222079313d5c2235395c222078323d5c223433372e325c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223734342e345c222079313d5c2235395c222078323d5c223734342e345c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c22313035312e365c222079313d5c2235395c222078323d5c22313035312e365c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c22313335382e385c222079313d5c2235395c222078323d5c22313335382e385c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c22313636365c222079313d5c2235395c222078323d5c22313636365c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c2238365c222078323d5c22313636365c222079323d5c2238365c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c223134325c222078323d5c22313636365c222079323d5c223134325c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c223139385c222078323d5c22313636365c222079323d5c223139385c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c223235345c222078323d5c22313636365c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223133305c222079313d5c2234355c222078323d5c223133305c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223133305c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223433372e325c222079313d5c2234355c222078323d5c223433372e325c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223433372e325c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e39362075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223734342e345c222079313d5c2234355c222078323d5c223734342e345c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223734342e345c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e3139322075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c22313035312e365c222079313d5c2234355c222078323d5c22313035312e365c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22313035312e365c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e3238382075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c22313335382e385c222079313d5c2234355c222078323d5c22313335382e385c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22313335382e385c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e3338342075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c22313636365c222079313d5c2234355c222078323d5c22313636365c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22313636365c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e3438302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223734342e345c222079313d5c2238325c222078323d5c223734342e345c222079323d5c223235385c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223734392e345c2220793d5c223237325c2220746578742d616e63686f723d5c2273746172745c223e636f6e76657273696f6e2074696d657374616d70203d207468652062697274682074696d65207573656420666f72206167653c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223130355c2220746578742d616e63686f723d5c2273746172745c223e4144432068617264776172652028323530206b487a2c20667265652d72756e6e696e67293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d315c2220783d5c223133305c2220793d5c2239305c222077696474683d5c223631342e345c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c223433372e325c2220793d5c223130385c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e6672616d65206b20616363756d756c617465732028313620747269706c6573293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d315c2220783d5c223734342e345c2220793d5c2239305c222077696474683d5c223631342e345c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c22313035312e365c2220793d5c223130385c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e6672616d65206b2b3120616363756d756c617465733c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d315c2220783d5c22313335382e385c2220793d5c2239305c222077696474683d5c223330372e325c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c22313531322e345c2220793d5c223130385c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e6672616d65206b2b3220616363756d756c617465733c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223136315c2220746578742d616e63686f723d5c2273746172745c223e636f6e762d646f6e65204953523c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d335c2220783d5c223733385c2220793d5c223134365c222077696474683d5c2231392e325c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223733385c2220793d5c223139305c2220746578742d616e63686f723d5c2273746172745c223e74696d657374616d70206672616d65206b3c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d335c2220783d5c22313335322e345c2220793d5c223134365c222077696474683d5c2231392e325c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22313335322e345c2220793d5c223139305c2220746578742d616e63686f723d5c2273746172745c223e74696d657374616d70206672616d65206b2b313c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223231375c2220746578742d616e63686f723d5c2273746172745c223e4163717569736974696f6e207461736b2028636f72652030293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6d757465645c2220783d5c223435305c2220793d5c223230325c222077696474683d5c223239342e345c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223435305c2220793d5c223234365c2220746578742d616e63686f723d5c2273746172745c223e626c6f636b656420696e206164635f636f6e74696e756f75735f726561642028746865206c6174656e63792073746174293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d325c2220783d5c223734342e345c2220793d5c223230325c222077696474683d5c2237362e385c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223734342e345c2220793d5c223234365c2220746578742d616e63686f723d5c2273746172745c223e6261636b646174652073616d706c65732c20617373656d626c6520747269706c65732c207075626c697368206e65776573743c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6d757465645c2220783d5c223832312e325c2220793d5c223230325c222077696474683d5c223533312e325c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c22313038362e385c2220793d5c223232305c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e626c6f636b656420696e206164635f636f6e74696e756f75735f726561643c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d325c2220783d5c22313335382e385c2220793d5c223230325c222077696474683d5c2237362e385c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22313335382e385c2220793d5c223234365c2220746578742d616e63686f723d5c2273746172745c223e7075626c697368206e657765737420747269706c653c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223133305c2220793d5c223239305c2220746578742d616e63686f723d5c2273746172745c223e6163713a206c6174656e6379206d656173757265732074686520626c6f636b65642074696d653b20616765206d65617375726573206e6f77206d696e75732074686520636f6e76657273696f6e2074696d657374616d703c2f746578743e5c6e3c2f7376673e227d"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 1710 330" role="img" aria-label="acquisition-timeline timeline diagram" font-family="Helvetica, Arial, sans-serif" font-size="12">
+          <title>acquisition-timeline timeline diagram</title>
+          <text class="label" x="0" y="18" text-anchor="start" font-weight="bold">Analog acquisition pipeline - one frame every 192 us</text>
+          <line class="arrow" x1="130" y1="52" x2="1666" y2="52"/>
+          <line class="lane dash" x1="130" y1="59" x2="130" y2="254"/>
+          <line class="lane dash" x1="437.2" y1="59" x2="437.2" y2="254"/>
+          <line class="lane dash" x1="744.4" y1="59" x2="744.4" y2="254"/>
+          <line class="lane dash" x1="1051.6" y1="59" x2="1051.6" y2="254"/>
+          <line class="lane dash" x1="1358.8" y1="59" x2="1358.8" y2="254"/>
+          <line class="lane dash" x1="1666" y1="59" x2="1666" y2="254"/>
+          <line class="lane" x1="0" y1="86" x2="1666" y2="86"/>
+          <line class="lane" x1="0" y1="142" x2="1666" y2="142"/>
+          <line class="lane" x1="0" y1="198" x2="1666" y2="198"/>
+          <line class="lane" x1="0" y1="254" x2="1666" y2="254"/>
+          <line class="arrow" x1="130" y1="45" x2="130" y2="59"/>
+          <text class="small" x="130" y="38" text-anchor="middle">0 us</text>
+          <line class="arrow" x1="437.2" y1="45" x2="437.2" y2="59"/>
+          <text class="small" x="437.2" y="38" text-anchor="middle">96 us</text>
+          <line class="arrow" x1="744.4" y1="45" x2="744.4" y2="59"/>
+          <text class="small" x="744.4" y="38" text-anchor="middle">192 us</text>
+          <line class="arrow" x1="1051.6" y1="45" x2="1051.6" y2="59"/>
+          <text class="small" x="1051.6" y="38" text-anchor="middle">288 us</text>
+          <line class="arrow" x1="1358.8" y1="45" x2="1358.8" y2="59"/>
+          <text class="small" x="1358.8" y="38" text-anchor="middle">384 us</text>
+          <line class="arrow" x1="1666" y1="45" x2="1666" y2="59"/>
+          <text class="small" x="1666" y="38" text-anchor="middle">480 us</text>
+          <line class="lane dash" x1="744.4" y1="82" x2="744.4" y2="258"/>
+          <text class="small" x="749.4" y="272" text-anchor="start">conversion timestamp = the birth time used for age</text>
+          <text class="small" x="0" y="105" text-anchor="start">ADC hardware (250 kHz, free-running)</text>
+          <rect class="chart-level-1" x="130" y="90" width="614.4" height="28" rx="0"/>
+          <text class="label" x="437.2" y="108" text-anchor="middle" font-weight="bold">frame k accumulates (16 triples)</text>
+          <rect class="chart-level-1" x="744.4" y="90" width="614.4" height="28" rx="0"/>
+          <text class="label" x="1051.6" y="108" text-anchor="middle" font-weight="bold">frame k+1 accumulates</text>
+          <rect class="chart-level-1" x="1358.8" y="90" width="307.2" height="28" rx="0"/>
+          <text class="label" x="1512.4" y="108" text-anchor="middle" font-weight="bold">frame k+2 accumulates</text>
+          <text class="small" x="0" y="161" text-anchor="start">conv-done ISR</text>
+          <rect class="chart-level-3" x="738" y="146" width="19.2" height="28" rx="0"/>
+          <text class="small" x="738" y="190" text-anchor="start">timestamp frame k</text>
+          <rect class="chart-level-3" x="1352.4" y="146" width="19.2" height="28" rx="0"/>
+          <text class="small" x="1352.4" y="190" text-anchor="start">timestamp frame k+1</text>
+          <text class="small" x="0" y="217" text-anchor="start">Acquisition task (core 0)</text>
+          <rect class="chart-muted" x="450" y="202" width="294.4" height="28" rx="0"/>
+          <text class="small" x="450" y="246" text-anchor="start">blocked in adc_continuous_read (the latency stat)</text>
+          <rect class="chart-level-2" x="744.4" y="202" width="76.8" height="28" rx="0"/>
+          <text class="small" x="744.4" y="246" text-anchor="start">backdate samples, assemble triples, publish newest</text>
+          <rect class="chart-muted" x="821.2" y="202" width="531.2" height="28" rx="0"/>
+          <text class="label" x="1086.8" y="220" text-anchor="middle" font-weight="bold">blocked in adc_continuous_read</text>
+          <rect class="chart-level-2" x="1358.8" y="202" width="76.8" height="28" rx="0"/>
+          <text class="small" x="1358.8" y="246" text-anchor="start">publish newest triple</text>
+          <text class="small" x="130" y="290" text-anchor="start">acq: latency measures the blocked time; age measures now minus the conversion timestamp</text>
+          </svg></figure>
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-age-vs-latency" data-mado-session-id="age-vs-latency">
+        <h2><span class="mado-session-number" aria-hidden="true">3. </span><span class="mado-session-title">The age of an element vs the latency statistics</span></h2>
+        <div class="mado-session-content content">
+          <p>The status values <code>ADC Latency min/avg/max</code> and the snapshot <code>age</code> are <strong>two different measurements taken at two different places</strong> — and only age ever touches the values the controller uses.</p>
+          
+          <p>The latency statistic is a stopwatch around the <code>adc_continuous_read()</code> call:</p>
+          
+          <details class="mado-foldable-code" data-mado-component-id="latency-stopwatch"><summary class="mado-code-summary">Show code: cpp</summary><pre data-mado-component-id="latency-stopwatch"><code class="language-cpp">uint32_t start = esp_cpu_get_cycle_count();
+          esp_err_t ret = adc_continuous_read(s_adc_continuous_handle, frame,
+                                              sizeof(frame), &amp;out_len, 20);
+          uint32_t end = esp_cpu_get_cycle_count();
+          // ... the min/avg/max stat: how long the TASK waited for a frame
+          analog_record_latency((end - start) / esp_rom_get_cpu_ticks_per_us());</code></pre></details>
+          
+          <p>It measures <strong>how long the acquisition task sat blocked waiting for a frame</strong> — a Core-0 health metric that is never attached to a sample and never gates a value:</p>
+          
+          <table>
+            <tr><th>Statistic</th><th>Interpretation</th></tr>
+            <tr><td>min 3&nbsp;µs</td><td>A completed frame was already waiting in the driver store; the call returned immediately.</td></tr>
+            <tr><td>avg 119&nbsp;µs</td><td>The task usually arrives mid-frame and waits the remainder of the 192&nbsp;µs accumulation (about half a frame ≈ 96&nbsp;µs plus wakeup overhead). This is the <em>healthy</em> signature.</td></tr>
+            <tr><td>max 4481&nbsp;µs</td><td>One call took 4.5&nbsp;ms of wall clock. Frames complete every 192&nbsp;µs, so the <em>task itself did not get CPU time</em> (Core&nbsp;0 busy, typically a BLE burst) — the ADC never stopped.</td></tr>
+          </table>
+          
+          <p>Age is computed at the moment of <em>use</em>, in <code>analog_read_control_snapshot()</code>, from the ISR-captured, backdated <strong>conversion time</strong>:</p>
+          
+          <details class="mado-foldable-code" data-mado-component-id="age-gate"><summary class="mado-code-summary">Show code: cpp</summary><pre data-mado-component-id="age-gate"><code class="language-cpp">uint64_t age_us = now_us - copy.timestamp_us;   // conversion time, from the ISR
+          uint32_t seq = seq_raw / 2U;
+          if (seq == last_seq || age_us &gt; effective_max_age_us) {
+              analog_record_miss(ANALOG_FAULT_STALE_SAMPLE); // rejected — never used
+              return false;
+          }</code></pre></details>
+          
+          <p>The budget is max(signal cycle window, 288&nbsp;µs pipeline floor). A rejected snapshot is a recorded miss and the DMA engine simply self-loops the previous buffer.</p>
+          
+          <p><strong>Q: Am I using a value with the max latency?</strong><br>
+          No — twice over. First, latency is not a property of any value; it is the reader task's blocking time. Second, even when a 4.5&nbsp;ms stall makes the eventually-published data old, the age gate rejects it at the control point. The consequence of a stall is <em>missed correction updates, never actuation on old data</em>. One real side effect: 3 consecutive misses auto-disable the controller in <code>signal_control_update_corrections()</code> — if control has ever dropped to OFF by itself, these max-latency events are the likely cause.</p>
+          
+          <p><strong>Q: Can some newer element be used instead?</strong><br>
+          There is no newer <em>published</em> element to pick — the pipeline already discards everything except the newest triple per read. During a stall, newer samples do exist, but as raw unread bytes inside the ADC DMA store. The remedy is making the reader run sooner (Core-0 scheduling, smaller frames), not selecting a different element.</p>
+          <figure class="mado-generated-diagram" data-mado-component-id="stall-timeline" data-mado-component-kind="generated-diagram" data-mado-diagram-state="7b226964223a227374616c6c2d74696d656c696e65222c226469616772616d5f74797065223a2274696d656c696e65222c226469616772616d5f666f726d6174223a22706c616e74756d6c222c22736f75726365223a22407374617274756d6c5c6e7469746c65204d61782d6c6174656e6379206576656e74202d206163717569736974696f6e207461736b207374617276656420666f7220343438312075735c6e7363616c65203020746f20363030302075735c6e7469636b73203020313530302033303030203435303020363030305c6e5c6e6c616e65206164633a204144432068617264776172655c6e7461736b206861726477617265203020363030303a2073616d706c696e67206e657665722073746f7073202d2061206672616d6520636f6d706c65746573206576657279203139322075735c6e5c6e6c616e652073746f72653a20414443206472697665722073746f7265202834206672616d65732064656570295c6e7461736b2030203736383a2066696c6c732075705c6e7461736b20776169742037363820333731333a2066756c6c202d206f6c64657374206672616d65732064726f707065642028666c7573685f706f6f6c295c6e7461736b2034343831203330303a20647261696e65642062792063617463682d75702072656164735c6e5c6e6c616e65206163713a204163717569736974696f6e207461736b2028636f72652030295c6e7461736b2077616974203020343438313a206e6f74207363686564756c6564202d20636f726520302062757379202874686973206973207468652034343831207573206d6178206c6174656e6379295c6e7461736b2034343831203132303a2063617463682d7570207265616473207075626c697368206f6c6420747269706c65735c6e7461736b20343630312036303a20667265736820747269706c65207075626c69736865645c6e5c6e6c616e652063746c3a20436f6e74726f6c20706f696e7420286f6e636520706572203234302075732070617373295c6e7461736b20637269746963616c20302035343a206c61737420676f6f64207570646174655c6e7461736b207761697420353420343432373a2065766572792072656164206d6973736573202d207374616c6520736571206f7220616765206f766572206275646765745c6e5c6e6d61726b6572203732303a20746869726420636f6e7365637574697665206d697373202d20636f6e74726f6c206175746f2d6f66665c6e6e6f74653a207468652061676520676174652072656a6563747320746865206f6c642063617463682d757020747269706c65733b20746865207369676e616c207265706c61797320746865206c61737420636f6d6d697474656420627566666572207468652077686f6c652074696d655c6e40656e64756d6c5c6e222c2272656e64657265645f737667223a223c73766720786d6c6e733d5c22687474703a2f2f7777772e77332e6f72672f323030302f7376675c222076696577426f783d5c222d3130202d3130203139333734203338365c2220726f6c653d5c22696d675c2220617269612d6c6162656c3d5c227374616c6c2d74696d656c696e652074696d656c696e65206469616772616d5c2220666f6e742d66616d696c793d5c2248656c7665746963612c20417269616c2c2073616e732d73657269665c2220666f6e742d73697a653d5c2231325c223e5c6e3c7469746c653e7374616c6c2d74696d656c696e652074696d656c696e65206469616772616d3c2f7469746c653e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c22305c2220793d5c2231385c2220746578742d616e63686f723d5c2273746172745c2220666f6e742d7765696768743d5c22626f6c645c223e4d61782d6c6174656e6379206576656e74202d206163717569736974696f6e207461736b207374617276656420666f7220343438312075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223133305c222079313d5c2235325c222078323d5c2231393333305c222079323d5c2235325c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223133305c222079313d5c2235395c222078323d5c223133305c222079323d5c223331305c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c22343933305c222079313d5c2235395c222078323d5c22343933305c222079323d5c223331305c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c22393733305c222079313d5c2235395c222078323d5c22393733305c222079323d5c223331305c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c2231343533305c222079313d5c2235395c222078323d5c2231343533305c222079323d5c223331305c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c2231393333305c222079313d5c2235395c222078323d5c2231393333305c222079323d5c223331305c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c2238365c222078323d5c2231393333305c222079323d5c2238365c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c223134325c222078323d5c2231393333305c222079323d5c223134325c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c223139385c222078323d5c2231393333305c222079323d5c223139385c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c223235345c222078323d5c2231393333305c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c223331305c222078323d5c2231393333305c222079323d5c223331305c222f3e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223133305c222079313d5c2234355c222078323d5c223133305c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223133305c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c22343933305c222079313d5c2234355c222078323d5c22343933305c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22343933305c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e313530302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c22393733305c222079313d5c2234355c222078323d5c22393733305c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22393733305c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e333030302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c2231343533305c222079313d5c2234355c222078323d5c2231343533305c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c2231343533305c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e343530302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c2231393333305c222079313d5c2234355c222078323d5c2231393333305c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c2231393333305c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e363030302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c22323433345c222079313d5c2238325c222078323d5c22323433345c222079323d5c223331345c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22323433395c2220793d5c223332385c2220746578742d616e63686f723d5c2273746172745c223e746869726420636f6e7365637574697665206d697373202d20636f6e74726f6c206175746f2d6f66663c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223130355c2220746578742d616e63686f723d5c2273746172745c223e4144432068617264776172653c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d315c2220783d5c223133305c2220793d5c2239305c222077696474683d5c2231393230305c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c22393733305c2220793d5c223130385c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e73616d706c696e67206e657665722073746f7073202d2061206672616d6520636f6d706c65746573206576657279203139322075733c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223136315c2220746578742d616e63686f723d5c2273746172745c223e414443206472697665722073746f7265202834206672616d65732064656570293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d325c2220783d5c223133305c2220793d5c223134365c222077696474683d5c22323435372e365c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c22313335382e385c2220793d5c223136345c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e66696c6c732075703c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6d757465645c2220783d5c22323538372e365c2220793d5c223134365c222077696474683d5c2231313838312e365c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c22383532382e345c2220793d5c223136345c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e66756c6c202d206f6c64657374206672616d65732064726f707065642028666c7573685f706f6f6c293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d325c2220783d5c2231343436392e325c2220793d5c223134365c222077696474683d5c223936305c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c2231343934392e325c2220793d5c223136345c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e647261696e65642062792063617463682d75702072656164733c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223231375c2220746578742d616e63686f723d5c2273746172745c223e4163717569736974696f6e207461736b2028636f72652030293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6d757465645c2220783d5c223133305c2220793d5c223230325c222077696474683d5c2231343333392e325c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c22373239392e365c2220793d5c223232305c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e6e6f74207363686564756c6564202d20636f726520302062757379202874686973206973207468652034343831207573206d6178206c6174656e6379293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d325c2220783d5c2231343436392e325c2220793d5c223230325c222077696474683d5c223338345c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c2231343636312e325c2220793d5c223232305c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e63617463682d7570207265616473207075626c697368206f6c6420747269706c65733c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d325c2220783d5c2231343835332e325c2220793d5c223230325c222077696474683d5c223139325c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c2231343934392e325c2220793d5c223232305c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e667265736820747269706c65207075626c69736865643c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223237335c2220746578742d616e63686f723d5c2273746172745c223e436f6e74726f6c20706f696e7420286f6e636520706572203234302075732070617373293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d7761726e5c2220783d5c223133305c2220793d5c223235385c222077696474683d5c223137322e385c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c223231362e345c2220793d5c223237365c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e6c61737420676f6f64207570646174653c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6d757465645c2220783d5c223330322e385c2220793d5c223235385c222077696474683d5c2231343136362e345c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c22373338365c2220793d5c223237365c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e65766572792072656164206d6973736573202d207374616c6520736571206f7220616765206f766572206275646765743c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223133305c2220793d5c223334365c2220746578742d616e63686f723d5c2273746172745c223e7468652061676520676174652072656a6563747320746865206f6c642063617463682d757020747269706c65733b20746865207369676e616c207265706c61797320746865206c61737420636f6d6d697474656420627566666572207468652077686f6c652074696d653c2f746578743e5c6e3c2f7376673e227d"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 19374 386" role="img" aria-label="stall-timeline timeline diagram" font-family="Helvetica, Arial, sans-serif" font-size="12">
+          <title>stall-timeline timeline diagram</title>
+          <text class="label" x="0" y="18" text-anchor="start" font-weight="bold">Max-latency event - acquisition task starved for 4481 us</text>
+          <line class="arrow" x1="130" y1="52" x2="19330" y2="52"/>
+          <line class="lane dash" x1="130" y1="59" x2="130" y2="310"/>
+          <line class="lane dash" x1="4930" y1="59" x2="4930" y2="310"/>
+          <line class="lane dash" x1="9730" y1="59" x2="9730" y2="310"/>
+          <line class="lane dash" x1="14530" y1="59" x2="14530" y2="310"/>
+          <line class="lane dash" x1="19330" y1="59" x2="19330" y2="310"/>
+          <line class="lane" x1="0" y1="86" x2="19330" y2="86"/>
+          <line class="lane" x1="0" y1="142" x2="19330" y2="142"/>
+          <line class="lane" x1="0" y1="198" x2="19330" y2="198"/>
+          <line class="lane" x1="0" y1="254" x2="19330" y2="254"/>
+          <line class="lane" x1="0" y1="310" x2="19330" y2="310"/>
+          <line class="arrow" x1="130" y1="45" x2="130" y2="59"/>
+          <text class="small" x="130" y="38" text-anchor="middle">0 us</text>
+          <line class="arrow" x1="4930" y1="45" x2="4930" y2="59"/>
+          <text class="small" x="4930" y="38" text-anchor="middle">1500 us</text>
+          <line class="arrow" x1="9730" y1="45" x2="9730" y2="59"/>
+          <text class="small" x="9730" y="38" text-anchor="middle">3000 us</text>
+          <line class="arrow" x1="14530" y1="45" x2="14530" y2="59"/>
+          <text class="small" x="14530" y="38" text-anchor="middle">4500 us</text>
+          <line class="arrow" x1="19330" y1="45" x2="19330" y2="59"/>
+          <text class="small" x="19330" y="38" text-anchor="middle">6000 us</text>
+          <line class="lane dash" x1="2434" y1="82" x2="2434" y2="314"/>
+          <text class="small" x="2439" y="328" text-anchor="start">third consecutive miss - control auto-off</text>
+          <text class="small" x="0" y="105" text-anchor="start">ADC hardware</text>
+          <rect class="chart-level-1" x="130" y="90" width="19200" height="28" rx="0"/>
+          <text class="label" x="9730" y="108" text-anchor="middle" font-weight="bold">sampling never stops - a frame completes every 192 us</text>
+          <text class="small" x="0" y="161" text-anchor="start">ADC driver store (4 frames deep)</text>
+          <rect class="chart-level-2" x="130" y="146" width="2457.6" height="28" rx="0"/>
+          <text class="label" x="1358.8" y="164" text-anchor="middle" font-weight="bold">fills up</text>
+          <rect class="chart-muted" x="2587.6" y="146" width="11881.6" height="28" rx="0"/>
+          <text class="label" x="8528.4" y="164" text-anchor="middle" font-weight="bold">full - oldest frames dropped (flush_pool)</text>
+          <rect class="chart-level-2" x="14469.2" y="146" width="960" height="28" rx="0"/>
+          <text class="label" x="14949.2" y="164" text-anchor="middle" font-weight="bold">drained by catch-up reads</text>
+          <text class="small" x="0" y="217" text-anchor="start">Acquisition task (core 0)</text>
+          <rect class="chart-muted" x="130" y="202" width="14339.2" height="28" rx="0"/>
+          <text class="label" x="7299.6" y="220" text-anchor="middle" font-weight="bold">not scheduled - core 0 busy (this is the 4481 us max latency)</text>
+          <rect class="chart-level-2" x="14469.2" y="202" width="384" height="28" rx="0"/>
+          <text class="label" x="14661.2" y="220" text-anchor="middle" font-weight="bold">catch-up reads publish old triples</text>
+          <rect class="chart-level-2" x="14853.2" y="202" width="192" height="28" rx="0"/>
+          <text class="label" x="14949.2" y="220" text-anchor="middle" font-weight="bold">fresh triple published</text>
+          <text class="small" x="0" y="273" text-anchor="start">Control point (once per 240 us pass)</text>
+          <rect class="chart-warn" x="130" y="258" width="172.8" height="28" rx="0"/>
+          <text class="label" x="216.4" y="276" text-anchor="middle" font-weight="bold">last good update</text>
+          <rect class="chart-muted" x="302.8" y="258" width="14166.4" height="28" rx="0"/>
+          <text class="label" x="7386" y="276" text-anchor="middle" font-weight="bold">every read misses - stale seq or age over budget</text>
+          <text class="small" x="130" y="346" text-anchor="start">the age gate rejects the old catch-up triples; the signal replays the last committed buffer the whole time</text>
+          </svg></figure>
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-working-together" data-mado-session-id="working-together">
+        <h2><span class="mado-session-number" aria-hidden="true">4. </span><span class="mado-session-title">How generation and reading work together</span></h2>
+        <div class="mado-session-content content">
+          <p>The contract: a measurement taken during pass&nbsp;N is consumed at the trigger (120&nbsp;µs before N ends), corrections are rendered and relinked before the tail, and pass&nbsp;N+1 plays them. The control cadence is one update per pass (240&nbsp;µs for the default pattern), which sits comfortably above the 192&nbsp;µs ADC frame period — so the DMA engine almost always finds a fresh snapshot waiting. (The CPU engine, by contrast, asks every ~60&nbsp;µs and makes stale reads structural.)</p>
+          
+          <table>
+            <tr><th>Quantity</th><th>Value</th><th>Source</th></tr>
+            <tr><td>Bitstream sample clock</td><td>20 MHz (50 ns/sample)</td><td><code>SIGNAL_DMA_SAMPLE_RATE_HZ</code> (D2)</td></tr>
+            <tr><td>Default cycle</td><td>60 µs (10/20/10/20 µs, modes 7/0/7/0)</td><td><code>signal_init_default_dataset()</code></td></tr>
+            <tr><td>Pass floor / default pass</td><td>≥ 200 µs → 4 copies = 240 µs</td><td><code>DMA_MIN_PASS_SAMPLES</code></td></tr>
+            <tr><td>Control lead</td><td>120 µs before the tail</td><td><code>DMA_CONTROL_LEAD_US</code> (D3/D4)</td></tr>
+            <tr><td>Dead time</td><td>2 µs = 40 samples</td><td><code>DEFAULT_DEAD_TIME_US</code></td></tr>
+            <tr><td>ADC rate / triple pitch</td><td>250 kHz aggregate / 12 µs per triple</td><td><code>g_analog_continuous_sample_hz</code></td></tr>
+            <tr><td>ADC frame</td><td>16 triples = 192 µs; store 4 frames deep</td><td><code>ADC_CONTINUOUS_FRAME_TRIPLES</code></td></tr>
+            <tr><td>Age budget at control point</td><td>max(cycle window, 288 µs floor)</td><td><code>analog_min_snapshot_age_us()</code></td></tr>
+            <tr><td>Control auto-off threshold</td><td>3 consecutive misses</td><td><code>signal_control_update_corrections()</code></td></tr>
+          </table>
+          
+          <p>Source files: <code>main/src/signal_engine_dma.cpp</code> (renderer, descriptor chains, ISR, control task), <code>main/src/signal_controller.cpp</code> (corrections, age budget, auto-off), <code>main/src/helper_analog.cpp</code> (continuous pipeline, ISR timestamps, seqlock, age gate, latency stopwatch), and <code>docs/adr/0001-dual-signal-engine-i2s-dma.md</code> (design decisions D1–D10).</p>
+          <figure class="mado-generated-diagram" data-mado-component-id="combined-timeline" data-mado-component-kind="generated-diagram" data-mado-diagram-state="7b226964223a22636f6d62696e65642d74696d656c696e65222c226469616772616d5f74797065223a2274696d656c696e65222c226469616772616d5f666f726d6174223a22706c616e74756d6c222c22736f75726365223a22407374617274756d6c5c6e7469746c65204d6561737572652c20636f72726563742c20706c6179202d20626f7468207369646573206f6e206f6e6520617869735c6e7363616c65203020746f203438302075735c6e7469636b732030203132302032343020333630203438305c6e5c6e6c616e65206164633a204144432068617264776172652028323530206b487a295c6e7461736b2068617264776172652030203139323a206672616d6520616363756d756c617465735c6e7461736b20686172647761726520313932203139323a206672616d6520616363756d756c617465735c6e7461736b206861726477617265203338342039363a206672616d6520616363756d756c617465735c6e5c6e6c616e65206163713a204163717569736974696f6e207461736b2028636f72652030295c6e7461736b20342031363a207075626c69736820747269706c652066726f6d2070726576696f7573206672616d655c6e7461736b203139322031363a207075626c697368206e657765737420747269706c655c6e7461736b203338342031363a207075626c697368206e657765737420747269706c655c6e5c6e6c616e652063746c3a20436f6e74726f6c207461736b2028636f72652031295c6e7461736b20637269746963616c203132302035343a20736e617073686f742028616765203131322075732c20706173736573206761746529202b2072656e646572202b2072656c696e6b5c6e7461736b20637269746963616c203336302035343a20736e617073686f742028616765203136382075732c20706173736573206761746529202b2072656e646572202b2072656c696e6b5c6e5c6e6c616e65206932733a2049325320444d41206f75747075745c6e7461736b2068617264776172652030203234303a2070617373204e202d2062756666657220415c6e7461736b20686172647761726520323430203234303a2070617373204e2b31202d20636f727265637465645c6e5c6e6d61726b6572203234303a2072656c696e6b206c617463686564206174207461696c5c6e6e6f74653a2061676520627564676574203d206d6178286379636c652077696e646f772c2032383820757320666c6f6f72293b20636f6e74726f6c20636164656e63652032343020757320657863656564732074686520313932207573206672616d6520706572696f642c20736f20736e617073686f74732061726520616c6d6f737420616c776179732066726573685c6e40656e64756d6c5c6e222c2272656e64657265645f737667223a223c73766720786d6c6e733d5c22687474703a2f2f7777772e77332e6f72672f323030302f7376675c222076696577426f783d5c222d3130202d31302031373130203338365c2220726f6c653d5c22696d675c2220617269612d6c6162656c3d5c22636f6d62696e65642d74696d656c696e652074696d656c696e65206469616772616d5c2220666f6e742d66616d696c793d5c2248656c7665746963612c20417269616c2c2073616e732d73657269665c2220666f6e742d73697a653d5c2231325c223e5c6e3c7469746c653e636f6d62696e65642d74696d656c696e652074696d656c696e65206469616772616d3c2f7469746c653e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c22305c2220793d5c2231385c2220746578742d616e63686f723d5c2273746172745c2220666f6e742d7765696768743d5c22626f6c645c223e4d6561737572652c20636f72726563742c20706c6179202d20626f7468207369646573206f6e206f6e6520617869733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223133305c222079313d5c2235325c222078323d5c22313636365c222079323d5c2235325c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223133305c222079313d5c2235395c222078323d5c223133305c222079323d5c223331305c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223531345c222079313d5c2235395c222078323d5c223531345c222079323d5c223331305c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223839385c222079313d5c2235395c222078323d5c223839385c222079323d5c223331305c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c22313238325c222079313d5c2235395c222078323d5c22313238325c222079323d5c223331305c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c22313636365c222079313d5c2235395c222078323d5c22313636365c222079323d5c223331305c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c2238365c222078323d5c22313636365c222079323d5c2238365c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c223134325c222078323d5c22313636365c222079323d5c223134325c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c223139385c222078323d5c22313636365c222079323d5c223139385c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c223235345c222078323d5c22313636365c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c223331305c222078323d5c22313636365c222079323d5c223331305c222f3e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223133305c222079313d5c2234355c222078323d5c223133305c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223133305c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223531345c222079313d5c2234355c222078323d5c223531345c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223531345c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e3132302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223839385c222079313d5c2234355c222078323d5c223839385c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223839385c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e3234302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c22313238325c222079313d5c2234355c222078323d5c22313238325c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22313238325c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e3336302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c22313636365c222079313d5c2234355c222078323d5c22313636365c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22313636365c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e3438302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223839385c222079313d5c2238325c222078323d5c223839385c222079323d5c223331345c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223930335c2220793d5c223332385c2220746578742d616e63686f723d5c2273746172745c223e72656c696e6b206c617463686564206174207461696c3c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223130355c2220746578742d616e63686f723d5c2273746172745c223e4144432068617264776172652028323530206b487a293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d315c2220783d5c223133305c2220793d5c2239305c222077696474683d5c223631342e345c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c223433372e325c2220793d5c223130385c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e6672616d6520616363756d756c617465733c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d315c2220783d5c223734342e345c2220793d5c2239305c222077696474683d5c223631342e345c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c22313035312e365c2220793d5c223130385c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e6672616d6520616363756d756c617465733c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d315c2220783d5c22313335382e385c2220793d5c2239305c222077696474683d5c223330372e325c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c22313531322e345c2220793d5c223130385c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e6672616d6520616363756d756c617465733c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223136315c2220746578742d616e63686f723d5c2273746172745c223e4163717569736974696f6e207461736b2028636f72652030293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d325c2220783d5c223134322e385c2220793d5c223134365c222077696474683d5c2235312e325c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223134322e385c2220793d5c223139305c2220746578742d616e63686f723d5c2273746172745c223e7075626c69736820747269706c652066726f6d2070726576696f7573206672616d653c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d325c2220783d5c223734342e345c2220793d5c223134365c222077696474683d5c2235312e325c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223734342e345c2220793d5c223139305c2220746578742d616e63686f723d5c2273746172745c223e7075626c697368206e657765737420747269706c653c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d325c2220783d5c22313335382e385c2220793d5c223134365c222077696474683d5c2235312e325c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22313335382e385c2220793d5c223139305c2220746578742d616e63686f723d5c2273746172745c223e7075626c697368206e657765737420747269706c653c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223231375c2220746578742d616e63686f723d5c2273746172745c223e436f6e74726f6c207461736b2028636f72652031293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d7761726e5c2220783d5c223531345c2220793d5c223230325c222077696474683d5c223137322e385c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223531345c2220793d5c223234365c2220746578742d616e63686f723d5c2273746172745c223e736e617073686f742028616765203131322075732c20706173736573206761746529202b2072656e646572202b2072656c696e6b3c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d7761726e5c2220783d5c22313238325c2220793d5c223230325c222077696474683d5c223137322e385c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22313238325c2220793d5c223234365c2220746578742d616e63686f723d5c2273746172745c223e736e617073686f742028616765203136382075732c20706173736573206761746529202b2072656e646572202b2072656c696e6b3c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223237335c2220746578742d616e63686f723d5c2273746172745c223e49325320444d41206f75747075743c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d315c2220783d5c223133305c2220793d5c223235385c222077696474683d5c223736385c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c223531345c2220793d5c223237365c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e70617373204e202d2062756666657220413c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d315c2220783d5c223839385c2220793d5c223235385c222077696474683d5c223736385c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c22313238325c2220793d5c223237365c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e70617373204e2b31202d20636f727265637465643c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223133305c2220793d5c223334365c2220746578742d616e63686f723d5c2273746172745c223e61676520627564676574203d206d6178286379636c652077696e646f772c2032383820757320666c6f6f72293b20636f6e74726f6c20636164656e63652032343020757320657863656564732074686520313932207573206672616d6520706572696f642c20736f20736e617073686f74732061726520616c6d6f737420616c776179732066726573683c2f746578743e5c6e3c2f7376673e227d"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 1710 386" role="img" aria-label="combined-timeline timeline diagram" font-family="Helvetica, Arial, sans-serif" font-size="12">
+          <title>combined-timeline timeline diagram</title>
+          <text class="label" x="0" y="18" text-anchor="start" font-weight="bold">Measure, correct, play - both sides on one axis</text>
+          <line class="arrow" x1="130" y1="52" x2="1666" y2="52"/>
+          <line class="lane dash" x1="130" y1="59" x2="130" y2="310"/>
+          <line class="lane dash" x1="514" y1="59" x2="514" y2="310"/>
+          <line class="lane dash" x1="898" y1="59" x2="898" y2="310"/>
+          <line class="lane dash" x1="1282" y1="59" x2="1282" y2="310"/>
+          <line class="lane dash" x1="1666" y1="59" x2="1666" y2="310"/>
+          <line class="lane" x1="0" y1="86" x2="1666" y2="86"/>
+          <line class="lane" x1="0" y1="142" x2="1666" y2="142"/>
+          <line class="lane" x1="0" y1="198" x2="1666" y2="198"/>
+          <line class="lane" x1="0" y1="254" x2="1666" y2="254"/>
+          <line class="lane" x1="0" y1="310" x2="1666" y2="310"/>
+          <line class="arrow" x1="130" y1="45" x2="130" y2="59"/>
+          <text class="small" x="130" y="38" text-anchor="middle">0 us</text>
+          <line class="arrow" x1="514" y1="45" x2="514" y2="59"/>
+          <text class="small" x="514" y="38" text-anchor="middle">120 us</text>
+          <line class="arrow" x1="898" y1="45" x2="898" y2="59"/>
+          <text class="small" x="898" y="38" text-anchor="middle">240 us</text>
+          <line class="arrow" x1="1282" y1="45" x2="1282" y2="59"/>
+          <text class="small" x="1282" y="38" text-anchor="middle">360 us</text>
+          <line class="arrow" x1="1666" y1="45" x2="1666" y2="59"/>
+          <text class="small" x="1666" y="38" text-anchor="middle">480 us</text>
+          <line class="lane dash" x1="898" y1="82" x2="898" y2="314"/>
+          <text class="small" x="903" y="328" text-anchor="start">relink latched at tail</text>
+          <text class="small" x="0" y="105" text-anchor="start">ADC hardware (250 kHz)</text>
+          <rect class="chart-level-1" x="130" y="90" width="614.4" height="28" rx="0"/>
+          <text class="label" x="437.2" y="108" text-anchor="middle" font-weight="bold">frame accumulates</text>
+          <rect class="chart-level-1" x="744.4" y="90" width="614.4" height="28" rx="0"/>
+          <text class="label" x="1051.6" y="108" text-anchor="middle" font-weight="bold">frame accumulates</text>
+          <rect class="chart-level-1" x="1358.8" y="90" width="307.2" height="28" rx="0"/>
+          <text class="label" x="1512.4" y="108" text-anchor="middle" font-weight="bold">frame accumulates</text>
+          <text class="small" x="0" y="161" text-anchor="start">Acquisition task (core 0)</text>
+          <rect class="chart-level-2" x="142.8" y="146" width="51.2" height="28" rx="0"/>
+          <text class="small" x="142.8" y="190" text-anchor="start">publish triple from previous frame</text>
+          <rect class="chart-level-2" x="744.4" y="146" width="51.2" height="28" rx="0"/>
+          <text class="small" x="744.4" y="190" text-anchor="start">publish newest triple</text>
+          <rect class="chart-level-2" x="1358.8" y="146" width="51.2" height="28" rx="0"/>
+          <text class="small" x="1358.8" y="190" text-anchor="start">publish newest triple</text>
+          <text class="small" x="0" y="217" text-anchor="start">Control task (core 1)</text>
+          <rect class="chart-warn" x="514" y="202" width="172.8" height="28" rx="0"/>
+          <text class="small" x="514" y="246" text-anchor="start">snapshot (age 112 us, passes gate) + render + relink</text>
+          <rect class="chart-warn" x="1282" y="202" width="172.8" height="28" rx="0"/>
+          <text class="small" x="1282" y="246" text-anchor="start">snapshot (age 168 us, passes gate) + render + relink</text>
+          <text class="small" x="0" y="273" text-anchor="start">I2S DMA output</text>
+          <rect class="chart-level-1" x="130" y="258" width="768" height="28" rx="0"/>
+          <text class="label" x="514" y="276" text-anchor="middle" font-weight="bold">pass N - buffer A</text>
+          <rect class="chart-level-1" x="898" y="258" width="768" height="28" rx="0"/>
+          <text class="label" x="1282" y="276" text-anchor="middle" font-weight="bold">pass N+1 - corrected</text>
+          <text class="small" x="130" y="346" text-anchor="start">age budget = max(cycle window, 288 us floor); control cadence 240 us exceeds the 192 us frame period, so snapshots are almost always fresh</text>
+          </svg></figure>
+        </div>
+      </section>
+</div>
+      <footer class="mado-footer"></footer>
+    </main>
+  </body>
+</html>
+
