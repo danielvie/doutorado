@@ -1,0 +1,107 @@
+
+canal 1 3v
+canal 2 15v
+
+'Cmd/Ctrl+Enter' // Triggers `Todo: Toggle Box`
+'Alt+Enter' // Triggers `Todo: Toggle Box`
+
+"<localleader>tu" -> "todo.toggleBox"
+"<localleader>td" -> "todo.toggleDone"
+"<localleader>tc" -> "todo.toggleCancelled"
+"<localleader>ts" -> "todo.toggleStart"
+"<localleader>ta" -> "todo.archive"
+
+
+    # {@ Wednesday 01 Aug 2025}:
+        ☐ ESTUDO: controle preditivo explicito
+        ☐ ESTUDO: MPT Toolbox faz isso
+        ☐ ESTUDO: MPC multi-parametric
+
+        - NOTA: alimentacao positivo dentro | negativo fora
+        - NOTA: usar a placa com jacare no resistor para dissipar potencia
+
+    # {@ Wednesday 23 July 2025} Calibracao:
+        ☐ colocar sinal completo no log de status
+        ✔ fazer um controlador proporcional para validar malha fechada @done(25-08-04 23:42)
+
+    # {@ Sunday 20 Jul 2025}:
+        ✔ investigar porque o sinal nao eh comandado no MATLAB @started(25-07-23 00:28) @done(25-08-04 23:39) @lasted(1w5d23h11m37s)
+
+    # {@ Friday 18 Jul 2025}:
+        ✔ adicionar periodo total (soma dos tempos) @done(25-07-23 00:28)
+        ✔ colocar imagem da ESP32 e do circuito na GUI @done(25-07-21 01:28)
+        ✔ colocar input para escala da leitura do AD e escrever os dois valores no label do grafico @done(25-07-23 00:12)
+        ☐ create get message from GUI
+        ☐ criar grafico do sinal no GUI 
+        ✔ fazer botao para limpar o log de sinais @done(25-07-23 00:32)
+        ✔ fazer calibracao de todos os pontos (linear) @done(25-07-21 01:29)
+        ✔ fazer escala do grafico GUI em tempo (segundos) @done(25-07-23 00:32)
+        ☐ registrar log dos botoes clicados com timestamp
+
+    # {@ Friday 11 Jul 2025}*:
+        ✔ fazer nova calibracao @done(25-07-15 00:06)
+        ✔ colocar mensagem de resposta com valores de interesse da ESP32 @done(25-07-18 19:54)
+        ✔ no log da GUI, guardar todos os dados (para copy) e mostrar apenas N @done(25-07-15 00:21)
+        ☐ fazer sinal de leitura como um servico independente e persistente
+
+    # {@ Wednesday 02 Jul 2025}*:
+        ✔ colocar para ajustar manualmente a escala do WEB @done(25-08-04 23:40)
+
+    # {@ Wednesday 25 Jun 2025}*:
+        ☐ mudar `web` para ler os sinais independente do estado do sinal
+
+    # {@ Wednesday 14 May 2025}*:
+        ✔ ☝ acertar simulacao para segurar controle no tempo do estado aumentado @started(25-06-17 22:03) @done(25-07-11 10:11) @lasted(3w2d12h8m14s)
+            -> precisa de conferir se o tempo segurado faz sentido
+        ☝ criar procedimento de teste para o broker
+        ☝ ver referencias para artigo do circuito @started(25-06-17 22:04)
+            como fizeram com o circuito que usaram?
+            -> trabalho SOLANO 2023
+                -> implementou circuito real (maquette experimentale), 
+                -> feito pela empresa ARCEL (figure 5.1a)
+                -> apresenta Resultados Experimentais para validar a 
+                   performance da estrategia
+        ✔ desacoplar set_mpc, ou talvez combinaca com uma estrutura de entrada @done(25-06-17 21:56)
+        ✔ criar logica na ESP32 para esperar por N periodos @done(25-06-17 21:56)
+        ✔ ☝ implementar propagacao Block em `run` @started(10-06-17 21:00) @done(25-07-11 10:11) @lasted(15y3w6d13h11m38s)
+            -> problemas com a implementacao
+        ✔ ☝ mudar chaveamento para ciclo inteiro? @done(25-07-11 10:11)
+            -> ???
+        ✔ ☝ implementar propagacao Block em `signal_process` @done(25-07-11 10:11)
+        ☝ pedir VPN @started(25-05-15 21:00)
+            -> instrucoes vpn: ./docs/setup/vpn-ita/
+                -> https://wikiti.ita.br/ITA:Instala%C3%A7%C3%A3o_e_utiliza%C3%A7%C3%A3o_da_VPN_ITA_Internet_no_Windows
+        ☝ instalar Mathematica
+        ☝ fazer projecao Mathematica
+    
+    Tese:
+        ☝ documentar codigo
+        ☝ fazer correcoes professor rubens
+        ☝ fazer correcoes professor rubens
+
+    Embedded:
+
+    Simulacao:
+        ✔ ☝ medir tempo nova implementacao estados extendidos @done(25-07-11 10:11)
+
+    # {@ Wednesday 23 April 2025}:
+        ☝ ?? criar o sinal na esp32 com o ciclo inteiro e usar o timer apenas para o periodo do ciclo??
+        ✔ enviar codigo de projecao para kawa @done(25-05-14 02:04)
+        ☝ procurar alternativa para plotar regiao de atracao??
+
+    # {@ Friday 11 April 2025}:
+        ☝ ajustar conversao do sinal para dt 
+            sinal esta truncando os valores de dt e reduzindo a janela total!
+            comecei a mexer nisso no `t.m`, mas a minha cabeca nao ta funcionando direito mais
+        ☝ calcular regiao de atracao para a simulacao do circuito
+
+    # {@ Wednesday 2 April 2025}:
+        ✔ simular a mudanca de referencia @done(25-05-14 02:02)
+        ✔ criar um sistema de log para comparar os resultados @done(25-05-14 02:04)
+        ✔ configurar manobra para a simulacao e o circuito @done(25-05-14 02:04)
+
+    # {@ Wednesday 26 March 2025} :
+        ✔ fazer o matlab mudar a referencia por alpha / iref @done(25-05-14 02:04)
+        ✔ tomar cuidado com a nova linearizacao @done(25-05-14 02:05)
+        ☝ tentar usar o qpoasis na ESP
+        ☝ documentar o codigo para artigo

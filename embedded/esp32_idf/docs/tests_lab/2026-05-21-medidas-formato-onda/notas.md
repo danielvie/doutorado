@@ -1,6 +1,6 @@
 ## Ações realizadas
 
-- Adicionada lógica de *dead time* em `z_kawa/signal_generate.m`:
+- Adicionada lógica de *dead time* em `vendor/kawa/signal_generate.m`:
   - definido `dead_time_us = 2`;
   - identificado o segmento ativo do ciclo e o segmento anterior;
   - comparado o modo atual com o modo anterior para detectar quais canais mudaram de estado;

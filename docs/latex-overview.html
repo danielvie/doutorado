@@ -145,7 +145,7 @@
 <span class="chip">ESP32 hardware</span></div>
         </div>
         <div class="meta">
-          <ul><li><strong>Scope:</strong> <code>LATEX/</code></li>
+          <ul><li><strong>Scope:</strong> <code>manuscripts/</code></li>
 <li><strong>Date:</strong> 2026-06-01</li>
 <li><strong>Depth:</strong> Detailed design, modeling, and results documentation</li>
 <li><strong>Primary documents:</strong> <code>Artigo/main.tex</code>, <code>Tese/tese.tex</code></li></ul>
@@ -191,7 +191,7 @@
     <path d="M 232 230 L 455 168" class="arrow dash" style="marker-end:url(#pm-arrow)"></path><path d="M 542 230 L 510 168" class="arrow dash" style="marker-end:url(#pm-arrow)"></path><path d="M 852 230 L 860 168" class="arrow dash" style="marker-end:url(#pm-arrow)"></path>
   </svg>
 </div>
-<table><tr><th>Document</th><th>Purpose</th><th>Main source</th><th>Primary output</th></tr><tr><td>Thesis</td><td>Formal development of predictive control for switched affine systems with dwell-time constraints.</td><td><code>LATEX/Tese/tese.tex</code></td><td><code>LATEX/Tese/tese.pdf</code></td></tr><tr><td>Article</td><td>Open-hardware description of a three-cell flying-capacitor voltage converter controlled by ESP32.</td><td><code>LATEX/Artigo/main.tex</code></td><td><code>LATEX/Artigo/main.pdf</code></td></tr></table>
+<table><tr><th>Document</th><th>Purpose</th><th>Main source</th><th>Primary output</th></tr><tr><td>Thesis</td><td>Formal development of predictive control for switched affine systems with dwell-time constraints.</td><td><code>manuscripts/thesis/latex/tese.tex</code></td><td><code>manuscripts/thesis/latex/tese.pdf</code></td></tr><tr><td>Article</td><td>Open-hardware description of a three-cell flying-capacitor voltage converter controlled by ESP32.</td><td><code>manuscripts/papers/artigo/main.tex</code></td><td><code>manuscripts/papers/artigo/main.pdf</code></td></tr></table>
 <div class="callout"><strong>Design reading:</strong> The thesis is the method document; the article is the reproducibility and experimental-platform document.</div>
   </div>
 </details>
@@ -228,8 +228,8 @@ sigma(t) in {1, 2, ..., M}</code></pre>
   <summary><h2>Source Design</h2></summary>
   <div class="content">
 
-<p>The LATEX tree separates method, examples, and hardware documentation. The thesis has a chapter-per-concept structure; the article follows the HardwareX manuscript structure.</p>
-<table><tr><th>Path</th><th>Role</th><th>Design intent</th></tr><tr><td><code>LATEX/Tese/Cap1/cap1_introduction.tex</code></td><td>Motivation and contribution.</td><td>Frames the extension from previous dwell-time MPC work to changing dynamics at switching times.</td></tr><tr><td><code>LATEX/Tese/Cap2/cap2.tex</code></td><td>Target periodic trajectory.</td><td>Defines the optimization that finds the reference cycle before MPC is applied.</td></tr><tr><td><code>LATEX/Tese/Cap3/</code></td><td>Predictive-control preliminaries.</td><td>Defines prediction equation, cost, constraints, feasibility region, and optimization form.</td></tr><tr><td><code>LATEX/Tese/Cap4/</code></td><td>Control method and examples.</td><td>States the problem, derives the cycle-error linearization, defines MPC, and reports examples.</td></tr><tr><td><code>LATEX/Tese/Cap5/cap5_conclusion.tex</code></td><td>Results and future work.</td><td>Summarizes validation cases and remaining real-hardware work.</td></tr><tr><td><code>LATEX/Artigo/main.tex</code></td><td>HardwareX article.</td><td>Documents converter motivation, topology, PCB, operation, and validation.</td></tr><tr><td><code>LATEX/Artigo/software.tex</code></td><td>Embedded software section.</td><td>Documents ESP32 real-time switching, BLE monitoring, and web interface.</td></tr></table>
+<p>The manuscripts tree separates method, examples, and hardware documentation. The thesis has a chapter-per-concept structure; the article follows the HardwareX manuscript structure.</p>
+<table><tr><th>Path</th><th>Role</th><th>Design intent</th></tr><tr><td><code>manuscripts/thesis/latex/Cap1/cap1_introduction.tex</code></td><td>Motivation and contribution.</td><td>Frames the extension from previous dwell-time MPC work to changing dynamics at switching times.</td></tr><tr><td><code>manuscripts/thesis/latex/Cap2/cap2.tex</code></td><td>Target periodic trajectory.</td><td>Defines the optimization that finds the reference cycle before MPC is applied.</td></tr><tr><td><code>manuscripts/thesis/latex/Cap3/</code></td><td>Predictive-control preliminaries.</td><td>Defines prediction equation, cost, constraints, feasibility region, and optimization form.</td></tr><tr><td><code>manuscripts/thesis/latex/Cap4/</code></td><td>Control method and examples.</td><td>States the problem, derives the cycle-error linearization, defines MPC, and reports examples.</td></tr><tr><td><code>manuscripts/thesis/latex/Cap5/cap5_conclusion.tex</code></td><td>Results and future work.</td><td>Summarizes validation cases and remaining real-hardware work.</td></tr><tr><td><code>manuscripts/papers/artigo/main.tex</code></td><td>HardwareX article.</td><td>Documents converter motivation, topology, PCB, operation, and validation.</td></tr><tr><td><code>manuscripts/papers/artigo/software.tex</code></td><td>Embedded software section.</td><td>Documents ESP32 real-time switching, BLE monitoring, and web interface.</td></tr></table>
 <div class="chart" aria-label="Thesis source chapter design">
   <svg viewBox="0 0 1080 245" role="img">
     <defs><marker id="src-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#56666f"></path></marker></defs>
@@ -340,10 +340,10 @@ L delta_t >= c
 </div>
 <table><tr><th>Case</th><th>Inputs reported</th><th>Outputs reported</th></tr><tr><td>Double integrator</td><td><code>u = [1,0,-1,0]</code>, switching times <code>[0,2,3,5,6]</code>, reference <code>[2,-1]</code>.</td><td>Feasibility regions for <code>Np=1,2,3</code>; MPC drives trajectory to target cycle.</td></tr><tr><td>Buck-boost converter</td><td><code>Omega=[1,2]</code>, <code>tau=[0,0.2513,0.5914] s</code>, reference <code>[2 V,-1 A]</code>.</td><td>Feasibility regions for <code>Np=1,2,3</code>; MPC converges faster than uncontrolled trajectory.</td></tr><tr><td>Multilevel converter</td><td><code>Omega=[1,2,4,8,3,1,5,8,5]</code>, <code>Tpmax=4e-4</code>, reference <code>[10 V,20 V,1 A]</code>.</td><td>Feasibility regions for <code>Np=1,2,4</code>; MPC reaches target limit cycle while open loop drifts to other cycles.</td></tr></table>
 <pre><code># Documentation source paths for reported simulation figures
-LATEX/Tese/Cap4/fig/graf_proj_integrador.pdf
-LATEX/Tese/Cap4/fig/graf_patino1_traj.pdf
-LATEX/Tese/Cap4/fig/graf_patino2_traj.pdf
-LATEX/Tese/Cap4/fig/graf_patino2_u_signal.pdf</code></pre>
+manuscripts/thesis/latex/Cap4/fig/graf_proj_integrador.pdf
+manuscripts/thesis/latex/Cap4/fig/graf_patino1_traj.pdf
+manuscripts/thesis/latex/Cap4/fig/graf_patino2_traj.pdf
+manuscripts/thesis/latex/Cap4/fig/graf_patino2_u_signal.pdf</code></pre>
 <div class="callout"><strong>Workflow implication:</strong> Each example is both a numerical validation and a documentation artifact; the figures in <code>Cap4/fig</code> are the evidence layer for the thesis claims.</div>
   </div>
 </details>
@@ -382,10 +382,10 @@ alpha transition: 0.4 -> 0.8</code></pre>
   <summary><h2>Open Items</h2></summary>
   <div class="content">
 
-<p>The current LATEX sources contain strong technical material, but several manuscript and reproducibility issues remain visible.</p>
-<table><tr><th>Open item</th><th>Where visible</th><th>Impact</th></tr><tr><td>Article still contains draft TODOs and template guidance.</td><td><code>LATEX/Artigo/main.tex</code></td><td>Publication readiness is not complete.</td></tr><tr><td>Article design-file table is partially placeholder text.</td><td>HardwareX design files summary.</td><td>Open-hardware reproducibility claim needs final repository and file metadata.</td></tr><tr><td>Some image includes use lowercase extensions while files are uppercase.</td><td>Article validation images such as <code>PeriodT.JPG</code>.</td><td>Case-sensitive systems may fail to build.</td></tr><tr><td>Multilevel converter open-loop behavior may be affected by numerical precision.</td><td><code>Cap5/cap5_conclusion.tex</code></td><td>Needs deeper numerical analysis before final claims.</td></tr><tr><td>Real embedded implementation of MPC remains future work.</td><td>Conclusion future-work section.</td><td>The bridge from simulation to hardware is designed, but not fully closed in thesis results.</td></tr></table>
+<p>The current manuscript sources contain strong technical material, but several manuscript and reproducibility issues remain visible.</p>
+<table><tr><th>Open item</th><th>Where visible</th><th>Impact</th></tr><tr><td>Article still contains draft TODOs and template guidance.</td><td><code>manuscripts/papers/artigo/main.tex</code></td><td>Publication readiness is not complete.</td></tr><tr><td>Article design-file table is partially placeholder text.</td><td>HardwareX design files summary.</td><td>Open-hardware reproducibility claim needs final repository and file metadata.</td></tr><tr><td>Some image includes use lowercase extensions while files are uppercase.</td><td>Article validation images such as <code>PeriodT.JPG</code>.</td><td>Case-sensitive systems may fail to build.</td></tr><tr><td>Multilevel converter open-loop behavior may be affected by numerical precision.</td><td><code>Cap5/cap5_conclusion.tex</code></td><td>Needs deeper numerical analysis before final claims.</td></tr><tr><td>Real embedded implementation of MPC remains future work.</td><td>Conclusion future-work section.</td><td>The bridge from simulation to hardware is designed, but not fully closed in thesis results.</td></tr></table>
 <h3>Recommended Documentation Next Steps</h3>
-<pre><code>1. Add a LATEX/Taskfile.yml with separate article and thesis build commands.
+<pre><code>1. Add a manuscripts/Taskfile.yml with separate article and thesis build commands.
 2. Normalize figure filename case in Article includes.
 3. Add a results matrix that maps each claim to its figure file.
 4. Separate generated build artifacts from manuscript source.
