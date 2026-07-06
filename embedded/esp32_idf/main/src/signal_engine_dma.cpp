@@ -605,6 +605,7 @@ static void dma_control_task(void *arg) {
     int flip_target = 0;
     uint32_t tails_since_commit = 0;
     bool prev_control = false;
+    bool prev_dry_run = false;
     bool fault_exit = false;
 
     for (;;) {
@@ -679,8 +680,13 @@ static void dma_control_task(void *arg) {
 
             const bool control =
                 g_control_enabled.load(std::memory_order_acquire);
+            const bool dry_run =
+                g_control_dry_run.load(std::memory_order_acquire);
             if (control) {
-                if (signal_control_update_corrections(ctl)) {
+                // Always run the update so the read/compute path executes and
+                // age-used stats accumulate. In compute-only mode we discard
+                // the correction (no render) so the waveform stays nominal.
+                if (signal_control_update_corrections(ctl) && !dry_run) {
                     corr = ctl.current_correction;
                     need_render = true;
                 }
@@ -688,7 +694,13 @@ static void dma_control_task(void *arg) {
                 // Control switched off: return to the nominal pattern.
                 need_render = true;
             }
+            // Live -> compute-only transition: drop the last applied correction
+            // by re-rendering the nominal pattern (corr stays null).
+            if (control && dry_run && !prev_dry_run) {
+                need_render = true;
+            }
             prev_control = control;
+            prev_dry_run = dry_run;
 
             if (need_render) {
                 if (dma_render_and_commit(ctl.dataset, corr, active)) {

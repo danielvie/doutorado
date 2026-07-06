@@ -179,8 +179,20 @@ export const DeviceStatusPanel: React.FC = () => {
             <StateChip label="Engine" value={device.engine} tone="neutral" />
             <StateChip
               label="Control"
-              value={device.controlState}
-              tone={device.controlState === "ON" ? "ok" : "neutral"}
+              value={
+                device.controlState === "ON"
+                  ? device.controlDryRun
+                    ? "COMPUTE"
+                    : "LIVE"
+                  : device.controlState
+              }
+              tone={
+                device.controlState === "ON"
+                  ? device.controlDryRun
+                    ? "warn"
+                    : "ok"
+                  : "neutral"
+              }
             />
             <StateChip label="Set" value={device.activeSet} tone="neutral" />
             <StateChip

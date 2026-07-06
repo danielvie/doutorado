@@ -103,6 +103,7 @@ export function decodeBlePacket(binary: Uint8Array) {
           signal_engine: numberValue(packet.status.signalEngine),
           ble_read_state: numberValue(packet.status.bleReadState),
           control_state: numberValue(packet.status.controlState),
+          control_dry_run: booleanValue(packet.status.controlDryRun),
           alpha: numberValue(packet.status.alpha),
           has_alpha: booleanValue(packet.status.hasAlpha),
           matrix_a_valid: booleanValue(packet.status.matrixAValid),

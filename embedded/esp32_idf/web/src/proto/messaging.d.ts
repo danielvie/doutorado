@@ -404,6 +404,9 @@ export class SystemStatus implements ISystemStatus {
     /** SystemStatus signalEngine. */
     public signalEngine: BleSignalEngine;
 
+    /** SystemStatus controlDryRun. */
+    public controlDryRun: boolean;
+
     /**
      * Creates a new SystemStatus instance using the specified properties.
      * @param [properties] Properties to set

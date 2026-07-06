@@ -177,7 +177,7 @@ class BleManager {
             `Signal state   : ${signal_state}`,
             `Signal engine  : ${signal_engine}`,
             `BLE State      : ${ble_state}`,
-            `Control State  : ${control_state}`,
+            `Control State  : ${control_state}${s.control_dry_run ? " (DRY-RUN / compute-only)" : ""}`,
             `Led State      : ${led_state}`,
             `Cycles         : ${s.current_cycles} of ${s.total_cycles}`,
             `g_an_monitor_ms: ${s.monitor_ms}`,
@@ -242,6 +242,7 @@ class BleManager {
               control_state === "ON" || control_state === "OFF"
                 ? control_state
                 : "UNKNOWN",
+            controlDryRun: !!s.control_dry_run,
             bleReadState: ble_state,
             activeSet: active_set,
             ledMode: led_state,

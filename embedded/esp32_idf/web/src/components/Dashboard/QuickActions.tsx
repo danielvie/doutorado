@@ -1,5 +1,6 @@
 import { sendCommand, useIsLive } from "../../services/commands";
 import { useBleStore } from "../../store/bleStore";
+import { useDeviceStore } from "../../store/deviceStore";
 import { DashboardItem } from "./DashboardItem";
 
 const SectionTitle: React.FC<{ children: React.ReactNode }> = ({
@@ -13,6 +14,8 @@ const SectionTitle: React.FC<{ children: React.ReactNode }> = ({
 export const QuickActions: React.FC = () => {
   const engine = useBleStore((s) => s.signalEngine);
   const setEngine = useBleStore((s) => s.setSignalEngine);
+  const controlState = useDeviceStore((s) => s.controlState);
+  const controlDryRun = useDeviceStore((s) => s.controlDryRun);
   const isLive = useIsLive();
 
   const ble_send_command = (
@@ -59,19 +62,47 @@ export const QuickActions: React.FC = () => {
         {/* System Toggles */}
         <section className="flex flex-col gap-2">
           <SectionTitle>System</SectionTitle>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter ml-1">
+              Control
+            </span>
+            <div className="grid grid-cols-3 gap-1.5">
+              <button
+                onClick={() => ble_send_command("control.disable")}
+                title="Stop the controller"
+                className={`py-1 rounded font-bold text-[10px] uppercase border transition-all ${
+                  controlState !== "ON"
+                    ? "bg-red-600 text-white border-red-600 shadow-sm"
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                Off
+              </button>
+              <button
+                onClick={() => ble_send_command("control.dry_run", { enabled: true })}
+                title="Compute-only: read + compute corrections but do not apply them (debug)"
+                className={`py-1 rounded font-bold text-[10px] uppercase border transition-all ${
+                  controlState === "ON" && controlDryRun
+                    ? "bg-amber-500 text-white border-amber-500 shadow-sm"
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                Compute
+              </button>
+              <button
+                onClick={() => ble_send_command("control.enable")}
+                title="Live control: compute and apply corrections to the waveform"
+                className={`py-1 rounded font-bold text-[10px] uppercase border transition-all ${
+                  controlState === "ON" && !controlDryRun
+                    ? "bg-green-600 text-white border-green-600 shadow-sm"
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                Live
+              </button>
+            </div>
+          </div>
           <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => ble_send_command("control.enable")}
-              className="px-3 py-1.5 rounded-md font-bold text-[10px] border transition-colors uppercase text-green-800 bg-green-100 border-green-300 hover:bg-green-200 shadow-sm"
-            >
-              Control On
-            </button>
-            <button
-              onClick={() => ble_send_command("control.disable")}
-              className="px-3 py-1.5 rounded-md font-bold text-[10px] border transition-colors uppercase text-red-800 bg-red-100 border-red-300 hover:bg-red-200 shadow-sm"
-            >
-              Control Off
-            </button>
             <button
               onClick={() => ble_send_command("analog.ble_read_enable")}
               className="px-3 py-1.5 rounded-md font-bold text-[10px] border transition-colors uppercase text-amber-800 bg-amber-100 border-amber-300 hover:bg-amber-200 shadow-sm"

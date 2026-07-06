@@ -328,6 +328,7 @@ void ble_send_status(void) {
     else status->ble_read_state = BleAnalogReadState_BLE_READ_DISABLED;
 
     status->control_state = (g_system_state.control_state.load(std::memory_order_acquire) == ControlState::OFF) ? BleControlState_BLE_CTRL_OFF : BleControlState_BLE_CTRL_ON;
+    status->control_dry_run = g_control_dry_run.load(std::memory_order_acquire);
 
     // Data values
     if (!std::isnan(active_ds->alpha)) {

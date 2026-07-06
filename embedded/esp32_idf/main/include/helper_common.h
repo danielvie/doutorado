@@ -53,6 +53,9 @@ extern SemaphoreHandle_t sem_analog_read_trigger;
 
 // .. control and adc globals
 extern std::atomic<bool> g_control_enabled;
+// Compute-only control mode: compute corrections but do not apply them, and
+// keep the controller alive across misses so the loop can be observed.
+extern std::atomic<bool> g_control_dry_run;
 extern volatile uint32_t g_dead_time_cycles_up;
 extern volatile uint32_t g_dead_time_cycles_down;
 extern volatile uint32_t g_dead_time_us;

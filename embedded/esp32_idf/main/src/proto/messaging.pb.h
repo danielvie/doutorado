@@ -136,6 +136,9 @@ typedef struct _SystemStatus {
     uint32_t signal_edge_overhead_up_cycles;
     uint32_t signal_edge_overhead_down_cycles;
     BleSignalEngine signal_engine;
+    /* Compute-only control: corrections are computed but not applied. When
+ true, control_state == ON means the loop is running in dry-run. */
+    bool control_dry_run;
 } SystemStatus;
 
 /* General purpose log message */
@@ -333,7 +336,7 @@ extern "C" {
 /* Initializer values for message structs */
 #define Telemetry_init_default                   {0, 0, 0, 0}
 #define AnalogStatus_init_default                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-#define SystemStatus_init_default                {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0, 0, false, AnalogStatus_init_default, 0, 0, _BleSignalEngine_MIN}
+#define SystemStatus_init_default                {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0, 0, false, AnalogStatus_init_default, 0, 0, _BleSignalEngine_MIN, 0}
 #define LogMessage_init_default                  {_BleLogLevel_MIN, ""}
 #define OtaStatus_init_default                   {_OtaState_MIN, 0, "", 0, 0}
 #define OtaBegin_init_default                    {0}
@@ -348,7 +351,7 @@ extern "C" {
 #define BlePacket_init_default                   {0, {Telemetry_init_default}}
 #define Telemetry_init_zero                      {0, 0, 0, 0}
 #define AnalogStatus_init_zero                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-#define SystemStatus_init_zero                   {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0, 0, false, AnalogStatus_init_zero, 0, 0, _BleSignalEngine_MIN}
+#define SystemStatus_init_zero                   {_BleSignalSet_MIN, _BleSignalState_MIN, _BleAnalogReadState_MIN, _BleControlState_MIN, 0, 0, 0, 0, 0, 0, 0, 0, _BleLedMode_MIN, 0, 0, 0, 0, 0, false, AnalogStatus_init_zero, 0, 0, _BleSignalEngine_MIN, 0}
 #define LogMessage_init_zero                     {_BleLogLevel_MIN, ""}
 #define OtaStatus_init_zero                      {_OtaState_MIN, 0, "", 0, 0}
 #define OtaBegin_init_zero                       {0}
@@ -422,6 +425,7 @@ extern "C" {
 #define SystemStatus_signal_edge_overhead_up_cycles_tag 22
 #define SystemStatus_signal_edge_overhead_down_cycles_tag 23
 #define SystemStatus_signal_engine_tag           24
+#define SystemStatus_control_dry_run_tag         25
 #define LogMessage_level_tag                     1
 #define LogMessage_text_tag                      2
 #define OtaStatus_state_tag                      1
@@ -569,7 +573,8 @@ X(a, STATIC,   SINGULAR, UINT32,   dead_time_tail_overhead_cycles,  19) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  analog,           20) \
 X(a, STATIC,   SINGULAR, UINT32,   signal_edge_overhead_up_cycles,  22) \
 X(a, STATIC,   SINGULAR, UINT32,   signal_edge_overhead_down_cycles,  23) \
-X(a, STATIC,   SINGULAR, UENUM,    signal_engine,    24)
+X(a, STATIC,   SINGULAR, UENUM,    signal_engine,    24) \
+X(a, STATIC,   SINGULAR, BOOL,     control_dry_run,  25)
 #define SystemStatus_CALLBACK NULL
 #define SystemStatus_DEFAULT NULL
 #define SystemStatus_analog_MSGTYPE AnalogStatus
@@ -757,7 +762,7 @@ extern const pb_msgdesc_t BlePacket_msg;
 #define OtaEnd_size                              65
 #define OtaStatus_size                           85
 #define PROTO_MESSAGING_PB_H_MAX_SIZE            BlePacket_size
-#define SystemStatus_size                        306
+#define SystemStatus_size                        309
 #define Telemetry_size                           21
 #define UiCommandResult_size                     750
 #define UiCommand_size                           457

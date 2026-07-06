@@ -121,6 +121,9 @@ message SystemStatus {
     uint32 signal_edge_overhead_up_cycles = 22;
     uint32 signal_edge_overhead_down_cycles = 23;
     BleSignalEngine signal_engine = 24;
+    // Compute-only control: corrections are computed but not applied. When
+    // true, control_state == ON means the loop is running in dry-run.
+    bool control_dry_run = 25;
 }
 
 // General purpose log message

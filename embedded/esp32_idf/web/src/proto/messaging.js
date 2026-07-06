@@ -1368,6 +1368,7 @@ export const SystemStatus = $root.SystemStatus = (() => {
      * @property {number|null} [signalEdgeOverheadUpCycles] SystemStatus signalEdgeOverheadUpCycles
      * @property {number|null} [signalEdgeOverheadDownCycles] SystemStatus signalEdgeOverheadDownCycles
      * @property {BleSignalEngine|null} [signalEngine] SystemStatus signalEngine
+     * @property {boolean|null} [controlDryRun] SystemStatus controlDryRun
      */
 
     /**
@@ -1562,6 +1563,14 @@ export const SystemStatus = $root.SystemStatus = (() => {
     SystemStatus.prototype.signalEngine = 0;
 
     /**
+     * SystemStatus controlDryRun.
+     * @member {boolean} controlDryRun
+     * @memberof SystemStatus
+     * @instance
+     */
+    SystemStatus.prototype.controlDryRun = false;
+
+    /**
      * Creates a new SystemStatus instance using the specified properties.
      * @function create
      * @memberof SystemStatus
@@ -1629,6 +1638,8 @@ export const SystemStatus = $root.SystemStatus = (() => {
             writer.uint32(/* id 23, wireType 0 =*/184).uint32(message.signalEdgeOverheadDownCycles);
         if (message.signalEngine != null && Object.hasOwnProperty.call(message, "signalEngine"))
             writer.uint32(/* id 24, wireType 0 =*/192).int32(message.signalEngine);
+        if (message.controlDryRun != null && Object.hasOwnProperty.call(message, "controlDryRun"))
+            writer.uint32(/* id 25, wireType 0 =*/200).bool(message.controlDryRun);
         return writer;
     };
 
@@ -1751,6 +1762,10 @@ export const SystemStatus = $root.SystemStatus = (() => {
                 }
             case 24: {
                     message.signalEngine = reader.int32();
+                    break;
+                }
+            case 25: {
+                    message.controlDryRun = reader.bool();
                     break;
                 }
             default:
@@ -1887,6 +1902,9 @@ export const SystemStatus = $root.SystemStatus = (() => {
             case 1:
                 break;
             }
+        if (message.controlDryRun != null && message.hasOwnProperty("controlDryRun"))
+            if (typeof message.controlDryRun !== "boolean")
+                return "controlDryRun: boolean expected";
         return null;
     };
 
@@ -2037,6 +2055,8 @@ export const SystemStatus = $root.SystemStatus = (() => {
             message.signalEngine = 1;
             break;
         }
+        if (object.controlDryRun != null)
+            message.controlDryRun = Boolean(object.controlDryRun);
         return message;
     };
 
@@ -2076,6 +2096,7 @@ export const SystemStatus = $root.SystemStatus = (() => {
             object.signalEdgeOverheadUpCycles = 0;
             object.signalEdgeOverheadDownCycles = 0;
             object.signalEngine = options.enums === String ? "BLE_ENGINE_CPU" : 0;
+            object.controlDryRun = false;
         }
         if (message.activeSet != null && message.hasOwnProperty("activeSet"))
             object.activeSet = options.enums === String ? $root.BleSignalSet[message.activeSet] === undefined ? message.activeSet : $root.BleSignalSet[message.activeSet] : message.activeSet;
@@ -2121,6 +2142,8 @@ export const SystemStatus = $root.SystemStatus = (() => {
             object.signalEdgeOverheadDownCycles = message.signalEdgeOverheadDownCycles;
         if (message.signalEngine != null && message.hasOwnProperty("signalEngine"))
             object.signalEngine = options.enums === String ? $root.BleSignalEngine[message.signalEngine] === undefined ? message.signalEngine : $root.BleSignalEngine[message.signalEngine] : message.signalEngine;
+        if (message.controlDryRun != null && message.hasOwnProperty("controlDryRun"))
+            object.controlDryRun = message.controlDryRun;
         return object;
     };
 

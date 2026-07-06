@@ -44,6 +44,7 @@ export interface DeviceStatusSnapshot {
     signalState: "RUNNING" | "IDLE" | "UNKNOWN";
     engine: "CPU" | "DMA" | "UNKNOWN";
     controlState: "ON" | "OFF" | "UNKNOWN";
+    controlDryRun: boolean;
     bleReadState: string;
     activeSet: string;
     ledMode: string;
@@ -77,6 +78,7 @@ const INITIAL: DeviceStatusSnapshot = {
     signalState: "UNKNOWN",
     engine: "UNKNOWN",
     controlState: "UNKNOWN",
+    controlDryRun: false,
     bleReadState: "UNKNOWN",
     activeSet: "UNKNOWN",
     ledMode: "UNKNOWN",

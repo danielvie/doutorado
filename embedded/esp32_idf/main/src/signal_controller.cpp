@@ -526,9 +526,11 @@ bool signal_control_update_corrections(SignalControlContext &ctx) {
 
     AnalogControlSnapshot snapshot;
     if (!analog_read_control_snapshot(&snapshot, ctx.last_analog_seq, ctx.max_analog_age_us)) {
-        if (analog_get_consecutive_misses() >= 3) {
-            // Disable only the controller. The signal loop keeps running so a
-            // transient ADC fault does not also remove the commanded waveform.
+        // The consecutive-miss auto-disable is a live-control safety: stale ADC
+        // data must not keep driving corrections. In compute-only (dry-run)
+        // mode nothing is applied, so keep the loop alive to observe misses.
+        if (!g_control_dry_run.load(std::memory_order_acquire) &&
+            analog_get_consecutive_misses() >= 3) {
             g_control_enabled.store(false, std::memory_order_release);
             g_system_state.control_state.store(ControlState::OFF, std::memory_order_release);
         }
@@ -575,6 +577,9 @@ static void IRAM_ATTR execute_signal_pattern(SignalLoopContext &ctx,
                                              uint32_t repeat_count) {
     const bool control_enabled =
         g_control_enabled.load(std::memory_order_acquire);
+    // Compute-only mode: corrections are computed and reported but not applied.
+    const bool control_dry_run =
+        g_control_dry_run.load(std::memory_order_acquire);
     const uint32_t edge_overhead_up = g_signal_edge_overhead_up_cycles;
     const uint32_t edge_overhead_down = g_signal_edge_overhead_down_cycles;
 
@@ -601,12 +606,16 @@ static void IRAM_ATTR execute_signal_pattern(SignalLoopContext &ctx,
             }
 
             if (control_enabled) {
-                int32_t corrected =
-                    (int32_t)step.duration_ticks + ctx.control.current_correction[i];
-                if (corrected < 1) corrected = 1;
-                cycles = (uint32_t)corrected * SIGNAL_CYCLES_PER_TIME_TICK;
+                const int32_t correction = ctx.control.current_correction[i];
                 if (repeat == 0) {
-                    timing.correction_sum_ticks += ctx.control.current_correction[i];
+                    // Report what control computed even in dry-run, so the
+                    // signal-timing debug shows what would have been applied.
+                    timing.correction_sum_ticks += correction;
+                }
+                if (!control_dry_run) {
+                    int32_t corrected = (int32_t)step.duration_ticks + correction;
+                    if (corrected < 1) corrected = 1;
+                    cycles = (uint32_t)corrected * SIGNAL_CYCLES_PER_TIME_TICK;
                 }
             }
 

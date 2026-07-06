@@ -735,14 +735,48 @@ static UiCommandResultData handle_control_enable(const UiCommandContext &ctx) {
     // Fresh miss budget: a latched consecutive-miss count from a previous
     // fault would otherwise auto-disable control on the first read.
     analog_clear_consecutive_misses();
+    // Live control applies corrections; leaving dry-run set here would silently
+    // make "Control On" a no-op, so clear it.
+    g_control_dry_run.store(false, std::memory_order_release);
     g_control_enabled.store(true, std::memory_order_release);
     g_system_state.control_state.store(ControlState::ON,
                                        std::memory_order_release);
     return ok("Control enabled");
 }
 
+// Compute-only control: read snapshots and compute corrections every cycle,
+// but do not apply them and do not auto-disable on misses. For debugging the
+// control loop without driving the converter. Payload: {"enabled": bool}.
+static UiCommandResultData handle_control_dry_run(const UiCommandContext &ctx) {
+    bool enabled = true;
+    cJSON *flag = cJSON_GetObjectItem(ctx.json, "enabled");
+    if (cJSON_IsBool(flag)) {
+        enabled = cJSON_IsTrue(flag);
+    }
+
+    if (!enabled) {
+        g_control_dry_run.store(false, std::memory_order_release);
+        return ok("Control dry-run disabled");
+    }
+
+    // Computing corrections needs a gain matrix, same as live control.
+    if (!get_dataset_active()->gain_k.is_valid) {
+        return invalid_arg(
+            "Dry-run not enabled: active dataset has no gain matrix "
+            "(set alpha or upload a gain matrix first)");
+    }
+
+    analog_clear_consecutive_misses();
+    g_control_dry_run.store(true, std::memory_order_release);
+    g_control_enabled.store(true, std::memory_order_release);
+    g_system_state.control_state.store(ControlState::ON,
+                                       std::memory_order_release);
+    return ok("Control dry-run enabled (compute-only, not applied)");
+}
+
 static UiCommandResultData handle_control_disable(const UiCommandContext &ctx) {
     g_control_enabled.store(false, std::memory_order_release);
+    g_control_dry_run.store(false, std::memory_order_release);
     g_system_state.control_state.store(ControlState::OFF,
                                        std::memory_order_release);
     return ok("Control disabled");
@@ -1062,6 +1096,7 @@ void ui_command_router_init(void) {
     register_command("analog.ble_read_disable", handle_analog_ble_read_disable);
     register_command("control.enable", handle_control_enable);
     register_command("control.disable", handle_control_disable);
+    register_command("control.dry_run", handle_control_dry_run);
     register_command("led.on", handle_led_on);
     register_command("led.off", handle_led_off);
     register_command("led.blink", handle_led_blink);

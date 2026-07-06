@@ -36,6 +36,11 @@ volatile SystemState g_system_state = {
 std::atomic<uint16_t> g_blink_delay1_ms = 200;
 std::atomic<uint16_t> g_blink_delay2_ms = 500;
 std::atomic<bool> g_control_enabled = false;
+// Compute-only ("dry run") control: when true, the controller still reads
+// snapshots and computes corrections (so the read/compute path can be
+// observed), but the corrections are NOT applied to the waveform and the
+// consecutive-miss auto-disable is suppressed. For debugging the control loop.
+std::atomic<bool> g_control_dry_run = false;
 std::atomic<float> g_adc_an3 = 0.0f;
 std::atomic<float> g_adc_an5 = 0.0f;
 std::atomic<float> g_adc_an6 = 0.0f;

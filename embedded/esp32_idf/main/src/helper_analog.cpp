@@ -438,7 +438,20 @@ bool analog_read_control_snapshot(AnalogControlSnapshot* snapshot,
     // Control must act on a new sample inside the current timing budget; stale
     // or repeated ADC data can drive corrections in the wrong direction.
     uint32_t seq = seq_raw / 2U;
-    if (seq == last_seq || age_us > effective_max_age_us) {
+    const bool dry_run = g_control_dry_run.load(std::memory_order_acquire);
+
+    // A repeated seq means no new sample arrived; there is nothing to compute
+    // even in dry-run, so it is always a miss.
+    if (seq == last_seq) {
+        analog_record_miss(ANALOG_FAULT_STALE_SAMPLE);
+        return false;
+    }
+
+    // Over-budget age is a hard reject for live control (stale feedback is
+    // dangerous). In compute-only (dry-run) mode we accept the new-but-stale
+    // sample so the read/compute path can be observed; the excess age surfaces
+    // via age_used_max_us (which will exceed control_max_age_us on purpose).
+    if (age_us > effective_max_age_us && !dry_run) {
         analog_record_miss(ANALOG_FAULT_STALE_SAMPLE);
         return false;
     }
