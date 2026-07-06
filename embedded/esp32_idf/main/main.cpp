@@ -169,6 +169,10 @@ static void uart_print_agent_control_latency() {
     printf("\"adc_latency_p95_us\":%lu,", (unsigned long)analog.latency_p95_us);
     printf("\"fault\":%lu,", (unsigned long)analog.fault_code);
     printf("\"misses\":%lu,", (unsigned long)analog.miss_count);
+    printf("\"miss_stale\":%lu,", (unsigned long)analog.miss_stale_count);
+    printf("\"miss_contention\":%lu,",
+           (unsigned long)analog.miss_contention_count);
+    printf("\"miss_missing\":%lu,", (unsigned long)analog.miss_missing_count);
     printf("\"consecutive_misses\":%lu,", (unsigned long)analog.consecutive_misses);
     printf("\"frame_drops\":%lu,", (unsigned long)analog.frame_drops);
     printf("\"pool_flushes\":%lu,", (unsigned long)analog.pool_flushes);

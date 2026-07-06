@@ -31,7 +31,7 @@
 #define ANALOG_FRAME_TS_RING_SIZE ADC_CONTINUOUS_STORE_FRAMES
 // Seqlock retry bounds. The control point must never spin unbounded on Core 1
 // waiting for the Core-0 writer; giving up is a recoverable missed update.
-#define ANALOG_CONTROL_SEQLOCK_RETRIES 8
+#define ANALOG_CONTROL_SEQLOCK_RETRIES 32
 #define ANALOG_STATUS_SEQLOCK_RETRIES 256
 
 #if (SOC_ADC_DIGI_RESULT_BYTES == 2)
@@ -77,6 +77,9 @@ static std::atomic<uint64_t> s_rate_window_start_us(0);
 static std::atomic<uint32_t> s_overflow_count(0);
 static std::atomic<uint32_t> s_miss_count(0);
 static std::atomic<uint32_t> s_consecutive_misses(0);
+static std::atomic<uint32_t> s_miss_stale_count(0);
+static std::atomic<uint32_t> s_miss_contention_count(0);
+static std::atomic<uint32_t> s_miss_missing_count(0);
 static std::atomic<uint32_t> s_fault_code(0);
 static std::atomic<uint32_t> s_samples_read(0);
 static std::atomic<uint32_t> s_samples_rejected(0);
@@ -170,6 +173,13 @@ void analog_record_overflow() {
 void analog_record_miss(uint32_t fault_code) {
     uint32_t misses = s_consecutive_misses.fetch_add(1, std::memory_order_acq_rel) + 1;
     s_miss_count.fetch_add(1, std::memory_order_acq_rel);
+    if (fault_code == ANALOG_FAULT_STALE_SAMPLE) {
+        s_miss_stale_count.fetch_add(1, std::memory_order_acq_rel);
+    } else if (fault_code == ANALOG_FAULT_SNAPSHOT_CONTENTION) {
+        s_miss_contention_count.fetch_add(1, std::memory_order_acq_rel);
+    } else if (fault_code == ANALOG_FAULT_MISSING_TRIPLE) {
+        s_miss_missing_count.fetch_add(1, std::memory_order_acq_rel);
+    }
     s_fault_code.store(misses >= 3 ? ANALOG_FAULT_REPEATED_MISS : fault_code,
                        std::memory_order_release);
 }
@@ -352,6 +362,10 @@ void analog_get_status(AnalogRuntimeStatus* status) {
     status->overflow_count = s_overflow_count.load(std::memory_order_acquire);
     status->miss_count = s_miss_count.load(std::memory_order_acquire);
     status->consecutive_misses = s_consecutive_misses.load(std::memory_order_acquire);
+    status->miss_stale_count = s_miss_stale_count.load(std::memory_order_acquire);
+    status->miss_contention_count =
+        s_miss_contention_count.load(std::memory_order_acquire);
+    status->miss_missing_count = s_miss_missing_count.load(std::memory_order_acquire);
     status->fault_code = s_fault_code.load(std::memory_order_acquire);
     status->acquisition_mode = g_analog_acquisition_mode;
     status->samples_read = s_samples_read.load(std::memory_order_acquire);

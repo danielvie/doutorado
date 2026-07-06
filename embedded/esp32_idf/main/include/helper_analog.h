@@ -53,6 +53,9 @@ struct AnalogRuntimeStatus {
     uint32_t age_used_max_us;
     uint32_t age_used_count;
     uint32_t age_used_over_budget_count;
+    uint32_t miss_stale_count;
+    uint32_t miss_contention_count;
+    uint32_t miss_missing_count;
 };
 
 struct AnalogControlSnapshot {
