@@ -421,6 +421,8 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
      * @property {number|null} [minSnapshotAgeUs] AnalogStatus minSnapshotAgeUs
      * @property {number|null} [controlMaxAgeUs] AnalogStatus controlMaxAgeUs
      * @property {number|null} [frameTsFallbacks] AnalogStatus frameTsFallbacks
+     * @property {number|null} [ageUsedMaxUs] AnalogStatus ageUsedMaxUs
+     * @property {number|null} [ageUsedCount] AnalogStatus ageUsedCount
      */
 
     /**
@@ -687,6 +689,22 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
     AnalogStatus.prototype.frameTsFallbacks = 0;
 
     /**
+     * AnalogStatus ageUsedMaxUs.
+     * @member {number} ageUsedMaxUs
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.ageUsedMaxUs = 0;
+
+    /**
+     * AnalogStatus ageUsedCount.
+     * @member {number} ageUsedCount
+     * @memberof AnalogStatus
+     * @instance
+     */
+    AnalogStatus.prototype.ageUsedCount = 0;
+
+    /**
      * Creates a new AnalogStatus instance using the specified properties.
      * @function create
      * @memberof AnalogStatus
@@ -772,6 +790,10 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
             writer.uint32(/* id 30, wireType 0 =*/240).uint32(message.controlMaxAgeUs);
         if (message.frameTsFallbacks != null && Object.hasOwnProperty.call(message, "frameTsFallbacks"))
             writer.uint32(/* id 31, wireType 0 =*/248).uint32(message.frameTsFallbacks);
+        if (message.ageUsedMaxUs != null && Object.hasOwnProperty.call(message, "ageUsedMaxUs"))
+            writer.uint32(/* id 32, wireType 0 =*/256).uint32(message.ageUsedMaxUs);
+        if (message.ageUsedCount != null && Object.hasOwnProperty.call(message, "ageUsedCount"))
+            writer.uint32(/* id 33, wireType 0 =*/264).uint32(message.ageUsedCount);
         return writer;
     };
 
@@ -932,6 +954,14 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
                     message.frameTsFallbacks = reader.uint32();
                     break;
                 }
+            case 32: {
+                    message.ageUsedMaxUs = reader.uint32();
+                    break;
+                }
+            case 33: {
+                    message.ageUsedCount = reader.uint32();
+                    break;
+                }
             default:
                 reader.skipType(tag & 7);
                 break;
@@ -1060,6 +1090,12 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
         if (message.frameTsFallbacks != null && message.hasOwnProperty("frameTsFallbacks"))
             if (!$util.isInteger(message.frameTsFallbacks))
                 return "frameTsFallbacks: integer expected";
+        if (message.ageUsedMaxUs != null && message.hasOwnProperty("ageUsedMaxUs"))
+            if (!$util.isInteger(message.ageUsedMaxUs))
+                return "ageUsedMaxUs: integer expected";
+        if (message.ageUsedCount != null && message.hasOwnProperty("ageUsedCount"))
+            if (!$util.isInteger(message.ageUsedCount))
+                return "ageUsedCount: integer expected";
         return null;
     };
 
@@ -1144,6 +1180,10 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
             message.controlMaxAgeUs = object.controlMaxAgeUs >>> 0;
         if (object.frameTsFallbacks != null)
             message.frameTsFallbacks = object.frameTsFallbacks >>> 0;
+        if (object.ageUsedMaxUs != null)
+            message.ageUsedMaxUs = object.ageUsedMaxUs >>> 0;
+        if (object.ageUsedCount != null)
+            message.ageUsedCount = object.ageUsedCount >>> 0;
         return message;
     };
 
@@ -1196,6 +1236,8 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
             object.minSnapshotAgeUs = 0;
             object.controlMaxAgeUs = 0;
             object.frameTsFallbacks = 0;
+            object.ageUsedMaxUs = 0;
+            object.ageUsedCount = 0;
         }
         if (message.seq != null && message.hasOwnProperty("seq"))
             object.seq = message.seq;
@@ -1262,6 +1304,10 @@ export const AnalogStatus = $root.AnalogStatus = (() => {
             object.controlMaxAgeUs = message.controlMaxAgeUs;
         if (message.frameTsFallbacks != null && message.hasOwnProperty("frameTsFallbacks"))
             object.frameTsFallbacks = message.frameTsFallbacks;
+        if (message.ageUsedMaxUs != null && message.hasOwnProperty("ageUsedMaxUs"))
+            object.ageUsedMaxUs = message.ageUsedMaxUs;
+        if (message.ageUsedCount != null && message.hasOwnProperty("ageUsedCount"))
+            object.ageUsedCount = message.ageUsedCount;
         return object;
     };
 

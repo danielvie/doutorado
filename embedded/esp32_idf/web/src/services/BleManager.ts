@@ -189,6 +189,11 @@ class BleManager {
             `ADC Latency avg: ${s.adc_avg} us`,
             `ADC Latency min: ${s.adc_min} us`,
             `ADC Latency max: ${s.adc_max} us`,
+            `ADC Latency max (valid): ${
+              analog && (analog.age_used_count ?? 0) > 0
+                ? `${analog.age_used_max_us} us (${analog.age_used_count} used)`
+                : "—"
+            }`,
           ];
 
           if (analog) {

@@ -473,6 +473,7 @@ void signal_control_reset(SignalControlContext &ctx) {
     ctx.max_analog_age_us =
         window_us > 0 ? window_us : CONTROL_MAX_ANALOG_AGE_US;
     analog_report_control_age_budget(ctx.max_analog_age_us);
+    analog_reset_age_used();
     for (int i = 0; i < MAX_SIGNAL_SIZE; ++i) {
         ctx.current_correction[i] = 0;
         ctx.dtk_buffer[i] = 0.0f;

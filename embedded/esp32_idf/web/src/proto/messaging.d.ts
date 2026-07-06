@@ -245,6 +245,12 @@ export class AnalogStatus implements IAnalogStatus {
     /** AnalogStatus frameTsFallbacks. */
     public frameTsFallbacks: number;
 
+    /** AnalogStatus ageUsedMaxUs. */
+    public ageUsedMaxUs: number;
+
+    /** AnalogStatus ageUsedCount. */
+    public ageUsedCount: number;
+
     /**
      * Creates a new AnalogStatus instance using the specified properties.
      * @param [properties] Properties to set

@@ -86,6 +86,10 @@ static std::atomic<uint32_t> s_dma_channel_counts[8];
 static std::atomic<uint32_t> s_dma_channel_last_raw[8];
 static std::atomic<uint32_t> s_frame_ts_fallbacks(0);
 static std::atomic<uint32_t> s_control_age_budget_us(0);
+// Age of snapshots the control point actually consumed, current run only
+// (D1/D2). Written by the Core-1 control point, reset at session start.
+static std::atomic<uint32_t> s_age_used_max_us(0);
+static std::atomic<uint32_t> s_age_used_count(0);
 static std::atomic<bool> s_calibration_lut_ready(false);
 static float s_calibration_lut[ANALOG_ADC_MAX_CODE + 1] = {0.0f};
 
@@ -354,6 +358,8 @@ void analog_get_status(AnalogRuntimeStatus* status) {
     status->control_max_age_us =
         (budget_us > status->min_snapshot_age_us) ? budget_us : status->min_snapshot_age_us;
     status->frame_ts_fallbacks = s_frame_ts_fallbacks.load(std::memory_order_acquire);
+    status->age_used_max_us = s_age_used_max_us.load(std::memory_order_acquire);
+    status->age_used_count = s_age_used_count.load(std::memory_order_acquire);
 }
 
 uint32_t analog_get_consecutive_misses(void) {
@@ -362,6 +368,11 @@ uint32_t analog_get_consecutive_misses(void) {
 
 void analog_report_control_age_budget(uint32_t max_age_us) {
     s_control_age_budget_us.store(max_age_us, std::memory_order_release);
+}
+
+void analog_reset_age_used(void) {
+    s_age_used_max_us.store(0, std::memory_order_release);
+    s_age_used_count.store(0, std::memory_order_release);
 }
 
 uint32_t analog_min_snapshot_age_us(void) {
@@ -430,6 +441,13 @@ bool analog_read_control_snapshot(AnalogControlSnapshot* snapshot,
     snapshot->an3 = copy.calibrated_an3;
     snapshot->an5 = copy.calibrated_an5;
     snapshot->an6 = copy.calibrated_an6;
+
+    // Accepted-only "age used" statistics: the control point is the single
+    // writer, so plain load/compare/store is race-free.
+    if (snapshot->age_us > s_age_used_max_us.load(std::memory_order_relaxed)) {
+        s_age_used_max_us.store(snapshot->age_us, std::memory_order_release);
+    }
+    s_age_used_count.fetch_add(1, std::memory_order_acq_rel);
     return true;
 }
 

@@ -83,6 +83,12 @@ message AnalogStatus {
     // Times a frame timestamp fell back to read time because the ISR
     // timestamp ring was empty or desynchronized.
     uint32 frame_ts_fallbacks = 31;
+    // Max age of snapshots accepted by the control-point age gate since the
+    // current control session started. Must never exceed control_max_age_us.
+    uint32 age_used_max_us = 32;
+    // Snapshots accepted this control session; 0 means age_used_max_us is
+    // not meaningful yet.
+    uint32 age_used_count = 33;
 }
 
 // System status message

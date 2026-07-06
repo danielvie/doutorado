@@ -390,6 +390,8 @@ void ble_send_status(void) {
     status->analog.min_snapshot_age_us = analog_status.min_snapshot_age_us;
     status->analog.control_max_age_us = analog_status.control_max_age_us;
     status->analog.frame_ts_fallbacks = analog_status.frame_ts_fallbacks;
+    status->analog.age_used_max_us = analog_status.age_used_max_us;
+    status->analog.age_used_count = analog_status.age_used_count;
 
     ble_send_protobuf(&packet);
     

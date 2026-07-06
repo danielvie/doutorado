@@ -177,6 +177,12 @@ export function decodeBlePacket(binary: Uint8Array) {
                 control_max_age_us: numberValue(
                   packet.status.analog.controlMaxAgeUs,
                 ),
+                age_used_max_us: numberValue(
+                  packet.status.analog.ageUsedMaxUs,
+                ),
+                age_used_count: numberValue(
+                  packet.status.analog.ageUsedCount,
+                ),
                 frame_ts_fallbacks: numberValue(
                   packet.status.analog.frameTsFallbacks,
                 ),

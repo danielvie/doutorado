@@ -511,7 +511,7 @@
     </style>
   </head>
   <body>
-    <main class="mado-document" data-mado-document="tutorial" data-mado-revision="9">
+    <main class="mado-document" data-mado-document="tutorial" data-mado-revision="11">
       <section class="mado-hero">
         <div>
           <h1 class="mado-title">DMA signal engine: timing, analog reading, and data age</h1>
@@ -725,6 +725,7 @@
             <tr><td>min 3&nbsp;µs</td><td>A completed frame was already waiting in the driver store; the call returned immediately.</td></tr>
             <tr><td>avg 119&nbsp;µs</td><td>The task usually arrives mid-frame and waits the remainder of the 192&nbsp;µs accumulation (about half a frame ≈ 96&nbsp;µs plus wakeup overhead). This is the <em>healthy</em> signature.</td></tr>
             <tr><td>max 4481&nbsp;µs</td><td>One call took 4.5&nbsp;ms of wall clock. Frames complete every 192&nbsp;µs, so the <em>task itself did not get CPU time</em> (Core&nbsp;0 busy, typically a BLE burst) — the ADC never stopped.</td></tr>
+            <tr><td>max (valid)</td><td><strong>The data-side counterpart</strong>: max age of snapshots that <em>passed the age gate and were consumed</em> by the controller, recorded at the moment of use in <code>analog_read_control_snapshot()</code> and reset at control-session start. Reported with the count of accepted updates (shown as "—" while the count is 0). Invariant: it can never exceed <code>control_max_age_us</code> — a violation means the age gate is broken, not that the data is noisy.</td></tr>
           </table>
           
           <p>Age is computed at the moment of <em>use</em>, in <code>analog_read_control_snapshot()</code>, from the ISR-captured, backdated <strong>conversion time</strong>:</p>

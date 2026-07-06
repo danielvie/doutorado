@@ -50,6 +50,8 @@ struct AnalogRuntimeStatus {
     uint32_t min_snapshot_age_us;
     uint32_t control_max_age_us;
     uint32_t frame_ts_fallbacks;
+    uint32_t age_used_max_us;
+    uint32_t age_used_count;
 };
 
 struct AnalogControlSnapshot {
@@ -94,6 +96,9 @@ uint32_t analog_min_snapshot_age_us(void);
 // budget, so telemetry can report the budget actually enforced at the
 // control point.
 void analog_report_control_age_budget(uint32_t max_age_us);
+// Clears the accepted-snapshot age statistics ("age used" max/count) at
+// control-session start, so they always describe the current run.
+void analog_reset_age_used(void);
 bool analog_read_control_snapshot(AnalogControlSnapshot* snapshot,
                                   uint32_t last_seq,
                                   uint32_t max_age_us);
