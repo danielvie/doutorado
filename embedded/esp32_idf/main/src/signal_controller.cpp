@@ -431,6 +431,10 @@ void signal_update_from_string(const std::string &message) {
     }
     target_dataset->size = (uint8_t)count;
     target_dataset->alpha = NAN;
+    // A raw pattern carries no gain matrix. The inactive buffer may hold
+    // gains from a previous alpha dataset that do not match this pattern;
+    // running the controller with them would apply wrong corrections.
+    target_dataset->gain_k.is_valid = false;
 
     // Pre-compute steps before requesting swap
     signal_precompute_steps(target_dataset);
@@ -474,6 +478,17 @@ void signal_control_reset(SignalControlContext &ctx) {
         window_us > 0 ? window_us : CONTROL_MAX_ANALOG_AGE_US;
     analog_report_control_age_budget(ctx.max_analog_age_us);
     analog_reset_age_used();
+
+    // A dataset without gains cannot run the controller; the correction step
+    // would silently bail every cycle while the state machine reports ON.
+    // Reflect reality instead: drop to OFF so the UI shows control stopped.
+    // (No logging here: this runs on the Core 1 signal loop at swap points.)
+    if (ctx.dataset != nullptr && !ctx.dataset->gain_k.is_valid &&
+        g_control_enabled.load(std::memory_order_acquire)) {
+        g_control_enabled.store(false, std::memory_order_release);
+        g_system_state.control_state.store(ControlState::OFF,
+                                           std::memory_order_release);
+    }
     for (int i = 0; i < MAX_SIGNAL_SIZE; ++i) {
         ctx.current_correction[i] = 0;
         ctx.dtk_buffer[i] = 0.0f;

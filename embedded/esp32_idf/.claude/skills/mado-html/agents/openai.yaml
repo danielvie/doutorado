@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mado HTML"
+  short_description: "Build consistent standalone tutorial documents"
+  default_prompt: "Use $mado-html to create or edit a structured Tutorial Document."

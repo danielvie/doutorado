@@ -88,6 +88,10 @@ void analog_publish_triple(uint32_t raw_an3, float calibrated_an3,
                            bool valid);
 void analog_get_status(AnalogRuntimeStatus* status);
 uint32_t analog_get_consecutive_misses(void);
+// Grants a fresh miss budget when control is (re)enabled; the counter is
+// otherwise only cleared by a valid snapshot publish, so a latched value
+// would re-trip the controller auto-disable immediately.
+void analog_clear_consecutive_misses(void);
 // Smallest measurement age the acquisition pipeline can deliver (frame
 // accumulation + scheduling margin); control-age budgets below this value
 // would reject every sample regardless of signal timing.

@@ -18,6 +18,8 @@ import { Console } from "./components/Dashboard/Console";
 import { Parameters } from "./components/Dashboard/Parameters";
 import { SessionPanel } from "./components/Dashboard/SessionPanel";
 import { useUiStore } from "./store/uiStore";
+// Side effect: emulates device status (control loop snapshot usage) in mock mode.
+import "./services/mockDevice";
 import { Agentation } from "agentation";
 
 const ITEM_IDS = [

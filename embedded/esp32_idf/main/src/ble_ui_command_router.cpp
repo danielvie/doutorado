@@ -722,6 +722,19 @@ handle_analog_ble_read_disable(const UiCommandContext &ctx) {
 }
 
 static UiCommandResultData handle_control_enable(const UiCommandContext &ctx) {
+    // Without a valid gain matrix the controller would report ON while doing
+    // nothing (the correction step bails before reading any snapshot). Reject
+    // so the state machine stays truthful. Pattern-only datasets (sync) do
+    // not carry gains; alpha datasets and matrix uploads do.
+    if (!get_dataset_active()->gain_k.is_valid) {
+        return invalid_arg(
+            "Control not enabled: active dataset has no gain matrix "
+            "(set alpha or upload a gain matrix first)");
+    }
+
+    // Fresh miss budget: a latched consecutive-miss count from a previous
+    // fault would otherwise auto-disable control on the first read.
+    analog_clear_consecutive_misses();
     g_control_enabled.store(true, std::memory_order_release);
     g_system_state.control_state.store(ControlState::ON,
                                        std::memory_order_release);

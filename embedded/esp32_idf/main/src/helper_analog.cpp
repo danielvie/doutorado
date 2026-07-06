@@ -366,6 +366,13 @@ uint32_t analog_get_consecutive_misses(void) {
     return s_consecutive_misses.load(std::memory_order_acquire);
 }
 
+// The consecutive-miss counter is otherwise only cleared by a valid snapshot
+// publish; without this, a latched count >= 3 makes the controller's
+// auto-disable trip on the first read after re-enabling control.
+void analog_clear_consecutive_misses(void) {
+    s_consecutive_misses.store(0, std::memory_order_release);
+}
+
 void analog_report_control_age_budget(uint32_t max_age_us) {
     s_control_age_budget_us.store(max_age_us, std::memory_order_release);
 }
