@@ -6,6 +6,8 @@
 
 #include <cstdio>
 #include <cstring>
+#include <cctype>
+#include <cmath>
 #include <memory>
 
 #include "ble_controller.h"
@@ -29,6 +31,217 @@
 #include "nvs_flash.h"
 
 static const char *TAG = "BLE_LED";
+
+static const char* signal_state_name() {
+    return g_system_state.signal_state.load(std::memory_order_acquire) == SignalState::RUNNING
+               ? "running"
+               : "idle";
+}
+
+static const char* control_mode_name() {
+    if (!g_control_enabled.load(std::memory_order_acquire)) {
+        return "off";
+    }
+    return g_control_dry_run.load(std::memory_order_acquire) ? "compute" : "live";
+}
+
+static const char* signal_engine_name() {
+    return g_signal_engine.load(std::memory_order_acquire) == SignalEngine::DMA
+               ? "dma"
+               : "cpu";
+}
+
+static const char* bool_json(bool value) {
+    return value ? "true" : "false";
+}
+
+static void uart_print_status() {
+    AnalogRuntimeStatus analog;
+    analog_get_status(&analog);
+
+    DataSet* active_ds = get_dataset_active();
+    const char* active_set =
+        g_active_set.load(std::memory_order_acquire) == SignalSet::SET_A ? "A" : "B";
+
+    printf("UART_STATUS {");
+    printf("\"signal\":\"%s\",", signal_state_name());
+    printf("\"engine\":\"%s\",", signal_engine_name());
+    printf("\"control\":\"%s\",", control_mode_name());
+    printf("\"active_set\":\"%s\",", active_set);
+    if (active_ds != nullptr && !std::isnan(active_ds->alpha)) {
+        printf("\"alpha\":%.3f,", (double)active_ds->alpha);
+    } else {
+        printf("\"alpha\":null,");
+    }
+    printf("\"cycles\":{\"current\":%lu,\"total\":%lu},",
+           (unsigned long)g_cycle_count,
+           (unsigned long)g_cycle_nrun);
+    printf("\"analog\":{");
+    printf("\"seq\":%lu,", (unsigned long)analog.seq);
+    printf("\"valid\":%s,", bool_json(analog.valid));
+    printf("\"age_us\":%lu,", (unsigned long)analog.age_us);
+    printf("\"budget_us\":%lu,", (unsigned long)analog.control_max_age_us);
+    printf("\"floor_us\":%lu,", (unsigned long)analog.min_snapshot_age_us);
+    printf("\"rate_tps\":%lu,", (unsigned long)analog.measured_triples_per_second);
+    printf("\"raw\":{\"an3\":%lu,\"an5\":%lu,\"an6\":%lu},",
+           (unsigned long)analog.raw_an3,
+           (unsigned long)analog.raw_an5,
+           (unsigned long)analog.raw_an6);
+    printf("\"cal\":{\"an3\":%.4f,\"an5\":%.4f,\"an6\":%.4f},",
+           (double)analog.calibrated_an3,
+           (double)analog.calibrated_an5,
+           (double)analog.calibrated_an6);
+    printf("\"latency_us\":{\"avg\":%lu,\"p95\":%lu,\"min\":%lu,\"max\":%lu},",
+           (unsigned long)analog.latency_avg_us,
+           (unsigned long)analog.latency_p95_us,
+           (unsigned long)analog.latency_min_us,
+           (unsigned long)analog.latency_max_us);
+    printf("\"age_used\":{\"max_us\":%lu,\"count\":%lu},",
+           (unsigned long)analog.age_used_max_us,
+           (unsigned long)analog.age_used_count);
+    printf("\"counters\":{");
+    printf("\"fault\":%lu,", (unsigned long)analog.fault_code);
+    printf("\"overflows\":%lu,", (unsigned long)analog.overflow_count);
+    printf("\"misses\":%lu,", (unsigned long)analog.miss_count);
+    printf("\"consecutive_misses\":%lu,", (unsigned long)analog.consecutive_misses);
+    printf("\"samples_rejected\":%lu,", (unsigned long)analog.samples_rejected);
+    printf("\"order_anomalies\":%lu,", (unsigned long)analog.channel_order_anomalies);
+    printf("\"partial_triples\":%lu,", (unsigned long)analog.partial_triples);
+    printf("\"frame_drops\":%lu,", (unsigned long)analog.frame_drops);
+    printf("\"pool_flushes\":%lu,", (unsigned long)analog.pool_flushes);
+    printf("\"ts_fallbacks\":%lu", (unsigned long)analog.frame_ts_fallbacks);
+    printf("}}}\n");
+    fflush(stdout);
+}
+
+static void uart_print_agent_prepare_control_latency() {
+    DataSet* active_ds = get_dataset_active();
+    const bool has_gain = active_ds != nullptr && active_ds->gain_k.is_valid;
+    if (has_gain) {
+        analog_clear_consecutive_misses();
+        analog_reset_age_used();
+        g_control_dry_run.store(true, std::memory_order_release);
+        g_control_enabled.store(true, std::memory_order_release);
+        g_system_state.control_state.store(ControlState::ON, std::memory_order_release);
+    }
+
+    printf("AGENT_RESULT {");
+    printf("\"task\":\"prepare-control-latency\",");
+    printf("\"pass\":%s,", bool_json(has_gain));
+    printf("\"signal\":\"%s\",", signal_state_name());
+    printf("\"engine\":\"%s\",", signal_engine_name());
+    printf("\"control\":\"%s\",", control_mode_name());
+    printf("\"has_gain\":%s", bool_json(has_gain));
+    printf("}\n");
+    fflush(stdout);
+}
+
+static void uart_print_agent_control_latency() {
+    AnalogRuntimeStatus analog;
+    analog_get_status(&analog);
+
+    const bool signal_running =
+        g_system_state.signal_state.load(std::memory_order_acquire) == SignalState::RUNNING;
+    const bool over_budget = analog.age_us > analog.control_max_age_us;
+    const bool used_over_budget =
+        analog.age_used_count > 0 && analog.age_used_max_us > analog.control_max_age_us;
+    const bool raw_zero =
+        analog.raw_an3 == 0 || analog.raw_an5 == 0 || analog.raw_an6 == 0;
+    const bool pass = signal_running && analog.valid && !over_budget && !used_over_budget &&
+                      analog.consecutive_misses == 0 && analog.frame_ts_fallbacks == 0;
+
+    printf("AGENT_RESULT {");
+    printf("\"task\":\"control-latency\",");
+    printf("\"pass\":%s,", bool_json(pass));
+    printf("\"signal\":\"%s\",", signal_state_name());
+    printf("\"engine\":\"%s\",", signal_engine_name());
+    printf("\"control\":\"%s\",", control_mode_name());
+    printf("\"snapshot_age_us\":%lu,", (unsigned long)analog.age_us);
+    printf("\"budget_us\":%lu,", (unsigned long)analog.control_max_age_us);
+    printf("\"floor_us\":%lu,", (unsigned long)analog.min_snapshot_age_us);
+    printf("\"over_budget\":%s,", bool_json(over_budget));
+    printf("\"age_used_max_us\":%lu,", (unsigned long)analog.age_used_max_us);
+    printf("\"age_used_count\":%lu,", (unsigned long)analog.age_used_count);
+    printf("\"age_used_over_budget\":%s,", bool_json(used_over_budget));
+    printf("\"rate_tps\":%lu,", (unsigned long)analog.measured_triples_per_second);
+    printf("\"adc_latency_p95_us\":%lu,", (unsigned long)analog.latency_p95_us);
+    printf("\"fault\":%lu,", (unsigned long)analog.fault_code);
+    printf("\"misses\":%lu,", (unsigned long)analog.miss_count);
+    printf("\"consecutive_misses\":%lu,", (unsigned long)analog.consecutive_misses);
+    printf("\"frame_drops\":%lu,", (unsigned long)analog.frame_drops);
+    printf("\"pool_flushes\":%lu,", (unsigned long)analog.pool_flushes);
+    printf("\"ts_fallbacks\":%lu,", (unsigned long)analog.frame_ts_fallbacks);
+    printf("\"raw_zero\":%s,", bool_json(raw_zero));
+    printf("\"raw\":{\"an3\":%lu,\"an5\":%lu,\"an6\":%lu}",
+           (unsigned long)analog.raw_an3,
+           (unsigned long)analog.raw_an5,
+           (unsigned long)analog.raw_an6);
+    printf("}\n");
+    fflush(stdout);
+}
+
+static void uart_print_agent_result(const char* task) {
+    if (strcmp(task, "prepare-control-latency") == 0 || strcmp(task, "prepare-latency") == 0) {
+        uart_print_agent_prepare_control_latency();
+        return;
+    }
+    if (strcmp(task, "control-latency") == 0 || strcmp(task, "latency") == 0) {
+        uart_print_agent_control_latency();
+        return;
+    }
+    printf("AGENT_ERROR {\"error\":\"unknown_task\",\"task\":\"%s\"}\n", task);
+}
+
+static void uart_normalize_command(char* line) {
+    size_t write = 0;
+    bool previous_space = true;
+    for (size_t read = 0; line[read] != '\0'; ++read) {
+        unsigned char ch = (unsigned char)line[read];
+        if (ch == '\r' || ch == '\n') {
+            break;
+        }
+        if (std::isspace(ch)) {
+            if (!previous_space) {
+                line[write++] = ' ';
+                previous_space = true;
+            }
+            continue;
+        }
+        line[write++] = (char)std::tolower(ch);
+        previous_space = false;
+    }
+    if (write > 0 && line[write - 1] == ' ') {
+        write--;
+    }
+    line[write] = '\0';
+}
+
+static void uart_status_task(void* arg) {
+    setvbuf(stdin, nullptr, _IONBF, 0);
+    setvbuf(stdout, nullptr, _IONBF, 0);
+    printf("UART_STATUS_READY commands=status,agent prepare-control-latency,agent control-latency,help\n");
+
+    char line[64];
+    for (;;) {
+        if (fgets(line, sizeof(line), stdin) == nullptr) {
+            vTaskDelay(pdMS_TO_TICKS(100));
+            continue;
+        }
+        uart_normalize_command(line);
+        if (line[0] == '\0') {
+            continue;
+        }
+        if (strcmp(line, "status") == 0 || strcmp(line, "s") == 0) {
+            uart_print_status();
+        } else if (strncmp(line, "agent ", 6) == 0) {
+            uart_print_agent_result(line + 6);
+        } else if (strcmp(line, "help") == 0 || strcmp(line, "h") == 0 || strcmp(line, "?") == 0) {
+            printf("UART_STATUS_HELP commands: status|s, agent prepare-control-latency, agent control-latency, help|h|?\n");
+        } else {
+            printf("UART_STATUS_ERROR unknown_command=%s\n", line);
+        }
+    }
+}
 
 /* Blink control via State Machine */
 
@@ -128,11 +341,12 @@ extern "C" void app_main(void)
         signal_start_continuous();
     }
 
-    xTaskCreatePinnedToCore(analog_reading_task, "Analog Task", 8192, NULL, tskIDLE_PRIORITY + 1, NULL, 0);
-    // The acquisition task produces the control input; keep it above app
-    // housekeeping (but below the BLE host) so publishes are not delayed by
-    // telemetry work, which would inflate measurement age at the control point.
-    xTaskCreatePinnedToCore(analog_acquisition_task, "Analog Acquisition", 4096, NULL, tskIDLE_PRIORITY + 6, NULL, 0);
+    xTaskCreatePinnedToCore(uart_status_task, "uart_status", 4096, NULL, tskIDLE_PRIORITY + 1, NULL, CORE_0);
+    xTaskCreatePinnedToCore(analog_reading_task, "Analog Task", 8192, NULL, tskIDLE_PRIORITY + 1, NULL, CORE_0);
+    // The acquisition task produces the control input. It blocks on ADC ISR
+    // notifications, so give it priority over app/BLE command work and let it
+    // publish the newest control measurement before telemetry catches up.
+    xTaskCreatePinnedToCore(analog_acquisition_task, "Analog Acquisition", 4096, NULL, tskIDLE_PRIORITY + 8, NULL, CORE_0);
 
     matrix_test();
 

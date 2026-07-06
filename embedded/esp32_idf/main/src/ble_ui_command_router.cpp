@@ -735,6 +735,7 @@ static UiCommandResultData handle_control_enable(const UiCommandContext &ctx) {
     // Fresh miss budget: a latched consecutive-miss count from a previous
     // fault would otherwise auto-disable control on the first read.
     analog_clear_consecutive_misses();
+    analog_reset_age_used();
     // Live control applies corrections; leaving dry-run set here would silently
     // make "Control On" a no-op, so clear it.
     g_control_dry_run.store(false, std::memory_order_release);
@@ -767,6 +768,7 @@ static UiCommandResultData handle_control_dry_run(const UiCommandContext &ctx) {
     }
 
     analog_clear_consecutive_misses();
+    analog_reset_age_used();
     g_control_dry_run.store(true, std::memory_order_release);
     g_control_enabled.store(true, std::memory_order_release);
     g_system_state.control_state.store(ControlState::ON,

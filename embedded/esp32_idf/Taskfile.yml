@@ -183,6 +183,23 @@ tasks:
     cmds:
       - '{{if eq .OS "windows"}}{{.PYTHON_ENV_WIN}}/Scripts/python{{else}}{{.PYTHON_ENV_UNIX}}/bin/python{{end}} -m serial.tools.list_ports'
 
+  uart:status:
+    desc: Request one JSON status snapshot over UART
+    cmds:
+      - '{{if eq .OS "windows"}}{{.PYTHON_ENV_WIN}}/Scripts/python{{else}}{{.PYTHON_ENV_UNIX}}/bin/python{{end}} tools/uart_status.py --port {{.PORT}}'
+
+  uart:control-latency:
+    desc: Request task-scoped control latency feedback over UART
+    cmds:
+      - '{{if eq .OS "windows"}}{{.PYTHON_ENV_WIN}}/Scripts/python{{else}}{{.PYTHON_ENV_UNIX}}/bin/python{{end}} tools/uart_status.py --port {{.PORT}} --delay 2 --warmup-request "agent prepare-control-latency" --warmup-delay 1 --request "agent control-latency"'
+
+  agent:control-latency:
+    desc: Build, flash, and request control latency feedback over UART
+    cmds:
+      - task: build
+      - task: flash
+      - task: uart:control-latency
+
   web:install:
     desc: install webserver dependencies
     dir: web

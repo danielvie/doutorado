@@ -16,17 +16,19 @@
 #define LATENCY_WINDOW_SIZE 128
 #define ANALOG_TARGET_TRIPLES_PER_CYCLE 4
 #define ANALOG_ADC_MAX_CODE 4095
-#define ADC_CONTINUOUS_FRAME_TRIPLES 16
+#define ADC_CONTINUOUS_FRAME_TRIPLES 4
 #define ADC_CONTINUOUS_FRAME_SIZE (SOC_ADC_DIGI_RESULT_BYTES * 3 * ADC_CONTINUOUS_FRAME_TRIPLES)
-#define ADC_CONTINUOUS_STORE_SIZE (ADC_CONTINUOUS_FRAME_SIZE * 4)
+#define ADC_CONTINUOUS_STORE_FRAMES 2
+#define ADC_CONTINUOUS_STORE_SIZE (ADC_CONTINUOUS_FRAME_SIZE * ADC_CONTINUOUS_STORE_FRAMES)
 // Yield periodically so the analog task does not starve IDLE0 and trip WDT.
 #define ADC_CONTINUOUS_FRAMES_PER_IDLE_DELAY 32
 // DMA can deliver channel groups unevenly; per-channel queues let us rebuild
 // complete AN3/AN5/AN6 triples without trusting sample order.
 #define ANALOG_DMA_CHANNEL_QUEUE_SIZE 64
 // One timestamp per completed DMA frame, produced in ISR and consumed by the
-// acquisition task; sized above the driver store depth (4 frames).
-#define ANALOG_FRAME_TS_RING_SIZE 8
+// acquisition task. Match the driver store depth and drop oldest timestamps on
+// overflow so fresh ADC frames are never paired with stale frame times.
+#define ANALOG_FRAME_TS_RING_SIZE ADC_CONTINUOUS_STORE_FRAMES
 // Seqlock retry bounds. The control point must never spin unbounded on Core 1
 // waiting for the Core-0 writer; giving up is a recoverable missed update.
 #define ANALOG_CONTROL_SEQLOCK_RETRIES 8
@@ -97,6 +99,7 @@ static adc_continuous_handle_t s_adc_continuous_handle = NULL;
 static bool s_adc_continuous_started = false;
 static uint32_t s_adc_continuous_sample_hz = 0;
 static uint32_t s_adc_continuous_frames_since_delay = 0;
+static TaskHandle_t s_analog_acquisition_task = nullptr;
 
 // Frame-completion timestamps captured in the DMA ISR. Single producer (ISR)
 // and single consumer (acquisition task), so head/tail indices suffice.
@@ -115,11 +118,20 @@ static bool IRAM_ATTR analog_on_conv_done(adc_continuous_handle_t handle,
                                           void* user_data) {
     uint32_t write = s_frame_ts_write.load(std::memory_order_relaxed);
     uint32_t read = s_frame_ts_read.load(std::memory_order_acquire);
-    if (write - read < ANALOG_FRAME_TS_RING_SIZE) {
-        s_frame_ts_ring[write % ANALOG_FRAME_TS_RING_SIZE] = (uint64_t)esp_timer_get_time();
-        s_frame_ts_write.store(write + 1, std::memory_order_release);
+    if (write - read >= ANALOG_FRAME_TS_RING_SIZE) {
+        read++;
+        s_frame_ts_read.store(read, std::memory_order_release);
+        s_frame_drops.fetch_add(1, std::memory_order_acq_rel);
     }
-    return false;
+    s_frame_ts_ring[write % ANALOG_FRAME_TS_RING_SIZE] = (uint64_t)esp_timer_get_time();
+    s_frame_ts_write.store(write + 1, std::memory_order_release);
+
+    BaseType_t hpw = pdFALSE;
+    TaskHandle_t task = s_analog_acquisition_task;
+    if (task != nullptr) {
+        vTaskNotifyGiveFromISR(task, &hpw);
+    }
+    return hpw == pdTRUE;
 }
 
 static void analog_frame_ts_clear() {
@@ -919,10 +931,14 @@ static void analog_continuous_step(AnalogTripleAccumulator* acc) {
         return;
     }
 
+    if (ulTaskNotifyTake(pdFALSE, pdMS_TO_TICKS(20)) == 0) {
+        return;
+    }
+
     uint8_t frame[ADC_CONTINUOUS_FRAME_SIZE];
     uint32_t out_len = 0;
     uint32_t start = esp_cpu_get_cycle_count();
-    esp_err_t ret = adc_continuous_read(s_adc_continuous_handle, frame, sizeof(frame), &out_len, 20);
+    esp_err_t ret = adc_continuous_read(s_adc_continuous_handle, frame, sizeof(frame), &out_len, 0);
     uint32_t end = esp_cpu_get_cycle_count();
 
     if (ret == ESP_ERR_TIMEOUT) {
@@ -971,6 +987,11 @@ static void analog_continuous_step(AnalogTripleAccumulator* acc) {
                                         ADC_CONTINUOUS_GET_DATA(sample), sample_ts_us);
     }
     analog_publish_queued_triples(acc);
+    if (g_control_enabled.load(std::memory_order_acquire)) {
+        taskYIELD();
+        return;
+    }
+
     s_adc_continuous_frames_since_delay++;
     if (s_adc_continuous_frames_since_delay >= ADC_CONTINUOUS_FRAMES_PER_IDLE_DELAY) {
         s_adc_continuous_frames_since_delay = 0;
@@ -982,6 +1003,7 @@ static void analog_continuous_step(AnalogTripleAccumulator* acc) {
 
 void analog_acquisition_task(void* arg) {
     ESP_LOGI(TAG_COMMON, "Analog Background Acquisition Task Started");
+    s_analog_acquisition_task = xTaskGetCurrentTaskHandle();
     // Static: the per-channel timestamp queues are too large for the 4 KB
     // task stack, and only one acquisition task ever exists.
     static AnalogTripleAccumulator acc;
