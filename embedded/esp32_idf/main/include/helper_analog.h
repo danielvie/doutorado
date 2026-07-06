@@ -52,6 +52,7 @@ struct AnalogRuntimeStatus {
     uint32_t frame_ts_fallbacks;
     uint32_t age_used_max_us;
     uint32_t age_used_count;
+    uint32_t age_used_over_budget_count;
 };
 
 struct AnalogControlSnapshot {
@@ -89,7 +90,7 @@ void analog_publish_triple(uint32_t raw_an3, float calibrated_an3,
 void analog_get_status(AnalogRuntimeStatus* status);
 uint32_t analog_get_consecutive_misses(void);
 // Grants a fresh miss budget when control is (re)enabled; the counter is
-// otherwise only cleared by a valid snapshot publish, so a latched value
+// otherwise only cleared by a valid control snapshot, so a latched value
 // would re-trip the controller auto-disable immediately.
 void analog_clear_consecutive_misses(void);
 // Smallest measurement age the acquisition pipeline can deliver (frame

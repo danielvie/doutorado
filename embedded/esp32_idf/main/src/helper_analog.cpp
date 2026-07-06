@@ -92,6 +92,7 @@ static std::atomic<uint32_t> s_control_age_budget_us(0);
 // (D1/D2). Written by the Core-1 control point, reset at session start.
 static std::atomic<uint32_t> s_age_used_max_us(0);
 static std::atomic<uint32_t> s_age_used_count(0);
+static std::atomic<uint32_t> s_age_used_over_budget_count(0);
 static std::atomic<bool> s_calibration_lut_ready(false);
 static float s_calibration_lut[ANALOG_ADC_MAX_CODE + 1] = {0.0f};
 
@@ -277,10 +278,7 @@ void analog_publish_triple(uint32_t raw_an3, float calibrated_an3,
     s_snapshot.timestamp_us.store(sample_timestamp_us, std::memory_order_relaxed);
     s_snapshot.valid.store(valid, std::memory_order_relaxed);
 
-    if (valid) {
-        s_consecutive_misses.store(0, std::memory_order_release);
-        s_fault_code.store(0, std::memory_order_release);
-    } else {
+    if (!valid) {
         analog_record_miss(ANALOG_FAULT_MISSING_TRIPLE);
     }
 
@@ -372,6 +370,8 @@ void analog_get_status(AnalogRuntimeStatus* status) {
     status->frame_ts_fallbacks = s_frame_ts_fallbacks.load(std::memory_order_acquire);
     status->age_used_max_us = s_age_used_max_us.load(std::memory_order_acquire);
     status->age_used_count = s_age_used_count.load(std::memory_order_acquire);
+    status->age_used_over_budget_count =
+        s_age_used_over_budget_count.load(std::memory_order_acquire);
 }
 
 uint32_t analog_get_consecutive_misses(void) {
@@ -392,6 +392,7 @@ void analog_report_control_age_budget(uint32_t max_age_us) {
 void analog_reset_age_used(void) {
     s_age_used_max_us.store(0, std::memory_order_release);
     s_age_used_count.store(0, std::memory_order_release);
+    s_age_used_over_budget_count.store(0, std::memory_order_release);
 }
 
 uint32_t analog_min_snapshot_age_us(void) {
@@ -479,7 +480,12 @@ bool analog_read_control_snapshot(AnalogControlSnapshot* snapshot,
     if (snapshot->age_us > s_age_used_max_us.load(std::memory_order_relaxed)) {
         s_age_used_max_us.store(snapshot->age_us, std::memory_order_release);
     }
+    if (age_us > effective_max_age_us) {
+        s_age_used_over_budget_count.fetch_add(1, std::memory_order_acq_rel);
+    }
     s_age_used_count.fetch_add(1, std::memory_order_acq_rel);
+    s_consecutive_misses.store(0, std::memory_order_release);
+    s_fault_code.store(0, std::memory_order_release);
     return true;
 }
 

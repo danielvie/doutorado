@@ -162,6 +162,8 @@ static void uart_print_agent_control_latency() {
     printf("\"over_budget\":%s,", bool_json(over_budget));
     printf("\"age_used_max_us\":%lu,", (unsigned long)analog.age_used_max_us);
     printf("\"age_used_count\":%lu,", (unsigned long)analog.age_used_count);
+    printf("\"age_used_over_budget_count\":%lu,",
+           (unsigned long)analog.age_used_over_budget_count);
     printf("\"age_used_over_budget\":%s,", bool_json(used_over_budget));
     printf("\"rate_tps\":%lu,", (unsigned long)analog.measured_triples_per_second);
     printf("\"adc_latency_p95_us\":%lu,", (unsigned long)analog.latency_p95_us);
