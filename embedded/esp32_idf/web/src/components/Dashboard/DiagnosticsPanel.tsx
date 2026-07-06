@@ -5,11 +5,13 @@ import { DashboardItem } from "./DashboardItem";
 
 import { Copy, Check, RefreshCw, Search, Trash2 } from "lucide-react";
 
-export const StatusPanel: React.FC = () => {
+// Text viewer for one-shot diagnostic reports (analog tests, config sweeps,
+// signal timing). Live device state lives in DeviceStatusPanel instead.
+export const DiagnosticsPanel: React.FC = () => {
   const lastStatusMessage = useBleStore((s) => s.lastStatusMessage);
   const lastStatusCommand = useBleStore((s) => s.lastStatusCommand);
-  const autoRequestStatus = useBleStore((s) => s.autoRequestStatus);
-  const setAutoRequestStatus = useBleStore((s) => s.setAutoRequestStatus);
+  const autoRequestStatus = useBleStore((s) => s.autoRequestDiagnostic);
+  const setAutoRequestStatus = useBleStore((s) => s.setAutoRequestDiagnostic);
   const isConnected = useBleStore((s) => s.isConnected);
   const clearLastStatusMessage = useBleStore((s) => s.clearLastStatusMessage);
   const [copied, setCopied] = React.useState(false);
@@ -33,21 +35,18 @@ export const StatusPanel: React.FC = () => {
       return "Invalid regex";
     }
   }, [cleanStatusMessage, filter]);
-  const rerunCommand = lastStatusCommand ?? {
-    name: "system.get_status",
-    payload: {},
-  };
+  const rerunCommand = lastStatusCommand;
 
-  // Auto-request status effect
+  // Auto-rerun the diagnostic command that produced the current report.
   React.useEffect(() => {
-    if (!autoRequestStatus || !isConnected) return;
-    
+    if (!autoRequestStatus || !isConnected || !rerunCommand) return;
+
     const interval = setInterval(() => {
       sendCommand(rerunCommand.name, rerunCommand.payload);
     }, 2000);
-    
+
     return () => clearInterval(interval);
-  }, [autoRequestStatus, isConnected, rerunCommand.name, rerunCommand.payload]);
+  }, [autoRequestStatus, isConnected, rerunCommand]);
 
   const handleCopy = () => {
     if (!cleanStatusMessage) return;
@@ -57,11 +56,11 @@ export const StatusPanel: React.FC = () => {
   };
 
   const rerunLastStatusCommand = () => {
-    sendCommand(rerunCommand.name, rerunCommand.payload);
+    if (rerunCommand) sendCommand(rerunCommand.name, rerunCommand.payload);
   };
 
   return (
-    <DashboardItem title="Status" expandable={false}>
+    <DashboardItem title="Diagnostics" expandable={false}>
       <div className="flex-1 min-h-0 flex flex-col relative group">
         {lastStatusMessage ? (
           <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar relative">
@@ -73,7 +72,7 @@ export const StatusPanel: React.FC = () => {
                     ? "bg-green-50 border-green-200 text-green-600"
                     : "bg-gray-50 border-gray-200 text-gray-500 hover:text-blue-600 hover:bg-white hover:border-blue-200"
                 }`}
-                title="Copy Status"
+                title="Copy Result"
               >
                 {copied ? <Check size={14} /> : <Copy size={14} />}
                 {copied && (
@@ -86,26 +85,36 @@ export const StatusPanel: React.FC = () => {
                 <button
                   onClick={clearLastStatusMessage}
                   className="p-2 rounded-md border bg-red-50 border-red-200 text-red-600 hover:bg-red-100 hover:border-red-300 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-[10px] font-bold uppercase tracking-wider select-none"
-                  title="Clear Status"
+                  title="Clear Result"
                 >
                   <Trash2 size={14} />
                   CLEAR
                 </button>
                 <button
                   onClick={() => setAutoRequestStatus(!autoRequestStatus)}
-                  className={`p-2 rounded-md border transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-[10px] font-bold uppercase tracking-wider select-none ${
+                  disabled={!rerunCommand}
+                  className={`p-2 rounded-md border transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-[10px] font-bold uppercase tracking-wider select-none disabled:opacity-40 ${
                     autoRequestStatus
                       ? "bg-orange-50 border-orange-200 text-orange-600"
                       : "bg-gray-50 border-gray-200 text-gray-400"
                   }`}
-                  title={`Auto rerun ${rerunCommand.name}`}
+                  title={
+                    rerunCommand
+                      ? `Auto rerun ${rerunCommand.name}`
+                      : "No diagnostic command to rerun yet"
+                  }
                 >
                   Auto
                 </button>
                 <button
                   onClick={rerunLastStatusCommand}
-                  className="p-2 rounded-md border bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 hover:border-blue-300 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-[10px] font-bold uppercase tracking-wider select-none"
-                  title={`Rerun ${rerunCommand.name}`}
+                  disabled={!rerunCommand}
+                  className="p-2 rounded-md border bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 hover:border-blue-300 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-[10px] font-bold uppercase tracking-wider select-none disabled:opacity-40"
+                  title={
+                    rerunCommand
+                      ? `Rerun ${rerunCommand.name}`
+                      : "No diagnostic command to rerun yet"
+                  }
                 >
                   <RefreshCw size={14} />
                   RERUN
@@ -117,12 +126,12 @@ export const StatusPanel: React.FC = () => {
                   type="search"
                   value={filter}
                   onChange={(event) => setFilter(event.target.value)}
-                  placeholder="Regex filter status lines"
+                  placeholder="Regex filter result lines"
                   className="min-w-0 flex-1 rounded-md border border-gray-200 bg-gray-50 px-2 py-1 text-xs font-sans text-gray-800 outline-none transition-colors placeholder:text-gray-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
                 />
               </div>
               {filteredStatus}
-              
+
               <div className="mt-6 pt-4 border-t border-gray-100 flex justify-end sticky bottom-0 bg-white/80 backdrop-blur-sm -mx-4 px-4 pb-2">
                 <button
                   onClick={handleCopy}
@@ -131,19 +140,20 @@ export const StatusPanel: React.FC = () => {
                       ? "bg-green-50 border-green-200 text-green-600"
                       : "bg-gray-50 border-gray-200 text-gray-500 hover:text-blue-600 hover:bg-white hover:border-blue-200"
                   }`}
-                  title="Copy Status"
+                  title="Copy Result"
                 >
                   {copied ? <Check size={16} /> : <Copy size={16} />}
                   <span className="text-[11px] font-bold uppercase tracking-wider">
-                    {copied ? "Copied to Clipboard" : "Copy Full Status"}
+                    {copied ? "Copied to Clipboard" : "Copy Full Result"}
                   </span>
                 </button>
               </div>
             </div>
           </div>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-400 text-sm italic bg-gray-50/50 rounded-lg border border-dashed border-gray-200">
-            Waiting for diagnostic data...
+          <div className="flex-1 flex items-center justify-center text-gray-400 text-sm italic bg-gray-50/50 rounded-lg border border-dashed border-gray-200 text-center px-4">
+            No diagnostic result yet — run a debug command (analog test, config
+            sweep, signal timing)
           </div>
         )}
       </div>

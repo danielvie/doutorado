@@ -243,22 +243,67 @@ class BleManager {
                 ? control_state
                 : "UNKNOWN",
             bleReadState: ble_state,
+            activeSet: active_set,
+            ledMode: led_state,
             alpha: s.has_alpha ? (s.alpha ?? null) : null,
+            matrixAValid: !!s.matrix_a_valid,
+            matrixBValid: !!s.matrix_b_valid,
             currentCycles: s.current_cycles ?? 0,
             totalCycles: s.total_cycles ?? 0,
+            monitorMs: s.monitor_ms ?? 0,
             deadTimeUs: s.dead_time_us ?? 0,
+            deadTimeTailOverheadCycles: s.dead_time_tail_overhead_cycles ?? 0,
+            edgeOverheadUpCycles: s.signal_edge_overhead_up_cycles ?? 0,
+            edgeOverheadDownCycles: s.signal_edge_overhead_down_cycles ?? 0,
+            adcMinUs: s.adc_min ?? 0,
+            adcMaxUs: s.adc_max ?? 0,
+            adcAvgUs: s.adc_avg ?? 0,
             congested: !!s.ble_congested,
             analogValid: analog ? !!analog.valid : null,
             analogFaultCode: analog?.fault_code ?? 0,
+            analog: analog
+              ? {
+                  seq: analog.seq ?? 0,
+                  valid: !!analog.valid,
+                  ageUs: analog.age_us ?? 0,
+                  controlMaxAgeUs: analog.control_max_age_us ?? 0,
+                  minSnapshotAgeUs: analog.min_snapshot_age_us ?? 0,
+                  acquisitionMode: analog.acquisition_mode ?? 0,
+                  lutReady: !!analog.calibration_lut_ready,
+                  targetTriplesPerCycle: analog.target_triples_per_cycle ?? 0,
+                  measuredTriplesPerSecond:
+                    analog.measured_triples_per_second ?? 0,
+                  rawAn3: analog.raw_an3 ?? 0,
+                  rawAn5: analog.raw_an5 ?? 0,
+                  rawAn6: analog.raw_an6 ?? 0,
+                  calAn3: analog.calibrated_an3 ?? 0,
+                  calAn5: analog.calibrated_an5 ?? 0,
+                  calAn6: analog.calibrated_an6 ?? 0,
+                  latencyMinUs: analog.latency_min_us ?? 0,
+                  latencyAvgUs: analog.latency_avg_us ?? 0,
+                  latencyP95Us: analog.latency_p95_us ?? 0,
+                  latencyMaxUs: analog.latency_max_us ?? 0,
+                  ageUsedMaxUs: analog.age_used_max_us ?? 0,
+                  ageUsedCount: analog.age_used_count ?? 0,
+                  missCount: analog.miss_count ?? 0,
+                  consecutiveMisses: analog.consecutive_misses ?? 0,
+                  overflowCount: analog.overflow_count ?? 0,
+                  samplesRead: analog.samples_read ?? 0,
+                  samplesRejected: analog.samples_rejected ?? 0,
+                  channelOrderAnomalies: analog.channel_order_anomalies ?? 0,
+                  partialTriples: analog.partial_triples ?? 0,
+                  frameDrops: analog.frame_drops ?? 0,
+                  poolFlushes: analog.pool_flushes ?? 0,
+                  frameTsFallbacks: analog.frame_ts_fallbacks ?? 0,
+                  faultCode: analog.fault_code ?? 0,
+                }
+              : null,
           });
 
+          // The Device Status panel renders from deviceStore; the text dump
+          // only goes to the console log for session records / copy-paste.
           const statusStr = statusLines.join("\n");
           useBleStore.getState().addLog(statusStr);
-          useBleStore.getState().setLastStatusMessage(statusStr);
-          useBleStore.getState().setLastStatusCommand({
-            name: "system.get_status",
-            payload: {},
-          });
           useBleStore
             .getState()
             .setSignalEngine(signal_engine === "DMA" ? "dma" : "cpu");

@@ -11,7 +11,8 @@ import { SignalAnalysis } from "./components/Dashboard/SignalAnalysis";
 import { SignalGenerator } from "./components/Dashboard/SignalGenerator";
 import { SystemLogs } from "./components/Dashboard/SystemLogs";
 import { QuickActions } from "./components/Dashboard/QuickActions";
-import { StatusPanel } from "./components/Dashboard/StatusPanel";
+import { DeviceStatusPanel } from "./components/Dashboard/DeviceStatusPanel";
+import { DiagnosticsPanel } from "./components/Dashboard/DiagnosticsPanel";
 import { OtaPanel } from "./components/Dashboard/OtaPanel";
 import { Console } from "./components/Dashboard/Console";
 import { Parameters } from "./components/Dashboard/Parameters";
@@ -27,6 +28,7 @@ const ITEM_IDS = [
   "signal",
   "session",
   "status",
+  "diagnostics",
   "logs",
   "ota",
 ];
@@ -47,7 +49,8 @@ const TWO_COL_LAYOUT: GridLayout = [
   { i: "session", x: 1, y: 12, w: 1, h: 3, minW: 1, minH: 2 },
   { i: "status", x: 0, y: 15, w: 1, h: 3, minW: 1, minH: 2 },
   { i: "logs", x: 1, y: 15, w: 1, h: 3, minW: 1, minH: 2 },
-  { i: "ota", x: 0, y: 18, w: 1, h: 3, minW: 1, minH: 2 },
+  { i: "diagnostics", x: 0, y: 18, w: 1, h: 3, minW: 1, minH: 2 },
+  { i: "ota", x: 1, y: 18, w: 1, h: 3, minW: 1, minH: 2 },
 ];
 
 // Tuning loop front and center (D1): chart dominant, the panes that change
@@ -64,7 +67,8 @@ const DEFAULT_LAYOUTS: ResponsiveLayouts = {
     { i: "session", x: 0, y: 9, w: 1, h: 3, minW: 1, minH: 2 },
     { i: "status", x: 1, y: 9, w: 1, h: 3, minW: 1, minH: 2 },
     { i: "logs", x: 2, y: 9, w: 1, h: 3, minW: 1, minH: 2 },
-    { i: "ota", x: 0, y: 12, w: 1, h: 3, minW: 1, minH: 2 },
+    { i: "diagnostics", x: 0, y: 12, w: 1, h: 3, minW: 1, minH: 2 },
+    { i: "ota", x: 1, y: 12, w: 1, h: 3, minW: 1, minH: 2 },
   ],
   md: TWO_COL_LAYOUT,
   sm: TWO_COL_LAYOUT,
@@ -142,7 +146,9 @@ function App() {
       case "session":
         return <SessionPanel />;
       case "status":
-        return <StatusPanel />;
+        return <DeviceStatusPanel />;
+      case "diagnostics":
+        return <DiagnosticsPanel />;
       case "ota":
         return <OtaPanel />;
       default:
