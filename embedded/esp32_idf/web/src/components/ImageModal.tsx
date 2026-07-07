@@ -1,4 +1,5 @@
 import React from "react";
+import { createPortal } from "react-dom";
 import { X, ChevronRight, ChevronLeft } from "lucide-react";
 
 type ImagePage = {
@@ -23,7 +24,7 @@ export default function ImageModal({ isOpen, onClose, images }: ImageModalProps)
   const next = () => setPageIndex((prev) => (prev + 1) % images.length);
   const prev = () => setPageIndex((prev) => (prev - 1 + images.length) % images.length);
 
-  return (
+  return createPortal(
     <div 
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-xl transition-all duration-300 animate-in fade-in"
       onClick={onClose}
@@ -85,6 +86,7 @@ export default function ImageModal({ isOpen, onClose, images }: ImageModalProps)
           ))}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
