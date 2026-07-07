@@ -120,6 +120,7 @@ static void uart_print_agent_prepare_control_latency() {
     if (has_gain) {
         analog_clear_consecutive_misses();
         analog_reset_age_used();
+        analog_probe_reset();
         g_control_dry_run.store(true, std::memory_order_release);
         g_control_enabled.store(true, std::memory_order_release);
         g_system_state.control_state.store(ControlState::ON, std::memory_order_release);
@@ -142,7 +143,13 @@ static void uart_print_agent_control_latency() {
 
     const bool signal_running =
         g_system_state.signal_state.load(std::memory_order_acquire) == SignalState::RUNNING;
-    const bool over_budget = analog.age_us > analog.control_max_age_us;
+    // The telemetry snapshot refreshes once per control trigger (one signal
+    // cycle), so its instantaneous age sampled at a random phase is nominally
+    // up to one cycle, or two when a trigger found no new frame. This check
+    // is "telemetry alive", bounded at two refresh intervals; the control
+    // quality gate is age_used_* below, which measures what the control point
+    // actually consumed.
+    const bool over_budget = analog.age_us > 2 * analog.control_max_age_us;
     const bool used_over_budget =
         analog.age_used_count > 0 && analog.age_used_max_us > analog.control_max_age_us;
     const bool raw_zero =
@@ -165,6 +172,25 @@ static void uart_print_agent_control_latency() {
     printf("\"age_used_over_budget_count\":%lu,",
            (unsigned long)analog.age_used_over_budget_count);
     printf("\"age_used_over_budget\":%s,", bool_json(used_over_budget));
+    printf("\"control_triggers\":%lu,", (unsigned long)analog.control_trigger_count);
+    printf("\"publishes\":%lu,", (unsigned long)analog.publish_count);
+    printf("\"drain_max_us\":%lu,", (unsigned long)analog.control_drain_max_us);
+    {
+        static const char* probe_names[ANALOG_PROBE_STAGE_COUNT] = {
+            "adc_read", "parse", "assemble", "calib",
+            "publish", "snapshot", "math", "render",
+        };
+        printf("\"probe\":{");
+        for (int stage = 0; stage < ANALOG_PROBE_STAGE_COUNT; ++stage) {
+            uint32_t n, avg_ns, max_ns;
+            analog_probe_get((AnalogProbeStage)stage, &n, &avg_ns, &max_ns);
+            printf("\"%s\":{\"n\":%lu,\"avg_ns\":%lu,\"max_ns\":%lu}%s",
+                   probe_names[stage], (unsigned long)n, (unsigned long)avg_ns,
+                   (unsigned long)max_ns,
+                   stage + 1 < ANALOG_PROBE_STAGE_COUNT ? "," : "");
+        }
+        printf("},");
+    }
     printf("\"rate_tps\":%lu,", (unsigned long)analog.measured_triples_per_second);
     printf("\"adc_latency_p95_us\":%lu,", (unsigned long)analog.latency_p95_us);
     printf("\"fault\":%lu,", (unsigned long)analog.fault_code);
@@ -349,9 +375,20 @@ extern "C" void app_main(void)
 
     xTaskCreatePinnedToCore(uart_status_task, "uart_status", 4096, NULL, tskIDLE_PRIORITY + 1, NULL, CORE_0);
     xTaskCreatePinnedToCore(analog_reading_task, "Analog Task", 8192, NULL, tskIDLE_PRIORITY + 1, NULL, CORE_0);
-    // The acquisition task produces the control input. It blocks on ADC ISR
+    // The acquisition task produces the control input on Core 0, sharing the
+    // core with the BLE controller and Bluedroid host. At IDLE+8 the host's
+    // ~1 ms processing bursts preempted it, so the freshest published triple
+    // could be ~1 ms stale whenever a Core-1 control read landed in the gap.
     // notifications, so give it priority over app/BLE command work and let it
     // publish the newest control measurement before telemetry catches up.
+    //
+    // Priority tuning result (2026-07-06): the residual ~0.3-0.5% "snapshot
+    // over budget" tail comes from ~1 ms Bluedroid-host bursts on this core.
+    // Raising this task to IDLE+12 (still below the host) did not shrink the
+    // tail; raising it above the host (IDLE+21) starved the Core-0 console/UART
+    // task entirely. There is no safe priority window here that closes the tail
+    // -- it is an architectural floor of sharing Core 0 with the BLE host while
+    // Core 1 is reserved for the interrupt-disabled signal loop.
     xTaskCreatePinnedToCore(analog_acquisition_task, "Analog Acquisition", 4096, NULL, tskIDLE_PRIORITY + 8, NULL, CORE_0);
 
     matrix_test();

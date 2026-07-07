@@ -1,0 +1,950 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="mado-format-version" content="1" />
+    <title>Sampling vs. Switching Instants: Validating and Placing the Control Measurement</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #182025;
+        --muted: #60707a;
+        --line: #d7e1e7;
+        --paper: #fbfcfb;
+        --panel: #f3f7f5;
+        --level-1: #365da8;
+        --level-2: #16645a;
+        --level-3: #5b4c94;
+        --code: #101820;
+        
+        --radius-sm: 2px;
+        --radius-md: 4px;
+        --radius-lg: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        color: var(--ink);
+        background:
+          linear-gradient(90deg, rgba(24, 32, 37, 0.035) 1px, transparent 1px) 0 0 / 28px 28px,
+          linear-gradient(rgba(24, 32, 37, 0.025) 1px, transparent 1px) 0 0 / 28px 28px,
+          var(--paper);
+        font-family: "Segoe UI", Candara, Tahoma, sans-serif;
+        font-size: 16px;
+        line-height: 1.55;
+      }
+
+      .mado-document {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 32px 20px 70px;
+      }
+
+      .mado-hero,
+      .mado-index,
+      .mado-session,
+      .mado-footer {
+        margin-bottom: 20px;
+        padding: 20px 24px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: #fff;
+      }
+
+      .mado-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: 32px;
+        align-items: start;
+      }
+
+      .mado-hero > :only-child {
+        grid-column: 1 / -1;
+      }
+
+      .mado-title {
+        margin-bottom: 8px;
+        font-size: clamp(30px, 5vw, 54px);
+        line-height: 1.15;
+      }
+
+      .mado-header {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .mado-meta {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: var(--panel);
+        font-size: 14px;
+      }
+
+      .mado-meta ul {
+        list-style: none;
+      }
+
+      .mado-meta li {
+        padding: 4px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .mado-meta li:last-child {
+        border-bottom: 0;
+      }
+
+      .mado-index h2,
+      .mado-session h2 {
+        margin: 0;
+        font-size: 24px;
+      }
+
+      .mado-index-cards {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 14px;
+      }
+
+      .mado-index-card {
+        display: block;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        color: inherit;
+        background: var(--panel);
+        text-decoration: none;
+      }
+
+      .mado-index-card:hover,
+      .mado-index-card:focus-visible {
+        border-color: var(--level-1);
+        outline: none;
+      }
+
+      .mado-index-card strong {
+        display: block;
+      }
+
+      .mado-index-card span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .mado-session {
+        scroll-margin-top: 20px;
+      }
+
+      .mado-session:nth-child(3n + 1) h2 {
+        color: var(--level-1);
+      }
+
+      .mado-session:nth-child(3n + 2) h2 {
+        color: var(--level-2);
+      }
+
+      .mado-session:nth-child(3n) h2 {
+        color: var(--level-3);
+      }
+
+      .mado-session-content {
+        margin-top: 14px;
+      }
+
+      .mado-session-content > * + *,
+      .mado-header > * + *,
+      .mado-footer > * + * {
+        margin-top: 12px;
+      }
+
+      h3 {
+        margin-top: 24px;
+        padding-left: 10px;
+        border-left: 4px solid var(--level-2);
+        font-size: 18px;
+      }
+
+      h4 {
+        margin-top: 14px;
+        color: var(--level-3);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      ul,
+      ol {
+        padding-left: 24px;
+      }
+
+      a {
+        color: var(--level-1);
+      }
+
+      table {
+        width: 100%;
+        margin: 14px 0;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 8px 12px;
+        border: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: var(--panel);
+        font-weight: 600;
+      }
+
+      code {
+        padding: 2px 6px;
+        border-radius: var(--radius-sm);
+        background: #edf2f0;
+        font-size: 0.92em;
+      }
+
+      pre {
+        overflow-x: auto;
+        margin: 14px 0;
+        padding: 14px;
+        border-radius: var(--radius-sm);
+        color: #dce8e5;
+        background: var(--code);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .mado-foldable-code {
+        margin: 16px 0;
+      }
+
+      .mado-foldable-code > pre {
+        margin: 0;
+        border: 1px solid #3c4653;
+        border-top: 0;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+      }
+
+      .mado-code-summary {
+        cursor: pointer;
+        padding: 10px 14px;
+        border: 1px solid #3c4653;
+        border-radius: var(--radius-sm);
+        color: #dce8e5;
+        background: #2b313b;
+        font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .mado-code-summary:hover,
+      .mado-code-summary:focus-visible {
+        background: #353d49;
+      }
+
+      .mado-foldable-code[open] > .mado-code-summary {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+
+      pre code {
+        padding: 0;
+        border: 0;
+        color: inherit;
+        background: transparent;
+        font-size: inherit;
+      }
+
+      blockquote,
+      .callout {
+        margin: 14px 0;
+        padding: 12px 16px;
+        border-left: 4px solid var(--level-2);
+        border-radius: var(--radius-sm);
+        background: #f0f7f4;
+        font-size: 14px;
+      }
+
+      svg {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin: 16px 0;
+        color: var(--ink);
+      }
+
+      .chart {
+        margin: 16px 0;
+        overflow-x: auto;
+      }
+
+      .cards,
+      .twocol {
+        display: grid;
+        gap: 14px;
+        margin: 16px 0;
+      }
+
+      .cards {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .twocol {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .card {
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: var(--panel);
+      }
+
+      .chart-muted { fill: rgba(96, 112, 122, 0.08); stroke: #9aaab2; }
+      .chart-warn { fill: #fff4df; stroke: #b57418; }
+      .chart-level-1 { fill: rgba(54, 93, 168, 0.1); stroke: var(--level-1); }
+      .chart-level-2 { fill: rgba(22, 100, 90, 0.1); stroke: var(--level-2); }
+      .chart-level-3 { fill: rgba(91, 76, 148, 0.1); stroke: var(--level-3); }
+      .arrow { fill: none; stroke: #56666f; stroke-width: 1.5; }
+      .arrow-head { fill: #56666f; }
+      .dash { stroke-dasharray: 6 5; }
+      .label { fill: var(--ink); font-size: 13px; font-weight: 650; }
+      .small { fill: var(--muted); font-size: 12px; }
+      .lane { fill: rgba(96, 112, 122, 0.07); stroke: var(--line); }
+
+      .ts-comment { color: #91a8a2; font-style: italic; }
+      .ts-keyword, .ts-tag { color: #7dd3fc; font-weight: 700; }
+      .ts-string { color: #fda4af; }
+      .ts-number, .ts-constant { color: #c4b5fd; }
+      .ts-function, .ts-constructor { color: #fde68a; }
+      .ts-type, .ts-property, .ts-attribute, .ts-module { color: #a7f3d0; }
+      .ts-operator, .ts-punctuation { color: #93c5fd; }
+      .ts-variable, .ts-embedded { color: #e2e8f0; }
+      .ts-label { color: #fb923c; }
+      .ts-error { text-decoration: underline wavy #f87171; }
+
+      .mado-diff-block {
+        overflow: hidden;
+        margin: 16px 0;
+        border: 1px solid #3c4653;
+        border-radius: var(--radius-sm);
+        color: #dce8e5;
+        background: #1f242c;
+        font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+        font-size: 13px;
+      }
+
+      .mado-foldable-diff > .mado-diff-block {
+        margin: 0;
+        border-top: 0;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+      }
+
+      .mado-diff-header {
+        padding: 10px 14px;
+        border-bottom: 1px solid #3c4653;
+        color: #aeb8c5;
+        background: #2b313b;
+      }
+
+      .mado-diff-header strong {
+        color: #f4c56a;
+      }
+
+      .mado-diff-commit {
+        margin-left: 8px;
+        color: #8490a0;
+      }
+
+      .mado-diff-panels {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      }
+
+      .mado-diff-panel {
+        min-width: 0;
+        overflow-x: auto;
+      }
+
+      .mado-diff-panel + .mado-diff-panel {
+        border-left: 1px solid #3c4653;
+      }
+
+      .mado-diff-label {
+        position: sticky;
+        left: 0;
+        padding: 5px 12px;
+        border-bottom: 1px solid #3c4653;
+        color: #aeb8c5;
+        background: #252a33;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .mado-diff-before .mado-diff-label {
+        color: #f87171;
+      }
+
+      .mado-diff-after .mado-diff-label {
+        color: #4ade80;
+      }
+
+      .mado-diff-code {
+        min-width: max-content;
+        tab-size: 4;
+      }
+
+      .mado-diff-line {
+        display: flex;
+        min-height: 21px;
+        line-height: 21px;
+        white-space: pre;
+      }
+
+      .mado-diff-ln {
+        width: 52px;
+        min-width: 52px;
+        padding-right: 10px;
+        color: #687385;
+        text-align: right;
+        user-select: none;
+      }
+
+      .mado-diff-content {
+        flex: 1;
+        min-width: 0;
+        padding: 0 12px 0 8px;
+        border-left: 3px solid transparent;
+      }
+
+      .mado-diff-line.removed {
+        background: rgba(244, 63, 94, 0.12);
+      }
+
+      .mado-diff-line.removed .mado-diff-content {
+        border-left-color: #f14c4c;
+      }
+
+      .mado-diff-line.added {
+        background: rgba(34, 197, 94, 0.11);
+      }
+
+      .mado-diff-line.added .mado-diff-content {
+        border-left-color: #4ec94e;
+      }
+
+      .mado-diff-line mark {
+        padding: 0;
+        color: inherit;
+        background: rgba(250, 204, 21, 0.28);
+      }
+
+      .mado-diff-line.marker {
+        color: #aeb8c5;
+        font-style: italic;
+      }
+
+      .mado-code-block > .mado-diff-code {
+        overflow-x: auto;
+      }
+
+      .mado-sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      template[data-mado-diff-state] {
+        display: none;
+      }
+
+      .mado-footer {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      @media (max-width: 900px) {
+        .mado-hero,
+        .mado-index-cards,
+        .cards,
+        .twocol {
+          grid-template-columns: 1fr;
+        }
+
+        .mado-diff-panels {
+          grid-template-columns: 1fr;
+        }
+
+        .mado-diff-panel + .mado-diff-panel {
+          border-top: 1px solid #3c4653;
+          border-left: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="mado-document" data-mado-document="tutorial" data-mado-revision="6">
+      <section class="mado-hero">
+        <div>
+          <h1 class="mado-title">Sampling vs. Switching Instants: Validating and Placing the Control Measurement</h1>
+          <header class="mado-header"></header>
+        </div>
+                <aside class="mado-meta" aria-label="Concept snapshot">
+          <ul>
+            <li data-mado-meta="technology-stack"><strong>Technology Stack:</strong> <span>ESP32, ESP-IDF 5.5, ADC continuous (DMA) + oneshot, I2S DMA signal engine</span></li>
+            <li data-mado-meta="key-concepts"><strong>Key Concepts:</strong> <span>switching transients, sampling phase, timestamp uncertainty, guard band, deterministic sampling, near-commensurate clocks</span></li>
+            <li data-mado-meta="domain"><strong>Domain:</strong> <span>Power-converter closed-loop measurement quality</span></li>
+            <li data-mado-meta="core-question"><strong>Core Question:</strong> <span>Can the control measurement be validated against, or deterministically placed away from, the switching instants?</span></li>
+          </ul>
+        </aside>
+
+
+      </section>
+      <nav class="mado-index" aria-label="Document index">
+        <h2>Document Index</h2>
+        <div class="mado-index-cards">          <a class="mado-index-card" href="#session-overview">
+            <strong>1. The concern and the verdict</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-timing-facts">
+            <strong>2. The six timing facts that decide the question</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-scenario-a">
+            <strong>3. Scenario A: validate-and-reject - why it fails</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-scenario-b">
+            <strong>4. Scenario B: deterministic placement - why it works</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-recommendation">
+            <strong>5. Recommendation and phased plan</strong>
+            <span>Open this Session</span>
+          </a>
+</div>
+      </nav>
+      <div class="mado-sessions">      <section class="mado-session chapter" id="session-overview" data-mado-session-id="overview">
+        <h2><span class="mado-session-number" aria-hidden="true">1. </span><span class="mado-session-title">The concern and the verdict</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          The control loop consumes AN3/AN5/AN6 measurements while the DMA engine is actively
+          switching the power-converter GPIOs. A sample converted <em>near a switching edge</em> is
+          suspect: gate transitions inject transients (ringing, ground bounce, supply dip) that decay
+          over a few microseconds, so a reading taken inside that window measures the disturbance, not
+          the plant. This study analyses two candidate remedies:
+          </p>
+          <ul>
+            <li><strong>Scenario A &mdash; validate-and-reject:</strong> keep the free-running ADC,
+                compute each consumed sample's distance to the nearest switching instant, and
+                invalidate samples that fall inside a guard band around the edges.</li>
+            <li><strong>Scenario B &mdash; deterministic placement:</strong> sample at a chosen,
+                fixed phase of the switching pattern, at a guaranteed distance from every edge.</li>
+          </ul>
+          <h3>Verdict up front</h3>
+          <table>
+            <thead><tr><th>Scenario</th><th>Verdict</th><th>Reason (one line)</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>A &mdash; validate-and-reject</td>
+                <td><strong>Not reachable as specified</strong></td>
+                <td>Sample-time uncertainty (~&plusmn;24&nbsp;µs) is of the same order as the whole
+                    switching cycle (60&nbsp;µs); the guard test is undecidable.</td>
+              </tr>
+              <tr>
+                <td>B &mdash; deterministic placement</td>
+                <td><strong>Reachable</strong> (and recommended)</td>
+                <td>The trigger ISR already anchors the waveform phase to the CPU cycle counter;
+                    a busy-wait-aligned oneshot read on Core&nbsp;1 places the sample with ~µs-level
+                    jitter.</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+          The perhaps counter-intuitive result: the <em>ideal</em> scenario is the feasible one, and
+          the <em>fallback</em> scenario is the one physics rules out. The reason is that Scenario A
+          needs information the acquisition pipeline destroys (exact conversion times), while
+          Scenario B only needs information the signal engine already produces (the exact waveform
+          phase, captured at every control trigger).
+          </p>
+          
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-timing-facts" data-mado-session-id="timing-facts">
+        <h2><span class="mado-session-number" aria-hidden="true">2. </span><span class="mado-session-title">The six timing facts that decide the question</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          Everything below follows from six measured facts of the current system (alpha = 0.5
+          dataset, DMA engine):
+          </p>
+          <table>
+            <thead><tr><th>#</th><th>Fact</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>Switching pattern cycle (repeats 4× per DMA pass)</td><td>60 µs, edges at dataset step boundaries</td></tr>
+              <tr><td>2</td><td>ADC conversion cadence (continuous mode, 250 kS/s over 3 channels)</td><td>one AN3/AN5/AN6 triple every 12 µs; one DMA frame (4 triples) every 48 µs</td></tr>
+              <tr><td>3</td><td>ADC and signal clocks</td><td>independent dividers — the ADC is <em>free-running</em> with no phase relation to the switching edges</td></tr>
+              <tr><td>4</td><td>Sample timestamps (current pipeline)</td><td>stamped at <em>read</em> time; the newest frame finished anywhere in the preceding 0–48 µs, unknowable per drain</td></tr>
+              <tr><td>5</td><td>Waveform phase anchor</td><td>the control-trigger ISR captures <code>esp_cpu_get_cycle_count()</code> at a fixed, known position of the waveform — sub-µs precision, already implemented</td></tr>
+              <tr><td>6</td><td>Post-edge disturbance window (ringing/settling)</td><td>a few µs; guard band assumed ~5 µs in this study (to be measured on the converter)</td></tr>
+            </tbody>
+          </table>
+          <svg data-mado-component-id="svg-1" aria-label="Two 60 microsecond switching cycles with disturbance bands after each edge, and free-running ADC samples every 12 microseconds, two of which land inside disturbance bands." role="img" viewBox="0 0 720 380">
+            <text class="label" x="10" y="24">Free-running sampling vs. the switching pattern (two 60 µs cycles)</text>
+          
+            <!-- waveform lane -->
+            <text class="small" x="10" y="54">GPIO waveform</text>
+            <rect class="lane" height="78" width="640" x="60" y="60"></rect>
+            <!-- disturbance bands after each edge -->
+            <rect class="chart-warn" height="70" width="27" x="60" y="64"></rect>
+            <rect class="chart-warn" height="70" width="27" x="220" y="64"></rect>
+            <rect class="chart-warn" height="70" width="27" x="380" y="64"></rect>
+            <rect class="chart-warn" height="70" width="27" x="540" y="64"></rect>
+            <!-- square wave -->
+            <polyline class="arrow" fill="none" points="60,78 220,78 220,120 380,120 380,78 540,78 540,120 700,120"></polyline>
+            <text class="small" text-anchor="middle" x="140" y="152">disturbance band ~5 µs after every edge</text>
+          
+            <!-- sample lane -->
+            <text class="small" x="10" y="184">ADC triples (every 12 µs)</text>
+            <rect class="lane" height="52" width="640" x="60" y="190"></rect>
+            <rect class="chart-warn" height="40" width="5" x="68" y="196"></rect>
+            <rect class="chart-level-1" height="40" width="5" x="132" y="196"></rect>
+            <rect class="chart-level-1" height="40" width="5" x="196" y="196"></rect>
+            <rect class="chart-level-1" height="40" width="5" x="260" y="196"></rect>
+            <rect class="chart-level-1" height="40" width="5" x="324" y="196"></rect>
+            <rect class="chart-warn" height="40" width="5" x="388" y="196"></rect>
+            <rect class="chart-level-1" height="40" width="5" x="452" y="196"></rect>
+            <rect class="chart-level-1" height="40" width="5" x="516" y="196"></rect>
+            <rect class="chart-level-1" height="40" width="5" x="580" y="196"></rect>
+            <rect class="chart-level-1" height="40" width="5" x="644" y="196"></rect>
+            <text class="small" text-anchor="middle" x="70" y="256">hit</text>
+            <text class="small" text-anchor="middle" x="390" y="256">hit</text>
+          
+            <!-- axis -->
+            <line class="arrow" x1="60" x2="700" y1="286" y2="286"></line>
+            <line class="arrow" x1="60" x2="60" y1="286" y2="292"></line>
+            <line class="arrow" x1="220" x2="220" y1="286" y2="292"></line>
+            <line class="arrow" x1="380" x2="380" y1="286" y2="292"></line>
+            <line class="arrow" x1="540" x2="540" y1="286" y2="292"></line>
+            <line class="arrow" x1="700" x2="700" y1="286" y2="292"></line>
+            <text class="small" text-anchor="middle" x="60" y="306">0</text>
+            <text class="small" text-anchor="middle" x="220" y="306">30 µs</text>
+            <text class="small" text-anchor="middle" x="380" y="306">60 µs</text>
+            <text class="small" text-anchor="middle" x="540" y="306">90 µs</text>
+            <text class="small" text-anchor="middle" x="700" y="306">120 µs</text>
+          
+            <text class="small" x="10" y="336">With a 12 µs cadence on a 60 µs cycle, five samples land at nearly fixed phases each cycle. Because the two clocks are</text>
+            <text class="small" x="10" y="352">independent, that phase pattern drifts slowly — so when a sample phase is bad, it stays bad for many consecutive cycles</text>
+            <text class="small" x="10" y="368">before drifting out. Free-running sampling does not average the problem away; it produces bursts of corrupted readings.</text>
+          </svg>
+          <p>
+          Fact 3 plus the near-commensurate cadence (12 µs divides 60 µs exactly) is the
+          under-appreciated danger: the sampling phase <em>walks slowly</em> through the cycle. The
+          system does not get independent random phases each cycle — it gets long dwell periods,
+          including dwell periods <em>inside</em> the disturbance bands.
+          </p>
+          
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-scenario-a" data-mado-session-id="scenario-a">
+        <h2><span class="mado-session-number" aria-hidden="true">3. </span><span class="mado-session-title">Scenario A: validate-and-reject - why it fails</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          Scenario A keeps the free-running ADC and adds a <em>time-domain gate</em>: for each consumed
+          triple, compute the distance from its conversion instant to the nearest switching edge, and
+          invalidate it if the distance is below the guard band (~5 µs). The edge positions are
+          known perfectly — the firmware renders them. The question is whether the <em>sample&#39;s</em>
+          conversion instant is known well enough to run the comparison.
+          </p>
+          <h3>The uncertainty budget says no</h3>
+          <table>
+            <thead><tr><th>Timestamp error source</th><th>Magnitude</th></tr></thead>
+            <tbody>
+              <tr><td>Newest frame&#39;s completion vs. read instant (read-time stamping; the frame finished somewhere in the previous frame period)</td><td><strong>0–48 µs, unknowable per drain</strong></td></tr>
+              <tr><td>Drain wake latency after the trigger ISR</td><td>a few µs</td></tr>
+              <tr><td>Backdating model error (nominal vs. actual ADC clock)</td><td>&lt;1 µs over a frame</td></tr>
+              <tr><td>Channel mux skew inside a triple (3 sequential conversions)</td><td>~4 µs per channel, known</td></tr>
+            </tbody>
+          </table>
+          <p>
+          The first row dominates: the consumed sample&#39;s true conversion time is known only to about
+          <strong>±24 µs</strong> — on a switching cycle that is 60 µs long with
+          a required decision resolution of ~5 µs.
+          </p>
+          <svg data-mado-component-id="svg-1" aria-label="One 60 microsecond cycle: the sample&#39;s claimed time is a point, but its true conversion time lies anywhere in a 48 microsecond band that overlaps both switching guard zones, so the guard test cannot be decided." role="img" viewBox="0 0 720 300">
+            <text class="label" x="10" y="24">Why the guard test is undecidable (one 60 µs cycle)</text>
+          
+            <rect class="lane" height="120" width="640" x="60" y="44"></rect>
+            <!-- guard zones after edges at t=0 and t=30 -->
+            <rect class="chart-warn" height="112" width="53" x="60" y="48"></rect>
+            <rect class="chart-warn" height="112" width="53" x="380" y="48"></rect>
+            <text class="small" text-anchor="middle" x="86" y="178">guard 0–5 µs</text>
+            <text class="small" text-anchor="middle" x="406" y="178">guard 30–35 µs</text>
+          
+            <!-- claimed sample time -->
+            <rect class="chart-level-1" height="96" width="6" x="270" y="56"></rect>
+            <text class="small" text-anchor="middle" x="273" y="212">claimed: t = 20 µs (&quot;safe&quot;)</text>
+          
+            <!-- uncertainty band -->
+            <rect class="chart-muted" height="24" width="469" x="60" y="92"></rect>
+            <text class="small" text-anchor="middle" x="294" y="108">true conversion time: anywhere in a 48 µs window</text>
+          
+            <!-- axis -->
+            <line class="arrow" x1="60" x2="700" y1="236" y2="236"></line>
+            <line class="arrow" x1="60" x2="60" y1="236" y2="242"></line>
+            <line class="arrow" x1="380" x2="380" y1="236" y2="242"></line>
+            <line class="arrow" x1="700" x2="700" y1="236" y2="242"></line>
+            <text class="small" text-anchor="middle" x="60" y="256">0 (edge)</text>
+            <text class="small" text-anchor="middle" x="380" y="256">30 µs (edge)</text>
+            <text class="small" text-anchor="middle" x="700" y="256">60 µs</text>
+          
+            <text class="small" x="10" y="282">The uncertainty band spans ~80% of the cycle and overlaps both guard zones: a sample that claims to be safely mid-interval may in truth sit on an edge, and vice versa.</text>
+          </svg>
+          <h3>Why the missing information cannot be recovered cheaply</h3>
+          <p>
+          Accurate per-frame conversion timestamps are exactly what the deleted ISR timestamp ring
+          tried to provide — and the
+          <a href="control_latency_inline_drain.html">control-latency study</a> showed it is
+          structurally incompatible with <code>flush_pool</code>: the driver silently discards frames,
+          orphaning their timestamps and desynchronising the pairing. Restoring honest timestamps
+          means disabling <code>flush_pool</code>, which brings back the backlog/staleness problem
+          that study solved. Scenario A sits on a circular trade-off: it needs timing fidelity the
+          low-latency pipeline had to give up.
+          </p>
+          <h3>Verdict</h3>
+          <p>
+          <strong>Not reachable as specified.</strong> A weakened variant — value-domain
+          plausibility filtering (rate-of-change limits, outlier rejection against the previous
+          accepted triple) — remains available and is worth having as a defensive layer, but it
+          detects <em>consequences</em> of a bad sample, not its timing, and offers no guarantee.
+          </p>
+          
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-scenario-b" data-mado-session-id="scenario-b">
+        <h2><span class="mado-session-number" aria-hidden="true">4. </span><span class="mado-session-title">Scenario B: deterministic placement - why it works</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          Scenario B flips the dependency around. Instead of asking &quot;when was this sample converted?&quot;
+          (unknowable, Scenario A), it asks &quot;can we convert <em>at a chosen instant</em>?&quot; —
+          and every ingredient for that already exists in the firmware:
+          </p>
+          <ol>
+            <li><strong>Phase anchor (already implemented).</strong> The control-trigger ISR captures
+                <code>esp_cpu_get_cycle_count()</code> at a fixed position of the waveform
+                (<code>s_trigger_cycles</code>). The waveform phase is thereby known in CPU cycles with
+                sub-µs precision, at every pass.</li>
+            <li><strong>Deterministic wait (already exists as a primitive).</strong> The control task
+                computes <code>target = s_trigger_cycles + offset_cycles</code> and busy-waits on the
+                cycle counter — the same <code>wait_until_cycle</code> technique the CPU engine
+                uses for its edges. Alignment error: well under 1 µs.</li>
+            <li><strong>Lock-free conversion at the target.</strong> Read AN3/AN5/AN6 via
+                <code>adc_oneshot_read_isr()</code> (the IRAM-safe, mutex-free oneshot API), giving
+                three conversions at deterministic instants a few µs apart.</li>
+            <li><strong>Publish as today.</strong> The triple goes into the same seqlock; telemetry,
+                the correction math, and the debug-read path are untouched.</li>
+          </ol>
+          <svg data-mado-component-id="svg-1" aria-label="One 60 microsecond cycle after the trigger: the control task busy-waits to a fixed offset and converts three channels in the middle of the quiet interval, away from both guard bands." role="img" viewBox="0 0 720 360">
+            <text class="label" x="10" y="24">Deterministic placement: one pattern copy after the trigger (60 µs)</text>
+          
+            <!-- waveform lane -->
+            <text class="small" x="10" y="54">GPIO waveform</text>
+            <rect class="lane" height="64" width="640" x="60" y="60"></rect>
+            <rect class="chart-warn" height="56" width="53" x="60" y="64"></rect>
+            <rect class="chart-warn" height="56" width="53" x="380" y="64"></rect>
+            <polyline class="arrow" fill="none" points="60,74 380,74 380,110 700,110"></polyline>
+            <text class="small" text-anchor="middle" x="86" y="138">guard</text>
+            <text class="small" text-anchor="middle" x="406" y="138">guard</text>
+          
+            <!-- Core 1 lane -->
+            <text class="small" x="10" y="170">Core 1 control task</text>
+            <rect class="lane" height="64" width="640" x="60" y="176"></rect>
+            <rect class="chart-level-2" height="52" width="28" x="64" y="182"></rect>
+            <text class="small" text-anchor="middle" x="78" y="252">wake</text>
+            <rect class="chart-muted" height="52" width="96" x="92" y="182"></rect>
+            <text class="small" text-anchor="middle" x="140" y="212">busy-wait</text>
+            <rect class="chart-level-1" height="52" width="43" x="188" y="182"></rect>
+            <rect class="chart-level-1" height="52" width="43" x="231" y="182"></rect>
+            <rect class="chart-level-1" height="52" width="43" x="274" y="182"></rect>
+            <text class="small" text-anchor="middle" x="209" y="252">AN3</text>
+            <text class="small" text-anchor="middle" x="252" y="252">AN5</text>
+            <text class="small" text-anchor="middle" x="295" y="252">AN6</text>
+          
+            <!-- distance annotations -->
+            <line class="arrow" x1="113" x2="188" y1="160" y2="160"></line>
+            <polygon class="arrow-head" points="186,156 194,160 186,164"></polygon>
+            <text class="small" text-anchor="middle" x="150" y="154">≥ 7 µs</text>
+            <line class="arrow" x1="317" x2="380" y1="160" y2="160"></line>
+            <polygon class="arrow-head" points="319,156 311,160 319,164"></polygon>
+            <text class="small" text-anchor="middle" x="348" y="154">≥ 6 µs</text>
+          
+            <!-- axis -->
+            <line class="arrow" x1="60" x2="700" y1="278" y2="278"></line>
+            <line class="arrow" x1="60" x2="60" y1="278" y2="284"></line>
+            <line class="arrow" x1="380" x2="380" y1="278" y2="284"></line>
+            <line class="arrow" x1="700" x2="700" y1="278" y2="284"></line>
+            <text class="small" text-anchor="middle" x="60" y="298">trigger / edge</text>
+            <text class="small" text-anchor="middle" x="380" y="298">30 µs (edge)</text>
+            <text class="small" text-anchor="middle" x="700" y="298">60 µs</text>
+          
+            <text class="small" x="10" y="326">The conversion train (AN3, AN5, AN6, ~4 µs each) sits in the middle of the longest quiet interval, with a guaranteed distance to both</text>
+            <text class="small" x="10" y="342">edges. The busy-wait is idle time, not work; the whole sequence fits comfortably in the ~240 µs maintenance window.</text>
+          </svg>
+          <h3>Jitter budget</h3>
+          <table>
+            <thead><tr><th>Source</th><th>Magnitude</th><th>Character</th></tr></thead>
+            <tbody>
+              <tr><td>Trigger ISR cycle-count capture</td><td>&lt;1 µs</td><td>constant-ish, calibratable</td></tr>
+              <tr><td>Busy-wait exit precision</td><td>&lt;0.1 µs</td><td>negligible</td></tr>
+              <tr><td>Conversion aperture (sample instant at conversion start)</td><td>&lt;1 µs</td><td>deterministic</td></tr>
+              <tr><td>I2S ISR preempting the wait/conversion (interrupts are on)</td><td>a few µs</td><td><strong>rare, and detectable</strong> — see below</td></tr>
+            </tbody>
+          </table>
+          <p>
+          Expected placement accuracy: <strong>~±1–2 µs typical</strong> against a
+          5 µs guard requirement. And the one non-deterministic term is self-auditing: after the
+          conversion train, the task re-reads the cycle counter; if the train overran its window
+          (an ISR landed mid-sequence), that triple is <em>invalidated</em>. This is Scenario A&#39;s
+          validity check — suddenly decidable, because the timing is measured directly in cycle
+          counts instead of reconstructed from pipeline timestamps. <strong>B does not just replace A;
+          it makes A&#39;s check finally work.</strong>
+          </p>
+          <h3>Costs and consequences</h3>
+          <ul>
+            <li><strong>Driver ownership flips while running.</strong> Oneshot and continuous cannot
+                own ADC1 simultaneously, so while the DMA engine runs the ADC operates in oneshot mode
+                owned by Core 1, replacing the inline continuous drain. The reader-token
+                hand-off machinery built for the drain is reused as-is; continuous mode remains for
+                the stopped state and the CPU engine.</li>
+            <li><strong>Rate telemetry changes meaning, not substance.</strong> One triple per control
+                trigger (~4.2 k/s) — exactly what control consumes today; the 250 kS/s
+                background stream disappears while running (it was already discarded down to the
+                newest triple).</li>
+            <li><strong>The sampling offset is a dataset property.</strong> Step layouts differ per
+                dataset, so the quiet window does too. The render path already knows every edge; it
+                can auto-select the midpoint of the longest step and <em>reject datasets</em> whose
+                longest quiet window is narrower than 2×guard + conversion train (~18 µs)
+                — turning &quot;no safe sampling point exists&quot; into an explicit, visible error instead
+                of silent bad data.</li>
+            <li><strong>Budget.</strong> Wait (≤60 µs idle) + 3 conversions (~12–30 µs)
+                + existing math, vs. the measured 140 µs drain it replaces — roughly
+                budget-neutral; add a <code>sample_window_us</code> metric like <code>drain_max_us</code>
+                to keep it audited.</li>
+          </ul>
+          <h3>Verdict</h3>
+          <p><strong>Reachable.</strong> All primitives exist; the work is composition plus validation.</p>
+          
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-recommendation" data-mado-session-id="recommendation">
+        <h2><span class="mado-session-number" aria-hidden="true">5. </span><span class="mado-session-title">Recommendation and phased plan</span></h2>
+        <div class="mado-session-content content">
+          <svg data-mado-component-id="svg-1" aria-label="Bar chart: Scenario A timing uncertainty is 48 microseconds, far above the 5 microsecond guard requirement; Scenario B placement jitter is about 2 microseconds, well below it." role="img" viewBox="0 0 720 270">
+            <text class="label" x="10" y="22">Timing knowledge vs. the ~5 µs decision requirement</text>
+            <line class="arrow" x1="60" x2="700" y1="200" y2="200"></line>
+            <line class="arrow" x1="60" x2="60" y1="40" y2="200"></line>
+            <text class="small" text-anchor="end" x="54" y="204">0</text>
+            <text class="small" text-anchor="end" x="54" y="140">20 µs</text>
+            <text class="small" text-anchor="end" x="54" y="76">40 µs</text>
+          
+            <rect class="chart-warn" height="154" width="140" x="140" y="46"></rect>
+            <text class="small" text-anchor="middle" x="210" y="40">48 µs</text>
+            <text class="small" text-anchor="middle" x="210" y="220">A: timestamp uncertainty</text>
+            <text class="small" text-anchor="middle" x="210" y="236">(free-running + read-time stamps)</text>
+          
+            <rect class="chart-level-1" height="6" width="140" x="440" y="194"></rect>
+            <text class="small" text-anchor="middle" x="510" y="188">~2 µs</text>
+            <text class="small" text-anchor="middle" x="510" y="220">B: placement jitter</text>
+            <text class="small" text-anchor="middle" x="510" y="236">(cycle-count aligned, self-audited)</text>
+          
+            <line class="arrow" stroke-dasharray="6 4" x1="60" x2="700" y1="184" y2="184"></line>
+            <text class="small" x="620" y="178">guard requirement 5 µs</text>
+          
+            <text class="small" x="10" y="262">A misses the requirement by an order of magnitude; B clears it by more than double — and can verify itself on every sample.</text>
+          </svg>
+          <h3>Recommendation</h3>
+          <p>
+          Adopt <strong>Scenario B (deterministic placement)</strong>, implemented as
+          sample-at-offset in the Core-1 control task, with the <strong>overrun self-check</strong>
+          that gives Scenario A&#39;s validation for free. Make the offset a dataset-derived property
+          (midpoint of the longest quiet interval, auto-computed at render time), and make &quot;no safe
+          window exists&quot; an explicit dataset rejection rather than silent degradation.
+          </p>
+          <h3>Phased plan (each step independently useful)</h3>
+          <ol>
+            <li><strong>Fix the sense inputs first.</strong> AN3/AN5/AN6 currently read raw 0, so no
+                disturbance is observable at all. Until real voltages arrive, this whole study is
+                about timing plumbing, not signal quality.</li>
+            <li><strong>Measure the real guard band.</strong> Scope the AN inputs around switching
+                edges on the actual converter; replace the assumed 5 µs with the measured
+                settling time. Every design number downstream depends on it.</li>
+            <li><strong>Instrument phase before changing anything.</strong> One cheap addition to the
+                current pipeline: record <code>(read_cycles − s_trigger_cycles)</code> for each
+                consumed triple and expose min/max/histogram over the UART agent. This measures the
+                <em>actual</em> phase distribution and dwell behaviour of today&#39;s free-running
+                sampling — the &quot;before&quot; evidence.</li>
+            <li><strong>Implement deterministic sampling</strong> behind the existing reader-token
+                hand-off (oneshot owned by Core 1 while running), with the overrun check
+                invalidating any triple whose conversion train was preempted. Add
+                <code>sample_window_us</code> and <code>placement_jitter_max</code> to the status
+                struct and UART JSON.</li>
+            <li><strong>Validate on the harness:</strong> placement jitter ≤ 2 µs, overrun
+                invalidations ≈ 0, <code>age_used_max_us</code> unchanged or better, and the
+                existing <code>pass</code> criteria still green.</li>
+          </ol>
+          <h3>If B ever proves unworkable: the fallback ladder</h3>
+          <p>
+          Scenario B&#39;s residual risk is oneshot driver overhead in the maintenance window. Should it
+          fail on hardware, the best-achievable alternatives, in order:
+          </p>
+          <ol>
+            <li><strong>Median-of-drained-triples.</strong> Keep the continuous inline drain, but
+                instead of consuming only the newest triple, take the median of the ~5 triples drained
+                per trigger. Edge-corrupted samples are outliers; the median rejects up to two of five
+                without any timing knowledge. Cost: a few µs of sorting; no driver changes.</li>
+            <li><strong>Value-domain plausibility gate.</strong> Reject triples whose jump from the
+                last accepted value exceeds a physical rate limit. Catches gross corruption only.</li>
+            <li><strong>Accept and document</strong> the free-running behaviour, using the phase
+                instrumentation of step 3 to at least <em>flag</em> dwell periods when sampling
+                phase statistically overlaps guard bands (frame-level, coarse, advisory-only).</li>
+          </ol>
+          <p class="small">
+          Related: <a href="control_latency_inline_drain.html">Closing the Analog Control-Latency
+          Loop</a> — the study that produced the inline-drain architecture this one builds on.
+          </p>
+          
+        </div>
+      </section>
+</div>
+      <footer class="mado-footer"></footer>
+    </main>
+  </body>
+</html>
+

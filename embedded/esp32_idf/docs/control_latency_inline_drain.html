@@ -1,0 +1,1184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="mado-format-version" content="1" />
+    <title>Closing the Analog Control-Latency Loop: From Stale Snapshots to a Core-1 Inline Drain</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #182025;
+        --muted: #60707a;
+        --line: #d7e1e7;
+        --paper: #fbfcfb;
+        --panel: #f3f7f5;
+        --level-1: #365da8;
+        --level-2: #16645a;
+        --level-3: #5b4c94;
+        --code: #101820;
+        
+        --radius-sm: 2px;
+        --radius-md: 4px;
+        --radius-lg: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        color: var(--ink);
+        background:
+          linear-gradient(90deg, rgba(24, 32, 37, 0.035) 1px, transparent 1px) 0 0 / 28px 28px,
+          linear-gradient(rgba(24, 32, 37, 0.025) 1px, transparent 1px) 0 0 / 28px 28px,
+          var(--paper);
+        font-family: "Segoe UI", Candara, Tahoma, sans-serif;
+        font-size: 16px;
+        line-height: 1.55;
+      }
+
+      .mado-document {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 32px 20px 70px;
+      }
+
+      .mado-hero,
+      .mado-index,
+      .mado-session,
+      .mado-footer {
+        margin-bottom: 20px;
+        padding: 20px 24px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: #fff;
+      }
+
+      .mado-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: 32px;
+        align-items: start;
+      }
+
+      .mado-hero > :only-child {
+        grid-column: 1 / -1;
+      }
+
+      .mado-title {
+        margin-bottom: 8px;
+        font-size: clamp(30px, 5vw, 54px);
+        line-height: 1.15;
+      }
+
+      .mado-header {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .mado-meta {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: var(--panel);
+        font-size: 14px;
+      }
+
+      .mado-meta ul {
+        list-style: none;
+      }
+
+      .mado-meta li {
+        padding: 4px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .mado-meta li:last-child {
+        border-bottom: 0;
+      }
+
+      .mado-index h2,
+      .mado-session h2 {
+        margin: 0;
+        font-size: 24px;
+      }
+
+      .mado-index-cards {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 14px;
+      }
+
+      .mado-index-card {
+        display: block;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        color: inherit;
+        background: var(--panel);
+        text-decoration: none;
+      }
+
+      .mado-index-card:hover,
+      .mado-index-card:focus-visible {
+        border-color: var(--level-1);
+        outline: none;
+      }
+
+      .mado-index-card strong {
+        display: block;
+      }
+
+      .mado-index-card span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .mado-session {
+        scroll-margin-top: 20px;
+      }
+
+      .mado-session:nth-child(3n + 1) h2 {
+        color: var(--level-1);
+      }
+
+      .mado-session:nth-child(3n + 2) h2 {
+        color: var(--level-2);
+      }
+
+      .mado-session:nth-child(3n) h2 {
+        color: var(--level-3);
+      }
+
+      .mado-session-content {
+        margin-top: 14px;
+      }
+
+      .mado-session-content > * + *,
+      .mado-header > * + *,
+      .mado-footer > * + * {
+        margin-top: 12px;
+      }
+
+      h3 {
+        margin-top: 24px;
+        padding-left: 10px;
+        border-left: 4px solid var(--level-2);
+        font-size: 18px;
+      }
+
+      h4 {
+        margin-top: 14px;
+        color: var(--level-3);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      ul,
+      ol {
+        padding-left: 24px;
+      }
+
+      a {
+        color: var(--level-1);
+      }
+
+      table {
+        width: 100%;
+        margin: 14px 0;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 8px 12px;
+        border: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: var(--panel);
+        font-weight: 600;
+      }
+
+      code {
+        padding: 2px 6px;
+        border-radius: var(--radius-sm);
+        background: #edf2f0;
+        font-size: 0.92em;
+      }
+
+      pre {
+        overflow-x: auto;
+        margin: 14px 0;
+        padding: 14px;
+        border-radius: var(--radius-sm);
+        color: #dce8e5;
+        background: var(--code);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .mado-foldable-code {
+        margin: 16px 0;
+      }
+
+      .mado-foldable-code > pre {
+        margin: 0;
+        border: 1px solid #3c4653;
+        border-top: 0;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+      }
+
+      .mado-code-summary {
+        cursor: pointer;
+        padding: 10px 14px;
+        border: 1px solid #3c4653;
+        border-radius: var(--radius-sm);
+        color: #dce8e5;
+        background: #2b313b;
+        font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .mado-code-summary:hover,
+      .mado-code-summary:focus-visible {
+        background: #353d49;
+      }
+
+      .mado-foldable-code[open] > .mado-code-summary {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+
+      pre code {
+        padding: 0;
+        border: 0;
+        color: inherit;
+        background: transparent;
+        font-size: inherit;
+      }
+
+      blockquote,
+      .callout {
+        margin: 14px 0;
+        padding: 12px 16px;
+        border-left: 4px solid var(--level-2);
+        border-radius: var(--radius-sm);
+        background: #f0f7f4;
+        font-size: 14px;
+      }
+
+      svg {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin: 16px 0;
+        color: var(--ink);
+      }
+
+      .chart {
+        margin: 16px 0;
+        overflow-x: auto;
+      }
+
+      .cards,
+      .twocol {
+        display: grid;
+        gap: 14px;
+        margin: 16px 0;
+      }
+
+      .cards {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .twocol {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .card {
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: var(--panel);
+      }
+
+      .chart-muted { fill: rgba(96, 112, 122, 0.08); stroke: #9aaab2; }
+      .chart-warn { fill: #fff4df; stroke: #b57418; }
+      .chart-level-1 { fill: rgba(54, 93, 168, 0.1); stroke: var(--level-1); }
+      .chart-level-2 { fill: rgba(22, 100, 90, 0.1); stroke: var(--level-2); }
+      .chart-level-3 { fill: rgba(91, 76, 148, 0.1); stroke: var(--level-3); }
+      .arrow { fill: none; stroke: #56666f; stroke-width: 1.5; }
+      .arrow-head { fill: #56666f; }
+      .dash { stroke-dasharray: 6 5; }
+      .label { fill: var(--ink); font-size: 13px; font-weight: 650; }
+      .small { fill: var(--muted); font-size: 12px; }
+      .lane { fill: rgba(96, 112, 122, 0.07); stroke: var(--line); }
+
+      .ts-comment { color: #91a8a2; font-style: italic; }
+      .ts-keyword, .ts-tag { color: #7dd3fc; font-weight: 700; }
+      .ts-string { color: #fda4af; }
+      .ts-number, .ts-constant { color: #c4b5fd; }
+      .ts-function, .ts-constructor { color: #fde68a; }
+      .ts-type, .ts-property, .ts-attribute, .ts-module { color: #a7f3d0; }
+      .ts-operator, .ts-punctuation { color: #93c5fd; }
+      .ts-variable, .ts-embedded { color: #e2e8f0; }
+      .ts-label { color: #fb923c; }
+      .ts-error { text-decoration: underline wavy #f87171; }
+
+      .mado-diff-block {
+        overflow: hidden;
+        margin: 16px 0;
+        border: 1px solid #3c4653;
+        border-radius: var(--radius-sm);
+        color: #dce8e5;
+        background: #1f242c;
+        font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+        font-size: 13px;
+      }
+
+      .mado-foldable-diff > .mado-diff-block {
+        margin: 0;
+        border-top: 0;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+      }
+
+      .mado-diff-header {
+        padding: 10px 14px;
+        border-bottom: 1px solid #3c4653;
+        color: #aeb8c5;
+        background: #2b313b;
+      }
+
+      .mado-diff-header strong {
+        color: #f4c56a;
+      }
+
+      .mado-diff-commit {
+        margin-left: 8px;
+        color: #8490a0;
+      }
+
+      .mado-diff-panels {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      }
+
+      .mado-diff-panel {
+        min-width: 0;
+        overflow-x: auto;
+      }
+
+      .mado-diff-panel + .mado-diff-panel {
+        border-left: 1px solid #3c4653;
+      }
+
+      .mado-diff-label {
+        position: sticky;
+        left: 0;
+        padding: 5px 12px;
+        border-bottom: 1px solid #3c4653;
+        color: #aeb8c5;
+        background: #252a33;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .mado-diff-before .mado-diff-label {
+        color: #f87171;
+      }
+
+      .mado-diff-after .mado-diff-label {
+        color: #4ade80;
+      }
+
+      .mado-diff-code {
+        min-width: max-content;
+        tab-size: 4;
+      }
+
+      .mado-diff-line {
+        display: flex;
+        min-height: 21px;
+        line-height: 21px;
+        white-space: pre;
+      }
+
+      .mado-diff-ln {
+        width: 52px;
+        min-width: 52px;
+        padding-right: 10px;
+        color: #687385;
+        text-align: right;
+        user-select: none;
+      }
+
+      .mado-diff-content {
+        flex: 1;
+        min-width: 0;
+        padding: 0 12px 0 8px;
+        border-left: 3px solid transparent;
+      }
+
+      .mado-diff-line.removed {
+        background: rgba(244, 63, 94, 0.12);
+      }
+
+      .mado-diff-line.removed .mado-diff-content {
+        border-left-color: #f14c4c;
+      }
+
+      .mado-diff-line.added {
+        background: rgba(34, 197, 94, 0.11);
+      }
+
+      .mado-diff-line.added .mado-diff-content {
+        border-left-color: #4ec94e;
+      }
+
+      .mado-diff-line mark {
+        padding: 0;
+        color: inherit;
+        background: rgba(250, 204, 21, 0.28);
+      }
+
+      .mado-diff-line.marker {
+        color: #aeb8c5;
+        font-style: italic;
+      }
+
+      .mado-code-block > .mado-diff-code {
+        overflow-x: auto;
+      }
+
+      .mado-sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      template[data-mado-diff-state] {
+        display: none;
+      }
+
+      .mado-footer {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      @media (max-width: 900px) {
+        .mado-hero,
+        .mado-index-cards,
+        .cards,
+        .twocol {
+          grid-template-columns: 1fr;
+        }
+
+        .mado-diff-panels {
+          grid-template-columns: 1fr;
+        }
+
+        .mado-diff-panel + .mado-diff-panel {
+          border-top: 1px solid #3c4653;
+          border-left: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="mado-document" data-mado-document="tutorial" data-mado-revision="14">
+      <section class="mado-hero">
+        <div>
+          <h1 class="mado-title">Closing the Analog Control-Latency Loop: From Stale Snapshots to a Core-1 Inline Drain</h1>
+          <header class="mado-header"></header>
+        </div>
+                <aside class="mado-meta" aria-label="Concept snapshot">
+          <ul>
+            <li data-mado-meta="technology-stack"><strong>Technology Stack:</strong> <span>ESP32, ESP-IDF 5.5, FreeRTOS, ADC continuous (DMA), I2S DMA signal engine</span></li>
+            <li data-mado-meta="key-concepts"><strong>Key Concepts:</strong> <span>measurement age budget, seqlock, single-reader invariant, flush_pool, core pinning, reader-token hand-off</span></li>
+            <li data-mado-meta="domain"><strong>Domain:</strong> <span>Embedded real-time closed-loop control</span></li>
+            <li data-mado-meta="core-question"><strong>Core Question:</strong> <span>Why did the control loop never see a fresh ADC sample, and what architecture makes freshness deterministic?</span></li>
+          </ul>
+        </aside>
+
+
+      </section>
+      <nav class="mado-index" aria-label="Document index">
+        <h2>Document Index</h2>
+        <div class="mado-index-cards">          <a class="mado-index-card" href="#session-overview">
+            <strong>1. Overview: the loop that never closed</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-test-harness">
+            <strong>2. The acceptance harness</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-problem-backlog">
+            <strong>3. Problem 1: one frame per wake left backlog in the driver</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-problem-timestamp-ring">
+            <strong>4. Problem 2: the ISR timestamp ring lied under flush_pool</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-problem-ble-preemption">
+            <strong>5. Problem 3: the Core-0 BLE preemption tail</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-solution-inline-drain">
+            <strong>6. The solution: read at the point of need, on Core 1</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-evidence">
+            <strong>7. Evidence: hardware test results per stage</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-open-items">
+            <strong>8. Open items and caveats</strong>
+            <span>Open this Session</span>
+          </a>
+</div>
+      </nav>
+      <div class="mado-sessions">      <section class="mado-session chapter" id="session-overview" data-mado-session-id="overview">
+        <h2><span class="mado-session-number" aria-hidden="true">1. </span><span class="mado-session-title">Overview: the loop that never closed</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          The DMA signal engine runs a closed-loop correction: once per signal cycle (~280&nbsp;µs) the
+          Core-1 control point reads the latest AN3/AN5/AN6 measurement and adjusts the waveform.
+          The controller enforces a hard <strong>measurement-age budget</strong> of one signal cycle,
+          because a correction computed from stale feedback can push a power converter in the wrong
+          direction.
+          </p>
+          <p>
+          The starting symptom: with the signal running and control in compute-only mode, the freshest
+          available snapshot was <strong>~1600&nbsp;µs old against a 282&nbsp;µs budget</strong>. The
+          staleness gate rejected essentially every sample, so live control could never stay on. The
+          controller math was fine &mdash; it simply never received data it was allowed to use.
+          </p>
+          <p>
+          This document walks through the three distinct problems that stacked up to that symptom, why
+          each one was a problem, how each was solved, and ends with the measured evidence: the
+          hardware acceptance test going from <code>pass: false</code> on every run to
+          <code>pass: true</code> on every run, with the worst consumed-sample age dropping from
+          ~1&nbsp;ms to ~143&nbsp;µs.
+          </p>
+          <table>
+            <thead>
+              <tr><th>Problem</th><th>Effect on measurement age</th><th>Fix</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1. One-frame-per-wake producer</td>
+                <td>Backlog accumulated in the driver; published triples lagged</td>
+                <td>Drain every queued frame per wake; publish only the newest</td>
+              </tr>
+              <tr>
+                <td>2. ISR timestamp ring vs <code>flush_pool</code></td>
+                <td>Orphan timestamps inflated reported age up to ~1.4&nbsp;ms</td>
+                <td>Remove the ring; stamp frames at read time</td>
+              </tr>
+              <tr>
+                <td>3. Core-0 BLE preemption tail</td>
+                <td>~1&nbsp;ms gaps where no publish could happen at all</td>
+                <td>Move the read to the Core-1 control point (inline drain)</td>
+              </tr>
+            </tbody>
+          </table>
+          
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-test-harness" data-mado-session-id="test-harness">
+        <h2><span class="mado-session-number" aria-hidden="true">2. </span><span class="mado-session-title">The acceptance harness</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          All evidence below comes from a UART hardware-in-the-loop test that runs on the real board
+          (ESP32 on COM3) with the signal running, engine <code>dma</code>, and control in
+          compute-only mode:
+          </p>
+          <details class="mado-foldable-code" data-mado-component-id="code-1"><summary class="mado-code-summary">Show code: bash</summary><pre data-mado-component-id="code-1"><code class="language-bash"><span class="ts-function">task</span> flash
+          <span class="ts-function">task</span> uart:control-latency   <span class="ts-comment"># prepare (enable dry-run) -&gt; settle -&gt; one JSON result</span></code></pre></details>
+          <p>The JSON fields that matter, and what they measure:</p>
+          <table>
+            <thead><tr><th>Field</th><th>Meaning</th><th>Acceptance</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><code>age_used_max_us</code></td>
+                <td>Worst age of a sample the control point actually <em>consumed</em>, this run</td>
+                <td>≤ <code>budget_us</code> (282 µs = one signal cycle)</td>
+              </tr>
+              <tr>
+                <td><code>age_used_over_budget_count</code></td>
+                <td>How many consumed samples exceeded the budget</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <td><code>miss_stale</code> / <code>miss_contention</code></td>
+                <td>Control reads that found no new sample / lost a seqlock race</td>
+                <td>~0, never 3 consecutive</td>
+              </tr>
+              <tr>
+                <td><code>ts_fallbacks</code>, <code>frame_drops</code></td>
+                <td>Timestamp-pipeline health (fallback to read time; ISR ring overruns)</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <td><code>control_triggers</code> / <code>publishes</code></td>
+                <td>Demand vs. supply cadence correlation (added during this work)</td>
+                <td>diagnostic</td>
+              </tr>
+              <tr>
+                <td><code>pass</code></td>
+                <td>All of the above combined</td>
+                <td><code>true</code></td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="small">
+          Compute-only (&quot;dry-run&quot;) mode is what makes the measurement possible at all: control stays ON
+          and executes the full read/compute path every cycle, but applies nothing and never
+          auto-disables, so age statistics accumulate even while the loop is broken.
+          </p>
+          
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-problem-backlog" data-mado-session-id="problem-backlog">
+        <h2><span class="mado-session-number" aria-hidden="true">3. </span><span class="mado-session-title">Problem 1: one frame per wake left backlog in the driver</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          The ADC runs in continuous (DMA) mode at 250 kS/s. The hardware fills a driver ring
+          buffer with 12-sample frames (one frame ≈ 48 µs of signal). A Core-0 acquisition
+          task wakes on each conversion-done interrupt, reads frame data, assembles AN3/AN5/AN6
+          triples, and publishes the newest one into a seqlock snapshot that the Core-1 control point
+          reads.
+          </p>
+          <h3>What was wrong</h3>
+          <p>
+          The acquisition task read <strong>exactly one frame per wake-up</strong>, then yielded.
+          That is fine as long as the task is scheduled once per frame — but Core 0 also runs
+          the whole BLE stack, so the task was frequently scheduled in <em>bursts</em>: nothing for a
+          while, then several pending notifications at once. Reading one frame per wake meant old
+          frames sat in the driver while newer ones kept arriving. The published triple was
+          systematically behind the newest available data, and the driver reported
+          <code>frame_drops ≈ 15 000</code> per two-second window.
+          </p>
+          <h3>Why it mattered</h3>
+          <p>
+          The control point only ever wants the <em>newest</em> measurement. Every frame of backlog
+          between the newest converted sample and the published triple is pure, avoidable measurement
+          age — and the budget is only ~6 frames wide in total.
+          </p>
+          <svg data-mado-component-id="svg-1" aria-label="Before: one frame read per wake leaves backlog. After: draining all frames publishes the newest." role="img" viewBox="0 0 720 250">
+            <text class="label" x="10" y="24">Before — one frame per wake (backlog persists)</text>
+            <rect class="lane" height="60" width="700" x="10" y="36"></rect>
+            <rect class="chart-warn" height="40" width="60" x="20" y="46"></rect>
+            <rect class="chart-warn" height="40" width="60" x="90" y="46"></rect>
+            <rect class="chart-warn" height="40" width="60" x="160" y="46"></rect>
+            <rect class="chart-level-1" height="40" width="60" x="230" y="46"></rect>
+            <text class="small" text-anchor="middle" x="50" y="70">old</text>
+            <text class="small" text-anchor="middle" x="120" y="70">old</text>
+            <text class="small" text-anchor="middle" x="190" y="70">old</text>
+            <text class="small" text-anchor="middle" x="260" y="70">new</text>
+            <line class="arrow" x1="50" x2="50" y1="96" y2="120"></line>
+            <polygon class="arrow-head" points="46,118 54,118 50,126"></polygon>
+            <text class="small" x="60" y="120">task reads ONE frame → publishes stale triple; 3 frames still queued</text>
+          
+            <text class="label" x="10" y="164">After — drain every pending frame, publish only the newest</text>
+            <rect class="lane" height="60" width="700" x="10" y="176"></rect>
+            <rect class="chart-muted" height="40" width="60" x="20" y="186"></rect>
+            <rect class="chart-muted" height="40" width="60" x="90" y="186"></rect>
+            <rect class="chart-muted" height="40" width="60" x="160" y="186"></rect>
+            <rect class="chart-level-1" height="40" width="60" x="230" y="186"></rect>
+            <text class="small" text-anchor="middle" x="50" y="210">read</text>
+            <text class="small" text-anchor="middle" x="120" y="210">read</text>
+            <text class="small" text-anchor="middle" x="190" y="210">read</text>
+            <text class="small" text-anchor="middle" x="260" y="210">read</text>
+            <line class="arrow" x1="260" x2="380" y1="186" y2="186"></line>
+            <polygon class="arrow-head" points="378,182 378,190 386,186"></polygon>
+            <text class="small" x="392" y="190">only the newest triple is published; queue empty after every wake</text>
+          </svg>
+          <h3>The fix</h3>
+          <p>
+          Rework the read path into a per-frame reader plus a drain loop: on each wake, consume frames
+          until the driver reports empty, fold them all into the triple accumulator, and publish once.
+          The wake-up notification was switched to clear-on-take so a burst of pending notifications
+          collapses into a single drain pass instead of one spin per frame.
+          </p>
+          <p>
+          Alongside the fix, two <strong>cadence-correlation counters</strong> were added:
+          <code>control_triggers</code> (control-point reads) and <code>publishes</code> (valid triples
+          published). These settled the key diagnostic question below.
+          </p>
+          <h3>What it proved</h3>
+          <p>
+          After the drain fix, supply outpaced demand ~4.6× (<code>publishes: 26 021</code> vs
+          <code>control_triggers: 5 635</code>) — yet stale and over-budget reads persisted.
+          Conclusion: <strong>throughput was never the bottleneck</strong>. Something else was
+          inflating the ages (Problem 2) and punching holes in the publish cadence
+          (Problem 3).
+          </p>
+          
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-problem-timestamp-ring" data-mado-session-id="problem-timestamp-ring">
+        <h2><span class="mado-session-number" aria-hidden="true">4. </span><span class="mado-session-title">Problem 2: the ISR timestamp ring lied under flush_pool</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          Measurement age is computed from the sample&#39;s conversion time, not its publish time, so each
+          frame needs an honest timestamp. The original design captured one timestamp per frame in the
+          conversion-done ISR, stored it in a small ring, and the acquisition task popped the oldest
+          entry when it read a frame — assuming timestamps and frames pair one-to-one in FIFO
+          order.
+          </p>
+          <h3>What was wrong</h3>
+          <p>
+          The driver runs with <code>flags.flush_pool = 1</code>: when its internal pool fills, it
+          <em>silently discards old frame data</em> to keep the freshest samples. That is exactly the
+          right policy for closed-loop control — but it breaks the pairing assumption. The ISR
+          pushed a timestamp for <strong>every</strong> completed conversion, including frames the
+          driver then threw away. The ring accumulated orphan timestamps belonging to no readable
+          frame, so popping &quot;the oldest&quot; handed out a time from several frames ago.
+          </p>
+          <svg data-mado-component-id="svg-1" aria-label="Orphan timestamps: the ISR stamps every frame including ones flush_pool discards, so reads pair new frames with old timestamps." role="img" viewBox="0 0 720 240">
+            <text class="label" x="10" y="22">ISR timestamp ring (one entry per conv-done)</text>
+            <rect class="lane" height="54" width="700" x="10" y="34"></rect>
+            <rect class="chart-warn" height="38" width="90" x="20" y="42"></rect>
+            <rect class="chart-warn" height="38" width="90" x="120" y="42"></rect>
+            <rect class="chart-level-1" height="38" width="90" x="220" y="42"></rect>
+            <rect class="chart-level-1" height="38" width="90" x="320" y="42"></rect>
+            <text class="small" text-anchor="middle" x="65" y="66">t=100 µs</text>
+            <text class="small" text-anchor="middle" x="165" y="66">t=148 µs</text>
+            <text class="small" text-anchor="middle" x="265" y="66">t=196 µs</text>
+            <text class="small" text-anchor="middle" x="365" y="66">t=244 µs</text>
+          
+            <text class="label" x="10" y="126">Frames actually readable (flush_pool kept only the newest)</text>
+            <rect class="lane" height="54" width="700" x="10" y="138"></rect>
+            <rect class="chart-muted" height="38" width="90" x="20" y="146"></rect>
+            <rect class="chart-muted" height="38" width="90" x="120" y="146"></rect>
+            <rect class="chart-level-2" height="38" width="90" x="220" y="146"></rect>
+            <rect class="chart-level-2" height="38" width="90" x="320" y="146"></rect>
+            <text class="small" text-anchor="middle" x="65" y="170">discarded</text>
+            <text class="small" text-anchor="middle" x="165" y="170">discarded</text>
+            <text class="small" text-anchor="middle" x="265" y="170">frame C</text>
+            <text class="small" text-anchor="middle" x="365" y="170">frame D</text>
+          
+            <line class="arrow" x1="65" x2="255" y1="82" y2="144"></line>
+            <polygon class="arrow-head" points="249,140 257,146 251,150"></polygon>
+            <text class="small" x="10" y="222">pop-oldest pairs frame C (converted at t=196) with orphan timestamp t=100 → reported age inflated by ~100 µs; the error grows with every discarded frame</text>
+          </svg>
+          <h3>Why it mattered</h3>
+          <p>
+          This bug was <em>self-hiding</em>. With the ring at its original depth of 2, the ISR
+          constantly overwrote old entries (~15 000 <code>frame_drops</code> per window), which
+          accidentally limited how far the pairing could drift — while also forcing occasional
+          read-time fallbacks (<code>ts_fallbacks &gt; 0</code>, itself a test failure). The decisive
+          experiment: <strong>deepening the ring to 16 made every reported age jump to ~1.4 ms</strong>.
+          The deeper ring did not add latency — it removed the accidental masking and exposed the
+          orphan-timestamp accumulation. The ages the controller had been rejecting were partly
+          fiction.
+          </p>
+          <h3>The fix</h3>
+          <p>
+          The per-frame ISR timestamp is fundamentally incompatible with <code>flush_pool</code>, so
+          the ring was deleted outright. Frames are stamped <strong>at read time</strong>, with each
+          sample inside the frame backdated by its position at the configured conversion rate. Because
+          the reader wakes on the conversion notification and drains immediately, read time tracks the
+          newest frame&#39;s completion; a genuine scheduling gap still surfaces honestly as an equally old
+          snapshot downstream. The ISR shrank to a pure task-notify.
+          </p>
+          <h3>Result</h3>
+          <p>
+          <code>frame_drops: 15 000 → 0</code> and <code>ts_fallbacks → 0</code>
+          (both by construction), and the worst consumed age fell from ~1.1 ms to ~0.9 ms.
+          What remained was no longer a measurement artifact — it was a real scheduling gap
+          (Problem 3).
+          </p>
+          
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-problem-ble-preemption" data-mado-session-id="problem-ble-preemption">
+        <h2><span class="mado-session-number" aria-hidden="true">5. </span><span class="mado-session-title">Problem 3: the Core-0 BLE preemption tail</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          With Problems 1 and 2 fixed, the numbers were honest for the first time: supply was
+          4.6× demand, <code>frame_drops</code> and <code>ts_fallbacks</code> were zero —
+          and yet ~0.3–0.5% of consumed samples were still up to ~1 ms old, and ~2% of
+          control reads found no new sample at all.
+          </p>
+          <h3>What was wrong</h3>
+          <p>
+          The core-pinning layout is fixed by the system&#39;s real-time design: Core 1 is reserved
+          for the signal engine, so the acquisition task, the BLE radio controller (priority ~23), and
+          the Bluedroid host (~19–20) all share Core 0. When the host processes a
+          notification batch it runs for up to ~1 ms without yielding to an IDLE+8 task. During
+          that window <em>no publish can happen</em>, no matter how much ADC data is ready. Any
+          control trigger landing inside the window reads a snapshot exactly as old as the gap.
+          </p>
+          <svg data-mado-component-id="svg-1" aria-label="Timeline: a 1 millisecond Bluedroid burst on Core 0 blocks the acquisition task, so four consecutive Core-1 control reads consume an increasingly stale snapshot until the burst ends." role="img" viewBox="0 0 720 400">
+            <text class="label" x="10" y="24">A ~1 ms Bluedroid burst on Core 0 starves the publish path</text>
+          
+            <!-- ADC lane -->
+            <text class="small" x="10" y="58">ADC DMA (hardware)</text>
+            <rect class="lane" height="48" width="640" x="60" y="66"></rect>
+            <rect class="chart-level-2" height="36" width="632" x="64" y="72"></rect>
+            <text class="small" text-anchor="middle" x="380" y="95">continuous conversions — one fresh frame every 48 µs, all cycle long</text>
+          
+            <!-- Core 0 lane -->
+            <text class="small" x="10" y="148">Core 0 (BLE + acquisition)</text>
+            <rect class="lane" height="48" width="640" x="60" y="156"></rect>
+            <rect class="chart-warn" height="36" width="526" x="64" y="162"></rect>
+            <text class="small" text-anchor="middle" x="327" y="185">Bluedroid host burst (~1 ms) — acquisition task preempted, nothing published</text>
+            <rect class="chart-level-1" height="36" width="30" x="594" y="162"></rect>
+            <text class="small" x="640" y="185">drain +</text>
+            <text class="small" x="640" y="199">publish</text>
+          
+            <!-- Core 1 lane -->
+            <text class="small" x="10" y="238">Core 1 control point</text>
+            <rect class="lane" height="48" width="640" x="60" y="246"></rect>
+            <rect class="chart-muted" height="36" width="16" x="182" y="252"></rect>
+            <rect class="chart-muted" height="36" width="16" x="310" y="252"></rect>
+            <rect class="chart-muted" height="36" width="16" x="438" y="252"></rect>
+            <rect class="chart-warn" height="36" width="16" x="566" y="252"></rect>
+            <text class="small" text-anchor="middle" x="190" y="310">read: stale</text>
+            <text class="small" text-anchor="middle" x="318" y="310">read: stale</text>
+            <text class="small" text-anchor="middle" x="446" y="310">read: stale</text>
+            <text class="small" text-anchor="middle" x="574" y="310">read: ~1 ms old</text>
+          
+            <!-- publish marker -->
+            <line class="arrow" stroke-dasharray="6 4" x1="593" x2="593" y1="60" y2="296"></line>
+            <text class="small" x="600" y="242">burst ends: first publish</text>
+          
+            <!-- time axis -->
+            <line class="arrow" x1="60" x2="700" y1="336" y2="336"></line>
+            <line class="arrow" x1="60" x2="60" y1="336" y2="342"></line>
+            <line class="arrow" x1="188" x2="188" y1="336" y2="342"></line>
+            <line class="arrow" x1="316" x2="316" y1="336" y2="342"></line>
+            <line class="arrow" x1="444" x2="444" y1="336" y2="342"></line>
+            <line class="arrow" x1="572" x2="572" y1="336" y2="342"></line>
+            <line class="arrow" x1="700" x2="700" y1="336" y2="342"></line>
+            <text class="small" text-anchor="middle" x="60" y="358">0</text>
+            <text class="small" text-anchor="middle" x="188" y="358">240 µs</text>
+            <text class="small" text-anchor="middle" x="316" y="358">480 µs</text>
+            <text class="small" text-anchor="middle" x="444" y="358">720 µs</text>
+            <text class="small" text-anchor="middle" x="572" y="358">960 µs</text>
+            <text class="small" text-anchor="middle" x="700" y="358">1200 µs</text>
+          
+            <text class="small" x="10" y="388">Fresh ADC frames exist the whole time (top lane) — but every control read during the burst consumes the pre-burst snapshot, because the publisher cannot run.</text>
+          </svg>
+          <h3>Why it mattered</h3>
+          <p>
+          This tail cannot be fixed by buffering (depth prevents data <em>loss</em>, not
+          <em>staleness</em>) or by more sample rate (supply was already 4.6× demand). The only
+          producer-side lever left was task priority — and the experiment showed that lever is
+          welded shut:
+          </p>
+          <table>
+            <thead><tr><th>Acquisition priority</th><th>Tail (over-budget count)</th><th>Side effect</th></tr></thead>
+            <tbody>
+              <tr><td>IDLE+8 (baseline)</td><td>9–23 per run</td><td>—</td></tr>
+              <tr><td>IDLE+12 (below Bluedroid host)</td><td>17–21 — <strong>no change</strong></td><td>none, but useless</td></tr>
+              <tr><td>IDLE+21 (above Bluedroid host)</td><td>unmeasurable</td><td><strong>starved the Core-0 console/UART</strong>; harness lost contact</td></tr>
+            </tbody>
+          </table>
+          <p>
+          Below the host, the host still wins the core; above the host, the rest of Core 0
+          starves. <strong>There is no safe priority window.</strong> The residual tail is an
+          architectural floor of having the measurement <em>producer</em> on the same core as the BLE
+          stack — which forced the real question: why is the producer on Core 0 at all?
+          </p>
+          
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-solution-inline-drain" data-mado-session-id="solution-inline-drain">
+        <h2><span class="mado-session-number" aria-hidden="true">6. </span><span class="mado-session-title">The solution: read at the point of need, on Core 1</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          The decisive observation: the project rule "interrupts are disabled on Core&nbsp;1 during
+          signal generation" applies to the <em>CPU bit-bang engine</em>. The <strong>DMA engine's
+          control task is different</strong> &mdash; hardware DMA drives the pins while the task simply
+          blocks on a notification, so at its control point interrupts are on and calling the ADC
+          driver is legal. That means the consumer can fetch its own measurement.
+          </p>
+          <h3>The architecture change</h3>
+          <p>
+          Instead of a Core-0 producer racing the BLE stack to publish snapshots that Core&nbsp;1 then
+          reads, <strong>Core&nbsp;1 drains the ADC ring buffer itself, inline at the control
+          point</strong>, on every control trigger:
+          </p>
+          <ul>
+            <li><strong>Driver stays on Core&nbsp;0.</strong> The ADC continuous driver is started from
+                a Core-0 context so its DMA-EOF interrupt stays pinned to Core&nbsp;0, filling the ring
+                buffer in hardware regardless of what either CPU is doing.</li>
+            <li><strong>Core&nbsp;1 reads at the moment of need.</strong> At each trigger it drains all
+                pending frames (bounded at 8 &mdash; the watchdog is off on Core&nbsp;1, so the loop
+                must be provably finite), assembles the newest triple, and publishes it to the same
+                seqlock the telemetry path already reads.</li>
+            <li><strong>Read is decoupled from control.</strong> The drain runs on <em>every</em>
+                trigger; <code>g_control_enabled</code> only gates whether a correction is applied.
+                Debug reads therefore work with control off, and telemetry stays live whenever the
+                signal runs.</li>
+            <li><strong>The correction path needed zero changes.</strong>
+                <code>signal_control_update_corrections</code> still reads the seqlock &mdash; which
+                Core&nbsp;1 itself just wrote in the same task, so the read is coherent,
+                contention-free, and its existing sequence-repeat check provides stale detection for
+                free.</li>
+          </ul>
+          <h3>Why this solves each problem</h3>
+          <table>
+            <thead><tr><th>Problem</th><th>How the inline drain removes it</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>Backlog between newest sample and published triple</td>
+                <td>The consumer drains to the newest frame at the moment it needs it; there is no
+                    intermediate publish cadence to lag behind.</td>
+              </tr>
+              <tr>
+                <td>Timestamp inflation</td>
+                <td>Read-time stamping is exact here: the drain happens synchronously with
+                    consumption, so age &asymp; one frame (48&nbsp;µs) + drain time, by construction.</td>
+              </tr>
+              <tr>
+                <td>BLE preemption tail</td>
+                <td>The measurement path no longer contains any Core-0 task. Bluedroid bursts can
+                    delay telemetry housekeeping, but they cannot age the sample the controller
+                    consumes.</td>
+              </tr>
+              <tr>
+                <td>Seqlock contention</td>
+                <td>Writer and reader are now the same task while the DMA engine runs;
+                    <code>miss_contention</code> is structurally impossible, not just rare.</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>The single-reader hand-off</h3>
+          <p>
+          The ADC driver's ring buffer tolerates exactly one drainer. Ownership is a token with a
+          Dekker-style busy handshake: the Core-0 acquisition task grants it only after the driver is
+          started and reclaims it only after any in-flight Core-1 drain acknowledges completion. When
+          the DMA engine is not active (CPU engine, or signal stopped), Core&nbsp;0 drains exactly as
+          before &mdash; the CPU engine and stopped-state telemetry paths are untouched.
+          </p>
+          <h3>Guard rails</h3>
+          <ul>
+            <li><code>drain_max_us</code> metric: the drain runs in the maintenance window of the
+                real-time loop, so its worst-case duration is tracked per run. Measured: flat
+                ~137&ndash;140&nbsp;µs worst case, well inside the window.</li>
+            <li>Sample-rate changes are deferred while Core&nbsp;1 holds the token (restarting the
+                driver under an active drain would race); they apply at the next signal start.</li>
+            <li>Bounded drain loop + no allocation + no blocking calls on the Core-1 path.</li>
+          </ul>
+          <figure class="mado-generated-diagram" data-mado-component-id="inline-drain-timeline" data-mado-component-kind="generated-diagram" data-mado-diagram-state="7b226964223a22696e6c696e652d647261696e2d74696d656c696e65222c226469616772616d5f74797065223a2274696d656c696e65222c226469616772616d5f666f726d6174223a22706c616e74756d6c222c22736f75726365223a22407374617274756d6c5c6e7469746c652041667465723a206f6e65207369676e616c206379636c6520776974682074686520436f72652d3120696e6c696e6520647261696e20287e323830207573295c6e7363616c65203020746f203238302075735c6e7469636b7320302037302031343020323130203238305c6e5c6e6c616e65206164633a2041444320444d4120286861726477617265295c6e7461736b2068617264776172652030203238303a20636f6e74696e756f757320636f6e76657273696f6e732c206f6e65206672616d652065766572792034382075735c6e5c6e6c616e6520636f7265313a20436f7265203120636f6e74726f6c207461736b2028696e7465727275707473206f6e2c20444d4120706c617973207468652077617665666f726d295c6e7461736b20776169742030203230303a20626c6f636b6564206f6e2074726967676572206e6f74696669636174696f6e5c6e7461736b20637269746963616c203230302033303a20647261696e206672657368657374206672616d6573202b207075626c69736820286d6178203134302075732c207479706963616c20666172206c657373295c6e7461736b203233302033303a20636f7272656374696f6e206d617468202b2072656e6465725c6e5c6e6c616e6520636f7265303a20436f726520302028424c4520737461636b295c6e7461736b20696f2030203238303a20424c452062757273747320636f6e74696e7565202d206e6f206c6f6e67657220696e20746865206d6561737572656d656e7420706174685c6e5c6e6d61726b6572203230303a20636f6e74726f6c20747269676765722028444d412064657363726970746f7220454f46295c6e6e6f74653a206d6561737572656d656e742061676520617420636f6e73756d7074696f6e206973206174206d6f7374206f6e65206672616d65202b20647261696e2074696d655c6e40656e64756d6c5c6e222c2272656e64657265645f737667223a223c73766720786d6c6e733d5c22687474703a2f2f7777772e77332e6f72672f323030302f7376675c222076696577426f783d5c222d3130202d31302031323234203333305c2220726f6c653d5c22696d675c2220617269612d6c6162656c3d5c22696e6c696e652d647261696e2d74696d656c696e652074696d656c696e65206469616772616d5c2220666f6e742d66616d696c793d5c2248656c7665746963612c20417269616c2c2073616e732d73657269665c2220666f6e742d73697a653d5c2231325c223e5c6e3c7469746c653e696e6c696e652d647261696e2d74696d656c696e652074696d656c696e65206469616772616d3c2f7469746c653e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c22305c2220793d5c2231385c2220746578742d616e63686f723d5c2273746172745c2220666f6e742d7765696768743d5c22626f6c645c223e41667465723a206f6e65207369676e616c206379636c6520776974682074686520436f72652d3120696e6c696e6520647261696e20287e323830207573293c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223133305c222079313d5c2235325c222078323d5c22313032365c222079323d5c2235325c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223133305c222079313d5c2235395c222078323d5c223133305c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223335345c222079313d5c2235395c222078323d5c223335345c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223537385c222079313d5c2235395c222078323d5c223537385c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223830325c222079313d5c2235395c222078323d5c223830325c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c22313032365c222079313d5c2235395c222078323d5c22313032365c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c2238365c222078323d5c22313032365c222079323d5c2238365c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c223134325c222078323d5c22313032365c222079323d5c223134325c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c223139385c222078323d5c22313032365c222079323d5c223139385c222f3e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c223235345c222078323d5c22313032365c222079323d5c223235345c222f3e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223133305c222079313d5c2234355c222078323d5c223133305c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223133305c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223335345c222079313d5c2234355c222078323d5c223335345c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223335345c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e37302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223537385c222079313d5c2234355c222078323d5c223537385c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223537385c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e3134302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223830325c222079313d5c2234355c222078323d5c223830325c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223830325c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e3231302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c22313032365c222079313d5c2234355c222078323d5c22313032365c222079323d5c2235395c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22313032365c2220793d5c2233385c2220746578742d616e63686f723d5c226d6964646c655c223e3238302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223737305c222079313d5c2238325c222078323d5c223737305c222079323d5c223235385c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223737355c2220793d5c223237325c2220746578742d616e63686f723d5c2273746172745c223e636f6e74726f6c20747269676765722028444d412064657363726970746f7220454f46293c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223130355c2220746578742d616e63686f723d5c2273746172745c223e41444320444d4120286861726477617265293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d315c2220783d5c223133305c2220793d5c2239305c222077696474683d5c223839365c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c223537385c2220793d5c223130385c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e636f6e74696e756f757320636f6e76657273696f6e732c206f6e65206672616d652065766572792034382075733c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223136315c2220746578742d616e63686f723d5c2273746172745c223e436f7265203120636f6e74726f6c207461736b2028696e7465727275707473206f6e2c20444d4120706c617973207468652077617665666f726d293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6d757465645c2220783d5c223133305c2220793d5c223134365c222077696474683d5c223634305c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c223435305c2220793d5c223136345c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e626c6f636b6564206f6e2074726967676572206e6f74696669636174696f6e3c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d7761726e5c2220783d5c223737305c2220793d5c223134365c222077696474683d5c2239365c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223737305c2220793d5c223139305c2220746578742d616e63686f723d5c2273746172745c223e647261696e206672657368657374206672616d6573202b207075626c69736820286d6178203134302075732c207479706963616c20666172206c657373293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d325c2220783d5c223836365c2220793d5c223134365c222077696474683d5c2239365c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223836365c2220793d5c223139305c2220746578742d616e63686f723d5c2273746172745c223e636f7272656374696f6e206d617468202b2072656e6465723c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223231375c2220746578742d616e63686f723d5c2273746172745c223e436f726520302028424c4520737461636b293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d335c2220783d5c223133305c2220793d5c223230325c222077696474683d5c223839365c22206865696768743d5c2232385c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c223537385c2220793d5c223232305c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e424c452062757273747320636f6e74696e7565202d206e6f206c6f6e67657220696e20746865206d6561737572656d656e7420706174683c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223133305c2220793d5c223239305c2220746578742d616e63686f723d5c2273746172745c223e6d6561737572656d656e742061676520617420636f6e73756d7074696f6e206973206174206d6f7374206f6e65206672616d65202b20647261696e2074696d653c2f746578743e5c6e3c2f7376673e227d"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 1224 330" role="img" aria-label="inline-drain-timeline timeline diagram" font-family="Helvetica, Arial, sans-serif" font-size="12">
+          <title>inline-drain-timeline timeline diagram</title>
+          <text class="label" x="0" y="18" text-anchor="start" font-weight="bold">After: one signal cycle with the Core-1 inline drain (~280 us)</text>
+          <line class="arrow" x1="130" y1="52" x2="1026" y2="52"/>
+          <line class="lane dash" x1="130" y1="59" x2="130" y2="254"/>
+          <line class="lane dash" x1="354" y1="59" x2="354" y2="254"/>
+          <line class="lane dash" x1="578" y1="59" x2="578" y2="254"/>
+          <line class="lane dash" x1="802" y1="59" x2="802" y2="254"/>
+          <line class="lane dash" x1="1026" y1="59" x2="1026" y2="254"/>
+          <line class="lane" x1="0" y1="86" x2="1026" y2="86"/>
+          <line class="lane" x1="0" y1="142" x2="1026" y2="142"/>
+          <line class="lane" x1="0" y1="198" x2="1026" y2="198"/>
+          <line class="lane" x1="0" y1="254" x2="1026" y2="254"/>
+          <line class="arrow" x1="130" y1="45" x2="130" y2="59"/>
+          <text class="small" x="130" y="38" text-anchor="middle">0 us</text>
+          <line class="arrow" x1="354" y1="45" x2="354" y2="59"/>
+          <text class="small" x="354" y="38" text-anchor="middle">70 us</text>
+          <line class="arrow" x1="578" y1="45" x2="578" y2="59"/>
+          <text class="small" x="578" y="38" text-anchor="middle">140 us</text>
+          <line class="arrow" x1="802" y1="45" x2="802" y2="59"/>
+          <text class="small" x="802" y="38" text-anchor="middle">210 us</text>
+          <line class="arrow" x1="1026" y1="45" x2="1026" y2="59"/>
+          <text class="small" x="1026" y="38" text-anchor="middle">280 us</text>
+          <line class="lane dash" x1="770" y1="82" x2="770" y2="258"/>
+          <text class="small" x="775" y="272" text-anchor="start">control trigger (DMA descriptor EOF)</text>
+          <text class="small" x="0" y="105" text-anchor="start">ADC DMA (hardware)</text>
+          <rect class="chart-level-1" x="130" y="90" width="896" height="28" rx="0"/>
+          <text class="label" x="578" y="108" text-anchor="middle" font-weight="bold">continuous conversions, one frame every 48 us</text>
+          <text class="small" x="0" y="161" text-anchor="start">Core 1 control task (interrupts on, DMA plays the waveform)</text>
+          <rect class="chart-muted" x="130" y="146" width="640" height="28" rx="0"/>
+          <text class="label" x="450" y="164" text-anchor="middle" font-weight="bold">blocked on trigger notification</text>
+          <rect class="chart-warn" x="770" y="146" width="96" height="28" rx="0"/>
+          <text class="small" x="770" y="190" text-anchor="start">drain freshest frames + publish (max 140 us, typical far less)</text>
+          <rect class="chart-level-2" x="866" y="146" width="96" height="28" rx="0"/>
+          <text class="small" x="866" y="190" text-anchor="start">correction math + render</text>
+          <text class="small" x="0" y="217" text-anchor="start">Core 0 (BLE stack)</text>
+          <rect class="chart-level-3" x="130" y="202" width="896" height="28" rx="0"/>
+          <text class="label" x="578" y="220" text-anchor="middle" font-weight="bold">BLE bursts continue - no longer in the measurement path</text>
+          <text class="small" x="130" y="290" text-anchor="start">measurement age at consumption is at most one frame + drain time</text>
+          </svg></figure>
+          <figure class="mado-generated-diagram" data-mado-component-id="reader-handoff-sequence" data-mado-component-kind="generated-diagram" data-mado-diagram-state="7b226964223a227265616465722d68616e646f66662d73657175656e6365222c226469616772616d5f74797065223a2273657175656e6365222c226469616772616d5f666f726d6174223a22706c616e74756d6c222c22736f75726365223a22407374617274756d6c5c6e7469746c652053696e676c652d7265616465722068616e642d6f6666206265747765656e20636f7265735c6e7061727469636970616e7420436f7265304163717569736974696f6e5c6e7061727469636970616e74204164634472697665725c6e7061727469636970616e7420436f726531436f6e74726f6c5c6e5c6e436f7265304163717569736974696f6e202d3e204164634472697665723a206164635f636f6e74696e756f75735f737461727420284953522070696e6e656420746f20436f72652030295c6e436f7265304163717569736974696f6e202d3e20436f726531436f6e74726f6c3a2072656164657220746f6b656e203d207472756520286772616e74295c6e436f726531436f6e74726f6c202d3e204164634472697665723a20647261696e20616c6c2070656e64696e67206672616d65732028657665727920636f6e74726f6c2074726967676572295c6e436f726531436f6e74726f6c202d3e20436f726531436f6e74726f6c3a207075626c697368206e657765737420747269706c6520746f207365716c6f636b5c6e436f7265304163717569736974696f6e202d3e20436f726531436f6e74726f6c3a2072656164657220746f6b656e203d2066616c73652028656e67696e652073746f707065643a207265636c61696d295c6e436f726531436f6e74726f6c202d2d3e20436f7265304163717569736974696f6e3a20647261696e2d62757379203d2066616c73652028696e2d666c6967687420647261696e2061636b6e6f776c6564676564295c6e436f7265304163717569736974696f6e202d3e204164634472697665723a20436f72652d3020647261696e7320726573756d65202843505520656e67696e65202f2073746f707065642074656c656d65747279295c6e40656e64756d6c5c6e222c2272656e64657265645f737667223a223c73766720786d6c6e733d5c22687474703a2f2f7777772e77332e6f72672f323030302f7376675c222076696577426f783d5c223130202d322031313131203334345c2220726f6c653d5c22696d675c2220617269612d6c6162656c3d5c227265616465722d68616e646f66662d73657175656e63652073657175656e6365206469616772616d5c2220666f6e742d66616d696c793d5c2248656c7665746963612c20417269616c2c2073616e732d73657269665c2220666f6e742d73697a653d5c2231325c223e5c6e3c7469746c653e7265616465722d68616e646f66662d73657175656e63652073657175656e6365206469616772616d3c2f7469746c653e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c223436392e355c2220793d5c2232325c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e53696e676c652d7265616465722068616e642d6f6666206265747765656e20636f7265733c2f746578743e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c2238365c222079313d5c2239345c222078323d5c2238365c222079323d5c223333325c222f3e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d315c2220783d5c2232305c2220793d5c2234385c222077696474683d5c223133325c22206865696768743d5c2233305c222072783d5c22335c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c2238365c2220793d5c2236375c2220746578742d616e63686f723d5c226d6964646c655c223e436f7265304163717569736974696f6e3c2f746578743e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223438375c222079313d5c2239345c222078323d5c223438375c222079323d5c223333325c222f3e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d315c2220783d5c223434352e355c2220793d5c2234385c222077696474683d5c2238335c22206865696768743d5c2233305c222072783d5c22335c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223438375c2220793d5c2236375c2220746578742d616e63686f723d5c226d6964646c655c223e4164634472697665723c2f746578743e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223835335c222079313d5c2239345c222078323d5c223835335c222079323d5c223333325c222f3e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d315c2220783d5c223830315c2220793d5c2234385c222077696474683d5c223130345c22206865696768743d5c2233305c222072783d5c22335c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223835335c2220793d5c2236375c2220746578742d616e63686f723d5c226d6964646c655c223e436f726531436f6e74726f6c3c2f746578743e5c6e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223238362e355c2220793d5c223132365c2220746578742d616e63686f723d5c226d6964646c655c223e6164635f636f6e74696e756f75735f737461727420284953522070696e6e656420746f20436f72652030293c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c2238365c222079313d5c223133325c222078323d5c223438375c222079323d5c223133325c222f3e5c6e3c706f6c79676f6e20636c6173733d5c226172726f772d686561645c2220706f696e74733d5c223438372c313332203437372c313336203437372c3132385c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223436392e355c2220793d5c223135345c2220746578742d616e63686f723d5c226d6964646c655c223e72656164657220746f6b656e203d207472756520286772616e74293c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c2238365c222079313d5c223136305c222078323d5c223835335c222079323d5c223136305c222f3e5c6e3c706f6c79676f6e20636c6173733d5c226172726f772d686561645c2220706f696e74733d5c223835332c313630203834332c313634203834332c3135365c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223637305c2220793d5c223138325c2220746578742d616e63686f723d5c226d6964646c655c223e647261696e20616c6c2070656e64696e67206672616d65732028657665727920636f6e74726f6c2074726967676572293c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223835335c222079313d5c223138385c222078323d5c223438375c222079323d5c223138385c222f3e5c6e3c706f6c79676f6e20636c6173733d5c226172726f772d686561645c2220706f696e74733d5c223438372c313838203439372c313834203439372c3139325c222f3e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223835335c222079313d5c223230305c222078323d5c223837395c222079323d5c223230305c222f3e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223837395c222079313d5c223230305c222078323d5c223837395c222079323d5c223231385c222f3e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223837395c222079313d5c223231385c222078323d5c223835335c222079323d5c223231385c222f3e5c6e3c706f6c79676f6e20636c6173733d5c226172726f772d686561645c2220706f696e74733d5c223835332c323138203836332c323134203836332c3232325c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223838375c2220793d5c223231335c2220746578742d616e63686f723d5c2273746172745c223e7075626c697368206e657765737420747269706c6520746f207365716c6f636b3c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223436392e355c2220793d5c223235305c2220746578742d616e63686f723d5c226d6964646c655c223e72656164657220746f6b656e203d2066616c73652028656e67696e652073746f707065643a207265636c61696d293c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c2238365c222079313d5c223235365c222078323d5c223835335c222079323d5c223235365c222f3e5c6e3c706f6c79676f6e20636c6173733d5c226172726f772d686561645c2220706f696e74733d5c223835332c323536203834332c323630203834332c3235325c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223436392e355c2220793d5c223237385c2220746578742d616e63686f723d5c226d6964646c655c223e647261696e2d62757379203d2066616c73652028696e2d666c6967687420647261696e2061636b6e6f776c6564676564293c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f7720646173685c222078313d5c223835335c222079313d5c223238345c222078323d5c2238365c222079323d5c223238345c222f3e5c6e3c706f6c79676f6e20636c6173733d5c226172726f772d686561645c2220706f696e74733d5c2238362c3238342039362c3238302039362c3238385c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223238362e355c2220793d5c223330365c2220746578742d616e63686f723d5c226d6964646c655c223e436f72652d3020647261696e7320726573756d65202843505520656e67696e65202f2073746f707065642074656c656d65747279293c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c2238365c222079313d5c223331325c222078323d5c223438375c222079323d5c223331325c222f3e5c6e3c706f6c79676f6e20636c6173733d5c226172726f772d686561645c2220706f696e74733d5c223438372c333132203437372c333136203437372c3330385c222f3e5c6e3c2f7376673e227d"><svg xmlns="http://www.w3.org/2000/svg" viewBox="10 -2 1111 344" role="img" aria-label="reader-handoff-sequence sequence diagram" font-family="Helvetica, Arial, sans-serif" font-size="12">
+          <title>reader-handoff-sequence sequence diagram</title>
+          <text class="label" x="469.5" y="22" text-anchor="middle" font-weight="bold">Single-reader hand-off between cores</text>
+          <line class="lane dash" x1="86" y1="94" x2="86" y2="332"/>
+          <rect class="chart-level-1" x="20" y="48" width="132" height="30" rx="3"/>
+          <text class="small" x="86" y="67" text-anchor="middle">Core0Acquisition</text>
+          <line class="lane dash" x1="487" y1="94" x2="487" y2="332"/>
+          <rect class="chart-level-1" x="445.5" y="48" width="83" height="30" rx="3"/>
+          <text class="small" x="487" y="67" text-anchor="middle">AdcDriver</text>
+          <line class="lane dash" x1="853" y1="94" x2="853" y2="332"/>
+          <rect class="chart-level-1" x="801" y="48" width="104" height="30" rx="3"/>
+          <text class="small" x="853" y="67" text-anchor="middle">Core1Control</text>
+          
+          <text class="small" x="286.5" y="126" text-anchor="middle">adc_continuous_start (ISR pinned to Core 0)</text>
+          <line class="arrow" x1="86" y1="132" x2="487" y2="132"/>
+          <polygon class="arrow-head" points="487,132 477,136 477,128"/>
+          <text class="small" x="469.5" y="154" text-anchor="middle">reader token = true (grant)</text>
+          <line class="arrow" x1="86" y1="160" x2="853" y2="160"/>
+          <polygon class="arrow-head" points="853,160 843,164 843,156"/>
+          <text class="small" x="670" y="182" text-anchor="middle">drain all pending frames (every control trigger)</text>
+          <line class="arrow" x1="853" y1="188" x2="487" y2="188"/>
+          <polygon class="arrow-head" points="487,188 497,184 497,192"/>
+          <line class="arrow" x1="853" y1="200" x2="879" y2="200"/>
+          <line class="arrow" x1="879" y1="200" x2="879" y2="218"/>
+          <line class="arrow" x1="879" y1="218" x2="853" y2="218"/>
+          <polygon class="arrow-head" points="853,218 863,214 863,222"/>
+          <text class="small" x="887" y="213" text-anchor="start">publish newest triple to seqlock</text>
+          <text class="small" x="469.5" y="250" text-anchor="middle">reader token = false (engine stopped: reclaim)</text>
+          <line class="arrow" x1="86" y1="256" x2="853" y2="256"/>
+          <polygon class="arrow-head" points="853,256 843,260 843,252"/>
+          <text class="small" x="469.5" y="278" text-anchor="middle">drain-busy = false (in-flight drain acknowledged)</text>
+          <line class="arrow dash" x1="853" y1="284" x2="86" y2="284"/>
+          <polygon class="arrow-head" points="86,284 96,280 96,288"/>
+          <text class="small" x="286.5" y="306" text-anchor="middle">Core-0 drains resume (CPU engine / stopped telemetry)</text>
+          <line class="arrow" x1="86" y1="312" x2="487" y2="312"/>
+          <polygon class="arrow-head" points="487,312 477,316 477,308"/>
+          </svg></figure>
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-evidence" data-mado-session-id="evidence">
+        <h2><span class="mado-session-number" aria-hidden="true">7. </span><span class="mado-session-title">Evidence: hardware test results per stage</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          Every stage was measured on hardware with the same harness (three or more runs per stage;
+          worst run shown). The stages are cumulative.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>A — baseline<br>(Core-0 producer)</th>
+                <th>B — + drain-all<br>+ counters</th>
+                <th>C — + read-time<br>stamps</th>
+                <th>D — priority<br>experiments</th>
+                <th>E — Core-1<br>inline drain</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>age_used_max_us</code> (budget 282)</td><td>972–1101</td><td>~1095</td><td>908–1082</td><td>no change</td><td><strong>128–165</strong></td></tr>
+              <tr><td><code>age_used_over_budget_count</code></td><td>17–25</td><td>25–32</td><td>9–23</td><td>no change</td><td><strong>0</strong></td></tr>
+              <tr><td><code>miss_contention</code></td><td>2–4</td><td>2–22</td><td>2–24</td><td>—</td><td><strong>0</strong> (structural)</td></tr>
+              <tr><td><code>miss_stale</code></td><td>73–80</td><td>75–118</td><td>85–100</td><td>—</td><td><strong>12–22</strong>, never consecutive</td></tr>
+              <tr><td><code>frame_drops</code></td><td>~15 000</td><td>~14 900</td><td><strong>0</strong></td><td>0</td><td><strong>0</strong></td></tr>
+              <tr><td><code>ts_fallbacks</code></td><td>2–9</td><td>2–9</td><td><strong>0</strong></td><td>0</td><td><strong>0</strong></td></tr>
+              <tr><td><code>publishes : control_triggers</code></td><td>—</td><td>4.6 : 1</td><td>4.6 : 1</td><td>—</td><td>1 : 1 (by design)</td></tr>
+              <tr><td><code>drain_max_us</code></td><td>—</td><td>—</td><td>—</td><td>—</td><td>137–140, flat</td></tr>
+              <tr><td><code>pass</code></td><td>false</td><td>false</td><td>false</td><td>false</td><td><strong>true, 4/4 runs</strong></td></tr>
+            </tbody>
+          </table>
+          <svg data-mado-component-id="svg-1" aria-label="Worst consumed-sample age per stage versus the 282 microsecond budget. Stages A through C stay near 1100 microseconds; the Core-1 inline drain drops it to 165." role="img" viewBox="0 0 720 260">
+            <text class="label" x="10" y="20">Worst consumed-sample age per stage (µs) vs. 282 µs budget</text>
+            <line class="arrow" x1="60" x2="700" y1="220" y2="220"></line>
+            <line class="arrow" x1="60" x2="60" y1="40" y2="220"></line>
+            <text class="small" text-anchor="end" x="54" y="224">0</text>
+            <text class="small" text-anchor="end" x="54" y="164">400</text>
+            <text class="small" text-anchor="end" x="54" y="104">800</text>
+            <text class="small" text-anchor="end" x="54" y="44">1200</text>
+          
+            <rect class="chart-warn" height="165" width="90" x="100" y="55"></rect>
+            <rect class="chart-warn" height="164" width="90" x="240" y="56"></rect>
+            <rect class="chart-warn" height="162" width="90" x="380" y="58"></rect>
+            <rect class="chart-level-1" height="25" width="90" x="520" y="195"></rect>
+          
+            <text class="small" text-anchor="middle" x="145" y="48">1101</text>
+            <text class="small" text-anchor="middle" x="285" y="49">1095</text>
+            <text class="small" text-anchor="middle" x="425" y="51">1082</text>
+            <text class="small" text-anchor="middle" x="565" y="188">165</text>
+          
+            <line class="arrow" stroke-dasharray="6 4" x1="60" x2="700" y1="177.7" y2="177.7"></line>
+            <text class="small" x="640" y="172">budget 282</text>
+          
+            <text class="small" text-anchor="middle" x="145" y="238">A baseline</text>
+            <text class="small" text-anchor="middle" x="285" y="238">B drain-all</text>
+            <text class="small" text-anchor="middle" x="425" y="238">C honest stamps</text>
+            <text class="small" text-anchor="middle" x="565" y="238">E Core-1 drain</text>
+            <text class="small" x="10" y="256">Stages A–C never fit the budget: B proved throughput was not the problem, C proved the remaining ages were real. Only moving the read to Core 1 (E) closed the loop.</text>
+          </svg>
+          <p>A representative full result from the final build:</p>
+          <details class="mado-foldable-code" data-mado-component-id="code-1"><summary class="mado-code-summary">Show code: json</summary><pre data-mado-component-id="code-1"><code class="language-json">{
+            <span class="ts-string">&quot;task&quot;</span>: <span class="ts-string">&quot;control-latency&quot;</span>,     <span class="ts-string">&quot;pass&quot;</span>: <span class="ts-constant">true</span>,
+            <span class="ts-string">&quot;engine&quot;</span>: <span class="ts-string">&quot;dma&quot;</span>,               <span class="ts-string">&quot;control&quot;</span>: <span class="ts-string">&quot;compute&quot;</span>,   <span class="ts-string">&quot;signal&quot;</span>: <span class="ts-string">&quot;running&quot;</span>,
+            <span class="ts-string">&quot;budget_us&quot;</span>: <span class="ts-number">282</span>,              <span class="ts-string">&quot;floor_us&quot;</span>: <span class="ts-number">72</span>,
+            <span class="ts-string">&quot;age_used_max_us&quot;</span>: <span class="ts-number">143</span>,        <span class="ts-string">&quot;age_used_count&quot;</span>: <span class="ts-number">3880</span>,
+            <span class="ts-string">&quot;age_used_over_budget_count&quot;</span>: <span class="ts-number">0</span>,
+            <span class="ts-string">&quot;control_triggers&quot;</span>: <span class="ts-number">3897</span>,      <span class="ts-string">&quot;publishes&quot;</span>: <span class="ts-number">3884</span>,
+            <span class="ts-string">&quot;drain_max_us&quot;</span>: <span class="ts-number">133</span>,
+            <span class="ts-string">&quot;miss_stale&quot;</span>: <span class="ts-number">17</span>,              <span class="ts-string">&quot;miss_contention&quot;</span>: <span class="ts-number">0</span>,   <span class="ts-string">&quot;miss_missing&quot;</span>: <span class="ts-number">0</span>,
+            <span class="ts-string">&quot;consecutive_misses&quot;</span>: <span class="ts-number">0</span>,
+            <span class="ts-string">&quot;frame_drops&quot;</span>: <span class="ts-number">0</span>,              <span class="ts-string">&quot;ts_fallbacks&quot;</span>: <span class="ts-number">0</span>,      <span class="ts-string">&quot;pool_flushes&quot;</span>: <span class="ts-number">0</span>,
+            <span class="ts-string">&quot;snapshot_age_us&quot;</span>: <span class="ts-number">73</span>,         <span class="ts-string">&quot;adc_latency_p95_us&quot;</span>: <span class="ts-number">3</span>
+          }</code></pre></details>
+          <p class="small">
+          Note on <code>rate_tps</code> (~30 k vs ~63 k before): not a sampling regression.
+          The ADC still converts at 250 kS/s; the counter reflects triples <em>consumed</em>, and
+          the consumer now reads once per control trigger while <code>flush_pool</code> discards the
+          backlog nobody needs — exactly the intended closed-loop policy.
+          </p>
+          
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-open-items" data-mado-session-id="open-items">
+        <h2><span class="mado-session-number" aria-hidden="true">8. </span><span class="mado-session-title">Open items and caveats</span></h2>
+        <div class="mado-session-content content">
+          <ul>
+            <li><strong>Stop/reclaim validation (pending).</strong> The signal auto-starts at boot, so
+                the UART harness only exercises the running path. Validate via the web UI: Connect
+                &rarr; Start &rarr; Stop &rarr; confirm the Readings panel still updates while stopped
+                (Core-0 reclaim + continuous fallback).</li>
+            <li><strong>Raw AN3/AN5/AN6 read 0.</strong> Independent of the timing work: raw ADC codes
+                are zero (calibrated to the 0.1&nbsp;V floor). Check sense-line wiring/energisation,
+                channel mapping, and attenuation before trusting live corrections.</li>
+            <li><strong>Live-control smoke test.</strong> All evidence above is compute-only mode.
+                Once the sense inputs read real voltages, repeat the loop with control LIVE and confirm
+                <code>consecutive_misses</code> stays below the auto-disable threshold.</li>
+            <li><strong>Sample-rate changes defer to next start</strong> while the DMA engine runs
+                (deliberate: restarting the driver under an active Core-1 drain would race). The
+                analog config sweep tool is likewise less meaningful while the signal is running.</li>
+            <li><strong>CPU engine unchanged.</strong> The inline drain is scoped to the DMA engine;
+                the CPU bit-bang engine still consumes Core-0 published snapshots and inherits the old
+                limitations. If it ever needs closed-loop freshness, its read must go in its
+                maintenance window (interrupts on), never the interrupt-disabled generation block.</li>
+          </ul>
+          
+        </div>
+      </section>
+</div>
+      <footer class="mado-footer"></footer>
+    </main>
+  </body>
+</html>
+

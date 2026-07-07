@@ -56,6 +56,13 @@ struct AnalogRuntimeStatus {
     uint32_t miss_stale_count;
     uint32_t miss_contention_count;
     uint32_t miss_missing_count;
+    // Cadence correlation over the current control session.
+    uint32_t control_trigger_count;
+    uint32_t publish_count;
+    // Worst-case duration of the Core-1 control-point ADC drain, current run
+    // only. This work runs in the DMA engine's maintenance window, so jitter
+    // matters as much as latency.
+    uint32_t control_drain_max_us;
 };
 
 struct AnalogControlSnapshot {
@@ -110,5 +117,30 @@ void analog_reset_age_used(void);
 bool analog_read_control_snapshot(AnalogControlSnapshot* snapshot,
                                   uint32_t last_seq,
                                   uint32_t max_age_us);
+// Stage-level timing probes for the reading pipeline (cycle-count based,
+// ns resolution). Single writer per stage (the Core-1 control path while the
+// DMA engine runs), read by the UART status task for analysis.
+enum AnalogProbeStage {
+    ANALOG_PROBE_ADC_READ = 0,  // adc_continuous_read driver call
+    ANALOG_PROBE_PARSE,         // sample parse + channel-queue push
+    ANALOG_PROBE_ASSEMBLE,      // triple assembly (queue pops, ts min)
+    ANALOG_PROBE_CALIB,         // LUT calibration of the published triple
+    ANALOG_PROBE_PUBLISH,       // seqlock write + compat globals
+    ANALOG_PROBE_SNAPSHOT,      // control snapshot read (seqlock read + gates)
+    ANALOG_PROBE_MATH,          // error calc + gain multiply + conditioning
+    ANALOG_PROBE_RENDER,        // bitstream render + commit
+    ANALOG_PROBE_STAGE_COUNT,
+};
+void analog_probe_record(AnalogProbeStage stage, uint32_t cycles);
+void analog_probe_reset(void);
+void analog_probe_get(AnalogProbeStage stage, uint32_t* count,
+                      uint32_t* avg_ns, uint32_t* max_ns);
+
+// Core-1 control-point drain (DMA engine only). Reads all pending ADC frames
+// and publishes the newest triple to the telemetry snapshot. Called on every
+// control trigger regardless of control state, so debug reads work with
+// control off; whether a correction is applied is decided by the caller.
+// No-op unless the acquisition task has handed the reader role to Core 1.
+void analog_control_drain_publish(void);
 std::string analog_get_dma_debug_json();
 void analog_acquisition_task(void* arg);

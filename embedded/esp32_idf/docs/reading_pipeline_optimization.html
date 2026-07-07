@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="mado-format-version" content="1" />
+    <title>Probing and Optimizing the Reading Pipeline: 79 to 40 Microseconds per Control Cycle</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #182025;
+        --muted: #60707a;
+        --line: #d7e1e7;
+        --paper: #fbfcfb;
+        --panel: #f3f7f5;
+        --level-1: #365da8;
+        --level-2: #16645a;
+        --level-3: #5b4c94;
+        --code: #101820;
+        
+        --radius-sm: 2px;
+        --radius-md: 4px;
+        --radius-lg: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        color: var(--ink);
+        background:
+          linear-gradient(90deg, rgba(24, 32, 37, 0.035) 1px, transparent 1px) 0 0 / 28px 28px,
+          linear-gradient(rgba(24, 32, 37, 0.025) 1px, transparent 1px) 0 0 / 28px 28px,
+          var(--paper);
+        font-family: "Segoe UI", Candara, Tahoma, sans-serif;
+        font-size: 16px;
+        line-height: 1.55;
+      }
+
+      .mado-document {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 32px 20px 70px;
+      }
+
+      .mado-hero,
+      .mado-index,
+      .mado-session,
+      .mado-footer {
+        margin-bottom: 20px;
+        padding: 20px 24px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: #fff;
+      }
+
+      .mado-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: 32px;
+        align-items: start;
+      }
+
+      .mado-hero > :only-child {
+        grid-column: 1 / -1;
+      }
+
+      .mado-title {
+        margin-bottom: 8px;
+        font-size: clamp(30px, 5vw, 54px);
+        line-height: 1.15;
+      }
+
+      .mado-header {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .mado-meta {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: var(--panel);
+        font-size: 14px;
+      }
+
+      .mado-meta ul {
+        list-style: none;
+      }
+
+      .mado-meta li {
+        padding: 4px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .mado-meta li:last-child {
+        border-bottom: 0;
+      }
+
+      .mado-index h2,
+      .mado-session h2 {
+        margin: 0;
+        font-size: 24px;
+      }
+
+      .mado-index-cards {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 14px;
+      }
+
+      .mado-index-card {
+        display: block;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        color: inherit;
+        background: var(--panel);
+        text-decoration: none;
+      }
+
+      .mado-index-card:hover,
+      .mado-index-card:focus-visible {
+        border-color: var(--level-1);
+        outline: none;
+      }
+
+      .mado-index-card strong {
+        display: block;
+      }
+
+      .mado-index-card span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .mado-session {
+        scroll-margin-top: 20px;
+      }
+
+      .mado-session:nth-child(3n + 1) h2 {
+        color: var(--level-1);
+      }
+
+      .mado-session:nth-child(3n + 2) h2 {
+        color: var(--level-2);
+      }
+
+      .mado-session:nth-child(3n) h2 {
+        color: var(--level-3);
+      }
+
+      .mado-session-content {
+        margin-top: 14px;
+      }
+
+      .mado-session-content > * + *,
+      .mado-header > * + *,
+      .mado-footer > * + * {
+        margin-top: 12px;
+      }
+
+      h3 {
+        margin-top: 24px;
+        padding-left: 10px;
+        border-left: 4px solid var(--level-2);
+        font-size: 18px;
+      }
+
+      h4 {
+        margin-top: 14px;
+        color: var(--level-3);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      ul,
+      ol {
+        padding-left: 24px;
+      }
+
+      a {
+        color: var(--level-1);
+      }
+
+      table {
+        width: 100%;
+        margin: 14px 0;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 8px 12px;
+        border: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: var(--panel);
+        font-weight: 600;
+      }
+
+      code {
+        padding: 2px 6px;
+        border-radius: var(--radius-sm);
+        background: #edf2f0;
+        font-size: 0.92em;
+      }
+
+      pre {
+        overflow-x: auto;
+        margin: 14px 0;
+        padding: 14px;
+        border-radius: var(--radius-sm);
+        color: #dce8e5;
+        background: var(--code);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .mado-foldable-code {
+        margin: 16px 0;
+      }
+
+      .mado-foldable-code > pre {
+        margin: 0;
+        border: 1px solid #3c4653;
+        border-top: 0;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+      }
+
+      .mado-code-summary {
+        cursor: pointer;
+        padding: 10px 14px;
+        border: 1px solid #3c4653;
+        border-radius: var(--radius-sm);
+        color: #dce8e5;
+        background: #2b313b;
+        font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .mado-code-summary:hover,
+      .mado-code-summary:focus-visible {
+        background: #353d49;
+      }
+
+      .mado-foldable-code[open] > .mado-code-summary {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+
+      pre code {
+        padding: 0;
+        border: 0;
+        color: inherit;
+        background: transparent;
+        font-size: inherit;
+      }
+
+      blockquote,
+      .callout {
+        margin: 14px 0;
+        padding: 12px 16px;
+        border-left: 4px solid var(--level-2);
+        border-radius: var(--radius-sm);
+        background: #f0f7f4;
+        font-size: 14px;
+      }
+
+      svg {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin: 16px 0;
+        color: var(--ink);
+      }
+
+      .chart {
+        margin: 16px 0;
+        overflow-x: auto;
+      }
+
+      .cards,
+      .twocol {
+        display: grid;
+        gap: 14px;
+        margin: 16px 0;
+      }
+
+      .cards {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .twocol {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .card {
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: var(--panel);
+      }
+
+      .chart-muted { fill: rgba(96, 112, 122, 0.08); stroke: #9aaab2; }
+      .chart-warn { fill: #fff4df; stroke: #b57418; }
+      .chart-level-1 { fill: rgba(54, 93, 168, 0.1); stroke: var(--level-1); }
+      .chart-level-2 { fill: rgba(22, 100, 90, 0.1); stroke: var(--level-2); }
+      .chart-green { fill: rgba(34, 197, 94, 0.32); stroke: #16a34a; }
+      .chart-level-3 { fill: rgba(91, 76, 148, 0.1); stroke: var(--level-3); }
+      .arrow { fill: none; stroke: #56666f; stroke-width: 1.5; }
+      .arrow-head { fill: #56666f; }
+      .dash { stroke-dasharray: 6 5; }
+      .label { fill: var(--ink); font-size: 13px; font-weight: 650; }
+      .small { fill: var(--muted); font-size: 12px; }
+      .lane { fill: rgba(96, 112, 122, 0.07); stroke: var(--line); }
+
+      .ts-comment { color: #91a8a2; font-style: italic; }
+      .ts-keyword, .ts-tag { color: #7dd3fc; font-weight: 700; }
+      .ts-string { color: #fda4af; }
+      .ts-number, .ts-constant { color: #c4b5fd; }
+      .ts-function, .ts-constructor { color: #fde68a; }
+      .ts-type, .ts-property, .ts-attribute, .ts-module { color: #a7f3d0; }
+      .ts-operator, .ts-punctuation { color: #93c5fd; }
+      .ts-variable, .ts-embedded { color: #e2e8f0; }
+      .ts-label { color: #fb923c; }
+      .ts-error { text-decoration: underline wavy #f87171; }
+
+      .mado-diff-block {
+        overflow: hidden;
+        margin: 16px 0;
+        border: 1px solid #3c4653;
+        border-radius: var(--radius-sm);
+        color: #dce8e5;
+        background: #1f242c;
+        font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+        font-size: 13px;
+      }
+
+      .mado-foldable-diff > .mado-diff-block {
+        margin: 0;
+        border-top: 0;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+      }
+
+      .mado-diff-header {
+        padding: 10px 14px;
+        border-bottom: 1px solid #3c4653;
+        color: #aeb8c5;
+        background: #2b313b;
+      }
+
+      .mado-diff-header strong {
+        color: #f4c56a;
+      }
+
+      .mado-diff-commit {
+        margin-left: 8px;
+        color: #8490a0;
+      }
+
+      .mado-diff-panels {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      }
+
+      .mado-diff-panel {
+        min-width: 0;
+        overflow-x: auto;
+      }
+
+      .mado-diff-panel + .mado-diff-panel {
+        border-left: 1px solid #3c4653;
+      }
+
+      .mado-diff-label {
+        position: sticky;
+        left: 0;
+        padding: 5px 12px;
+        border-bottom: 1px solid #3c4653;
+        color: #aeb8c5;
+        background: #252a33;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .mado-diff-before .mado-diff-label {
+        color: #f87171;
+      }
+
+      .mado-diff-after .mado-diff-label {
+        color: #4ade80;
+      }
+
+      .mado-diff-code {
+        min-width: max-content;
+        tab-size: 4;
+      }
+
+      .mado-diff-line {
+        display: flex;
+        min-height: 21px;
+        line-height: 21px;
+        white-space: pre;
+      }
+
+      .mado-diff-ln {
+        width: 52px;
+        min-width: 52px;
+        padding-right: 10px;
+        color: #687385;
+        text-align: right;
+        user-select: none;
+      }
+
+      .mado-diff-content {
+        flex: 1;
+        min-width: 0;
+        padding: 0 12px 0 8px;
+        border-left: 3px solid transparent;
+      }
+
+      .mado-diff-line.removed {
+        background: rgba(244, 63, 94, 0.12);
+      }
+
+      .mado-diff-line.removed .mado-diff-content {
+        border-left-color: #f14c4c;
+      }
+
+      .mado-diff-line.added {
+        background: rgba(34, 197, 94, 0.11);
+      }
+
+      .mado-diff-line.added .mado-diff-content {
+        border-left-color: #4ec94e;
+      }
+
+      .mado-diff-line mark {
+        padding: 0;
+        color: inherit;
+        background: rgba(250, 204, 21, 0.28);
+      }
+
+      .mado-diff-line.marker {
+        color: #aeb8c5;
+        font-style: italic;
+      }
+
+      .mado-code-block > .mado-diff-code {
+        overflow-x: auto;
+      }
+
+      .mado-sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      template[data-mado-diff-state] {
+        display: none;
+      }
+
+      .mado-footer {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      @media (max-width: 900px) {
+        .mado-hero,
+        .mado-index-cards,
+        .cards,
+        .twocol {
+          grid-template-columns: 1fr;
+        }
+
+        .mado-diff-panels {
+          grid-template-columns: 1fr;
+        }
+
+        .mado-diff-panel + .mado-diff-panel {
+          border-top: 1px solid #3c4653;
+          border-left: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="mado-document" data-mado-document="tutorial" data-mado-revision="6">
+      <section class="mado-hero">
+        <div>
+          <h1 class="mado-title">Probing and Optimizing the Reading Pipeline: 79 to 40 Microseconds per Control Cycle</h1>
+          <header class="mado-header"></header>
+        </div>
+                <aside class="mado-meta" aria-label="Concept snapshot">
+          <ul>
+            <li data-mado-meta="technology-stack"><strong>Technology Stack:</strong> <span>ESP32, ESP-IDF 5.5, Xtensa LX6, ADC continuous DMA</span></li>
+            <li data-mado-meta="key-concepts"><strong>Key Concepts:</strong> <span>cycle-count probes, software 64-bit division, atomic RMW cost, flash-cache eviction, IRAM placement</span></li>
+            <li data-mado-meta="domain"><strong>Domain:</strong> <span>Embedded real-time pipeline profiling</span></li>
+            <li data-mado-meta="core-question"><strong>Core Question:</strong> <span>Where does the reading pipeline spend its time, and which optimizations actually pay?</span></li>
+          </ul>
+        </aside>
+
+
+      </section>
+      <nav class="mado-index" aria-label="Document index">
+        <h2>Document Index</h2>
+        <div class="mado-index-cards">          <a class="mado-index-card" href="#session-overview">
+            <strong>1. Goal, method, headline result</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-baseline">
+            <strong>2. Probe methodology and the baseline breakdown</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-optimizations">
+            <strong>3. The three planned optimizations</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-cache-regression">
+            <strong>4. The unplanned find: flash-cache eviction, fixed with IRAM</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-results">
+            <strong>5. Final results and remaining opportunities</strong>
+            <span>Open this Session</span>
+          </a>
+</div>
+      </nav>
+      <div class="mado-sessions">      <section class="mado-session chapter" id="session-overview" data-mado-session-id="overview">
+        <h2><span class="mado-session-number" aria-hidden="true">1. </span><span class="mado-session-title">Goal, method, headline result</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          Goal: measure how long <em>each step</em> of the analog reading pipeline takes &mdash; driver
+          read, parsing, triple assembly, calibration, transport (seqlock publish + snapshot read),
+          correction math &mdash; then optimize only where the data says it matters.
+          </p>
+          <p>
+          Method: eight cycle-count probes (nanosecond resolution, two counter reads per stage,
+          negligible overhead) inserted along the Core-1 control path, reported per stage as
+          count / average / max through the existing UART hardware-in-the-loop harness
+          (<code>task uart:control-latency</code>). Every number below is from the real board with the
+          signal running and control in compute mode.
+          </p>
+          <h3>Headline result</h3>
+          <table>
+            <thead><tr><th>Metric (per control trigger)</th><th>Before</th><th>After</th><th>Change</th></tr></thead>
+            <tbody>
+              <tr><td>Total pipeline time</td><td>~79 µs</td><td><strong>~40 µs</strong></td><td>2.0&times;</td></tr>
+              <tr><td><code>age_used_max_us</code> (worst consumed sample age, budget 282)</td><td>128&ndash;165 µs</td><td><strong>39 µs, identical across runs</strong></td><td>~4&times;, now deterministic</td></tr>
+              <tr><td><code>drain_max_us</code> (worst drain duration)</td><td>136&ndash;140 µs</td><td><strong>51&ndash;53 µs</strong></td><td>2.6&times;</td></tr>
+              <tr><td>Share of the ~240 µs maintenance window</td><td>33%</td><td><strong>17%</strong></td><td>headroom doubled</td></tr>
+              <tr><td>Acceptance test</td><td>pass</td><td><strong>pass (3/3 runs)</strong></td><td>no regression</td></tr>
+            </tbody>
+          </table>
+          <p>
+          Three planned optimizations were implemented &mdash; and the probes caught a fourth,
+          unplanned problem mid-flight (a flash-cache regression) whose fix ended up delivering the
+          single largest improvement. That detour is documented honestly below; it is the most
+          instructive part of the exercise.
+          </p>
+          
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-baseline" data-mado-session-id="baseline">
+        <h2><span class="mado-session-number" aria-hidden="true">2. </span><span class="mado-session-title">Probe methodology and the baseline breakdown</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          The probes bracket each stage with <code>esp_cpu_get_cycle_count()</code> reads and
+          accumulate count / sum / max per stage in relaxed atomics (single writer: the Core-1
+          control path). Stages, in pipeline order:
+          </p>
+          <ol>
+            <li><code>adc_read</code> — each <code>adc_continuous_read()</code> driver call,
+                including the final empty call that terminates a drain</li>
+            <li><code>parse</code> — decoding 12 samples per frame, timestamp backdating,
+                channel-queue push</li>
+            <li><code>assemble</code> — combining the per-channel queues into complete triples</li>
+            <li><code>calib</code> — LUT calibration of the published triple (3 lookups)</li>
+            <li><code>publish</code> — seqlock write + compatibility globals (transport, write side)</li>
+            <li><code>snapshot</code> — control-point seqlock read + validity gates (transport, read side)</li>
+            <li><code>math</code> — error computation, gain multiply, conditioning, duration corrections</li>
+            <li><code>render</code> — bitstream re-render (only when a correction is applied; ~80–87 µs, not part of the per-trigger reading cost in compute mode)</li>
+          </ol>
+          <h3>What the baseline probe run showed</h3>
+          <svg data-mado-component-id="svg-1" aria-label="Baseline cost per stage per control trigger: parse 32 microseconds and assemble 22 microseconds dominate, together 69 percent of the 79 microsecond total." role="img" viewBox="0 0 720 320">
+            <text class="label" x="10" y="24">Baseline: cost per control trigger (µs) — total ~79 µs</text>
+            <text class="small" text-anchor="end" x="150" y="76">parse</text>
+            <rect class="chart-warn" height="24" width="483" x="160" y="60"></rect>
+            <text class="small" x="650" y="76">32.2</text>
+            <text class="small" text-anchor="end" x="150" y="108">assemble</text>
+            <rect class="chart-warn" height="24" width="326" x="160" y="92"></rect>
+            <text class="small" x="492" y="108">21.7</text>
+            <text class="small" text-anchor="end" x="150" y="140">adc_read</text>
+            <rect class="chart-level-1" height="24" width="131" x="160" y="124"></rect>
+            <text class="small" x="297" y="140">8.7</text>
+            <text class="small" text-anchor="end" x="150" y="172">math</text>
+            <rect class="chart-level-1" height="24" width="110" x="160" y="156"></rect>
+            <text class="small" x="276" y="172">7.3</text>
+            <text class="small" text-anchor="end" x="150" y="204">publish</text>
+            <rect class="chart-level-1" height="24" width="71" x="160" y="188"></rect>
+            <text class="small" x="237" y="204">4.7</text>
+            <text class="small" text-anchor="end" x="150" y="236">snapshot</text>
+            <rect class="chart-level-1" height="24" width="54" x="160" y="220"></rect>
+            <text class="small" x="220" y="236">3.6</text>
+            <text class="small" text-anchor="end" x="150" y="268">calib</text>
+            <rect class="chart-muted" height="24" width="12" x="160" y="252"></rect>
+            <text class="small" x="178" y="268">0.8</text>
+            <text class="small" x="10" y="304">Two stages (highlighted) held 69% of the total — and neither is the ADC driver, the calibration, nor the math. Both are self-inflicted bookkeeping.</text>
+          </svg>
+          <p>Two immediate negative results, both valuable:</p>
+          <ul>
+            <li><strong>Calibration is free</strong> (766 ns): the LUT design is already optimal;
+                nothing to do there.</li>
+            <li><strong>The driver read is cheap</strong> (2.8 µs/call): the ESP-IDF ringbuffer
+                path is not the bottleneck, so no driver surgery is warranted.</li>
+          </ul>
+          
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-optimizations" data-mado-session-id="optimizations">
+        <h2><span class="mado-session-number" aria-hidden="true">3. </span><span class="mado-session-title">The three planned optimizations</span></h2>
+        <div class="mado-session-content content">
+          <h3>Optimization 1 — parse: one divide per frame, one atomic commit per frame</h3>
+          <p><strong>Why it was slow.</strong> The parse loop ran, per sample (12 per frame):</p>
+          <ul>
+            <li>a <strong>64-bit division</strong> for timestamp backdating
+                (<code>(idx × 1 000 000) / sample_hz</code>) —
+                Xtensa LX6 has no 64-bit divide instruction, so each is a software-library call costing
+                hundreds of cycles;</li>
+            <li><strong>four atomic read-modify-writes</strong> for statistics
+                (samples-read, per-channel count, last-raw, and occasionally rejected) — each an
+                S32C1I compare-and-swap loop with memory barriers.</li>
+          </ul>
+          <p><strong>The fix.</strong> Conversions are evenly spaced, so the backdate is arithmetic:
+          compute the 4 µs step once per frame and accumulate additively. Statistics accumulate
+          in stack locals and commit with a handful of atomics <em>per frame</em> instead of ~48
+          <em>per frame&#39;s worth of samples</em>.</p>
+          <details class="mado-foldable-code" data-mado-component-id="code-1"><summary class="mado-code-summary">Show code: cpp</summary><pre data-mado-component-id="code-1"><code class="language-cpp">// before: per sample
+          ts = frame_ts - ((uint64_t)(n-1-i) * 1000000ULL) / sample_hz;  // 64-bit soft-div
+          s_samples_read.fetch_add(1, acq_rel);                          // x4 atomics
+          
+          // after: per frame
+          uint32_t step_us = 1000000U / sample_hz;    // once
+          ...
+          for (...; sample_ts_us += step_us) { ... }  // additive
+          s_samples_read.fetch_add(local_read, relaxed);  // one commit</code></pre></details>
+          <p><strong>Result: 15.3 → 7.3 µs per frame (2.1×), max 45 → 11 µs.</strong></p>
+          
+          <h3>Optimization 2 — assemble: stop paying for triples nobody reads</h3>
+          <p><strong>Why it was slow.</strong> The assembler popped <em>every</em> complete triple
+          one by one — each pop with an <code>esp_timer_get_time()</code> call and rate-window
+          atomics — and then kept only the final (newest) one. With ~5–8 triples per
+          trigger, that is 4–7 fully-processed triples discarded per cycle.</p>
+          <p><strong>The fix.</strong> Compute how many complete triples exist
+          (<code>min</code> of the three queue counts), advance the queue heads past the older ones in
+          O(1), pop only the newest, and record the skipped count in a single bulk rate update.</p>
+          <p><strong>Result: 21.7 → 3.1 µs (7×), max 50 → 8 µs.</strong>
+          (Interim measurement showed 9.1 µs; the rest of the gain arrived with the cache fix in
+          the next session — assemble was also paying flash-cache penalties.)</p>
+          
+          <h3>Optimization 3 — publish: single-writer seqlock protocol</h3>
+          <p><strong>Why attempted.</strong> The seqlock writer used two
+          <code>fetch_add(acq_rel)</code> RMW retry loops for the sequence counter. Since the
+          reader-token hand-off guarantees a single publisher at any time, the canonical
+          store/fence/store protocol suffices — plain stores instead of CAS loops.</p>
+          <p><strong>Result: no measurable change (4.7 → 4.8 µs).</strong> Reported honestly:
+          the publish stage is dominated by the rate-window bookkeeping and compatibility-global
+          stores, not the sequence counter. The change is kept — it is simpler, provably
+          correct for the single-writer case, and removes two retry loops from the hot path —
+          but it bought no time. The probe prevented mistaking a tidy refactor for an optimization.</p>
+          
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-cache-regression" data-mado-session-id="cache-regression">
+        <h2><span class="mado-session-number" aria-hidden="true">4. </span><span class="mado-session-title">The unplanned find: flash-cache eviction, fixed with IRAM</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          After flashing optimizations 1–3, the target stages improved as predicted — but
+          two stages that were <strong>not touched at all</strong> got consistently worse:
+          <code>math</code> went 7.3 → 20.0 µs and <code>snapshot</code> 3.6 →
+          7.5 µs, reproducible across every run. Code that nobody edited slowed down 2.7×.
+          </p>
+          <h3>Diagnosis: flash-cache eviction</h3>
+          <p>
+          On the ESP32, ordinary code executes from external flash through a small instruction cache.
+          The optimization rework changed the size and layout of the drain-path code that runs
+          <em>immediately before</em> the math each cycle — and the new layout evicted the
+          math/snapshot cache lines on every pass. Each control trigger then re-fetched that code
+          from flash (~40 µs-class SPI reads amortized), turning a 7 µs computation into a
+          20 µs one. The stage cost was never the instructions; it was <em>where the
+          instructions lived</em>.
+          </p>
+          <h3>Fix: pin the hot control path in IRAM</h3>
+          <p>
+          <code>signal_control_update_corrections</code> (which inlines the conditioning and
+          correction helpers), <code>analog_read_control_snapshot</code>, and the seqlock reader were
+          marked <code>IRAM_ATTR</code>, placing them in internal RAM where cache pressure cannot
+          touch them.
+          </p>
+          <svg data-mado-component-id="svg-1" aria-label="Grouped bars across three builds: math went 7.3 to 20 then 6 microseconds, snapshot 3.6 to 7.5 then 3.5, assemble 21.7 to 9.1 then 3.1. The middle build shows the cache regression, the IRAM build beats baseline." role="img" viewBox="0 0 720 330">
+            <text class="label" x="10" y="22">Stage cost across the three builds (µs)</text>
+            <line class="arrow" x1="60" x2="700" y1="220" y2="220"></line>
+            <line class="arrow" x1="60" x2="60" y1="50" y2="220"></line>
+            <text class="small" text-anchor="end" x="54" y="224">0</text>
+            <text class="small" text-anchor="end" x="54" y="153">10</text>
+            <text class="small" text-anchor="end" x="54" y="83">20</text>
+          
+            <rect class="chart-muted" height="51" width="45" x="100" y="169"></rect>
+            <rect class="chart-warn" height="140" width="45" x="150" y="80"></rect>
+            <rect class="chart-green" height="42" width="45" x="200" y="178"></rect>
+            <text class="small" text-anchor="middle" x="172" y="240">math</text>
+            <text class="small" text-anchor="middle" x="172" y="256">7.3 → 20.0 → 6.0</text>
+          
+            <rect class="chart-muted" height="25" width="45" x="330" y="195"></rect>
+            <rect class="chart-warn" height="53" width="45" x="380" y="167"></rect>
+            <rect class="chart-green" height="25" width="45" x="430" y="195"></rect>
+            <text class="small" text-anchor="middle" x="402" y="240">snapshot</text>
+            <text class="small" text-anchor="middle" x="402" y="256">3.6 → 7.5 → 3.5</text>
+          
+            <rect class="chart-muted" height="152" width="45" x="540" y="68"></rect>
+            <rect class="chart-warn" height="64" width="45" x="590" y="156"></rect>
+            <rect class="chart-green" height="22" width="45" x="640" y="198"></rect>
+            <text class="small" text-anchor="middle" x="612" y="240">assemble</text>
+            <text class="small" text-anchor="middle" x="612" y="256">21.7 → 9.1 → 3.1</text>
+          
+            <text class="small" x="10" y="284">left = baseline · middle = after opts 1–3 (cache regression visible) · right = after IRAM placement</text>
+            <text class="small" x="10" y="300">IRAM did not just undo the regression — math and assemble ended up faster than the original baseline, because they had been</text>
+            <text class="small" x="10" y="316">paying cache penalties all along.</text>
+          </svg>
+          <h3>Two lessons worth keeping</h3>
+          <ul>
+            <li><strong>On flash-XIP microcontrollers, per-stage probes are not optional.</strong>
+                A whole-path timer (<code>drain_max_us</code>) would have shown a net improvement and
+                hidden the 2.7× math regression entirely. Only the per-stage breakdown exposed
+                that unrelated code had slowed down — the signature of a cache effect rather
+                than an algorithmic one.</li>
+            <li><strong>Real-time code paths belong in IRAM as a matter of policy, not tuning.</strong>
+                Any future edit anywhere in the firmware can reshuffle flash layout and silently
+                re-tax a flash-resident control path. The hot Core-1 path is now layout-immune.</li>
+          </ul>
+          
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-results" data-mado-session-id="results">
+        <h2><span class="mado-session-number" aria-hidden="true">5. </span><span class="mado-session-title">Final results and remaining opportunities</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          Final verification: three consecutive hardware runs after all changes, every run
+          <code>pass: true</code>, probe values reproducible to the tenth of a microsecond.
+          </p>
+          <svg data-mado-component-id="svg-1" aria-label="Per-stage cost before and after: parse 32.2 to 13.5, assemble 21.7 to 3.1, adc_read 8.7 to 8.0, math 7.3 to 6.0, publish and snapshot and calib unchanged. Total 79 to 40 microseconds." role="img" viewBox="0 0 720 430">
+            <text class="label" x="10" y="24">Per-trigger stage cost, before (grey) vs. after (green), µs</text>
+          
+            <text class="small" text-anchor="end" x="150" y="66">parse</text>
+            <rect class="chart-muted" height="16" width="483" x="160" y="52"></rect>
+            <rect class="chart-green" height="16" width="202" x="160" y="70"></rect>
+            <text class="small" x="649" y="65">32.2</text>
+            <text class="small" x="368" y="83">13.5</text>
+          
+            <text class="small" text-anchor="end" x="150" y="112">assemble</text>
+            <rect class="chart-muted" height="16" width="326" x="160" y="98"></rect>
+            <rect class="chart-green" height="16" width="47" x="160" y="116"></rect>
+            <text class="small" x="492" y="111">21.7</text>
+            <text class="small" x="213" y="129">3.1</text>
+          
+            <text class="small" text-anchor="end" x="150" y="158">adc_read</text>
+            <rect class="chart-muted" height="16" width="131" x="160" y="144"></rect>
+            <rect class="chart-green" height="16" width="120" x="160" y="162"></rect>
+            <text class="small" x="297" y="157">8.7</text>
+            <text class="small" x="286" y="175">8.0</text>
+          
+            <text class="small" text-anchor="end" x="150" y="204">math</text>
+            <rect class="chart-muted" height="16" width="110" x="160" y="190"></rect>
+            <rect class="chart-green" height="16" width="90" x="160" y="208"></rect>
+            <text class="small" x="276" y="203">7.3</text>
+            <text class="small" x="256" y="221">6.0</text>
+          
+            <text class="small" text-anchor="end" x="150" y="250">publish</text>
+            <rect class="chart-muted" height="16" width="71" x="160" y="236"></rect>
+            <rect class="chart-green" height="16" width="72" x="160" y="254"></rect>
+            <text class="small" x="237" y="249">4.7</text>
+            <text class="small" x="238" y="267">4.8</text>
+          
+            <text class="small" text-anchor="end" x="150" y="296">snapshot</text>
+            <rect class="chart-muted" height="16" width="54" x="160" y="282"></rect>
+            <rect class="chart-green" height="16" width="53" x="160" y="300"></rect>
+            <text class="small" x="220" y="295">3.6</text>
+            <text class="small" x="219" y="313">3.5</text>
+          
+            <text class="small" text-anchor="end" x="150" y="342">calib</text>
+            <rect class="chart-muted" height="16" width="12" x="160" y="328"></rect>
+            <rect class="chart-green" height="16" width="12" x="160" y="346"></rect>
+            <text class="small" x="178" y="341">0.8</text>
+            <text class="small" x="178" y="359">0.8</text>
+          
+            <text class="small" x="10" y="392">Total: 79 → 40 µs per trigger (2.0×). The gains came exactly where the probes pointed; the stages the probes cleared</text>
+            <text class="small" x="10" y="408">(driver read, calibration, transport) were left alone and stayed flat — no effort spent where it could not pay.</text>
+          </svg>
+          <h3>What the controller actually feels</h3>
+          <table>
+            <thead><tr><th>Consumer metric</th><th>baseline</th><th>after opts 1–3</th><th>after + IRAM</th></tr></thead>
+            <tbody>
+              <tr><td><code>age_used_max_us</code> (budget 282)</td><td>128–165</td><td>99–110</td><td><strong>39, identical in all runs</strong></td></tr>
+              <tr><td><code>drain_max_us</code></td><td>136–140</td><td>63–76</td><td><strong>51–53</strong></td></tr>
+              <tr><td>window share (of ~240 µs)</td><td>33%</td><td>27%</td><td><strong>17%</strong></td></tr>
+            </tbody>
+          </table>
+          <p>
+          The most meaningful line is the first: the worst consumed-sample age is not only 4×
+          smaller, it is <em>bit-identical across runs</em>. The pipeline&#39;s timing is now dominated by
+          deterministic work, not by scheduling or cache accidents — exactly the property a
+          control loop wants.
+          </p>
+          <h3>Remaining opportunities (in value order)</h3>
+          <ol>
+            <li><strong>render, ~80 µs</strong> — irrelevant in compute mode but paid on every
+                corrected cycle in LIVE mode, where it would instantly be the largest block. An
+                incremental re-render (only steps whose duration changed) is the next big lever
+                before live-control tuning.</li>
+            <li><strong>parse, 13.5 µs</strong> — still the largest reading stage (~580 ns per
+                sample: decode + queue push). Structurally shrinkable, but note the synergy below
+                before spending effort here.</li>
+            <li><strong>Deterministic sampling</strong> (see the
+                <a href="adc_sampling_vs_switching.html">sampling-vs-switching study</a>) would
+                <em>delete</em> adc_read + parse + assemble entirely (~25 µs) and replace them with
+                three oneshot conversions — solving the switching-noise problem and most of the
+                remaining pipeline cost in one move. If that plan proceeds, do not micro-optimize
+                parse first.</li>
+          </ol>
+          
+        </div>
+      </section>
+</div>
+      <footer class="mado-footer"></footer>
+    </main>
+  </body>
+</html>
+

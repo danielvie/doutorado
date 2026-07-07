@@ -652,6 +652,18 @@ static void dma_control_task(void *arg) {
             }
         }
 
+        if (notif & NOTIF_TRIGGER) {
+            // Inline ADC read at the control point: Core 1 drains the DMA
+            // ring buffer and publishes the newest triple itself, so the
+            // measurement is one frame old at most and immune to Core-0 BLE
+            // scheduling bursts. Runs on every trigger — control state only
+            // gates whether a correction is applied below — so telemetry and
+            // debug reads stay live with control off. This task runs with
+            // interrupts on (hardware DMA drives the pins), so the driver
+            // read is safe here.
+            analog_control_drain_publish();
+        }
+
         if ((notif & NOTIF_TRIGGER) && !pending_flip &&
             signal_is_running_dma_check()) {
             // Control Point (D3): measurement, correction, render, relink.
@@ -703,7 +715,11 @@ static void dma_control_task(void *arg) {
             prev_dry_run = dry_run;
 
             if (need_render) {
-                if (dma_render_and_commit(ctl.dataset, corr, active)) {
+                uint32_t render_start = esp_cpu_get_cycle_count();
+                bool render_ok = dma_render_and_commit(ctl.dataset, corr, active);
+                analog_probe_record(ANALOG_PROBE_RENDER,
+                                    esp_cpu_get_cycle_count() - render_start);
+                if (render_ok) {
                     pending_flip = true;
                     flip_target = 1 - active;
                     tails_since_commit = 0;

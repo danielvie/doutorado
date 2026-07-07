@@ -515,7 +515,10 @@ static void dataset_apply_pending_swap(SignalLoopContext &ctx) {
     signal_control_reset(ctx.control);
 }
 
-bool signal_control_update_corrections(SignalControlContext &ctx) {
+// IRAM: this runs every control trigger on Core 1; leaving it in flash makes
+// its latency depend on cache pressure from the (larger) drain path, which
+// probe data showed tripling the math stage after unrelated code growth.
+bool IRAM_ATTR signal_control_update_corrections(SignalControlContext &ctx) {
     if (!g_control_enabled.load(std::memory_order_acquire)) {
         return false;
     }
@@ -525,7 +528,12 @@ bool signal_control_update_corrections(SignalControlContext &ctx) {
     }
 
     AnalogControlSnapshot snapshot;
-    if (!analog_read_control_snapshot(&snapshot, ctx.last_analog_seq, ctx.max_analog_age_us)) {
+    uint32_t snap_start = esp_cpu_get_cycle_count();
+    bool snap_ok =
+        analog_read_control_snapshot(&snapshot, ctx.last_analog_seq, ctx.max_analog_age_us);
+    analog_probe_record(ANALOG_PROBE_SNAPSHOT,
+                        esp_cpu_get_cycle_count() - snap_start);
+    if (!snap_ok) {
         // The consecutive-miss auto-disable is a live-control safety: stale ADC
         // data must not keep driving corrections. In compute-only (dry-run)
         // mode nothing is applied, so keep the loop alive to observe misses.
@@ -538,6 +546,7 @@ bool signal_control_update_corrections(SignalControlContext &ctx) {
     }
     ctx.last_analog_seq = snapshot.seq;
 
+    uint32_t math_start = esp_cpu_get_cycle_count();
     const uint32_t N = ctx.dataset->size;
     const uint32_t p = N - 1;
     float v_c1 = snapshot.an5;
@@ -564,6 +573,8 @@ bool signal_control_update_corrections(SignalControlContext &ctx) {
     condition_dtk(ctx.dtk_buffer, p, ctx.dataset->time_durations);
     compute_duration_corrections(ctx.dataset->time_durations, ctx.dtk_buffer,
                                  ctx.current_correction, p, N);
+    analog_probe_record(ANALOG_PROBE_MATH,
+                        esp_cpu_get_cycle_count() - math_start);
     return true;
 }
 
