@@ -121,6 +121,7 @@ static void uart_print_agent_prepare_control_latency() {
         analog_clear_consecutive_misses();
         analog_reset_age_used();
         analog_probe_reset();
+        analog_phase_reset();
         g_control_dry_run.store(true, std::memory_order_release);
         g_control_enabled.store(true, std::memory_order_release);
         g_system_state.control_state.store(ControlState::ON, std::memory_order_release);
@@ -190,6 +191,20 @@ static void uart_print_agent_control_latency() {
                    stage + 1 < ANALOG_PROBE_STAGE_COUNT ? "," : "");
         }
         printf("},");
+    }
+    {
+        uint32_t phase_n, phase_min_us, phase_max_us;
+        uint32_t phase_hist[ANALOG_PHASE_HIST_BINS];
+        analog_phase_get(&phase_n, &phase_min_us, &phase_max_us, phase_hist);
+        printf("\"phase\":{\"n\":%lu,\"min_us\":%lu,\"max_us\":%lu,"
+               "\"bin_us\":%u,\"hist\":[",
+               (unsigned long)phase_n, (unsigned long)phase_min_us,
+               (unsigned long)phase_max_us, (unsigned)ANALOG_PHASE_HIST_BIN_US);
+        for (int bin = 0; bin < ANALOG_PHASE_HIST_BINS; ++bin) {
+            printf("%lu%s", (unsigned long)phase_hist[bin],
+                   bin + 1 < ANALOG_PHASE_HIST_BINS ? "," : "");
+        }
+        printf("]},");
     }
     printf("\"rate_tps\":%lu,", (unsigned long)analog.measured_triples_per_second);
     printf("\"adc_latency_p95_us\":%lu,", (unsigned long)analog.latency_p95_us);

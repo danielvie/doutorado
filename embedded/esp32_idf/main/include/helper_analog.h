@@ -136,6 +136,20 @@ void analog_probe_reset(void);
 void analog_probe_get(AnalogProbeStage stage, uint32_t* count,
                       uint32_t* avg_ns, uint32_t* max_ns);
 
+// Sampling-phase instrumentation (sampling-vs-switching study, step 3).
+// Offset of the consumed triple's read instant from the pass trigger anchor
+// (signal_dma_trigger_cycles), recorded once per Core-1 control-point drain.
+// The ADC free-runs against the switching pattern, so this offset walks
+// slowly; min/max/histogram capture the distribution and dwell behaviour of
+// today's free-running sampling as "before" evidence for deterministic
+// placement. Histogram bins are ANALOG_PHASE_HIST_BIN_US wide; the last bin
+// absorbs overflow.
+#define ANALOG_PHASE_HIST_BINS 32
+#define ANALOG_PHASE_HIST_BIN_US 4
+void analog_phase_reset(void);
+void analog_phase_get(uint32_t* count, uint32_t* min_us, uint32_t* max_us,
+                      uint32_t hist[ANALOG_PHASE_HIST_BINS]);
+
 // Core-1 control-point drain (DMA engine only). Reads all pending ADC frames
 // and publishes the newest triple to the telemetry snapshot. Called on every
 // control trigger regardless of control state, so debug reads work with

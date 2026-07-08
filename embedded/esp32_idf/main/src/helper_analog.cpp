@@ -119,6 +119,13 @@ static std::atomic<uint32_t> s_control_drain_max_us(0);
 static std::atomic<uint32_t> s_probe_count[ANALOG_PROBE_STAGE_COUNT];
 static std::atomic<uint32_t> s_probe_sum_cycles[ANALOG_PROBE_STAGE_COUNT];
 static std::atomic<uint32_t> s_probe_max_cycles[ANALOG_PROBE_STAGE_COUNT];
+// Sampling-phase stats (see helper_analog.h): one writer (the Core-1
+// control-point drain during a DMA run), read by the UART status task, so
+// relaxed atomics like the probes above.
+static std::atomic<uint32_t> s_phase_count(0);
+static std::atomic<uint32_t> s_phase_min_us(UINT32_MAX);
+static std::atomic<uint32_t> s_phase_max_us(0);
+static std::atomic<uint32_t> s_phase_hist[ANALOG_PHASE_HIST_BINS];
 static std::atomic<bool> s_calibration_lut_ready(false);
 static float s_calibration_lut[ANALOG_ADC_MAX_CODE + 1] = {0.0f};
 
@@ -190,6 +197,46 @@ void analog_probe_get(AnalogProbeStage stage, uint32_t* count,
     if (count != nullptr) *count = n;
     if (avg_ns != nullptr) *avg_ns = avg;
     if (max_ns != nullptr) *max_ns = max;
+}
+
+static void analog_phase_record(uint32_t delta_us) {
+    s_phase_count.fetch_add(1, std::memory_order_relaxed);
+    if (delta_us < s_phase_min_us.load(std::memory_order_relaxed)) {
+        s_phase_min_us.store(delta_us, std::memory_order_relaxed);
+    }
+    if (delta_us > s_phase_max_us.load(std::memory_order_relaxed)) {
+        s_phase_max_us.store(delta_us, std::memory_order_relaxed);
+    }
+    uint32_t bin = delta_us / ANALOG_PHASE_HIST_BIN_US;
+    if (bin >= ANALOG_PHASE_HIST_BINS) {
+        bin = ANALOG_PHASE_HIST_BINS - 1;
+    }
+    s_phase_hist[bin].fetch_add(1, std::memory_order_relaxed);
+}
+
+void analog_phase_reset(void) {
+    s_phase_count.store(0, std::memory_order_relaxed);
+    s_phase_min_us.store(UINT32_MAX, std::memory_order_relaxed);
+    s_phase_max_us.store(0, std::memory_order_relaxed);
+    for (int i = 0; i < ANALOG_PHASE_HIST_BINS; ++i) {
+        s_phase_hist[i].store(0, std::memory_order_relaxed);
+    }
+}
+
+void analog_phase_get(uint32_t* count, uint32_t* min_us, uint32_t* max_us,
+                      uint32_t hist[ANALOG_PHASE_HIST_BINS]) {
+    uint32_t n = s_phase_count.load(std::memory_order_relaxed);
+    if (count != nullptr) *count = n;
+    if (min_us != nullptr) {
+        uint32_t mn = s_phase_min_us.load(std::memory_order_relaxed);
+        *min_us = (n == 0 || mn == UINT32_MAX) ? 0 : mn;
+    }
+    if (max_us != nullptr) *max_us = s_phase_max_us.load(std::memory_order_relaxed);
+    if (hist != nullptr) {
+        for (int i = 0; i < ANALOG_PHASE_HIST_BINS; ++i) {
+            hist[i] = s_phase_hist[i].load(std::memory_order_relaxed);
+        }
+    }
 }
 
 void analog_record_latency(uint32_t us) {
@@ -1118,14 +1165,27 @@ void analog_control_drain_publish(void) {
     // driver (or applies a sample-rate change) until it reclaims the reader.
     uint32_t sample_hz = s_adc_continuous_sample_hz;
     bool consumed = false;
+    uint32_t last_read_cycles = 0;
     for (int i = 0; i < ANALOG_CONTROL_DRAIN_MAX_FRAMES; ++i) {
         if (analog_continuous_read_frame(&s_control_acc, sample_hz) != 1) {
             break;  // drained or read error (error path already resynced)
         }
+        // Read instant of the newest frame so far; the last capture belongs
+        // to the frame that completed the consumed (newest) triple.
+        last_read_cycles = esp_cpu_get_cycle_count();
         consumed = true;
     }
     if (consumed) {
         analog_publish_queued_triples(&s_control_acc);
+        // Phase instrumentation (step 3): offset of the consumed triple's
+        // read instant from this pass's trigger anchor. The drain runs on
+        // the trigger notification, strictly after the ISR stamped the
+        // anchor, so the subtraction is same-pass and non-negative.
+        uint32_t trigger_cycles = signal_dma_trigger_cycles();
+        if (trigger_cycles != 0) {
+            analog_phase_record((last_read_cycles - trigger_cycles) /
+                                esp_rom_get_cpu_ticks_per_us());
+        }
     }
     uint32_t drain_us =
         (esp_cpu_get_cycle_count() - t0) / esp_rom_get_cpu_ticks_per_us();

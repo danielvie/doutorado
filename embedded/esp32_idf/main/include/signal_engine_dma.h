@@ -64,6 +64,13 @@ bool signal_dma_engine_start();
 /// True while the DMA engine task owns the outputs.
 bool signal_dma_engine_is_active();
 
+/// CPU cycle count captured by the trigger ISR at the pass's fixed control
+/// point (the waveform phase anchor). 0 until the first trigger of a run.
+/// Written by the Core-1 trigger ISR; meaningful to readers on Core 1 that
+/// run strictly after the trigger notification (e.g. the control-point
+/// drain), where it always holds the current pass's anchor.
+uint32_t signal_dma_trigger_cycles(void);
+
 /// Engine-specific telemetry fields, e.g. "\"render\":12,..." (no braces).
 std::string signal_dma_timing_fields_json(void);
 

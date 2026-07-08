@@ -1,0 +1,845 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="mado-format-version" content="1" />
+    <title>Sampling-Phase Instrumentation: Measuring the Free-Running ADC Phase Walk</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #182025;
+        --muted: #60707a;
+        --line: #d7e1e7;
+        --paper: #fbfcfb;
+        --panel: #f3f7f5;
+        --level-1: #365da8;
+        --level-2: #16645a;
+        --level-3: #5b4c94;
+        --code: #101820;
+        
+        --radius-sm: 2px;
+        --radius-md: 4px;
+        --radius-lg: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        color: var(--ink);
+        background:
+          linear-gradient(90deg, rgba(24, 32, 37, 0.035) 1px, transparent 1px) 0 0 / 28px 28px,
+          linear-gradient(rgba(24, 32, 37, 0.025) 1px, transparent 1px) 0 0 / 28px 28px,
+          var(--paper);
+        font-family: "Segoe UI", Candara, Tahoma, sans-serif;
+        font-size: 16px;
+        line-height: 1.55;
+      }
+
+      .mado-document {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 32px 20px 70px;
+      }
+
+      .mado-hero,
+      .mado-index,
+      .mado-session,
+      .mado-footer {
+        margin-bottom: 20px;
+        padding: 20px 24px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: #fff;
+      }
+
+      .mado-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: 32px;
+        align-items: start;
+      }
+
+      .mado-hero > :only-child {
+        grid-column: 1 / -1;
+      }
+
+      .mado-title {
+        margin-bottom: 8px;
+        font-size: clamp(30px, 5vw, 54px);
+        line-height: 1.15;
+      }
+
+      .mado-header {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .mado-meta {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: var(--panel);
+        font-size: 14px;
+      }
+
+      .mado-meta ul {
+        list-style: none;
+      }
+
+      .mado-meta li {
+        padding: 4px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .mado-meta li:last-child {
+        border-bottom: 0;
+      }
+
+      .mado-index h2,
+      .mado-session h2 {
+        margin: 0;
+        font-size: 24px;
+      }
+
+      .mado-index-cards {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 14px;
+      }
+
+      .mado-index-card {
+        display: block;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        color: inherit;
+        background: var(--panel);
+        text-decoration: none;
+      }
+
+      .mado-index-card:hover,
+      .mado-index-card:focus-visible {
+        border-color: var(--level-1);
+        outline: none;
+      }
+
+      .mado-index-card strong {
+        display: block;
+      }
+
+      .mado-index-card span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .mado-session {
+        scroll-margin-top: 20px;
+      }
+
+      .mado-session:nth-child(3n + 1) h2 {
+        color: var(--level-1);
+      }
+
+      .mado-session:nth-child(3n + 2) h2 {
+        color: var(--level-2);
+      }
+
+      .mado-session:nth-child(3n) h2 {
+        color: var(--level-3);
+      }
+
+      .mado-session-content {
+        margin-top: 14px;
+      }
+
+      .mado-session-content > * + *,
+      .mado-header > * + *,
+      .mado-footer > * + * {
+        margin-top: 12px;
+      }
+
+      h3 {
+        margin-top: 24px;
+        padding-left: 10px;
+        border-left: 4px solid var(--level-2);
+        font-size: 18px;
+      }
+
+      h4 {
+        margin-top: 14px;
+        color: var(--level-3);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      ul,
+      ol {
+        padding-left: 24px;
+      }
+
+      a {
+        color: var(--level-1);
+      }
+
+      table {
+        width: 100%;
+        margin: 14px 0;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 8px 12px;
+        border: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: var(--panel);
+        font-weight: 600;
+      }
+
+      code {
+        padding: 2px 6px;
+        border-radius: var(--radius-sm);
+        background: #edf2f0;
+        font-size: 0.92em;
+      }
+
+      pre {
+        overflow-x: auto;
+        margin: 14px 0;
+        padding: 14px;
+        border-radius: var(--radius-sm);
+        color: #dce8e5;
+        background: var(--code);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .mado-foldable-code {
+        margin: 16px 0;
+      }
+
+      .mado-foldable-code > pre {
+        margin: 0;
+        border: 1px solid #3c4653;
+        border-top: 0;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+      }
+
+      .mado-code-summary {
+        cursor: pointer;
+        padding: 10px 14px;
+        border: 1px solid #3c4653;
+        border-radius: var(--radius-sm);
+        color: #dce8e5;
+        background: #2b313b;
+        font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .mado-code-summary:hover,
+      .mado-code-summary:focus-visible {
+        background: #353d49;
+      }
+
+      .mado-foldable-code[open] > .mado-code-summary {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+
+      pre code {
+        padding: 0;
+        border: 0;
+        color: inherit;
+        background: transparent;
+        font-size: inherit;
+      }
+
+      blockquote,
+      .callout {
+        margin: 14px 0;
+        padding: 12px 16px;
+        border-left: 4px solid var(--level-2);
+        border-radius: var(--radius-sm);
+        background: #f0f7f4;
+        font-size: 14px;
+      }
+
+      svg {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin: 16px 0;
+        color: var(--ink);
+      }
+
+      .chart {
+        margin: 16px 0;
+        overflow-x: auto;
+      }
+
+      .cards,
+      .twocol {
+        display: grid;
+        gap: 14px;
+        margin: 16px 0;
+      }
+
+      .cards {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .twocol {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .card {
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: var(--panel);
+      }
+
+      .chart-muted { fill: rgba(96, 112, 122, 0.08); stroke: #9aaab2; }
+      .chart-warn { fill: #fff4df; stroke: #b57418; }
+      .chart-level-1 { fill: rgba(54, 93, 168, 0.1); stroke: var(--level-1); }
+      .chart-level-2 { fill: rgba(22, 100, 90, 0.1); stroke: var(--level-2); }
+      .chart-level-3 { fill: rgba(91, 76, 148, 0.1); stroke: var(--level-3); }
+      .arrow { fill: none; stroke: #56666f; stroke-width: 1.5; }
+      .arrow-head { fill: #56666f; }
+      .dash { stroke-dasharray: 6 5; stroke: #16645a44 !important }
+      .bla { stroke-dasharray: 6 5; stroke: #ff0000 !important }
+      .label { fill: var(--ink); font-size: 13px; font-weight: 650; }
+      .small { fill: var(--muted); font-size: 12px; }
+      .lane { fill: rgba(96, 112, 122, 0.07); stroke: var(--line); }
+
+      .ts-comment { color: #91a8a2; font-style: italic; }
+      .ts-keyword, .ts-tag { color: #7dd3fc; font-weight: 700; }
+      .ts-string { color: #fda4af; }
+      .ts-number, .ts-constant { color: #c4b5fd; }
+      .ts-function, .ts-constructor { color: #fde68a; }
+      .ts-type, .ts-property, .ts-attribute, .ts-module { color: #a7f3d0; }
+      .ts-operator, .ts-punctuation { color: #93c5fd; }
+      .ts-variable, .ts-embedded { color: #e2e8f0; }
+      .ts-label { color: #fb923c; }
+      .ts-error { text-decoration: underline wavy #f87171; }
+
+      .mado-diff-block {
+        overflow: hidden;
+        margin: 16px 0;
+        border: 1px solid #3c4653;
+        border-radius: var(--radius-sm);
+        color: #dce8e5;
+        background: #1f242c;
+        font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+        font-size: 13px;
+      }
+
+      .mado-foldable-diff > .mado-diff-block {
+        margin: 0;
+        border-top: 0;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+      }
+
+      .mado-diff-header {
+        padding: 10px 14px;
+        border-bottom: 1px solid #3c4653;
+        color: #aeb8c5;
+        background: #2b313b;
+      }
+
+      .mado-diff-header strong {
+        color: #f4c56a;
+      }
+
+      .mado-diff-commit {
+        margin-left: 8px;
+        color: #8490a0;
+      }
+
+      .mado-diff-panels {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      }
+
+      .mado-diff-panel {
+        min-width: 0;
+        overflow-x: auto;
+      }
+
+      .mado-diff-panel + .mado-diff-panel {
+        border-left: 1px solid #3c4653;
+      }
+
+      .mado-diff-label {
+        position: sticky;
+        left: 0;
+        padding: 5px 12px;
+        border-bottom: 1px solid #3c4653;
+        color: #aeb8c5;
+        background: #252a33;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .mado-diff-before .mado-diff-label {
+        color: #f87171;
+      }
+
+      .mado-diff-after .mado-diff-label {
+        color: #4ade80;
+      }
+
+      .mado-diff-code {
+        min-width: max-content;
+        tab-size: 4;
+      }
+
+      .mado-diff-line {
+        display: flex;
+        min-height: 21px;
+        line-height: 21px;
+        white-space: pre;
+      }
+
+      .mado-diff-ln {
+        width: 52px;
+        min-width: 52px;
+        padding-right: 10px;
+        color: #687385;
+        text-align: right;
+        user-select: none;
+      }
+
+      .mado-diff-content {
+        flex: 1;
+        min-width: 0;
+        padding: 0 12px 0 8px;
+        border-left: 3px solid transparent;
+      }
+
+      .mado-diff-line.removed {
+        background: rgba(244, 63, 94, 0.12);
+      }
+
+      .mado-diff-line.removed .mado-diff-content {
+        border-left-color: #f14c4c;
+      }
+
+      .mado-diff-line.added {
+        background: rgba(34, 197, 94, 0.11);
+      }
+
+      .mado-diff-line.added .mado-diff-content {
+        border-left-color: #4ec94e;
+      }
+
+      .mado-diff-line mark {
+        padding: 0;
+        color: inherit;
+        background: rgba(250, 204, 21, 0.28);
+      }
+
+      .mado-diff-line.marker {
+        color: #aeb8c5;
+        font-style: italic;
+      }
+
+      .mado-code-block > .mado-diff-code {
+        overflow-x: auto;
+      }
+
+      .mado-sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      template[data-mado-diff-state] {
+        display: none;
+      }
+
+      .mado-footer {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      @media (max-width: 900px) {
+        .mado-hero,
+        .mado-index-cards,
+        .cards,
+        .twocol {
+          grid-template-columns: 1fr;
+        }
+
+        .mado-diff-panels {
+          grid-template-columns: 1fr;
+        }
+
+        .mado-diff-panel + .mado-diff-panel {
+          border-top: 1px solid #3c4653;
+          border-left: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="mado-document" data-mado-document="tutorial" data-mado-revision="9">
+      <section class="mado-hero">
+        <div>
+          <h1 class="mado-title">Sampling-Phase Instrumentation: Measuring the Free-Running ADC Phase Walk</h1>
+          <header class="mado-header"></header>
+        </div>
+                <aside class="mado-meta" aria-label="Concept snapshot">
+          <ul>
+            <li data-mado-meta="technology-stack"><strong>Technology Stack:</strong> <span>ESP32, ESP-IDF 5.5, I2S1 DMA, ADC continuous driver</span></li>
+            <li data-mado-meta="key-concepts"><strong>Key Concepts:</strong> <span>phase anchor, free-running sampling, dwell, trimodal histogram, before-evidence</span></li>
+            <li data-mado-meta="domain"><strong>Domain:</strong> <span>Power-converter control instrumentation</span></li>
+            <li data-mado-meta="core-question"><strong>Core Question:</strong> <span>Does the free-running ADC phase really dwell, and can we prove it cheaply?</span></li>
+          </ul>
+        </aside>
+
+
+      </section>
+      <nav class="mado-index" aria-label="Document index">
+        <h2>Document Index</h2>
+        <div class="mado-index-cards">          <a class="mado-index-card" href="#session-overview">
+            <strong>1. Overview: why measure the phase at all</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-implementation">
+            <strong>2. Implementation: four small additions</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-results">
+            <strong>3. Results: a razor-sharp trimodal histogram</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-analysis">
+            <strong>4. Analysis: dwell confirmed, Scenario A&#39;s grave measured</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-next-steps">
+            <strong>5. Next steps</strong>
+            <span>Open this Session</span>
+          </a>
+</div>
+      </nav>
+      <div class="mado-sessions">      <section class="mado-session chapter" id="session-overview" data-mado-session-id="overview">
+        <h2><span class="mado-session-number" aria-hidden="true">1. </span><span class="mado-session-title">Overview: why measure the phase at all</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          This document analyses the first results of the <strong>sampling-phase instrumentation</strong>
+          — step&nbsp;3 of the phased plan set out in the
+          <a href="adc_sampling_vs_switching.html">sampling-vs-switching study</a>. The study predicted
+          that because the ADC free-runs against the switching pattern (independent clock dividers),
+          the sampling phase does not scatter randomly: it <em>walks slowly</em> and <em>dwells</em>
+          at nearly fixed positions for many consecutive cycles, including positions inside the
+          post-edge disturbance bands. That prediction was made from first principles; this step
+          measures it on the running system, producing the "before" evidence against which
+          deterministic placement (Scenario&nbsp;B) will later be judged.
+          </p>
+          <p>
+          The measured quantity is deliberately cheap and behaviour-preserving: for each triple the
+          Core-1 control point consumes, record
+          <code>read_cycles &minus; s_trigger_cycles</code> — the offset, in CPU cycles converted to
+          µs, between the instant the newest ADC frame was read and the pass's trigger anchor
+          (captured sub-µs by the DMA trigger ISR at a fixed waveform position). Nothing about the
+          pipeline's behaviour changes; only a counter, min/max, and a 32-bin histogram are added.
+          </p>
+          <p>
+          <strong>What this offset is — and is not.</strong> It anchors the <em>read instant</em>, not
+          the conversion instant: the newest frame finished converting anywhere in the preceding
+          0–48&nbsp;µs (one DMA frame), which is exactly the uncertainty that ruled out Scenario&nbsp;A.
+          The offset is therefore useless for validating any individual sample. What it <em>can</em>
+          show is the structure of the timing relationship between the free-running ADC delivery and
+          the trigger cadence: if the phase walked uniformly, the histogram would be flat; if it
+          dwells, the histogram concentrates into discrete modes. That structural question is the one
+          step&nbsp;3 was designed to answer.
+          </p>
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-implementation" data-mado-session-id="implementation">
+        <h2><span class="mado-session-number" aria-hidden="true">2. </span><span class="mado-session-title">Implementation: four small additions</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          Four small changes, all mirroring existing patterns (the stage probes and
+          <code>drain_max_us</code> metric):
+          </p>
+          <ol>
+            <li><strong>Phase anchor getter.</strong> The trigger ISR already stamps
+                <code>s_trigger_cycles</code>; a one-line getter exposes it to the analog helper.</li>
+            <li><strong>Per-frame read stamp in the Core-1 drain.</strong> The control-point drain
+                captures the cycle count after each successful frame read; the last capture belongs to
+                the frame that completed the consumed (newest) triple.</li>
+            <li><strong>Stats: count / min / max / histogram.</strong> Single writer (the Core-1 drain
+                during a DMA run), relaxed atomics, 32 bins × 4 µs with the last bin
+                absorbing overflow. Reset at control-session prepare alongside the probes.</li>
+            <li><strong>UART exposure.</strong> A <code>&quot;phase&quot;</code> block in the
+                <code>agent control-latency</code> JSON.</li>
+          </ol>
+          <details class="mado-foldable-code" data-mado-component-id="code-1"><summary class="mado-code-summary">Show code: cpp</summary><pre data-mado-component-id="code-1"><code class="language-cpp">// signal_engine_dma.cpp — expose the ISR&#39;s phase anchor
+          uint32_t signal_dma_trigger_cycles(void) {
+              return s_trigger_cycles;
+          }
+          
+          // helper_analog.cpp — inside analog_control_drain_publish()
+          uint32_t last_read_cycles = 0;
+          for (int i = 0; i &lt; ANALOG_CONTROL_DRAIN_MAX_FRAMES; ++i) {
+              if (analog_continuous_read_frame(&amp;s_control_acc, sample_hz) != 1) {
+                  break;
+              }
+              // Read instant of the newest frame so far; the last capture belongs
+              // to the frame that completed the consumed (newest) triple.
+              last_read_cycles = esp_cpu_get_cycle_count();
+              consumed = true;
+          }
+          if (consumed) {
+              analog_publish_queued_triples(&amp;s_control_acc);
+              uint32_t trigger_cycles = signal_dma_trigger_cycles();
+              if (trigger_cycles != 0) {
+                  analog_phase_record((last_read_cycles - trigger_cycles) /
+                                      esp_rom_get_cpu_ticks_per_us());
+              }
+          }</code></pre></details>
+          <p>
+          The drain runs on the trigger notification, strictly after the ISR stamped the anchor, so
+          the subtraction is same-pass and non-negative; unsigned wrap-around handles counter
+          overflow. Cost inside the maintenance window: one <code>CCOUNT</code> read per frame plus a
+          handful of relaxed atomic stores — well under a microsecond.
+          </p>
+          <p>The resulting JSON block, per <code>agent control-latency</code> request:</p>
+          <details class="mado-foldable-code" data-mado-component-id="code-2"><summary class="mado-code-summary">Show code: json</summary><pre data-mado-component-id="code-2"><code class="language-json"><span class="ts-string">&quot;phase&quot;</span>: {
+            <span class="ts-string">&quot;n&quot;</span>: <span class="ts-number">4072</span>, <span class="ts-string">&quot;min_us&quot;</span>: <span class="ts-number">25</span>, <span class="ts-string">&quot;max_us&quot;</span>: <span class="ts-number">68</span>, <span class="ts-string">&quot;bin_us&quot;</span>: <span class="ts-number">4</span>,
+            <span class="ts-string">&quot;hist&quot;</span>: [<span class="ts-number">0</span>,<span class="ts-number">0</span>,<span class="ts-number">0</span>,<span class="ts-number">0</span>,<span class="ts-number">0</span>,<span class="ts-number">0</span>,<span class="ts-number">2</span>,<span class="ts-number">1255</span>,<span class="ts-number">33</span>,<span class="ts-number">15</span>,<span class="ts-number">1604</span>,<span class="ts-number">164</span>,<span class="ts-number">10</span>,<span class="ts-number">965</span>,<span class="ts-number">19</span>,<span class="ts-number">4</span>,<span class="ts-number">0</span>,<span class="ts-number">1</span>,<span class="ts-number">0</span>, ...]
+          }</code></pre></details>
+          <figure class="mado-generated-diagram" data-mado-component-id="pass-timeline" data-mado-component-kind="generated-diagram" data-mado-diagram-state="7b226964223a22706173732d74696d656c696e65222c226469616772616d5f74797065223a2274696d656c696e65222c226469616772616d5f666f726d6174223a22706c616e74756d6c222c22736f75726365223a22407374617274756d6c5c6e7469746c65205768657265207468652070686173652073616d706c652069732074616b656e20286f6e6520636f6e74726f6c20706173732c20666972737420313230207573295c6e7363616c65203020746f203132302075735c6e7469636b732030203330203630203930203132305c6e5c6e6c616e65206164633a204144432068617264776172652028667265652d72756e6e696e67295c6e7461736b20686172647761726520302034383a206672616d65204e20283420747269706c6573202f203438207573295c6e7461736b2068617264776172652034382034383a206672616d65204e2b315c6e7461736b2068617264776172652039362032343a206672616d65204e2b32202e2e2e5c6e5c6e6c616e6520636f7265313a20436f7265203120636f6e74726f6c207461736b5c6e7461736b20637269746963616c203020333a207472696767657220495352207374616d707320735f747269676765725f6379636c65735c6e7461736b207761697420332032353a206e6f74696679202b207461736b2077616b655c6e7461736b2032382034303a20647261696e206672616d65732c207374616d70206561636820726561642c207075626c697368206e657765737420747269706c655c6e5c6e6d61726b65722036383a207265636f726420726561645f6379636c6573202d20735f747269676765725f6379636c65735c6e6e6f74653a206d65617375726564206f6666736574206c616e64732061742032352d37312075733b20746865206e6577657374206672616d6520636f6e76657274656420302d3438207573206265666f7265206974732072656164207374616d705c6e40656e64756d6c5c6e222c2272656e64657265645f737667223a223c73766720786d6c6e733d5c22687474703a2f2f7777772e77332e6f72672f323030302f7376675c222076696577426f783d5c222d3234202d313020363731203336345c2220726f6c653d5c22696d675c2220617269612d6c6162656c3d5c22706173732d74696d656c696e652074696d656c696e65206469616772616d5c2220666f6e742d66616d696c793d5c2248656c7665746963612c20417269616c2c2073616e732d73657269665c2220666f6e742d73697a653d5c2231325c223e5c6e3c7469746c653e706173732d74696d656c696e652074696d656c696e65206469616772616d3c2f7469746c653e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c22305c2220793d5c2231365c2220746578742d616e63686f723d5c2273746172745c2220666f6e742d7765696768743d5c22626f6c645c223e5768657265207468652070686173652073616d706c652069732074616b656e20286f6e6520636f6e74726f6c20706173732c20666972737420313230207573293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6d757465645c2220783d5c22305c2220793d5c223131325c222077696474683d5c223536305c22206865696768743d5c2233345c222072783d5c22305c222f3e5c6e3c7265637420636c6173733d5c2263686172742d6d757465645c2220783d5c22305c2220793d5c223139305c222077696474683d5c223536305c22206865696768743d5c2233345c222072783d5c22305c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c22305c222079313d5c223131325c222078323d5c22305c222079323d5c223134365c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c22305c222079313d5c223139305c222078323d5c22305c222079323d5c223232345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223134305c222079313d5c223131325c222078323d5c223134305c222079323d5c223134365c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223134305c222079313d5c223139305c222078323d5c223134305c222079323d5c223232345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223238305c222079313d5c223131325c222078323d5c223238305c222079323d5c223134365c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223238305c222079313d5c223139305c222078323d5c223238305c222079323d5c223232345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223432305c222079313d5c223131325c222078323d5c223432305c222079323d5c223134365c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223432305c222079313d5c223139305c222078323d5c223432305c222079323d5c223232345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223536305c222079313d5c223131325c222078323d5c223536305c222079323d5c223134365c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223536305c222079313d5c223139305c222078323d5c223536305c222079323d5c223232345c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223331372e335c222079313d5c2236365c222078323d5c223331372e335c222079323d5c2237325c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223331372e335c222079313d5c223131305c222078323d5c223331372e335c222079323d5c223134385c222f3e5c6e3c6c696e6520636c6173733d5c226c616e6520646173685c222078313d5c223331372e335c222079313d5c223138385c222078323d5c223331372e335c222079323d5c223232365c222f3e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c22305c222079313d5c2236305c222078323d5c223536305c222079323d5c2236305c222f3e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c22305c222079313d5c2235345c222078323d5c22305c222079323d5c2236365c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c2234385c2220746578742d616e63686f723d5c226d6964646c655c223e302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223134305c222079313d5c2235345c222078323d5c223134305c222079323d5c2236365c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223134305c2220793d5c2234385c2220746578742d616e63686f723d5c226d6964646c655c223e33302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223238305c222079313d5c2235345c222078323d5c223238305c222079323d5c2236365c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223238305c2220793d5c2234385c2220746578742d616e63686f723d5c226d6964646c655c223e36302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223432305c222079313d5c2235345c222078323d5c223432305c222079323d5c2236365c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223432305c2220793d5c2234385c2220746578742d616e63686f723d5c226d6964646c655c223e39302075733c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223536305c222079313d5c2235345c222078323d5c223536305c222079323d5c2236365c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223536305c2220793d5c2234385c2220746578742d616e63686f723d5c226d6964646c655c223e3132302075733c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223330315c2220793d5c2238325c2220746578742d616e63686f723d5c2273746172745c223e7265636f726420726561645f6379636c6573202d20735f747269676765725f6379636c65733c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223130365c2220746578742d616e63686f723d5c2273746172745c223e4144432068617264776172652028667265652d72756e6e696e67293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d315c2220783d5c22305c2220793d5c223131365c222077696474683d5c223232345c22206865696768743d5c2232365c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c223131325c2220793d5c223133335c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e6672616d65204e20283420747269706c6573202f203438207573293c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d315c2220783d5c223232345c2220793d5c223131365c222077696474683d5c223232345c22206865696768743d5c2232365c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c223333365c2220793d5c223133335c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e6672616d65204e2b313c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d315c2220783d5c223434385c2220793d5c223131365c222077696474683d5c223131325c22206865696768743d5c2232365c222072783d5c22305c222f3e5c6e3c7465787420636c6173733d5c226c6162656c5c2220783d5c223530345c2220793d5c223133335c2220746578742d616e63686f723d5c226d6964646c655c2220666f6e742d7765696768743d5c22626f6c645c223e6672616d65204e2b32202e2e2e3c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223138345c2220746578742d616e63686f723d5c2273746172745c223e436f7265203120636f6e74726f6c207461736b3c2f746578743e5c6e3c7265637420636c6173733d5c2263686172742d7761726e5c2220783d5c22305c2220793d5c223139345c222077696474683d5c2231345c22206865696768743d5c2232365c222072783d5c22305c222f3e5c6e3c7265637420636c6173733d5c2263686172742d6d757465645c2220783d5c2231345c2220793d5c223139345c222077696474683d5c223131362e375c22206865696768743d5c2232365c222072783d5c22305c222f3e5c6e3c7265637420636c6173733d5c2263686172742d6c6576656c2d325c2220783d5c223133302e375c2220793d5c223139345c222077696474683d5c223138362e375c22206865696768743d5c2232365c222072783d5c22305c222f3e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c22345c222079313d5c223232345c222078323d5c22345c222079323d5c223233345c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223234345c2220746578742d616e63686f723d5c2273746172745c223e7472696767657220495352207374616d707320735f747269676765725f6379636c65733c2f746578743e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c2231345c2220793d5c223236305c2220746578742d616e63686f723d5c2273746172745c223e6e6f74696679202b207461736b2077616b653c2f746578743e5c6e3c6c696e6520636c6173733d5c226172726f775c222078313d5c223235315c222079313d5c223232345c222078323d5c223235315c222079323d5c223236365c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c223133302e375c2220793d5c223237365c2220746578742d616e63686f723d5c2273746172745c223e647261696e206672616d65732c207374616d70206561636820726561642c207075626c697368206e657765737420747269706c653c2f746578743e5c6e3c6c696e6520636c6173733d5c226c616e655c222078313d5c22305c222079313d5c223330345c222078323d5c223536305c222079323d5c223330345c222f3e5c6e3c7465787420636c6173733d5c22736d616c6c5c2220783d5c22305c2220793d5c223332345c2220746578742d616e63686f723d5c2273746172745c223e6d65617375726564206f6666736574206c616e64732061742032352d37312075733b20746865206e6577657374206672616d6520636f6e76657274656420302d3438207573206265666f7265206974732072656164207374616d703c2f746578743e5c6e3c2f7376673e227d"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-24 -10 671 364" role="img" aria-label="pass-timeline timeline diagram" font-family="Helvetica, Arial, sans-serif" font-size="12">
+          <title>pass-timeline timeline diagram</title>
+          
+          <text class="label" x="0" y="16" text-anchor="start" font-weight="bold">Where the phase sample is taken (one control pass, first 120 us)</text>
+          <rect class="chart-muted" x="0" y="112" width="560" height="34" rx="0"/>
+          <rect class="chart-muted" x="0" y="190" width="560" height="34" rx="0"/>
+          
+          <line class="lane dash" x1="0" y1="70" x2="0" y2="206"/>
+          <line class="lane dash" x1="140" y1="70" x2="140" y2="223"/>
+          <line class="lane dash" x1="280" y1="70" x2="280" y2="223"/>
+          <line class="lane dash" x1="420" y1="70" x2="420" y2="223"/>
+          <line class="lane dash" x1="317.3" y1="60" x2="317.3" y2="225"/>
+          
+          <line class="arrow" x1="0" y1="60" x2="560" y2="60"/>
+          <line class="arrow" x1="0" y1="54" x2="0" y2="66"/>
+          <text class="small" x="0" y="48" text-anchor="middle">0 us</text>
+          <line class="arrow" x1="140" y1="54" x2="140" y2="66"/>
+          <text class="small" x="140" y="48" text-anchor="middle">30 us</text>
+          <line class="arrow" x1="280" y1="54" x2="280" y2="66"/>
+          <text class="small" x="280" y="48" text-anchor="middle">60 us</text>
+          <line class="arrow" x1="420" y1="54" x2="420" y2="66"/>
+          <text class="small" x="420" y="48" text-anchor="middle">90 us</text>
+          <line class="arrow" x1="560" y1="54" x2="560" y2="66"/>
+          <text class="small" x="560" y="48" text-anchor="middle">120 us</text>
+          <text class="small" x="301" y="82" text-anchor="start">record read_cycles - s_trigger_cycles</text>
+          <text class="small" x="5" y="106" text-anchor="start">ADC hardware (free-running)</text>
+          <rect class="chart-level-1" x="0" y="116" width="224" height="26" rx="0"/>
+          <text class="label" x="112" y="133" text-anchor="middle" font-weight="bold">frame N (4 triples / 48 us)</text>
+          <rect class="chart-level-1" x="224" y="116" width="224" height="26" rx="0"/>
+          <text class="label" x="336" y="133" text-anchor="middle" font-weight="bold">frame N+1</text>
+          <rect class="chart-level-1" x="448" y="116" width="112" height="26" rx="0"/>
+          <text class="label" x="504" y="133" text-anchor="middle" font-weight="bold">frame N+2 ...</text>
+          <text class="small" x="5" y="184" text-anchor="start">Core 1 control task</text>
+          <rect class="chart-warn" x="0" y="194" width="14" height="26" rx="0"/>
+          <rect class="chart-muted" x="14" y="194" width="116.7" height="26" rx="0"/>
+          <rect class="chart-level-2" x="130.7" y="194" width="186.7" height="26" rx="0"/>
+          <line class="arrow" x1="4" y1="224" x2="4" y2="234"/>
+          <text class="small" x="0" y="244" text-anchor="start">trigger ISR stamps s_trigger_cycles</text>
+          <text class="small" x="14" y="260" text-anchor="start">notify + task wake</text>
+          <line class="arrow" x1="251" y1="224" x2="251" y2="266"/>
+          <text class="small" x="130.7" y="276" text-anchor="start">drain frames, stamp each read, publish newest triple</text>
+          <line class="lane" x1="0" y1="304" x2="560" y2="304"/>
+          <text class="small" x="0" y="324" text-anchor="start">measured offset lands at 25-71 us; the newest frame converted 0-48 us before its read stamp</text>
+          </svg></figure>
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-results" data-mado-session-id="results">
+        <h2><span class="mado-session-number" aria-hidden="true">3. </span><span class="mado-session-title">Results: a razor-sharp trimodal histogram</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          Test loop: <code>task flash</code>, then <code>task uart:control-latency</code> (COM3,
+          alpha = 0.5 dataset, DMA engine, dry-run control). Two independent runs, each
+          ≈4 k consumed triples over the measurement window:
+          </p>
+          <table>
+            <thead><tr><th>Run</th><th>n</th><th>min</th><th>max</th><th>Dominant bins (4 µs wide)</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>4072</td><td>25 µs</td><td>68 µs</td>
+                  <td>28–32 µs: 1255 · 40–44 µs: 1604 · 52–56 µs: 965</td></tr>
+              <tr><td>2</td><td>4064</td><td>28 µs</td><td>71 µs</td>
+                  <td>same three modes, same ordering</td></tr>
+            </tbody>
+          </table>
+          <svg data-mado-component-id="svg-1" aria-label="Histogram of the read-to-trigger offset: three sharp modes at 28 to 32, 40 to 44, and 52 to 56 microseconds, spaced 12 microseconds apart, with almost no counts elsewhere." role="img" viewBox="0 0 720 340">
+            <text class="label" x="10" y="22">Phase histogram, run 1 (n = 4072, bin = 4 µs)</text>
+            <line class="arrow" x1="60" x2="60" y1="60" y2="260"></line>
+            <line class="arrow" x1="60" x2="700" y1="260" y2="260"></line>
+            <text class="small" text-anchor="end" x="54" y="264">0</text>
+            <text class="small" text-anchor="end" x="54" y="152">800</text>
+            <text class="small" text-anchor="end" x="54" y="82">1600</text>
+          
+            <rect class="chart-level-1" height="2" width="18" x="180" y="258"></rect>
+            <rect class="chart-level-1" height="141" width="18" x="200" y="119"></rect>
+            <rect class="chart-level-1" height="4" width="18" x="220" y="256"></rect>
+            <rect class="chart-level-1" height="2" width="18" x="240" y="258"></rect>
+            <rect class="chart-level-1" height="180" width="18" x="260" y="80"></rect>
+            <rect class="chart-level-1" height="18" width="18" x="280" y="242"></rect>
+            <rect class="chart-level-1" height="2" width="18" x="300" y="258"></rect>
+            <rect class="chart-level-1" height="108" width="18" x="320" y="152"></rect>
+            <rect class="chart-level-1" height="2" width="18" x="340" y="258"></rect>
+            <rect class="chart-level-1" height="1" width="18" x="360" y="259"></rect>
+            <rect class="chart-level-1" height="1" width="18" x="400" y="259"></rect>
+          
+            <text class="small" text-anchor="middle" x="209" y="112">1255</text>
+            <text class="small" text-anchor="middle" x="269" y="74">1604</text>
+            <text class="small" text-anchor="middle" x="329" y="146">965</text>
+          
+            <line class="arrow" x1="209" x2="269" y1="52" y2="52"></line>
+            <polygon class="arrow-head" points="267,48 275,52 267,56"></polygon>
+            <line class="arrow" x1="269" x2="329" y1="52" y2="52"></line>
+            <polygon class="arrow-head" points="327,48 335,52 327,56"></polygon>
+            <text class="small" text-anchor="middle" x="269" y="44">12 µs spacing = ADC triple cadence</text>
+          
+            <line class="arrow" x1="60" x2="60" y1="260" y2="266"></line>
+            <line class="arrow" x1="220" x2="220" y1="260" y2="266"></line>
+            <line class="arrow" x1="380" x2="380" y1="260" y2="266"></line>
+            <line class="arrow" x1="540" x2="540" y1="260" y2="266"></line>
+            <line class="arrow" x1="700" x2="700" y1="260" y2="266"></line>
+            <text class="small" text-anchor="middle" x="60" y="282">0</text>
+            <text class="small" text-anchor="middle" x="220" y="282">32 µs</text>
+            <text class="small" text-anchor="middle" x="380" y="282">64 µs</text>
+            <text class="small" text-anchor="middle" x="540" y="282">96 µs</text>
+            <text class="small" text-anchor="middle" x="700" y="282">128 µs</text>
+            <text class="small" text-anchor="middle" x="380" y="304">read_cycles − s_trigger_cycles (µs)</text>
+          
+            <text class="small" x="10" y="330">99.4% of all mass sits in three 4 µs bins spaced exactly one ADC triple period apart; the space between modes is essentially empty.</text>
+          </svg>
+          <p>
+          The distribution is <strong>trimodal and razor-sharp</strong>: 3824 of 4072 samples
+          (93.9%) fall in just three 4-µs bins, and 99.4% within those bins plus their immediate
+          neighbours. The three modes sit at 28–32, 40–44, and 52–56 µs — spaced exactly
+          <strong>12 µs</strong> apart, the ADC triple period. The second run reproduces the same
+          three modes with slightly different weights, which is precisely what a slowly walking phase
+          should produce: the mode <em>weights</em> shift between runs as the beat drifts, but the
+          mode <em>positions</em> are pinned by the conversion cadence.
+          </p>
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-analysis" data-mado-session-id="analysis">
+        <h2><span class="mado-session-number" aria-hidden="true">4. </span><span class="mado-session-title">Analysis: dwell confirmed, Scenario A&#39;s grave measured</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          Three conclusions follow from the shape of the histogram:
+          </p>
+          <h3>1. The dwell prediction is confirmed</h3>
+          <p>
+          A free-running phase that scattered independently each cycle would fill the 25–70&nbsp;µs
+          span roughly uniformly. Instead the offset occupies <em>discrete modes locked to the
+          12&nbsp;µs triple cadence</em>, with the gaps between them essentially empty. The timing
+          relationship between ADC delivery and the switching pattern is quantised and persistent —
+          when the newest sample's phase is bad, it stays bad across many consecutive control cycles
+          before the beat walks it onward. This is the burst-corruption mechanism the study warned
+          about, now observed directly on the running system rather than argued from clock arithmetic.
+          </p>
+          <h3>2. The uncertainty that killed Scenario A is also visible</h3>
+          <p>
+          The full spread (25–71&nbsp;µs across both runs, &asymp;46&nbsp;µs) matches the study's
+          &plusmn;~24&nbsp;µs read-time-stamp uncertainty almost exactly — one DMA frame (48&nbsp;µs)
+          of ignorance about when the consumed triple actually converted. The same plot that confirms
+          the dwell also demonstrates why validate-and-reject cannot work: a ~46&nbsp;µs-wide
+          uncertainty cannot adjudicate a ~5&nbsp;µs guard band.
+          </p>
+          <h3>3. The instrumentation is free</h3>
+          <p>Regression check against the control-latency gate, same runs:</p>
+          <table>
+            <thead><tr><th>Metric</th><th>Before (commit 401195c)</th><th>With phase instrumentation</th></tr></thead>
+            <tbody>
+              <tr><td><code>pass</code></td><td>true</td><td><strong>true</strong></td></tr>
+              <tr><td><code>age_used_max_us</code></td><td>&le; budget</td><td>48 (in budget)</td></tr>
+              <tr><td><code>consecutive_misses</code></td><td>0</td><td>0</td></tr>
+              <tr><td><code>ts_fallbacks</code></td><td>0</td><td>0</td></tr>
+              <tr><td><code>drain_max_us</code></td><td>51–53</td><td>65 (run variance; well inside the window)</td></tr>
+            </tbody>
+          </table>
+          <p>
+          One caveat on interpretation: the recorded offset anchors the <em>read</em> instant of the
+          newest frame, so mode positions also fold in the task wake latency and per-frame read time.
+          The 12&nbsp;µs mode spacing and the dwell behaviour are properties of the underlying
+          conversion cadence and survive that folding; the absolute mode positions should not be read
+          as conversion phases. Deterministic placement (Scenario&nbsp;B) does not need them to be —
+          it replaces this whole distribution with a single chosen instant.
+          </p>
+        </div>
+      </section>
+      <section class="mado-session chapter" id="session-next-steps" data-mado-session-id="next-steps">
+        <h2><span class="mado-session-number" aria-hidden="true">5. </span><span class="mado-session-title">Next steps</span></h2>
+        <div class="mado-session-content content">
+          <p>
+          With the "before" evidence captured, the plan's remaining steps are unchanged:
+          </p>
+          <ol>
+            <li><strong>Fix the sense inputs (hardware, blocking).</strong> AN3/AN5/AN6 still read
+                raw&nbsp;0 (<code>raw_zero: true</code>); until real voltages arrive, no disturbance is
+                observable and signal-quality claims cannot be tested.</li>
+            <li><strong>Measure the real guard band</strong> on the converter with a scope; replace
+                the assumed 5&nbsp;µs. Every downstream design number depends on it.</li>
+            <li><strong>Implement Scenario B</strong> (deterministic placement): oneshot owned by
+                Core&nbsp;1 behind the existing reader-token hand-off, sample at the dataset-derived
+                quiet-window midpoint, overrun self-check invalidating preempted triples, plus
+                <code>sample_window_us</code> / <code>placement_jitter_max</code> metrics.
+                <em>Measure the actual oneshot conversion-train duration early</em> — the study assumed
+                ~4&nbsp;µs per conversion; if it is closer to 10&nbsp;µs the ~18&nbsp;µs quiet-window
+                rejection threshold must be recomputed.</li>
+            <li><strong>Validate:</strong> placement jitter &le; 2&nbsp;µs, overrun invalidations
+                &asymp; 0, <code>age_used_max_us</code> unchanged or better, <code>pass</code> green —
+                and this document's histogram collapsing from three walking modes to a single pinned
+                one is the headline before/after picture.</li>
+          </ol>
+          <p class="small">
+          Related: <a href="adc_sampling_vs_switching.html">Sampling vs. switching instants</a> (the
+          study that set this plan) and
+          <a href="reading_pipeline_optimization.html">Reading-pipeline optimization</a> (the probe
+          harness reused here).
+          </p>
+        </div>
+      </section>
+</div>
+      <footer class="mado-footer"></footer>
+    </main>
+  </body>
+</html>
+

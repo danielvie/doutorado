@@ -770,6 +770,10 @@ bool signal_dma_engine_is_active() {
     return s_dma_active.load(std::memory_order_acquire);
 }
 
+uint32_t signal_dma_trigger_cycles(void) {
+    return s_trigger_cycles;
+}
+
 bool signal_dma_engine_start() {
     if (s_dma_active.load(std::memory_order_acquire)) {
         ESP_LOGW(TAG, "DMA engine already active");
