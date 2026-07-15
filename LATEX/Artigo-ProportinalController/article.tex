@@ -1,0 +1,318 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage{siunitx}
+\usepackage[margin=25mm]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+\graphicspath{{figures/}}
+\input{results/metrics.tex}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\vect}[1]{\bm{#1}}
+\newcommand{\dtau}{\delta\vect{\tau}}
+
+\title{Constraint-Conditioned Proportional Switching-Time Control\\
+for a Three-Cell Switched-Affine DC--DC Converter}
+\author{Daniel Vieira\\
+Instituto Tecnol\'ogico de Aeron\'autica}
+\date{First draft -- \today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Switched-affine power converters can be regulated by changing when their operating modes switch rather than by commanding a continuous input amplitude. This paper develops a low-complexity cycle-to-cycle controller for that setting. A first-order model maps the state error at one cycle boundary and the perturbations of the nominal switching instants to the error at the next boundary. A discrete linear-quadratic design supplies a static proportional feedback gain. Because unconstrained feedback can produce infeasible switching schedules, a scalar conditioning step contracts the complete perturbation vector until every dwell interval satisfies its lower bound. The method is evaluated in simulation on a three-cell multilevel DC--DC converter with eight operating modes and a minimum dwell time of \SI{3}{\micro\second}. Starting from a large perturbation, the normalized cycle-to-cycle error decreases from \InitialNormalizedError{} to \ControlledFinalError{} after \SimulationCycles{} cycles, a reduction of \ControlledErrorReduction{}, while the shortest observed dwell interval remains \MinimumObservedDwell{}~\si{\micro\second}. The results establish the proportional controller as a computationally inexpensive constrained baseline for periodic-orbit stabilization, while also exposing its local-model and uniform-scaling limitations.
+\end{abstract}
+
+\noindent\textbf{Keywords:} switched-affine systems; periodic-orbit stabilization; proportional state feedback; switching-time control; dwell-time constraints; DC--DC converter.
+
+\section{Introduction}
+
+Switched-affine systems evolve according to one of a finite number of affine vector fields. In power electronics, the active vector field is selected by the switch configuration. Practical devices cannot switch arbitrarily fast, so each mode must remain active for at least a minimum dwell time. Under such timing constraints, the meaningful steady behavior is generally a periodic orbit rather than a static equilibrium \cite{benmiloud2019,egidio2020,vieira2024}.
+
+A useful control architecture first determines a nominal mode sequence and switching schedule that generate a desired periodic orbit, then perturbs the internal switching instants to reject cycle-to-cycle deviations. Predictive formulations can impose dwell-time constraints directly, but require a constrained optimization at each update \cite{patino2010,marcolino2021,vieira2024}. This work isolates the simpler feedback law already implicit in the terminal linear-quadratic design: a static, proportional map from the cycle-to-cycle state error to switching-time perturbations.
+
+The term \emph{proportional controller} requires care. The proposed controller is not a conventional scalar P controller and does not manipulate voltage, current, or duty ratio directly. It is a multi-input state-feedback law whose manipulated variables are signed displacements of switching instants. Its unconstrained output is followed by uniform dwell-time conditioning. This distinction is maintained throughout the paper and in the accompanying domain glossary.
+
+The contribution of this draft is threefold:
+\begin{enumerate}
+    \item a concise derivation of the cycle-to-cycle proportional switching-time controller from the linearized periodic dynamics;
+    \item an explicit conditioning rule that guarantees the minimum dwell time without an online optimization problem; and
+    \item a reproducible simulation study using the current MATLAB model of the three-cell converter.
+\end{enumerate}
+
+\section{Switched-Affine Periodic-Orbit Model}
+\label{sec:model}
+
+\subsection{Plant and nominal orbit}
+
+Consider the switched-affine plant
+\begin{equation}
+    \dot{\vect{x}}(t)
+    = A_{\sigma(t)}\vect{x}(t) + \vect{b}_{\sigma(t)},
+    \qquad \vect{x}(t)\in\R^n,
+    \label{eq:plant}
+\end{equation}
+where $\sigma(t)$ selects one of $M$ operating modes. During one cycle, a fixed mode sequence
+$\bm{\Omega}=(\omega_1,\ldots,\omega_N)$ is applied at nominal switching instants
+\begin{equation}
+    0=\bar\tau_0 < \bar\tau_1 < \cdots < \bar\tau_N=T_p.
+\end{equation}
+The associated nominal dwell intervals are
+$\bar d_i=\bar\tau_i-\bar\tau_{i-1}$.
+
+The nominal schedule generates a target periodic orbit $\bar{\vect{x}}(t)$ satisfying
+$\bar{\vect{x}}(T_p)=\bar{\vect{x}}(0)$. Its cycle-boundary state is denoted by
+$\vect{x}^\star=\bar{\vect{x}}(0)$. This point must not be confused with the desired average operating point about which the orbit oscillates.
+
+For mode $\omega_i$, exact propagation over a dwell interval $d_i$ can be written with an augmented matrix exponential,
+\begin{equation}
+\begin{bmatrix}
+    \vect{x}(\tau_i)\\ 1
+\end{bmatrix}
+=
+\exp\!\left(
+\begin{bmatrix}
+    A_{\omega_i} & \vect{b}_{\omega_i}\\
+    \vect{0}^{\mathsf T} & 0
+\end{bmatrix}d_i
+\right)
+\begin{bmatrix}
+    \vect{x}(\tau_{i-1})\\ 1
+\end{bmatrix}.
+\label{eq:exact-propagation}
+\end{equation}
+This expression is also used by the simulation to avoid numerical integration error within each constant-mode segment.
+
+\subsection{One-cycle linearization}
+
+At cycle $k$, the internal switching instants are perturbed according to
+\begin{equation}
+    \tau_{k,i}=\bar\tau_i+\delta\tau_{k,i},
+    \qquad i=1,\ldots,N-1,
+\end{equation}
+with fixed cycle boundaries $\delta\tau_{k,0}=\delta\tau_{k,N}=0$. Define the cycle-to-cycle error
+\begin{equation}
+    \vect{e}_k=\vect{x}_k-\vect{x}^{\star},
+\end{equation}
+where $\vect{x}_k$ is the state sampled at the beginning of cycle $k$. First-order expansion around the target periodic orbit gives \cite{marcolino2021,vieira2024}
+\begin{equation}
+    \vect{e}_{k+1}=\Phi\vect{e}_k+\Gamma\dtau_k,
+    \label{eq:cycle-model}
+\end{equation}
+where $\Phi\in\R^{n\times n}$ is the nominal one-cycle transition matrix and
+$\Gamma\in\R^{n\times(N-1)}$ is the sensitivity to the internal switching-time perturbations.
+
+The columns of $\Gamma$ encode the vector-field change at each nominal switching instant. For an internal switch from mode $i$ to mode $i+1$, the corresponding sensitivity has the form
+\begin{equation}
+    \Gamma_i =
+    \left(\prod_{j=i+1}^{N}F_j\right)
+    \left[(A_i-A_{i+1})\bar{\vect{x}}(\bar\tau_i)
+    +\vect{b}_i-\vect{b}_{i+1}\right],
+    \label{eq:gamma}
+\end{equation}
+where $F_j=\exp(A_j\bar d_j)$. Equation~\eqref{eq:cycle-model} is local: its accuracy decreases as the state and switching schedule move away from the nominal orbit.
+
+\section{Proportional Switching-Time Controller}
+\label{sec:controller}
+
+\subsection{Linear-quadratic gain}
+
+The raw control law is the static state feedback
+\begin{equation}
+    \dtau_k^{\mathrm{raw}}=-K\vect{e}_k.
+    \label{eq:control-law}
+\end{equation}
+The gain is obtained from the discrete-time linear-quadratic regulator for $(\Phi,\Gamma)$,
+\begin{equation}
+    K=\operatorname{dlqr}(\Phi,\Gamma,Q,R),
+\end{equation}
+which minimizes the infinite-horizon quadratic criterion associated with
+\begin{equation}
+    \sum_{k=0}^{\infty}
+    \left(\vect{e}_k^{\mathsf T}Q\vect{e}_k
+    +\dtau_k^{\mathsf T}R\dtau_k\right).
+\end{equation}
+Thus, \emph{proportional} denotes a memoryless linear relation between the sampled state error and the switching-time perturbation vector. The matrix gain is synthesized from the local one-cycle model rather than tuned as an independent scalar.
+
+\subsection{Dwell-time conditioning}
+
+The dwell interval produced by a candidate perturbation is
+\begin{equation}
+    d_{k,i}=\bar d_i+\delta\tau_{k,i}-\delta\tau_{k,i-1}.
+    \label{eq:dwell}
+\end{equation}
+The hardware constraint is
+\begin{equation}
+    d_{k,i}\ge d_{\min},\qquad i=1,\ldots,N.
+    \label{eq:dwell-constraint}
+\end{equation}
+Direct componentwise clipping of $\dtau_k^{\mathrm{raw}}$ does not guarantee \eqref{eq:dwell-constraint}, because each internal switching instant affects two adjacent dwell intervals. Instead, define
+\begin{equation}
+    \Delta d_{k,i}
+    =\delta\tau_{k,i}^{\mathrm{raw}}
+    -\delta\tau_{k,i-1}^{\mathrm{raw}}.
+\end{equation}
+A single conditioning factor $\beta_k\in[0,1]$ is selected as
+\begin{equation}
+\beta_k=
+\min\!\left\{
+1,
+\min_{i:\,\Delta d_{k,i}<0}
+\frac{d_{\min}-\bar d_i}{\Delta d_{k,i}}
+\right\},
+\label{eq:conditioning}
+\end{equation}
+where the inner minimum is omitted when no interval shrinks. The applied perturbation is
+\begin{equation}
+    \dtau_k=\beta_k\dtau_k^{\mathrm{raw}}.
+    \label{eq:conditioned-control}
+\end{equation}
+Because all nominal intervals satisfy $\bar d_i\ge d_{\min}$, the ratios in \eqref{eq:conditioning} are nonnegative and the resulting schedule satisfies \eqref{eq:dwell-constraint}. The method preserves the direction of the raw LQR action, but sacrifices its magnitude whenever a dwell constraint becomes active.
+
+The online work consists of one matrix--vector multiplication, interval differences, scalar comparisons, and one vector scaling. No quadratic program is solved. This simplicity is the main advantage over constrained predictive control, but uniform scaling can be conservative because one active interval attenuates every switching-time perturbation.
+
+\section{Three-Cell Converter Case Study}
+\label{sec:case-study}
+
+\subsection{Converter model}
+
+The simulated plant is a three-cell multilevel DC--DC converter with
+$\vect{x}=[v_{C_1},v_{C_2},i_L]^{\mathsf T}$. For binary switch commands
+$u_1,u_2,u_3\in\{0,1\}$, its mode-dependent dynamics are
+\begin{equation}
+A_{\vect{u}}=
+\begin{bmatrix}
+0 & 0 & (u_2-u_1)/C_1\\
+0 & 0 & (u_3-u_2)/C_2\\
+(u_1-u_2)/L & (u_2-u_3)/L & -R/L
+\end{bmatrix},
+\qquad
+\vect{b}_{\vect{u}}=
+\begin{bmatrix}
+0\\0\\Eu_3/L
+\end{bmatrix}.
+\label{eq:converter}
+\end{equation}
+The model therefore has eight operating modes. The parameters used by the current MATLAB configuration are listed in \cref{tab:parameters}.
+
+\begin{table}[ht]
+    \centering
+    \caption{Simulation parameters from the current \texttt{PATINO\_2} configuration.}
+    \label{tab:parameters}
+    \begin{tabular}{lll}
+        \toprule
+        Quantity & Symbol & Value \\
+        \midrule
+        Source voltage & $E$ & \SI{30}{\volt} \\
+        Capacitances & $C_1,C_2$ & \SI{40}{\micro\farad} \\
+        Inductance & $L$ & \SI{10}{\milli\henry} \\
+        Load resistance & $R$ & \SI{10}{\ohm} \\
+        Nominal period & $T_p$ & \SI{286}{\micro\second} \\
+        Minimum dwell time & $d_{\min}$ & \SI{3}{\micro\second} \\
+        State weight & $Q$ & $I_3$ \\
+        Timing weight & $R$ & $I_8$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The MATLAB-indexed mode sequence is
+\begin{equation}
+    \bm{\Omega}=(1,2,4,8,3,1,5,8,5),
+\end{equation}
+corresponding to binary physical modes $0$ through $7$. The nominal switching schedule in microseconds is
+\begin{equation}
+    \bar{\vect{\tau}}=
+    (0,66,88,110,132,154,220,242,264,286).
+\end{equation}
+The current configuration defines the cycle-boundary state of the target periodic orbit as
+\begin{equation}
+    \vect{x}^{\star}=
+    [9.9247,\ 19.2928,\ 0.9823]^{\mathsf T}.
+\end{equation}
+The desired average operating point is $[10,20,1]^{\mathsf T}$; it is used to design the orbit but not as the cycle-boundary feedback target.
+
+These values differ from the older thesis snapshot, which reports
+$[9.5143,19.8211,1.0314]^{\mathsf T}$ and a slightly different switching schedule \cite{vieira2024}. To keep the numerical study reproducible, this article uses the current MATLAB configuration consistently. The result-generation script also passes \SI{3}{\micro\second}, rather than \SI{3e-6}{\micro\second}, to the controller interface because that interface receives microseconds.
+
+\subsection{Simulation protocol and metric}
+
+The exact segment propagation in \eqref{eq:exact-propagation} is used for \SimulationCycles{} cycles. The initial state is
+\begin{equation}
+    \vect{x}_0=[7.51,\ 20.82,\ 0.03]^{\mathsf T}.
+\end{equation}
+Controlled and open-loop runs use the same initial state and nominal mode sequence. To compare states with different units and magnitudes, the reported cycle-to-cycle metric is
+\begin{equation}
+    \varepsilon_k=
+    \left\|
+    \operatorname{diag}(10,20,1)^{-1}
+    (\vect{x}_k-\vect{x}^{\star})
+    \right\|_2.
+    \label{eq:normalized-error}
+\end{equation}
+The experiment is generated by \texttt{scripts/generate\_results.m}; scalar values used in the text are emitted to \texttt{results/metrics.tex}.
+
+\section{Results}
+\label{sec:results}
+
+\Cref{fig:state-response} compares the continuous state trajectories. The controlled response approaches the neighborhood of the target orbit, whereas the open-loop response remains associated with a different cycle-boundary behavior over the simulated interval.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\linewidth]{state_response.pdf}
+    \caption{State response with proportional switching-time control and in open loop. The dotted values mark the cycle-boundary target, not the complete periodic waveform.}
+    \label{fig:state-response}
+\end{figure}
+
+The normalized error in \cref{fig:cycle-error} decreases from \InitialNormalizedError{} to \ControlledFinalError{} after \SimulationCycles{} cycles, corresponding to a \ControlledErrorReduction{} reduction. The open-loop error ends at \OpenLoopFinalError{}, a reduction of only \OpenLoopErrorReduction{} over the same interval. The nonzero controlled residual is consistent with the nonlinear periodic plant, the local first-order model, and activation of the timing conditioner.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\linewidth]{cycle_error.pdf}
+    \caption{Normalized cycle-to-cycle error defined by \eqref{eq:normalized-error}.}
+    \label{fig:cycle-error}
+\end{figure}
+
+\Cref{fig:timing-action} shows the manipulated variables and the shortest dwell interval in each of the first 20 cycles. The largest applied switching-time perturbation is \MaximumPerturbation{}~\si{\micro\second}. The shortest observed dwell interval over the complete run is \MinimumObservedDwell{}~\si{\micro\second}, equal to the prescribed lower bound. The result numerically confirms that conditioning prevents infeasible schedules for this experiment.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\linewidth]{timing_action.pdf}
+    \caption{Applied switching-time perturbations and shortest dwell interval per cycle.}
+    \label{fig:timing-action}
+\end{figure}
+
+The state-space view in \cref{fig:state-trajectory} emphasizes that the controller does not drive the continuous state to a static point. It aligns the cycle boundary with the selected phase of the target periodic orbit while the state continues to traverse the orbit within every switching cycle.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.82\linewidth]{state_trajectory.pdf}
+    \caption{Controlled and open-loop trajectories in converter state space.}
+    \label{fig:state-trajectory}
+\end{figure}
+
+\section{Discussion}
+
+The simulation supports the use of proportional switching-time feedback as a low-cost baseline. Once $K$ is computed offline, the online controller does not depend on a prediction horizon or an optimization solver. It also makes the actuator constraint explicit in timing coordinates, where dwell-time feasibility can be checked directly.
+
+Four limitations qualify the result. First, the one-cycle model is a first-order approximation around one phase of one periodic orbit, so the feedback law has no global convergence guarantee. Second, the uniform factor in \eqref{eq:conditioning} is conservative: one critical dwell interval scales all perturbations. Third, conditioning changes the effective closed-loop gain and therefore invalidates the unconstrained LQR optimality claim whenever $\beta_k<1$. Fourth, the present evidence is deterministic simulation only; measurement noise, parameter uncertainty, computation delay, timer quantization, and switching losses remain outside the experiment.
+
+The controller should consequently be interpreted as a constrained baseline and a possible fallback law, not as a replacement for predictive control in all operating regions. A useful next comparison would hold the target orbit, model, initial conditions, and timing constraints fixed while measuring convergence, computation time, and feasible region for this controller and the dwell-time-constrained MPC formulation.
+
+\section{Conclusion}
+
+A proportional controller for periodic-orbit stabilization of switched-affine systems was formulated directly in switching-time coordinates. The controller uses a discrete LQR gain on the local one-cycle error model and a scalar conditioning operation to satisfy minimum dwell time. In the current three-cell converter simulation, it reduces the normalized cycle-to-cycle error by \ControlledErrorReduction{} over \SimulationCycles{} cycles while maintaining the \SI{3}{\micro\second} dwell-time bound. The approach is computationally simple and physically interpretable, but remains local and can become conservative when its uniform conditioner is active. Experimental validation and a controlled comparison with constrained MPC are required before stronger robustness or real-time claims can be made.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

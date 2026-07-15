@@ -1,0 +1,36 @@
+version: '3'
+
+vars:
+  DOCUMENT: article
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+
+  figures:
+    desc: Regenerate simulation figures and metrics with MATLAB
+    cmds:
+      - matlab -batch "run('scripts/generate_results.m')"
+
+  build:
+    desc: Compile the article PDF
+    cmds:
+      - latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build {{.DOCUMENT}}.tex
+
+  run:
+    desc: Build the article
+    deps: [build]
+
+  clean:
+    desc: Remove generated LaTeX build files
+    cmds:
+      - latexmk -C -outdir=build {{.DOCUMENT}}.tex
+      - rm -rf build
+
+  verify:
+    desc: Regenerate results and compile the article
+    cmds:
+      - task: figures
+      - task: build
