@@ -14,7 +14,9 @@ Repository for thesis writing, simulations, embedded experiments, presentations,
 
 | Need | Go to |
 | --- | --- |
-| Thesis, papers, planning, feedback, notes | [`manuscripts/`](manuscripts/) |
+| Thesis and paper LaTeX sources | [`LATEX/`](LATEX/) |
+| Planning, feedback, and supporting notes | [`research-notes/`](research-notes/) |
+| Shared diagrams and writing assets | [`assets/`](assets/) |
 | Current MATLAB simulations/control code | [`simulations/matlab-sim-sim/`](simulations/matlab-sim-sim/) |
 | Older MATLAB simulations | [`simulations/legacy/`](simulations/legacy/) |
 | Projection/feasibility-region MATLAB work | [`simulations/projection/`](simulations/projection/) |
@@ -36,7 +38,7 @@ Important tasks:
 - `task run` opens generated overview documentation.
 - `task test` validates generated overview documentation.
 - `task clean` removes generated overview documentation.
-- `task update-tese` copies `manuscripts/thesis/latex/build/tese.pdf` to the repository root.
+- `task update-tese` copies `LATEX/thesis/build/tese.pdf` to the repository root.
 
 ## Navigation conventions
 

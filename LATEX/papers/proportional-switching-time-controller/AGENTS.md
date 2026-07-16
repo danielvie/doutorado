@@ -5,8 +5,11 @@
 - embedded ESP code is located at:
   "C:/Users/daniel/Documents/doutorado.git/embedded/esp32_idf/"
 
-- LATEX projects are located at
+- LaTeX projects are located at:
   "C:/Users/daniel/Documents/doutorado.git/LATEX/"
 
-- Thesis is located at
-  "C:/Users/daniel/Documents/doutorado.git/LATEX/Tese/"
+- this paper is located at:
+  "C:/Users/daniel/Documents/doutorado.git/LATEX/papers/proportional-switching-time-controller/"
+
+- Thesis is located at:
+  "C:/Users/daniel/Documents/doutorado.git/LATEX/thesis/"

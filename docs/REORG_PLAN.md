@@ -4,17 +4,19 @@ This document records the implemented target structure for making the repository
 
 ## Principle
 
-Organize by workstream, not by file type.
+Keep LaTeX source, research notes, and shared assets separate so each has an obvious home.
 
-The main workstreams are:
+The main work areas are:
 
-1. Manuscripts
-2. Simulations and analysis
-3. Embedded experiments
-4. References
-5. Presentations
-6. External/vendor material
-7. Sandbox experiments
+1. LaTeX source
+2. Research notes
+3. Shared assets
+4. Simulations and analysis
+5. Embedded experiments
+6. References
+7. Presentations
+8. External/vendor material
+9. Sandbox experiments
 
 ## Current top-level structure
 
@@ -25,7 +27,9 @@ doutorado.git/
 ├── Taskfile.yml
 ├── tese.pdf
 │
-├── manuscripts/
+├── LATEX/
+├── research-notes/
+├── assets/
 ├── simulations/
 ├── embedded/
 ├── references/
@@ -37,30 +41,36 @@ doutorado.git/
 
 ## Folder mapping
 
-### Manuscripts
+### LaTeX, research notes, and shared assets
 
-Use `manuscripts/` for everything directly related to producing, planning, reviewing, and publishing written academic work.
+Keep authored LaTeX source in `LATEX/`. Keep planning, feedback, and supporting written material in `research-notes/`. Put reusable diagrams and images in `assets/`.
 
 ```text
-manuscripts/
+LATEX/
 ├── thesis/
-├── papers/
+└── papers/
+    ├── flying-capacitor-three-cell-converter/
+    ├── proportional-switching-time-controller/
+    └── publication/
+
+research-notes/
 ├── planning/
 ├── feedback/
-├── notes/
-└── assets/
+└── notes/
+
+assets/
 ```
 
-| Current path | Proposed path | Notes |
+| Previous path | Current path | Notes |
 | --- | --- | --- |
-| `LATEX/Tese/` | `manuscripts/thesis/latex/` | Main thesis source. |
-| `LATEX/Artigo/` | `manuscripts/papers/artigo/` | Article source. |
-| `publication/` | `manuscripts/papers/` | Publication drafts. |
-| `plan/` | `manuscripts/planning/qualification/` | Qualification and planning material. |
-| `comentarios/` | `manuscripts/feedback/` | Review/comments material. |
-| root `TODO` | `manuscripts/planning/TODO.md` or keep at root temporarily | Move only after deciding it is mostly writing/planning work. |
-| `docs/README_NOTES_ARCHIVE.md` | `manuscripts/notes/README_NOTES_ARCHIVE.md` | Historical writing notes, if desired. |
-| root `drawing.svg` | `manuscripts/assets/` | Only if it belongs to thesis/paper writing. |
+| `manuscripts/thesis/latex/` | `LATEX/thesis/` | Main thesis source. |
+| `manuscripts/papers/artigo/` | `LATEX/papers/flying-capacitor-three-cell-converter/` | Hardware article source. |
+| `manuscripts/papers/proportional-switching-time-controller/` | `LATEX/papers/proportional-switching-time-controller/` | Proportional controller article source. |
+| `manuscripts/papers/publication/` | `LATEX/papers/publication/` | Publication LaTeX drafts and templates. |
+| `manuscripts/planning/` | `research-notes/planning/` | Qualification and planning material. |
+| `manuscripts/feedback/` | `research-notes/feedback/` | Review/comments material. |
+| `manuscripts/notes/` | `research-notes/notes/` | Supporting notes and documents. |
+| `manuscripts/assets/` | `assets/` | Shared diagrams and images. |
 
 ### Simulations and analysis
 
@@ -114,7 +124,7 @@ references/
 | --- | --- | --- |
 | `documentos/referencias/` | `references/` | Academic and technical references. |
 | `z_tutoriais/` | `references/tutorials/` | Tutorial material. |
-| `documentos/` non-reference files | Decide case by case | Some belong in `manuscripts/`, some in `references/`. |
+| `documentos/` non-reference files | Decide case by case | Some belong in `research-notes/`, some in `references/`. |
 
 ### Presentations
 

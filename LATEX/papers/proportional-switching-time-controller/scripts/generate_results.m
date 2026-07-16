@@ -2,7 +2,7 @@
 % Run from the article root with: matlab -batch "run('scripts/generate_results.m')"
 
 article_dir = fileparts(fileparts(mfilename('fullpath')));
-simulation_dir = fullfile(article_dir, '..', '..', 'simulations', 'matlab-sim');
+simulation_dir = fullfile(article_dir, '..', '..', '..', 'simulations', 'matlab-sim');
 addpath(simulation_dir);
 
 figures_dir = fullfile(article_dir, 'figures');

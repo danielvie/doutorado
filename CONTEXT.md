@@ -8,9 +8,17 @@ This file defines the repository's domain vocabulary. It is a glossary only; imp
 
 The complete workspace for the doctorate project, including thesis writing, simulations, embedded experiments, presentations, publications, planning material, and research references.
 
-### Manuscripts
+### LaTeX source
 
-The workstream for producing, planning, reviewing, and publishing academic written outputs. It includes the thesis, articles, qualification/planning material, feedback, notes, and assets used by those written outputs.
+LaTeX projects for the thesis and papers, maintained under `LATEX/`.
+
+### Research notes
+
+Planning, review feedback, and supporting written material maintained under `research-notes/`.
+
+### Shared asset
+
+A diagram, image, or other reusable resource maintained under `assets/`.
 
 ### Thesis
 

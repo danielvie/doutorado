@@ -8,7 +8,9 @@ For the migration rationale and old-to-new folder mapping, see [`REORG_PLAN.md`]
 
 | Path | Purpose | Start here |
 | --- | --- | --- |
-| `manuscripts/` | Thesis, papers, planning, feedback, notes, and manuscript assets. | `manuscripts/thesis/`, `manuscripts/papers/`, `manuscripts/planning/` |
+| `LATEX/` | Thesis and paper LaTeX source. | `LATEX/thesis/`, `LATEX/papers/` |
+| `research-notes/` | Planning, feedback, and supporting research notes. | `research-notes/planning/`, `research-notes/feedback/`, `research-notes/notes/` |
+| `assets/` | Shared diagrams and writing assets. | `assets/` |
 | `simulations/matlab-sim-sim/` | Current MATLAB simulation/control codebase. | `simulations/matlab-sim-sim/README.md`, `simulations/matlab-sim-sim/DOCS/GETTING_STARTED.md` |
 | `simulations/legacy/` | Older MATLAB simulation package retained for reference. | `simulations/legacy/` |
 | `simulations/projection/` | MATLAB projection/feasibility-region work. | `simulations/projection/docs/context_projection.md` |
@@ -20,17 +22,18 @@ For the migration rationale and old-to-new folder mapping, see [`REORG_PLAN.md`]
 | `sandbox/` | Experiments and scratch work. | Treat as non-canonical unless a task points there. |
 | `docs/` | Repository-level documentation, setup notes, and generated overview docs. | `docs/REORG_PLAN.md`, `docs/setup/` |
 
-## Manuscripts layout
+## LaTeX and research-material layout
 
 | Path | Purpose |
 | --- | --- |
-| `manuscripts/thesis/latex/` | Main thesis LaTeX source. |
-| `manuscripts/papers/artigo/` | Article LaTeX source. |
-| `manuscripts/papers/publication/` | Publication drafts. |
-| `manuscripts/planning/` | TODOs, qualification material, and planning notes. |
-| `manuscripts/feedback/` | Review/comments material. |
-| `manuscripts/notes/` | Supporting notes and documents. |
-| `manuscripts/assets/` | Shared writing assets. |
+| `LATEX/thesis/` | Main thesis LaTeX source. |
+| `LATEX/papers/flying-capacitor-three-cell-converter/` | Hardware article LaTeX source. |
+| `LATEX/papers/proportional-switching-time-controller/` | Proportional switching-time control article source and generated results. |
+| `LATEX/papers/publication/` | Publication LaTeX drafts and templates. |
+| `research-notes/planning/` | TODOs, qualification material, and planning notes. |
+| `research-notes/feedback/` | Review/comments material. |
+| `research-notes/notes/` | Supporting notes and documents. |
+| `assets/` | Shared diagrams and writing assets. |
 
 ## Embedded layout
 
