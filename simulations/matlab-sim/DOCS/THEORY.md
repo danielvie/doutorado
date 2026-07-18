@@ -8,18 +8,18 @@ Physics and MPC formulation. Skip this if you just want to run simulations.
 
 $$x = [v_{C1}, v_{C2}, i_L]^T$$
 
-### Converter Modes
+### Converter Switch States and Physical Mode IDs
 
-3 switching cells → $2^3 = 8$ modes (0-7):
+3 switching cells → $2^3 = 8$ switch states with physical mode IDs 0-7:
 
-| Mode | $u_1$ | $u_2$ | $u_3$ | Binary |
-|------|-------|-------|-------|--------|
+| Physical mode ID | $u_1$ | $u_2$ | $u_3$ | Binary |
+|------------------|-------|-------|-------|--------|
 | 0 | 0 | 0 | 0 | 000 |
 | 1 | 0 | 0 | 1 | 001 |
 | ... | ... | ... | ... | ... |
 | 7 | 1 | 1 | 1 | 111 |
 
-> MATLAB uses 1-indexing: Mode 1 = physical mode 0.
+> MATLAB dynamics index 1 selects physical mode ID 0. Keep dynamics indices and physical mode IDs distinct.
 
 ### Dynamics per Mode
 
@@ -44,13 +44,17 @@ $$\begin{bmatrix} x_{next} \\ 1 \end{bmatrix} = F_a \begin{bmatrix} x_{curr} \\ 
 
 ### Linearization at Switching Instants
 
-$$e(t_N) = \Phi \cdot e(t_0) + \Gamma \cdot \delta t$$
+$$e(t_N) = \Phi \cdot e(t_0) + \Gamma \cdot \delta \tau$$
 
 Where:
-- $e = x - x_{target}$ (state error)
-- $\delta t = [\delta t_1, ..., \delta t_{N-1}]^T$ (control: timing deviations)
+- $e = x - x_{target}$ (tracking error: actual minus active setpoint)
+- $\delta \tau = [\delta \tau_1, ..., \delta \tau_{N-1}]^T$ (switching-instant offsets)
 - $\Phi = F_N \cdot F_{N-1} \cdots F_1$ (one-cycle propagation)
 - $\Gamma_j = \left(\prod_{k=j+1}^{N} F_k\right) \cdot \left[(A_j - A_{j+1})\bar{x}(t_j) + b_j - b_{j+1}\right]$
+
+Here the active state setpoint is the nominal-orbit state at the controlled
+cycle phase. At the cycle-start boundary it is the orbit anchor. The desired
+operating point used to design the orbit is a separate quantity.
 
 ### Prediction Model
 
@@ -58,11 +62,11 @@ Over horizon $N_p$:
 
 $$\mathbf{e} = H \cdot \mathbf{u} + \Phi_{1:N_p} \cdot e_k$$
 
-Where $\mathbf{u} = [\delta t_1^T, ..., \delta t_{N_p}^T]^T$
+Where $\mathbf{u} = [\delta \tau_1^T, ..., \delta \tau_{N_p}^T]^T$
 
 ### Cost Function (Dual-Mode)
 
-$$J = \sum_{i=1}^{N_p} \left( e_i^T Q e_i + \delta t_i^T R \delta t_i \right) + e_{N_p}^T P_f e_{N_p}$$
+$$J = \sum_{i=1}^{N_p} \left( e_i^T Q e_i + \delta \tau_i^T R \delta \tau_i \right) + e_{N_p}^T P_f e_{N_p}$$
 
 Terminal cost $P_f$ from discrete Lyapunov equation:
 
@@ -72,9 +76,9 @@ With $\bar{\Phi} = \Phi - \Gamma K$ and $K$ from `dlqr(Φ, Γ, Q, R)`.
 
 ### Constraints
 
-**Switching constraints** (minimum dwell time):
+**Minimum dwell constraint**:
 
-$$L \cdot \delta t \leq c$$
+$$L \cdot \delta \tau \geq c, \qquad c = d_{min} - d_{nominal}$$
 
 **Terminal set** (MPT Toolbox):
 
@@ -88,15 +92,27 @@ $$\min_{\mathbf{u}} \frac{1}{2} \mathbf{u}^T H_{qp} \mathbf{u} + f_{qp}^T \mathb
 
 $$\text{s.t.} \quad A_{qp} \mathbf{u} \leq b_{qp}$$
 
-## Augmented Model (Control Delay)
+## Held-Input Block Model
 
-For $N_d$-step delay compensation:
+A newly computed action applies immediately and remains constant for a block
+of $N_d$ switching cycles. One prediction transition spans that block:
 
-$$X_a = \begin{bmatrix} x \\ \delta t_{prev} \end{bmatrix}, \quad
-A_a = \begin{bmatrix} \Phi^{N_d} & B_b \\ 0 & 0 \end{bmatrix}, \quad
+$$A_b = \Phi^{N_d}, \qquad
+B_b = \left(\sum_{i=0}^{N_d-1} \Phi^i\right) \Gamma$$
+
+Thus $N_d$ is both the control update period and prediction-block length. It
+is not an actuation delay.
+
+### Experimental One-Block-Delay Model
+
+`Enums.StateMode.AUGMENTED` retains the thesis's ambiguous delayed formulation:
+
+$$X_a = \begin{bmatrix} e \\ \delta \tau_{prev} \end{bmatrix}, \quad
+A_a = \begin{bmatrix} A_b & B_b \\ 0 & 0 \end{bmatrix}, \quad
 B_a = \begin{bmatrix} 0 \\ I \end{bmatrix}$$
 
-Where $B_b = \left(\sum_{i=0}^{N_d-1} \Phi^i\right) \Gamma$
+This model delays a newly selected action by one prediction block. The normal
+`Simulation.run` path has no such delay, so this formulation is experimental.
 
 ## Circuit Parameters
 
@@ -122,15 +138,15 @@ Where $B_b = \left(\sum_{i=0}^{N_d-1} \Phi^i\right) \Gamma$
 
 ## Periodic Orbit
 
-Equilibrium $x_0$ satisfies:
+The orbit anchor $\bar{x}_0$ satisfies:
 
-$$x_0 = (I - FF)^{-1} \cdot c$$
+$$\bar{x}_0 = (I - FF)^{-1} \cdot c$$
 
 Where $FF = F_N \cdots F_1$ (full cycle propagation).
 
 ## Feasibility Region Projection
 
-The feasibility region is the set of initial errors $e_0 = x_0 - x_{target}$ for which the MPC optimization remains feasible over a prediction horizon $N_p$.
+The finite-horizon feasible set contains predictor states for which an admissible plan exists over $N_p$ model transitions and satisfies the terminal constraint. This is current QP feasibility, not by itself recursive feasibility.
 
 ### Constraint Polytope
 
@@ -139,7 +155,7 @@ At each prediction step, the error evolves as:
 $$\mathbf{e} = H \cdot \mathbf{u} + \Phi_{1:N_p} \cdot e_k$$
 
 Subject to:
-- Switching constraints: $L \cdot \delta t \leq c$
+- Minimum dwell constraints: $L \cdot \delta \tau \geq c$
 - Terminal set: $S_f \cdot e_{N_p} \leq b_f$
 
 ### Projection via MPT3

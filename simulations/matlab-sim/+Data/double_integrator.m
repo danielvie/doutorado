@@ -33,8 +33,7 @@ function config = double_integrator()
       % time step of the simulation
       config.tstep = 0.01;
 
-      % reference state vector
-      % [pos, vel]
+      % desired operating point [position, velocity]
       config.xref  = [2, -1];
 
       % weighting matrix for the trajectory computation

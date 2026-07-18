@@ -1,16 +1,6 @@
-function set_offset(self, offset)
-    % set_offset - Configures the offset for the simulation.
-    %
-    % This function sets the offset value in the simulation configuration.
-    %
-    % Inputs:
-    %   self   - Instance of the Simulation class.
-    %   offset - Offset value to be set.
-    %
-    % Outputs:
-    %   None. The function modifies the simulation object's configuration in place.
+function set_offset(self, initial_state_disturbance)
+    % Apply an additive disturbance to the simulation initial state.
 
-    % Set the offset in the simulation configuration
-    offset_shaped = reshape(offset, size(self.m_config.x0));
-    self.m_config.x0 = self.m_config.x0 + offset_shaped;
+    disturbance = reshape(initial_state_disturbance, size(self.m_config.x0));
+    self.m_config.x0 = self.m_config.x0 + disturbance;
 end

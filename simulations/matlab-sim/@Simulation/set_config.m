@@ -19,4 +19,7 @@ function success = set_config(self, sim_name)
             disp('ERROR: `sim_name` value not valid as an argument')
     end
 
+    if success
+        self.m_config.orbit_anchor = self.m_config.x0;
+    end
 end

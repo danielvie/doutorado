@@ -104,6 +104,7 @@ function run_tests()
     z_run.Tests.check_values();
     z_run.Tests.test_basic();
     z_run.Tests.test_dlqr_behavior();
+    z_run.Tests.test_domain_model();
     z_run.Tests.test_industrial_solution();
     z_run.Tests.test_mpc_on();
     z_run.Tests.test_run_flow();

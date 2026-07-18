@@ -41,7 +41,7 @@ function config = patino_1()
       % time step of the simulation
       config.tstep = 1e-5;
       
-      % reference state vector (vc_ref, il_ref)
+      % desired operating point used for nominal-orbit design
       config.xref  = [2; -1];
       
       % weighting matrix for the trajectory computation

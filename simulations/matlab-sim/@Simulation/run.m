@@ -3,33 +3,33 @@ function [y, t, m, dtk_out] = run(self, nsim)
 
     [config, buffers] = initialize_run(self, nsim);
 
-    state = config.x0;
+    cycle_input_state = config.x0;
     elapsed_time = 0.0;
-    previous_dtk = zeros(numel(config.Omega) - 1, 1);
+    previous_switching_offsets = zeros(numel(config.Omega) - 1, 1);
 
     for k = 1:nsim
-        % The controller and physics both operate on the cycle input state.
-        cycle_state = state;
-        config.x0 = cycle_state;
+        % Control and propagation share the same cycle input state.
+        config.x0 = cycle_input_state;
 
-        % Control: choose deviations from the nominal switching instants.
+        % Control: offset the nominal interior switching instants.
         if config.control.on
-            [dtk, exitflag, qp_info] = ...
-                self.step_control(cycle_state, config.control.x_target);
+            [switching_offsets, exitflag, qp_info] = ...
+                self.step_control(cycle_input_state, config.control.x_target);
         else
-            dtk = zeros(numel(config.Omega) - 1, 1);
+            switching_offsets = zeros(numel(config.Omega) - 1, 1);
             exitflag = 0;
             qp_info = struct('time_qp', 0);
         end
 
-        % Actuation: turn the control action into switching instants.
-        [config, time_metrics] = self.step_actuation(config, dtk);
+        % Actuation: apply the offsets to the nominal switching schedule.
+        [config, actuation_metrics] = ...
+            self.step_actuation(config, switching_offsets);
 
         % Physics: propagate one complete switching cycle.
         [y_cycle, t_cycle, m_cycle, ~] = ...
             self.m_step_strategy.propagate(config);
 
-        % Store this cycle in the public trajectory.
+        % Append this cycle to the simulated state history.
         n_cycle_samples = size(y_cycle, 1);
         idx_start = buffers.idx_current + 1;
         idx_end = buffers.idx_current + n_cycle_samples;
@@ -38,33 +38,33 @@ function [y, t, m, dtk_out] = run(self, nsim)
         buffers.y(idx_start:idx_end, :) = y_cycle;
         buffers.t(idx_start:idx_end) = t_cycle + elapsed_time;
         buffers.m(idx_start:idx_end) = m_cycle;
-        buffers.dtk_out(:, k) = dtk;
+        buffers.dtk_out(:, k) = switching_offsets;
         buffers.idx_current = idx_end;
 
         % Log the inputs and decisions for this cycle.
         if isempty(config.control.x_target)
-            target = nan(size(cycle_state));
-            error_state = nan(size(cycle_state));
+            state_setpoint = nan(size(cycle_input_state));
+            tracking_error = nan(size(cycle_input_state));
         else
-            target = config.control.x_target;
-            error_state = cycle_state - target;
+            state_setpoint = config.control.x_target;
+            tracking_error = cycle_input_state - state_setpoint;
         end
 
         self.m_log.run.iter(k) = k;
         self.m_log.run.exitflag(k) = exitflag;
-        self.m_log.run.time_us(k, :) = time_metrics.time_us;
-        self.m_log.run.x0(k, :) = cycle_state';
-        self.m_log.run.ek(k, :) = error_state';
+        self.m_log.run.time_us(k, :) = actuation_metrics.time_us;
+        self.m_log.run.x0(k, :) = cycle_input_state';
+        self.m_log.run.ek(k, :) = tracking_error';
         self.m_log.run.ts(k, :) = config.Ts;
-        self.m_log.run.x_target(k, :) = target';
+        self.m_log.run.x_target(k, :) = state_setpoint';
         self.m_log.run.time_qp(k) = qp_info.time_qp;
-        self.m_log.run.dtk(k, :) = dtk';
-        self.m_log.run.dtk_prev(k, :) = previous_dtk';
+        self.m_log.run.dtk(k, :) = switching_offsets';
+        self.m_log.run.dtk_prev(k, :) = previous_switching_offsets';
 
         % The cycle output becomes the next cycle input.
         elapsed_time = elapsed_time + t_cycle(end);
-        state = y_cycle(end, :)';
-        previous_dtk = dtk;
+        cycle_input_state = y_cycle(end, :)';
+        previous_switching_offsets = switching_offsets;
     end
 
     y = buffers.y(1:buffers.idx_current, :);

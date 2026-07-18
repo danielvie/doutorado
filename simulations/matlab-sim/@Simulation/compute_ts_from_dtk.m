@@ -1,16 +1,14 @@
-    function Ts = compute_ts_from_dtk(self, config, dtk)
-    % Applies time adjustments based on control signal dtk
-    % Returns the adjusted time vector
-    
-    % start with base time vector
-    Ts = config.Ts;
-    
-    % apply quantization
-    % Ts = self.quantizacao(Ts, Enums.QuantType.Sim);
-    
-    % adjust time vector based on control signal
-    for j = 1:numel(dtk)
-        Ts(j+1) = Ts(j+1) + dtk(j);
-    end
+function applied_boundary_times = compute_ts_from_dtk( ...
+    self, nominal_boundary_times, switching_offsets)
+    % Shift nominal interior boundary times without changing the cycle period.
 
+    applied_boundary_times = nominal_boundary_times;
+
+    % applied_boundary_times = self.quantizacao( ...
+    %     applied_boundary_times, Enums.QuantType.Sim);
+
+    for j = 1:numel(switching_offsets)
+        applied_boundary_times(j + 1) = ...
+            applied_boundary_times(j + 1) + switching_offsets(j);
+    end
 end

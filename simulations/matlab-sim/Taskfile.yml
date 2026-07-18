@@ -21,6 +21,11 @@ tasks:
     cmds:
       - matlab -batch "t('test')"
 
+  test-domain-model:
+    desc: Run the focused domain-model check
+    cmds:
+      - matlab -batch "z_run.Tests.test_domain_model()"
+
   test-run-flow:
     desc: Run the focused Simulation.run flow check
     cmds:

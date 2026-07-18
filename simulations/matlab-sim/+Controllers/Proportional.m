@@ -8,7 +8,7 @@ classdef Proportional < Controllers.Controller
 
     properties
         K              % Gain matrix (from dlqr)
-        Nd = 1         % Downsampling factor (1 = every step)
+        Nd = 1         % Control update period / block length [cycles]
         time_us        % Nominal switching intervals [us] (for conditioning)
         min_gap_us     % Minimum gap between switching instants [us]
 
@@ -26,8 +26,8 @@ classdef Proportional < Controllers.Controller
             %
             % Inputs:
             %   K          - Gain matrix (p x n)
-            %   Nd         - Downsampling factor (default: 1)
-            %   time_us    - Nominal switching intervals in microseconds
+            %   Nd         - Held-input block length in cycles (default: 1)
+            %   time_us    - Nominal dwell durations in microseconds
             %   min_gap_us - Minimum gap constraint in microseconds
 
             if nargin > 0, self.K = K; end
@@ -46,7 +46,7 @@ classdef Proportional < Controllers.Controller
         function [dtk, exitflag, info] = compute_control(self, x, x_target)
             info = struct('time_qp', 0);
 
-            % Check if we should compute or hold
+            % Hold the immediately applied action for the rest of its block.
             if self.counter < self.Nd
                 % Hold previous control
                 if isempty(self.last_dtk)
@@ -60,7 +60,7 @@ classdef Proportional < Controllers.Controller
                 % Compute new control
                 tic_start = tic;
 
-                ek = x - x_target;
+                ek = x - x_target; % cycle-boundary orbit deviation
                 dtk = -self.K * ek;
 
                 % Apply switching constraint conditioning

@@ -126,8 +126,8 @@ b.v_off();               % Disable
 
 ```matlab
 mpc_options = Options.Mpc();
-mpc_options.Np = 10;              % Prediction horizon
-mpc_options.Nd = 2;               % Downsampling
+mpc_options.Np = 10;              % Prediction-block transitions
+mpc_options.Nd = 2;               % Held-input block length [cycles]
 mpc_options.Q = diag([10, 10, 1]); % State weights [vC1, vC2, iL]
 mpc_options.state_mode = Enums.StateMode.ORIGINAL;
 mpc_options.solver_algorithm = 'active-set';
@@ -141,11 +141,11 @@ s.set_mpc(mpc_options);
 % Set initial condition
 s.m_config.x0 = [4.0; 3.0; 0.05];  % [vC1; vC2; iL]
 
-% Add offset to equilibrium
+% Apply an additive disturbance to the simulation initial state
 s.set_offset([0.5; 0; 0]);
 
-% Get target state
-target = s.get_target();  % Where controller tries to go
+% Get the active state setpoint
+state_setpoint = s.get_target();
 ```
 
 ## Quick Aliases

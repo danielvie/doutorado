@@ -1,6 +1,6 @@
-function target = get_target(self)
-    target = self.m_config.control.x_target;
-    if isempty(target)
-        error('Control target is not configured. Call set_mpc(options) first or set config.control.x_target explicitly.');
+function orbit_anchor = get_target(self)
+    orbit_anchor = self.m_config.control.x_target;
+    if isempty(orbit_anchor)
+        error('Cycle-boundary orbit target is not configured. Call set_mpc(options).');
     end
 end

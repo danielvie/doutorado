@@ -16,7 +16,7 @@ classdef MpcController < Controllers.Controller
     properties
         mpc         % MPC data struct (from config.mpc)
         state_mode  % Enums.StateMode.ORIGINAL or .AUGMENTED
-        Nd          % Downsampling factor (1 = every step)
+        Nd          % Control update period / block length [cycles]
 
         % Internal state
         counter
@@ -34,8 +34,8 @@ classdef MpcController < Controllers.Controller
             %   mpc_data   - struct from config.mpc (computed by set_mpc)
             %
             % Name-value pairs:
-            %   'Nd'        - Downsampling factor (default: 1)
-            %   'StateMode' - Enums.StateMode.ORIGINAL or AUGMENTED (default: ORIGINAL)
+            %   'Nd'        - Held-input block length in cycles (default: 1)
+            %   'StateMode' - Prediction-model structure (default: ORIGINAL)
 
             self.mpc = mpc_data;
 
@@ -68,16 +68,16 @@ classdef MpcController < Controllers.Controller
             %
             % Inputs:
             %   x        - Current state vector
-            %   x_target - Target state vector
+            %   x_target - Orbit anchor at the controlled cycle boundary
             %
             % Outputs:
-            %   dtk      - Control action (switching time deviations)
+            %   dtk      - Control action (switching-instant offsets)
             %   exitflag - Solver status (1=optimal, 0=max iter, -2=infeasible, 44=held)
             %   info     - Struct with .time_qp field
 
             info = struct('time_qp', 0);
 
-            % --- Downsampling: hold previous control ---
+            % Hold the immediately applied action for the rest of its block.
             if self.counter < self.Nd
                 if isempty(self.last_dtk)
                     dtk = zeros(self.mpc.p, 1);
@@ -92,7 +92,7 @@ classdef MpcController < Controllers.Controller
             % --- Solve MPC QP ---
             tic_start = tic;
 
-            % Compute error
+            % Cycle-boundary deviation from the nominal periodic orbit.
             ek = x - x_target;
 
             % Augmented state (if delay compensation is active)

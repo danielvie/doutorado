@@ -11,14 +11,14 @@ s = Simulation(Enums.SimName)  % LAB_CIRCUIT, PATINO_1, PATINO_2, INTEGRADOR_DUP
 
 ### Configuration
 ```matlab
-s.alpha(α)                  % Set trajectory from duty cycle (0-1)
-s.iref(i_ref)              % Set trajectory from reference current
+s.alpha(α)                  % Build nominal schedule from duty ratio
+s.iref(i_ref)              % Build nominal schedule from current setpoint
 s.set_mpc()                % Configure MPC with default Options.Mpc
 s.set_mpc(options)         % Configure MPC from Options.Mpc
 s.set_controller(ctrl)     % Assign controller (Strategy pattern)
 s.set_control_enabled(flag)% Enable/disable control
 s.set_step_strategy(strat) % Dynamics.SwitchingStrategy (default) or DenseStrategy
-s.set_offset(offset)       % Add offset to equilibrium state
+s.set_offset(delta_x)      % Apply initial-state disturbance
 ```
 
 ### Execution
@@ -31,9 +31,9 @@ s.set_offset(offset)       % Add offset to equilibrium state
 [Phi, Gamma] = s.get_phi_gamma()      % Linearized model
 K = s.get_gain_k()                    % LQR gain
 c = s.get_switching_constraints()     % Constraint vector
-target = s.get_target()               % Target state
-mode = s.get_mode()                   % Current mode sequence
-time_us = s.get_time_us()             % Nominal switching intervals [us]
+orbit_anchor = s.get_target()         % Active cycle-boundary setpoint
+mode = s.get_mode()                   % Zero-based mode-label sequence
+time_us = s.get_time_us()             % Nominal dwell durations [us]
 msg = s.get_msg_control_signal()      % BLE formatted message
 ```
 
@@ -65,7 +65,8 @@ s.print_test_values_cpp(k, log_source) % Print C++ compatible values
 s.m_config              % Circuit configuration
 s.m_config.control      % Runtime control state (.on, .x_target)
 s.m_config.mpc          % Built MPC runtime data
-s.m_config.x0           % Initial state
+s.m_config.orbit_anchor % Nominal cycle-start state
+s.m_config.x0           % Simulation initial state
 s.m_log.run             % Simulation logs
 ```
 
@@ -142,6 +143,9 @@ planner = Trajectory.Planner(circuit_params, n, T)
 planner.result   % Last computed struct (.Omega, .Ts, .x0, .alpha)
 ```
 
+`Omega` is the dynamics-index sequence, `Ts` contains nominal cycle-boundary
+times, and `x0` is the cycle-start orbit anchor.
+
 ---
 
 ## @BTBroker (Hardware)
@@ -180,7 +184,7 @@ b.last(n)                % Last n calculations
 | Enum | Values |
 |------|--------|
 | `SimName` | `LAB_CIRCUIT`, `PATINO_1`, `PATINO_2`, `INTEGRADOR_DUPLO` |
-| `StateMode` | `ORIGINAL`, `AUGMENTED` |
+| `StateMode` | `ORIGINAL` (held-input block), `AUGMENTED` (experimental delayed block) |
 | `QuantType` | `Traj`, `Sim` |
 
 ---
@@ -192,25 +196,26 @@ After `s.run(nsim)`, access via `s.m_log.run`:
 | Field | Size | Description |
 |-------|------|-------------|
 | `iter` | nsim×1 | Cycle index |
-| `exitflag` | nsim×1 | Solver status (1=ok, 44=held, -2=infeasible) |
-| `x0` | nsim×n | State at end of each cycle |
-| `ek` | nsim×n | Error $e_k = x_0 - x_{target}$ |
-| `dtk` | nsim×p | Applied control |
+| `exitflag` | nsim×1 | Controller status (1=accepted, 44=held, -2=infeasible) |
+| `x0` | nsim×n | Cycle input state |
+| `ek` | nsim×n | Cycle-boundary orbit deviation |
+| `dtk` | nsim×p | Applied switching-instant offsets [s] |
 | `time_qp` | nsim×1 | QP solve time [s] |
 
 ## Options.Mpc
 
 ```matlab
 mpc_options = Options.Mpc();
-mpc_options.Np = 10;
-mpc_options.Nd = 2;
+mpc_options.Np = 10;  % Prediction-block transitions
+mpc_options.Nd = 2;   % Held-input block length [cycles]
 mpc_options.Q = diag([10, 10, 1]);
-mpc_options.x_target = [4; 8; 0.1];  % Optional override for config.xref
-mpc_options.state_mode = Enums.StateMode.AUGMENTED;
+mpc_options.state_mode = Enums.StateMode.ORIGINAL;
 mpc_options.solver_algorithm = 'active-set';
 mpc_options.solver_display = 'off';
 s.set_mpc(mpc_options);
 ```
 
-`set_mpc()` writes solver/runtime matrices to `s.m_config.mpc`, writes enabled
-state and target to `s.m_config.control`, and installs `Controllers.MpcController`.
+`set_mpc()` builds an orbit-deviation controller around
+`s.m_config.orbit_anchor`, writes runtime matrices to `s.m_config.mpc`, and
+installs `Controllers.MpcController`. Custom `Options.Mpc.x_target` values are
+unsupported because the predictor has no affine bias for another setpoint.

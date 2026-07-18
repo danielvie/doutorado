@@ -45,7 +45,7 @@ function config = patino_2()
 	% time step of the simulation
 	config.tstep = 1e-6;
 
-	% reference state vector (vc1, vc2, i)
+	% desired operating point used for nominal-orbit design
 	E = config.circuit_params.E;
 	config.xref  = [1/3*E; 2/3*E; 1];
 	

@@ -1,17 +1,8 @@
 classdef Planner < handle
-    % Planner - Handles reference trajectory generation for switched systems.
+    % Planner - Build a nominal switching schedule and its orbit anchor.
     %
-    % Computes the mode sequence (Omega), switching times (Ts), and periodic
-    % orbit equilibrium (x0) from a duty cycle alpha or a reference current.
-    %
-    % Usage:
-    %   planner = Trajectory.Planner(config);
-    %   planner.set_alpha(0.5);
-    %   % config.Omega, config.Ts, config.x0 are now updated
-    %
-    % The Planner operates on a config struct passed by reference through
-    % a holding property. After calling set_alpha() or set_reference_current(),
-    % use planner.result to retrieve the computed values.
+    % The nominal duty ratio or inductor-current setpoint determines the
+    % schedule. The caller applies the returned schedule and orbit anchor.
 
     properties
         circuit_params  % Circuit parameters struct (E, R, C1, C2, L)
@@ -35,16 +26,16 @@ classdef Planner < handle
         end
 
         function [Omega, Ts, x0] = set_alpha(self, alpha, config)
-            % set_alpha - Compute trajectory from duty cycle.
+            % set_alpha - Build a schedule from the nominal duty ratio.
             %
             % Inputs:
-            %   alpha  - Duty cycle in (0, 1)
-            %   config - Full config struct (needed for x0 computation)
+            %   alpha  - Nominal duty ratio in (0, 1)
+            %   config - Dynamics used to compute the orbit anchor
             %
             % Outputs (optional):
-            %   Omega - Mode sequence
-            %   Ts    - Switching time sequence
-            %   x0    - Periodic orbit equilibrium
+            %   Omega - Dynamics-index sequence
+            %   Ts    - Nominal cycle-boundary times
+            %   x0    - Orbit anchor at the cycle-start boundary
 
             params = self.circuit_params;
             params.alpha = alpha;
@@ -53,21 +44,21 @@ classdef Planner < handle
             params.n = self.n;
             params.T = self.T;
 
-            fprintf('Trajectory: set alpha = %.4f\n', alpha);
+            fprintf('Nominal schedule: duty ratio = %.4f\n', alpha);
             [Omega, Ts, x0] = self.compute(params, config);
         end
 
         function [Omega, Ts, x0] = set_reference_current(self, iref, config)
-            % set_reference_current - Compute trajectory from reference current.
+            % set_reference_current - Build a schedule from a current setpoint.
             %
             % Inputs:
-            %   iref   - Reference inductor current [A]
-            %   config - Full config struct (needed for x0 computation)
+            %   iref   - Inductor-current setpoint [A]
+            %   config - Dynamics used to compute the orbit anchor
             %
             % Outputs (optional):
-            %   Omega - Mode sequence
-            %   Ts    - Switching time sequence
-            %   x0    - Periodic orbit equilibrium
+            %   Omega - Dynamics-index sequence
+            %   Ts    - Nominal cycle-boundary times
+            %   x0    - Orbit anchor at the cycle-start boundary
 
             params = self.circuit_params;
             params.iLref = iref;
@@ -76,14 +67,15 @@ classdef Planner < handle
             params.n = self.n;
             params.T = self.T;
 
-            fprintf('Trajectory: set iref = %.4f (alpha = %.4f)\n', iref, params.alpha);
+            fprintf(['Nominal schedule: inductor-current setpoint = %.4f A ', ...
+                '(duty ratio = %.4f)\n'], iref, params.alpha);
             [Omega, Ts, x0] = self.compute(params, config);
         end
     end
 
     methods (Access = private)
         function [Omega, Ts, x0] = compute(self, params, config)
-            % Core computation: Industrial Solution + periodic orbit
+            % Build the nominal schedule and its cycle-start orbit anchor.
 
             [Omega, dT] = Utils.industrial_solution(params.alpha, params.n, params.T);
 
@@ -92,11 +84,10 @@ classdef Planner < handle
             Omega = Omega(valid_idx);
             dT = dT(valid_idx);
 
-            % Compute switching time sequence (cumulative)
+            % Convert dwell durations to cumulative cycle-boundary times.
             Ts = Utils.get_ts(dT);
 
-            % Compute periodic orbit equilibrium
-            % (needs a temporary config with updated Omega and Ts)
+            % Compute the orbit anchor for the new nominal schedule.
             temp_config = config;
             temp_config.Omega = Omega;
             temp_config.Ts = Ts;
@@ -108,7 +99,8 @@ classdef Planner < handle
             self.result.x0    = x0;
             self.result.alpha = params.alpha;
 
-            fprintf('Trajectory: %d modes, T = %.2f us\n', numel(Omega), Ts(end)*1e6);
+            fprintf('Nominal schedule: %d intervals, period = %.2f us\n', ...
+                numel(Omega), Ts(end) * 1e6);
         end
     end
 end

@@ -12,6 +12,7 @@ classdef Config
         Q
         Tpmax
         Ts
+        orbit_anchor
         x0
         circuit_params
         control
@@ -27,6 +28,9 @@ classdef Config
         function self = Config()
             % Default initialization of complex properties
             
+            % Nominal cycle-start state for orbit-deviation models
+            self.orbit_anchor = [];
+
             % Runtime control state
             self.control = struct();
             self.control.on = false;

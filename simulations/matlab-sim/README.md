@@ -22,7 +22,7 @@ t('demo', 'feasibility')% Feasibility region demo
 ```matlab
 % Basic simulation
 s = Simulation(Enums.SimName.LAB_CIRCUIT);
-s.alpha(0.5);           % Set duty cycle
+s.alpha(0.5);           % Set nominal duty ratio
 s.set_mpc();            % Configure MPC
 [y, t, m] = s.run(1000); % Run 1000 cycles
 
@@ -34,7 +34,7 @@ plotter.plot_states();
 
 ## What This Does
 
-Instead of traditional PWM duty-cycle control, this framework computes **time deviations** ($\delta t_k$) applied to switching instants. The controller steers the converter state $x = [v_{C1}, v_{C2}, i_L]^T$ toward equilibrium by adjusting when switches toggle.
+Instead of using duty ratio as the cycle-by-cycle control action, this framework computes **switching-instant offsets** ($\delta \tau_k$). The controller regulates the converter state $x = [v_{C1}, v_{C2}, i_L]^T$ by shifting the nominal interior switching instants.
 
 **Key Features:**
 - MPC via Quadratic Programming (`quadprog`)
@@ -46,6 +46,7 @@ Instead of traditional PWM duty-cycle control, this framework computes **time de
 
 | Document                                             | Purpose                      |
 | ---------------------------------------------------- | ---------------------------- |
+| [`CONTEXT.md`](CONTEXT.md)                         | Canonical domain language    |
 | [`DOCS/GETTING_STARTED.md`](DOCS/GETTING_STARTED.md) | First-time user tutorial     |
 | [`DOCS/COOKBOOK.md`](DOCS/COOKBOOK.md)               | Common commands and patterns |
 | [`DOCS/THEORY.md`](DOCS/THEORY.md)                   | Physics and MPC mathematics  |

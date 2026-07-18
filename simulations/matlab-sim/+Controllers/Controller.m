@@ -2,10 +2,10 @@ classdef Controller < handle
     methods (Abstract)
         % Computes the control action
         % Inputs:
-        %   x: Current state vector
-        %   x_target: Target state vector
+        %   x: Cycle input state
+        %   x_target: Orbit anchor at the controlled cycle boundary
         % Outputs:
-        %   dtk: Control action
+        %   dtk: Switching-instant offsets
         %   exitflag: Solver status
         %   info: additional info struct (time_qp, etc)
         [dtk, exitflag, info] = compute_control(self, x, x_target)

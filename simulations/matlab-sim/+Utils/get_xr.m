@@ -16,7 +16,7 @@ function Xr = get_xr(config)
     % 
     % In          : config - estrutura de dados do caso a simular
     % 
-    % Out         : Xr - estados da trajetoria de referencia em cada instante de chaveamento nominal
+    % Out         : Xr - nominal orbit states at each nominal switching instant
     % 
     % Pre. Cond   : nenhuma
     % 
@@ -41,7 +41,11 @@ function Xr = get_xr(config)
 
     M  = config.Omega;
     
-    Xr = reshape(config.x0, [1, numel(config.x0)]);
+    if isempty(config.orbit_anchor)
+        error('get_xr requires config.orbit_anchor.');
+    end
+
+    Xr = reshape(config.orbit_anchor, [1, numel(config.orbit_anchor)]);
     for i = 1:numel(M)
         mi  = M(i);
         Ai  = A{mi};

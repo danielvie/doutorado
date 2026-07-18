@@ -1,21 +1,17 @@
-function [config, metrics] = step_actuation(self, config, dtk)
-    % step_actuation - Convert control signal (dtk) to switching times.
-    %
-    % The dtk is assumed to be already conditioned by the controller
-    % (e.g., Proportional applies constraint conditioning internally,
-    %  MPC handles it via QP constraints).
+function [cycle_config, metrics] = step_actuation( ...
+    self, cycle_config, switching_offsets)
+    % Apply switching-instant offsets to the nominal switching schedule.
+    % Offsets are absolute corrections, not cumulative cycle-to-cycle changes.
 
-    % Compute new time vector
-    Ts = self.compute_ts_from_dtk(self.m_config, dtk);
+    nominal_boundary_times = self.m_config.Ts;
+    applied_boundary_times = self.compute_ts_from_dtk( ...
+        nominal_boundary_times, switching_offsets);
 
-    % Validate: all intervals must be positive
-    ts_us_diff = diff(Ts * 1e6);
-    assert(all(ts_us_diff > 0), "step_actuation :: time cannot be negative!");
+    applied_dwell_us = diff(applied_boundary_times * 1e6);
+    assert(all(applied_dwell_us > 0), ...
+        "step_actuation :: dwell duration must be positive!");
 
-    % Update configuration
-    config.Ts = Ts;
-
-    % Metrics
-    metrics.time_us = arrayfun(@round, diff(Ts * 1e6));
-    metrics.time_us_diff = metrics.time_us; % alias
+    cycle_config.Ts = applied_boundary_times;
+    metrics.time_us = arrayfun(@round, applied_dwell_us);
+    metrics.time_us_diff = metrics.time_us;
 end

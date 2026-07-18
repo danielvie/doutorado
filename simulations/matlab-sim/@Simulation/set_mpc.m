@@ -2,8 +2,8 @@ function set_mpc(self, options)
     % set_mpc - Build MPC runtime data and install the default MPC controller.
     %
     % Inputs:
-    %   options - Optional Options.Mpc setup schema. If omitted, a default
-    %             Options.Mpc is used and a warning is printed.
+    %   options - Optional MPC setup. Nd is the immediate held-input block
+    %             length; the cycle-boundary target is config.orbit_anchor.
 
     if nargin < 2
         warning('Simulation:set_mpc:DefaultOptions', ...
@@ -28,10 +28,14 @@ function set_mpc(self, options)
     end
 
     if state_mode == Enums.StateMode.AUGMENTED
-        [A_model, B_model] = Mpc.build_augmented_model(Phi, Gamma, options.Nd);
+        warning('Simulation:set_mpc:ExperimentalDelayModel', ...
+            ['AUGMENTED models a one-block actuation delay that is not ', ...
+             'present in Simulation.run.']);
+        [A_model, B_model] = ...
+            Mpc.build_augmented_model(Phi, Gamma, options.Nd);
     else
-        A_model = Phi;
-        B_model = Gamma;
+        [A_model, B_model] = ...
+            Mpc.build_blocked_model(Phi, Gamma, options.Nd);
     end
 
     model_len = size(A_model, 1);
@@ -50,8 +54,9 @@ function set_mpc(self, options)
         Mpc.ss_mpc_dualmode_matrices(A_model, B_model, Q, R, options.Np, c);
 
     mpc_opt = struct();
-    mpc_opt.Np       = options.Np;
-    mpc_opt.Nd       = options.Nd;
+    mpc_opt.Np = options.Np;
+    mpc_opt.Nd = options.Nd;
+    mpc_opt.block_length_cycles = options.Nd;
     mpc_opt.state_mode = state_mode;
     mpc_opt.H        = H;
     mpc_opt.Hf       = Hf;
@@ -83,15 +88,19 @@ end
 
 function target = resolve_target(config, options, state_len)
     if ~isempty(options.x_target)
-        target = options.x_target(:);
-    elseif isprop(config, 'xref') && ~isempty(config.xref)
-        target = config.xref(:);
-    else
-        error('set_mpc requires a target. Set Options.Mpc.x_target or define config.xref.');
+        error('Simulation:set_mpc:CustomTargetUnsupported', ...
+            ['Options.Mpc.x_target is incompatible with the orbit-deviation ', ...
+             'model. Configure the nominal orbit instead.']);
+    end
+    if isempty(config.orbit_anchor)
+        error('Simulation:set_mpc:MissingOrbitAnchor', ...
+            'Configure config.orbit_anchor before building the MPC model.');
     end
 
+    target = config.orbit_anchor(:);
     if numel(target) ~= state_len
-        error('MPC target must have %d elements. Got %d.', state_len, numel(target));
+        error('Orbit anchor must have %d elements. Got %d.', ...
+            state_len, numel(target));
     end
 end
 

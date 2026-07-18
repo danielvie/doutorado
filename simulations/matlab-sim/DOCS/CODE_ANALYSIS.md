@@ -93,7 +93,7 @@ Data.* config  →  Trajectory.Planner (alpha/iref)  →  Simulation.set_mpc()
 
 | Component                         | Complexity                | Bottleneck                      | Mitigation                                                         |
 | --------------------------------- | ------------------------- | ------------------------------- | ------------------------------------------------------------------ |
-| `MpcController.compute_control()` | O(Np³ · p³) per step      | `quadprog` active-set solver    | `Nd` downsampling reduces calls; fallback to LQR on infeasibility. |
+| `MpcController.compute_control()` | O(Np³ · p³) per update    | `quadprog` active-set solver    | Held-input blocks reduce update frequency; fallback handles unavailable QP solutions. |
 | `propagate_switching()`           | O(N_modes · n³) per cycle | `expm()` on augmented [A,b;0,0] | N_modes ≈ 6–9, n=3. Negligible cost.                               |
 | `propagate_dense()`               | O(T/tstep · n³)           | `lsim` + dense time vector      | Only used for visualization, not control loop.                     |
 | `Simulation.run()` loop           | O(nsim · cost_above)      | Buffer reallocation (rare)      | Pre-allocated buffers with exponential padding fallback.           |
@@ -101,7 +101,7 @@ Data.* config  →  Trajectory.Planner (alpha/iref)  →  Simulation.set_mpc()
 ### 4.2 Good Practices Observed
 
 - **Pre-allocation:** `run.m` pre-allocates `buffers.y`, `buffers.t`, `buffers.m`, and all log arrays. Dynamic reallocation only triggers if dense mode exceeds estimates.
-- **Downsampling:** `Nd` parameter skips QP solves, trading performance for control bandwidth.
+- **Held-input blocks:** `Nd` sets both the control update period and prediction-block length in switching cycles.
 - **Matrix Caching:** `Phi`, `Gamma`, `H_qp`, `K` are computed once in `set_mpc()` and cached in `config.mpc`.
 
 ### 4.3 Risks
