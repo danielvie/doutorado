@@ -106,6 +106,7 @@ function run_tests()
     z_run.Tests.test_dlqr_behavior();
     z_run.Tests.test_industrial_solution();
     z_run.Tests.test_mpc_on();
+    z_run.Tests.test_run_flow();
     z_run.Tests.test_patino_params();
     z_run.Tests.test_status();
     z_run.Tests.test_who();

@@ -83,7 +83,7 @@ classdef Simulation < handle
         target = get_target(self);
 
         % .. simulation
-        [y,t,u,m,dtk_out] = run(self, nsim);
+        [y, t, m, dtk_out] = run(self, nsim);
 
         [dtk, exitflag, info] = step_control(self, x0, x_target);
         [config, metrics] = step_actuation(self, config, dtk);

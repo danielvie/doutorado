@@ -47,19 +47,19 @@ function res = play_patino2(save_fig, nsim_in)
     
 
     % 1. Controle MPC
-s.set_control_enabled(true);
+    s.set_control_enabled(true);
     s.m_config.x0 = x0_perturbed;
     s.set_controller(controller_mpc);
     [y_mpc, t_mpc, m_mpc] = s.run(nsim);
 
     % 2. Controle Proporcional
-s.set_control_enabled(true);
+    s.set_control_enabled(true);
     s.m_config.x0 = x0_perturbed;
     s.set_controller(controller_prop);
     [y_prop, t_prop, m_prop] = s.run(nsim);
 
     % 3. Controle OFF
-s.set_control_enabled(false);
+    s.set_control_enabled(false);
     s.m_config.x0 = x0_perturbed;
     s.set_controller(controller_prop);
     [y_off, t_off, m_off] = s.run(nsim);
@@ -137,7 +137,7 @@ function plot_traj_helper(Y1, Y2, x0, tit, x_label, y_label, z_label, leg)
     plot3(Y1(end,1), Y1(end,2), Y1(end,3), 'b.', 'markers', 40);
     plot3(Y2(end,1), Y2(end,2), Y2(end,3), 'r*', 'markers', 10);
     plot3(x0(1), x0(2), x0(3), 'rx', 'markers', 25, 'linew', 3);
-
+    
     legend(leg{:});
     hold off;
     grid on;
