@@ -11,7 +11,7 @@ function play()
 
 % creating simulation object
 s = Simulation(Enums.SimName.LAB_CIRCUIT);
-% s.m_state_mode = Enums.StateMode.AUGMENTED;
+
 
 % compute trajectory with alpha
 % s.set_traj_phase_with_alpha(0.3);

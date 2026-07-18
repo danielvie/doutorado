@@ -1,111 +1,36 @@
 function set_mpc(self, options)
-    % set_mpc - Build MPC runtime data and install the default MPC controller.
-    %
-    % Inputs:
-    %   options - Optional MPC setup. Nd is the immediate held-input block
-    %             length; the cycle-boundary target is config.orbit_anchor.
+    % Build the cycle model, MPC problem, and runtime controller.
 
     if nargin < 2
         warning('Simulation:set_mpc:DefaultOptions', ...
             ['set_mpc() called without Options.Mpc. Using Options.Mpc(). ', ...
-             'For explicit configuration, use: mpc_options = Options.Mpc(); s.set_mpc(mpc_options);']);
+             'For explicit configuration, pass an Options.Mpc instance.']);
         options = Options.Mpc();
     end
-
     if ~isa(options, 'Options.Mpc')
         error('set_mpc expects an Options.Mpc instance.');
     end
-
-    config = self.m_config;
-    [Phi, Gamma] = self.get_phi_gamma();
-
-    state_len = size(Phi, 1);
-    target = resolve_target(config, options, state_len);
-
-    state_mode = options.state_mode;
-    if ~(state_mode == Enums.StateMode.ORIGINAL || state_mode == Enums.StateMode.AUGMENTED)
-        error('Options.Mpc.state_mode must be Enums.StateMode.ORIGINAL or Enums.StateMode.AUGMENTED.');
-    end
-
-    if state_mode == Enums.StateMode.AUGMENTED
-        warning('Simulation:set_mpc:ExperimentalDelayModel', ...
-            ['AUGMENTED models a one-block actuation delay that is not ', ...
-             'present in Simulation.run.']);
-        [A_model, B_model] = ...
-            Mpc.build_augmented_model(Phi, Gamma, options.Nd);
-    else
-        [A_model, B_model] = ...
-            Mpc.build_blocked_model(Phi, Gamma, options.Nd);
-    end
-
-    model_len = size(A_model, 1);
-    if ~isempty(options.Q)
-        validate_square_matrix(options.Q, model_len, 'Options.Mpc.Q');
-        Q = options.Q;
-    else
-        Q = eye(model_len);
-    end
-
-    p = numel(config.Omega) - 1;
-    R = eye(p);
-    c = self.get_switching_constraints();
-
-    [H,Hf,Phi1Np,Qbar,Rbar,Lbar,cbar,Pf,Sf,bf,PhiNp,K,~] = ...
-        Mpc.ss_mpc_dualmode_matrices(A_model, B_model, Q, R, options.Np, c);
-
-    mpc_opt = struct();
-    mpc_opt.Np = options.Np;
-    mpc_opt.Nd = options.Nd;
-    mpc_opt.block_length_cycles = options.Nd;
-    mpc_opt.state_mode = state_mode;
-    mpc_opt.H        = H;
-    mpc_opt.Hf       = Hf;
-    mpc_opt.Phi1Np   = Phi1Np;
-    mpc_opt.Qbar     = Qbar;
-    mpc_opt.Rbar     = Rbar;
-    mpc_opt.Lbar     = Lbar;
-    mpc_opt.cbar     = cbar;
-    mpc_opt.Pf       = Pf;
-    mpc_opt.Sf       = Sf;
-    mpc_opt.bf       = bf;
-    mpc_opt.PhiNp    = PhiNp;
-    mpc_opt.K        = K;
-    mpc_opt.p        = p;
-    mpc_opt.solver_options = optimoptions('quadprog', ...
-        'Algorithm', options.solver_algorithm, ...
-        'Display', options.solver_display);
-
-    controller = Controllers.MpcController(mpc_opt, ...
-        'Nd', options.Nd, ...
-        'StateMode', state_mode);
-
-    self.m_config.mpc = mpc_opt;
-    self.m_config.control.on = true;
-    self.m_config.control.x_target = target;
-    self.m_state_mode = state_mode;
-    self.set_controller(controller);
-end
-
-function target = resolve_target(config, options, state_len)
     if ~isempty(options.x_target)
         error('Simulation:set_mpc:CustomTargetUnsupported', ...
             ['Options.Mpc.x_target is incompatible with the orbit-deviation ', ...
              'model. Configure the nominal orbit instead.']);
     end
-    if isempty(config.orbit_anchor)
+    if isempty(self.m_config.orbit_anchor)
         error('Simulation:set_mpc:MissingOrbitAnchor', ...
-            'Configure config.orbit_anchor before building the MPC model.');
+            'Configure the nominal orbit before building the MPC problem.');
     end
 
-    target = config.orbit_anchor(:);
-    if numel(target) ~= state_len
-        error('Orbit anchor must have %d elements. Got %d.', ...
-            state_len, numel(target));
+    cycle_model = Dynamics.linearize_cycle(self.m_config);
+    state_count = size(cycle_model.Phi, 1);
+    if numel(cycle_model.orbit_anchor) ~= state_count
+        error('Orbit anchor must have %d elements.', state_count);
     end
-end
 
-function validate_square_matrix(value, expected_size, name)
-    if ~ismatrix(value) || any(size(value) ~= [expected_size, expected_size])
-        error('%s must be a %dx%d matrix.', name, expected_size, expected_size);
-    end
+    problem = Mpc.build_problem(cycle_model, self.m_config, options);
+    controller = Controllers.MpcController(problem);
+
+    self.m_config.mpc = problem;
+    self.m_config.control.on = true;
+    self.m_config.control.x_target = cycle_model.orbit_anchor;
+    self.set_controller(controller);
 end

@@ -1,48 +1,23 @@
-s = Simulation(Enums.SimName.LAB_CIRCUIT);
+simulation = Simulation(Enums.SimName.LAB_CIRCUIT);
+simulation.alpha(0.5);
 
-s.set_mpc_with_np(5);
+options = Options.Mpc();
+options.Nd = 3;
+simulation.set_mpc(options);
 
-Phi = s.m_config.mpc.vars.Phi;
-Gamma = s.m_config.mpc.vars.Gamma;
+cycle_model = simulation.get_cycle_linear_model();
+prediction = simulation.m_config.mpc.prediction;
 
-% CONSTRUINDO MODELO EXTENDIDO
-% notes for LAB_CIRCUIT
-% e(tn) = Phi e(t0) + Gamma deltat
-% Phi [3x3]
-% Gamma [3x5]
-% deltat [5x1]
+Phi = cycle_model.Phi;
+Gamma = cycle_model.Gamma;
+A_block = prediction.state_transition;
+B_block = prediction.input_matrix;
 
-Nd = 3;
-
-% Calculando A,B block
-% Ab = A^Nd
-Ab = eye(size(Phi));
-for i = 1:Nd
-    Ab = Ab*Phi;
-end
-
-% Bb = (A^(Nd-1) + A^(Nd-1) + ... + A^0)B
-B_aux = cell([1, Nd]);
-B_aux{1} = eye(size(Phi));
-for i = 1:Nd-1
-    B_aux{i+1} = Phi*B_aux{i};
-end
-
-Bb = B_aux{1}*Gamma;
-for i = 2:numel(B_aux)
-    Bb = Bb + B_aux{i}*Gamma;
-end
-
-
-% Calculando Matrix Extendida (Aa, Ba)
-% Phi [3x3]
-% Gamma [3x5]
-% deltat [5x1]
-
-Aa = [Ab, Bb
-      zeros(1, size(Ab, 2)), zeros(1, size(Bb, 2))];
-      
-Ba = [zeros(1, size(Gamma, 2)); ones(1, size(Gamma, 2))];
-
-
-[a_, b_] = Mpc.build_augmented_model(Phi, Gamma, Nd);
+disp('One-cycle state transition:');
+disp(Phi);
+disp('One-cycle switching-offset map:');
+disp(Gamma);
+disp('Held-input block state transition:');
+disp(A_block);
+disp('Held-input block input matrix:');
+disp(B_block);

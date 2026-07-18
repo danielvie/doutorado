@@ -74,13 +74,13 @@ Therefore the thesis does not support one unqualified timing answer. The least c
 - `+Controllers/MpcController.m:59-89,121-124` computes on the first call, then returns the cached action until the next `N_d`-cycle update.
 - `@Simulation/run.m:10-30` computes an action, applies it to the nominal switching instants, and only then propagates that same cycle. A newly computed `dtk` therefore applies immediately and is held for `N_d` cycles.
 
-However, augmented prediction and runtime disagree:
+Current project decision:
 
-- `+Mpc/build_augmented_model.m:25-38,45-69` implements the thesis block lift plus `z[k']=u[k'+1]`, explicitly describing command delay.
-- `@Simulation/set_mpc.m:30-35,73-75` uses the same `options.Nd` for that delayed augmented model and for controller downsampling.
-- `+Controllers/MpcController.m:98-123` includes the prior action in the augmented state but immediately returns and stores the newly optimized action; `run.m` applies it in the same cycle. Thus the predictor assumes next-block actuation while the plant simulation performs immediate actuation.
+- `+Mpc/build_problem.m` treats `N_d` as the immediate held-input block length for the baseline prediction model.
+- `+Controllers/MpcController.m` applies a newly computed action immediately and holds it for the remaining cycles in that block.
+- The optional `AUGMENTED` prediction mode retains the thesis's one-block-delay equation and emits an explicit warning because `Simulation.run` has no corresponding actuation delay.
 
-`CONTEXT.md:107-117` correctly describes held action and control update period, but omits that the thesis also uses the same `N_d` as the lifted block length and that its augmented equations imply a one-block delay.
+`CONTEXT.md` distinguishes control update period, block length, and actuation delay.
 
 ### 3. Nominal orbit anchor versus simulation/disturbed state
 
@@ -102,13 +102,11 @@ Recommended representation:
 
 Avoid using one mutable `x0` for all of these.
 
-**Project comparison.** `CONTEXT.md:61-91` already recommends this separation. Current code still overloads `config.x0`:
+**Project comparison.** This separation is now explicit:
 
-- `+Dynamics/linearize.m:7-23` and `+Utils/get_xr.m:38-55` use it as the orbit anchor from which the nominal orbit is propagated.
-- `@Simulation/run.m:4-12,64-67,76-101` also uses it as the simulation initial/cycle input state.
-- `+Trajectory/Planner.m:77-100` computes the anchor, while `@Simulation/set_traj_phase_with_alpha.m:11-17` and `set_traj_phase_with_iref.m:11-17` store it into the same `config.x0` later used for simulation.
-
-This makes an initial disturbance overwrite the nominal anchor used by subsequent linearization/reference-orbit calculations.
+- `config.orbit_anchor` stores the nominal cycle-start state used by `Dynamics.linearize_cycle`.
+- `config.x0` remains the compatibility spelling for the simulation initial state.
+- Initial-state disturbances change `config.x0` without changing the orbit anchor or the one-cycle linear model.
 
 ## Authoritative terminology
 
@@ -123,6 +121,24 @@ This makes an initial disturbance overwrite the nominal anchor used by subsequen
 | `alpha` | No definition or occurrence in the active thesis TeX. | Code uses `alpha` as nominal duty ratio (`+Trajectory/Planner.m:28-48`); `CONTEXT.md:103-105` is code-authoritative, not thesis-authoritative, here. |
 | Trajectory/orbit | “target periodic trajectory,” “target cyclic trajectory,” “cyclic trajectory,” “reference trajectory,” and “limit cycle”; `\bar x(t)` is the nominal/reference trajectory (`cap1_introduction.tex:37-46,57-66`; `cap4_statement_problem.tex:12-15`). “Orbit anchor” is not used. | `CONTEXT.md:55-63` introduces “nominal periodic orbit/orbit anchor” as precise project language. It faithfully names the mathematics but is not verbatim thesis terminology. |
 | Feasibility | “feasibility region” `\mathcal D`: current states for which at least one predicted input sequence satisfies all state/input constraints over the selected finite horizon (`cap3_feasibility.tex:1-20,67-72`, section `sec:cap3:feasibility-region`). After Chapter 4’s `x\mapsto e` substitution, application feasibility regions are regions of cycle error. | `CONTEXT.md:119-121` calls this the finite-horizon feasible set and correctly avoids claiming recursive feasibility/recoverability. |
+
+## Code-to-thesis notation audit
+
+| Thesis notation | Current code | Recommendation |
+|---|---|---|
+| `\Phi`, `\Gamma` | `cycle_model.Phi`, `cycle_model.Gamma` | Aligned. Keep these exact names at the one-cycle equation boundary. |
+| `e(t)` | `orbit_deviation`, `model_state` | Keep semantic runtime names, but use `e` in equations and mathematical APIs. |
+| `\delta t[j]` | `switching_offsets`, legacy `dtk` | Keep `switching_offsets` at actuation boundaries; prefer `delta_t` inside linear-model and MPC mathematics. |
+| `\bar{x}(\bar t_i)` | `cycle_model.orbit_states` | Candidate rename to `x_bar` or `x_bar_at_switching_times`; current name is clearer but less directly traceable. |
+| `\bar{x}_0` | `orbit_anchor` | Keep `orbit_anchor`; the thesis overloads `x_0`, so the semantic name prevents a known ambiguity. |
+| `\bar t` | `boundary_times`, `config.Ts` | Keep `boundary_times` in domain code; document that these are nominal `\bar t`. |
+| `\Omega` | `dynamics_indices`, `config.Omega` | Prefer `Omega` at mathematical boundaries; retain `dynamics_indices` where one-based lookup semantics matter. |
+| `A_b`, `B_b` | local `A_block`, `B_block`; generic prediction fields | Local names align. Generic fields avoid lying when the model is augmented. |
+| `A_a`, `B_a` | generic `prediction.state_transition`, `prediction.input_matrix` | Keep generic fields unless delayed and blocked models become separate types. |
+| `N_p`, `N_d` | `options.Np`, `options.Nd` plus semantic aliases | Aligned at configuration boundaries. |
+| `Q`, `R`, `P_f`, `S_f`, `b_f`, `K`, `L`, `c` | semantic locals such as `state_weight`, `terminal_cost`, `feedback_gain`, and `minimum_dwell_change` | Strong candidates for thesis names inside `Mpc.build_problem`; keep semantic explanations in comments. |
+| `\mathbf A`, `\mathbf B` | `horizon.state_map`, `horizon.input_map` | Current names explain responsibility; thesis aliases may help when comparing derivations. |
+| QP `H`, `f[k]` | `qp.hessian`, `qp.gradient_map * model_state` | Current names avoid collision with horizon notation; document the mapping rather than rename blindly. |
 
 ## Unresolved contradictions and source defects
 

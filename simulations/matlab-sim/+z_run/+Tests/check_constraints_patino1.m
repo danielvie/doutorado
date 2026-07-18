@@ -4,7 +4,7 @@ mpc_config = Options.Mpc();
 s.set_mpc(mpc_config);
 
 fprintf('Constraints c:\n');
-c = Dynamics.switching_constraints(s.m_config);
+c = Dynamics.minimum_dwell_change(s.m_config);
 disp(c);
 
 fprintf('Nominal dtr:\n');

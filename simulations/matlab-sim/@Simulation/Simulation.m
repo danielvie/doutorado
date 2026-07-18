@@ -2,7 +2,6 @@ classdef Simulation < handle
     properties
         m_config;
         m_set_alpha_cache;
-        m_state_mode;
         m_log;
         m_controller;  % Controllers.Controller instance
         m_planner;     % Trajectory.Planner instance
@@ -24,9 +23,6 @@ classdef Simulation < handle
             else
                 self.set_config(sim_name);
             end
-
-            % default state mode
-            self.m_state_mode = Enums.StateMode.ORIGINAL;
 
             % default step strategy (switching)
             self.m_step_strategy = Dynamics.SwitchingStrategy();
@@ -72,6 +68,7 @@ classdef Simulation < handle
         end
 
         % .. getters
+        model = get_cycle_linear_model(self);
         [Phi, Gamma] = get_phi_gamma(self);
         c = get_switching_constraints(self);
 
@@ -85,10 +82,8 @@ classdef Simulation < handle
         % .. simulation
         [y, t, m, dtk_out] = run(self, nsim);
 
-        [dtk, exitflag, info] = step_control(self, x0, x_target);
         [config, metrics] = step_actuation(self, config, dtk);
 
-        [dtk, exitflag] = run_mpc(self, config, x0, x_target, dtk_prev);
         [y, t, m, xr] = sim_cycle_switching(self, config);
         [y, t, m, u, xr] = sim_cycle_dense(self, config);
 

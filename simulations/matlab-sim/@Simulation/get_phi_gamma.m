@@ -1,4 +1,6 @@
 function [Phi, Gamma] = get_phi_gamma(self)
-    % get_phi_gamma - Delegates to Dynamics.linearize
-    [Phi, Gamma] = Dynamics.linearize(self.m_config);
+    % Compatibility view of the nominal one-cycle linear model.
+    model = self.get_cycle_linear_model();
+    Phi = model.Phi;
+    Gamma = model.Gamma;
 end

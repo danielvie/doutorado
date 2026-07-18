@@ -51,7 +51,7 @@ The elapsed time from the cycle-start boundary to the cycle-end boundary.
 _Avoid_: Horizon, maximum period
 
 **Switching-Instant Offset**:
-A controller-selected signed displacement of an interior nominal boundary time. Positive values move that boundary later without changing the cycle period.
+A controller-selected signed displacement $\delta t$ of an interior nominal switching time. Positive values move that switching time later without changing the cycle period.
 _Avoid_: Dwell-time change, time step, timing deviation
 
 ## State and Orbit
@@ -85,8 +85,12 @@ An additive perturbation applied to the simulation initial state.
 _Avoid_: Offset, equilibrium offset
 
 **Orbit Deviation**:
-The signed difference between the actual state and the corresponding nominal-orbit state: actual minus nominal. At the cycle-start boundary, it is the cycle input state minus the orbit anchor.
+The error $e(t)=x(t)-\bar{x}(\bar{t})$ between the actual state and corresponding nominal-orbit state. At the cycle-start boundary, it is the cycle input state minus the orbit anchor.
 _Avoid_: Desired-operating-point error, tracking error
+
+**One-Cycle Linear Model**:
+The thesis equation $e(t_{j,N})=\Phi e(t_{j,0})+\Gamma\delta t[j]$ relating cycle-start orbit deviation and switching-time perturbations to cycle-end orbit deviation.
+_Avoid_: State-space model, blocked prediction model
 
 **Simulated State History**:
 The time-ordered states produced during a simulation run.
@@ -107,7 +111,7 @@ A previously selected control action reapplied until the next controller update.
 _Avoid_: Previous action, delayed action
 
 **Control Update Period**:
-The number of switching cycles between controller computations. A newly computed action applies immediately and is held until the next update.
+The number $N_d$ of switching cycles between controller computations. A newly computed action applies immediately and is held until the next update.
 _Avoid_: Prediction horizon, actuation delay
 
 **Prediction Block**:
@@ -123,7 +127,7 @@ The elapsed number of cycles or prediction blocks between selecting an action an
 _Avoid_: Control update period, block length
 
 **Prediction Horizon**:
-The number of transitions in the configured prediction model over which control actions are planned.
+The number $N_p$ of transitions in the configured prediction model over which control actions are planned.
 _Avoid_: Number of physical cycles
 
 **Finite-Horizon Feasible Set**:

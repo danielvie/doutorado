@@ -88,14 +88,33 @@ ctrl = Controllers.Proportional(K, Nd, time_us, min_gap_us)
 
 ### MpcController
 ```matlab
-ctrl = Controllers.MpcController(mpc_data)
-ctrl = Controllers.MpcController(mpc_data, 'Nd', 3)
-ctrl = Controllers.MpcController(mpc_data, 'StateMode', Enums.StateMode.AUGMENTED)
+ctrl = Controllers.MpcController(problem)
 ```
+
+`Simulation.set_mpc()` normally builds the problem and installs this controller.
 
 ---
 
 ## +Dynamics
+
+### One-Cycle Linear Model
+```matlab
+model = Dynamics.linearize_cycle(config);
+```
+
+The returned model defines the complete equation boundary:
+
+```text
+e_next = model.Phi * e + model.Gamma * delta_t
+```
+
+It also contains the nominal `orbit_states`, `boundary_times`, and
+`dynamics_indices` used to derive that equation.
+
+### Minimum Dwell Change
+```matlab
+lower_bound = Dynamics.minimum_dwell_change(config);
+```
 
 ### Step Strategy (Abstract)
 ```matlab
@@ -107,6 +126,18 @@ Fast propagation at switching instants only.
 
 ### DenseStrategy
 High-resolution propagation using `lsim` for detailed plots.
+
+---
+
+## +Mpc
+
+```matlab
+problem = Mpc.build_problem(cycle_model, config, options);
+[action, objective, exitflag] = Mpc.solve(problem, model_state);
+```
+
+`build_problem` owns held-input lifting, horizon maps, terminal ingredients, and
+static QP matrices. `solve` owns the state-dependent QP evaluation.
 
 ---
 

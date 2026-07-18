@@ -14,7 +14,8 @@ function [y, t, m, dtk_out] = run(self, nsim)
         % Control: offset the nominal interior switching instants.
         if config.control.on
             [switching_offsets, exitflag, qp_info] = ...
-                self.step_control(cycle_input_state, config.control.x_target);
+                self.m_controller.compute_control( ...
+                    cycle_input_state, config.control.x_target);
         else
             switching_offsets = zeros(numel(config.Omega) - 1, 1);
             exitflag = 0;

@@ -60,31 +60,22 @@ control step, actuation step, physics step, storage/logging, and state update.
 
 ## Complexity Debt
 
-### 1a. Active Control Path Split
+### 1a. Active Control Path
 
-Simulation and hardware do not currently share the same control path.
+Status: resolved.
 
-- `@Simulation/run.m` calls `self.step_control(...)`, which delegates to
-  `self.m_controller.compute_control(...)`.
-- `@Simulation/signal_process.m` still calls legacy `run_mpc(...)`.
-- `@Simulation/run_mpc.m` currently uses a proportional law from `K` while the
-  QP call is commented out.
-
-Impact: MATLAB simulation and BLE hardware can silently use different control
-laws. This is the most important architectural inconsistency because it can make
-bench results and hardware behavior diverge.
-
-Recommended fix: route `signal_process()` through the same controller interface
-used by `run()`, then retire or clearly mark `run_mpc.m` as legacy.
+`@Simulation/run.m` and `@Simulation/signal_process.m` both call the configured
+`Controllers.Controller` directly. The duplicate `step_control.m` and legacy
+`run_mpc.m` paths were removed.
 
 ### 1b. `set_mpc()` Did Not Install a Controller
 
 Status: resolved.
 
-Current implementation: `Options.Mpc` is the explicit MPC setup schema.
-`set_mpc(options)` owns MPC matrix construction, target resolution, controller
-creation, runtime artifact assignment under `s.m_config.mpc`, and runtime
-control state under `s.m_config.control`.
+Current implementation: `Options.Mpc` is the explicit setup schema.
+`Dynamics.linearize_cycle()` owns the one-cycle equation, `Mpc.build_problem()`
+owns prediction/QP construction, and `set_mpc(options)` locally orchestrates
+those modules and installs the runtime controller.
 
 Resolved decisions:
 
@@ -97,9 +88,8 @@ Resolved decisions:
 - `D54`: `Results.SimulationData.target` reads `config.control.x_target`.
 - `D55`: `control` has only `on` and `x_target`.
 - `D56`: per-iteration target logs are sourced from `control.x_target`.
-- `D57`: `signal_process()` uses `control.x_target`; full legacy
-  `run_mpc()` removal remains a later `1a` cleanup.
-- `D58`: legacy `run_mpc()` receives target explicitly.
+- `D57`: `signal_process()` uses `control.x_target` and the configured controller.
+- `D58`: duplicate hardware control computation was removed.
 - `D62`: `1b` grilling complete.
 
 ### 1c. `@Simulation` Is Still a Large Facade
@@ -154,7 +144,7 @@ both `step_actuation()` and `signal_process()`.
 
 Hotspots:
 
-- `+Mpc/dualmode_switching.m` rebuilds QP matrices/options and calls `quadprog`.
+- `+Mpc/build_problem.m` precomputes static QP matrices; `+Mpc/solve.m` evaluates the state-dependent terms and calls `quadprog`.
 - `+Dynamics/propagate_switching.m` calls `expm` once per mode per simulated
   cycle.
 - `+Dynamics/propagate_dense.m` can allocate large dense trajectories depending
@@ -164,8 +154,7 @@ Impact: fine for small research examples, but the expected maximum horizon
 (`Np`), modes, and simulation cycle count are not declared.
 
 Recommended fix: document expected maxima and add lightweight guards for
-`nsim`, `Np`, `numel(Omega)`, and dense trajectory size. Cache static QP options
-or matrices where possible.
+`nsim`, `Np`, `numel(Omega)`, and dense trajectory size.
 
 ### 1g. Observability Is Uneven
 

@@ -1,4 +1,4 @@
-function c = get_switching_constraints(self)
-    % get_switching_constraints - Delegates to Dynamics.switching_constraints
-    c = Dynamics.switching_constraints(self.m_config);
+function lower_bound = get_switching_constraints(self)
+    % Compatibility accessor for minimum dwell-duration changes.
+    lower_bound = Dynamics.minimum_dwell_change(self.m_config);
 end

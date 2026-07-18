@@ -44,11 +44,11 @@ $$\begin{bmatrix} x_{next} \\ 1 \end{bmatrix} = F_a \begin{bmatrix} x_{curr} \\ 
 
 ### Linearization at Switching Instants
 
-$$e(t_N) = \Phi \cdot e(t_0) + \Gamma \cdot \delta \tau$$
+$$e(t_N) = \Phi \cdot e(t_0) + \Gamma \cdot \delta t$$
 
 Where:
 - $e = x - x_{target}$ (tracking error: actual minus active setpoint)
-- $\delta \tau = [\delta \tau_1, ..., \delta \tau_{N-1}]^T$ (switching-instant offsets)
+- $\delta t = [\delta t_1, ..., \delta t_{N-1}]^T$ (switching-time perturbations)
 - $\Phi = F_N \cdot F_{N-1} \cdots F_1$ (one-cycle propagation)
 - $\Gamma_j = \left(\prod_{k=j+1}^{N} F_k\right) \cdot \left[(A_j - A_{j+1})\bar{x}(t_j) + b_j - b_{j+1}\right]$
 
@@ -62,11 +62,11 @@ Over horizon $N_p$:
 
 $$\mathbf{e} = H \cdot \mathbf{u} + \Phi_{1:N_p} \cdot e_k$$
 
-Where $\mathbf{u} = [\delta \tau_1^T, ..., \delta \tau_{N_p}^T]^T$
+Where $\mathbf{u} = [\delta t_1^T, ..., \delta t_{N_p}^T]^T$
 
 ### Cost Function (Dual-Mode)
 
-$$J = \sum_{i=1}^{N_p} \left( e_i^T Q e_i + \delta \tau_i^T R \delta \tau_i \right) + e_{N_p}^T P_f e_{N_p}$$
+$$J = \sum_{i=1}^{N_p} \left( e_i^T Q e_i + \delta t_i^T R \delta t_i \right) + e_{N_p}^T P_f e_{N_p}$$
 
 Terminal cost $P_f$ from discrete Lyapunov equation:
 
@@ -78,7 +78,7 @@ With $\bar{\Phi} = \Phi - \Gamma K$ and $K$ from `dlqr(Φ, Γ, Q, R)`.
 
 **Minimum dwell constraint**:
 
-$$L \cdot \delta \tau \geq c, \qquad c = d_{min} - d_{nominal}$$
+$$L \cdot \delta t \geq c, \qquad c = d_{min} - d_{nominal}$$
 
 **Terminal set** (MPT Toolbox):
 
@@ -107,7 +107,7 @@ is not an actuation delay.
 
 `Enums.StateMode.AUGMENTED` retains the thesis's ambiguous delayed formulation:
 
-$$X_a = \begin{bmatrix} e \\ \delta \tau_{prev} \end{bmatrix}, \quad
+$$X_a = \begin{bmatrix} e \\ \delta t_{prev} \end{bmatrix}, \quad
 A_a = \begin{bmatrix} A_b & B_b \\ 0 & 0 \end{bmatrix}, \quad
 B_a = \begin{bmatrix} 0 \\ I \end{bmatrix}$$
 
@@ -155,7 +155,7 @@ At each prediction step, the error evolves as:
 $$\mathbf{e} = H \cdot \mathbf{u} + \Phi_{1:N_p} \cdot e_k$$
 
 Subject to:
-- Minimum dwell constraints: $L \cdot \delta \tau \geq c$
+- Minimum dwell constraints: $L \cdot \delta t \geq c$
 - Terminal set: $S_f \cdot e_{N_p} \leq b_f$
 
 ### Projection via MPT3

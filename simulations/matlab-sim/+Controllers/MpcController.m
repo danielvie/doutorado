@@ -1,127 +1,60 @@
 classdef MpcController < Controllers.Controller
-    % MpcController - Model Predictive Control with variable switching instants.
-    %
-    % Solves the dual-mode MPC QP problem at each control step using quadprog.
-    % Falls back to proportional control (K*ek) when the QP is infeasible.
-    %
-    % Usage:
-    %   s.set_mpc();
-    %   mpc_data = s.m_config.mpc;
-    %   ctrl = Controllers.MpcController(mpc_data);
-    %   s.set_controller(ctrl);
-    %
-    % The MPC parameters (H, Hf, Phi1Np, ...) are computed by set_mpc()
-    % and stored in config.mpc. This controller consumes that struct.
+    % Receding-horizon controller for switching-instant offsets.
 
     properties
-        mpc         % MPC data struct (from config.mpc)
-        state_mode  % Enums.StateMode.ORIGINAL or .AUGMENTED
-        Nd          % Control update period / block length [cycles]
-
-        % Internal state
-        counter
-        last_dtk
-        dtk_prev    % Previous control action (for augmented model)
+        problem
+        update_countdown
+        held_action
+        previous_applied_action
     end
 
     methods
-        function self = MpcController(mpc_data, varargin)
-            % Constructor
-            %   MpcController(mpc_data)
-            %   MpcController(mpc_data, 'Nd', 3, 'StateMode', Enums.StateMode.ORIGINAL)
-            %
-            % Inputs:
-            %   mpc_data   - struct from config.mpc (computed by set_mpc)
-            %
-            % Name-value pairs:
-            %   'Nd'        - Held-input block length in cycles (default: 1)
-            %   'StateMode' - Prediction-model structure (default: ORIGINAL)
-
-            self.mpc = mpc_data;
-
-            % Defaults
-            self.Nd = 1;
-            self.state_mode = Enums.StateMode.ORIGINAL;
-
-            % Parse optional name-value pairs
-            for i = 1:2:numel(varargin)
-                switch lower(varargin{i})
-                    case 'nd'
-                        self.Nd = varargin{i+1};
-                    case 'statemode'
-                        self.state_mode = varargin{i+1};
-                end
-            end
-
+        function self = MpcController(problem)
+            self.problem = problem;
             self.reset();
         end
 
         function reset(self)
-            % Reset internal state for a new simulation run
-            self.counter  = self.Nd;  % trigger computation on first step
-            self.last_dtk = [];
-            self.dtk_prev = zeros(self.mpc.p, 1);
+            self.update_countdown = 0;
+            self.held_action = zeros(self.problem.action_count, 1);
+            self.previous_applied_action = ...
+                zeros(self.problem.action_count, 1);
         end
 
-        function [dtk, exitflag, info] = compute_control(self, x, x_target)
-            % compute_control - Solve the MPC QP or hold previous control.
-            %
-            % Inputs:
-            %   x        - Current state vector
-            %   x_target - Orbit anchor at the controlled cycle boundary
-            %
-            % Outputs:
-            %   dtk      - Control action (switching-instant offsets)
-            %   exitflag - Solver status (1=optimal, 0=max iter, -2=infeasible, 44=held)
-            %   info     - Struct with .time_qp field
+        function [switching_offsets, exitflag, info] = ...
+                compute_control(self, cycle_input_state, orbit_anchor)
+            info = struct('time_qp', 0, 'objective', nan);
 
-            info = struct('time_qp', 0);
-
-            % Hold the immediately applied action for the rest of its block.
-            if self.counter < self.Nd
-                if isempty(self.last_dtk)
-                    dtk = zeros(self.mpc.p, 1);
-                else
-                    dtk = self.last_dtk;
-                end
-                exitflag = 44; % held/cached
-                self.counter = self.counter + 1;
+            if self.update_countdown > 0
+                switching_offsets = self.held_action;
+                exitflag = 44;
+                self.update_countdown = self.update_countdown - 1;
                 return;
             end
 
-            % --- Solve MPC QP ---
-            tic_start = tic;
-
-            % Cycle-boundary deviation from the nominal periodic orbit.
-            ek = x - x_target;
-
-            % Augmented state (if delay compensation is active)
-            if self.state_mode == Enums.StateMode.AUGMENTED
-                ek_input = [ek; self.dtk_prev];
-            else
-                ek_input = ek;
+            orbit_deviation = cycle_input_state - orbit_anchor;
+            model_state = orbit_deviation;
+            if self.problem.prediction.uses_previous_action
+                model_state = [orbit_deviation; self.previous_applied_action];
             end
 
-            % Solve QP via Mpc.dualmode_switching
-            [dtk, ~, exitflag] = Mpc.dualmode_switching( ...
-                ek_input, ...
-                self.mpc.H, self.mpc.Hf, self.mpc.Phi1Np, ...
-                self.mpc.Qbar, self.mpc.Rbar, self.mpc.Lbar, ...
-                self.mpc.cbar, self.mpc.Pf, self.mpc.Sf, self.mpc.bf, ...
-                self.mpc.PhiNp, self.mpc.p, self.mpc.solver_options);
+            qp_start = tic;
+            [switching_offsets, objective, exitflag] = ...
+                Mpc.solve(self.problem, model_state);
+            info.time_qp = toc(qp_start);
+            info.objective = objective;
 
-            info.time_qp = toc(tic_start);
-
-            % Fallback: if QP is infeasible, use proportional law
             if exitflag ~= 1
-                fprintf(2, '[MpcController] QP exitflag=%d, falling back to K*ek\n', exitflag);
-                dtk = -self.mpc.K * ek;
+                fprintf(2, ['[MpcController] QP exitflag=%d; ', ...
+                    'using terminal feedback.\n'], exitflag);
+                switching_offsets = ...
+                    -self.problem.feedback_gain * model_state;
             end
 
-            % Update internal state
-            self.last_dtk = dtk;
-            self.dtk_prev = dtk;
-            self.counter  = 1;
+            self.previous_applied_action = switching_offsets;
+            self.held_action = switching_offsets;
+            self.update_countdown = ...
+                self.problem.update_period_cycles - 1;
         end
     end
 end

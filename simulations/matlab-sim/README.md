@@ -34,7 +34,7 @@ plotter.plot_states();
 
 ## What This Does
 
-Instead of using duty ratio as the cycle-by-cycle control action, this framework computes **switching-instant offsets** ($\delta \tau_k$). The controller regulates the converter state $x = [v_{C1}, v_{C2}, i_L]^T$ by shifting the nominal interior switching instants.
+Instead of using duty ratio as the cycle-by-cycle control action, this framework computes **switching-time perturbations** ($\delta t_k$). The controller regulates the converter state $x = [v_{C1}, v_{C2}, i_L]^T$ by shifting the nominal interior switching times.
 
 **Key Features:**
 - MPC via Quadratic Programming (`quadprog`)

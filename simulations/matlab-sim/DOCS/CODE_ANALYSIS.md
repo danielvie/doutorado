@@ -120,13 +120,13 @@ Data.* config  →  Trajectory.Planner (alpha/iref)  →  Simulation.set_mpc()
   - `eh preciso`, `monta vetor`, `USANDO MODELO EXTENDIDO`, `calculando`, `constraing` (typo).
   - Impact: Reduces accessibility for international collaborators.
 - **Placeholder Comments:** `QuantType.m` contains `%UNTITLED Summary of this class goes here`.
-- **Dead Code:** `build_switching_model.m` has large commented blocks (`%{ ... %}`) containing alternative implementations and debugging fragments.
+
 
 ### 5.2 Naming & Magic Values
 
 | Issue            | Example                                        | Suggestion                                                   |
 | ---------------- | ---------------------------------------------- | ------------------------------------------------------------ |
-| Unclear flag     | `config.kawa` toggles extended model           | Rename to `use_extended_model`                               |
+
 | Magic numbers    | `1e-16`, `1e-9`, `2.2e-5` in QPs               | Define as named constants (`MIN_DT_FILTER`, `QP_LB_DEFAULT`) |
 | Hardcoded period | `Planner.T = 0.28e-3`                          | Pull from `config.Tpmax` or circuit params                   |
 | Mixed units      | `us` vs `s` vs `ms` without Hungarian notation | Use `_us`, `_s` suffixes consistently (partially done)       |
@@ -141,12 +141,12 @@ Data.* config  →  Trajectory.Planner (alpha/iref)  →  Simulation.set_mpc()
 ### 5.4 Incomplete Modules
 
 - **`project_feasibility_region.m`:** Truncated implementation (`% ...`). Only dispenses inputs and retrieves `Phi/Gamma`.
-- **`+Mpc/build_switching_model.m`:** Contains a `FIXME` comment and extensive dead code paths.
+
 - **`test_basic.m`:** Not a self-contained unit test; appears to be a hardware integration script that mixes workspace manipulation with broker commands.
 
 ### 5.5 Test Coverage
 
-- **14 test/check files** exist in `+z_run/+Tests/`, but they are mostly **diagnostic scripts**, not automated assertions.
+- Most files in `+z_run/+Tests/` remain diagnostic scripts, but focused equation and run-flow checks now use assertions.
 - `test_dlqr_behavior.m` lacks assertions; it just prints values.
 - `test_industrial_solution.m` prints binary strings without validation.
 - **Recommendation:** Adopt MATLAB's `assert()` or `matlab.unittest` framework for true regression testing.
@@ -176,9 +176,8 @@ Data.* config  →  Trajectory.Planner (alpha/iref)  →  Simulation.set_mpc()
 ### Quick Wins
 
 1. **Standardize language** to English for all new code; add `TODO(i18n)` markers on legacy Portuguese comments.
-2. **Remove dead code** from `build_switching_model.m` (move to `archive/` if historically relevant).
-3. **Add assertions** to `test_industrial_solution.m`, `test_dlqr_behavior.m`, and `test_mpc_on.m`.
-4. **Replace `evalin`** in `getAllVars` with explicit constructor args.
+2. **Add assertions** to `test_industrial_solution.m`, `test_dlqr_behavior.m`, and `test_mpc_on.m`.
+3. **Replace `evalin`** in `getAllVars` with explicit constructor args.
 
 ### Medium Effort
 
