@@ -1,6 +1,6 @@
 # Repository reorganization plan
 
-This document records the implemented target structure for making the repository easier to navigate. It also keeps the old-to-new folder mapping for future reference.
+This document records the intended structure for making the repository easier to navigate. It also keeps the old-to-new folder mapping for future reference; the repository currently retains its existing folder names where a rename has not been applied.
 
 ## Principle
 
@@ -32,7 +32,10 @@ doutorado.git/
 ├── simulations/
 ├── embedded/
 ├── presentations/
-├── vendor/
+├── z_dependencies/
+├── z_kawa/
+├── z_mpt_install/
+├── z_qpoases/
 ├── sandbox/
 └── docs/
 ```
@@ -88,7 +91,7 @@ simulations/
 
 | Current path | Proposed path | Notes |
 | --- | --- | --- |
-| `simu2/` | `simulations/matlab-sim-sim/` | Preferred active simulation codebase. |
+| `simu2/` | `simulations/matlab-sim/` | Preferred active simulation codebase. |
 | `simulacoes/` | `simulations/legacy/` | Older MATLAB simulation code. |
 | `projecao/` | `simulations/projection/` | Projection/feasibility-region work. |
 | `z_backup_simulacoes/` | `simulations/backup/` | Backup material. |
@@ -102,16 +105,19 @@ Possible internal cleanup:
 ```text
 embedded/
 ├── esp32_idf/
-├── esp32_legacy/
-├── hardware-docs/
-└── lab-notes/
+├── arduino/
+├── docs-hardware/
+├── kicad/
+├── scripts_matlab/
+├── scripts_python/
+└── tests_espressif/
 ```
 
 | Current path | Proposed path | Notes |
 | --- | --- | --- |
 | `embedded/esp32_idf/` | `embedded/esp32_idf/` | Current ESP32-IDF firmware work. |
-| `embedded/esp32/` | `embedded/esp32_legacy/` | Rename only if confirmed legacy. |
-| `embedded/doc/` | `embedded/hardware-docs/` | Datasheets, pinouts, wiring docs. |
+| `embedded/esp32/` | `embedded/arduino/` | Arduino-based embedded work. |
+| `embedded/doc/` | `embedded/docs-hardware/` | Datasheets, pinouts, wiring docs. |
 
 ### Literature and tutorial experiments
 
@@ -152,17 +158,17 @@ presentations/
 ### Vendor and auxiliary material
 
 ```text
-vendor/
-├── dependencies/
-├── kawa/
-└── qpoases/
+z_dependencies/
+z_kawa/
+z_qpoases/
 ```
 
 | Current path | Proposed path | Notes |
 | --- | --- | --- |
-| `z_dependencies/` | `vendor/dependencies/` | External dependencies. |
-| `z_kawa/` | `vendor/kawa/` | Kawa-related material. |
-| `z_qpoases/` | `vendor/qpoases/` | qpOASES-related material. |
+| `z_dependencies/` | `z_dependencies/` | External dependencies. |
+| `z_kawa/` | `z_kawa/` | Kawa-related material. |
+| `z_mpt_install/` | `z_mpt_install/` | Multi-Parametric Toolbox installation material. |
+| `z_qpoases/` | `z_qpoases/` | qpOASES-related material. |
 
 ### Administrative/support docs
 
