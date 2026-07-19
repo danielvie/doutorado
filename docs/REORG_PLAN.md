@@ -4,19 +4,18 @@ This document records the implemented target structure for making the repository
 
 ## Principle
 
-Keep LaTeX source, research notes, and shared assets separate so each has an obvious home.
+Keep LaTeX source at the repository root under `LATEX/`. Consolidate supporting research artifacts under `research-material/`, using purpose-specific folders no more than three levels deep. Reserve `docs/` for repository documentation.
 
 The main work areas are:
 
 1. LaTeX source
-2. Research notes
+2. Supporting research material
 3. Shared assets
 4. Simulations and analysis
 5. Embedded experiments
-6. References
-7. Presentations
-8. External/vendor material
-9. Sandbox experiments
+6. Presentations
+7. External/vendor material
+8. Sandbox experiments
 
 ## Current top-level structure
 
@@ -28,11 +27,10 @@ doutorado.git/
 ├── tese.pdf
 │
 ├── LATEX/
-├── research-notes/
+├── research-material/
 ├── assets/
 ├── simulations/
 ├── embedded/
-├── references/
 ├── presentations/
 ├── vendor/
 ├── sandbox/
@@ -41,9 +39,9 @@ doutorado.git/
 
 ## Folder mapping
 
-### LaTeX, research notes, and shared assets
+### Writing, research material, and shared assets
 
-Keep authored LaTeX source in `LATEX/`. Keep planning, feedback, and supporting written material in `research-notes/`. Put reusable diagrams and images in `assets/`.
+Keep authored LaTeX source in root-level `LATEX/`. Keep plans, reviewer feedback, authored analysis, and external literature together under `research-material/`. Put reusable diagrams and images in `assets/`; reserve `docs/` for repository documentation.
 
 ```text
 LATEX/
@@ -53,10 +51,16 @@ LATEX/
     ├── proportional-switching-time-controller/
     └── publication/
 
-research-notes/
+research-material/
+├── literature/
 ├── planning/
-├── feedback/
-└── notes/
+│   └── qualification/
+├── review-feedback/
+│   └── comments/
+└── working-notes/
+    ├── linearization/
+    ├── meetings/
+    └── optimization/
 
 assets/
 ```
@@ -67,9 +71,9 @@ assets/
 | `manuscripts/papers/artigo/` | `LATEX/papers/flying-capacitor-three-cell-converter/` | Hardware article source. |
 | `manuscripts/papers/proportional-switching-time-controller/` | `LATEX/papers/proportional-switching-time-controller/` | Proportional controller article source. |
 | `manuscripts/papers/publication/` | `LATEX/papers/publication/` | Publication LaTeX drafts and templates. |
-| `manuscripts/planning/` | `research-notes/planning/` | Qualification and planning material. |
-| `manuscripts/feedback/` | `research-notes/feedback/` | Review/comments material. |
-| `manuscripts/notes/` | `research-notes/notes/` | Supporting notes and documents. |
+| `manuscripts/planning/` | `research-material/planning/` | Qualification and planning material. |
+| `manuscripts/feedback/` | `research-material/review-feedback/` | Review/comments material. |
+| `manuscripts/notes/` | `research-material/working-notes/` | Authored analysis and meeting material. |
 | `manuscripts/assets/` | `assets/` | Shared diagrams and images. |
 
 ### Simulations and analysis
@@ -109,22 +113,28 @@ embedded/
 | `embedded/esp32/` | `embedded/esp32_legacy/` | Rename only if confirmed legacy. |
 | `embedded/doc/` | `embedded/hardware-docs/` | Datasheets, pinouts, wiring docs. |
 
-### References
+### Literature and tutorial experiments
 
 ```text
-references/
-├── papers/
+research-material/literature/
+├── articles-control/
+├── articles-converters/
+├── articles-dwell-time/
+├── articles-switched-systems/
 ├── books/
-├── courses/
-├── tutorials/
-└── misc/
+├── course-material/
+├── prior-work/
+└── theses/
 ```
 
-| Current path | Proposed path | Notes |
+| Previous path | Current path | Notes |
 | --- | --- | --- |
-| `documentos/referencias/` | `references/` | Academic and technical references. |
-| `z_tutoriais/` | `references/tutorials/` | Tutorial material. |
-| `documentos/` non-reference files | Decide case by case | Some belong in `research-notes/`, some in `references/`. |
+| `references/papers/artigos/` | `research-material/literature/articles-*/` | External articles grouped by topic. |
+| `references/papers/livros/` | `research-material/literature/books/` | External books. |
+| `references/papers/teses/` | `research-material/literature/theses/` | External theses. |
+| `references/papers/aulas/` | `research-material/literature/course-material/` | Course handouts. |
+| `references/papers/trabalhos_anteriores/` | `research-material/literature/prior-work/` | Prior project work. |
+| `references/tutorials/matlab_coder/` | `sandbox/matlab-coder/` | Self-contained code experiments; internal build layout retained. |
 
 ### Presentations
 

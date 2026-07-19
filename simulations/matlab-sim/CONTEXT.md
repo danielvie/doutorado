@@ -92,6 +92,10 @@ _Avoid_: Desired-operating-point error, tracking error
 The thesis equation $e(t_{j,N})=\Phi e(t_{j,0})+\Gamma\delta t[j]$ relating cycle-start orbit deviation and switching-time perturbations to cycle-end orbit deviation.
 _Avoid_: State-space model, blocked prediction model
 
+**Homogeneous State Augmentation**:
+The representation $\mathcal{X}=[x;1]$ that converts affine mode dynamics into homogeneous linear dynamics. It is a derivation technique, not an actuation-delay model.
+_Avoid_: Augmented prediction model, delay augmentation
+
 **Simulated State History**:
 The time-ordered states produced during a simulation run.
 _Avoid_: Trajectory, nominal periodic orbit

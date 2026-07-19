@@ -20,7 +20,7 @@ function set_mpc(self, options)
             'Configure the nominal orbit before building the MPC problem.');
     end
 
-    cycle_model = Dynamics.linearize_cycle(self.m_config);
+    cycle_model = build_cycle_model(self.m_config, options.linearization_method);
     state_count = size(cycle_model.Phi, 1);
     if numel(cycle_model.orbit_anchor) ~= state_count
         error('Orbit anchor must have %d elements.', state_count);
@@ -33,4 +33,16 @@ function set_mpc(self, options)
     self.m_config.control.on = true;
     self.m_config.control.x_target = cycle_model.orbit_anchor;
     self.set_controller(controller);
+end
+
+function model = build_cycle_model(config, method)
+    if method == Enums.LinearizationMethod.SWITCHING_TIME
+        model = Dynamics.linearize_cycle(config);
+        return;
+    end
+    if method == Enums.LinearizationMethod.AUGMENTED_DURATION
+        model = Dynamics.linearize_cycle_augmented(config);
+        return;
+    end
+    error('Unsupported MPC linearization method.');
 end

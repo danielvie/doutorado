@@ -12,9 +12,9 @@ The complete workspace for the doctorate project, including thesis writing, simu
 
 LaTeX projects for the thesis and papers, maintained under `LATEX/`.
 
-### Research notes
+### Technical note
 
-Planning, review feedback, and supporting written material maintained under `research-notes/`.
+Authored analysis, derivations, and meeting material maintained under `research-material/working-notes/`.
 
 ### Shared asset
 
@@ -48,9 +48,9 @@ Hardware-facing work involving the ESP32, firmware, measurement setup, calibrati
 
 Analysis related to projection or feasibility-region computation for the control problem.
 
-### Research reference
+### Research literature
 
-External academic or technical material used to support the thesis, article, or experiment design.
+External academic or technical material used to support the thesis, article, or experiment design, maintained under `research-material/literature/`.
 
 ### Presentation material
 
@@ -58,7 +58,11 @@ Slides, animations, or other communication artifacts used to present the doctora
 
 ### Planning material
 
-Qualification, schedule, and project-planning documents that guide manuscript production.
+Qualification, schedule, and project-planning documents that guide manuscript production, maintained under `research-material/planning/`.
+
+### Review material
+
+Reviewer comments and associated citation metadata maintained under `research-material/review-feedback/`.
 
 ### Archive material
 

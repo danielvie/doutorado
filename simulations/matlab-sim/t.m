@@ -5,7 +5,8 @@
 %   t <task> <name>
 %
 % Tasks:
-%   play <name>     - Run play script: lab, patino1, patino2, integrador
+%   play <name>     - Run play script: lab, patino1, patino2, integrador,
+%                     linearization_comparison
 %   projection <name> - Run projection: patino1, patino2, integrador, automate
 %   test            - Run test suite
 %   demo <name>     - Run demo: projection, broker, feasibility
@@ -15,6 +16,7 @@
 % Examples:
 %   t play lab
 %   t play patino1
+%   t play linearization_comparison
 %   t test
 %   t demo projection
 %   t projection patino1
@@ -29,7 +31,8 @@ function t(task, varargin)
     switch lower(task)
         case 'play'
             if nargin < 2
-                fprintf('Available plays: lab, patino1, patino2, integrador\n');
+                fprintf(['Available plays: lab, patino1, patino2, ', ...
+                    'integrador, linearization_comparison\n']);
             else
                 run_play(varargin{1});
             end
@@ -71,11 +74,14 @@ function run_play(name)
             z_run.Scripts.play_patino1();
         case 'patino2'
             z_run.Scripts.play_patino2();
+        case 'linearization_comparison'
+            z_run.Experiments.compare_patino2_linearizations();
         case {'integrador', 'double_integrator'}
             z_run.Scripts.play_integrador_duplo();
         otherwise
             fprintf('Play "%s" not found.\n', name);
-            fprintf('Available plays: lab, patino1, patino2, integrador\n');
+            fprintf(['Available plays: lab, patino1, patino2, ', ...
+                'integrador, linearization_comparison\n']);
     end
 end
 

@@ -100,6 +100,7 @@ ctrl = Controllers.MpcController(problem)
 ### One-Cycle Linear Model
 ```matlab
 model = Dynamics.linearize_cycle(config);
+augmented_model = Dynamics.linearize_cycle_augmented(config);
 ```
 
 The returned model defines the complete equation boundary:
@@ -109,7 +110,9 @@ e_next = model.Phi * e + model.Gamma * delta_t
 ```
 
 It also contains the nominal `orbit_states`, `boundary_times`, and
-`dynamics_indices` used to derive that equation.
+`dynamics_indices` used to derive that equation. The augmented-duration method
+implements `DOCS/linearization/linearization.tex`, then maps its `N` duration
+perturbations to the runtime's `N-1` fixed-period switching-time perturbations.
 
 ### Minimum Dwell Change
 ```matlab
@@ -216,6 +219,7 @@ b.last(n)                % Last n calculations
 |------|--------|
 | `SimName` | `LAB_CIRCUIT`, `PATINO_1`, `PATINO_2`, `INTEGRADOR_DUPLO` |
 | `StateMode` | `ORIGINAL` (held-input block), `AUGMENTED` (experimental delayed block) |
+| `LinearizationMethod` | `SWITCHING_TIME`, `AUGMENTED_DURATION` |
 | `QuantType` | `Traj`, `Sim` |
 
 ---
@@ -240,6 +244,8 @@ mpc_options = Options.Mpc();
 mpc_options.Np = 10;  % Prediction-block transitions
 mpc_options.Nd = 2;   % Held-input block length [cycles]
 mpc_options.Q = diag([10, 10, 1]);
+mpc_options.linearization_method = ...
+    Enums.LinearizationMethod.SWITCHING_TIME;
 mpc_options.state_mode = Enums.StateMode.ORIGINAL;
 mpc_options.solver_algorithm = 'active-set';
 mpc_options.solver_display = 'off';

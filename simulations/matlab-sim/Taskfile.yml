@@ -21,6 +21,11 @@ tasks:
     cmds:
       - matlab -batch "t('test')"
 
+  compare-linearizations:
+    desc: Compare PATINO_2 MPC linearization derivations
+    cmds:
+      - matlab -batch "z_run.Experiments.compare_patino2_linearizations(8, false);"
+
   test-domain-model:
     desc: Run the focused domain-model check
     cmds:

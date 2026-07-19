@@ -37,7 +37,14 @@ function assert_cycle_linearization(simulation_name)
 
     config = simulation.m_config;
     model = simulation.get_cycle_linear_model();
+    augmented_model = Dynamics.linearize_cycle_augmented(config);
     [Phi_fd, Gamma_fd] = finite_difference(config);
+
+    assert(norm(augmented_model.Phi - model.Phi) < 1e-10, ...
+        'Augmented-state Phi differs from the direct derivation.');
+    assert(norm(augmented_model.Gamma - model.Gamma) ...
+        / max(1, norm(model.Gamma)) < 1e-10, ...
+        'Augmented-state Gamma differs from the direct derivation.');
 
     state_error = norm(model.Phi - Phi_fd) / max(1, norm(Phi_fd));
     switching_error = norm(model.Gamma - Gamma_fd) ...

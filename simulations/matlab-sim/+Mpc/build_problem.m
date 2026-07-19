@@ -78,6 +78,7 @@ function problem = build_problem(cycle_model, config, options)
     problem.Nd = options.Nd;
     problem.block_length_cycles = options.Nd;
     problem.state_mode = options.state_mode;
+    problem.linearization_method = options.linearization_method;
 end
 
 function prediction = build_prediction_model(cycle_model, options)
