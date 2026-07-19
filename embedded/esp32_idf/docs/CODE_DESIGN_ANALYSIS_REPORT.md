@@ -6,6 +6,8 @@ Scope: ESP-IDF firmware in `main/`, shared protobuf contract in `proto/`, and th
 
 Analysis lens: module depth, responsibility boundaries, change amplification, scaling limits, observability, and safety constraints for an embedded real-time control system.
 
+> **Status: historical/supporting analysis — not architecture authority.** This report records the state observed on the date above. References to “current” describe that snapshot and do not replace the requirements, ADRs, or implementation. Evaluate the CPU and DMA execution models separately before using recommendations involving Core 1, interrupts, watchdogs, or the control path.
+
 ## Executive Summary
 
 The command-routing architecture has materially improved since the first analysis. The old ASCII command router has been removed from the active BLE path, and the UI now sends namespaced protobuf `UiCommand` messages with optional JSON payloads. BLE transport is closer to a real transport boundary: it decodes frame prefixes, dispatches OTA or UI command protobufs, and sends structured protobuf responses.

@@ -1,7 +1,9 @@
-# ESP32 BLE Signal Controller
+# ESP32 Signal Controller
 
 > **Projeto de Doutorado — ITA (Instituto Tecnológico de Aeronáutica)**
-> Firmware embarcado para ESP32 utilizando ESP-IDF v5.5.1, com controle de sinais digitais em tempo real, leitura analógica e comunicação Bluetooth Low Energy (BLE).
+> Firmware embarcado para ESP32, baseado em ESP-IDF v5.5.1, para Real-Time Control Experiments com Signal Cycles, Control Measurements e comunicação Bluetooth Low Energy (BLE).
+>
+> **Escopo.** Este README é uma visão geral. Os requisitos estão em [docs/PROJECT_GOALS.md](docs/PROJECT_GOALS.md); a decisão dos Signal Engines está em [ADR 0001](docs/adr/0001-dual-signal-engine-i2s-dma.md). Para comportamento executável e configuração-alvo, consulte `main/` e `sdkconfig`.
 
 ---
 
@@ -33,64 +35,36 @@
 
 ## Visão Geral
 
-Este firmware implementa um **controlador de sinais digitais em tempo real** para o ESP32, voltado para aplicações de pesquisa em controle. As principais capacidades são:
+Este firmware suporta Real-Time Control Experiments que exigem geração determinística de Signal Cycles e Control Measurements com restrições de temporização.
 
-- **Geração de sinais digitais** de alta precisão (nível de microsegundos) em 6 pinos GPIO, com suporte a *dead time* configurável
-- **Comunicação BLE (GATT Server)** para receber comandos e enviar telemetria a um cliente (ex: app móvel ou desktop)
-- **Leitura analógica** de até 6 canais ADC com calibração por interpolação linear
-- **Operações matriciais** embarcadas (multiplicação matriz×vetor) para ação de controle
-- **Double buffering** de datasets de sinais para atualização em tempo real sem interromper a geração
-- **Datasets pré-calculados** parametrizados por *alpha* (razão cíclica), com matrizes de ganho K associadas
+As capacidades principais são:
 
-O projeto é compilado com **ESP-IDF v5.5.1** e configurado para **BLE 4.2** (Bluedroid stack).
+- **Dois Signal Engines selecionáveis** pelo comando parado `signal.engine`:
+  - **CPU:** reprodução por GPIO e busy-wait no Core 1;
+  - **DMA:** reprodução de um Rendered Bitstream pelo I2S1 paralelo com DMA.
+- **Três Output Groups** (`U1`, `U2` e `U3`), cada um com terminais `Low` e `High`, incluindo Dead Time nas transições.
+- **Datasets por Operating Point (alpha)**, com Signal Cycle, Control Measurement target e Gain Matrix K.
+- **Aquisição analógica contínua por ADC/DMA**, com modo oneshot de fallback, para publicar Control Measurements de `AN3 -> VR`, `AN5 -> V_C1` e `AN6 -> V_C2`.
+- **BLE GATT** para comandos, telemetria e status.
+
+A seleção de engine só ocorre com o sinal parado; o firmware não troca o modelo de execução durante um Signal Cycle.
 
 ---
 
 ## Arquitetura do Sistema
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        CLIENTE BLE                          │
-│               (App Mobile / Desktop / Browser)              │
-└──────────────────────────┬──────────────────────────────────┘
-                           │ BLE GATT (Write/Notify)
-                           ▼
-┌──────────────────────────────────────────────────────────────┐
-│                       ESP32 (Core 0)                         │
-│  ┌───────────────┐  ┌──────────────┐  ┌───────────────────┐  │
-│  │ BLE Controller│  │ Analog Task  │  │ Analog Action Task│  │
-│  │  (GATT Server)│  │ (monitoração)│  │ (sob demanda)     │  │
-│  │               │  │              │  │                   │  │
-│  │  ble_router() │  │ 500ms loop   │  │ semaphore-driven  │  │
-│  └──────┬────────┘  └──────┬───────┘  └───────┬───────────┘  │
-│         │                 │                   │              │
-│         ▼                 ▼                   ▼              │
-│  ┌───────────────────────────────────────────────────┐       │
-│  │               Estado Global                       │       │
-│  │  g_system_state, g_dataset_a/b, g_active_set      │       │
-│  │  g_cycle_nrun, g_cycle_us_delay_up/down           │       │
-│  └──────────────────────┬────────────────────────────┘       │
-└─────────────────────────┼────────────────────────────────────┘
-                          │
-┌─────────────────────────┼────────────────────────────────────┐
-│                       ESP32 (Core 1)                         │
-│  ┌──────────────────────▼────────────────────────────┐       │
-│  │            Signal Loop Task                       │       │
-│  │  - Execução de padrão de sinais digitais          │       │
-│  │  - Dead time entre transições                     │       │
-│  │  - Double buffer swap (SET_A ↔ SET_B)             │       │
-│  │  - GPIO direto via registradores (out_w1ts/w1tc)  │       │
-│  │  - Interrupções DESABILITADAS durante execução    │       │
-│  └───────────────────────────────────────────────────┘       │
-└──────────────────────────────────────────────────────────────┘
-```
+| Área | Implementação atual |
+|---|---|
+| CPU Signal Engine | `signal_loop_task` no Core 1 reproduz Signal Cycles por GPIO. As interrupções são desabilitadas somente durante a reprodução crítica. |
+| DMA Signal Engine | A tarefa de controle DMA no Core 1 e a ISR do I2S1 reproduzem um Rendered Bitstream. O trabalho de controle ocorre com interrupções habilitadas e a tarefa participa do task watchdog. |
+| Aquisição e BLE | Core 0 executa BLE, telemetria, processamento de comandos e o ciclo de vida do ADC. Ele publica medições no modo CPU; no modo DMA contínuo, entrega a posse da leitura ao Core 1 no control point. |
+| Controle | Uma Current-Cycle Measurement produz uma Next-Cycle Control Action. Uma atualização que não conclui sem perturbar o Signal Cycle é registrada como Missed Control Update. |
 
-### Distribuição entre Cores
+Os dois engines compartilham o pré-processamento de transições em `signal_precompute_steps()`, preservando a semântica de Dead Time e dos Output Groups.
 
-| Core | Função |
-|------|--------|
-| **Core 0 (PRO_CPU)** | BLE stack, BLE Router, Analog Reading Task, Analog Action Task, Blink Task |
-| **Core 1 (APP_CPU)** | Signal Loop Task (prioridade 10, interrupções desabilitadas) |
+---
+
+> **Referência legada.** As seções detalhadas restantes deste README foram preservadas como um snapshot histórico/anotação de apoio do projeto anterior ao modelo dual CPU/DMA. Elas não são autoridade para arquitetura, distribuição de tarefas, protocolo BLE, aquisição ADC ou temporização. Consulte os documentos e o código indicados no escopo acima para o comportamento atual.
 
 ---
 

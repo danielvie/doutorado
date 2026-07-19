@@ -2,9 +2,9 @@
 
 Status: accepted
 
-The ADC continuous driver remains responsible for sampling and DMA buffering, but the control-measurement acquisition task is now woken directly by the ADC conversion-done callback. The callback only records the frame timestamp, maintains the timestamp ring, and notifies the acquisition task. The task then reads the ADC frame, assembles the latest control measurement, and publishes it for the Core 1 control point.
+The ADC continuous driver remains responsible for sampling and DMA buffering. Its conversion-done callback only notifies the Core 0 acquisition task. The active reader drains frames, timestamps each frame with `esp_timer_get_time()` immediately after `adc_continuous_read()` returns, backdates samples by the configured conversion interval, assembles the newest complete control measurement, and publishes it for the control point.
 
-This replaces polling/yield-based acquisition for continuous mode. BLE and telemetry remain consumers of published measurements, not drivers of measurement acquisition.
+In CPU-engine operation, the Core 0 acquisition task is the active reader and publisher. In continuous DMA-engine operation, Core 0 starts the ADC driver and hands the single-reader token to the Core 1 DMA control task, which drains and publishes at its control point. BLE and telemetry remain consumers of published measurements, not drivers of acquisition.
 
 ## Considered Options
 
@@ -14,7 +14,8 @@ This replaces polling/yield-based acquisition for continuous mode. BLE and telem
 
 ## Consequences
 
-- The acquisition task has priority over app/BLE command work, but blocks on ADC notifications, so it should not busy-starve Core 0.
-- The ADC callback must stay small: no logging, allocation, protobuf work, or calibration.
-- Timestamp overflow drops the oldest timestamp so fresh DMA frames are not paired with stale frame times.
-- BLE/status traffic can still consume CPU, but it no longer determines when the acquisition task wakes to publish a control measurement.
+- The Core 0 acquisition task has priority over app/BLE command work, but blocks on ADC notifications while it owns the reader, so it should not busy-starve Core 0.
+- The ADC callback must stay small: no logging, allocation, protobuf work, calibration, or timestamp bookkeeping.
+- `flush_pool` intentionally favors fresh data. Frame timestamps are read-time-derived estimates, so Core 0 scheduling delay remains visible as measurement age instead of being hidden by a stale timestamp ring.
+- In continuous DMA-engine operation, the Core 1 DMA control task owns frame draining and publication; Core 0 retains driver lifecycle and reader-token handoff.
+- BLE/status traffic can still consume Core 0, but it does not determine when the DMA control task drains a measurement at its control point.

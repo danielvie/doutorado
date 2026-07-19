@@ -71,7 +71,7 @@ struct SignalTimingCompact {
  * @brief Runtime-selectable Signal Engine (D1/D8).
  * CPU: busy-wait engine on Core 1 with interrupts disabled.
  * DMA: I2S1-parallel engine playing a Rendered Bitstream.
- * Volatile selection — reboot returns to the characterized CPU reference.
+ * Volatile selection — reboot returns to the configured DMA default.
  */
 enum class SignalEngine {
     CPU,

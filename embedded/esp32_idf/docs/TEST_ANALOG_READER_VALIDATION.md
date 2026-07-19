@@ -2,22 +2,22 @@
 
 This document uses the domain language defined in [CONTEXT.md](../CONTEXT.md). It describes what the analog acquisition subsystem is supposed to do, how to exercise it on the bench, and what to check during control-measurement timing validation.
 
-Scope: the acquisition pipeline in `main/src/helper_analog.cpp` and its consumption at the control point in `main/src/signal_controller.cpp`.
+Scope: the acquisition pipeline in `main/src/helper_analog.cpp` and its consumption at the CPU and DMA control points in `main/src/signal_controller.cpp` and `main/src/signal_engine_dma.cpp`.
 
 ## 1. Expected Behavior
 
 ### 1.1 Acquisition
 
 - The controller measures three analog channels using the control measurement channel mapping: `AN3 -> VR`, `AN5 -> V_C1`, `AN6 -> V_C2` (ADC1 channels 4, 6, 0 / GPIO 32, 34, 36).
-- Default mode is **continuous DMA** at 250 kHz total conversion rate (~83 k triples/s), running in the acquisition task on Core 0 at priority `tskIDLE_PRIORITY + 6`. A **oneshot** fallback mode samples one triple per configured period (default 1000 µs).
-- The DMA driver delivers frames of 16 triples (48 samples). Samples are routed into three per-channel queues and reassembled into complete AN3/AN5/AN6 triples without trusting hardware ordering.
+- Default mode is **continuous DMA** at 250 kHz total conversion rate (~83.3 k triples/s). The Core 0 acquisition task runs at priority `tskIDLE_PRIORITY + 8`; it owns reading and publication for the CPU engine, stopped DMA engine, and oneshot mode. A **oneshot** fallback mode has a configured 1000 µs period, subject to FreeRTOS tick resolution.
+- Each DMA frame contains 4 triples (12 ADC results; 24 bytes on this target), and the DMA store holds two frames with `flush_pool=1` to prefer fresh data. Samples are routed into three per-channel queues and reassembled into complete AN3/AN5/AN6 triples without trusting hardware ordering.
 
 ### 1.2 Timestamps (measurement age)
 
-- Every DMA frame is timestamped **in the conversion-done ISR**, and each sample is backdated from the frame-completion time by its position in the frame. The published timestamp is therefore the **conversion time**, not the time the Core-0 task got scheduled.
-- An assembled triple carries the **oldest** of its three sample timestamps (conservative: measurement age is never underestimated).
-- In oneshot mode the timestamp is taken before the first of the three conversions (same conservative rule).
-- On any event that breaks frame/timestamp pairing (partial frame, read error, pool flush, driver restart) the timestamp ring resyncs and falls back to read time for that frame.
+- The conversion-done ISR only notifies the Core 0 acquisition task. The active reader timestamps each successful DMA frame with `esp_timer_get_time()` immediately after `adc_continuous_read()` returns, then backdates samples by the configured conversion interval. Continuous-mode timestamps are therefore read-time-derived estimates, not ISR-captured conversion timestamps.
+- An assembled triple carries the **oldest** of its three sample timestamps, so its reported age is conservative within the read-time-derived estimate.
+- In oneshot mode the timestamp is taken before the first of the three conversions.
+- No ISR timestamp ring or timestamp-fallback path is implemented. `flush_pool=1` discards stale frame data, so reader scheduling delay remains visible as measurement age.
 
 ### 1.3 Publication
 
@@ -26,9 +26,9 @@ Scope: the acquisition pipeline in `main/src/helper_analog.cpp` and its consumpt
 
 ### 1.4 Consumption at the control point
 
-- At the control point (the maintenance interval between signal cycle playbacks), the signal loop on Core 1 calls `analog_read_control_snapshot` with an age budget derived from the **active dataset's signal cycle window** (nominal pattern cycles ÷ 240 MHz). Fallback is 280 µs if the window is not computable.
-- The pipeline clamps the budget upward to `analog_min_snapshot_age_us()` — one DMA frame of accumulation plus 50% margin (~288 µs at 250 kHz) — because samples fresher than one frame are physically unavailable.
-- The read path is lightweight: a bounded seqlock read (8 attempts) plus an age check. No latency statistics or sorting run at the control point.
+- The Core 1 control point calls `analog_read_control_snapshot` with an age budget derived from the **active dataset's signal cycle window** (nominal pattern cycles ÷ 240 MHz). The fallback is 280 µs if the window is not computable. With the CPU engine, Core 0 acquires and publishes the snapshot. With continuous acquisition and an active DMA engine, Core 0 starts the ADC driver and hands its single-reader token to the Core 1 DMA control task, which drains pending frames and publishes the newest triple before consuming it.
+- The pipeline clamps the budget upward to `analog_min_snapshot_age_us()` — one DMA frame of accumulation plus 50% margin (72 µs at 250 kHz) — because samples fresher than one frame are physically unavailable.
+- The read path is lightweight: a bounded seqlock read (32 attempts) plus an age check. No latency statistics or sorting run at the control point.
 - A control update is **skipped** (missed control update: previous correction kept, fault recorded) when:
   - the snapshot sequence equals the last-consumed sequence (no new sample), or
   - measurement age exceeds the effective budget (stale sample), or
@@ -46,9 +46,9 @@ Scope: the acquisition pipeline in `main/src/helper_analog.cpp` and its consumpt
 | 3 | MISSING_TRIPLE | No valid triple in the snapshot |
 | 4 | DMA_OVERFLOW | Continuous driver overflow / read failure |
 | 5 | CALIBRATION_UNAVAILABLE | Calibration LUT not built yet |
-| 6 | SNAPSHOT_CONTENTION | Bounded seqlock read gave up (Core-0 writer starved) |
+| 6 | SNAPSHOT_CONTENTION | Bounded seqlock read gave up before a coherent snapshot was available |
 
-The status message also reports the freshness bookkeeping directly: `min_snapshot_age_us` (pipeline floor), `control_max_age_us` (effective age budget enforced at the control point), and `frame_ts_fallbacks` (times a frame timestamp fell back to read time because the ISR timestamp ring was empty or desynchronized). The web console prints these on the `Age` and `TS fallbacks` lines of the analog status block.
+The status message also reports `min_snapshot_age_us` (pipeline floor) and `control_max_age_us` (effective age budget enforced at the control point). `frame_ts_fallbacks` remains exported for compatibility but is not a validation metric: no timestamp-ring or fallback path increments it. The web console prints these fields on the analog status block.
 
 ## 2. How to Test
 
@@ -71,7 +71,7 @@ Run the signal at alpha 0.5 with control **disabled**, let it sit for ≥60 s, t
 - `measured_triples_per_second` vs. the configured rate.
 - `overflow_count`, `frame_drops`, `pool_flushes`, `channel_order_anomalies`, `samples_rejected` — should stay flat after startup.
 - `age_us` observed repeatedly — should stay within the expected envelope (see §3).
-- Repeat while a BLE client is actively polling status, since BLE load on Core 0 is the main disturbance source.
+- Repeat while a BLE client is actively polling status. Test both engines: BLE load on Core 0 directly affects acquisition publishing with the CPU engine; with active DMA continuous acquisition, Core 1 publishes at the DMA control point while Core 0 performs driver lifecycle and reader-token handoff.
 
 ### 2.4 Control-point freshness test
 
@@ -82,7 +82,7 @@ Run the signal at alpha 0.5 with control **disabled**, let it sit for ≥60 s, t
 
 ### 2.5 Control-measurement timing validation (oscilloscope)
 
-Per the validation method in [PROJECT_GOALS.md](PROJECT_GOALS.md): correlate the snapshot `timestamp_us` and control-point timing against the signal cycle window. A practical approach: feed a slow known ramp into one channel, log `(timestamp_us, value)` pairs from telemetry, and verify the value/timestamp pairs land on the ramp within one cycle window. Any systematic offset larger than the pipeline floor indicates timestamping regression.
+Per the validation method in [PROJECT_GOALS.md](PROJECT_GOALS.md): correlate the control point, accepted snapshot age, and signal cycle window. A practical approach is to feed a slow known ramp into one channel, log `(timestamp_us, value)` telemetry pairs, and verify that accepted measurements remain within the effective age budget. Continuous-mode timestamps are read-time-derived estimates; use oscilloscope correlation to detect systematic timing error rather than treating the timestamp as an ISR-captured conversion instant.
 
 ## 3. What to Check — Pass Criteria
 
@@ -91,20 +91,20 @@ Numeric acceptance thresholds for signal timing remain deferred until lab timing
 | Check | Expectation at 250 kHz continuous |
 |---|---|
 | `measured_triples_per_second` | ≈ sample rate ÷ 3 (~83 000); stable ±5% |
-| `age_us` at the control point | ≤ `control_max_age_us` (~288 µs at 250 kHz); never grows unbounded |
-| `frame_ts_fallbacks` | Flat after startup; growth means ISR timestamping is not pairing with reads and ages have silently degraded to read-time stamps |
-| `target_triples_per_cycle` | ≥ 4 triples per signal cycle window achieved by measured rate |
+| Accepted snapshot age | For live control, `age_used_max_us` must be ≤ `control_max_age_us` and `age_used_count` must advance. `age_us` is telemetry-time snapshot age, not necessarily the accepted control-point age. |
+| `frame_ts_fallbacks` | Not a current validation metric: no timestamp-ring or fallback path increments this compatibility counter. |
+| `target_triples_per_cycle` | Fixed telemetry target (4), not a measurement of triples achieved within individual signal-cycle windows; use `measured_triples_per_second` for throughput. |
 | `fault_code` steady state | 0 while control runs on the example dataset |
 | `miss_count` growth | Occasional misses acceptable; `consecutive_misses` must reset to 0, controller must not auto-disable in steady state |
 | `channel_order_anomalies`, `partial_triples` | Flat after startup; growth means channel imbalance → triples are being flushed |
 | `overflow_count`, `frame_drops`, `pool_flushes` | Flat after startup; growth under BLE load means the acquisition task is being starved |
-| Fault code 6 (SNAPSHOT_CONTENTION) | Rare to absent; repeated occurrences mean the Core-0 publisher is starved — check task priorities |
+| Fault code 6 (SNAPSHOT_CONTENTION) | Rare to absent; repeated occurrences mean a coherent snapshot was unavailable within 32 attempts. Identify the active publisher by engine (Core 0 for CPU, Core 1 for DMA) before attributing starvation. |
 | Signal on scope during any analog fault | Commanded signal cycle unchanged — analog faults must never disturb the signal timing contract |
 | Controller auto-disable | Only after 3 consecutive misses, reported via `ControlState::OFF`, signal keeps running |
 
 ### Red flags during testing
 
-- `age_us` frequently near the budget while triple rate is nominal → publishes delayed on Core 0 (scheduling), not sampling: check BLE activity and task priorities.
+- Accepted snapshot age frequently near the budget while triple rate is nominal → publishing is delayed by the active reader: check BLE activity and Core 0 scheduling for CPU-engine operation, or DMA control-point drain timing for DMA-engine operation.
 - Calibrated values follow the wrong input channel → mapping regression; stop and fix before any control run.
-- Misses only when a dataset with a short cycle window is active → age budget vs. pipeline floor interaction; consider raising the sample rate or shrinking `ADC_CONTINUOUS_FRAME_TRIPLES` (16 → 8 halves frame accumulation to ~96 µs).
+- Misses only when a dataset with a short cycle window is active → age budget vs. pipeline-floor interaction; at the default 250 kHz rate the current 4-triple frame has a 72 µs floor. Any frame-size or sample-rate change requires renewed timing validation.
 - Growing `samples_rejected` → DMA is delivering unexpected channels; check the pattern configuration.

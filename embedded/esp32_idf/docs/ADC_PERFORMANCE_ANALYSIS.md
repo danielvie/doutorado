@@ -2,6 +2,8 @@
 
 This document evaluates the current implementation of analog signal acquisition in the ESP32-IDF project and provides a roadmap for increasing update frequency and system reliability.
 
+> **Status: historical/supporting analysis — not architecture authority.** This analysis describes acquisition before the adoption of `adc_continuous` with DMA and records recommendations from that point. Verify current behavior in `main/src/helper_analog.cpp`, [the analog validation contract](TEST_ANALOG_READER_VALIDATION.md), and `sdkconfig`. References to the “current implementation” mean the snapshot analyzed here, not necessarily the current firmware.
+
 ## 1. Complexity Debt Report
 
 | Category | Score | Details |

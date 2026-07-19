@@ -230,9 +230,8 @@ DataSet g_dataset_b;
 volatile uint32_t g_cycle_count = 0;
 volatile uint32_t g_cycle_nrun = 10000;
 
-// Signal Engine selection (D1/D8): volatile, stopped-only, defaults to the
-// characterized CPU reference so flashing new firmware changes nothing until
-// an experiment opts in.
+// Signal Engine selection (D1/D8): volatile and stopped-only. Reboot restores
+// the configured DMA default.
 std::atomic<SignalEngine> g_signal_engine(SignalEngine::DMA);
 
 // Track which set is currently active in the loop

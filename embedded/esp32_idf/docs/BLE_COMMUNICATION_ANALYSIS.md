@@ -1,5 +1,7 @@
 # BLE Communication — Performance Analysis
 
+> **Status: historical/supporting analysis — not architecture authority.** This document is a point-in-time evaluation of BLE transport and its optimizations. It does not describe the current dual Signal Engine execution model; conclusions about the Core 1 signal loop do not automatically apply to the DMA engine. Consult [ADR 0001](adr/0001-dual-signal-engine-i2s-dma.md), `main/src/ble_controller.cpp`, `main/src/signal_controller.cpp`, and `main/src/signal_engine_dma.cpp` for current behavior.
+
 ## System Overview
 
 The system is a **BLE 4.2 GATT Server** running on an ESP32, controlling a 3-phase signal pattern generator with closed-loop feedback. Communication flows through a single GATT characteristic (read/write/notify) using two serialization formats:

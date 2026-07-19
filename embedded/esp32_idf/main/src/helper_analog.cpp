@@ -880,8 +880,8 @@ static bool analog_continuous_start(uint32_t sample_hz) {
         return false;
     }
 
-    // Frame timestamps come from the conversion-done ISR so measurement age
-    // reflects sampling time, not acquisition-task scheduling.
+    // The conversion-done ISR only wakes the acquisition task. The active
+    // reader timestamps frames after draining them and backdates samples.
     adc_continuous_evt_cbs_t evt_cbs = {};
     evt_cbs.on_conv_done = analog_on_conv_done;
     ret = adc_continuous_register_event_callbacks(s_adc_continuous_handle, &evt_cbs, NULL);
@@ -1142,8 +1142,8 @@ static int analog_continuous_read_frame(AnalogTripleAccumulator* acc, uint32_t s
 // except the reset the acquisition task performs before granting it.
 static AnalogTripleAccumulator s_control_acc;
 // The driver keeps at most a couple of frames (flush_pool discards backlog);
-// the cap only bounds the drain if the driver misbehaves. WDT is off on
-// Core 1, so this loop must be provably finite.
+// the cap only bounds the drain if the driver misbehaves. The control-point
+// budget requires this loop to remain provably finite.
 #define ANALOG_CONTROL_DRAIN_MAX_FRAMES 8
 
 void analog_control_drain_publish(void) {

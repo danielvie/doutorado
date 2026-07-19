@@ -100,8 +100,8 @@ typedef struct _AnalogStatus {
     /* Effective control-point age budget: active dataset cycle window,
  clamped to min_snapshot_age_us. */
     uint32_t control_max_age_us;
-    /* Times a frame timestamp fell back to read time because the ISR
- timestamp ring was empty or desynchronized. */
+    /* Compatibility counter for the retired timestamp-fallback path.
+ The current read-time-derived timestamp model does not increment it. */
     uint32_t frame_ts_fallbacks;
     /* Max age of snapshots accepted by the control-point age gate since the
  current control session started. Must never exceed control_max_age_us. */
