@@ -1,21 +1,19 @@
-# hello world arduino com matlab
+# Projeto embarcado
 
-`./blink_matlabcode.m`
+Workspace do projeto de doutorado para controle em tempo real com ESP32.
 
-Esse eh um programa que conecta com o arduino e comanda o arduino pelo matlab. 
-O codigo eh compilado usando a IDE do arduino e carrega o compilado para a placa.
+## Estrutura
 
-# remote
+- [`esp32_idf/`](esp32_idf/) — firmware ESP-IDF, protocolo BLE, interface web e documentação técnica do controlador de sinais.
+- [`kicad/`](kicad/) — fontes das placas, bibliotecas de footprints/símbolos e arquivos de fabricação.
+- [`docs-hardware/`](docs-hardware/) — pinagens, diagramas de conexão e datasheets de referência.
+- [`tests_espressif/`](tests_espressif/) — experimentos independentes com ESP32/PlatformIO.
 
-`./remote.m `
+## Firmware
 
-Esse eh um programa que (no matlab) envia uma mensagem com o valor do delay do blink
+Consulte [`esp32_idf/README.md`](esp32_idf/README.md) para a arquitetura e os requisitos do firmware. Para listar os comandos disponíveis:
 
-`./sketch_arduino.ino`
-
-Esse eh o programa que eh compilado na IDE do arduino e fica executando na placa. 
-Esse programa confere a cada ciclo se ha uma mensagem nova, se sim ele atualida o delay do blink.
-
-# download arduino IDE
-
-fazer o download no site [https://www.arduino.cc/en/software](https://www.arduino.cc/en/software)
+```sh
+cd esp32_idf
+task --list
+```
