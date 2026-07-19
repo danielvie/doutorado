@@ -14,8 +14,9 @@
 %   docs            - Open documentation
 %
 % Examples:
-%   t play lab
+%   t play patino2
 %   t play patino1
+%   t play lab
 %   t play linearization_comparison
 %   t test
 %   t demo projection

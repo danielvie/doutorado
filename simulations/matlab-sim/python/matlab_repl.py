@@ -1,6 +1,14 @@
 from importlib import import_module
 from pathlib import Path
 
+try:
+    # Importing readline enables line editing and history for input().
+    import readline
+
+    readline.set_history_length(1_000)
+except ImportError:
+    pass
+
 
 matlab_engine = import_module("matlab.engine")
 PROJECT_ROOT = Path(__file__).resolve().parents[1]

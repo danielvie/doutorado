@@ -1,4 +1,6 @@
 # PASTAS
+tbxmanager
+
 # SANDBOX/
 limbo/
 slprj/
@@ -8,6 +10,8 @@ video/
 reunioes/
 codegen/
 build/
+
+
 
 .DS_Store
 
@@ -39,14 +43,12 @@ build/
 *.toc
 *.tps
 
-# worktree
-master/
-
 # temp folders
 temp_*/
 .pio/
 z_mpt_install/
+__pycache__/
 
 # worktrees
 _wt
-tbxmanager
+master/
