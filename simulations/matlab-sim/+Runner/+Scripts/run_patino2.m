@@ -1,4 +1,4 @@
-function res = play_patino2(save_fig, nsim_in)
+function res = run_patino2(save_fig, nsim_in)
     if (nargin == 0)
         save_fig = false;
     end
@@ -16,6 +16,8 @@ function res = play_patino2(save_fig, nsim_in)
     mpc.Nd = 1;
     mpc.Np = 2;
     mpc.Q  = diag([1, 1, 1]);
+    % mpc.linearization_method = Enums.LinearizationMethod.SWITCHING_TIME;
+    mpc.linearization_method = Enums.LinearizationMethod.AUGMENTED_DURATION;
     
     s.set_mpc(mpc);
     

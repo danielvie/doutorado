@@ -1,5 +1,5 @@
-function play()
-% play - Main function to run the simulation and analyze results.
+function run()
+% run - Main function to run the simulation and analyze results.
 %
 % This function initializes a simulation object, configures its parameters,
 % and runs the simulation with and without Model Predictive Control (MPC).

@@ -9,12 +9,12 @@ tasks:
   run:
     desc: Run the main LAB_CIRCUIT simulation
     cmds:
-      - matlab -batch "t('play', 'lab')"
+      - matlab -batch "t('run', 'lab')"
 
   matlab:
     desc: Start a MATLAB REPL through the Python Engine API
     cmds:
-      - uv run --no-project --python 3.12 --with "matlabengine==25.2.2" python python/matlab_repl.py
+      - uv run --no-project --python 3.12 --with "matlabengine==25.2.2" --with "prompt-toolkit" python python/matlab_repl.py
 
   test:
     desc: Run the MATLAB test suite
@@ -24,17 +24,17 @@ tasks:
   compare-linearizations:
     desc: Compare PATINO_2 MPC linearization derivations
     cmds:
-      - matlab -batch "z_run.Experiments.compare_patino2_linearizations(8, false);"
+      - matlab -batch "Runner.Experiments.compare_patino2_linearizations(8, false);"
 
   test-domain-model:
     desc: Run the focused domain-model check
     cmds:
-      - matlab -batch "z_run.Tests.test_domain_model()"
+      - matlab -batch "Runner.Tests.test_domain_model()"
 
   test-run-flow:
     desc: Run the focused Simulation.run flow check
     cmds:
-      - matlab -batch "z_run.Tests.test_run_flow()"
+      - matlab -batch "Runner.Tests.test_run_flow()"
 
   clear:
     desc: Remove generated simulation outputs

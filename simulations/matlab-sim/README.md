@@ -7,10 +7,10 @@ MATLAB framework for Model Predictive Control of DC-DC converters using variable
 ### Using Task Runner (Recommended)
 
 ```matlab
-t('play', 'lab')        % Run main LAB_CIRCUIT simulation
-t('play', 'patino1')    % Patino 1 benchmark
-t('play', 'patino2')    % Patino 2 benchmark
-t('play', 'integrador') % Double integrator
+t('run', 'lab')        % Run main LAB_CIRCUIT simulation
+t('run', 'patino1')    % Patino 1 benchmark
+t('run', 'patino2')    % Patino 2 benchmark
+t('run', 'integrador') % Double integrator
 t('test')              % Run test suite
 t('demo', 'projection') % Feasibility projection demo
 t('demo', 'broker')     % Bluetooth broker demo
@@ -73,11 +73,11 @@ addpath('C:/path/to/simu2');
 ```
 +Controllers/   +Data/      +Dynamics/   +Enums/
 +Hardware/      +Options/   +Mpc/        +Results/
-+Trajectory/    +Utils/     +z_run/      @BTBroker/
++Trajectory/    +Utils/     +Runner/     @BTBroker/
 @Simulation/
 
 Core engine:     +* packages, @* classes
-Run scripts:     +z_run/+Scripts/ (+Tests/, +Demos/)
+Run scripts:     +Runner/+Scripts/ (+Tests/, +Demos/)
 Entry point:     t.m
 Documentation:   DOCS/
 ```

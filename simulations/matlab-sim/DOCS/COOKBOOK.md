@@ -5,10 +5,10 @@ Copy-paste snippets for common tasks.
 ## Quick Tasks (t.m)
 
 ```matlab
-t('play', 'lab')        % Run main simulation
-t('play', 'patino1')    % Patino 1 benchmark
-t('play', 'patino2')    % Patino 2 benchmark
-t('play', 'integrador') % Double integrator
+t('run', 'lab')        % Run main simulation
+t('run', 'patino1')    % Patino 1 benchmark
+t('run', 'patino2')    % Patino 2 benchmark
+t('run', 'integrador') % Double integrator
 t('test')           % Run tests
 t('demo', 'broker') % Run broker demo
 t('projection', 'patino1') % Run projection script

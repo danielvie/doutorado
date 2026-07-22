@@ -1,5 +1,5 @@
 
-res = play_patino1(false);
+Runner.Scripts.run_patino1(false);
 y_off = res.y_off;
 y_on = res.y;
 
@@ -14,11 +14,11 @@ else
 end
 
 dtk_off = res.m_off; % Wait, res.m is modes. 
-% In play_patino1.m, res = Utils.getAllVars() which should include everything.
+% In run_patino1.m, res = Utils.getAllVars() which should include everything.
 if isfield(res, 'm_off')
     fprintf('Result has m_off\n');
 end
 
 % Check dtk from the log if available
-% Since Utils.getAllVars() was used at line 42 of play_patino1.m, 
+% Since Utils.getAllVars() was used at line 42 of run_patino1.m, 
 % it should have everything.

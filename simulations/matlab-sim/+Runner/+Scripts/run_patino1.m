@@ -1,4 +1,4 @@
-function var_out = play_patino1(save_fig)
+function var_out = run_patino1(save_fig)
     if (nargin == 0)
         save_fig = false;
     end

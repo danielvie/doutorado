@@ -5,7 +5,7 @@
 %   t <task> <name>
 %
 % Tasks:
-%   play <name>     - Run play script: lab, patino1, patino2, integrador,
+%   run <name>      - Run simulation: lab, patino1, patino2, integrador,
 %                     linearization_comparison
 %   projection <name> - Run projection: patino1, patino2, integrador, automate
 %   test            - Run test suite
@@ -14,10 +14,10 @@
 %   docs            - Open documentation
 %
 % Examples:
-%   t play patino2
-%   t play patino1
-%   t play lab
-%   t play linearization_comparison
+%   t run patino2
+%   t run patino1
+%   t run lab
+%   t run linearization_comparison
 %   t test
 %   t demo projection
 %   t projection patino1
@@ -30,12 +30,12 @@ function t(task, varargin)
     end
 
     switch lower(task)
-        case 'play'
+        case 'run'
             if nargin < 2
-                fprintf(['Available plays: lab, patino1, patino2, ', ...
+                fprintf(['Available runs: lab, patino1, patino2, ', ...
                     'integrador, linearization_comparison\n']);
             else
-                run_play(varargin{1});
+                run_simulation(varargin{1});
             end
 
         case 'test'
@@ -67,21 +67,21 @@ function t(task, varargin)
     end
 end
 
-function run_play(name)
+function run_simulation(name)
     switch lower(name)
         case {'lab', 'lab_circuit', 'default'}
-            z_run.Scripts.play();
+            Runner.Scripts.run();
         case 'patino1'
-            z_run.Scripts.play_patino1();
+            Runner.Scripts.run_patino1();
         case 'patino2'
-            z_run.Scripts.play_patino2();
+            Runner.Scripts.run_patino2();
         case 'linearization_comparison'
-            z_run.Experiments.compare_patino2_linearizations();
+            Runner.Experiments.compare_patino2_linearizations();
         case {'integrador', 'double_integrator'}
-            z_run.Scripts.play_integrador_duplo();
+            Runner.Scripts.run_integrador_duplo();
         otherwise
-            fprintf('Play "%s" not found.\n', name);
-            fprintf(['Available plays: lab, patino1, patino2, ', ...
+            fprintf('Run "%s" not found.\n', name);
+            fprintf(['Available runs: lab, patino1, patino2, ', ...
                 'integrador, linearization_comparison\n']);
     end
 end
@@ -89,11 +89,11 @@ end
 function run_projection(name)
     switch lower(name)
         case 'patino1'
-            z_run.Experiments.z_projection_patino1();
+            Runner.Experiments.z_projection_patino1();
         case 'patino2'
-            z_run.Experiments.z_projection_patino2();
+            Runner.Experiments.z_projection_patino2();
         case {'integrador', 'double_integrator'}
-            z_run.Experiments.z_projection_double_integrator();
+            Runner.Experiments.z_projection_double_integrator();
         otherwise
             fprintf('Projection "%s" not found.\n', name);
             fprintf('Available projections: patino1, patino2, integrador\n');
@@ -102,33 +102,33 @@ end
 
 function run_tests()
     fprintf('Running test suite...\n');
-    z_run.Tests.check_constraints_patino1();
-    z_run.Tests.check_diff();
-    z_run.Tests.check_dtk_sign();
-    z_run.Tests.check_exitflag();
-    z_run.Tests.check_matrices();
-    z_run.Tests.check_prop();
-    z_run.Tests.check_values();
-    z_run.Tests.test_basic();
-    z_run.Tests.test_dlqr_behavior();
-    z_run.Tests.test_domain_model();
-    z_run.Tests.test_industrial_solution();
-    z_run.Tests.test_mpc_on();
-    z_run.Tests.test_run_flow();
-    z_run.Tests.test_patino_params();
-    z_run.Tests.test_status();
-    z_run.Tests.test_who();
+    Runner.Tests.check_constraints_patino1();
+    Runner.Tests.check_diff();
+    Runner.Tests.check_dtk_sign();
+    Runner.Tests.check_exitflag();
+    Runner.Tests.check_matrices();
+    Runner.Tests.check_prop();
+    Runner.Tests.check_values();
+    Runner.Tests.test_basic();
+    Runner.Tests.test_dlqr_behavior();
+    Runner.Tests.test_domain_model();
+    Runner.Tests.test_industrial_solution();
+    Runner.Tests.test_mpc_on();
+    Runner.Tests.test_run_flow();
+    Runner.Tests.test_patino_params();
+    Runner.Tests.test_status();
+    Runner.Tests.test_who();
     fprintf('Tests complete.\n');
 end
 
 function run_demo(name)
     switch lower(name)
         case 'projection'
-            z_run.Demos.z_demo_projection();
+            Runner.Demos.z_demo_projection();
         case 'broker'
-            z_run.Demos.z_broker();
+            Runner.Demos.z_broker();
         case 'feasibility'
-            z_run.Demos.z_demo_projection();
+            Runner.Demos.z_demo_projection();
         otherwise
             fprintf('Demo "%s" not found.\n', name);
     end

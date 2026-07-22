@@ -20,7 +20,7 @@ This is a MATLAB research framework for Model Predictive Control (MPC) of switch
 | -------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------ |
 | **Strategy**         | `Controllers.Controller` → `MpcController` / `Proportional`         | Strong. Clean swap at runtime via `set_controller()`.        |
 | **Strategy**         | `Dynamics.StepStrategy` → `SwitchingStrategy` / `DenseStrategy`     | Strong. Separates fast control loops from high-res plotting. |
-| **Facade**           | `t.m` task runner                                                   | Good. Simple entry point hiding `+z_run` complexity.         |
+| **Facade**           | `t.m` task runner                                                   | Good. Simple entry point hiding `+Runner` complexity.         |
 | **Template Method**  | `Simulation.run()` orchestrates Control → Actuation → Physics → Log | Good. Fixed pipeline with overridable strategies.            |
 | **Handle Semantics** | `@Simulation`, `@BTBroker`, most classes inherit `handle`           | Appropriate for MATLAB reference semantics.                  |
 
@@ -37,12 +37,12 @@ This is a MATLAB research framework for Model Predictive Control (MPC) of switch
 +Results/       - Data containers and plotters
 +Trajectory/    - Reference orbit planner
 +Utils/         - Math helpers and signal utilities
-+z_run/         - Scripts, Tests, Demos, Experiments
++Runner/        - Scripts, Tests, Demos, Experiments
 @Simulation/    - Core orchestrator class
 @BTBroker/      - Hardware BLE client
 ```
 
-**Assessment:** Cohesive. The separation of `+Hardware` (message formatting) from `@BTBroker` (connection logic) is a nice touch. `+z_run` acts as a lightweight task layer.
+**Assessment:** Cohesive. The separation of `+Hardware` (message formatting) from `@BTBroker` (connection logic) is a nice touch. `+Runner` acts as a lightweight task layer.
 
 ### 2.3 Core Data Flow
 
@@ -146,7 +146,7 @@ Data.* config  →  Trajectory.Planner (alpha/iref)  →  Simulation.set_mpc()
 
 ### 5.5 Test Coverage
 
-- Most files in `+z_run/+Tests/` remain diagnostic scripts, but focused equation and run-flow checks now use assertions.
+- Most files in `+Runner/+Tests/` remain diagnostic scripts, but focused equation and run-flow checks now use assertions.
 - `test_dlqr_behavior.m` lacks assertions; it just prints values.
 - `test_industrial_solution.m` prints binary strings without validation.
 - **Recommendation:** Adopt MATLAB's `assert()` or `matlab.unittest` framework for true regression testing.
@@ -189,7 +189,7 @@ Data.* config  →  Trajectory.Planner (alpha/iref)  →  Simulation.set_mpc()
 ### Strategic
 
 9. **Upgrade `quadprog` algorithm** to `interior-point-convex` and benchmark against active-set.
-10. **Introduce `matlab.unittest`** test classes in `+z_run/+Tests/` for CI compatibility.
+10. **Introduce `matlab.unittest`** test classes in `+Runner/+Tests/` for CI compatibility.
 11. **Separate hardware logic** from `Simulation` entirely (already mostly done; finish the job).
 
 ---

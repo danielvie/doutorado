@@ -7,20 +7,20 @@ Step-by-step tutorial for first-time users.
 The fastest way to run pre-configured simulations:
 
 ```matlab
-t('play', 'lab')        % Main LAB_CIRCUIT simulation
-t('play', 'patino1')    % Patino 1 benchmark
-t('play', 'patino2')    % Patino 2 benchmark
-t('play', 'integrador') % Double integrator example
+t('run', 'lab')        % Main LAB_CIRCUIT simulation
+t('run', 'patino1')    % Patino 1 benchmark
+t('run', 'patino2')    % Patino 2 benchmark
+t('run', 'integrador') % Double integrator example
 t('test')              % Run test suite
 t('demo', 'projection') % Feasibility projection demo
 t('demo', 'broker')    % Bluetooth broker demo
 t('demo', 'feasibility') % Feasibility region demo
 ```
 
-Scripts are organized in `+z_run` package:
-- `z_run.Scripts.*` - Simulation entry points
-- `z_run.Tests.*` - Test suite
-- `z_run.Demos.*` - Interactive demos
+Scripts are organized in the `+Runner` package:
+- `Runner.Scripts.*` - Simulation entry points
+- `Runner.Tests.*` - Test suite
+- `Runner.Demos.*` - Interactive demos
 
 ## 1. Your First Simulation (Manual)
 

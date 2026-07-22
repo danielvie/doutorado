@@ -1,13 +1,8 @@
 from importlib import import_module
 from pathlib import Path
 
-try:
-    # Importing readline enables line editing and history for input().
-    import readline
-
-    readline.set_history_length(1_000)
-except ImportError:
-    pass
+from prompt_toolkit import PromptSession
+from prompt_toolkit.history import InMemoryHistory
 
 
 matlab_engine = import_module("matlab.engine")
@@ -21,10 +16,12 @@ def main() -> None:
     print(f"MATLAB working directory: {PROJECT_ROOT}")
     print("Type exit or quit to stop.")
 
+    session = PromptSession(history=InMemoryHistory())
+
     try:
         while True:
             try:
-                command = input("matlab> ").strip()
+                command = session.prompt("matlab> ").strip()
             except EOFError:
                 print()
                 break

@@ -1,4 +1,4 @@
-function var_out = play_duplo_integrador(save_fig)
+function var_out = run_integrador_duplo(save_fig)
     if (nargin == 0)
         save_fig = false;
     end
