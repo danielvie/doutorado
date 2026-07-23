@@ -2,6 +2,23 @@
 
 MATLAB framework for Model Predictive Control of DC-DC converters using variable switching instants.
 
+## Repository Paths
+
+| Need | Path |
+| --- | --- |
+| Thesis and paper LaTeX sources | [`../../LATEX/`](../../LATEX/) |
+| Plans, TODOs, and qualification material | [`../../research-material/planning/`](../../research-material/planning/) |
+| Reviewer comments | [`../../research-material/review-feedback/`](../../research-material/review-feedback/) |
+| Authored analysis and meeting notes | [`../../research-material/working-notes/`](../../research-material/working-notes/) |
+| Shared diagrams and writing assets | [`../../assets/`](../../assets/) |
+| Current MATLAB simulations/control code | [`./`](./) |
+| Older MATLAB simulations | [`../legacy/`](../legacy/) |
+| Projection/feasibility-region MATLAB work | [`../projection/`](../projection/) |
+| ESP32 firmware, hardware docs, and web UI | [`../../embedded/`](../../embedded/) |
+| External papers, books, theses, and course material | [`../../research-material/literature/`](../../research-material/literature/) |
+| Presentations and slides | [`../../presentations/`](../../presentations/) |
+| External/vendor material | [`../../z_dependencies/`](../../z_dependencies/), [`../../z_kawa/`](../../z_kawa/), [`../../z_mpt_install/`](../../z_mpt_install/), and [`../../z_qpoases/`](../../z_qpoases/) |
+
 ## Quick Start
 
 ### Using Task Runner (Recommended)
