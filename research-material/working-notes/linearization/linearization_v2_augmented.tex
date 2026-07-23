@@ -9,7 +9,6 @@
 
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\X}{\mathcal{X}}
-\newcommand{\dd}{\mathop{}\!\mathrm{d}}
 
 \setstretch{1.12}
 \setlength{\parindent}{0pt}
@@ -24,346 +23,166 @@
 \begin{document}
 \maketitle
 
-\section{The affine switched system}
 
-Consider the affine system
+
+Consider the affine switched system
 \begin{equation}
     \dot{x}(t)=A_{\sigma(t)}x(t)+b_{\sigma(t)},
     \qquad x(t)\in\R^n.
     \tag{1}
 \end{equation}
-The variable $t\in\R$ is continuous time. The switching signal
-$\sigma:\R_+\to\mathcal Q$ is piecewise constant and selects one mode
-from the finite set $\mathcal Q$.
-
-Let
-\[
-    t_0<t_1<\cdots<t_N
-\]
-be the actual switching times, and let
-\[
-    \bar t_0<\bar t_1<\cdots<\bar t_N
-\]
-be their nominal values. The prescribed mode on the $i$th interval is
-\[
-    q_i=\bar\sigma(\bar t_{i-1}).
-\]
-Thus,
+The switching signal is piecewise constant.  Its mode order is fixed,
+while its switching times may vary:
 \begin{equation}
     \sigma(t)=q_i=\bar\sigma(\bar t_{i-1}),
     \qquad t_{i-1}\leq t<t_i,
     \qquad i=1,\ldots,N.
     \tag{2}
 \end{equation}
-Only the interval lengths are perturbed; the order of the modes remains
-fixed.
 
-\section{Conversion to a homogeneous system}
-
-The term $b_{\sigma(t)}$ makes (1) affine rather than homogeneous. To
-include this term in a matrix multiplication, augment the state with a
-constant component:
-\[
-    \X(t)=
-    \begin{bmatrix}
-        x(t)\\[3pt]
-        1
-    \end{bmatrix}
-    \in\R^{n+1}.
-\]
-Since the derivative of the last component is zero,
-\[
-    \dot{\X}(t)=
-    \begin{bmatrix}
-        \dot{x}(t)\\[3pt]
-        0
-    \end{bmatrix}
-    =
-    \begin{bmatrix}
-        A_{\sigma(t)}x(t)+b_{\sigma(t)}\\[3pt]
-        0
-    \end{bmatrix}.
-\]
-This can be written as
-\[
-    \dot{\X}(t)=
-    \begin{bmatrix}
-        A_{\sigma(t)} & b_{\sigma(t)}\\
-        0 & 0
-    \end{bmatrix}
-    \begin{bmatrix}
-        x(t)\\[3pt]
-        1
-    \end{bmatrix}.
-\]
-Define the augmented matrix associated with mode $q$ by
-\[
+Introduce the augmented state and matrix
+\begin{equation}
+    \X(t)=\begin{bmatrix}x(t)\\1\end{bmatrix},
+    \qquad
     \widetilde A_q=
-    \begin{bmatrix}
-        A_q & b_q\\
-        0 & 0
-    \end{bmatrix}.
-\]
-The affine system is therefore equivalent to the homogeneous system
-\[
+    \begin{bmatrix}A_q&b_q\\0&0\end{bmatrix}.
+\end{equation}
+Then the affine system becomes the homogeneous system
+\begin{equation}
     \boxed{\dot{\X}(t)=\widetilde A_{\sigma(t)}\X(t)}.
-\]
+\end{equation}
 
-\section{Propagation through the switching intervals}
 
-Define the actual and nominal durations of interval $i$ as
-\[
+
+For each interval, define
+\begin{equation}
     \Delta t_i=t_i-t_{i-1},
     \qquad
-    \Delta\bar t_i=\bar t_i-\bar t_{i-1}.
-\]
-Also define
-\[
-    F_i=\widetilde A_{q_i}
-       =\widetilde A_{\bar\sigma(\bar t_{i-1})}.
-\]
-The matrix $F_i$ is constant throughout the $i$th interval.
-
-For a constant matrix $F_i$, the solution over one interval is
-\[
-    \X(t_i)=e^{F_i\Delta t_i}\X(t_{i-1}).
-\]
-For the first interval,
-\[
-    \X(t_1)=e^{F_1\Delta t_1}\X(t_0).
-\]
-For the second interval,
-\begin{align*}
-    \X(t_2)
-    &=e^{F_2\Delta t_2}\X(t_1)\\
-    &=e^{F_2\Delta t_2}e^{F_1\Delta t_1}\X(t_0).
-\end{align*}
-Continuing interval by interval gives
+    \Delta\bar t_i=\bar t_i-\bar t_{i-1},
+    \qquad
+    \Delta t_i=\Delta\bar t_i+\delta t_i,
+    \qquad
+    F_i=\widetilde A_{q_i}.
+\end{equation}
+The state transition on interval $i$ is
 \begin{equation}
-    \X(t_N)
-    =e^{F_N\Delta t_N}
-     e^{F_{N-1}\Delta t_{N-1}}
-     \cdots
-     e^{F_2\Delta t_2}
-     e^{F_1\Delta t_1}\X(t_0).
+    \X(t_i)=e^{F_i\Delta t_i}\X(t_{i-1}).
+\end{equation}
+Therefore,
+\begin{equation}
+    \X(t_N)=
+    e^{F_N\Delta t_N} e^{F_{N-1}\Delta t_{N-1}}\cdots e^{F_1\Delta t_1}\X(t_0).
     \label{eq:actual}
 \end{equation}
-The order of these matrices is important: the transition associated
-with the first interval is the rightmost matrix.
+The first interval is the rightmost factor.
 
-The nominal state is propagated with the nominal interval durations:
+Define the nominal transition matrix for interval $i$ by
 \begin{equation}
-    \bar\X(t_N)
-    =e^{F_N\Delta\bar t_N}
-     e^{F_{N-1}\Delta\bar t_{N-1}}
-     \cdots
-     e^{F_2\Delta\bar t_2}
-     e^{F_1\Delta\bar t_1}\bar\X(t_0).
-    \label{eq:nominal}
+    \phi_i=e^{F_i\Delta\bar t_i}.
+    \label{eq:transition-definitions}
 \end{equation}
 
-\section{Exact error equation}
 
-Define the augmented-state error by
-\[
-    e(t)=\X(t)-\bar\X(t).
-\]
-Let $\delta t_i$ denote the perturbation of the $i$th interval duration:
-\[
-    \Delta t_i=\Delta\bar t_i+\delta t_i.
-\]
-The initial state may also be perturbed, so that
-\[
+
+Let
+\begin{equation}
+    e(t)=\X(t)-\bar\X(t),
+    \qquad
     \X(t_0)=\bar\X(t_0)+e(t_0).
-\]
-Substitution in \eqref{eq:actual} gives
-\begin{align}
-    \X(t_N)
-    ={}&e^{F_N(\Delta\bar t_N+\delta t_N)}
-        e^{F_{N-1}(\Delta\bar t_{N-1}+\delta t_{N-1})}
-        \cdots \notag\\
-      &e^{F_2(\Delta\bar t_2+\delta t_2)}
-        e^{F_1(\Delta\bar t_1+\delta t_1)}
-        \bigl(\bar\X(t_0)+e(t_0)\bigr).
-    \label{eq:perturbed-state}
-\end{align}
-Subtracting \eqref{eq:nominal} from \eqref{eq:perturbed-state} produces
-the exact terminal error:
-\begin{align}
- e(t_N)
- ={}&e^{F_N(\Delta\bar t_N+\delta t_N)}
-     e^{F_{N-1}(\Delta\bar t_{N-1}+\delta t_{N-1})}
-     \cdots \notag\\
-   &e^{F_2(\Delta\bar t_2+\delta t_2)}
-     e^{F_1(\Delta\bar t_1+\delta t_1)}
-     \bigl(\bar\X(t_0)+e(t_0)\bigr) \notag\\[3pt]
-   &-e^{F_N\Delta\bar t_N}
-     e^{F_{N-1}\Delta\bar t_{N-1}}
-     \cdots
-     e^{F_2\Delta\bar t_2}
-     e^{F_1\Delta\bar t_1}\bar\X(t_0).
- \tag{3}
- \label{eq:exact-error}
-\end{align}
-
-\section{First-order expansion of each transition matrix}
-
-For a constant matrix $A$,
-\[
-    \frac{\dd}{\dd s}e^{As}=Ae^{As}=e^{As}A.
-\]
-The first-order Taylor expansion around $s=s_0$ is consequently
-\[
-    e^{A(s_0+\delta s)}
-    =e^{As_0}+Ae^{As_0}\delta s
-     +\mathcal O(\delta s^2).
-\]
-This identity explains the approximation used for every switching
-interval.
-
-For clarity, define the nominal transition matrices individually:
-\[
-    \phi_1=e^{F_1\Delta\bar t_1},\qquad
-    \phi_2=e^{F_2\Delta\bar t_2},\qquad
-    \ldots,\qquad
-    \phi_N=e^{F_N\Delta\bar t_N}.
-\]
-Then each perturbed transition matrix has the approximation
-\begin{align*}
-    e^{F_1(\Delta\bar t_1+\delta t_1)}
-    &\simeq \phi_1+F_1\phi_1\delta t_1,\\
-    e^{F_2(\Delta\bar t_2+\delta t_2)}
-    &\simeq \phi_2+F_2\phi_2\delta t_2,\\
-    &\hspace{1.5em}\vdots\\
+\end{equation}
+Using \eqref{eq:actual}, the exact terminal error is
+\begin{equation}
+\begin{aligned}
+    e(t_N)={}&
     e^{F_N(\Delta\bar t_N+\delta t_N)}
-    &\simeq \phi_N+F_N\phi_N\delta t_N.
-\end{align*}
-Substituting these expressions into the exact error equation gives
-\begin{align}
- e(t_N)\simeq{}&
- (\phi_N+F_N\phi_N\delta t_N)
- (\phi_{N-1}+F_{N-1}\phi_{N-1}\delta t_{N-1})
- \cdots \notag\\
- & (\phi_2+F_2\phi_2\delta t_2)
-   (\phi_1+F_1\phi_1\delta t_1)
-   \bigl(\bar\X(t_0)+e(t_0)\bigr) \notag\\
- &-\phi_N\phi_{N-1}\cdots\phi_2\phi_1\bar\X(t_0).
- \label{eq:expanded-factors}
-\end{align}
+    e^{F_{N-1}(\Delta\bar t_{N-1}+\delta t_{N-1})}
+    \cdots \\
+    &\quad e^{F_1(\Delta\bar t_1+\delta t_1)}
+    \bigl(\bar\X(t_0)+e(t_0)\bigr)
+    -\phi_N\phi_{N-1}\cdots\phi_1\bar\X(t_0).
+\end{aligned}
+\label{eq:exact-error}
+\end{equation}
 
-\section{Keeping only first-order terms}
+For a constant matrix $F_i$, expand $e^{F_i s}$ around
+$s=\Delta\bar t_i$:
+\begin{equation}
+\begin{aligned}
+    \frac{\mathrm{d}}{\mathrm{d}s}e^{F_i s}&=F_i e^{F_i s},\\
+    e^{F_i(\Delta\bar t_i+\delta t_i)}
+    &=e^{F_i\Delta\bar t_i}
+      +F_i e^{F_i\Delta\bar t_i}\,\delta t_i
+      +\mathcal O(\delta t_i^2)\\
+    &=\phi_i+F_i\phi_i\,\delta t_i
+      +\mathcal O(\delta t_i^2)\\
+    &\doteq\phi_i+F_i\phi_i\,\delta t_i.
+\end{aligned}
+\label{eq:single-transition-linearization}
+\end{equation}
+In the following, $\doteq$ denotes equality up to first order in the
+duration perturbations: terms containing two or more factors
+$\delta t_i$ are discarded.
+Substituting the first-order approximation into every transition gives
+\begin{equation}
+\begin{aligned}
+&e^{F_N(\Delta\bar t_N+\delta t_N)}
+ e^{F_{N-1}(\Delta\bar t_{N-1}+\delta t_{N-1})}
+ \cdots
+ e^{F_1(\Delta\bar t_1+\delta t_1)} \\
+&\quad\doteq
+ (\phi_N+F_N\phi_N\,\delta t_N)
+ (\phi_{N-1}+F_{N-1}\phi_{N-1}\,\delta t_{N-1})
+ \cdots
+ (\phi_1+F_1\phi_1\,\delta t_1) \\
+&\quad\doteq
+ \phi_N\phi_{N-1}\cdots\phi_1 \\
+&\qquad{}+F_N\phi_N\phi_{N-1}\cdots\phi_1\,\delta t_N \\
+&\qquad{}+\phi_NF_{N-1}\phi_{N-1}\cdots\phi_1\,\delta t_{N-1} \\
+&\qquad{}+\cdots \\
+&\qquad{}+\phi_N\phi_{N-1}\cdots\phi_2F_1\phi_1\,\delta t_1.
+\end{aligned}
+\label{eq:product-linearization}
+\end{equation}
+Substituting \eqref{eq:product-linearization} into
+\eqref{eq:exact-error}, cancelling the nominal term, and discarding
+$\delta t_i e(t_0)$ yields
+\begin{equation}
+\begin{aligned}
+    e(t_N)\doteq{}&
+    \phi_N\phi_{N-1}\cdots\phi_1e(t_0) \\
+    &+\phi_N\phi_{N-1}\cdots\phi_2F_1\phi_1\bar\X(t_0)\,\delta t_1 \\
+    &+\phi_N\phi_{N-1}\cdots\phi_3F_2\phi_2\phi_1\bar\X(t_0)\,\delta t_2 \\
+    &+\cdots \\
+    &+F_N\phi_N\phi_{N-1}\cdots\phi_1\bar\X(t_0)\,\delta t_N.
+\end{aligned}
+\label{eq:sum-linearization}
+\end{equation}
 
-To see how the product is expanded, first consider three intervals. Up
-to first order,
-\begin{align*}
-& (\phi_3+F_3\phi_3\delta t_3)
-  (\phi_2+F_2\phi_2\delta t_2)
-  (\phi_1+F_1\phi_1\delta t_1)\\[2pt]
-&\quad\simeq
-  \phi_3\phi_2\phi_1
-  +F_3\phi_3\phi_2\phi_1\,\delta t_3\\
-&\qquad
-  +\phi_3F_2\phi_2\phi_1\,\delta t_2
-  +\phi_3\phi_2F_1\phi_1\,\delta t_1.
-\end{align*}
-Terms such as
-\[
-    F_3\phi_3F_2\phi_2\phi_1\,\delta t_3\delta t_2
-\]
-are discarded because they are second order.
-
-For $N$ intervals, the same expansion gives the nominal product
-\[
-    \phi_N\phi_{N-1}\cdots\phi_2\phi_1,
-\]
-together with one first-order term for each duration perturbation:
-\begin{align*}
-&F_N\phi_N\phi_{N-1}\cdots\phi_2\phi_1\,\delta t_N,\\
-&\phi_NF_{N-1}\phi_{N-1}\cdots\phi_2\phi_1\,\delta t_{N-1},\\
-&\phi_N\phi_{N-1}F_{N-2}\phi_{N-2}\cdots\phi_2\phi_1\,
-  \delta t_{N-2},\\
-&\hspace{10em}\vdots\\
-&\phi_N\phi_{N-1}\cdots\phi_3F_2\phi_2\phi_1\,\delta t_2,\\
-&\phi_N\phi_{N-1}\cdots\phi_3\phi_2F_1\phi_1\,\delta t_1.
-\end{align*}
-The matrices must remain in this order unless additional commutativity
-assumptions are imposed.
-
-Multiplying by $\bar\X(t_0)+e(t_0)$ creates three kinds of terms:
-\begin{enumerate}
-    \item the nominal-state term;
-    \item terms linear in the initial error $e(t_0)$;
-    \item terms linear in each duration perturbation $\delta t_i$.
-\end{enumerate}
-The nominal-state term cancels with the final term in
-\eqref{eq:expanded-factors}. Products of the form
-$\delta t_i e(t_0)$ are second order and are also discarded. Therefore,
-\begin{align}
- e(t_N)\simeq{}&
- \phi_N\phi_{N-1}\cdots\phi_2\phi_1e(t_0)
- \notag\\[2pt]
- &+\phi_N\phi_{N-1}\cdots\phi_3\phi_2F_1\phi_1
-   \bar\X(t_0)\,\delta t_1
- \notag\\
- &+\phi_N\phi_{N-1}\cdots\phi_3F_2\phi_2\phi_1
-   \bar\X(t_0)\,\delta t_2
- \notag\\
- &+\phi_N\phi_{N-1}\cdots F_3\phi_3\phi_2\phi_1
-   \bar\X(t_0)\,\delta t_3
- \notag\\
- &\hspace{8em}\vdots
- \notag\\
- &+\phi_NF_{N-1}\phi_{N-1}\cdots\phi_2\phi_1
-   \bar\X(t_0)\,\delta t_{N-1}
- \notag\\
- &+F_N\phi_N\phi_{N-1}\cdots\phi_2\phi_1
-   \bar\X(t_0)\,\delta t_N.
- \label{eq:full-linearization}
-\end{align}
-
-\section{Matrix form of the linearized model}
-
-Define the nominal state-transition matrix explicitly as
-\[
-    \Phi=\phi_N\phi_{N-1}\cdots\phi_2\phi_1.
-\]
-Collect the duration perturbations in the vector
-\[
-    \delta\mathbf t=
+Collect the duration perturbations and their sensitivity columns:
+\begin{equation}
+\begin{aligned}
+    \delta\mathbf t&=
     \begin{bmatrix}
-        \delta t_1\\
-        \delta t_2\\
-        \vdots\\
-        \delta t_{N-1}\\
-        \delta t_N
-    \end{bmatrix}.
-\]
-The sensitivity matrix is obtained by placing the coefficient of each
-$\delta t_i$ in the corresponding column:
-\begin{align*}
-\Gamma=\Bigl[\;&
- \phi_N\phi_{N-1}\cdots\phi_3\phi_2F_1\phi_1\bar\X(t_0),
- \\[2pt]&
- \phi_N\phi_{N-1}\cdots\phi_3F_2\phi_2\phi_1\bar\X(t_0),
- \\[2pt]&
- \phi_N\phi_{N-1}\cdots F_3\phi_3\phi_2\phi_1\bar\X(t_0),
- \\[2pt]&
- \ldots,
- \\[2pt]&
- \phi_NF_{N-1}\phi_{N-1}\cdots\phi_2\phi_1\bar\X(t_0),
- \\[2pt]&
- F_N\phi_N\phi_{N-1}\cdots\phi_2\phi_1\bar\X(t_0)
- \;\Bigr].
-\end{align*}
-Equation \eqref{eq:full-linearization} can now be written compactly as
+        \delta t_1\\ \delta t_2\\ \vdots\\ \delta t_N
+    \end{bmatrix}, \\
+    \Gamma=\Bigl[\,&
+        \phi_N\phi_{N-1}\cdots\phi_2F_1\phi_1\bar\X(t_0), \\
+        &\phi_N\phi_{N-1}\cdots\phi_3F_2\phi_2\phi_1\bar\X(t_0),
+        \ \ldots, \\
+        &F_N\phi_N\phi_{N-1}\cdots\phi_1\bar\X(t_0)
+    \Bigr].
+\end{aligned}
+\end{equation}
+For the final compact form, define the complete nominal transition
+\begin{equation}
+    \Phi=\phi_N\phi_{N-1}\cdots\phi_1.
+\end{equation}
+Equation \eqref{eq:sum-linearization} is thus
 \begin{equation}
     \boxed{
-        e(t_N)\simeq \Phi e(t_0)+\Gamma\,\delta\mathbf t
+        e(t_N)\doteq\Phi e(t_0)+\Gamma\,\delta\mathbf t
     }.
     \label{eq:final}
 \end{equation}
-This is the first-order terminal-error model. It separates the effect of
-the initial-state error from the effect of perturbations in the switching
-interval durations.
 
 \end{document}
