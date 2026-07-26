@@ -15,9 +15,10 @@ tasks:
       - matlab -batch "run('scripts/generate_results.m')"
 
   build:
-    desc: Compile the article PDF
+    desc: Compile the article PDF and refresh the editor preview
     cmds:
       - latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build {{.DOCUMENT}}.tex
+      - cp -f build/{{.DOCUMENT}}.pdf {{.DOCUMENT}}.pdf
 
   run:
     desc: Build the article

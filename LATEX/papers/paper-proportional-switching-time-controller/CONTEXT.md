@@ -1,69 +1,93 @@
 # Proportional Switching-Time Control
 
-This context defines the language used to describe cycle-to-cycle stabilization of a switched-affine converter by perturbing its switching instants.
+This context defines the language for cycle-to-cycle stabilization of a switched-affine plant by shifting its nominal switching instants.
 
-## Plant and trajectory
+## Plant and Orbit
 
-**Switched-affine plant**:
-A continuous-time plant whose state dynamics are affine and selected from a finite set by an operating mode.
+**Switched-Affine Plant**:
+A continuous-time plant whose state dynamics are affine and selected from a finite set during each mode interval.
 _Avoid_: Switching plant, hybrid plant
 
-**Operating mode**:
-One member of the finite set of affine plant dynamics active during a dwell interval.
-_Avoid_: State, command state
+**Switch State**:
+The simultaneous binary state of the converter switches.
+_Avoid_: Mode, state
 
-**Mode sequence**:
-The ordered operating modes traversed during one switching cycle.
-_Avoid_: Control sequence, switching signal
+**Physical Mode ID**:
+The zero-based integer encoding of a converter switch state.
+_Avoid_: Mode index, dynamics index
 
-**Target periodic orbit**:
-The desired closed state trajectory associated with one repetition of the nominal switching schedule.
-_Avoid_: Equilibrium, target point, limit-cycle point
+**Dynamics Index**:
+The one-based identifier of the dynamics governing a mode interval; it is not necessarily a physical mode ID.
+_Avoid_: Physical mode ID, current mode
 
-**Desired average operating point**:
-The state value about which the target periodic orbit is designed to oscillate; it is not the cycle-boundary target.
-_Avoid_: Target state, equilibrium
+**Mode Interval**:
+A contiguous portion of a switching cycle governed by one set of affine dynamics.
+_Avoid_: Mode, time step, dwell interval
 
-**Cycle-boundary state**:
-The plant state sampled at the fixed phase marking the beginning of each switching cycle.
-_Avoid_: Initial state, equilibrium state
+**Nominal Periodic Orbit**:
+The periodic state evolution induced by repeatedly applying a nominal switching schedule.
+_Avoid_: Target periodic orbit, trajectory, equilibrium
 
-**Cycle-to-cycle error**:
-The difference between the cycle-boundary state and the corresponding state on the target periodic orbit.
-_Avoid_: Tracking error, instantaneous error
+**Desired Operating Point**:
+The average physical-state objective used to select a nominal periodic orbit; it is not generally a point on that orbit.
+_Avoid_: Desired average operating point, orbit anchor, controller target
 
-## Switching timing
+**Orbit Anchor**:
+The point on a nominal periodic orbit at the selected cycle-start boundary; equivalently, a fixed point of the one-cycle map.
+_Avoid_: Cycle-boundary state, equilibrium, initial state
 
-**Switching instant**:
-A time within a switching cycle at which the operating mode changes.
-_Avoid_: Switching time when it could mean a duration
+**Cycle Input State**:
+The plant state at the cycle-start boundary for a particular switching cycle.
+_Avoid_: Cycle-boundary state, initial state, orbit anchor
 
-**Nominal switching schedule**:
-The ordered switching instants that generate the target periodic orbit.
-_Avoid_: Reference signal, duty cycle
+**Orbit Deviation**:
+The difference between the actual state and the corresponding state on the nominal periodic orbit; at the cycle-start boundary, it is the cycle input state minus the orbit anchor.
+_Avoid_: Cycle-to-cycle error, tracking error, desired-operating-point error
 
-**Switching-time perturbation**:
-A signed displacement applied to an internal nominal switching instant and used as the manipulated variable.
-_Avoid_: Time step, duty-cycle correction, control signal
+## Switching Schedule
 
-**Dwell interval**:
-The elapsed time between consecutive switching instants.
-_Avoid_: Switching time, gap
+**Switching Cycle**:
+One complete traversal of a switching schedule, after which the schedule repeats.
+_Avoid_: Simulation step, iteration, signal cycle
 
-**Minimum dwell time**:
-The lower bound imposed on every dwell interval.
-_Avoid_: Minimum switching time, time constraint
+**Cycle Boundary**:
+A scheduled time separating adjacent mode intervals, including the cycle start and end.
+_Avoid_: Switching instant
+
+**Switching Instant**:
+An interior cycle boundary at which the physical switch state changes.
+_Avoid_: Switching time when it could mean a duration, dwell duration
+
+**Nominal Switching Schedule**:
+The ordered mode intervals and cycle-relative boundary times that define one uncorrected switching cycle.
+_Avoid_: Reference signal, duty cycle, mode sequence
+
+**Switching-Instant Offset**:
+A controller-selected signed displacement of an interior nominal switching instant; a positive value moves that instant later without changing the cycle period.
+_Avoid_: Switching-time perturbation, dwell-duration change, time step
+
+**Dwell Duration**:
+The elapsed time between two consecutive cycle boundaries.
+_Avoid_: Dwell interval, switching time, gap
+
+**Minimum Dwell Duration**:
+The lower bound imposed on every dwell duration.
+_Avoid_: Minimum dwell time, minimum switching time, time constraint
+
+**Cycle Period**:
+The elapsed time from the cycle-start boundary to the cycle-end boundary.
+_Avoid_: Horizon, maximum period
 
 ## Controller
 
-**One-cycle linear model**:
-A local discrete model relating one cycle-to-cycle error to the next through switching-time perturbations.
+**One-Cycle Linear Model**:
+A local discrete model relating one cycle-start orbit deviation to the next through switching-instant offsets.
 _Avoid_: Plant model, prediction model
 
-**Proportional switching-time controller**:
-A static state-feedback law that maps the cycle-to-cycle error linearly to switching-time perturbations.
+**Proportional Switching-Time Controller**:
+A static state-feedback law that maps the cycle-start orbit deviation linearly to switching-instant offsets.
 _Avoid_: P controller, PID, proportional gain
 
-**Dwell-time conditioning**:
-Uniform contraction of a switching-time perturbation vector until all resulting dwell intervals satisfy the minimum dwell time.
+**Dwell-Time Conditioning**:
+Uniform contraction of a switching-instant-offset vector until all resulting dwell durations satisfy the minimum dwell duration.
 _Avoid_: Saturation, clipping, dwell-time control
