@@ -1,69 +1,69 @@
-# Context
+# Doctorate Repository
 
-This file defines the repository's domain vocabulary. It is a glossary only; implementation details, build commands, and folder layout belong in `README.md` or `docs/REPO_MAP.md`.
+This context defines the repository-level language for the doctorate's research artifacts. Scientific and experimental terms belong to the bounded contexts listed in `CONTEXT-MAP.md`.
 
-## Terms
+## Language
 
-### Doctorate repository
+**Doctorate Repository**:
+The complete body of work for the doctorate, including manuscripts, simulations, embedded experiments, presentations, planning material, and research references.
+_Avoid_: Project folder, workspace
 
-The complete workspace for the doctorate project, including thesis writing, simulations, embedded experiments, presentations, publications, planning material, and research references.
+**LaTeX Source**:
+Source material for a thesis or article expressed as a LaTeX document.
+_Avoid_: Manuscript when referring specifically to source files
 
-### LaTeX source
+**Technical Note**:
+Authored analysis, derivation, or meeting material that supports the research without being a formal manuscript.
+_Avoid_: Article, scratch file
 
-LaTeX projects for the thesis and papers, maintained under `LATEX/`.
+**Shared Asset**:
+A diagram, image, or other research artifact intended for reuse by multiple manuscripts or presentations.
+_Avoid_: Attachment, local figure
 
-### Technical note
-
-Authored analysis, derivations, and meeting material maintained under `research-material/working-notes/`.
-
-### Shared asset
-
-A diagram, image, or other reusable resource maintained under `assets/`.
-
-### Thesis
-
+**Thesis**:
 The main doctoral dissertation and its supporting source material.
+_Avoid_: Article, paper
 
-### Article
+**Article**:
+A publication derived from the doctorate work and maintained separately from the thesis.
+_Avoid_: Thesis, technical note
 
-A paper derived from the doctorate work, maintained separately from the main thesis when needed for submission or publication.
+**Simulation**:
+A computational experiment used to model, test, or evaluate a control strategy before or alongside a hardware experiment.
+_Avoid_: Embedded experiment, numerical script
 
-### Simulation
+**MATLAB Simulation**:
+A simulation performed in MATLAB for active control analysis and evaluation.
+_Avoid_: MATLAB script, legacy simulation material
 
-Computational experiments used to model, test, or evaluate control strategies before or alongside hardware experiments.
+**Legacy Simulation Material**:
+Older simulation work retained for reference, comparison, or recovery but not treated as the canonical simulation model.
+_Avoid_: MATLAB simulation
 
-### MATLAB simulation
+**Embedded Experiment**:
+A hardware-facing experiment involving firmware, measurement, calibration, signal generation, or lab validation.
+_Avoid_: Simulation, firmware project
 
-The preferred MATLAB simulation implementation for active control and analysis work. Legacy simulation material may exist, but new navigation should point readers to this codebase first.
+**Projection Work**:
+Analysis of projection or feasibility-set computation for the control problem.
+_Avoid_: Simulation, feasibility claim
 
-### Legacy simulation material
+**Research Literature**:
+External academic or technical material used to support manuscript or experiment design.
+_Avoid_: Technical note, review material
 
-Older simulation code retained for reference, comparison, or recovery. It should not be treated as the canonical simulation implementation unless a task explicitly says so.
+**Presentation Material**:
+Slides, animations, or other artifacts used to communicate the doctorate work.
+_Avoid_: Manuscript, shared asset
 
-### Embedded experiment
+**Planning Material**:
+Qualification, schedule, and project-planning material that guides the doctorate work.
+_Avoid_: Technical note, review material
 
-Hardware-facing work involving the ESP32, firmware, measurement setup, calibration, signal generation, and related lab validation.
+**Review Material**:
+Reviewer comments and associated citation metadata for a manuscript.
+_Avoid_: Research literature, planning material
 
-### Projection work
-
-Analysis related to projection or feasibility-region computation for the control problem.
-
-### Research literature
-
-External academic or technical material used to support the thesis, article, or experiment design, maintained under `research-material/literature/`.
-
-### Presentation material
-
-Slides, animations, or other communication artifacts used to present the doctorate work.
-
-### Planning material
-
-Qualification, schedule, and project-planning documents that guide manuscript production, maintained under `research-material/planning/`.
-
-### Review material
-
-Reviewer comments and associated citation metadata maintained under `research-material/review-feedback/`.
-
-### Archive material
-
-Backups, vendored dependencies, tutorials, or auxiliary material retained for historical or support reasons. Archive material is not the first place to look for active work.
+**Archive Material**:
+Historical or support material retained for reference but not treated as active work.
+_Avoid_: Legacy simulation material when referring specifically to older simulations

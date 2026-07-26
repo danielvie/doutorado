@@ -1,4 +1,6 @@
-# ESP32 IDF Project — Agent Context
+# ESP32 Signal Controller — Agent Context
+
+This file records operational setup details only. Use [`../../CONTEXT.md`](../../CONTEXT.md) for canonical domain language and [`../../../../CONTEXT-MAP.md`](../../../../CONTEXT-MAP.md) for relationships to the paper and simulation contexts.
 
 ## Goal
 Configure an ESP32 IDF project on Windows so that:

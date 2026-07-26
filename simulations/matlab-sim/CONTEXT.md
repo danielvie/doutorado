@@ -44,15 +44,19 @@ _Avoid_: Switching duration, time step
 
 **Dwell Duration**:
 The elapsed time between two consecutive cycle boundaries.
-_Avoid_: Switching instant, timing deviation
+_Avoid_: Dwell interval, switching instant, timing deviation
+
+**Minimum Dwell Duration**:
+The lower bound imposed on every dwell duration.
+_Avoid_: Minimum dwell time, minimum switching time, time constraint
 
 **Cycle Period**:
 The elapsed time from the cycle-start boundary to the cycle-end boundary.
 _Avoid_: Horizon, maximum period
 
 **Switching-Instant Offset**:
-A controller-selected signed displacement $\delta t$ of an interior nominal switching time. Positive values move that switching time later without changing the cycle period.
-_Avoid_: Dwell-time change, time step, timing deviation
+A controller-selected signed displacement $\delta t$ of an interior nominal switching instant. Positive values move that instant later without changing the cycle period.
+_Avoid_: Switching-time perturbation, dwell-duration change, time step, timing deviation
 
 ## State and Orbit
 
@@ -89,7 +93,7 @@ The error $e(t)=x(t)-\bar{x}(\bar{t})$ between the actual state and correspondin
 _Avoid_: Desired-operating-point error, tracking error
 
 **One-Cycle Linear Model**:
-The thesis equation $e(t_{j,N})=\Phi e(t_{j,0})+\Gamma\delta t[j]$ relating cycle-start orbit deviation and switching-time perturbations to cycle-end orbit deviation.
+The thesis equation $e(t_{j,N})=\Phi e(t_{j,0})+\Gamma\delta t[j]$ relating cycle-start orbit deviation and switching-instant offsets to cycle-end orbit deviation.
 _Avoid_: State-space model, blocked prediction model
 
 **Homogeneous State Augmentation**:
