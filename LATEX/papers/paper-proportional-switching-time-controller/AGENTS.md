@@ -1,15 +1,22 @@
+The `doutorado.git/` root folder is located at:
+`$env:USERPROFILE\Documents\doutorado.git`
 
-- matlab simulation is located at:
-  "/Users/danielvieira/Documents/doutorado.git/simulations/matlab-sim/"
+All paths below are relative to this root folder.
 
-- embedded ESP code is located at:
-  "/Users/danielvieira/Documents/doutorado.git/embedded/esp32_idf/"
+- MATLAB simulation is located at:
+  `simulations/matlab-sim/`
+
+- Embedded ESP code is located at:
+  `embedded/esp32_idf/`
 
 - LaTeX projects are located at:
-  "/Users/danielvieira/Documents/doutorado.git/LATEX/"
+  `LATEX/`
 
-- this paper is located at:
-  "/Users/danielvieira/Documents/doutorado.git/LATEX/papers/paper-proportional-switching-time-controller/"
+- This paper is located at:
+  `LATEX/papers/paper-proportional-switching-time-controller/`
 
 - Thesis is located at:
-  "/Users/danielvieira/Documents/doutorado.git/LATEX/thesis/"
+  `LATEX/thesis/`
+
+- The linearization procedure is located at:
+  `research-material/working-notes/linearization/linearization_v2_augmented.tex`

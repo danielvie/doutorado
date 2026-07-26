@@ -1,2 +1,2 @@
-initial_error,controlled_final,open_final,controlled_reduction,open_reduction,minimum_dwell,maximum_perturbation,cycles,spectral_radius,first_admissible_cycle,conditioned_cycles
-0.98540037573567,0.00864141134085122,0.234376351203841,99.1230558102436,76.2151144879701,2.99999999999996,19,80,5.85931920578108e-08,4,3
+initial_error,controlled_final,open_final,controlled_reduction,open_reduction,minimum_dwell,maximum_perturbation,cycles,spectral_radius,first_admissible_cycle,conditioned_cycles,open_loop_spectral_radius,contraction_bound,worst_lyapunov_ratio,worst_conditioned_ratio,lyapunov_monotone,first_increase_cycle,lyapunov_decay_factor,minimum_conditioning_factor,maximum_raw_perturbation
+0.98540037573567,0.00864141134085122,0.234376351203841,99.1230558102436,76.2151144879701,2.99999999999996,19,80,5.85931920578108e-08,4,3,0.999864188653761,0.999894894199912,1.01493336672361,0.862510200383142,0,6,6524.73841383729,0.204158294375875,93.065040820821
