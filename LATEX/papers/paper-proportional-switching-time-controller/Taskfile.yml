@@ -14,6 +14,11 @@ tasks:
     cmds:
       - matlab -batch "run('scripts/generate_results.m')"
 
+  trajectory-comparison:
+    desc: Regenerate comparison/trajectory_comparison.pdf with MATLAB
+    cmds:
+      - matlab -batch "run('scripts/generate_trajectory_comparison.m')"
+
   build:
     desc: Compile the article PDF and refresh the editor preview
     cmds:

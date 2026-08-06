@@ -55,11 +55,14 @@ function config = patino_2()
 	% max value for the period of the trajectory cycle
 	config.Tpmax = 0.4*1e-3; % 0.400ms
     
-	% time sequence
-    config.Ts    = [0.000, 0.066, 0.088, 0.110, 0.132, 0.154, 0.220, 0.242, 0.264, 0.286]*1e-3;
+	% time sequence: minimum correction of the legacy rounded schedule that
+	% makes its nominal orbit anchor exactly periodic
+    config.Ts    = [0, 64.860540946522, 87.271441307199, ...
+        109.746872830079, 133.178907072844, 153.979702056922, ...
+        218.701189287510, 240.507957586781, 264.237984679219, 286] * 1e-6;
 	
-	% initial state
-    config.x0    = [9.9247; 19.2928; 0.9823];
+	% exact cycle-boundary state for the configured switching schedule
+    config.x0    = Utils.get_x0(config);
 
     % constraint time
     config.c_time = [3*1e-6, 3*1e-6];
