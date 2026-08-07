@@ -11,7 +11,15 @@ addpath(fullfile(article_dir, 'scripts'));
 output_dir = fullfile(article_dir, 'comparison');
 if ~isfolder(output_dir), mkdir(output_dir); end
 output_pdf = fullfile(output_dir, 'trajectory_comparison.pdf');
+open_loop_output_pdf = fullfile(output_dir, 'open_loop_convergence.pdf');
+open_loop_trajectory_output_pdf = fullfile(output_dir, ...
+    'open_loop_trajectory_convergence.pdf');
+open_loop_states_output_pdf = fullfile(output_dir, ...
+    'open_loop_states_over_time.pdf');
 if isfile(output_pdf), delete(output_pdf); end
+if isfile(open_loop_output_pdf), delete(open_loop_output_pdf); end
+if isfile(open_loop_trajectory_output_pdf), delete(open_loop_trajectory_output_pdf); end
+if isfile(open_loop_states_output_pdf), delete(open_loop_states_output_pdf); end
 
 set(groot, 'defaultAxesFontName', 'Times New Roman');
 set(groot, 'defaultAxesFontSize', 9);
@@ -65,6 +73,8 @@ K_normalized = dlqr(A_normalized, B_normalized, ...
 K_physical = timing_scale * K_normalized / state_scale;
 
 comparison_cycles = 100;
+open_loop_check_cycles = 100000;
+open_loop_convergence_tolerance = 1e-2;
 samples_per_interval = 30;
 % Large initial displacement used in the paper's conditioned-controller study.
 initial_state = [7.5143; 20.8211; 0.0314];
@@ -86,6 +96,11 @@ assert(norm(state_on(end, :)' - anchor) < norm(initial_state - anchor), ...
     'The controller-ON trajectory does not approach the cycle anchor.');
 assert(all(conditioning_factors >= 0 & conditioning_factors <= 1), ...
     'A dwell-time conditioning factor is outside [0, 1].');
+
+[open_loop_cycle_error, open_loop_convergence_cycle, ...
+    open_loop_spectral_radius] = check_open_loop_convergence( ...
+    model.Phi, state_scale, initial_state - anchor, ...
+    open_loop_check_cycles, open_loop_convergence_tolerance);
 conditioned_cycle_count = sum(conditioning_factors < 1 - 1e-12);
 assert(conditioned_cycle_count > 0, ...
     'The aggressive comparison does not exercise the dwell-time conditioner.');
@@ -165,7 +180,130 @@ view(42, 24);
 exportgraphics(fig, output_pdf, 'ContentType', 'vector', 'Append', true);
 close(fig);
 
+%% Long-horizon open-loop state-space trajectory
+open_loop_plot_indices = convergence_plot_indices(open_loop_check_cycles, ...
+    open_loop_convergence_cycle);
+open_loop_anchor_states = sample_open_loop_anchors(model.Phi, anchor, ...
+    initial_state, open_loop_plot_indices);
+[~, final_cycle_state] = simulate_dense_cycles(config, anchor, ...
+    open_loop_anchor_states(end, :)', zeros(size(K_physical)), 1, ...
+    samples_per_interval, applied_schedule_dwell_bound);
+fig = figure('Visible', 'off', 'Position', [100, 100, 700, 600]);
+transient_handle = plot3(state_off(:, 1), state_off(:, 2), state_off(:, 3), ...
+    '--', 'Color', colors(2, :));
+hold on;
+anchor_handle = scatter3(open_loop_anchor_states(:, 1), ...
+    open_loop_anchor_states(:, 2), open_loop_anchor_states(:, 3), 12, ...
+    [0.85, 0.55, 0.05], 'filled', 'MarkerFaceAlpha', 0.25, ...
+    'MarkerEdgeAlpha', 0.10);
+final_handle = plot3(final_cycle_state(:, 1), final_cycle_state(:, 2), ...
+    final_cycle_state(:, 3), '--', 'Color', colors(1, :), 'LineWidth', 1.2);
+plot3(reference_boundary(:, 1), reference_boundary(:, 2), ...
+    reference_boundary(:, 3), '-', 'Color', 'w', 'LineWidth', 5.0, ...
+    'HandleVisibility', 'off');
+target_handle = plot3(reference_boundary(:, 1), reference_boundary(:, 2), ...
+    reference_boundary(:, 3), '-', 'Color', colors(3, :), 'LineWidth', 3.0);
+initial_handle = plot3(initial_state(1), initial_state(2), initial_state(3), ...
+    'ko', 'MarkerFaceColor', 'k', 'MarkerSize', 5);
+target_anchor_handle = plot3(anchor(1), anchor(2), anchor(3), 'kp', ...
+    'MarkerFaceColor', [0.95, 0.75, 0.10], 'MarkerSize', 10);
+if ~isempty(open_loop_convergence_cycle)
+    crossing_index = find(open_loop_plot_indices - 1 == ...
+        open_loop_convergence_cycle, 1);
+    crossing_handle = plot3(open_loop_anchor_states(crossing_index, 1), ...
+        open_loop_anchor_states(crossing_index, 2), ...
+        open_loop_anchor_states(crossing_index, 3), 'md', ...
+        'MarkerFaceColor', 'm', 'MarkerSize', 6);
+end
+xlabel('$v_{C_1}$ (V)', 'Interpreter', 'latex');
+ylabel('$v_{C_2}$ (V)', 'Interpreter', 'latex');
+zlabel('$i_L$ (A)', 'Interpreter', 'latex');
+title('Open-loop convergence toward the switching limit cycle', ...
+    'FontWeight', 'normal');
+legend_handles = [transient_handle, anchor_handle, final_handle, target_handle, ...
+    initial_handle, target_anchor_handle];
+legend_labels = {'First 100 cycles', 'Faded cycle-start anchors', ...
+    'Cycle 100000', 'Target limit cycle', 'Initial state', ...
+    'Target anchor'};
+if ~isempty(open_loop_convergence_cycle)
+    legend_handles(end + 1) = crossing_handle;
+    legend_labels{end + 1} = sprintf('Tolerance crossing (cycle %d)', ...
+        open_loop_convergence_cycle);
+end
+legend(legend_handles, legend_labels, 'Location', 'best');
+grid on;
+view(42, 24);
+exportgraphics(fig, open_loop_trajectory_output_pdf, ...
+    'ContentType', 'image', 'Resolution', 300);
+close(fig);
+
+%% Open-loop states at phase-aligned cycle starts
+cycle_period = config.Ts(end) - config.Ts(1);
+noninitial_indices = 2:numel(open_loop_plot_indices);
+cycle_start_time = (open_loop_plot_indices(noninitial_indices) - 1) * ...
+    cycle_period;
+state_colors = [0.00, 0.35, 0.70; 0.75, 0.20, 0.15; 0.15, 0.55, 0.25];
+fig = figure('Visible', 'off', 'Position', [100, 100, 780, 650]);
+layout = tiledlayout(3, 1, 'TileSpacing', 'compact', 'Padding', 'compact');
+for state_index = 1:3
+    nexttile;
+    state_handle = semilogx(cycle_start_time, ...
+        open_loop_anchor_states(noninitial_indices, state_index), '-o', ...
+        'Color', state_colors(state_index, :), 'MarkerSize', 2);
+    hold on;
+    target_handle = yline(anchor(state_index), '--k', 'Target anchor');
+    if ~isempty(open_loop_convergence_cycle)
+        crossing_handle = xline(open_loop_convergence_cycle * cycle_period, ...
+            '--m', 'Tolerance crossing');
+    end
+    ylabel(labels{state_index}, 'Interpreter', 'latex');
+    grid on;
+    if state_index == 1
+        if isempty(open_loop_convergence_cycle)
+            legend([state_handle, target_handle], ...
+                {'Open-loop cycle starts', 'Target anchor'}, ...
+                'Location', 'best');
+        else
+            legend([state_handle, target_handle, crossing_handle], ...
+                {'Open-loop cycle starts', 'Target anchor', ...
+                'Tolerance crossing'}, 'Location', 'best');
+        end
+    end
+end
+xlabel(layout, 'Time from initial state (s, log scale)');
+title(layout, 'Open-loop states at cycle starts over 100000 cycles', ...
+    'FontWeight', 'normal');
+exportgraphics(fig, open_loop_states_output_pdf, 'ContentType', 'vector');
+close(fig);
+
+%% Open-loop convergence at cycle starts
+plot_indices = convergence_plot_indices(open_loop_check_cycles, ...
+    open_loop_convergence_cycle);
+fig = figure('Visible', 'off', 'Position', [100, 100, 780, 420]);
+semilogy(plot_indices - 1, open_loop_cycle_error(plot_indices), ...
+    'Color', colors(2, :));
+hold on;
+yline(open_loop_convergence_tolerance, '--k', ...
+    'Tolerance: normalized error = 0.01', 'LabelHorizontalAlignment', 'left');
+if ~isempty(open_loop_convergence_cycle)
+    xline(open_loop_convergence_cycle, '--k', ...
+        sprintf('Persistent crossing: cycle %d', open_loop_convergence_cycle), ...
+        'LabelOrientation', 'horizontal', 'LabelVerticalAlignment', 'bottom');
+end
+xlabel('Cycle number');
+ylabel('Normalized cycle-start error');
+title('Open-loop convergence to the switching limit cycle', ...
+    'FontWeight', 'normal');
+xlim([0, open_loop_check_cycles]);
+grid on;
+exportgraphics(fig, open_loop_output_pdf, 'ContentType', 'vector');
+close(fig);
+
 fprintf('Generated two-page trajectory comparison: %s\n', output_pdf);
+fprintf('Generated open-loop convergence chart: %s\n', open_loop_output_pdf);
+fprintf('Generated open-loop trajectory chart: %s\n', ...
+    open_loop_trajectory_output_pdf);
+fprintf('Generated open-loop state chart: %s\n', open_loop_states_output_pdf);
 fprintf('Nominal closure error (inf norm): %.3e\n', nominal_closure_error);
 cycle_start_indices = 1 + (0:comparison_cycles) * ...
     (numel(config.Omega) * samples_per_interval);
@@ -186,11 +324,77 @@ fprintf('Closed-loop linear spectral radius: %.9f\n', ...
     closed_loop_spectral_radius);
 fprintf('First cycle below normalized error 0.01: %d\n', ...
     first_cycle_below_one_percent);
+fprintf('Open-loop spectral radius: %.9f\n', open_loop_spectral_radius);
+if isempty(open_loop_convergence_cycle)
+    fprintf(['Open loop does not remain below normalized error %.3g ', ...
+        'within %d cycles (final error %.6g).\n'], ...
+        open_loop_convergence_tolerance, open_loop_check_cycles, ...
+        open_loop_cycle_error(end));
+else
+    fprintf(['Open loop remains below normalized error %.3g from ', ...
+        'cycle %d through %d (final error %.6g).\n'], ...
+        open_loop_convergence_tolerance, open_loop_convergence_cycle, ...
+        open_loop_check_cycles, open_loop_cycle_error(end));
+end
 fprintf('Maximum raw/applied switching offset: %.6f / %.6f us\n', ...
     maximum_raw_offset * 1e6, maximum_applied_offset * 1e6);
 fprintf('Minimum conditioned dwell: %.6f us (applied bound %.3f us)\n', ...
     minimum_on_dwell * 1e6, applied_schedule_dwell_bound * 1e6);
 fprintf('Minimum controller-OFF dwell: %.6f us\n', minimum_off_dwell * 1e6);
+
+function plot_indices = convergence_plot_indices(cycle_count, convergence_cycle)
+    early_indices = 1:min(cycle_count + 1, 1001);
+    logarithmic_indices = unique(round(logspace(0, log10(cycle_count + 1), 900)));
+    crossing_indices = [];
+    if ~isempty(convergence_cycle)
+        crossing_cycles = max(0, convergence_cycle - 25): ...
+            min(cycle_count, convergence_cycle + 25);
+        crossing_indices = crossing_cycles + 1;
+    end
+    plot_indices = unique([early_indices, logarithmic_indices, crossing_indices, ...
+        cycle_count + 1]);
+end
+
+function anchor_states = sample_open_loop_anchors(Phi, anchor, ...
+        initial_state, sample_indices)
+    state_count = numel(anchor);
+    anchor_states = zeros(numel(sample_indices), state_count);
+    error = initial_state(:) - anchor(:);
+    sample_cursor = 1;
+    for cycle = 0:sample_indices(end) - 1
+        if cycle + 1 == sample_indices(sample_cursor)
+            anchor_states(sample_cursor, :) = (anchor(:) + error)';
+            sample_cursor = sample_cursor + 1;
+            if sample_cursor > numel(sample_indices)
+                return;
+            end
+        end
+        error = Phi * error;
+    end
+end
+
+function [cycle_error, convergence_cycle, spectral_radius] = ...
+        check_open_loop_convergence(Phi, state_scale, initial_error, ...
+        cycle_count, tolerance)
+    % Sample only switching-cycle starts: e(k+1) = Phi * e(k).
+    error = initial_error(:);
+    cycle_error = zeros(cycle_count + 1, 1);
+    cycle_error(1) = norm(state_scale \ error, 2);
+    for cycle = 1:cycle_count
+        error = Phi * error;
+        cycle_error(cycle + 1) = norm(state_scale \ error, 2);
+    end
+
+    spectral_radius = max(abs(eig(Phi)));
+    last_outside_tolerance = find(cycle_error >= tolerance, 1, 'last');
+    if isempty(last_outside_tolerance)
+        convergence_cycle = 0;
+    elseif last_outside_tolerance > cycle_count
+        convergence_cycle = [];
+    else
+        convergence_cycle = last_outside_tolerance;
+    end
+end
 
 function [time, state, minimum_dwell, conditioning_factors, ...
         maximum_raw_offset, maximum_applied_offset] = simulate_dense_cycles( ...
