@@ -1,0 +1,12 @@
+## Review
+
+- **Correct:** `article.tex:33` accurately summarizes the maximal scalar conditioner and \(O(N)\) implementation; this matches the feasibility proposition at `article.tex:240–253`.
+- **Correct:** The conditioned family and common-quadratic certificate are correctly stated at `article.tex:33`, supported by `article.tex:254–275`.
+- **Blocker:** **Evidence modality is unclear.** The abstract says “On a nine-interval DC--DC converter benchmark” and “still settles,” but does not say this is simulation. The body explicitly states “the simulation never uses the linearized model” (`article.tex:361`) and that there are no experiments (`article.tex:417`). State that the results are from exact nonlinear simulations to avoid implying experimental validation.
+- **Worthwhile fix:** Define “settles.” The abstract reports “settles in \(\ConditionedSettlingCycle{}\) cycles” (`article.tex:33`), while the actual criterion is first normalized cycle-start error below \(0.01\) (`article.tex:365`).
+- **Worthwhile fix:** Briefly define \(\Phi\), \(A_{\mathrm{cl}}\), and \(N\) at first use. The abstract calls them the “nominal” and “raw closed-loop” matrices but does not identify \(\Phi\) as the open-loop cycle matrix or \(A_{\mathrm{cl}}\) as the full raw-feedback matrix; these definitions appear only in `article.tex:218–225` and `article.tex:254–257`.
+- **Worthwhile fix:** “Aggressive law” and “conservative law” are unexplained comparisons in `article.tex:33`. Identify them as aggressive and conservative LQR laws; their construction is given at `article.tex:339`.
+- **Worthwhile fix:** “Nine-interval DC--DC converter benchmark” is underspecified for a first-time reader. The body identifies it as the three-cell multilevel converter studied by Patiño et al. (`article.tex:286`). Consider naming that configuration and provenance.
+- **Optional polish:** Replace “which lets the state matrix and the affine term change together” (`article.tex:33`) with a more concrete explanation such as “by appending a constant coordinate, it propagates mode-dependent affine dynamics exactly.” The current wording is dense and ambiguous.
+- **Author decision:** Consider whether to mention finite-difference validation in the abstract. The body reports central-difference checks and second-order residual decay (`article.tex:343–353`), but the abstract currently reports only the control simulation evidence.
+- **Fixed:** None; this was a strictly read-only review.

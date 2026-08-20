@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!--
+  How the conditioning factor beta is computed so the applied schedule
+  satisfies every minimum-dwell constraint.  Companion to Section 3 of
+  article.tex (eq. 21-22, Proposition 1) and to dwell-time-conditioning.html.
+
+  Numbers are the paper's own: nominal schedule = eq. (30); worked example =
+  cycle 0 of results/conditioned_control_response.csv; reference implementation
+  = scripts/condition_dwell_times.m.  Self-contained; open directly.
+-->
+<title>The Ratio Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Spectral:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#EDF0F4; --surface:#FFFFFF; --surface-2:#E4E9F0;
+  --ink:#141C25; --ink-2:#42505F; --ink-3:#6B7789;
+  --rule:#CCD4DE; --rule-strong:#A9B4C2;
+  --blue:#1D5F9E; --blue-soft:#D6E4F2;
+  --crimson:#C4453C; --crimson-soft:#F6DEDC;
+  --teal:#17877A; --teal-soft:#D3E9E5;
+  --graphite:#6B7789; --amber:#B07A16;
+  --shadow:0 1px 2px rgba(20,28,37,.06), 0 8px 24px -12px rgba(20,28,37,.18);
+  --measure:34rem;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F151C; --surface:#161F29; --surface-2:#1E2934;
+    --ink:#E6EBF1; --ink-2:#B3C0CE; --ink-3:#8593A3;
+    --rule:#2B3743; --rule-strong:#3D4B59;
+    --blue:#5FA8E0; --blue-soft:#1B3247;
+    --crimson:#E8756B; --crimson-soft:#3B2320;
+    --teal:#45BDAA; --teal-soft:#153029;
+    --graphite:#8593A3; --amber:#D9A441;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F151C; --surface:#161F29; --surface-2:#1E2934;
+  --ink:#E6EBF1; --ink-2:#B3C0CE; --ink-3:#8593A3;
+  --rule:#2B3743; --rule-strong:#3D4B59;
+  --blue:#5FA8E0; --blue-soft:#1B3247;
+  --crimson:#E8756B; --crimson-soft:#3B2320;
+  --teal:#45BDAA; --teal-soft:#153029;
+  --graphite:#8593A3; --amber:#D9A441;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:Spectral,Georgia,"Times New Roman",serif;
+  font-size:17px; line-height:1.68; -webkit-font-smoothing:antialiased;
+}
+.page{
+  --pad:clamp(1rem,4vw,2.5rem);
+  --cols:minmax(var(--pad),1fr) minmax(0,var(--measure)) minmax(var(--pad),1fr);
+  display:grid; grid-template-columns:var(--cols);
+}
+.page > header,.page > section,.page > footer{
+  grid-column:1/-1; display:grid; grid-template-columns:var(--cols); align-content:start;
+}
+.page > header > *,.page > section > *,.page > footer > *{grid-column:2}
+.page .wide{grid-column:1/-1;width:min(72rem,100% - var(--pad)*2);margin-inline:auto;max-width:none}
+
+h1,h2,h3,.eyebrow,figcaption,th{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+h1{font-size:clamp(2.2rem,5.5vw,3.4rem);line-height:1.04;letter-spacing:-.03em;font-weight:700;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.4rem,3vw,1.9rem);line-height:1.15;letter-spacing:-.02em;font-weight:600;text-wrap:balance;margin:0}
+h3{font-size:1.02rem;font-weight:600;margin:0}
+p{margin:0}
+.lede{font-size:clamp(1.05rem,2.2vw,1.24rem);line-height:1.56;color:var(--ink-2)}
+code,.mono,.num{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+code{font-size:.86em;background:var(--surface-2);padding:.1em .34em;border-radius:3px;color:var(--ink)}
+.num{font-variant-numeric:tabular-nums}
+strong{font-weight:500;color:var(--ink);background:linear-gradient(transparent 64%,var(--blue-soft) 64%)}
+em{font-style:italic}
+:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+
+header.masthead{padding:clamp(3rem,8vw,5rem) 0 clamp(1.5rem,4vw,2.5rem)}
+header.masthead > *{display:block}
+.rule-row{display:flex;align-items:center;gap:.85rem;font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--ink-3);margin-bottom:1.4rem}
+.rule-row::after{content:"";flex:1;height:1px;background:var(--rule)}
+.masthead h1{margin-bottom:1.3rem}
+.masthead .lede{max-width:31rem}
+
+section{padding-block:clamp(2.2rem,5vw,3.4rem);row-gap:1.15rem}
+.step-head{display:flex;align-items:baseline;gap:1rem;padding-bottom:.85rem;margin-bottom:1.4rem;border-bottom:1px solid var(--rule)}
+.step-num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;font-weight:600;color:var(--blue);flex:none;padding-top:.2em}
+
+.eq{
+  background:var(--surface);border:1px solid var(--rule);border-radius:4px;
+  padding:1rem 1.2rem;font-family:"IBM Plex Mono",monospace;font-size:.89rem;
+  line-height:1.8;overflow-x:auto;color:var(--ink);
+}
+.eq .cm{color:var(--ink-3)}
+.eq .hl{color:var(--blue);font-weight:500}
+.eq .bad{color:var(--crimson);font-weight:500}
+.eq .ok{color:var(--teal);font-weight:500}
+.eq.center{text-align:center}
+
+.note{border-left:2px solid var(--rule-strong);padding:.15rem 0 .15rem 1.15rem;color:var(--ink-2);font-size:.95rem}
+.note.key{border-left-color:var(--blue)}
+.note.warn{border-left-color:var(--crimson)}
+.note .tag{font-family:Archivo,sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:.3rem;color:var(--ink-3)}
+.note.key .tag{color:var(--blue)}
+.note.warn .tag{color:var(--crimson)}
+
+figure{margin:0;display:flex;flex-direction:column;gap:.8rem}
+.fig-shell{background:var(--surface);border:1px solid var(--rule);border-radius:5px;box-shadow:var(--shadow);overflow-x:auto;padding:clamp(1rem,3vw,1.6rem)}
+.fig-shell svg{display:block;width:100%;height:auto;min-width:540px}
+figcaption{font-size:.82rem;line-height:1.5;color:var(--ink-3);max-width:44rem}
+figcaption b{color:var(--ink-2);font-weight:600}
+
+.tbl-shell{overflow-x:auto;background:var(--surface);border:1px solid var(--rule);border-radius:5px;box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;min-width:600px;font-size:.83rem}
+th{font-size:.62rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);text-align:right;padding:.8rem .7rem;border-bottom:1px solid var(--rule-strong);white-space:nowrap}
+th:first-child,td:first-child{text-align:left;padding-left:1.1rem}
+th:last-child,td:last-child{padding-right:1.1rem}
+td{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;text-align:right;padding:.5rem .7rem;border-bottom:1px solid var(--rule);color:var(--ink-2)}
+tr:last-child td{border-bottom:none}
+tr.binding td{background:var(--blue-soft);color:var(--ink);font-weight:500}
+tr.grow td{color:var(--ink-3)}
+.chip{font-family:Archivo,sans-serif;font-size:.59rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:.14em .48em;border-radius:2px;white-space:nowrap}
+.chip.shrink{background:var(--crimson-soft);color:var(--crimson)}
+.chip.grows{background:var(--teal-soft);color:var(--teal)}
+
+pre.code{
+  background:var(--surface);border:1px solid var(--rule);border-radius:4px;
+  padding:1rem 1.2rem;overflow-x:auto;margin:0;
+  font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.7;color:var(--ink-2);
+}
+pre.code b{color:var(--blue);font-weight:500}
+pre.code i{color:var(--ink-3);font-style:normal}
+
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:5px;overflow:hidden}
+.cmp > div{background:var(--surface);padding:1rem 1.15rem;display:flex;flex-direction:column;gap:.5rem}
+.cmp h3{font-size:.68rem;letter-spacing:.13em;text-transform:uppercase}
+.cmp .a{color:var(--crimson)}
+.cmp .b{color:var(--teal)}
+.cmp p{font-size:.87rem;color:var(--ink-2)}
+.cmp .mono{font-size:.8rem}
+@media (max-width:560px){.cmp{grid-template-columns:1fr}}
+
+.cases{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--rule)}
+.cases > div{display:grid;grid-template-columns:5.5rem 1fr;gap:1rem;padding:.8rem 0;border-bottom:1px solid var(--rule);font-size:.9rem}
+.cases dt{font-family:"IBM Plex Mono",monospace;font-size:.83rem;font-weight:500}
+.cases dd{margin:0;color:var(--ink-2)}
+.cases .g{color:var(--teal)} .cases .s{color:var(--crimson)} .cases .z{color:var(--ink-3)}
+@media (max-width:520px){.cases > div{grid-template-columns:1fr;gap:.15rem}}
+
+footer{padding:2.2rem 0 4rem;border-top:1px solid var(--rule);font-size:.8rem;color:var(--ink-3);font-family:Archivo,sans-serif}
+footer a{color:var(--blue)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <div class="rule-row">ARTICLE.TEX &#xB7; EQ. (21)&#x2013;(22) &#xB7; PROPOSITION 1</div>
+  <h1>The Ratio Test</h1>
+  <p class="lede">Nine constraints, one unknown. How <code>&#x3B2;</code> is computed so the applied
+  schedule satisfies every minimum-dwell bound &mdash; exactly, in one pass, with no solver
+  and no search.</p>
+</header>
+
+<section>
+  <div class="step-head"><span class="step-num">01</span><h2>What has to be true</h2></div>
+
+  <p>The controller has produced a raw offset vector <code>&#x3B4;&#x3C4;<sup>raw</sup></code>. We are going to apply
+  <code>&#x3B2;&#xB7;&#x3B4;&#x3C4;<sup>raw</sup></code> instead, and we need to pick <code>&#x3B2;</code>. The requirement is that every
+  resulting dwell duration clears the floor:</p>
+
+  <div class="eq center">d&#x0304; + D(<span class="hl">&#x3B2;</span>&#xB7;&#x3B4;&#x3C4;<sup>raw</sup>) &nbsp;&#x2265;&nbsp; d<sub>min</sub>&#xB7;1</div>
+
+  <p>Written out, that is <em>nine</em> simultaneous inequalities. It looks like a feasibility
+  problem. It is not, and the reason is the next paragraph.</p>
+
+  <div class="note key">
+    <span class="tag">The move that makes it easy</span>
+    <code>D</code> is a linear map and <code>&#x3B2;</code> is a <em>scalar</em>, so it factors straight out:
+    <code>D(&#x3B2;&#xB7;&#x3B4;&#x3C4;) = &#x3B2;&#xB7;(D&#x3B4;&#x3C4;) = &#x3B2;&#xB7;q</code>. Write
+    <code>q = D&#x3B4;&#x3C4;<sup>raw</sup></code> for the dwell changes the controller asked for at full strength, and
+    <code>m = d&#x0304; &#x2212; d<sub>min</sub>&#xB7;1</code> for how much room each interval has. The nine
+    inequalities become nine <strong>scalar inequalities in one unknown</strong>:
+  </div>
+
+  <div class="eq center">d&#x0304;<span class="cm">&#x1D62;</span> + <span class="hl">&#x3B2;</span>&#xB7;q<span class="cm">&#x1D62;</span> &#x2265; d<sub>min</sub>
+    &nbsp;&nbsp;&#x27FA;&nbsp;&nbsp; <span class="hl">&#x3B2;</span>&#xB7;q<span class="cm">&#x1D62;</span> &#x2265; &#x2212;m<span class="cm">&#x1D62;</span></div>
+
+  <p>Each one is a straight line in <code>&#x3B2;</code>. Because there is only one unknown, we do not have
+  to <em>test</em> candidate values &mdash; we can <em>solve</em> each inequality outright.</p>
+</section>
+
+<section>
+  <div class="step-head"><span class="step-num">02</span><h2>Solve one inequality: the sign of q decides everything</h2></div>
+
+  <p>To isolate <code>&#x3B2;</code> we divide by <code>q&#x1D62;</code>. Dividing an inequality by a negative
+  number flips it, so the sign of <code>q&#x1D62;</code> splits the problem into three cases &mdash; and only
+  one of them constrains anything.</p>
+
+  <dl class="cases">
+    <div>
+      <dt class="g">q&#x1D62; &gt; 0</dt>
+      <dd><b>Interval grows.</b> Then <code>&#x3B2;q&#x1D62; &#x2265; 0 &gt; &#x2212;m&#x1D62;</code> for every
+      <code>&#x3B2; &#x2265; 0</code>. A longer interval can never violate a <em>minimum</em>.
+      <strong>No constraint.</strong></dd>
+    </div>
+    <div>
+      <dt class="z">q&#x1D62; = 0</dt>
+      <dd><b>Unchanged.</b> The inequality reads <code>0 &#x2265; &#x2212;m&#x1D62;</code>, true by the margin
+      assumption. <strong>No constraint.</strong></dd>
+    </div>
+    <div>
+      <dt class="s">q&#x1D62; &lt; 0</dt>
+      <dd><b>Interval shrinks.</b> Divide by <code>q&#x1D62; &lt; 0</code> and the inequality flips:
+      <code>&#x3B2; &#x2264; m&#x1D62; &#x2044; |q&#x1D62;|</code>. <strong>One upper bound.</strong></dd>
+    </div>
+  </dl>
+
+  <p style="margin-top:1.1rem">This is the structural fact the whole method rests on: <strong>every interval
+  contributes either nothing or an upper bound. None of them ever contributes a lower bound.</strong></p>
+
+  <figure class="wide">
+    <div class="fig-shell">
+      <svg viewBox="0 0 900 420" role="img" aria-label="Each interval's duration plotted as a straight line against beta. Growing lines never cross the floor; shrinking lines cross it, and the leftmost crossing sets beta star.">
+        <g id="lines"></g>
+      </svg>
+    </div>
+    <figcaption><b>Every constraint is a straight line.</b> Duration of each interval as
+    <code>&#x3B2;</code> runs from 0 to 1, on the real cycle-0 data. Lines sloping up
+    (<span style="color:var(--teal)">teal</span>) never approach the floor. Lines sloping down
+    (<span style="color:var(--crimson)">crimson</span>) each pierce it at one point &mdash; that
+    point is their ceiling <code>m&#x1D62;&#x2044;|q&#x1D62;|</code>. The <em>leftmost</em> piercing is
+    <code>&#x3B2;*</code>: push past it and interval 9 goes illegal. Two shrinking intervals
+    (1 and 5) are so slack they only cross far beyond <code>&#x3B2; = 1</code> and never bind.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="step-head"><span class="step-num">03</span><h2>Intersect the bounds</h2></div>
+
+  <p>Every bound must hold at once, and <code>&#x3B2;</code> is confined to <code>[0,1]</code> by
+  definition &mdash; never reverse the controller, never amplify it. So the admissible set is</p>
+
+  <div class="eq center">
+    <span class="hl">&#x3B2;</span> &#x2208; [0, 1] &nbsp;&#x2229;&nbsp;
+    <span style="font-size:1.3em;vertical-align:-.15em">&#x22C2;</span><sub class="cm">i : q&#x1D62; &lt; 0</sub>
+    &nbsp;( &#x2212;&#x221E; , &nbsp;m<span class="cm">&#x1D62;</span> &#x2044; |q<span class="cm">&#x1D62;</span>| ]
+  </div>
+
+  <p>An intersection of upper bounds with <code>[0,1]</code> is a closed interval
+  <code>[0, &#x3B2;*]</code> &mdash; one connected piece, anchored at zero. Its largest element is the
+  answer, and it is just the smallest of the bounds:</p>
+
+  <div class="eq center">
+<span class="hl">&#x3B2;*</span> = min <big>(</big> 1 , &nbsp;
+<span style="display:inline-block;text-align:center;vertical-align:middle;line-height:1.1">
+<span style="font-size:.95em">min</span><br><span class="cm" style="font-size:.72em">i : q&#x1D62; &lt; 0</span></span>
+&nbsp; m<span class="cm">&#x1D62;</span> &#x2044; |q<span class="cm">&#x1D62;</span>| <big>)</big></div>
+
+  <p>That is equation (22). A minimum over an empty set is <code>+&#x221E;</code>, which correctly gives
+  <code>&#x3B2;* = 1</code> when nothing shrinks enough to matter &mdash; the raw action was already legal
+  and passes through untouched.</p>
+
+  <div class="note key">
+    <span class="tag">Why &#x3B2;* is never zero</span>
+    Equation (20) assumes the nominal schedule clears the floor with strict room to spare:
+    <code>m &gt; 0</code>. Every ratio <code>m&#x1D62;&#x2044;|q&#x1D62;|</code> is therefore strictly
+    positive, so <code>&#x3B2;* &gt; 0</code> always. You are guaranteed <em>some</em> correction gets
+    through &mdash; the conditioner can throttle the controller but can never switch it off.
+  </div>
+</section>
+
+<section>
+  <div class="step-head"><span class="step-num">04</span><h2>The arithmetic on cycle 0</h2></div>
+
+  <p>Six intervals shrink, so six bounds. Three grow and are skipped entirely.</p>
+
+  <div class="wide tbl-shell">
+    <table>
+      <thead><tr>
+        <th>i</th><th>d&#x0304;&#x1D62; nominal</th><th>q&#x1D62; requested change</th>
+        <th>Direction</th><th>m&#x1D62; margin</th><th>Bound on &#x3B2;</th><th>Applied d&#x1D62;</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <div class="eq" style="margin-top:1.2rem">
+<span class="hl">&#x3B2;*</span> = min( 1, 4.0076, 0.8479, 8.1942, 0.8387, 0.5761, <span class="hl">0.2940</span> ) = <span class="hl">0.293972</span></div>
+
+  <figure class="wide">
+    <div class="fig-shell">
+      <svg viewBox="0 0 900 190" role="img" aria-label="The six upper bounds marked on a beta axis; the feasible interval runs from zero to the smallest of them.">
+        <g id="axis"></g>
+      </svg>
+    </div>
+    <figcaption><b>Taking the minimum.</b> Each shrinking interval plants one ceiling on the
+    <code>&#x3B2;</code> axis. The admissible set is everything to the left of <em>all</em> of them,
+    so it ends at the nearest one. Interval 9 wins; the other five never come into play on this cycle.</figcaption>
+  </figure>
+
+  <p>Verify the binding row is tight:</p>
+  <div class="eq center">d<sub>9</sub> = 22.172 + 0.293972&#xB7;(&#x2212;65.217) = <span class="ok">3.000</span> = d<sub>min</sub>
+    &nbsp;&nbsp;<span class="cm">exactly on the floor, zero slack</span></div>
+
+  <p>Every other interval finishes with room to spare. That asymmetry <em>is</em> maximality: the one
+  constraint that binds is driven precisely to equality, because if it landed above the floor you
+  could have turned <code>&#x3B2;</code> up further and used more of the controller's action.</p>
+</section>
+
+<section>
+  <div class="step-head"><span class="step-num">05</span><h2>Feasible and maximal &mdash; the proof</h2></div>
+
+  <p>Proposition 1, in full. It is three lines and you have already seen all of them.</p>
+
+  <div class="note">
+    <span class="tag">Feasible</span>
+    Take any <code>i</code>. If <code>q&#x1D62; &#x2265; 0</code> the constraint holds for all
+    <code>&#x3B2; &#x2265; 0</code>, and <code>&#x3B2;* &#x2265; 0</code>. If <code>q&#x1D62; &lt; 0</code> then
+    <code>&#x3B2;*</code> is a minimum <em>including</em> the term <code>m&#x1D62;&#x2044;|q&#x1D62;|</code>, so
+    <code>&#x3B2;* &#x2264; m&#x1D62;&#x2044;|q&#x1D62;|</code>, which is that constraint. All nine hold.
+  </div>
+
+  <div class="note" style="margin-top:.9rem">
+    <span class="tag">Maximal</span>
+    Suppose some <code>&#x3B2;&#x2032; &gt; &#x3B2;*</code> were admissible. <code>&#x3B2;*</code> equals either
+    <code>1</code> &mdash; and <code>&#x3B2;&#x2032; &gt; 1</code> is outside the allowed range &mdash; or some
+    <code>m&#x2C7C;&#x2044;|q&#x2C7C;|</code>, in which case <code>&#x3B2;&#x2032;</code> violates constraint
+    <code>j</code>. Either way <code>&#x3B2;&#x2032;</code> is not admissible. So <code>&#x3B2;*</code> is the largest.
+  </div>
+
+  <p style="margin-top:1.1rem">Two more properties come for free from <code>&#x3B2;</code> being a single
+  non-negative scalar: the applied vector is a positive multiple of the raw one, so the
+  <strong>direction is unchanged</strong>; and <code>1&#x1D40;D = 0</code> gives
+  <code>1&#x1D40;(&#x3B2;q) = &#x3B2;&#xB7;0 = 0</code>, so the <strong>period is unchanged</strong>.</p>
+</section>
+
+<section>
+  <div class="step-head"><span class="step-num">06</span><h2>Why this is not a search</h2></div>
+
+  <p>Feasibility here <em>is</em> monotone in <code>&#x3B2;</code> &mdash; legal below <code>&#x3B2;*</code>,
+  illegal above, exactly one crossing. That is precisely the condition under which bisection is
+  valid, so a binary search would work. It would also be a waste.</p>
+
+  <div class="cmp">
+    <div>
+      <h3 class="a">Binary search</h3>
+      <p>Treats feasibility as a black box you can only probe. Guess <code>&#x3B2;</code>, check all
+      N dwells, narrow the bracket, repeat.</p>
+      <p class="mono">cost &nbsp;O(N &#xB7; log 1&#x2044;&#x3B5;)<br>
+         result &nbsp;approximate<br>
+         needs &nbsp;a tolerance &#x3B5;</p>
+      <p>To 10<sup>&#x2212;6</sup>: about 20 rounds &#xD7; 9 checks &#x2248; 180 operations, landing
+      <em>near</em> 0.293972.</p>
+    </div>
+    <div>
+      <h3 class="b">The ratio test</h3>
+      <p>Each constraint is linear in <code>&#x3B2;</code>, so its exact crossing point is one
+      division. Take the smallest.</p>
+      <p class="mono">cost &nbsp;O(N)<br>
+         result &nbsp;exact<br>
+         needs &nbsp;nothing</p>
+      <p>Nine divisions, landing <em>on</em> 0.293972 &mdash; which is what puts interval 9 at
+      3.000 rather than 3.000001.</p>
+    </div>
+  </div>
+
+  <p style="margin-top:1.1rem">The same structure explains both facts. <em>Monotone with one crossing</em>
+  is what makes a search converge; <em>linear</em> is what lets you write the crossing point down and skip
+  the search. You would be iterating toward a number already in closed form.</p>
+
+  <div class="note warn">
+    <span class="tag">When you would need a real solver</span>
+    If the constraints were nonlinear in the scaling, or if the eight offsets were allowed to move
+    <em>independently</em> rather than as one scaled vector. That second case is an eight-dimensional
+    feasibility problem &mdash; a linear program &mdash; and no single scalar scan can express its answer.
+    Collapsing to one scalar is exactly what buys the closed form.
+  </div>
+</section>
+
+<section>
+  <div class="step-head"><span class="step-num">07</span><h2>The implementation</h2></div>
+
+  <p>The reference version is <code>scripts/condition_dwell_times.m</code>. Stripped to its logic:</p>
+
+  <pre class="code"><i>// q[i] &lt; 0 means interval i shrinks and therefore constrains beta</i>
+q    = diff([0; dtau_raw; 0])        <i>// N dwell changes from N-1 offsets</i>
+<b>beta</b> = 1
+for i in 1..N:
+    if q[i] &lt; 0:
+        <b>beta</b> = min(<b>beta</b>, (d_nom[i] - d_min) / -q[i])
+
+dtau_app = <b>beta</b> * dtau_raw           <i>// one scalar, whole vector</i></pre>
+
+  <p>One pass, one branch, one division on the branch taken. No matrix inverse, no iteration, no
+  convergence test, no tolerance to tune. This is the sense in which the method is
+  <strong>solver-free</strong>: the online cost is a matrix&#x2013;vector product for
+  <code>&#x2212;K&#xB7;e</code>, a difference to get <code>q</code>, and this scan.</p>
+
+  <div class="note">
+    <span class="tag">One guard worth keeping</span>
+    The reference implementation asserts <code>m &#x2265; 0</code> on entry and asserts the applied
+    schedule clears <code>d<sub>min</sub></code> on exit. The first checks the standing assumption of
+    eq. (20); the second is cheap insurance against a floating-point edge at the binding constraint,
+    where the result sits exactly on the bound by construction.
+  </div>
+</section>
+
+<footer>
+  Companion to <em>Dwell-Conditioned Cycle-to-Cycle Switching-Time Feedback for Mode-Dependent
+  Switched-Affine Systems</em>, &#xA7;3, eq. (21)&#x2013;(22) and Proposition 1.
+  Wider walkthrough: <a href="dwell-time-conditioning.html">dwell-time-conditioning.html</a>.
+  Numbers are cycle 0 of <code>results/conditioned_control_response.csv</code>.
+</footer>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+var NOM=[63.889,23.668,22.000,22.981,22.000,63.672,22.170,23.448,22.172];
+var RAW=[-15.1933,-39.5698,-27.1828,44.2809,41.9622,-30.3810,-63.6543,65.2171];
+var DMIN=3;
+
+var p=[0].concat(RAW,[0]), Q=[];
+for(var i=0;i<9;i++) Q.push(p[i+1]-p[i]);
+var M=NOM.map(function(d){return d-DMIN;});
+var BOUND=[], BETA=1;
+for(var i=0;i<9;i++){
+  var b = Q[i]<0 ? M[i]/(-Q[i]) : null;
+  BOUND.push(b);
+  if(b!==null && b<BETA) BETA=b;
+}
+
+var NS="http://www.w3.org/2000/svg";
+function el(t,a,x){var n=document.createElementNS(NS,t);for(var k in a)if(a[k]!==null&&a[k]!==undefined)n.setAttribute(k,a[k]);if(x!==undefined)n.textContent=x;return n;}
+function TX(x,y,s,o){o=o||{};return el("text",{x:x,y:y,"font-family":o.mono?"IBM Plex Mono, monospace":"Archivo, sans-serif","font-size":o.size||11,"font-weight":o.w||500,fill:o.fill||"var(--ink-2)","text-anchor":o.anchor||"start"},s);}
+function fx(v,n){return v.toFixed(n===undefined?3:n);}
+
+/* ---- fig 1 : every constraint is a line ---- */
+(function(){
+  var g=document.getElementById("lines");
+  var X0=62,X1=812,Y0=34,Y1=340, YLO=-50,YHI=100;
+  var bx=function(b){return X0+b*(X1-X0);};
+  var by=function(v){return Y0+(1-(Math.max(Math.min(v,YHI),YLO)-YLO)/(YHI-YLO))*(Y1-Y0);};
+
+  /* grid */
+  for(var v=-50;v<=100;v+=25){
+    g.appendChild(el("line",{x1:X0,y1:by(v),x2:X1,y2:by(v),stroke:"var(--rule)","stroke-width":1,"stroke-dasharray":v===0?null:"2 4"}));
+    g.appendChild(TX(X0-8,by(v)+3.5,String(v),{anchor:"end",size:9,mono:true,fill:"var(--ink-3)"}));
+  }
+  for(var b=0;b<=1.0001;b+=0.25){
+    g.appendChild(el("line",{x1:bx(b),y1:Y0,x2:bx(b),y2:Y1,stroke:"var(--rule)","stroke-width":1,"stroke-dasharray":"2 4"}));
+    g.appendChild(TX(bx(b),Y1+18,b.toFixed(2),{anchor:"middle",size:9.5,mono:true,fill:"var(--ink-3)"}));
+  }
+  g.appendChild(TX(X1,Y1+36,"conditioning factor β",{anchor:"end",size:10,w:600,fill:"var(--ink-3)"}));
+  g.appendChild(TX(X0-40,Y0-14,"dwell duration, µs",{size:10,w:600,fill:"var(--ink-3)"}));
+
+  /* the floor */
+  g.appendChild(el("rect",{x:X0,y:by(DMIN),width:X1-X0,height:Y1-by(DMIN),fill:"var(--crimson)",opacity:.07}));
+  g.appendChild(el("line",{x1:X0,y1:by(DMIN),x2:X1,y2:by(DMIN),stroke:"var(--teal)","stroke-width":2}));
+  g.appendChild(TX(X1+4,by(DMIN)+3.5,"d_min = 3",{size:9.5,mono:true,w:600,fill:"var(--teal)"}));
+  g.appendChild(TX(X0+8,by(DMIN)+18,"illegal below this line",{size:9.5,fill:"var(--crimson)"}));
+
+  /* the nine lines */
+  for(var i=0;i<9;i++){
+    var shrink=Q[i]<0, v1=NOM[i]+Q[i];
+    var col=shrink?"var(--crimson)":"var(--teal)";
+    var bind=(BOUND[i]!==null && Math.abs(BOUND[i]-BETA)<1e-9);
+    /* clip the line to the plot box */
+    var t1=1;
+    if(v1>YHI) t1=(YHI-NOM[i])/Q[i];
+    if(v1<YLO) t1=(YLO-NOM[i])/Q[i];
+    g.appendChild(el("line",{x1:bx(0),y1:by(NOM[i]),x2:bx(t1),y2:by(NOM[i]+Q[i]*t1),
+      stroke:col,"stroke-width":bind?2.8:1.4,opacity:bind?1:.72}));
+    /* label at the right end of the drawn segment */
+    var lx=bx(t1), ly=by(NOM[i]+Q[i]*t1);
+    g.appendChild(TX(lx+5,ly+3.5,"d"+(i+1),{size:9.5,mono:true,fill:col,w:bind?600:500}));
+    /* crossing marker */
+    if(BOUND[i]!==null && BOUND[i]<=1){
+      g.appendChild(el("circle",{cx:bx(BOUND[i]),cy:by(DMIN),r:bind?6:4,
+        fill:bind?"var(--blue)":"var(--surface)",stroke:bind?"var(--blue)":"var(--crimson)","stroke-width":1.8}));
+      g.appendChild(el("line",{x1:bx(BOUND[i]),y1:by(DMIN),x2:bx(BOUND[i]),y2:Y1+4,
+        stroke:bind?"var(--blue)":"var(--crimson)","stroke-width":bind?1.6:1,"stroke-dasharray":"3 3",opacity:bind?1:.55}));
+      g.appendChild(TX(bx(BOUND[i]),Y1+34,fx(BOUND[i],4),{anchor:"middle",size:9,mono:true,
+        fill:bind?"var(--blue)":"var(--crimson)",w:bind?600:400}));
+    }
+  }
+
+  /* beta* callout */
+  g.appendChild(el("rect",{x:X0,y:Y0,width:bx(BETA)-X0,height:Y1-Y0,fill:"var(--teal)",opacity:.06}));
+  g.appendChild(TX(bx(BETA)/2+X0/2,Y0+18,"admissible",{anchor:"middle",size:10.5,w:600,fill:"var(--teal)"}));
+  g.appendChild(TX(bx(BETA)+8,Y0+18,"β* = "+fx(BETA,6)+"  — beyond here d9 is illegal",
+    {size:10.5,w:600,fill:"var(--blue)"}));
+
+  g.appendChild(TX(X0,Y1+56,"●  leftmost crossing wins",{size:10,fill:"var(--blue)",w:600}));
+  g.appendChild(TX(X0+190,Y1+56,"↗ growing — never constrains",{size:10,fill:"var(--teal)"}));
+  g.appendChild(TX(X0+420,Y1+56,"↘ shrinking — one ceiling each",{size:10,fill:"var(--crimson)"}));
+})();
+
+/* ---- fig 2 : the beta axis ---- */
+(function(){
+  var g=document.getElementById("axis");
+  var X0=62,X1=790,Y=98, HI=1.05;
+  var bx=function(b){return X0+(b/HI)*(X1-X0);};
+
+  g.appendChild(el("rect",{x:X0,y:Y-22,width:bx(BETA)-X0,height:44,fill:"var(--teal)",opacity:.16,rx:2}));
+  g.appendChild(el("line",{x1:X0,y1:Y,x2:X1,y2:Y,stroke:"var(--rule-strong)","stroke-width":1.2}));
+
+  for(var b=0;b<=1.0001;b+=0.25){
+    g.appendChild(el("line",{x1:bx(b),y1:Y-5,x2:bx(b),y2:Y+5,stroke:"var(--rule-strong)","stroke-width":1}));
+    g.appendChild(TX(bx(b),Y+20,b.toFixed(2),{anchor:"middle",size:9,mono:true,fill:"var(--ink-3)"}));
+  }
+
+  /* the cap at 1 */
+  g.appendChild(el("line",{x1:bx(1),y1:Y-30,x2:bx(1),y2:Y+30,stroke:"var(--ink)","stroke-width":2}));
+  g.appendChild(TX(bx(1),Y-38,"cap β ≤ 1",{anchor:"middle",size:9.5,w:600,fill:"var(--ink)"}));
+
+  /* each bound */
+  var k=0;
+  for(var i=0;i<9;i++){
+    if(BOUND[i]===null) continue;
+    if(BOUND[i]>HI){ continue; }
+    var bind=Math.abs(BOUND[i]-BETA)<1e-9;
+    g.appendChild(el("circle",{cx:bx(BOUND[i]),cy:Y,r:bind?6.5:4.5,
+      fill:bind?"var(--blue)":"var(--crimson)"}));
+    if(!bind){
+      g.appendChild(TX(bx(BOUND[i]),Y-14,"d"+(i+1),{anchor:"middle",size:9.5,mono:true,fill:"var(--crimson)",w:600}));
+      g.appendChild(TX(bx(BOUND[i]),Y-26,fx(BOUND[i],4),{anchor:"middle",size:8.5,mono:true,fill:"var(--ink-3)"}));
+    }
+    k++;
+  }
+  /* binding label below */
+  g.appendChild(el("line",{x1:bx(BETA),y1:Y,x2:bx(BETA),y2:Y+44,stroke:"var(--blue)","stroke-width":1.6}));
+  g.appendChild(TX(bx(BETA),Y+58,"β* = "+fx(BETA,6)+"   (d9)",{anchor:"middle",size:11,mono:true,w:600,fill:"var(--blue)"}));
+  g.appendChild(TX(X0+6,Y-6,"admissible",{size:10,w:600,fill:"var(--teal)"}));
+
+  /* off-scale note */
+  var off=[];
+  for(var i=0;i<9;i++) if(BOUND[i]!==null && BOUND[i]>HI) off.push("d"+(i+1)+" = "+fx(BOUND[i],4));
+  if(off.length) g.appendChild(TX(X0,Y+82,"off scale, far too slack to bind:   "+off.join("    "),
+    {size:9.5,mono:true,fill:"var(--ink-3)"}));
+})();
+
+/* ---- the table ---- */
+(function(){
+  var tb=document.getElementById("rows");
+  for(var i=0;i<9;i++){
+    var shrink=Q[i]<0, bind=(BOUND[i]!==null && Math.abs(BOUND[i]-BETA)<1e-9);
+    var tr=document.createElement("tr");
+    tr.className = bind ? "binding" : (shrink ? "" : "grow");
+    function td(h){var d=document.createElement("td");d.innerHTML=h;return d;}
+    tr.appendChild(td(String(i+1)));
+    tr.appendChild(td(fx(NOM[i])));
+    tr.appendChild(td((Q[i]>0?"+":"")+fx(Q[i])));
+    tr.appendChild(td(shrink?'<span class="chip shrink">shrinks</span>':'<span class="chip grows">grows</span>'));
+    tr.appendChild(td(fx(M[i])));
+    tr.appendChild(td(shrink?fx(BOUND[i],4):'<span style="color:var(--ink-3)">none</span>'));
+    var ap=NOM[i]+BETA*Q[i];
+    tr.appendChild(td(bind?'<b>'+fx(ap)+'</b>':fx(ap)));
+    tb.appendChild(tr);
+  }
+})();
+})();
+</script>
+</body>
+</html>

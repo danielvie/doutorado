@@ -1,8 +1,8 @@
 # Literature review
 
-This review covers the 20 PDFs in this folder. It is a screening document, not a substitute for reading the original papers. Its purpose is to answer three questions quickly: what problem does each paper solve, what can it safely support in our paper, and is a full reading worth the time?
+This review covers the 26 PDFs in this folder. It is a screening document, not a substitute for reading the original papers. Its purpose is to answer three questions quickly: what problem does each paper solve, what can it safely support in our paper, and is a full reading worth the time?
 
-The current set contains 13 core papers and 7 supporting papers. Core papers address periodic or switched-affine behavior, switching-time or dwell-time decisions, or Lyapunov certification. Supporting papers mainly establish converter-control computation, constraints, or implementation context. All 20 pass the current inclusion rule. No paper was screened out.
+The current set contains 16 core papers and 10 supporting papers. Core papers address periodic or switched-affine behavior, switching-time or dwell-time decisions, or Lyapunov certification. Supporting papers mainly establish converter-control computation, constraints, or implementation context. All 26 pass the current inclusion rule. No paper was screened out.
 
 ## Review 01: Marcolino, Galvão, and Kienitz (2021)
 
@@ -484,37 +484,181 @@ Use it for scenario-based robust switched-affine control and converter-oriented 
 ### Reading recommendation
 **Read the full paper if uncertainty becomes part of the paper's scope.** Otherwise, read the uncertainty model, quadratic Lyapunov formulation, and converter example.
 
+## Review 21: Flieller, Riedinger, and Louis (2006)
+
+**Article:** [Computation and Stability of Limit Cycles in Hybrid Systems](21-flieller-2006-hybrid-limit-cycles.pdf)
+**Source:** [DOI and publisher record](https://doi.org/10.1016/j.na.2005.06.054), [HAL author manuscript](https://hal.science/hal-00119807)
+**Class:** Core. Themes: hybrid limit-cycle computation, switching-time sensitivity, sampled-time stability.
+
+### Problem and setting
+The paper studies computation and stability of periodic orbits in hybrid systems whose switching events depend on the state and parameters. The timing of the events is part of the periodic-orbit calculation.
+
+### Method and guarantee
+A Newton procedure updates the initial condition and switching-time vector to satisfy periodicity and switching constraints. The paper derives sensitivities with respect to switching instants and uses the resulting Jacobian to assess sampled-time local stability through its eigenvalues.
+
+### Evidence and computation
+The paper gives analytical developments and a phase-locked-loop application with numerical stability results. It does not establish the direction-preserving dwell conditioner used in our article.
+
+### Relation to our article
+This is prior work for switching-time sensitivity, periodic-orbit computation, and sampled-time local stability. Our article should therefore present its switching-sensitivity derivation as a controller-ready specialization and its novelty as the feasible scalar conditioning layer, not as the first switching-time sensitivity method.
+
+### Safe citation use
+Use it for the historical claim that hybrid limit-cycle computation and sampled-time stability have used switching-time sensitivities. Do not use it as evidence for fixed-period feedback that scales a prescribed offset vector or for the common-Lyapunov certificate.
+
+### Reading recommendation
+**Read the full paper.** Focus on the switching-time sensitivity proposition, periodic-orbit Newton iteration, and sampled-time stability discussion.
+
+## Review 22: Repecho, Biel, Olm, and Fossas Colet (2017)
+
+**Article:** [Switching Frequency Regulation in Sliding Mode Control by a Hysteresis Band Controller](22-repecho-2017-switching-frequency-regulation.pdf)
+**Source:** [DOI and publisher record](https://doi.org/10.1109/TPEL.2016.2546382), [UPCommons author postprint](https://upcommons.upc.edu/handle/2117/99560)
+**Class:** Supporting. Theme: feedback regulation of switching timing by hysteresis-band adaptation.
+
+### Problem and setting
+The paper regulates the switching frequency of a sliding-mode controller. The switching period is measured and compared with a desired value while the controller remains state-triggered by a hysteresis comparator.
+
+### Method and guarantee
+A discrete-time integral controller changes the hysteresis-band amplitude according to the measured switching-period error. A feedforward term extends the method to tracking, and the paper gives stability conditions for the regulation and tracking cases.
+
+### Evidence and computation
+The paper reports numerical simulations and experimental results. Its actuator is the hysteresis-band amplitude, not a vector of prescribed interior switching instants in a fixed-period cycle.
+
+### Relation to our article
+It is a useful adjacent timing-feedback reference. Our article preserves the mode order, interval count, and cycle boundaries and directly displaces the interior switching instants once per cycle. Repecho et al. regulate a measured switching period indirectly by changing a comparator band.
+
+### Safe citation use
+Use it when distinguishing other feedback mechanisms that regulate switching timing. Do not describe it as fixed-schedule timing feedback or as a dwell conditioner.
+
+### Reading recommendation
+**Read the full paper.** Focus on the measured-period update, hysteresis-band mechanism, stability conditions, and experimental setup.
+
+## Review 23: Stellato, Geyer, and Goulart (2017)
+
+**Article:** [High-Speed Finite Control Set Model Predictive Control for Power Electronics](23-stellato-2017-high-speed-fcs-mpc.pdf)
+**Source:** [DOI and publisher record](https://doi.org/10.1109/TPEL.2016.2584678), [arXiv author preprint](https://arxiv.org/abs/1510.05578)
+**Class:** Supporting. Themes: computation-aware power-electronics MPC, short horizons, implementation timing.
+
+### Problem and setting
+The paper addresses the computational cost of finite-control-set MPC for power electronics, especially when long prediction horizons create too many integer candidates.
+
+### Method and guarantee
+An approximate dynamic-programming construction supplies an offline tail-cost approximation, allowing short horizons. The implementation evaluates candidates with fixed-point exhaustive search on an FPGA and reports measurements for horizons one and two.
+
+### Evidence and computation
+The paper reports deterministic timing for its specific implementation, including measured execution times of 5.76 microseconds for horizon one and 17.27 microseconds for horizon two. It does not prove a hardware-independent computation bound or an offline explicit MPC solution.
+
+### Relation to our article
+It supports the implementation-pressure paragraph in the introduction. The contrast is direct: the FCS-MPC controller still solves a finite candidate-selection problem, whereas our static timing law is followed by an O(N) scalar feasibility scan.
+
+### Safe citation use
+Use it for implementation-specific short-horizon and computation-timing evidence. Do not generalize its deterministic timing result to arbitrary hardware, horizons, or converters.
+
+### Reading recommendation
+**Read the relevant sections.** Focus on the approximate tail cost, horizon restriction, implementation algorithm, and timing measurements.
+
+## Review 24: Albea-Sanchez, Sferlazza, Gómez-Estern, and Gordillo (2021)
+
+**Article:** [Control of Power Converters With Hybrid Affine Models and Pulse-Width Modulated Inputs](24-albea-sanchez-2021-hybrid-affine-pwm.pdf)
+**Source:** [DOI and publisher record](https://doi.org/10.1109/TCSI.2021.3083900), [HAL author manuscript](https://hal.science/hal-03326994)
+**Class:** Core. Themes: hybrid-affine converter modeling, PWM, exact propagation, Lyapunov analysis.
+
+### Problem and setting
+The paper models power converters with hybrid-affine dynamics and pulse-width-modulated inputs. The model includes switching, sample-and-hold variables, and timer-related hybrid behavior.
+
+### Method and guarantee
+The paper uses exact matrix-exponential propagation over two PWM subintervals and constructs an augmented hybrid model. Its Lyapunov analysis gives conditions for stability of a compact target set under the stated assumptions.
+
+### Evidence and computation
+The source is a published journal article available as a HAL author manuscript. It provides analytical results and converter examples, not the prescribed nine-interval timing controller studied here.
+
+### Relation to our article
+It prevents broad claims that exact hybrid-affine propagation or PWM augmentation is new. Our case study instead retains a prescribed nine-interval mode sequence and uses its cycle map for timing feedback and dwell conditioning.
+
+### Safe citation use
+Use it for hybrid-affine converter modeling with PWM and Lyapunov analysis. Do not cite it as prior art for the article's scalar conditioner, fixed-period offset coordinates, or nine-interval sequence.
+
+### Reading recommendation
+**Read the full paper.** Focus on the affine model, exact subinterval propagation, augmented PWM state, and Lyapunov theorem.
+
+## Review 25: Briat and Seuret (2013)
+
+**Article:** [Affine Characterizations of Minimal and Mode-Dependent Dwell-Times for Uncertain Linear Switched Systems](25-briat-2013-dwell-times.pdf)
+**Source:** [DOI and publisher record](https://doi.org/10.1109/TAC.2012.2220031), [arXiv author preprint](https://arxiv.org/abs/1209.0444)
+**Class:** Core. Themes: minimum and mode-dependent dwell time, switched-system stability, looped-functionals.
+
+### Problem and setting
+The paper studies stability of uncertain linear switched systems under minimum and mode-dependent dwell-time restrictions. The switching signal is constrained by elapsed-time conditions rather than by a prescribed timing-offset feedback law.
+
+### Method and guarantee
+Lyapunov and looped-functional conditions characterize stability for minimum and mode-dependent dwell times. The paper also treats uncertain subsystem matrices and derives conditions affine in those matrices.
+
+### Evidence and computation
+The results are theoretical with numerical examples. The certificate construction is an offline stability analysis; it does not compute the largest feasible scalar multiple of a raw timing action.
+
+### Relation to our article
+This paper supplies broader dwell-time stability context. Its use of the word affine refers to the stability conditions' dependence on subsystem matrices, not to the article's convex family of conditioned cycle matrices. The present scalar scan and endpoint-norm certificate remain separate contributions.
+
+### Safe citation use
+Use it for general minimum and mode-dependent dwell-time stability conditions. Do not present it as prior art for radial conditioning, fixed-period timing coordinates, or the article's common-Lyapunov endpoint argument.
+
+### Reading recommendation
+**Read the full paper.** Focus on the minimum and mode-dependent dwell-time theorems, looped-functionals, and uncertainty assumptions.
+
+## Review 26: Fiore, Hogan, and di Bernardo (2016)
+
+**Article:** [Contraction Analysis of Switched Systems via Regularization](26-fiore-2016-contraction-regularization.pdf)
+**Source:** [DOI and publisher record](https://doi.org/10.1016/j.automatica.2016.06.028), [arXiv author preprint](https://arxiv.org/abs/1507.07126)
+**Class:** Supporting. Theme: contraction analysis for bimodal Filippov systems.
+
+### Problem and setting
+The paper studies incremental stability and convergence in switched, bimodal Filippov systems with discontinuous switching surfaces. It uses regularization to connect the discontinuous system to smooth contraction conditions.
+
+### Method and guarantee
+Matrix-measure conditions are applied to regularized vector fields, and the resulting theorems establish convergence between trajectories under the paper's Filippov and regularization assumptions.
+
+### Evidence and computation
+The paper is theoretical with numerical illustrations. It does not use the discrete-time cycle-map segment, endpoint induced norms, or radial dwell conditioning of our article.
+
+### Relation to our article
+This is general contraction background, not a direct foundation for the common-Lyapunov paragraph. It was verified and archived but intentionally omitted from `article.tex` and `references.bib` because adding it would invite a Filippov or incremental-stability comparison that the article does not need.
+
+### Safe citation use
+Use it only if the manuscript later introduces general contraction or Filippov-system context. Do not cite it as support for the endpoint-norm bound or the scalar conditioner.
+
+### Reading recommendation
+**Read only the relevant sections initially.** Focus on the regularization construction and matrix-measure conditions if a broader contraction comparison becomes necessary.
+
 # Cross-paper synthesis
 
 ## Method taxonomy
 
 ### 1. Fixed-period and periodic behavior
 
-Marcolino et al. provide a fixed-period one-cycle prediction model for switched actuators. Xu and Lazar use periodic terminal ingredients for FCS-MPC with a desired limit cycle. Hanke and Stursberg treat limit-cycle amplitude and frequency as design targets. These papers establish that periodic behavior is a legitimate control objective, but they use different control freedoms. Our article keeps the period and mode order fixed and changes interior switching instants.
+Marcolino et al. provide a fixed-period one-cycle prediction model for switched actuators. Flieller et al. compute hybrid limit cycles with switching-time sensitivities. Xu and Lazar use periodic terminal ingredients for FCS-MPC with a desired limit cycle. Hanke and Stursberg treat limit-cycle amplitude and frequency as design targets. These papers establish that periodic behavior is a legitimate control objective, but they use different control freedoms. Our article keeps the period and mode order fixed and changes interior switching instants.
 
 ### 2. Switching-time and schedule optimization
 
-Yang et al. optimize fixed-frequency converter timing through an online QP. Sakha and Kamalapurkar filter switching times in a switched optimal-control workflow. Abbasi-Esfeden et al. jointly address sequence and switching-time optimization under dwell constraints. These methods are useful alternatives when the schedule itself must be redesigned. Our article deliberately solves a smaller problem: it takes a raw timing vector as given and finds the largest feasible scalar multiple along that vector.
+Yang et al. optimize fixed-frequency converter timing through an online QP. Sakha and Kamalapurkar filter switching times in a switched optimal-control workflow. Abbasi-Esfeden et al. jointly address sequence and switching-time optimization under dwell constraints. Repecho et al. regulate measured switching periods through hysteresis-band adaptation rather than direct schedule displacement. These methods are useful alternatives when the schedule or switching behavior must be redesigned. Our article deliberately solves a smaller problem: it takes a raw timing vector as given and finds the largest feasible scalar multiple along that vector.
 
 ### 3. Dwell-time enforcement and switched-system stability
 
-Della Rossa et al. 2022 and 2023 provide stability certificates for constrained switching classes and switched-affine systems. Russo et al. synthesize state-dependent switching laws with dwell time. Katz et al. adds sampled-data and observer structure. These works show that dwell time belongs in the stability problem, not only in a timer implementation. Their switching freedom differs from ours because they analyze or synthesize mode selection rather than fixed-order timing correction.
+Della Rossa et al. 2022 and 2023 provide stability certificates for constrained switching classes and switched-affine systems. Briat and Seuret give minimum and mode-dependent dwell-time conditions for uncertain linear switched systems. Russo et al. synthesize state-dependent switching laws with dwell time. Katz et al. adds sampled-data and observer structure. These works show that dwell time belongs in the stability problem, not only in a timer implementation. Their switching freedom differs from ours because they analyze or synthesize mode selection or admissible switching classes rather than fixed-order timing correction.
 
 ### 4. Lyapunov and LMI certification
 
-Egidio et al., Della Rossa et al. 2023, Seuret et al., Russo et al., Katz et al., and Monir et al. use Lyapunov, LMI, Lyapunov–Metzler, data-driven, or scenario-based arguments. The recurring lesson is that the certificate depends on the admissible switching family and uncertainty assumptions. Our paper's specific certificate is narrower: a common quadratic Lyapunov function for the nominal and raw endpoint cycle matrices certifies the line segment created by scalar conditioning in the linearized model.
+Egidio et al., Della Rossa et al. 2023, Seuret et al., Russo et al., Katz et al., Monir et al., Briat and Seuret, and Fiore et al. use Lyapunov, LMI, Lyapunov–Metzler, data-driven, scenario-based, looped-functional, or matrix-measure arguments. The recurring lesson is that the certificate depends on the admissible switching family and uncertainty assumptions. Our paper's specific certificate is narrower: a common quadratic Lyapunov function for the nominal and raw endpoint cycle matrices certifies the line segment created by scalar conditioning in the linearized model.
 
 ### 5. Converter computation and constraints
 
-Augustine et al., Saeed et al., Yang et al., Wu et al., Li et al., Singh et al., and Sheng et al. show different ways to fit predictive or finite-control-set control into converter computation budgets. They prune candidates, reduce variables, simplify models or costs, tune MPC, improve numerical conditioning, or distill a policy. These papers support the practical motivation for avoiding online optimization when a simpler feasibility mechanism is available. They do not establish our fixed-mode-order timing conditioner.
+Augustine et al., Saeed et al., Yang et al., Wu et al., Li et al., Singh et al., Sheng et al., and Stellato et al. show different ways to fit predictive or finite-control-set control into converter computation budgets. They prune candidates, reduce variables, simplify models or costs, tune MPC, improve numerical conditioning, distill a policy, or use short horizons with an offline tail-cost approximation. Albea-Sanchez et al. add hybrid-affine PWM converter modeling and Lyapunov analysis. These papers support the practical motivation for avoiding online optimization when a simpler feasibility mechanism is available. They do not establish our fixed-mode-order timing conditioner.
 
 ### 6. Application and evidence level
 
-The archive contains laboratory converter evidence from Yang et al., Saeed et al., Wu et al., and Li et al. The remaining reviewed material is theoretical, numerical, or simulation based. None of the 20 papers establishes industrial deployment or hardware-in-the-loop validation in the collected sources. The introduction should therefore say "industrially relevant" rather than "industrially deployed."
+The archive contains experimental evidence from Repecho et al. and laboratory converter evidence from Yang et al., Saeed et al., Wu et al., and Li et al. The remaining reviewed material is theoretical, numerical, or simulation based. None of the 26 papers establishes industrial deployment or hardware-in-the-loop validation in the collected sources. The introduction should therefore say "industrially relevant" rather than "industrially deployed."
 
 # Screening result
 
-All 20 archived PDFs pass the inclusion rule because each has a direct connection to at least one review theme: periodic switched-affine control, switching-time or schedule optimization, dwell-time feasibility or stability, converter control with timing or computation constraints, or Lyapunov certification for switched or hybrid systems.
+All 26 archived PDFs pass the inclusion rule because each has a direct connection to at least one review theme: periodic switched-affine control, switching-time or schedule optimization, dwell-time feasibility or stability, converter control with timing or computation constraints, or Lyapunov certification for switched or hybrid systems.
 
 No papers were screened out, and no PDFs were deleted. The core/supporting labels indicate relevance to this paper's particular combination of cycle timing, dwell feasibility, switched-affine behavior, and stability certification. They are not quality rankings.
 
@@ -523,12 +667,15 @@ No papers were screened out, and no PDFs were deleted. The core/supporting label
 The reviewed papers contain neighboring pieces of the problem:
 
 - fixed-period switched-actuator modeling and dwell-constrained predictive control;
+- hybrid limit-cycle computation and switching-time sensitivity;
+- feedback regulation of measured switching periods through hysteresis-band adaptation;
 - fast online switching-time optimization;
 - schedule optimization under dwell constraints;
 - state-dependent or sampled-data dwell-time stabilization;
 - periodic and limit-cycle switched-affine control;
+- hybrid-affine PWM converter modeling;
 - converter methods that reduce online search or optimization;
-- Lyapunov and LMI certificates for constrained switched systems.
+- Lyapunov, LMI, looped-functional, and contraction certificates for constrained switched systems.
 
 The review did not identify a method that combines all of the following in the same fixed-period, fixed-mode-order timing controller:
 

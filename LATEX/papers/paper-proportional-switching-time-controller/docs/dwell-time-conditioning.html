@@ -1,0 +1,1418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Companion documentation for Section 3 of article.tex (dwell-time conditioning).
+     All figures are drawn in-page from the paper's own simulation output:
+     nominal schedule = eq. (30); worked example = cycle 0 of
+     results/conditioned_control_response.csv. Self-contained, no build step. -->
+<title>The Dwell-Time Conditioner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Spectral:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --ground:#EDF0F4;
+  --surface:#FFFFFF;
+  --surface-2:#E4E9F0;
+  --ink:#141C25;
+  --ink-2:#42505F;
+  --ink-3:#6B7789;
+  --rule:#CCD4DE;
+  --rule-strong:#A9B4C2;
+
+  --blue:#1D5F9E;
+  --blue-soft:#D6E4F2;
+  --crimson:#C4453C;
+  --crimson-soft:#F6DEDC;
+  --teal:#17877A;
+  --teal-soft:#D3E9E5;
+  --graphite:#6B7789;
+  --amber:#B07A16;
+
+  --shadow:0 1px 2px rgba(20,28,37,.06), 0 8px 24px -12px rgba(20,28,37,.18);
+  --measure:34rem;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F151C;
+    --surface:#161F29;
+    --surface-2:#1E2934;
+    --ink:#E6EBF1;
+    --ink-2:#B3C0CE;
+    --ink-3:#8593A3;
+    --rule:#2B3743;
+    --rule-strong:#3D4B59;
+
+    --blue:#5FA8E0;
+    --blue-soft:#1B3247;
+    --crimson:#E8756B;
+    --crimson-soft:#3B2320;
+    --teal:#45BDAA;
+    --teal-soft:#153029;
+    --graphite:#8593A3;
+    --amber:#D9A441;
+
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F151C;
+  --surface:#161F29;
+  --surface-2:#1E2934;
+  --ink:#E6EBF1;
+  --ink-2:#B3C0CE;
+  --ink-3:#8593A3;
+  --rule:#2B3743;
+  --rule-strong:#3D4B59;
+
+  --blue:#5FA8E0;
+  --blue-soft:#1B3247;
+  --crimson:#E8756B;
+  --crimson-soft:#3B2320;
+  --teal:#45BDAA;
+  --teal-soft:#153029;
+  --graphite:#8593A3;
+  --amber:#D9A441;
+
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:Spectral,Georgia,"Times New Roman",serif;
+  font-size:17px;
+  line-height:1.68;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- page frame ---------- */
+.page{
+  --pad:clamp(1rem,4vw,2.5rem);
+  --cols:minmax(var(--pad),1fr) minmax(0,var(--measure)) minmax(var(--pad),1fr);
+  display:grid;
+  grid-template-columns:var(--cols);
+}
+/* The figures live inside <section>, so the reading column has to be repeated
+   one level down or grid-column never reaches them. No viewport units here:
+   every width resolves against the page box itself. */
+.page > header,
+.page > section,
+.page > footer{
+  grid-column:1/-1;
+  display:grid;
+  grid-template-columns:var(--cols);
+  align-content:start;
+}
+.page > header > *,
+.page > section > *,
+.page > footer > *{grid-column:2}
+/* two classes (0,2,0) outranks .page > section > * (0,1,2) */
+.page .wide{
+  grid-column:1/-1;
+  width:min(72rem,100% - var(--pad)*2);
+  margin-inline:auto;
+  max-width:none;
+}
+
+/* ---------- type ---------- */
+h1,h2,h3,.eyebrow,.lede,figcaption,th,.ui{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+h1{
+  font-size:clamp(2.4rem,6vw,3.9rem);
+  line-height:1.02;
+  letter-spacing:-.032em;
+  font-weight:700;
+  text-wrap:balance;
+  margin:0;
+}
+h2{
+  font-size:clamp(1.5rem,3.2vw,2.05rem);
+  line-height:1.14;
+  letter-spacing:-.022em;
+  font-weight:600;
+  text-wrap:balance;
+  margin:0;
+}
+h3{
+  font-size:1.06rem;
+  letter-spacing:-.006em;
+  font-weight:600;
+  margin:0;
+}
+p{margin:0}
+.lede{
+  font-family:Spectral,Georgia,serif;
+  font-size:clamp(1.08rem,2.3vw,1.28rem);
+  line-height:1.56;
+  color:var(--ink-2);
+}
+.eyebrow{
+  font-size:.66rem;
+  font-weight:600;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+code,.mono,.num{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+code{
+  font-size:.86em;
+  background:var(--surface-2);
+  padding:.1em .34em;
+  border-radius:3px;
+  color:var(--ink);
+}
+.num{font-variant-numeric:tabular-nums}
+em{font-style:italic}
+strong{font-weight:500;color:var(--ink);background:linear-gradient(transparent 64%,var(--blue-soft) 64%)}
+a{color:var(--blue)}
+:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:2px}
+
+/* ---------- masthead ---------- */
+.masthead{
+  padding:clamp(3rem,9vw,6rem) 0 clamp(2rem,5vw,3rem);
+  display:flex;flex-direction:column;gap:1.5rem;
+}
+.masthead .lede{max-width:30rem}
+.rule-row{
+  display:flex;align-items:center;gap:.85rem;
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.72rem;letter-spacing:.05em;color:var(--ink-3);
+}
+.rule-row::after{content:"";flex:1;height:1px;background:var(--rule)}
+
+/* ---------- sections ---------- */
+section{padding-block:clamp(2.5rem,6vw,4rem)}
+.stack{display:flex;flex-direction:column;gap:1.15rem}
+.stack-tight{display:flex;flex-direction:column;gap:.7rem}
+
+.step-head{
+  display:flex;align-items:baseline;gap:1rem;
+  padding-bottom:.9rem;margin-bottom:1.5rem;
+  border-bottom:1px solid var(--rule);
+}
+.step-num{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.8rem;font-weight:600;
+  color:var(--blue);
+  letter-spacing:.04em;
+  flex:none;
+  padding-top:.2em;
+}
+
+/* ---------- figures ---------- */
+figure{margin:0;display:flex;flex-direction:column;gap:.8rem}
+.fig-shell{
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-radius:5px;
+  box-shadow:var(--shadow);
+  overflow-x:auto;
+  padding:clamp(1rem,3vw,1.75rem);
+}
+.fig-shell svg{display:block;width:100%;height:auto;min-width:520px}
+figcaption{
+  font-size:.82rem;line-height:1.5;color:var(--ink-3);
+  max-width:44rem;
+}
+figcaption b{color:var(--ink-2);font-weight:600}
+
+/* ---------- callouts ---------- */
+.note{
+  border-left:2px solid var(--rule-strong);
+  padding:.15rem 0 .15rem 1.15rem;
+  color:var(--ink-2);
+  font-size:.95rem;
+}
+.note.key{border-left-color:var(--blue)}
+.note.warn{border-left-color:var(--crimson)}
+.note .tag{
+  font-family:Archivo,sans-serif;font-size:.63rem;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;
+  display:block;margin-bottom:.3rem;color:var(--ink-3);
+}
+.note.key .tag{color:var(--blue)}
+.note.warn .tag{color:var(--crimson)}
+
+/* ---------- equation block ---------- */
+.eq{
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-radius:4px;
+  padding:1rem 1.2rem;
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.9rem;
+  line-height:1.75;
+  overflow-x:auto;
+  color:var(--ink);
+}
+.eq .cm{color:var(--ink-3)}
+.eq .hl{color:var(--blue);font-weight:500}
+.eq .bad{color:var(--crimson);font-weight:500}
+.eq .ok{color:var(--teal);font-weight:500}
+
+/* ---------- data table ---------- */
+.tbl-shell{
+  overflow-x:auto;
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-radius:5px;
+  box-shadow:var(--shadow);
+}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.83rem}
+th{
+  font-size:.63rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);text-align:right;
+  padding:.85rem .7rem;border-bottom:1px solid var(--rule-strong);
+  white-space:nowrap;
+}
+th:first-child,td:first-child{text-align:left;padding-left:1.1rem}
+th:last-child,td:last-child{padding-right:1.1rem}
+td{
+  font-family:"IBM Plex Mono",monospace;
+  font-variant-numeric:tabular-nums;
+  text-align:right;
+  padding:.5rem .7rem;
+  border-bottom:1px solid var(--rule);
+  color:var(--ink-2);
+}
+tr:last-child td{border-bottom:none}
+tr.binding td{background:var(--blue-soft);color:var(--ink);font-weight:500}
+tr.grow td{color:var(--ink-3)}
+td .chip{
+  font-family:Archivo,sans-serif;font-size:.6rem;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;
+  padding:.14em .48em;border-radius:2px;white-space:nowrap;
+}
+.chip.shrink{background:var(--crimson-soft);color:var(--crimson)}
+.chip.grows{background:var(--teal-soft);color:var(--teal)}
+
+/* ---------- legend ---------- */
+.legend{
+  display:flex;flex-wrap:wrap;gap:.5rem 1.25rem;
+  font-family:"IBM Plex Mono",monospace;font-size:.71rem;color:var(--ink-3);
+}
+.legend span{display:inline-flex;align-items:center;gap:.42rem}
+.swatch{width:14px;height:3px;border-radius:2px;flex:none}
+
+/* ---------- interactive ---------- */
+.lab{
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-radius:5px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.lab-bar{
+  display:flex;flex-wrap:wrap;align-items:center;gap:1rem 1.5rem;
+  padding:1rem clamp(1rem,3vw,1.75rem);
+  border-bottom:1px solid var(--rule);
+  background:var(--surface-2);
+}
+.slider-wrap{display:flex;align-items:center;gap:.8rem;flex:1 1 20rem;min-width:16rem}
+.slider-wrap label{
+  font-family:Archivo,sans-serif;font-size:.63rem;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+  white-space:nowrap;
+}
+input[type=range]{flex:1;accent-color:var(--blue);min-width:8rem;height:1.5rem}
+.readout{
+  font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
+  font-size:.8rem;display:flex;gap:1.25rem;flex-wrap:wrap;
+}
+.readout div{display:flex;flex-direction:column;gap:.1rem}
+.readout .k{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-family:Archivo,sans-serif;font-weight:600}
+.readout .v{font-size:.98rem;font-weight:500;color:var(--ink)}
+.readout .v.bad{color:var(--crimson)}
+.readout .v.ok{color:var(--teal)}
+.presets{display:flex;gap:.4rem;flex-wrap:wrap}
+.presets button{
+  font-family:"IBM Plex Mono",monospace;font-size:.71rem;
+  padding:.34rem .6rem;border-radius:3px;cursor:pointer;
+  background:var(--surface);color:var(--ink-2);
+  border:1px solid var(--rule-strong);
+  transition:background .12s,color .12s,border-color .12s;
+}
+.presets button:hover{background:var(--blue-soft);color:var(--blue);border-color:var(--blue)}
+.lab-body{padding:clamp(1rem,3vw,1.75rem);overflow-x:auto}
+.lab-body svg{display:block;width:100%;height:auto;min-width:560px}
+.verdict{
+  padding:.75rem clamp(1rem,3vw,1.75rem);
+  border-top:1px solid var(--rule);
+  font-family:"IBM Plex Mono",monospace;font-size:.78rem;
+  background:var(--surface-2);color:var(--ink-2);
+}
+.verdict.bad{background:var(--crimson-soft);color:var(--crimson)}
+.verdict.ok{background:var(--teal-soft);color:var(--teal)}
+
+/* ---------- glossary ---------- */
+.glossary{display:grid;gap:0;border-top:1px solid var(--rule)}
+.glossary div{
+  display:grid;grid-template-columns:7.5rem 1fr;gap:1rem;
+  padding:.75rem 0;border-bottom:1px solid var(--rule);
+  font-size:.88rem;
+}
+.glossary dt{
+  font-family:"IBM Plex Mono",monospace;font-size:.82rem;
+  color:var(--blue);font-weight:500;
+}
+.glossary dd{margin:0;color:var(--ink-2)}
+@media (max-width:520px){
+  .glossary div{grid-template-columns:1fr;gap:.15rem}
+}
+
+footer{
+  padding:2.5rem 0 4rem;
+  border-top:1px solid var(--rule);
+  font-size:.8rem;color:var(--ink-3);
+  font-family:Archivo,sans-serif;
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <div class="rule-row">SECTION 3 &nbsp;&#xB7;&nbsp; EXPLAINED FROM SCRATCH</div>
+  <h1>The Dwell-Time Conditioner</h1>
+  <p class="lede">A controller asks for a switching schedule that would run one interval for
+  <span class="mono num" style="color:var(--crimson);white-space:nowrap">&minus;43.045&nbsp;&#xB5;s</span>.
+  Negative time. Here is the one-line repair that makes it legal without changing what the controller was trying to do &mdash; and why that particular repair, and no other, comes with a stability proof.</p>
+</header>
+
+<section class="stack">
+  <div class="step-head">
+    <span class="step-num">00</span>
+    <h2>The machine, in one paragraph</h2>
+  </div>
+
+  <p>A DC&ndash;DC power converter is a box of transistors that chops a DC voltage on and off very fast, so that the <em>average</em> output lands where you want it. The chopping pattern repeats forever. One repetition is called a <strong>cycle</strong>.</p>
+
+  <p>In this paper's benchmark the cycle lasts <span class="mono num">286&nbsp;&#xB5;s</span> and is divided into <strong>9 intervals</strong>. During each interval the transistors hold one fixed configuration, and the circuit obeys one fixed set of differential equations. At the boundary between two intervals the transistors flip, and the equations change instantly.</p>
+
+  <p>Repeating that pattern makes the voltages and currents trace out a closed loop in state space &mdash; a <em>limit cycle</em>. That loop is the target. The control problem is: <em>when the converter drifts off the loop, nudge it back.</em></p>
+
+  <div class="note key">
+    <span class="tag">The one unusual idea</span>
+    The controller does not change any voltage or any transistor. Its <em>only</em> power is to decide <strong>when</strong> the switches flip &mdash; to slide the interval boundaries slightly earlier or later. That is the whole actuator. Everything below is about the consequences of having such a strange, restricted knob.
+  </div>
+</section>
+
+<section class="stack">
+  <div class="step-head">
+    <span class="step-num">01</span>
+    <h2>What can move, and what cannot</h2>
+  </div>
+
+  <p>Nine intervals need ten boundaries. Number them <code>t&#x2080; &#x2026; t&#x2089;</code>.</p>
+
+  <p>The first and last are <strong>welded in place</strong>. <code>t&#x2080; = 0</code> and <code>t&#x2089; = 286&nbsp;&#xB5;s</code>, always. That is what "fixed period" means, and it is not a stylistic choice &mdash; power converters are legally and thermally required to switch at a constant frequency, so the cycle length is untouchable.</p>
+
+  <p>That leaves the <strong>8 interior boundaries</strong> free to slide. The amount each one slides is called its <em>offset</em>, written <code>&#x3B4;&#x3C4;&#x2081; &#x2026; &#x3B4;&#x3C4;&#x2088;</code>. Stack them into a vector <code>&#x3B4;&#x3C4;</code>. This vector is the controller's entire output.</p>
+
+  <figure class="wide">
+    <div class="fig-shell">
+      <svg viewBox="0 0 900 210" role="img" aria-label="The 286 microsecond cycle divided into nine intervals by ten boundaries; the first and last boundaries are pinned, the eight interior ones can slide.">
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+            <path d="M0,1 L9,5 L0,9 z" fill="var(--blue)"/>
+          </marker>
+          <marker id="arl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+            <path d="M0,1 L9,5 L0,9 z" fill="var(--blue)"/>
+          </marker>
+        </defs>
+
+        <!-- interval blocks -->
+        <g id="rail1"></g>
+
+        <text x="20" y="26" font-family="Archivo,sans-serif" font-size="11" font-weight="600" fill="var(--ink-3)" letter-spacing="1.6">ONE CYCLE &#xB7; 286 &#xB5;s &#xB7; 9 INTERVALS</text>
+      </svg>
+    </div>
+    <figcaption><b>The cycle rail.</b> Each block is one interval, drawn to scale. Its length is called the interval's <em>dwell duration</em>. The two black pins at the ends cannot move. The eight blue arrows are the controller's eight degrees of freedom.</figcaption>
+  </figure>
+</section>
+
+<section class="stack">
+  <div class="step-head">
+    <span class="step-num">02</span>
+    <h2>The trap: durations are gaps, not things</h2>
+  </div>
+
+  <p>Here is the subtlety that makes the whole problem interesting. The controller moves <em>boundaries</em>, but the physical constraint applies to <em>durations</em>. And a duration is not an independent quantity &mdash; it is the <strong>gap between two boundaries</strong>:</p>
+
+  <div class="eq">d<span class="cm">&#x1D62;</span> = t<span class="cm">&#x1D62;</span> &minus; t<span class="cm">&#x1D62;&#x208B;&#x2081;</span></div>
+
+  <p>So when you slide boundary <code>i</code> later by some amount, two durations change at once, in opposite directions:</p>
+
+  <div class="eq">
+    interval <span class="cm">i</span> &nbsp;(the one <em>ending</em> at that boundary) &nbsp;&nbsp;<span class="ok">gets longer</span><br>
+    interval <span class="cm">i+1</span> (the one <em>starting</em> at that boundary) &nbsp;<span class="bad">gets shorter</span>
+  </div>
+
+  <p>by exactly the same amount. In the paper this bookkeeping is the matrix <code>D</code> of equation (14), and the statement <code>&#x3B4;d = D&#xB7;&#x3B4;&#x3C4;</code> means nothing more than "take differences of neighbouring offsets."</p>
+
+  <figure class="wide">
+    <div class="fig-shell">
+      <svg viewBox="0 0 900 260" role="img" aria-label="Moving one boundary later lengthens the interval before it and shortens the interval after it by the same amount.">
+        <g id="coupling"></g>
+      </svg>
+    </div>
+    <figcaption><b>One knob, two consequences.</b> Sliding a single boundary <span class="mono">+12&nbsp;&#xB5;s</span> later steals exactly <span class="mono">12&nbsp;&#xB5;s</span> from its right-hand neighbour and gives it to its left-hand neighbour. Nothing else in the cycle notices. This coupling is the reason the naive fix in Step 04 fails.</figcaption>
+  </figure>
+
+  <div class="note key">
+    <span class="tag">Consequence worth pausing on</span>
+    Because every offset gives away exactly what it takes, <strong>the nine durations always add up to 286&nbsp;&#xB5;s</strong> &mdash; no matter what the controller asks for, however crazy. The period can never be broken. (The paper writes this as <code>1&#x1D40;D = 0</code>.) Keep this in mind: it is why the repair in Step 05 is safe.
+  </div>
+</section>
+
+<section class="stack">
+  <div class="step-head">
+    <span class="step-num">03</span>
+    <h2>The hard limit, and how the controller blows through it</h2>
+  </div>
+
+  <p>Real transistors cannot be switched on and immediately off. Gate drivers need time, the device needs to finish turning on, and measurements need a settled window. So every interval carries a floor:</p>
+
+  <div class="eq">every d<span class="cm">&#x1D62;</span> &nbsp;&#x2265;&nbsp; <span class="hl">d<sub>min</sub> = 3&nbsp;&#xB5;s</span></div>
+
+  <p>The controller &mdash; an LQR, designed in the usual way &mdash; has never heard of this floor. It is a matrix multiply, <code>&#x3B4;&#x3C4;<sup>raw</sup> = &minus;K&#xB7;e</code>: take the error, multiply, emit eight numbers. Nothing in that computation can refuse.</p>
+
+  <p>Start the converter far from its target loop, at the initial state the paper uses, and ask the aggressive LQR what it wants. Its most extreme request is on the <strong>eighth</strong> boundary:</p>
+
+  <div class="eq">
+    boundary 8 sits at &nbsp;<span class="num">263.828&nbsp;&#xB5;s</span><br>
+    controller asks for &nbsp;<span class="bad">+65.217&nbsp;&#xB5;s</span> &nbsp;<span class="cm">(slide it later)</span><br>
+    that would put it at &nbsp;<span class="bad">329.045&nbsp;&#xB5;s</span>
+  </div>
+
+  <p>But boundary 9 is welded at <code>286&nbsp;&#xB5;s</code>. The ninth interval is the gap between them, so its requested duration is</p>
+
+  <div class="eq">286.000 &minus; 329.045 &nbsp;=&nbsp; <span class="bad">&minus;43.045&nbsp;&#xB5;s</span></div>
+
+  <p>This is not "a bit too aggressive." A negative duration means boundary 8 has <strong>jumped over</strong> boundary 9. The intervals are now out of order. There is no schedule here to execute, correct, or approximate &mdash; the request is not a schedule at all.</p>
+
+  <figure class="wide">
+    <div class="fig-shell">
+      <svg viewBox="0 0 900 250" role="img" aria-label="The raw request pushes boundary 8 past the fixed period wall at 286 microseconds, producing an interval of negative 43 microseconds.">
+        <g id="failfig"></g>
+      </svg>
+    </div>
+    <figcaption><b>The request that cannot exist.</b> Top: the nominal tail of the cycle. Bottom: what the raw controller asked for. Boundary 8 lands <span class="mono num">43.045&nbsp;&#xB5;s</span> beyond the period wall, and the ninth interval folds backwards on itself.</figcaption>
+  </figure>
+
+  <div class="note warn">
+    <span class="tag">And it is not just one interval</span>
+    On this cycle the raw request drives <strong>four</strong> of the nine intervals below the floor at once &mdash; intervals 2, 6, 7 and 9 &mdash; and every one of them to a <em>negative</em> duration. Any fix has to handle all of them simultaneously. You will see the full audit in Step 06.
+  </div>
+</section>
+
+<section class="stack">
+  <div class="step-head">
+    <span class="step-num">04</span>
+    <h2>The obvious fix, and why it quietly ruins everything</h2>
+  </div>
+
+  <p>The reflex is to clamp each number. Boundary 8 wants <span class="mono">+65.2&nbsp;&#xB5;s</span> but only <span class="mono">+19.2&nbsp;&#xB5;s</span> is legal, so give it <span class="mono">+19.2</span>. Do that for each of the eight offsets independently. This is what a saturation block does, and it is what the earlier literature's standalone LQR comparison did.</p>
+
+  <p>It fails twice.</p>
+
+  <div class="stack-tight">
+    <h3>Failure one &mdash; it does not actually work</h3>
+    <p>Step 02 showed that each duration depends on <em>two</em> adjacent offsets. Clamp offset 8 to protect interval 9, and you have just changed interval 8 as well. The violation moves next door instead of disappearing. You can chase it around the cycle and it does not converge.</p>
+  </div>
+
+  <div class="stack-tight">
+    <h3>Failure two &mdash; the real one</h3>
+    <p>Clamping each component by a different amount <strong>rotates the vector</strong>. The eight numbers that come out are no longer proportional to the eight numbers that went in; they point somewhere else entirely.</p>
+    <p>That matters because everything you know about the controller is a statement about <code>K</code>. You proved <code>A<sub>cl</sub> = &#x3A6; &minus; &#x393;&#xB7;K</code> is stable. But the plant is no longer receiving <code>&minus;K&#xB7;e</code>. It is receiving some other vector, produced by a nonlinear, state-dependent, eight-way clamp. <strong>You have silently swapped in a different controller and you cannot write down what it is.</strong></p>
+  </div>
+
+  <p>Now compare the alternative. Keep the direction and give up only the <em>length</em>: multiply all eight numbers by <strong>one single scalar</strong> <code>&#x3B2;</code> between 0 and 1. The vector shrinks along its own ray. It still points exactly where the controller pointed.</p>
+
+  <figure class="wide">
+    <div class="fig-shell">
+      <svg viewBox="0 0 900 380" role="img" aria-label="Geometric comparison: scaling moves the request along its own ray into the feasible region; clipping moves it sideways to a different direction.">
+        <g id="geom"></g>
+      </svg>
+    </div>
+    <figcaption><b>Two ways into the legal set.</b> The shaded polygon is the set of offset vectors whose durations all clear the <span class="mono">3&nbsp;&#xB5;s</span> floor. Left: scaling slides the request down its own ray &mdash; same direction, shorter. Right: clipping each component separately lands somewhere else on the boundary, along a vector the controller never asked for. Both are legal. Only one is analysable. <em>(Two axes shown; the real problem has eight.)</em></figcaption>
+  </figure>
+</section>
+
+<section class="stack">
+  <div class="step-head">
+    <span class="step-num">05</span>
+    <h2>One dial for the whole vector</h2>
+  </div>
+
+  <p>So here is the entire method. The controller emits its eight raw offsets. Before they reach the transistors, multiply <em>all of them</em> by one number <code>&#x3B2;</code>:</p>
+
+  <div class="eq">&#x3B4;&#x3C4;<sup>applied</sup> &nbsp;=&nbsp; <span class="hl">&#x3B2;</span> &#xB7; &#x3B4;&#x3C4;<sup>raw</sup> ,&nbsp;&nbsp;&nbsp;&nbsp;<span class="hl">&#x3B2;</span> &#x2208; [0, 1]</div>
+
+  <p>Think of a mixing desk. Clipping is muting individual instruments until the room is quiet enough &mdash; you get silence in the right places and a different piece of music. Scaling is the master fader: <strong>same performance, turned down</strong>.</p>
+
+  <p>Three properties come free, and each one matters:</p>
+
+  <div class="stack-tight">
+    <p><strong>The direction survives.</strong> Multiplying by a positive scalar cannot rotate a vector. The plant receives a shortened version of precisely what the controller asked for.</p>
+    <p><strong>The period survives.</strong> From Step 02, the durations always sum to 286&nbsp;&#xB5;s. Scaling every offset scales every duration change, and zero times any scalar is still zero.</p>
+    <p><strong>The mode order survives.</strong> At <code>&#x3B2; = 0</code> nothing moves at all, which is trivially legal. Turning <code>&#x3B2;</code> up slides the boundaries continuously, so there is always some range near zero where nothing crosses.</p>
+  </div>
+
+  <p>Drag the fader below. Watch the ninth interval &mdash; and notice that the rail's total length never changes, no matter how far you push.</p>
+
+  <div class="wide lab">
+    <div class="lab-bar">
+      <div class="slider-wrap">
+        <label for="beta">&#x3B2;&nbsp;&nbsp;fader</label>
+        <input type="range" id="beta" min="0" max="1" step="0.001" value="0.294" aria-label="Conditioning factor beta">
+      </div>
+      <div class="readout">
+        <div><span class="k">&#x3B2;</span><span class="v num" id="r-beta">0.294</span></div>
+        <div><span class="k">shortest interval</span><span class="v num" id="r-min">3.00 &#xB5;s</span></div>
+        <div><span class="k">cycle total</span><span class="v num" id="r-sum">286.00 &#xB5;s</span></div>
+      </div>
+      <div class="presets">
+        <button type="button" data-b="0">&#x3B2; = 0 &#xB7; off</button>
+        <button type="button" data-b="0.293978">&#x3B2;* &#xB7; maximal</button>
+        <button type="button" data-b="1">&#x3B2; = 1 &#xB7; raw</button>
+      </div>
+    </div>
+    <div class="lab-body">
+      <svg viewBox="0 0 900 340" role="img" aria-label="Interactive: the nine interval durations as the conditioning factor beta varies from 0 to 1.">
+        <g id="lab"></g>
+      </svg>
+    </div>
+    <div class="verdict" id="verdict"></div>
+  </div>
+
+  <div class="legend" style="margin-top:.4rem">
+    <span><i class="swatch" style="background:var(--graphite)"></i> nominal schedule</span>
+    <span><i class="swatch" style="background:var(--blue)"></i> applied &#xB7; legal</span>
+    <span><i class="swatch" style="background:var(--crimson)"></i> below the 3 &#xB5;s floor</span>
+    <span><i class="swatch" style="background:var(--teal)"></i> 3 &#xB5;s floor</span>
+  </div>
+</section>
+
+<section class="stack">
+  <div class="step-head">
+    <span class="step-num">06</span>
+    <h2>Finding the largest &#x3B2; that works</h2>
+  </div>
+
+  <p>You want the biggest <code>&#x3B2;</code> you can get away with &mdash; turning the fader down further than necessary throws away control authority you were entitled to use. Finding it takes one pass over nine numbers.</p>
+
+  <p>For each interval, ask two questions.</p>
+
+  <div class="stack-tight">
+    <p><strong>Is it shrinking?</strong> If the request makes this interval <em>longer</em>, it can never violate a <em>minimum</em>. It imposes no limit at all. Skip it. (Three of the nine intervals are in this category.)</p>
+    <p><strong>If it is shrinking, how much room does it have?</strong> Its <em>margin</em> is how far it can be squeezed before hitting the floor: <code>margin = nominal &#x2212; 3&nbsp;&#xB5;s</code>. If the full request would shrink it by <code>s</code>, then the largest legal fraction of that request is the ratio <code>margin &#x2044; s</code>.</p>
+  </div>
+
+  <p>Each shrinking interval hands you one ceiling. Every ceiling must hold at once, so take the smallest &mdash; and cap at 1, since you never want to <em>amplify</em> the controller:</p>
+
+  <div class="eq">
+<span class="hl">&#x3B2;</span> = min ( 1 , &nbsp;min over shrinking intervals of &nbsp;margin<span class="cm">&#x1D62;</span> &#x2044; shrink<span class="cm">&#x1D62;</span> )</div>
+
+  <p>That is equation (22). Here is the arithmetic on the real cycle, all nine rows:</p>
+
+  <div class="wide tbl-shell">
+    <table>
+      <thead>
+        <tr>
+          <th>Interval</th>
+          <th>Nominal</th>
+          <th>Direction</th>
+          <th>Raw duration</th>
+          <th>Margin</th>
+          <th>Shrink</th>
+          <th>Ceiling on &#x3B2;</th>
+        </tr>
+      </thead>
+      <tbody id="ratio-rows"></tbody>
+    </table>
+  </div>
+
+  <div class="legend" style="margin-top:.7rem">
+    <span>Margin = nominal &minus; 3 &#xB5;s</span>
+    <span>Ceiling = margin &#x2044; shrink</span>
+    <span style="color:var(--blue)">Highlighted row = the binding constraint</span>
+  </div>
+
+  <p style="margin-top:1.2rem">Six intervals shrink, so six ceilings. The tightest is interval 9's, and that single row decides the whole cycle:</p>
+
+  <div class="eq">
+<span class="hl">&#x3B2;</span> = min(1, 4.0076, 0.8478, 8.1942, 0.8387, 0.5761, <span class="hl">0.2940</span>) = <span class="hl">0.293978</span></div>
+
+  <p>Nine comparisons. No optimiser, no matrix inverse, no iteration &mdash; which is the point of calling it <em>solver-free</em>. A microcontroller does this between switching cycles without noticing.</p>
+
+  <div class="note key">
+    <span class="tag">Why the answer lands on exactly 3.000 &#xB5;s</span>
+    Apply <code>&#x3B2; = 0.293978</code> and interval 9 becomes <span class="mono num">22.172 &minus; 0.293978 &#xD7; 65.217 = 3.000&nbsp;&#xB5;s</span> &mdash; precisely the floor, not a micron above it. That is not a coincidence, it is the definition of <em>maximal</em>. The binding constraint is pushed exactly to its limit, because if it landed above the floor you could have turned the fader up further. Every other interval ends up with room to spare.
+  </div>
+
+  <p>This is Proposition 1 in the paper. Its proof is three lines and you have now seen all of them: growing intervals impose nothing, each shrinking interval imposes one ceiling, intersecting the ceilings with <code>[0,1]</code> gives the formula &mdash; so the formula is simultaneously legal (every constraint holds) and maximal (no larger value does).</p>
+</section>
+
+<section class="stack">
+  <div class="step-head">
+    <span class="step-num">07</span>
+    <h2>The payoff: why scaling was worth insisting on</h2>
+  </div>
+
+  <p>Everything so far is a sensible clamp. This step is why it is a <em>result</em>.</p>
+
+  <p>Ask what the closed loop actually does over one cycle. Two matrices describe the extremes:</p>
+
+  <div class="stack-tight">
+    <p><code>&#x3A6;</code> &mdash; the <strong>open-loop</strong> cycle map. Where the error goes if the controller does nothing.</p>
+    <p><code>A<sub>cl</sub> = &#x3A6; &minus; &#x393;&#xB7;K</code> &mdash; the <strong>full-correction</strong> cycle map. Where the error goes when the controller's request is applied in full.</p>
+  </div>
+
+  <p>Now substitute <code>&#x3B2;&#xB7;&#x3B4;&#x3C4;<sup>raw</sup></code> into the cycle model and the algebra collapses to one line:</p>
+
+  <div class="eq">A(<span class="hl">&#x3B2;</span>) &nbsp;=&nbsp; (1 &minus; <span class="hl">&#x3B2;</span>)&#xB7;&#x3A6; &nbsp;+&nbsp; <span class="hl">&#x3B2;</span>&#xB7;A<sub>cl</sub></div>
+
+  <p>Read that carefully, because it is the whole paper. <strong>Conditioning cannot produce an arbitrary matrix.</strong> Whatever <code>&#x3B2;</code> the plant generates, the resulting closed loop lands on the <em>straight line segment</em> between two matrices you already know &mdash; and nowhere else. <code>&#x3B2; = 0</code> is one endpoint, <code>&#x3B2; = 1</code> is the other, everything in between is a weighted blend.</p>
+
+  <p>Clipping gives you nothing like this. Its applied vector leaves the ray, so the effective closed loop leaves the segment and scatters into a set you cannot describe.</p>
+
+  <figure class="wide">
+    <div class="fig-shell">
+      <svg viewBox="0 0 900 330" role="img" aria-label="Conditioning produces matrices on a straight segment between the open-loop matrix and the full-correction matrix, all inside the contraction ball.">
+        <g id="segment"></g>
+      </svg>
+    </div>
+    <figcaption><b>A line, not a cloud.</b> Every conditioned closed loop is a blend of two known endpoints. Because the set of matrices that contract in a given norm is <em>convex</em>, checking the two ends of the segment certifies every point on it &mdash; two computations covering a continuum.</figcaption>
+  </figure>
+</section>
+
+<section class="stack">
+  <div class="step-head">
+    <span class="step-num">08</span>
+    <h2>Two checks that cover infinitely many cases</h2>
+  </div>
+
+  <p>To prove a discrete-time loop is stable you find an energy function that always decreases. Here it is a quadratic form <code>&#x2016;x&#x2016;<sub>P</sub></code>, set by a matrix <code>P</code> you compute <em>once, offline</em>. If a matrix shrinks that energy every cycle, the error must decay.</p>
+
+  <p>Suppose you find a single <code>P</code> that works for both endpoints:</p>
+
+  <div class="eq">&#x2016;&#x3A6;&#x2016;<sub>P</sub> = <span class="ok">0.999939</span> &lt; 1 &nbsp;&nbsp;&nbsp;<span class="cm">and</span>&nbsp;&nbsp;&nbsp; &#x2016;A<sub>cl</sub>&#x2016;<sub>P</sub> = <span class="ok">0.979743</span> &lt; 1</div>
+
+  <p>Then the triangle inequality does the rest in a single step:</p>
+
+  <div class="eq">&#x2016;A(&#x3B2;)&#x2016;<sub>P</sub> &#x2264; (1&minus;&#x3B2;)&#xB7;&#x2016;&#x3A6;&#x2016;<sub>P</sub> + &#x3B2;&#xB7;&#x2016;A<sub>cl</sub>&#x2016;<sub>P</sub> &#x2264; <span class="hl">0.999939 &lt; 1</span></div>
+
+  <p>A weighted average of two numbers below 1 is below 1. That is the entire proof of Proposition 2.</p>
+
+  <p>And here is what makes it genuinely useful: <strong>it holds for any sequence of &#x3B2; values whatsoever.</strong> The plant may produce <code>0.29, 0.45, 0.78, 1, 1, 1, &#x2026;</code> in a state-dependent way nobody can predict in advance. It does not matter. Every term in that sequence maps to a point on the certified segment, so every cycle contracts. You never have to model when conditioning fires.</p>
+
+  <div class="note warn">
+    <span class="tag">Read the small print</span>
+    The certificate needs <code>&#x2016;&#x3A6;&#x2016;<sub>P</sub> &lt; 1</code> &mdash; the <em>uncontrolled</em> converter must already be stable on its own. Here it barely is, at <span class="mono num">0.999939</span>. So the certified bound is dominated by the open-loop endpoint, not the controller. It is a worst case covering the hypothetical "&#x3B2; stays near zero forever," <strong>not a prediction of observed speed</strong>. Once &#x3B2; returns to 1 the loop actually contracts at <span class="mono num">0.568</span> per cycle. If a plant's open loop were unstable, the conditioner would still run and still produce legal schedules &mdash; only the guarantee would be lost.
+  </div>
+</section>
+
+<section class="stack">
+  <div class="step-head">
+    <span class="step-num">09</span>
+    <h2>What happens on the actual converter</h2>
+  </div>
+
+  <p>Simulated on the exact nonlinear switched model &mdash; no linear approximation anywhere &mdash; from a large initial error, against two honest opponents: the same aggressive LQR is compared with a <em>conservative</em> LQR detuned until it never violates the floor by itself, and with open loop.</p>
+
+  <figure class="wide">
+    <div class="fig-shell">
+      <svg viewBox="0 0 900 400" role="img" aria-label="Error decay over 25 cycles for conditioned aggressive control, conservative control and open loop, with the beta trace below.">
+        <g id="conv"></g>
+      </svg>
+    </div>
+    <figcaption><b>Conditioning is a transient device.</b> Top: normalised error, log scale. The conditioned aggressive law reaches the 0.01 threshold at cycle 6; the conservative law needs until cycle 20; open loop takes about 22,000. Bottom: &#x3B2; is below 1 on only the first three cycles, then never again.</figcaption>
+  </figure>
+
+  <p>Three things are worth extracting from that picture.</p>
+
+  <div class="stack-tight">
+    <p><strong>The repair is not a handicap.</strong> The conditioned aggressive law settles in 6 cycles against the conservative law's 20. Detuning a controller until it is always feasible costs more than letting it be aggressive and scaling back only when reality intervenes.</p>
+    <p><strong>Conditioning is rare.</strong> It acts on 3 cycles out of 100. It is an emergency response to a large error, not a permanent part of the loop.</p>
+    <p><strong>The system spends its life in the good region.</strong> From cycle 3 onward <code>&#x3B2; = 1</code>, the conditioner is dormant, and the plant is running the plain designed controller with all its ordinary guarantees.</p>
+  </div>
+</section>
+
+<section class="stack">
+  <div class="step-head">
+    <span class="step-num">10</span>
+    <h2>What this does not prove</h2>
+  </div>
+
+  <p>The paper is careful here, and a fair reading should be too.</p>
+
+  <div class="stack-tight">
+    <p><strong>The Lyapunov certificate is about the linearised model.</strong> The segment argument lives in the first-order cycle model, not the true nonlinear switched plant.</p>
+    <p><strong>The exact nonlinear guarantee is local only.</strong> Near the target loop the nominal margins are wide, so <code>&#x3B2; = 1</code> always and the conditioner never acts &mdash; which is exactly why the guarantee holds there. Outside that neighbourhood the 100-cycle simulation is evidence for this benchmark, not a theorem.</p>
+    <p><strong>The conditioner is deliberately dumb.</strong> It cannot look ahead, and it cannot pick a <em>different</em> direction when the requested one is nearly blocked &mdash; if the raw vector points almost straight at a wall, &#x3B2; collapses toward zero and you get almost no correction, even though some other direction might have served. Predictive control would re-plan. This will not. That is the price of having no solver.</p>
+    <p><strong>The 3 &#xB5;s floor is an assumption.</strong> It is not hardware-calibrated. Timer quantisation, gate delays, dead time and implementation margin are all absent, as are state estimation error, model uncertainty, and any experiment.</p>
+  </div>
+</section>
+
+<section class="stack">
+  <div class="step-head">
+    <span class="step-num">&mdash;</span>
+    <h2>Symbols</h2>
+  </div>
+  <dl class="glossary">
+    <div><dt>N</dt><dd>Number of intervals per cycle. Here 9.</dd></div>
+    <div><dt>T</dt><dd>Cycle period, welded at 286 &#xB5;s.</dd></div>
+    <div><dt>t&#x2080; &#x2026; t&#x2089;</dt><dd>The ten interval boundaries. The two ends are fixed; the eight interior ones move.</dd></div>
+    <div><dt>d&#x1D62;</dt><dd>Dwell duration of interval <em>i</em> &#x2014; the gap between two consecutive boundaries.</dd></div>
+    <div><dt>d<sub>min</sub></dt><dd>The floor every duration must clear. Assumed 3 &#xB5;s.</dd></div>
+    <div><dt>&#x3B4;&#x3C4;</dt><dd>The eight switching-instant offsets. The controller's output vector.</dd></div>
+    <div><dt>&#x3B4;d</dt><dd>The nine duration changes that result. Always sums to zero.</dd></div>
+    <div><dt>D</dt><dd>The bookkeeping matrix turning offsets into duration changes: <code>&#x3B4;d = D&#xB7;&#x3B4;&#x3C4;</code>.</dd></div>
+    <div><dt>e</dt><dd>Cycle-start error &#x2014; how far the converter is from the target loop at the start of a cycle.</dd></div>
+    <div><dt>K</dt><dd>The static feedback gain. Produces the raw request <code>&#x2212;K&#xB7;e</code>.</dd></div>
+    <div><dt>&#x3B2;</dt><dd>The conditioning factor. The one number this whole document is about.</dd></div>
+    <div><dt>&#x3A6;</dt><dd>Open-loop cycle map. Where the error goes with no correction.</dd></div>
+    <div><dt>A<sub>cl</sub></dt><dd>Closed-loop cycle map with the correction applied in full.</dd></div>
+    <div><dt>P</dt><dd>The Lyapunov matrix defining the energy measure. Computed once, offline.</dd></div>
+  </dl>
+</section>
+
+<footer>
+  Companion to <em>Dwell-Conditioned Cycle-to-Cycle Switching-Time Feedback for Mode-Dependent Switched-Affine Systems</em> &#x2014; Section 3.
+  All figures are drawn from the paper's own simulation output; the worked example is cycle 0 of the 100-cycle study.
+</footer>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- real data from the paper's simulation ---------------- */
+var NOM  = [63.889, 23.668, 22.000, 22.981, 22.000, 63.672, 22.170, 23.448, 22.172];
+var RAW  = [-15.1933, -39.5698, -27.1828, 44.2809, 41.9622, -30.3810, -63.6543, 65.2171];
+var DMIN = 3, T = 286;
+
+var BND = [0]; for (var i=0;i<9;i++) BND.push(+(BND[i]+NOM[i]).toFixed(3));
+
+/* duration changes: differences of [0, offsets..., 0] */
+function dwellChange(off){
+  var p=[0].concat(off,[0]), q=[];
+  for(var i=0;i<9;i++) q.push(p[i+1]-p[i]);
+  return q;
+}
+var Q = dwellChange(RAW);
+var MARGIN = NOM.map(function(d){return d-DMIN;});
+
+/* the ratio test */
+function ratioTest(){
+  var rows=[], best=1;
+  for(var i=0;i<9;i++){
+    var r = Q[i]<0 ? MARGIN[i]/(-Q[i]) : null;
+    if(r!==null && r<best) best=r;
+    rows.push({i:i+1, nom:NOM[i], q:Q[i], raw:NOM[i]+Q[i], m:MARGIN[i], ratio:r});
+  }
+  return {rows:rows, beta:best};
+}
+var RT = ratioTest(), BETA_STAR = RT.beta;
+
+/* ---------------- tiny svg helpers ---------------- */
+var NS="http://www.w3.org/2000/svg";
+function el(tag,a,txt){
+  var n=document.createElementNS(NS,tag);
+  for(var k in a) if(a[k]!==null&&a[k]!==undefined) n.setAttribute(k,a[k]);
+  if(txt!==undefined) n.textContent=txt;
+  return n;
+}
+function T_(x,y,s,o){
+  o=o||{};
+  return el("text",{x:x,y:y,"font-family":o.mono?"IBM Plex Mono, monospace":"Archivo, sans-serif",
+    "font-size":o.size||11,"font-weight":o.w||500,fill:o.fill||"var(--ink-2)",
+    "text-anchor":o.anchor||"start","letter-spacing":o.ls||0,
+    "dominant-baseline":o.base||"auto"},s);
+}
+function add(p){ var g=arguments[0]; for(var i=1;i<arguments.length;i++) g.appendChild(arguments[i]); }
+function clear(g){ while(g.firstChild) g.removeChild(g.firstChild); }
+function fx(v,n){ return v.toFixed(n===undefined?1:n); }
+
+/* ================= FIG 1 \u00B7 the cycle rail ================= */
+(function(){
+  var g=document.getElementById("rail1"); if(!g) return;
+  var X0=52,X1=858,Y=74,H=46;
+  var sx=function(t){ return X0+(t/T)*(X1-X0); };
+
+  for(var i=0;i<9;i++){
+    var a=sx(BND[i]), b=sx(BND[i+1]);
+    add(g, el("rect",{x:a,y:Y,width:b-a,height:H,fill:"var(--surface-2)",
+      stroke:"var(--rule-strong)","stroke-width":1,rx:2}));
+    add(g, T_((a+b)/2, Y+20, String(i+1), {anchor:"middle",size:12,w:600,fill:"var(--ink-2)"}));
+    add(g, T_((a+b)/2, Y+35, fx(NOM[i],1), {anchor:"middle",size:9.5,mono:true,fill:"var(--ink-3)"}));
+  }
+
+  /* boundary ticks + pins + arrows */
+  for(var j=0;j<10;j++){
+    var x=sx(BND[j]), pinned=(j===0||j===9);
+    add(g, el("line",{x1:x,y1:Y-16,x2:x,y2:Y+H+10,
+      stroke:pinned?"var(--ink)":"var(--blue)","stroke-width":pinned?2.5:1.5}));
+    if(pinned){
+      add(g, el("rect",{x:x-4.5,y:Y-24,width:9,height:9,fill:"var(--ink)",rx:1.5}));
+    } else {
+      add(g, el("path",{d:"M "+(x-13)+" "+(Y-21)+" L "+(x-5)+" "+(Y-21),
+        stroke:"var(--blue)","stroke-width":1.5,"marker-end":"url(#arl)",fill:"none"}));
+      add(g, el("path",{d:"M "+(x+13)+" "+(Y-21)+" L "+(x+5)+" "+(Y-21),
+        stroke:"var(--blue)","stroke-width":1.5,"marker-end":"url(#ar)",fill:"none"}));
+    }
+    add(g, T_(x, Y+H+24, fx(BND[j],0), {anchor:"middle",size:9,mono:true,
+      fill:pinned?"var(--ink)":"var(--ink-3)",w:pinned?600:400}));
+  }
+
+  add(g, T_(X0, Y-40, "\u25AA FIXED", {size:9,w:600,ls:1.2,fill:"var(--ink)"}));
+  add(g, T_(X1, Y-40, "8 MOVABLE BOUNDARIES \u25B8", {size:9,w:600,ls:1.2,fill:"var(--blue)",anchor:"end"}));
+  add(g, T_(X0, Y+H+48, "boundary time, \u00B5s", {size:9,mono:true,fill:"var(--ink-3)"}));
+
+  /* period bracket */
+  var by=Y+H+62;
+  add(g, el("path",{d:"M "+X0+" "+by+" L "+X0+" "+(by+6)+" L "+X1+" "+(by+6)+" L "+X1+" "+by,
+    fill:"none",stroke:"var(--rule-strong)","stroke-width":1}));
+  add(g, T_((X0+X1)/2, by+20, "T = 286 \u00B5s \u00B7 cannot change", {anchor:"middle",size:10,w:600,fill:"var(--ink-3)"}));
+})();
+
+/* ================= FIG 2 \u00B7 the coupling ================= */
+(function(){
+  var g=document.getElementById("coupling"); if(!g) return;
+  var X0=90,X1=790,shift=12;
+  var lo=0, hi=90, sx=function(t){ return X0+((t-lo)/(hi-lo))*(X1-X0); };
+  var edges=[0,30,55,90];
+
+  function rail(y,label,off,color){
+    var e=[edges[0],edges[1],edges[2]+off,edges[3]];
+    add(g, T_(X0-14, y+18, label, {anchor:"end",size:10,w:600,fill:"var(--ink-3)"}));
+    for(var i=0;i<3;i++){
+      var a=sx(e[i]), b=sx(e[i+1]);
+      var changed = off!==0 && (i===1||i===2);
+      add(g, el("rect",{x:a,y:y,width:b-a,height:30,rx:2,
+        fill: changed ? (i===1?"var(--teal-soft)":"var(--crimson-soft)") : "var(--surface-2)",
+        stroke: changed ? (i===1?"var(--teal)":"var(--crimson)") : "var(--rule-strong)","stroke-width":1}));
+      add(g, T_((a+b)/2,y+19, fx(e[i+1]-e[i],0)+" \u00B5s", {anchor:"middle",size:10,mono:true,
+        fill: changed ? (i===1?"var(--teal)":"var(--crimson)") : "var(--ink-2)", w:600}));
+    }
+    for(var j=0;j<4;j++){
+      var x=sx(e[j]), pin=(j===0||j===3);
+      add(g, el("line",{x1:x,y1:y-8,x2:x,y2:y+38,
+        stroke: (!pin && off!==0 && j===2)?"var(--blue)":(pin?"var(--ink)":"var(--rule-strong)"),
+        "stroke-width": (!pin && off!==0 && j===2)?2.5:(pin?2.5:1.2)}));
+    }
+    return e;
+  }
+
+  add(g, T_(X0, 22, "BEFORE", {size:9.5,w:600,ls:1.4,fill:"var(--ink-3)"}));
+  rail(34,"nominal",0);
+  add(g, T_(X0, 122, "AFTER \u00B7 one boundary slid +12 \u00B5s later", {size:9.5,w:600,ls:1.4,fill:"var(--blue)"}));
+  rail(134,"applied",shift);
+
+  /* the moved boundary annotation */
+  var xa=sx(edges[2]), xb=sx(edges[2]+shift);
+  add(g, el("path",{d:"M "+xa+" 100 L "+xb+" 100",stroke:"var(--blue)","stroke-width":2,
+    "marker-end":"url(#ar2)",fill:"none"}));
+  add(g, el("line",{x1:xa,y1:72,x2:xa,y2:134,stroke:"var(--blue)","stroke-width":1,
+    "stroke-dasharray":"3 3"}));
+  add(g, T_((xa+xb)/2, 92, "+12 \u00B5s", {anchor:"middle",size:10,mono:true,w:600,fill:"var(--blue)"}));
+
+  var defs=el("defs",{});
+  var m=el("marker",{id:"ar2",viewBox:"0 0 10 10",refX:9,refY:5,markerWidth:5,markerHeight:5,orient:"auto"});
+  m.appendChild(el("path",{d:"M0,1 L9,5 L0,9 z",fill:"var(--blue)"}));
+  defs.appendChild(m); g.appendChild(defs);
+
+  add(g, T_(X0, 208, "interval before it", {size:10,w:600,fill:"var(--teal)"}));
+  add(g, T_(X0, 224, "+12 \u00B5s longer", {size:10,mono:true,fill:"var(--teal)"}));
+  add(g, T_(X0+240, 208, "interval after it", {size:10,w:600,fill:"var(--crimson)"}));
+  add(g, T_(X0+240, 224, "\u221212 \u00B5s shorter", {size:10,mono:true,fill:"var(--crimson)"}));
+  add(g, T_(X0+480, 208, "everything else", {size:10,w:600,fill:"var(--ink-3)"}));
+  add(g, T_(X0+480, 224, "unchanged \u00B7 total still 90 \u00B5s", {size:10,mono:true,fill:"var(--ink-3)"}));
+})();
+
+/* ================= FIG 3 \u00B7 the failure ================= */
+(function(){
+  var g=document.getElementById("failfig"); if(!g) return;
+  var X0=60,X1=830, lo=168, hi=340;   /* raw interval 8 starts at 176.7 us */
+  var sx=function(t){ return X0+((t-lo)/(hi-lo))*(X1-X0); };
+  var H=34;
+
+  function wall(y,h){
+    var x=sx(286);
+    add(g, el("line",{x1:x,y1:y,x2:x,y2:y+h,stroke:"var(--ink)","stroke-width":2.5}));
+  }
+
+  /* nominal tail: intervals 7,8,9 -> boundaries 6..9 */
+  var yN=54;
+  add(g, T_(X0-4, yN-14, "NOMINAL", {size:9.5,w:600,ls:1.4,fill:"var(--ink-3)"}));
+  for(var i=6;i<9;i++){
+    var a=sx(BND[i]), b=sx(BND[i+1]);
+    add(g, el("rect",{x:a,y:yN,width:b-a,height:H,rx:2,fill:"var(--surface-2)",
+      stroke:"var(--rule-strong)","stroke-width":1}));
+    add(g, T_((a+b)/2,yN+21, fx(NOM[i],1), {anchor:"middle",size:10,mono:true,fill:"var(--ink-2)",w:600}));
+    add(g, T_((a+b)/2,yN-4, "interval "+(i+1), {anchor:"middle",size:9,fill:"var(--ink-3)"}));
+  }
+  wall(yN-8,H+16);
+  add(g, T_(sx(BND[8]), yN+H+16, "t\u2088 = 263.828", {anchor:"middle",size:9.5,mono:true,fill:"var(--ink-3)"}));
+  add(g, T_(sx(286), yN+H+16, "t\u2089 = 286 \u00B7 welded", {anchor:"middle",size:9.5,mono:true,fill:"var(--ink)",w:600}));
+
+  /* raw request */
+  var yR=150;
+  add(g, T_(X0-4, yR-14, "RAW REQUEST", {size:9.5,w:600,ls:1.4,fill:"var(--crimson)"}));
+  var t7=BND[6], t8raw=BND[7]+RAW[6], t8b=BND[8]+RAW[7];
+
+  /* interval 8: from t7+raw7 to t8+raw8 (grows hugely) */
+  var a8=sx(BND[7]+RAW[6]), b8=sx(BND[8]+RAW[7]);
+  add(g, el("rect",{x:a8,y:yR,width:b8-a8,height:H,rx:2,fill:"var(--surface-2)",
+    stroke:"var(--rule-strong)","stroke-width":1}));
+  add(g, T_((a8+b8)/2,yR+21, "152.3 \u00B5s", {anchor:"middle",size:10,mono:true,fill:"var(--ink-2)",w:600}));
+
+  /* the inverted interval 9: from 329.045 back to 286 */
+  var hatch=el("pattern",{id:"hz",width:7,height:7,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"});
+  hatch.appendChild(el("line",{x1:0,y1:0,x2:0,y2:7,stroke:"var(--crimson)","stroke-width":2.5}));
+  var d2=el("defs",{}); d2.appendChild(hatch); g.appendChild(d2);
+
+  add(g, el("rect",{x:sx(286),y:yR,width:sx(329.045)-sx(286),height:H,rx:2,
+    fill:"url(#hz)",opacity:.32}));
+  add(g, el("rect",{x:sx(286),y:yR,width:sx(329.045)-sx(286),height:H,rx:2,
+    fill:"none",stroke:"var(--crimson)","stroke-width":1.5,"stroke-dasharray":"4 3"}));
+
+  wall(yR-8,H+16);
+
+  /* backwards arrow showing inversion */
+  add(g, el("path",{d:"M "+sx(329.045)+" "+(yR+H+14)+" L "+(sx(286)+8)+" "+(yR+H+14),
+    stroke:"var(--crimson)","stroke-width":2,"marker-end":"url(#arR)",fill:"none"}));
+  var m2=el("marker",{id:"arR",viewBox:"0 0 10 10",refX:9,refY:5,markerWidth:5,markerHeight:5,orient:"auto"});
+  m2.appendChild(el("path",{d:"M0,1 L9,5 L0,9 z",fill:"var(--crimson)"}));
+  d2.appendChild(m2);
+
+  add(g, T_((sx(286)+sx(329.045))/2, yR+H+30, "interval 9 = \u221243.045 \u00B5s \u00B7 runs backwards",
+    {anchor:"middle",size:10.5,mono:true,fill:"var(--crimson)",w:600}));
+
+  /* boundary 8 marker + travel arrow */
+  add(g, el("line",{x1:sx(BND[8]),y1:yN-8,x2:sx(BND[8]),y2:yR+H+4,
+    stroke:"var(--rule-strong)","stroke-width":1,"stroke-dasharray":"3 3"}));
+  add(g, el("circle",{cx:sx(329.045),cy:yR+H/2,r:5,fill:"var(--crimson)"}));
+  add(g, el("path",{d:"M "+sx(BND[8])+" "+(yR-20)+" L "+(sx(329.045)-4)+" "+(yR-20),
+    stroke:"var(--crimson)","stroke-width":1.8,"marker-end":"url(#arR)",fill:"none"}));
+  add(g, T_((sx(BND[8])+sx(329.045))/2, yR-27, "+65.217 \u00B5s requested",
+    {anchor:"middle",size:10,mono:true,fill:"var(--crimson)",w:600}));
+
+  add(g, T_(sx(329.045), yR+H+16, "329.045", {anchor:"middle",size:9.5,mono:true,fill:"var(--crimson)",w:600}));
+  add(g, T_(sx(286)-6, 34, "PERIOD WALL", {anchor:"end",size:9,w:600,ls:1.2,fill:"var(--ink)"}));
+})();
+
+/* ================= FIG 4 \u00B7 scaling vs clipping ================= */
+(function(){
+  var g=document.getElementById("geom"); if(!g) return;
+
+  /* honest 2-offset toy: three 22 \u00B5s intervals, floor 3 \u00B5s -> margin 19
+     c1: \u03C41 \u2265 \u221219      c2: \u03C42 \u2212 \u03C41 \u2265 \u221219      c3: \u03C42 \u2264 19        */
+  var TRI=[[-19,19],[-19,-38],[38,19]];
+  var RAWP=[30,-30];                    /* violates c2 : \u03C42\u2212\u03C41 = \u221260 */
+  var b=19/60;                          /* 0.3167 */
+  var SCA=[RAWP[0]*b, RAWP[1]*b];       /* 9.5, \u22129.5  \u00B7 on c2 */
+  var CLI=[30,11];                      /* fix c2 by lifting \u03C42 only */
+
+  var defs=el("defs",{});
+  ["gA","gB"].forEach(function(id,k){
+    var m=el("marker",{id:id,viewBox:"0 0 10 10",refX:9,refY:5,markerWidth:5.5,markerHeight:5.5,orient:"auto"});
+    m.appendChild(el("path",{d:"M0,1 L9,5 L0,9 z",fill:k?"var(--crimson)":"var(--blue)"}));
+    defs.appendChild(m);
+  });
+  g.appendChild(defs);
+
+  function panel(ox,title,sub,accent,target,mode){
+    var W=360,H=250,PAD=30, cx=ox+PAD, cy=40;
+    var lo=-48, hi=48;
+    var sx=function(v){ return cx+((v-lo)/(hi-lo))*(W-2*PAD); };
+    var sy=function(v){ return cy+(1-(v-lo)/(hi-lo))*(H-2*PAD); };
+
+    add(g, T_(ox+6, 20, title, {size:12.5,w:600,fill:accent}));
+    add(g, T_(ox+6, 300, sub[0], {size:10.5,fill:"var(--ink-3)"}));
+    add(g, T_(ox+6, 315, sub[1], {size:10.5,fill:"var(--ink-3)"}));
+
+    /* axes */
+    add(g, el("line",{x1:sx(lo),y1:sy(0),x2:sx(hi),y2:sy(0),stroke:"var(--rule)","stroke-width":1}));
+    add(g, el("line",{x1:sx(0),y1:sy(lo),x2:sx(0),y2:sy(hi),stroke:"var(--rule)","stroke-width":1}));
+    add(g, T_(sx(hi)+4, sy(0)+4, "\u03B4\u03C4\u2081", {size:10,mono:true,fill:"var(--ink-3)"}));
+    add(g, T_(sx(0)+5, sy(hi)-4, "\u03B4\u03C4\u2082", {size:10,mono:true,fill:"var(--ink-3)"}));
+
+    /* feasible triangle */
+    add(g, el("polygon",{points:TRI.map(function(p){return sx(p[0])+","+sy(p[1]);}).join(" "),
+      fill:"var(--teal-soft)",stroke:"var(--teal)","stroke-width":1.4,opacity:.95}));
+    add(g, T_(sx(-8), sy(-6), "legal", {size:10,w:600,fill:"var(--teal)",anchor:"middle"}));
+    add(g, T_(sx(-8), sy(-15), "schedules", {size:9,fill:"var(--teal)",anchor:"middle"}));
+
+    /* ray through raw */
+    add(g, el("line",{x1:sx(0),y1:sy(0),x2:sx(RAWP[0]*1.42),y2:sy(RAWP[1]*1.42),
+      stroke:"var(--ink-3)","stroke-width":1,"stroke-dasharray":"4 4"}));
+
+    /* raw point */
+    add(g, el("circle",{cx:sx(RAWP[0]),cy:sy(RAWP[1]),r:5.5,fill:"var(--crimson)"}));
+    add(g, T_(sx(RAWP[0])+9, sy(RAWP[1])+4, "raw", {size:10.5,mono:true,fill:"var(--crimson)",w:600}));
+
+    /* arrow raw -> target */
+    add(g, el("line",{x1:sx(RAWP[0]),y1:sy(RAWP[1]),x2:sx(target[0]),y2:sy(target[1]),
+      stroke:accent,"stroke-width":2,"marker-end":mode?"url(#gB)":"url(#gA)"}));
+    add(g, el("circle",{cx:sx(target[0]),cy:sy(target[1]),r:5.5,fill:accent}));
+    add(g, T_(sx(target[0])+(mode?10:-10), sy(target[1])+(mode?-6:14), "applied",
+      {size:10.5,mono:true,fill:accent,w:600,anchor:mode?"start":"middle"}));
+
+    if(!mode){
+      add(g, T_(sx(20), sy(-34), "same ray", {size:10,mono:true,fill:"var(--blue)",anchor:"middle"}));
+      add(g, T_(sx(20), sy(-43), "shorter", {size:10,mono:true,fill:"var(--blue)",anchor:"middle"}));
+    } else {
+      /* show the departure from the ray */
+      add(g, el("line",{x1:sx(RAWP[0]),y1:sy(RAWP[1]),x2:sx(9.5),y2:sy(-9.5),
+        stroke:"var(--ink-3)","stroke-width":1,"stroke-dasharray":"2 3"}));
+      add(g, el("circle",{cx:sx(9.5),cy:sy(-9.5),r:3,fill:"none",stroke:"var(--ink-3)","stroke-width":1.2}));
+      add(g, T_(sx(4), sy(-40), "direction changed", {size:10,mono:true,fill:"var(--crimson)",anchor:"middle"}));
+    }
+  }
+
+  panel(30,  "SCALING \u00B7 what the paper does",
+        ["One scalar on the whole vector. Legal, and the",
+         "closed loop stays on a known segment."],
+        "var(--blue)", SCA, 0);
+  add(g, el("line",{x1:452,y1:14,x2:452,y2:288,stroke:"var(--rule)","stroke-width":1}));
+  panel(492, "CLIPPING \u00B7 the reflex",
+        ["Each component capped on its own. Legal, but the",
+         "closed loop is no longer a matrix you designed."],
+        "var(--crimson)", CLI, 1);
+})();
+
+/* ================= FIG 5 \u00B7 interactive \u03B2 lab ================= */
+(function(){
+  var g=document.getElementById("lab"); if(!g) return;
+  var slider=document.getElementById("beta");
+  var rB=document.getElementById("r-beta"), rM=document.getElementById("r-min"),
+      rS=document.getElementById("r-sum"), verdict=document.getElementById("verdict");
+
+  var X0=58,X1=846;
+  var LO=0, HI=340;                       /* \u00B5s window, room for overshoot */
+  var sx=function(t){ return X0+((t-LO)/(HI-LO))*(X1-X0); };
+
+  /* bar chart geometry */
+  var BY=196, BH=118, DMAX=170, DLOW=-50;
+  var by=function(v){ return BY+BH*(1-(v-DLOW)/(DMAX-DLOW)); };
+
+  var defs=el("defs",{});
+  var hp=el("pattern",{id:"hz2",width:6,height:6,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"});
+  hp.appendChild(el("line",{x1:0,y1:0,x2:0,y2:6,stroke:"var(--crimson)","stroke-width":2.2}));
+  defs.appendChild(hp); g.appendChild(defs);
+
+  var live=el("g",{}); g.appendChild(live);
+
+  function draw(beta){
+    /* snap onto the exact maximal factor so the interesting case is reachable */
+    if(Math.abs(beta-BETA_STAR) < 0.0007) beta = BETA_STAR;
+    clear(live);
+
+    var off = RAW.map(function(v){ return v*beta; });
+    var bnd = [0]; for(var i=0;i<8;i++) bnd.push(BND[i+1]+off[i]); bnd.push(286);
+    var dur = []; for(var i=0;i<9;i++) dur.push(bnd[i+1]-bnd[i]);
+    var minD = Math.min.apply(null,dur);
+    var total = dur.reduce(function(a,b){return a+b;},0);
+
+    /* ---- row 1 : the rail ---- */
+    add(live, T_(X0, 30, "APPLIED SCHEDULE", {size:9,w:600,ls:1.4,fill:"var(--ink-3)"}));
+
+    /* nominal ghost */
+    for(var i=0;i<9;i++){
+      add(live, el("rect",{x:sx(BND[i]),y:52,width:sx(BND[i+1])-sx(BND[i]),height:9,
+        fill:"var(--surface-2)",stroke:"var(--rule)","stroke-width":.8,rx:1}));
+    }
+    add(live, T_(X0-6, 60, "nom", {anchor:"end",size:8.5,mono:true,fill:"var(--ink-3)"}));
+
+    /* applied blocks */
+    var RY=72, RH=40;
+    for(var i=0;i<9;i++){
+      var a=sx(bnd[i]), b=sx(bnd[i+1]);
+      var bad = dur[i] < DMIN - 1e-9;
+      var inv = dur[i] < 0;
+      var x=Math.min(a,b), w=Math.abs(b-a);
+      add(live, el("rect",{x:x,y:RY,width:Math.max(w,1),height:RH,rx:1.5,
+        fill: inv?"url(#hz2)" : (bad?"var(--crimson-soft)":"var(--blue-soft)"),
+        stroke: bad?"var(--crimson)":"var(--blue)","stroke-width":inv?1.5:1,
+        "stroke-dasharray": inv?"4 3":null, opacity: inv?.55:1}));
+      if(w>22) add(live, T_((a+b)/2, RY+24, String(i+1), {anchor:"middle",size:10,w:600,
+        fill: bad?"var(--crimson)":"var(--blue)"}));
+    }
+    add(live, T_(X0-6, RY+24, "app", {anchor:"end",size:8.5,mono:true,fill:"var(--blue)",w:600}));
+
+    /* boundary ticks */
+    for(var j=1;j<9;j++){
+      add(live, el("line",{x1:sx(bnd[j]),y1:RY-6,x2:sx(bnd[j]),y2:RY+RH+6,
+        stroke:"var(--blue)","stroke-width":1.2,opacity:.75}));
+    }
+
+    /* period wall */
+    add(live, el("line",{x1:sx(286),y1:40,x2:sx(286),y2:RY+RH+18,stroke:"var(--ink)","stroke-width":2.5}));
+    add(live, T_(sx(286)+6, 36, "T = 286 \u00B5s", {size:9.5,mono:true,w:600,fill:"var(--ink)"}));
+    /* overshoot region */
+    add(live, el("rect",{x:sx(286),y:40,width:sx(HI)-sx(286),height:RY+RH+18-40,
+      fill:"var(--crimson)",opacity:.05}));
+
+    /* ---- row 2 : duration bar chart ---- */
+    add(live, T_(X0, 172, "DURATION OF EACH INTERVAL, \u00B5s", {size:9,w:600,ls:1.4,fill:"var(--ink-3)"}));
+
+    /* zero + floor lines */
+    add(live, el("line",{x1:X0,y1:by(0),x2:X1,y2:by(0),stroke:"var(--rule-strong)","stroke-width":1}));
+    add(live, el("line",{x1:X0,y1:by(DMIN),x2:X1,y2:by(DMIN),stroke:"var(--teal)",
+      "stroke-width":1.5,"stroke-dasharray":"5 4"}));
+    add(live, T_(X1+2, by(DMIN)+3, "3 \u00B5s floor", {size:9,mono:true,fill:"var(--teal)",w:600}));
+    add(live, T_(X1+2, by(0)+3, "0", {size:9,mono:true,fill:"var(--ink-3)"}));
+
+    var bw=(X1-X0)/9, gap=13;
+    for(var i=0;i<9;i++){
+      var cxx=X0+bw*i+gap/2, w=bw-gap;
+      var v=Math.max(Math.min(dur[i],DMAX),DLOW);
+      var bad=dur[i]<DMIN-1e-9;
+      var top=Math.min(by(v),by(0)), h=Math.abs(by(v)-by(0));
+      add(live, el("rect",{x:cxx,y:top,width:w,height:Math.max(h,1.5),rx:1.5,
+        fill: bad?"var(--crimson)":"var(--blue)", opacity: bad?.9:.82}));
+      add(live, T_(cxx+w/2, by(0)+ (dur[i]<0? -6 : 14), String(i+1),
+        {anchor:"middle",size:9,fill:"var(--ink-3)",w:600}));
+      add(live, T_(cxx+w/2, (dur[i]<0? by(v)+13 : top-5), fx(dur[i],1),
+        {anchor:"middle",size:9.5,mono:true,w:600,fill: bad?"var(--crimson)":"var(--ink-2)"}));
+    }
+
+    /* ---- readouts ---- */
+    rB.textContent = beta.toFixed(3);
+    rM.textContent = fx(minD,3)+" \u00B5s";
+    rM.className = "v num " + (minD < DMIN-1e-9 ? "bad" : "ok");
+    rS.textContent = fx(total,2)+" \u00B5s";
+
+    var nBad=dur.filter(function(d){return d<DMIN-1e-9;}).length;
+    var nInv=dur.filter(function(d){return d<0;}).length;
+    if(nBad===0){
+      verdict.className="verdict ok";
+      verdict.textContent = beta>=BETA_STAR-1e-6 && beta<=BETA_STAR+1e-6
+        ? "\u03B2* = 0.293978 \u2014 maximal. Interval 9 sits exactly on the 3 \u00B5s floor; turning the fader any further breaks it."
+        : "Legal. All nine intervals clear the 3 \u00B5s floor" + (beta<BETA_STAR-1e-3 ? " \u2014 but there is unused authority here: \u03B2 could go as high as 0.294." : ".");
+    } else {
+      verdict.className="verdict bad";
+      verdict.textContent = nBad+" interval"+(nBad>1?"s":"")+" below the 3 \u00B5s floor"
+        + (nInv? " \u00B7 "+nInv+" running backwards (boundaries out of order)":"")
+        + ". This schedule cannot be executed.";
+    }
+  }
+
+  slider.addEventListener("input",function(){ draw(parseFloat(slider.value)); });
+  Array.prototype.forEach.call(document.querySelectorAll(".presets button"),function(btn){
+    btn.addEventListener("click",function(){
+      slider.value=btn.getAttribute("data-b");
+      draw(parseFloat(slider.value));
+    });
+  });
+  draw(parseFloat(slider.value));
+})();
+
+/* ================= the ratio-test table ================= */
+(function(){
+  var tb=document.getElementById("ratio-rows"); if(!tb) return;
+  RT.rows.forEach(function(r){
+    var tr=document.createElement("tr");
+    var shrink = r.q<0;
+    tr.className = shrink ? (Math.abs(r.ratio-BETA_STAR)<1e-9 ? "binding" : "") : "grow";
+    function td(html,cls){
+      var d=document.createElement("td");
+      d.innerHTML=html; if(cls) d.className=cls; return d;
+    }
+    tr.appendChild(td(String(r.i)));
+    tr.appendChild(td(fx(r.nom,3)));
+    tr.appendChild(td(shrink
+      ? '<span class="chip shrink">shrinks</span>'
+      : '<span class="chip grows">grows</span>'));
+    tr.appendChild(td(r.raw<0
+      ? '<span style="color:var(--crimson)">'+fx(r.raw,3)+'</span>'
+      : fx(r.raw,3)));
+    tr.appendChild(td(fx(r.m,3)));
+    tr.appendChild(td(shrink ? fx(-r.q,3) : "\u2014"));
+    tr.appendChild(td(shrink ? fx(r.ratio,4) : '<span style="color:var(--ink-3)">no limit</span>'));
+    tb.appendChild(tr);
+  });
+})();
+
+/* ================= FIG 6 \u00B7 the segment + the certificate ================= */
+(function(){
+  var g=document.getElementById("segment"); if(!g) return;
+
+  /* --- left: why convexity does the work (schematic) --- */
+  var cx=210, cy=160, R=112;
+  add(g, T_(40, 26, "WHY CONVEXITY DOES THE WORK", {size:9.5,w:600,ls:1.4,fill:"var(--ink-3)"}));
+  add(g, el("circle",{cx:cx,cy:cy,r:R,fill:"var(--teal-soft)",stroke:"var(--teal)",
+    "stroke-width":1.4}));
+  add(g, T_(cx, cy-R-10, "every matrix in here contracts", {anchor:"middle",size:10,fill:"var(--teal)",w:600}));
+
+  var P1=[cx-72,cy+48], P2=[cx+58,cy-42];
+  add(g, el("line",{x1:P1[0],y1:P1[1],x2:P2[0],y2:P2[1],stroke:"var(--blue)","stroke-width":2.5}));
+
+  [0,.25,.5,.75,1].forEach(function(t){
+    var x=P1[0]+(P2[0]-P1[0])*t, y=P1[1]+(P2[1]-P1[1])*t;
+    var end=(t===0||t===1);
+    add(g, el("circle",{cx:x,cy:y,r:end?6:3.4,
+      fill:end?"var(--blue)":"var(--surface)",stroke:"var(--blue)","stroke-width":end?0:1.8}));
+  });
+  add(g, T_(P1[0]-8, P1[1]+20, "\u03A6", {anchor:"middle",size:14,mono:true,w:600,fill:"var(--blue)"}));
+  add(g, T_(P1[0]-8, P1[1]+34, "\u03B2 = 0", {anchor:"middle",size:9,mono:true,fill:"var(--ink-3)"}));
+  add(g, T_(P2[0]+10, P2[1]-14, "A", {anchor:"middle",size:14,mono:true,w:600,fill:"var(--blue)"}));
+  add(g, T_(P2[0]+21, P2[1]-10, "cl", {anchor:"middle",size:9,mono:true,w:600,fill:"var(--blue)"}));
+  add(g, T_(P2[0]+14, P2[1]-28, "\u03B2 = 1", {anchor:"middle",size:9,mono:true,fill:"var(--ink-3)"}));
+  add(g, T_(cx-6, cy+8, "every \u03B2 lands here", {anchor:"middle",size:9.5,mono:true,fill:"var(--blue)"}));
+
+  add(g, T_(40, 300, "Pin the two ends inside the set. Because the set is convex,", {size:10.5,fill:"var(--ink-3)"}));
+  add(g, T_(40, 315, "the whole line between them is inside too \u2014 for free.", {size:10.5,fill:"var(--ink-3)"}));
+
+  add(g, el("line",{x1:452,y1:14,x2:452,y2:300,stroke:"var(--rule)","stroke-width":1}));
+
+  /* --- right: the real numbers on a norm axis --- */
+  var AX0=510, AX1=850, AY=170;
+  var nlo=.965, nhi=1.008;
+  var nx=function(v){ return AX0+((v-nlo)/(nhi-nlo))*(AX1-AX0); };
+
+  add(g, T_(492, 26, "THE ACTUAL NUMBERS", {size:9.5,w:600,ls:1.4,fill:"var(--ink-3)"}));
+  add(g, T_(492, 46, "contraction measured in \u2016\u00B7\u2016", {size:10.5,fill:"var(--ink-3)"}));
+  add(g, T_(492+152, 49, "P", {size:8.5,mono:true,fill:"var(--ink-3)"}));
+
+  /* the "unstable" zone beyond 1 */
+  add(g, el("rect",{x:nx(1),y:AY-46,width:AX1-nx(1),height:92,fill:"var(--crimson)",opacity:.08}));
+  add(g, el("line",{x1:nx(1),y1:AY-46,x2:nx(1),y2:AY+46,stroke:"var(--crimson)","stroke-width":2}));
+  add(g, T_(nx(1)+6, AY-52, "1.0", {size:10,mono:true,w:600,fill:"var(--crimson)"}));
+  add(g, T_(nx(1)+6, AY+60, "\u2265 1 : no decay", {size:9.5,fill:"var(--crimson)"}));
+
+  /* axis */
+  add(g, el("line",{x1:AX0,y1:AY,x2:AX1,y2:AY,stroke:"var(--rule-strong)","stroke-width":1.2}));
+  [.97,.98,.99,1.0].forEach(function(t){
+    add(g, el("line",{x1:nx(t),y1:AY-4,x2:nx(t),y2:AY+4,stroke:"var(--rule-strong)","stroke-width":1}));
+    add(g, T_(nx(t), AY+18, t.toFixed(2), {anchor:"middle",size:9,mono:true,fill:"var(--ink-3)"}));
+  });
+
+  /* the certified band */
+  var A=0.979743, B=0.999939;
+  add(g, el("rect",{x:nx(A),y:AY-24,width:nx(B)-nx(A),height:48,fill:"var(--blue)",opacity:.14,rx:2}));
+
+  add(g, el("circle",{cx:nx(B),cy:AY,r:6,fill:"var(--blue)"}));
+  add(g, T_(nx(B), AY-34, "\u2016\u03A6\u2016 = 0.999939", {anchor:"end",size:10,mono:true,w:600,fill:"var(--blue)"}));
+  add(g, T_(nx(B), AY-46, "open loop \u00B7 \u03B2 = 0", {anchor:"end",size:9,fill:"var(--ink-3)"}));
+
+  add(g, el("circle",{cx:nx(A),cy:AY,r:6,fill:"var(--blue)"}));
+  add(g, T_(nx(A), AY+38, "\u2016A  \u2016 = 0.979743", {anchor:"middle",size:10,mono:true,w:600,fill:"var(--blue)"}));
+  add(g, T_(nx(A)+2, AY+50, "full correction \u00B7 \u03B2 = 1", {anchor:"middle",size:9,fill:"var(--ink-3)"}));
+
+  add(g, T_((nx(A)+nx(B))/2, AY-8, "every \u03B2", {anchor:"middle",size:9.5,mono:true,fill:"var(--blue)",w:600}));
+  add(g, T_((nx(A)+nx(B))/2, AY+4, "lives in here", {anchor:"middle",size:9.5,mono:true,fill:"var(--blue)",w:600}));
+
+  add(g, T_(492, 300, "Both ends sit below 1, so the whole band does. The certified", {size:10.5,fill:"var(--ink-3)"}));
+  add(g, T_(492, 315, "bound is 0.999939 \u2014 set by the open loop, not the controller.", {size:10.5,fill:"var(--ink-3)"}));
+})();
+
+/* ================= FIG 7 \u00B7 convergence ================= */
+(function(){
+  var g=document.getElementById("conv"); if(!g) return;
+
+  var COND=[0.9839,0.6235,0.3561,0.139,0.03427,0.01121,0.005319,0.00289,0.001621,
+            0.0009171,0.0005202,0.0002953,0.0001677,9.529e-5,5.414e-5,3.076e-5,
+            1.747e-5,9.928e-6,5.641e-6,3.205e-6,1.821e-6,1.034e-6,5.877e-7,3.339e-7,1.897e-7,1.078e-7];
+  var CONS=[0.9839,0.7298,0.5457,0.4118,0.3136,0.241,0.1868,0.1459,0.1148,0.091,0.0725,
+            0.058,0.0466,0.0376,0.0304,0.0246,0.02,0.0162,0.0132,0.0107,0.0087,0.0071,
+            0.0058,0.0047,0.0039,0.0032];
+  var OPEN=[0.9839,0.7627,0.6033,0.4913,0.4153,0.3657,0.3348,0.3162,0.3054,0.2993,0.296,
+            0.2941,0.2932,0.2927,0.2926,0.2925,0.2926,0.2926,0.2927,0.2928,0.2929,0.293,
+            0.2931,0.2932,0.2933,0.2934];
+  var BET =[0.293978,0.447286,0.778543];
+
+  var X0=62,X1=852,Y0=44,Y1=250;
+  var N=25, LOG_LO=-6, LOG_HI=0.1;
+  var px=function(k){ return X0+(k/N)*(X1-X0); };
+  var py=function(v){
+    var l=Math.log(Math.max(v,1e-7))/Math.LN10;
+    return Y0+(1-(l-LOG_LO)/(LOG_HI-LOG_LO))*(Y1-Y0);
+  };
+
+  /* gridlines */
+  for(var e=0;e>=-6;e--){
+    var yy=py(Math.pow(10,e));
+    add(g, el("line",{x1:X0,y1:yy,x2:X1,y2:yy,stroke:"var(--rule)","stroke-width":1,
+      "stroke-dasharray": e===0?null:"2 4"}));
+    add(g, T_(X0-8, yy+3.5, e===0?"1":("10"), {anchor:"end",size:9,mono:true,fill:"var(--ink-3)"}));
+    if(e!==0) add(g, T_(X0-8, yy-2, String(e), {anchor:"start",size:7,mono:true,fill:"var(--ink-3)"}));
+  }
+
+  /* threshold */
+  add(g, el("line",{x1:X0,y1:py(0.01),x2:X1,y2:py(0.01),stroke:"var(--amber)",
+    "stroke-width":1.5,"stroke-dasharray":"6 4"}));
+  add(g, T_(X1-2, py(0.01)-6, "settling threshold \u00B7 0.01", {anchor:"end",size:9.5,mono:true,fill:"var(--amber)",w:600}));
+
+  function line(data,color,w,dash){
+    var d=data.slice(0,N+1).map(function(v,k){ return (k?"L":"M")+px(k)+" "+py(v); }).join(" ");
+    add(g, el("path",{d:d,fill:"none",stroke:color,"stroke-width":w,
+      "stroke-dasharray":dash||null,"stroke-linejoin":"round","stroke-linecap":"round"}));
+  }
+  line(OPEN,"var(--graphite)",1.8,"5 4");
+  line(CONS,"var(--crimson)",2);
+  line(COND,"var(--blue)",2.6);
+
+  /* settling markers */
+  function marker(k,v,color,label){
+    add(g, el("circle",{cx:px(k),cy:py(v),r:5,fill:color,stroke:"var(--surface)","stroke-width":2}));
+    add(g, el("line",{x1:px(k),y1:py(v),x2:px(k),y2:Y1+6,stroke:color,"stroke-width":1,
+      "stroke-dasharray":"2 3",opacity:.6}));
+    add(g, T_(px(k), Y1+20, label, {anchor:"middle",size:9.5,mono:true,fill:color,w:600}));
+  }
+  marker(6,COND[6],"var(--blue)","cycle 6");
+  marker(20,CONS[20],"var(--crimson)","cycle 20");
+
+  /* labels on lines */
+  add(g, T_(px(9.6), py(COND[9])-9, "conditioned aggressive", {size:10.5,w:600,fill:"var(--blue)"}));
+  add(g, T_(px(21), py(CONS[21])-10, "conservative", {anchor:"end",size:10.5,w:600,fill:"var(--crimson)"}));
+  add(g, T_(px(21), py(OPEN[21])-10, "open loop", {anchor:"end",size:10.5,w:600,fill:"var(--graphite)"}));
+
+  add(g, T_(X0-46, Y0-14, "normalised cycle-start error", {size:9.5,w:600,ls:.6,fill:"var(--ink-3)"}));
+
+  /* ---- beta trace ---- */
+  var BY0=306, BY1=364;
+  var byv=function(v){ return BY1-(v)*(BY1-BY0); };
+  add(g, el("line",{x1:X0,y1:BY1,x2:X1,y2:BY1,stroke:"var(--rule-strong)","stroke-width":1}));
+  add(g, el("line",{x1:X0,y1:byv(1),x2:X1,y2:byv(1),stroke:"var(--rule)","stroke-width":1,"stroke-dasharray":"2 4"}));
+  add(g, T_(X0-8, byv(1)+3.5, "1", {anchor:"end",size:9,mono:true,fill:"var(--ink-3)"}));
+  add(g, T_(X0-8, BY1+3.5, "0", {anchor:"end",size:9,mono:true,fill:"var(--ink-3)"}));
+  add(g, T_(X0-46, BY0-14, "conditioning factor \u03B2", {size:9.5,w:600,ls:.6,fill:"var(--ink-3)"}));
+
+  var bw=(X1-X0)/N*0.62;
+  for(var k=0;k<=N;k++){
+    var v = k<3 ? BET[k] : 1;
+    var active = k<3;
+    add(g, el("rect",{x:px(k)-bw/2,y:byv(v),width:bw,height:BY1-byv(v),rx:1,
+      fill: active?"var(--crimson)":"var(--blue)", opacity: active?.92:.32}));
+    if(active) add(g, T_(px(k), byv(v)-6, v.toFixed(2), {anchor:"middle",size:9,mono:true,
+      fill:"var(--crimson)",w:600}));
+  }
+  add(g, el("rect",{x:px(0)-bw/2-3,y:BY0-4,width:px(2)-px(0)+bw+6,height:BY1-BY0+8,
+    fill:"none",stroke:"var(--crimson)","stroke-width":1.2,"stroke-dasharray":"3 3",rx:3}));
+  add(g, T_(px(3.4), BY0+10, "conditioner active \u2014 3 cycles", {size:10,w:600,fill:"var(--crimson)"}));
+  add(g, T_(px(3.4), BY0+24, "then dormant for the remaining 97", {size:9.5,fill:"var(--ink-3)"}));
+
+  /* x axis */
+  for(var k=0;k<=N;k+=5){
+    add(g, T_(px(k), BY1+18, String(k), {anchor:"middle",size:9,mono:true,fill:"var(--ink-3)"}));
+  }
+  add(g, T_(X1, BY1+34, "switching cycle", {anchor:"end",size:9.5,w:600,fill:"var(--ink-3)"}));
+})();
+
+})();
+</script>
+</body>
+</html>

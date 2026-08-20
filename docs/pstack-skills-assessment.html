@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>pstack skills assessment for the doctorate repository</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #111821;
+      --panel-2: #16212d;
+      --text: #e8edf2;
+      --muted: #9eabb8;
+      --line: #283746;
+      --accent: #72d6b2;
+      --accent-2: #7eb8ff;
+      --warn: #f2c66d;
+      --danger: #ef8b8b;
+      --violet: #c3a6ff;
+      --shadow: 0 18px 55px rgba(0, 0, 0, .28);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 15% -10%, rgba(114, 214, 178, .14), transparent 30rem),
+        radial-gradient(circle at 90% 10%, rgba(126, 184, 255, .12), transparent 28rem),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.58;
+    }
+    a { color: var(--accent-2); text-underline-offset: 3px; }
+    a:hover { color: #b8d7ff; }
+    code { font-family: var(--mono); font-size: .92em; }
+    .shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+    header { padding: 74px 0 44px; }
+    .eyebrow {
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: .78rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3 { line-height: 1.12; letter-spacing: -.025em; }
+    h1 { max-width: 880px; margin: 12px 0 20px; font-size: clamp(2.2rem, 6vw, 4.8rem); }
+    h2 { margin: 0 0 14px; font-size: clamp(1.65rem, 3vw, 2.55rem); }
+    h3 { margin: 0 0 8px; font-size: 1.08rem; }
+    .lede { max-width: 820px; color: #c3cdd7; font-size: clamp(1.03rem, 2vw, 1.28rem); }
+    .meta, .chips, .filters { display: flex; flex-wrap: wrap; gap: 9px; }
+    .meta { margin-top: 24px; color: var(--muted); font-size: .88rem; }
+    .chip, .status {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: rgba(255,255,255,.025);
+      font-family: var(--mono);
+      font-size: .75rem;
+      white-space: nowrap;
+    }
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-block: 1px solid rgba(40,55,70,.85);
+      background: rgba(11,15,20,.88);
+      backdrop-filter: blur(14px);
+    }
+    nav .shell { display: flex; gap: 8px; overflow-x: auto; padding-block: 10px; }
+    nav a { color: var(--muted); text-decoration: none; white-space: nowrap; padding: 7px 10px; border-radius: 8px; font-size: .86rem; }
+    nav a:hover { color: var(--text); background: var(--panel-2); }
+    main { padding: 34px 0 90px; }
+    section { scroll-margin-top: 70px; margin-top: 66px; }
+    .section-intro { max-width: 780px; color: var(--muted); margin: 0 0 24px; }
+    .verdict {
+      display: grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 18px;
+      padding: clamp(22px, 4vw, 38px);
+      border: 1px solid #315141;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(114,214,178,.12), rgba(17,24,33,.86) 55%);
+      box-shadow: var(--shadow);
+    }
+    .verdict blockquote { margin: 0; font-size: clamp(1.55rem, 3vw, 2.45rem); line-height: 1.2; letter-spacing: -.025em; }
+    .verdict p { margin: 14px 0 0; color: #c9d3dc; }
+    .metric-stack { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .metric { min-height: 112px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: rgba(7,12,17,.55); }
+    .metric strong { display: block; font-size: 1.9rem; color: var(--accent); }
+    .metric span { color: var(--muted); font-size: .83rem; }
+    .grid { display: grid; gap: 16px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card { padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(17,24,33,.84); }
+    .card p { margin: 8px 0 0; color: var(--muted); }
+    .signal { display: grid; grid-template-columns: 155px 1fr 38px; align-items: center; gap: 12px; margin: 12px 0; }
+    .signal label { font-size: .88rem; color: #cdd6de; }
+    .track { height: 8px; overflow: hidden; border-radius: 99px; background: #25313d; }
+    .track i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent-2), var(--accent)); }
+    .signal b { color: var(--muted); font-family: var(--mono); font-size: .78rem; }
+    .callout { padding: 18px 20px; border-left: 3px solid var(--warn); border-radius: 0 12px 12px 0; background: rgba(242,198,109,.08); color: #e4d7b8; }
+    .callout strong { color: var(--warn); }
+    .plan { counter-reset: wave; }
+    .wave { position: relative; padding: 22px 22px 22px 68px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+    .wave::before { counter-increment: wave; content: counter(wave); position: absolute; left: 20px; top: 20px; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #07110d; font-weight: 800; }
+    .wave + .wave { margin-top: 12px; }
+    .wave p { margin: 7px 0 0; color: var(--muted); }
+    .wave code { color: #d8e8ff; }
+    .skill-browser { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .skill-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 320px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(155deg, rgba(22,33,45,.96), rgba(13,19,26,.96));
+      box-shadow: 0 10px 28px rgba(0,0,0,.16);
+      transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+    .skill-card::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--line); }
+    .skill-card.adopt::before { background: var(--accent); }
+    .skill-card.merge::before { background: var(--violet); }
+    .skill-card.later::before { background: var(--warn); }
+    .skill-card.skip::before { background: var(--danger); }
+    .skill-card:hover { transform: translateY(-2px); border-color: #3a5064; box-shadow: 0 16px 36px rgba(0,0,0,.24); }
+    .skill-head { padding: 19px 20px 15px 23px; border-bottom: 1px solid var(--line); }
+    .skill-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+    .skill-title { margin: 0; font-size: 1rem; }
+    .skill-name { color: var(--text); font: 750 1.02rem/1.3 var(--mono); overflow-wrap: anywhere; }
+    .skill-name:hover { color: var(--accent-2); }
+    .skill-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 11px; }
+    .kind { color: var(--muted); font: .73rem var(--mono); }
+    .fit-score { display: inline-flex; align-items: center; gap: 7px; color: #c7d1da; font: .73rem var(--mono); }
+    .score-bars { display: inline-grid; grid-template-columns: repeat(5, 12px); gap: 3px; }
+    .score-bars i { width: 12px; height: 5px; border-radius: 99px; background: #334250; }
+    .score-bars i.on { background: var(--accent); }
+    .skill-description-label { margin-top: 14px; margin-bottom: 5px; }
+    .skill-description { margin: 0; color: #dce4eb; font-size: .94rem; line-height: 1.48; }
+    .skill-body { display: grid; grid-template-columns: 1fr 1fr; flex: 1; }
+    .skill-section { padding: 16px 20px 18px 23px; }
+    .skill-section + .skill-section { border-left: 1px solid var(--line); }
+    .skill-label { display: block; margin-bottom: 7px; color: var(--muted); font: 700 .68rem var(--mono); letter-spacing: .07em; text-transform: uppercase; }
+    .skill-section p { margin: 0; color: #bdc9d3; font-size: .86rem; line-height: 1.5; }
+    .related-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 9px; }
+    .related-skill { display: inline-flex; border: 1px solid rgba(126,184,255,.32); border-radius: 7px; padding: 3px 7px; background: rgba(126,184,255,.08); color: #b9d7ff; font: .7rem var(--mono); }
+    .related-skill.none { border-color: var(--line); background: rgba(255,255,255,.025); color: var(--muted); }
+    .empty-results { grid-column: 1 / -1; padding: 34px; border: 1px dashed var(--line); border-radius: var(--radius); color: var(--muted); text-align: center; }
+    .status.adopt { color: var(--accent); border-color: rgba(114,214,178,.42); background: rgba(114,214,178,.08); }
+    .status.merge { color: var(--violet); border-color: rgba(195,166,255,.4); background: rgba(195,166,255,.08); }
+    .status.later { color: var(--warn); border-color: rgba(242,198,109,.4); background: rgba(242,198,109,.08); }
+    .status.skip { color: var(--danger); border-color: rgba(239,139,139,.38); background: rgba(239,139,139,.07); }
+    .current-skill { min-height: 198px; }
+    .current-skill .match { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); color: #d4dde5; }
+    .toolbar { display: grid; grid-template-columns: minmax(250px, 1fr) auto; gap: 14px; align-items: end; margin: 20px 0 14px; }
+    .search-label { display: grid; gap: 6px; }
+    input[type="search"], select { min-height: 44px; border: 1px solid var(--line); border-radius: 11px; padding: 0 14px; background: var(--panel); color: var(--text); font: inherit; }
+    input[type="search"] { width: 100%; }
+    input[type="search"]:focus, select:focus { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+    .catalog-controls { display: flex; flex-wrap: wrap; align-items: end; justify-content: flex-end; gap: 9px; }
+    .sort-label { display: grid; gap: 6px; color: var(--muted); font-size: .84rem; }
+    .sort-label select { min-width: 150px; }
+    button { flex: 0 0 auto; min-height: 38px; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; background: var(--panel); color: var(--muted); cursor: pointer; font: 700 .78rem var(--mono); white-space: nowrap; }
+    button:hover, button[aria-pressed="true"] { color: #07110d; border-color: var(--accent); background: var(--accent); }
+    .result-count { margin: 0 0 8px; color: var(--muted); font: .78rem var(--mono); }
+    .source-list li { margin: 8px 0; color: var(--muted); }
+    .fine { color: var(--muted); font-size: .84rem; }
+    .print-only { display: none; }
+    @media (max-width: 860px) {
+      .verdict, .grid.two, .grid.three, .skill-browser { grid-template-columns: 1fr; }
+      .toolbar { grid-template-columns: 1fr; align-items: stretch; }
+      .catalog-controls { justify-content: flex-start; }
+      .signal { grid-template-columns: 130px 1fr 34px; }
+    }
+    @media (max-width: 560px) {
+      .shell { width: min(100% - 20px, 1180px); }
+      header { padding-top: 48px; }
+      .metric-stack { grid-template-columns: 1fr 1fr; }
+      .signal { grid-template-columns: 1fr 34px; }
+      .signal label { grid-column: 1 / -1; }
+      .wave { padding-left: 58px; }
+      .skill-body { grid-template-columns: 1fr; }
+      .skill-section + .skill-section { border-left: 0; border-top: 1px solid var(--line); }
+      .skill-title-row { flex-direction: column; gap: 9px; }
+    }
+    @media print {
+      :root { --bg: white; --panel: white; --panel-2: #f5f6f7; --text: #111; --muted: #444; --line: #bbb; }
+      body { background: white; }
+      nav, .toolbar { display: none; }
+      .shell { width: 100%; }
+      .verdict, .card, .skill-card, .wave { box-shadow: none; background: white; break-inside: avoid; }
+      .skill-browser { grid-template-columns: 1fr; }
+      a { color: #111; }
+      .print-only { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <header class="shell">
+    <div class="eyebrow">Research note · skill portfolio review</div>
+    <h1>Which pstack skills belong in this doctorate workflow?</h1>
+    <p class="lede">A repo-grounded comparison of all 44 pstack skills against the current Pi skills, MATLAB simulations, LaTeX writing, ESP32 firmware, and the way this repository records decisions.</p>
+    <div class="meta">
+      <span>pstack 0.14.1</span>
+      <span>source revision <code>60c641e</code></span>
+      <span>44 skills reviewed</span>
+      <span>10 current <code>SKILL.md</code> files found</span>
+      <span>standalone HTML</span>
+    </div>
+  </header>
+
+  <nav aria-label="Document sections">
+    <div class="shell">
+      <a href="#verdict">Verdict</a>
+      <a href="#fit">Your working style</a>
+      <a href="#plan">Recommended plan</a>
+      <a href="#current">Current skills</a>
+      <a href="#catalog">All 44 skills</a>
+      <a href="#method">Method and sources</a>
+    </div>
+  </nav>
+
+  <main class="shell">
+    <section id="verdict" class="verdict">
+      <div>
+        <div class="eyebrow">Bottom line</div>
+        <blockquote>Use pstack as a quarry, not as your operating system.</blockquote>
+        <p>The strongest material fits you very well: direct verification, domain-shaped design, code archaeology, plain technical writing, and explicit decision records. The full <code>poteto-mode</code> does not. It assumes Cursor subagents, model panels, Graphite PR stacks, corporate MCPs, and a software-product cadence. Your repo is a mixed research system with MATLAB, LaTeX, hardware timing, generated data, and lab evidence.</p>
+      </div>
+      <div class="metric-stack" aria-label="Summary counts">
+        <div class="metric"><strong>22</strong><span>adopt after Pi and repo adaptation</span></div>
+        <div class="metric"><strong>7</strong><span>merge into skills you already have</span></div>
+        <div class="metric"><strong>11</strong><span>keep for later or narrow use</span></div>
+        <div class="metric"><strong>4</strong><span>skip in this environment</span></div>
+      </div>
+    </section>
+
+    <section id="fit">
+      <h2>Your working style, inferred from the repo</h2>
+      <p class="section-intro">This is not a personality guess. Each signal comes from files or workflows already present in the repository and your installed skills.</p>
+      <div class="grid two">
+        <div class="card">
+          <h3>Observed signals</h3>
+          <div class="signal"><label>Domain precision</label><div class="track"><i style="width:96%"></i></div><b>high</b></div>
+          <div class="signal"><label>Proof before claims</label><div class="track"><i style="width:92%"></i></div><b>high</b></div>
+          <div class="signal"><label>Persistent documentation</label><div class="track"><i style="width:90%"></i></div><b>high</b></div>
+          <div class="signal"><label>Design interrogation</label><div class="track"><i style="width:88%"></i></div><b>high</b></div>
+          <div class="signal"><label>Autonomous fan-out</label><div class="track"><i style="width:42%"></i></div><b>mixed</b></div>
+          <div class="signal"><label>PR-centric delivery</label><div class="track"><i style="width:30%"></i></div><b>low</b></div>
+        </div>
+        <div class="card">
+          <h3>Evidence in this checkout</h3>
+          <ul>
+            <li><code>CONTEXT.md</code>, <code>CONTEXT-MAP.md</code>, and four mapped contexts make terminology a maintained artifact.</li>
+            <li>The ESP32 requirements separate commanded duration, observed duration, timing error, jitter, and lab characterization.</li>
+            <li>The MATLAB area exposes <code>t('test')</code>, 16 runner checks and tests, reproducible simulations, and generated firmware lookup data.</li>
+            <li>The repository contains LaTeX manuscripts, 381 tracked MATLAB files, 77 C++ files, and 40 TeX files. TypeScript is present but secondary at 22 files.</li>
+            <li>Your current skills favor one-question-at-a-time grilling, throwaway prototypes, persistent TODO files, handoffs, and plain prose.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:16px">
+        <strong>The main mismatch.</strong> pstack treats a running application and its PR as the normal unit of work. Here, the unit may be a theorem change, a simulation result, a generated dataset, an oscilloscope trace, firmware timing, or a manuscript claim. Any adopted verification skill must name the evidence for each kind of artifact.
+      </div>
+    </section>
+
+    <section id="plan">
+      <h2>Recommended adoption plan</h2>
+      <p class="section-intro">Do not copy 22 skill folders into your setup. Package the useful rules around the activities you perform. This keeps triggers clear and avoids a pile of overlapping instructions.</p>
+      <div class="plan">
+        <article class="wave">
+          <h3>Build one research verification skill first</h3>
+          <p>Combine <code>prove-it-works</code>, <code>sequence-verifiable-units</code>, <code>blast-radius</code>, <code>tdd</code>, and <code>make-operations-idempotent</code>. Give it four evidence modes: MATLAB tests and plots, LaTeX build and claim checks, ESP32 build plus lab trace, and generated-data equivalence. This is the highest return because the repo already links all four.</p>
+        </article>
+        <article class="wave">
+          <h3>Add an explanation and archaeology skill</h3>
+          <p>Adapt <code>how</code>, <code>why</code>, and <code>teach</code>. Replace corporate Slack, Sentry, and analytics searches with git history, ADRs, working notes, reviewer feedback, literature, manuscript citations, and experiment logs. Keep the distinction between mechanics and motivation.</p>
+        </article>
+        <article class="wave">
+          <h3>Strengthen the existing design skills</h3>
+          <p>Keep <code>domain-modeling</code> and <code>grill-me</code>. Fold in <code>foundational-thinking</code>, <code>boundary-discipline</code>, <code>type-system-discipline</code>, <code>separate-before-serializing-shared-state</code>, and the caller-first sketch from <code>architect</code>. Do not import its mandatory four-model arena.</p>
+        </article>
+        <article class="wave">
+          <h3>Create a research writing companion</h3>
+          <p>Keep your exact <code>unslop</code> copy. Add the useful parts of <code>technical-writing</code>, then supply what pstack lacks: claim-to-source traceability, notation consistency, cautious causal language, figure and table references, and separation of derivation, result, and interpretation.</p>
+        </article>
+        <article class="wave">
+          <h3>Split live verification by bounded context</h3>
+          <p>Use <code>create-verification-skill</code> as a pattern, not a single generated skill. Create separate controls for <code>simulations/matlab-sim</code>, <code>embedded/esp32_idf</code>, and the thesis build. Their launch commands, equipment, evidence, and cleanup rules are too different to share one driver.</p>
+        </article>
+        <article class="wave">
+          <h3>Try decision logs only on long experiments</h3>
+          <p>Adopt <code>show-me-your-work</code> for multi-day tuning, hardware timing characterization, migrations, and paper revisions with many rejected alternatives. Keep normal fixes in the existing TODO history. Logging every small change would create paperwork, not confidence.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="current">
+      <h2>Comparison with your current skills</h2>
+      <p class="section-intro">Ten skill files were found on disk. Five are registered in this Pi session. The others still matter as evidence of your preferred workflow.</p>
+      <div class="grid three">
+        <article class="card current-skill">
+          <h3><code>domain-modeling</code></h3>
+          <p>Maintains glossaries, context maps, and selective ADRs while challenging fuzzy terms.</p>
+          <div class="match">Keep it. It is better suited to this repository than pstack's <code>principle-model-the-domain</code>. Borrow pstack's data-structure advice for code, not its name.</div>
+        </article>
+        <article class="card current-skill">
+          <h3><code>grill-me</code> and <code>grill-with-docs</code></h3>
+          <p>Resolve design decisions one question at a time with stable identifiers and recorded decisions.</p>
+          <div class="match">Keep them. <code>interrogate</code> reviews an artifact after it exists. It complements grilling instead of replacing it.</div>
+        </article>
+        <article class="card current-skill">
+          <h3><code>prototype</code></h3>
+          <p>Builds a throwaway logic or UI probe, exposes state, and records the answer.</p>
+          <div class="match">Keep it. Merge pstack's rule to compare two or three structurally different options when the design has no precedent.</div>
+        </article>
+        <article class="card current-skill">
+          <h3><code>unslop</code></h3>
+          <p>Removes AI writing tells and requires plain, specific prose.</p>
+          <div class="match">Do not install pstack's copy. The bodies are identical. Your file only adds <code>disable-model-invocation: false</code>.</div>
+        </article>
+        <article class="card current-skill">
+          <h3><code>handoff</code></h3>
+          <p>Writes a compact continuation document and points at existing artifacts instead of duplicating them.</p>
+          <div class="match">Keep it. Borrow <code>recall</code>'s live-state check and short thread statuses. Cursor transcript paths and corporate evidence sources do not transfer directly.</div>
+        </article>
+        <article class="card current-skill">
+          <h3><code>todo</code></h3>
+          <p>Keeps a persistent project TODO and history current during work.</p>
+          <div class="match">Keep it as the task record. pstack's repeated in-memory todolist requirements would duplicate this and add ceremony.</div>
+        </article>
+        <article class="card current-skill">
+          <h3><code>html-doc</code> and <code>html-concept</code></h3>
+          <p>Create standalone visual study documents and focused concept explainers.</p>
+          <div class="match">No pstack skill replaces them. <code>teach</code> can route to these when diagrams are the clearest teaching form.</div>
+        </article>
+        <article class="card current-skill">
+          <h3><code>mcp-scripting</code></h3>
+          <p>Discovers and coordinates MCP tools through the Pi adapter.</p>
+          <div class="match">Keep it. It is the portability layer needed to rewrite pstack's <code>why</code>, <code>recall</code>, and model-dependent workflows for Pi.</div>
+        </article>
+        <article class="card current-skill">
+          <h3>The missing skill</h3>
+          <p>No current skill defines what counts as proof across manuscripts, simulations, generated firmware data, and lab measurements.</p>
+          <div class="match">Fill this gap first. It joins the repo's workstreams without forcing them into one software-app model.</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="catalog">
+      <h2>Browse all 44 pstack skills</h2>
+      <p class="section-intro">Each card answers three questions: what the skill does, why it fits your doctorate work, and whether one of your current skills already covers part of it. "Adopt" means rewrite for Pi and this repository before use.</p>
+      <div class="toolbar">
+        <label class="search-label"><span class="fine">Search skills, activities, or current skills</span><input id="search" type="search" placeholder="Try: verification, ESP32, writing, grill-me" autocomplete="off"></label>
+        <div class="catalog-controls">
+          <label class="sort-label">Sort
+            <select id="sort">
+              <option value="recommendation">Recommendation</option>
+              <option value="fit">Best fit</option>
+              <option value="name">Name</option>
+            </select>
+          </label>
+          <div class="filters" role="group" aria-label="Filter by recommendation">
+            <button type="button" data-filter="all" aria-pressed="true">All</button>
+            <button type="button" data-filter="adopt" aria-pressed="false">Adopt</button>
+            <button type="button" data-filter="merge" aria-pressed="false">Merge</button>
+            <button type="button" data-filter="later" aria-pressed="false">Later</button>
+            <button type="button" data-filter="skip" aria-pressed="false">Skip</button>
+            <button type="button" data-filter="related" aria-pressed="false">Related to mine</button>
+          </div>
+        </div>
+      </div>
+      <p id="result-count" class="result-count" aria-live="polite"></p>
+      <div id="skill-cards" class="skill-browser"></div>
+    </section>
+
+    <section id="method">
+      <h2>Method, limits, and sources</h2>
+      <div class="grid two">
+        <div class="card">
+          <h3>What I inspected</h3>
+          <ul class="source-list">
+            <li>Every top-level <code>pstack/skills/*/SKILL.md</code> file, 44 in total.</li>
+            <li>The pstack README and plugin manifest, version 0.14.1.</li>
+            <li>All ten current skill files found under <code>~/.agents/skills</code> and the Pi MCP adapter skill.</li>
+            <li><code>README.md</code>, <code>CONTEXT.md</code>, <code>CONTEXT-MAP.md</code>, <code>docs/REPO_MAP.md</code>, the MATLAB quick start and TODO, ESP32 goals and context, the task runner, and recent git history.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>How the score works</h3>
+          <p><strong>5</strong> means frequent value across a core activity. <strong>4</strong> means strong value in a major workstream. <strong>3</strong> means useful with a narrower trigger. <strong>2</strong> means occasional value or a large environment mismatch. <strong>1</strong> means it conflicts with the repo or cannot run here.</p>
+          <p>The assessment covers fit and portability. It does not benchmark how each skill changes model behavior.</p>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h3>Primary source links</h3>
+        <ul class="source-list">
+          <li><a href="https://github.com/cursor/plugins/tree/60c641e4fad674784b30abcf9f8915dea39df38d/pstack/skills">pstack skills at the reviewed revision</a></li>
+          <li><a href="https://github.com/cursor/plugins/blob/60c641e4fad674784b30abcf9f8915dea39df38d/pstack/README.md">pstack README</a></li>
+          <li><a href="https://github.com/cursor/plugins/blob/60c641e4fad674784b30abcf9f8915dea39df38d/pstack/.cursor-plugin/plugin.json">pstack plugin manifest</a></li>
+          <li><a href="../README.md">This repository's entry point</a>, <a href="../CONTEXT-MAP.md">context map</a>, and <a href="REPO_MAP.md">repository map</a></li>
+        </ul>
+        <p class="fine">Source snapshot note: the reviewed Git commit reports timestamp 2026-08-18T20:07:46-07:00. The hash is the stable reference.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const revisionBase = 'https://github.com/cursor/plugins/blob/60c641e4fad674784b30abcf9f8915dea39df38d/pstack/skills/';
+    const skills = [
+      {n:'architect', k:'workflow', s:4, v:'adopt', why:'Useful for MATLAB controller APIs and ESP32 ownership boundaries before implementation.', overlap:'Keep caller-first sketches. Replace mandatory model panels with direct exploration and optional grilling.'},
+      {n:'arena', k:'delegation', s:2, v:'later', why:'Competing designs can reduce premature commitment on hard architecture or UI choices.', overlap:'No Task or subagent tool is exposed in this Pi session. Your prototype skill already compares concrete options.'},
+      {n:'automate-me', k:'meta', s:3, v:'later', why:'Its goal matches this assessment: encode your actual habits instead of adopting another person\'s mode.', overlap:'Rewrite transcript discovery for Pi. Use this report as evidence, then confirm preferences instead of inferring all of them.'},
+      {n:'blast-radius', k:'verification', s:5, v:'adopt', why:'A small change can cross thesis notation, MATLAB behavior, generated datasets, BLE protocol, and firmware timing.', overlap:'New capability. Add scientific claims, generated artifacts, and hardware interfaces to its dependency search.'},
+      {n:'bro', k:'writing', s:2, v:'skip', why:'Plain restatement is occasionally useful, but it is too small to justify another trigger.', overlap:'Unslop already requires plain words and concise replies.'},
+      {n:'create-verification-skill', k:'verification', s:4, v:'adopt', why:'The repo needs repeatable controls for simulations, firmware, manuscript builds, and lab checks.', overlap:'Create one skill per bounded context. A single app-style feature map would blur unlike evidence and cleanup rules.'},
+      {n:'figure-it-out', k:'workflow', s:3, v:'later', why:'Useful for a large migration or multi-day experiment whose method must be reviewed later.', overlap:'Too PR-centric and delegation-heavy for daily research. Pair the useful hypothesis loop with the current TODO skill.'},
+      {n:'how', k:'understanding', s:5, v:'adopt', why:'The repo has cross-language flows such as MATLAB lookup generation into ESP32 firmware.', overlap:'New capability. Explore directly in Pi and emit a traced model. Do not require subagents for every broad question.'},
+      {n:'interrogate', k:'review', s:4, v:'adopt', why:'Adversarial review fits controller derivations, concurrency designs, protocol changes, and paper arguments.', overlap:'Complements grill-me. Adapt to one lead review plus optional MCP or model fan-out when available.'},
+      {n:'maintain-verification-skill', k:'verification', s:3, v:'later', why:'Generated controls and feature maps will drift as the MATLAB and ESP32 systems change.', overlap:'Use only after bounded-context verification skills exist. Hardware live passes need lab-aware reachability states.'},
+      {n:'no-comments', k:'review', s:1, v:'skip', why:'Aggressive comment deletion is risky in mathematical code, generated interfaces, hardware constraints, and thesis-linked implementation.', overlap:'Conflicts with the need to preserve non-obvious timing and derivation rationale. Review comment quality instead.'},
+      {n:'poteto-mode', k:'mode', s:2, v:'skip', why:'Its rigor is attractive, but its default unit is a product change shipped through PRs and subagents.', overlap:'Conflicts with Pi tools, persistent TODO practice, one-question grilling, and research evidence. Mine its components instead.'},
+      {n:'principle-boundary-discipline', k:'principle', s:5, v:'adopt', why:'BLE messages, ADC values, generated datasets, config, and manuscript inputs all cross boundaries.', overlap:'Fold into domain-modeling or an engineering mode. Validate raw input once and preserve domain types internally.'},
+      {n:'principle-build-the-lever', k:'principle', s:4, v:'adopt', why:'Generators and validation scripts already connect MATLAB outputs, firmware tables, PDFs, and overview docs.', overlap:'Fits the repo well. Do not force a new script for a one-line research edit.'},
+      {n:'principle-encode-lessons-in-structure', k:'principle', s:4, v:'adopt', why:'Repeated terminology and generated-data mistakes should become checks, schemas, or task commands.', overlap:'Extends domain-modeling. Use CONTEXT files for judgment and scripts or types for enforceable rules.'},
+      {n:'principle-exhaust-the-design-space', k:'principle', s:4, v:'merge', why:'Alternative controller shapes, signal engines, and study-document layouts benefit from side-by-side probes.', overlap:'Merge into prototype. Require distinct options only when no established design settles the choice.'},
+      {n:'principle-experience-first', k:'principle', s:2, v:'later', why:'Useful for the ESP32 web UI and documentation navigation, less central to proofs and control design.', overlap:'Your prototype UI branch covers the practical part. Replace product delight language with researcher and maintainer needs.'},
+      {n:'principle-fix-root-causes', k:'principle', s:5, v:'adopt', why:'Timing, stale state, simulation divergence, and hardware faults punish symptom fixes.', overlap:'Matches your existing test and investigation history. Add oscilloscope and numerical instrumentation as first-class evidence.'},
+      {n:'principle-foundational-thinking', k:'principle', s:4, v:'adopt', why:'Control-vector order, switching schedule shapes, datasets, and task ownership must be settled before logic.', overlap:'Fold into architect and domain-modeling. Keep its data-first rule without forcing software-only type sketches.'},
+      {n:'principle-guard-the-context-window', k:'principle', s:3, v:'later', why:'The repo has large PDFs, generated C++, build trees, and long MATLAB files.', overlap:'Useful as an operational rule, but its main tactic assumes subagents. Prefer targeted reads, summaries, and generated inventories.'},
+      {n:'principle-laziness-protocol', k:'principle', s:4, v:'adopt', why:'The repo already contains legacy, backup, vendor, and generated areas where new layers can worsen navigation.', overlap:'Fits recent cleanup and API simplification. Apply locally so it does not erase useful mathematical structure.'},
+      {n:'principle-make-operations-idempotent', k:'principle', s:5, v:'adopt', why:'Builds, lookup generation, flashing, experiment setup, and cleanup must survive retries and partial runs.', overlap:'New explicit rule. Especially valuable for generated files and hardware session setup.'},
+      {n:'principle-migrate-callers-then-delete-legacy-apis', k:'principle', s:3, v:'later', why:'Useful during coordinated MATLAB API refactors such as the completed MPC setup changes.', overlap:'Apply only to internal APIs. Thesis snapshots, published artifacts, and external experiment scripts may require compatibility.'},
+      {n:'principle-minimize-reader-load', k:'principle', s:4, v:'adopt', why:'MATLAB package depth, global firmware state, and old navigation material increase the cost of tracing behavior.', overlap:'Pairs well with the repository map and recent cleanup. Measure both indirection and mutable state.'},
+      {n:'principle-model-the-domain', k:'principle', s:5, v:'merge', why:'Switching cycles, measurement timing, controller state, and physical modes need explicit structures.', overlap:'Merge the code-modeling advice into your existing domain-modeling skill. Do not replace its glossary and ADR discipline.'},
+      {n:'principle-never-block-on-the-human', k:'principle', s:3, v:'merge', why:'Reversible repo exploration and drafts should proceed without permission pauses.', overlap:'Set boundaries. Grilling is intentional when a real research or design choice belongs to you. Hardware actions and external communication still pause.'},
+      {n:'principle-outcome-oriented-execution', k:'principle', s:3, v:'later', why:'Can help during planned rewrites of simulation or firmware architecture.', overlap:'Use carefully. Intermediate breakage is costly when it invalidates experiment provenance or manuscript reproducibility.'},
+      {n:'principle-prove-it-works', k:'principle', s:5, v:'adopt', why:'This is the clearest match to a repo where claims span code, mathematics, generated data, and measured hardware.', overlap:'Make it the center of a new research verification skill. Define proof per artifact, not one generic runtime check.'},
+      {n:'principle-redesign-from-first-principles', k:'principle', s:4, v:'merge', why:'Useful when new timing or control requirements reveal that an old abstraction is wrong.', overlap:'Merge into architect and grill-me. Preserve traceability when a redesign changes a published derivation or dataset.'},
+      {n:'principle-separate-before-serializing-shared-state', k:'principle', s:5, v:'adopt', why:'ESP32 CPU and DMA engines, FreeRTOS tasks, ISRs, buffers, and generated files all expose shared-state risks.', overlap:'High-value firmware rule. Translate agent worktree examples into task, ISR, core, buffer, and file ownership.'},
+      {n:'principle-sequence-verifiable-units', k:'principle', s:5, v:'adopt', why:'Small checked steps fit derivations, simulation changes, generated artifacts, and firmware integration.', overlap:'Pairs with the current TODO skill. Use evidence checkpoints instead of requiring a PR stack.'},
+      {n:'principle-subtract-before-you-add', k:'principle', s:4, v:'merge', why:'The repository has active, legacy, backup, sandbox, and vendored material that can obscure the canonical path.', overlap:'Merge into laziness and repository cleanup rules. Never delete historical evidence needed for reproducibility.'},
+      {n:'principle-type-system-discipline', k:'principle', s:4, v:'adopt', why:'C++ firmware and web TypeScript can encode units, vector order, states, and protocol variants.', overlap:'Strong for C++ and TypeScript, weaker for MATLAB. Extend the idea with constructors, tables, assertions, and named units where static types are limited.'},
+      {n:'recall', k:'context', s:3, v:'merge', why:'Long doctoral work benefits from a short current-state capsule grounded in live files and git.', overlap:'Merge into handoff. Replace Cursor transcript paths and corporate record searches with Pi session data, TODOs, commits, notes, and current artifacts.'},
+      {n:'reflect', k:'meta', s:3, v:'later', why:'Long debugging or experiment sessions can reveal a reusable method worth capturing.', overlap:'Good concept, incompatible implementation. Keep human approval before changing durable skills.'},
+      {n:'setup-pstack', k:'configuration', s:1, v:'skip', why:'It writes Cursor model-role rules and assumes a Task subagent interface.', overlap:'Pi exposes a different tool and model configuration. No useful direct install path.'},
+      {n:'show-me-your-work', k:'provenance', s:4, v:'adopt', why:'A decision trail helps with multi-day experiments, numerical tuning, migrations, and paper revisions.', overlap:'Complements TODO and handoff. Use TSV selectively and point to plots, commits, traces, and manuscript sections.'},
+      {n:'swarm', k:'delegation', s:2, v:'later', why:'Parallel literature or package sweeps could help, but the current Pi session has no matching worker tool.', overlap:'A deterministic script is usually better for this repo. Revisit only when isolated subagents are available.'},
+      {n:'tdd', k:'verification', s:4, v:'adopt', why:'Its flexible failing-check rule fits MATLAB regressions and firmware logic while allowing hardware evidence when tests are impractical.', overlap:'Add numerical tolerances and lab reproduction paths. Do not mock timing-sensitive behavior that can be measured.'},
+      {n:'teach', k:'understanding', s:4, v:'adopt', why:'Useful for rebuilding understanding of control derivations, architecture, and cross-language data flow.', overlap:'Route visual explanations to html-concept or html-doc. Adapt why-sources to literature and research notes.'},
+      {n:'technical-writing', k:'writing', s:5, v:'adopt', why:'The repo has tutorials, reference docs, explanations, requirements, ADRs, papers, and a thesis.', overlap:'Keep its plain developer-doc rules. Add an academic layer for claims, citations, notation, equations, figures, and uncertainty.'},
+      {n:'typescript-best-practices', k:'language', s:2, v:'later', why:'Relevant to the ESP32 web UI, but TypeScript is a small part of the tracked source compared with MATLAB and C++.', overlap:'Use only on TS and TSX files. The general type-system principle has broader value.'},
+      {n:'unslop', k:'writing', s:5, v:'merge', why:'It exactly matches your established preference for plain, specific prose.', overlap:'Already installed. The skill body is identical; keep your existing copy.'},
+      {n:'why', k:'research', s:4, v:'adopt', why:'Git history, ADRs, review feedback, literature, and working notes can recover the reasons behind code and claims.', overlap:'Rewrite its seven corporate evidence categories around this repository. Keep explicit confidence, citations, contradictions, and gaps.'}
+    ];
+
+    const descriptions = {
+      'architect': 'Sketches caller usage, types, function signatures, and module ownership before implementation. It redesigns when repeated friction disproves the sketch.',
+      'arena': 'Runs several independent attempts at the same task, chooses the strongest base, and folds in the best parts of the others.',
+      'automate-me': 'Mines recent work and stated preferences to create or update a personal working-mode skill.',
+      'blast-radius': 'Looks beyond a diff for indirect breakage, then runs the real code to prove the main fact that makes the change safe.',
+      'bro': 'Restates the previous answer in short, plain language without technical jargon.',
+      'create-verification-skill': 'Generates a project skill that can launch, drive, observe, and clean up the real application while preserving proof artifacts.',
+      'figure-it-out': 'Designs a custom, auditable workflow for large work that has no narrower playbook, using hypotheses and evidence at each phase.',
+      'how': 'Traces a subsystem from entry point to effect and explains its architecture, runtime flow, file ownership, and traps.',
+      'interrogate': 'Sends the same change to independent adversarial reviewers, then applies lead judgment to the combined findings.',
+      'maintain-verification-skill': 'Checks a verification skill and its feature map against current source and a live run, then fixes proven drift.',
+      'no-comments': 'Reviews comments aggressively, removes narration, and tries to encode claimed constraints in code, tests, or checks.',
+      'poteto-mode': 'Routes a task through a large set of engineering playbooks, principles, model roles, review gates, and shipping rules.',
+      'principle-boundary-discipline': 'Concentrates parsing, validation, and error handling at external boundaries so internal logic can trust its data.',
+      'principle-build-the-lever': 'Builds a small rerunnable script, generator, or check that performs or proves nontrivial work instead of doing it by hand.',
+      'principle-encode-lessons-in-structure': 'Turns recurring corrections into types, lint rules, runtime checks, metadata, or scripts instead of more instructions.',
+      'principle-exhaust-the-design-space': 'Builds two or three structurally different sketches or prototypes before committing to a new interaction or architecture.',
+      'principle-experience-first': 'Chooses the consumer and maintainer experience over implementation convenience and removes features that do not earn their place.',
+      'principle-fix-root-causes': 'Reproduces a failure, instruments it, and fixes the cause instead of adding a guard that hides the symptom.',
+      'principle-foundational-thinking': 'Chooses core data shapes, types, shared-state ownership, and common setup before writing feature logic.',
+      'principle-guard-the-context-window': 'Uses selective reads, summaries, and delegated bulk work to keep large raw inputs out of the main reasoning thread.',
+      'principle-laziness-protocol': 'Biases toward deletion, flatter call paths, less hidden state, and the smallest change that solves the problem.',
+      'principle-make-operations-idempotent': 'Makes commands and lifecycle steps converge to the same result after retries, crashes, or partial earlier runs.',
+      'principle-migrate-callers-then-delete-legacy-apis': 'Moves every internal caller to the new API and removes the old path in the same coordinated refactor.',
+      'principle-minimize-reader-load': 'Reduces the layers a reader must trace and the mutable state they must remember to understand a behavior.',
+      'principle-model-the-domain': 'Represents real concepts with state machines, typed models, tables, registries, or modules instead of scattered conditionals.',
+      'principle-never-block-on-the-human': 'Proceeds with reversible work and reserves questions for product choices, genuine ambiguity, or irreversible actions.',
+      'principle-outcome-oriented-execution': 'Allows planned, scoped intermediate breakage during a migration when it helps reach and verify the intended final design.',
+      'principle-prove-it-works': 'Checks the real output, process, value, or end-to-end path instead of trusting compilation, a proxy, or an agent summary.',
+      'principle-redesign-from-first-principles': 'Integrates a new requirement as if it had existed from the start rather than attaching another special case.',
+      'principle-separate-before-serializing-shared-state': 'Removes shared writable state between concurrent actors before reaching for locks or sequential coordination.',
+      'principle-sequence-verifiable-units': 'Breaks work into small units, checks each unit before the next, and orders delivery so the sequence itself shows the proof.',
+      'principle-subtract-before-you-add': 'Removes dead, redundant, or obsolete structure before adding a capability or starting a rewrite.',
+      'principle-type-system-discipline': 'Uses types to prevent illegal states, distinguish semantic values, parse external input, and force exhaustive handling.',
+      'recall': 'Reconstructs recent work from chat history, shared records, and live repository state, then returns a short status capsule.',
+      'reflect': 'Reviews a completed session for durable lessons and routes accepted lessons into existing skills or stronger checks.',
+      'setup-pstack': 'Detects available Cursor models and writes a persistent mapping from each pstack role to a selected model.',
+      'show-me-your-work': 'Keeps an append-only TSV log of decisions, reasons, evidence, and results for long or unattended work.',
+      'swarm': 'Fans parallel workers across separate slices or competing attempts and returns one evidence-based aggregate report.',
+      'tdd': 'Writes and runs a cheap failing regression check before the fix, then reruns it and nearby validation after the fix.',
+      'teach': 'Combines a mechanics investigation with a rationale investigation and explains the result in plain layers with diagrams when useful.',
+      'technical-writing': 'Classifies the document by purpose and applies plain developer style, short instructions, stable terms, and unambiguous syntax.',
+      'typescript-best-practices': 'Applies TypeScript patterns for discriminated unions, branded values, boundary parsing, exhaustive switches, and safer narrowing.',
+      'unslop': 'Removes AI writing habits such as filler, vague claims, inflated wording, repetitive structure, and unnecessary jargon.',
+      'why': 'Investigates the historical reason for a design across source control and other evidence, with citations and explicit confidence.'
+    };
+
+    const relations = {
+      'architect': ['grill-me', 'domain-modeling'],
+      'arena': ['prototype'],
+      'automate-me': [],
+      'blast-radius': [],
+      'bro': ['unslop'],
+      'create-verification-skill': ['todo'],
+      'figure-it-out': ['todo', 'handoff'],
+      'how': ['html-doc', 'html-concept'],
+      'interrogate': ['grill-me', 'grill-with-docs'],
+      'maintain-verification-skill': ['todo'],
+      'no-comments': ['unslop'],
+      'poteto-mode': ['todo', 'grill-me', 'prototype', 'unslop'],
+      'principle-boundary-discipline': ['domain-modeling'],
+      'principle-build-the-lever': ['todo'],
+      'principle-encode-lessons-in-structure': ['domain-modeling'],
+      'principle-exhaust-the-design-space': ['prototype'],
+      'principle-experience-first': ['prototype', 'html-doc'],
+      'principle-fix-root-causes': [],
+      'principle-foundational-thinking': ['domain-modeling', 'grill-me'],
+      'principle-guard-the-context-window': ['handoff'],
+      'principle-laziness-protocol': [],
+      'principle-make-operations-idempotent': ['todo'],
+      'principle-migrate-callers-then-delete-legacy-apis': ['todo'],
+      'principle-minimize-reader-load': ['html-doc', 'html-concept'],
+      'principle-model-the-domain': ['domain-modeling'],
+      'principle-never-block-on-the-human': ['grill-me'],
+      'principle-outcome-oriented-execution': ['todo'],
+      'principle-prove-it-works': ['todo'],
+      'principle-redesign-from-first-principles': ['grill-me', 'domain-modeling'],
+      'principle-separate-before-serializing-shared-state': ['domain-modeling'],
+      'principle-sequence-verifiable-units': ['todo'],
+      'principle-subtract-before-you-add': ['todo'],
+      'principle-type-system-discipline': ['domain-modeling'],
+      'recall': ['handoff'],
+      'reflect': ['handoff'],
+      'setup-pstack': [],
+      'show-me-your-work': ['todo', 'handoff'],
+      'swarm': ['mcp-scripting'],
+      'tdd': ['todo'],
+      'teach': ['html-doc', 'html-concept'],
+      'technical-writing': ['unslop', 'html-doc'],
+      'typescript-best-practices': [],
+      'unslop': ['unslop'],
+      'why': ['domain-modeling', 'handoff', 'mcp-scripting']
+    };
+
+    const labels = {adopt:'Adopt with changes', merge:'Merge or keep', later:'Later or narrow use', skip:'Skip'};
+    const recommendationOrder = {adopt:0, merge:1, later:2, skip:3};
+    const cards = document.getElementById('skill-cards');
+    const search = document.getElementById('search');
+    const sort = document.getElementById('sort');
+    const count = document.getElementById('result-count');
+    const buttons = [...document.querySelectorAll('[data-filter]')];
+    let active = 'all';
+
+    function fitBars(score) {
+      const bars = Array.from({length:5}, (_, index) => `<i class="${index < score ? 'on' : ''}"></i>`).join('');
+      return `<span class="fit-score" aria-label="Fit score ${score} out of 5"><span class="score-bars" aria-hidden="true">${bars}</span>${score}/5</span>`;
+    }
+    function sourceLink(name) {
+      return `${revisionBase}${name}/SKILL.md`;
+    }
+    function relatedSkills(name) {
+      const matches = relations[name];
+      if (!matches.length) return '<span class="related-skill none">No direct current match</span>';
+      return matches.map(match => `<span class="related-skill">${match}</span>`).join('');
+    }
+    function compareSkills(a, b) {
+      if (sort.value === 'name') return a.n.localeCompare(b.n);
+      if (sort.value === 'fit') return b.s - a.s || a.n.localeCompare(b.n);
+      return recommendationOrder[a.v] - recommendationOrder[b.v] || b.s - a.s || a.n.localeCompare(b.n);
+    }
+    function render() {
+      const query = search.value.trim().toLowerCase();
+      const filtered = skills.filter(skill => {
+        const relation = relations[skill.n];
+        const statusMatch = active === 'all' || skill.v === active || active === 'related' && relation.length > 0;
+        const searchable = [skill.n, skill.k, descriptions[skill.n], skill.why, skill.overlap, labels[skill.v], ...relation].join(' ').toLowerCase();
+        return statusMatch && (!query || searchable.includes(query));
+      }).sort(compareSkills);
+
+      cards.innerHTML = filtered.length ? filtered.map(skill => `
+        <article class="skill-card ${skill.v}">
+          <div class="skill-head">
+            <div class="skill-title-row">
+              <h3 class="skill-title"><a class="skill-name" href="${sourceLink(skill.n)}">${skill.n}</a></h3>
+              <span class="status ${skill.v}">${labels[skill.v]}</span>
+            </div>
+            <div class="skill-meta">
+              <span class="kind">${skill.k}</span>
+              ${fitBars(skill.s)}
+            </div>
+            <span class="skill-label skill-description-label">What it does</span>
+            <p class="skill-description">${descriptions[skill.n]}</p>
+          </div>
+          <div class="skill-body">
+            <div class="skill-section">
+              <span class="skill-label">Why it fits your work</span>
+              <p>${skill.why}</p>
+            </div>
+            <div class="skill-section">
+              <span class="skill-label">Related current skill</span>
+              <div class="related-list">${relatedSkills(skill.n)}</div>
+              <p>${skill.overlap}</p>
+            </div>
+          </div>
+        </article>`).join('') : '<div class="empty-results">No skills match this search and filter.</div>';
+      count.textContent = `Showing ${filtered.length} of ${skills.length} skills`;
+    }
+    buttons.forEach(button => button.addEventListener('click', () => {
+      active = button.dataset.filter;
+      buttons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      render();
+    }));
+    search.addEventListener('input', render);
+    sort.addEventListener('change', render);
+    render();
+  </script>
+</body>
+</html>

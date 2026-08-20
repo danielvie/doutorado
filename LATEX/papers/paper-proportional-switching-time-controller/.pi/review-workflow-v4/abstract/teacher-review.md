@@ -1,0 +1,10 @@
+## Review
+
+- **Correct:** `article.tex:33` clearly presents the problem, maximal scalar conditioning, direction/period preservation, \(O(N)\) solver-free execution, endpoint Lyapunov certificate, and local nonlinear scope. These claims match `article.tex:243`, `article.tex:257`, `article.tex:271–272`, and `article.tex:278`.
+- **Correct:** Numerical claims resolve consistently: \(-43.045\,\mu s\), \(3\,\mu s\), and settling cycles 6 versus 20 match `results/metrics.tex:7,28–29,34` and the exact nonlinear study at `article.tex:361,385`.
+- **Blocker:** None.
+- **Worthwhile fix (P2):** The anchor phrase “**can hold a switched-affine plant on a periodic trajectory**” precedes the locality qualification. `article.tex:278` establishes the nonlinear guarantee only near the anchor. Consider stating “locally” or “for a fixed-period cycle” in the opening sentence to prevent an overly broad reading.
+- **Worthwhile fix (P2):** “**still settles in 6 cycles**” lacks the metric definition in the abstract. `article.tex:365` defines settling as the first cycle with normalized error below \(0.01\). State that threshold so the numerical comparison is interpretable.
+- **Optional polish (P3):** “**On a nine-interval DC--DC converter benchmark**” is less specific than the body’s “three-cell multilevel DC--DC converter” at `article.tex:302`. Adding “three-cell multilevel” would identify the benchmark more pedagogically.
+- **Optional polish (P3):** “**We obtain that model by exact augmented matrix-exponential propagation**” compresses exact propagation and first-order expansion into one phrase. `article.tex:52,106,138,164` shows both steps; “derive and linearize the exact augmented product” would be more precise.
+- **Author decisions:** Whether to include benchmark provenance/citation in the abstract is a journal-style choice; the body already identifies and cites Patiño et al. The current rhetorical order is sound: problem → conditioner → certificate → enabling derivation → evidence → limitation.

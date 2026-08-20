@@ -1,6 +1,6 @@
-# Recent literature archive, 2021–2026
+# Literature archive
 
-This folder contains the 20 PDFs reviewed in `../recent-literature-2021-2026.md`.
+This folder contains 26 validated PDFs. Files 01--20 are the recent-literature set reviewed in `../recent-literature-2021-2026.md`; files 21--26 are the additional primary sources verified for the reference-integration pass in `../../handoff/reference-usage-review.md`.
 
 - `.pdf` means a lawful local copy was downloaded and validated as PDF content.
 - `.url` means automated download was unavailable because the publisher requires a subscription or the open repository rejected non-browser clients. Open the shortcut in a browser with institutional access, then replace it with the downloaded PDF.
@@ -28,5 +28,11 @@ This folder contains the 20 PDFs reviewed in `../recent-literature-2021-2026.md`
 | 18 | `li2024stability` | PDF, Aalborg University accepted manuscript | DOI `10.1109/TIE.2023.3247785` |
 | 19 | `katz2026sampledDwell` | PDF, official arXiv author manuscript | arXiv `2511.01672` |
 | 20 | `monir2025scenarioSwitchedAffine` | PDF, official arXiv author manuscript | arXiv `2505.06943` |
+| 21 | `flieller2006limitCycles` | PDF, HAL author-produced manuscript of published article | DOI `10.1016/j.na.2005.06.054`; HAL `hal-00119807` |
+| 22 | `repecho2017switchingFrequency` | PDF, UPCommons author postprint | DOI `10.1109/TPEL.2016.2546382`; UPCommons `2117/99560` |
+| 23 | `stellato2017fcsMpc` | PDF, arXiv author preprint of published article | DOI `10.1109/TPEL.2016.2584678`; arXiv `1510.05578` |
+| 24 | `albea2021hybridAffinePwm` | PDF, HAL author manuscript of published article | DOI `10.1109/TCSI.2021.3083900`; HAL `hal-03326994` |
+| 25 | `briat2013dwellTimes` | PDF, arXiv author preprint of published article | DOI `10.1109/TAC.2012.2220031`; arXiv `1209.0444` |
+| 26 | `fiore2016contraction` | PDF, arXiv author preprint of published article | DOI `10.1016/j.automatica.2016.06.028`; arXiv `1507.07126` |
 
-Downloaded PDFs: 20. Link-only records: 0.
+Downloaded PDFs: 26. Link-only records: 0.
