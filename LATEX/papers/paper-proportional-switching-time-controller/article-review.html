@@ -1,0 +1,1103 @@
+<title>Dwell-Conditioning Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap">
+
+<style>
+:root{
+  --ground:#EEF1F5; --surface:#FFFFFF; --surface-2:#F6F8FA; --surface-3:#E8EDF3;
+  --ink:#131A21; --ink-2:#3A4855; --muted:#69757F;
+  --rule:#D3DBE3; --rule-2:#E4E9EF;
+  --accent:#1B5FA8; --accent-2:#12457A; --accent-soft:#E2ECF8;
+  --crit:#A32E22; --crit-soft:#F9E7E4;
+  --warn:#87600A; --warn-soft:#FAF1DC;
+  --ok:#27614A; --ok-soft:#E3F0EA;
+  --shadow:0 1px 2px rgba(19,26,33,.05), 0 6px 20px rgba(19,26,33,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0D1217; --surface:#151C24; --surface-2:#1A222B; --surface-3:#212B35;
+    --ink:#DFE6ED; --ink-2:#B4C0CC; --muted:#8593A1;
+    --rule:#28323D; --rule-2:#202A34;
+    --accent:#6BA6E5; --accent-2:#98C3F0; --accent-soft:#17293C;
+    --crit:#E58275; --crit-soft:#33201D;
+    --warn:#D4A748; --warn-soft:#302713;
+    --ok:#5FB48C; --ok-soft:#152A22;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.28);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0D1217; --surface:#151C24; --surface-2:#1A222B; --surface-3:#212B35;
+  --ink:#DFE6ED; --ink-2:#B4C0CC; --muted:#8593A1;
+  --rule:#28323D; --rule-2:#202A34;
+  --accent:#6BA6E5; --accent-2:#98C3F0; --accent-soft:#17293C;
+  --crit:#E58275; --crit-soft:#33201D;
+  --warn:#D4A748; --warn-soft:#302713;
+  --ok:#5FB48C; --ok-soft:#152A22;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.28);
+}
+
+*{box-sizing:border-box}
+body{margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Serif",Georgia,"Times New Roman",serif;
+  font-size:17px; line-height:1.62; -webkit-font-smoothing:antialiased}
+.page{max-width:1060px; margin:0 auto; padding:0 28px 96px}
+.col{max-width:70ch}
+
+h1,h2,h3,h4{font-family:"IBM Plex Sans Condensed",Arial Narrow,Helvetica,sans-serif;
+  text-wrap:balance; margin:0; letter-spacing:-.005em}
+h1{font-size:clamp(2.1rem,5vw,3.05rem); line-height:1.05; font-weight:700}
+h2{font-size:clamp(1.5rem,3vw,1.95rem); line-height:1.12; font-weight:600}
+h3{font-size:1.17rem; line-height:1.25; font-weight:600}
+p{margin:0}
+a{color:var(--accent); text-underline-offset:2px}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace}
+code{font-size:.87em; background:var(--surface-2); border:1px solid var(--rule-2);
+  border-radius:3px; padding:.06em .34em}
+em.term{font-style:normal; font-weight:600; color:var(--ink)}
+
+.masthead{padding:72px 0 40px; border-bottom:2px solid var(--ink)}
+.kicker{font-family:"IBM Plex Mono",monospace; font-size:.72rem; font-weight:500;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin-bottom:20px}
+.standfirst{font-size:1.22rem; line-height:1.5; color:var(--ink-2); max-width:62ch; margin-top:22px}
+.meta{display:flex; flex-wrap:wrap; gap:0 30px; margin-top:30px;
+  font-family:"IBM Plex Mono",monospace; font-size:.78rem; color:var(--muted)}
+.meta b{color:var(--ink); font-weight:500}
+
+.partbar{margin:64px 0 0; padding:22px 0 18px; border-top:2px solid var(--ink);
+  border-bottom:1px solid var(--rule); display:flex; align-items:baseline; gap:18px; flex-wrap:wrap}
+.partbar .pn{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weight:600;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--accent)}
+.partbar p{color:var(--muted); font-size:.95rem; flex:1 1 260px}
+
+section{padding:52px 0; border-bottom:1px solid var(--rule)}
+section:last-of-type{border-bottom:0}
+
+/* article-faithful section headers */
+.sechead{display:grid; grid-template-columns:64px 1fr; gap:0 20px; align-items:start}
+.secnum{font-family:"IBM Plex Mono",monospace; font-size:2.4rem; font-weight:600;
+  line-height:.9; color:var(--rule); font-variant-numeric:tabular-nums; padding-top:4px}
+.sechead .astitle{font-family:"IBM Plex Mono",monospace; font-size:.7rem; font-weight:500;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin-bottom:10px}
+.subtitle{margin-top:12px; color:var(--muted); font-size:1.05rem; max-width:64ch}
+.body{margin-top:22px; max-width:70ch}
+.body p+p{margin-top:16px}
+
+.anchor{display:inline-block; font-family:"IBM Plex Mono",monospace; font-size:.7rem;
+  letter-spacing:.06em; color:var(--muted); background:var(--surface-2);
+  border:1px solid var(--rule); border-radius:3px; padding:.24em .6em; white-space:nowrap}
+
+.sub{margin-top:44px; padding-top:26px; border-top:1px solid var(--rule-2)}
+.sub .subhead{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap}
+.sub .subhead .n{font-family:"IBM Plex Mono",monospace; font-size:.95rem; font-weight:600;
+  color:var(--accent); flex:none}
+.sub .subhead h3{flex:1 1 auto; min-width:220px}
+
+figure.dg{margin:30px 0 0; padding:0}
+.dgbox{background:var(--surface); border:1px solid var(--rule); border-radius:6px;
+  padding:26px 22px 18px; overflow-x:auto; box-shadow:var(--shadow)}
+.dgbox svg{display:block; width:100%; height:auto; min-width:660px; color:var(--ink-2)}
+figcaption{margin-top:12px; font-size:.9rem; line-height:1.5; color:var(--muted); max-width:70ch}
+figcaption b{color:var(--ink-2); font-weight:600}
+.dgtag{display:block; margin-bottom:10px}
+
+.dg-box{fill:var(--surface-2); stroke:var(--rule); stroke-width:1.25}
+.dg-box-a{fill:var(--accent-soft); stroke:var(--accent); stroke-width:1.4}
+.dg-box-c{fill:var(--crit-soft); stroke:var(--crit); stroke-width:1.4}
+.dg-box-w{fill:var(--warn-soft); stroke:var(--warn); stroke-width:1.4}
+.dg-box-o{fill:var(--ok-soft); stroke:var(--ok); stroke-width:1.4}
+.dg-line{stroke:var(--ink-2); stroke-width:1.4; fill:none}
+.dg-line-a{stroke:var(--accent); stroke-width:1.7; fill:none}
+.dg-line-c{stroke:var(--crit); stroke-width:1.7; fill:none}
+.dg-dash{stroke:var(--muted); stroke-width:1.2; fill:none; stroke-dasharray:5 4}
+.dg-faint{stroke:var(--rule); stroke-width:1; fill:none}
+.dg-t{font-family:"IBM Plex Sans Condensed",sans-serif; font-size:14px; font-weight:600; fill:var(--ink)}
+.dg-s{font-family:"IBM Plex Sans Condensed",sans-serif; font-size:12px; font-weight:500; fill:var(--muted)}
+.dg-m{font-family:"IBM Plex Mono",monospace; font-size:12px; fill:var(--accent)}
+.dg-mc{font-family:"IBM Plex Mono",monospace; font-size:12px; fill:var(--crit)}
+.dg-mo{font-family:"IBM Plex Mono",monospace; font-size:12px; fill:var(--ok)}
+.dg-mi{font-family:"IBM Plex Mono",monospace; font-size:11.5px; fill:var(--ink-2)}
+
+.keys{margin-top:24px; border:1px solid var(--rule); border-radius:6px; overflow:hidden;
+  background:var(--rule); display:flex; flex-direction:column; gap:1px}
+.keys .k{background:var(--surface); padding:14px 20px; display:grid;
+  grid-template-columns:160px 1fr; gap:18px; align-items:baseline}
+.keys .k b{font-family:"IBM Plex Mono",monospace; font-size:.82rem; font-weight:500;
+  color:var(--accent); font-variant-numeric:tabular-nums}
+.keys .k span{color:var(--ink-2); font-size:.97rem; line-height:1.5}
+
+.chip{display:inline-flex; align-items:center; gap:6px; flex:none;
+  font-family:"IBM Plex Mono",monospace; font-size:.68rem; font-weight:600;
+  letter-spacing:.09em; text-transform:uppercase; padding:.24em .6em; border-radius:3px;
+  border:1px solid transparent; white-space:nowrap}
+.chip.crit{color:var(--crit); background:var(--crit-soft); border-color:var(--crit)}
+.chip.warn{color:var(--warn); background:var(--warn-soft); border-color:var(--warn)}
+.chip.ok{color:var(--ok); background:var(--ok-soft); border-color:var(--ok)}
+.chip.neutral{color:var(--muted); background:var(--surface-2); border-color:var(--rule)}
+
+.fig-entry{background:var(--surface); border:1px solid var(--rule); border-radius:6px;
+  overflow:hidden; box-shadow:var(--shadow)}
+.fig-head{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;
+  padding:16px 22px; background:var(--surface-2); border-bottom:1px solid var(--rule)}
+.fig-head .id{font-family:"IBM Plex Mono",monospace; font-size:.78rem; color:var(--muted); flex:none}
+.fig-head h3{flex:1 1 auto; min-width:200px}
+.fig-body{padding:18px 22px 20px}
+.judge{display:grid; grid-template-columns:88px 1fr; gap:8px 16px; align-items:start; margin:0}
+.judge dt{font-family:"IBM Plex Mono",monospace; font-size:.7rem; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted); padding-top:.3em}
+.judge dd{margin:0; color:var(--ink-2); font-size:.97rem; line-height:1.55}
+.judge dd b{color:var(--ink); font-weight:600}
+.stack{display:flex; flex-direction:column; gap:18px; margin-top:26px}
+
+.ladder{display:flex; flex-direction:column; gap:1px; margin-top:26px;
+  border:1px solid var(--rule); border-radius:6px; overflow:hidden; background:var(--rule)}
+.rung{display:grid; grid-template-columns:170px 1fr; gap:20px; background:var(--surface);
+  padding:16px 22px; align-items:start}
+.rung .lvl{font-family:"IBM Plex Mono",monospace; font-size:.73rem; font-weight:600;
+  letter-spacing:.08em; text-transform:uppercase}
+.rung ul{margin:0; padding-left:18px; color:var(--ink-2); font-size:.97rem; line-height:1.55}
+.rung li+li{margin-top:4px}
+
+.finding{display:grid; grid-template-columns:44px 1fr; gap:0 18px; align-items:start;
+  padding:20px 0; border-top:1px solid var(--rule-2)}
+.finding:first-child{border-top:0}
+.finding .num{font-family:"IBM Plex Mono",monospace; font-size:1.35rem; font-weight:600;
+  color:var(--rule); line-height:1.1; font-variant-numeric:tabular-nums}
+.finding .hd{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:6px}
+.finding .hd h3{flex:1 1 auto; min-width:230px}
+.finding p{color:var(--ink-2); font-size:.99rem}
+.finding .res{margin-top:10px; padding-left:14px; border-left:2px solid var(--ok);
+  color:var(--ink-2); font-size:.95rem}
+.finding .res b{font-family:"IBM Plex Sans Condensed",sans-serif; color:var(--ok);
+  letter-spacing:.04em; text-transform:uppercase; font-size:.72rem; font-weight:600}
+.finding .fix{margin-top:10px; padding-left:14px; border-left:2px solid var(--accent);
+  color:var(--ink-2); font-size:.95rem}
+.finding .fix b{font-family:"IBM Plex Sans Condensed",sans-serif; color:var(--accent);
+  letter-spacing:.04em; text-transform:uppercase; font-size:.72rem; font-weight:600}
+
+.tblwrap{overflow-x:auto; margin-top:26px; border:1px solid var(--rule);
+  border-radius:6px; background:var(--surface); box-shadow:var(--shadow)}
+table{border-collapse:collapse; width:100%; min-width:600px; font-size:.94rem}
+th,td{text-align:left; padding:12px 18px; border-bottom:1px solid var(--rule-2); vertical-align:top}
+th{font-family:"IBM Plex Sans Condensed",sans-serif; font-size:.76rem; font-weight:600;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--muted); background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:0}
+td.eff,td.loc{font-family:"IBM Plex Mono",monospace; font-size:.84rem; white-space:nowrap; color:var(--ink-2)}
+td.loc{color:var(--accent)}
+
+.note{margin-top:30px; padding:16px 20px; background:var(--surface-2);
+  border:1px solid var(--rule); border-left:3px solid var(--muted); border-radius:0 4px 4px 0;
+  font-size:.94rem; color:var(--ink-2)}
+.quiz{margin-top:26px; padding:22px 24px; background:var(--surface); border:1px solid var(--rule);
+  border-radius:6px; box-shadow:var(--shadow)}
+.quiz ol{margin:14px 0 0; padding-left:22px; color:var(--ink-2); font-size:.99rem; line-height:1.6}
+.quiz li+li{margin-top:8px}
+
+@media (max-width:640px){
+  body{font-size:16px}
+  .page{padding:0 18px 72px}
+  .sechead{grid-template-columns:1fr; gap:8px}
+  .secnum{font-size:1.6rem}
+  .rung,.keys .k{grid-template-columns:1fr; gap:6px}
+  .finding{grid-template-columns:32px 1fr; gap:0 12px}
+  .judge{grid-template-columns:1fr; gap:2px 0}
+  .judge dt{padding-top:8px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+</style>
+
+<div class="page">
+
+<header class="masthead">
+  <div class="kicker">Study companion · revised 2026-08-20</div>
+  <h1>Dwell-conditioned switching-time feedback</h1>
+  <p class="standfirst">A section-by-section reading of the article. Headings, numbering and equation references follow the manuscript exactly, so each block here sits beside the block it explains.</p>
+  <div class="meta">
+    <span><b>10</b> pages</span>
+    <span><b>4</b> figures · <b>2</b> tables</span>
+    <span><b>2</b> propositions</span>
+    <span><b>9</b> findings · <b>4</b> closed</span>
+  </div>
+</header>
+
+<div class="partbar">
+  <span class="pn">Part I</span>
+  <h2>Reading the article</h2>
+  <p>One block per section, in the article's own order and under its own titles.</p>
+</div>
+
+<section>
+  <div class="col">
+    <h2>Where everything is</h2>
+    <p class="subtitle">Article structure on the left, what this companion draws for it on the right. Page numbers are from the current 10-page build.</p>
+  </div>
+
+  <div class="tblwrap">
+    <table>
+      <thead><tr><th>Article section</th><th class="loc">Pages</th><th>Drawn here as</th></tr></thead>
+      <tbody>
+        <tr><td>1 · Introduction</td><td class="loc">p. 1</td><td>The four-layer funnel</td></tr>
+        <tr><td>2 · Fixed-period one-cycle model</td><td class="loc">pp. 2–4</td><td>Four derivation steps</td></tr>
+        <tr><td>2.1 · Switched-affine cycle and timing coordinates</td><td class="loc">p. 2</td><td>Nominal and applied schedules on one time axis</td></tr>
+        <tr><td>2.2 · Exact augmented propagation</td><td class="loc">p. 3</td><td>—</td></tr>
+        <tr><td>2.3 · First-order expansion in dwell durations</td><td class="loc">p. 3</td><td>The lossy step, marked</td></tr>
+        <tr><td>2.4 · Switching-instant offsets</td><td class="loc">pp. 3–4</td><td>—</td></tr>
+        <tr><td>3 · Solver-free dwell-time conditioning</td><td class="loc">p. 4</td><td>Scaling against clipping · the convex segment</td></tr>
+        <tr><td>4 · Converter case study</td><td class="loc">pp. 5–8</td><td>The validation chain</td></tr>
+        <tr><td>5 · Discussion</td><td class="loc">p. 8</td><td>Three regions, three guarantees</td></tr>
+        <tr><td>6 · Conclusion</td><td class="loc">p. 9</td><td>The claim ladder</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <figure class="dg">
+    <span class="anchor dgtag">Overview · how §2, §3 and §4 depend on each other</span>
+    <div class="dgbox">
+      <svg viewBox="0 0 900 430" role="img" aria-label="Section 2 produces the difference matrix D, the Jacobians Phi and Gamma-tau, and the exact cycle map. D feeds Proposition 1, Phi and Gamma-tau feed Proposition 2, and the exact map feeds the case study.">
+        <defs>
+          <marker id="d1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <rect class="dg-box" x="24" y="20" width="252" height="58" rx="4"/>
+        <text class="dg-t" x="40" y="43">§1 Introduction</text>
+        <text class="dg-s" x="40" y="64">names the gap: an infeasible request</text>
+
+        <rect class="dg-box-a" x="24" y="116" width="252" height="118" rx="4"/>
+        <text class="dg-t" x="40" y="141">§2 Fixed-period one-cycle model</text>
+        <text class="dg-s" x="40" y="161">four steps, from timing coordinates</text>
+        <text class="dg-s" x="40" y="177">to an exact product of exponentials,</text>
+        <text class="dg-s" x="40" y="193">linearized once</text>
+        <text class="dg-mi" x="40" y="219">§2.3 holds the only lossy step</text>
+
+        <line class="dg-line" x1="150" y1="78" x2="150" y2="112" marker-end="url(#d1a)"/>
+
+        <text class="dg-s" x="348" y="106" text-anchor="middle" style="font-size:11px">produces</text>
+        <line class="dg-faint" x1="348" y1="112" x2="348" y2="330"/>
+
+        <rect class="dg-box" x="300" y="126" width="96" height="30" rx="3"/>
+        <text class="dg-m" x="348" y="146" text-anchor="middle">D  eq (4)</text>
+        <rect class="dg-box" x="300" y="176" width="96" height="30" rx="3"/>
+        <text class="dg-m" x="348" y="196" text-anchor="middle">Φ, Γτ  (16)</text>
+        <rect class="dg-box" x="300" y="290" width="96" height="30" rx="3"/>
+        <text class="dg-m" x="348" y="310" text-anchor="middle">𝒫(x, δτ)</text>
+
+        <line class="dg-line" x1="276" y1="141" x2="296" y2="141" marker-end="url(#d1a)"/>
+        <line class="dg-line" x1="276" y1="175" x2="290" y2="175"/>
+        <line class="dg-line" x1="290" y1="175" x2="290" y2="191"/>
+        <line class="dg-line" x1="290" y1="191" x2="296" y2="191" marker-end="url(#d1a)"/>
+        <line class="dg-line" x1="150" y1="234" x2="150" y2="305"/>
+        <line class="dg-line" x1="150" y1="305" x2="296" y2="305" marker-end="url(#d1a)"/>
+
+        <rect class="dg-box-a" x="470" y="112" width="248" height="60" rx="4"/>
+        <text class="dg-t" x="486" y="136">§3 · Proposition 1</text>
+        <text class="dg-s" x="486" y="156">feasibility and maximality of β</text>
+
+        <rect class="dg-box-a" x="470" y="190" width="248" height="60" rx="4"/>
+        <text class="dg-t" x="486" y="214">§3 · Proposition 2</text>
+        <text class="dg-s" x="486" y="234">contraction of A(β) for every β</text>
+
+        <line class="dg-line-a" x1="396" y1="141" x2="466" y2="141" marker-end="url(#d1a)" style="color:var(--accent)"/>
+        <text class="dg-mi" x="431" y="132" text-anchor="middle">which dwells couple</text>
+        <line class="dg-line-a" x1="396" y1="191" x2="440" y2="191" style="color:var(--accent)"/>
+        <line class="dg-line-a" x1="440" y1="191" x2="440" y2="220" style="color:var(--accent)"/>
+        <line class="dg-line-a" x1="440" y1="220" x2="466" y2="220" marker-end="url(#d1a)" style="color:var(--accent)"/>
+        <text class="dg-mi" x="404" y="184">what an offset does</text>
+
+        <path class="dg-faint" d="M738,120 q10,0 10,12 v22 q0,12 10,12 q-10,0 -10,12 v22 q0,12 -10,12"/>
+        <text class="dg-s" x="762" y="177">never interact</text>
+        <text class="dg-s" x="762" y="193">with each other</text>
+
+        <rect class="dg-box" x="470" y="286" width="248" height="76" rx="4"/>
+        <text class="dg-t" x="486" y="310">§4 Converter case study</text>
+        <text class="dg-s" x="486" y="330">checks the Jacobians, solves the SDP,</text>
+        <text class="dg-s" x="486" y="346">runs the exact nonlinear plant</text>
+
+        <line class="dg-line" x1="396" y1="305" x2="466" y2="305" marker-end="url(#d1a)"/>
+        <line class="dg-line" x1="594" y1="250" x2="594" y2="282" marker-end="url(#d1a)"/>
+
+        <rect class="dg-box" x="470" y="386" width="248" height="30" rx="3"/>
+        <text class="dg-t" x="486" y="406" style="font-size:13px">§5 Discussion · §6 Conclusion</text>
+        <line class="dg-line" x1="594" y1="362" x2="594" y2="382" marker-end="url(#d1a)"/>
+
+        <text class="dg-s" x="24" y="404" style="font-size:11px">Blue = the paper's own contribution</text>
+        <text class="dg-s" x="24" y="418" style="font-size:11px">Grey = supporting derivation or evidence</text>
+      </svg>
+    </div>
+    <figcaption><b>The structural fact worth knowing.</b> Proposition 1 needs only <code>D</code> from equation (4). Proposition 2 needs only <code>Φ</code> and <code>Γτ</code> from equation (16). Neither proof uses the other's inputs, which is why the feasibility claim survives a reader who rejects the linearization, and the certificate survives a reader who rejects the specific dwell bound.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="sechead">
+    <div class="secnum">1</div>
+    <div>
+      <div class="astitle">Article section 1</div>
+      <h2>Introduction</h2>
+      <p class="subtitle">Four paragraphs, each one making the next necessary, narrowing to the sentence the paper exists to prove.</p>
+      <span class="anchor">p. 1 · no equations</span>
+    </div>
+  </div>
+
+  <div class="body">
+    <p>The introduction is built as a funnel with exactly four layers. If you can state the fourth, you can state the paper.</p>
+    <p>The trap it avoids is the survey opening. There is no paragraph on industrial applications, none on switched-affine theory in general, none on periodic control. Every citation is attached to one factual claim and sits immediately after it. Distant literature gets a clause; the two papers the work stands on, Patiño and Marcolino, get most of a paragraph each.</p>
+  </div>
+
+  <figure class="dg">
+    <span class="anchor dgtag">Explains §1, paragraphs 1 to 4</span>
+    <div class="dgbox">
+      <svg viewBox="0 0 900 300" role="img" aria-label="A four-layer funnel narrowing from converter timing constraints, through predictive control's online cost, to the gap left by prior work, to the infeasible raw request, ending at the contribution.">
+        <defs>
+          <marker id="d5a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <rect class="dg-box" x="20" y="40" width="196" height="128" rx="4"/>
+        <text class="dg-t" x="34" y="64">¶1 · Pressure</text>
+        <text class="dg-s" x="34" y="88">Fixed frequency, a minimum</text>
+        <text class="dg-s" x="34" y="104">dwell, current and voltage</text>
+        <text class="dg-s" x="34" y="120">limits, all decided inside</text>
+        <text class="dg-s" x="34" y="136">one switching period.</text>
+        <text class="dg-mi" x="34" y="158">Predictive control pays a solver</text>
+
+        <rect class="dg-box" x="248" y="55" width="196" height="98" rx="4"/>
+        <text class="dg-t" x="262" y="79">¶2 · Setting</text>
+        <text class="dg-s" x="262" y="103">Fixed mode order, fixed</text>
+        <text class="dg-s" x="262" y="119">period, one static correction</text>
+        <text class="dg-s" x="262" y="135">per cycle to interior instants.</text>
+
+        <rect class="dg-box" x="476" y="70" width="196" height="68" rx="4"/>
+        <text class="dg-t" x="490" y="94">¶3 · The gap</text>
+        <text class="dg-s" x="490" y="116">Patiño and Marcolino leave</text>
+        <text class="dg-s" x="490" y="132">feasibility unresolved.</text>
+
+        <rect class="dg-box-c" x="704" y="82" width="176" height="44" rx="4"/>
+        <text class="dg-t" x="718" y="104" style="fill:var(--crit)">¶3 · The request</text>
+        <text class="dg-s" x="718" y="120">cannot be applied</text>
+
+        <line class="dg-line" x1="216" y1="104" x2="244" y2="104" marker-end="url(#d5a)"/>
+        <line class="dg-line" x1="444" y1="104" x2="472" y2="104" marker-end="url(#d5a)"/>
+        <line class="dg-line" x1="672" y1="104" x2="700" y2="104" marker-end="url(#d5a)"/>
+        <line class="dg-line-c" x1="792" y1="126" x2="792" y2="176" marker-end="url(#d5a)" style="color:var(--crit)"/>
+
+        <rect class="dg-box-a" x="248" y="196" width="632" height="76" rx="4"/>
+        <text class="dg-t" x="266" y="222">¶4 · The sentence the funnel exists to earn</text>
+        <text class="dg-s" x="266" y="246">Scale the complete raw action by the largest β ∈ [0,1] that keeps every dwell admissible,</text>
+        <text class="dg-s" x="266" y="262">then certify the resulting matrix segment with one quadratic Lyapunov function.</text>
+
+        <text class="dg-s" x="20" y="212" style="font-size:11px">narrowing →</text>
+        <text class="dg-s" x="20" y="228" style="font-size:11px">specialization</text>
+      </svg>
+    </div>
+    <figcaption><b>Why the funnel is short.</b> An earlier draft had seven layers and buried the problem. Four layers put the infeasible request on the first page, which is the criterion the paper is written against: a reader should not have to reconstruct the contribution from equations.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="sechead">
+    <div class="secnum">2</div>
+    <div>
+      <div class="astitle">Article section 2</div>
+      <h2>Fixed-period one-cycle model</h2>
+      <p class="subtitle">Builds the two things the conditioner needs: how an offset changes the next cycle-start error, and what dwell durations that offset produces.</p>
+      <span class="anchor">pp. 2–4 · eqs (1)–(18) · four subsections</span>
+    </div>
+  </div>
+
+  <div class="body">
+    <p>The section opens by saying what it will produce and in how many steps, so the four subsections read as stages rather than as a list of derivations. It is exact through §2.2 and approximate from §2.3 onward, and the paper's entire honesty structure hangs off which is which.</p>
+  </div>
+
+  <figure class="dg">
+    <span class="anchor dgtag">Explains §2 as a whole · §2.1 → §2.4</span>
+    <div class="dgbox">
+      <svg viewBox="0 0 900 250" role="img" aria-label="Four derivation steps mapped to subsections 2.1 through 2.4: timing coordinates, exact augmented propagation, first-order expansion where second-order terms are dropped, and conversion back to switching-instant offsets.">
+        <defs>
+          <marker id="d2a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <text class="dg-s" x="20" y="26" style="font-size:11px; letter-spacing:.08em">EXACT</text>
+        <line class="dg-faint" x1="66" y1="22" x2="452" y2="22"/>
+        <text class="dg-mc" x="470" y="26" style="font-size:11px; letter-spacing:.08em">APPROXIMATE FROM HERE</text>
+        <line class="dg-line-c" x1="672" y1="22" x2="880" y2="22" stroke-dasharray="5 4"/>
+
+        <rect class="dg-box" x="20" y="46" width="190" height="86" rx="4"/>
+        <text class="dg-t" x="34" y="70">§2.1 Coordinates</text>
+        <text class="dg-s" x="34" y="90">N−1 free offsets become</text>
+        <text class="dg-s" x="34" y="106">N coupled dwell changes</text>
+        <text class="dg-m" x="34" y="124">δd = D δτ   (4)</text>
+
+        <rect class="dg-box" x="248" y="46" width="190" height="86" rx="4"/>
+        <text class="dg-t" x="262" y="70">§2.2 Augmented</text>
+        <text class="dg-s" x="262" y="90">affine flow made linear</text>
+        <text class="dg-s" x="262" y="106">by a constant coordinate</text>
+        <text class="dg-m" x="262" y="124">(5) – (8)</text>
+
+        <rect class="dg-box-c" x="476" y="46" width="190" height="86" rx="4"/>
+        <text class="dg-t" x="490" y="70">§2.3 First order</text>
+        <text class="dg-s" x="490" y="90">expand each exponential,</text>
+        <text class="dg-s" x="490" y="106">drop the mixed terms</text>
+        <text class="dg-mc" x="490" y="124">(10) – (14)</text>
+
+        <rect class="dg-box" x="704" y="46" width="176" height="86" rx="4"/>
+        <text class="dg-t" x="718" y="70">§2.4 Back to τ</text>
+        <text class="dg-s" x="718" y="90">substitute D again</text>
+        <text class="dg-m" x="718" y="112">(16) – (18)</text>
+
+        <line class="dg-line" x1="210" y1="89" x2="244" y2="89" marker-end="url(#d2a)"/>
+        <line class="dg-line" x1="438" y1="89" x2="472" y2="89" marker-end="url(#d2a)"/>
+        <line class="dg-line" x1="666" y1="89" x2="700" y2="89" marker-end="url(#d2a)"/>
+
+        <line class="dg-line-c" x1="571" y1="132" x2="571" y2="172"/>
+        <rect class="dg-box-c" x="386" y="172" width="370" height="56" rx="4"/>
+        <text class="dg-t" x="402" y="194" style="fill:var(--crit)">Everything local traces to here</text>
+        <text class="dg-s" x="402" y="214">the nonlinear guarantee, the unbounded remainder, the caveat on Prop. 2</text>
+      </svg>
+    </div>
+    <figcaption><b>Where the honesty lives.</b> §2.1, §2.2 and §2.4 are algebra with no loss. §2.3 discards products of an error with a dwell change, below equation (12). That single omission is why the nonlinear result is stated only near the anchor and the large-error run is called evidence rather than proof.</figcaption>
+  </figure>
+
+  <div class="sub">
+    <div class="subhead"><span class="n">2.1</span><h3>Switched-affine cycle and timing coordinates</h3><span class="anchor">p. 2 · eqs (1)–(4)</span></div>
+    <div class="body">
+      <p>Everything downstream inherits these coordinates, so get them straight first. The controller commands <em class="term">offsets</em>, one per interior instant, so there are <code>N−1</code> of them. The constraint is written in <em class="term">dwell durations</em>, one per interval, so there are <code>N</code> of those. Equation (4) is the bridge, and it is the reason the constraints couple.</p>
+    </div>
+
+    <figure class="dg">
+      <span class="anchor dgtag">Explains eq (4) · δd = D δτ and 1ᵀD = 0</span>
+      <div class="dgbox">
+        <svg viewBox="0 0 900 290" role="img" aria-label="A nominal switching schedule above an applied schedule. Moving one interior instant later lengthens the interval before it and shortens the interval after it by the same amount, leaving the period unchanged.">
+          <defs>
+            <marker id="d6a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+
+          <text class="dg-t" x="20" y="42">Nominal schedule</text>
+          <rect class="dg-box" x="90" y="58" width="740" height="34" rx="2"/>
+          <line class="dg-line" x1="250" y1="58" x2="250" y2="92"/>
+          <line class="dg-line" x1="430" y1="58" x2="430" y2="92"/>
+          <line class="dg-line" x1="630" y1="58" x2="630" y2="92"/>
+          <text class="dg-mi" x="170" y="80" text-anchor="middle">d̄₁</text>
+          <text class="dg-mi" x="340" y="80" text-anchor="middle">d̄₂</text>
+          <text class="dg-mi" x="530" y="80" text-anchor="middle">d̄₃</text>
+          <text class="dg-mi" x="730" y="80" text-anchor="middle">d̄₄</text>
+          <text class="dg-s" x="90" y="112" text-anchor="middle">0</text>
+          <text class="dg-s" x="250" y="112" text-anchor="middle">t̄₁</text>
+          <text class="dg-s" x="430" y="112" text-anchor="middle">t̄₂</text>
+          <text class="dg-s" x="630" y="112" text-anchor="middle">t̄₃</text>
+          <text class="dg-s" x="830" y="112" text-anchor="middle">T</text>
+
+          <line class="dg-dash" x1="430" y1="92" x2="430" y2="170"/>
+          <line class="dg-line-a" x1="430" y1="132" x2="496" y2="132" marker-end="url(#d6a)" style="color:var(--accent)"/>
+          <text class="dg-m" x="463" y="125" text-anchor="middle">δτ₂</text>
+
+          <text class="dg-t" x="20" y="196">Applied schedule</text>
+          <rect class="dg-box" x="90" y="176" width="740" height="34" rx="2"/>
+          <line class="dg-line" x1="250" y1="176" x2="250" y2="210"/>
+          <line class="dg-line-a" x1="500" y1="176" x2="500" y2="210" style="color:var(--accent)"/>
+          <line class="dg-line" x1="630" y1="176" x2="630" y2="210"/>
+          <text class="dg-mi" x="170" y="198" text-anchor="middle">d̄₁</text>
+          <text class="dg-mo" x="375" y="198" text-anchor="middle">d̄₂ + δτ₂</text>
+          <text class="dg-mc" x="565" y="198" text-anchor="middle">d̄₃ − δτ₂</text>
+          <text class="dg-mi" x="730" y="198" text-anchor="middle">d̄₄</text>
+
+          <line class="dg-faint" x1="90" y1="222" x2="90" y2="244"/>
+          <line class="dg-faint" x1="830" y1="222" x2="830" y2="244"/>
+          <line class="dg-line" x1="90" y1="236" x2="830" y2="236" marker-end="url(#d6a)"/>
+          <line class="dg-line" x1="830" y1="236" x2="90" y2="236" marker-end="url(#d6a)"/>
+          <rect x="400" y="226" width="120" height="20" style="fill:var(--surface)"/>
+          <text class="dg-t" x="460" y="242" text-anchor="middle" style="font-size:12px">T unchanged</text>
+
+          <text class="dg-s" x="20" y="276" style="font-size:11.5px">One instant moves. Two dwells change, by equal and opposite amounts. Only the two intervals touching that instant are affected.</text>
+        </svg>
+      </div>
+      <figcaption><b>The identity everything rests on.</b> Because <code>1ᵀD = 0</code>, the dwell changes always sum to zero, so <em>every</em> offset vector preserves the period, whatever the controller asks for. Scaling by β in §3 cannot break it either: scaling a vector in the null space of <code>1ᵀ</code> keeps it there.</figcaption>
+    </figure>
+  </div>
+
+  <div class="sub">
+    <div class="subhead"><span class="n">2.2</span><h3>Exact augmented propagation</h3><span class="anchor">p. 3 · eqs (5)–(8)</span></div>
+    <div class="body">
+      <p>Affine dynamics do not compose as a product of transition matrices, because each interval carries its own forced term. Equation (5) appends a constant coordinate, which absorbs that term and makes the flow on each interval linear. One cycle then becomes an ordered product of matrix exponentials of the <em>actual</em> durations, equation (6).</p>
+      <p>Nothing is approximated here, and that matters twice over. It is the map the simulation in §4.3 propagates, and it is the object the whole first-order expansion is an expansion <em>of</em>. Equation (8) is just the same product with the nominal cycle subtracted, using periodicity to cancel the anchor.</p>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="subhead"><span class="n">2.3</span><h3>First-order expansion in dwell durations</h3><span class="anchor">p. 3 · eqs (10)–(14)</span></div>
+    <div class="body">
+      <p>Only the interval durations vary in (8), and each enters through a single exponential, so expanding each factor around its nominal duration gives the whole first-order model. Equation (10) is that expansion for one interval; (11) is the ordered product with at most one perturbation kept.</p>
+      <p>Two things are thrown away, and they are not the same. Terms of order <code>‖δd‖²</code> are the ordinary truncation. Products <code>δd·e</code>, an error multiplied by a dwell change, are the ones that matter: they are what would couple a large error to a large timing correction, which is exactly the regime the large-error simulation runs in. This is the step the diagram above marks in red.</p>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="subhead"><span class="n">2.4</span><h3>Switching-instant offsets</h3><span class="anchor">pp. 3–4 · eqs (16)–(18)</span></div>
+    <div class="body">
+      <p>Substituting <code>δd = Dδτ</code> back gives equation (16), the model in the coordinates the controller actually commands, with <code>Γτ = G_d D</code>. Equation (17) is the payoff: after factoring the adjacent terms, column <code>i</code> of <code>Γτ</code> is the jump in the affine vector field at the switching state, carried to the end of the cycle by the remaining nominal transitions.</p>
+      <p>Equation (18) is the sanity check on the whole derivation. Force every interval to share one state matrix and the model collapses to Marcolino's switched-actuator form. The converter does not satisfy that condition, because <code>A_u</code> depends on the switch state, which is the concrete reason this derivation had to be done at all.</p>
+    </div>
+
+    <div class="keys">
+      <div class="k"><b>Γτ,ᵢ — eq (17)</b><span>Displacing an instant trades time between two adjacent modes. To first order the state at that instant does not move, so the vector-field jump there is the entire effect. This is the switching-sensitivity structure Patiño reported, reached here from dwell perturbations.</span></div>
+      <div class="k"><b>Φ — eq (16)</b><span>The nominal cycle map, the ordered product of mode transitions. What the error does when the controller stays silent, and later the β = 0 endpoint of the segment in §3.</span></div>
+      <div class="k"><b>eq (18)</b><span>The reduction to prior work, and the reason the general case was necessary.</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sechead">
+    <div class="secnum">3</div>
+    <div>
+      <div class="astitle">Article section 3</div>
+      <h2>Solver-free dwell-time conditioning</h2>
+      <p class="subtitle">The contribution. Both propositions live here, and they are proved from different halves of section 2.</p>
+      <span class="anchor">p. 4 · eqs (19)–(24) · Propositions 1 and 2</span>
+    </div>
+  </div>
+
+  <div class="body">
+    <p>Section 2 says what an offset does, not whether it can be applied. The raw law of equation (19) knows nothing about the minimum dwell, so something must sit between what it asks for and what the converter executes. There are two obvious candidates, and choosing between them is the paper.</p>
+    <p>Clipping each offset back to its own limit is the reflex, and the resulting schedule is feasible. What it destroys is the relationship to the controller you designed: the applied vector points somewhere you never chose, so the closed loop is no longer <code>A_cl</code> from (19), nor anything you have analyzed. Scaling the whole vector by one number keeps the applied action on the requested ray, which is what makes Proposition 2 possible at all.</p>
+  </div>
+
+  <figure class="dg">
+    <span class="anchor dgtag">Explains eqs (21)–(22) and Proposition 1</span>
+    <div class="dgbox">
+      <svg viewBox="0 0 900 340" role="img" aria-label="Two panels in offset space. Scaling pulls the raw action back along its own ray to the feasible boundary. Clipping caps each component separately and lands on a different direction.">
+        <defs>
+          <marker id="d7a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <text class="dg-t" x="40" y="34">Scaling · eq (22), what the paper does</text>
+        <polygon points="60,250 250,250 300,150 190,80 60,120" class="dg-box-o" style="opacity:.55"/>
+        <text class="dg-mo" x="126" y="200">𝒞, eq (21)</text>
+        <line class="dg-faint" x1="60" y1="250" x2="400" y2="250"/>
+        <line class="dg-faint" x1="60" y1="250" x2="60" y2="60"/>
+        <text class="dg-s" x="404" y="254">δτ₁</text>
+        <text class="dg-s" x="52" y="56" text-anchor="end">δτ₂</text>
+
+        <line class="dg-dash" x1="60" y1="250" x2="370" y2="72"/>
+        <line class="dg-line-a" x1="60" y1="250" x2="230" y2="152" marker-end="url(#d7a)" style="color:var(--accent)"/>
+        <circle cx="370" cy="72" r="5" style="fill:var(--crit); stroke:none"/>
+        <text class="dg-mc" x="336" y="62" text-anchor="end">raw, eq (19)</text>
+        <circle cx="230" cy="152" r="5" style="fill:var(--accent); stroke:none"/>
+        <text class="dg-m" x="246" y="146">applied = β · raw</text>
+        <text class="dg-mi" x="248" y="164">same ray, shorter</text>
+
+        <line class="dg-faint" x1="430" y1="30" x2="430" y2="300"/>
+
+        <text class="dg-t" x="470" y="34">Clipping · the reflex, and why it fails</text>
+        <polygon points="490,250 680,250 730,150 620,80 490,120" class="dg-box-o" style="opacity:.55"/>
+        <line class="dg-faint" x1="490" y1="250" x2="830" y2="250"/>
+        <line class="dg-faint" x1="490" y1="250" x2="490" y2="60"/>
+        <text class="dg-s" x="834" y="254">δτ₁</text>
+
+        <line class="dg-dash" x1="490" y1="250" x2="800" y2="72"/>
+        <circle cx="800" cy="72" r="5" style="fill:var(--crit); stroke:none"/>
+        <text class="dg-mc" x="766" y="62" text-anchor="end">raw</text>
+
+        <line class="dg-line-c" x1="490" y1="250" x2="676" y2="196" marker-end="url(#d7a)" style="color:var(--crit)"/>
+        <circle cx="676" cy="196" r="5" style="fill:var(--crit); stroke:none"/>
+        <text class="dg-mc" x="690" y="192">applied</text>
+        <path class="dg-line-c" d="M600,215 q22,-26 34,-46" stroke-dasharray="3 3"/>
+        <text class="dg-mc" x="596" y="232" text-anchor="end">direction changed</text>
+
+        <text class="dg-s" x="470" y="300" style="font-size:11.5px">Each component capped on its own. Feasible, but the closed loop is no longer any matrix you analyzed.</text>
+        <text class="dg-s" x="40" y="300" style="font-size:11.5px">One scalar on the whole vector. Feasible, and the closed loop stays on a known segment.</text>
+      </svg>
+    </div>
+    <figcaption><b>Proposition 1 in one picture.</b> β is the largest scalar that keeps the tip inside <code>𝒞</code>, found by asking each shortening dwell how much margin it has and taking the smallest answer. One pass over <code>N</code> numbers, no solver. Because the binding constraint is met with equality, the minimum applied dwell lands exactly on the bound, which is what §4.3 reports at 3.000 µs.</figcaption>
+  </figure>
+
+  <div class="body" style="margin-top:34px">
+    <p>Now the payoff, equation (23). Because conditioning only ever scales, the closed-loop matrix cannot be arbitrary. It is pinned to a straight line between two matrices you already know, and a norm ball is convex, so checking the two ends checks the whole line.</p>
+  </div>
+
+  <figure class="dg">
+    <span class="anchor dgtag">Explains eqs (23)–(24) and Proposition 2</span>
+    <div class="dgbox">
+      <svg viewBox="0 0 900 330" role="img" aria-label="A convex norm ball contains the nominal matrix Phi near its edge and the closed-loop matrix A-cl well inside, so the entire segment between them lies inside the ball.">
+        <circle cx="250" cy="160" r="132" class="dg-faint" stroke-dasharray="5 5"/>
+        <circle cx="250" cy="160" r="118" style="fill:var(--accent-soft); stroke:var(--accent); stroke-width:1.4"/>
+
+        <text class="dg-s" x="250" y="18" text-anchor="middle">‖A‖_P = 1  (stability boundary)</text>
+        <text class="dg-m" x="250" y="300" text-anchor="middle">‖A‖_P ≤ q = 0.999939</text>
+
+        <line class="dg-line-a" x1="192" y1="60" x2="316" y2="222" style="color:var(--accent)"/>
+        <circle cx="192" cy="60" r="5.5" style="fill:var(--crit); stroke:none"/>
+        <circle cx="316" cy="222" r="5.5" style="fill:var(--accent); stroke:none"/>
+        <circle cx="254" cy="141" r="4" style="fill:var(--ink-2); stroke:none"/>
+
+        <text class="dg-t" x="176" y="50" text-anchor="end">Φ</text>
+        <text class="dg-mi" x="176" y="66" text-anchor="end">β = 0 · 0.999939</text>
+        <text class="dg-t" x="332" y="228">A_cl</text>
+        <text class="dg-mi" x="332" y="244">β = 1 · 0.979743</text>
+        <text class="dg-mi" x="266" y="136">A(β), eq (23)</text>
+
+        <line class="dg-faint" x1="470" y1="34" x2="470" y2="286"/>
+
+        <text class="dg-t" x="500" y="56">The three moves</text>
+        <text class="dg-s" x="500" y="82">1 ·  Conditioning scales the whole action, so the</text>
+        <text class="dg-s" x="500" y="98">     closed-loop matrix is (1−β)Φ + βA_cl, a segment.</text>
+        <text class="dg-s" x="500" y="124">2 ·  A P-norm ball is convex, so if both endpoints</text>
+        <text class="dg-s" x="500" y="140">     are inside it, every point between them is too.</text>
+        <text class="dg-s" x="500" y="166">3 ·  The bound holds pointwise in k, so any</text>
+        <text class="dg-s" x="500" y="182">     sequence of β values still contracts.</text>
+
+        <rect class="dg-box-c" x="500" y="206" width="376" height="70" rx="4"/>
+        <text class="dg-t" x="516" y="228" style="fill:var(--crit)">The weak spot, drawn to scale</text>
+        <text class="dg-s" x="516" y="248">Φ sits almost on the boundary, so q is set by the open</text>
+        <text class="dg-s" x="516" y="264">loop. The certificate proves stability, not speed.</text>
+      </svg>
+    </div>
+    <figcaption><b>What Proposition 2 buys.</b> No dwell-time argument, no average-dwell-time argument, no assumption on the switching sequence. The state-dependent β from (22) is covered because the bound in (24) holds for every β independently. The closing paragraph of §3 states the local nonlinear result and the limits of both.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="sechead">
+    <div class="secnum">4</div>
+    <div>
+      <div class="astitle">Article section 4</div>
+      <h2>Converter case study</h2>
+      <p class="subtitle">Not one experiment but three checks stacked on each other, carrying different weights. Confusing them is the fastest way to overstate the paper.</p>
+      <span class="anchor">pp. 5–8 · eqs (25)–(26) · Tables 1–2 · Figs 1–4</span>
+    </div>
+  </div>
+
+  <figure class="dg">
+    <span class="anchor dgtag">Explains §4.1 → §4.3 and how they differ in strength</span>
+    <div class="dgbox">
+      <svg viewBox="0 0 900 300" role="img" aria-label="Three validation rows: analytical Jacobians against finite differences, an offline SDP producing a common P, and an exact nonlinear simulation of three controllers, each yielding a different strength of claim.">
+        <defs>
+          <marker id="d8a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <text class="dg-s" x="20" y="28" style="font-size:11px; letter-spacing:.1em">WHAT IS COMPARED</text>
+        <text class="dg-s" x="380" y="28" style="font-size:11px; letter-spacing:.1em">HOW</text>
+        <text class="dg-s" x="620" y="28" style="font-size:11px; letter-spacing:.1em">WHAT IT ESTABLISHES</text>
+        <line class="dg-faint" x1="20" y1="38" x2="880" y2="38"/>
+
+        <rect class="dg-box" x="20" y="54" width="330" height="56" rx="4"/>
+        <text class="dg-t" x="36" y="76">§4.2 · Φ, Γτ  vs  exact map 𝒫</text>
+        <text class="dg-s" x="36" y="96">analytical Jacobians against the plant</text>
+        <line class="dg-line" x1="350" y1="82" x2="376" y2="82" marker-end="url(#d8a)"/>
+        <text class="dg-mi" x="382" y="78">central differences</text>
+        <text class="dg-mi" x="382" y="94">residual sweep</text>
+        <line class="dg-line" x1="596" y1="82" x2="616" y2="82" marker-end="url(#d8a)"/>
+        <rect class="dg-box-o" x="622" y="54" width="258" height="56" rx="4"/>
+        <text class="dg-t" x="638" y="76" style="fill:var(--ok)">The model is implemented right</text>
+        <text class="dg-s" x="638" y="96">rel. err 1e−12 / 1e−11, slope 2.000</text>
+
+        <rect class="dg-box" x="20" y="126" width="330" height="56" rx="4"/>
+        <text class="dg-t" x="36" y="148">§4.2 · Φ  and  A_cl</text>
+        <text class="dg-s" x="36" y="168">the two endpoints of the segment</text>
+        <line class="dg-line" x1="350" y1="154" x2="376" y2="154" marker-end="url(#d8a)"/>
+        <text class="dg-mi" x="382" y="150">offline SDP</text>
+        <text class="dg-mi" x="382" y="166">for a common P</text>
+        <line class="dg-line" x1="596" y1="154" x2="616" y2="154" marker-end="url(#d8a)"/>
+        <rect class="dg-box-a" x="622" y="126" width="258" height="56" rx="4"/>
+        <text class="dg-t" x="638" y="148" style="fill:var(--accent)">A certificate exists here</text>
+        <text class="dg-s" x="638" y="168">for this design, not in general</text>
+
+        <rect class="dg-box" x="20" y="198" width="330" height="66" rx="4"/>
+        <text class="dg-t" x="36" y="220">§4.3 · 3 controllers, 1 initial state</text>
+        <text class="dg-s" x="36" y="240">conditioned aggressive · conservative</text>
+        <text class="dg-s" x="36" y="256">· open loop, exact exponentials</text>
+        <line class="dg-line" x1="350" y1="230" x2="376" y2="230" marker-end="url(#d8a)"/>
+        <text class="dg-mi" x="382" y="226">100 cycles from</text>
+        <text class="dg-mi" x="382" y="242">error 0.983946</text>
+        <line class="dg-line" x1="596" y1="230" x2="616" y2="230" marker-end="url(#d8a)"/>
+        <rect class="dg-box-w" x="622" y="198" width="258" height="66" rx="4"/>
+        <text class="dg-t" x="638" y="220" style="fill:var(--warn)">Benchmark evidence only</text>
+        <text class="dg-s" x="638" y="240">settles at cycle 6 against 20;</text>
+        <text class="dg-s" x="638" y="256">no global claim follows</text>
+
+        <text class="dg-s" x="20" y="288" style="font-size:11.5px">The linearization was validated at perturbations far smaller than the initial error of §4.3. That gap is deliberate, and it is why §4.3 is called a demonstration.</text>
+      </svg>
+    </div>
+    <figcaption><b>Read the rows as different currencies.</b> Row one is verification of an implementation. Row two is a certificate for one design. Row three is a demonstration on one benchmark from one initial state. The paper is careful to keep them apart, and so should you when answering questions about it.</figcaption>
+  </figure>
+
+  <div class="sub">
+    <div class="subhead"><span class="n">4.1</span><h3>Three-cell converter benchmark and implementation</h3><span class="anchor">pp. 5–6 · eqs (25)–(26) · Table 1 · Fig. 1</span></div>
+    <div class="body">
+      <p>Equation (25) is the converter, and the sentence after it does real work: both <code>A_u</code> and <code>b_u</code> depend on the switch state, so the plant fails the common-state-matrix condition of (18). That is why the general derivation was needed.</p>
+      <p>Equation (26) is the reconciled schedule. The published boundaries are rounded to whole microseconds, so exact propagation through them does not close the cycle back onto the anchor. The dwell vector is adjusted once by least squares, holding the 286 µs period, the reported anchor, and the 22 µs design bound. Largest correction 2.111 µs, closure error 1.4 × 10⁻¹⁴. This is data preparation, and the paper says so explicitly.</p>
+    </div>
+    <div class="keys">
+      <div class="k"><b>22 µs</b><span>Patiño's nominal <em>design</em> constraint on the reference schedule, held fixed during reconciliation. Reported in Table 1 as <code>d_bench</code>.</span></div>
+      <div class="k"><b>3 µs</b><span>A separate assumed bound on what the controller may command, <code>d_min</code>. This is the one that drives β, and the one the limitations call uncalibrated.</span></div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="subhead"><span class="n">4.2</span><h3>Linearization and certificate checks</h3><span class="anchor">p. 7 · Table 2</span></div>
+    <div class="body">
+      <p>Two independent checks. The Jacobians are compared against central differences of the exact map, giving relative errors at the level of numerical noise. Then a residual sweep with simultaneous state and timing perturbations decays with slope 2.000, which is the signature a correct <em>first-order</em> model must show; a slope near 1 would mean the Jacobians were wrong.</p>
+      <p>The certificate follows. An offline SDP returns a common <code>P</code> with ‖Φ‖ = 0.999939 and ‖A_cl‖ = 0.979743, so Proposition 2 certifies the whole family with bound 0.999939. The paper now adds the reconciling sentence: that bound is a worst case over arbitrary conditioning sequences, and once β returns to one the closed loop contracts at ρ(A_cl) = 0.568151.</p>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="subhead"><span class="n">4.3</span><h3>Large-error simulation</h3><span class="anchor">pp. 7–8 · Figs 2, 3, 4</span></div>
+    <div class="body">
+      <p>One hundred cycles of the exact nonlinear map from a normalized initial error of 0.983946, far outside the range used to validate the linearization. Every interval is propagated with exact matrix exponentials; the linearized model is never used here.</p>
+      <p>The headline sequence: the raw aggressive law asks for a −43.045 µs dwell, which would invert an interval. The conditioner acts on 3 of the 100 cycles, bottoming out at β = 0.293978, and cuts the largest offset from 65.217 to 19.172 µs. The minimum applied dwell is exactly 3.000 µs, which is maximality doing its job. The conservative law never needed conditioning and is the fair opponent; it reaches the 0.01 threshold at cycle 20 against the conditioned law's cycle 6.</p>
+      <p>The last paragraph exists to pre-empt a misreading. Over 100 cycles the open loop looks divergent in state space, but ρ(Φ) = 0.999850 &lt; 1, so it converges, just slowly enough to stay above threshold until cycle 22 009.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sechead">
+    <div class="secnum">5</div>
+    <div>
+      <div class="astitle">Article section 5</div>
+      <h2>Discussion</h2>
+      <p class="subtitle">Three paragraphs: what the conditioner is and is not, how it sits against prior work, and what the study leaves out.</p>
+      <span class="anchor">p. 8 · no equations</span>
+    </div>
+  </div>
+
+  <div class="body">
+    <p>Almost every question a referee can ask reduces to "where in the state space are you claiming that?" The paper has three answers and they differ genuinely in strength. This is the single most useful thing to be able to draw from memory.</p>
+  </div>
+
+  <figure class="dg">
+    <span class="anchor dgtag">Explains §3's closing paragraph and §5's third paragraph together</span>
+    <div class="dgbox">
+      <svg viewBox="0 0 900 360" role="img" aria-label="Three concentric regions around the cycle anchor: inside the admissible region the exact nonlinear map is proved locally stable, outside it the linearized family is certified, and far away only simulation evidence exists.">
+        <defs>
+          <marker id="d9a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <circle cx="240" cy="180" r="158" style="fill:var(--warn-soft); stroke:var(--warn); stroke-width:1.3; stroke-dasharray:6 5"/>
+        <circle cx="240" cy="180" r="104" style="fill:var(--accent-soft); stroke:var(--accent); stroke-width:1.4"/>
+        <circle cx="240" cy="180" r="52" style="fill:var(--ok-soft); stroke:var(--ok); stroke-width:1.5"/>
+        <circle cx="240" cy="180" r="4.5" style="fill:var(--ink); stroke:none"/>
+        <text class="dg-mi" x="252" y="176">anchor x★</text>
+
+        <text class="dg-mo" x="240" y="212" text-anchor="middle">β = 1</text>
+        <text class="dg-m" x="240" y="264" text-anchor="middle">β &lt; 1</text>
+        <text class="dg-s" x="240" y="318" text-anchor="middle" style="fill:var(--warn)">large error</text>
+
+        <circle cx="352" cy="86" r="5" style="fill:var(--crit); stroke:none"/>
+        <text class="dg-mc" x="362" y="82">x₀</text>
+        <path class="dg-line-c" d="M352,86 q-40,44 -62,58 q-24,12 -38,26" marker-end="url(#d9a)" style="color:var(--crit)"/>
+        <text class="dg-mi" x="300" y="140">β back to 1</text>
+        <text class="dg-mi" x="300" y="155">at cycle 3</text>
+
+        <line class="dg-faint" x1="440" y1="30" x2="440" y2="330"/>
+
+        <rect class="dg-box-o" x="470" y="46" width="410" height="70" rx="4"/>
+        <text class="dg-t" x="486" y="70" style="fill:var(--ok)">Inside 𝒞 · proved, exact plant</text>
+        <text class="dg-s" x="486" y="90">The conditioner never acts, the Jacobian is A_cl, and the exact</text>
+        <text class="dg-s" x="486" y="106">nonlinear map is locally exponentially stable.</text>
+
+        <rect class="dg-box-a" x="470" y="132" width="410" height="70" rx="4"/>
+        <text class="dg-t" x="486" y="156" style="fill:var(--accent)">Outside 𝒞 · proved, linearized model</text>
+        <text class="dg-s" x="486" y="176">Proposition 2 covers every conditioning sequence, but the</text>
+        <text class="dg-s" x="486" y="192">remainder dropped in §2.3 is not bounded here.</text>
+
+        <rect class="dg-box-w" x="470" y="218" width="410" height="70" rx="4"/>
+        <text class="dg-t" x="486" y="242" style="fill:var(--warn)">Far out · evidence only</text>
+        <text class="dg-s" x="486" y="262">One exact 100-cycle run from normalized error 0.983946.</text>
+        <text class="dg-s" x="486" y="278">Convincing, and not a theorem.</text>
+
+        <text class="dg-s" x="470" y="316" style="font-size:11.5px">The run starts in the outer region and reaches the inner one in three cycles, which is why it looks like the theory covers it.</text>
+      </svg>
+    </div>
+    <figcaption><b>The honest reading.</b> The simulation spends most of its life in the region where the strongest result applies, because conditioning stops acting after cycle 3. That is a real strength of the method and it is not the same as a global guarantee, and §5 says so.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="sechead">
+    <div class="secnum">6</div>
+    <div>
+      <div class="astitle">Article section 6</div>
+      <h2>Conclusion</h2>
+      <p class="subtitle">Restates the two contributions, the supporting derivation and checks, the benchmark outcome, and the two open items.</p>
+      <span class="anchor">p. 9 · no equations</span>
+    </div>
+  </div>
+
+  <div class="body">
+    <p>If you can reproduce this ladder, you can answer any question about what the paper claims. The tiers are the thing that protects it in review.</p>
+  </div>
+
+  <div class="ladder">
+    <div class="rung">
+      <div class="lvl" style="color:var(--ok)">Proved</div>
+      <ul>
+        <li>Proposition 1: the scan returns the largest feasible β, preserves direction and period, costs <em>O(N)</em>.</li>
+        <li>Proposition 2: if one <em>P</em> contracts both endpoints, every A(β) contracts, for every β sequence.</li>
+        <li>Local exponential stability of the exact nonlinear map near the anchor, where β = 1 always.</li>
+      </ul>
+    </div>
+    <div class="rung">
+      <div class="lvl" style="color:var(--accent)">Verified numerically</div>
+      <ul>
+        <li>Analytical Jacobians against central differences, relative error 10<sup>−12</sup> to 10<sup>−11</sup>. §4.2</li>
+        <li>Residual decay of slope 2.000, the signature a correct first-order model must show. §4.2</li>
+        <li>Existence of a common <em>P</em> for this particular design, from an offline SDP. §4.2</li>
+      </ul>
+    </div>
+    <div class="rung">
+      <div class="lvl" style="color:var(--warn)">Simulation evidence</div>
+      <ul>
+        <li>One exact nonlinear run, one initial condition, one benchmark: settling at cycle 6 against cycle 20. §4.3</li>
+        <li>Conditioning turning a −43.045 µs request into an admissible 3.000 µs schedule. §4.3</li>
+      </ul>
+    </div>
+    <div class="rung">
+      <div class="lvl" style="color:var(--crit)">Assumed</div>
+      <ul>
+        <li>A 3 µs minimum dwell, not calibrated to any hardware.</li>
+        <li>Exact plant parameters and a measured cycle-start state, with no delay, quantization or dead time.</li>
+        <li>An open loop that already contracts, since Proposition 2 needs ‖Φ‖<sub>P</sub> &lt; 1. §3 now states this.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="quiz">
+    <h3>Test yourself against the diagrams</h3>
+    <ol>
+      <li>§2.1 — Why does every offset vector preserve the period, whatever the controller asks for?</li>
+      <li>§2.2 — What breaks if you drop the augmented constant coordinate?</li>
+      <li>§2.3 — Point at the step where information is lost, and name two limitations that follow.</li>
+      <li>§2.4 — Give the physical reading of equation (17) in one sentence.</li>
+      <li>§3 — Clipping also produces a feasible schedule. State precisely what it costs you.</li>
+      <li>§3 — Why is A(β) a segment rather than an arbitrary matrix, and why does that make the proof three lines long?</li>
+      <li>§4.2 — The certified bound is 0.999939 and the closed loop settles in 6 cycles. Reconcile them.</li>
+      <li>§4.3 — Why is the minimum applied dwell exactly 3.000 µs and not 3.4 µs?</li>
+      <li>§5 — Which of the three regions is the 100-cycle run in, and for how long?</li>
+    </ol>
+  </div>
+</section>
+
+<div class="partbar">
+  <span class="pn">Part II</span>
+  <h2>Audit</h2>
+  <p>Figure quality and the defect list, with current status.</p>
+</div>
+
+<section>
+  <div class="col">
+    <h2>Are the images clear?</h2>
+    <p class="subtitle">Two of the four are good. One buries the single fact it exists to show. One should probably not be in the paper. All four were rendered at print size and read as a reviewer would see them.</p>
+  </div>
+
+  <div class="stack">
+
+    <article class="fig-entry">
+      <div class="fig-head">
+        <span class="id">Fig. 1 · §4.1 · p. 5</span>
+        <h3>Reconciled reference schedule and exact periodic trajectory</h3>
+        <span class="chip ok">Usable</span>
+      </div>
+      <div class="fig-body">
+        <dl class="judge">
+          <dt>Works</dt>
+          <dd>Four stacked panels on a shared time axis is the right form. The cycle averages as dashed lines land immediately, and the numbers agree with the text.</dd>
+          <dt>Breaks</dt>
+          <dd><b>Mode ID is plotted as a number.</b> The sequence 0, 1, 3, 7, 2, 0, 4, 7, 4 is drawn as a staircase with height, telling the eye that mode 7 is "more" than mode 2. It is a categorical label.</dd>
+          <dd><b>The x-axis runs to 300 µs</b> for a 286 µs period, so every panel ends in an empty strip.</dd>
+          <dd><b>The switching instants are invisible</b>, drawn at the same weight as the background grid, and missing from the mode panel where they matter most.</dd>
+          <dd><b>Legend reads "Nominal orbit"</b>, a term <code>CONTEXT.md</code> lists under <em>avoid</em>.</dd>
+        </dl>
+      </div>
+    </article>
+
+    <article class="fig-entry">
+      <div class="fig-head">
+        <span class="id">Fig. 2 · §4.3 · p. 7</span>
+        <h3>Dwell-time conditioning during the first cycle</h3>
+        <span class="chip warn">Buries its own point</span>
+      </div>
+      <div class="fig-body">
+        <dl class="judge">
+          <dt>Works</dt>
+          <dd>Panel (a) is the best single image in the paper. Boundary time against boundary index turns "the schedule is infeasible" into something visible: the raw line goes <em>down</em> between boundaries 8 and 9, annotated <em>inversion</em>.</dd>
+          <dt>Breaks</dt>
+          <dd><b>Panel (b) hides the claim it exists to prove.</b> Bars span −50 to 200 µs, so the 3 µs bound and the zero line are the same line to the eye.</dd>
+          <dd><b>"Raw candidate"</b> in both legends. <em>Candidate</em> is used nowhere in the paper in this sense.</dd>
+          <dd><b>β is written "beta"</b> in ASCII, in a paper that uses the symbol everywhere else.</dd>
+        </dl>
+      </div>
+    </article>
+
+    <article class="fig-entry">
+      <div class="fig-head">
+        <span class="id">Fig. 3 · §4.3 · p. 7</span>
+        <h3>Exact nonlinear response, first 25 cycles</h3>
+        <span class="chip warn">Caption now fixed</span>
+      </div>
+      <div class="fig-body">
+        <dl class="judge">
+          <dt>Works</dt>
+          <dd>The strongest figure. Log-scale error in (a) makes the three-way comparison instant, and β stepping 0.294 → 0.44 → 0.78 → 1 in (b) shows the conditioner switching itself off as the error shrinks.</dd>
+          <dt>Fixed</dt>
+          <dd>The caption claimed 100 cycles while the axes stop at 25. It now reads "showing the first 25 of the 100 simulated cycles."</dd>
+          <dt>Breaks</dt>
+          <dd><b>Panel (d) repeats the Fig. 2(b) failure.</b> The bound sits inside an 80 µs range, so the applied curve resting exactly on it, the visible proof that β is maximal, cannot be seen.</dd>
+          <dd><b>Panel titles use vocabulary from nowhere</b>: "Candidate and applied action", "Uniform conditioning factor".</dd>
+          <dd>Panels (c) and (d) are flat after cycle 5.</dd>
+        </dl>
+      </div>
+    </article>
+
+    <article class="fig-entry">
+      <div class="fig-head">
+        <span class="id">Fig. 4 · §4.3 · p. 8</span>
+        <h3>Exact large-error trajectory comparison</h3>
+        <span class="chip crit">Cut or rebuild</span>
+      </div>
+      <div class="fig-body">
+        <dl class="judge">
+          <dt>Works</dt>
+          <dd>The intent is right and defensive: it pre-empts the reader who sees a 100-cycle state-space plot and concludes the open loop diverges.</dd>
+          <dt>Breaks</dt>
+          <dd><b>The legend sits on top of the data</b> and covers the v<sub>C2</sub> axis labels.</dd>
+          <dd><b>Four of seven legend entries cannot be found in the plot</b>: the target polygon, the initial state, the anchor star, and four of five milestone circles.</dd>
+          <dd><b>The ink is inverted.</b> The open-loop baseline dominates; the contribution is a thin blue squiggle.</dd>
+          <dd><b>Panel (b) is a 16-decade axis holding one flat line</b>, restating Fig. 3(a) at lower resolution.</dd>
+          <dd><b>It is a PNG among vector PDFs</b> and still occupies page 8 alone.</dd>
+        </dl>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<section>
+  <div class="col">
+    <h2>Findings: four closed, one blocking, four open</h2>
+    <p class="subtitle">Status verified against the source, not from memory. The four open items are all figure work and all live in the same MATLAB script.</p>
+  </div>
+
+  <div style="margin-top:30px">
+
+    <div class="finding">
+      <div class="num">01</div>
+      <div>
+        <div class="hd"><h3>Figure 3 showed 25 cycles while its caption claimed 100</h3><span class="chip ok">Fixed</span></div>
+        <p>The plotting script caps the horizon at 25 cycles; the caption and body described a 100-cycle study.</p>
+        <p class="res"><b>Resolved</b> The caption changed rather than the plot. The 25-cycle window is the right one: the conservative law settles at cycle 20 and panels (c) and (d) are flat after cycle 5.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="num">02</div>
+      <div>
+        <div class="hd"><h3>Half the floats were never cited in the text</h3><span class="chip ok">Fixed</span></div>
+        <p>Table 1, Figure 2 and Figure 3 had no in-text citation, which Springer copy-editing flags and which left LaTeX free to strand them on float pages.</p>
+        <p class="res"><b>Resolved</b> All six labels now have exactly one citation. Figures 2 and 3 also moved from <code>[p]</code> to <code>[tb]</code>, which is what actually delivers the placement benefit, and they now sit on page 7 beside their discussion on page 6.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="num">03</div>
+      <div>
+        <div class="hd"><h3>The minimum-dwell bound is invisible in both figures meant to demonstrate it</h3><span class="chip crit">Open</span></div>
+        <p>The central empirical claim of §4.3 is that the applied schedule never violates 3 µs and that maximality drives it exactly onto the bound. In Fig. 2(b) the bound is drawn inside a 250 µs range, in Fig. 3(d) inside an 80 µs range. At print size the claim is asserted by the caption and not shown by the plot.</p>
+        <p class="fix"><b>Fix</b> Plot the margin, dwell minus bound, on a log axis, or add a zoomed inset over 0 to 25 µs. The applied curve then sits visibly at zero margin.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="num">04</div>
+      <div>
+        <div class="hd"><h3>Figure 4 costs a page and duplicates Figure 3</h3><span class="chip crit">Open</span></div>
+        <p>Panel (b) restates Fig. 3(a) over a longer horizon; panel (a) is a 3D view whose legend covers the axes. The paper is at 10 pages against an 8 to 10 target, and this is the cheapest page to recover.</p>
+        <p class="fix"><b>Fix</b> Drop the 3D panel. Keep one small log-axis plot of open-loop error against cycle number, annotated at the 22 009 crossing, placed beside the paragraph in §4.3 that makes the argument.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="num">05</div>
+      <div>
+        <div class="hd"><h3>Red means three different things across the four figures</h3><span class="chip warn">Open</span></div>
+        <p>Red is the v<sub>C2</sub> state in Fig. 1, the raw or infeasible action in Figs. 2 and 3, and the open loop in Fig. 4. A reader who has learned that red means "what you must not apply" then meets a red baseline controller.</p>
+        <p class="fix"><b>Fix</b> One encoding for the whole paper: blue for applied, red reserved for raw or infeasible, neutral grey for open loop, per-state colors only in Fig. 1.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="num">06</div>
+      <div>
+        <div class="hd"><h3>Figure labels contradict the project's own glossary</h3><span class="chip warn">Open</span></div>
+        <p>"Nominal orbit" is on the <em>avoid</em> list in <code>CONTEXT.md</code>. "Candidate" and "Uniform" appear in three panel titles and two legends but nowhere in the manuscript. "beta" and "us" are ASCII where the text uses β and µs.</p>
+        <p class="fix"><b>Fix</b> Take the label strings from the glossary, and drop the in-figure titles entirely since the captions carry them.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="num">07</div>
+      <div>
+        <div class="hd"><h3>The certificate was quoted as if it explained performance</h3><span class="chip ok">Fixed</span></div>
+        <p>A certified bound of 0.999939 sitting near a 6-cycle settling time reads as an admission that the certificate is vacuous.</p>
+        <p class="res"><b>Resolved</b> §4.2 now says the bound is a worst case over arbitrary conditioning sequences, including the one that never applies the correction, and that the closed loop contracts at ρ(A_cl) = 0.568151 once β returns to one.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="num">08</div>
+      <div>
+        <div class="hd"><h3>Proposition 2 needs a stable open loop and did not say so</h3><span class="chip ok">Fixed</span></div>
+        <p>The hypothesis ‖Φ‖<sub>P</sub> &lt; 1 requires the uncontrolled cycle map to contract, a genuine restriction presented as a neutral technical condition.</p>
+        <p class="res"><b>Resolved</b> Named in §3 where the proposition is stated, with what is lost without it: the conditioner still runs and still returns an admissible schedule, and only the guarantee disappears.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="num">09</div>
+      <div>
+        <div class="hd"><h3>Declarations are still placeholders</h3><span class="chip crit">Blocking</span></div>
+        <p>Restructured into proper Springer headings, but all seven fields remain <code>TODO</code>. Data availability is required for original research, so the paper cannot be submitted as it stands.</p>
+        <p class="fix"><b>Fix</b> Needs your input. Funding, competing interests and author contributions are factual claims about the authors and should not be invented.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <div class="col">
+    <h2>Remaining work</h2>
+    <p class="subtitle">Findings 03, 05, 06 and the mode-panel issue all live in <code>scripts/generate_results.m</code>. Treating them as four tasks means opening the same file four times.</p>
+  </div>
+
+  <div class="tblwrap">
+    <table>
+      <thead><tr><th>Change</th><th>Why it pays</th><th class="eff">Effort</th></tr></thead>
+      <tbody>
+        <tr><td>Fill the Declarations block</td><td>Blocks submission until done</td><td class="eff">minutes</td></tr>
+        <tr><td>Replot dwell panels as margin above the bound</td><td>Turns the central empirical claim from an assertion into something visible</td><td class="eff">~2 h</td></tr>
+        <tr><td>Cut Fig. 4 to a single annotated convergence plot</td><td>Recovers a full page, removes the unreadable 3D view, keeps the argument</td><td class="eff">~2 h</td></tr>
+        <tr><td>One color and label specification across all figures</td><td>Stops red from meaning three things, brings figures up to the prose's discipline</td><td class="eff">~3 h</td></tr>
+        <tr><td>Redraw the mode panel as a categorical band</td><td>Removes a false ordering the staircase implies</td><td class="eff">~1 h</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">One thing worth protecting in the edit: Fig. 2(a) is the paper's best explanatory image, and the inversion annotation is the moment the problem becomes obvious to a reader who has never thought about switching schedules. Whatever else changes, that panel should get larger, not smaller.</div>
+</section>
+
+</div>
