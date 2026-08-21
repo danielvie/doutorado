@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Como escolher uma função de Lyapunov</title>
+<style>
+:root{--bg:#f5f7fa;--panel:#fff;--ink:#17212b;--muted:#526170;--rule:#d7dee6;--blue:#145da0;--green:#147a68;--orange:#a85c16;--red:#a33b35;--code:#17202a;--code-ink:#edf3f8}
+@media(prefers-color-scheme:dark){:root{--bg:#11171d;--panel:#19222b;--ink:#e8eef3;--muted:#b4c2ce;--rule:#33424f;--blue:#70b1e6;--green:#5cc8ad;--orange:#e4a361;--red:#e7837c;--code:#0b1014;--code-ink:#e8eef3}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.68 Georgia,"Times New Roman",serif;padding:0 18px 90px}.wrap{max-width:900px;margin:auto}.reading{max-width:740px}header{padding:64px 0 38px;border-bottom:1px solid var(--rule)}h1,h2,h3,.eyebrow,.toc,.tag,th{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}h1{font-size:clamp(2.4rem,6vw,4rem);line-height:1.05;letter-spacing:-.04em;margin:0 0 18px}.eyebrow{color:var(--blue);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px}.subtitle{color:var(--muted);font-size:1.25rem;line-height:1.5;margin:0}h2{border-top:1px solid var(--rule);color:var(--blue);font-size:1.55rem;line-height:1.2;margin:58px 0 20px;padding-top:22px}h3{font-size:1.1rem;margin:30px 0 9px}p{margin:0 0 17px}a{color:var(--blue)}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}code{font-size:.87em}pre{background:var(--code);color:var(--code-ink);border-radius:8px;font-size:.82rem;line-height:1.5;overflow-x:auto;padding:18px;margin:18px 0 24px}.eq{background:var(--panel);border:1px solid var(--rule);border-left:4px solid var(--blue);border-radius:5px;font-size:1.08rem;margin:20px 0;padding:14px 18px;text-align:center;overflow-x:auto}.eq.left{text-align:left}.chart{background:var(--panel);border:1px solid var(--rule);border-radius:8px;margin:24px 0;padding:12px;overflow-x:auto}.chart svg{display:block;height:auto;margin:auto;max-width:100%}.chart text{fill:var(--muted);font:13px system-ui,sans-serif}.chart .axis{stroke:var(--muted);stroke-width:1}.chart .level{fill:none;stroke:var(--blue);stroke-width:2;opacity:.45}.chart .path{fill:none;stroke:var(--green);stroke-width:3}.chart .point{fill:var(--red)}.chart figcaption{color:var(--muted);font-size:.88rem;margin:8px 4px 0}.card{background:var(--panel);border:1px solid var(--rule);border-radius:8px;margin:22px 0;padding:21px 24px}.card.blue{border-left:4px solid var(--blue)}.card.green{border-left:4px solid var(--green)}.card.orange{border-left:4px solid var(--orange)}.card.red{border-left:4px solid var(--red)}.tag{color:var(--muted);display:block;font-size:11px;font-weight:700;letter-spacing:.12em;margin-bottom:8px;text-transform:uppercase}.toc{background:var(--panel);border:1px solid var(--rule);border-radius:7px;color:var(--muted);font-size:.92rem;margin:28px 0;padding:18px 22px}.toc strong{color:var(--ink)}.toc li{margin:4px 0}table{border-collapse:collapse;font-size:.9rem;width:100%;margin:18px 0 26px}th{color:var(--muted);font-size:.68rem;letter-spacing:.08em;text-align:left;text-transform:uppercase}td,th{border-bottom:1px solid var(--rule);padding:9px 8px;vertical-align:top}.checklist{padding-left:24px}.checklist li{margin:9px 0}footer{border-top:1px solid var(--rule);color:var(--muted);font-size:.9rem;margin-top:60px;padding-top:22px}@media(max-width:650px){body{font-size:17px;padding-inline:12px}h1{font-size:2.6rem}pre{font-size:.75rem}.card{padding:18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Tutorial autocontido · sistemas dinâmicos</div>
+  <h1>Como escolher uma função de Lyapunov</h1>
+  <p class="subtitle">Uma função de Lyapunov é uma régua que mede quanta distância resta até o equilíbrio. Vamos escolher essa régua pela física, por uma forma quadrática e por otimização convexa.</p>
+</header>
+<div class="reading">
+<nav class="toc" aria-label="Índice">
+  <strong>Neste documento</strong>
+  <ol>
+    <li><a href="#ideia">A ideia e o teste de estabilidade</a></li>
+    <li><a href="#fisica">Método 1: física e energia</a></li>
+    <li><a href="#quadratica">Método 2: forma quadrática</a></li>
+    <li><a href="#convexa">Método 3: otimização convexa</a></li>
+    <li><a href="#escolha">Como decidir</a></li>
+    <li><a href="#artigo">Relação com o certificado do artigo</a></li>
+  </ol>
+</nav>
+
+<h2 id="ideia">1. A ideia antes da álgebra</h2>
+<p>Considere o sistema autônomo contínuo</p>
+<div class="eq">ẋ = f(x), &nbsp;&nbsp; x ∈ ℝⁿ</div>
+<p>e suponha que o equilíbrio de interesse seja a origem, <code>f(0) = 0</code>. Para um equilíbrio <code>x⋆</code> diferente de zero, use o erro <code>z = x − x⋆</code> e faça a análise em <code>z = 0</code>.</p>
+<p><strong>V não é um número fixo.</strong> É uma função que atribui um número a cada estado. Queremos que ela tenha um mínimo estrito no equilíbrio e diminua ao longo das trajetórias.</p>
+<div class="eq">V(0) = 0, &nbsp;&nbsp; V(x) &gt; 0 para x ≠ 0, &nbsp;&nbsp; dV/dt = ∇V(x)ᵀf(x) &lt; 0 para x ≠ 0.</div>
+<p>As duas primeiras condições dizem que <code>V</code> é positiva definida. A terceira diz que ela é estritamente decrescente. Se <code>V</code> é continuamente diferenciável e essas condições valem em uma vizinhança do equilíbrio, temos estabilidade assintótica nessa vizinhança.</p>
+<div class="card blue">
+  <span class="tag">O que o certificado prova</span>
+  <p>Os subníveis</p>
+  <div class="eq">Ωc = { x : V(x) ≤ c }</div>
+  <p>são candidatos a regiões invariantes. O alcance da conclusão depende do domínio onde as desigualdades foram verificadas. Local não significa global.</p>
+</div>
+<figure class="chart">
+<svg viewBox="0 0 640 260" role="img" aria-label="Subníveis elípticos de V e uma trajetória convergindo para o equilíbrio">
+  <defs><marker id="arrow-v" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="var(--green)"></path></marker></defs>
+  <line class="axis" x1="70" y1="130" x2="590" y2="130"></line><line class="axis" x1="320" y1="25" x2="320" y2="235"></line>
+  <ellipse class="level" cx="320" cy="130" rx="220" ry="88"></ellipse><ellipse class="level" cx="320" cy="130" rx="145" ry="58"></ellipse><ellipse class="level" cx="320" cy="130" rx="72" ry="29"></ellipse>
+  <path class="path" d="M505,64 C450,48 390,72 397,116 C404,160 355,187 323,158 C300,137 285,130 320,130" marker-end="url(#arrow-v)"></path>
+  <circle class="point" cx="320" cy="130" r="5"></circle>
+  <text x="575" y="121">x₁</text><text x="329" y="35">x₂</text><text x="334" y="122">0</text><text x="480" y="57">trajetória</text><text x="420" y="218">V(x) = c</text>
+</svg>
+<figcaption>Um subnível de V funciona como uma fronteira que a trajetória não consegue atravessar para fora. A seta mostra uma trajetória que cruza níveis cada vez menores.</figcaption>
+</figure>
+<h3>Quando a derivada é apenas semidefinida</h3>
+<p>Se a física fornece apenas <code>dV/dt ≤ 0</code>, a energia não aumenta, mas isso sozinho não prova convergência. Escolha um subnível compacto e positivamente invariante <code>Ωc</code>. Pelo princípio de invariância de LaSalle, as trajetórias se aproximam do maior conjunto invariante contido em <code>{x ∈ Ωc : dV/dt = 0}</code>. Se esse conjunto for apenas o equilíbrio, há convergência.</p>
+
+<h2 id="fisica">2. Método 1: usar a física e a energia</h2>
+<p>Comece por este método quando o sistema tem energia armazenada e dissipação identificáveis. Energia cinética, potencial, de indutores, de capacitores e funções de armazenamento termodinâmicas já têm interpretação física. Escreva a energia relativa ao equilíbrio e calcule sua derivada.</p>
+<div class="card green">
+  <span class="tag">Exemplo numérico: pêndulo amortecido</span>
+  <p>Considere um pêndulo com ângulo <code>θ</code>, velocidade angular <code>ω</code>, coeficiente de amortecimento normalizado <code>b/I = 0.8</code> e coeficiente gravitacional normalizado <code>ω₀² = mgl/I = 4</code>:</p>
+  <div class="eq">θ̇ = ω, &nbsp;&nbsp; ω̇ = −4 sin(θ) − 0.8ω.</div>
+  <p>O equilíbrio inferior é <code>(θ,ω) = (0,0)</code>. A energia relativa a esse ponto é</p>
+  <div class="eq">V(θ,ω) = ½ω² + 4(1 − cos θ).</div>
+  <p>O primeiro termo é energia cinética. O segundo é energia potencial, escolhido para valer zero no ponto mais baixo.</p>
+</div>
+<h3>Positividade e derivada</h3>
+<p>Como <code>ω² ≥ 0</code> e <code>1 − cos θ ≥ 0</code>, temos <code>V ≥ 0</code>. Perto de <code>θ = 0</code>, a igualdade só ocorre em <code>(θ,ω) = (0,0)</code>.</p>
+<div class="eq">dV/dt = 4 sin(θ) θ̇ + ωω̇<br>dV/dt = 4 sin(θ)ω + ω[−4 sin(θ) − 0.8ω] = −0.8ω² ≤ 0.</div>
+<p>A gravidade troca energia cinética por potencial e vice-versa. Esses termos se cancelam. O amortecedor é responsável pela perda líquida.</p>
+<h3>Um estado numérico</h3>
+<p>Para <code>θ(0)=0.8 rad</code> e <code>ω(0)=0.6 rad/s</code>,</p>
+<div class="eq">V(0) = ½(0.6)² + 4[1 − cos(0.8)] ≈ 1.3932,<br>dV/dt(0) = −0.8(0.6)² = −0.288.</div>
+<p>A energia está diminuindo naquele instante. A derivada é semidefinida, então usamos LaSalle. Para um subnível com <code>0 &lt; c &lt; 8</code>, no componente que contém <code>θ=0</code>, <code>dV/dt=0</code> implica <code>ω=0</code>. A invariância exige também <code>ω̇ = −4 sin θ = 0</code>, deixando apenas <code>θ=0</code> nesse componente.</p>
+<figure class="chart">
+<svg viewBox="0 0 640 270" role="img" aria-label="Retrato de fase do pêndulo com curvas de energia e trajetória amortecida">
+  <defs><marker id="arrow-p" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="var(--green)"></path></marker></defs>
+  <line class="axis" x1="65" y1="135" x2="590" y2="135"></line><line class="axis" x1="320" y1="25" x2="320" y2="245"></line>
+  <ellipse class="level" cx="320" cy="135" rx="225" ry="92"></ellipse><ellipse class="level" cx="320" cy="135" rx="150" ry="61"></ellipse><ellipse class="level" cx="320" cy="135" rx="76" ry="31"></ellipse>
+  <path class="path" d="M500,60 C455,35 377,48 365,102 C355,148 390,190 347,205 C318,216 283,194 290,159 C295,138 310,135 320,135" marker-end="url(#arrow-p)"></path>
+  <circle class="point" cx="320" cy="135" r="5"></circle>
+  <text x="574" y="127">θ</text><text x="329" y="36">ω</text><text x="328" y="127">0</text><text x="430" y="54">energia diminui</text>
+</svg>
+<figcaption>No pêndulo, as curvas representam níveis de energia. O amortecimento faz a trajetória atravessar níveis menores em vez de permanecer numa curva fechada.</figcaption>
+</figure>
+<div class="card orange">
+  <span class="tag">Limite do método</span>
+  <p>A energia é periódica em <code>θ</code>. Ela zera nos equilíbrios inferiores <code>θ=2kπ</code>; os superiores estão em <code>θ=(2k+1)π</code> e têm energia 8. Não conclua estabilidade global do ponto <code>(0,0)</code> sem declarar o domínio.</p>
+</div>
+
+<h2 id="quadratica">3. Método 2: escolher uma forma quadrática</h2>
+<p>Para um sistema linear contínuo</p>
+<div class="eq">ẋ = Ax,</div>
+<p>uma escolha natural é</p>
+<div class="eq">V(x) = xᵀPx, &nbsp;&nbsp; P = Pᵀ ≻ 0.</div>
+<p>Uma forma sistemática de escolher <code>P</code> é fixar <code>Q = Qᵀ ≻ 0</code> e resolver</p>
+<div class="eq">AᵀP + PA = −Q.</div>
+<p>Se <code>A</code> for Hurwitz, todos os seus autovalores terão parte real negativa, e a equação terá uma única solução <code>P ≻ 0</code> para cada <code>Q ≻ 0</code>.</p>
+<div class="card blue">
+  <span class="tag">Exemplo numérico: sistema linear genérico</span>
+  <p>Use</p>
+  <div class="eq">A = [ −1 &nbsp; 2<br>&nbsp;&nbsp;&nbsp;&nbsp;−3 &nbsp;−4 ], &nbsp;&nbsp; Q = I.</div>
+  <p>Os autovalores são <code>−2.5 ± 1.9365i</code>. Escreva <code>P = [[p,q],[q,r]]</code> e resolva a equação de Lyapunov:</p>
+  <div class="eq left">−2p − 6q = −1<br>2p − 5q − 3r = 0<br>4q − 8r = −1.</div>
+</div>
+<p>A solução é</p>
+<div class="eq">P = [ 0.35 &nbsp;0.05<br>&nbsp;&nbsp;&nbsp;&nbsp;0.05 &nbsp;0.15 ].</div>
+<p>Ela é positiva definida porque <code>0.35 &gt; 0</code> e <code>det(P) = 0.35·0.15 − 0.05² = 0.05 &gt; 0</code>. Assim,</p>
+<div class="eq">V(x₁,x₂) = 0.35x₁² + 0.10x₁x₂ + 0.15x₂².</div>
+<h3>Verificar a queda</h3>
+<div class="eq">dV/dt = xᵀ(AᵀP + PA)x = −xᵀx = −(x₁²+x₂²) &lt; 0 para x ≠ 0.</div>
+<p>Para <code>x(0)=[1,−1]ᵀ</code>, <code>V(x(0))=0.40</code> e <code>dV/dt(x(0))=−2</code>. Os autovalores de <code>P</code> são aproximadamente <code>0.1382</code> e <code>0.3618</code>, logo</p>
+<div class="eq">0.1382‖x‖² ≤ V(x) ≤ 0.3618‖x‖²,<br>dV/dt ≤ −(1/0.3618)V ≈ −2.7639V.</div>
+<p>Portanto, <code>V(t) ≤ V(0)e^(−2.7639t)</code>. A taxa é uma garantia, não necessariamente a taxa exata de cada trajetória.</p>
+<figure class="chart">
+<svg viewBox="0 0 640 250" role="img" aria-label="Elipses de nível de uma forma quadrática e uma trajetória em direção à origem">
+  <line class="axis" x1="70" y1="125" x2="590" y2="125"></line><line class="axis" x1="330" y1="25" x2="330" y2="225"></line>
+  <g transform="translate(330 125) rotate(-28)"><ellipse class="level" cx="0" cy="0" rx="220" ry="76"></ellipse><ellipse class="level" cx="0" cy="0" rx="145" ry="50"></ellipse><ellipse class="level" cx="0" cy="0" rx="70" ry="25"></ellipse></g>
+  <path class="path" d="M530,62 C450,48 405,80 415,122 C425,164 378,185 333,143 C325,136 325,130 330,125"></path>
+  <circle class="point" cx="330" cy="125" r="5"></circle><text x="574" y="117">x₁</text><text x="338" y="35">x₂</text><text x="340" y="117">0</text><text x="430" y="52">elipses de V</text>
+</svg>
+<figcaption>Para V(x)=xᵀPx, as fronteiras de nível são elipses. A matriz P inclina e estica a régua para acompanhar a dinâmica.</figcaption>
+</figure>
+
+<h2 id="convexa">4. Método 3: obter V por otimização convexa</h2>
+<p>Para uma matriz <code>A</code> fixa, as condições</p>
+<div class="eq">P ≽ εI, &nbsp;&nbsp; AᵀP + PA ≼ −Q</div>
+<p>são afins em <code>P</code>. O conjunto viável é convexo. Minimizar <code>trace(P)</code> apenas escolhe uma solução específica dentro desse conjunto; a estabilidade vem das desigualdades.</p>
+<figure class="chart">
+<svg viewBox="0 0 640 180" role="img" aria-label="Fluxo da escolha de P por otimização convexa">
+  <defs><marker id="arrow-c" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="var(--blue)"></path></marker></defs>
+  <rect x="20" y="55" width="145" height="70" rx="8" fill="var(--panel)" stroke="var(--blue)"></rect><rect x="245" y="55" width="145" height="70" rx="8" fill="var(--panel)" stroke="var(--blue)"></rect><rect x="470" y="55" width="145" height="70" rx="8" fill="var(--panel)" stroke="var(--green)"></rect>
+  <line x1="165" y1="90" x2="240" y2="90" stroke="var(--blue)" stroke-width="2" marker-end="url(#arrow-c)"></line><line x1="390" y1="90" x2="465" y2="90" stroke="var(--blue)" stroke-width="2" marker-end="url(#arrow-c)"></line>
+  <text x="92" y="82" text-anchor="middle">A, Q</text><text x="92" y="104" text-anchor="middle">dados fixos</text><text x="317" y="82" text-anchor="middle">LMIs</text><text x="317" y="104" text-anchor="middle">conjunto viável</text><text x="542" y="82" text-anchor="middle">solver</text><text x="542" y="104" text-anchor="middle">P e V(x)</text>
+</svg>
+<figcaption>O solver não prova por simulação. Ele procura uma matriz P que esteja simultaneamente dentro das restrições matriciais.</figcaption>
+</figure>
+<div class="card green">
+  <span class="tag">Exemplo numérico: oscilador amortecido</span>
+  <p>Use <code>A=[[0,1],[-2,-0.5]]</code> e <code>Q=I</code>. Um resultado esperado ao minimizar <code>trace(P)</code> é</p>
+  <div class="eq">P ≈ [ 3.125 &nbsp;0.250<br>&nbsp;&nbsp;&nbsp;&nbsp;0.250 &nbsp;1.500 ].</div>
+  <p>Os autovalores de <code>P</code> são aproximadamente <code>1.4625</code> e <code>3.1625</code>. Para <code>x₀=[1,−1]ᵀ</code>, <code>V(x₀)=4.125</code> e <code>dV/dt(x₀)=−2</code>.</p>
+</div>
+<h3>Código MATLAB com CVX</h3>
+<p>Instale o <a href="https://cvxr.com/cvx/">CVX</a>, execute <code>cvx_setup</code> uma vez e rode:</p>
+<pre><code>% escolher_P_cvx.m
+clear; clc;
+A = [0 1; -2 -0.5];
+Q = eye(2); n = size(A,1); epsP = 1e-6;
+
+cvx_begin sdp
+    variable P(n,n) symmetric
+    minimize(trace(P))
+    subject to
+        P &gt;= epsP*eye(n)
+        A'*P + P*A &lt;= -Q
+cvx_end
+
+Pval = full(P);
+S = A'*Pval + Pval*A;
+Psy = (Pval + Pval')/2;
+R = (S + Q + (S + Q)')/2;
+
+disp('P ='); disp(Pval);
+disp('eig(P) ='); disp(eig(Psy));
+disp('A''*P + P*A + Q ='); disp(S + Q);
+
+x0 = [1; -1];
+fprintf('V(x0) = %.8f\n', x0'*Pval*x0);
+fprintf('dV/dt(x0) = %.8f\n', x0'*S*x0);
+
+% Verificacoes matriciais, validas para todos os estados.
+tol = 1e-7;
+assert(min(eig(Psy)) &gt;= epsP - tol);
+assert(max(eig(R)) &lt;= tol);
+assert(strcmp(cvx_status,'Solved') || ...
+       strcmp(cvx_status,'Inaccurate/Solved'));</code></pre>
+<p>Espere <code>P</code> próximo de <code>[[3.125,0.25],[0.25,1.5]]</code>, autovalores positivos e um resíduo <code>A'*P + P*A + Q</code> próximo de zero. A verificação matricial é mais forte do que testar apenas um estado.</p>
+<h3>Uma mesma V para vários modos</h3>
+<p>Para um certificado comum, use a mesma variável <code>P</code> e adicione uma LMI por matriz:</p>
+<pre><code>A1 = [0 1; -2 -0.5];
+A2 = [-0.2 1; -1.4 -0.8];
+Q = eye(2); n = 2; epsP = 1e-6;
+
+cvx_begin sdp
+    variable P(n,n) symmetric
+    minimize(trace(P))
+    subject to
+        P &gt;= epsP*eye(n)
+        A1'*P + P*A1 &lt;= -Q
+        A2'*P + P*A2 &lt;= -Q
+cvx_end
+
+S1 = A1'*P + P*A1 + Q;
+S2 = A2'*P + P*A2 + Q;
+fprintf('residuos: %.3e, %.3e\n', max(eig(S1)), max(eig(S2)));</code></pre>
+<p>A exigência é mais forte do que encontrar uma matriz diferente para cada modo. Em compensação, uma única forma quadrática pode provar estabilidade para sequências de modos, inclusive sequências que dependem do estado, quando todas as LMIs são satisfeitas.</p>
+<div class="card red">
+  <span class="tag">Armadilha importante</span>
+  <p>Não otimize automaticamente <code>P</code> e um ganho <code>K</code> ao mesmo tempo. Termos como <code>P*K</code> costumam ser bilineares e deixam de ser convexos. A etiqueta LMI só vale quando as variáveis aparecem afim nas desigualdades.</p>
+</div>
+<h3>Tempo contínuo e tempo discreto não são a mesma LMI</h3>
+<p>As desigualdades anteriores são para <code>ẋ=Ax</code>. Para um mapa discreto <code>xₖ₊₁=Axₖ</code>, use a forma</p>
+<div class="eq">AᵀPA − P ≼ −R, &nbsp;&nbsp; R ≻ 0.</div>
+<p>Ela também é afim em <code>P</code> quando <code>A</code> é fixa. Não substitua uma forma pela outra sem verificar o modelo.</p>
+
+<h2 id="escolha">5. Como decidir</h2>
+<table>
+<thead><tr><th>Método</th><th>Comece aqui quando</th><th>Ganho</th><th>Cuidado</th></tr></thead>
+<tbody>
+<tr><td>Física e energia</td><td>Há armazenamento e dissipação identificáveis.</td><td>Interpretação física e prova não linear.</td><td><code>dV/dt ≤ 0</code> pode exigir LaSalle; a prova pode ser local.</td></tr>
+<tr><td>Forma quadrática</td><td>O modelo é linear ou uma linearização.</td><td>Álgebra simples, taxas e elipsoides.</td><td>Uma <code>P</code> pode não servir para vários modos.</td></tr>
+<tr><td>Otimização convexa</td><td>Há várias matrizes, restrições ou necessidade de automatizar.</td><td>Busca sistemática de uma <code>P</code> comum.</td><td>Inviabilidade não prova instabilidade; produtos de variáveis podem quebrar a convexidade.</td></tr>
+</tbody>
+</table>
+<ol class="checklist">
+<li><strong>Localize o equilíbrio.</strong> Trabalhe com o erro em relação a ele.</li>
+<li><strong>Procure a energia antes do solver.</strong> Ela costuma ser a melhor explicação quando existe.</li>
+<li><strong>Para um sistema linear, tente <code>Q=I</code>.</strong> Resolva a equação e confira <code>P ≻ 0</code>.</li>
+<li><strong>Para vários modos, escreva LMIs comuns.</strong> Use uma variável <code>P</code> compartilhada.</li>
+<li><strong>Separe prova de projeto.</strong> Encontrar <code>P</code> certifica um sistema já definido; não escolhe automaticamente o controlador.</li>
+<li><strong>Cheque os resíduos.</strong> Não confie apenas no status do solver.</li>
+</ol>
+
+<h2 id="artigo">6. Relação com o certificado do artigo</h2>
+<p>O artigo trabalha com o mapa linearizado de ciclo</p>
+<div class="eq">eₖ₊₁ = A(βₖ)eₖ, &nbsp;&nbsp; A(β) = (1−β)Φ + βA<sub>cl</sub>.</div>
+<p>A função usada é a forma quadrática <code>V(e)=eᵀPe</code>. Uma verificação discreta possível para os extremos é</p>
+<div class="eq">ΦᵀPΦ − P ≼ −R,<br>A<sub>cl</sub>ᵀPA<sub>cl</sub> − P ≼ −R, &nbsp;&nbsp; R ≻ 0.</div>
+<p>Essas desigualdades garantem que os dois extremos contraem na mesma geometria. Como a norma induzida é convexa, para <code>0 ≤ β ≤ 1</code></p>
+<div class="eq">‖A(β)‖<sub>P</sub> ≤ (1−β)‖Φ‖<sub>P</sub> + β‖A<sub>cl</sub>‖<sub>P</sub> &lt; 1.</div>
+<p>Assim, uma única <code>P</code> cobre qualquer sequência de fatores <code>βₖ</code> no modelo linearizado. Isso não é uma prova global do conversor não linear. A hipótese também exige que o mapa nominal <code>Φ</code> contraia na mesma norma. A condicionadora ainda pode produzir instantes admissíveis quando isso falha, mas o certificado de estabilidade desaparece.</p>
+<pre><code>% Padrao CVX para o mapa discreto, com matrizes numericas genericas.
+Phi = [0.80 0.00; 0.00 0.60];
+Acl = [0.70 0.10; -0.10 0.75];
+R = 0.01*eye(2); epsP = 1e-6;
+
+cvx_begin sdp
+    variable P(2,2) symmetric
+    minimize(trace(P))
+    subject to
+        P &gt;= epsP*eye(2)
+        Phi'*P*Phi - P &lt;= -R
+        Acl'*P*Acl - P &lt;= -R
+cvx_end</code></pre>
+
+<div class="card blue">
+  <span class="tag">A pergunta certa ao escolher V</span>
+  <p>Não pergunte apenas “qual função parece positiva?”. Pergunte: qual quantidade é zero exatamente no equilíbrio, é comparável ao tamanho do erro na região de interesse e tem uma derivada que o modelo consegue tornar negativa? A física responde quando existe uma energia clara. A álgebra responde para sistemas lineares. A otimização convexa responde quando você precisa procurar sistematicamente uma geometria comum.</p>
+</div>
+<footer>
+  <p><strong>Leitura relacionada no projeto:</strong> <a href="../../article.tex">article.tex</a>, especialmente a proposição de contração Lyapunov comum, e <a href="../../research/novelty-review.md">research/novelty-review.md</a>, que limita a conclusão ao modelo linearizado.</p>
+  <p>Este arquivo não depende de JavaScript, imagens ou folhas de estilo externas. Pode ser aberto diretamente no navegador.</p>
+</footer>
+</div>
+</div>
+</body>
+</html>

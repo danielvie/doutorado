@@ -1,0 +1,199 @@
+Lyapunov Stability — from intuition to numbers
+Nonlinear systems · a working tutorial
+Lyapunov stability
+How to prove a system settles down — without ever solving its differential equation. Theory first, then a full numerical example you can check by hand.
+01The one idea
+If something you can measure only ever goes down, the system has nowhere to hide
+That is the whole method. Find a scalar quantity — call it V — that is zero at the resting point, positive everywhere else, and always decreasing along the motion. Then the motion is trapped: it can only slide down toward the resting point.
+The remarkable part is what you don't need. You never solve for x(t). For most nonlinear systems you can't anyway — there is no formula. Lyapunov's insight (1892) is that stability is a question about a function on the state space, not about the trajectories themselves.
+Physically, V is usually energy. A pendulum with friction loses energy every second it moves, so it must end up at the bottom. The mathematical method just drops the requirement that V be a real physical energy. Any function with the right shape will do, and that freedom is what makes the technique powerful.
+02Setup and vocabulary
+Equilibria: the points where nothing happens
+We study an autonomous system — the rule doesn't depend on the clock:
+ẋ = f(x),    x(t) ∈ ℝⁿthe state evolves by this rule
+An equilibrium point x* satisfies f(x*) = 0: start there and you stay there forever. By shifting coordinates (z = x − x*) we can always put the equilibrium at the origin, so from here on the equilibrium is x = 0.
+Now, the three things that can happen near it. Read the definitions alongside the picture — the picture is the definition.
+[FIGURE]
+The dashed outer circle is the tolerance ε you demand; the shaded inner disc is the launch window δ you get to choose. Stability means: for every ε someone hands you, you can find a δ that keeps the trajectory inside.
+Definitions
+Stable (in the sense of Lyapunov) — for every ε > 0 there exists δ > 0 such that ‖x(0)‖ < δ implies ‖x(t)‖ < ε for all t ≥ 0.
+Asymptotically stable — stable, and there is some δ with ‖x(0)‖ < δ implying x(t) → 0.
+Exponentially stable — asymptotically stable with a rate: ‖x(t)‖ ≤ c‖x(0)‖e−λt.
+Unstable — not stable. Some ε exists that no δ can satisfy.
+The distinction that trips everyone up
+Convergence alone is not stability, and stability alone is not convergence. A frictionless pendulum swinging forever in a small arc is stable but never converges. Conversely, one can build systems where trajectories eventually reach the origin but first take an enormous excursion — those are unstable despite converging. You need both properties, and they are checked separately.
+03The bowl
+Positive definite functions carve out valleys
+A function V: ℝⁿ → ℝ is positive definite near the origin if
+V(0) = 0   and   V(x) > 0 for all x ≠ 0
+Geometrically, the graph of such a V is a bowl with its lowest point at the origin. Its level sets {x : V(x) = c} are nested closed shells shrinking to the origin as c → 0 — contour lines on a topographic map of the valley.
+[FIGURE]
+Left: the bowl. Right: the same bowl seen from directly above, drawn as contour rings. Every statement in this tutorial is a statement about which ring the state is currently sitting on — and which way it is about to cross.
+04The direct method
+Differentiate V along the flow, not with respect to time
+Here is the trick that makes the whole thing computable. We want to know how V changes as the state moves. By the chain rule, along a solution:
+V(x) = d⁄dt V(x(t)) = ∇V(x) · ẋ = ∇V(x) · f(x)the key identity
+Look at the right-hand side: it contains no x(t). It is built from two things you already have in closed form — the gradient of the function you chose, and the vector field you were given. You can evaluate V at any point of the state space without integrating anything. That is why the method is called direct.
+Its sign has a clean geometric meaning. ∇V points uphill, perpendicular to the level set through x. So V < 0 says exactly: the velocity vector f(x) makes an obtuse angle with the uphill direction — the state is crossing its contour inward.
+[FIGURE]
+Sign of V = sign of the angle between the contour's uphill normal and the velocity. Here θ = 142°, comfortably obtuse, so the state is falling to a smaller level set. Since the level sets are nested shells around the origin, "always moving to a smaller shell" and "trapped, heading for the origin" are the same statement.
+Lyapunov's direct method
+Let x = 0 be an equilibrium of ẋ = f(x) and let D be a neighbourhood of the origin. Suppose V : D → ℝ is continuously differentiable with
+V(0) = 0,   V(x) > 0 in D ∖ {0}
+Then:
+If V(x) ≤ 0 in D, the origin is stable.
+If moreover V(x) < 0 in D ∖ {0} — negative definite, not merely non-positive — the origin is asymptotically stable.
+If in addition D = ℝⁿ and V is radially unbounded (V(x) → ∞ as ‖x‖ → ∞), the origin is globally asymptotically stable.
+A function meeting these conditions is a Lyapunov function. Three remarks before we compute anything, because each one is a place people go wrong.
+Read the theorem in one direction only
+The conditions are sufficient, not necessary. If your candidate V fails, you have learned nothing about the system — only that this particular function was the wrong choice. There is no "therefore unstable" conclusion available. We will see this happen concretely in §7.
+Why radial unboundedness is not a technicality
+Without it, level sets can be unbounded and the trapping argument collapses. The classic counterexample is V = x₁²/(1+x₁²) + x₂²: it is positive definite and can have V < 0 everywhere, yet its high level sets open out into unbounded channels along the x₁ axis. A trajectory can slide off to infinity while V dutifully decreases the whole way.
+05Where does V come from?
+Three honest answers
+Physics. If the system has an energy, start there. Kinetic + potential, total stored charge, a free energy. This is how the method was born and it still works more often than anything else.
+Quadratic forms. For a linear system — or for the linearization of a nonlinear one near the equilibrium — take V(x) = xᵀPx with P symmetric positive definite. Then the search for V collapses into solving a linear matrix equation, and it is guaranteed to succeed whenever the system is stable. This is the case we will do numerically.
+Convex optimization. For anything harder, the modern answer: parameterize V as a polynomial, demand it be a sum of squares, and let a semidefinite-programming solver search the coefficient space. Same theorem, industrial-strength search.
+The linear case, completely
+For ẋ = Ax, put V(x) = xᵀPx with P = Pᵀ ≻ 0. Then
+V = ẋᵀPx + xᵀPẋ = xᵀ(AᵀP + PA)x
+So we want AᵀP + PA = −Q for some positive definite Q, giving V = −xᵀQx < 0. That is the Lyapunov equation, and the theorem behind it is sharp:
+A is Hurwitz (all eigenvalues have negative real part) if and only if for every Q ≻ 0 the equation AᵀP + PA = −Q has a unique solution P, and that P is positive definite.
+Note the direction of work. You do not guess P and hope. You pick Q — usually the identity, because it is the simplest positive definite matrix — and solve for P. It is a linear system in the entries of P. Let's do exactly that.
+06Worked numerical example
+A damped second-order system, from scratch to a certificate
+Take the mass–spring–damper written in state form, with x₁ position and x₂ velocity:
+ẋ₁ = x₂
+ẋ₂ = −2x₁ − 3x₂
+   ⟺   
+ẋ = 0−21−3x
+The only equilibrium is the origin (A is invertible: det A = 2). We know the answer in advance here — the characteristic polynomial is λ² + 3λ + 2, so the eigenvalues are λ = −1 and λ = −2, both in the left half plane, and the origin is asymptotically stable. That is precisely why it is a good example: we can check the machinery against a known answer.
+Step 1 — Set up the Lyapunov equation
+Choose Q = I and look for a symmetric P. Write the unknown as
+P = pqqr,    solve   AᵀP + PA = −I
+Step 2 — Multiply it out
+AᵀP = 01−2−3pqqr
+= −2qp−3q−2rq−3r
+and PA is the transpose of that (since P is symmetric), so the sum is
+AᵀP + PA = −4qp−3q−2rp−3q−2r2q−6r
+= −100−1
+Step 3 — Read off three scalar equations
+Top-left: −4q = −1 ⟹ q = 1/4
+Bottom-right: 2q − 6r = −1 ⟹ 1/2 − 6r = −1 ⟹ r = 1/4
+Off-diagonal: p − 3q − 2r = 0 ⟹ p = 3/4 + 1/2 ⟹ p = 5/4
+Result
+P = 5/41/41/41/4
+= 1.250.250.250.25
+V(x) = 1.25 x₁² + 0.5 x₁x₂ + 0.25 x₂²
+Step 4 — Confirm P is positive definite
+Sylvester's criterion: the leading principal minors must all be positive.
+p = 1.25 > 0,     det P = (1.25)(0.25) − (0.25)² = 0.3125 − 0.0625 = 0.25 > 0 ✓
+Equivalently, the eigenvalues of P are (3 ± √5)/4, i.e. λmax = 1.30902 and λmin = 0.19098 — both positive. So V is a genuine bowl, and
+0.19098‖x‖² ≤ V(x) ≤ 1.30902‖x‖²these bounds matter in Step 6
+Step 5 — Verify V by hand
+Don't take the matrix identity on faith; the gradient computation takes ten seconds.
+∇V = ( 2.5x₁ + 0.5x₂ ,  0.5x₁ + 0.5x₂ ),     f(x) = ( x₂ ,  −2x₁ − 3x₂ )
+V = (2.5x₁ + 0.5x₂)x₂ + (0.5x₁ + 0.5x₂)(−2x₁ − 3x₂)
+   = 2.5x₁x₂ + 0.5x₂² − x₁² − 1.5x₁x₂ − x₁x₂ − 1.5x₂²
+   = −x₁² − x₂²    (the x₁x₂ terms: 2.5 − 1.5 − 1 = 0)
+The certificate
+V(x) = 1.25x₁² + 0.5x₁x₂ + 0.25x₂² is positive definite and radially unbounded, and V = −‖x‖² is negative definite on all of ℝ². Therefore the origin is globally asymptotically stable — and we never wrote down a single solution of the differential equation.
+Step 6 — Extract a decay rate for free
+Because V ≤ λmax‖x‖², we have ‖x‖² ≥ V/λmax, hence
+V = −‖x‖² ≤ − 1⁄λmax V = −0.7639 V ⟹ V(t) ≤ V(0) e−0.7639t
+and squeezing back through the two bounds on V:
+‖x(t)‖ ≤ √(λmax/λmin) ‖x(0)‖ e−0.3820t = 2.618 ‖x(0)‖ e−0.3820t
+The true decay is e−t (the slow eigenvalue), so this bound is real but loose — it is a guaranteed floor on performance, not a prediction. Choosing a different Q, or optimizing over P, tightens it. That gap between "certified" and "actual" is a permanent feature of the method, and worth internalizing.
+Step 7 — Watch it happen
+For this system we can solve exactly, which lets us audit the theory numerically. From x(0) = (1, 0):
+x₁(t) = 2e−t − e−2t,     x₂(t) = −2e−t + 2e−2t
+tx₁(t)x₂(t)V(x)V = −‖x‖²
+0.00+1.0000+0.00001.2500-1.0000
+0.25+0.9511-0.34450.9965-1.0232
+0.50+0.8452-0.47730.7482-0.9422
+0.75+0.7216-0.49850.5332-0.7692
+1.00+0.6004-0.46510.3651-0.5768
+1.25+0.4909-0.40880.2427-0.4082
+1.50+0.3965-0.34670.1578-0.2774
+1.75+0.3174-0.28720.1009-0.1832
+2.00+0.2524-0.23400.0638-0.1185
+2.25+0.1997-0.18860.0399-0.0754
+2.50+0.1574-0.15070.0248-0.0475
+2.75+0.1238-0.11970.0153-0.0296
+3.00+0.0971-0.09460.0094-0.0184
+Look at the last column
+V = −‖x‖² goes −1.0000 → −1.0232 → −0.9422. It gets more negative first, which means the plain distance to the origin ‖x‖ grows over the first fraction of a second — the mass is still moving outward in velocity as the spring loads up. Meanwhile the V column falls monotonically, every single row.
+That is the entire value proposition of a Lyapunov function in one table. The obvious measure of "how far from equilibrium" is not monotone. V is the reshaped measure that is.
+[FIGURE]
+Eight trajectories started all the way around the level set V = 1.25 (orange ellipse). Every one of them immediately moves inside it and never comes back out — that is V < 0 made visible. The ellipses are tilted and elongated because P is not a multiple of the identity; that tilt is exactly the information the Lyapunov equation supplied, and exactly what a naive circular measure of distance would get wrong.
+[FIGURE]
+The two curves are locked together: the slope of the solid curve at every instant is the height of the dashed one. Note the dashed curve dipping below its starting value near t ≈ 0.22 — that dip is ‖x‖ growing — while the solid curve is untroubled. A valid Lyapunov function absorbs that kind of transient.
+07A candidate that fails
+The most natural guess is wrong — and that proves nothing
+Before solving anything, most people reach for the obvious "distance to the origin":
+W(x) = x₁² + x₂²    (P = I)
+It is certainly positive definite. Compute its derivative along the same flow:
+Ẇ = 2x₁x₂ + 2x₂(−2x₁ − 3x₂) = −2x₁x₂ − 6x₂²
+The x₂² term is safely negative, but the cross term has no fixed sign. Wherever x₁x₂ is sufficiently negative, Ẇ > 0. Maximising over the unit circle, the worst point is x(0) = (-0.987, 0.160), where
+Ẇ(x(0)) = +0.162 > 0
+So W increases there. Start a genuine trajectory from that point and watch both candidates, each normalised by its own initial value so they are comparable:
+[FIGURE]
+The theorem tests a sign, not a size. Ẇ spends its first 0.13 seconds positive, so W is not a Lyapunov function for this system — while V = −‖x‖² never once touches zero away from the origin. Both quantities do eventually decay to zero, because the system really is stable. Decaying eventually is not the hypothesis.
+The lesson, stated precisely
+Failing to find a Lyapunov function is not evidence of instability. It is evidence about your search. The theorem gives a one-way implication — a valid V proves stability; a failed candidate proves nothing at all. Every practitioner who has spent a day convinced a system was unstable, only to find the right P the next morning, has learned this the hard way.
+08When V only reaches zero
+The pendulum, and LaSalle's invariance principle
+Physics hands you an energy, but energy is often not quite a strict Lyapunov function. Take a damped pendulum, angle θ from the bottom, damping b > 0:
+θ + b θ + (g/L) sin θ = 0
+The total mechanical energy, per unit mass and length, is kinetic plus potential:
+V(θ, θ) = ½ θ² + (g/L)(1 − cos θ)
+This is positive definite on the strip |θ| < π. Differentiate along the motion — the potential and kinetic cross-terms cancel exactly, which is the whole content of "energy is conserved without damping":
+V = θθ + (g/L) sin θ · θ = θ[−bθ − (g/L) sin θ] + (g/L) sin θ · θ = −b θ²
+Now look carefully at what we got. V = −bθ² ≤ 0, but it is negative semidefinite, not definite: it vanishes on the entire line θ = 0, including at points like θ = 0.7 where the pendulum is clearly not at rest. The basic theorem therefore delivers only stability, not asymptotic stability — even though we know perfectly well the pendulum stops.
+LaSalle's invariance principle
+Let Ω be a compact set, positively invariant under the flow, with V ≤ 0 on Ω. Let E = {x ∈ Ω : V(x) = 0} and let M be the largest invariant set contained in E. Then every trajectory starting in Ω approaches M as t → ∞.
+In words: the state must end up somewhere V = 0 — but it must also be able to stay there. Points where V = 0 only instantaneously do not count.
+Apply it to the pendulum. The set where V = 0 is E = {θ = 0}, the whole horizontal axis. Which parts of it can the state stay on? If θ ≡ 0 over an interval then θ ≡ 0 too, and the equation of motion forces
+(g/L) sin θ = 0 ⟹ θ = 0  (within |θ| < π)
+So M = {(0, 0)}, a single point, and LaSalle upgrades the conclusion to asymptotic stability. Physically: a pendulum passing through θ = 0 at the top of a swing is momentarily losing no energy, but gravity refuses to let it linger — it falls back through the bottom and resumes dissipating.
+Below, a numerical run with g/L = 9.81, b = 0.5, released from rest at θ = 2.2 rad (126°), integrated with RK4.
+[FIGURE]
+[FIGURE]
+Left: the trajectory crosses the red line V = 0 repeatedly, yet is never captured by it — only the origin is invariant. Right: energy falls from 15.58 to 0.049 over twelve seconds, with a visible staircase. Each flat step is a moment of zero angular velocity at the end of a swing; each steep drop is the fast passage through the bottom. Monotone, but not strictly decreasing at every instant — precisely the situation LaSalle was built for.
+09The shortcut for nonlinear systems
+Lyapunov's indirect method
+There is a second theorem bearing the same name, and it is the one most engineers use daily. Near an equilibrium, write f(x) = Ax + higher-order terms, where A = ∂f/∂x evaluated at the equilibrium — the Jacobian.
+Linearization theorem
+If every eigenvalue of A has strictly negative real part, the origin of the nonlinear system is locally asymptotically stable.
+If any eigenvalue has strictly positive real part, it is unstable.
+If the worst eigenvalue sits exactly on the imaginary axis, the test is inconclusive — the nonlinear terms decide, and you must go back to the direct method.
+The two methods fit together neatly: solve the Lyapunov equation for the Jacobian A, and the resulting V = xᵀPx is a valid Lyapunov function for the nonlinear system in some neighbourhood of the equilibrium. That is how you bootstrap a certificate — and, by finding the largest level set of V on which V < 0 still holds, an estimate of the region of attraction. Note the shape of that estimate: it is a level set of V, an ellipse, not a ball — you must use the sublevel set, because only that is guaranteed invariant.
+10Practice
+The procedure, and the traps
+Locate the equilibrium and shift it to the origin. Every condition in every theorem above is stated at the origin.
+Linearize and check eigenvalues first. It is cheap and often settles the question. If it is inconclusive, you have learned that the nonlinearity is load-bearing.
+Propose V. Physical energy, or xᵀPx from the Lyapunov equation with Q = I. Confirm positive definiteness — Sylvester's criterion for quadratics.
+Compute V = ∇V·f symbolically and determine its sign. Never differentiate a solved trajectory; the point is not to have one.
+If V is only semidefinite, invoke LaSalle — identify {V = 0} and the largest invariant set inside it.
+State the region. Global requires V < 0 everywhere and radial unboundedness. Otherwise report the sublevel set on which your argument actually holds.
+Six traps, in the order people hit them
+Semidefinite ≠ definite. V ≤ 0 buys stability only. Asymptotic stability needs strict negativity, or LaSalle.
+A failed candidate proves nothing. No conclusion about the system follows from your V not working.
+Forgetting radial unboundedness when claiming a global result. It is a separate hypothesis and it can fail.
+Using a ball instead of a sublevel set for the region of attraction. Invariance is a property of V's level sets, not of Euclidean spheres.
+Assuming V is the physical energy. Often it is not, and insisting on it blocks the search. In §6 the working V has a cross term 0.5x₁x₂ coupling position and velocity — no physical energy looks like that.
+Applying these theorems to time-varying systems verbatim. For ẋ = f(x, t) you need decrescence and uniformity conditions; LaSalle in this form does not carry over.
+Summary card
+Conditions on VConclusion
+V > 0, V ≤ 0 near 0stable
+V > 0, V < 0 near 0asymptotically stable
+V > 0, V < 0, V radially unbounded on ℝⁿglobally asymptotically stable
+V > 0, V ≤ 0, largest invariant set in {V = 0} is {0}asymptotically stable (LaSalle)
+c₁‖x‖² ≤ V ≤ c₂‖x‖², V ≤ −c₃‖x‖²exponentially stable, rate c₃/2c₂
+candidate V fails the testno conclusion
+11Try it yourself
+Three exercises, in increasing order of difficulty
+Change Q. Redo §6 with Q = diag(1, 2). You should find P = 19/121/41/45/12 ≈ 1.5830.2500.2500.417. Same stability conclusion, different ellipses, different certified decay rate — which is a reminder that V is never unique.
+Break the system. Change the damping to ẋ₂ = −2x₁ + x₂ and try to solve the Lyapunov equation again. The solution still exists and is unique, but it will not be positive definite — watch how the method reports failure rather than quietly lying to you.
+A genuinely nonlinear one. For ẋ₁ = −x₁ + x₁x₂, ẋ₂ = −x₂, try V = ½(x₁² + x₂²) and compute V = −x₁² − x₂² + x₁²x₂. Where is it negative? You will get a genuine local result and a sublevel-set estimate of the region of attraction — the honest kind of answer nonlinear systems usually give.
+Every number, curve and ellipse in this document was computed from the equations themselves — the Lyapunov equation was verified to satisfy AᵀP + PA = −I exactly, the linear trajectories are the closed-form solution, and the pendulum was integrated with fourth-order Runge–Kutta at h = 0.002.

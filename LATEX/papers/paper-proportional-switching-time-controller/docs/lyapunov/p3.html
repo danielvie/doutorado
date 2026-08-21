@@ -1,0 +1,153 @@
+
+<h2><span class="n">06</span>Worked numerical example</h2>
+<h3>A damped second-order system, from scratch to a certificate</h3>
+
+<p>Take the mass–spring–damper written in state form, with <span class="m">x</span>₁ position and <span class="m">x</span>₂ velocity:</p>
+
+<eq>
+<i>ẋ</i>₁ = <i>x</i>₂<br>
+<i>ẋ</i>₂ = −2<i>x</i>₁ − 3<i>x</i>₂
+&nbsp;&nbsp; ⟺ &nbsp;&nbsp;
+<i>ẋ</i> = <mat><c><r>0</r><r>−2</r></c><c><r>1</r><r>−3</r></c></mat><i>x</i>
+</eq>
+
+<p>The only equilibrium is the origin (<span class="m">A</span> is invertible: det&nbsp;<span class="m">A</span>&nbsp;=&nbsp;2). We know the answer in advance here — the characteristic polynomial is λ²&nbsp;+&nbsp;3λ&nbsp;+&nbsp;2, so the eigenvalues are λ&nbsp;=&nbsp;−1 and λ&nbsp;=&nbsp;−2, both in the left half plane, and the origin is asymptotically stable. That is precisely why it is a good example: <b>we can check the machinery against a known answer.</b></p>
+
+<h4>Step 1 — Set up the Lyapunov equation</h4>
+<p>Choose <span class="m">Q</span>&nbsp;=&nbsp;<span class="m">I</span> and look for a symmetric <span class="m">P</span>. Write the unknown as</p>
+<eq><i>P</i> = <mat><c><r>p</r><r>q</r></c><c><r>q</r><r>r</r></c></mat>,&nbsp;&nbsp;&nbsp; solve&nbsp;&nbsp; <i>A</i>ᵀ<i>P</i> + <i>PA</i> = −<i>I</i></eq>
+
+<h4>Step 2 — Multiply it out</h4>
+<eq style="font-size:18px">
+<i>A</i>ᵀ<i>P</i> = <mat><c><r>0</r><r>1</r></c><c><r>−2</r><r>−3</r></c></mat><mat><c><r>p</r><r>q</r></c><c><r>q</r><r>r</r></c></mat>
+= <mat><c><r>−2q</r><r>p−3q</r></c><c><r>−2r</r><r>q−3r</r></c></mat>
+</eq>
+<p>and <span class="m">PA</span> is the transpose of that (since <span class="m">P</span> is symmetric), so the sum is</p>
+<eq style="font-size:18px">
+<i>A</i>ᵀ<i>P</i> + <i>PA</i> = <mat><c><r>−4q</r><r>p−3q−2r</r></c><c><r>p−3q−2r</r><r>2q−6r</r></c></mat>
+= <mat><c><r>−1</r><r>0</r></c><c><r>0</r><r>−1</r></c></mat>
+</eq>
+
+<h4>Step 3 — Read off three scalar equations</h4>
+<ol class="steps">
+<li>Top-left: −4<span class="m">q</span>&nbsp;=&nbsp;−1 ⟹ <b><span class="m">q</span>&nbsp;=&nbsp;1/4</b></li>
+<li>Bottom-right: 2<span class="m">q</span>&nbsp;−&nbsp;6<span class="m">r</span>&nbsp;=&nbsp;−1 ⟹ 1/2&nbsp;−&nbsp;6<span class="m">r</span>&nbsp;=&nbsp;−1 ⟹ <b><span class="m">r</span>&nbsp;=&nbsp;1/4</b></li>
+<li>Off-diagonal: <span class="m">p</span>&nbsp;−&nbsp;3<span class="m">q</span>&nbsp;−&nbsp;2<span class="m">r</span>&nbsp;=&nbsp;0 ⟹ <span class="m">p</span>&nbsp;=&nbsp;3/4&nbsp;+&nbsp;1/2 ⟹ <b><span class="m">p</span>&nbsp;=&nbsp;5/4</b></li>
+</ol>
+
+<div class="card tight">
+<span class="label">Result</span>
+<eq style="margin:8px 0 14px">
+<i>P</i> = <mat><c><r>5/4</r><r>1/4</r></c><c><r>1/4</r><r>1/4</r></c></mat>
+= <mat><c><r>1.25</r><r>0.25</r></c><c><r>0.25</r><r>0.25</r></c></mat>
+</eq>
+<eq style="margin:0"><i>V</i>(<i>x</i>) = 1.25 <i>x</i>₁² + 0.5 <i>x</i>₁<i>x</i>₂ + 0.25 <i>x</i>₂²</eq>
+</div>
+
+<h4>Step 4 — Confirm <span class="m">P</span> is positive definite</h4>
+<p>Sylvester's criterion: the leading principal minors must all be positive.</p>
+<eq style="font-size:19px">
+<i>p</i> = 1.25 &gt; 0,&nbsp;&nbsp;&nbsp;&nbsp; det <i>P</i> = (1.25)(0.25) − (0.25)² = 0.3125 − 0.0625 = 0.25 &gt; 0 ✓
+</eq>
+<p>Equivalently, the eigenvalues of <span class="m">P</span> are (3&nbsp;±&nbsp;√5)/4, i.e. λ<sub>max</sub>&nbsp;=&nbsp;<span class="mono">1.30902</span> and λ<sub>min</sub>&nbsp;=&nbsp;<span class="mono">0.19098</span> — both positive. So <span class="m">V</span> is a genuine bowl, and</p>
+<eq style="font-size:18px">0.19098‖<i>x</i>‖² ≤ <i>V</i>(<i>x</i>) ≤ 1.30902‖<i>x</i>‖²<span class="tag">these bounds matter in Step 6</span></eq>
+
+<h4>Step 5 — Verify <span class="m"><dv>V</dv></span> by hand</h4>
+<p>Don't take the matrix identity on faith; the gradient computation takes ten seconds.</p>
+<eq style="font-size:18px">
+∇<i>V</i> = ( 2.5<i>x</i>₁ + 0.5<i>x</i>₂ ,&nbsp; 0.5<i>x</i>₁ + 0.5<i>x</i>₂ ),&nbsp;&nbsp;&nbsp;&nbsp; <i>f</i>(<i>x</i>) = ( <i>x</i>₂ ,&nbsp; −2<i>x</i>₁ − 3<i>x</i>₂ )
+</eq>
+<eq style="font-size:17px;line-height:2.1">
+<i><dv>V</dv></i> = (2.5<i>x</i>₁ + 0.5<i>x</i>₂)<i>x</i>₂ + (0.5<i>x</i>₁ + 0.5<i>x</i>₂)(−2<i>x</i>₁ − 3<i>x</i>₂)<br>
+&nbsp;&nbsp;&nbsp;= 2.5<i>x</i>₁<i>x</i>₂ + 0.5<i>x</i>₂² − <i>x</i>₁² − 1.5<i>x</i>₁<i>x</i>₂ − <i>x</i>₁<i>x</i>₂ − 1.5<i>x</i>₂²<br>
+&nbsp;&nbsp;&nbsp;= −<i>x</i>₁² − <i>x</i>₂²&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-style:normal;color:var(--ink3);font-size:15px">(the <i>x</i>₁<i>x</i>₂ terms: 2.5 − 1.5 − 1 = 0)</span>
+</eq>
+
+<div class="card thm">
+<span class="label">The certificate</span>
+<p style="margin-bottom:0"><span class="m">V</span>(<span class="m">x</span>)&nbsp;=&nbsp;1.25<span class="m">x</span>₁²&nbsp;+&nbsp;0.5<span class="m">x</span>₁<span class="m">x</span>₂&nbsp;+&nbsp;0.25<span class="m">x</span>₂² is positive definite and radially unbounded, and <span class="m"><dv>V</dv></span>&nbsp;=&nbsp;−‖<span class="m">x</span>‖² is negative definite on all of ℝ². Therefore the origin is <b>globally asymptotically stable</b> — and we never wrote down a single solution of the differential equation.</p>
+</div>
+
+<h4>Step 6 — Extract a decay rate for free</h4>
+<p>Because <span class="m">V</span>&nbsp;≤&nbsp;λ<sub>max</sub>‖<span class="m">x</span>‖², we have ‖<span class="m">x</span>‖²&nbsp;≥&nbsp;<span class="m">V</span>/λ<sub>max</sub>, hence</p>
+<eq style="font-size:18px"><i><dv>V</dv></i> = −‖<i>x</i>‖² ≤ − <sup>1</sup>⁄<sub>λ<sub>max</sub></sub> <i>V</i> = −0.7639 <i>V</i> ⟹  <i>V</i>(<i>t</i>) ≤ <i>V</i>(0) <i>e</i><sup>−0.7639<i>t</i></sup></eq>
+<p>and squeezing back through the two bounds on <span class="m">V</span>:</p>
+<eq style="font-size:18px">‖<i>x</i>(<i>t</i>)‖ ≤ √(λ<sub>max</sub>/λ<sub>min</sub>) ‖<i>x</i>(0)‖ <i>e</i><sup>−0.3820<i>t</i></sup> = 2.618 ‖<i>x</i>(0)‖ <i>e</i><sup>−0.3820<i>t</i></sup></eq>
+<p>The true decay is <span class="m">e</span><sup>−<span class="m">t</span></sup> (the slow eigenvalue), so this bound is real but loose — it is a guaranteed floor on performance, not a prediction. Choosing a different <span class="m">Q</span>, or optimizing over <span class="m">P</span>, tightens it. That gap between "certified" and "actual" is a permanent feature of the method, and worth internalizing.</p>
+
+<h4>Step 7 — Watch it happen</h4>
+<p>For this system we <em>can</em> solve exactly, which lets us audit the theory numerically. From <span class="m">x</span>(0)&nbsp;=&nbsp;(1,&nbsp;0):</p>
+<eq style="font-size:18px"><i>x</i>₁(<i>t</i>) = 2<i>e</i><sup>−<i>t</i></sup> − <i>e</i><sup>−2<i>t</i></sup>,&nbsp;&nbsp;&nbsp;&nbsp; <i>x</i>₂(<i>t</i>) = −2<i>e</i><sup>−<i>t</i></sup> + 2<i>e</i><sup>−2<i>t</i></sup></eq>
+
+<div class="scroll">
+<table>
+<thead><tr><th>t</th><th>x₁(t)</th><th>x₂(t)</th><th>V(x)</th><th><dv>V</dv> = −‖x‖²</th></tr></thead>
+<tbody>{{TABLE}}</tbody>
+</table>
+</div>
+
+<div class="card warnbox">
+<span class="label">Look at the last column</span>
+<p><span class="m"><dv>V</dv></span>&nbsp;=&nbsp;−‖<span class="m">x</span>‖² goes <span class="mono">−1.0000</span>&nbsp;→&nbsp;<span class="mono">−1.0232</span>&nbsp;→&nbsp;<span class="mono">−0.9422</span>. It gets <em>more</em> negative first, which means the plain distance to the origin ‖<span class="m">x</span>‖ <b>grows</b> over the first fraction of a second — the mass is still moving outward in velocity as the spring loads up. Meanwhile the <span class="m">V</span> column falls monotonically, every single row.</p>
+<p style="margin-bottom:0">That is the entire value proposition of a Lyapunov function in one table. The obvious measure of "how far from equilibrium" is not monotone. <span class="m">V</span> is the reshaped measure that <em>is</em>.</p>
+</div>
+
+<figure>
+<div class="figbox">
+<svg viewBox="0 0 580 560" role="img" aria-label="Phase plane of the example system with elliptical level sets of V and trajectories spiralling inward">
+  <defs>
+    <marker id="ah" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0 0 L7 3.5 L0 7 z" fill="var(--ink3)" opacity=".55"/></marker>
+    <clipPath id="cp"><rect x="{{PHASE_BOX_X}}" y="{{PHASE_BOX_Y}}" width="460" height="460"/></clipPath>
+  </defs>
+  <rect x="60" y="30" width="460" height="460" rx="6" class="plotbg"/>
+  <g clip-path="url(#cp)">
+    {{FIELD}}
+    {{ELLIPSES}}
+    {{ELLIPSE_MAIN}}
+    {{TRAJS}}
+    {{TRAJ_HI}}
+  </g>
+  <line class="ax" x1="60" y1="{{PHASE_Y0}}" x2="520" y2="{{PHASE_Y0}}"/>
+  <line class="ax" x1="{{PHASE_X0}}" y1="30" x2="{{PHASE_X0}}" y2="490"/>
+  {{PHASE_AXES}}
+  <g clip-path="url(#cp)">{{DOTS}}{{IC_HI}}</g>
+  <circle cx="{{PHASE_X0}}" cy="{{PHASE_Y0}}" r="5" fill="var(--ink)"/>
+  <text class="lb" x="524" y="{{PHASE_Y0}}" dy="4">x₁</text>
+  <text class="lb" x="{{PHASE_X0}}" y="20" text-anchor="middle">x₂</text>
+  <g transform="translate(72,510)">
+    <line x1="0" y1="-4" x2="26" y2="-4" stroke="var(--acc2)" stroke-width="2.2" stroke-dasharray="7 4"/>
+    <text class="lb sm" x="32" y="0">V = 1.25 (through the start point)</text>
+    <line x1="270" y1="-4" x2="296" y2="-4" stroke="var(--acc3)" stroke-width="1.1" opacity=".6"/>
+    <text class="lb sm" x="302" y="0">V = 0.5, 0.2, 0.05</text>
+  </g>
+  <g transform="translate(72,532)">
+    <line x1="0" y1="-4" x2="26" y2="-4" stroke="var(--acc)" stroke-width="1.8" opacity=".8"/>
+    <text class="lb sm" x="32" y="0">trajectories launched from V = 1.25</text>
+    <line x1="270" y1="-4" x2="296" y2="-4" stroke="var(--hl)" stroke-width="3"/>
+    <text class="lb sm" x="302" y="0" fill="var(--hl)">the run tabulated above, x(0) = (1, 0)</text>
+  </g>
+</svg>
+</div>
+<figcaption>Eight trajectories started all the way around the level set <b>V = 1.25</b> (orange ellipse). Every one of them immediately moves <em>inside</em> it and never comes back out — that is <b><dv>V</dv> &lt; 0</b> made visible. The ellipses are tilted and elongated because <b>P</b> is not a multiple of the identity; that tilt is exactly the information the Lyapunov equation supplied, and exactly what a naive circular measure of distance would get wrong.</figcaption>
+</figure>
+
+<figure>
+<div class="figbox">
+<svg viewBox="0 0 660 400" role="img" aria-label="V of t decreasing monotonically to zero while V-dot stays negative">
+  <rect x="62" y="24" width="560" height="300" rx="6" class="plotbg"/>
+  {{VT_GRID}}
+  <path d="{{VT_FILL}}" fill="var(--acc)" opacity=".10"/>
+  <line class="ax" x1="{{VT_L}}" y1="{{VT_ZERO}}" x2="{{VT_R}}" y2="{{VT_ZERO}}"/>
+  <path class="cV" d="{{VT}}"/>
+  <path class="cVd" d="{{VDT}}"/>
+  <text class="lb" x="150" y="60" fill="var(--acc)">V(t) — monotone down, always</text>
+  <text class="lb" x="212" y="308" fill="var(--acc2)">dV/dt = −‖x(t)‖² — never positive</text>
+  <text class="lb sm" x="342" y="360" text-anchor="middle">time t</text>
+  <text class="lb sm" x="20" y="180" transform="rotate(-90 20 180)" text-anchor="middle">value</text>
+  <circle cx="{{VT_L}}" cy="{{VT_TOP}}" r="0"/>
+  <line x1="{{VT_L}}" y1="24" x2="{{VT_L}}" y2="324" class="ax"/>
+</svg>
+</div>
+<figcaption>The two curves are locked together: the slope of the solid curve at every instant <em>is</em> the height of the dashed one. Note the dashed curve dipping below its starting value near <b>t ≈ 0.2</b> — that dip is ‖x‖ growing — while the solid curve is untroubled. A valid Lyapunov function absorbs that kind of transient.</figcaption>
+</figure>

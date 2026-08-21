@@ -1,0 +1,94 @@
+
+<h2><span class="n">04</span>The direct method</h2>
+<h3>Differentiate <span class="m">V</span> along the flow, not with respect to time</h3>
+
+<p>Here is the trick that makes the whole thing computable. We want to know how <span class="m">V</span> changes as the state moves. By the chain rule, along a solution:</p>
+
+<eq><i><dv>V</dv></i>(<i>x</i>) = <sup>d</sup>⁄<sub>d<i>t</i></sub> <i>V</i>(<i>x</i>(<i>t</i>)) = ∇<i>V</i>(<i>x</i>) · <i>ẋ</i> = ∇<i>V</i>(<i>x</i>) · <i>f</i>(<i>x</i>)<span class="tag">the key identity</span></eq>
+
+<p>Look at the right-hand side: <b>it contains no <span class="m">x</span>(<span class="m">t</span>)</b>. It is built from two things you already have in closed form — the gradient of the function you chose, and the vector field you were given. You can evaluate <span class="m"><dv>V</dv></span> at any point of the state space without integrating anything. That is why the method is called <em>direct</em>.</p>
+
+<p>Its sign has a clean geometric meaning. ∇<span class="m">V</span> points uphill, perpendicular to the level set through <span class="m">x</span>. So <span class="m"><dv>V</dv></span>&nbsp;&lt;&nbsp;0 says exactly: the velocity vector <span class="m">f</span>(<span class="m">x</span>) makes an obtuse angle with the uphill direction — the state is crossing its contour <em>inward</em>.</p>
+
+<figure>
+<div class="figbox">
+<svg viewBox="0 0 660 350" role="img" aria-label="Gradient of V and the velocity vector at a point on a level set, meeting at an obtuse angle of 142 degrees">
+  <defs>
+    <marker id="mg" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto">
+      <path d="M0 0 L9 4.5 L0 9 z" fill="var(--acc3)"/></marker>
+    <marker id="mv" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto">
+      <path d="M0 0 L9 4.5 L0 9 z" fill="var(--acc2)"/></marker>
+  </defs>
+  <ellipse cx="{{GEO_CX}}" cy="{{GEO_CY}}" rx="130" ry="88" fill="none" stroke="var(--acc3)" stroke-width="2.4"/>
+  <ellipse cx="{{GEO_CX}}" cy="{{GEO_CY}}" rx="92" ry="62" fill="none" stroke="var(--acc3)" stroke-width="1.1" opacity=".4"/>
+  <ellipse cx="{{GEO_CX}}" cy="{{GEO_CY}}" rx="54" ry="36" fill="none" stroke="var(--acc3)" stroke-width="1.1" opacity=".4"/>
+  <ellipse cx="{{GEO_CX}}" cy="{{GEO_CY}}" rx="20" ry="13" fill="none" stroke="var(--acc3)" stroke-width="1.1" opacity=".4"/>
+  <circle cx="{{GEO_CX}}" cy="{{GEO_CY}}" r="4" fill="var(--ink)"/>
+  <path d="{{GEO_TAN}}" stroke="var(--ink3)" stroke-width="1" stroke-dasharray="4 4"/>
+  <path d="{{GEO_ARC}}" fill="none" stroke="var(--ink3)" stroke-width="1.2"/>
+  <text class="tl" x="{{GEO_ANGX}}" y="{{GEO_ANGY}}" text-anchor="middle">θ = {{GEO_ANG}}°</text>
+  <line x1="{{GEO_PTX}}" y1="{{GEO_PTY}}" x2="{{GEO_GRADX}}" y2="{{GEO_GRADY}}" stroke="var(--acc3)" stroke-width="2.8" marker-end="url(#mg)"/>
+  <line x1="{{GEO_PTX}}" y1="{{GEO_PTY}}" x2="{{GEO_VELX}}" y2="{{GEO_VELY}}" stroke="var(--acc2)" stroke-width="2.8" marker-end="url(#mv)"/>
+  <circle cx="{{GEO_PTX}}" cy="{{GEO_PTY}}" r="5" fill="var(--ink)"/>
+  <text class="lb" x="{{GEO_GLX}}" y="{{GEO_GLY}}" text-anchor="middle" fill="var(--acc3)">∇V</text>
+  <text class="lb sm" x="{{GEO_GLX}}" y="{{GEO_GLY}}" dy="17" text-anchor="middle">uphill, ⊥ to the contour</text>
+  <text class="lb" x="{{GEO_VLX2}}" y="{{GEO_VLY2}}" text-anchor="start" fill="var(--acc2)">f(x)</text>
+  <text class="lb sm" x="{{GEO_VLX2}}" y="{{GEO_VLY2}}" dy="17" text-anchor="start">where the state goes</text>
+  <text class="lb sm" x="350" y="116">V = c</text>
+  <g transform="translate(430,86)">
+    <text class="lb" x="0" y="0">dV/dt = ∇V · f = ‖∇V‖ ‖f‖ cos θ</text>
+    <text class="lb sm" x="0" y="34">θ &gt; 90°  →  cos θ &lt; 0  →  dV/dt &lt; 0</text>
+    <text class="lb sm" x="0" y="54">the flow pierces the contour inward,</text>
+    <text class="lb sm" x="0" y="74">moving to a strictly smaller level set</text>
+    <text class="lb sm" x="0" y="110">θ = 90°  →  dV/dt = 0  →  the flow runs</text>
+    <text class="lb sm" x="0" y="130">along the contour and stays on it</text>
+    <text class="lb sm" x="0" y="166">θ &lt; 90°  →  dV/dt &gt; 0  →  it climbs out;</text>
+    <text class="lb sm" x="0" y="186">this V proves nothing here</text>
+  </g>
+</svg>
+</div>
+<figcaption>Sign of <b><dv>V</dv></b> = sign of the angle between the contour's uphill normal and the velocity. Here θ = 142°, comfortably obtuse, so the state is falling to a smaller level set. Since the level sets are nested shells around the origin, "always moving to a smaller shell" and "trapped, heading for the origin" are the same statement.</figcaption>
+</figure>
+
+<div class="card thm">
+<span class="label">Lyapunov's direct method</span>
+<p>Let <span class="m">x</span>&nbsp;=&nbsp;0 be an equilibrium of <span class="m">ẋ</span>&nbsp;=&nbsp;<span class="m">f</span>(<span class="m">x</span>) and let <span class="m">D</span> be a neighbourhood of the origin. Suppose <span class="m">V</span>&nbsp;:&nbsp;<span class="m">D</span>&nbsp;→&nbsp;ℝ is continuously differentiable with</p>
+<eq style="margin:20px 0"><i>V</i>(0) = 0,&nbsp;&nbsp; <i>V</i>(<i>x</i>) &gt; 0 in <i>D</i> ∖ {0}</eq>
+<p style="margin-bottom:10px">Then:</p>
+<ul style="margin-bottom:0">
+<li>If <span class="m"><dv>V</dv></span>(<span class="m">x</span>)&nbsp;≤&nbsp;0 in <span class="m">D</span>, the origin is <b>stable</b>.</li>
+<li>If moreover <span class="m"><dv>V</dv></span>(<span class="m">x</span>)&nbsp;&lt;&nbsp;0 in <span class="m">D</span>&nbsp;∖&nbsp;{0} — <em>negative definite</em>, not merely non-positive — the origin is <b>asymptotically stable</b>.</li>
+<li>If in addition <span class="m">D</span>&nbsp;=&nbsp;ℝⁿ and <span class="m">V</span> is <em>radially unbounded</em> (<span class="m">V</span>(<span class="m">x</span>)&nbsp;→&nbsp;∞ as ‖<span class="m">x</span>‖&nbsp;→&nbsp;∞), the origin is <b>globally</b> asymptotically stable.</li>
+</ul>
+</div>
+
+<p>A function meeting these conditions is a <b>Lyapunov function</b>. Three remarks before we compute anything, because each one is a place people go wrong.</p>
+
+<div class="card badbox">
+<span class="label">Read the theorem in one direction only</span>
+<p>The conditions are <b>sufficient, not necessary</b>. If your candidate <span class="m">V</span> fails, you have learned <em>nothing</em> about the system — only that this particular function was the wrong choice. There is no "therefore unstable" conclusion available. We will see this happen concretely in §7.</p>
+</div>
+
+<div class="card warnbox tight">
+<span class="label">Why radial unboundedness is not a technicality</span>
+<p>Without it, level sets can be unbounded and the trapping argument collapses. The classic counterexample is <span class="m">V</span>&nbsp;=&nbsp;<span class="m">x</span>₁²/(1+<span class="m">x</span>₁²)&nbsp;+&nbsp;<span class="m">x</span>₂²: it is positive definite and can have <span class="m"><dv>V</dv></span>&nbsp;&lt;&nbsp;0 everywhere, yet its high level sets open out into unbounded channels along the <span class="m">x</span>₁ axis. A trajectory can slide off to infinity while <span class="m">V</span> dutifully decreases the whole way.</p>
+</div>
+
+<h2><span class="n">05</span>Where does <span class="m">V</span> come from?</h2>
+<h3>Three honest answers</h3>
+
+<ol>
+<li><b>Physics.</b> If the system has an energy, start there. Kinetic + potential, total stored charge, a free energy. This is how the method was born and it still works more often than anything else.</li>
+<li><b>Quadratic forms.</b> For a linear system — or for the linearization of a nonlinear one near the equilibrium — take <span class="m">V</span>(<span class="m">x</span>)&nbsp;=&nbsp;<span class="m">x</span>ᵀ<span class="m">Px</span> with <span class="m">P</span> symmetric positive definite. Then the search for <span class="m">V</span> collapses into <em>solving a linear matrix equation</em>, and it is guaranteed to succeed whenever the system is stable. This is the case we will do numerically.</li>
+<li><b>Convex optimization.</b> For anything harder, the modern answer: parameterize <span class="m">V</span> as a polynomial, demand it be a sum of squares, and let a semidefinite-programming solver search the coefficient space. Same theorem, industrial-strength search.</li>
+</ol>
+
+<div class="card thm">
+<span class="label">The linear case, completely</span>
+<p>For <span class="m">ẋ</span>&nbsp;=&nbsp;<span class="m">Ax</span>, put <span class="m">V</span>(<span class="m">x</span>)&nbsp;=&nbsp;<span class="m">x</span>ᵀ<span class="m">Px</span> with <span class="m">P</span>&nbsp;=&nbsp;<span class="m">P</span>ᵀ&nbsp;≻&nbsp;0. Then</p>
+<eq style="margin:18px 0"><i><dv>V</dv></i> = <i>ẋ</i>ᵀ<i>Px</i> + <i>x</i>ᵀ<i>Pẋ</i> = <i>x</i>ᵀ(<i>A</i>ᵀ<i>P</i> + <i>PA</i>)<i>x</i></eq>
+<p>So we want <span class="m">A</span>ᵀ<span class="m">P</span>&nbsp;+&nbsp;<span class="m">PA</span>&nbsp;=&nbsp;−<span class="m">Q</span> for some positive definite <span class="m">Q</span>, giving <span class="m"><dv>V</dv></span>&nbsp;=&nbsp;−<span class="m">x</span>ᵀ<span class="m">Qx</span>&nbsp;&lt;&nbsp;0. That is the <b>Lyapunov equation</b>, and the theorem behind it is sharp:</p>
+<p style="margin-bottom:0"><em><span class="m">A</span> is Hurwitz (all eigenvalues have negative real part) <b>if and only if</b> for every <span class="m">Q</span>&nbsp;≻&nbsp;0 the equation <span class="m">A</span>ᵀ<span class="m">P</span>&nbsp;+&nbsp;<span class="m">PA</span>&nbsp;=&nbsp;−<span class="m">Q</span> has a unique solution <span class="m">P</span>, and that <span class="m">P</span> is positive definite.</em></p>
+</div>
+
+<p>Note the direction of work. You do not guess <span class="m">P</span> and hope. You <em>pick</em> <span class="m">Q</span> — usually the identity, because it is the simplest positive definite matrix — and <em>solve</em> for <span class="m">P</span>. It is a linear system in the entries of <span class="m">P</span>. Let's do exactly that.</p>

@@ -1,0 +1,192 @@
+
+<h2><span class="n">07</span>A candidate that fails</h2>
+<h3>The most natural guess is wrong — and that proves nothing</h3>
+
+<p>Before solving anything, most people reach for the obvious "distance to the origin":</p>
+<eq><i>W</i>(<i>x</i>) = <i>x</i>₁² + <i>x</i>₂²&nbsp;&nbsp;&nbsp;&nbsp;(<i>P</i> = <i>I</i>)</eq>
+<p>It is certainly positive definite. Compute its derivative along the same flow:</p>
+<eq style="font-size:17px;line-height:2">
+<i>Ẇ</i> = 2<i>x</i>₁<i>x</i>₂ + 2<i>x</i>₂(−2<i>x</i>₁ − 3<i>x</i>₂) = −2<i>x</i>₁<i>x</i>₂ − 6<i>x</i>₂²
+</eq>
+<p>The <span class="m">x</span>₂² term is safely negative, but the cross term <b>has no fixed sign</b>. Wherever <span class="m">x</span>₁<span class="m">x</span>₂ is sufficiently negative, <span class="m">Ẇ</span>&nbsp;&gt;&nbsp;0. Maximising over the unit circle, the worst point is <span class="m">x</span>(0)&nbsp;=&nbsp;<span class="mono">{{W_IC}}</span>, where</p>
+<eq style="font-size:18px"><i>Ẇ</i>(<i>x</i>(0)) = +{{W_DOT0}} &gt; 0</eq>
+<p>So <span class="m">W</span> increases there. Start a genuine trajectory from that point and watch both candidates, each normalised by its own initial value so they are comparable:</p>
+
+<figure>
+<div class="figbox">
+<svg viewBox="0 0 660 380" role="img" aria-label="W-dot starts positive while V-dot stays negative, and W consequently bumps above its initial value">
+  <defs>
+    <clipPath id="cA"><rect x="56" y="26" width="300" height="250"/></clipPath>
+    <clipPath id="cB"><rect x="452" y="26" width="168" height="250"/></clipPath>
+  </defs>
+  <text class="lb" x="56" y="14">the test: sign of the derivative</text>
+  <rect x="56" y="26" width="300" height="250" rx="6" class="plotbg"/>
+  {{DGRID}}
+  <g clip-path="url(#cA)">
+    <path d="{{DW_POS}}" fill="var(--bad)" opacity=".38"/>
+    <path class="cW" d="{{DW}}"/>
+    <path class="cVd" d="{{DV}}" style="stroke:var(--acc);stroke-dasharray:none;stroke-width:3"/>
+  </g>
+  <line class="ax" x1="{{DL}}" y1="{{DZERO}}" x2="{{DR}}" y2="{{DZERO}}"/>
+  <line class="ax" x1="{{DL}}" y1="26" x2="{{DL}}" y2="276"/>
+  <circle cx="{{DWD0X}}" cy="{{DWD0Y}}" r="4.5" fill="var(--bad)"/>
+  <circle cx="{{DVD0X}}" cy="{{DVD0Y}}" r="4.5" fill="var(--acc)"/>
+  <text class="lb sm" x="72" y="{{DZERO}}" dy="-26" fill="var(--bad)">dW/dt = +0.162 at t = 0 — wrong sign</text>
+  <text class="lb sm" x="100" y="264" fill="var(--acc)">dV/dt = −‖x‖², never positive</text>
+  <text class="tl" x="{{DZX}}" y="{{DZERO}}" dy="-6" text-anchor="middle">t = {{DZT}}</text>
+  <text class="lb sm" x="206" y="308" text-anchor="middle">time t</text>
+
+  <text class="lb" x="452" y="14">the consequence</text>
+  <rect x="452" y="26" width="168" height="250" rx="6" class="plotbg"/>
+  {{WBGRID}}
+  <g clip-path="url(#cB)">
+    <path d="{{WB_FILL}}" fill="var(--bad)" opacity=".38"/>
+    <path class="cW" d="{{WB}}"/>
+    {{WB_PEAK}}
+  </g>
+  <line class="ax" x1="{{WBL}}" y1="26" x2="{{WBL}}" y2="276"/>
+  <text class="lb sm" x="536" y="308" text-anchor="middle">time t</text>
+  <text class="lb sm" x="458" y="46" fill="var(--bad)">peak {{W_PEAK_VAL}} at t = {{W_PEAK_T}}</text>
+  <text class="lb sm" x="620" y="292" text-anchor="end">…then it dives out of frame</text>
+  <text class="lb sm" x="56" y="330">Left: only the red curve ever pokes above the axis — that alone disqualifies W. Right: the same fact seen in W itself.</text>
+  <text class="lb sm" x="56" y="350">Note the y-axis range on the right panel: the whole excursion is 1.4%. It is small — and completely fatal to the proof.</text>
+</svg>
+</div>
+<figcaption>The theorem tests a <em>sign</em>, not a size. <b>Ẇ</b> spends its first {{DZT}} seconds positive, so <b>W</b> is not a Lyapunov function for this system — while <b><dv>V</dv></b> = −‖x‖² never once touches zero away from the origin. Both quantities do eventually decay to zero, because the system really is stable. Decaying eventually is not the hypothesis.</figcaption>
+</figure>
+
+<div class="card badbox">
+<span class="label">The lesson, stated precisely</span>
+<p style="margin-bottom:0">Failing to find a Lyapunov function is <b>not evidence of instability</b>. It is evidence about your search. The theorem gives a one-way implication — a valid <span class="m">V</span> proves stability; a failed candidate proves nothing at all. Every practitioner who has spent a day convinced a system was unstable, only to find the right <span class="m">P</span> the next morning, has learned this the hard way.</p>
+</div>
+
+<h2><span class="n">08</span>When <span class="m"><dv>V</dv></span> only reaches zero</h2>
+<h3>The pendulum, and LaSalle's invariance principle</h3>
+
+<p>Physics hands you an energy, but energy is often <em>not quite</em> a strict Lyapunov function. Take a damped pendulum, angle θ from the bottom, damping <span class="m">b</span>&nbsp;&gt;&nbsp;0:</p>
+<eq><i><ddv>θ</ddv></i> + <i>b</i> <i><dv>θ</dv></i> + (<i>g</i>/<i>L</i>) sin <i>θ</i> = 0</eq>
+<p>The total mechanical energy, per unit mass and length, is kinetic plus potential:</p>
+<eq><i>V</i>(<i>θ</i>, <i><dv>θ</dv></i>) = ½ <i><dv>θ</dv></i>² + (<i>g</i>/<i>L</i>)(1 − cos <i>θ</i>)</eq>
+<p>This is positive definite on the strip |θ|&nbsp;&lt;&nbsp;π. Differentiate along the motion — the potential and kinetic cross-terms cancel exactly, which is the whole content of "energy is conserved without damping":</p>
+<eq style="font-size:17px;line-height:2">
+<i><dv>V</dv></i> = <i><dv>θ</dv><ddv>θ</ddv></i> + (<i>g</i>/<i>L</i>) sin <i>θ</i> · <i><dv>θ</dv></i> = <i><dv>θ</dv></i>[−<i>b<dv>θ</dv></i> − (<i>g</i>/<i>L</i>) sin <i>θ</i>] + (<i>g</i>/<i>L</i>) sin <i>θ</i> · <i><dv>θ</dv></i> = −<i>b <dv>θ</dv></i>²
+</eq>
+
+<p>Now look carefully at what we got. <span class="m"><dv>V</dv></span>&nbsp;=&nbsp;−<span class="m">b</span><dv>θ</dv>²&nbsp;≤&nbsp;0, but it is <b>negative semidefinite</b>, not definite: it vanishes on the entire line <dv>θ</dv>&nbsp;=&nbsp;0, including at points like θ&nbsp;=&nbsp;0.7 where the pendulum is clearly not at rest. The basic theorem therefore delivers only <em>stability</em>, not asymptotic stability — even though we know perfectly well the pendulum stops.</p>
+
+<div class="card thm">
+<span class="label">LaSalle's invariance principle</span>
+<p>Let Ω be a compact set, positively invariant under the flow, with <span class="m"><dv>V</dv></span>&nbsp;≤&nbsp;0 on Ω. Let <span class="m">E</span>&nbsp;=&nbsp;{<span class="m">x</span>&nbsp;∈&nbsp;Ω&nbsp;:&nbsp;<span class="m"><dv>V</dv></span>(<span class="m">x</span>)&nbsp;=&nbsp;0} and let <span class="m">M</span> be the <b>largest invariant set contained in <span class="m">E</span></b>. Then every trajectory starting in Ω approaches <span class="m">M</span> as <span class="m">t</span>&nbsp;→&nbsp;∞.</p>
+<p style="margin-bottom:0">In words: the state must end up somewhere <span class="m"><dv>V</dv></span>&nbsp;=&nbsp;0 — but it must also be able to <em>stay</em> there. Points where <span class="m"><dv>V</dv></span>&nbsp;=&nbsp;0 only instantaneously do not count.</p>
+</div>
+
+<p>Apply it to the pendulum. The set where <span class="m"><dv>V</dv></span>&nbsp;=&nbsp;0 is <span class="m">E</span>&nbsp;=&nbsp;{<dv>θ</dv>&nbsp;=&nbsp;0}, the whole horizontal axis. Which parts of it can the state <em>stay</em> on? If <dv>θ</dv>&nbsp;≡&nbsp;0 over an interval then <ddv>θ</ddv>&nbsp;≡&nbsp;0 too, and the equation of motion forces</p>
+<eq>(<i>g</i>/<i>L</i>) sin <i>θ</i> = 0 ⟹ <i>θ</i> = 0&nbsp;&nbsp;(within |<i>θ</i>| &lt; π)</eq>
+<p>So <span class="m">M</span>&nbsp;=&nbsp;{(0,&nbsp;0)}, a single point, and LaSalle upgrades the conclusion to asymptotic stability. Physically: a pendulum passing through <dv>θ</dv>&nbsp;=&nbsp;0 at the top of a swing is momentarily losing no energy, but gravity refuses to let it linger — it falls back through the bottom and resumes dissipating.</p>
+
+<p>Below, a numerical run with <span class="m">g</span>/<span class="m">L</span>&nbsp;=&nbsp;9.81, <span class="m">b</span>&nbsp;=&nbsp;0.5, released from rest at θ&nbsp;=&nbsp;2.2&nbsp;rad (126°), integrated with RK4.</p>
+
+<figure>
+<div class="two">
+<div class="figbox">
+<svg viewBox="0 0 480 420" role="img" aria-label="Pendulum phase portrait spiralling into the origin">
+  <rect x="55" y="25" width="400" height="330" rx="6" class="plotbg"/>
+  {{PEND_GRID}}
+  {{PEND_ZEROLINE}}
+  <path class="traj hi" d="{{PEND_PHASE}}" style="stroke-width:2"/>
+  {{PEND_IC}}
+  {{PEND_ORIGIN}}
+  <text class="lb sm" x="255" y="384" text-anchor="middle">θ (rad)</text>
+  <text class="lb sm" x="18" y="190" transform="rotate(-90 18 190)" text-anchor="middle">dθ/dt (rad/s)</text>
+  <text class="lb sm" x="64" y="344" fill="var(--bad)">red line: the set dV/dt = 0</text>
+</svg>
+</div>
+<div class="figbox">
+<svg viewBox="0 0 480 420" role="img" aria-label="Pendulum energy decreasing in steps toward zero">
+  <rect x="55" y="25" width="400" height="330" rx="6" class="plotbg"/>
+  {{PEND_EGRID}}
+  <path class="cV" d="{{PEND_E}}"/>
+  <text class="lb sm" x="255" y="384" text-anchor="middle">time t (s)</text>
+  <text class="lb sm" x="18" y="190" transform="rotate(-90 18 190)" text-anchor="middle">energy V</text>
+  <text class="lb sm" x="250" y="118">flat steps: dθ/dt = 0, so dV/dt = 0</text>
+  <text class="lb sm" x="250" y="136">— but the state cannot stay there</text>
+</svg>
+</div>
+</div>
+<figcaption>Left: the trajectory crosses the red line <b><dv>V</dv> = 0</b> repeatedly, yet is never captured by it — only the origin is invariant. Right: energy falls from <span class="mono">15.58</span> to <span class="mono">0.049</span> over twelve seconds, with a visible <b>staircase</b>. Each flat step is a moment of zero angular velocity at the end of a swing; each steep drop is the fast passage through the bottom. Monotone, but not strictly decreasing at every instant — precisely the situation LaSalle was built for.</figcaption>
+</figure>
+
+<h2><span class="n">09</span>The shortcut for nonlinear systems</h2>
+<h3>Lyapunov's indirect method</h3>
+
+<p>There is a second theorem bearing the same name, and it is the one most engineers use daily. Near an equilibrium, write <span class="m">f</span>(<span class="m">x</span>)&nbsp;=&nbsp;<span class="m">Ax</span>&nbsp;+&nbsp;higher-order terms, where <span class="m">A</span>&nbsp;=&nbsp;∂<span class="m">f</span>/∂<span class="m">x</span> evaluated at the equilibrium — the Jacobian.</p>
+
+<div class="card thm">
+<span class="label">Linearization theorem</span>
+<ul style="margin-bottom:0">
+<li>If every eigenvalue of <span class="m">A</span> has <b>strictly negative</b> real part, the origin of the nonlinear system is locally asymptotically stable.</li>
+<li>If <b>any</b> eigenvalue has strictly positive real part, it is unstable.</li>
+<li>If the worst eigenvalue sits exactly <b>on</b> the imaginary axis, the test is inconclusive — the nonlinear terms decide, and you must go back to the direct method.</li>
+</ul>
+</div>
+
+<p>The two methods fit together neatly: solve the Lyapunov equation for the Jacobian <span class="m">A</span>, and the resulting <span class="m">V</span>&nbsp;=&nbsp;<span class="m">x</span>ᵀ<span class="m">Px</span> is a valid Lyapunov function for the <em>nonlinear</em> system in some neighbourhood of the equilibrium. That is how you bootstrap a certificate — and, by finding the largest level set of <span class="m">V</span> on which <span class="m"><dv>V</dv></span>&nbsp;&lt;&nbsp;0 still holds, an estimate of the <b>region of attraction</b>. Note the shape of that estimate: it is a <em>level set of <span class="m">V</span></em>, an ellipse, not a ball — you must use the sublevel set, because only that is guaranteed invariant.</p>
+
+<h2><span class="n">10</span>Practice</h2>
+<h3>The procedure, and the traps</h3>
+
+<ol class="steps">
+<li><b>Locate the equilibrium</b> and shift it to the origin. Every condition in every theorem above is stated at the origin.</li>
+<li><b>Linearize and check eigenvalues first.</b> It is cheap and often settles the question. If it is inconclusive, you have learned that the nonlinearity is load-bearing.</li>
+<li><b>Propose <span class="m">V</span>.</b> Physical energy, or <span class="m">x</span>ᵀ<span class="m">Px</span> from the Lyapunov equation with <span class="m">Q</span>&nbsp;=&nbsp;<span class="m">I</span>. Confirm positive definiteness — Sylvester's criterion for quadratics.</li>
+<li><b>Compute <span class="m"><dv>V</dv></span>&nbsp;=&nbsp;∇<span class="m">V</span>·<span class="m">f</span></b> symbolically and determine its sign. Never differentiate a solved trajectory; the point is not to have one.</li>
+<li><b>If <span class="m"><dv>V</dv></span> is only semidefinite, invoke LaSalle</b> — identify {<span class="m"><dv>V</dv></span>&nbsp;=&nbsp;0} and the largest invariant set inside it.</li>
+<li><b>State the region.</b> Global requires <span class="m"><dv>V</dv></span>&nbsp;&lt;&nbsp;0 everywhere <em>and</em> radial unboundedness. Otherwise report the sublevel set on which your argument actually holds.</li>
+</ol>
+
+<div class="card badbox">
+<span class="label">Six traps, in the order people hit them</span>
+<ul style="margin-bottom:0">
+<li><b>Semidefinite ≠ definite.</b> <span class="m"><dv>V</dv></span>&nbsp;≤&nbsp;0 buys stability only. Asymptotic stability needs strict negativity, or LaSalle.</li>
+<li><b>A failed candidate proves nothing.</b> No conclusion about the system follows from your <span class="m">V</span> not working.</li>
+<li><b>Forgetting radial unboundedness</b> when claiming a global result. It is a separate hypothesis and it can fail.</li>
+<li><b>Using a ball instead of a sublevel set</b> for the region of attraction. Invariance is a property of <span class="m">V</span>'s level sets, not of Euclidean spheres.</li>
+<li><b>Assuming <span class="m">V</span> is the physical energy.</b> Often it is not, and insisting on it blocks the search. In §6 the working <span class="m">V</span> has a cross term 0.5<span class="m">x</span>₁<span class="m">x</span>₂ coupling position and velocity — no physical energy looks like that.</li>
+<li><b>Applying these theorems to time-varying systems verbatim.</b> For <span class="m">ẋ</span>&nbsp;=&nbsp;<span class="m">f</span>(<span class="m">x</span>,&nbsp;<span class="m">t</span>) you need decrescence and uniformity conditions; LaSalle in this form does not carry over.</li>
+</ul>
+</div>
+
+<div class="card">
+<span class="label">Summary card</span>
+<div class="scroll">
+<table style="font-size:14px">
+<thead><tr><th>Conditions on V</th><th>Conclusion</th></tr></thead>
+<tbody>
+<tr><td style="text-align:left">V &gt; 0, <dv>V</dv> ≤ 0 near 0</td><td style="text-align:left">stable</td></tr>
+<tr><td style="text-align:left">V &gt; 0, <dv>V</dv> &lt; 0 near 0</td><td style="text-align:left">asymptotically stable</td></tr>
+<tr><td style="text-align:left">V &gt; 0, <dv>V</dv> &lt; 0, V radially unbounded on ℝⁿ</td><td style="text-align:left">globally asymptotically stable</td></tr>
+<tr><td style="text-align:left">V &gt; 0, <dv>V</dv> ≤ 0, largest invariant set in {<dv>V</dv> = 0} is {0}</td><td style="text-align:left">asymptotically stable (LaSalle)</td></tr>
+<tr><td style="text-align:left">c₁‖x‖² ≤ V ≤ c₂‖x‖², <dv>V</dv> ≤ −c₃‖x‖²</td><td style="text-align:left">exponentially stable, rate c₃/2c₂</td></tr>
+<tr><td style="text-align:left">candidate V fails the test</td><td style="text-align:left"><b>no conclusion</b></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<h2><span class="n">11</span>Try it yourself</h2>
+<h3>Three exercises, in increasing order of difficulty</h3>
+
+<ol>
+<li><b>Change <span class="m">Q</span>.</b> Redo §6 with <span class="m">Q</span>&nbsp;=&nbsp;diag(1,&nbsp;2). You should find <span class="m">P</span>&nbsp;=&nbsp;<mat style="font-size:.9em"><c><r>1.75</r><r>0.25</r></c><c><r>0.25</r><r>0.5</r></c></mat>. Same stability conclusion, different ellipses, different certified decay rate — which is a reminder that <span class="m">V</span> is never unique.</li>
+<li><b>Break the system.</b> Change the damping to <span class="m">ẋ</span>₂&nbsp;=&nbsp;−2<span class="m">x</span>₁&nbsp;+&nbsp;<span class="m">x</span>₂ and try to solve the Lyapunov equation again. The solution still exists and is unique, but it will not be positive definite — watch how the method reports failure rather than quietly lying to you.</li>
+<li><b>A genuinely nonlinear one.</b> For <span class="m">ẋ</span>₁&nbsp;=&nbsp;−<span class="m">x</span>₁&nbsp;+&nbsp;<span class="m">x</span>₁<span class="m">x</span>₂, <span class="m">ẋ</span>₂&nbsp;=&nbsp;−<span class="m">x</span>₂, try <span class="m">V</span>&nbsp;=&nbsp;½(<span class="m">x</span>₁²&nbsp;+&nbsp;<span class="m">x</span>₂²) and compute <span class="m"><dv>V</dv></span>&nbsp;=&nbsp;−<span class="m">x</span>₁²&nbsp;−&nbsp;<span class="m">x</span>₂²&nbsp;+&nbsp;<span class="m">x</span>₁²<span class="m">x</span>₂. Where is it negative? You will get a genuine <em>local</em> result and a sublevel-set estimate of the region of attraction — the honest kind of answer nonlinear systems usually give.</li>
+</ol>
+
+<p style="color:var(--ink3);font-size:16px;margin-top:60px;padding-top:24px;border-top:1px solid var(--rule)">
+Every number, curve and ellipse in this document was computed from the equations themselves — the Lyapunov equation was verified to satisfy <span class="mono">AᵀP + PA = −I</span> exactly, the linear trajectories are the closed-form solution, and the pendulum was integrated with fourth-order Runge–Kutta at <span class="mono">h = 0.002</span>.
+</p>
+
+</div><!--/col-->
+</div><!--/wrap-->
+</body>
+</html>

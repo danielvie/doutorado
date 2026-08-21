@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lyapunov Stability — from intuition to numbers</title>
+<style>
+:root{
+  --bg:#fbfaf7; --panel:#ffffff; --ink:#1c1b19; --ink2:#4a4741; --ink3:#7d786e;
+  --rule:#e3ded3; --rule2:#cfc8b8;
+  --acc:#1f6f6b; --acc2:#b4531f; --acc3:#3d5a9c;
+  --good:#1f6f6b; --bad:#a8322a; --warn:#8a6a12; --hl:#8b3aa8;
+  --code:#f2efe7;
+  --shadow:0 1px 2px rgba(28,27,25,.05),0 8px 24px -12px rgba(28,27,25,.18);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#16171a; --panel:#1d1f23; --ink:#e8e6e1; --ink2:#b6b2aa; --ink3:#8b8video;
+    --rule:#2e3137; --rule2:#3f434a;
+    --acc:#5fc8bf; --acc2:#e0894f; --acc3:#8aa8e8;
+    --good:#5fc8bf; --bad:#e5766b; --warn:#d6b155; --hl:#c894ec;
+    --code:#24262b;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font:400 18px/1.65 Charter,"Iowan Old Style",Georgia,"Times New Roman",serif;
+  padding:0 20px 120px;
+}
+.wrap{max-width:1000px;margin:0 auto}
+.col{max-width:720px}
+header{padding:76px 0 40px;border-bottom:1px solid var(--rule);margin-bottom:44px}
+.kicker{font:600 12px/1 ui-sans-serif,system-ui,-apple-system,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--acc);margin-bottom:18px}
+h1{font-size:46px;line-height:1.08;margin:0 0 18px;letter-spacing:-.02em;font-weight:600}
+.sub{font-size:20px;color:var(--ink2);margin:0;max-width:640px}
+h2{
+  font-size:15px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;
+  color:var(--acc);margin:68px 0 6px;padding-top:22px;border-top:1px solid var(--rule);
+}
+h2 .n{color:var(--ink3);margin-right:12px}
+h3{font-size:25px;font-weight:600;line-height:1.25;margin:6px 0 18px;letter-spacing:-.01em}
+h4{font-size:19px;font-weight:600;margin:34px 0 10px}
+p{margin:0 0 18px}
+.lede{font-size:20px;color:var(--ink2)}
+ul,ol{margin:0 0 18px;padding-left:24px}
+li{margin-bottom:9px}
+b,strong{font-weight:600}
+a{color:var(--acc)}
+/* math */
+.m{font-family:"Iowan Old Style",Charter,Georgia,serif;font-style:italic}
+.m .op,.m .num{font-style:normal}
+eq{display:block;margin:26px 0;text-align:center;font-size:20px;line-height:1.9;
+   font-family:"Iowan Old Style",Charter,Georgia,serif;overflow-x:auto;overflow-y:hidden;
+   padding-bottom:2px}
+eq .tag{float:right;font-size:14px;color:var(--ink3);font-style:normal;font-family:ui-sans-serif,system-ui,sans-serif}
+eq i{font-style:italic}
+/* dot/double-dot accents drawn in CSS: combining marks render ~3px and vanish at caption sizes */
+dv,ddv{display:inline-block;position:relative;line-height:1}
+dv::before,ddv::before{position:absolute;left:0;right:0;top:-.48em;text-align:center;
+  font-size:1.15em;line-height:1;font-style:normal;letter-spacing:-.02em;pointer-events:none}
+dv::before{content:"\00B7"}
+ddv::before{content:"\00B7\00B7"}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86em}
+mat{display:inline-grid;grid-auto-flow:column;vertical-align:middle;position:relative;
+    padding:2px 11px;margin:0 3px}
+mat::before,mat::after{content:"";position:absolute;top:0;bottom:0;width:6px;
+    border:1.5px solid var(--ink2)}
+mat::before{left:0;border-right:0}
+mat::after{right:0;border-left:0}
+mat>c{display:grid;text-align:center;font-style:normal;font-size:.88em;padding:0 8px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+mat>c>r{padding:2px 0;line-height:1.35}
+/* blocks */
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:14px;
+  padding:26px 28px;margin:30px 0;box-shadow:var(--shadow)}
+.card.tight{padding:20px 24px}
+.label{font:600 11px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink3);margin-bottom:12px;display:block}
+.thm{border-left:3px solid var(--acc)}
+.thm .label{color:var(--acc)}
+.warnbox{border-left:3px solid var(--warn)}
+.warnbox .label{color:var(--warn)}
+.badbox{border-left:3px solid var(--bad)}
+.badbox .label{color:var(--bad)}
+.card p:last-child,.card ul:last-child,.card ol:last-child{margin-bottom:0}
+figure{margin:38px 0}
+figcaption{font-size:15px;color:var(--ink3);line-height:1.55;margin-top:14px;
+  font-family:ui-sans-serif,system-ui,sans-serif;max-width:700px}
+figcaption b{color:var(--ink2)}
+svg{display:block;max-width:100%;height:auto;margin:0 auto;overflow:visible}
+.figbox{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:22px 18px;box-shadow:var(--shadow)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:760px){.two{grid-template-columns:1fr}h1{font-size:34px}body{font-size:17px}}
+table{border-collapse:collapse;width:100%;font-size:15px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin:8px 0}
+th{font:600 11px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink3);text-align:right;padding:0 10px 10px;border-bottom:1px solid var(--rule2)}
+th:first-child{text-align:left}
+td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--rule);white-space:nowrap}
+td:first-child{text-align:left;color:var(--ink3)}
+tbody tr:hover td{background:var(--code)}
+.scroll{overflow-x:auto}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps>li{counter-increment:s;position:relative;padding-left:44px;margin-bottom:22px}
+.steps>li::before{content:counter(s);position:absolute;left:0;top:1px;width:28px;height:28px;
+  border-radius:50%;background:var(--acc);color:var(--bg);display:grid;place-items:center;
+  font:600 14px/1 ui-sans-serif,system-ui,sans-serif}
+.key{display:inline-block;padding:1px 8px;border-radius:5px;background:var(--code);
+  font-family:ui-monospace,Menlo,monospace;font-size:.85em}
+/* svg chart styling */
+.lev{fill:none;stroke:var(--acc3);stroke-width:1.1;opacity:.5}
+.lev.main{stroke:var(--acc2);stroke-width:2.4;opacity:1;stroke-dasharray:8 5}
+.traj{fill:none;stroke:var(--acc);stroke-width:1.7;opacity:.75}
+.traj.hi{stroke:var(--hl);stroke-width:3.2;opacity:1}
+.fld{stroke:var(--ink3);stroke-width:1.2;opacity:.6}
+.ic{fill:var(--acc)}
+.ic.hi{fill:var(--hl);stroke:var(--panel);stroke-width:2}
+.eq{fill:var(--bad)}
+.ax{stroke:var(--ink2);stroke-width:1.2}
+.tick{stroke:var(--ink2);stroke-width:1.2}
+.grid{stroke:var(--rule2);stroke-width:1;stroke-dasharray:2 4}
+.grid.one{stroke:var(--ink3);stroke-dasharray:5 4;stroke-width:1.2}
+.zeroset{stroke:var(--bad);stroke-width:2.5;opacity:.35}
+.tl{fill:var(--ink3);font:400 12px/1 ui-monospace,Menlo,monospace}
+.lb{fill:var(--ink2);font:600 13px/1 ui-sans-serif,system-ui,sans-serif}
+.lb.sm{font-size:11.5px;font-weight:400;fill:var(--ink3)}
+.pk{fill:var(--bad);stroke:var(--panel);stroke-width:2}
+.cV{fill:none;stroke:var(--acc);stroke-width:3}
+.cVd{fill:none;stroke:var(--acc2);stroke-width:2.4;stroke-dasharray:6 4}
+.cW{fill:none;stroke:var(--bad);stroke-width:3}
+.ring{fill:none;stroke:var(--acc3);stroke-width:1.3;opacity:.55}
+.plotbg{fill:var(--code);opacity:.45}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Nonlinear systems · a working tutorial</div>
+  <h1>Lyapunov stability</h1>
+  <p class="sub">How to prove a system settles down — without ever solving its differential equation. Theory first, then a full numerical example you can check by hand.</p>
+</header>
+
+<div class="col">
+
+<h2><span class="n">01</span>The one idea</h2>
+<h3>If something you can measure only ever goes down, the system has nowhere to hide</h3>
+
+<p class="lede">That is the whole method. Find a scalar quantity — call it <span class="m">V</span> — that is zero at the resting point, positive everywhere else, and always decreasing along the motion. Then the motion is trapped: it can only slide down toward the resting point.</p>
+
+<p>The remarkable part is what you <em>don't</em> need. You never solve for <span class="m">x</span>(<span class="m">t</span>). For most nonlinear systems you can't anyway — there is no formula. Lyapunov's insight (1892) is that stability is a question about a <em>function on the state space</em>, not about the trajectories themselves.</p>
+
+<p>Physically, <span class="m">V</span> is usually energy. A pendulum with friction loses energy every second it moves, so it must end up at the bottom. The mathematical method just drops the requirement that <span class="m">V</span> be a real physical energy. Any function with the right shape will do, and that freedom is what makes the technique powerful.</p>
+
+<h2><span class="n">02</span>Setup and vocabulary</h2>
+<h3>Equilibria: the points where nothing happens</h3>
+
+<p>We study an autonomous system — the rule doesn't depend on the clock:</p>
+
+<eq><i>ẋ</i> = <i>f</i>(<i>x</i>),&nbsp;&nbsp;&nbsp; <i>x</i>(<i>t</i>) ∈ ℝⁿ<span class="tag">the state evolves by this rule</span></eq>
+
+<p>An <b>equilibrium point</b> <span class="m">x</span>* satisfies <span class="m">f</span>(<span class="m">x</span>*) = 0: start there and you stay there forever. By shifting coordinates (<span class="m">z</span> = <span class="m">x</span> − <span class="m">x</span>*) we can always put the equilibrium at the origin, so from here on the equilibrium is <span class="m">x</span> = 0.</p>
+
+<p>Now, the three things that can happen near it. Read the definitions alongside the picture — the picture <em>is</em> the definition.</p>
+
+<figure>
+<div class="figbox">
+<svg viewBox="0 0 660 250" role="img" aria-label="Three panels showing stable, asymptotically stable and unstable equilibria">
+  <g transform="translate(10,20)">
+    <circle cx="100" cy="100" r="78" fill="none" stroke="var(--acc3)" stroke-width="1.4" stroke-dasharray="5 4" opacity=".8"/>
+    <circle cx="100" cy="100" r="40" fill="var(--acc3)" opacity=".16"/>
+    <circle cx="100" cy="100" r="40" fill="none" stroke="var(--acc3)" stroke-width="1.2" opacity=".55"/>
+    <path d="{{EPS_A}}" fill="none" stroke="var(--acc)" stroke-width="2"/>
+    <circle cx="100" cy="100" r="4" fill="var(--ink)"/>
+    <line x1="100" y1="100" x2="155" y2="45" stroke="var(--acc3)" stroke-width="1"/>
+    <text class="tl" x="150" y="42" text-anchor="middle">ε</text>
+    <line x1="100" y1="100" x2="128" y2="72" stroke="var(--acc3)" stroke-width="1"/>
+    <text class="tl" x="126" y="90">δ</text>
+    <text class="lb" x="100" y="212" text-anchor="middle">Stable</text>
+    <text class="lb sm" x="100" y="230" text-anchor="middle">stays close, never arrives</text>
+  </g>
+  <g transform="translate(230,20)">
+    <circle cx="100" cy="100" r="78" fill="none" stroke="var(--acc3)" stroke-width="1.4" stroke-dasharray="5 4" opacity=".8"/>
+    <circle cx="100" cy="100" r="40" fill="var(--acc3)" opacity=".16"/>
+    <circle cx="100" cy="100" r="40" fill="none" stroke="var(--acc3)" stroke-width="1.2" opacity=".55"/>
+    <path d="{{EPS_B}}" fill="none" stroke="var(--good)" stroke-width="2"/>
+    <circle cx="100" cy="100" r="4" fill="var(--ink)"/>
+    <text class="lb" x="100" y="212" text-anchor="middle">Asymptotically stable</text>
+    <text class="lb sm" x="100" y="230" text-anchor="middle">stays close <tspan font-style="italic">and</tspan> converges</text>
+  </g>
+  <g transform="translate(450,20)">
+    <circle cx="100" cy="100" r="78" fill="none" stroke="var(--acc3)" stroke-width="1.4" stroke-dasharray="5 4" opacity=".8"/>
+    <circle cx="100" cy="100" r="40" fill="var(--acc3)" opacity=".16"/>
+    <circle cx="100" cy="100" r="40" fill="none" stroke="var(--acc3)" stroke-width="1.2" opacity=".55"/>
+    <path d="{{EPS_C}}" fill="none" stroke="var(--bad)" stroke-width="2"/>
+    <circle cx="100" cy="100" r="4" fill="var(--ink)"/>
+    <text class="lb" x="100" y="212" text-anchor="middle">Unstable</text>
+    <text class="lb sm" x="100" y="230" text-anchor="middle">escapes the ε-ball</text>
+  </g>
+</svg>
+</div>
+<figcaption>The dashed outer circle is the tolerance <b>ε</b> you demand; the shaded inner disc is the launch window <b>δ</b> you get to choose. Stability means: <i>for every</i> ε someone hands you, <i>you can find</i> a δ that keeps the trajectory inside.</figcaption>
+</figure>
+
+<div class="card thm">
+<span class="label">Definitions</span>
+<p><b>Stable</b> (in the sense of Lyapunov) — for every ε&nbsp;&gt;&nbsp;0 there exists δ&nbsp;&gt;&nbsp;0 such that ‖<span class="m">x</span>(0)‖&nbsp;&lt;&nbsp;δ implies ‖<span class="m">x</span>(<span class="m">t</span>)‖&nbsp;&lt;&nbsp;ε for all <span class="m">t</span>&nbsp;≥&nbsp;0.</p>
+<p><b>Asymptotically stable</b> — stable, <em>and</em> there is some δ with ‖<span class="m">x</span>(0)‖&nbsp;&lt;&nbsp;δ implying <span class="m">x</span>(<span class="m">t</span>)&nbsp;→&nbsp;0.</p>
+<p><b>Exponentially stable</b> — asymptotically stable with a rate: ‖<span class="m">x</span>(<span class="m">t</span>)‖&nbsp;≤&nbsp;<span class="m">c</span>‖<span class="m">x</span>(0)‖<span class="m">e</span><sup>−λ<span class="m">t</span></sup>.</p>
+<p><b>Unstable</b> — not stable. Some ε exists that no δ can satisfy.</p>
+</div>
+
+<div class="card warnbox tight">
+<span class="label">The distinction that trips everyone up</span>
+<p>Convergence alone is <em>not</em> stability, and stability alone is <em>not</em> convergence. A frictionless pendulum swinging forever in a small arc is stable but never converges. Conversely, one can build systems where trajectories eventually reach the origin but first take an enormous excursion — those are unstable despite converging. You need both properties, and they are checked separately.</p>
+</div>
+
+<h2><span class="n">03</span>The bowl</h2>
+<h3>Positive definite functions carve out valleys</h3>
+
+<p>A function <span class="m">V</span>: ℝⁿ&nbsp;→&nbsp;ℝ is <b>positive definite</b> near the origin if</p>
+
+<eq><i>V</i>(0) = 0&nbsp;&nbsp;&nbsp;and&nbsp;&nbsp;&nbsp;<i>V</i>(<i>x</i>) &gt; 0 for all <i>x</i> ≠ 0</eq>
+
+<p>Geometrically, the graph of such a <span class="m">V</span> is a bowl with its lowest point at the origin. Its <b>level sets</b> {<span class="m">x</span>&nbsp;:&nbsp;<span class="m">V</span>(<span class="m">x</span>)&nbsp;=&nbsp;<span class="m">c</span>} are nested closed shells shrinking to the origin as <span class="m">c</span>&nbsp;→&nbsp;0 — contour lines on a topographic map of the valley.</p>
+
+<figure>
+<div class="figbox">
+<svg viewBox="0 0 640 250" role="img" aria-label="A bowl-shaped surface with nested level sets and a trajectory spiralling to the bottom">
+  <g transform="translate(20,10)">
+    <path d="M20 30 Q150 -6 280 30 L280 34 Q150 70 20 34 Z" fill="var(--acc3)" opacity=".10"/>
+    <path d="M20 32 C20 32 40 132 150 132 C260 132 280 32 280 32" fill="var(--acc3)" opacity=".07"/>
+    <path d="M20 32 C20 32 40 132 150 132 C260 132 280 32 280 32" fill="none" stroke="var(--acc3)" stroke-width="1.8"/>
+    <ellipse cx="150" cy="32" rx="130" ry="30" fill="none" stroke="var(--acc3)" stroke-width="1.8" stroke-dasharray="4 4" opacity=".7"/>
+    <ellipse cx="150" cy="86" rx="86" ry="20" fill="none" stroke="var(--acc3)" stroke-width="1" opacity=".45"/>
+    <ellipse cx="150" cy="116" rx="42" ry="10" fill="none" stroke="var(--acc3)" stroke-width="1" opacity=".45"/>
+    <circle cx="212" cy="52" r="7" fill="var(--acc2)"/>
+    <path d="M212 52 C205 92 168 108 150 128" fill="none" stroke="var(--acc2)" stroke-width="2" stroke-dasharray="4 3" opacity=".8"/>
+    <circle cx="150" cy="130" r="4" fill="var(--ink)"/>
+    <text class="lb sm" x="150" y="168" text-anchor="middle">the graph of V — a bowl over the state space</text>
+    <text class="lb sm" x="150" y="186" text-anchor="middle">height above a point x is the value V(x)</text>
+  </g>
+  <g transform="translate(370,10)">
+    <rect x="0" y="0" rx="8" width="240" height="140" fill="var(--code)" opacity=".5"/>
+    {{BOWL_RINGS}}
+    <circle cx="120" cy="70" r="4" fill="var(--ink)"/>
+    <text class="lb sm" x="120" y="168" text-anchor="middle">looking straight down: level sets</text>
+    <text class="lb sm" x="120" y="186" text-anchor="middle">V = c₁ &lt; c₂ &lt; c₃ &lt; c₄ nested around 0</text>
+  </g>
+</svg>
+</div>
+<figcaption>Left: the bowl. Right: the same bowl seen from directly above, drawn as contour rings. Every statement in this tutorial is a statement about which ring the state is currently sitting on — and which way it is about to cross.</figcaption>
+</figure>
