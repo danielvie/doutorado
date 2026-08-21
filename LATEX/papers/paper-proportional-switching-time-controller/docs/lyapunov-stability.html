@@ -1,0 +1,1518 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!--
+  A tutorial on the stability analysis of article.tex: what a Lyapunov function is,
+  how the paper builds a common quadratic one for the two endpoint matrices, and why
+  the state-dependent conditioning factor beta cannot break it.
+
+  Numbers and matrices are generated data: scripts/generate_results.m,
+  results/paper_results.mat, results/conditioned_control_response.csv, results/metrics.tex.
+  Two-dimensional trajectory illustrations use a made-up matrix and say so.
+  Self-contained; open directly.
+-->
+<title>One Function That Only Falls</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Spectral:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+
+:root{
+  --ground:#EDF0F4; --surface:#FFFFFF; --surface-2:#E4E9F0;
+  --ink:#141C25; --ink-2:#42505F; --ink-3:#6B7789;
+  --rule:#CCD4DE; --rule-strong:#A9B4C2;
+  --blue:#1D5F9E; --blue-soft:#D6E4F2;
+  --crimson:#C4453C; --crimson-soft:#F6DEDC;
+  --teal:#17877A; --teal-soft:#D3E9E5;
+  --graphite:#6B7789; --amber:#B07A16;
+  --shadow:0 1px 2px rgba(20,28,37,.06), 0 8px 24px -12px rgba(20,28,37,.18);
+  --measure:34rem;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F151C; --surface:#161F29; --surface-2:#1E2934;
+    --ink:#E6EBF1; --ink-2:#B3C0CE; --ink-3:#8593A3;
+    --rule:#2B3743; --rule-strong:#3D4B59;
+    --blue:#5FA8E0; --blue-soft:#1B3247;
+    --crimson:#E8756B; --crimson-soft:#3B2320;
+    --teal:#45BDAA; --teal-soft:#153029;
+    --graphite:#8593A3; --amber:#D9A441;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F151C; --surface:#161F29; --surface-2:#1E2934;
+  --ink:#E6EBF1; --ink-2:#B3C0CE; --ink-3:#8593A3;
+  --rule:#2B3743; --rule-strong:#3D4B59;
+  --blue:#5FA8E0; --blue-soft:#1B3247;
+  --crimson:#E8756B; --crimson-soft:#3B2320;
+  --teal:#45BDAA; --teal-soft:#153029;
+  --graphite:#8593A3; --amber:#D9A441;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:Spectral,Georgia,"Times New Roman",serif;
+  font-size:17px; line-height:1.68; -webkit-font-smoothing:antialiased;
+}
+.page{
+  --pad:clamp(1rem,4vw,2.5rem);
+  --cols:minmax(var(--pad),1fr) minmax(0,var(--measure)) minmax(var(--pad),1fr);
+  display:grid; grid-template-columns:var(--cols);
+}
+.page > header,.page > section,.page > footer{
+  grid-column:1/-1; display:grid; grid-template-columns:var(--cols); align-content:start;
+}
+.page > header > *,.page > section > *,.page > footer > *{grid-column:2}
+.page .wide{grid-column:1/-1;width:min(72rem,100% - var(--pad)*2);margin-inline:auto;max-width:none}
+
+h1,h2,h3,.eyebrow,figcaption,th{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+h1{font-size:clamp(2.2rem,5.5vw,3.4rem);line-height:1.04;letter-spacing:-.03em;font-weight:700;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.4rem,3vw,1.9rem);line-height:1.15;letter-spacing:-.02em;font-weight:600;text-wrap:balance;margin:0}
+h3{font-size:1.02rem;font-weight:600;margin:0}
+p{margin:0}
+.lede{font-size:clamp(1.05rem,2.2vw,1.24rem);line-height:1.56;color:var(--ink-2)}
+code,.mono,.num{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+code{font-size:.86em;background:var(--surface-2);padding:.1em .34em;border-radius:3px;color:var(--ink)}
+.num{font-variant-numeric:tabular-nums}
+strong{font-weight:500;color:var(--ink);background:linear-gradient(transparent 64%,var(--blue-soft) 64%)}
+em{font-style:italic}
+:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+
+header.masthead{padding:clamp(3rem,8vw,5rem) 0 clamp(1.5rem,4vw,2.5rem)}
+header.masthead > *{display:block}
+.rule-row{display:flex;align-items:center;gap:.85rem;font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--ink-3);margin-bottom:1.4rem}
+.rule-row::after{content:"";flex:1;height:1px;background:var(--rule)}
+.masthead h1{margin-bottom:1.3rem}
+.masthead .lede{max-width:31rem}
+
+section{padding-block:clamp(2.2rem,5vw,3.4rem);row-gap:1.15rem}
+.step-head{display:flex;align-items:baseline;gap:1rem;padding-bottom:.85rem;margin-bottom:1.4rem;border-bottom:1px solid var(--rule)}
+.step-num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;font-weight:600;color:var(--blue);flex:none;padding-top:.2em}
+
+.eq{
+  background:var(--surface);border:1px solid var(--rule);border-radius:4px;
+  padding:1rem 1.2rem;font-family:"IBM Plex Mono",monospace;font-size:.89rem;
+  line-height:1.8;overflow-x:auto;color:var(--ink);
+}
+.eq .cm{color:var(--ink-3)}
+.eq .hl{color:var(--blue);font-weight:500}
+.eq .bad{color:var(--crimson);font-weight:500}
+.eq .ok{color:var(--teal);font-weight:500}
+.eq.center{text-align:center}
+
+.note{border-left:2px solid var(--rule-strong);padding:.15rem 0 .15rem 1.15rem;color:var(--ink-2);font-size:.95rem}
+.note.key{border-left-color:var(--blue)}
+.note.warn{border-left-color:var(--crimson)}
+.note .tag{font-family:Archivo,sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:.3rem;color:var(--ink-3)}
+.note.key .tag{color:var(--blue)}
+.note.warn .tag{color:var(--crimson)}
+
+figure{margin:0;display:flex;flex-direction:column;gap:.8rem}
+.fig-shell{background:var(--surface);border:1px solid var(--rule);border-radius:5px;box-shadow:var(--shadow);overflow-x:auto;padding:clamp(1rem,3vw,1.6rem)}
+.fig-shell svg{display:block;width:100%;height:auto;min-width:540px}
+figcaption{font-size:.82rem;line-height:1.5;color:var(--ink-3);max-width:44rem}
+figcaption b{color:var(--ink-2);font-weight:600}
+
+.tbl-shell{overflow-x:auto;background:var(--surface);border:1px solid var(--rule);border-radius:5px;box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;min-width:600px;font-size:.83rem}
+th{font-size:.62rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);text-align:right;padding:.8rem .7rem;border-bottom:1px solid var(--rule-strong);white-space:nowrap}
+th:first-child,td:first-child{text-align:left;padding-left:1.1rem}
+th:last-child,td:last-child{padding-right:1.1rem}
+td{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;text-align:right;padding:.5rem .7rem;border-bottom:1px solid var(--rule);color:var(--ink-2)}
+tr:last-child td{border-bottom:none}
+tr.binding td{background:var(--blue-soft);color:var(--ink);font-weight:500}
+tr.grow td{color:var(--ink-3)}
+.chip{font-family:Archivo,sans-serif;font-size:.59rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:.14em .48em;border-radius:2px;white-space:nowrap}
+.chip.shrink{background:var(--crimson-soft);color:var(--crimson)}
+.chip.grows{background:var(--teal-soft);color:var(--teal)}
+
+pre.code{
+  background:var(--surface);border:1px solid var(--rule);border-radius:4px;
+  padding:1rem 1.2rem;overflow-x:auto;margin:0;
+  font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.7;color:var(--ink-2);
+}
+pre.code b{color:var(--blue);font-weight:500}
+pre.code i{color:var(--ink-3);font-style:normal}
+
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:5px;overflow:hidden}
+.cmp > div{background:var(--surface);padding:1rem 1.15rem;display:flex;flex-direction:column;gap:.5rem}
+.cmp h3{font-size:.68rem;letter-spacing:.13em;text-transform:uppercase}
+.cmp .a{color:var(--crimson)}
+.cmp .b{color:var(--teal)}
+.cmp p{font-size:.87rem;color:var(--ink-2)}
+.cmp .mono{font-size:.8rem}
+@media (max-width:560px){.cmp{grid-template-columns:1fr}}
+
+.cases{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--rule)}
+.cases > div{display:grid;grid-template-columns:5.5rem 1fr;gap:1rem;padding:.8rem 0;border-bottom:1px solid var(--rule);font-size:.9rem}
+.cases dt{font-family:"IBM Plex Mono",monospace;font-size:.83rem;font-weight:500}
+.cases dd{margin:0;color:var(--ink-2)}
+.cases .g{color:var(--teal)} .cases .s{color:var(--crimson)} .cases .z{color:var(--ink-3)}
+@media (max-width:520px){.cases > div{grid-template-columns:1fr;gap:.15rem}}
+
+footer{padding:2.2rem 0 4rem;border-top:1px solid var(--rule);font-size:.8rem;color:var(--ink-3);font-family:Archivo,sans-serif}
+footer a{color:var(--blue)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---- additions for this document ---- */
+svg text{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+svg .ax{font-family:"IBM Plex Mono",monospace;font-size:9.5px;fill:var(--ink-3)}
+svg .axl{font-size:10.5px;fill:var(--ink-2)}
+svg .ann{font-size:10.5px;font-weight:600}
+svg .annm{font-family:"IBM Plex Mono",monospace;font-size:10px}
+svg .ttl{font-size:10px;font-weight:700;letter-spacing:.09em;fill:var(--ink-3)}
+
+.part{grid-column:1/-1;display:grid;grid-template-columns:var(--cols);padding-block:clamp(2.6rem,6vw,4rem) 0}
+.part > *{grid-column:2}
+.part-inner{border-top:2px solid var(--ink);padding-top:1rem;display:flex;flex-direction:column;gap:.5rem}
+.part-tag{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);font-weight:600}
+.part h2{font-size:clamp(1.7rem,4vw,2.4rem)}
+.part p{color:var(--ink-2);font-size:1.02rem;max-width:32rem}
+
+.prop{background:var(--surface);border:1px solid var(--rule-strong);border-left:3px solid var(--blue);border-radius:4px;padding:1.05rem 1.25rem;display:flex;flex-direction:column;gap:.6rem}
+.prop .ph{font-family:Archivo,sans-serif;font-size:.64rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue)}
+.prop p{font-size:.95rem}
+
+.deriv{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--rule)}
+.deriv > div{display:grid;grid-template-columns:1fr 13rem;gap:1.2rem;align-items:baseline;padding:.7rem 0;border-bottom:1px solid var(--rule)}
+.deriv .l{font-family:"IBM Plex Mono",monospace;font-size:.88rem;color:var(--ink)}
+.deriv .r{font-size:.83rem;color:var(--ink-3);font-family:Archivo,sans-serif}
+@media (max-width:600px){.deriv > div{grid-template-columns:1fr;gap:.2rem}}
+
+.kv{display:grid;grid-template-columns:auto 1fr;gap:.45rem 1.1rem;font-size:.92rem}
+.kv dt{font-family:"IBM Plex Mono",monospace;color:var(--ink);white-space:nowrap}
+.kv dd{margin:0;color:var(--ink-2)}
+
+ol.qa{margin:0;padding-left:1.4rem;display:flex;flex-direction:column;gap:.55rem;font-size:.95rem;color:var(--ink-2)}
+ol.qa li::marker{font-family:"IBM Plex Mono",monospace;font-size:.8rem;color:var(--ink-3)}
+
+.tag-row{display:flex;flex-wrap:wrap;gap:.4rem}
+.pill{font-family:"IBM Plex Mono",monospace;font-size:.68rem;padding:.22em .55em;border-radius:3px;background:var(--surface-2);color:var(--ink-2);border:1px solid var(--rule)}
+.pill.ok{background:var(--teal-soft);color:var(--teal);border-color:transparent}
+.pill.no{background:var(--crimson-soft);color:var(--crimson);border-color:transparent}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <div class="rule-row">ARTICLE.TEX · SECTION 3 · PROPOSITION 2</div>
+  <h1>One Function That Only Falls</h1>
+  <p class="lede">A tutorial on the stability argument behind dwell-time conditioning: what a
+  Lyapunov function is, how this paper builds one, and why throttling the controller by a
+  factor <code>β</code> that changes every cycle cannot break it.</p>
+</header>
+
+<section>
+  <div class="step-head"><span class="step-num">00</span><h2>What this document assumes, and where it goes</h2></div>
+
+  <p>It assumes you can multiply a matrix by a vector and that you have met eigenvalues once.
+  Nothing else. Everything about Lyapunov functions, positive-definite matrices, induced norms
+  and semidefinite programs is built here from the ground up, in the order the paper needs it.</p>
+
+  <p>The paper's control loop is short enough to state in one paragraph. A converter repeats a
+  fixed sequence of nine switch configurations every <span class="num">286</span>&nbsp;µs. Once
+  per cycle a static feedback law looks at the error and asks for small displacements
+  <code>δτ<sup>raw</sup> = −K e<sub>k</sub></code> of the eight interior switching instants.
+  Those displacements can demand an interval shorter than the hardware allows, so a conditioner
+  multiplies the whole requested vector by the largest factor
+  <code>β<sub>k</sub> ∈ [0,1]</code> that keeps every interval legal, and the plant executes
+  <code>β<sub>k</sub>δτ<sup>raw</sup></code> instead.</p>
+
+  <p>That last step is what needs defending. The controller was designed on the assumption that
+  its action would be applied in full. It is not. A number chosen by the plant, different on every
+  cycle, scales it down. The three parts below answer, in order: what would a stability proof even
+  look like; what proof does the paper give for the unthrottled loop; and why does the throttle
+  leave that proof standing.</p>
+
+  <div class="cases" style="margin-top:.6rem">
+    <div>
+      <dt>Part one</dt>
+      <dd><b>Lyapunov from zero.</b> One number that always falls; why it has to be shaped like an
+      ellipse; why eigenvalues are not enough; why two stable matrices can be unstable together.</dd>
+    </div>
+    <div>
+      <dt>Part two</dt>
+      <dd><b>The paper's certificate.</b> What the state actually is here, the two matrices
+      <code>Φ</code> and <code>A<sub>cl</sub></code>, and the offline semidefinite program that
+      finds one <code>P</code> for both.</dd>
+    </div>
+    <div>
+      <dt>Part three</dt>
+      <dd><b>Why β is harmless.</b> Conditioning lands on a straight segment between those two
+      matrices, the segment lies inside a convex set of contractions, and three lines finish it.</dd>
+    </div>
+  </div>
+
+  <div class="note key">
+    <span class="tag">Notation, once</span>
+    <code>e<sub>k</sub></code> is the error at the start of cycle <code>k</code>.
+    <code>A<sup>T</sup></code> is the transpose. <code>P ≻ 0</code> means the symmetric matrix
+    <code>P</code> is positive definite. <code>ρ(A)</code> is the spectral radius, the largest
+    <em>magnitude</em> among the eigenvalues of <code>A</code>. Matrices are written like
+    <code>[a b ; c d]</code>, row by row. A symbol table sits at the end.
+  </div>
+</section>
+
+<div class="part"><div class="part-inner">
+  <span class="part-tag">Part one</span>
+  <h2>How a Lyapunov argument works</h2>
+  <p>The tool is a hundred and thirty years old and the idea fits in one sentence: if you can find
+  a quantity that is positive away from the target and strictly decreases every step, the system
+  has to reach the target. The work is all in <em>finding</em> the quantity.</p>
+</div></div>
+
+<section>
+  <div class="step-head"><span class="step-num">01</span><h2>The question a simulation cannot answer</h2></div>
+
+  <p>Take a system that updates once per cycle by a fixed matrix:</p>
+
+  <div class="eq center">e<sub>k+1</sub> = A e<sub>k</sub>,&nbsp;&nbsp;&nbsp;
+  <span class="cm">e<sub>k</sub> ∈ ℝ<sup>n</sup> is the error at the start of cycle k</span></div>
+
+  <p>We want to know whether <code>e<sub>k</sub> → 0</code>. Simulating settles one initial
+  condition. There are infinitely many, and later there will be infinitely many <em>systems</em>
+  too, one per possible value of <code>β</code>. So simulation is evidence, never proof.</p>
+
+  <p>Three properties are worth naming now, because the paper claims exactly the third.</p>
+
+  <dl class="cases">
+    <div>
+      <dt class="z">stable</dt>
+      <dd>Small initial errors stay small forever. They need not shrink.</dd>
+    </div>
+    <div>
+      <dt class="g">asymptotically<br>stable</dt>
+      <dd>Stable, <em>and</em> the error goes to zero.</dd>
+    </div>
+    <div>
+      <dt class="g">exponentially<br>stable</dt>
+      <dd>The error goes to zero at least as fast as <code>c·q<sup>k</sup></code> for some
+      <code>q &lt; 1</code>. This is the useful one: it names a rate.</dd>
+    </div>
+  </dl>
+
+  <p style="margin-top:1.1rem">The obvious first move is to look at the eigenvalues of
+  <code>A</code>. If every eigenvalue has magnitude below one — if <code>ρ(A) &lt; 1</code>, called
+  <em>Schur stable</em> — then <code>A<sup>k</sup> → 0</code> and the system is exponentially
+  stable. That is a real theorem and we will use it. It is also, on its own, a trap for two
+  separate reasons, and both of them bite in this paper. Sections 05 and 06 are those two reasons.</p>
+</section>
+
+<section>
+  <div class="step-head"><span class="step-num">02</span><h2>One number that only falls</h2></div>
+
+  <p>Lyapunov's idea replaces the vector <code>e<sub>k</sub></code>, which is hard to reason about,
+  with a single scalar summarizing how far from the target we are. Call the scalar
+  <code>V(e)</code> and demand two things of it:</p>
+
+  <dl class="kv" style="margin:.4rem 0 .2rem">
+    <dt>V(e) &gt; 0 for e ≠ 0,&nbsp; V(0) = 0</dt><dd>it is a genuine measure of "how wrong we are", zero only when we are right</dd>
+    <dt>V(e<sub>k+1</sub>) &lt; V(e<sub>k</sub>) always</dt><dd>every cycle strictly improves it, from every starting point</dd>
+  </dl>
+
+  <p>If both hold, the conclusion is forced. <code>V</code> is a non-negative sequence that
+  strictly decreases, so it converges; with a mild strengthening — that it decreases by at least a
+  fixed <em>fraction</em>, not merely by something — its limit is zero, and since <code>V</code>
+  vanishes only at the origin, the error goes to zero. No trajectory anywhere can escape, because
+  the argument never referred to a particular trajectory.</p>
+
+  <p>The physical picture is energy. A struck bell is not analyzed by tracking every molecule; it
+  is analyzed by noting that its energy is positive and that damping removes some of it every
+  cycle. <code>V</code> is a made-up energy for a system that may have no physical energy at all.</p>
+
+  <figure class="wide">
+    <div class="fig-shell"><svg viewBox="0 0 900 420" role="img" aria-label="Left: nested elliptical level sets of a quadratic Lyapunov function with a trajectory whose points move strictly inward at every step. Right: bar chart of V at each cycle, falling monotonically toward zero.">
+  <rect x="58.00" y="40.00" width="397.00" height="342.00" fill="none" stroke="var(--rule)" stroke-width="1"/>
+  <line x1="58.00" y1="211.00" x2="455.00" y2="211.00" stroke="var(--rule)" stroke-width="1"/>
+  <line x1="256.50" y1="382.00" x2="256.50" y2="40.00" stroke="var(--rule)" stroke-width="1"/>
+  <text class="ttl" x="58.00" y="27.00" text-anchor="start">THE STATE PLANE — LEVEL SETS OF V(e) = eᵀPe</text>
+  <path d="M 258.72 191.28 L 257.19 191.13 L 255.66 191.00 L 254.12 190.91 L 252.60 190.84 L 251.08 190.81 L 249.56 190.80 L 248.06 190.83 L 246.57 190.89 L 245.10 190.98 L 243.64 191.11 L 242.20 191.26 L 240.79 191.44 L 239.40 191.65 L 238.04 191.90 L 236.70 192.17 L 235.40 192.47 L 234.12 192.80 L 232.88 193.16 L 231.68 193.54 L 230.52 193.95 L 229.40 194.39 L 228.32 194.86 L 227.28 195.35 L 226.28 195.86 L 225.34 196.40 L 224.44 196.95 L 223.59 197.54 L 222.79 198.14 L 222.05 198.76 L 221.35 199.40 L 220.72 200.06 L 220.13 200.73 L 219.60 201.42 L 219.13 202.13 L 218.72 202.85 L 218.37 203.58 L 218.07 204.32 L 217.83 205.08 L 217.66 205.84 L 217.54 206.61 L 217.48 207.39 L 217.49 208.17 L 217.55 208.96 L 217.67 209.75 L 217.86 210.54 L 218.10 211.33 L 218.40 212.12 L 218.76 212.92 L 219.18 213.70 L 219.66 214.49 L 220.19 215.27 L 220.78 216.04 L 221.42 216.80 L 222.12 217.56 L 222.87 218.30 L 223.68 219.04 L 224.53 219.76 L 225.43 220.46 L 226.38 221.16 L 227.38 221.84 L 228.42 222.50 L 229.51 223.14 L 230.64 223.76 L 231.80 224.37 L 233.01 224.95 L 234.25 225.52 L 235.53 226.06 L 236.84 226.57 L 238.17 227.07 L 239.54 227.53 L 240.93 227.98 L 242.35 228.39 L 243.79 228.78 L 245.25 229.15 L 246.72 229.48 L 248.21 229.79 L 249.72 230.06 L 251.23 230.31 L 252.75 230.53 L 254.28 230.72 L 255.81 230.87 L 257.34 231.00 L 258.88 231.09 L 260.40 231.16 L 261.92 231.19 L 263.44 231.20 L 264.94 231.17 L 266.43 231.11 L 267.90 231.02 L 269.36 230.89 L 270.80 230.74 L 272.21 230.56 L 273.60 230.35 L 274.96 230.10 L 276.30 229.83 L 277.60 229.53 L 278.88 229.20 L 280.12 228.84 L 281.32 228.46 L 282.48 228.05 L 283.60 227.61 L 284.68 227.14 L 285.72 226.65 L 286.72 226.14 L 287.66 225.60 L 288.56 225.05 L 289.41 224.46 L 290.21 223.86 L 290.95 223.24 L 291.65 222.60 L 292.28 221.94 L 292.87 221.27 L 293.40 220.58 L 293.87 219.87 L 294.28 219.15 L 294.63 218.42 L 294.93 217.68 L 295.17 216.92 L 295.34 216.16 L 295.46 215.39 L 295.52 214.61 L 295.51 213.83 L 295.45 213.04 L 295.33 212.25 L 295.14 211.46 L 294.90 210.67 L 294.60 209.88 L 294.24 209.08 L 293.82 208.30 L 293.34 207.51 L 292.81 206.73 L 292.22 205.96 L 291.58 205.20 L 290.88 204.44 L 290.13 203.70 L 289.32 202.96 L 288.47 202.24 L 287.57 201.54 L 286.62 200.84 L 285.62 200.16 L 284.58 199.50 L 283.49 198.86 L 282.36 198.24 L 281.20 197.63 L 279.99 197.05 L 278.75 196.48 L 277.47 195.94 L 276.16 195.43 L 274.83 194.93 L 273.46 194.47 L 272.07 194.02 L 270.65 193.61 L 269.21 193.22 L 267.75 192.85 L 266.28 192.52 L 264.79 192.21 L 263.28 191.94 L 261.77 191.69 L 260.25 191.47 L 258.72 191.28" fill="none" stroke="var(--blue)" stroke-width="1.25" stroke-dasharray="3 3" opacity="0.45" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M 260.29 177.30 L 257.68 177.03 L 255.06 176.81 L 252.44 176.65 L 249.83 176.54 L 247.23 176.48 L 244.64 176.48 L 242.07 176.53 L 239.53 176.63 L 237.01 176.78 L 234.52 176.99 L 232.06 177.25 L 229.64 177.56 L 227.27 177.93 L 224.94 178.34 L 222.65 178.81 L 220.42 179.32 L 218.25 179.89 L 216.13 180.50 L 214.08 181.16 L 212.09 181.86 L 210.17 182.61 L 208.32 183.40 L 206.55 184.24 L 204.85 185.12 L 203.23 186.03 L 201.70 186.99 L 200.24 187.98 L 198.88 189.01 L 197.60 190.07 L 196.42 191.17 L 195.33 192.29 L 194.33 193.45 L 193.43 194.63 L 192.62 195.83 L 191.92 197.06 L 191.31 198.31 L 190.81 199.58 L 190.40 200.87 L 190.10 202.18 L 189.90 203.49 L 189.80 204.82 L 189.81 206.16 L 189.91 207.51 L 190.13 208.86 L 190.44 210.21 L 190.85 211.57 L 191.37 212.92 L 191.99 214.27 L 192.70 215.62 L 193.52 216.96 L 194.43 218.29 L 195.44 219.61 L 196.54 220.92 L 197.73 222.21 L 199.02 223.48 L 200.39 224.74 L 201.85 225.97 L 203.39 227.18 L 205.02 228.36 L 206.72 229.52 L 208.51 230.65 L 210.36 231.75 L 212.29 232.82 L 214.28 233.85 L 216.34 234.85 L 218.47 235.81 L 220.65 236.74 L 222.88 237.62 L 225.17 238.46 L 227.51 239.26 L 229.89 240.02 L 232.31 240.73 L 234.77 241.40 L 237.26 242.02 L 239.79 242.59 L 242.33 243.11 L 244.90 243.59 L 247.49 244.01 L 250.09 244.38 L 252.71 244.70 L 255.32 244.97 L 257.94 245.19 L 260.56 245.35 L 263.17 245.46 L 265.77 245.52 L 268.36 245.52 L 270.93 245.47 L 273.47 245.37 L 275.99 245.22 L 278.48 245.01 L 280.94 244.75 L 283.36 244.44 L 285.73 244.07 L 288.06 243.66 L 290.35 243.19 L 292.58 242.68 L 294.75 242.11 L 296.87 241.50 L 298.92 240.84 L 300.91 240.14 L 302.83 239.39 L 304.68 238.60 L 306.45 237.76 L 308.15 236.88 L 309.77 235.97 L 311.30 235.01 L 312.76 234.02 L 314.12 232.99 L 315.40 231.93 L 316.58 230.83 L 317.67 229.71 L 318.67 228.55 L 319.57 227.37 L 320.38 226.17 L 321.08 224.94 L 321.69 223.69 L 322.19 222.42 L 322.60 221.13 L 322.90 219.82 L 323.10 218.51 L 323.20 217.18 L 323.19 215.84 L 323.09 214.49 L 322.87 213.14 L 322.56 211.79 L 322.15 210.43 L 321.63 209.08 L 321.01 207.73 L 320.30 206.38 L 319.48 205.04 L 318.57 203.71 L 317.56 202.39 L 316.46 201.08 L 315.27 199.79 L 313.98 198.52 L 312.61 197.26 L 311.15 196.03 L 309.61 194.82 L 307.98 193.64 L 306.28 192.48 L 304.49 191.35 L 302.64 190.25 L 300.71 189.18 L 298.72 188.15 L 296.66 187.15 L 294.53 186.19 L 292.35 185.26 L 290.12 184.38 L 287.83 183.54 L 285.49 182.74 L 283.11 181.98 L 280.69 181.27 L 278.23 180.60 L 275.74 179.98 L 273.21 179.41 L 270.67 178.89 L 268.10 178.41 L 265.51 177.99 L 262.91 177.62 L 260.29 177.30" fill="none" stroke="var(--blue)" stroke-width="1.25" stroke-dasharray="3 3" opacity="0.45" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M 262.98 153.42 L 258.51 152.96 L 254.03 152.59 L 249.56 152.31 L 245.10 152.12 L 240.66 152.02 L 236.24 152.01 L 231.85 152.10 L 227.50 152.27 L 223.19 152.54 L 218.94 152.89 L 214.74 153.33 L 210.61 153.87 L 206.55 154.49 L 202.57 155.20 L 198.67 155.99 L 194.86 156.87 L 191.14 157.84 L 187.52 158.88 L 184.01 160.01 L 180.62 161.21 L 177.34 162.49 L 174.18 163.85 L 171.15 165.28 L 168.25 166.78 L 165.48 168.34 L 162.86 169.98 L 160.38 171.67 L 158.05 173.43 L 155.87 175.24 L 153.85 177.11 L 151.98 179.03 L 150.28 181.01 L 148.74 183.02 L 147.36 185.08 L 146.15 187.19 L 145.12 189.32 L 144.25 191.49 L 143.56 193.69 L 143.05 195.92 L 142.70 198.17 L 142.54 200.44 L 142.55 202.73 L 142.73 205.03 L 143.09 207.34 L 143.63 209.65 L 144.33 211.97 L 145.22 214.29 L 146.27 216.60 L 147.49 218.90 L 148.89 221.19 L 150.44 223.46 L 152.16 225.71 L 154.05 227.95 L 156.09 230.15 L 158.28 232.33 L 160.63 234.47 L 163.12 236.58 L 165.76 238.64 L 168.54 240.67 L 171.45 242.65 L 174.50 244.58 L 177.67 246.46 L 180.96 248.28 L 184.37 250.05 L 187.89 251.75 L 191.51 253.40 L 195.24 254.97 L 199.06 256.48 L 202.97 257.92 L 206.96 259.29 L 211.03 260.59 L 215.17 261.80 L 219.37 262.94 L 223.63 264.00 L 227.94 264.98 L 232.30 265.87 L 236.69 266.68 L 241.11 267.40 L 245.56 268.04 L 250.02 268.58 L 254.49 269.04 L 258.97 269.41 L 263.44 269.69 L 267.90 269.88 L 272.34 269.98 L 276.76 269.99 L 281.15 269.90 L 285.50 269.73 L 289.81 269.46 L 294.06 269.11 L 298.26 268.67 L 302.39 268.13 L 306.45 267.51 L 310.43 266.80 L 314.33 266.01 L 318.14 265.13 L 321.86 264.16 L 325.48 263.12 L 328.99 261.99 L 332.38 260.79 L 335.66 259.51 L 338.82 258.15 L 341.85 256.72 L 344.75 255.22 L 347.52 253.66 L 350.14 252.02 L 352.62 250.33 L 354.95 248.57 L 357.13 246.76 L 359.15 244.89 L 361.02 242.97 L 362.72 240.99 L 364.26 238.98 L 365.64 236.92 L 366.85 234.81 L 367.88 232.68 L 368.75 230.51 L 369.44 228.31 L 369.95 226.08 L 370.30 223.83 L 370.46 221.56 L 370.45 219.27 L 370.27 216.97 L 369.91 214.66 L 369.37 212.35 L 368.67 210.03 L 367.78 207.71 L 366.73 205.40 L 365.51 203.10 L 364.11 200.81 L 362.56 198.54 L 360.84 196.29 L 358.95 194.05 L 356.91 191.85 L 354.72 189.67 L 352.37 187.53 L 349.88 185.42 L 347.24 183.36 L 344.46 181.33 L 341.55 179.35 L 338.50 177.42 L 335.33 175.54 L 332.04 173.72 L 328.63 171.95 L 325.11 170.25 L 321.49 168.60 L 317.76 167.03 L 313.94 165.52 L 310.03 164.08 L 306.04 162.71 L 301.97 161.41 L 297.83 160.20 L 293.63 159.06 L 289.37 158.00 L 285.06 157.02 L 280.70 156.13 L 276.31 155.32 L 271.89 154.60 L 267.44 153.96 L 262.98 153.42" fill="none" stroke="var(--blue)" stroke-width="1.25" stroke-dasharray="3 3" opacity="0.45" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M 265.65 129.70 L 259.34 129.05 L 253.02 128.53 L 246.70 128.13 L 240.40 127.86 L 234.13 127.72 L 227.89 127.71 L 221.70 127.83 L 215.55 128.08 L 209.48 128.45 L 203.47 128.95 L 197.54 129.58 L 191.71 130.33 L 185.98 131.21 L 180.35 132.21 L 174.85 133.34 L 169.46 134.58 L 164.22 135.94 L 159.11 137.41 L 154.16 139.00 L 149.36 140.70 L 144.73 142.51 L 140.27 144.43 L 135.99 146.44 L 131.89 148.56 L 127.99 150.77 L 124.29 153.08 L 120.79 155.47 L 117.50 157.95 L 114.42 160.51 L 111.56 163.15 L 108.93 165.87 L 106.52 168.65 L 104.35 171.50 L 102.40 174.41 L 100.70 177.38 L 99.24 180.39 L 98.02 183.46 L 97.04 186.57 L 96.31 189.71 L 95.83 192.89 L 95.59 196.10 L 95.61 199.32 L 95.87 202.57 L 96.38 205.83 L 97.13 209.10 L 98.13 212.37 L 99.38 215.64 L 100.86 218.90 L 102.59 222.15 L 104.56 225.38 L 106.76 228.59 L 109.19 231.77 L 111.84 234.93 L 114.72 238.04 L 117.82 241.11 L 121.13 244.14 L 124.66 247.11 L 128.38 250.03 L 132.30 252.89 L 136.42 255.68 L 140.72 258.41 L 145.19 261.06 L 149.84 263.64 L 154.66 266.13 L 159.63 268.54 L 164.75 270.86 L 170.01 273.09 L 175.40 275.22 L 180.92 277.25 L 186.56 279.18 L 192.30 281.01 L 198.15 282.73 L 204.08 284.34 L 210.09 285.83 L 216.18 287.21 L 222.33 288.47 L 228.53 289.61 L 234.77 290.63 L 241.05 291.53 L 247.35 292.30 L 253.66 292.95 L 259.98 293.47 L 266.30 293.87 L 272.60 294.14 L 278.87 294.28 L 285.11 294.29 L 291.30 294.17 L 297.45 293.92 L 303.52 293.55 L 309.53 293.05 L 315.46 292.42 L 321.29 291.67 L 327.02 290.79 L 332.65 289.79 L 338.15 288.66 L 343.54 287.42 L 348.78 286.06 L 353.89 284.59 L 358.84 283.00 L 363.64 281.30 L 368.27 279.49 L 372.73 277.57 L 377.01 275.56 L 381.11 273.44 L 385.01 271.23 L 388.71 268.92 L 392.21 266.53 L 395.50 264.05 L 398.58 261.49 L 401.44 258.85 L 404.07 256.13 L 406.48 253.35 L 408.65 250.50 L 410.60 247.59 L 412.30 244.62 L 413.76 241.61 L 414.98 238.54 L 415.96 235.43 L 416.69 232.29 L 417.17 229.11 L 417.41 225.90 L 417.39 222.68 L 417.13 219.43 L 416.62 216.17 L 415.87 212.90 L 414.87 209.63 L 413.62 206.36 L 412.14 203.10 L 410.41 199.85 L 408.44 196.62 L 406.24 193.41 L 403.81 190.23 L 401.16 187.07 L 398.28 183.96 L 395.18 180.89 L 391.87 177.86 L 388.34 174.89 L 384.62 171.97 L 380.70 169.11 L 376.58 166.32 L 372.28 163.59 L 367.81 160.94 L 363.16 158.36 L 358.34 155.87 L 353.37 153.46 L 348.25 151.14 L 342.99 148.91 L 337.60 146.78 L 332.08 144.75 L 326.44 142.82 L 320.70 140.99 L 314.85 139.27 L 308.92 137.66 L 302.91 136.17 L 296.82 134.79 L 290.67 133.53 L 284.47 132.39 L 278.23 131.37 L 271.95 130.47 L 265.65 129.70" fill="none" stroke="var(--blue)" stroke-width="1.25" stroke-dasharray="3 3" opacity="0.45" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M 267.16 116.34 L 259.80 115.59 L 252.45 114.98 L 245.10 114.52 L 237.76 114.21 L 230.46 114.05 L 223.19 114.04 L 215.98 114.17 L 208.83 114.46 L 201.75 114.90 L 194.76 115.48 L 187.86 116.21 L 181.07 117.09 L 174.40 118.11 L 167.85 119.28 L 161.44 120.58 L 155.17 122.03 L 149.06 123.61 L 143.12 125.33 L 137.35 127.18 L 131.77 129.16 L 126.37 131.26 L 121.18 133.49 L 116.20 135.84 L 111.43 138.30 L 106.89 140.88 L 102.58 143.56 L 98.50 146.35 L 94.67 149.24 L 91.09 152.22 L 87.76 155.30 L 84.69 158.46 L 81.89 161.70 L 79.36 165.01 L 77.10 168.40 L 75.12 171.85 L 73.41 175.37 L 71.99 178.94 L 70.86 182.55 L 70.01 186.21 L 69.44 189.91 L 69.17 193.65 L 69.18 197.41 L 69.49 201.19 L 70.08 204.98 L 70.96 208.79 L 72.12 212.59 L 73.57 216.40 L 75.31 220.20 L 77.32 223.98 L 79.60 227.74 L 82.16 231.48 L 84.99 235.19 L 88.09 238.85 L 91.44 242.48 L 95.05 246.06 L 98.91 249.58 L 103.00 253.04 L 107.34 256.44 L 111.91 259.77 L 116.70 263.02 L 121.70 266.20 L 126.91 269.28 L 132.33 272.28 L 137.93 275.19 L 143.72 277.99 L 149.68 280.69 L 155.80 283.28 L 162.08 285.77 L 168.51 288.13 L 175.07 290.38 L 181.76 292.51 L 188.56 294.51 L 195.47 296.38 L 202.47 298.12 L 209.56 299.72 L 216.71 301.19 L 223.93 302.52 L 231.20 303.71 L 238.51 304.76 L 245.84 305.66 L 253.20 306.41 L 260.55 307.02 L 267.90 307.48 L 275.24 307.79 L 282.54 307.95 L 289.81 307.96 L 297.02 307.83 L 304.17 307.54 L 311.25 307.10 L 318.24 306.52 L 325.14 305.79 L 331.93 304.91 L 338.60 303.89 L 345.15 302.72 L 351.56 301.42 L 357.83 299.97 L 363.94 298.39 L 369.88 296.67 L 375.65 294.82 L 381.23 292.84 L 386.63 290.74 L 391.82 288.51 L 396.80 286.16 L 401.57 283.70 L 406.11 281.12 L 410.42 278.44 L 414.50 275.65 L 418.33 272.76 L 421.91 269.78 L 425.24 266.70 L 428.31 263.54 L 431.11 260.30 L 433.64 256.99 L 435.90 253.60 L 437.88 250.15 L 439.59 246.63 L 441.01 243.06 L 442.14 239.45 L 442.99 235.79 L 443.56 232.09 L 443.83 228.35 L 443.82 224.59 L 443.51 220.81 L 442.92 217.02 L 442.04 213.21 L 440.88 209.41 L 439.43 205.60 L 437.69 201.80 L 435.68 198.02 L 433.40 194.26 L 430.84 190.52 L 428.01 186.81 L 424.91 183.15 L 421.56 179.52 L 417.95 175.94 L 414.09 172.42 L 410.00 168.96 L 405.66 165.56 L 401.09 162.23 L 396.30 158.98 L 391.30 155.80 L 386.09 152.72 L 380.67 149.72 L 375.07 146.81 L 369.28 144.01 L 363.32 141.31 L 357.20 138.72 L 350.92 136.23 L 344.49 133.87 L 337.93 131.62 L 331.24 129.49 L 324.44 127.49 L 317.53 125.62 L 310.53 123.88 L 303.44 122.28 L 296.29 120.81 L 289.07 119.48 L 281.80 118.29 L 274.49 117.24 L 267.16 116.34" fill="none" stroke="var(--blue)" stroke-width="1.25" opacity="0.95" stroke-linejoin="round" stroke-linecap="round"/>
+  <line x1="342.80" y1="133.27" x2="389.41" y2="175.76" stroke="var(--crimson)" stroke-width="1.5" opacity="0.9"/>
+  <line x1="389.41" y1="175.76" x2="368.33" y2="209.10" stroke="var(--crimson)" stroke-width="1.5" opacity="0.9"/>
+  <line x1="368.33" y1="209.10" x2="320.09" y2="226.61" stroke="var(--crimson)" stroke-width="1.5" opacity="0.9"/>
+  <line x1="320.09" y1="226.61" x2="274.32" y2="230.22" stroke="var(--crimson)" stroke-width="1.5" opacity="0.9"/>
+  <circle cx="342.80" cy="133.27" r="4.0" fill="var(--crimson)"/>
+  <text class="annm" x="350.80" y="126.27" text-anchor="start" fill="var(--crimson)" font-weight="600">e0</text>
+  <circle cx="389.41" cy="175.76" r="4.0" fill="var(--crimson)"/>
+  <text class="annm" x="397.41" y="168.76" text-anchor="start" fill="var(--crimson)" font-weight="600">e1</text>
+  <circle cx="368.33" cy="209.10" r="4.0" fill="var(--crimson)"/>
+  <text class="annm" x="376.33" y="202.10" text-anchor="start" fill="var(--crimson)" font-weight="600">e2</text>
+  <circle cx="320.09" cy="226.61" r="4.0" fill="var(--crimson)"/>
+  <text class="annm" x="328.09" y="219.61" text-anchor="start" fill="var(--crimson)" font-weight="600">e3</text>
+  <circle cx="274.32" cy="230.22" r="4.0" fill="var(--crimson)"/>
+  <text class="annm" x="282.32" y="223.22" text-anchor="start" fill="var(--crimson)" font-weight="600">e4</text>
+  <circle cx="256.50" cy="211.00" r="3.2" fill="var(--ink)"/>
+  <text class="annm" x="265.50" y="225.00" text-anchor="start" fill="var(--ink-3)">0</text>
+  <text class="axl" x="67.00" y="370.00" text-anchor="start" fill="var(--ink-3)">every hop lands strictly inside the previous ellipse</text>
+  <text class="ttl" x="545.00" y="27.00" text-anchor="start">THE SAME TRAJECTORY AS ONE NUMBER</text>
+  <line x1="545.00" y1="300.00" x2="860.00" y2="300.00" stroke="var(--rule-strong)" stroke-width="1.2"/>
+  <line x1="545.00" y1="40.00" x2="545.00" y2="300.00" stroke="var(--rule-strong)" stroke-width="1.2"/>
+  <rect x="563.97" y="63.64" width="30.00" height="236.36" fill="var(--blue)" opacity="0.22"/>
+  <rect x="563.97" y="63.64" width="30.00" height="2.60" fill="var(--blue)"/>
+  <text class="ax" x="578.97" y="316.00" text-anchor="middle">0</text>
+  <text class="annm" x="578.97" y="55.64" text-anchor="middle" fill="var(--blue)" font-size="9">6.90</text>
+  <rect x="625.74" y="125.61" width="30.00" height="174.39" fill="var(--blue)" opacity="0.22"/>
+  <rect x="625.74" y="125.61" width="30.00" height="2.60" fill="var(--blue)"/>
+  <text class="ax" x="640.74" y="316.00" text-anchor="middle">1</text>
+  <text class="annm" x="640.74" y="117.61" text-anchor="middle" fill="var(--blue)" font-size="9">5.09</text>
+  <rect x="687.50" y="212.52" width="30.00" height="87.48" fill="var(--blue)" opacity="0.22"/>
+  <rect x="687.50" y="212.52" width="30.00" height="2.60" fill="var(--blue)"/>
+  <text class="ax" x="702.50" y="316.00" text-anchor="middle">2</text>
+  <text class="annm" x="702.50" y="204.52" text-anchor="middle" fill="var(--blue)" font-size="9">2.55</text>
+  <rect x="749.26" y="270.04" width="30.00" height="29.96" fill="var(--blue)" opacity="0.22"/>
+  <rect x="749.26" y="270.04" width="30.00" height="2.60" fill="var(--blue)"/>
+  <text class="ax" x="764.26" y="316.00" text-anchor="middle">3</text>
+  <text class="annm" x="764.26" y="262.04" text-anchor="middle" fill="var(--blue)" font-size="9">0.88</text>
+  <rect x="811.03" y="289.75" width="30.00" height="10.25" fill="var(--blue)" opacity="0.22"/>
+  <rect x="811.03" y="289.75" width="30.00" height="2.60" fill="var(--blue)"/>
+  <text class="ax" x="826.03" y="316.00" text-anchor="middle">4</text>
+  <text class="annm" x="826.03" y="281.75" text-anchor="middle" fill="var(--blue)" font-size="9">0.30</text>
+  <text class="axl" x="702.50" y="334.00" text-anchor="middle">cycle k</text>
+  <text class="axl" x="537.00" y="48.00" text-anchor="end" fill="var(--blue)">V</text>
+  <text class="axl" x="545.00" y="335.00" text-anchor="start" fill="var(--ink-2)">V is never negative, and it falls at every single step.</text>
+  <text class="axl" x="545.00" y="354.00" text-anchor="start" fill="var(--ink-2)">A non-negative quantity that always decreases has nowhere</text>
+  <text class="axl" x="545.00" y="373.00" text-anchor="start" fill="var(--ink-2)">left to go but zero — and V reaches zero only at e = 0.</text>
+</svg></div>
+    <figcaption><b>The whole method in one picture.</b> Each blue curve is a
+    <em>level set</em>: the set of errors sharing one value of <code>V</code>. The condition
+    "<code>V</code> falls every step" says the trajectory crosses inward through every level set it
+    meets and can never come back out. The right panel is the same six points, read as the single
+    falling number. Two-dimensional illustration with a made-up matrix, so the geometry is visible;
+    the real system lives in three dimensions and behaves the same way.</figcaption>
+  </figure>
+
+  <div class="note">
+    <span class="tag">Why a decreasing V is stronger than a decreasing error</span>
+    A trajectory can be heading for the origin while its <em>distance</em> to the origin goes up for
+    a while — think of a skateboarder in a bowl, gaining height on one side while losing energy
+    overall. Distance is the wrong bookkeeping. <code>V</code> is bookkeeping chosen to be
+    monotone, which is what makes the argument airtight. Section 05 shows this happening for real,
+    in this paper's own matrix.
+  </div>
+</section>
+
+<section>
+  <div class="step-head"><span class="step-num">03</span><h2>Choosing V: quadratic forms and what P does</h2></div>
+
+  <p>"Find a function" is not a method. Nearly all of control theory narrows the search to one
+  family, the <strong>quadratic forms</strong>:</p>
+
+  <div class="eq center">V(e) = e<sup>T</sup>P e,&nbsp;&nbsp;&nbsp;
+  P = P<sup>T</sup> <span class="cm">(symmetric)</span></div>
+
+  <p>Written out for two states, with <code>P = [p₁₁ p₁₂ ; p₁₂ p₂₂]</code>, this is
+  <code>p₁₁e₁² + 2p₁₂e₁e₂ + p₂₂e₂²</code> — a weighted sum of squares and cross-terms. Symmetry
+  costs nothing, since any non-symmetric part cancels in the product anyway.</p>
+
+  <p>The first requirement, <code>V(e) &gt; 0</code> for every <code>e ≠ 0</code>, is exactly the
+  definition of <code>P</code> being <strong>positive definite</strong>, written
+  <code>P ≻ 0</code>. Equivalently: every eigenvalue of <code>P</code> is positive. So the first
+  half of the job reduces to a property of a matrix.</p>
+
+  <p>The geometry is worth carrying around. With <code>λ<sub>i</sub></code> the eigenvalues of
+  <code>P</code> and <code>v<sub>i</sub></code> its eigenvectors, the level set
+  <code>e<sup>T</sup>Pe = c</code> is an <strong>ellipsoid</strong> whose axis along
+  <code>v<sub>i</sub></code> has half-length <code>√(c/λ<sub>i</sub>)</code>. Big weight, short
+  axis: directions <code>P</code> weights heavily are directions the level set refuses to extend
+  in. Choosing <code>P</code> is choosing the shape of the ruler.</p>
+
+  <div class="note key">
+    <span class="tag">Two norms, and the constant relating them</span>
+    A positive definite <code>P</code> defines a distance of its own,
+    <code>‖e‖<sub>P</sub> = √(e<sup>T</sup>Pe)</code>, the <em>P-norm</em>. It obeys all the usual
+    rules, including the triangle inequality — which is the entire punchline of part three. It is
+    never wildly different from ordinary distance:
+    <code>√λ<sub>min</sub>·‖e‖₂ ≤ ‖e‖<sub>P</sub> ≤ √λ<sub>max</sub>·‖e‖₂</code>. So a bound in the
+    <code>P</code>-norm converts into a bound in ordinary distance, at the cost of the factor
+    <code>√(λ<sub>max</sub>/λ<sub>min</sub>)</code>. For the <code>P</code> this paper computes,
+    that factor is <span class="num">21.9</span> — and section 05 shows the ordinary error really
+    does swell, by a factor of 1.76, on the way down. Well inside what the certificate allows, and
+    invisible to the P-norm.
+  </div>
+</section>
+
+<section>
+  <div class="step-head"><span class="step-num">04</span><h2>The test: one matrix inequality</h2></div>
+
+  <p>Now impose the second requirement on <code>V(e) = e<sup>T</sup>Pe</code> along
+  <code>e<sub>k+1</sub> = Ae<sub>k</sub></code>. The algebra is three lines.</p>
+
+  <div class="deriv">
+    <div><span class="l">V(e<sub>k+1</sub>) = (Ae<sub>k</sub>)<sup>T</sup>P(Ae<sub>k</sub>)</span><span class="r">substitute the update</span></div>
+    <div><span class="l">= e<sub>k</sub><sup>T</sup>(A<sup>T</sup>PA)e<sub>k</sub></span><span class="r">since (Ae)<sup>T</sup> = e<sup>T</sup>A<sup>T</sup></span></div>
+    <div><span class="l">ΔV = e<sub>k</sub><sup>T</sup>(A<sup>T</sup>PA − P)e<sub>k</sub></span><span class="r">subtract V(e<sub>k</sub>), factor</span></div>
+  </div>
+
+  <p style="margin-top:1.1rem">Demanding <code>ΔV &lt; 0</code> for <em>every</em> non-zero
+  <code>e</code> is, word for word, the statement that the symmetric matrix in the middle is
+  negative definite. The second requirement collapses to</p>
+
+  <div class="eq center">A<sup>T</sup>PA − P ≺ 0</div>
+
+  <p>This is <em>the</em> discrete-time Lyapunov inequality, and three things about it matter.</p>
+
+  <p><b>It can be given a rate.</b> Negative definiteness alone gives decrease but not speed.
+  Replace it by the scaled version</p>
+
+  <div class="eq center">A<sup>T</sup>PA ⪯ q<sup>2</sup>P
+  &nbsp;&nbsp;<span class="cm">⟺</span>&nbsp;&nbsp;
+  V(e<sub>k+1</sub>) ≤ q<sup>2</sup>V(e<sub>k</sub>)
+  &nbsp;&nbsp;<span class="cm">⟺</span>&nbsp;&nbsp;
+  ‖e<sub>k+1</sub>‖<sub>P</sub> ≤ q‖e<sub>k</sub>‖<sub>P</sub></div>
+
+  <p>and the conclusion becomes quantitative:
+  <code>‖e<sub>k</sub>‖<sub>P</sub> ≤ q<sup>k</sup>‖e<sub>0</sub>‖<sub>P</sub></code>,
+  exponential stability with the rate written down. The smallest <code>q</code> that works has a
+  name — the <strong>induced P-norm</strong> of <code>A</code>:</p>
+
+  <div class="eq center">‖A‖<sub>P</sub> = max<sub class="cm">e ≠ 0</sub>
+  &nbsp;‖Ae‖<sub>P</sub> ⁄ ‖e‖<sub>P</sub></div>
+
+  <p>Read it as the worst stretch factor <code>A</code> can apply to any vector, measured with the
+  <code>P</code>-ruler. It is computed, not searched for: <code>‖A‖<sub>P</sub></code> is the
+  square root of the largest <code>μ</code> solving
+  <code>det(A<sup>T</sup>PA − μP) = 0</code>, a generalized eigenvalue problem your linear-algebra
+  library already has. Two of its properties do all the work later. It is a genuine norm on
+  matrices, so it obeys the <strong>triangle inequality</strong>
+  <code>‖X + Y‖<sub>P</sub> ≤ ‖X‖<sub>P</sub> + ‖Y‖<sub>P</sub></code>; and it is
+  <strong>submultiplicative</strong>,
+  <code>‖XY‖<sub>P</sub> ≤ ‖X‖<sub>P</sub>‖Y‖<sub>P</sub></code>.</p>
+
+  <p><b>Such a P always exists for one Schur matrix.</b> If <code>ρ(A) &lt; 1</code> then
+  <code>A<sup>k</sup> → 0</code> quickly enough that</p>
+
+  <div class="eq center">P = Σ<sub class="cm">k ≥ 0</sub> (A<sup>T</sup>)<sup>k</sup>A<sup>k</sup>
+  &nbsp;&nbsp;<span class="cm">converges, and satisfies</span>&nbsp;&nbsp;
+  A<sup>T</sup>PA − P = −I</div>
+
+  <p>So for a single fixed matrix, Lyapunov theory tells you nothing the eigenvalues had not
+  already told you. Its value appears the moment there is more than one matrix — which is exactly
+  this paper's situation.</p>
+
+  <p><b>Finding P is a convex problem.</b> Look at what is unknown. <code>A</code> is given,
+  <code>P</code> is the variable, and <code>A<sup>T</sup>PA − P</code> is <em>linear</em> in
+  <code>P</code>. A constraint of the form "this symmetric matrix, linear in the unknowns, is
+  negative definite" is called a <strong>linear matrix inequality</strong>. The set of
+  <code>P</code> satisfying one is convex, several can be imposed at once, and reliable solvers
+  either return a solution or prove that none exists. That is the machinery part two uses offline,
+  and it is why asking for one <code>P</code> that works for two different matrices is a reasonable
+  request rather than a wish.</p>
+</section>
+
+<section>
+  <div class="step-head"><span class="step-num">05</span><h2>Trap one: eigenvalues describe the end, not the trip</h2></div>
+
+  <p>If <code>ρ(A) &lt; 1</code> already guarantees decay, why bother with <code>P</code>? Because
+  it guarantees decay <em>eventually</em>. It says nothing about what happens first, and "first"
+  can last a long time.</p>
+
+  <p>Here is this paper's own open-loop cycle matrix, in the normalized coordinates the design
+  uses:</p>
+
+  <div class="eq">Φ = [ &nbsp;0.99953 &nbsp;−0.00375 &nbsp;&nbsp;0.01123 ;
+  &nbsp;&nbsp;0.00088 &nbsp;&nbsp;0.99992 &nbsp;&nbsp;0.00364 ;
+  &nbsp;&nbsp;0.00556 &nbsp;−0.00028 &nbsp;&nbsp;0.75174 ]<br>
+  <span class="cm">eigenvalues</span> 0.99985 ± 0.00190i, &nbsp;0.75149
+  &nbsp;&nbsp;⟹&nbsp;&nbsp; <span class="hl">ρ(Φ) = 0.999850 &lt; 1</span>
+  &nbsp;&nbsp;<span class="cm">Schur: the open loop does converge</span></div>
+
+  <p>And yet <code>‖Φ‖₂ = <span class="num">1.001254</span> &gt; 1</code>. There are error
+  directions that one uncontrolled cycle makes <em>bigger</em>. Iterate, and it compounds.</p>
+
+  <figure class="wide">
+    <div class="fig-shell"><svg viewBox="0 0 900 400" role="img" aria-label="Norm of the k-th power of the open-loop cycle matrix against k on a logarithmic cycle axis. The curve rises above one, peaks at 1.76 near cycle 758, stays at or above one until cycle 4321, and only then decays, while the spectral-radius curve decays monotonically from the start.">
+  <rect x="70.00" y="44.00" width="788.00" height="274.00" fill="none" stroke="var(--rule)" stroke-width="1"/>
+  <line x1="70.00" y1="281.95" x2="858.00" y2="281.95" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 4" opacity="0.8"/>
+  <text class="ax" x="62.00" y="285.45" text-anchor="end">0.25</text>
+  <line x1="70.00" y1="245.89" x2="858.00" y2="245.89" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 4" opacity="0.8"/>
+  <text class="ax" x="62.00" y="249.39" text-anchor="end">0.50</text>
+  <line x1="70.00" y1="209.84" x2="858.00" y2="209.84" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 4" opacity="0.8"/>
+  <text class="ax" x="62.00" y="213.34" text-anchor="end">0.75</text>
+  <line x1="70.00" y1="173.79" x2="858.00" y2="173.79" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 4" opacity="0.8"/>
+  <text class="ax" x="62.00" y="177.29" text-anchor="end">1.00</text>
+  <line x1="70.00" y1="137.74" x2="858.00" y2="137.74" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 4" opacity="0.8"/>
+  <text class="ax" x="62.00" y="141.24" text-anchor="end">1.25</text>
+  <line x1="70.00" y1="101.68" x2="858.00" y2="101.68" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 4" opacity="0.8"/>
+  <text class="ax" x="62.00" y="105.18" text-anchor="end">1.50</text>
+  <line x1="70.00" y1="65.63" x2="858.00" y2="65.63" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 4" opacity="0.8"/>
+  <text class="ax" x="62.00" y="69.13" text-anchor="end">1.75</text>
+  <line x1="70.00" y1="173.79" x2="858.00" y2="173.79" stroke="var(--ink-3)" stroke-width="1.4"/>
+  <text class="ann" x="852.00" y="166.79" text-anchor="end" fill="var(--ink-3)">1.00 — no growth</text>
+  <line x1="70.00" y1="318.00" x2="70.00" y2="323.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="70.00" y="334.00" text-anchor="middle">1</text>
+  <line x1="253.21" y1="318.00" x2="253.21" y2="323.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="253.21" y="334.00" text-anchor="middle">10</text>
+  <line x1="436.42" y1="318.00" x2="436.42" y2="323.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="436.42" y="334.00" text-anchor="middle">100</text>
+  <line x1="619.64" y1="318.00" x2="619.64" y2="323.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="619.64" y="334.00" text-anchor="middle">1 000</text>
+  <line x1="802.85" y1="318.00" x2="802.85" y2="323.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="802.85" y="334.00" text-anchor="middle">10 000</text>
+  <text class="axl" x="464.00" y="354.00" text-anchor="middle">cycles k  (logarithmic)</text>
+  <path d="M 70.00 173.81 L 125.15 173.83 L 157.41 173.85 L 180.30 173.88 L 198.06 173.90 L 212.57 173.92 L 224.83 173.94 L 235.46 173.96 L 244.83 173.98 L 253.21 174.01 L 260.80 174.03 L 267.72 174.05 L 274.09 174.07 L 279.98 174.09 L 285.47 174.11 L 290.61 174.14 L 295.43 174.16 L 299.98 174.18 L 304.28 174.20 L 308.36 174.22 L 312.25 174.24 L 315.95 174.26 L 319.48 174.29 L 322.87 174.31 L 326.12 174.33 L 329.24 174.35 L 332.24 174.37 L 335.14 174.39 L 337.93 174.42 L 340.63 174.44 L 363.52 174.65 L 381.27 174.87 L 395.78 175.08 L 408.04 175.30 L 418.67 175.51 L 428.04 175.72 L 436.42 175.94 L 444.01 176.15 L 450.93 176.36 L 457.30 176.57 L 463.20 176.79 L 468.69 177.00 L 473.82 177.21 L 478.64 177.42 L 483.19 177.63 L 487.49 177.84 L 491.58 178.05 L 495.46 178.26 L 499.16 178.47 L 502.70 178.68 L 506.08 178.89 L 509.33 179.10 L 512.45 179.30 L 515.45 179.51 L 518.35 179.72 L 521.14 179.93 L 523.84 180.13 L 536.10 181.16 L 546.73 182.19 L 556.10 183.20 L 564.48 184.21 L 572.07 185.21 L 578.99 186.20 L 585.36 187.18 L 591.26 188.16 L 596.75 189.13 L 601.88 190.09 L 606.70 191.05 L 611.25 192.00 L 615.55 192.94 L 619.64 193.87 L 623.52 194.80 L 627.22 195.72 L 630.76 196.64 L 634.14 197.54 L 637.39 198.44 L 640.51 199.34 L 643.51 200.22 L 646.41 201.10 L 649.20 201.97 L 651.90 202.84 L 654.51 203.70 L 657.03 204.56 L 659.48 205.40 L 661.86 206.24 L 664.16 207.08 L 666.40 207.91 L 668.58 208.73 L 670.71 209.55 L 672.77 210.36 L 674.79 211.16 L 676.75 211.96 L 678.67 212.75 L 680.54 213.54 L 682.37 214.32 L 684.16 215.09 L 685.91 215.86 L 687.62 216.63 L 689.30 217.38 L 690.94 218.13 L 692.54 218.88 L 694.12 219.62 L 695.66 220.36 L 697.18 221.09 L 698.67 221.81 L 700.13 222.53 L 701.56 223.24 L 702.97 223.95 L 704.35 224.65 L 705.71 225.35 L 707.05 226.04 L 713.42 229.43 L 719.32 232.68 L 724.81 235.82 L 729.94 238.85 L 734.76 241.76 L 739.31 244.57 L 743.61 247.27 L 747.70 249.87 L 751.58 252.38 L 755.28 254.79 L 758.82 257.12 L 762.20 259.36 L 765.45 261.52 L 768.57 263.60 L 771.57 265.60 L 774.47 267.53 L 777.26 269.39 L 779.96 271.17 L 782.57 272.90 L 785.09 274.56 L 787.54 276.16 L 789.92 277.70 L 792.22 279.18 L 794.46 280.61 L 796.64 281.98 L 798.77 283.31 L 800.83 284.59 L 802.85 285.82 L 804.81 287.00 L 806.73 288.14 L 808.60 289.24 L 810.43 290.30 L 812.22 291.32 L 813.97 292.30 L 815.68 293.24 L 817.35 294.16 L 819.00 295.03 L 820.60 295.88 L 822.18 296.69 L 823.72 297.48 L 825.24 298.23 L 826.73 298.96 L 828.19 299.66 L 829.62 300.34 L 831.03 300.99 L 832.41 301.61 L 833.77 302.21 L 835.11 302.80 L 836.42 303.35 L 837.72 303.89 L 838.99 304.41 L 840.24 304.91 L 841.48 305.39 L 842.69 305.86 L 843.89 306.31 L 845.07 306.74 L 846.23 307.15 L 847.38 307.55 L 848.50 307.93 L 849.62 308.30 L 850.71 308.66 L 851.80 309.00 L 852.86 309.34 L 853.92 309.65 L 854.96 309.96 L 855.99 310.26 L 857.00 310.54 L 858.00 310.82" fill="none" stroke="var(--graphite)" stroke-width="1.4" stroke-dasharray="5 4" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M 70.00 173.73 L 125.15 173.46 L 157.41 173.25 L 180.30 173.07 L 198.06 172.88 L 212.57 172.70 L 224.83 172.52 L 235.46 172.34 L 244.83 172.15 L 253.21 171.97 L 260.80 171.79 L 267.72 171.61 L 274.09 171.42 L 279.98 171.24 L 285.47 171.06 L 290.61 170.87 L 295.43 170.69 L 299.98 170.50 L 304.28 170.32 L 308.36 170.13 L 312.25 169.95 L 315.95 169.76 L 319.48 169.58 L 322.87 169.39 L 326.12 169.21 L 329.24 169.02 L 332.24 168.83 L 335.14 168.65 L 337.93 168.46 L 340.63 168.27 L 363.52 166.40 L 381.27 164.50 L 395.78 162.58 L 408.04 160.65 L 418.67 158.70 L 428.04 156.74 L 436.42 154.77 L 444.01 152.78 L 450.93 150.79 L 457.30 148.78 L 463.20 146.77 L 468.69 144.75 L 473.82 142.72 L 478.64 140.69 L 483.19 138.66 L 487.49 136.63 L 491.58 134.60 L 495.46 132.58 L 499.16 130.56 L 502.70 128.54 L 506.08 126.53 L 509.33 124.53 L 512.45 122.54 L 515.45 120.56 L 518.35 118.59 L 521.14 116.64 L 523.84 114.71 L 536.10 105.34 L 546.73 96.59 L 556.10 88.64 L 564.48 81.62 L 572.07 75.67 L 578.99 70.89 L 585.36 67.35 L 591.26 65.13 L 596.75 64.24 L 601.88 64.72 L 606.70 66.54 L 611.25 69.68 L 615.55 74.09 L 619.64 79.70 L 623.52 86.42 L 627.22 94.16 L 630.76 102.79 L 634.14 112.17 L 637.39 122.16 L 640.51 132.60 L 643.51 143.32 L 646.41 154.16 L 649.20 164.94 L 651.90 175.51 L 654.51 185.72 L 657.03 195.44 L 659.48 204.56 L 661.86 198.99 L 664.16 191.43 L 666.40 183.63 L 668.58 175.72 L 670.71 167.84 L 672.77 160.16 L 674.79 152.80 L 676.75 145.92 L 678.67 139.65 L 680.54 134.10 L 682.37 129.37 L 684.16 125.54 L 685.91 122.68 L 687.62 120.84 L 689.30 120.04 L 690.94 120.31 L 692.54 121.62 L 694.12 123.97 L 695.66 127.31 L 697.18 131.60 L 698.67 136.76 L 700.13 142.72 L 701.56 149.39 L 702.97 156.65 L 704.35 164.40 L 705.71 172.52 L 707.05 180.87 L 713.42 221.63 L 719.32 207.62 L 724.81 179.32 L 729.94 164.29 L 734.76 168.93 L 739.31 191.53 L 743.61 223.52 L 747.70 246.46 L 751.58 222.85 L 755.28 203.72 L 758.82 197.58 L 762.20 207.01 L 765.45 228.44 L 768.57 253.74 L 771.57 255.32 L 774.47 237.24 L 777.26 225.61 L 779.96 225.47 L 782.57 236.94 L 785.09 255.67 L 787.54 274.63 L 789.92 263.54 L 792.22 250.66 L 794.46 244.73 L 796.64 248.25 L 798.77 259.91 L 800.83 275.28 L 802.85 282.53 L 804.81 271.31 L 806.73 262.89 L 808.60 261.00 L 810.43 266.44 L 812.22 277.14 L 813.97 289.05 L 815.68 286.99 L 817.35 278.62 L 819.00 273.76 L 820.60 274.51 L 822.18 280.61 L 823.72 289.73 L 825.24 297.96 L 826.73 291.18 L 828.19 285.38 L 829.62 283.16 L 831.03 285.45 L 832.41 291.39 L 833.77 298.71 L 835.11 300.42 L 836.42 295.14 L 837.72 291.49 L 838.99 291.09 L 840.24 294.11 L 841.48 299.40 L 842.69 304.97 L 843.89 302.68 L 845.07 298.84 L 846.23 296.87 L 847.38 297.62 L 848.50 300.79 L 849.62 305.20 L 850.71 308.06 L 851.80 304.82 L 852.86 302.24 L 853.92 301.48 L 854.96 302.85 L 855.99 305.84 L 857.00 309.30 L 858.00 309.30" fill="none" stroke="var(--crimson)" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="597.59" cy="64.23" r="4.5" fill="var(--crimson)"/>
+  <text class="ann" x="607.59" y="58.23" text-anchor="start" fill="var(--crimson)">peak 1.7597 at cycle 758</text>
+  <line x1="736.08" y1="173.79" x2="736.08" y2="318.00" stroke="var(--crimson)" stroke-width="1" stroke-dasharray="3 3" opacity="0.7"/>
+  <text class="annm" x="742.08" y="308.00" text-anchor="start" fill="var(--crimson)" font-size="9.5">still ≥ 1 at cycle 4 321</text>
+  <text class="ann" x="340.63" y="183.88" text-anchor="start" fill="var(--graphite)">ρ(Φ)ᵏ = 0.999850ᵏ — what the eigenvalues promise</text>
+  <text class="ttl" x="70.00" y="30.00" text-anchor="start">WORST-CASE EUCLIDEAN AMPLIFICATION ‖Φᵏ‖₂ OF THE OPEN-LOOP CYCLE MAP</text>
+  <text class="axl" x="70.00" y="368.00" text-anchor="start" fill="var(--ink-2)">Real matrix from this paper. The eigenvalues are inside the unit circle, yet the Euclidean error can be amplified by 76% —</text>
+  <text class="axl" x="70.00" y="386.00" text-anchor="start" fill="var(--ink-2)">and stays amplified for more than four thousand cycles — before the decay the eigenvalues promise finally takes over.</text>
+</svg></div>
+    <figcaption><b>Stable, and growing for four thousand cycles.</b> The crimson curve is
+    <code>‖Φ<sup>k</sup>‖₂</code>, the worst-case amplification of ordinary Euclidean error after
+    <code>k</code> cycles — real data from this paper's matrix. It climbs to
+    <span class="num">1.7597</span> at cycle <span class="num">758</span>, is still at or above one
+    at cycle <span class="num">4321</span>, and only then oscillates its way down as the complex
+    eigenvalue pair slowly rotates. The grey dashed curve is <code>ρ(Φ)<sup>k</sup></code>, what
+    the eigenvalues alone suggest: a smooth monotone decay that never happens. At
+    <span class="num">286</span>&nbsp;µs per cycle, the hump lasts more than a second.</figcaption>
+  </figure>
+
+  <p>In the language of section 03: <code>V(e) = e<sup>T</sup>e</code>, the obvious choice
+  <code>P = I</code>, is <strong>not</strong> a Lyapunov function for this system. Spheres are the
+  wrong shape for it. The <code>P</code> that part two computes has a different shape, and in that
+  ruler the very same matrix contracts,
+  <code>‖Φ‖<sub>P</sub> = <span class="num">0.999939</span> &lt; 1</code>. Nothing about the plant
+  changed. The ruler did.</p>
+
+  <figure class="wide">
+    <div class="fig-shell"><svg viewBox="0 0 900 430" role="img" aria-label="Two panels of the same trajectory. Measured with circles the error grows from step zero to step one; measured with the ellipses of the quadratic Lyapunov function it shrinks.">
+  <rect x="58.00" y="52.00" width="397.00" height="340.00" fill="none" stroke="var(--rule)" stroke-width="1"/>
+  <line x1="58.00" y1="222.00" x2="455.00" y2="222.00" stroke="var(--rule)" stroke-width="1"/>
+  <line x1="256.50" y1="392.00" x2="256.50" y2="52.00" stroke="var(--rule)" stroke-width="1"/>
+  <text class="ttl" x="58.00" y="40.00" text-anchor="start" fill="var(--crimson)">WRONG YARDSTICK — CIRCLES OF CONSTANT ‖e‖₂</text>
+  <rect x="500.00" y="52.00" width="397.00" height="340.00" fill="none" stroke="var(--rule)" stroke-width="1"/>
+  <line x1="500.00" y1="222.00" x2="897.00" y2="222.00" stroke="var(--rule)" stroke-width="1"/>
+  <line x1="698.50" y1="392.00" x2="698.50" y2="52.00" stroke="var(--rule)" stroke-width="1"/>
+  <text class="ttl" x="500.00" y="40.00" text-anchor="start" fill="var(--teal)">RIGHT YARDSTICK — ELLIPSES OF CONSTANT V</text>
+  <path d="M 370.14 222.00 L 370.05 217.51 L 369.79 213.03 L 369.35 208.56 L 368.74 204.11 L 367.96 199.69 L 367.00 195.30 L 365.87 190.96 L 364.58 186.66 L 363.12 182.42 L 361.49 178.24 L 359.70 174.12 L 357.75 170.08 L 355.65 166.12 L 353.39 162.25 L 350.99 158.47 L 348.44 154.78 L 345.74 151.20 L 342.91 147.73 L 339.95 144.38 L 336.86 141.14 L 333.64 138.03 L 330.30 135.04 L 326.85 132.19 L 323.30 129.48 L 319.64 126.92 L 315.88 124.50 L 312.03 122.23 L 308.09 120.11 L 304.08 118.15 L 299.99 116.35 L 295.83 114.71 L 291.62 113.24 L 287.35 111.94 L 283.03 110.80 L 278.67 109.84 L 274.28 109.05 L 269.86 108.44 L 265.42 108.00 L 260.96 107.73 L 256.50 107.64 L 252.04 107.73 L 247.58 108.00 L 243.14 108.44 L 238.72 109.05 L 234.33 109.84 L 229.97 110.80 L 225.65 111.94 L 221.38 113.24 L 217.17 114.71 L 213.01 116.35 L 208.92 118.15 L 204.91 120.11 L 200.97 122.23 L 197.12 124.50 L 193.36 126.92 L 189.70 129.48 L 186.15 132.19 L 182.70 135.04 L 179.36 138.03 L 176.14 141.14 L 173.05 144.38 L 170.09 147.73 L 167.26 151.20 L 164.56 154.78 L 162.01 158.47 L 159.61 162.25 L 157.35 166.12 L 155.25 170.08 L 153.30 174.12 L 151.51 178.24 L 149.88 182.42 L 148.42 186.66 L 147.13 190.96 L 146.00 195.30 L 145.04 199.69 L 144.26 204.11 L 143.65 208.56 L 143.21 213.03 L 142.95 217.51 L 142.86 222.00 L 142.95 226.49 L 143.21 230.97 L 143.65 235.44 L 144.26 239.89 L 145.04 244.31 L 146.00 248.70 L 147.13 253.04 L 148.42 257.34 L 149.88 261.58 L 151.51 265.76 L 153.30 269.88 L 155.25 273.92 L 157.35 277.88 L 159.61 281.75 L 162.01 285.53 L 164.56 289.22 L 167.26 292.80 L 170.09 296.27 L 173.05 299.62 L 176.14 302.86 L 179.36 305.97 L 182.70 308.96 L 186.15 311.81 L 189.70 314.52 L 193.36 317.08 L 197.12 319.50 L 200.97 321.77 L 204.91 323.89 L 208.92 325.85 L 213.01 327.65 L 217.17 329.29 L 221.38 330.76 L 225.65 332.06 L 229.97 333.20 L 234.33 334.16 L 238.72 334.95 L 243.14 335.56 L 247.58 336.00 L 252.04 336.27 L 256.50 336.36 L 260.96 336.27 L 265.42 336.00 L 269.86 335.56 L 274.28 334.95 L 278.67 334.16 L 283.03 333.20 L 287.35 332.06 L 291.62 330.76 L 295.83 329.29 L 299.99 327.65 L 304.08 325.85 L 308.09 323.89 L 312.03 321.77 L 315.88 319.50 L 319.64 317.08 L 323.30 314.52 L 326.85 311.81 L 330.30 308.96 L 333.64 305.97 L 336.86 302.86 L 339.95 299.62 L 342.91 296.27 L 345.74 292.80 L 348.44 289.22 L 350.99 285.53 L 353.39 281.75 L 355.65 277.88 L 357.75 273.92 L 359.70 269.88 L 361.49 265.76 L 363.12 261.58 L 364.58 257.34 L 365.87 253.04 L 367.00 248.70 L 367.96 244.31 L 368.74 239.89 L 369.35 235.44 L 369.79 230.97 L 370.05 226.49 L 370.14 222.00" fill="none" stroke="var(--ink-3)" stroke-width="1.25" stroke-dasharray="3 3" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M 391.07 222.00 L 390.96 216.68 L 390.65 211.38 L 390.14 206.08 L 389.41 200.82 L 388.48 195.58 L 387.35 190.39 L 386.02 185.24 L 384.48 180.15 L 382.75 175.13 L 380.83 170.18 L 378.71 165.31 L 376.40 160.52 L 373.91 155.83 L 371.24 151.25 L 368.39 146.77 L 365.37 142.40 L 362.18 138.16 L 358.83 134.05 L 355.32 130.08 L 351.65 126.25 L 347.85 122.56 L 343.90 119.03 L 339.81 115.66 L 335.60 112.45 L 331.26 109.41 L 326.81 106.54 L 322.25 103.85 L 317.59 101.34 L 312.84 99.02 L 308.00 96.89 L 303.08 94.95 L 298.08 93.21 L 293.03 91.67 L 287.91 90.33 L 282.75 89.19 L 277.55 88.25 L 272.32 87.52 L 267.06 87.00 L 261.78 86.69 L 256.50 86.58 L 251.22 86.69 L 245.94 87.00 L 240.68 87.52 L 235.45 88.25 L 230.25 89.19 L 225.09 90.33 L 219.97 91.67 L 214.92 93.21 L 209.92 94.95 L 205.00 96.89 L 200.16 99.02 L 195.41 101.34 L 190.75 103.85 L 186.19 106.54 L 181.74 109.41 L 177.40 112.45 L 173.19 115.66 L 169.10 119.03 L 165.15 122.56 L 161.35 126.25 L 157.68 130.08 L 154.17 134.05 L 150.82 138.16 L 147.63 142.40 L 144.61 146.77 L 141.76 151.25 L 139.09 155.83 L 136.60 160.52 L 134.29 165.31 L 132.17 170.18 L 130.25 175.13 L 128.52 180.15 L 126.98 185.24 L 125.65 190.39 L 124.52 195.58 L 123.59 200.82 L 122.86 206.08 L 122.35 211.38 L 122.04 216.68 L 121.93 222.00 L 122.04 227.32 L 122.35 232.62 L 122.86 237.92 L 123.59 243.18 L 124.52 248.42 L 125.65 253.61 L 126.98 258.76 L 128.52 263.85 L 130.25 268.87 L 132.17 273.82 L 134.29 278.69 L 136.60 283.48 L 139.09 288.17 L 141.76 292.75 L 144.61 297.23 L 147.63 301.60 L 150.82 305.84 L 154.17 309.95 L 157.68 313.92 L 161.35 317.75 L 165.15 321.44 L 169.10 324.97 L 173.19 328.34 L 177.40 331.55 L 181.74 334.59 L 186.19 337.46 L 190.75 340.15 L 195.41 342.66 L 200.16 344.98 L 205.00 347.11 L 209.92 349.05 L 214.92 350.79 L 219.97 352.33 L 225.09 353.67 L 230.25 354.81 L 235.45 355.75 L 240.68 356.48 L 245.94 357.00 L 251.22 357.31 L 256.50 357.42 L 261.78 357.31 L 267.06 357.00 L 272.32 356.48 L 277.55 355.75 L 282.75 354.81 L 287.91 353.67 L 293.03 352.33 L 298.08 350.79 L 303.08 349.05 L 308.00 347.11 L 312.84 344.98 L 317.59 342.66 L 322.25 340.15 L 326.81 337.46 L 331.26 334.59 L 335.60 331.55 L 339.81 328.34 L 343.90 324.97 L 347.85 321.44 L 351.65 317.75 L 355.32 313.92 L 358.83 309.95 L 362.18 305.84 L 365.37 301.60 L 368.39 297.23 L 371.24 292.75 L 373.91 288.17 L 376.40 283.48 L 378.71 278.69 L 380.83 273.82 L 382.75 268.87 L 384.48 263.85 L 386.02 258.76 L 387.35 253.61 L 388.48 248.42 L 389.41 243.18 L 390.14 237.92 L 390.65 232.62 L 390.96 227.32 L 391.07 222.00" fill="none" stroke="var(--crimson)" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round"/>
+  <line x1="340.97" y1="145.50" x2="386.58" y2="187.32" stroke="var(--ink-3)" stroke-width="1.2" opacity="0.6"/>
+  <line x1="386.58" y1="187.32" x2="365.95" y2="220.13" stroke="var(--ink-3)" stroke-width="1.2" opacity="0.6"/>
+  <line x1="365.95" y1="220.13" x2="318.74" y2="237.36" stroke="var(--ink-3)" stroke-width="1.2" opacity="0.6"/>
+  <line x1="318.74" y1="237.36" x2="273.94" y2="240.92" stroke="var(--ink-3)" stroke-width="1.2" opacity="0.6"/>
+  <circle cx="340.97" cy="145.50" r="4.0" fill="var(--ink)"/>
+  <circle cx="386.58" cy="187.32" r="4.0" fill="var(--crimson)"/>
+  <circle cx="365.95" cy="220.13" r="2.8" fill="var(--ink-3)"/>
+  <circle cx="318.74" cy="237.36" r="2.8" fill="var(--ink-3)"/>
+  <circle cx="273.94" cy="240.92" r="2.8" fill="var(--ink-3)"/>
+  <text class="annm" x="349.97" y="159.50" text-anchor="start" fill="var(--ink)" font-weight="600">e0   ‖e0‖ = 1.35</text>
+  <text class="annm" x="395.58" y="178.32" text-anchor="start" fill="var(--crimson)" font-weight="600">e1   ‖e1‖ = 1.59</text>
+  <text class="axl" x="66.00" y="378.00" text-anchor="start" fill="var(--crimson)">e1 sits OUTSIDE the circle through e0 — the error grew</text>
+  <path d="M 708.93 128.84 L 701.73 128.10 L 694.53 127.50 L 687.34 127.04 L 680.16 126.74 L 673.01 126.58 L 665.90 126.57 L 658.84 126.70 L 651.84 126.99 L 644.92 127.41 L 638.07 127.99 L 631.32 128.71 L 624.68 129.57 L 618.14 130.58 L 611.73 131.72 L 605.46 133.01 L 599.33 134.43 L 593.35 135.99 L 587.53 137.68 L 581.89 139.50 L 576.42 141.45 L 571.14 143.52 L 566.06 145.72 L 561.18 148.03 L 556.52 150.45 L 552.07 152.99 L 547.85 155.63 L 543.86 158.37 L 540.11 161.22 L 536.61 164.15 L 533.35 167.18 L 530.35 170.29 L 527.61 173.47 L 525.13 176.74 L 522.92 180.07 L 520.98 183.47 L 519.31 186.93 L 517.92 190.44 L 516.81 194.00 L 515.97 197.61 L 515.42 201.25 L 515.16 204.92 L 515.17 208.62 L 515.47 212.34 L 516.05 216.08 L 516.91 219.82 L 518.05 223.57 L 519.47 227.31 L 521.16 231.05 L 523.13 234.78 L 525.37 238.48 L 527.87 242.16 L 530.64 245.80 L 533.67 249.41 L 536.95 252.98 L 540.48 256.50 L 544.26 259.97 L 548.27 263.38 L 552.51 266.72 L 556.98 270.00 L 561.67 273.20 L 566.57 276.32 L 571.67 279.36 L 576.97 282.31 L 582.45 285.17 L 588.12 287.93 L 593.95 290.59 L 599.95 293.14 L 606.09 295.59 L 612.38 297.92 L 618.81 300.13 L 625.35 302.22 L 632.01 304.19 L 638.77 306.03 L 645.62 307.74 L 652.56 309.32 L 659.56 310.77 L 666.63 312.08 L 673.74 313.25 L 680.89 314.28 L 688.07 315.16 L 695.27 315.90 L 702.47 316.50 L 709.66 316.96 L 716.84 317.26 L 723.99 317.42 L 731.10 317.43 L 738.16 317.30 L 745.16 317.01 L 752.08 316.59 L 758.93 316.01 L 765.68 315.29 L 772.32 314.43 L 778.86 313.42 L 785.27 312.28 L 791.54 310.99 L 797.67 309.57 L 803.65 308.01 L 809.47 306.32 L 815.11 304.50 L 820.58 302.55 L 825.86 300.48 L 830.94 298.28 L 835.82 295.97 L 840.48 293.55 L 844.93 291.01 L 849.15 288.37 L 853.14 285.63 L 856.89 282.78 L 860.39 279.85 L 863.65 276.82 L 866.65 273.71 L 869.39 270.53 L 871.87 267.26 L 874.08 263.93 L 876.02 260.53 L 877.69 257.07 L 879.08 253.56 L 880.19 250.00 L 881.03 246.39 L 881.58 242.75 L 881.84 239.08 L 881.83 235.38 L 881.53 231.66 L 880.95 227.92 L 880.09 224.18 L 878.95 220.43 L 877.53 216.69 L 875.84 212.95 L 873.87 209.22 L 871.63 205.52 L 869.13 201.84 L 866.36 198.20 L 863.33 194.59 L 860.05 191.02 L 856.52 187.50 L 852.74 184.03 L 848.73 180.62 L 844.49 177.28 L 840.02 174.00 L 835.33 170.80 L 830.43 167.68 L 825.33 164.64 L 820.03 161.69 L 814.55 158.83 L 808.88 156.07 L 803.05 153.41 L 797.05 150.86 L 790.91 148.41 L 784.62 146.08 L 778.19 143.87 L 771.65 141.78 L 764.99 139.81 L 758.23 137.97 L 751.38 136.26 L 744.44 134.68 L 737.44 133.23 L 730.37 131.92 L 723.26 130.75 L 716.11 129.72 L 708.93 128.84" fill="none" stroke="var(--ink-3)" stroke-width="1.25" stroke-dasharray="3 3" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M 707.46 141.98 L 701.28 141.34 L 695.09 140.83 L 688.91 140.44 L 682.75 140.18 L 676.61 140.04 L 670.50 140.03 L 664.44 140.15 L 658.43 140.39 L 652.48 140.76 L 646.60 141.25 L 640.80 141.87 L 635.09 142.61 L 629.48 143.47 L 623.97 144.46 L 618.58 145.56 L 613.32 146.78 L 608.18 148.12 L 603.18 149.58 L 598.33 151.14 L 593.64 152.81 L 589.11 154.59 L 584.74 156.48 L 580.55 158.46 L 576.55 160.54 L 572.73 162.72 L 569.10 164.99 L 565.67 167.35 L 562.45 169.79 L 559.44 172.31 L 556.65 174.91 L 554.07 177.58 L 551.71 180.32 L 549.58 183.12 L 547.68 185.99 L 546.02 188.91 L 544.58 191.88 L 543.39 194.89 L 542.44 197.95 L 541.72 201.05 L 541.25 204.18 L 541.02 207.33 L 541.03 210.51 L 541.28 213.70 L 541.78 216.91 L 542.52 220.13 L 543.50 223.35 L 544.72 226.57 L 546.18 229.78 L 547.87 232.97 L 549.79 236.15 L 551.94 239.31 L 554.32 242.45 L 556.92 245.55 L 559.74 248.61 L 562.77 251.64 L 566.02 254.61 L 569.46 257.54 L 573.11 260.42 L 576.95 263.23 L 580.97 265.98 L 585.18 268.66 L 589.56 271.27 L 594.11 273.81 L 598.82 276.26 L 603.69 278.63 L 608.70 280.92 L 613.85 283.11 L 619.13 285.21 L 624.53 287.21 L 630.05 289.11 L 635.67 290.91 L 641.39 292.60 L 647.19 294.18 L 653.08 295.65 L 659.04 297.01 L 665.05 298.25 L 671.12 299.37 L 677.23 300.38 L 683.38 301.26 L 689.54 302.02 L 695.72 302.66 L 701.91 303.17 L 708.09 303.56 L 714.25 303.82 L 720.39 303.96 L 726.50 303.97 L 732.56 303.85 L 738.57 303.61 L 744.52 303.24 L 750.40 302.75 L 756.20 302.13 L 761.91 301.39 L 767.52 300.53 L 773.03 299.54 L 778.42 298.44 L 783.68 297.22 L 788.82 295.88 L 793.82 294.42 L 798.67 292.86 L 803.36 291.19 L 807.89 289.41 L 812.26 287.52 L 816.45 285.54 L 820.45 283.46 L 824.27 281.28 L 827.90 279.01 L 831.33 276.65 L 834.55 274.21 L 837.56 271.69 L 840.35 269.09 L 842.93 266.42 L 845.29 263.68 L 847.42 260.88 L 849.32 258.01 L 850.98 255.09 L 852.42 252.12 L 853.61 249.11 L 854.56 246.05 L 855.28 242.95 L 855.75 239.82 L 855.98 236.67 L 855.97 233.49 L 855.72 230.30 L 855.22 227.09 L 854.48 223.87 L 853.50 220.65 L 852.28 217.43 L 850.82 214.22 L 849.13 211.03 L 847.21 207.85 L 845.06 204.69 L 842.68 201.55 L 840.08 198.45 L 837.26 195.39 L 834.23 192.36 L 830.98 189.39 L 827.54 186.46 L 823.89 183.58 L 820.05 180.77 L 816.03 178.02 L 811.82 175.34 L 807.44 172.73 L 802.89 170.19 L 798.18 167.74 L 793.31 165.37 L 788.30 163.08 L 783.15 160.89 L 777.87 158.79 L 772.47 156.79 L 766.95 154.89 L 761.33 153.09 L 755.61 151.40 L 749.81 149.82 L 743.92 148.35 L 737.96 146.99 L 731.95 145.75 L 725.88 144.63 L 719.77 143.62 L 713.62 142.74 L 707.46 141.98" fill="none" stroke="var(--teal)" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round"/>
+  <line x1="782.97" y1="145.50" x2="828.58" y2="187.32" stroke="var(--ink-3)" stroke-width="1.2" opacity="0.6"/>
+  <line x1="828.58" y1="187.32" x2="807.95" y2="220.13" stroke="var(--ink-3)" stroke-width="1.2" opacity="0.6"/>
+  <line x1="807.95" y1="220.13" x2="760.74" y2="237.36" stroke="var(--ink-3)" stroke-width="1.2" opacity="0.6"/>
+  <line x1="760.74" y1="237.36" x2="715.94" y2="240.92" stroke="var(--ink-3)" stroke-width="1.2" opacity="0.6"/>
+  <circle cx="782.97" cy="145.50" r="4.0" fill="var(--ink)"/>
+  <circle cx="828.58" cy="187.32" r="4.0" fill="var(--teal)"/>
+  <circle cx="807.95" cy="220.13" r="2.8" fill="var(--ink-3)"/>
+  <circle cx="760.74" cy="237.36" r="2.8" fill="var(--ink-3)"/>
+  <circle cx="715.94" cy="240.92" r="2.8" fill="var(--ink-3)"/>
+  <text class="annm" x="791.97" y="159.50" text-anchor="start" fill="var(--ink)" font-weight="600">e0   V = 6.90</text>
+  <text class="annm" x="819.58" y="176.32" text-anchor="end" fill="var(--teal)" font-weight="600">e1   V = 5.09</text>
+  <text class="axl" x="508.00" y="378.00" text-anchor="start" fill="var(--teal)">e1 sits INSIDE the ellipse through e0 — V shrank</text>
+  <text class="axl" x="58.00" y="416.00" text-anchor="start" fill="var(--ink-2)">Same matrix, same trajectory, same first step. Only the shape of the ruler changed.</text>
+</svg></div>
+    <figcaption><b>Same step, two verdicts.</b> One trajectory, drawn twice. Measured by circles
+    (left) the first step moves outward, <code>1.35 → 1.59</code>, and the system looks like it is
+    failing. Measured by the level sets of the right quadratic (right) the same step moves strictly
+    inward, <code>6.90 → 5.09</code>, and so does every step after it. Finding a Lyapunov function
+    <em>is</em> finding the yardstick that makes the verdict monotone.</figcaption>
+  </figure>
+
+  <div class="note">
+    <span class="tag">What a P-norm certificate does and does not forbid</span>
+    It does not forbid the ordinary error from growing; it bounds how much. Combining
+    <code>‖e<sub>k</sub>‖<sub>P</sub> ≤ q<sup>k</sup>‖e<sub>0</sub>‖<sub>P</sub></code> with the
+    conversion constant of section 03 gives
+    <code>‖e<sub>k</sub>‖₂ ≤ 21.9·q<sup>k</sup>‖e<sub>0</sub>‖₂</code>. The worst-case swell of
+    <span class="num">1.76</span> seen above sits well inside that allowance. A certificate is a
+    promise about the destination plus a ceiling on the detour.
+  </div>
+</section>
+
+<section>
+  <div class="step-head"><span class="step-num">06</span><h2>Trap two: two stable matrices, one unstable system</h2></div>
+
+  <p>The second trap is the one that makes this paper's proposition necessary. Suppose the update
+  matrix is not fixed. Every cycle, something outside your control picks one of two matrices:</p>
+
+  <div class="eq center">e<sub>k+1</sub> = M<sub>σ(k)</sub> e<sub>k</sub>,
+  &nbsp;&nbsp;σ(k) ∈ {1, 2}</div>
+
+  <p>Both are Schur. Surely the switched system is stable? It is not, and the counterexample is
+  small enough to check by hand.</p>
+
+  <figure class="wide">
+    <div class="fig-shell"><svg viewBox="0 0 900 410" role="img" aria-label="Norm of the state under two Schur matrices used alone, alternated, and averaged. Alone each decays; alternated or averaged the state diverges.">
+  <rect x="70.00" y="44.00" width="400.00" height="286.00" fill="none" stroke="var(--rule)" stroke-width="1"/>
+  <line x1="70.00" y1="330.00" x2="470.00" y2="330.00" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 4" opacity="0.8"/>
+  <text class="ax" x="62.00" y="333.50" text-anchor="end">10⁻³</text>
+  <line x1="70.00" y1="289.14" x2="470.00" y2="289.14" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 4" opacity="0.8"/>
+  <text class="ax" x="62.00" y="292.64" text-anchor="end">10⁻²</text>
+  <line x1="70.00" y1="248.29" x2="470.00" y2="248.29" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 4" opacity="0.8"/>
+  <text class="ax" x="62.00" y="251.79" text-anchor="end">10⁻¹</text>
+  <line x1="70.00" y1="207.43" x2="470.00" y2="207.43" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 4" opacity="0.8"/>
+  <text class="ax" x="62.00" y="210.93" text-anchor="end">1</text>
+  <line x1="70.00" y1="166.57" x2="470.00" y2="166.57" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 4" opacity="0.8"/>
+  <text class="ax" x="62.00" y="170.07" text-anchor="end">10</text>
+  <line x1="70.00" y1="125.71" x2="470.00" y2="125.71" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 4" opacity="0.8"/>
+  <text class="ax" x="62.00" y="129.21" text-anchor="end">10²</text>
+  <line x1="70.00" y1="84.86" x2="470.00" y2="84.86" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 4" opacity="0.8"/>
+  <text class="ax" x="62.00" y="88.36" text-anchor="end">10³</text>
+  <line x1="70.00" y1="44.00" x2="470.00" y2="44.00" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 4" opacity="0.8"/>
+  <text class="ax" x="62.00" y="47.50" text-anchor="end">10⁴</text>
+  <line x1="70.00" y1="330.00" x2="70.00" y2="335.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="70.00" y="347.00" text-anchor="middle">0</text>
+  <line x1="150.00" y1="330.00" x2="150.00" y2="335.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="150.00" y="347.00" text-anchor="middle">2</text>
+  <line x1="230.00" y1="330.00" x2="230.00" y2="335.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="230.00" y="347.00" text-anchor="middle">4</text>
+  <line x1="310.00" y1="330.00" x2="310.00" y2="335.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="310.00" y="347.00" text-anchor="middle">6</text>
+  <line x1="390.00" y1="330.00" x2="390.00" y2="335.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="390.00" y="347.00" text-anchor="middle">8</text>
+  <line x1="470.00" y1="330.00" x2="470.00" y2="335.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="470.00" y="347.00" text-anchor="middle">10</text>
+  <text class="axl" x="270.00" y="366.00" text-anchor="middle">step k</text>
+  <text class="ttl" x="70.00" y="30.00" text-anchor="start">‖xₖ‖ FOR TWO SCHUR MATRICES, USED ALONE AND ALTERNATED</text>
+  <path d="M 70.00 207.43 L 110.00 196.97 L 150.00 199.08 L 190.00 204.91 L 230.00 212.47 L 270.00 221.03 L 310.00 230.24 L 350.00 239.91 L 390.00 249.92 L 430.00 260.19 L 470.00 270.67" fill="none" stroke="var(--teal)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M 70.00 207.43 L 110.00 196.97 L 150.00 199.08 L 190.00 204.91 L 230.00 212.47 L 270.00 221.03 L 310.00 230.24 L 350.00 239.91 L 390.00 249.92 L 430.00 260.19 L 470.00 270.67" fill="none" stroke="var(--teal)" stroke-width="1.8" stroke-dasharray="5 4" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M 70.00 207.43 L 110.00 200.23 L 150.00 193.04 L 190.00 185.84 L 230.00 178.65 L 270.00 171.46 L 310.00 164.26 L 350.00 157.07 L 390.00 149.87 L 430.00 142.68 L 470.00 135.48" fill="none" stroke="var(--amber)" stroke-width="1.8" stroke-dasharray="5 4" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M 70.00 207.43 L 110.00 196.97 L 150.00 183.67 L 190.00 170.35 L 230.00 157.03 L 270.00 143.72 L 310.00 130.40 L 350.00 117.08 L 390.00 103.77 L 430.00 90.45 L 470.00 77.13" fill="none" stroke="var(--crimson)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+  <text class="ann" x="314.00" y="122.40" text-anchor="start" fill="var(--crimson)">alternating: ×4.49 every two steps</text>
+  <text class="ann" x="314.00" y="156.26" text-anchor="start" fill="var(--amber)">midpoint matrix</text>
+  <text class="ann" x="238.00" y="237.03" text-anchor="start" fill="var(--teal)">each one alone: decays</text>
+  <text class="ttl" x="520.00" y="30.00" text-anchor="start">THE TWO MATRICES</text>
+  <rect x="520.00" y="52.00" width="340.00" height="54.00" fill="var(--surface-2)" opacity="0.55" rx="3"/>
+  <text class="annm" x="532.00" y="70.00" text-anchor="start" fill="var(--ink)" font-size="11">M₁ = [ 0.5  2.0 ;  0   0.5 ]</text>
+  <text class="axl" x="532.00" y="90.00" text-anchor="start" fill="var(--teal)">eigenvalues 0.5, 0.5   →  Schur</text>
+  <rect x="520.00" y="126.00" width="340.00" height="54.00" fill="var(--surface-2)" opacity="0.55" rx="3"/>
+  <text class="annm" x="532.00" y="144.00" text-anchor="start" fill="var(--ink)" font-size="11">M₂ = [ 0.5   0  ; 2.0  0.5 ]</text>
+  <text class="axl" x="532.00" y="164.00" text-anchor="start" fill="var(--teal)">eigenvalues 0.5, 0.5   →  Schur</text>
+  <rect x="520.00" y="200.00" width="340.00" height="54.00" fill="var(--surface-2)" opacity="0.55" rx="3"/>
+  <text class="annm" x="532.00" y="218.00" text-anchor="start" fill="var(--ink)" font-size="11">M₁M₂ = [ 4.25  1.0 ; 1.0  0.25 ]</text>
+  <text class="axl" x="532.00" y="238.00" text-anchor="start" fill="var(--crimson)">eigenvalues 4.49, 0.01   →  diverges</text>
+  <rect x="520.00" y="274.00" width="340.00" height="54.00" fill="var(--surface-2)" opacity="0.55" rx="3"/>
+  <text class="annm" x="532.00" y="292.00" text-anchor="start" fill="var(--ink)" font-size="11">½M₁+½M₂ = [ 0.5  1.0 ; 1.0  0.5 ]</text>
+  <text class="axl" x="532.00" y="312.00" text-anchor="start" fill="var(--crimson)">eigenvalues 1.5, −0.5   →  diverges</text>
+  <text class="axl" x="70.00" y="368.00" text-anchor="start" fill="var(--ink-2)">Being individually stable is not enough. Products and mixtures of stable matrices can be unstable, which is exactly the</text>
+  <text class="axl" x="70.00" y="386.00" text-anchor="start" fill="var(--ink-2)">situation a state-dependent conditioning factor creates — a different matrix every cycle, chosen by the plant.</text>
+</svg></div>
+    <figcaption><b>Individually fine, jointly divergent.</b> <code>M₁</code> and <code>M₂</code>
+    each have both eigenvalues equal to <code>0.5</code>, so each alone drives any error to zero.
+    Alternate them and the state grows by a factor <span class="num">4.49</span> every two steps;
+    average them and the midpoint matrix has eigenvalue <span class="num">1.5</span>. <code>M₁</code> pumps
+    the second coordinate into the first; <code>M₂</code> pumps the first straight back into the
+    second. Each transfer is worth far more than the factor <code>0.5</code> either matrix takes
+    away, so the two decays never get the chance to act.</figcaption>
+  </figure>
+
+  <p>The technical reason is that the spectral radius is not submultiplicative:
+  <code>ρ(M₁M₂) ≤ ρ(M₁)ρ(M₂)</code> is simply false — here it would read
+  <code>4.49 ≤ 0.25</code>. Eigenvalues of individual matrices tell you nothing about products of
+  different matrices. Induced norms, however, <em>are</em> submultiplicative. That is the whole
+  reason the next idea works.</p>
+
+  <div class="prop">
+    <span class="ph">The fix: one P for all of them</span>
+    <p>Suppose a single <code>P ≻ 0</code> satisfies <code>‖M₁‖<sub>P</sub> ≤ q</code> and
+    <code>‖M₂‖<sub>P</sub> ≤ q</code> with <code>q &lt; 1</code>. Then for any switching sequence
+    whatsoever,</p>
+    <div class="eq center">‖e<sub>k</sub>‖<sub>P</sub> =
+    ‖M<sub>σ(k−1)</sub> ⋯ M<sub>σ(0)</sub> e<sub>0</sub>‖<sub>P</sub>
+    ≤ q<sup>k</sup>‖e<sub>0</sub>‖<sub>P</sub></div>
+    <p>because each factor shrinks the <code>P</code>-norm by at least <code>q</code>, whichever
+    factor it happens to be. Such a <code>P</code> is a <strong>common quadratic Lyapunov
+    function</strong>: the same <code>V</code> falls no matter who is choosing.</p>
+  </div>
+
+  <p style="margin-top:1.1rem">This is strictly stronger than each matrix being Schur. The
+  counterexample proves it: that pair diverges under alternation, so no common <code>P</code> can
+  exist for it, even though both matrices are Schur. The converse also fails — a common
+  <code>P</code> is sufficient, not necessary, and some switched systems are stable without one.
+  What makes it the right tool here is that it is <em>checkable</em>: by section 04 the search is a
+  pair of linear matrix inequalities in the single unknown <code>P</code>, solved once, offline.</p>
+
+  <div class="note key">
+    <span class="tag">Hold on to this</span>
+    A controller whose action is rescaled by a number the plant chooses afresh each cycle
+    <em>is</em> a switched system, with one matrix per possible value of that number. Part three is
+    about the special structure that makes this particular family safe.
+  </div>
+</section>
+
+<div class="part"><div class="part-inner">
+  <span class="part-tag">Part two</span>
+  <h2>How the paper applies it</h2>
+  <p>Three moves. Turn a periodic trajectory into a fixed point so that "stability" means what
+  part one means. Linearize the cycle to get matrices. Then run one semidefinite program, offline,
+  to find a single <code>P</code> that works for both of them.</p>
+</div></div>
+
+<section>
+  <div class="step-head"><span class="step-num">07</span><h2>What the state is: one dot per cycle</h2></div>
+
+  <p>The plant is a converter, running in continuous time, switching between nine affine dynamics
+  inside every <span class="num">286</span>&nbsp;µs cycle:</p>
+
+  <div class="eq center">ẋ(t) = A<sub>σ(t)</sub>x(t) + b<sub>σ(t)</sub></div>
+
+  <p>The target is not a point. It is the <strong>reference periodic trajectory</strong>: the
+  closed loop in state space that the nominal switching schedule traces out, over and over. Part
+  one has nothing to say about orbits, only about errors going to zero. The bridge is to stop
+  watching continuously and look only once per cycle, always at the same phase — at the cycle
+  start.</p>
+
+  <p>Do that and the picture changes completely. One cycle of the plant becomes one map,</p>
+
+  <div class="eq center">x<sub>k+1</sub> = 𝒫(x<sub>k</sub>, δτ<sub>k</sub>)
+  &nbsp;&nbsp;<span class="cm">exact: nine matrix exponentials, in order</span></div>
+
+  <p>and the reference trajectory becomes a single point <code>x★</code> that this map leaves
+  where it is — a <strong>fixed point</strong>, called the cycle anchor. The whole loop reduces to
+  the error <code>e<sub>k</sub> = x<sub>k</sub> − x★</code> and the question of part one:
+  does it go to zero?</p>
+
+  <figure class="wide">
+    <div class="fig-shell"><svg viewBox="0 0 900 430" role="img" aria-label="Left: the reference orbit in the capacitor-voltage plane with the real cycle-start states of the conditioned run converging onto the anchor. Right: a zoom showing the nine mode intervals of one cycle and the anchor where every cycle starts and ends.">
+  <rect x="68.00" y="46.00" width="370.00" height="306.00" fill="none" stroke="var(--rule)" stroke-width="1"/>
+  <text class="ttl" x="68.00" y="32.00" text-anchor="start">(a)  CYCLE-START STATES OF THE REAL CONDITIONED RUN</text>
+  <line x1="93.81" y1="46.00" x2="93.81" y2="352.00" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.6"/>
+  <text class="ax" x="93.81" y="368.00" text-anchor="middle">7.5</text>
+  <line x1="136.84" y1="46.00" x2="136.84" y2="352.00" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.6"/>
+  <text class="ax" x="136.84" y="368.00" text-anchor="middle">8.0</text>
+  <line x1="179.86" y1="46.00" x2="179.86" y2="352.00" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.6"/>
+  <text class="ax" x="179.86" y="368.00" text-anchor="middle">8.5</text>
+  <line x1="222.88" y1="46.00" x2="222.88" y2="352.00" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.6"/>
+  <text class="ax" x="222.88" y="368.00" text-anchor="middle">9.0</text>
+  <line x1="265.91" y1="46.00" x2="265.91" y2="352.00" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.6"/>
+  <text class="ax" x="265.91" y="368.00" text-anchor="middle">9.5</text>
+  <line x1="308.93" y1="46.00" x2="308.93" y2="352.00" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.6"/>
+  <text class="ax" x="308.93" y="368.00" text-anchor="middle">10.0</text>
+  <line x1="351.95" y1="46.00" x2="351.95" y2="352.00" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.6"/>
+  <text class="ax" x="351.95" y="368.00" text-anchor="middle">10.5</text>
+  <line x1="394.98" y1="46.00" x2="394.98" y2="352.00" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.6"/>
+  <text class="ax" x="394.98" y="368.00" text-anchor="middle">11.0</text>
+  <line x1="68.00" y1="289.23" x2="438.00" y2="289.23" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.6"/>
+  <text class="ax" x="60.00" y="292.73" text-anchor="end">19.5</text>
+  <line x1="68.00" y1="210.77" x2="438.00" y2="210.77" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.6"/>
+  <text class="ax" x="60.00" y="214.27" text-anchor="end">20.0</text>
+  <line x1="68.00" y1="132.31" x2="438.00" y2="132.31" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.6"/>
+  <text class="ax" x="60.00" y="135.81" text-anchor="end">20.5</text>
+  <line x1="68.00" y1="53.85" x2="438.00" y2="53.85" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.6"/>
+  <text class="ax" x="60.00" y="57.35" text-anchor="end">21.0</text>
+  <text class="axl" x="253.00" y="388.00" text-anchor="middle">v(C₁)   [V]</text>
+  <text class="axl" x="22.00" y="42.00" text-anchor="start">v(C₂)  [V]</text>
+  <path d="M 302.45 321.75 L 302.45 321.75 L 302.45 236.04 L 346.75 236.04 L 346.75 236.04 L 393.74 321.75 L 393.74 321.75 L 349.29 321.75 L 349.29 321.75 L 302.45 321.75" fill="none" stroke="var(--teal)" stroke-width="2.0" stroke-linejoin="round" stroke-linecap="round"/>
+  <text class="ann" x="356.26" y="218.62" text-anchor="start" fill="var(--teal)">the reference orbit</text>
+  <line x1="95.04" y1="81.92" x2="100.81" y2="99.29" stroke="var(--crimson)" stroke-width="1.3" stroke-dasharray="4 3" opacity="0.8"/>
+  <line x1="100.81" y1="99.29" x2="142.61" y2="133.54" stroke="var(--crimson)" stroke-width="1.3" stroke-dasharray="4 3" opacity="0.8"/>
+  <line x1="142.61" y1="133.54" x2="228.45" y2="203.33" stroke="var(--crimson)" stroke-width="1.3" stroke-dasharray="4 3" opacity="0.8"/>
+  <line x1="228.45" y1="203.33" x2="288.70" y2="268.39" stroke="var(--crimson)" stroke-width="1.3" stroke-dasharray="4 3" opacity="0.8"/>
+  <line x1="288.70" y1="268.39" x2="301.38" y2="294.97" stroke="var(--crimson)" stroke-width="1.3" stroke-dasharray="4 3" opacity="0.8"/>
+  <line x1="301.38" y1="294.97" x2="303.03" y2="307.01" stroke="var(--crimson)" stroke-width="1.3" stroke-dasharray="4 3" opacity="0.8"/>
+  <line x1="303.03" y1="307.01" x2="302.97" y2="313.40" stroke="var(--crimson)" stroke-width="1.3" stroke-dasharray="4 3" opacity="0.8"/>
+  <line x1="302.97" y1="313.40" x2="302.77" y2="316.99" stroke="var(--crimson)" stroke-width="1.3" stroke-dasharray="4 3" opacity="0.8"/>
+  <circle cx="95.04" cy="81.92" r="4.4" fill="var(--crimson)"/>
+  <text class="annm" x="104.04" y="74.92" text-anchor="start" fill="var(--crimson)" font-weight="600">x0</text>
+  <circle cx="100.81" cy="99.29" r="4.4" fill="var(--crimson)"/>
+  <text class="annm" x="109.81" y="92.29" text-anchor="start" fill="var(--crimson)" font-weight="600">x1</text>
+  <circle cx="142.61" cy="133.54" r="4.4" fill="var(--crimson)"/>
+  <text class="annm" x="151.61" y="126.54" text-anchor="start" fill="var(--crimson)" font-weight="600">x2</text>
+  <circle cx="228.45" cy="203.33" r="4.4" fill="var(--crimson)"/>
+  <text class="annm" x="237.45" y="196.33" text-anchor="start" fill="var(--crimson)" font-weight="600">x3</text>
+  <circle cx="288.70" cy="268.39" r="2.8" fill="var(--crimson)"/>
+  <circle cx="301.38" cy="294.97" r="2.8" fill="var(--crimson)"/>
+  <circle cx="303.03" cy="307.01" r="2.8" fill="var(--crimson)"/>
+  <circle cx="302.97" cy="313.40" r="2.8" fill="var(--crimson)"/>
+  <circle cx="302.77" cy="316.99" r="2.8" fill="var(--crimson)"/>
+  <circle cx="302.45" cy="321.75" r="4.2" fill="var(--ink)"/>
+  <text class="annm" x="292.45" y="339.75" text-anchor="end" fill="var(--ink)" font-weight="600">x★  anchor</text>
+  <rect x="505.00" y="46.00" width="363.00" height="306.00" fill="none" stroke="var(--rule)" stroke-width="1"/>
+  <text class="ttl" x="505.00" y="32.00" text-anchor="start">(b)  ONE CYCLE, ZOOMED: NINE MODE INTERVALS</text>
+  <path d="M 534.69 320.62 L 534.69 320.62 L 534.69 85.24 L 680.69 85.24 L 680.69 85.24 L 835.57 320.62 L 835.57 320.62 L 689.06 320.62 L 689.06 320.62 L 534.69 320.62" fill="none" stroke="var(--teal)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="534.69" cy="320.62" r="3.2" fill="var(--teal)"/>
+  <circle cx="534.69" cy="320.62" r="3.2" fill="var(--teal)"/>
+  <circle cx="534.69" cy="85.24" r="3.2" fill="var(--teal)"/>
+  <circle cx="680.69" cy="85.24" r="3.2" fill="var(--teal)"/>
+  <circle cx="680.69" cy="85.24" r="3.2" fill="var(--teal)"/>
+  <circle cx="835.57" cy="320.62" r="3.2" fill="var(--teal)"/>
+  <circle cx="835.57" cy="320.62" r="3.2" fill="var(--teal)"/>
+  <circle cx="689.06" cy="320.62" r="3.2" fill="var(--teal)"/>
+  <circle cx="689.06" cy="320.62" r="3.2" fill="var(--teal)"/>
+  <text class="annm" x="540.69" y="311.62" text-anchor="start" fill="var(--teal)" font-size="9.5">t̄0 = 0</text>
+  <text class="annm" x="540.69" y="76.24" text-anchor="start" fill="var(--teal)" font-size="9.5">t̄2</text>
+  <text class="annm" x="686.69" y="76.24" text-anchor="start" fill="var(--teal)" font-size="9.5">t̄3</text>
+  <text class="annm" x="688.69" y="89.24" text-anchor="start" fill="var(--teal)" font-size="9.5">t̄4</text>
+  <text class="annm" x="829.57" y="336.62" text-anchor="end" fill="var(--teal)" font-size="9.5">t̄6</text>
+  <text class="annm" x="681.06" y="336.62" text-anchor="end" fill="var(--teal)" font-size="9.5">t̄8</text>
+  <circle cx="534.69" cy="320.62" r="4.6" fill="var(--ink)"/>
+  <text class="annm" x="544.69" y="336.62" text-anchor="start" fill="var(--ink)" font-size="9.5" font-weight="600">x★ — start and end of every cycle</text>
+  <circle cx="531.18" cy="247.09" r="2.6" fill="var(--crimson)"/>
+  <circle cx="536.61" cy="280.16" r="2.6" fill="var(--crimson)"/>
+  <circle cx="536.41" cy="297.71" r="2.6" fill="var(--crimson)"/>
+  <circle cx="535.76" cy="307.57" r="2.6" fill="var(--crimson)"/>
+  <text class="axl" x="517.00" y="338.00" text-anchor="start" fill="var(--crimson)">x5 … x8 have already collapsed onto the anchor</text>
+  <text class="axl" x="68.00" y="392.00" text-anchor="start" fill="var(--ink-2)">The controller never sees the loop. It sees one dot per cycle. Stabilizing the periodic trajectory means driving that dot to x★,</text>
+  <text class="axl" x="68.00" y="410.00" text-anchor="start" fill="var(--ink-2)">which is a fixed point of the one-cycle map — so the whole problem becomes the stability of a fixed point.</text>
+</svg></div>
+    <figcaption><b>The orbit becomes a dot.</b> Real data. Left: the reference orbit of the
+    three-cell converter in the capacitor-voltage plane (teal), with the actual cycle-start states
+    of the conditioned run (crimson) walking in from a large initial error and landing on the
+    anchor <code>x★</code>. Right: the same orbit zoomed, showing the nine mode intervals of one
+    cycle. Between two crimson dots the plant does an entire lap of the teal loop; the controller
+    sees only the dots.</figcaption>
+  </figure>
+
+  <p>Two things are fixed by construction and never in question: the order of the nine modes, and
+  the total period. The controller's only actuator is where the eight interior switching instants
+  sit inside the cycle, gathered in the offset vector <code>δτ<sub>k</sub></code>. Because moving
+  an instant lengthens one interval by exactly what it shortens the next, the period survives any
+  offset at all.</p>
+
+  <div class="note">
+    <span class="tag">Why this is legitimate</span>
+    Sampling a periodic system once per period is the classical Poincaré construction. Asymptotic
+    stability of the fixed point of the sampled map is equivalent to asymptotic stability of the
+    periodic trajectory it came from, with phase locked because the period here is fixed by fiat
+    rather than free to drift.
+  </div>
+</section>
+
+<section>
+  <div class="step-head"><span class="step-num">08</span><h2>The two matrices</h2></div>
+
+  <p>The map <code>𝒫</code> is not linear, so part one does not apply to it directly. Section 2 of
+  the paper linearizes it around the anchor and the nominal schedule, which yields</p>
+
+  <div class="eq center">e<sub>k+1</sub> = Φ e<sub>k</sub> + Γ<sub>τ</sub> δτ<sub>k</sub>
+  + 𝒪(‖·‖²)</div>
+
+  <p><code>Φ</code> is the <strong>nominal cycle matrix</strong>: what one cycle does to an error
+  when the schedule is left alone. <code>Γ<sub>τ</sub></code> says what displacing each switching
+  instant does. Everything below is stated in the normalized coordinates the design uses,
+  <code>z = S<sub>x</sub><sup>−1</sup>e</code> and <code>v = δτ/t<sub>s</sub></code>, which put
+  the three states and eight timings on comparable scales; <code>Φ</code> and
+  <code>A<sub>cl</sub></code> below are the normalized ones.</p>
+
+  <p>The feedback law is static, one matrix multiply, and it defines the second matrix:</p>
+
+  <div class="eq center">δτ<sup>raw</sup><sub>k</sub> = −K e<sub>k</sub>
+  &nbsp;&nbsp;⟹&nbsp;&nbsp;
+  <span class="hl">A<sub>cl</sub> = Φ − Γ<sub>τ</sub>K</span></div>
+
+  <p>So the two matrices in play are the two extremes of the controller's authority: with the
+  correction switched off entirely, and with it applied in full.</p>
+
+  <div class="cmp">
+    <div>
+      <h3 class="a">Φ &nbsp; correction off</h3>
+      <p class="mono">[ 0.99953 −0.00375 &nbsp;0.01123<br>
+      &nbsp;&nbsp;0.00088 &nbsp;0.99992 &nbsp;0.00364<br>
+      &nbsp;&nbsp;0.00556 −0.00028 &nbsp;0.75174 ]</p>
+      <p class="mono">ρ(Φ) = 0.999850</p>
+      <p>Schur, but only just. The error decays with a time constant of about
+      <span class="num">6 670</span> cycles — roughly <span class="num">1.9</span> seconds of real
+      converter time.</p>
+    </div>
+    <div>
+      <h3 class="b">A<sub>cl</sub> &nbsp; correction in full</h3>
+      <p class="mono">[ &nbsp;0.18936 &nbsp;0.09098 −0.02128<br>
+      &nbsp;&nbsp;0.09200 &nbsp;0.53885 −0.02561<br>
+      &nbsp;−0.03717 −0.05859 &nbsp;0.27745 ]</p>
+      <p class="mono">ρ(A<sub>cl</sub>) = 0.568151</p>
+      <p>The aggressive LQR design. Time constant about <span class="num">1.8</span> cycles, half a
+      millisecond. This is the performance the conditioner is trying to preserve.</p>
+    </div>
+  </div>
+
+  <p style="margin-top:1.1rem">Both are Schur, so on its own each is exponentially stable, and part
+  one section 04 says each separately admits some <code>P</code>. Section 06 says that is not the
+  question. The question is whether they admit the <em>same</em> one.</p>
+</section>
+
+<section>
+  <div class="step-head"><span class="step-num">09</span><h2>The semidefinite program that finds P</h2></div>
+
+  <p>This is the only optimization anywhere in the method, it runs once on a workstation, and its
+  output is a single <code>3×3</code> matrix. Here is the paper's implementation, from
+  <code>scripts/generate_results.m</code>, with the comments added:</p>
+
+  <pre class="code">P_variable = <b>sdpvar</b>(state_count, state_count, <i>'symmetric'</i>)
+decrease   = <b>sdpvar</b>(1)
+
+constraints = [ P_variable &gt;= 1e-8 * eye(state_count) , ...   <i>% P is positive definite</i>
+                trace(P_variable) == 1 , ...                  <i>% fix the scale of P</i>
+                decrease &gt;= 0 , ...
+                <b>Phi'</b> * P_variable * <b>Phi</b> - P_variable &lt;= -decrease * eye(state_count) , ...
+                <b>Acl'</b> * P_variable * <b>Acl</b> - P_variable &lt;= -decrease * eye(state_count) ]
+
+<b>optimize</b>(constraints, -decrease, options)                   <i>% maximize the decrease</i></pre>
+
+  <p>Line by line, against part one:</p>
+
+  <dl class="cases">
+    <div>
+      <dt>P ⪰ 1e−8·I</dt>
+      <dd><code>V(e) = e<sup>T</sup>Pe</code> must be a real measure of error, so
+      <code>P ≻ 0</code>. The tiny margin is there because solvers work with closed sets and
+      "strictly positive" is not one.</dd>
+    </div>
+    <div>
+      <dt>trace(P) = 1</dt>
+      <dd>If <code>P</code> satisfies every inequality then so does <code>10P</code>, and so does
+      <code>1000P</code> — the constraints are homogeneous. Without a normalization the solver
+      would chase that free scale forever. Fixing the trace picks one representative of each
+      family and makes the decrease margin a comparable number.</dd>
+    </div>
+    <div>
+      <dt>ΦᵀPΦ − P<br>⪯ −γI</dt>
+      <dd>The Lyapunov inequality of section 04 for the <em>first</em> endpoint, with a uniform
+      margin <code>γ</code> instead of plain negative definiteness.</dd>
+    </div>
+    <div>
+      <dt>AclᵀPAcl − P<br>⪯ −γI</dt>
+      <dd>The same inequality for the <em>second</em> endpoint, sharing the same <code>P</code>.
+      This one line is what makes the certificate common rather than two separate certificates.</dd>
+    </div>
+    <div>
+      <dt>max γ</dt>
+      <dd>Any feasible <code>P</code> would do; maximizing the margin picks the one that satisfies
+      both inequalities with the most room, which keeps the answer away from the numerical edge.</dd>
+    </div>
+  </dl>
+
+  <p style="margin-top:1.1rem">Every constraint is linear in the unknowns <code>(P, γ)</code>, so
+  this is a convex program — a semidefinite program. It does not get stuck in local minima, and if
+  no common <code>P</code> existed the solver would report infeasibility rather than a bad answer.
+  Note what is <em>not</em> in the program: <code>β</code>. No conditioning factor appears anywhere.
+  That is the point of part three.</p>
+</section>
+
+<section>
+  <div class="step-head"><span class="step-num">10</span><h2>What came back</h2></div>
+
+  <p>The solver returns</p>
+
+  <div class="eq">P = [ &nbsp;0.202923 &nbsp;−0.004577 &nbsp;&nbsp;0.009118 ;
+  &nbsp;−0.004577 &nbsp;&nbsp;0.794834 &nbsp;&nbsp;0.011296 ;
+  &nbsp;&nbsp;0.009118 &nbsp;&nbsp;0.011296 &nbsp;&nbsp;0.002243 ]<br>
+  <span class="cm">eigenvalues 0.795028, 0.203309, 0.001663 — all positive, so P ≻ 0 ✓</span></div>
+
+  <p>and with it the two numbers the whole paper turns on, obtained as generalized eigenvalues
+  exactly as section 04 described:</p>
+
+  <div class="wide tbl-shell">
+    <table>
+      <thead><tr><th>Quantity</th><th>Symbol</th><th>Value</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>Contraction of the nominal cycle</td><td>‖Φ‖<sub>P</sub></td><td>0.999939</td><td>correction off, still a contraction — barely</td></tr>
+        <tr class="binding"><td>Contraction of the raw closed loop</td><td>‖A<sub>cl</sub>‖<sub>P</sub></td><td>0.979743</td><td>correction in full</td></tr>
+        <tr><td>Lyapunov decrease margins</td><td>γ</td><td>9.71 × 10⁻⁵</td><td>both inequalities strictly satisfied</td></tr>
+        <tr><td>Certified contraction bound</td><td>q = max of the two</td><td>0.999939</td><td>the worst case over the whole family</td></tr>
+        <tr class="grow"><td>Norm-conversion constant</td><td>√(λ<sub>max</sub>/λ<sub>min</sub>)</td><td>21.9</td><td>ceiling on Euclidean overshoot</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Both endpoints contract in the same ruler, so by section 06 any sequence built from these two
+  matrices contracts too. Three caveats belong here, and the paper states all three.</p>
+
+  <div class="note warn">
+    <span class="tag">The open loop has to be stable already</span>
+    <code>‖Φ‖<sub>P</sub> &lt; 1</code> is a hypothesis, not a result. It says the uncontrolled
+    cycle map must itself contract in the common ruler, which is only possible if
+    <code>ρ(Φ) &lt; 1</code> to begin with. This benchmark scrapes past at
+    <span class="num">0.999850</span>. For a plant with a genuinely unstable open cycle, no such
+    <code>P</code> exists, the conditioner still runs and still returns a legal schedule, and only
+    the guarantee is lost.
+  </div>
+
+  <div class="note warn" style="margin-top:.9rem">
+    <span class="tag">The bound certifies stability, not speed</span>
+    <code>q = 0.999939</code> is set by the open-loop endpoint, the slower of the two, because the
+    guarantee has to cover the case <code>β = 0</code> forever. Taken literally as a rate it would
+    allow <span class="num">75 000</span> cycles — <span class="num">22</span> seconds — to reduce
+    the error by a factor of 100. The real conditioned loop gets there in six cycles. The bound is
+    a floor under the worst case, not a description of the response.
+  </div>
+
+  <div class="note warn" style="margin-top:.9rem">
+    <span class="tag">It is a statement about the linearized model</span>
+    <code>Φ</code> and <code>A<sub>cl</sub></code> come from a first-order expansion of
+    <code>𝒫</code> around the anchor. Everything certified here is certified for that linear model.
+    Section 14 says exactly what survives for the real nonlinear plant, and what does not.
+  </div>
+</section>
+
+<div class="part"><div class="part-inner">
+  <span class="part-tag">Part three</span>
+  <h2>Why the β conditioning is still stable</h2>
+  <p>The controller asks for one thing and the plant executes a scaled-down version of it, with a
+  new scale every cycle, chosen by the error itself. That is a time-varying, state-dependent,
+  nonlinear closed loop. It is also, in the linearized model, a straight line segment between two
+  matrices you already have a certificate for.</p>
+</div></div>
+
+<section>
+  <div class="step-head"><span class="step-num">11</span><h2>What conditioning does to the loop equation</h2></div>
+
+  <p>Recall what happens each cycle. The law asks for <code>δτ<sup>raw</sup> = −Ke<sub>k</sub></code>;
+  the conditioner computes the largest <code>β<sub>k</sub> ∈ [0,1]</code> keeping every dwell
+  duration legal; the plant executes <code>β<sub>k</sub>δτ<sup>raw</sup></code>. Put that into
+  the linearized cycle model and follow the algebra.</p>
+
+  <div class="deriv">
+    <div><span class="l">e<sub>k+1</sub> = Φe<sub>k</sub> + Γ<sub>τ</sub>δτ<sup>app</sup><sub>k</sub></span><span class="r">the linearized cycle</span></div>
+    <div><span class="l">δτ<sup>app</sup><sub>k</sub> = β<sub>k</sub>δτ<sup>raw</sup><sub>k</sub> = −β<sub>k</sub>Ke<sub>k</sub></span><span class="r">what actually gets applied</span></div>
+    <div><span class="l">e<sub>k+1</sub> = (Φ − β<sub>k</sub>Γ<sub>τ</sub>K)e<sub>k</sub></span><span class="r">substitute</span></div>
+    <div><span class="l">Γ<sub>τ</sub>K = Φ − A<sub>cl</sub></span><span class="r">from the definition of A<sub>cl</sub></span></div>
+    <div><span class="l">e<sub>k+1</sub> = ((1−β<sub>k</sub>)Φ + β<sub>k</sub>A<sub>cl</sub>)e<sub>k</sub></span><span class="r">rearrange — and that is it</span></div>
+  </div>
+
+  <div class="eq center" style="margin-top:1.2rem">
+  e<sub>k+1</sub> = A(β<sub>k</sub>)e<sub>k</sub>,&nbsp;&nbsp;&nbsp;
+  <span class="hl">A(β) = (1−β)Φ + βA<sub>cl</sub></span></div>
+
+  <p>Read that carefully, because it is the entire structural result. Conditioning does not produce
+  some unknown perturbed matrix. It produces a <strong>weighted average of the two matrices part
+  two already certified</strong>, with the weight equal to how much of the controller got through.
+  <code>β = 1</code> is <code>A<sub>cl</sub></code>, the full design. <code>β = 0</code> is
+  <code>Φ</code>, the open loop. Anything in between is a blend.</p>
+
+  <div class="note warn">
+    <span class="tag">Why this still needs proving</span>
+    <code>β<sub>k</sub></code> is not a constant and not a parameter you get to choose. It is a
+    function of <code>e<sub>k</sub></code> — the ratio test reads the error, and returns a number.
+    So the closed loop is nonlinear, and unrolled over cycles it is a product
+    <code>A(β<sub>k−1</sub>)⋯A(β<sub>0</sub>)</code> of <em>different</em> matrices, in an order
+    the plant decides. Section 06 showed exactly this arrangement destroying two perfectly stable
+    matrices. Nothing so far rules that out here.
+  </div>
+</section>
+
+<section>
+  <div class="step-head"><span class="step-num">12</span><h2>Two structural facts that save it</h2></div>
+
+  <p><b>Fact one: it is a segment, and that is a consequence of scaling the whole vector.</b>
+  Suppose the conditioner had instead clipped each of the eight offsets separately — the obvious
+  alternative, and the one the earlier literature used. The applied action would then be
+  <code>−SKe<sub>k</sub></code> with <code>S = diag(s₁,…,s₈)</code> and each
+  <code>s<sub>i</sub> ∈ [0,1]</code> independent, so the closed-loop matrix would range over</p>
+
+  <div class="eq center">{ Φ − Γ<sub>τ</sub>SK :&nbsp; s ∈ [0,1]<sup>8</sup> }
+  &nbsp;&nbsp;<span class="cm">a polytope with up to 2<sup>8</sup> = 256 vertices</span></div>
+
+  <p>Certifying that needs a common <code>P</code> for <em>all</em> 256 corner matrices, and there
+  is no reason for one to exist. Multiplying the complete vector by a single scalar collapses those
+  eight independent knobs into one, and 256 vertices into 2. The direction-preservation property
+  that motivated the conditioner on feasibility grounds is the same property that makes it
+  certifiable.</p>
+
+  <p><b>Fact two: the set of contractions is convex.</b> The set
+  <code>{A : ‖A‖<sub>P</sub> ≤ q}</code> is a ball of a norm — a norm on matrices, since section 04
+  established that <code>‖·‖<sub>P</sub></code> obeys the triangle inequality and scales properly.
+  Balls of norms are convex. So if both endpoints of a segment lie in that ball, every point of the
+  segment does. There is nothing more to the theorem than those two sentences; the rest is
+  arithmetic.</p>
+
+  <figure class="wide">
+    <div class="fig-shell"><svg viewBox="0 0 900 430" role="img" aria-label="The unit ball of the quadratic norm, drawn as a dashed circle, with the images of that ball under three matrices of the conditioned family drawn as ellipses strictly inside it.">
+  <circle cx="250.00" cy="215.00" r="0" fill="none"/>
+  <path d="M 401.79 215.00 L 401.71 210.23 L 401.49 205.47 L 401.11 200.72 L 400.59 195.98 L 399.92 191.26 L 399.10 186.56 L 398.13 181.89 L 397.02 177.25 L 395.76 172.65 L 394.36 168.10 L 392.81 163.58 L 391.13 159.12 L 389.30 154.72 L 387.34 150.37 L 385.24 146.09 L 383.01 141.88 L 380.65 137.73 L 378.16 133.67 L 375.54 129.68 L 372.80 125.78 L 369.93 121.97 L 366.95 118.25 L 363.86 114.62 L 360.65 111.10 L 357.33 107.67 L 353.90 104.35 L 350.38 101.14 L 346.75 98.05 L 343.03 95.07 L 339.22 92.20 L 335.32 89.46 L 331.33 86.84 L 327.27 84.35 L 323.12 81.99 L 318.91 79.76 L 314.63 77.66 L 310.28 75.70 L 305.88 73.87 L 301.42 72.19 L 296.90 70.64 L 292.35 69.24 L 287.75 67.98 L 283.11 66.87 L 278.44 65.90 L 273.74 65.08 L 269.02 64.41 L 264.28 63.89 L 259.53 63.51 L 254.77 63.29 L 250.00 63.21 L 245.23 63.29 L 240.47 63.51 L 235.72 63.89 L 230.98 64.41 L 226.26 65.08 L 221.56 65.90 L 216.89 66.87 L 212.25 67.98 L 207.65 69.24 L 203.10 70.64 L 198.58 72.19 L 194.12 73.87 L 189.72 75.70 L 185.37 77.66 L 181.09 79.76 L 176.88 81.99 L 172.73 84.35 L 168.67 86.84 L 164.68 89.46 L 160.78 92.20 L 156.97 95.07 L 153.25 98.05 L 149.62 101.14 L 146.10 104.35 L 142.67 107.67 L 139.35 111.10 L 136.14 114.62 L 133.05 118.25 L 130.07 121.97 L 127.20 125.78 L 124.46 129.68 L 121.84 133.67 L 119.35 137.73 L 116.99 141.88 L 114.76 146.09 L 112.66 150.37 L 110.70 154.72 L 108.87 159.12 L 107.19 163.58 L 105.64 168.10 L 104.24 172.65 L 102.98 177.25 L 101.87 181.89 L 100.90 186.56 L 100.08 191.26 L 99.41 195.98 L 98.89 200.72 L 98.51 205.47 L 98.29 210.23 L 98.21 215.00 L 98.29 219.77 L 98.51 224.53 L 98.89 229.28 L 99.41 234.02 L 100.08 238.74 L 100.90 243.44 L 101.87 248.11 L 102.98 252.75 L 104.24 257.35 L 105.64 261.90 L 107.19 266.42 L 108.87 270.88 L 110.70 275.28 L 112.66 279.63 L 114.76 283.91 L 116.99 288.12 L 119.35 292.27 L 121.84 296.33 L 124.46 300.32 L 127.20 304.22 L 130.07 308.03 L 133.05 311.75 L 136.14 315.38 L 139.35 318.90 L 142.67 322.33 L 146.10 325.65 L 149.62 328.86 L 153.25 331.95 L 156.97 334.93 L 160.78 337.80 L 164.68 340.54 L 168.67 343.16 L 172.73 345.65 L 176.88 348.01 L 181.09 350.24 L 185.37 352.34 L 189.72 354.30 L 194.12 356.13 L 198.58 357.81 L 203.10 359.36 L 207.65 360.76 L 212.25 362.02 L 216.89 363.13 L 221.56 364.10 L 226.26 364.92 L 230.98 365.59 L 235.72 366.11 L 240.47 366.49 L 245.23 366.71 L 250.00 366.79 L 254.77 366.71 L 259.53 366.49 L 264.28 366.11 L 269.02 365.59 L 273.74 364.92 L 278.44 364.10 L 283.11 363.13 L 287.75 362.02 L 292.35 360.76 L 296.90 359.36 L 301.42 357.81 L 305.88 356.13 L 310.28 354.30 L 314.63 352.34 L 318.91 350.24 L 323.12 348.01 L 327.27 345.65 L 331.33 343.16 L 335.32 340.54 L 339.22 337.80 L 343.03 334.93 L 346.75 331.95 L 350.38 328.86 L 353.90 325.65 L 357.33 322.33 L 360.65 318.90 L 363.86 315.38 L 366.95 311.75 L 369.93 308.03 L 372.80 304.22 L 375.54 300.32 L 378.16 296.33 L 380.65 292.27 L 383.01 288.12 L 385.24 283.91 L 387.34 279.63 L 389.30 275.28 L 391.13 270.88 L 392.81 266.42 L 394.36 261.90 L 395.76 257.35 L 397.02 252.75 L 398.13 248.11 L 399.10 243.44 L 399.92 238.74 L 400.59 234.02 L 401.11 229.28 L 401.49 224.53 L 401.71 219.77 L 401.79 215.00" fill="none" stroke="var(--ink-3)" stroke-width="1.6" stroke-dasharray="4 4" stroke-linejoin="round" stroke-linecap="round"/>
+  <line x1="80.00" y1="215.00" x2="420.00" y2="215.00" stroke="var(--rule)" stroke-width="1"/>
+  <line x1="250.00" y1="385.00" x2="250.00" y2="45.00" stroke="var(--rule)" stroke-width="1"/>
+  <path d="M 401.78 214.99 L 401.70 211.41 L 401.48 207.83 L 401.10 204.26 L 400.58 200.69 L 399.91 197.15 L 399.09 193.62 L 398.12 190.11 L 397.01 186.62 L 395.75 183.17 L 394.35 179.74 L 392.80 176.35 L 391.12 173.00 L 389.29 169.69 L 387.33 166.42 L 385.23 163.21 L 383.00 160.04 L 380.64 156.93 L 378.15 153.87 L 375.53 150.88 L 372.79 147.95 L 369.92 145.08 L 366.94 142.28 L 363.84 139.56 L 360.64 136.91 L 357.32 134.34 L 353.89 131.84 L 350.37 129.43 L 346.74 127.11 L 343.02 124.86 L 339.21 122.71 L 335.31 120.65 L 331.32 118.69 L 327.25 116.81 L 323.11 115.04 L 318.90 113.36 L 314.62 111.79 L 310.27 110.31 L 305.87 108.94 L 301.41 107.67 L 296.89 106.51 L 292.34 105.46 L 287.74 104.52 L 283.10 103.68 L 278.43 102.95 L 273.74 102.34 L 269.02 101.83 L 264.28 101.44 L 259.52 101.16 L 254.76 100.99 L 249.99 100.93 L 245.23 100.99 L 240.46 101.16 L 235.71 101.44 L 230.97 101.84 L 226.25 102.34 L 221.55 102.96 L 216.88 103.68 L 212.25 104.52 L 207.65 105.47 L 203.09 106.52 L 198.58 107.68 L 194.12 108.95 L 189.72 110.32 L 185.37 111.79 L 181.09 113.37 L 176.87 115.05 L 172.73 116.82 L 168.67 118.70 L 164.68 120.66 L 160.78 122.72 L 156.97 124.88 L 153.25 127.12 L 149.62 129.44 L 146.10 131.86 L 142.67 134.35 L 139.35 136.92 L 136.15 139.57 L 133.05 142.30 L 130.07 145.10 L 127.21 147.96 L 124.46 150.89 L 121.85 153.89 L 119.36 156.94 L 116.99 160.06 L 114.76 163.22 L 112.67 166.44 L 110.70 169.71 L 108.88 173.02 L 107.19 176.37 L 105.65 179.76 L 104.25 183.19 L 102.99 186.64 L 101.88 190.13 L 100.91 193.64 L 100.09 197.17 L 99.42 200.71 L 98.90 204.27 L 98.52 207.85 L 98.30 211.43 L 98.22 215.01 L 98.30 218.59 L 98.52 222.17 L 98.90 225.74 L 99.42 229.31 L 100.09 232.85 L 100.91 236.38 L 101.88 239.89 L 102.99 243.38 L 104.25 246.83 L 105.65 250.26 L 107.20 253.65 L 108.88 257.00 L 110.71 260.31 L 112.67 263.58 L 114.77 266.79 L 117.00 269.96 L 119.36 273.07 L 121.85 276.13 L 124.47 279.12 L 127.21 282.05 L 130.08 284.92 L 133.06 287.72 L 136.16 290.44 L 139.36 293.09 L 142.68 295.66 L 146.11 298.16 L 149.63 300.57 L 153.26 302.89 L 156.98 305.14 L 160.79 307.29 L 164.69 309.35 L 168.68 311.31 L 172.75 313.19 L 176.89 314.96 L 181.10 316.64 L 185.38 318.21 L 189.73 319.69 L 194.13 321.06 L 198.59 322.33 L 203.11 323.49 L 207.66 324.54 L 212.26 325.48 L 216.90 326.32 L 221.57 327.05 L 226.26 327.66 L 230.98 328.17 L 235.72 328.56 L 240.48 328.84 L 245.24 329.01 L 250.01 329.07 L 254.77 329.01 L 259.54 328.84 L 264.29 328.56 L 269.03 328.16 L 273.75 327.66 L 278.45 327.04 L 283.12 326.32 L 287.75 325.48 L 292.35 324.53 L 296.91 323.48 L 301.42 322.32 L 305.88 321.05 L 310.28 319.68 L 314.63 318.21 L 318.91 316.63 L 323.13 314.95 L 327.27 313.18 L 331.33 311.30 L 335.32 309.34 L 339.22 307.28 L 343.03 305.12 L 346.75 302.88 L 350.38 300.56 L 353.90 298.14 L 357.33 295.65 L 360.65 293.08 L 363.85 290.43 L 366.95 287.70 L 369.93 284.90 L 372.79 282.04 L 375.54 279.11 L 378.15 276.11 L 380.64 273.06 L 383.01 269.94 L 385.24 266.78 L 387.33 263.56 L 389.30 260.29 L 391.12 256.98 L 392.81 253.63 L 394.35 250.24 L 395.75 246.81 L 397.01 243.36 L 398.12 239.87 L 399.09 236.36 L 399.91 232.83 L 400.58 229.29 L 401.10 225.73 L 401.48 222.15 L 401.70 218.57 L 401.78 214.99" fill="none" stroke="var(--amber)" stroke-width="2.0" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M 383.29 253.45 L 383.99 250.77 L 384.56 248.06 L 385.00 245.31 L 385.30 242.53 L 385.47 239.73 L 385.51 236.90 L 385.41 234.05 L 385.18 231.18 L 384.82 228.29 L 384.32 225.39 L 383.69 222.48 L 382.93 219.57 L 382.03 216.65 L 381.01 213.72 L 379.86 210.80 L 378.58 207.89 L 377.17 204.98 L 375.63 202.08 L 373.98 199.19 L 372.20 196.32 L 370.30 193.46 L 368.28 190.63 L 366.14 187.82 L 363.89 185.04 L 361.53 182.29 L 359.06 179.57 L 356.48 176.89 L 353.79 174.24 L 351.00 171.63 L 348.12 169.07 L 345.13 166.55 L 342.05 164.08 L 338.88 161.66 L 335.63 159.29 L 332.29 156.98 L 328.86 154.73 L 325.36 152.53 L 321.79 150.40 L 318.14 148.32 L 314.43 146.32 L 310.65 144.38 L 306.82 142.52 L 302.92 140.72 L 298.98 139.00 L 294.99 137.35 L 290.95 135.78 L 286.87 134.29 L 282.76 132.87 L 278.61 131.54 L 274.44 130.29 L 270.24 129.13 L 266.02 128.04 L 261.78 127.05 L 257.54 126.14 L 253.28 125.32 L 249.03 124.59 L 244.77 123.94 L 240.52 123.39 L 236.28 122.93 L 232.05 122.56 L 227.84 122.28 L 223.65 122.09 L 219.49 121.99 L 215.36 121.98 L 211.26 122.07 L 207.20 122.25 L 203.18 122.52 L 199.21 122.88 L 195.29 123.33 L 191.42 123.87 L 187.61 124.50 L 183.87 125.22 L 180.18 126.03 L 176.57 126.93 L 173.03 127.91 L 169.56 128.98 L 166.18 130.14 L 162.87 131.38 L 159.66 132.70 L 156.53 134.10 L 153.49 135.59 L 150.55 137.15 L 147.71 138.78 L 144.97 140.50 L 142.33 142.28 L 139.80 144.14 L 137.38 146.07 L 135.07 148.07 L 132.87 150.13 L 130.78 152.26 L 128.82 154.44 L 126.97 156.69 L 125.25 159.00 L 123.65 161.36 L 122.17 163.77 L 120.82 166.24 L 119.60 168.75 L 118.51 171.31 L 117.54 173.91 L 116.71 176.55 L 116.01 179.23 L 115.44 181.94 L 115.00 184.69 L 114.70 187.47 L 114.53 190.27 L 114.49 193.10 L 114.59 195.95 L 114.82 198.82 L 115.18 201.71 L 115.68 204.61 L 116.31 207.52 L 117.07 210.43 L 117.97 213.35 L 118.99 216.28 L 120.14 219.20 L 121.42 222.11 L 122.83 225.02 L 124.37 227.92 L 126.02 230.81 L 127.80 233.68 L 129.70 236.54 L 131.72 239.37 L 133.86 242.18 L 136.11 244.96 L 138.47 247.71 L 140.94 250.43 L 143.52 253.11 L 146.21 255.76 L 149.00 258.37 L 151.88 260.93 L 154.87 263.45 L 157.95 265.92 L 161.12 268.34 L 164.37 270.71 L 167.71 273.02 L 171.14 275.27 L 174.64 277.47 L 178.21 279.60 L 181.86 281.68 L 185.57 283.68 L 189.35 285.62 L 193.18 287.48 L 197.08 289.28 L 201.02 291.00 L 205.01 292.65 L 209.05 294.22 L 213.13 295.71 L 217.24 297.13 L 221.39 298.46 L 225.56 299.71 L 229.76 300.87 L 233.98 301.96 L 238.22 302.95 L 242.46 303.86 L 246.72 304.68 L 250.97 305.41 L 255.23 306.06 L 259.48 306.61 L 263.72 307.07 L 267.95 307.44 L 272.16 307.72 L 276.35 307.91 L 280.51 308.01 L 284.64 308.02 L 288.74 307.93 L 292.80 307.75 L 296.82 307.48 L 300.79 307.12 L 304.71 306.67 L 308.58 306.13 L 312.39 305.50 L 316.13 304.78 L 319.82 303.97 L 323.43 303.07 L 326.97 302.09 L 330.44 301.02 L 333.82 299.86 L 337.13 298.62 L 340.34 297.30 L 343.47 295.90 L 346.51 294.41 L 349.45 292.85 L 352.29 291.22 L 355.03 289.50 L 357.67 287.72 L 360.20 285.86 L 362.62 283.93 L 364.93 281.93 L 367.13 279.87 L 369.22 277.74 L 371.18 275.56 L 373.03 273.31 L 374.75 271.00 L 376.35 268.64 L 377.83 266.23 L 379.18 263.76 L 380.40 261.25 L 381.49 258.69 L 382.46 256.09 L 383.29 253.45" fill="none" stroke="var(--blue)" stroke-width="2.0" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M 390.66 249.95 L 390.78 249.17 L 390.76 248.36 L 390.60 247.51 L 390.30 246.64 L 389.87 245.73 L 389.30 244.79 L 388.58 243.83 L 387.74 242.83 L 386.75 241.81 L 385.63 240.76 L 384.38 239.69 L 383.00 238.59 L 381.48 237.46 L 379.83 236.32 L 378.06 235.15 L 376.16 233.97 L 374.13 232.76 L 371.98 231.54 L 369.72 230.31 L 367.33 229.05 L 364.83 227.79 L 362.21 226.51 L 359.49 225.21 L 356.65 223.91 L 353.71 222.60 L 350.67 221.29 L 347.53 219.96 L 344.29 218.63 L 340.96 217.30 L 337.54 215.97 L 334.03 214.63 L 330.44 213.30 L 326.78 211.97 L 323.03 210.64 L 319.21 209.31 L 315.33 207.99 L 311.38 206.68 L 307.37 205.37 L 303.30 204.08 L 299.18 202.79 L 295.01 201.52 L 290.80 200.26 L 286.55 199.01 L 282.26 197.78 L 277.94 196.57 L 273.59 195.38 L 269.22 194.20 L 264.83 193.05 L 260.43 191.92 L 256.01 190.81 L 251.59 189.72 L 247.17 188.66 L 242.75 187.63 L 238.33 186.62 L 233.93 185.64 L 229.55 184.69 L 225.18 183.77 L 220.84 182.88 L 216.53 182.02 L 212.25 181.19 L 208.01 180.40 L 203.81 179.64 L 199.65 178.92 L 195.55 178.23 L 191.50 177.58 L 187.50 176.96 L 183.57 176.39 L 179.70 175.85 L 175.91 175.35 L 172.18 174.89 L 168.54 174.47 L 164.97 174.08 L 161.49 173.74 L 158.09 173.44 L 154.79 173.18 L 151.58 172.96 L 148.46 172.79 L 145.45 172.65 L 142.54 172.56 L 139.74 172.51 L 137.04 172.50 L 134.46 172.53 L 131.99 172.61 L 129.63 172.72 L 127.40 172.88 L 125.29 173.08 L 123.29 173.32 L 121.43 173.60 L 119.69 173.93 L 118.08 174.29 L 116.60 174.69 L 115.25 175.14 L 114.04 175.62 L 112.96 176.14 L 112.01 176.70 L 111.20 177.30 L 110.53 177.93 L 109.99 178.60 L 109.60 179.31 L 109.34 180.05 L 109.22 180.83 L 109.24 181.64 L 109.40 182.49 L 109.70 183.36 L 110.13 184.27 L 110.70 185.21 L 111.42 186.17 L 112.26 187.17 L 113.25 188.19 L 114.37 189.24 L 115.62 190.31 L 117.00 191.41 L 118.52 192.54 L 120.17 193.68 L 121.94 194.85 L 123.84 196.03 L 125.87 197.24 L 128.02 198.46 L 130.28 199.69 L 132.67 200.95 L 135.17 202.21 L 137.79 203.49 L 140.51 204.79 L 143.35 206.09 L 146.29 207.40 L 149.33 208.71 L 152.47 210.04 L 155.71 211.37 L 159.04 212.70 L 162.46 214.03 L 165.97 215.37 L 169.56 216.70 L 173.22 218.03 L 176.97 219.36 L 180.79 220.69 L 184.67 222.01 L 188.62 223.32 L 192.63 224.63 L 196.70 225.92 L 200.82 227.21 L 204.99 228.48 L 209.20 229.74 L 213.45 230.99 L 217.74 232.22 L 222.06 233.43 L 226.41 234.62 L 230.78 235.80 L 235.17 236.95 L 239.57 238.08 L 243.99 239.19 L 248.41 240.28 L 252.83 241.34 L 257.25 242.37 L 261.67 243.38 L 266.07 244.36 L 270.45 245.31 L 274.82 246.23 L 279.16 247.12 L 283.47 247.98 L 287.75 248.81 L 291.99 249.60 L 296.19 250.36 L 300.35 251.08 L 304.45 251.77 L 308.50 252.42 L 312.50 253.04 L 316.43 253.61 L 320.30 254.15 L 324.09 254.65 L 327.82 255.11 L 331.46 255.53 L 335.03 255.92 L 338.51 256.26 L 341.91 256.56 L 345.21 256.82 L 348.42 257.04 L 351.54 257.21 L 354.55 257.35 L 357.46 257.44 L 360.26 257.49 L 362.96 257.50 L 365.54 257.47 L 368.01 257.39 L 370.37 257.28 L 372.60 257.12 L 374.71 256.92 L 376.71 256.68 L 378.57 256.40 L 380.31 256.07 L 381.92 255.71 L 383.40 255.31 L 384.75 254.86 L 385.96 254.38 L 387.04 253.86 L 387.99 253.30 L 388.80 252.70 L 389.47 252.07 L 390.01 251.40 L 390.40 250.69 L 390.66 249.95" fill="none" stroke="var(--teal)" stroke-width="2.0" stroke-linejoin="round" stroke-linecap="round"/>
+  <text class="annm" x="256.00" y="54.11" text-anchor="start" fill="var(--ink-3)" font-size="9.5">‖e‖(P) = 1</text>
+  <text class="ttl" x="250.00" y="32.00" text-anchor="middle">WHERE THE UNIT BALL GOES IN ONE CYCLE</text>
+  <line x1="520.00" y1="90.00" x2="546.00" y2="90.00" stroke="var(--amber)" stroke-width="2.6"/>
+  <text class="ann" x="556.00" y="94.00" text-anchor="start" fill="var(--amber)" font-size="11.5">β = 0   Φ</text>
+  <text class="annm" x="520.00" y="114.00" text-anchor="start" fill="var(--ink-2)" font-size="10">semi-axes 0.9999 × 0.7515</text>
+  <text class="axl" x="520.00" y="134.00" text-anchor="start" fill="var(--ink-3)" font-size="10">a hair inside the boundary — this endpoint is what makes the bound 0.999939</text>
+  <line x1="520.00" y1="182.00" x2="546.00" y2="182.00" stroke="var(--blue)" stroke-width="2.6"/>
+  <text class="ann" x="556.00" y="186.00" text-anchor="start" fill="var(--blue)" font-size="11.5">β = 0.294   A(β)</text>
+  <text class="annm" x="520.00" y="206.00" text-anchor="start" fill="var(--ink-2)" font-size="10">semi-axes 0.9140 × 0.5808</text>
+  <text class="axl" x="520.00" y="226.00" text-anchor="start" fill="var(--ink-3)" font-size="10">the worst conditioned cycle of the real run</text>
+  <line x1="520.00" y1="274.00" x2="546.00" y2="274.00" stroke="var(--teal)" stroke-width="2.6"/>
+  <text class="ann" x="556.00" y="278.00" text-anchor="start" fill="var(--teal)" font-size="11.5">β = 1   A(cl)</text>
+  <text class="annm" x="520.00" y="298.00" text-anchor="start" fill="var(--ink-2)" font-size="10">semi-axes 0.9549 × 0.1642</text>
+  <text class="axl" x="520.00" y="318.00" text-anchor="start" fill="var(--ink-3)" font-size="10">the full raw feedback, flattened onto one direction</text>
+  <text class="axl" x="68.00" y="398.00" text-anchor="start" fill="var(--ink-2)">Every matrix on the segment maps the unit P-ball strictly inside itself. That single picture is the whole certificate: whichever</text>
+  <text class="axl" x="68.00" y="416.00" text-anchor="start" fill="var(--ink-2)">β the plant picks, the error ends the cycle inside the ellipsoid it started in. Shown as a two-dimensional shadow of the real 3-D sets.</text>
+</svg></div>
+    <figcaption><b>The certificate as one picture.</b> Real matrices from this paper. The dashed
+    circle is the unit ball of the <code>P</code>-norm, <code>‖e‖<sub>P</sub> = 1</code>; the
+    ellipses are where one cycle sends that ball, for three members of the family. All three stay
+    strictly inside, which is precisely the statement <code>‖A(β)‖<sub>P</sub> &lt; 1</code>. Note
+    how close the <code>β = 0</code> ellipse comes to the boundary — that is
+    <span class="num">0.999939</span>, and it is why the certified bound is so near one. Drawn as a
+    two-dimensional shadow of the true three-dimensional ellipsoids; a shadow of a contained set is
+    contained, so nothing is hidden by the projection.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="step-head"><span class="step-num">13</span><h2>Proposition 2, in full</h2></div>
+
+  <div class="prop">
+    <span class="ph">Proposition 2 — common-Lyapunov contraction</span>
+    <p>Let <code>P = P<sup>T</sup> ≻ 0</code> and suppose
+    <code>‖Φ‖<sub>P</sub> ≤ q₀ &lt; 1</code> and
+    <code>‖A<sub>cl</sub>‖<sub>P</sub> ≤ q₁ &lt; 1</code>. Then every <code>A(β)</code> with
+    <code>β ∈ [0,1]</code> contracts in the same norm by a factor no greater than
+    <code>q = max(q₀, q₁) &lt; 1</code>. The conditioned linearized model is therefore
+    exponentially stable for <em>every</em> sequence <code>{β<sub>k</sub>} ⊂ [0,1]</code>,
+    including the state-dependent ones the conditioner generates.</p>
+  </div>
+
+  <p style="margin-top:1.1rem">The proof is two inequalities, and every piece has already been
+  built.</p>
+
+  <div class="deriv">
+    <div><span class="l">‖A(β)‖<sub>P</sub> = ‖(1−β)Φ + βA<sub>cl</sub>‖<sub>P</sub></span><span class="r">definition of the family</span></div>
+    <div><span class="l">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ≤ ‖(1−β)Φ‖<sub>P</sub> + ‖βA<sub>cl</sub>‖<sub>P</sub></span><span class="r">triangle inequality</span></div>
+    <div><span class="l">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = (1−β)‖Φ‖<sub>P</sub> + β‖A<sub>cl</sub>‖<sub>P</sub></span><span class="r">β and 1−β are non-negative</span></div>
+    <div><span class="l">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ≤ (1−β)q₀ + βq₁ ≤ max(q₀,q₁) = q</span><span class="r">a weighted average never exceeds the larger term</span></div>
+    <div><span class="l">‖e<sub>k</sub>‖<sub>P</sub> ≤ q‖e<sub>k−1</sub>‖<sub>P</sub> ≤ ⋯ ≤ q<sup>k</sup>‖e<sub>0</sub>‖<sub>P</sub></span><span class="r">apply it once per cycle</span></div>
+  </div>
+
+  <p style="margin-top:1.1rem">The last line is where the sequence is handled, and it is worth
+  seeing why it is not a sleight of hand. Each cycle is a separate application of the same
+  inequality to whatever matrix was used that cycle. The bound never asks which matrix that was.
+  Consequently the result holds for <code>β</code> constant, for <code>β</code> chosen by the ratio
+  test, for <code>β</code> chosen at random, and for <code>β</code> chosen by an adversary who can
+  see the state and is trying to break the loop. The certificate does not depend on the
+  conditioner being clever, only on its output lying in <code>[0,1]</code>.</p>
+
+  <figure class="wide">
+    <div class="fig-shell"><svg viewBox="0 0 900 430" role="img" aria-label="Left panel: spectral radius along the segment between two Schur matrices, rising above one in the middle. Right panel: for the paper's matrices the P-norm along the segment stays below the straight chord joining the two endpoint values, and the spectral radius stays far lower.">
+  <rect x="68.00" y="52.00" width="364.00" height="278.00" fill="none" stroke="var(--rule)" stroke-width="1"/>
+  <text class="ttl" x="68.00" y="38.00" text-anchor="start" fill="var(--crimson)">(a)  A SEGMENT THAT LEAVES THE STABLE SET</text>
+  <line x1="68.00" y1="330.00" x2="432.00" y2="330.00" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="60.00" y="333.50" text-anchor="end">0.4</text>
+  <line x1="68.00" y1="283.67" x2="432.00" y2="283.67" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="60.00" y="287.17" text-anchor="end">0.6</text>
+  <line x1="68.00" y1="237.33" x2="432.00" y2="237.33" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="60.00" y="240.83" text-anchor="end">0.8</text>
+  <line x1="68.00" y1="191.00" x2="432.00" y2="191.00" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="60.00" y="194.50" text-anchor="end">1.0</text>
+  <line x1="68.00" y1="144.67" x2="432.00" y2="144.67" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="60.00" y="148.17" text-anchor="end">1.2</text>
+  <line x1="68.00" y1="98.33" x2="432.00" y2="98.33" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="60.00" y="101.83" text-anchor="end">1.4</text>
+  <line x1="68.00" y1="52.00" x2="432.00" y2="52.00" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="60.00" y="55.50" text-anchor="end">1.6</text>
+  <line x1="68.00" y1="330.00" x2="68.00" y2="335.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="68.00" y="347.00" text-anchor="middle">0.00</text>
+  <line x1="159.00" y1="330.00" x2="159.00" y2="335.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="159.00" y="347.00" text-anchor="middle">0.25</text>
+  <line x1="250.00" y1="330.00" x2="250.00" y2="335.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="250.00" y="347.00" text-anchor="middle">0.50</text>
+  <line x1="341.00" y1="330.00" x2="341.00" y2="335.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="341.00" y="347.00" text-anchor="middle">0.75</text>
+  <line x1="432.00" y1="330.00" x2="432.00" y2="335.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="432.00" y="347.00" text-anchor="middle">1.00</text>
+  <rect x="68.00" y="52.00" width="364.00" height="139.00" fill="var(--crimson)" opacity="0.07"/>
+  <line x1="68.00" y1="191.00" x2="432.00" y2="191.00" stroke="var(--crimson)" stroke-width="1.4"/>
+  <text class="ann" x="426.00" y="184.00" text-anchor="end" fill="var(--crimson)">ρ = 1</text>
+  <path d="M 68.00 306.83 L 69.82 274.15 L 71.64 260.73 L 73.46 250.51 L 75.28 241.97 L 77.10 234.50 L 78.92 227.79 L 80.74 221.68 L 82.56 216.04 L 84.38 210.78 L 86.20 205.85 L 88.02 201.20 L 89.84 196.80 L 91.66 192.61 L 93.48 188.62 L 95.30 184.80 L 97.12 181.13 L 98.94 177.62 L 100.76 174.24 L 102.58 170.98 L 104.40 167.83 L 106.22 164.80 L 108.04 161.86 L 109.86 159.02 L 111.68 156.27 L 113.50 153.60 L 115.32 151.01 L 117.14 148.50 L 118.96 146.06 L 120.78 143.69 L 122.60 141.39 L 124.42 139.15 L 126.24 136.97 L 128.06 134.85 L 129.88 132.79 L 131.70 130.78 L 133.52 128.83 L 135.34 126.92 L 137.16 125.07 L 138.98 123.26 L 140.80 121.50 L 142.62 119.78 L 144.44 118.11 L 146.26 116.49 L 148.08 114.90 L 149.90 113.35 L 151.72 111.85 L 153.54 110.38 L 155.36 108.95 L 157.18 107.56 L 159.00 106.20 L 160.82 104.88 L 162.64 103.60 L 164.46 102.35 L 166.28 101.13 L 168.10 99.95 L 169.92 98.80 L 171.74 97.68 L 173.56 96.59 L 175.38 95.53 L 177.20 94.51 L 179.02 93.51 L 180.84 92.54 L 182.66 91.61 L 184.48 90.70 L 186.30 89.82 L 188.12 88.97 L 189.94 88.14 L 191.76 87.35 L 193.58 86.58 L 195.40 85.84 L 197.22 85.12 L 199.04 84.43 L 200.86 83.77 L 202.68 83.13 L 204.50 82.52 L 206.32 81.94 L 208.14 81.38 L 209.96 80.84 L 211.78 80.33 L 213.60 79.85 L 215.42 79.39 L 217.24 78.95 L 219.06 78.54 L 220.88 78.15 L 222.70 77.79 L 224.52 77.45 L 226.34 77.13 L 228.16 76.84 L 229.98 76.57 L 231.80 76.33 L 233.62 76.11 L 235.44 75.91 L 237.26 75.73 L 239.08 75.58 L 240.90 75.46 L 242.72 75.35 L 244.54 75.27 L 246.36 75.21 L 248.18 75.18 L 250.00 75.17 L 251.82 75.18 L 253.64 75.21 L 255.46 75.27 L 257.28 75.35 L 259.10 75.46 L 260.92 75.58 L 262.74 75.73 L 264.56 75.91 L 266.38 76.11 L 268.20 76.33 L 270.02 76.57 L 271.84 76.84 L 273.66 77.13 L 275.48 77.45 L 277.30 77.79 L 279.12 78.15 L 280.94 78.54 L 282.76 78.95 L 284.58 79.39 L 286.40 79.85 L 288.22 80.33 L 290.04 80.84 L 291.86 81.38 L 293.68 81.94 L 295.50 82.52 L 297.32 83.13 L 299.14 83.77 L 300.96 84.43 L 302.78 85.12 L 304.60 85.84 L 306.42 86.58 L 308.24 87.35 L 310.06 88.14 L 311.88 88.97 L 313.70 89.82 L 315.52 90.70 L 317.34 91.61 L 319.16 92.54 L 320.98 93.51 L 322.80 94.51 L 324.62 95.53 L 326.44 96.59 L 328.26 97.68 L 330.08 98.80 L 331.90 99.95 L 333.72 101.13 L 335.54 102.35 L 337.36 103.60 L 339.18 104.88 L 341.00 106.20 L 342.82 107.56 L 344.64 108.95 L 346.46 110.38 L 348.28 111.85 L 350.10 113.35 L 351.92 114.90 L 353.74 116.49 L 355.56 118.11 L 357.38 119.78 L 359.20 121.50 L 361.02 123.26 L 362.84 125.07 L 364.66 126.92 L 366.48 128.83 L 368.30 130.78 L 370.12 132.79 L 371.94 134.85 L 373.76 136.97 L 375.58 139.15 L 377.40 141.39 L 379.22 143.69 L 381.04 146.06 L 382.86 148.50 L 384.68 151.01 L 386.50 153.60 L 388.32 156.27 L 390.14 159.02 L 391.96 161.86 L 393.78 164.80 L 395.60 167.83 L 397.42 170.98 L 399.24 174.24 L 401.06 177.62 L 402.88 181.13 L 404.70 184.80 L 406.52 188.62 L 408.34 192.61 L 410.16 196.80 L 411.98 201.20 L 413.80 205.85 L 415.62 210.78 L 417.44 216.04 L 419.26 221.68 L 421.08 227.79 L 422.90 234.50 L 424.72 241.97 L 426.54 250.51 L 428.36 260.73 L 430.18 274.15 L 432.00 306.83" fill="none" stroke="var(--crimson)" stroke-width="2.0" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="68.00" cy="306.83" r="4.2" fill="var(--teal)"/>
+  <circle cx="432.00" cy="306.83" r="4.2" fill="var(--teal)"/>
+  <text class="ann" x="77.00" y="297.83" text-anchor="start" fill="var(--teal)">M₁: ρ = 0.5</text>
+  <text class="ann" x="423.00" y="297.83" text-anchor="end" fill="var(--teal)">M₂: ρ = 0.5</text>
+  <text class="ann" x="250.00" y="63.17" text-anchor="middle" fill="var(--crimson)">ρ = 1.5</text>
+  <text class="axl" x="250.00" y="316.00" text-anchor="middle" fill="var(--crimson)">unstable for β between 0.067 and 0.933</text>
+  <text class="axl" x="250.00" y="366.00" text-anchor="middle">β</text>
+  <rect x="520.00" y="52.00" width="348.00" height="278.00" fill="none" stroke="var(--rule)" stroke-width="1"/>
+  <text class="ttl" x="520.00" y="38.00" text-anchor="start" fill="var(--teal)">(b)  THE SEGMENT IN THIS PAPER</text>
+  <line x1="520.00" y1="330.00" x2="868.00" y2="330.00" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="512.00" y="333.50" text-anchor="end">0.5</text>
+  <line x1="520.00" y1="279.45" x2="868.00" y2="279.45" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="512.00" y="282.95" text-anchor="end">0.6</text>
+  <line x1="520.00" y1="228.91" x2="868.00" y2="228.91" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="512.00" y="232.41" text-anchor="end">0.7</text>
+  <line x1="520.00" y1="178.36" x2="868.00" y2="178.36" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="512.00" y="181.86" text-anchor="end">0.8</text>
+  <line x1="520.00" y1="127.82" x2="868.00" y2="127.82" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="512.00" y="131.32" text-anchor="end">0.9</text>
+  <line x1="520.00" y1="77.27" x2="868.00" y2="77.27" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="512.00" y="80.77" text-anchor="end">1.0</text>
+  <line x1="520.00" y1="330.00" x2="520.00" y2="335.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="520.00" y="347.00" text-anchor="middle">0.00</text>
+  <line x1="607.00" y1="330.00" x2="607.00" y2="335.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="607.00" y="347.00" text-anchor="middle">0.25</text>
+  <line x1="694.00" y1="330.00" x2="694.00" y2="335.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="694.00" y="347.00" text-anchor="middle">0.50</text>
+  <line x1="781.00" y1="330.00" x2="781.00" y2="335.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="781.00" y="347.00" text-anchor="middle">0.75</text>
+  <line x1="868.00" y1="330.00" x2="868.00" y2="335.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="868.00" y="347.00" text-anchor="middle">1.00</text>
+  <rect x="520.00" y="52.00" width="348.00" height="25.27" fill="var(--crimson)" opacity="0.07"/>
+  <line x1="520.00" y1="77.27" x2="868.00" y2="77.27" stroke="var(--crimson)" stroke-width="1.2"/>
+  <text class="ann" x="862.00" y="70.27" text-anchor="end" fill="var(--crimson)">1.0</text>
+  <path d="M 520.00 77.30 L 868.00 87.51" fill="none" stroke="var(--blue)" stroke-width="1.5" stroke-dasharray="5 4" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M 520.00 77.30 L 526.96 81.51 L 533.92 85.44 L 540.88 89.11 L 547.84 92.52 L 554.80 95.69 L 561.76 98.62 L 568.72 101.32 L 575.68 103.81 L 582.64 106.10 L 589.60 108.19 L 596.56 110.11 L 603.52 111.85 L 610.48 113.42 L 617.44 114.85 L 624.40 116.12 L 631.36 117.26 L 638.32 118.26 L 645.28 119.13 L 652.24 119.88 L 659.20 120.51 L 666.16 121.02 L 673.12 121.42 L 680.08 121.70 L 687.04 121.87 L 694.00 121.94 L 700.96 121.89 L 707.92 121.74 L 714.88 121.48 L 721.84 121.12 L 728.80 120.65 L 735.76 120.07 L 742.72 119.38 L 749.68 118.59 L 756.64 117.69 L 763.60 116.67 L 770.56 115.55 L 777.52 114.31 L 784.48 112.96 L 791.44 111.50 L 798.40 109.92 L 805.36 108.23 L 812.32 106.41 L 819.28 104.48 L 826.24 102.43 L 833.20 100.25 L 840.16 97.95 L 847.12 95.53 L 854.08 92.99 L 861.04 90.31 L 868.00 87.51" fill="none" stroke="var(--blue)" stroke-width="2.1" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M 520.00 77.35 L 526.96 82.41 L 533.92 86.66 L 540.88 91.04 L 547.84 95.45 L 554.80 99.87 L 561.76 104.28 L 568.72 108.70 L 575.68 113.11 L 582.64 117.51 L 589.60 121.92 L 596.56 126.32 L 603.52 130.72 L 610.48 135.12 L 617.44 139.51 L 624.40 143.90 L 631.36 148.28 L 638.32 152.67 L 645.28 157.04 L 652.24 161.42 L 659.20 165.79 L 666.16 170.16 L 673.12 174.53 L 680.08 178.89 L 687.04 183.25 L 694.00 187.60 L 700.96 191.96 L 707.92 196.31 L 714.88 200.65 L 721.84 204.99 L 728.80 209.34 L 735.76 213.67 L 742.72 218.01 L 749.68 222.34 L 756.64 226.67 L 763.60 230.99 L 770.56 235.31 L 777.52 239.63 L 784.48 243.95 L 791.44 248.27 L 798.40 252.58 L 805.36 256.89 L 812.32 261.19 L 819.28 265.50 L 826.24 269.80 L 833.20 274.10 L 840.16 278.39 L 847.12 282.69 L 854.08 286.98 L 861.04 291.27 L 868.00 295.55" fill="none" stroke="var(--graphite)" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="520.00" cy="77.30" r="4.2" fill="var(--blue)"/>
+  <circle cx="868.00" cy="87.51" r="4.2" fill="var(--blue)"/>
+  <text class="annm" x="529.00" y="93.30" text-anchor="start" fill="var(--blue)" font-size="9.5" font-weight="600">‖Φ‖(P) = 0.999939</text>
+  <text class="annm" x="859.00" y="78.51" text-anchor="end" fill="var(--blue)" font-size="9.5" font-weight="600">‖A(cl)‖(P) = 0.979743</text>
+  <text class="ann" x="638.32" y="127.29" text-anchor="start" fill="var(--blue)" font-size="10">‖A(β)‖(P) — always under the dashed chord</text>
+  <text class="ann" x="624.40" y="246.60" text-anchor="start" fill="var(--graphite)" font-size="10">ρ(A(β)) — the true rate</text>
+  <text class="axl" x="694.00" y="366.00" text-anchor="middle">β</text>
+  <text class="axl" x="68.00" y="392.00" text-anchor="start" fill="var(--ink-2)">Left: two Schur matrices whose mixtures are not Schur — being individually stable proves nothing about the segment between them.</text>
+  <text class="axl" x="68.00" y="410.00" text-anchor="start" fill="var(--ink-2)">Right: the real family. One P makes both endpoints contract, and the chord inequality then covers every β in between.</text>
+</svg></div>
+    <figcaption><b>Why the endpoints alone are not enough, and what fixes it.</b> Left: the
+    spectral radius along the segment joining the two Schur matrices of section 06 — both endpoints
+    at <code>0.5</code>, and everything between <code>β = 0.067</code> and <code>β = 0.933</code>
+    unstable. Being stable at the ends says nothing about the middle. Right: the real family of
+    this paper. The solid blue curve is <code>‖A(β)‖<sub>P</sub></code>, and the dashed line is the
+    chord <code>(1−β)q₀ + βq₁</code> from the proof; the curve stays under the chord at every
+    <code>β</code>, exactly as the triangle inequality promises, and the chord itself stays under
+    one. The grey curve is <code>ρ(A(β))</code>, the true asymptotic rate, which falls to
+    <span class="num">0.568</span> — a reminder of how much slack the certified bound carries.</figcaption>
+  </figure>
+
+  <div class="note key">
+    <span class="tag">Where each hypothesis is used</span>
+    The triangle inequality needs <code>‖·‖<sub>P</sub></code> to be a norm — that is why the
+    argument is run on the induced norm rather than directly on the matrix inequality
+    <code>A<sup>T</sup>PA − P ≺ 0</code>, which is quadratic in <code>A</code> and does not
+    combine so cleanly. The step from one cycle to <code>k</code> cycles needs submultiplicativity.
+    And the fact that both bounds involve <em>the same</em> <code>P</code> is what lets the two
+    endpoint numbers be compared and mixed at all; with two different Lyapunov functions the
+    triangle inequality has nothing to act on.
+  </div>
+</section>
+
+<section>
+  <div class="step-head"><span class="step-num">14</span><h2>The same claim, against the real run</h2></div>
+
+  <p>The proposition is about the linearized model. The paper also runs the exact nonlinear plant,
+  100 cycles of genuine matrix-exponential propagation, from an initial error far outside the range
+  where linearization was validated. That run is what the next figure shows.</p>
+
+  <figure class="wide">
+    <div class="fig-shell"><svg viewBox="0 0 900 440" role="img" aria-label="Left: the conditioning factor per cycle, below one for the first three cycles and one afterwards. Right: the P-norm of the cycle-start error for the conditioned run and the open loop, both far under the nearly flat certified envelope.">
+  <rect x="68.00" y="54.00" width="284.00" height="246.00" fill="none" stroke="var(--rule)" stroke-width="1"/>
+  <text class="ttl" x="68.00" y="40.00" text-anchor="start">(a)  THE CONDITIONING FACTOR βₖ</text>
+  <line x1="68.00" y1="245.09" x2="352.00" y2="245.09" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="60.00" y="248.59" text-anchor="end">0.25</text>
+  <line x1="68.00" y1="190.18" x2="352.00" y2="190.18" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="60.00" y="193.68" text-anchor="end">0.50</text>
+  <line x1="68.00" y1="135.27" x2="352.00" y2="135.27" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="60.00" y="138.77" text-anchor="end">0.75</text>
+  <line x1="68.00" y1="80.36" x2="352.00" y2="80.36" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="60.00" y="83.86" text-anchor="end">1.00</text>
+  <line x1="68.00" y1="80.36" x2="352.00" y2="80.36" stroke="var(--ink-3)" stroke-width="1.2"/>
+  <line x1="84.71" y1="300.00" x2="84.71" y2="235.43" stroke="var(--crimson)" stroke-width="2.2"/>
+  <circle cx="84.71" cy="235.43" r="4.0" fill="var(--crimson)"/>
+  <text class="annm" x="84.71" y="225.43" text-anchor="middle" fill="var(--crimson)" font-size="9">0.294</text>
+  <text class="ax" x="84.71" y="316.00" text-anchor="middle">0</text>
+  <line x1="112.55" y1="300.00" x2="112.55" y2="201.76" stroke="var(--crimson)" stroke-width="2.2"/>
+  <circle cx="112.55" cy="201.76" r="4.0" fill="var(--crimson)"/>
+  <text class="annm" x="112.55" y="191.76" text-anchor="middle" fill="var(--crimson)" font-size="9">0.447</text>
+  <text class="ax" x="112.55" y="316.00" text-anchor="middle">1</text>
+  <line x1="140.39" y1="300.00" x2="140.39" y2="129.00" stroke="var(--crimson)" stroke-width="2.2"/>
+  <circle cx="140.39" cy="129.00" r="4.0" fill="var(--crimson)"/>
+  <text class="annm" x="140.39" y="119.00" text-anchor="middle" fill="var(--crimson)" font-size="9">0.779</text>
+  <text class="ax" x="140.39" y="316.00" text-anchor="middle">2</text>
+  <line x1="168.24" y1="300.00" x2="168.24" y2="80.36" stroke="var(--teal)" stroke-width="2.2"/>
+  <circle cx="168.24" cy="80.36" r="4.0" fill="var(--teal)"/>
+  <text class="ax" x="168.24" y="316.00" text-anchor="middle">3</text>
+  <line x1="196.08" y1="300.00" x2="196.08" y2="80.36" stroke="var(--teal)" stroke-width="2.2"/>
+  <circle cx="196.08" cy="80.36" r="4.0" fill="var(--teal)"/>
+  <text class="ax" x="196.08" y="316.00" text-anchor="middle">4</text>
+  <line x1="223.92" y1="300.00" x2="223.92" y2="80.36" stroke="var(--teal)" stroke-width="2.2"/>
+  <circle cx="223.92" cy="80.36" r="4.0" fill="var(--teal)"/>
+  <text class="ax" x="223.92" y="316.00" text-anchor="middle">5</text>
+  <line x1="251.76" y1="300.00" x2="251.76" y2="80.36" stroke="var(--teal)" stroke-width="2.2"/>
+  <circle cx="251.76" cy="80.36" r="4.0" fill="var(--teal)"/>
+  <text class="ax" x="251.76" y="316.00" text-anchor="middle">6</text>
+  <line x1="279.61" y1="300.00" x2="279.61" y2="80.36" stroke="var(--teal)" stroke-width="2.2"/>
+  <circle cx="279.61" cy="80.36" r="4.0" fill="var(--teal)"/>
+  <text class="ax" x="279.61" y="316.00" text-anchor="middle">7</text>
+  <line x1="307.45" y1="300.00" x2="307.45" y2="80.36" stroke="var(--teal)" stroke-width="2.2"/>
+  <circle cx="307.45" cy="80.36" r="4.0" fill="var(--teal)"/>
+  <text class="ax" x="307.45" y="316.00" text-anchor="middle">8</text>
+  <line x1="335.29" y1="300.00" x2="335.29" y2="80.36" stroke="var(--teal)" stroke-width="2.2"/>
+  <circle cx="335.29" cy="80.36" r="4.0" fill="var(--teal)"/>
+  <text class="ax" x="335.29" y="316.00" text-anchor="middle">9</text>
+  <text class="axl" x="210.00" y="336.00" text-anchor="middle">cycle k</text>
+  <text class="axl" x="76.00" y="72.00" text-anchor="start" fill="var(--teal)">β = 1 from cycle 3 on: the raw action is already legal</text>
+  <rect x="452.00" y="54.00" width="416.00" height="246.00" fill="none" stroke="var(--rule)" stroke-width="1"/>
+  <text class="ttl" x="452.00" y="40.00" text-anchor="start">(b)  ‖eₖ‖(P) AGAINST THE CERTIFIED ENVELOPE</text>
+  <line x1="452.00" y1="300.00" x2="868.00" y2="300.00" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="444.00" y="303.50" text-anchor="end">10⁻⁹</text>
+  <line x1="452.00" y1="272.67" x2="868.00" y2="272.67" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="444.00" y="276.17" text-anchor="end">10⁻⁸</text>
+  <line x1="452.00" y1="245.33" x2="868.00" y2="245.33" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="444.00" y="248.83" text-anchor="end">10⁻⁷</text>
+  <line x1="452.00" y1="218.00" x2="868.00" y2="218.00" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="444.00" y="221.50" text-anchor="end">10⁻⁶</text>
+  <line x1="452.00" y1="190.67" x2="868.00" y2="190.67" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="444.00" y="194.17" text-anchor="end">10⁻⁵</text>
+  <line x1="452.00" y1="163.33" x2="868.00" y2="163.33" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="444.00" y="166.83" text-anchor="end">10⁻⁴</text>
+  <line x1="452.00" y1="136.00" x2="868.00" y2="136.00" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="444.00" y="139.50" text-anchor="end">10⁻³</text>
+  <line x1="452.00" y1="108.67" x2="868.00" y2="108.67" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="444.00" y="112.17" text-anchor="end">10⁻²</text>
+  <line x1="452.00" y1="81.33" x2="868.00" y2="81.33" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="444.00" y="84.83" text-anchor="end">10⁻¹</text>
+  <line x1="452.00" y1="54.00" x2="868.00" y2="54.00" stroke="var(--rule)" stroke-width="1" stroke-dasharray="2 5" opacity="0.7"/>
+  <text class="ax" x="444.00" y="57.50" text-anchor="end">1</text>
+  <line x1="452.00" y1="300.00" x2="452.00" y2="305.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="452.00" y="317.00" text-anchor="middle">0</text>
+  <line x1="521.33" y1="300.00" x2="521.33" y2="305.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="521.33" y="317.00" text-anchor="middle">5</text>
+  <line x1="590.67" y1="300.00" x2="590.67" y2="305.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="590.67" y="317.00" text-anchor="middle">10</text>
+  <line x1="660.00" y1="300.00" x2="660.00" y2="305.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="660.00" y="317.00" text-anchor="middle">15</text>
+  <line x1="729.33" y1="300.00" x2="729.33" y2="305.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="729.33" y="317.00" text-anchor="middle">20</text>
+  <line x1="798.67" y1="300.00" x2="798.67" y2="305.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="798.67" y="317.00" text-anchor="middle">25</text>
+  <line x1="868.00" y1="300.00" x2="868.00" y2="305.00" stroke="var(--rule-strong)" stroke-width="1"/>
+  <text class="ax" x="868.00" y="317.00" text-anchor="middle">30</text>
+  <text class="axl" x="660.00" y="336.00" text-anchor="middle">cycle k</text>
+  <path d="M 452.00 76.88 L 465.87 76.88 L 479.73 76.88 L 493.60 76.89 L 507.47 76.89 L 521.33 76.89 L 535.20 76.89 L 549.07 76.89 L 562.93 76.89 L 576.80 76.89 L 590.67 76.89 L 604.53 76.89 L 618.40 76.89 L 632.27 76.89 L 646.13 76.89 L 660.00 76.89 L 673.87 76.89 L 687.73 76.90 L 701.60 76.90 L 715.47 76.90 L 729.33 76.90 L 743.20 76.90 L 757.07 76.90 L 770.93 76.90 L 784.80 76.90 L 798.67 76.90 L 812.53 76.90 L 826.40 76.90 L 840.27 76.90 L 854.13 76.90 L 868.00 76.90" fill="none" stroke="var(--amber)" stroke-width="1.8" stroke-dasharray="5 4" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M 452.00 76.88 L 465.87 77.07 L 479.73 77.18 L 493.60 77.24 L 507.47 77.28 L 521.33 77.30 L 535.20 77.31 L 549.07 77.32 L 562.93 77.33 L 576.80 77.33 L 590.67 77.34 L 604.53 77.34 L 618.40 77.34 L 632.27 77.35 L 646.13 77.35 L 660.00 77.35 L 673.87 77.35 L 687.73 77.36 L 701.60 77.36 L 715.47 77.36 L 729.33 77.36 L 743.20 77.37 L 757.07 77.37 L 770.93 77.37 L 784.80 77.37 L 798.67 77.38 L 812.53 77.38 L 826.40 77.38 L 840.27 77.38 L 854.13 77.39 L 868.00 77.39" fill="none" stroke="var(--graphite)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M 452.00 76.88 L 465.87 77.99 L 479.73 80.89 L 493.60 88.98 L 507.47 102.49 L 521.33 111.99 L 535.20 119.08 L 549.07 125.76 L 562.93 132.42 L 576.80 139.10 L 590.67 145.79 L 604.53 152.49 L 618.40 159.20 L 632.27 165.91 L 646.13 172.62 L 660.00 179.33 L 673.87 186.04 L 687.73 192.75 L 701.60 199.46 L 715.47 206.17 L 729.33 212.88 L 743.20 219.59 L 757.07 226.31 L 770.93 233.02 L 784.80 239.73 L 798.67 246.44 L 812.53 253.15 L 826.40 259.86 L 840.27 266.57 L 854.13 273.28 L 868.00 280.00" fill="none" stroke="var(--blue)" stroke-width="2.1" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="452.00" cy="76.88" r="4.0" fill="var(--crimson)"/>
+  <circle cx="465.87" cy="77.99" r="4.0" fill="var(--crimson)"/>
+  <circle cx="479.73" cy="80.89" r="4.0" fill="var(--crimson)"/>
+  <circle cx="493.60" cy="88.98" r="4.0" fill="var(--blue)"/>
+  <text class="ann" x="618.40" y="67.89" text-anchor="start" fill="var(--amber)">certified envelope  qᵏ‖e₀‖(P),  q = 0.999939</text>
+  <text class="ann" x="618.40" y="93.34" text-anchor="start" fill="var(--graphite)">open loop (β = 0 forever)</text>
+  <text class="ann" x="576.80" y="141.10" text-anchor="start" fill="var(--blue)">conditioned run</text>
+  <text class="annm" x="457.55" y="89.35" text-anchor="start" fill="var(--crimson)" font-size="9.5">β &lt; 1 here</text>
+  <text class="axl" x="68.00" y="392.00" text-anchor="start" fill="var(--ink-2)">The three conditioned cycles are marked in crimson. Every cycle of every curve stays under the envelope, which is all the</text>
+  <text class="axl" x="68.00" y="410.00" text-anchor="start" fill="var(--ink-2)">certificate claims. The envelope is set by the open-loop endpoint, so it is nearly flat — valid, and far too pessimistic.</text>
+</svg></div>
+    <figcaption><b>Three throttled cycles, then nothing to throttle.</b> Left: the actual
+    conditioning factors — <span class="num">0.294</span>, <span class="num">0.447</span>,
+    <span class="num">0.779</span>, then <code>β = 1</code> from cycle 3 onward, because once the
+    error is small the raw action is legal on its own. Right: the <code>P</code>-norm of the
+    cycle-start error for the conditioned run and for the open loop, against the certified envelope
+    <code>q<sup>k</sup>‖e₀‖<sub>P</sub></code>. Both stay under it. The envelope is nearly flat
+    because <code>q</code> is set by the <code>β = 0</code> endpoint; the conditioned run beats it
+    by seven orders of magnitude within thirty cycles.</figcaption>
+  </figure>
+
+  <p>The first cycle is the interesting one. The raw aggressive action there asked for a dwell of
+  <span class="num">−43.045</span>&nbsp;µs, which would have put two switching instants out of
+  order — a schedule the converter cannot execute at all. Conditioning scaled the whole vector by
+  <span class="num">0.293978</span>, the largest factor that keeps every interval at or above the
+  assumed <span class="num">3</span>&nbsp;µs floor, and the loop kept contracting through it. By
+  cycle 3 the ratio test stops binding and the loop is running the design as drawn.</p>
+
+  <div class="note warn">
+    <span class="tag">What is proved, and what is not — read this before quoting the result</span>
+    <p style="margin-bottom:.5rem"><b>Proved, for the linearized model:</b> exponential stability
+    under every possible conditioning-factor sequence, by Proposition 2.</p>
+    <p style="margin-bottom:.5rem"><b>Proved, for the exact nonlinear plant, locally:</b> because
+    the nominal schedule keeps a strict dwell margin and the raw law asks for nothing at zero
+    error, some neighbourhood of the anchor lies entirely inside the region where the raw action is
+    already legal. Inside it <code>β = 1</code> identically, the conditioner never acts, the
+    Jacobian of the exact closed-loop map is <code>A<sub>cl</sub></code>, and since that matrix is
+    Schur the anchor — and the phase-locked periodic trajectory through it — is locally
+    exponentially stable.</p>
+    <p><b>Not proved:</b> global stability of the nonlinear plant. Outside that neighbourhood,
+    Proposition 2 still covers arbitrary conditioning, but only for the linear model; nobody has
+    bounded the nonlinear remainder over the large-error region. The 100-cycle run above is
+    evidence for this benchmark, not a theorem, and the <span class="num">3</span>&nbsp;µs floor is
+    a simulation assumption rather than a hardware figure.</p>
+  </div>
+</section>
+
+<section>
+  <div class="step-head"><span class="step-num">15</span><h2>Symbols</h2></div>
+
+  <div class="wide tbl-shell">
+    <table>
+      <thead><tr><th>Symbol</th><th>Reads as</th><th>Meaning here</th><th>Value / where</th></tr></thead>
+      <tbody>
+        <tr><td>e<sub>k</sub></td><td>error at cycle k</td><td>cycle-start state minus the anchor</td><td>3 numbers</td></tr>
+        <tr><td>x★</td><td>the anchor</td><td>fixed point of the one-cycle map</td><td>(9.9247, 19.2928, 0.9823)</td></tr>
+        <tr><td>Φ</td><td>phi</td><td>nominal cycle matrix, correction off</td><td>ρ = 0.999850</td></tr>
+        <tr><td>Γ<sub>τ</sub></td><td>gamma-tau</td><td>effect of the switching-instant offsets</td><td>3 × 8</td></tr>
+        <tr><td>K</td><td>the gain</td><td>static feedback, δτ<sup>raw</sup> = −Ke</td><td>8 × 3, LQR</td></tr>
+        <tr><td>A<sub>cl</sub></td><td>A closed loop</td><td>Φ − Γ<sub>τ</sub>K, correction in full</td><td>ρ = 0.568151</td></tr>
+        <tr><td>β<sub>k</sub></td><td>beta</td><td>conditioning factor, fraction of the raw action applied</td><td>[0, 1]</td></tr>
+        <tr><td>A(β)</td><td>the family</td><td>(1−β)Φ + βA<sub>cl</sub></td><td>a segment</td></tr>
+        <tr><td>P</td><td>P</td><td>shape of the Lyapunov ruler, P = P<sup>T</sup> ≻ 0</td><td>3 × 3, from the SDP</td></tr>
+        <tr><td>V(e)</td><td>V of e</td><td>e<sup>T</sup>Pe, the quantity that must fall</td><td>a scalar</td></tr>
+        <tr><td>‖e‖<sub>P</sub></td><td>P-norm of e</td><td>√(e<sup>T</sup>Pe)</td><td>a distance</td></tr>
+        <tr><td>‖A‖<sub>P</sub></td><td>induced P-norm</td><td>worst stretch A applies, in that distance</td><td>0.999939 / 0.979743</td></tr>
+        <tr><td>ρ(A)</td><td>spectral radius</td><td>largest eigenvalue magnitude</td><td>asymptotic rate only</td></tr>
+        <tr><td>≺ , ⪯</td><td>negative definite,<br>semidefinite</td><td>all eigenvalues negative / non-positive</td><td>matrix inequalities</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="step-head"><span class="step-num">16</span><h2>Check yourself</h2></div>
+
+  <p>Answer these without scrolling. If one resists, the section that fixes it is named.</p>
+
+  <ol class="qa">
+    <li>Why is a decreasing <code>V</code> a stronger claim than a decreasing error norm, and how
+    can the error grow while <code>V</code> falls? <span class="cm">(02, 05)</span></li>
+    <li><code>ρ(Φ) = 0.999850 &lt; 1</code>, so the open loop converges. Why is that not enough to
+    certify anything here? <span class="cm">(05, 06)</span></li>
+    <li>Two matrices are Schur. Give a concrete reason their alternating product may still
+    diverge. <span class="cm">(06)</span></li>
+    <li>Why does a periodic trajectory get replaced by a fixed point, and what is lost in the
+    trade? <span class="cm">(07)</span></li>
+    <li>What would break in the SDP if the constraint <code>trace(P) = 1</code> were
+    dropped? <span class="cm">(09)</span></li>
+    <li>Derive <code>A(β) = (1−β)Φ + βA<sub>cl</sub></code> from the loop equations, in five
+    lines. <span class="cm">(11)</span></li>
+    <li>Why would clipping each offset separately need 256 Lyapunov inequalities instead of
+    2? <span class="cm">(12)</span></li>
+    <li>Reproduce the proof of Proposition 2. Which step uses the triangle inequality, and which
+    uses submultiplicativity? <span class="cm">(13)</span></li>
+    <li>Why is the certified bound <code>0.999939</code> when the aggressive closed loop has
+    spectral radius <code>0.568</code>? Is the bound wrong? <span class="cm">(10, 13)</span></li>
+    <li>State precisely the difference between what is proved for the linearized model and what is
+    proved for the exact plant. <span class="cm">(14)</span></li>
+  </ol>
+</section>
+
+<footer>
+  <p>Companion to <b>article.tex</b> — section 3, equations (23)–(24), Proposition 2 — and to
+  <a href="computing-beta.html">computing-beta.html</a>, which covers how <code>β</code> itself is
+  computed, and <a href="dwell-time-conditioning.html">dwell-time-conditioning.html</a>, which
+  covers why the conditioner is built the way it is.</p>
+  <p style="margin-top:.6rem">Every number and matrix shown is generated data:
+  <code>scripts/generate_results.m</code> (the SDP and the simulation),
+  <code>results/paper_results.mat</code> (Φ, A<sub>cl</sub>, P),
+  <code>results/conditioned_control_response.csv</code> (the 100-cycle run),
+  <code>results/metrics.tex</code> (the figures quoted in the paper). Two-dimensional trajectory
+  illustrations in sections 02 and 05 use a made-up matrix, and are labelled as such.</p>
+</footer>
+
+</div>
+
+</body>
+</html>
