@@ -104,6 +104,14 @@ _Avoid_: One-cycle state, plant model
 The first-order approximation of the one-cycle map around the cycle anchor and nominal switching schedule, relating one cycle-start error to the next through switching-instant offsets.
 _Avoid_: One-cycle state, plant model, prediction model
 
+**Nominal Cycle Matrix**:
+The linear state-transition matrix of the nominal one-cycle map when the nominal switching schedule is applied without timing feedback.
+_Avoid_: One-cycle map, reference periodic trajectory, open-loop trajectory
+
+**Raw Closed-Loop Matrix**:
+The linear one-cycle matrix obtained when the complete Raw Switching-Instant Offset is applied without Dwell-Time Conditioning.
+_Avoid_: Conditioned matrix, nominal cycle matrix, feedback gain
+
 **Proportional Switching-Time Controller**:
 A static state-feedback law that maps the cycle-start error linearly to Raw Switching-Instant Offsets.
 _Avoid_: P controller, PID, proportional gain
@@ -115,6 +123,10 @@ _Avoid_: Saturation, clipping, dwell-time control
 **Conditioning Factor**:
 The largest scalar in `[0, 1]` that can multiply the complete Raw Switching-Instant Offset vector while satisfying every Minimum Dwell Duration. A value of one means conditioning is inactive.
 _Avoid_: Saturation ratio, clipping factor, gain schedule
+
+**Conditioned Linearized Matrix Family**:
+The family of one-cycle linearized matrices produced by all Conditioning Factors in `[0, 1]`, ranging from the Nominal Cycle Matrix to the Raw Closed-Loop Matrix.
+_Avoid_: Conditioned nonlinear model, arbitrary gain schedule, global stability family
 
 **Raw-Action Admissible Region**:
 The set of cycle-start errors for which the Raw Switching-Instant Offset already satisfies every Minimum Dwell Duration, so the Conditioning Factor equals one.

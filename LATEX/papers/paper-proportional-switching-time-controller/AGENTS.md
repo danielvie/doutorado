@@ -20,3 +20,5 @@ All paths below are relative to this root folder.
 
 - The linearization procedure is located at:
   `research-material/working-notes/linearization/linearization_v2_augmented.tex`
+
+For project orientation and navigation, read `project-knowledge/README.md` before inspecting project files.
