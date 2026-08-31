@@ -1,0 +1,401 @@
+<section id="paper" class="stack">
+  <p class="crumb">5 &#183; Stability proof of the switching-time controller</p>
+  <h2>Certifying a closed loop whose gain is rescaled at runtime</h2>
+
+  <p>Everything so far has been preparation for one specific difficulty. The paper&#8217;s controller
+  computes a correction, then discovers the correction is physically inadmissible, then shrinks it by
+  a factor decided at runtime from the state. The loop gain is therefore not a constant. It is not
+  even a known sequence. It is a state-dependent scalar that changes every cycle.</p>
+
+  <p>The usual reflexes both fail here. You cannot check eigenvalues, because there is no fixed matrix
+  to take eigenvalues of. You cannot simulate your way to a guarantee, because the sequence of gains
+  is uncountable. What is left is a Lyapunov certificate, and it works
+  for the reason given in &#167;2.6, applied to a family of exactly two vertices.</p>
+
+  <h3>5.1&#160; The object being stabilized: the cycle-start error</h3>
+
+  <p>The plant is a switched-affine converter that runs a fixed sequence of nine mode intervals,
+  every cycle, forever:</p>
+  <div class="eq center">&#7819;(t) = A<sub>&#963;</sub>x(t) + b<sub>&#963;</sub>,&#160;&#160;&#160;
+    &#963; drawn from a prescribed nine-interval sequence of period T.</div>
+
+  <p>Under the nominal schedule the state traces a periodic trajectory. Sample it once per cycle, at
+  the cycle boundary, and that periodic trajectory collapses to a single point, the
+  <em>cycle anchor</em> <em>x</em>&#8407;, which is a fixed point of the one-cycle map. Stabilising the limit
+  cycle means driving the cycle-start error <em>e</em><sub>k</sub> = <em>x</em><sub>k</sub> &#8722;
+  <em>x</em>&#8407; to zero.</p>
+
+  <figure class="fig wide">
+    <svg class="art" viewBox="0 0 760 264" role="img"
+         aria-label="A switching limit cycle in state space sampled once per cycle, and the schedule of nine mode intervals below it">
+      <text class="lbl b" x="16" y="18">The limit cycle in state space, and the schedule that generates it</text>
+      <g transform="translate(20,30)">
+        <path class="sgraph" d="M118 44 L164 62 L150 100 L182 122 L154 152 L108 140 L74 152 L58 118 L86 84 Z"/>
+        <text class="lbl sm" x="150" y="38">target limit cycle</text>
+        <circle class="teal" cx="118" cy="44" r="5"/>
+        <text class="lbl sm teal" x="126" y="36">x&#8407; anchor</text>
+        <path class="sblue dash" d="M250 176 C 214 168, 190 120, 162 74"/>
+        <circle class="blue" cx="250" cy="176" r="5"/>
+        <text class="lbl sm blue" x="222" y="196">x&#8320;</text>
+        <g class="blue" opacity=".55">
+          <circle cx="212" cy="150" r="3.6"/><circle cx="182" cy="112" r="3.6"/>
+          <circle cx="160" cy="80" r="3.6"/><circle cx="140" cy="58" r="3.6"/>
+        </g>
+        <text class="lbl sm" x="176" y="216">one dot per cycle boundary; the error e&#8342; is the gap to x&#8407;</text>
+      </g>
+      <g transform="translate(390,44)">
+        <text class="lbl b" x="0" y="-6">the nine mode intervals</text>
+        <g id="sched-static"></g>
+        <line class="gr" x1="0" y1="96" x2="340" y2="96"/>
+        <text class="lbl sm" x="0" y="112">0</text>
+        <text class="lbl sm" x="340" y="112" text-anchor="end">T = 286 &#181;s</text>
+        <text class="lbl sm" x="0" y="146">Eight interior boundaries can move. The first and the</text>
+        <text class="lbl sm" x="0" y="160">last are pinned, so the period never changes.</text>
+        <text class="lbl sm" x="0" y="182">A shift trades time between two adjacent modes; that</text>
+        <text class="lbl sm" x="0" y="196">trade is the only control input the loop has.</text>
+      </g>
+    </svg>
+    <figcaption><b>The plant, the schedule, and the once-per-cycle sample.</b> The controller never touches a voltage or a current.
+    It moves eight switching instants inside a cycle of fixed period, and the effect of that on the
+    next cycle&#8217;s starting state is what has to be shown to contract.</figcaption>
+  </figure>
+
+  <h3>5.2&#160; The linearized one-cycle model</h3>
+
+  <p>Propagating each interval with an exact augmented matrix exponential and expanding to first
+  order in the interval durations gives a plain linear map from one cycle boundary to the next:</p>
+  <div class="eq center">e<sub>k+1</sub> = &#934;e<sub>k</sub> + &#915;<sub>&#964;</sub>&#948;&#964;<sub>k</sub>
+    + higher-order terms,</div>
+  <p>where &#948;&#964;<sub>k</sub> &#8712; &#8477;&#8312; holds the eight switching-instant offsets.
+  In the normalised coordinates the paper designs in,</p>
+  <div class="eq">&#934; = [ &#160;{{paper.Phi.0.0|.6f}}&#160;{{paper.Phi.0.1|.6f}}&#160;&#160;{{paper.Phi.0.2|.6f}} ;
+    <br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;{{paper.Phi.1.0|.6f}}&#160;&#160;{{paper.Phi.1.1|.6f}}&#160;&#160;{{paper.Phi.1.2|.6f}} ;
+    <br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;{{paper.Phi.2.0|.6f}}&#160;{{paper.Phi.2.1|.6f}}&#160;&#160;{{paper.Phi.2.2|.6f}} ]</div>
+
+  <p>with &#961;(&#934;) = {{paper.rho.0|.6f}}. The open-loop cycle map is stable, but barely: an
+  error decays by 0.015&#160;% per cycle, and takes {{metrics.OpenLoopConvergenceCycle}} cycles to fall below the
+  paper&#8217;s settling threshold. That number matters later, because it is what sets the
+  certificate&#8217;s contraction bound.</p>
+
+  <h3>5.3&#160; The dwell constraint and the conditioning factor &#946;</h3>
+
+  <p>A static law <em>&#948;&#964;</em><sup>raw</sup><sub>k</sub> = &#8722;<em>Ke</em><sub>k</sub>,
+  here an LQR gain, knows nothing about time. The physical constraint is on the nine
+  <em>dwell durations</em>, and moving one boundary changes the two dwells on either side of it:</p>
+  <div class="eq center">&#948;d = D&#948;&#964;,&#160;&#160;&#160;&#948;d<sub>i</sub> =
+    &#948;&#964;<sub>i</sub> &#8722; &#948;&#964;<sub>i&#8722;1</sub>,&#160;&#160;&#160;
+    d&#772; + D&#948;&#964; &#8805; d<sub>min</sub><b>1</b>.</div>
+  <p>Because the columns of D sum to zero, any offset vector preserves the period exactly. What it
+  does not preserve is admissibility. From the paper&#8217;s large-error initial state, the aggressive
+  gain requests offsets up to {{metrics.MaximumRawOffset}}&#160;&#181;s and a dwell of
+  <span class="fail">{{metrics.MinimumRawDwell}}&#160;&#181;s</span>. It is negative, so two boundaries have
+  swapped places and one mode interval has been turned inside out. That schedule cannot be executed.</p>
+
+  <p>Clipping the offending components one at a time would fix the dwells and change the
+  <em>direction</em> of the correction, which is the thing the gain was designed to get right. The
+  paper does the opposite: it keeps the direction and gives up magnitude, scaling the entire vector by
+  the largest single factor that restores admissibility,</p>
+  <div class="eq center">&#946;<sub>k</sub> = min{ 1, &#160;min<sub class="cm">i : q<sub>i</sub> &lt; 0</sub>
+    m<sub>i</sub> / (&#8722;q<sub>i</sub>) },&#160;&#160;&#160;
+    q<sub>k</sub> = D&#948;&#964;<sup>raw</sup><sub>k</sub>,&#160;&#160;
+    m = d&#772; &#8722; d<sub>min</sub><b>1</b>,</div>
+  <p>and applies <em>&#948;&#964;</em><sup>app</sup><sub>k</sub> = &#946;<sub>k</sub>
+  <em>&#948;&#964;</em><sup>raw</sup><sub>k</sub>. One pass over nine numbers; no solver.</p>
+
+  <div class="lab wide" id="lab-dwell">
+    <div class="lab-head">
+      <div><p class="eyebrow">Laboratory 3</p><h3>Dwell-time conditioning at cycle 0</h3></div>
+      <div class="controls">
+        <label>&#946; <input type="range" id="d-beta" min="0" max="1" step="0.001" value="1"></label>
+        <span class="mono num" id="d-beta-val">1.000</span>
+        <button id="d-snap" type="button">snap to &#946;*</button>
+        <button id="d-anim" type="button">animate</button>
+      </div>
+    </div>
+    <div class="lab-body">
+      <p style="font-size:.88rem;color:var(--ink-2)">These are the eight raw offsets the aggressive
+      LQR actually requested at cycle 0. Sweep &#946; from 1 down and watch the boundary inversion
+      close. The conditioner returns the largest &#946; for which every bar clears the
+      {{schedule.applied_dwell_bound_us|g}}&#160;&#181;s line. Not a safe margin below it, the
+      largest, which is why the shortest applied dwell lands exactly on the bound.</p>
+      <canvas id="d-canvas" width="1520" height="560" style="aspect-ratio:1520/560"></canvas>
+      <div class="legend">
+        <span><i class="swatch" style="background:var(--graphite)"></i>nominal schedule</span>
+        <span><i class="swatch" style="background:var(--crimson)"></i>raw request (&#946; = 1)</span>
+        <span><i class="swatch" style="background:var(--blue)"></i>applied (&#946; as set)</span>
+      </div>
+      <div class="readout">
+        <div class="rd"><span class="k">shortest dwell</span><span class="v" id="d-min">&#8212;</span></div>
+        <div class="rd"><span class="k">largest offset</span><span class="v" id="d-max">&#8212;</span></div>
+        <div class="rd"><span class="k">period drift</span><span class="v" id="d-period">0.000 &#181;s</span></div>
+        <div class="rd"><span class="k">binding dwell</span><span class="v" id="d-bind">&#8212;</span></div>
+      </div>
+      <p class="verdict" id="d-verdict">&#8212;</p>
+    </div>
+  </div>
+
+  <p>Two properties of that lab are the content of the paper&#8217;s first proposition. The period
+  readout never moves, because <b>1</b>&#8348;D = 0. And the applied vector is always a nonnegative
+  multiple of the raw one, so the correction points where the gain wanted it to point. It is
+  only shorter.</p>
+
+  <h3>5.4&#160; The conditioned closed loop is a line segment</h3>
+
+  <p>Substitute the applied action into the linearized model:</p>
+  <div class="eq center">e<sub>k+1</sub> = &#934;e<sub>k</sub> &#8722;
+    &#915;<sub>&#964;</sub>&#946;<sub>k</sub>Ke<sub>k</sub>
+    = [(1 &#8722; &#946;<sub>k</sub>)&#934; + &#946;<sub>k</sub>A<sub>cl</sub>]e<sub>k</sub>,
+    &#160;&#160;&#160;A<sub>cl</sub> = &#934; &#8722; &#915;<sub>&#964;</sub>K.</div>
+
+  <p>The scalar came out. Whatever the conditioner decides, the closed-loop matrix for that cycle is
+  a point on the <em>line segment</em> joining two fixed matrices: &#934; at &#946; = 0, where the
+  correction is switched off entirely, and <em>A</em><sub>cl</sub> at &#946; = 1, where it is applied
+  in full. A continuum of possible gains, but a one-dimensional continuum with two endpoints,
+  and &#167;2.6 says two endpoints is all a common <em>P</em> needs.</p>
+
+  <p>That is a consequence of scaling by <em>one</em> number. Had the conditioner clipped components
+  independently, the applied action would be <em>&#923;&#948;&#964;</em><sup>raw</sup> with
+  <em>&#923;</em> diagonal, and the reachable set of closed-loop matrices would be a polytope with
+  2&#8312; = {{polytope.vertex_count|d}} vertices instead of a segment with two. &#167;5.7 shows what
+  that would have cost.</p>
+
+  <figure class="fig wide">
+    <svg class="art" viewBox="0 0 760 250" role="img"
+         aria-label="A two-point segment compared with a 256-vertex polytope in the space of closed-loop matrices">
+      <text class="lbl b" x="16" y="18">Closed-loop matrices reachable under two ways of shrinking the correction</text>
+      <g transform="translate(40,44)">
+        <text class="lbl b" x="0" y="0">uniform scaling: one scalar</text>
+        <rect class="fr" x="0" y="12" width="290" height="168" rx="6"/>
+        <line class="sblue" x1="52" y1="132" x2="238" y2="60"/>
+        <circle class="blue" cx="52" cy="132" r="6"/>
+        <circle class="blue" cx="238" cy="60" r="6"/>
+        <circle class="teal" cx="145" cy="96" r="4.5"/>
+        <text class="lbl sm" x="26" y="152">&#934;</text>
+        <text class="lbl sm" x="244" y="54">A<sub>cl</sub></text>
+        <text class="lbl sm teal" x="120" y="118">A(&#946;)</text>
+        <text class="lbl sm b" x="0" y="200">2 vertices, two LMIs cover the whole set</text>
+      </g>
+      <g transform="translate(420,44)">
+        <text class="lbl b" x="0" y="0">per-component clipping: eight scalars</text>
+        <rect class="fr" x="0" y="12" width="290" height="168" rx="6"/>
+        <path class="fill-crim" d="M52 132 L96 44 L196 34 L246 74 L232 140 L142 162 Z" opacity=".5"/>
+        <g class="crimson">
+          <circle cx="52" cy="132" r="4"/><circle cx="96" cy="44" r="4"/><circle cx="196" cy="34" r="4"/>
+          <circle cx="246" cy="74" r="4"/><circle cx="232" cy="140" r="4"/><circle cx="142" cy="162" r="4"/>
+          <circle cx="120" cy="92" r="3"/><circle cx="170" cy="70" r="3"/><circle cx="196" cy="112" r="3"/>
+          <circle cx="150" cy="126" r="3"/><circle cx="90" cy="110" r="3"/><circle cx="214" cy="52" r="3"/>
+        </g>
+        <text class="lbl sm b" x="0" y="200">{{polytope.vertex_count|d}} vertices, {{polytope.unstable_vertices|d}} of them not even Schur</text>
+      </g>
+    </svg>
+    <figcaption><b>Reachable closed-loop matrices under the two schemes.</b> Both schemes produce an
+    admissible schedule. Only the left one produces a set of closed-loop matrices small enough to
+    certify. As it turns out, only the left one produces a set in which every member is
+    stable at all.</figcaption>
+  </figure>
+
+  <h3>5.5&#160; Proposition 2: contraction of the whole family</h3>
+
+  <div class="note key stack-tight">
+    <h4>Proposition 2 (common-Lyapunov contraction)</h4>
+    <p>Let <em>P</em> = <em>P</em>&#8348; &#8827; 0 and suppose
+    &#8214;&#934;&#8214;<sub>P</sub> &#8804; q<sub>0</sub> &lt; 1 and
+    &#8214;<em>A</em><sub>cl</sub>&#8214;<sub>P</sub> &#8804; q<sub>1</sub> &lt; 1. Then every
+    <em>A</em>(&#946;) with &#946; &#8712; [0,1] contracts in the same norm by at most
+    q = max(q<sub>0</sub>, q<sub>1</sub>) &lt; 1, so the conditioned linearized model is exponentially
+    stable for <em>every</em> sequence {&#946;<sub>k</sub>} &#8834; [0,1], including the
+    state-dependent sequences the conditioner actually generates.</p>
+    <p><em>Proof.</em> By the triangle inequality for the induced norm,
+    &#8214;<em>A</em>(&#946;)&#8214;<sub>P</sub> &#8804; (1&#8722;&#946;)q<sub>0</sub> + &#946;q<sub>1</sub>
+    &#8804; q &lt; 1. Hence &#8214;<em>e</em><sub>k</sub>&#8214;<sub>P</sub> &#8804;
+    q<sup>k</sup>&#8214;<em>e</em><sub>0</sub>&#8214;<sub>P</sub> for any sequence. &#8718;</p>
+  </div>
+
+  <p>Notice what the proof does not need. It never assumes &#946; is constant, slowly varying,
+  known ahead of time, or independent of the state. It never needs &#934; and
+  <em>A</em><sub>cl</sub> to commute. It does not need a dwell-time condition on how long the loop
+  stays at any particular &#946;. All of that is bought by the bound being a statement about
+  <em>one step</em> in a norm that does not depend on which matrix was applied.</p>
+
+  <p>And notice what it does need: a common <em>P</em> for <em>both</em> endpoints. In particular
+  &#8214;&#934;&#8214;<sub>P</sub> &lt; 1, which is a real hypothesis. The uncontrolled cycle map has
+  to be contracting in the same norm. If the open loop were unstable there would be no such
+  <em>P</em>, the conditioner would still run and would still return an admissible schedule, and only
+  the guarantee would be lost. The paper states this restriction rather than burying it.</p>
+
+  <h3>5.6&#160; The semidefinite program and the certificate it returns</h3>
+
+  <p>Same program as &#167;4.1, two constraints, three-by-three:</p>
+  <pre><span class="c">% scripts/generate_results.m, function common_lyapunov_certificate</span>
+constraints = [P_variable &gt;= 1e-8*<span class="k">eye</span>(3), <span class="k">trace</span>(P_variable) == 1, decrease &gt;= 0, ...
+    Phi'*P_variable*Phi - P_variable &lt;= -decrease*<span class="k">eye</span>(3), ...
+    Acl'*P_variable*Acl - P_variable &lt;= -decrease*<span class="k">eye</span>(3)];
+<span class="k">optimize</span>(constraints, -decrease, <span class="k">sdpsettings</span>(<span class="s">'solver'</span>, <span class="s">'sedumi'</span>, <span class="s">'sedumi.eps'</span>, 1e-9));</pre>
+
+  <div class="eq">P = [ &#160;&#160;{{paper.P.0.0|.6f}}&#160;{{paper.P.0.1|.6f}}&#160;&#160;{{paper.P.0.2|.6f}} ;
+    <br>&#160;&#160;&#160;&#160;&#160;&#160;{{paper.P.1.0|.6f}}&#160;&#160;{{paper.P.1.1|.6f}}&#160;&#160;{{paper.P.1.2|.6f}} ;
+    <br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;{{paper.P.2.0|.6f}}&#160;&#160;{{paper.P.2.1|.6f}}&#160;&#160;{{paper.P.2.2|.6f}} ]</div>
+
+  <table>
+    <thead><tr><th>Quantity</th><th class="n">Value</th><th>Reading</th></tr></thead>
+    <tbody>
+      <tr><td>&#8214;&#934;&#8214;<sub>P</sub> = q<sub>0</sub></td><td class="n">{{paper.q0|.6f}}</td><td>open loop, correction off</td></tr>
+      <tr><td>&#8214;A<sub>cl</sub>&#8214;<sub>P</sub> = q<sub>1</sub></td><td class="n">{{paper.q1|.6f}}</td><td>correction in full</td></tr>
+      <tr><td>certified bound q</td><td class="n">{{paper.q0|.6f}}</td><td class="pass">covers every &#946; sequence</td></tr>
+      <tr><td>&#961;(&#934;); &#961;(A<sub>cl</sub>)</td><td class="n">{{paper.rho.0|.6f}}; {{paper.rho.1|.6f}}</td><td>asymptotic rates at fixed &#946;</td></tr>
+      <tr><td>decrease margin</td><td class="n">{{paper.decrease|.2e}}</td><td>strict, and above the noise floor</td></tr>
+      <tr><td>cond(P)</td><td class="n">{{paper.condP|.1f}}</td><td>a strongly tilted ruler</td></tr>
+    </tbody>
+  </table>
+
+  <p>The bound is set by the open-loop endpoint, not the closed-loop one, and it is
+  {{paper.q0|.6f}}, a contraction but only just. This is worth being blunt about, because it
+  is easy to over-read a Lyapunov result. The certificate covers the worst conceivable conditioning
+  sequence, and the worst conceivable sequence is &#946;<sub>k</sub> &#8801; 0: a controller that
+  never corrects anything. Nothing can be promised beyond what the open loop does on its own,
+  because the open loop is a member of the family. The bound is a guarantee of stability, not a
+  prediction of performance.</p>
+
+  <p>The observed behaviour is a different question with a much better answer. Once
+  &#946;<sub>k</sub> returns to 1, after {{metrics.ConditionedCycleCount}} cycles, the loop contracts at
+  &#961;(<em>A</em><sub>cl</sub>) = {{paper.rho.1|.6f}} per cycle, and the run settles at cycle
+  {{metrics.ConditionedSettlingCycle}} against cycle {{metrics.ConservativeSettlingCycle}} for the conservative law that never needed
+  conditioning at all.</p>
+
+  <div class="lab wide" id="lab-family">
+    <div class="lab-head">
+      <div><p class="eyebrow">Laboratory 4</p><h3>Contraction along the family A(&#946;), under any &#946; sequence</h3></div>
+      <div class="controls">
+        <label>&#946; <input type="range" id="f-beta" min="0" max="1" step="0.001" value="1"></label>
+        <span class="mono num" id="f-beta-val">1.000</span>
+        <label>sequence
+          <select id="f-policy">
+            <option value="real">the run&#8217;s actual &#946;&#8342;</option>
+            <option value="one">&#946; &#8801; 1</option>
+            <option value="zero">&#946; &#8801; 0 (worst case)</option>
+            <option value="rand">random in [0,1]</option>
+            <option value="advers">adversarial</option>
+            <option value="slider">held at the slider</option>
+          </select>
+        </label>
+        <button id="f-play" type="button">play</button>
+        <button id="f-reset" type="button">reset</button>
+      </div>
+    </div>
+    <div class="lab-body">
+      <p style="font-size:.88rem;color:var(--ink-2)">Left: the two curves along the segment. The blue
+      one is the certificate, bounded by its endpoints, which is the whole proposition. The red
+      one is the spectral radius, which dips far lower in the middle and is <em>not</em> a valid
+      certificate when &#946; changes from cycle to cycle. Right: the linearized error under whichever
+      sequence you pick, against the certified envelope.</p>
+      <canvas id="f-canvas" width="1520" height="580" style="aspect-ratio:1520/580"></canvas>
+      <div class="legend">
+        <span><i class="swatch" style="background:var(--blue)"></i>&#8214;A(&#946;)&#8214;<sub>P</sub></span>
+        <span><i class="swatch" style="background:var(--crimson)"></i>&#961;(A(&#946;))</span>
+        <span><i class="swatch" style="background:var(--graphite)"></i>certified envelope q&#7503;</span>
+      </div>
+      <div class="readout">
+        <div class="rd"><span class="k">&#8214;A(&#946;)&#8214;<sub>P</sub></span><span class="v" id="f-pn">&#8212;</span></div>
+        <div class="rd"><span class="k">&#961;(A(&#946;))</span><span class="v" id="f-rho">&#8212;</span></div>
+        <div class="rd"><span class="k">cycle</span><span class="v" id="f-k">0</span></div>
+        <div class="rd"><span class="k">&#8214;z&#8342;&#8214;<sub>P</sub> / &#8214;z&#8320;&#8214;<sub>P</sub></span><span class="v" id="f-err">1.000</span></div>
+      </div>
+      <p class="verdict" id="f-verdict">&#8212;</p>
+    </div>
+  </div>
+
+  <p>Set the sequence to <em>adversarial</em> and let it run. The policy picks, every cycle, whichever
+  &#946; in [0,1] leaves the error largest. It is a conditioning signal chosen to hurt.
+  The <em>P</em>-norm still never increases. That is not a property of this particular trajectory; it
+  is what the two LMIs bought.</p>
+
+  <h3 id="clipping">5.7&#160; Comparison with per-component clipping</h3>
+
+  <p>The claim in &#167;5.4, that uniform scaling is what makes the family certifiable,
+  is checkable, so here it is checked. Replace the scalar &#946; by a diagonal
+  <em>&#923;</em> &#8712; [0,1]&#8312;, one factor per offset. The closed loop becomes
+  &#934; &#8722; &#915;<sub>&#964;</sub><em>&#923;K</em>, and by multilinearity in the diagonal
+  entries the reachable set is the polytope spanned by the {{polytope.vertex_count|d}} vertices with
+  every &#955;<sub>i</sub> &#8712; {0, 1}. Enumerating them all
+  (<code>studies/lyapunov/paper_certificate.m</code>, section 4):</p>
+
+  <table>
+    <thead><tr><th>Reachable set</th><th class="n">Vertices</th><th class="n">Worst &#961;</th><th>Common P?</th></tr></thead>
+    <tbody>
+      <tr><td>uniform scaling, the segment A(&#946;)</td><td class="n">2</td><td class="n">{{paper.rho.0|.6f}}</td><td class="pass">yes, q = {{paper.q0|.6f}}</td></tr>
+      <tr><td>per-component clipping, the polytope</td><td class="n">{{polytope.vertex_count|d}}</td><td class="n">{{polytope.max_radius|.6f}}</td><td class="fail">no, infeasible</td></tr>
+    </tbody>
+  </table>
+
+  <p>{{polytope.unstable_vertices|d}} of the {{polytope.vertex_count|d}} vertices have spectral radius
+  at or above 1. The largest is {{polytope.max_radius|.6f}}. So the failure is not that the
+  certificate got harder to find. Per-component clipping can reach closed-loop matrices that are
+  not stable at all, and the SDP correctly reports that no quadratic <em>V</em>
+  covers them. Two designs that both enforce the same dwell constraint, and only one of them admits
+  a proof.</p>
+
+  <div class="lab wide" id="lab-polytope">
+    <div class="lab-head">
+      <div><p class="eyebrow">Laboratory 5</p><h3>Reachable spectral radii: segment against clipping polytope</h3></div>
+      <div class="controls">
+        <button id="p-sample" type="button">draw 200 random &#923;</button>
+        <button id="p-clear" type="button">clear</button>
+      </div>
+    </div>
+    <div class="lab-body">
+      <p style="font-size:.88rem;color:var(--ink-2)">Every point is one reachable closed-loop matrix,
+      placed by its spectral radius. The blue band is everything uniform scaling can reach. The red
+      marks are the {{polytope.vertex_count|d}} clipping vertices, sorted; press the button to
+      scatter random interior <em>&#923;</em> as well.</p>
+      <canvas id="p-canvas" width="1520" height="420" style="aspect-ratio:1520/420"></canvas>
+      <div class="readout">
+        <div class="rd"><span class="k">segment &#961; range</span><span class="v" id="p-seg">&#8212;</span></div>
+        <div class="rd bad"><span class="k">vertices with &#961; &#8805; 1</span><span class="v" id="p-bad">{{polytope.unstable_vertices|d}}</span></div>
+        <div class="rd"><span class="k">sampled &#923; drawn</span><span class="v" id="p-n">0</span></div>
+        <div class="rd"><span class="k">worst sampled &#961;</span><span class="v" id="p-worst">&#8212;</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h3>5.8&#160; The local nonlinear statement, and its limits</h3>
+
+  <p>Everything above is a statement about <em>A</em>(&#946;), which is a linearization. The paper is
+  explicit that the exact nonlinear guarantee is weaker, and local. The argument runs:
+  <em>&#948;&#964;</em><sup>raw</sup>(<b>0</b>) = <b>0</b>, and the nominal schedule keeps a strict
+  dwell margin, so by continuity there is a neighbourhood of the anchor in which the raw action is
+  already admissible and the conditioner never fires. Inside it &#946; &#8801; 1, the Jacobian of the
+  exact closed-loop map is <em>A</em><sub>cl</sub>, and <em>A</em><sub>cl</sub> is Schur. So the
+  anchor, and the phase-locked periodic trajectory through it, are locally exponentially stable for
+  the exact map.</p>
+
+  <p>Outside that neighbourhood Proposition 2 still covers arbitrary conditioning, but only for the
+  linearized model. It does not bound the nonlinear remainder, and it is not a global result. The
+  hundred-cycle converter run from a large initial error is evidence, not proof, and the paper labels
+  it that way.</p>
+
+  <p>The run is still worth seeing against the envelope, because the gap between them is the point.</p>
+
+  <div class="lab wide" id="lab-run">
+    <div class="lab-head">
+      <div><p class="eyebrow">Laboratory 6</p><h3>Certified envelope against the exact nonlinear simulation</h3></div>
+      <div class="controls">
+        <button id="x-play" type="button">replay</button>
+        <label><input type="checkbox" id="x-open" checked> show open loop</label>
+      </div>
+    </div>
+    <div class="lab-body">
+      <canvas id="x-canvas" width="1520" height="620" style="aspect-ratio:1520/620"></canvas>
+      <div class="legend">
+        <span><i class="swatch" style="background:var(--blue)"></i>conditioned, exact nonlinear plant</span>
+        <span><i class="swatch" style="background:var(--teal)"></i>rate at &#946; &#8801; 1</span>
+        <span><i class="swatch" style="background:var(--graphite)"></i>certified worst case q&#7503;</span>
+        <span><i class="swatch" style="background:var(--amber)"></i>open loop</span>
+      </div>
+    </div>
+  </div>
+
+  <p>The certified envelope is almost flat. The plant falls four orders of magnitude in twenty
+  cycles. Both are correct: one is a promise that holds against every conditioning sequence the
+  constraint can produce, the other is what one particular sequence did. Reporting only the first
+  understates the controller; reporting only the second is not a guarantee at all.</p>
+</section>

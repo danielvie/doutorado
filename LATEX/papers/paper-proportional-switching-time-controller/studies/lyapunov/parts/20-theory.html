@@ -1,0 +1,145 @@
+<section id="theory" class="stack">
+  <p class="crumb">2 &#183; Lyapunov theory for discrete-time systems</p>
+  <h2>From the direct method to a linear matrix inequality</h2>
+
+  <h3>2.1&#160; The direct method in discrete time</h3>
+  <p>Everything in this study is discrete time, because the object the paper stabilizes is a
+  cycle-to-cycle map. Take</p>
+  <div class="eq center">x<sub>k+1</sub> = f(x<sub>k</sub>),&#160;&#160;&#160;f(0) = 0.</div>
+  <p>Suppose a continuous function <em>V</em> satisfies <em>V</em>(0) = 0, <em>V</em>(<em>x</em>) &gt; 0
+  for <em>x</em> &#8800; 0, and</p>
+  <div class="eq center">V(f(x)) &#8722; V(x) &lt; 0&#160;&#160;for all x &#8800; 0.</div>
+  <p>Then the origin is asymptotically stable. If in addition <em>V</em>(<em>f</em>(<em>x</em>)) &#8804;
+  q&#178;<em>V</em>(<em>x</em>) for some q &lt; 1, convergence is exponential at rate q. Nothing in
+  the statement mentions trajectories: you check an inequality pointwise, and the trajectories follow.</p>
+
+  <h3>2.2&#160; Quadratic Lyapunov functions, and the role of P</h3>
+  <p>Choose <em>V</em>(<em>x</em>) = <em>x</em>&#8348;<em>Px</em> with <em>P</em> symmetric and positive
+  definite. Positive definiteness is exactly the &#8220;positive except at the origin&#8221; requirement,
+  and the level sets {<em>x</em> : <em>x</em>&#8348;<em>Px</em> = c} are ellipsoids. So <em>P</em> fixes
+  what counts as distance: it decides which directions in the state space are treated as far
+  from the origin. This study calls it the <em>ruler</em> for short.
+  <em>P</em> = <em>I</em> is the Euclidean ruler, the one that treats every direction alike.
+  It is one candidate among infinitely many, and there is no reason for a given system to respect it.</p>
+
+  <p>For a linear map <em>x</em><sub>k+1</sub> = <em>Ax</em><sub>k</sub> the decrease condition becomes</p>
+  <div class="eq center">V(Ax) &#8722; V(x) = x&#8348;(A&#8348;PA &#8722; P)x &lt; 0
+    &#160;for all x &#8800; 0,&#160;&#160;i.e.&#160;&#160;A&#8348;PA &#8722; P &#8826; 0,</div>
+  <p>where &#8826; 0 means &#8220;negative definite&#8221;. Two matrix inequalities, then:
+  <em>P</em> &#8827; 0 and <em>A</em>&#8348;<em>PA</em> &#8722; <em>P</em> &#8826; 0.</p>
+
+  <h3>2.3&#160; Why the two conditions form a convex feasibility problem</h3>
+  <p>Look at what the unknown does. In <em>A</em>&#8348;<em>PA</em> &#8722; <em>P</em>, the matrix
+  <em>P</em> appears linearly. There are no products of unknowns and no inverses. A constraint of the form
+  &#8220;this symmetric matrix, which depends affinely on the decision variables, is negative
+  definite&#8221; is a <strong>linear matrix inequality</strong>, and the set of decision variables
+  satisfying it is convex. Intersecting several of them, one per mode, keeps it convex.</p>
+
+  <p>That is the entire reason this works. A convex feasible set has no local minima to get stuck in
+  and no isolated islands to miss. An interior-point solver either walks into it or returns a
+  certificate that it is empty, and &#8220;empty&#8221; is a real answer: it means no quadratic
+  Lyapunov function exists for that family, not that you failed to find one.</p>
+
+  <figure class="fig wide">
+    <svg class="art" viewBox="0 0 760 250" role="img"
+         aria-label="Guessing a P versus solving for one: darts scattered around a convex feasible region">
+      <text class="lbl b" x="16" y="18">Two ways to obtain a P that certifies the system</text>
+      <g transform="translate(30,42)">
+        <text class="lbl b" x="0" y="0">Guess and check</text>
+        <rect class="fr" x="0" y="14" width="300" height="176" rx="6"/>
+        <path class="fill-teal" d="M132 96 m-58,10 a58,44 -22 1,0 116,-20 a58,44 -22 1,0 -116,20"
+              opacity=".85"/>
+        <text class="lbl sm teal" x="104" y="102">works</text>
+        <g class="crimson">
+          <circle cx="38" cy="52" r="4"/><circle cx="252" cy="44" r="4"/>
+          <circle cx="62" cy="160" r="4"/><circle cx="238" cy="152" r="4"/>
+          <circle cx="46" cy="108" r="4"/><circle cx="270" cy="104" r="4"/>
+        </g>
+        <text class="lbl sm" x="14" y="184">P = I, P from mode 1, P from energy, &#8230;</text>
+      </g>
+      <g transform="translate(400,42)">
+        <text class="lbl b" x="0" y="0">Solve</text>
+        <rect class="fr" x="0" y="14" width="300" height="176" rx="6"/>
+        <path class="fill-teal" d="M132 96 m-58,10 a58,44 -22 1,0 116,-20 a58,44 -22 1,0 -116,20"
+              opacity=".85"/>
+        <path class="sblue" d="M22 44 C 70 60, 92 88, 122 96" marker-end="url(#ar)"/>
+        <circle class="blue" cx="22" cy="44" r="4"/>
+        <circle class="blue pulse" cx="128" cy="96" r="11"/>
+        <circle class="blue" cx="128" cy="96" r="4.5"/>
+        <text class="lbl sm" x="14" y="184">interior-point path, or a proof the region is empty</text>
+      </g>
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--blue)"/>
+        </marker>
+      </defs>
+    </svg>
+    <figcaption><b>Searching for P by hand against solving for it.</b> The green region is the set of <em>P</em> that
+    certify the system. Because it is convex, a solver reaches it from anywhere, and its failure to
+    reach it is itself a proof. In &#167;3 you will see this region drawn for a real pair of
+    matrices, and the darts land exactly where they land here.</figcaption>
+  </figure>
+
+  <h3>2.4&#160; Scale normalisation and strict inequalities</h3>
+  <p><strong>Scale is free.</strong> If <em>P</em> works, so does 10<em>P</em>: both inequalities are
+  homogeneous. So a solver asked to &#8220;maximise the decrease&#8221; will happily blow <em>P</em> up
+  without end. Pin the scale down, usually with trace(<em>P</em>) = n, and the
+  problem becomes bounded. This changes nothing about which systems are certifiable; it only removes a
+  ray of identical answers.</p>
+
+  <p><strong>Strict inequalities need a margin.</strong> Solvers work to a tolerance, so
+  &#8220;&#8826; 0&#8221; is asked for as &#8220;&#10877; &#8722;t<em>I</em>&#8221; with t a variable to be
+  maximised. A returned t &gt; 0 is a quantitative margin you can re-verify yourself. That last part
+  matters more than it sounds; see <a href="#verify">&#167;4.4</a>.</p>
+
+  <h3>2.5&#160; The P-norm and the contraction factor</h3>
+  <p>Once you have <em>P</em>, the useful number is how fast <em>V</em> falls. Define the
+  <em>P</em>-norm &#8214;<em>x</em>&#8214;<sub>P</sub> = (<em>x</em>&#8348;<em>Px</em>)<sup>1/2</sup> and
+  the induced matrix norm</p>
+  <div class="eq center">&#8214;A&#8214;<sub>P</sub> = max<sub class="cm">x &#8800; 0</sub>
+    &#8214;Ax&#8214;<sub>P</sub> / &#8214;x&#8214;<sub>P</sub>
+    = &#963;<sub>max</sub>(RAR<sup>&#8722;1</sup>),&#160;&#160;where P = R&#8348;R.</div>
+  <p>&#8214;<em>A</em>&#8214;<sub>P</sub> &lt; 1 is the same statement as
+  <em>A</em>&#8348;<em>PA</em> &#8722; <em>P</em> &#8826; 0, and it says every step shrinks the
+  <em>P</em>-norm by at least that factor. Keep two things in mind. First,
+  &#8214;<em>A</em>&#8214;<sub>P</sub> &#8805; &#961;(<em>A</em>) always: no ruler can promise faster
+  than the spectral radius. Second, &#8214;<em>A</em>&#8214;<sub>P</sub> is a bound on a
+  <em>single step</em>, which is exactly what makes it survive switching, and &#961;(<em>A</em>) is an
+  asymptotic rate for a fixed <em>A</em>, which is exactly why it does not.</p>
+
+  <h3>2.6&#160; A common P for a family of matrices</h3>
+  <p>Now the step that this whole study is about. Suppose the map applied at step k is not fixed but
+  drawn from a set {<em>A</em><sub>1</sub>, &#8230;, <em>A</em><sub>m</sub>} by a signal you do not
+  control. Ask for the <em>same</em> <em>P</em> to work for all of them:</p>
+  <div class="eq center">P &#8827; 0,&#160;&#160;A<sub>i</sub>&#8348;PA<sub>i</sub> &#8722; P &#8826; 0
+    &#160;&#160;for i = 1, &#8230;, m.</div>
+  <p>Still one convex feasibility problem, just with more constraints. And what it buys is out of all
+  proportion to the extra effort: if such a <em>P</em> exists then
+  <em>V</em> falls at <em>every</em> step regardless of which mode fires, so the switched system is
+  exponentially stable under <strong>arbitrary switching</strong>. That covers every sequence,
+  including ones chosen adversarially against you, and ones that depend on the state. Such a <em>P</em> is
+  called a <em>common quadratic Lyapunov function</em>.</p>
+
+  <div class="note key stack-tight">
+    <h4>Convex combinations are covered automatically</h4>
+    <p>A common <em>P</em> for the vertices automatically covers every convex combination of them.
+    Since &#8214;&#183;&#8214;<sub>P</sub> is a norm, for
+    <em>A</em>(&#946;) = (1&#8722;&#946;)<em>A</em><sub>1</sub> + &#946;<em>A</em><sub>2</sub> with
+    &#946; &#8712; [0,1],</p>
+    <div class="eq center">&#8214;A(&#946;)&#8214;<sub>P</sub> &#8804; (1&#8722;&#946;)&#8214;A<sub>1</sub>&#8214;<sub>P</sub>
+      + &#946;&#8214;A<sub>2</sub>&#8214;<sub>P</sub> &#8804; max(q<sub>0</sub>, q<sub>1</sub>) &lt; 1.</div>
+    <p>Two LMIs, and you have covered a continuum. Because the bound is per-step, it is a
+    continuum you may traverse in any order, with any &#946; sequence. That single line is the
+    paper&#8217;s Proposition 2.</p>
+  </div>
+
+  <h3>2.7&#160; The continuous-time counterpart</h3>
+  <p>For <em>&#7819;</em> = <em>Ax</em> the same derivation on
+  <em>V&#775;</em> = <em>x</em>&#8348;(<em>A</em>&#8348;<em>P</em> + <em>PA</em>)<em>x</em> gives</p>
+  <div class="eq center">P &#8827; 0,&#160;&#160;A&#8348;P + PA &#8826; 0.</div>
+  <p>Same structure, same convexity, same MATLAB code with one line changed. For a single stable
+  <em>A</em> you do not even need a solver: <code>P = lyap(A', Q)</code> solves
+  <em>A</em>&#8348;<em>P</em> + <em>PA</em> = &#8722;<em>Q</em> in closed form, and
+  <code>dlyap(A', Q)</code> does the discrete version. The solver earns its place the moment there is
+  more than one matrix to satisfy at once, which is the next section.</p>
+</section>

@@ -1,0 +1,1036 @@
+<script>
+"use strict";
+/* ------------------------------------------------------------------ *
+ * Data                                                                *
+ * ------------------------------------------------------------------ */
+const DATA = /*__STUDY_DATA__*/;
+
+/* ------------------------------------------------------------------ *
+ * Small dense linear algebra. Everything here is 2x2, 3x3 or 3x8, so  *
+ * clarity beats cleverness.                                           *
+ * ------------------------------------------------------------------ */
+const LA = {
+  mul(A, B) {
+    const m = A.length, n = B.length, p = B[0].length;
+    const C = Array.from({length: m}, () => new Array(p).fill(0));
+    for (let i = 0; i < m; i++)
+      for (let k = 0; k < n; k++) {
+        const a = A[i][k];
+        if (a === 0) continue;
+        for (let j = 0; j < p; j++) C[i][j] += a * B[k][j];
+      }
+    return C;
+  },
+  mulVec(A, x) { return A.map(r => r.reduce((s, v, j) => s + v * x[j], 0)); },
+  T(A) { return A[0].map((_, j) => A.map(r => r[j])); },
+  add(A, B) { return A.map((r, i) => r.map((v, j) => v + B[i][j])); },
+  scale(A, s) { return A.map(r => r.map(v => v * s)); },
+  lerp(A, B, t) { return A.map((r, i) => r.map((v, j) => (1 - t) * v + t * B[i][j])); },
+  eye(n) { return Array.from({length: n}, (_, i) => Array.from({length: n}, (_, j) => i === j ? 1 : 0)); },
+  diag(v) { return v.map((x, i) => v.map((_, j) => i === j ? x : 0)); },
+  norm2(x) { return Math.sqrt(x.reduce((s, v) => s + v * v, 0)); },
+
+  /* P = R'R with R upper triangular. Returns null when P is not positive definite. */
+  chol(P) {
+    const n = P.length;
+    const R = Array.from({length: n}, () => new Array(n).fill(0));
+    for (let i = 0; i < n; i++) {
+      let d = P[i][i];
+      for (let k = 0; k < i; k++) d -= R[k][i] * R[k][i];
+      if (!(d > 1e-14)) return null;
+      R[i][i] = Math.sqrt(d);
+      for (let j = i + 1; j < n; j++) {
+        let s = P[i][j];
+        for (let k = 0; k < i; k++) s -= R[k][i] * R[k][j];
+        R[i][j] = s / R[i][i];
+      }
+    }
+    return R;
+  },
+  invUpper(R) {
+    const n = R.length;
+    const X = Array.from({length: n}, () => new Array(n).fill(0));
+    for (let j = 0; j < n; j++) {
+      X[j][j] = 1 / R[j][j];
+      for (let i = j - 1; i >= 0; i--) {
+        let s = 0;
+        for (let k = i + 1; k <= j; k++) s += R[i][k] * X[k][j];
+        X[i][j] = -s / R[i][i];
+      }
+    }
+    return X;
+  },
+  /* Cyclic Jacobi. Symmetric input only; returns eigenvalues, ascending. */
+  symEig(Sin) {
+    const n = Sin.length;
+    const S = Sin.map(r => r.slice());
+    for (let sweep = 0; sweep < 60; sweep++) {
+      let off = 0;
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) off += S[i][j] * S[i][j];
+      if (off < 1e-24) break;
+      for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) {
+        if (Math.abs(S[p][q]) < 1e-18) continue;
+        const theta = (S[q][q] - S[p][p]) / (2 * S[p][q]);
+        const t = Math.sign(theta || 1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1));
+        const c = 1 / Math.sqrt(t * t + 1), s = t * c;
+        for (let k = 0; k < n; k++) {
+          const skp = S[k][p], skq = S[k][q];
+          S[k][p] = c * skp - s * skq;
+          S[k][q] = s * skp + c * skq;
+        }
+        for (let k = 0; k < n; k++) {
+          const spk = S[p][k], sqk = S[q][k];
+          S[p][k] = c * spk - s * sqk;
+          S[q][k] = s * spk + c * sqk;
+        }
+      }
+    }
+    return S.map((r, i) => r[i]).sort((a, b) => a - b);
+  },
+  /* ||A||_P = sigma_max(R A R^-1) with P = R'R. Returns Infinity for indefinite P. */
+  pnorm(A, P) {
+    const R = LA.chol(P);
+    if (!R) return Infinity;
+    const M = LA.mul(LA.mul(R, A), LA.invUpper(R));
+    const ev = LA.symEig(LA.mul(LA.T(M), M));
+    return Math.sqrt(Math.max(0, ev[ev.length - 1]));
+  },
+  pnormVec(x, P) {
+    let s = 0;
+    for (let i = 0; i < x.length; i++) for (let j = 0; j < x.length; j++) s += x[i] * P[i][j] * x[j];
+    return Math.sqrt(Math.max(0, s));
+  },
+  cond(P) { const e = LA.symEig(P); return e[e.length - 1] / e[0]; },
+
+  /* Spectral radius, n = 2 or 3, via the characteristic polynomial. */
+  rho(A) {
+    const n = A.length;
+    if (n === 2) {
+      const tr = A[0][0] + A[1][1], det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+      const disc = tr * tr / 4 - det;
+      if (disc >= 0) {
+        const s = Math.sqrt(disc);
+        return Math.max(Math.abs(tr / 2 + s), Math.abs(tr / 2 - s));
+      }
+      return Math.sqrt(Math.max(0, det));
+    }
+    /* lambda^3 + p lambda^2 + q lambda + r */
+    const c2 = A[0][0] + A[1][1] + A[2][2];
+    const m01 = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+    const m02 = A[0][0] * A[2][2] - A[0][2] * A[2][0];
+    const m12 = A[1][1] * A[2][2] - A[1][2] * A[2][1];
+    const c1 = m01 + m02 + m12;
+    const c0 = A[0][0] * (A[1][1] * A[2][2] - A[1][2] * A[2][1])
+             - A[0][1] * (A[1][0] * A[2][2] - A[1][2] * A[2][0])
+             + A[0][2] * (A[1][0] * A[2][1] - A[1][1] * A[2][0]);
+    const p = -c2, q = c1, r = -c0;
+    const a = q - p * p / 3;
+    const b = 2 * p * p * p / 27 - p * q / 3 + r;
+    const D = b * b / 4 + a * a * a / 27;
+    let root;
+    if (D >= 0) {
+      const s = Math.sqrt(D);
+      const cb = v => Math.sign(v) * Math.cbrt(Math.abs(v));
+      root = cb(-b / 2 + s) + cb(-b / 2 - s) - p / 3;
+    } else {
+      const m = 2 * Math.sqrt(-a / 3);
+      const th = Math.acos(Math.max(-1, Math.min(1, 3 * b / (a * m)))) / 3;
+      root = m * Math.cos(th - 2 * Math.PI / 3) - p / 3;
+    }
+    /* Deflate: lambda^2 + B lambda + C */
+    const B = p + root, C = q + root * B;
+    const disc = B * B / 4 - C;
+    let other;
+    if (disc >= 0) {
+      const s = Math.sqrt(disc);
+      other = Math.max(Math.abs(-B / 2 + s), Math.abs(-B / 2 - s));
+    } else {
+      other = Math.sqrt(Math.max(0, C));
+    }
+    return Math.max(Math.abs(root), other);
+  }
+};
+
+/* ------------------------------------------------------------------ *
+ * Drawing helpers                                                     *
+ * ------------------------------------------------------------------ */
+function cssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#888";
+}
+function palette() {
+  return {
+    ink: cssVar("--ink"), ink2: cssVar("--ink-2"), ink3: cssVar("--ink-3"),
+    rule: cssVar("--rule"), ruleStrong: cssVar("--rule-strong"),
+    surface: cssVar("--surface"), surface2: cssVar("--surface-2"),
+    blue: cssVar("--blue"), crimson: cssVar("--crimson"), teal: cssVar("--teal"),
+    graphite: cssVar("--graphite"), amber: cssVar("--amber")
+  };
+}
+const FONT = 'Archivo, "Helvetica Neue", Arial, sans-serif';
+const MONO = '"IBM Plex Mono", ui-monospace, Consolas, monospace';
+
+class Axes {
+  constructor(ctx, x, y, w, h, xlim, ylim, ylog) {
+    Object.assign(this, {ctx, x, y, w, h, xlim, ylim, ylog: !!ylog});
+  }
+  X(v) { return this.x + (v - this.xlim[0]) / (this.xlim[1] - this.xlim[0]) * this.w; }
+  Y(v) {
+    const [a, b] = this.ylim;
+    let t;
+    if (this.ylog) {
+      v = Math.max(v, a * 1e-9);
+      t = (Math.log10(v) - Math.log10(a)) / (Math.log10(b) - Math.log10(a));
+    } else t = (v - a) / (b - a);
+    return this.y + this.h - Math.max(-0.2, Math.min(1.2, t)) * this.h;
+  }
+  frame(P, xt, yt, xfmt, yfmt, xlabel, ylabel) {
+    const c = this.ctx;
+    c.save();
+    c.strokeStyle = P.rule; c.lineWidth = 1.5;
+    c.font = `500 19px ${FONT}`; c.fillStyle = P.ink3;
+    (xt || []).forEach(t => {
+      const px = this.X(t);
+      c.beginPath(); c.moveTo(px, this.y); c.lineTo(px, this.y + this.h); c.stroke();
+      c.textAlign = "center"; c.textBaseline = "top";
+      c.fillText(xfmt ? xfmt(t) : String(t), px, this.y + this.h + 8);
+    });
+    (yt || []).forEach(t => {
+      const py = this.Y(t);
+      c.beginPath(); c.moveTo(this.x, py); c.lineTo(this.x + this.w, py); c.stroke();
+      c.textAlign = "right"; c.textBaseline = "middle";
+      c.fillText(yfmt ? yfmt(t) : String(t), this.x - 10, py);
+    });
+    c.strokeStyle = P.ruleStrong; c.lineWidth = 2;
+    c.strokeRect(this.x, this.y, this.w, this.h);
+    c.fillStyle = P.ink2; c.font = `600 20px ${FONT}`;
+    if (xlabel) { c.textAlign = "center"; c.textBaseline = "top"; c.fillText(xlabel, this.x + this.w / 2, this.y + this.h + 36); }
+    if (ylabel) {
+      c.save(); c.translate(this.x - 62, this.y + this.h / 2); c.rotate(-Math.PI / 2);
+      c.textAlign = "center"; c.textBaseline = "middle"; c.fillText(ylabel, 0, 0); c.restore();
+    }
+    c.restore();
+  }
+  line(pts, color, width, dash) {
+    const c = this.ctx;
+    c.save(); c.beginPath(); c.strokeStyle = color; c.lineWidth = width || 2.5;
+    c.setLineDash(dash || []); c.lineJoin = "round";
+    pts.forEach(([px, py], i) => { const X = this.X(px), Y = this.Y(py); i ? c.lineTo(X, Y) : c.moveTo(X, Y); });
+    c.stroke(); c.restore();
+  }
+  dots(pts, color, r) {
+    const c = this.ctx; c.save(); c.fillStyle = color;
+    pts.forEach(([px, py]) => { c.beginPath(); c.arc(this.X(px), this.Y(py), r || 3.6, 0, 7); c.fill(); });
+    c.restore();
+  }
+  hline(v, color, dash) {
+    const c = this.ctx; c.save(); c.strokeStyle = color; c.lineWidth = 2;
+    c.setLineDash(dash || [7, 5]); c.beginPath();
+    c.moveTo(this.x, this.Y(v)); c.lineTo(this.x + this.w, this.Y(v)); c.stroke(); c.restore();
+  }
+  text(s, px, py, color, opts) {
+    const c = this.ctx; c.save();
+    c.fillStyle = color; c.font = (opts && opts.font) || `600 20px ${FONT}`;
+    c.textAlign = (opts && opts.align) || "left";
+    c.textBaseline = (opts && opts.baseline) || "alphabetic";
+    c.fillText(s, this.X(px), this.Y(py)); c.restore();
+  }
+}
+function clear(cv) {
+  const c = cv.getContext("2d");
+  c.clearRect(0, 0, cv.width, cv.height);
+  return c;
+}
+function panelTitle(c, s, x, y, P) {
+  c.save(); c.fillStyle = P.ink; c.font = `600 22px ${FONT}`;
+  c.textAlign = "left"; c.textBaseline = "alphabetic"; c.fillText(s, x, y); c.restore();
+}
+function fmt(v, d) { return v.toFixed(d === undefined ? 4 : d); }
+const REDRAW = [];
+function onTheme(fn) { REDRAW.push(fn); }
+if (window.matchMedia) {
+  window.matchMedia("(prefers-color-scheme: dark)")
+    .addEventListener("change", () => REDRAW.forEach(f => f()));
+}
+
+/* ------------------------------------------------------------------ *
+ * Systems used by laboratories 1 and 2                                *
+ * ------------------------------------------------------------------ */
+const SYS = {
+  A: {A: [DATA.generic.A1, DATA.generic.A2], P: DATA.generic.P,
+      label: ["A₁", "A₂"], hasP: true},
+  B: {A: [DATA.counter.B1, DATA.counter.B2], P: null,
+      label: ["B₁", "B₂"], hasP: false}
+};
+
+/* ================================================================== *
+ * Laboratory 1 - the set of all certificates                          *
+ * ================================================================== */
+(function labRulers() {
+  const cv = document.getElementById("r-canvas");
+  if (!cv) return;
+  const GRID = 190;
+  let sysKey = "A";
+  let a = 0, b = 0;
+  const field = document.createElement("canvas");
+  field.width = field.height = GRID;
+
+  const Pof = (a, b) => [[1 + a, b], [b, 1 - a]];
+
+  function buildField() {
+    const A = SYS[sysKey].A;
+    const im = field.getContext("2d").createImageData(GRID, GRID);
+    const teal = hexToRgb(cssVar("--teal")), crim = hexToRgb(cssVar("--crimson"));
+    for (let iy = 0; iy < GRID; iy++) {
+      const bv = 1 - 2 * (iy + 0.5) / GRID;
+      for (let ix = 0; ix < GRID; ix++) {
+        const av = -1 + 2 * (ix + 0.5) / GRID;
+        const o = 4 * (iy * GRID + ix);
+        if (av * av + bv * bv >= 1) { im.data[o + 3] = 0; continue; }
+        const P = Pof(av, bv);
+        const q = Math.max(LA.pnorm(A[0], P), LA.pnorm(A[1], P));
+        if (q < 1) {
+          const s = Math.min(1, (1 - q) * 7);
+          im.data[o] = teal[0]; im.data[o + 1] = teal[1]; im.data[o + 2] = teal[2];
+          im.data[o + 3] = 60 + 165 * s;
+        } else {
+          const s = Math.min(1, (q - 1) * 1.6);
+          im.data[o] = crim[0]; im.data[o + 1] = crim[1]; im.data[o + 2] = crim[2];
+          im.data[o + 3] = 16 + 46 * s;
+        }
+      }
+    }
+    field.getContext("2d").putImageData(im, 0, 0);
+  }
+  function hexToRgb(h) {
+    h = h.trim();
+    if (h.startsWith("#")) {
+      const v = h.length === 4
+        ? h.slice(1).split("").map(x => parseInt(x + x, 16))
+        : [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+      return v;
+    }
+    const m = h.match(/\d+/g);
+    return m ? m.slice(0, 3).map(Number) : [128, 128, 128];
+  }
+
+  const L = {x: 110, y: 70, w: 470, h: 470};
+  function toParam(px, py) {
+    return [(px - L.x) / L.w * 2 - 1, 1 - (py - L.y) / L.h * 2];
+  }
+  function toPix(av, bv) {
+    return [L.x + (av + 1) / 2 * L.w, L.y + (1 - bv) / 2 * L.h];
+  }
+
+  function draw() {
+    const P = palette(), c = clear(cv), S = SYS[sysKey];
+    const Pm = Pof(a, b);
+
+    /* --- left panel: the parameter plane --- */
+    panelTitle(c, "every symmetric P with trace 2, as one point", L.x, 44, P);
+    c.save();
+    c.beginPath(); c.arc(L.x + L.w / 2, L.y + L.h / 2, L.w / 2, 0, 7); c.clip();
+    c.imageSmoothingEnabled = true;
+    c.drawImage(field, L.x, L.y, L.w, L.h);
+    c.restore();
+    c.save();
+    c.strokeStyle = P.ruleStrong; c.lineWidth = 2;
+    c.beginPath(); c.arc(L.x + L.w / 2, L.y + L.h / 2, L.w / 2, 0, 7); c.stroke();
+    c.strokeStyle = P.rule; c.setLineDash([5, 5]); c.lineWidth = 1.5;
+    c.beginPath(); c.moveTo(L.x, L.y + L.h / 2); c.lineTo(L.x + L.w, L.y + L.h / 2); c.stroke();
+    c.beginPath(); c.moveTo(L.x + L.w / 2, L.y); c.lineTo(L.x + L.w / 2, L.y + L.h); c.stroke();
+    c.setLineDash([]);
+    c.fillStyle = P.ink3; c.font = `500 19px ${FONT}`;
+    c.textAlign = "center"; c.textBaseline = "top";
+    c.fillText("a", L.x + L.w + 16, L.y + L.h / 2 - 10);
+    c.fillText("b", L.x + L.w / 2, L.y - 26);
+    c.textAlign = "left";
+    c.fillText("b = 0: every diagonal P", L.x + 8, L.y + L.h / 2 + 8);
+    c.restore();
+
+    /* reference markers */
+    const marks = [["P = I", 0, 0, P.ink3]];
+    if (sysKey === "A") {
+      const nrm = M => { const t = M[0][0] + M[1][1]; return [[2 * M[0][0] / t, 2 * M[0][1] / t], [2 * M[1][0] / t, 2 * M[1][1] / t]]; };
+      const p1 = nrm(DATA.generic.P_mode1), p2 = nrm(DATA.generic.P_mode2), ps = DATA.generic.P;
+      marks.push(["mode 1", p1[0][0] - 1, p1[0][1], P.ink3]);
+      marks.push(["mode 2", p2[0][0] - 1, p2[0][1], P.ink3]);
+      marks.push(["SDP", ps[0][0] - 1, ps[0][1], P.teal]);
+    }
+    marks.forEach(([lab, av, bv, col]) => {
+      const [px, py] = toPix(av, bv);
+      c.save(); c.fillStyle = col;
+      c.beginPath(); c.arc(px, py, 6.5, 0, 7); c.fill();
+      c.strokeStyle = P.surface; c.lineWidth = 2; c.stroke();
+      c.font = `600 18px ${FONT}`; c.textAlign = "center"; c.textBaseline = "bottom";
+      c.fillText(lab, px, py - 11); c.restore();
+    });
+    /* the handle */
+    const [hx, hy] = toPix(a, b);
+    c.save(); c.fillStyle = P.blue; c.strokeStyle = P.surface; c.lineWidth = 3;
+    c.beginPath(); c.arc(hx, hy, 10, 0, 7); c.fill(); c.stroke(); c.restore();
+
+    /* --- right panel: level set and its images --- */
+    const R = {cx: 1090, cy: 300, s: 0};
+    const ok = LA.chol(Pm);
+    panelTitle(c, "the level set xᵀPx = 1, and where each mode sends it", 830, 44, P);
+    if (!ok) {
+      c.save(); c.fillStyle = P.ink3; c.font = `500 22px ${FONT}`; c.textAlign = "center";
+      c.fillText("P is not positive definite here, so there is no level set to draw", R.cx, R.cy);
+      c.restore();
+    } else {
+      const Ri = LA.invUpper(ok);
+      const pts = [];
+      for (let i = 0; i <= 240; i++) {
+        const t = i / 240 * 2 * Math.PI;
+        const u = [Math.cos(t), Math.sin(t)];
+        pts.push([Ri[0][0] * u[0] + Ri[0][1] * u[1], Ri[1][1] * u[1]]);
+      }
+      const img = S.A.map(M => pts.map(p => LA.mulVec(M, p)));
+      let lim = 0;
+      pts.concat(...img).forEach(p => { lim = Math.max(lim, Math.abs(p[0]), Math.abs(p[1])); });
+      lim *= 1.12;
+      const sc = 235 / lim;
+      const px = p => [R.cx + p[0] * sc, R.cy - p[1] * sc];
+      c.save();
+      c.strokeStyle = P.rule; c.lineWidth = 1.5; c.setLineDash([5, 5]);
+      c.beginPath(); c.moveTo(R.cx - 250, R.cy); c.lineTo(R.cx + 250, R.cy);
+      c.moveTo(R.cx, R.cy - 250); c.lineTo(R.cx, R.cy + 250); c.stroke();
+      c.setLineDash([]);
+      const stroke = (poly, col, w) => {
+        c.beginPath(); c.strokeStyle = col; c.lineWidth = w;
+        poly.forEach((p, i) => { const [X, Y] = px(p); i ? c.lineTo(X, Y) : c.moveTo(X, Y); });
+        c.closePath(); c.stroke();
+      };
+      stroke(pts, P.graphite, 3);
+      stroke(img[0], P.blue, 2.5);
+      stroke(img[1], P.crimson, 2.5);
+      c.restore();
+    }
+
+    /* readouts */
+    const q = ok ? S.A.map(M => LA.pnorm(M, Pm)) : [Infinity, Infinity];
+    document.getElementById("r-p").textContent =
+      `[${fmt(Pm[0][0], 3)} ${fmt(Pm[0][1], 3)}; ${fmt(Pm[1][0], 3)} ${fmt(Pm[1][1], 3)}]`;
+    const set = (id, rid, v) => {
+      document.getElementById(id).textContent = isFinite(v) ? fmt(v, 4) : "—";
+      const box = document.getElementById(rid);
+      box.className = "rd" + (isFinite(v) ? (v < 1 ? " good" : " bad") : "");
+    };
+    set("r-q1", "r-rd1", q[0]); set("r-q2", "r-rd2", q[1]);
+    document.getElementById("r-cond").textContent = ok ? fmt(LA.cond(Pm), 2) : "—";
+    const vd = document.getElementById("r-verdict");
+    if (!ok) { vd.className = "verdict bad"; vd.textContent = "P is not positive definite, so it is not a Lyapunov function at all."; }
+    else if (Math.max(q[0], q[1]) < 1) {
+      vd.className = "verdict good";
+      vd.textContent = `Certificate. Both images sit inside the level set, so V falls at every step under any switching signal, at rate q = ${fmt(Math.max(q[0], q[1]), 6)}.`;
+    } else {
+      vd.className = "verdict bad";
+      const bad = q[0] >= q[1] ? S.label[0] : S.label[1];
+      vd.textContent = `Not a certificate. ${bad} pushes part of the level set outward (‖${bad}‖ₚ = ${fmt(Math.max(q[0], q[1]), 4)} ≥ 1), so V can grow.`;
+    }
+  }
+
+  let dragging = false;
+  function pick(ev) {
+    const r = cv.getBoundingClientRect();
+    const t = (ev.touches ? ev.touches[0] : ev);
+    const px = (t.clientX - r.left) / r.width * cv.width;
+    const py = (t.clientY - r.top) / r.height * cv.height;
+    let [av, bv] = toParam(px, py);
+    const n = Math.hypot(av, bv);
+    if (n > 0.985) { av *= 0.985 / n; bv *= 0.985 / n; }
+    a = av; b = bv; draw();
+  }
+  cv.addEventListener("pointerdown", e => { dragging = true; cv.setPointerCapture(e.pointerId); pick(e); });
+  cv.addEventListener("pointermove", e => { if (dragging) pick(e); });
+  cv.addEventListener("pointerup", () => { dragging = false; });
+  cv.style.cursor = "crosshair";
+  cv.style.touchAction = "none";
+
+  function reset() {
+    if (sysKey === "A") { a = DATA.generic.P[0][0] - 1; b = DATA.generic.P[0][1]; }
+    else { a = 0; b = 0; }
+    draw();
+  }
+  document.getElementById("r-reset").addEventListener("click", reset);
+  document.getElementById("r-system").addEventListener("change", e => {
+    sysKey = e.target.value; buildField(); reset();
+  });
+  onTheme(() => { buildField(); draw(); });
+  buildField(); reset();
+})();
+
+/* ================================================================== *
+ * Laboratory 2 - switching bench                                      *
+ * ================================================================== */
+(function labBench() {
+  const cv = document.getElementById("b-canvas");
+  if (!cv) return;
+  let sysKey = "A", policy = "adv", timer = null;
+  let x0 = [0.86, 0.51], traj = [x0.slice()], modes = [];
+
+  function step() {
+    const S = SYS[sysKey], x = traj[traj.length - 1];
+    let m;
+    if (policy === "adv") m = LA.norm2(LA.mulVec(S.A[0], x)) >= LA.norm2(LA.mulVec(S.A[1], x)) ? 0 : 1;
+    else if (policy === "rand") m = Math.random() < 0.5 ? 0 : 1;
+    else if (policy === "alt") m = traj.length % 2 === 1 ? 0 : 1;
+    else if (policy === "m1") m = 0;
+    else if (policy === "m2") m = 1;
+    else return;
+    apply(m);
+  }
+  function apply(m) {
+    const S = SYS[sysKey];
+    traj.push(LA.mulVec(S.A[m], traj[traj.length - 1]));
+    modes.push(m);
+    if (traj.length > 60) { traj.shift(); modes.shift(); }
+    draw();
+  }
+  function reset() { traj = [x0.slice()]; modes = []; stop(); draw(); }
+  function stop() { if (timer) { clearInterval(timer); timer = null; } document.getElementById("b-play").textContent = "play"; }
+
+  function draw() {
+    const P = palette(), c = clear(cv), S = SYS[sysKey];
+    const e = traj.map(p => LA.norm2(p) / LA.norm2(traj[0]));
+    const v = S.hasP
+      ? traj.map(p => LA.pnormVec(p, S.P) / LA.pnormVec(traj[0], S.P))
+      : null;
+    const q = S.hasP ? Math.max(...S.A.map(M => LA.pnorm(M, S.P))) : null;
+
+    /* --- left: phase plane --- */
+    const cx = 340, cy = 300;
+    let lim = 0; traj.forEach(p => { lim = Math.max(lim, Math.abs(p[0]), Math.abs(p[1])); });
+    lim = Math.max(lim, 1.1) * 1.15;
+    const sc = 250 / lim;
+    const px = p => [cx + p[0] * sc, cy - p[1] * sc];
+    panelTitle(c, "state plane, drag to move x₀", 90, 44, P);
+    c.save();
+    c.strokeStyle = P.rule; c.lineWidth = 1.5; c.setLineDash([5, 5]);
+    c.beginPath(); c.moveTo(cx - 260, cy); c.lineTo(cx + 260, cy);
+    c.moveTo(cx, cy - 260); c.lineTo(cx, cy + 260); c.stroke(); c.setLineDash([]);
+    if (S.hasP) {
+      /* the level set of V through the current point */
+      const cur = traj[traj.length - 1];
+      const lvl = LA.pnormVec(cur, S.P);
+      const R = LA.chol(S.P), Ri = LA.invUpper(R);
+      c.beginPath(); c.strokeStyle = P.teal; c.lineWidth = 2.5;
+      for (let i = 0; i <= 200; i++) {
+        const t = i / 200 * 2 * Math.PI, u = [lvl * Math.cos(t), lvl * Math.sin(t)];
+        const p = [Ri[0][0] * u[0] + Ri[0][1] * u[1], Ri[1][1] * u[1]];
+        const [X, Y] = px(p); i ? c.lineTo(X, Y) : c.moveTo(X, Y);
+      }
+      c.closePath(); c.stroke();
+      /* the Euclidean circle through it, for contrast */
+      c.beginPath(); c.strokeStyle = P.crimson; c.lineWidth = 1.5; c.setLineDash([4, 4]);
+      c.arc(cx, cy, LA.norm2(cur) * sc, 0, 7); c.stroke(); c.setLineDash([]);
+    }
+    c.beginPath(); c.strokeStyle = P.blue; c.lineWidth = 2.5;
+    traj.forEach((p, i) => { const [X, Y] = px(p); i ? c.lineTo(X, Y) : c.moveTo(X, Y); });
+    c.stroke();
+    traj.forEach((p, i) => {
+      const [X, Y] = px(p);
+      c.beginPath(); c.fillStyle = i === traj.length - 1 ? P.blue : P.blue;
+      c.globalAlpha = i === traj.length - 1 ? 1 : 0.35;
+      c.arc(X, Y, i === traj.length - 1 ? 8 : 4, 0, 7); c.fill(); c.globalAlpha = 1;
+    });
+    c.restore();
+
+    /* --- right: the two rulers over time --- */
+    const n = Math.max(24, traj.length - 1);
+    let hi = 2, lo = 1e-3;
+    e.concat(v || []).forEach(y => { hi = Math.max(hi, y); lo = Math.min(lo, Math.max(y, 1e-6)); });
+    hi = Math.pow(10, Math.ceil(Math.log10(hi)));
+    lo = Math.pow(10, Math.floor(Math.log10(Math.max(lo, hi * 1e-6))));
+    const ax = new Axes(c, 800, 76, 620, 400, [0, n], [lo, hi], true);
+    const ticks = [];
+    for (let d = Math.log10(lo); d <= Math.log10(hi) + 1e-9; d++) ticks.push(Math.pow(10, d));
+    panelTitle(c, "the same trajectory, measured two ways", 800, 44, P);
+    ax.frame(P, [0, Math.round(n / 2), n], ticks, t => String(t),
+      t => (t === 1 ? "1" : (t >= 1 ? String(t) : "10" + supMinus(Math.round(-Math.log10(t))))),
+      "step k", "ratio to step 0");
+    ax.hline(1, P.ruleStrong, [2, 4]);
+    if (v && q) {
+      ax.line(v.map((_, i) => [i, Math.pow(q, i)]), P.graphite, 2, [7, 5]);
+      ax.line(v.map((y, i) => [i, y]), P.blue, 3);
+      ax.dots(v.map((y, i) => [i, y]), P.blue, 3.4);
+    }
+    ax.line(e.map((y, i) => [i, y]), P.crimson, 3);
+    ax.dots(e.map((y, i) => [i, y]), P.crimson, 3.4);
+
+    /* readouts */
+    const k = traj.length - 1, peak = Math.max(...e);
+    document.getElementById("b-k").textContent = String(k);
+    document.getElementById("b-e").textContent = fmt(e[k], 3);
+    document.getElementById("b-v").textContent = v ? fmt(v[k], 3) : "—";
+    document.getElementById("b-peak").textContent = fmt(peak, 3);
+    document.getElementById("b-rd-e").className = "rd" + (e[k] > 1 ? " bad" : "");
+    document.getElementById("b-rd-v").className = "rd" + (v ? " good" : "");
+    const vd = document.getElementById("b-verdict");
+    if (!S.hasP) {
+      vd.className = "verdict bad";
+      vd.textContent = "No common quadratic Lyapunov function exists for this pair, so there is no certified ruler to draw. Run the alternating signal and watch it diverge.";
+    } else {
+      const mono = v.every((y, i) => i === 0 || y <= v[i - 1] + 1e-12);
+      vd.className = "verdict " + (mono ? "good" : "bad");
+      vd.textContent = mono
+        ? `V has not risen once in ${k} step${k === 1 ? "" : "s"}, while the Euclidean norm peaked at ${fmt(peak, 3)}× its starting value.`
+        : "V increased, which would contradict the certificate, so this is a bug, not a feature.";
+    }
+  }
+  function supMinus(d) {
+    const sup = {0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹"};
+    return "⁻" + String(d).split("").map(x => sup[x]).join("");
+  }
+
+  let dragging = false;
+  function place(ev) {
+    const r = cv.getBoundingClientRect();
+    const t = (ev.touches ? ev.touches[0] : ev);
+    const px = (t.clientX - r.left) / r.width * cv.width;
+    const py = (t.clientY - r.top) / r.height * cv.height;
+    if (px > 620) return;
+    let lim = 0; traj.forEach(p => { lim = Math.max(lim, Math.abs(p[0]), Math.abs(p[1])); });
+    lim = Math.max(lim, 1.1) * 1.15;
+    const sc = 250 / lim;
+    x0 = [(px - 340) / sc, (300 - py) / sc];
+    const nn = LA.norm2(x0) || 1;
+    x0 = [x0[0] / nn, x0[1] / nn];
+    traj = [x0.slice()]; modes = []; draw();
+  }
+  cv.addEventListener("pointerdown", e => { dragging = true; cv.setPointerCapture(e.pointerId); place(e); });
+  cv.addEventListener("pointermove", e => { if (dragging) place(e); });
+  cv.addEventListener("pointerup", () => { dragging = false; });
+  cv.style.cursor = "crosshair"; cv.style.touchAction = "none";
+
+  document.getElementById("b-play").addEventListener("click", () => {
+    if (timer) { stop(); return; }
+    document.getElementById("b-play").textContent = "pause";
+    timer = setInterval(() => { step(); if (traj.length > 45) stop(); }, 260);
+  });
+  document.getElementById("b-step").addEventListener("click", step);
+  document.getElementById("b-reset").addEventListener("click", reset);
+  document.getElementById("b-m1").addEventListener("click", () => apply(0));
+  document.getElementById("b-m2").addEventListener("click", () => apply(1));
+  document.getElementById("b-system").addEventListener("change", e => { sysKey = e.target.value; reset(); });
+  document.getElementById("b-policy").addEventListener("change", e => {
+    policy = e.target.value;
+    document.getElementById("b-manual").style.display = policy === "manual" ? "inline" : "none";
+  });
+  onTheme(draw);
+  reset();
+})();
+
+/* ================================================================== *
+ * Laboratory 3 - the dwell conditioner on the real first cycle        *
+ * ================================================================== */
+(function labDwell() {
+  const cv = document.getElementById("d-canvas");
+  if (!cv) return;
+  const bnd = DATA.schedule.boundaries_us;
+  const raw = DATA.response.raw_offsets_cycle0;
+  const dmin = DATA.schedule.applied_dwell_bound_us;
+  const T = bnd[bnd.length - 1];
+  let beta = 1, anim = null;
+
+  const dwellsFor = bt => {
+    const B = bnd.map((v, i) => v + (i === 0 || i === bnd.length - 1 ? 0 : bt * raw[i - 1]));
+    return {B, d: B.slice(1).map((v, i) => v - B[i])};
+  };
+  function betaStar() {
+    const nom = bnd.slice(1).map((v, i) => v - bnd[i]);
+    const m = nom.map(v => v - dmin);
+    const off = [0].concat(raw, [0]);
+    const q = off.slice(1).map((v, i) => v - off[i]);
+    let bt = 1;
+    q.forEach((qi, i) => { if (qi < 0) bt = Math.min(bt, m[i] / -qi); });
+    return Math.max(0, Math.min(1, bt));
+  }
+  const BSTAR = betaStar();
+
+  function draw() {
+    const P = palette(), c = clear(cv);
+    const nom = dwellsFor(0), app = dwellsFor(beta), rawS = dwellsFor(1);
+
+    /* --- panel a: the timeline --- */
+    const x0 = 120, w = 1300;
+    const X = t => x0 + t / T * w;
+    panelTitle(c, "cycle boundaries", x0, 42, P);
+    const rows = [
+      ["nominal", nom.B, P.graphite, 78],
+      ["raw request", rawS.B, P.crimson, 148],
+      ["applied", app.B, P.blue, 218]
+    ];
+    rows.forEach(([lab, B, col, y]) => {
+      c.save();
+      c.fillStyle = P.ink3; c.font = `600 19px ${FONT}`;
+      c.textAlign = "right"; c.textBaseline = "middle";
+      c.fillText(lab, x0 - 14, y + 18);
+      c.strokeStyle = P.rule; c.lineWidth = 1.5;
+      c.beginPath(); c.moveTo(x0, y + 18); c.lineTo(x0 + w, y + 18); c.stroke();
+      for (let i = 0; i < B.length - 1; i++) {
+        const a = X(Math.min(B[i], B[i + 1])), bx = X(Math.max(B[i], B[i + 1]));
+        const inverted = B[i + 1] < B[i];
+        const short = (B[i + 1] - B[i]) < dmin - 1e-9;
+        c.fillStyle = inverted ? P.crimson : (short ? P.amber : col);
+        c.globalAlpha = inverted ? 0.55 : (i % 2 ? 0.30 : 0.16);
+        c.fillRect(a, y, Math.max(bx - a, 1), 36);
+        c.globalAlpha = 1;
+      }
+      c.strokeStyle = col; c.lineWidth = 2.5;
+      B.forEach((t, i) => {
+        c.beginPath(); c.moveTo(X(t), y - 4); c.lineTo(X(t), y + 40); c.stroke();
+        if (i > 0 && i < B.length - 1 && col !== P.graphite) {
+          const t0 = nom.B[i];
+          if (Math.abs(t - t0) > 0.5) {
+            c.save(); c.strokeStyle = col; c.globalAlpha = .5; c.setLineDash([3, 3]);
+            c.beginPath(); c.moveTo(X(t0), y + 18); c.lineTo(X(t), y + 18); c.stroke(); c.restore();
+          }
+        }
+      });
+      c.restore();
+    });
+    c.save();
+    c.fillStyle = P.ink3; c.font = `500 18px ${MONO}`;
+    c.textAlign = "left"; c.textBaseline = "top";
+    c.fillText("0", x0, 274); c.textAlign = "right";
+    c.fillText(T.toFixed(0) + " µs", x0 + w, 274);
+    c.restore();
+
+    /* --- panel b: the nine dwell durations --- */
+    const ax = new Axes(c, x0, 350, w, 160, [0, 9], [-50, 100]);
+    panelTitle(c, "dwell durations, raw against applied", x0, 330, P);
+    ax.frame(P, [], [-50, 0, 50, 100], null, t => String(t), null, "µs");
+    const bw = w / 9 * 0.34;
+    for (let i = 0; i < 9; i++) {
+      const cxp = ax.X(i + 0.5);
+      [[rawS.d[i], P.crimson, -1], [app.d[i], P.blue, 1]].forEach(([d, col, side]) => {
+        const y0 = ax.Y(0), y1 = ax.Y(d);
+        c.save(); c.fillStyle = col;
+        c.globalAlpha = d < dmin - 1e-9 ? 0.95 : 0.55;
+        c.fillRect(cxp + (side < 0 ? -bw - 2 : 2), Math.min(y0, y1), bw, Math.abs(y1 - y0));
+        c.restore();
+      });
+      c.save(); c.fillStyle = P.ink3; c.font = `500 17px ${FONT}`;
+      c.textAlign = "center"; c.textBaseline = "top";
+      c.fillText(String(i + 1), cxp, ax.y + ax.h + 8); c.restore();
+    }
+    ax.hline(dmin, P.teal, [8, 5]);
+    ax.text(`dₘᵢₙ = ${dmin} µs`, 8.98, dmin + 7, P.teal, {align: "right", font: `600 19px ${FONT}`});
+    ax.hline(0, P.ruleStrong, []);
+
+    /* readouts */
+    const minD = Math.min(...app.d);
+    const bind = app.d.indexOf(minD) + 1;
+    document.getElementById("d-beta-val").textContent = beta.toFixed(3);
+    document.getElementById("d-min").textContent = minD.toFixed(3) + " µs";
+    document.getElementById("d-max").textContent =
+      Math.max(...raw.map(v => Math.abs(v * beta))).toFixed(3) + " µs";
+    const drift = app.d.reduce((s, v) => s + v, 0) - T;
+    document.getElementById("d-period").textContent =
+      (Math.abs(drift) < 5e-4 ? "0.000" : drift.toFixed(3)) + " µs";
+    document.getElementById("d-bind").textContent = "dwell " + bind;
+    const vd = document.getElementById("d-verdict");
+    if (minD < -1e-9) {
+      vd.className = "verdict bad";
+      vd.textContent = `Dwell ${bind} is ${minD.toFixed(3)} µs, which is negative. Two boundaries have swapped places, so this schedule cannot be executed.`;
+    } else if (minD < dmin - 1e-6) {
+      vd.className = "verdict bad";
+      vd.textContent = `Dwell ${bind} is ${minD.toFixed(3)} µs, below the ${dmin} µs bound. Still inadmissible.`;
+    } else if (Math.abs(beta - BSTAR) < 5e-4) {
+      vd.className = "verdict good";
+      vd.textContent = `β* = ${BSTAR.toFixed(6)}. Dwell ${bind} sits exactly on the bound. This is the largest admissible scaling, which is what maximality means.`;
+    } else {
+      vd.className = "verdict good";
+      vd.textContent = `Admissible, with ${(minD - dmin).toFixed(3)} µs to spare. Anything below β* = ${BSTAR.toFixed(6)} works; the conditioner returns the largest.`;
+    }
+  }
+
+  const slider = document.getElementById("d-beta");
+  slider.addEventListener("input", e => { beta = +e.target.value; stopAnim(); draw(); });
+  document.getElementById("d-snap").addEventListener("click", () => {
+    stopAnim(); beta = BSTAR; slider.value = beta; draw();
+  });
+  function stopAnim() { if (anim) { cancelAnimationFrame(anim); anim = null; document.getElementById("d-anim").textContent = "animate"; } }
+  document.getElementById("d-anim").addEventListener("click", () => {
+    if (anim) { stopAnim(); return; }
+    document.getElementById("d-anim").textContent = "stop";
+    const t0 = performance.now();
+    const tick = t => {
+      const u = ((t - t0) / 4200) % 1;
+      const s = u < 0.5 ? u * 2 : 2 - u * 2;
+      beta = BSTAR + (1 - BSTAR) * s;
+      slider.value = beta; draw();
+      anim = requestAnimationFrame(tick);
+    };
+    anim = requestAnimationFrame(tick);
+  });
+  onTheme(draw);
+  draw();
+})();
+
+/* ================================================================== *
+ * Laboratory 4 - the conditioned family                               *
+ * ================================================================== */
+(function labFamily() {
+  const cv = document.getElementById("f-canvas");
+  if (!cv) return;
+  const Phi = DATA.paper.Phi, Acl = DATA.paper.A_cl, P = DATA.paper.P;
+  const q0 = DATA.paper.q0, q1 = DATA.paper.q1, Q = Math.max(q0, q1);
+  const Sx = DATA.paper.state_scale, anchor = DATA.schedule.anchor;
+  const x0 = [7.5143, 20.8211, 0.0314];
+  const z0 = x0.map((v, i) => (v - anchor[i]) / Sx[i]);
+  const realBeta = DATA.response.beta;
+
+  const BS = [], PN = [], RH = [];
+  for (let i = 0; i <= 200; i++) {
+    const bt = i / 200, A = LA.lerp(Phi, Acl, bt);
+    BS.push(bt); PN.push(LA.pnorm(A, P)); RH.push(LA.rho(A));
+  }
+  const NC = 40;
+  let beta = 1, policy = "real", timer = null, k = 0;
+  let z = [z0.slice()], betas = [];
+
+  function nextBeta() {
+    if (policy === "one") return 1;
+    if (policy === "zero") return 0;
+    if (policy === "rand") return Math.random();
+    if (policy === "slider") return beta;
+    if (policy === "real") return k < realBeta.length ? realBeta[k] : 1;
+    /* adversarial: the beta that leaves the P-norm largest */
+    let best = 0, bv = -1;
+    for (let i = 0; i <= 40; i++) {
+      const bt = i / 40;
+      const n = LA.pnormVec(LA.mulVec(LA.lerp(Phi, Acl, bt), z[z.length - 1]), P);
+      if (n > bv) { bv = n; best = bt; }
+    }
+    return best;
+  }
+  function step() {
+    if (k >= NC) { stop(); return; }
+    const bt = nextBeta();
+    z.push(LA.mulVec(LA.lerp(Phi, Acl, bt), z[z.length - 1]));
+    betas.push(bt); k++;
+    draw();
+  }
+  function reset() { z = [z0.slice()]; betas = []; k = 0; stop(); draw(); }
+  function stop() { if (timer) { clearInterval(timer); timer = null; } document.getElementById("f-play").textContent = "play"; }
+
+  function draw() {
+    const p = palette(), c = clear(cv);
+    const A = LA.lerp(Phi, Acl, beta);
+    const pn = LA.pnorm(A, P), rh = LA.rho(A);
+
+    /* --- left: contraction along the segment --- */
+    const ax = new Axes(c, 120, 80, 560, 400, [0, 1], [0.5, 1.03]);
+    panelTitle(c, "along the segment, as β runs from 0 to 1", 120, 48, p);
+    ax.frame(p, [0, 0.25, 0.5, 0.75, 1], [0.6, 0.7, 0.8, 0.9, 1.0],
+      t => t.toFixed(2), t => t.toFixed(1), "β", null);
+    ax.hline(1, p.ruleStrong, [3, 4]);
+    ax.line(BS.map((b, i) => [b, RH[i]]), p.crimson, 2.5, [7, 5]);
+    ax.line(BS.map((b, i) => [b, PN[i]]), p.blue, 3.5);
+    ax.text("‖A(β)‖ₚ", 0.30, 0.982, p.blue);
+    ax.text("ρ(A(β))", 0.42, 0.72, p.crimson);
+    c.save();
+    c.strokeStyle = p.ink3; c.lineWidth = 2; c.setLineDash([4, 4]);
+    c.beginPath(); c.moveTo(ax.X(beta), ax.y); c.lineTo(ax.X(beta), ax.y + ax.h); c.stroke();
+    c.restore();
+    ax.dots([[beta, pn]], p.blue, 8);
+    ax.dots([[beta, rh]], p.crimson, 8);
+    ax.text("β = 0\ncorrection off", 0.012, 0.545, p.ink3, {font: `500 18px ${FONT}`});
+    ax.text("β = 1", 0.99, 0.545, p.ink3, {align: "right", font: `500 18px ${FONT}`});
+
+    /* --- right: what a sequence does --- */
+    const err = z.map(v => LA.pnormVec(v, P) / LA.pnormVec(z[0], P));
+    const lo = 1e-6, hi = 2;
+    const bx = new Axes(c, 860, 80, 560, 320, [0, NC], [lo, hi], true);
+    panelTitle(c, "the linearized error under the chosen β sequence", 860, 48, p);
+    const tk = [1e-6, 1e-4, 1e-2, 1];
+    bx.frame(p, [0, 10, 20, 30, 40], tk, t => String(t),
+      t => t === 1 ? "1" : "10⁻" + String(Math.round(-Math.log10(t))),
+      null, "‖zₖ‖ₚ / ‖z₀‖ₚ");
+    bx.line(Array.from({length: NC + 1}, (_, i) => [i, Math.pow(Q, i)]), p.graphite, 2.5, [7, 5]);
+    bx.text("certified envelope qᵏ", 12, 0.30, p.graphite, {font: `600 19px ${FONT}`});
+    bx.line(err.map((y, i) => [i, y]), p.blue, 3);
+    bx.dots(err.map((y, i) => [i, y]), p.blue, 3.6);
+
+    /* the beta strip */
+    const sx = new Axes(c, 860, 452, 560, 70, [0, NC], [0, 1.05]);
+    sx.frame(p, [0, 10, 20, 30, 40], [0, 1], t => String(t), t => String(t), "cycle k", "βₖ");
+    const bwd = (sx.X(1) - sx.X(0)) * 0.62;
+    betas.forEach((bt, i) => {
+      c.save();
+      c.fillStyle = bt < 1 - 1e-9 ? p.crimson : p.blue;
+      c.globalAlpha = bt < 1 - 1e-9 ? 0.85 : 0.4;
+      c.fillRect(sx.X(i) - bwd / 2, sx.Y(bt), bwd, sx.Y(0) - sx.Y(bt));
+      c.restore();
+    });
+
+    document.getElementById("f-beta-val").textContent = beta.toFixed(3);
+    document.getElementById("f-pn").textContent = fmt(pn, 6);
+    document.getElementById("f-rho").textContent = fmt(rh, 6);
+    document.getElementById("f-k").textContent = String(k);
+    document.getElementById("f-err").textContent = err[err.length - 1].toExponential(2);
+    const mono = err.every((y, i) => i === 0 || y <= err[i - 1] + 1e-12);
+    const vd = document.getElementById("f-verdict");
+    vd.className = "verdict " + (mono ? "good" : "bad");
+    vd.textContent = mono
+      ? `‖A(β)‖ₚ = ${fmt(pn, 6)} ≤ q = ${fmt(Q, 6)} at this β, and the P-norm has not risen once in ${k} cycle${k === 1 ? "" : "s"}, whatever the sequence did.`
+      : "The P-norm rose, which would contradict Proposition 2.";
+  }
+
+  document.getElementById("f-beta").addEventListener("input", e => { beta = +e.target.value; draw(); });
+  document.getElementById("f-policy").addEventListener("change", e => { policy = e.target.value; reset(); });
+  document.getElementById("f-play").addEventListener("click", () => {
+    if (timer) { stop(); return; }
+    if (k >= NC) reset();
+    document.getElementById("f-play").textContent = "pause";
+    timer = setInterval(step, 160);
+  });
+  document.getElementById("f-reset").addEventListener("click", reset);
+  onTheme(draw);
+  reset();
+})();
+
+/* ================================================================== *
+ * Laboratory 5 - segment against polytope                             *
+ * ================================================================== */
+(function labPolytope() {
+  const cv = document.getElementById("p-canvas");
+  if (!cv) return;
+  const Phi = DATA.paper.Phi, Gamma = DATA.paper.Gamma, K = DATA.paper.K;
+  const radii = DATA.polytope.radii_sorted;
+  const segLo = Math.min(...[0, 0.25, 0.5, 0.75, 1].map(b => LA.rho(LA.lerp(Phi, DATA.paper.A_cl, b))));
+  const segHi = Math.max(DATA.paper.rho[0], DATA.paper.rho[1]);
+  let samples = [];
+
+  function sample(n) {
+    for (let s = 0; s < n; s++) {
+      const lam = Array.from({length: 8}, () => Math.random());
+      const A = LA.add(Phi, LA.scale(LA.mul(Gamma, LA.mul(LA.diag(lam), K)), -1));
+      samples.push({r: LA.rho(A), y: Math.random()});
+    }
+    draw();
+  }
+
+  function draw() {
+    const p = palette(), c = clear(cv);
+    const ax = new Axes(c, 150, 70, 1270, 250, [0.45, 1.05], [0, 3]);
+    panelTitle(c, "every closed-loop matrix each scheme can reach, placed by spectral radius", 150, 44, p);
+    ax.frame(p, [0.5, 0.6, 0.7, 0.8, 0.9, 1.0], [], t => t.toFixed(1), null, "ρ(A)", null);
+    /* the stability boundary */
+    c.save();
+    c.fillStyle = p.crimson; c.globalAlpha = 0.10;
+    c.fillRect(ax.X(1), ax.y, ax.x + ax.w - ax.X(1), ax.h);
+    c.globalAlpha = 1; c.strokeStyle = p.crimson; c.lineWidth = 2.5;
+    c.beginPath(); c.moveTo(ax.X(1), ax.y); c.lineTo(ax.X(1), ax.y + ax.h); c.stroke();
+    c.fillStyle = p.crimson; c.font = `600 19px ${FONT}`; c.textAlign = "left";
+    c.fillText("ρ ≥ 1, not stable", ax.X(1) + 10, ax.y + 20);
+    c.restore();
+
+    const row = (yv, label, sub) => {
+      c.save(); c.fillStyle = p.ink2; c.font = `600 19px ${FONT}`;
+      c.textAlign = "right"; c.textBaseline = "middle";
+      c.fillText(label, ax.x - 14, ax.Y(yv));
+      c.fillStyle = p.ink3; c.font = `500 16px ${FONT}`;
+      c.fillText(sub, ax.x - 14, ax.Y(yv) + 22);
+      c.restore();
+    };
+
+    /* row 1: the segment */
+    row(2.4, "uniform β", "2 endpoints");
+    c.save();
+    c.fillStyle = p.blue; c.globalAlpha = 0.28;
+    c.fillRect(ax.X(segLo), ax.Y(2.62), ax.X(segHi) - ax.X(segLo), ax.Y(2.18) - ax.Y(2.62));
+    c.globalAlpha = 1; c.strokeStyle = p.blue; c.lineWidth = 2.5;
+    c.strokeRect(ax.X(segLo), ax.Y(2.62), ax.X(segHi) - ax.X(segLo), ax.Y(2.18) - ax.Y(2.62));
+    c.restore();
+    ax.dots([[DATA.paper.rho[0], 2.4], [DATA.paper.rho[1], 2.4]], p.blue, 8);
+
+    /* row 2: the clipping vertices */
+    row(1.5, "clipping vertices", `${radii.length} of them`);
+    c.save(); c.strokeStyle = p.crimson; c.lineWidth = 2; c.globalAlpha = 0.55;
+    radii.forEach(r => {
+      c.beginPath(); c.moveTo(ax.X(r), ax.Y(1.72)); c.lineTo(ax.X(r), ax.Y(1.28)); c.stroke();
+    });
+    c.restore();
+
+    /* row 3: random interior samples */
+    row(0.55, "random Λ", "interior of the polytope");
+    c.save(); c.fillStyle = p.graphite; c.globalAlpha = 0.5;
+    samples.forEach(s => {
+      c.beginPath(); c.arc(ax.X(s.r), ax.Y(0.25 + 0.62 * s.y), 3.2, 0, 7); c.fill();
+    });
+    c.restore();
+
+    document.getElementById("p-seg").textContent = `${segLo.toFixed(4)} – ${segHi.toFixed(4)}`;
+    document.getElementById("p-n").textContent = String(samples.length);
+    document.getElementById("p-worst").textContent =
+      samples.length ? Math.max(...samples.map(s => s.r)).toFixed(6) : "—";
+  }
+  document.getElementById("p-sample").addEventListener("click", () => sample(200));
+  document.getElementById("p-clear").addEventListener("click", () => { samples = []; draw(); });
+  onTheme(draw);
+  draw();
+})();
+
+/* ================================================================== *
+ * Laboratory 6 - the envelope against the exact run                   *
+ * ================================================================== */
+(function labRun() {
+  const cv = document.getElementById("x-canvas");
+  if (!cv) return;
+  const R = DATA.response;
+  const q = Math.max(DATA.paper.q0, DATA.paper.q1), q1 = DATA.paper.q1;
+  const NC = 24;
+  let upto = NC, timer = null, showOpen = true;
+
+  function draw() {
+    const p = palette(), c = clear(cv);
+    const e0 = R.conditioned_pnorm[0];
+    const ax = new Axes(c, 150, 70, 1270, 350, [0, NC], [1e-5, 1], true);
+    panelTitle(c, "cycle-start error in the certified norm", 150, 44, p);
+    ax.frame(p, [0, 5, 10, 15, 20], [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1],
+      t => String(t), t => t === 1 ? "1" : "10⁻" + String(Math.round(-Math.log10(t))),
+      null, "‖zₖ‖ₚ / ‖z₀‖ₚ");
+    ax.line(Array.from({length: NC + 1}, (_, i) => [i, Math.pow(q, i)]), p.graphite, 2.5, [8, 5]);
+    ax.line(Array.from({length: NC + 1}, (_, i) => [i, Math.pow(q1, i)]), p.teal, 2, [3, 4]);
+    if (showOpen) {
+      const o = R.open_pnorm.slice(0, NC + 1).map((v, i) => [i, v / R.open_pnorm[0]]);
+      ax.line(o.slice(0, upto + 1), p.amber, 2.5);
+    }
+    const cd = R.conditioned_pnorm.slice(0, NC + 1).map((v, i) => [i, v / e0]);
+    ax.line(cd.slice(0, upto + 1), p.blue, 3.5);
+    ax.dots(cd.slice(0, upto + 1), p.blue, 4.2);
+    ax.text("certified worst case qᵏ", 8.4, 0.30, p.graphite, {font: `600 19px ${FONT}`});
+    ax.text("rate at β ≡ 1", 12.2, 0.010, p.teal, {font: `600 19px ${FONT}`});
+    ax.text("exact nonlinear plant", 3.2, 1.6e-4, p.blue, {font: `600 19px ${FONT}`});
+    if (showOpen) ax.text("open loop", 17.5, 0.62, p.amber, {font: `600 19px ${FONT}`});
+
+    const sx = new Axes(c, 150, 480, 1270, 80, [0, NC], [0, 1.06]);
+    sx.frame(p, [0, 5, 10, 15, 20], [0, 1], t => String(t), t => String(t), "cycle k", "βₖ");
+    const bw = (sx.X(1) - sx.X(0)) * 0.55;
+    R.beta.slice(0, Math.min(upto + 1, NC + 1)).forEach((bt, i) => {
+      c.save();
+      c.fillStyle = bt < 1 - 1e-9 ? p.crimson : p.blue;
+      c.globalAlpha = bt < 1 - 1e-9 ? 0.85 : 0.35;
+      c.fillRect(sx.X(i) - bw / 2, sx.Y(bt), bw, sx.Y(0) - sx.Y(bt));
+      c.restore();
+    });
+    c.save();
+    c.fillStyle = p.crimson; c.font = `600 19px ${FONT}`; c.textAlign = "left";
+    c.fillText("conditioning active", sx.X(3.4), sx.Y(0.55));
+    c.restore();
+  }
+  document.getElementById("x-play").addEventListener("click", () => {
+    if (timer) { clearInterval(timer); timer = null; }
+    upto = 0; draw();
+    timer = setInterval(() => { upto++; draw(); if (upto >= NC) { clearInterval(timer); timer = null; } }, 130);
+  });
+  document.getElementById("x-open").addEventListener("change", e => { showOpen = e.target.checked; draw(); });
+  onTheme(draw);
+  draw();
+})();
+</script>
+</body>
+</html>

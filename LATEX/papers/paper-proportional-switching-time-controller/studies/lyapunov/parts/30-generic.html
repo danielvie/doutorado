@@ -1,0 +1,236 @@
+<section id="generic" class="stack">
+  <p class="crumb">3 &#183; Worked example: a two-mode switched system</p>
+  <h2>A switched system with no obvious Lyapunov function</h2>
+
+  <p>Here is the system for the rest of this section. State in &#8477;&#178;, one step per instant,
+  and at every instant an unknown signal picks one of two linear maps:</p>
+
+  <div class="eq center">x<sub>k+1</sub> = A<sub>&#963;(k)</sub> x<sub>k</sub>,&#160;&#160;&#160;
+    &#963;(k) &#8712; {1, 2},</div>
+  <div class="eq center">
+    A<sub>1</sub> = [ &#160;&#160;{{generic.A1.0.0|g}}&#160;&#160;&#160;{{generic.A1.0.1|g}} ;
+    &#160;{{generic.A1.1.0|g}}&#160;&#160;{{generic.A1.1.1|g}} ],&#160;&#160;&#160;&#160;
+    A<sub>2</sub> = [ &#160;{{generic.A2.0.0|g}}&#160;&#160;&#160;{{generic.A2.0.1|g}} ;
+    &#160;{{generic.A2.1.0|g}}&#160;&#160;{{generic.A2.1.1|g}} ].
+  </div>
+
+  <p>Nothing about it is exotic. Both modes are stable on their own: the eigenvalues of
+  <em>A</em><sub>1</sub> are {{generic.eigA1.0|.1f}} and {{generic.eigA1.1|.1f}}, those of
+  <em>A</em><sub>2</sub> are {{generic.eigA2.0|.1f}} and {{generic.eigA2.1|.1f}}, so
+  &#961;(<em>A</em><sub>1</sub>) = &#961;(<em>A</em><sub>2</sub>) = {{generic.rho.0|.2f}}. Left
+  running by itself, either mode decays.</p>
+
+  <p>And that fact proves nothing whatsoever about the switched system. Section 3.5 shows a pair with
+  identical spectral radii whose alternation diverges. Eigenvalues describe where a fixed map ends
+  up after many steps; a switching signal never gives any map that many steps.</p>
+
+  <p>There is also no physics to fall back on. These are abstract coordinates, an error rather than a
+  position, so there is no stored energy to write down. That is the normal
+  situation once you leave textbook mechanics, and it is exactly the situation in
+  <a href="#paper">&#167;5</a>, where the state is a converter&#8217;s deviation from its target limit
+  cycle.</p>
+
+  <h3>3.1&#160; Testing four candidate Lyapunov functions</h3>
+
+  <p>Take the four candidates anyone would reach for, in order.</p>
+
+  <p><strong>The Euclidean one.</strong> <em>V</em>(<em>x</em>) = <em>x</em>&#8348;<em>x</em>
+  decreases under <em>A</em> exactly when &#8214;<em>A</em>&#8214;<sub>2</sub> &lt; 1. Here
+  &#8214;<em>A</em><sub>1</sub>&#8214;<sub>2</sub> = {{generic.norm2.0|.4f}} and
+  &#8214;<em>A</em><sub>2</sub>&#8214;<sub>2</sub> = {{generic.norm2.1|.4f}}. Both modes stretch some
+  direction, so the Euclidean norm can grow, and under the right switching it grows repeatedly.
+  This is the single most common mistake in the area: a matrix can be Schur and still have norm well
+  above one, because eigenvalues and singular values are different questions.</p>
+
+  <p><strong>Mode 1&#8217;s own certificate.</strong> Solve
+  <em>A</em><sub>1</sub>&#8348;<em>P</em><em>A</em><sub>1</sub> &#8722; <em>P</em> = &#8722;<em>I</em>
+  with <code>dlyap</code>. That <em>P</em> certifies mode 1 by construction. Test it on mode 2 and the
+  largest eigenvalue of <em>A</em><sub>2</sub>&#8348;<em>PA</em><sub>2</sub> &#8722; <em>P</em> comes back
+  at <span class="fail">+{{generic.cross_gap.0|.4f}}</span>. It fails.</p>
+
+  <p><strong>Mode 2&#8217;s own certificate.</strong> Same construction, tested on mode 1:
+  <span class="fail">+{{generic.cross_gap.1|.4f}}</span>. Fails harder.</p>
+
+  <p><strong>A diagonal ruler.</strong> Reweighting the coordinates independently, which is the
+  &#8220;just scale the states&#8221; instinct, means restricting <em>P</em> to be diagonal.
+  Run the same feasibility program over diagonal <em>P</em> only and the solver reports
+  <span class="fail">infeasible</span>. No amount of per-axis scaling certifies this pair; the level
+  sets have to be tilted, which needs a nonzero off-diagonal entry.</p>
+
+  <table>
+    <thead><tr><th>Candidate V</th><th class="n">worst eig(A&#8348;PA &#8722; P)</th><th>verdict</th></tr></thead>
+    <tbody>
+      <tr><td>P = I &#160;<span class="mono">(Euclidean)</span></td><td class="n">+{{generic.identity_gap.0|.4f}}</td><td class="fail">fails on mode 1</td></tr>
+      <tr><td>P = I &#160;<span class="mono">(Euclidean)</span></td><td class="n">+{{generic.identity_gap.1|.4f}}</td><td class="fail">fails on mode 2</td></tr>
+      <tr><td>P from <code>dlyap(A1',I)</code></td><td class="n">+{{generic.cross_gap.0|.4f}}</td><td class="fail">fails on mode 2</td></tr>
+      <tr><td>P from <code>dlyap(A2',I)</code></td><td class="n">+{{generic.cross_gap.1|.4f}}</td><td class="fail">fails on mode 1</td></tr>
+      <tr><td>P diagonal, any weights</td><td class="n">&#8212;</td><td class="fail">program infeasible</td></tr>
+      <tr><td>P from the SDP</td><td class="n">&#8722;{{generic.decrease|.4f}}</td><td class="pass">certifies both</td></tr>
+    </tbody>
+  </table>
+
+  <h3>3.2&#160; The feasible set of certificates, drawn</h3>
+
+  <p>Because the state is two-dimensional and scale is free, the whole search space fits on a page.
+  Normalise trace(<em>P</em>) = 2 and write</p>
+  <div class="eq center">P = [ &#160;1 + a&#160;&#160;&#160;b ; &#160;&#160;&#160;b&#160;&#160;&#160;1 &#8722; a ],</div>
+  <p>so every candidate <em>P</em> is one point (a, b) in a plane. <em>P</em> &#8827; 0 is the open unit
+  disc a&#178; + b&#178; &lt; 1. Each mode&#8217;s decrease condition carves out a further convex
+  region. The lab below scans that plane and shades what survives.</p>
+
+  <div class="lab wide" id="lab-rulers">
+    <div class="lab-head">
+      <div><p class="eyebrow">Laboratory 1</p><h3>The feasible set of Lyapunov matrices</h3></div>
+      <div class="controls">
+        <label>system
+          <select id="r-system">
+            <option value="A">A&#8321;, A&#8322; (common P exists)</option>
+            <option value="B">B&#8321;, B&#8322; (no common P)</option>
+          </select>
+        </label>
+        <button id="r-reset" type="button">reset to the SDP answer</button>
+      </div>
+    </div>
+    <div class="lab-body">
+      <p style="font-size:.88rem;color:var(--ink-2)">Drag inside the left panel to choose a <em>P</em>.
+      Green is where a certificate lives: both modes contract. The right panel shows what your choice
+      means geometrically. The level set {x : x&#8348;Px = 1} is grey, and its image under each
+      mode. A candidate works exactly when both images fall <em>inside</em> the grey curve.</p>
+      <canvas id="r-canvas" width="1520" height="620" style="aspect-ratio:1520/620"></canvas>
+      <div class="legend">
+        <span><i class="swatch" style="background:var(--graphite)"></i>level set of your P</span>
+        <span><i class="swatch" style="background:var(--blue)"></i>its image under A&#8321;</span>
+        <span><i class="swatch" style="background:var(--crimson)"></i>its image under A&#8322;</span>
+        <span><i class="swatch dot" style="background:var(--teal)"></i>the SDP answer</span>
+      </div>
+      <div class="readout">
+        <div class="rd"><span class="k">P</span><span class="v" id="r-p">&#8212;</span></div>
+        <div class="rd" id="r-rd1"><span class="k">&#8214;A&#8321;&#8214;<sub>P</sub></span><span class="v" id="r-q1">&#8212;</span></div>
+        <div class="rd" id="r-rd2"><span class="k">&#8214;A&#8322;&#8214;<sub>P</sub></span><span class="v" id="r-q2">&#8212;</span></div>
+        <div class="rd"><span class="k">cond(P)</span><span class="v" id="r-cond">&#8212;</span></div>
+      </div>
+      <p class="verdict" id="r-verdict">&#8212;</p>
+    </div>
+  </div>
+
+  <p>Three things are worth doing in that lab before moving on. Drag to the origin: that is
+  <em>P</em> = <em>I</em>, and both images spill outside. Drag along the horizontal axis b = 0: that
+  is the entire family of diagonal <em>P</em>, and the line misses the green region altogether,
+  which is what &#8220;diagonal <em>P</em> infeasible&#8221; looks like. Then switch the system to the
+  second pair and watch the green region vanish; for that pair there is nothing to find, and any
+  amount of cleverness would have been wasted.</p>
+
+  <h3>3.3&#160; Solving the semidefinite program</h3>
+
+  <p>The program is four lines of YALMIP. Maximise the decrease margin t subject to positive
+  definiteness, the trace normalisation, and one decrease constraint per mode:</p>
+
+  <pre><span class="c">% studies/lyapunov/generic_example.m</span>
+P = <span class="k">sdpvar</span>(2, 2, <span class="s">'symmetric'</span>);
+t = <span class="k">sdpvar</span>(1);
+C = [P &gt;= 1e-8*<span class="k">eye</span>(2), <span class="k">trace</span>(P) == 2, t &gt;= 0, ...
+     A1'*P*A1 - P &lt;= -t*<span class="k">eye</span>(2), ...
+     A2'*P*A2 - P &lt;= -t*<span class="k">eye</span>(2)];
+<span class="k">optimize</span>(C, -t, <span class="k">sdpsettings</span>(<span class="s">'solver'</span>, <span class="s">'sedumi'</span>));</pre>
+
+  <p>The solver returns</p>
+
+  <div class="eq center">P = [ &#160;{{generic.P.0.0|.6f}}&#160;&#160;{{generic.P.0.1|.6f}} ;
+    &#160;{{generic.P.1.0|.6f}}&#160;&#160;{{generic.P.1.1|.6f}} ],&#160;&#160;&#160;
+    t = {{generic.decrease|.6f}},</div>
+
+  <p>with eigenvalues {{generic.eigP.0|.4f}} and {{generic.eigP.1|.4f}}, so cond(<em>P</em>) =
+  {{generic.condP|.2f}}. The level sets are strongly tilted. The off-diagonal entry is nearly as
+  large as the diagonal ones, which is why no diagonal <em>P</em> could have done the job.
+  The contraction factors are</p>
+
+  <div class="eq center">&#8214;A<sub>1</sub>&#8214;<sub>P</sub> = {{generic.q.0|.6f}},&#160;&#160;&#160;
+    &#8214;A<sub>2</sub>&#8214;<sub>P</sub> = {{generic.q.1|.6f}},&#160;&#160;&#160;
+    q = {{generic.q.0|.6f}}.</div>
+
+  <p>Read that as a guarantee with no fine print: whatever the switching signal does, forever,
+  <em>V</em> drops by at least a factor q&#178; = {{generic.qsq|.4f}} every single step.</p>
+
+  <h3>3.4&#160; Behaviour under adversarial switching</h3>
+
+  <p>The guarantee is easier to believe once you have tried to break it. In the bench below, the
+  <em>adversary</em> policy picks, at every step, whichever mode makes &#8214;<em>x</em>&#8214;<sub>2</sub>
+  grow the most. It is a signal built to defeat the Euclidean ruler.</p>
+
+  <div class="lab wide" id="lab-bench">
+    <div class="lab-head">
+      <div><p class="eyebrow">Laboratory 2</p><h3>Switching simulator: Euclidean norm against certified norm</h3></div>
+      <div class="controls">
+        <label>system
+          <select id="b-system">
+            <option value="A">A&#8321;, A&#8322;</option>
+            <option value="B">B&#8321;, B&#8322; (no common P)</option>
+          </select>
+        </label>
+        <label>signal
+          <select id="b-policy">
+            <option value="adv">adversary</option>
+            <option value="rand">random</option>
+            <option value="alt">alternating</option>
+            <option value="m1">always mode 1</option>
+            <option value="m2">always mode 2</option>
+            <option value="manual">manual</option>
+          </select>
+        </label>
+        <button id="b-play" type="button">play</button>
+        <button id="b-step" type="button">step</button>
+        <button id="b-reset" type="button">reset</button>
+        <span id="b-manual" style="display:none">
+          <button id="b-m1" type="button">apply A&#8321;</button>
+          <button id="b-m2" type="button">apply A&#8322;</button>
+        </span>
+      </div>
+    </div>
+    <div class="lab-body">
+      <p style="font-size:.88rem;color:var(--ink-2)">Drag in the left panel to place
+      <em>x</em><sub>0</sub>. The ellipse through the current point is its level set of the certified
+      <em>V</em>; watch it shrink monotonically even while the dot moves further from the origin.</p>
+      <canvas id="b-canvas" width="1520" height="600" style="aspect-ratio:1520/600"></canvas>
+      <div class="legend">
+        <span><i class="swatch" style="background:var(--crimson)"></i>&#8214;x&#8342;&#8214;&#8322;, Euclidean</span>
+        <span><i class="swatch" style="background:var(--blue)"></i>&#8730;V(x&#8342;), certified</span>
+        <span><i class="swatch" style="background:var(--graphite)"></i>the q&#7503; envelope</span>
+      </div>
+      <div class="readout">
+        <div class="rd"><span class="k">step</span><span class="v" id="b-k">0</span></div>
+        <div class="rd" id="b-rd-e"><span class="k">&#8214;x&#8342;&#8214;&#8322; / &#8214;x&#8320;&#8214;&#8322;</span><span class="v" id="b-e">1.000</span></div>
+        <div class="rd" id="b-rd-v"><span class="k">&#8730;(V&#8342;/V&#8320;)</span><span class="v" id="b-v">1.000</span></div>
+        <div class="rd"><span class="k">peak Euclidean</span><span class="v" id="b-peak">1.000</span></div>
+      </div>
+      <p class="verdict" id="b-verdict">&#8212;</p>
+    </div>
+  </div>
+
+  <p>Under the adversary the Euclidean norm climbs to about {{generic.peak|.2f}} times its starting
+  value and stays above it for several steps. Anyone watching &#8214;<em>x</em>&#8214;<sub>2</sub>
+  would report a system on its way out. The certified <em>V</em> never rises once. Both curves
+  describe the same trajectory; they differ only in which ruler is being held up against it.</p>
+
+  <h3>3.5&#160; A pair for which no common quadratic Lyapunov function exists</h3>
+
+  <p>The method has a real boundary, and it is worth seeing it. Take</p>
+  <div class="eq center">
+    B<sub>1</sub> = [ &#160;{{counter.B1.0.0|g}}&#160;&#160;{{counter.B1.0.1|g}} ;
+      &#160;&#160;&#160;{{counter.B1.1.0|g}}&#160;&#160;{{counter.B1.1.1|g}} ],&#160;&#160;&#160;&#160;
+    B<sub>2</sub> = [ &#160;&#160;{{counter.B2.0.0|g}}&#160;&#160;&#160;&#160;{{counter.B2.0.1|g}} ;
+      &#160;{{counter.B2.1.0|g}}&#160;&#160;{{counter.B2.1.1|g}} ].
+  </div>
+  <p>Both are Schur, with &#961;(<em>B</em><sub>1</sub>) = &#961;(<em>B</em><sub>2</sub>) =
+  {{counter.rho.0|.2f}}. But &#961;(<em>B</em><sub>1</sub><em>B</em><sub>2</sub>) =
+  {{counter.rho_product|.4f}} &gt; 1, so the plain alternating signal
+  1, 2, 1, 2, &#8230; diverges geometrically. Switch either lab above to this pair: the trajectory
+  runs off the panel, and the feasible region in Laboratory 1 is empty. The SDP does not
+  struggle or time out. It returns <span class="mono">infeasible</span>, which is a theorem
+  about the system, not a complaint about the solver.</p>
+
+  <p>When that happens the quadratic class is too small and you enlarge it: a different <em>V</em>
+  per mode with jump conditions, a minimum dwell time so no mode gets cut short, a polytopic or
+  piecewise-quadratic <em>V</em>, or sum-of-squares for genuinely nonlinear dynamics. All of them
+  cost more, and all of them are the right answer only after the cheap test has failed. Run the cheap
+  test first.</p>
+</section>

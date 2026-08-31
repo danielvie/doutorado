@@ -1,0 +1,154 @@
+<section id="matlab" class="stack">
+  <p class="crumb">4 &#183; Solving the LMI in MATLAB</p>
+  <h2>Three modelling layers, and how to verify the result</h2>
+
+  <p>The LMI is the same in every case; only the modelling layer differs. All three routes below were
+  run on the pair from &#167;3.</p>
+
+  <h3>4.1&#160; YALMIP with a conic solver</h3>
+  <p>The one this repository uses, in <code>scripts/generate_results.m</code> and in
+  <code>studies/lyapunov/generic_example.m</code>. You write the inequalities the way you would write
+  them on paper, and YALMIP compiles them for whichever solver is on the path.</p>
+
+  <pre><span class="k">function</span> [P, decrease] = common_lyapunov(A)
+n = <span class="k">size</span>(A{1}, 1);
+P_var = <span class="k">sdpvar</span>(n, n, <span class="s">'symmetric'</span>);
+t     = <span class="k">sdpvar</span>(1);
+
+constraints = [P_var &gt;= 1e-8*<span class="k">eye</span>(n), <span class="k">trace</span>(P_var) == n, t &gt;= 0];
+<span class="k">for</span> i = 1:<span class="k">numel</span>(A)
+    constraints = [constraints, A{i}'*P_var*A{i} - P_var &lt;= -t*<span class="k">eye</span>(n)];
+<span class="k">end</span>
+
+diagnostics = <span class="k">optimize</span>(constraints, -t, ...
+    <span class="k">sdpsettings</span>(<span class="s">'solver'</span>, <span class="s">'sedumi'</span>, <span class="s">'verbose'</span>, 0, <span class="s">'sedumi.eps'</span>, 1e-9));
+<span class="k">if</span> diagnostics.problem ~= 0
+    <span class="k">error</span>(<span class="s">'common_lyapunov:infeasible'</span>, <span class="s">'%s'</span>, diagnostics.info);
+<span class="k">end</span>
+
+P = <span class="k">value</span>(P_var);
+P = (P + P')/2;                     <span class="c">% kill the asymmetry the solver leaves behind</span>
+decrease = <span class="k">value</span>(t);</pre>
+
+  <div class="note aside stack-tight">
+    <h4>Three implementation details that matter</h4>
+    <p><code>trace(P) == n</code> bounds the problem. Without it, maximising t is unbounded, and
+    solvers respond to that by returning nonsense or by failing in a way that looks like
+    infeasibility.</p>
+    <p><code>P = (P + P')/2</code> after <code>value()</code>. The returned matrix is symmetric only
+    to solver tolerance, and an unsymmetrised <em>P</em> makes every later eigenvalue test slightly
+    wrong.</p>
+    <p>Check <code>diagnostics.problem</code> and <em>fail loudly</em>. Code that keeps going after
+    an infeasible solve will quietly compute a &#8220;certificate&#8221; from garbage.</p>
+  </div>
+
+  <p>Running <code>generic_example</code> prints:</p>
+
+  <pre class="out">1. Why the obvious candidates fail
+A1 spectral radius   0.7000   (Schur)
+A1 2-norm            1.7680   (expands some direction)
+A2 spectral radius   0.7000   (Schur)
+A2 2-norm            1.3730   (expands some direction)
+P = I : max eig(A1'*A1 - I) = +2.1259
+P = I : max eig(A2'*A2 - I) = +0.8850
+P from mode 1: max eig(A2'*P*A2 - P) = +1.1557   -&gt; fails for the other mode
+P from mode 2: max eig(A1'*P*A1 - P) = +3.5841   -&gt; fails for the other mode
+Diagonal P feasible: 0
+
+2. The semidefinite program
+P =
+    0.9579    0.8044
+    0.8044    1.0421
+cond(P)             9.2822
+decrease margin     0.043789
+
+3. Verifying the certificate independently of the solver
+mode 1: min eig(P - A'PA) = +0.043789   ||A1||_P = 0.914931
+mode 2: min eig(P - A'PA) = +0.043789   ||A2||_P = 0.895469
+contraction factor  q = 0.914931  (V drops by at least q^2 = 0.837099 per step)
+
+6. A pair with no common quadratic Lyapunov function
+rho(B1) = 0.7500, rho(B2) = 0.7500  (both Schur)
+rho(B1*B2) = 1.1629  (the alternating sequence diverges)
+SDP status: Infeasible problem (SeDuMi)</pre>
+
+  <h3>4.2&#160; The Robust Control Toolbox LMI Lab</h3>
+  <p>If YALMIP is not available, the Robust Control Toolbox ships an LMI parser. It is older and much more
+  verbose. Each term of each inequality is declared separately, and the sign convention takes a
+  moment to internalise. But it needs nothing beyond MATLAB.</p>
+
+  <pre><span class="k">setlmis</span>([]);
+P = <span class="k">lmivar</span>(1, [2 1]);              <span class="c">% one full symmetric 2x2 block</span>
+<span class="k">lmiterm</span>([-1 1 1 P], 1, 1);         <span class="c">% LMI 1:  P &gt; I</span>
+<span class="k">lmiterm</span>([ 1 1 1 0], 1);
+<span class="k">lmiterm</span>([ 2 1 1 P], A1', A1);       <span class="c">% LMI 2:  A1'*P*A1 - P &lt; 0</span>
+<span class="k">lmiterm</span>([-2 1 1 P], 1, 1);
+<span class="k">lmiterm</span>([ 3 1 1 P], A2', A2);       <span class="c">% LMI 3:  A2'*P*A2 - P &lt; 0</span>
+<span class="k">lmiterm</span>([-3 1 1 P], 1, 1);
+problem = <span class="k">getlmis</span>;
+[tmin, xfeas] = <span class="k">feasp</span>(problem);      <span class="c">% feasible when tmin &lt; 0</span>
+Pv = <span class="k">dec2mat</span>(problem, xfeas, P);</pre>
+
+  <pre class="out">Result:  best value of t:   -0.101082
+
+Pv (rescaled to trace 2) =
+    1.0404    0.7109
+    0.7109    0.9596
+||A1||_P = 0.968073   ||A2||_P = 0.975229</pre>
+
+  <p>A different <em>P</em>, and a worse contraction factor: 0.9681 against 0.9149. Both are
+  correct. <code>feasp</code> stops as soon as it is inside the feasible set, while the YALMIP program
+  above pushes for the largest decrease margin. If all you need is a yes/no answer, stopping early is
+  fine. If you are going to quote a convergence rate, ask for the margin.</p>
+
+  <h3>4.3&#160; CVX</h3>
+  <p>Closest to the mathematical notation of the three. Requires CVX to be installed; it is not on
+  this machine, so unlike the two above this snippet is written from the API rather than from a run.</p>
+
+  <pre><span class="k">cvx_begin</span> sdp <span class="k">quiet</span>
+    <span class="k">variable</span> P(n, n) symmetric
+    <span class="k">variable</span> t
+    <span class="k">maximize</span>(t)
+    <span class="k">subject to</span>
+        P - 1e-8*<span class="k">eye</span>(n) &gt;= 0;
+        <span class="k">trace</span>(P) == n;
+        <span class="k">for</span> i = 1:<span class="k">numel</span>(A)
+            P - A{i}'*P*A{i} - t*<span class="k">eye</span>(n) &gt;= 0;
+        <span class="k">end</span>
+<span class="k">cvx_end</span></pre>
+
+  <h3 id="verify">4.4&#160; Verifying the certificate independently of the solver</h3>
+
+  <p>A conic solver returns an approximate solution to a tolerance. Near the boundary of the feasible
+  set, which is where the interesting cases sit and where the paper&#8217;s own certificate sits,
+  that tolerance can be the difference between a proof and a wrong claim.
+  The certificate is cheap to re-check independently, so re-check it. Four lines:</p>
+
+  <pre>P = (P + P')/2;                                  <span class="c">% symmetrise first</span>
+<span class="k">assert</span>(<span class="k">min</span>(<span class="k">eig</span>(P)) &gt; 0)                          <span class="c">% P really is positive definite</span>
+<span class="k">for</span> i = 1:<span class="k">numel</span>(A)
+    S = P - A{i}'*P*A{i};  S = (S + S')/2;
+    <span class="k">assert</span>(<span class="k">min</span>(<span class="k">eig</span>(S)) &gt; 0)                      <span class="c">% strict decrease, with a margin</span>
+    q(i) = <span class="k">sqrt</span>(<span class="k">max</span>(<span class="k">real</span>(<span class="k">eig</span>(A{i}'*P*A{i}, P))));   <span class="c">% the contraction factor</span>
+<span class="k">end</span></pre>
+
+  <p>The generalised eigenvalue call is worth a note. &#8214;<em>A</em>&#8214;<sub>P</sub><sup>2</sup>
+  is the largest &#955; with <em>A</em>&#8348;<em>PA v</em> = &#955;<em>Pv</em>, which
+  <code>eig(A'*P*A, P)</code> computes directly, with no Cholesky factor to form and no explicit
+  inverse. Take <code>real</code> of the result: the pencil is symmetric so the eigenvalues are real,
+  but rounding can leave imaginary parts of order 10<sup>&#8722;16</sup> that will otherwise
+  contaminate a <code>max</code>.</p>
+
+  <div class="note warn stack-tight">
+    <h4>Two numerical failure modes</h4>
+    <p><strong>A margin that is only numerically positive.</strong> If <code>min(eig(P - A'PA))</code>
+    comes back at 10<sup>&#8722;11</sup>, you do not have a proof, you have a solver artefact. The
+    certificate in &#167;5 has margin 9.7&#215;10<sup>&#8722;5</sup> with a contraction factor of
+    {{paper.q0|.6f}}. That is close to the boundary, but comfortably above the noise floor,
+    and the paper says so rather than rounding it to 1.</p>
+    <p><strong>A badly conditioned P.</strong> cond(<em>P</em>) is how eccentric the ellipsoid is.
+    The certificate in &#167;5 has cond(<em>P</em>) = {{paper.condP|.0f}}, which is fine for a proof
+    but means &#8214;<em>e</em>&#8214;<sub>P</sub> and &#8214;<em>e</em>&#8214;<sub>2</sub> can differ
+    by a factor of {{paper.condsqrt|.0f}}. Never quote one while thinking about the other.</p>
+  </div>
+</section>

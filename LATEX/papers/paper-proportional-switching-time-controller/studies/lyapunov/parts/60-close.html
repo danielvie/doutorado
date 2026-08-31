@@ -1,0 +1,110 @@
+<section id="limits" class="stack">
+  <p class="crumb">6 &#183; Scope of the result, and reproduction</p>
+  <h2>What is proved, what is not, and how to rerun it</h2>
+
+  <p>A Lyapunov certificate is a narrow, exact statement, and most of the trouble it causes comes from
+  reading it wider than it is. For the result in &#167;5, the line falls here.</p>
+
+  <table>
+    <thead><tr><th>Proved</th><th>Not proved</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Every A(&#946;) on the segment contracts in &#8214;&#183;&#8214;<sub>P</sub> by at most
+        q = {{paper.q0|.6f}}, for arbitrary and state-dependent &#946; sequences.</td>
+        <td>Anything about the nonlinear remainder of the cycle map away from the anchor. The segment
+        result is a statement about the linearization.</td>
+      </tr>
+      <tr>
+        <td>The conditioner returns the largest feasible &#946;, preserves the cycle period exactly,
+        and preserves the direction of the raw action.</td>
+        <td>That per-component clipping would also have worked. It would not; see
+        <a href="#clipping">&#167;5.7</a>.</td>
+      </tr>
+      <tr>
+        <td>Local exponential stability of the anchor for the exact map, in the neighbourhood where
+        conditioning is inactive and the Jacobian is A<sub>cl</sub>.</td>
+        <td>A region of attraction. The neighbourhood is shown to exist; it is not estimated.</td>
+      </tr>
+      <tr>
+        <td>Stability of the family in the linearized model even when the open loop is the only thing
+        acting.</td>
+        <td>Performance. q is set by the open-loop endpoint and describes the case where the
+        controller never corrects.</td>
+      </tr>
+      <tr>
+        <td>Nothing about hardware.</td>
+        <td>Timer quantisation, transport delay, dead time, state estimation, parameter uncertainty,
+        execution time. None of these are in the model.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>The habit worth building is to state the family the certificate covers before quoting the
+  number. &#8220;q = {{paper.q0|.6f}} over the segment between &#934; and <em>A</em><sub>cl</sub>, for
+  any &#946; sequence in [0,1]&#8221; is a claim someone can check. &#8220;The system is stable&#8221;
+  is not.</p>
+
+  <h3>6.1&#160; Reproducing these results</h3>
+
+  <p>From the repository root, with YALMIP and SeDuMi on the MATLAB path:</p>
+
+  <pre><span class="c">% the worked example of sections 3 and 4</span>
+<span class="k">cd</span> studies/lyapunov
+generic_example
+
+<span class="c">% the paper's certificate, rebuilt from the generated results</span>
+paper_certificate
+
+<span class="c">% regenerate the data embedded in this page, then rebuild it</span>
+export_study_data
+<span class="c">%   $ python build.py</span></pre>
+
+  <p><code>paper_certificate</code> reads <code>results/paper_results.mat</code>, so
+  <code>scripts/generate_results.m</code> has to have been run first. It re-solves the semidefinite
+  program from scratch and reports the Frobenius distance to the stored <em>P</em>; on this machine
+  that distance is zero, because SeDuMi is deterministic for this problem.</p>
+
+  <h3>6.2&#160; Related material in this repository</h3>
+
+  <ul>
+    <li><code>docs/choosing-lyapunov-functions.html</code>. The same three routes to a
+    <em>V</em> (physics, the Lyapunov equation, optimization) compared side by side on one example,
+    with more attention to the physical-energy route than this study gives it.</li>
+    <li><code>docs/lyapunov-stability.html</code>. A longer conceptual treatment of the
+    paper&#8217;s stability argument, including the traps around eigenvalues and the symbol table.</li>
+    <li><code>docs/dwell-time-conditioning.html</code> and <code>docs/computing-beta.html</code>.
+    The conditioner itself, in more detail than &#167;5.3 here.</li>
+    <li><code>article.tex</code>, &#167;3. The propositions as published, with proofs.</li>
+    <li>Boyd et al., <em>Linear Matrix Inequalities in System and Control Theory</em> (SIAM, 1994).
+    The standard reference for why all of this is convex, cited by the paper for that point.</li>
+  </ul>
+
+  <h3>6.3&#160; Symbol table</h3>
+  <table>
+    <tbody>
+      <tr><td class="mono">V(x) = x&#8348;Px</td><td>the quadratic Lyapunov function; <em>P</em> symmetric positive definite</td></tr>
+      <tr><td class="mono">&#8214;x&#8214;<sub>P</sub></td><td>(x&#8348;Px)<sup>1/2</sup>, the norm <em>P</em> induces</td></tr>
+      <tr><td class="mono">&#8214;A&#8214;<sub>P</sub></td><td>the induced matrix norm; &lt; 1 is the same statement as A&#8348;PA &#8722; P &#8826; 0</td></tr>
+      <tr><td class="mono">&#961;(A)</td><td>spectral radius; an asymptotic rate for fixed <em>A</em>, not a per-step bound</td></tr>
+      <tr><td class="mono">&#934;</td><td>nominal one-cycle matrix, the plant with the correction switched off</td></tr>
+      <tr><td class="mono">&#915;<sub>&#964;</sub></td><td>sensitivity of the next cycle-start error to the switching-instant offsets</td></tr>
+      <tr><td class="mono">K</td><td>the static feedback gain; &#948;&#964;<sup>raw</sup> = &#8722;Ke</td></tr>
+      <tr><td class="mono">A<sub>cl</sub></td><td>&#934; &#8722; &#915;<sub>&#964;</sub>K, the raw closed-loop cycle matrix</td></tr>
+      <tr><td class="mono">&#946;<sub>k</sub></td><td>conditioning factor in [0,1]; 1 means the raw action was already admissible</td></tr>
+      <tr><td class="mono">A(&#946;)</td><td>(1&#8722;&#946;)&#934; + &#946;A<sub>cl</sub>, the conditioned family</td></tr>
+      <tr><td class="mono">D</td><td>difference matrix mapping offsets to dwell changes; <b>1</b>&#8348;D = 0</td></tr>
+      <tr><td class="mono">d&#772;, d<sub>min</sub></td><td>nominal dwell durations and the minimum admissible dwell</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  <p><strong>Computing Lyapunov functions by convex optimization</strong>, in studies/lyapunov. Generated by <code>build.py</code> from
+  <code>parts/*.html</code> and <code>study_data.json</code>. Every figure is drawn in the browser
+  from that data; nothing on this page is hand-plotted.</p>
+  <p style="margin-top:.6rem">Sources: <code>article.tex</code> &#167;3&#8211;4,
+  <code>results/paper_results.mat</code>, <code>results/conditioned_control_response.csv</code>,
+  <code>results/metrics.tex</code>. The two-mode example of &#167;3 was constructed for this study
+  and is not part of the paper.</p>
+</footer>
+</div>

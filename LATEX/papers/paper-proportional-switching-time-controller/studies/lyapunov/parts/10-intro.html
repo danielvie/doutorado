@@ -1,0 +1,120 @@
+<header class="stack">
+  <p class="eyebrow">Studies &#183; Lyapunov &#183; Convex optimization</p>
+  <h1>Computing Lyapunov functions by convex optimization</h1>
+  <p class="lede">A Lyapunov function is usually taught as something you guess. For a large and
+  useful class of problems you do not have to: fix the shape of <em>V</em> as a quadratic form and
+  the search for it becomes a convex feasibility problem that a solver settles in milliseconds.
+  This study builds that machinery from scratch on a system where every natural guess provably
+  fails, then walks through the certificate used in the switching-time paper, including the
+  part that makes the conditioned signal safe.</p>
+
+  <div class="note aside stack-tight">
+    <h4>What you need</h4>
+    <p>Discrete-time linear algebra, eigenvalues, positive definite matrices. No prior exposure to
+    semidefinite programming. MATLAB with <a href="https://yalmip.github.io">YALMIP</a> and a
+    conic solver (SeDuMi ships with the MPT bundle already on this machine&#8217;s path); alternatives
+    that need no extra install are given in <a href="#matlab">&#167;4</a>.</p>
+    <h4>What is here</h4>
+    <p>Six interactive laboratories and a set of diagrams. Everything numeric on this page was
+    produced by <code>studies/lyapunov/export_study_data.m</code>; the two runnable scripts are
+    <code>generic_example.m</code> and <code>paper_certificate.m</code> in the same folder.</p>
+  </div>
+
+  <nav class="toc">
+    <p class="eyebrow" style="margin-bottom:.55rem">Contents</p>
+    <ol class="stack-tight">
+      <li><a href="#idea">Motivation</a><small>What a Lyapunov certificate proves that simulation cannot, and why restricting <em>V</em> to a quadratic makes it computable</small></li>
+      <li><a href="#theory">Lyapunov theory for discrete-time systems</a><small>The direct method, quadratic <em>V</em>, linear matrix inequalities, and the common-<em>P</em> condition for switched systems</small></li>
+      <li><a href="#generic">Worked example: a two-mode switched system</a><small>Four candidate Lyapunov functions that fail, the semidefinite program that succeeds, and a pair for which none exists</small></li>
+      <li><a href="#matlab">Solving the LMI in MATLAB</a><small>YALMIP, the LMI Lab and CVX, and how to verify the certificate a solver returns</small></li>
+      <li><a href="#paper">Stability proof of the switching-time controller</a><small>The one-cycle model, the conditioned matrix family A(&#946;), Proposition 2, and the certificate computed for the converter benchmark</small></li>
+      <li><a href="#limits">Scope of the result, and reproduction</a><small>What is proved and what is not, how to rerun everything, and the symbol table</small></li>
+    </ol>
+  </nav>
+</header>
+
+<section id="idea" class="stack">
+  <p class="crumb">1 &#183; Motivation</p>
+  <h2>Why a stability certificate, and why it can be computed</h2>
+
+  <p>Run a switched system from a hundred initial conditions and watch every trajectory come home.
+  You have learned something about those hundred trajectories. You have learned nothing about the
+  hundred-and-first, and nothing at all about a switching signal you did not happen to try. When the switching is
+  decided at runtime, by a supervisor or by a constraint, the set of futures is uncountable, and
+  simulation can only ever sample it.</p>
+
+  <p>The Lyapunov argument replaces the sampling with a bookkeeping trick. Invent a scalar
+  quantity <em>V</em> that is positive everywhere except at the target, and show that <em>every</em>
+  admissible step strictly decreases it. Then no trajectory needs to be simulated: a quantity that
+  is bounded below and drops by a fixed factor at every step has nowhere to go but down.</p>
+
+  <figure class="fig wide">
+    <!-- Concept: sublevel sets, the map, and one trajectory that is forced inward. -->
+    <svg class="art" viewBox="0 0 760 300" role="img"
+         aria-label="Nested level sets of V with a trajectory forced inward, next to a bar showing V decreasing monotonically">
+      <text class="lbl b" x="16" y="18">A decreasing V forces every trajectory inward, whatever the switching signal does</text>
+      <text class="lbl sm" x="16" y="34">the ellipses are level sets of V; the path is one trajectory under an unknown switching signal</text>
+      <g transform="translate(0,20)">
+        <ellipse class="gr" cx="200" cy="150" rx="168" ry="104" transform="rotate(-18 200 150)"/>
+        <ellipse class="gr" cx="200" cy="150" rx="134" ry="83" transform="rotate(-18 200 150)"/>
+        <ellipse class="gr" cx="200" cy="150" rx="100" ry="62" transform="rotate(-18 200 150)"/>
+        <ellipse class="gr" cx="200" cy="150" rx="66" ry="41" transform="rotate(-18 200 150)"/>
+        <ellipse class="fill-teal" cx="200" cy="150" rx="32" ry="20" transform="rotate(-18 200 150)"/>
+        <text class="lbl sm teal" x="176" y="153">target</text>
+        <path class="sblue" d="M357 96 L311 118 L287 82 L271 106 L264 92 L260 98"/>
+        <g class="hop"><circle class="blue" cx="357" cy="96" r="5.5"/></g>
+        <circle class="blue" cx="357" cy="96" r="3" opacity=".35"/>
+        <circle class="blue" cx="311" cy="118" r="3" opacity=".35"/>
+        <circle class="blue" cx="287" cy="82" r="3" opacity=".35"/>
+        <circle class="blue" cx="271" cy="106" r="3" opacity=".35"/>
+        <text class="lbl sm" x="366" y="92">x&#8320;</text>
+        <text class="lbl sm" x="152" y="264">the ellipse the trajectory is on never grows</text>
+      </g>
+      <g transform="translate(430,44)">
+        <line class="gr" x1="0" y1="0" x2="0" y2="196"/>
+        <line class="gr" x1="0" y1="196" x2="300" y2="196"/>
+        <text class="lbl sm" x="-6" y="6" text-anchor="end">V</text>
+        <text class="lbl sm" x="300" y="212" text-anchor="end">step k</text>
+        <g>
+          <rect class="fill-blue" x="10" y="10" width="26" height="186"/>
+          <rect class="fill-blue" x="46" y="62" width="26" height="134"/>
+          <rect class="fill-blue" x="82" y="98" width="26" height="98"/>
+          <rect class="fill-blue" x="118" y="124" width="26" height="72"/>
+          <rect class="fill-blue" x="154" y="143" width="26" height="53"/>
+          <rect class="fill-blue" x="190" y="157" width="26" height="39"/>
+          <rect class="fill-blue" x="226" y="167" width="26" height="29"/>
+          <rect class="fill-blue" x="262" y="175" width="26" height="21"/>
+        </g>
+        <path class="scrimson dash" d="M10 10 L288 173"/>
+        <text class="lbl sm crimson" x="150" y="86">the q&#7503; envelope the certificate promises</text>
+      </g>
+    </svg>
+    <figcaption><b>The structure of a Lyapunov argument.</b> The right-hand bars are the only thing a
+    Lyapunov certificate ever claims: one scalar, decreasing at every step, faster than a fixed
+    geometric envelope. The left-hand picture is what that means in the state space. The
+    trajectory may wander, but it can never cross back outward through a level set.</figcaption>
+  </figure>
+
+  <p>The difficulty has always been the invention step. Physics sometimes hands you a candidate:
+  stored energy in a circuit, kinetic plus potential energy in a mechanism. When it does, take it.
+  But the moment your state is an abstract error coordinate, say the deviation of a
+  converter&#8217;s cycle-start state from a target limit cycle, there is no energy to reach for, and the
+  usual fallback, <em>V</em>(<em>x</em>) = &#8214;<em>x</em>&#8214;&#178;, is very often simply
+  false.</p>
+
+  <div class="note key stack-tight">
+    <h4>Restricting <em>V</em> to a quadratic form</h4>
+    <p>Restrict <em>V</em> to quadratic forms, <em>V</em>(<em>x</em>) = <em>x</em>&#8348;<em>Px</em>.
+    The unknown is now a symmetric matrix <em>P</em>. Both requirements, positive definiteness of
+    <em>P</em> and decrease of <em>V</em> along every mode, are <em>linear</em> matrix inequalities
+    in <em>P</em>. The set of matrices satisfying them is convex, so &#8220;does a Lyapunov function of
+    this form exist?&#8221; stops being a matter of ingenuity and becomes a semidefinite program that
+    either returns one or proves there is none.</p>
+  </div>
+
+  <p>That is the whole content of this study. Sections 2 to 4 build the machinery on a two-mode
+  system chosen so that every candidate you would reach for by hand is provably wrong. Section 5
+  applies it to the paper, where the same argument does something that looks surprising the first
+  time: it certifies a closed loop whose gain is being rescaled by an amount nobody knows in
+  advance.</p>
+</section>
