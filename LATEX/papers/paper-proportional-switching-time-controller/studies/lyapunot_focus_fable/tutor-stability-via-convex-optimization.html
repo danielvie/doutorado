@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proving Stability with Convex Optimization</title>
+<style>
+:root {
+  --bg: #fdfcf9;
+  --ink: #23262b;
+  --muted: #6b7280;
+  --accent: #0f6bb0;
+  --accent2: #b0500f;
+  --good: #17803d;
+  --bad: #c02929;
+  --card: #f2f0ea;
+  --code-bg: #14181d;
+  --code-ink: #d8dee6;
+  --border: #ddd8cc;
+  --figbg: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171b;
+    --ink: #dfe3e8;
+    --muted: #9aa3ad;
+    --accent: #5aa9e0;
+    --accent2: #e0955a;
+    --good: #4fc06f;
+    --bad: #e06060;
+    --card: #1d2228;
+    --code-bg: #0c0f12;
+    --code-ink: #cdd6df;
+    --border: #333a42;
+    --figbg: #1a1f24;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0;
+  background: var(--bg); color: var(--ink);
+  font: 17px/1.65 Georgia, 'Times New Roman', serif;
+}
+main { max-width: 860px; margin: 0 auto; padding: 2rem 1.2rem 6rem; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 1rem 0 0.4rem; }
+h2 { font-size: 1.45rem; margin-top: 3rem; border-bottom: 2px solid var(--accent); padding-bottom: 0.3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; }
+.sub { color: var(--muted); font-style: italic; margin-bottom: 2rem; }
+p { margin: 0.9rem 0; }
+a { color: var(--accent); }
+.eq { margin: 1.2rem 0; text-align: center; overflow-x: auto; }
+math { font-size: 1.1rem; }
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.9rem 1.2rem; margin: 1.4rem 0;
+}
+.card.key { border-left: 5px solid var(--accent); }
+.card.warn { border-left: 5px solid var(--accent2); }
+pre {
+  background: var(--code-bg); color: var(--code-ink);
+  border-radius: 8px; padding: 0.9rem 1.1rem; overflow-x: auto;
+  font: 13.5px/1.5 Consolas, 'Cascadia Code', monospace;
+}
+code { font-family: Consolas, 'Cascadia Code', monospace; font-size: 0.92em; }
+p code, li code { background: var(--card); padding: 0.05em 0.3em; border-radius: 4px; }
+.out { border-left: 4px solid var(--good); }
+.out-bad { border-left: 4px solid var(--bad); }
+figure { margin: 1.8rem 0; text-align: center; }
+figure svg { max-width: 100%; height: auto; background: var(--figbg); border: 1px solid var(--border); border-radius: 8px; }
+figcaption { font-size: 0.9rem; color: var(--muted); margin-top: 0.5rem; text-align: left; }
+table.tbl { border-collapse: collapse; margin: 1.2rem auto; }
+table.tbl th, table.tbl td { border: 1px solid var(--border); padding: 0.35rem 0.9rem; text-align: center; }
+table.tbl th { background: var(--card); }
+ol.recipe > li { margin: 0.8rem 0; }
+ol.recipe > li::marker { font-weight: bold; color: var(--accent); }
+.filelist td { padding: 0.25rem 0.8rem; }
+.svg-ink   { stroke: #444; }
+.svg-text  { fill: #333; font: 13px Georgia, serif; }
+.svg-small { fill: #666; font: 11px Georgia, serif; }
+@media (prefers-color-scheme: dark) {
+  .svg-ink  { stroke: #aab; }
+  .svg-text { fill: #ccd; }
+  .svg-small { fill: #99a; }
+}
+</style>
+</head>
+<body>
+<main>
+
+<h1>Proving stability with convex optimization</h1>
+<p class="sub">A tutorial: from "does this system settle down?" to a machine-checkable
+certificate produced by a semidefinite solver. Two worked examples with MATLAB + CVX,
+two interactive labs, no prior Lyapunov knowledge assumed.</p>
+
+<div class="card key">
+<b>What you will be able to do at the end.</b> Given a dynamical system, you will know how to
+(1) pose "is it stable?" as a convex feasibility problem, (2) have CVX either hand you a
+proof object or tell you that no proof of that shape exists, and (3) verify the proof
+yourself without trusting the solver. Example 1 is a single linear system where everything
+can also be done by hand, so you can see exactly what the optimizer replaces. Example 2 is
+a switched system where the hand approach dies and the convex machinery is the only
+comfortable way through.
+</div>
+
+<h2 id="s1">1. The question: what does "stable" mean?</h2>
+
+<p>Take a system whose state <i>x</i>(<i>t</i>) evolves by a differential equation</p>
+
+<div class="eq">
+<math display="block"><mrow>
+<mover><mi>x</mi><mo>&#x2D9;</mo></mover><mo>=</mo><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo>
+<mo>,</mo><mspace width="1.5em"/>
+<mi>x</mi><mo>(</mo><mi>t</mi><mo>)</mo><mo>&#x2208;</mo><msup><mi>&#x211D;</mi><mi>n</mi></msup>
+<mo>,</mo><mspace width="1.5em"/>
+<mi>f</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>=</mo><mn>0</mn><mo>.</mo>
+</mrow></math>
+</div>
+
+<p>The origin is an equilibrium: start exactly there and you stay there. The stability question is
+about starting <em>near</em> there. We will use the strongest everyday notion,
+<b>asymptotic stability</b>: trajectories that start near the origin stay near it and converge to it.
+For the linear systems in this tutorial the property is global.</p>
+
+<figure>
+<svg viewBox="0 0 640 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="stable spiral versus unstable spiral">
+  <g transform="translate(160,120)">
+    <line x1="-130" y1="0" x2="130" y2="0" class="svg-ink" stroke-width="1" opacity="0.4"/>
+    <line x1="0" y1="-95" x2="0" y2="95" class="svg-ink" stroke-width="1" opacity="0.4"/>
+    <path d="M 110 0 C 110 -70 60 -95 10 -85 C -55 -72 -85 -30 -75 15 C -66 55 -30 68 5 60 C 42 51 55 25 48 -5 C 41 -30 18 -40 -5 -35 C -26 -30 -34 -12 -29 5 C -25 18 -12 23 0 20"
+          fill="none" stroke="#0f6bb0" stroke-width="2.4"/>
+    <polygon points="0,20 9,16 6,26" fill="#0f6bb0"/>
+    <circle cx="0" cy="0" r="3.5" fill="#17803d"/>
+    <text x="-125" y="-100" class="svg-text">stable: spirals in</text>
+  </g>
+  <g transform="translate(480,120)">
+    <line x1="-130" y1="0" x2="130" y2="0" class="svg-ink" stroke-width="1" opacity="0.4"/>
+    <line x1="0" y1="-95" x2="0" y2="95" class="svg-ink" stroke-width="1" opacity="0.4"/>
+    <path d="M 0 12 C -10 12 -16 4 -13 -6 C -9 -18 6 -23 20 -17 C 38 -9 44 12 35 30 C 24 51 -6 58 -32 46 C -62 32 -72 -6 -57 -38 C -40 -72 8 -85 50 -68 C 76 -57 95 -35 102 -8"
+          fill="none" stroke="#c02929" stroke-width="2.4"/>
+    <polygon points="102,-8 92,-8 99,-18" fill="#c02929"/>
+    <circle cx="0" cy="0" r="3.5" fill="#c02929"/>
+    <text x="-125" y="-100" class="svg-text">unstable: spirals out</text>
+  </g>
+</svg>
+<figcaption><b>Figure 1.</b> Two phase portraits in the state plane
+(<i>x</i><sub>1</sub> horizontal, <i>x</i><sub>2</sub> vertical). Same question in both:
+if you release the state anywhere, does it wind into the origin or escape? A stability
+proof must answer this for <em>every</em> initial condition at once, which is why
+simulating a few trajectories is evidence but never a proof.</figcaption>
+</figure>
+
+<p>For a linear system <math><mrow><mover><mi>x</mi><mo>&#x2D9;</mo></mover><mo>=</mo><mi>A</mi><mi>x</mi></mrow></math>
+you may know the shortcut: stable iff every eigenvalue of <i>A</i> has negative real part.
+So why bother with anything else? Three reasons.</p>
+
+<ul>
+<li>The eigenvalue test gives a yes/no answer but no reusable <em>object</em>. A Lyapunov
+function is a proof you can hand to someone, differentiate, bound decay rates with, and
+plug into bigger arguments.</li>
+<li>The eigenvalue test does not survive contact with anything harder: uncertain dynamics,
+nonlinear terms, or switching. Example 2 has two matrices whose eigenvalues are both
+<i>&#x2212;</i>1 &#xB1; <i>i</i>, as stable as you like, and switching between them still
+almost destroys stability. Eigenvalues of the individual modes say nothing there.</li>
+<li>The Lyapunov conditions happen to be <em>convex</em> in the unknowns, which turns
+"find a proof" into a problem a solver can do. That is the whole subject of this tutorial.</li>
+</ul>
+
+<h2 id="s2">2. Lyapunov's idea: one scalar function instead of all trajectories</h2>
+
+<p>Lyapunov's move (1892) is to stop chasing trajectories and instead look for a single scalar
+function <i>V</i>(<i>x</i>), an artificial "energy". Ask two things of it:</p>
+
+<div class="card">
+<p style="margin:0.3rem 0"><b>(L1)</b> <i>V</i>(<i>x</i>) &gt; 0 for all <i>x</i> &#x2260; 0, and <i>V</i>(0) = 0.
+&nbsp;<span style="color:var(--muted)">(a bowl with its minimum at the origin)</span></p>
+<p style="margin:0.3rem 0"><b>(L2)</b> Along every trajectory, <i>V</i> strictly decreases:
+<math><mrow><mover><mi>V</mi><mo>&#x2D9;</mo></mover><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo>
+<mo>&#x2207;</mo><mi>V</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>&#x22C5;</mo><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo>
+<mo>&lt;</mo><mn>0</mn></mrow></math> for all <i>x</i> &#x2260; 0.</p>
+</div>
+
+<p>If both hold, every trajectory is a ball rolling down a bowl that has nowhere to rest except
+the bottom. The state must converge to the origin. Notice what (L2) buys you: you never solve
+the differential equation. <i>V&#x307;</i> is computed by the chain rule directly from
+<i>f</i>, so both conditions are algebraic statements about functions, checkable pointwise.</p>
+
+<figure>
+<svg viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lyapunov bowl and level sets">
+  <g transform="translate(155,130)">
+    <path d="M -120 -60 C -110 40 -50 75 0 75 C 50 75 110 40 120 -60" fill="none" class="svg-ink" stroke-width="2.2"/>
+    <ellipse cx="0" cy="-60" rx="120" ry="22" fill="none" class="svg-ink" stroke-width="1.6"/>
+    <ellipse cx="0" cy="-12" rx="84" ry="15" fill="none" class="svg-ink" stroke-width="1" opacity="0.5"/>
+    <ellipse cx="0" cy="28" rx="52" ry="10" fill="none" class="svg-ink" stroke-width="1" opacity="0.5"/>
+    <ellipse cx="0" cy="58" rx="22" ry="5" fill="none" class="svg-ink" stroke-width="1" opacity="0.5"/>
+    <circle cx="0" cy="75" r="3" fill="#17803d"/>
+    <path d="M -95 -64 C -70 -30 -80 10 -40 30 C -10 44 -30 55 -3 70" fill="none" stroke="#0f6bb0" stroke-width="2.4"/>
+    <polygon points="-3,70 -12,66 -5,60" fill="#0f6bb0"/>
+    <circle cx="-95" cy="-64" r="3.5" fill="#0f6bb0"/>
+    <text x="-120" y="-95" class="svg-text">side view: V as a bowl</text>
+    <text x="8" y="82" class="svg-small">V = 0 only here</text>
+  </g>
+  <g transform="translate(480,130)">
+    <ellipse cx="0" cy="5" rx="118" ry="82" fill="none" stroke="#b0500f" stroke-width="1.4" opacity="0.75"/>
+    <ellipse cx="0" cy="5" rx="84" ry="58" fill="none" stroke="#b0500f" stroke-width="1.4" opacity="0.75"/>
+    <ellipse cx="0" cy="5" rx="52" ry="36" fill="none" stroke="#b0500f" stroke-width="1.4" opacity="0.75"/>
+    <ellipse cx="0" cy="5" rx="24" ry="17" fill="none" stroke="#b0500f" stroke-width="1.4" opacity="0.75"/>
+    <circle cx="0" cy="5" r="3" fill="#17803d"/>
+    <path d="M 112 -20 C 90 -75 20 -85 -35 -60 C -85 -37 -90 20 -60 45 C -34 66 8 60 25 38 C 40 18 30 -8 8 -14 C -10 -19 -24 -8 -20 6"
+          fill="none" stroke="#0f6bb0" stroke-width="2.4"/>
+    <polygon points="-20,6 -26,-2 -15,-3" fill="#0f6bb0"/>
+    <text x="-118" y="-95" class="svg-text">top view: trajectory cuts every level set inward</text>
+  </g>
+</svg>
+<figcaption><b>Figure 2.</b> The same idea twice. Left: <i>V</i> is a bowl over the state
+plane and (L2) forces the ball downhill. Right: seen from above, the level sets
+{<i>x</i> : <i>V</i>(<i>x</i>) = const} are nested closed curves, and (L2) means the vector
+field points <em>inward</em> through every one of them. Once inside a level set, the state
+can never leave it. That containment is the entire proof mechanism.</figcaption>
+</figure>
+
+<div class="card warn">
+<b>The catch.</b> Lyapunov's theorem tells you what a proof looks like, not how to find one.
+For 130 years the textbook answer was "guess something physical and pray". The modern answer:
+make the search for <i>V</i> a convex optimization problem.
+</div>
+
+<h2 id="s3">3. From idea to algebra: the quadratic ansatz</h2>
+
+<p>To search for a function you need to parameterize it. The classic template is quadratic:</p>
+
+<div class="eq">
+<math display="block"><mrow>
+<mi>V</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo>
+<msup><mi>x</mi><mi>T</mi></msup><mi>P</mi><mi>x</mi>
+<mo>,</mo><mspace width="1.5em"/>
+<mi>P</mi><mo>=</mo><msup><mi>P</mi><mi>T</mi></msup>
+<mo>&#x2208;</mo><msup><mi>&#x211D;</mi><mrow><mi>n</mi><mo>&#xD7;</mo><mi>n</mi></mrow></msup><mo>.</mo>
+</mrow></math>
+</div>
+
+<p>The unknown is the symmetric matrix <i>P</i>. Its level sets are ellipsoids centered at
+the origin. Condition (L1) becomes "<i>P</i> is positive definite", written
+<i>P</i> &#x227B; 0, meaning <i>x</i><sup>T</sup><i>P x</i> &gt; 0 for every
+<i>x</i> &#x2260; 0, equivalently all eigenvalues of <i>P</i> are positive.</p>
+
+<p>For (L2), differentiate along <math><mrow><mover><mi>x</mi><mo>&#x2D9;</mo></mover><mo>=</mo><mi>A</mi><mi>x</mi></mrow></math>
+using the product rule:</p>
+
+<div class="eq">
+<math display="block"><mrow>
+<mover><mi>V</mi><mo>&#x2D9;</mo></mover>
+<mo>=</mo>
+<msup><mover><mi>x</mi><mo>&#x2D9;</mo></mover><mi>T</mi></msup><mi>P</mi><mi>x</mi>
+<mo>+</mo>
+<msup><mi>x</mi><mi>T</mi></msup><mi>P</mi><mover><mi>x</mi><mo>&#x2D9;</mo></mover>
+<mo>=</mo>
+<msup><mi>x</mi><mi>T</mi></msup>
+<mo>(</mo><msup><mi>A</mi><mi>T</mi></msup><mi>P</mi><mo>+</mo><mi>P</mi><mi>A</mi><mo>)</mo>
+<mi>x</mi><mo>.</mo>
+</mrow></math>
+</div>
+
+<p>So <i>V&#x307;</i> is again a quadratic form, with matrix
+<i>A</i><sup>T</sup><i>P</i> + <i>P A</i>. Demanding <i>V&#x307;</i> &lt; 0 for all
+<i>x</i> &#x2260; 0 is exactly negative definiteness of that matrix. The whole stability
+proof compresses into:</p>
+
+<div class="card key">
+<div class="eq" style="margin:0.4rem 0">
+<math display="block"><mrow>
+<mtext>find&#x2003;</mtext><mi>P</mi>
+<mspace width="1em"/><mtext>such that</mtext><mspace width="1em"/>
+<mi>P</mi><mo>&#x227B;</mo><mn>0</mn>
+<mtext>&#x2003;and&#x2003;</mtext>
+<msup><mi>A</mi><mi>T</mi></msup><mi>P</mi><mo>+</mo><mi>P</mi><mi>A</mi><mo>&#x227A;</mo><mn>0</mn><mo>.</mo>
+</mrow></math>
+</div>
+<p style="margin:0.3rem 0">Any such <i>P</i> is a complete, self-contained proof of global
+asymptotic stability. Checking a candidate takes two eigenvalue computations. Finding one is
+the optimization problem.</p>
+</div>
+
+<h2 id="s4">4. Why this is convex optimization</h2>
+
+<p>Look at the shape of the two conditions as constraints on the unknown <i>P</i>:</p>
+
+<ul>
+<li>Both are of the form "some matrix, whose entries depend <b>linearly</b> on the unknowns,
+must be positive (or negative) semidefinite". Such a constraint is called a
+<b>linear matrix inequality</b>, LMI.</li>
+<li>The set of matrices satisfying an LMI is <b>convex</b>: if <i>P</i><sub>1</sub> and
+<i>P</i><sub>2</sub> both satisfy it, so does every blend
+&#x3B8;<i>P</i><sub>1</sub> + (1&#x2212;&#x3B8;)<i>P</i><sub>2</sub>. (Positive semidefiniteness
+survives averaging because quadratic forms do.)</li>
+<li>An intersection of convex sets is convex. So the set of all valid Lyapunov certificates
+is one convex blob in the space of symmetric matrices.</li>
+</ul>
+
+<p>Optimizing over such sets is <b>semidefinite programming</b> (SDP), and it sits inside the
+part of optimization that is essentially solved technology: interior-point methods find a
+feasible point, or a certificate that none exists, in polynomial time. No initial guesses,
+no local minima, no tuning. CVX is a MATLAB layer that lets you type the LMIs almost exactly
+as written above and hands them to an SDP solver.</p>
+
+<figure>
+<svg viewBox="0 0 640 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="feasible set as intersection of convex sets">
+  <g transform="translate(320,140)">
+    <line x1="-270" y1="85" x2="270" y2="85" class="svg-ink" stroke-width="1" opacity="0.4"/>
+    <line x1="-240" y1="105" x2="-240" y2="-115" class="svg-ink" stroke-width="1" opacity="0.4"/>
+    <text x="235" y="103" class="svg-small">space of symmetric matrices P (schematic slice)</text>
+    <path d="M -150 85 C -150 -30 -60 -110 60 -110 C 150 -110 200 -60 210 85 Z"
+          fill="#0f6bb0" opacity="0.16" stroke="#0f6bb0" stroke-width="1.6"/>
+    <text x="-140" y="-88" fill="#0f6bb0" font-size="13" font-family="Georgia">P &#x227B; 0   (cone)</text>
+    <path d="M -240 -20 C -120 -75 60 -70 210 15 L 210 85 L -240 85 Z"
+          fill="#b0500f" opacity="0.16" stroke="#b0500f" stroke-width="1.6"/>
+    <text x="66" y="-40" fill="#b0500f" font-size="13" font-family="Georgia">A&#x1D40;P + PA &#x227A; 0</text>
+    <path d="M -148 20 C -100 -35 40 -38 150 15 C 160 40 130 85 60 85 L -150 85 C -152 60 -152 40 -148 20 Z"
+          fill="#17803d" opacity="0.30"/>
+    <text x="-88" y="52" fill="#17803d" font-size="13" font-family="Georgia" font-weight="bold">every point here is a proof</text>
+    <circle cx="30" cy="20" r="4" fill="#17803d"/>
+    <text x="38" y="16" class="svg-small">the one CVX returns</text>
+  </g>
+</svg>
+<figcaption><b>Figure 3.</b> Schematic slice through the space of symmetric matrices.
+Each Lyapunov condition carves out a convex region; certificates live in the intersection.
+Convexity is what makes the search reliable: the solver either lands a point in the green
+region or proves the region is empty. Emptiness is itself useful information, as Example 2
+will show.</figcaption>
+</figure>
+
+<h3 id="s4b">4.1 One practical wrinkle: solvers hate strict inequalities</h3>
+
+<p>"<i>P</i> &#x227B; 0" is an open condition; numerical solvers work with closed ones
+(&#x2AAF;, &#x2AB0;). The standard fix exploits scale invariance: if <i>P</i> is a
+certificate, so is 1000<i>P</i>. So we may normalize and ask for</p>
+
+<div class="eq">
+<math display="block"><mrow>
+<mi>P</mi><mo>&#x2AB0;</mo><mi>I</mi>
+<mtext>&#x2003;and&#x2003;</mtext>
+<msup><mi>A</mi><mi>T</mi></msup><mi>P</mi><mo>+</mo><mi>P</mi><mi>A</mi><mo>&#x2AAF;</mo><mo>&#x2212;</mo><mi>I</mi><mo>,</mo>
+</mrow></math>
+</div>
+
+<p>where <i>M</i> &#x2AB0; <i>I</i> means <i>M</i> &#x2212; <i>I</i> is positive
+semidefinite (all eigenvalues of <i>M</i> at least 1). Any strictly feasible <i>P</i> can be
+scaled to satisfy these, and any solution of these is strictly feasible. Nothing is lost, and
+the solver gets honest closed constraints with a built-in margin. You will see this trick in
+every script below.</p>
+
+<h2 id="s5">5. The recipe, step by step</h2>
+
+<p>This is the checklist the rest of the tutorial instantiates twice. It looks long written
+out, but steps 4 through 7 are a dozen lines of CVX.</p>
+
+<ol class="recipe">
+<li><b>Normalize the model.</b> Write the dynamics as
+<math><mrow><mover><mi>x</mi><mo>&#x2D9;</mo></mover><mo>=</mo><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo></mrow></math>
+with the equilibrium of interest shifted to the origin.</li>
+<li><b>Choose a template for <i>V</i></b> whose unknown parameters enter <em>linearly</em>:
+<i>V</i> = <i>x</i><sup>T</sup><i>P x</i> with unknown <i>P</i>, or a polynomial
+<i>V</i> = &#x2211; <i>c<sub>k</sub></i> &#x22C5; (monomial)<sub><i>k</i></sub> with unknown
+coefficients <i>c</i>. Linearity in the unknowns is what keeps everything convex; the state
+<i>x</i> is allowed to appear as nonlinearly as it wants.</li>
+<li><b>Write the two Lyapunov conditions</b> (L1) <i>V</i> positive definite and
+(L2) <i>V&#x307;</i> negative definite, computing <i>V&#x307;</i> = &#x2207;<i>V</i> &#x22C5; <i>f</i>
+by the chain rule. Because the parameters enter <i>V</i> linearly, they also enter
+<i>V&#x307;</i> linearly. If several dynamics must share one <i>V</i> (switched modes,
+uncertainty vertices), write one copy of (L2) per dynamics.</li>
+<li><b>Convert to matrix inequalities.</b> Quadratic case: the conditions already are matrix
+definiteness conditions. Polynomial case: write each polynomial as
+<i>z</i><sup>T</sup><i>Q z</i> for a vector of monomials <i>z</i> and require
+<i>Q</i> &#x2AB0; 0 (the sum-of-squares trick, Section 7.3).</li>
+<li><b>Strictify.</b> Replace open conditions by closed ones with margins:
+<i>P</i> &#x2AB0; <i>I</i>, &nbsp;<i>A</i><sup>T</sup><i>P</i>+<i>PA</i> &#x2AAF; &#x2212;<i>I</i>,
+or for polynomials <i>V&#x307;</i> &#x2264; &#x2212;&#x3B5;&#x2016;<i>x</i>&#x2016;<sup>2m</sup>.
+Scale invariance (Section 4.1) says this costs nothing.</li>
+<li><b>Hand it to the solver.</b> In CVX: declare the unknowns with
+<code>variable</code>, state each LMI as a line of MATLAB, let it run. Feasibility is the
+point; the objective is optional.</li>
+<li><b>Read the status honestly.</b> <code>Solved</code>: extract the certificate.
+<code>Infeasible</code>: no certificate <em>of this template shape</em> exists. That is a
+mathematical fact, not a solver failure, and the reaction is to enrich the template
+(higher degree, piecewise structure), not to rerun and hope.</li>
+<li><b>Verify independently.</b> Never let the solver grade its own homework. Check the
+returned certificate with plain eigenvalue computations or dense grid sampling, using none
+of the optimization machinery.</li>
+<li><b>(Optional) Optimize over the certificates.</b> Once the feasible set is convex you can
+pick the best proof in it: largest decay rate, best condition number, largest certified
+region. Usually one extra constraint plus a bisection.</li>
+</ol>
+
+<figure>
+<svg viewBox="0 0 720 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="workflow flowchart">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#888"/>
+    </marker>
+  </defs>
+  <g font-family="Georgia" font-size="13">
+    <rect x="15" y="60" width="120" height="52" rx="8" fill="#0f6bb0" opacity="0.16" stroke="#0f6bb0"/>
+    <text x="75" y="82" text-anchor="middle" class="svg-text">model</text>
+    <text x="75" y="99" text-anchor="middle" class="svg-small">x&#x307; = f(x)</text>
+    <rect x="165" y="60" width="130" height="52" rx="8" fill="#0f6bb0" opacity="0.16" stroke="#0f6bb0"/>
+    <text x="230" y="82" text-anchor="middle" class="svg-text">template V(x; &#x3B8;)</text>
+    <text x="230" y="99" text-anchor="middle" class="svg-small">&#x3B8; enters linearly</text>
+    <rect x="325" y="60" width="120" height="52" rx="8" fill="#0f6bb0" opacity="0.16" stroke="#0f6bb0"/>
+    <text x="385" y="82" text-anchor="middle" class="svg-text">LMIs in &#x3B8;</text>
+    <text x="385" y="99" text-anchor="middle" class="svg-small">L1, L2, margins</text>
+    <rect x="475" y="60" width="110" height="52" rx="8" fill="#b0500f" opacity="0.16" stroke="#b0500f"/>
+    <text x="530" y="82" text-anchor="middle" class="svg-text">SDP solver</text>
+    <text x="530" y="99" text-anchor="middle" class="svg-small">CVX</text>
+    <rect x="610" y="12" width="100" height="46" rx="8" fill="#17803d" opacity="0.2" stroke="#17803d"/>
+    <text x="660" y="31" text-anchor="middle" class="svg-text">Solved</text>
+    <text x="660" y="47" text-anchor="middle" class="svg-small">verify + use</text>
+    <rect x="610" y="118" width="100" height="46" rx="8" fill="#c02929" opacity="0.16" stroke="#c02929"/>
+    <text x="660" y="137" text-anchor="middle" class="svg-text">Infeasible</text>
+    <text x="660" y="153" text-anchor="middle" class="svg-small">no V of this shape</text>
+    <line x1="135" y1="86" x2="163" y2="86" stroke="#888" stroke-width="1.6" marker-end="url(#arr)"/>
+    <line x1="295" y1="86" x2="323" y2="86" stroke="#888" stroke-width="1.6" marker-end="url(#arr)"/>
+    <line x1="445" y1="86" x2="473" y2="86" stroke="#888" stroke-width="1.6" marker-end="url(#arr)"/>
+    <line x1="585" y1="74" x2="608" y2="44" stroke="#888" stroke-width="1.6" marker-end="url(#arr)"/>
+    <line x1="585" y1="98" x2="608" y2="132" stroke="#888" stroke-width="1.6" marker-end="url(#arr)"/>
+    <path d="M 660 164 C 660 196 350 200 230 190 C 228 170 229 140 230 114" fill="none" stroke="#888" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+    <text x="440" y="188" text-anchor="middle" class="svg-small">enrich the template (raise degree, add structure) and retry</text>
+  </g>
+</svg>
+<figcaption><b>Figure 4.</b> The workflow. The dashed loop is not an admission of defeat.
+In Example 2 the infeasible answers are exact knowledge ("no quadratic works, no quartic
+works, no sextic works") that pins down precisely how hard the problem is.</figcaption>
+</figure>
+
+<h2 id="s6">6. Example 1 (simple): one linear system, two routes to the same proof</h2>
+
+<p>The system, chosen small enough to do everything by hand:</p>
+
+<div class="eq">
+<math display="block"><mrow>
+<mover><mi>x</mi><mo>&#x2D9;</mo></mover><mo>=</mo><mi>A</mi><mi>x</mi>
+<mo>,</mo><mspace width="1.5em"/>
+<mi>A</mi><mo>=</mo>
+<mo>[</mo><mtable><mtr><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd></mtr>
+<mtr><mtd><mo>&#x2212;</mo><mn>2</mn></mtd><mtd><mo>&#x2212;</mo><mn>3</mn></mtd></mtr></mtable><mo>]</mo>
+<mo>,</mo><mspace width="1.5em"/>
+<mtext>eig</mtext><mo>(</mo><mi>A</mi><mo>)</mo><mo>=</mo>
+<mo>{</mo><mo>&#x2212;</mo><mn>1</mn><mo>,</mo><mo>&#x2212;</mo><mn>2</mn><mo>}</mo><mo>.</mo>
+</mrow></math>
+</div>
+
+<p>This is <math><mrow><mover><mi>y</mi><mo>&#xA8;</mo></mover><mo>+</mo><mn>3</mn><mover><mi>y</mi><mo>&#x2D9;</mo></mover><mo>+</mo><mn>2</mn><mi>y</mi><mo>=</mo><mn>0</mn></mrow></math>
+in first-order form. Eigenvalues in the left half-plane, so we already know it is stable.
+Perfect: we can concentrate on the <em>process</em> of proving it, and compare the classical
+hand computation against the convex-optimization computation side by side.</p>
+
+<h3 id="s6a">6.1 Route A, by hand: the Lyapunov <em>equation</em></h3>
+
+<p>The classical recipe sidesteps inequalities. Instead of asking
+<i>A</i><sup>T</sup><i>P</i> + <i>P A</i> &#x227A; 0, you <em>pick</em> the right-hand side
+yourself, say &#x2212;<i>I</i>, and solve the linear <b>equation</b></p>
+
+<div class="eq">
+<math display="block"><mrow>
+<msup><mi>A</mi><mi>T</mi></msup><mi>P</mi><mo>+</mo><mi>P</mi><mi>A</mi><mo>=</mo><mo>&#x2212;</mo><mi>I</mi><mo>.</mo>
+</mrow></math>
+</div>
+
+<p>Write <i>P</i> with unknowns
+<math><mrow><mi>P</mi><mo>=</mo><mo>[</mo><mtable><mtr><mtd><mi>p</mi></mtd><mtd><mi>q</mi></mtd></mtr><mtr><mtd><mi>q</mi></mtd><mtd><mi>r</mi></mtd></mtr></mtable><mo>]</mo></mrow></math>
+and grind out the left side:</p>
+
+<div class="eq">
+<math display="block"><mrow>
+<msup><mi>A</mi><mi>T</mi></msup><mi>P</mi><mo>+</mo><mi>P</mi><mi>A</mi>
+<mo>=</mo>
+<mo>[</mo><mtable>
+<mtr><mtd><mo>&#x2212;</mo><mn>4</mn><mi>q</mi></mtd>
+<mtd><mi>p</mi><mo>&#x2212;</mo><mn>3</mn><mi>q</mi><mo>&#x2212;</mo><mn>2</mn><mi>r</mi></mtd></mtr>
+<mtr><mtd><mi>p</mi><mo>&#x2212;</mo><mn>3</mn><mi>q</mi><mo>&#x2212;</mo><mn>2</mn><mi>r</mi></mtd>
+<mtd><mn>2</mn><mi>q</mi><mo>&#x2212;</mo><mn>6</mn><mi>r</mi></mtd></mtr>
+</mtable><mo>]</mo>
+<mo>=</mo>
+<mo>[</mo><mtable>
+<mtr><mtd><mo>&#x2212;</mo><mn>1</mn></mtd><mtd><mn>0</mn></mtd></mtr>
+<mtr><mtd><mn>0</mn></mtd><mtd><mo>&#x2212;</mo><mn>1</mn></mtd></mtr>
+</mtable><mo>]</mo>
+</mrow></math>
+</div>
+
+<p>Three scalar equations, three unknowns, all linear. Solve top-left first, then bottom-right,
+then off-diagonal:</p>
+
+<div class="eq">
+<math display="block"><mrow>
+<mo>&#x2212;</mo><mn>4</mn><mi>q</mi><mo>=</mo><mo>&#x2212;</mo><mn>1</mn>
+<mo>&#x21D2;</mo><mi>q</mi><mo>=</mo><mfrac><mn>1</mn><mn>4</mn></mfrac>
+<mo>;</mo><mspace width="1.2em"/>
+<mn>2</mn><mi>q</mi><mo>&#x2212;</mo><mn>6</mn><mi>r</mi><mo>=</mo><mo>&#x2212;</mo><mn>1</mn>
+<mo>&#x21D2;</mo><mi>r</mi><mo>=</mo><mfrac><mn>1</mn><mn>4</mn></mfrac>
+<mo>;</mo><mspace width="1.2em"/>
+<mi>p</mi><mo>=</mo><mn>3</mn><mi>q</mi><mo>+</mo><mn>2</mn><mi>r</mi>
+<mo>=</mo><mfrac><mn>5</mn><mn>4</mn></mfrac><mo>.</mo>
+</mrow></math>
+</div>
+
+<div class="eq">
+<math display="block"><mrow>
+<msub><mi>P</mi><mtext>hand</mtext></msub><mo>=</mo>
+<mo>[</mo><mtable>
+<mtr><mtd><mn>1.25</mn></mtd><mtd><mn>0.25</mn></mtd></mtr>
+<mtr><mtd><mn>0.25</mn></mtd><mtd><mn>0.25</mn></mtd></mtr>
+</mtable><mo>]</mo>
+<mo>,</mo><mspace width="1.5em"/>
+<mtext>eig</mtext><mo>=</mo><mo>{</mo><mn>0.191</mn><mo>,</mo><mn>1.309</mn><mo>}</mo><mo>&#x227B;</mo><mn>0</mn><mo>.</mo>
+</mrow></math>
+</div>
+
+<p>Both eigenvalues positive, so <i>P</i><sub>hand</sub> &#x227B; 0, and by construction
+<i>V&#x307;</i> = &#x2212;&#x2016;<i>x</i>&#x2016;&#xB2; &lt; 0. Proof complete. This route works
+because of a classical theorem: when <i>A</i> is stable, the Lyapunov equation with
+<em>any</em> chosen negative-definite right side has a unique solution, and it is positive
+definite. MATLAB's <code>lyap(A', eye(2))</code> returns exactly the matrix above.</p>
+
+<div class="card warn">
+<b>Why this route does not scale.</b> Every degree of freedom got consumed. We had to commit
+to a right-hand side before solving, there was exactly one solution, and no room remained for
+extra demands. Ask the same <i>P</i> to also handle a second matrix (Example 2), respect a
+structural constraint, or maximize a decay rate, and the equation approach has nothing to
+offer: you would be solving one equation per wish with no guarantee any solution satisfies
+the rest. Inequalities keep the whole feasible <em>set</em> alive; equations collapse it to
+a point.</div>
+
+<h3 id="s6b">6.2 Route B, by CVX: the Lyapunov <em>inequality</em></h3>
+
+<p>Now the convex-optimization route, following the recipe: template
+<i>V</i> = <i>x</i><sup>T</sup><i>P x</i> (step 2), the two LMIs with margins (steps 3 to 5),
+CVX (step 6). The core of
+<a href="matlab/ex1_simple_quadratic.m"><code>matlab/ex1_simple_quadratic.m</code></a>:</p>
+
+<pre><code>A = [0 1; -2 -3];
+
+cvx_begin sdp
+    variable P(2,2) symmetric
+    minimize( trace(P) )          % optional; feasibility is the point
+    P &gt;= eye(2);                  % L1, normalized
+    A'*P + P*A &lt;= -eye(2);        % L2, normalized
+cvx_end</code></pre>
+
+<p>Note how literal the transcription is: each mathematical LMI is one line. In
+<code>sdp</code> mode, <code>&gt;=</code> between matrices means "&#x2AB0;", the semidefinite
+order. Actual output on this machine (MATLAB R2025b, CVX with its bundled solver):</p>
+
+<pre class="out"><code>cvx_status = Solved
+P = 1.8000    0.4000
+    0.4000    1.2000
+eig(P)          = [1 2]
+eig(A'P + PA)   = [-7 -1]     (all &lt;= -1  -&gt;  strict decrease)</code></pre>
+
+<p>A different matrix than Route A, and that is the point: the feasible set is a whole convex
+region (Figure 3) and the two routes land on different points of it. Both are complete proofs.
+Verification (step 8) needs no optimization: eig(<i>P</i>) = {1, 2}, positive;
+eig(<i>A</i><sup>T</sup><i>P</i>+<i>PA</i>) = {&#x2212;7, &#x2212;1}, negative. Done.</p>
+
+<h3 id="s6c">6.3 What the difference in process actually is</h3>
+
+<table class="tbl">
+<tr><th></th><th>Route A: equation (hand / <code>lyap</code>)</th><th>Route B: inequality (CVX)</th></tr>
+<tr><td>you commit to</td><td>the exact value of <i>V&#x307;</i> beforehand</td><td>only the <em>sign</em> of <i>V&#x307;</i></td></tr>
+<tr><td>solution set</td><td>one point</td><td>a convex region of proofs</td></tr>
+<tr><td>machinery</td><td>linear solve</td><td>semidefinite program</td></tr>
+<tr><td>extra requirements (2nd system, decay rate, structure)</td><td>no room</td><td>add one more LMI line</td></tr>
+<tr><td>if no solution exists</td><td>tells you little directly</td><td>solver returns a proof of infeasibility</td></tr>
+</table>
+
+<p>For a single well-behaved linear system, Route A is honestly the quicker tool, and it is
+worth seeing that. The optimization route earns its keep the moment you ask for anything more.
+Here is the smallest such ask.</p>
+
+<h3 id="s6d">6.4 Pushing further: certifying a decay rate</h3>
+
+<p>Strengthen (L2) to <i>V&#x307;</i> &#x2264; &#x2212;2&#x3B1;<i>V</i>, which by
+Gr&#xF6;nwall's inequality gives
+<i>V</i>(<i>t</i>) &#x2264; <i>e</i><sup>&#x2212;2&#x3B1;t</sup><i>V</i>(0) and hence an
+explicit envelope on the state norm:</p>
+
+<div class="eq">
+<math display="block"><mrow>
+<msup><mi>A</mi><mi>T</mi></msup><mi>P</mi><mo>+</mo><mi>P</mi><mi>A</mi>
+<mo>&#x2AAF;</mo><mo>&#x2212;</mo><mn>2</mn><mi>&#x3B1;</mi><mi>P</mi>
+<mspace width="1.2em"/><mo>&#x21D2;</mo><mspace width="1.2em"/>
+<mo>&#x2016;</mo><mi>x</mi><mo>(</mo><mi>t</mi><mo>)</mo><mo>&#x2016;</mo>
+<mo>&#x2264;</mo>
+<msqrt><mfrac><mrow><msub><mi>&#x3BB;</mi><mo>max</mo></msub><mo>(</mo><mi>P</mi><mo>)</mo></mrow>
+<mrow><msub><mi>&#x3BB;</mi><mo>min</mo></msub><mo>(</mo><mi>P</mi><mo>)</mo></mrow></mfrac></msqrt>
+<mspace width="0.3em"/>
+<msup><mi>e</mi><mrow><mo>&#x2212;</mo><mi>&#x3B1;</mi><mi>t</mi></mrow></msup>
+<mo>&#x2016;</mo><mi>x</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>&#x2016;</mo><mo>.</mo>
+</mrow></math>
+</div>
+
+<p>For a fixed &#x3B1; this is still an LMI in <i>P</i>, so "largest certifiable &#x3B1;"
+is a bisection over &#x3B1; with one small SDP per step. The script does 40 steps and finds:</p>
+
+<pre class="out"><code>certified alpha = 1.000002    (theory: min |Re eig(A)| = 1)
+norm bound: ||x(t)|| &lt;= 23.9827 * exp(-1.0000 t) * ||x(0)||</code></pre>
+
+<p>The certified rate matches the slowest eigenvalue, which is the best possible, so the
+quadratic template is tight here. (The 0.000002 overshoot is solver tolerance.) One honest
+caveat: pushed to the extreme rate, the certificate's <i>P</i> becomes nearly singular and
+the constant in front, 23.98, gets ugly. Backing off to &#x3B1; = 0.9 gives a far better
+conditioned <i>P</i>. Optimal certificates tend to live on the boundary of the feasible
+region, and boundaries are where numerics get uncomfortable. Knowing when to back off 10% is
+part of the craft.</p>
+
+<div class="card key">
+<b>Lab 1.</b> Open <a href="lab1_quadratic_certificate.html">lab1_quadratic_certificate.html</a>
+and try to find a valid <i>P</i> for this system <em>by hand</em>, with three sliders. The lab
+draws the level ellipses, integrates a trajectory, and grades conditions (L1) and (L2) live.
+Feel how narrow the feasible wedge is when you tilt the ellipse the wrong way, then press the
+buttons to load the Route A and Route B solutions and see where they sit in slider space.
+</div>
+
+<h2 id="s7">7. Example 2 (complex): a switched system where quadratic V cannot work</h2>
+
+<p>Now the payoff example, chosen to be close to switching-controller territory. Two modes,
+and the system may jump between them at <em>any</em> moments:</p>
+
+<div class="eq">
+<math display="block"><mrow>
+<mover><mi>x</mi><mo>&#x2D9;</mo></mover><mo>=</mo>
+<msub><mi>A</mi><mrow><mi>&#x3C3;</mi><mo>(</mo><mi>t</mi><mo>)</mo></mrow></msub><mi>x</mi>
+<mo>,</mo><mspace width="1em"/>
+<mi>&#x3C3;</mi><mo>(</mo><mi>t</mi><mo>)</mo><mo>&#x2208;</mo><mo>{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>}</mo>
+<mo>,</mo><mspace width="1.5em"/>
+<msub><mi>A</mi><mn>1</mn></msub><mo>=</mo>
+<mo>[</mo><mtable><mtr><mtd><mo>&#x2212;</mo><mn>1</mn></mtd><mtd><mo>&#x2212;</mo><mn>1</mn></mtd></mtr>
+<mtr><mtd><mn>1</mn></mtd><mtd><mo>&#x2212;</mo><mn>1</mn></mtd></mtr></mtable><mo>]</mo>
+<mo>,</mo><mspace width="1em"/>
+<msub><mi>A</mi><mn>2</mn></msub><mo>=</mo>
+<mo>[</mo><mtable><mtr><mtd><mo>&#x2212;</mo><mn>1</mn></mtd><mtd><mo>&#x2212;</mo><mn>10</mn></mtd></mtr>
+<mtr><mtd><mn>0.1</mn></mtd><mtd><mo>&#x2212;</mo><mn>1</mn></mtd></mtr></mtable><mo>]</mo><mo>.</mo>
+</mrow></math>
+</div>
+
+<p>Both matrices have eigenvalues &#x2212;1 &#xB1; <i>i</i>. Each mode on its own is a
+well-damped stable spiral. Intuition says switching between two stable systems should be
+stable. Intuition is wrong in general: switching can pump energy the way a child pumps a
+swing, pushing outward with mode 1 where mode 1 moves outward fastest, then handing over to
+mode 2 where <em>it</em> moves outward fastest. Mode 1 traces circles; mode 2 traces
+ellipses squashed 10:1. They disagree badly about which directions are "downhill".</p>
+
+<p>To prove stability under <em>arbitrary</em> switching, one function <i>V</i> must decrease
+along both vector fields at once, everywhere. In the recipe this just means two copies of (L2):</p>
+
+<div class="eq">
+<math display="block"><mrow>
+<mi>P</mi><mo>&#x227B;</mo><mn>0</mn>
+<mo>,</mo><mspace width="1.2em"/>
+<msubsup><mi>A</mi><mn>1</mn><mi>T</mi></msubsup><mi>P</mi><mo>+</mo><mi>P</mi><msub><mi>A</mi><mn>1</mn></msub><mo>&#x227A;</mo><mn>0</mn>
+<mo>,</mo><mspace width="1.2em"/>
+<msubsup><mi>A</mi><mn>2</mn><mi>T</mi></msubsup><mi>P</mi><mo>+</mo><mi>P</mi><msub><mi>A</mi><mn>2</mn></msub><mo>&#x227A;</mo><mn>0</mn><mo>.</mo>
+</mrow></math>
+</div>
+
+<p>Still convex (intersection of three convex sets), still one CVX call. This is the moment
+Route A physically cannot follow: there is no "Lyapunov equation" for two matrices at once.</p>
+
+<h3 id="s7a">7.1 The search fails, and the failure is a theorem</h3>
+
+<p>Running the common-quadratic search
+(<a href="matlab/ex2_switched_degree_escalation.m"><code>matlab/ex2_switched_degree_escalation.m</code></a>, Part B):</p>
+
+<pre class="out-bad"><code>--- Part B: common quadratic V via CVX (expect Infeasible) ---
+cvx_status = Infeasible</code></pre>
+
+<p>Because the problem is convex, <code>Infeasible</code> is not "the solver gave up". The
+solver found a dual certificate proving the constraint set is empty. Read it as a theorem:
+<em>no quadratic function whatsoever decreases along both modes.</em> Every ellipse you could
+ever draw is crossed outward by one of the two vector fields somewhere. This is knowledge you
+could search for by hand for a month and never establish.</p>
+
+<figure>
+<svg viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="two modes disagree about downhill">
+  <g transform="translate(160,130)">
+    <circle cx="0" cy="0" r="78" fill="none" stroke="#0f6bb0" stroke-width="1.8"/>
+    <circle cx="0" cy="0" r="48" fill="none" stroke="#0f6bb0" stroke-width="1.2" opacity="0.55"/>
+    <ellipse cx="0" cy="0" rx="105" ry="26" fill="none" stroke="#b0500f" stroke-width="1.8"/>
+    <ellipse cx="0" cy="0" rx="66" ry="16" fill="none" stroke="#b0500f" stroke-width="1.2" opacity="0.55"/>
+    <circle cx="0" cy="0" r="3" fill="#17803d"/>
+    <text x="-140" y="-105" class="svg-text">natural level sets of the two modes</text>
+    <text x="34" y="-80" fill="#0f6bb0" font-size="12" font-family="Georgia">mode 1: circles</text>
+    <text x="30" y="44" fill="#b0500f" font-size="12" font-family="Georgia">mode 2: 10:1 ellipses</text>
+  </g>
+  <g transform="translate(485,130)">
+    <ellipse cx="0" cy="0" rx="95" ry="52" fill="none" class="svg-ink" stroke-width="1.8" stroke-dasharray="6 4" transform="rotate(-18)"/>
+    <circle cx="0" cy="0" r="3" fill="#17803d"/>
+    <g transform="rotate(-18)">
+      <line x1="95" y1="0" x2="123" y2="0" stroke="#c02929" stroke-width="2.4"/>
+      <polygon points="123,0 113,-5 113,5" fill="#c02929"/>
+      <line x1="-40" y1="47" x2="-52" y2="72" stroke="#c02929" stroke-width="2.4"/>
+      <polygon points="-52,72 -50,61 -42,68 " fill="#c02929"/>
+      <line x1="-60" y1="-40" x2="-75" y2="-50" stroke="#17803d" stroke-width="2"/>
+      <polygon points="-75,-50 -66,-49 -70,-42" fill="#17803d" transform="rotate(180 -70 -46)"/>
+    </g>
+    <text x="-140" y="-105" class="svg-text">any single ellipse: one mode crosses it outward</text>
+    <text x="8" y="98" class="svg-small">red arrows: flow escaping the candidate level set</text>
+  </g>
+</svg>
+<figcaption><b>Figure 5.</b> Why no common ellipse exists. Each mode happily shrinks its own
+family of level sets (left), but the families are incompatible: mode 1 likes round sets,
+mode 2 likes flat ones. Whatever compromise ellipse you propose (right), somewhere on it one
+of the two vector fields points outward, and the adversarial switch exploits exactly that
+spot. CVX's <code>Infeasible</code> is the precise version of this picture.</figcaption>
+</figure>
+
+<p>For 2&#xD7;2 pairs there is an independent classical check, worth knowing because it
+confirms the solver from the outside (Shorten &amp; Narendra): a common quadratic <i>V</i>
+exists iff neither <i>A</i><sub>1</sub><i>A</i><sub>2</sub> nor
+<i>A</i><sub>1</sub><i>A</i><sub>2</sub><sup>&#x2212;1</sup> has a real negative eigenvalue.
+Here (script, Part A):</p>
+
+<pre class="out"><code>eig(A1*A2)      = [-0.5283 -7.572]     &lt;-- real and negative: no common quadratic V
+eig(A1*inv(A2)) = [0.1701 5.88]</code></pre>
+
+<p>Writing <i>A</i><sub>2</sub> with a parameter <i>a</i> in place of 10 (so mode 2 is
+squashed <i>a</i>:1), a two-line computation gives
+trace(<i>A</i><sub>1</sub><i>A</i><sub>2</sub>) = 2 &#x2212; <i>a</i> &#x2212; 1/<i>a</i>
+with determinant 4, so the quadratic template dies exactly when
+<i>a</i> + 1/<i>a</i> &#x2265; 6, i.e. <i>a</i> &#x2265; 3 + 2&#x221A;2 &#x2248; 5.83.
+Our <i>a</i> = 10 is well past the wall.</p>
+
+<h3 id="s7b">7.2 Is it even stable? A worst-case sanity check first</h3>
+
+<p>Before hunting for a fancier certificate, make sure one can exist. Both modes rotate
+counterclockwise everywhere (their angular speed never vanishes), so the most damaging
+switching law is easy to characterize: at every angle, use whichever mode grows the radius
+fastest. Integrating that worst-case radial gain around one revolution (script, Part E):</p>
+
+<pre class="out"><code>r(2*pi)/r(0) under worst-case switching = 0.761598   (&lt; 1: contracts, barely)</code></pre>
+
+<p>Two readings. First, the system <em>is</em> stable under arbitrary switching, with about
+24% decay per turn even against an adversary. Second, compare each mode alone: a stable
+spiral with eigenvalues &#x2212;1 &#xB1; <i>i</i> contracts by
+<i>e</i><sup>&#x2212;2&#x3C0;</sup> &#x2248; 0.002 per turn. The adversarial switching turned
+0.002 into 0.76, a factor-400 loss of contraction. Stability survives by a squeak, and that
+squeak is exactly why cheap certificates are about to fail.</p>
+
+<h3 id="s7c">7.3 Enriching the template: polynomial V and the sum-of-squares trick</h3>
+
+<p>The recipe says: infeasible &#x21D2; enrich the template (step 7). The natural next family
+after quadratics is homogeneous polynomials of higher even degree. Degree 2<i>m</i> in two
+states:</p>
+
+<div class="eq">
+<math display="block"><mrow>
+<mi>V</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo>
+<munderover><mo>&#x2211;</mo><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><mrow><mn>2</mn><mi>m</mi></mrow></munderover>
+<msub><mi>c</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub>
+<msubsup><mi>x</mi><mn>1</mn><mrow><mn>2</mn><mi>m</mi><mo>&#x2212;</mo><mi>k</mi></mrow></msubsup>
+<msubsup><mi>x</mi><mn>2</mn><mi>k</mi></msubsup>
+<mo>,</mo><mspace width="1.5em"/>
+<mn>2</mn><mi>m</mi><mo>+</mo><mn>1</mn><mtext>&#x2009;unknown coefficients.</mtext>
+</mrow></math>
+</div>
+
+<p>Two things must generalize from the quadratic case: how to impose "<i>V</i> &gt; 0" and
+"<i>V&#x307;</i> &lt; 0" on a polynomial, and both have clean answers.</p>
+
+<p><b>Differentiation stays linear.</b> By the chain rule,
+<i>V&#x307;</i> = &#x2207;<i>V</i> &#x22C5; <i>A<sub>i</sub>x</i> is again a homogeneous
+polynomial of the same degree, and its coefficient vector is a fixed matrix times <i>c</i>:
+coefficients of <i>V&#x307;</i>|<sub>mode i</sub> = <i>M</i>(<i>A<sub>i</sub></i>) <i>c</i>.
+The script builds <i>M</i>(<i>A</i>) in a ten-line function (<code>mder</code>). Linear in
+the unknowns, so still LMI-compatible.</p>
+
+<p><b>Positivity becomes a Gram-matrix condition.</b> Checking polynomial nonnegativity is
+hard in general, but there is a famous convex sufficient condition: write the polynomial as a
+quadratic form in the vector of degree-<i>m</i> monomials. For <i>m</i> = 2, with
+<i>z</i> = [<i>x</i><sub>1</sub>&#xB2;, <i>x</i><sub>1</sub><i>x</i><sub>2</sub>, <i>x</i><sub>2</sub>&#xB2;]<sup>T</sup>:</p>
+
+<div class="eq">
+<math display="block"><mrow>
+<mi>V</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo>
+<msup><mi>z</mi><mi>T</mi></msup><mi>Q</mi><mi>z</mi>
+<mo>,</mo><mspace width="1.5em"/>
+<mi>Q</mi><mo>&#x2AB0;</mo><mn>0</mn>
+<mspace width="1em"/><mo>&#x21D2;</mo><mspace width="1em"/>
+<mi>V</mi><mtext>&#x2009;is a sum of squares&#x2009;</mtext>
+<mo>&#x21D2;</mo><mspace width="1em"/>
+<mi>V</mi><mo>&#x2265;</mo><mn>0</mn><mo>.</mo>
+</mrow></math>
+</div>
+
+<p>The map from <i>Q</i> to coefficients is linear (each coefficient of <i>V</i> is a sum of
+entries of <i>Q</i> along an anti-diagonal), so "there exists <i>Q</i> &#x2AB0; 0
+representing <i>V</i>" is one more LMI, with <i>Q</i> as an extra unknown. Same device for
+&#x2212;<i>V&#x307;</i>, with a margin &#x3B5;(<i>x</i><sub>1</sub>&#xB2;+<i>x</i><sub>2</sub>&#xB2;)<sup>m</sup>
+subtracted to force strict decrease. This is the <b>sum-of-squares (SOS)</b> method, and it is
+nothing more than the quadratic story applied to the lifted vector <i>z</i> instead of <i>x</i>.</p>
+
+<div class="card key">
+<b>A lucky break in two dimensions.</b> In general, SOS is only sufficient for nonnegativity,
+so an infeasible SOS program leaves a sliver of doubt. But for polynomials in <em>two</em>
+variables, Hilbert proved (1888) that nonnegative and sum-of-squares coincide. For our planar
+system the method is lossless: <code>Infeasible</code> at degree 2<i>m</i> means no
+homogeneous degree-2<i>m</i> Lyapunov function exists, full stop (up to the tiny &#x3B5;
+margin). The failures below are certificates of absence, not weakness of the relaxation.
+</div>
+
+<h3 id="s7d">7.4 Degree escalation: turning the crank</h3>
+
+<p>Here is the pleasant part. Moving from degree 2 to degree 8 changes <em>nothing</em> in
+the recipe; the script's search function is generic in <i>m</i> and about 25 lines. The core:</p>
+
+<pre><code>cvx_begin sdp
+    variable c(2*m+1)                 % coefficients of V
+    variable Q(m+1,m+1)  symmetric    % Gram matrix of V
+    variable G1(m+1,m+1) symmetric    % Gram matrix of -Vdot|mode 1 - margin
+    variable G2(m+1,m+1) symmetric    % Gram matrix of -Vdot|mode 2 - margin
+    Q &gt;= eye(m+1);  G1 &gt;= 0;  G2 &gt;= 0;
+    d1 = -mder(A1,m)*c - eps*w;       % w = coeffs of (x1^2+x2^2)^m
+    d2 = -mder(A2,m)*c - eps*w;
+    for s = 0:2*m                     % match coefficients, anti-diagonal by anti-diagonal
+        sum(antidiag(Q, s)) == c(s+1);
+        sum(antidiag(G1,s)) == d1(s+1);
+        sum(antidiag(G2,s)) == d2(s+1);
+    end
+cvx_end</code></pre>
+
+<p>Loop over <i>m</i> = 1, 2, 3, 4 and let the solver map the terrain. Actual output:</p>
+
+<pre class="out"><code>--- Part C: degree escalation ---
+degree 2: Infeasible
+degree 4: Infeasible
+degree 6: Infeasible
+degree 8: Solved
+
+Winning certificate (degree 8), coefficients of x1^(8-k) x2^k:
+c = [1.5007 11.332 65.005 66.13 748.93 -795.14 5468.7 -10261 13444]</code></pre>
+
+<p>Sit with that ladder for a moment. Not only does no ellipse work: no quartic bowl works,
+no sextic bowl works. The system from Section 7.2 that barely contracts needs a genuinely
+contorted energy function, and the first success is</p>
+
+<div class="eq">
+<math display="block"><mrow>
+<mi>V</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo>
+<mn>1.50</mn><msubsup><mi>x</mi><mn>1</mn><mn>8</mn></msubsup>
+<mo>+</mo><mn>11.3</mn><msubsup><mi>x</mi><mn>1</mn><mn>7</mn></msubsup><msub><mi>x</mi><mn>2</mn></msub>
+<mo>+</mo><mn>65.0</mn><msubsup><mi>x</mi><mn>1</mn><mn>6</mn></msubsup><msubsup><mi>x</mi><mn>2</mn><mn>2</mn></msubsup>
+<mo>+</mo><mn>66.1</mn><msubsup><mi>x</mi><mn>1</mn><mn>5</mn></msubsup><msubsup><mi>x</mi><mn>2</mn><mn>3</mn></msubsup>
+<mo>+</mo><mn>749</mn><msubsup><mi>x</mi><mn>1</mn><mn>4</mn></msubsup><msubsup><mi>x</mi><mn>2</mn><mn>4</mn></msubsup>
+<mo>&#x2212;</mo><mn>795</mn><msubsup><mi>x</mi><mn>1</mn><mn>3</mn></msubsup><msubsup><mi>x</mi><mn>2</mn><mn>5</mn></msubsup>
+<mo>+</mo><mn>5469</mn><msubsup><mi>x</mi><mn>1</mn><mn>2</mn></msubsup><msubsup><mi>x</mi><mn>2</mn><mn>6</mn></msubsup>
+<mo>&#x2212;</mo><mn>10261</mn><msub><mi>x</mi><mn>1</mn></msub><msubsup><mi>x</mi><mn>2</mn><mn>7</mn></msubsup>
+<mo>+</mo><mn>13444</mn><msubsup><mi>x</mi><mn>2</mn><mn>8</mn></msubsup><mo>.</mo>
+</mrow></math>
+</div>
+
+<p>No human would guess this. The solver produced it in under a second, together with the
+Gram matrices that prove it works. Its unit level set is nothing like an ellipse:</p>
+
+<figure>
+<svg viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="level set of the degree-8 certificate">
+  <line x1="10" y1="110" x2="310" y2="110" class="svg-ink" stroke-width="1" opacity="0.35"/>
+  <line x1="160" y1="10" x2="160" y2="210" class="svg-ink" stroke-width="1" opacity="0.35"/>
+  <ellipse cx="160" cy="110" rx="62" ry="62" fill="none" stroke="#0f6bb0" stroke-width="1.2" stroke-dasharray="5 4" opacity="0.7"/>
+  <polyline fill="#b0500f" fill-opacity="0.10" stroke="#b0500f" stroke-width="2"
+  points="236.43,110.00 232.50,106.20 228.57,102.79 224.76,99.74 221.07,97.02 217.51,94.59 214.05,92.44 210.70,90.54 207.40,88.90 204.13,87.51 200.88,86.40 197.66,85.54 194.51,84.93 191.46,84.52 188.57,84.27 185.85,84.15 183.32,84.10 180.96,84.11 178.77,84.17 176.73,84.24 174.82,84.34 173.02,84.44 171.33,84.55 169.73,84.66 168.19,84.78 166.73,84.90 165.31,85.02 163.94,85.13 162.60,85.25 161.29,85.38 160.00,85.50 158.72,85.62 157.45,85.75 156.18,85.87 154.90,86.00 153.61,86.14 152.29,86.27 150.95,86.42 149.57,86.56 148.14,86.72 146.65,86.88 145.10,87.06 143.47,87.24 141.74,87.44 139.89,87.66 137.90,87.90 135.75,88.16 133.40,88.46 130.81,88.79 127.94,89.18 124.71,89.63 121.05,90.16 116.87,90.80 112.03,91.59 106.41,92.59 99.87,93.89 92.45,95.64 84.98,98.12 80.19,101.61 80.38,105.83 83.57,110.00 87.50,113.80 91.43,117.21 95.24,120.26 98.93,122.98 102.49,125.41 105.95,127.56 109.30,129.46 112.60,131.10 115.87,132.49 119.12,133.60 122.34,134.46 125.49,135.07 128.54,135.48 131.43,135.73 134.15,135.85 136.68,135.90 139.04,135.89 141.23,135.83 143.27,135.76 145.18,135.66 146.98,135.56 148.67,135.45 150.27,135.34 151.81,135.22 153.27,135.10 154.69,134.98 156.06,134.87 157.40,134.75 158.71,134.62 160.00,134.50 161.28,134.38 162.55,134.25 163.82,134.13 165.10,134.00 166.39,133.86 167.71,133.73 169.05,133.58 170.43,133.44 171.86,133.28 173.35,133.12 174.90,132.94 176.53,132.76 178.26,132.56 180.11,132.34 182.10,132.10 184.25,131.84 186.60,131.54 189.19,131.21 192.06,130.82 195.29,130.37 198.95,129.84 203.13,129.20 207.97,128.41 213.59,127.41 220.13,126.11 227.55,124.36 235.02,121.88 239.81,118.39 239.62,114.17 236.43,110.00"/>
+  <circle cx="160" cy="110" r="2.5" fill="#17803d"/>
+  <text x="18" y="26" class="svg-text">level set of the degree-8 V</text>
+  <text x="18" y="44" fill="#0f6bb0" font-size="11" font-family="Georgia">dashed: a circle, for scale</text>
+</svg>
+<figcaption><b>Figure 6.</b> The curve <i>V</i>(<i>x</i>) = const for the computed
+certificate, drawn from the actual coefficients. It is a slanted, flattened blade, pinched
+where the adversarial switching pushes hardest. The optimizer shaped the bowl to the threat.
+This is what "no quadratic V is not trivial" looks like in a picture: the correct level set
+simply is not an ellipse, so no ellipse could ever do the job.</figcaption>
+</figure>
+
+<h3 id="s7e">7.5 Verify without trusting the solver</h3>
+
+<p>Step 8 of the recipe. <i>V</i> is homogeneous, so checking positivity and decrease on the
+unit circle checks them everywhere (scale any <i>x</i> onto the circle; both quantities scale
+by <i>r</i><sup>8</sup>). The script samples 20001 angles and evaluates <i>V</i> and both
+<i>V&#x307;</i>'s with plain arithmetic, no CVX anywhere:</p>
+
+<pre class="out"><code>--- Part D: grid check on unit circle (20001 points) ---
+min V      = 0.982778    (&gt; 0)
+max Vdot|1 = -0.100517   (&lt; 0)
+max Vdot|2 = -0.020969   (&lt; 0)
+certified decay: Vdot &lt;= -2*alpha*V with alpha = 0.004966</code></pre>
+
+<p>Positive bowl, strictly decreasing along both modes. The certified worst-case decay rate
+&#x3B1; &#x2248; 0.005 is small, and it should be: Section 7.2 showed the true worst-case
+contraction is weak. A tight certificate for a nearly-marginal system is honest, not timid.</p>
+
+<h3 id="s7f">7.6 The difficulty landscape</h3>
+
+<p>Since the whole pipeline is automatic, mapping how difficulty grows with the squash
+parameter <i>a</i> costs one loop (script, Part F). Minimal certificate degree found:</p>
+
+<table class="tbl">
+<tr><th><i>a</i></th><td>3</td><td>5</td><td>5.8</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td></tr>
+<tr><th>min degree</th><td>2</td><td>2</td><td>2</td><td>4</td><td>4</td><td>4</td><td>4</td><td>8</td><td>&gt;10</td><td>&gt;10</td></tr>
+</table>
+
+<p>The story in one row: quadratics hold out exactly until the theoretical wall
+3 + 2&#x221A;2 &#x2248; 5.83 from Section 7.1, quartics carry the load through
+<i>a</i> = 9, our <i>a</i> = 10 needs degree 8, and by <i>a</i> = 11 even degree 10 fails
+(the worst-case spiral of Section 7.2 is by then expanding or nearly so; stability itself is
+on the edge or gone). Certificate degree is a measurable ruler for "how close to unstable is
+this system", and you get it by turning a crank.</p>
+
+<div class="card key">
+<b>Lab 2.</b> Open <a href="lab2_switched_certificate.html">lab2_switched_certificate.html</a>.
+It integrates the switched system live. Drive the switch yourself and try to push the state
+outward, or turn on the adversarial law and watch it fight. The lab plots
+&#x2016;<i>x</i>&#x2016;&#xB2; (the failed quadratic candidate, non-monotone, it breathes up
+and down under switching) against the degree-8 <i>V</i> (monotone decreasing, as certified)
+on a log scale, and draws the blade-shaped level sets from Figure 6 around the trajectory.
+</div>
+
+<h2 id="s8">8. What to take away</h2>
+
+<ul>
+<li><b>A Lyapunov function is a proof object.</b> Two sign conditions, checkable by
+eigenvalues or grid evaluation, and stability follows for all initial conditions with no
+simulation.</li>
+<li><b>Finding one is convex</b> whenever the unknown parameters enter <i>V</i> linearly.
+Quadratic templates give LMIs directly; polynomial templates give LMIs after the SOS/Gram
+lift. Solvers return either a certificate or a proof that the template is too weak, and both
+answers are trustworthy.</li>
+<li><b>Equations vs. inequalities</b> is the real difference between the classical and
+convex routes. Example 1: the equation route is fine for one system but consumes all freedom;
+the inequality route keeps a convex set of proofs alive, which is why extra demands (a second
+mode, a decay rate) are one added line each.</li>
+<li><b>Infeasibility is information.</b> Example 2's ladder (degree 2, 4, 6 fail; 8 works)
+is a quantitative measurement of how fragile the switched system is, made of nothing but
+failed searches.</li>
+<li><b>Always verify independently.</b> Eigenvalues for quadratic certificates, dense
+sampling for homogeneous polynomial ones. It costs seconds and converts "the solver said so"
+into "I checked".</li>
+</ul>
+
+<h3 id="s8b">Where this goes next</h3>
+
+<p>Everything here extends along the same convex spine. Multiple/piecewise Lyapunov
+functions with dwell-time constraints handle switched systems where no common <i>V</i> of any
+degree exists (the <i>a</i> = 12 column). The S-procedure brings in state-region conditions
+("<i>V&#x307;</i> &lt; 0 only where mode <i>i</i> is active"), which is the natural language
+for switching <em>controllers</em> rather than arbitrary switching. Robust LMIs certify
+whole polytopes of uncertain <i>A</i>'s at once (that is what the Robust Control Toolbox
+automates with <code>lyap</code>-style solvers behind <code>musyn</code>/<code>hinfsyn</code>
+machinery). And SOSTOOLS or YALMIP's <code>sos</code> module automate the Gram bookkeeping we
+did by hand, for any number of states, where Hilbert's two-variable luck no longer holds and
+SOS becomes a (still remarkably strong) sufficient condition.</p>
+
+<h2 id="s9">9. Files in this study</h2>
+
+<table class="tbl filelist">
+<tr><td><a href="matlab/ex1_simple_quadratic.m"><code>matlab/ex1_simple_quadratic.m</code></a></td>
+<td style="text-align:left">Example 1: Lyapunov equation vs. CVX LMI vs. decay-rate bisection.</td></tr>
+<tr><td><a href="matlab/ex2_switched_degree_escalation.m"><code>matlab/ex2_switched_degree_escalation.m</code></a></td>
+<td style="text-align:left">Example 2: product test, CQLF infeasibility, SOS degree escalation, verification, worst-case switching, landscape sweep.</td></tr>
+<tr><td><a href="lab1_quadratic_certificate.html"><code>lab1_quadratic_certificate.html</code></a></td>
+<td style="text-align:left">Interactive: hunt a valid <i>P</i> with sliders, live grading of (L1)/(L2).</td></tr>
+<tr><td><a href="lab2_switched_certificate.html"><code>lab2_switched_certificate.html</code></a></td>
+<td style="text-align:left">Interactive: drive the switched system, quadratic vs. degree-8 certificate.</td></tr>
+</table>
+
+<p style="color:var(--muted); font-size:0.85rem; margin-top:3rem">All solver outputs quoted in
+this document are actual results from MATLAB R2025b with CVX on this machine, produced by the
+two scripts above. Rerun them to reproduce every number.</p>
+
+</main>
+</body>
+</html>

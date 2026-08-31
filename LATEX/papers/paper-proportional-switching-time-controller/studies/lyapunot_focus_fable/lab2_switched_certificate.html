@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 2: Switching vs. the Degree-8 Certificate</title>
+<style>
+:root {
+  --bg:#fdfcf9; --ink:#23262b; --muted:#6b7280; --accent:#0f6bb0; --accent2:#b0500f;
+  --good:#17803d; --bad:#c02929; --card:#f2f0ea; --border:#ddd8cc; --figbg:#ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#14171b; --ink:#dfe3e8; --muted:#9aa3ad; --accent:#5aa9e0; --accent2:#e0955a;
+          --good:#4fc06f; --bad:#e06060; --card:#1d2228; --border:#333a42; --figbg:#181d22; }
+}
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 Georgia, serif; }
+main { max-width:1000px; margin:0 auto; padding:1.4rem 1rem 4rem; }
+h1 { font-size:1.5rem; margin:0.4rem 0; }
+.sub { color:var(--muted); font-style:italic; margin-bottom:1rem; }
+.wrap { display:flex; flex-wrap:wrap; gap:1rem; align-items:flex-start; }
+.panel { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:0.8rem 1rem; }
+.controls { flex:1 1 300px; min-width:290px; }
+canvas { background:var(--figbg); border:1px solid var(--border); border-radius:8px; max-width:100%; touch-action:none; }
+button { font:14px Georgia,serif; background:var(--card); color:var(--ink); border:1px solid var(--border);
+         border-radius:6px; padding:0.35rem 0.7rem; cursor:pointer; margin:0.15rem; }
+button:hover { border-color:var(--accent); }
+button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.mode1 { color:var(--accent); font-weight:bold; }
+.mode2 { color:var(--accent2); font-weight:bold; }
+.stat { font-family:Consolas,monospace; font-size:0.92rem; margin:0.25rem 0; }
+.note { font-size:0.88rem; color:var(--muted); margin-top:0.8rem; }
+fieldset { border:1px solid var(--border); border-radius:6px; margin:0.6rem 0; }
+legend { font-size:0.85rem; color:var(--muted); padding:0 0.3rem; }
+input[type=range] { width:100%; accent-color:var(--accent); }
+code { font-family:Consolas,monospace; }
+</style>
+</head>
+<body>
+<main>
+<h1>Lab 2: try to destabilize the switched system</h1>
+<p class="sub">&#x1E8B; = A<sub>&#x3C3;</sub>x with
+<span class="mode1">A&#x2081; = [&#x2212;1 &#x2212;1; 1 &#x2212;1]</span> and
+<span class="mode2">A&#x2082; = [&#x2212;1 &#x2212;10; 0.1 &#x2212;1]</span>.
+Each mode alone is a strongly stable spiral. You pick the switching. The plots track two
+candidate energies: the naive quadratic |x|&#xB2; and the degree-8 certificate V&#x2088;
+computed by CVX in the tutorial.</p>
+
+<div class="wrap">
+  <div>
+    <canvas id="phase" width="520" height="520"></canvas>
+    <div class="note">Trajectory colored by active mode
+    (<span class="mode1">blue = mode 1</span>, <span class="mode2">orange = mode 2</span>).
+    Thin curves: level sets of the selected function. Because the system is homogeneous,
+    the state is automatically rescaled up when it shrinks, so the fight stays visible;
+    rescaling multiplies both energies by a constant and changes nothing else.</div>
+    <canvas id="vplot" width="520" height="190" style="margin-top:0.6rem"></canvas>
+    <div class="note">log&#x2081;&#x2080; of both candidates along the trajectory (rescalings removed).
+    Gray: |x|&#xB2;, breathing up and down: not a Lyapunov function for the switched system.
+    Green: V&#x2088;, certified monotone. Watch it refuse to rise no matter how you switch.</div>
+  </div>
+
+  <div class="controls panel">
+    <fieldset>
+      <legend>switching law</legend>
+      <button id="mman" class="active">manual</button>
+      <button id="madv">adversarial (max radial growth)</button>
+      <button id="mper">periodic</button>
+      <div id="manbox" style="margin-top:0.4rem">
+        <button id="bm1" class="active">mode 1</button>
+        <button id="bm2">mode 2</button>
+        <span class="note">or hold <b>space</b> for mode 2</span>
+      </div>
+      <div id="perbox" style="display:none; margin-top:0.4rem">
+        <label class="note">half-period: <span id="perval"></span> s</label>
+        <input type="range" id="per" min="0.05" max="2" step="0.05" value="0.55">
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>level sets shown</legend>
+      <button id="lv8" class="active">degree-8 V</button>
+      <button id="lvq">circles |x|&#xB2;</button>
+      <button id="lvnone">none</button>
+    </fieldset>
+
+    <div class="stat">active mode: <span id="smode" class="mode1">1</span></div>
+    <div class="stat">|x|&#xB2; trend now: <span id="sq"></span></div>
+    <div class="stat">V&#x2088; trend now: <span id="s8"></span></div>
+
+    <div style="margin-top:0.5rem">
+      <button id="brst" class="active">reset</button>
+      <button id="bpause">pause</button>
+    </div>
+
+    <div class="note">
+      <b>Things to try.</b><br>
+      1. Manual: hold space exactly while the state crosses the flat directions and release
+      elsewhere. You can make |x|&#xB2; (gray) climb repeatedly. You are pumping the swing.<br>
+      2. Now watch the green curve while you do your worst. It never rises. That is what the
+      SDP certificate promised, and this is what a proof <em>for all switching signals</em>
+      feels like in the hand.<br>
+      3. Adversarial mode implements the worst pumping law (grow the radius as fast as
+      possible at every instant). Even that only slows the green slope down; per revolution
+      the radius still shrinks to about 0.76 of itself, matching Part E of the MATLAB script.<br>
+      4. Periodic: sweep the half-period slider and find the rhythm that hurts most.
+      Notice it is the resonant-looking one, not the fastest one.<br>
+      5. Show the circle level sets while pumping: the trajectory visibly exits circles.
+      Switch to the degree-8 sets: it never exits one. The blade shape from the tutorial's
+      Figure 6 is exactly what "closed under every switch" requires.
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const A1 = [[-1,-1],[1,-1]], A2 = [[-1,-10],[0.1,-1]];
+// degree-8 certificate from ex2_switched_degree_escalation.m (CVX output)
+const C8 = [1.5007, 11.332, 65.005, 66.13, 748.93, -795.14, 5468.7, -10261, 13444];
+
+const cvP = document.getElementById('phase'), cxP = cvP.getContext('2d');
+const cvV = document.getElementById('vplot'), cxV = cvV.getContext('2d');
+const W = cvP.width, H = cvP.height, SC = 110;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+let x = [1.6, 0.9], law = 'man', mode = 1, manualMode = 1, levels = 'v8';
+let t = 0, running = true, scaleLog = 0;      // scaleLog: accumulated log of rescalings
+let hist = [];                                 // {q: log10|x|^2, v: log10 V8, m: mode}
+let path = [];                                 // {x, y, m}
+
+function f(M,x){ return [M[0][0]*x[0]+M[0][1]*x[1], M[1][0]*x[0]+M[1][1]*x[1]]; }
+function rk4(M,x,h){
+  const k1=f(M,x), k2=f(M,[x[0]+h/2*k1[0],x[1]+h/2*k1[1]]),
+        k3=f(M,[x[0]+h/2*k2[0],x[1]+h/2*k2[1]]), k4=f(M,[x[0]+h*k3[0],x[1]+h*k3[1]]);
+  return [x[0]+h/6*(k1[0]+2*k2[0]+2*k3[0]+k4[0]), x[1]+h/6*(k1[1]+2*k2[1]+2*k3[1]+k4[1])];
+}
+function V8(x){
+  let v=0;
+  for (let k=0;k<=8;k++) v += C8[k]*Math.pow(x[0],8-k)*Math.pow(x[1],k);
+  return v;
+}
+function gradV8(x){
+  let g0=0, g1=0;
+  for (let k=0;k<=8;k++){
+    if (k<8) g0 += C8[k]*(8-k)*Math.pow(x[0],7-k)*Math.pow(x[1],k);
+    if (k>0) g1 += C8[k]*k*Math.pow(x[0],8-k)*Math.pow(x[1],k-1);
+  }
+  return [g0,g1];
+}
+function radialRate(M,x){ const d=f(M,x); return x[0]*d[0]+x[1]*d[1]; }   // 0.5 d|x|^2/dt
+
+function pickMode(){
+  if (law==='man') return manualMode;
+  if (law==='adv') return radialRate(A1,x) >= radialRate(A2,x) ? 1 : 2;
+  const T = +document.getElementById('per').value;
+  return (Math.floor(t/T) % 2) ? 2 : 1;
+}
+
+function step(h){
+  mode = pickMode();
+  x = rk4(mode===1?A1:A2, x, h);
+  t += h;
+  const r2 = x[0]*x[0]+x[1]*x[1];
+  if (r2 < 0.04) {            // homogeneous system: rescale to keep things visible
+    const s = 1.6/Math.sqrt(r2);
+    x = [x[0]*s, x[1]*s];
+    scaleLog += Math.log10(s);
+    path.push(null);          // break the drawn path at a rescale
+  }
+  path.push({x:x[0], y:x[1], m:mode});
+  if (path.length > 2600) path.shift();
+  hist.push({ q: Math.log10(x[0]*x[0]+x[1]*x[1]) - 2*scaleLog,
+              v: Math.log10(Math.max(V8(x),1e-300)) - 8*scaleLog, m:mode });
+  if (hist.length > 1400) hist.shift();
+}
+
+const px = p => [W/2 + p.x*SC, H/2 - p.y*SC];
+
+function drawLevels(){
+  if (levels==='none') return;
+  cxP.lineWidth = 1.1;
+  for (const L of [0.35, 1.0, 2.6, 6.0]) {
+    cxP.beginPath();
+    for (let k=0;k<=240;k++){
+      const th = k/240*2*Math.PI, c=Math.cos(th), s=Math.sin(th);
+      let r;
+      if (levels==='v8') { const q = V8([c,s]); r = Math.pow(8*L/q, 1/8); }
+      else r = Math.sqrt(L*1.05);
+      const X = W/2 + r*c*SC, Y = H/2 - r*s*SC;
+      k? cxP.lineTo(X,Y) : cxP.moveTo(X,Y);
+    }
+    cxP.strokeStyle = levels==='v8' ? css('--good') : css('--muted');
+    cxP.globalAlpha = 0.65; cxP.stroke(); cxP.globalAlpha = 1;
+  }
+}
+
+function draw(){
+  if (running) for (let i=0;i<5;i++) step(0.004);
+
+  cxP.clearRect(0,0,W,H);
+  cxP.strokeStyle = css('--border');
+  cxP.beginPath(); cxP.moveTo(0,H/2); cxP.lineTo(W,H/2); cxP.moveTo(W/2,0); cxP.lineTo(W/2,H); cxP.stroke();
+  drawLevels();
+
+  // trajectory, segment-colored by mode
+  cxP.lineWidth = 2.1;
+  for (let i=1;i<path.length;i++){
+    if (!path[i] || !path[i-1]) continue;
+    const a = px(path[i-1]), b = px(path[i]);
+    cxP.strokeStyle = path[i].m===1 ? css('--accent') : css('--accent2');
+    cxP.globalAlpha = 0.25 + 0.75*i/path.length;
+    cxP.beginPath(); cxP.moveTo(a[0],a[1]); cxP.lineTo(b[0],b[1]); cxP.stroke();
+  }
+  cxP.globalAlpha = 1;
+  const last = path[path.length-1];
+  if (last){ const p = px(last);
+    cxP.fillStyle = last.m===1 ? css('--accent') : css('--accent2');
+    cxP.beginPath(); cxP.arc(p[0],p[1],5,0,7); cxP.fill(); }
+  cxP.fillStyle = css('--good'); cxP.beginPath(); cxP.arc(W/2,H/2,3,0,7); cxP.fill();
+
+  // energy plot
+  cxV.clearRect(0,0,cvV.width,cvV.height);
+  cxV.strokeStyle = css('--border'); cxV.strokeRect(0.5,0.5,cvV.width-1,cvV.height-1);
+  if (hist.length > 2){
+    let lo = Infinity, hi = -Infinity;
+    for (const h of hist){ lo = Math.min(lo,h.q,h.v); hi = Math.max(hi,h.q,h.v); }
+    const pad = 0.35*(hi-lo || 1); lo -= pad*0.35; hi += pad*0.35;
+    const X = i => 8 + (cvV.width-16)*i/(hist.length-1);
+    const Y = v => cvV.height-8 - (cvV.height-30)*(v-lo)/(hi-lo);
+    // mode ribbon along the bottom
+    for (let i=1;i<hist.length;i++){
+      cxV.fillStyle = hist[i].m===1 ? css('--accent') : css('--accent2');
+      cxV.globalAlpha = 0.5;
+      cxV.fillRect(X(i-1), cvV.height-6, X(i)-X(i-1)+0.5, 4);
+    }
+    cxV.globalAlpha = 1;
+    cxV.lineWidth = 1.8;
+    cxV.strokeStyle = css('--muted');
+    cxV.beginPath(); hist.forEach((h,i)=> i? cxV.lineTo(X(i),Y(h.q)) : cxV.moveTo(X(i),Y(h.q))); cxV.stroke();
+    cxV.strokeStyle = css('--good');
+    cxV.beginPath(); hist.forEach((h,i)=> i? cxV.lineTo(X(i),Y(h.v)) : cxV.moveTo(X(i),Y(h.v))); cxV.stroke();
+    cxV.fillStyle = css('--muted'); cxV.font = '12px Georgia';
+    cxV.fillText('log10 |x|² (gray)   log10 V₈ (green)   mode ribbon below', 10, 16);
+  }
+
+  // live readouts
+  const M = mode===1 ? A1 : A2;
+  const dq = 2*radialRate(M,x);
+  const g = gradV8(x), d = f(M,x), dv = g[0]*d[0]+g[1]*d[1];
+  document.getElementById('smode').textContent = mode;
+  document.getElementById('smode').className = mode===1 ? 'mode1' : 'mode2';
+  const sq = document.getElementById('sq');
+  sq.textContent = dq > 0 ? 'RISING (not a Lyapunov function)' : 'falling';
+  sq.style.color = dq > 0 ? css('--bad') : css('--good');
+  const s8 = document.getElementById('s8');
+  s8.textContent = dv > 0 ? 'rising (should never happen!)' : 'falling (always)';
+  s8.style.color = dv > 0 ? css('--bad') : css('--good');
+
+  requestAnimationFrame(draw);
+}
+
+// controls
+function setLaw(l){
+  law = l;
+  for (const [id,v] of [['mman','man'],['madv','adv'],['mper','per']])
+    document.getElementById(id).classList.toggle('active', v===l);
+  document.getElementById('manbox').style.display = l==='man' ? '' : 'none';
+  document.getElementById('perbox').style.display = l==='per' ? '' : 'none';
+}
+document.getElementById('mman').onclick = () => setLaw('man');
+document.getElementById('madv').onclick = () => setLaw('adv');
+document.getElementById('mper').onclick = () => setLaw('per');
+document.getElementById('bm1').onclick = () => setManual(1);
+document.getElementById('bm2').onclick = () => setManual(2);
+function setManual(m){
+  manualMode = m;
+  document.getElementById('bm1').classList.toggle('active', m===1);
+  document.getElementById('bm2').classList.toggle('active', m===2);
+}
+window.addEventListener('keydown', e => { if (e.code==='Space'){ e.preventDefault(); setManual(2); } });
+window.addEventListener('keyup',   e => { if (e.code==='Space'){ e.preventDefault(); setManual(1); } });
+const per = document.getElementById('per'), perval = document.getElementById('perval');
+per.addEventListener('input', () => perval.textContent = (+per.value).toFixed(2));
+perval.textContent = (+per.value).toFixed(2);
+function setLevels(l){
+  levels = l;
+  for (const [id,v] of [['lv8','v8'],['lvq','q'],['lvnone','none']])
+    document.getElementById(id).classList.toggle('active', v===l);
+}
+document.getElementById('lv8').onclick = () => setLevels('v8');
+document.getElementById('lvq').onclick = () => setLevels('q');
+document.getElementById('lvnone').onclick = () => setLevels('none');
+document.getElementById('brst').onclick = () => { x=[1.6,0.9]; t=0; scaleLog=0; hist=[]; path=[]; };
+document.getElementById('bpause').onclick = function(){ running=!running; this.textContent = running?'pause':'resume'; };
+cvP.addEventListener('pointerdown', ev => {
+  const r = cvP.getBoundingClientRect();
+  const mx = (ev.clientX-r.left)*(W/r.width), my = (ev.clientY-r.top)*(H/r.height);
+  x = [(mx-W/2)/SC, (H/2-my)/SC]; scaleLog=0; hist=[]; path=[];
+});
+
+draw();
+</script>
+</main>
+</body>
+</html>

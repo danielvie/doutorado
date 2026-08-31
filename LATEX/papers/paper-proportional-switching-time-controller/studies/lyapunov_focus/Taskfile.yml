@@ -1,0 +1,22 @@
+version: '3'
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+
+  run:
+    desc: Run the CVX MATLAB example
+    cmds:
+      - matlab -batch "cvx_example"
+
+  test:
+    desc: Check the CVX solution against its expected value
+    cmds:
+      - matlab -batch "cvx_example"
+
+  clean:
+    desc: Confirm that the example has no generated files to remove
+    cmds:
+      - echo Nothing to clean

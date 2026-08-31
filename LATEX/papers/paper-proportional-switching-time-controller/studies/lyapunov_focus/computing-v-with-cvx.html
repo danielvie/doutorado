@@ -1,0 +1,967 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!--
+  One system, one method, one conclusion.
+
+  Companion script: studies/lyapunov/damped_oscillator_cvx.m
+  Every number on this page came from running it. Self-contained: no external
+  scripts, stylesheets or fonts. Open it directly.
+-->
+<title>Computing a Lyapunov function with CVX</title>
+<style>
+:root{
+  --ground:#EDF0F4; --surface:#FFFFFF; --surface-2:#E4E9F0; --surface-3:#DCE3EB;
+  --ink:#141C25; --ink-2:#42505F; --ink-3:#6B7789;
+  --rule:#CCD4DE; --rule-strong:#A9B4C2;
+  --blue:#1D5F9E; --blue-soft:#D6E4F2;
+  --crimson:#C4453C; --crimson-soft:#F6DEDC;
+  --teal:#17877A; --teal-soft:#D3E9E5;
+  --amber:#B07A16; --graphite:#6B7789;
+  --shadow:0 1px 2px rgba(20,28,37,.06), 0 8px 24px -12px rgba(20,28,37,.18);
+  --measure:35rem;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F151C; --surface:#161F29; --surface-2:#1E2934; --surface-3:#243140;
+    --ink:#E6EBF1; --ink-2:#B3C0CE; --ink-3:#8593A3;
+    --rule:#2B3743; --rule-strong:#3D4B59;
+    --blue:#69B0E6; --blue-soft:#17304a;
+    --crimson:#EC8177; --crimson-soft:#3D2320;
+    --teal:#4CC6B2; --teal-soft:#123029;
+    --amber:#DFAA45; --graphite:#8593A3;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F151C; --surface:#161F29; --surface-2:#1E2934; --surface-3:#243140;
+  --ink:#E6EBF1; --ink-2:#B3C0CE; --ink-3:#8593A3;
+  --rule:#2B3743; --rule-strong:#3D4B59;
+  --blue:#69B0E6; --blue-soft:#17304a;
+  --crimson:#EC8177; --crimson-soft:#3D2320;
+  --teal:#4CC6B2; --teal-soft:#123029;
+  --amber:#DFAA45; --graphite:#8593A3;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:Spectral,Georgia,"Times New Roman",serif;font-size:17.5px;line-height:1.7}
+.page{--pad:clamp(1rem,4vw,2.5rem);
+  --cols:minmax(var(--pad),1fr) minmax(0,var(--measure)) minmax(var(--pad),1fr);
+  display:grid;grid-template-columns:var(--cols)}
+.page > header,.page > section,.page > footer{
+  grid-column:1/-1;display:grid;grid-template-columns:var(--cols);align-content:start}
+.page > header > *,.page > section > *,.page > footer > *{grid-column:2}
+.page .wide{grid-column:1/-1;width:min(56rem,100% - var(--pad)*2);margin-inline:auto}
+
+h1,h2,h3,h4,.eyebrow,figcaption,th,.ui{font-family:"Archivo","Helvetica Neue",Arial,sans-serif}
+h1{font-size:clamp(2rem,5vw,2.9rem);line-height:1.07;letter-spacing:-.03em;font-weight:700;margin:0}
+h2{font-size:clamp(1.3rem,2.8vw,1.7rem);line-height:1.2;letter-spacing:-.02em;font-weight:600;margin:0}
+h3{font-size:1.05rem;font-weight:600;margin:0}
+p{margin:0}
+.lede{font-size:clamp(1.04rem,2.2vw,1.2rem);line-height:1.55;color:var(--ink-2)}
+.eyebrow{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--ink-3)}
+.crumb{font-family:"Archivo",sans-serif;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:.4rem}
+code,.mono,.num{font-family:"IBM Plex Mono",ui-monospace,Consolas,Menlo,monospace}
+code{font-size:.86em;background:var(--surface-2);padding:.1em .34em;border-radius:3px}
+a{color:var(--blue)}
+strong{font-weight:600}
+:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+
+.page > header{padding:clamp(2.5rem,8vw,5rem) 0 1.5rem}
+.page > section{padding:1.5rem 0}
+.page > section + section{border-top:1px solid var(--rule)}
+.stack > * + *{margin-top:1.05rem}
+.stack-tight > * + *{margin-top:.55rem}
+
+.eq{font-family:"STIX Two Math","Cambria Math","Latin Modern Math","Times New Roman",serif;
+  font-size:1.08rem;background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--blue);
+  border-radius:0 6px 6px 0;padding:.8rem 1rem;overflow-x:auto;line-height:1.8}
+.eq math{display:block;max-width:100%;font-family:inherit}
+.eq.center{text-align:center}
+.note{background:var(--surface);border:1px solid var(--rule);border-radius:8px;
+  padding:.95rem 1.1rem;box-shadow:var(--shadow)}
+.note.key{border-left:3px solid var(--teal)}
+.note.warn{border-left:3px solid var(--crimson)}
+.note.aside{background:var(--surface-2);box-shadow:none}
+.note h4{margin:0 0 .35rem;font-size:.92rem;font-weight:600;color:var(--ink-2);
+  font-family:"Archivo",sans-serif}
+.note p + p{margin-top:.55rem}
+
+pre{background:var(--surface);border:1px solid var(--rule);border-radius:8px;
+  padding:.85rem 1rem;overflow-x:auto;font-size:.8rem;line-height:1.65;margin:0;
+  font-family:"IBM Plex Mono",ui-monospace,Consolas,monospace}
+pre.out{background:var(--surface-2);border-left:3px solid var(--graphite)}
+pre .c{color:var(--ink-3);font-style:italic}
+pre .k{color:var(--blue);font-weight:600}
+pre .s{color:var(--teal)}
+ul,ol{margin:0;padding-left:1.25rem}
+li + li{margin-top:.3rem}
+
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{text-align:left;padding:.4rem .55rem;border-bottom:1px solid var(--rule)}
+th{font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+td.n{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.pass{color:var(--teal);font-weight:600}
+.fail{color:var(--crimson);font-weight:600}
+
+figure{margin:0}
+figcaption{font-size:.82rem;color:var(--ink-3);line-height:1.5;margin-top:.55rem}
+figcaption b{color:var(--ink-2);font-weight:600}
+.fig{background:var(--surface);border:1px solid var(--rule);border-radius:10px;
+  padding:.9rem;box-shadow:var(--shadow)}
+.lab{background:var(--surface);border:1px solid var(--rule-strong);border-radius:12px;
+  box-shadow:var(--shadow);overflow:hidden}
+.lab-head{display:flex;flex-wrap:wrap;gap:.5rem;align-items:baseline;justify-content:space-between;
+  padding:.7rem 1rem;background:var(--surface-2);border-bottom:1px solid var(--rule)}
+.lab-body{padding:.9rem}
+.lab-body > * + *{margin-top:.8rem}
+.controls{display:flex;flex-wrap:wrap;gap:.45rem .8rem;align-items:center;
+  font-family:"Archivo",sans-serif;font-size:.82rem;color:var(--ink-2)}
+button{font-family:"Archivo",sans-serif;font-size:.82rem;font-weight:600;background:var(--surface-2);
+  color:var(--ink);border:1px solid var(--rule-strong);border-radius:6px;padding:.3rem .68rem;cursor:pointer}
+button:hover{background:var(--surface-3)}
+select{font-family:"Archivo",sans-serif;font-size:.82rem;padding:.22rem .38rem;border-radius:6px;
+  border:1px solid var(--rule-strong);background:var(--surface-2);color:var(--ink)}
+canvas{display:block;width:100%;background:transparent}
+.legend{display:flex;flex-wrap:wrap;gap:.35rem .9rem;font-family:"Archivo",sans-serif;
+  font-size:.77rem;color:var(--ink-2)}
+.legend span{display:flex;align-items:center;gap:.32rem}
+.swatch{width:14px;height:3px;border-radius:2px;display:inline-block}
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(8.5rem,1fr));gap:.5rem}
+.rd{background:var(--surface-2);border:1px solid var(--rule);border-radius:8px;padding:.45rem .6rem}
+.rd .k{display:block;font-family:"Archivo",sans-serif;font-size:.66rem;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-3)}
+.rd .v{font-family:"IBM Plex Mono",monospace;font-size:.98rem;font-variant-numeric:tabular-nums}
+.rd.good{border-color:var(--teal);background:var(--teal-soft)}
+.rd.bad{border-color:var(--crimson);background:var(--crimson-soft)}
+footer{padding:2rem 0 4rem;color:var(--ink-3);font-size:.85rem}
+@media print{.lab,.fig{break-inside:avoid} button,select{display:none} body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="stack">
+  <p class="eyebrow">Studies &#183; Lyapunov &#183; A first certificate</p>
+  <h1>Computing a Lyapunov function with CVX</h1>
+  <p class="lede">One system, one method, one conclusion. We take a damped mass on a spring, try the
+  Lyapunov function that physics suggests, watch it fall just short, then ask a solver for one that
+  works. By the end you will have proved that the system is asymptotically stable, and you will know
+  exactly what that proof does and does not say.</p>
+  <div class="note aside stack-tight">
+    <h4>What you need</h4>
+    <p>Matrices, eigenvalues, and the idea of a differential equation. Nothing about optimization.
+    MATLAB with CVX installed; run <code>cvx_example</code> first if you want to be sure it works.</p>
+    <h4>The script</h4>
+    <p><code>studies/lyapunov/damped_oscillator_cvx.m</code> produces every number below. Read the
+    page first, then run it and watch the same numbers appear.</p>
+  </div>
+</header>
+
+<!-- ===================================================================== -->
+<section id="system" class="stack">
+  <p class="crumb">1 &#183; The system</p>
+  <h2>A mass on a spring, with a damper</h2>
+
+  <p>A block of mass <em>m</em> sits on a frictionless surface, tied to a wall by a spring of
+  stiffness <em>k</em>, with a damper of coefficient <em>c</em> resisting its motion. Pull it aside,
+  let go, and it oscillates while slowly losing amplitude. That much you already know. Our job is to
+  <em>prove</em> it settles, using a method that will still work on systems where your intuition has
+  nothing to offer.</p>
+
+  <p>Newton's second law gives <em>m&#7821;</em> + <em>c&#7819;</em> + <em>kx</em> = 0. To work with
+  it we rewrite the one second-order equation as two first-order ones. Call the position
+  x<sub>1</sub> and the velocity x<sub>2</sub>:</p>
+
+  <div class="eq">
+    <math display="block" aria-label="x dot sub 1 equals x sub 2; x dot sub 2 equals negative k over m times x sub 1 minus c over m times x sub 2">
+      <mtable columnalign="right left" rowspacing=".45em">
+        <mtr>
+          <mtd><msub><mover accent="true"><mi>x</mi><mo>˙</mo></mover><mn>1</mn></msub></mtd>
+          <mtd><mrow><mo>=</mo><msub><mi>x</mi><mn>2</mn></msub></mrow></mtd>
+        </mtr>
+        <mtr>
+          <mtd><msub><mover accent="true"><mi>x</mi><mo>˙</mo></mover><mn>2</mn></msub></mtd>
+          <mtd><mrow><mo>=</mo><mo>−</mo><mfrac><mi>k</mi><mi>m</mi></mfrac><mo>&#x2062;</mo><msub><mi>x</mi><mn>1</mn></msub><mo>−</mo><mfrac><mi>c</mi><mi>m</mi></mfrac><mo>&#x2062;</mo><msub><mi>x</mi><mn>2</mn></msub></mrow></mtd>
+        </mtr>
+      </mtable>
+    </math>
+  </div>
+
+  <p>Stack the two states into a vector <em>x</em> = (x<sub>1</sub>, x<sub>2</sub>) and this is just
+  <em>&#7819;</em> = <em>Ax</em>. With <em>m</em> = 1&#160;kg, <em>c</em> = 0.4&#160;N&#183;s/m and
+  <em>k</em> = 4&#160;N/m,</p>
+
+  <div class="eq center">
+    <math display="block" aria-label="A equals the matrix with rows 0, 1 and negative 4, negative 0.4">
+      <mrow>
+        <mi>A</mi><mo>=</mo>
+        <mo fence="true">[</mo>
+        <mtable columnalign="right right" rowspacing=".25em" columnspacing="1em">
+          <mtr><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd></mtr>
+          <mtr><mtd><mo>−</mo><mn>4</mn></mtd><mtd><mo>−</mo><mn>0.4</mn></mtd></mtr>
+        </mtable>
+        <mo fence="true">]</mo>
+      </mrow>
+    </math>
+  </div>
+
+  <p>The state <em>x</em> = <b>0</b> means the block sits at rest at the spring's natural length.
+  That is the <em>equilibrium</em>, and it is the point we want to prove the system returns to.</p>
+
+  <div class="note aside stack-tight">
+    <h4>A shortcut we are deliberately not taking</h4>
+    <p>For a linear system <em>&#7819;</em> = <em>Ax</em> there is a one-line answer: the equilibrium
+    is asymptotically stable exactly when every eigenvalue of <em>A</em> has negative real part.
+    Here the eigenvalues are &#8722;0.2 &#177; 1.99<em>i</em>, so we are done.</p>
+    <p>We are going to ignore that and do it the long way, because the eigenvalue test stops working
+    the moment the system stops being one fixed linear map. Lyapunov's method keeps working, and this
+    is the smallest system on which you can learn it properly.</p>
+  </div>
+
+  <figure class="fig wide">
+    <canvas id="fig-traj" width="1400" height="440" style="aspect-ratio:1400/440"></canvas>
+    <div class="legend" style="margin-top:.5rem">
+      <span><i class="swatch" style="background:var(--blue)"></i>position x&#8321;(t)</span>
+      <span><i class="swatch" style="background:var(--crimson)"></i>velocity x&#8322;(t)</span>
+    </div>
+    <figcaption><b>What the system does.</b> Released from x&#8321; = 1&#160;m at rest. It oscillates
+    at about 2&#160;rad/s and the amplitude decays. The whole point of what follows is to certify that
+    decay without ever looking at a plot like this one.</figcaption>
+  </figure>
+</section>
+
+<!-- ===================================================================== -->
+<section id="idea" class="stack">
+  <p class="crumb">2 &#183; The idea</p>
+  <h2>What a Lyapunov function is, and why one is enough</h2>
+
+  <p>Simulating from one starting point tells you about that starting point. Lyapunov's idea replaces
+  the simulation with a single scalar quantity that is forced to shrink.</p>
+
+  <p>Find a function <em>V</em>(<em>x</em>) with two properties:</p>
+
+  <ol class="stack-tight" style="margin-top:.4rem">
+    <li><strong>It is a valid measure of distance from the target.</strong>
+      <em>V</em>(<b>0</b>) = 0, and <em>V</em>(<em>x</em>) &gt; 0 for every other <em>x</em>.</li>
+    <li><strong>It always decreases.</strong> Along every solution of the differential equation, the
+      time derivative <em>V&#775;</em>(<em>x</em>) is strictly negative for every
+      <em>x</em> &#8800; <b>0</b>.</li>
+  </ol>
+
+  <p>If such a <em>V</em> exists, the equilibrium is asymptotically stable. The reasoning is short:
+  <em>V</em> can never increase, so the state can never escape outward; and because <em>V</em> is
+  strictly decreasing and cannot go below zero, it has nowhere to end up except zero, which happens
+  only at <em>x</em> = <b>0</b>.</p>
+
+  <p>Notice what that argument did not require. It never solved the differential equation. It never
+  simulated anything. It checked a condition at each point of the state space and concluded something
+  about all trajectories at once. That is the whole reason the method scales to problems where
+  solving is hopeless.</p>
+
+  <h3>Choosing the shape of V</h3>
+
+  <p>&#8220;Find a function&#8221; is a very large search. We shrink it by deciding in advance that
+  <em>V</em> is a <strong>quadratic form</strong>:</p>
+
+  <div class="eq center">
+    <math display="block" aria-label="V of x equals x transpose P x, with P symmetric">
+      <mrow>
+        <mi>V</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><msup><mi>x</mi><mo>⊤</mo></msup><mi>P</mi><mi>x</mi>
+        <mspace width="1em"/><mtext>with </mtext><mi>P</mi><mtext> symmetric</mtext>
+      </mrow>
+    </math>
+  </div>
+
+  <p>For our two-state system that is just
+  V = P<sub>11</sub>x<sub>1</sub>&#178; + 2P<sub>12</sub>x<sub>1</sub>x<sub>2</sub> +
+  P<sub>22</sub>x<sub>2</sub>&#178;. The unknown is no longer a function. It is three numbers.</p>
+
+  <p>Requirement 1 becomes a familiar condition: <em>V</em> &gt; 0 away from the origin means
+  <em>P</em> is <strong>positive definite</strong>, written <em>P</em> &#8827; 0, which for a
+  symmetric matrix means all its eigenvalues are positive.</p>
+
+  <p>Requirement 2 needs the derivative. Using <em>&#7819;</em> = <em>Ax</em> and the product rule,</p>
+
+  <div class="eq">
+    <math display="block" aria-label="V dot equals x dot transpose P x plus x transpose P x dot; equals A x transpose P x plus x transpose P A x; equals x transpose A transpose P plus P A x">
+      <mtable columnalign="right center left" rowspacing=".35em">
+        <mtr>
+          <mtd><mover accent="true"><mi>V</mi><mo>˙</mo></mover></mtd>
+          <mtd><mo>=</mo></mtd>
+          <mtd><mrow><msup><mover accent="true"><mi>x</mi><mo>˙</mo></mover><mo>⊤</mo></msup><mi>P</mi><mi>x</mi><mo>+</mo><msup><mi>x</mi><mo>⊤</mo></msup><mi>P</mi><mover accent="true"><mi>x</mi><mo>˙</mo></mover></mrow></mtd>
+        </mtr>
+        <mtr>
+          <mtd></mtd><mtd><mo>=</mo></mtd>
+          <mtd><mrow><msup><mrow><mo>(</mo><mi>A</mi><mi>x</mi><mo>)</mo></mrow><mo>⊤</mo></msup><mi>P</mi><mi>x</mi><mo>+</mo><msup><mi>x</mi><mo>⊤</mo></msup><mi>P</mi><mrow><mo>(</mo><mi>A</mi><mi>x</mi><mo>)</mo></mrow></mrow></mtd>
+        </mtr>
+        <mtr>
+          <mtd></mtd><mtd><mo>=</mo></mtd>
+          <mtd><mrow><msup><mi>x</mi><mo>⊤</mo></msup><mo>(</mo><msup><mi>A</mi><mo>⊤</mo></msup><mi>P</mi><mo>+</mo><mi>P</mi><mi>A</mi><mo>)</mo><mi>x</mi></mrow></mtd>
+        </mtr>
+      </mtable>
+    </math>
+  </div>
+
+  <p>So <em>V&#775;</em> is itself a quadratic form, built from the matrix
+  <em>A</em>&#8348;<em>P</em> + <em>PA</em>. Requiring it to be negative for all
+  <em>x</em> &#8800; <b>0</b> means that matrix is <strong>negative definite</strong>, written
+  &#8826; 0, meaning all its eigenvalues are negative.</p>
+
+  <div class="note key stack-tight">
+    <h4>The whole problem, in two lines</h4>
+    <div class="eq center" style="margin:.4rem 0 0">
+      <math display="block" aria-label="Find P equals P transpose such that P is positive definite and A transpose P plus P A is negative definite">
+        <mrow>
+          <mtext>Find </mtext><mi>P</mi><mo>=</mo><msup><mi>P</mi><mo>⊤</mo></msup><mtext> such that </mtext>
+          <mi>P</mi><mo>≻</mo><mn>0</mn><mspace width="1em"/><mtext>and </mtext>
+          <msup><mi>A</mi><mo>⊤</mo></msup><mi>P</mi><mo>+</mo><mi>P</mi><mi>A</mi><mo>≺</mo><mn>0</mn>
+        </mrow>
+      </math>
+    </div>
+    <p style="margin-top:.6rem">Everything from here on is about finding such a <em>P</em>. Section 3
+    guesses one. Section 4 computes one.</p>
+  </div>
+
+  <h3>What P means geometrically</h3>
+
+  <p>The set of points where <em>V</em>(<em>x</em>) equals some constant is an ellipse, centred on
+  the origin. Different <em>P</em> give differently shaped and differently tilted ellipses. So
+  choosing <em>P</em> is choosing what &#8220;far from the equilibrium&#8221; means, and requirement 2
+  says the trajectory must cross every one of those ellipses <em>strictly inward</em>. You will see
+  this in the laboratory in section 5.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="energy" class="stack">
+  <p class="crumb">3 &#183; The obvious guess</p>
+  <h2>Physics offers a candidate, and it falls just short</h2>
+
+  <p>For a mechanical system there is a natural guess: the stored energy. Kinetic plus potential,</p>
+
+  <div class="eq center">
+    <math display="block" aria-label="E of x equals one half k x sub 1 squared plus one half m x sub 2 squared, equals 2 x sub 1 squared plus 0.5 x sub 2 squared">
+      <mrow>
+        <mi>E</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>&#x2062;</mo><mi>k</mi><mo>&#x2062;</mo><msubsup><mi>x</mi><mn>1</mn><mn>2</mn></msubsup>
+        <mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>&#x2062;</mo><mi>m</mi><mo>&#x2062;</mo><msubsup><mi>x</mi><mn>2</mn><mn>2</mn></msubsup>
+        <mo>=</mo><mn>2</mn><mo>&#x2062;</mo><msubsup><mi>x</mi><mn>1</mn><mn>2</mn></msubsup><mo>+</mo><mn>0.5</mn><mo>&#x2062;</mo><msubsup><mi>x</mi><mn>2</mn><mn>2</mn></msubsup>
+      </mrow>
+    </math>
+  </div>
+
+  <p>which is a quadratic form with</p>
+
+  <div class="eq center">
+    <math display="block" aria-label="P energy equals the matrix with rows 2, 0 and 0, 0.5">
+      <mrow>
+        <msub><mi>P</mi><mtext>energy</mtext></msub><mo>=</mo>
+        <mo fence="true">[</mo>
+        <mtable columnalign="right right" rowspacing=".25em" columnspacing="1em">
+          <mtr><mtd><mn>2</mn></mtd><mtd><mn>0</mn></mtd></mtr>
+          <mtr><mtd><mn>0</mn></mtd><mtd><mn>0.5</mn></mtd></mtr>
+        </mtable>
+        <mo fence="true">]</mo>
+      </mrow>
+    </math>
+  </div>
+
+  <p>It is clearly positive definite: eigenvalues 2 and 0.5, both positive. Requirement 1 holds. Now
+  test requirement 2 by forming <em>A</em>&#8348;<em>P</em> + <em>PA</em>:</p>
+
+  <div class="eq">
+    <math display="block" aria-label="A transpose P energy plus P energy A equals the matrix with rows 0, 0 and 0, negative 0.4">
+      <mrow>
+        <msup><mi>A</mi><mo>⊤</mo></msup><msub><mi>P</mi><mtext>energy</mtext></msub><mo>+</mo><msub><mi>P</mi><mtext>energy</mtext></msub><mi>A</mi><mo>=</mo>
+        <mo fence="true">[</mo>
+        <mtable columnalign="right right" rowspacing=".25em" columnspacing="1em">
+          <mtr><mtd><mn>0</mn></mtd><mtd><mn>0</mn></mtd></mtr>
+          <mtr><mtd><mn>0</mn></mtd><mtd><mo>−</mo><mn>0.4</mn></mtd></mtr>
+        </mtable>
+        <mo fence="true">]</mo>
+      </mrow>
+    </math>
+  </div>
+
+  <p>Its eigenvalues are <span class="fail">0</span> and &#8722;0.4. One of them is zero, so this
+  matrix is negative <em>semi</em>definite, not negative definite. Requirement 2 fails.</p>
+
+  <h3>Why it fails, physically</h3>
+
+  <p>Read the matrix back as a formula: <em>E&#775;</em> = &#8722;0.4&#160;x<sub>2</sub>&#178;, that
+  is, <em>E&#775;</em> = &#8722;<em>c</em>&#160;<em>v</em>&#178;. The only thing removing energy from
+  this system is the damper, and the damper only does work when the mass is <em>moving</em>. At the
+  top of each swing the mass is momentarily at rest, x<sub>2</sub> = 0, and at that instant the
+  energy is not decreasing at all.</p>
+
+  <p>So the zero is not a numerical artefact and it is not a mistake in the guess. It is a true
+  statement about the physics, and it means the energy is not <em>quite</em> a Lyapunov function in
+  the strict sense we asked for.</p>
+
+  <div class="note warn stack-tight">
+    <h4>Is the system therefore not stable?</h4>
+    <p>No. The energy argument still proves the system is <em>stable</em> (it never runs away). It
+    just does not prove it is <em>asymptotically</em> stable (it actually converges). There is a
+    classical repair called LaSalle's invariance principle, which reasons about where the trajectory
+    can linger while <em>E&#775;</em> = 0 and recovers the stronger conclusion.</p>
+    <p>We are going to take the other road: rather than patch the argument, change the ruler. Ask for
+    a <em>P</em> that satisfies the strict condition outright. And rather than guess again, compute
+    one.</p>
+  </div>
+</section>
+
+<!-- ===================================================================== -->
+<section id="cvx" class="stack">
+  <p class="crumb">4 &#183; Computing V</p>
+  <h2>Why a solver can do this, and how to ask</h2>
+
+  <p>Look hard at the two requirements:</p>
+
+  <div class="eq center">
+    <math display="block" aria-label="P is positive definite and A transpose P plus P A is negative definite">
+      <mrow>
+        <mi>P</mi><mo>≻</mo><mn>0</mn><mspace width="1.2em"/>
+        <msup><mi>A</mi><mo>⊤</mo></msup><mi>P</mi><mo>+</mo><mi>P</mi><mi>A</mi><mo>≺</mo><mn>0</mn>
+      </mrow>
+    </math>
+  </div>
+
+  <p>The unknown <em>P</em> appears <strong>linearly</strong> in both. No <em>P</em> multiplied by
+  <em>P</em>, no <em>P</em> inverted, no square roots. A constraint saying &#8220;this matrix, which
+  depends linearly on the unknowns, is positive definite&#8221; is called a <strong>linear matrix
+  inequality</strong>, or LMI.</p>
+
+  <p>That is the fact that makes the whole thing computable. The set of <em>P</em> satisfying an LMI
+  is <em>convex</em>: if two matrices both work, everything on the line between them works too. Convex
+  problems have no local traps for a solver to fall into. An interior-point method walks into the set
+  from anywhere, or reports that the set is empty. And &#8220;empty&#8221; is a real answer, not a
+  failure: it means no quadratic <em>V</em> exists for this system, so you would need a different
+  shape of <em>V</em>.</p>
+
+  <p>CVX is a MATLAB layer that lets you type constraints roughly as you would write them and hands
+  the problem to a solver. Here is the whole thing.</p>
+
+  <pre><span class="c">% studies/lyapunov/damped_oscillator_cvx.m</span>
+A = [0 1; -4 -0.4];
+n = <span class="k">size</span>(A, 1);
+
+<span class="k">cvx_begin</span> sdp quiet
+    <span class="k">variable</span> P(n, n) symmetric
+    <span class="k">minimize</span>(0)                                     <span class="c">% feasibility only</span>
+    <span class="k">subject to</span>
+        P - <span class="k">eye</span>(n) == <span class="k">semidefinite</span>(n);              <span class="c">% P &gt;= I</span>
+        -(A'*P + P*A) - <span class="k">eye</span>(n) == <span class="k">semidefinite</span>(n);  <span class="c">% A'P + PA &lt;= -I</span>
+<span class="k">cvx_end</span>
+
+P = (P + P')/2;   <span class="c">% symmetrise what the solver returned</span></pre>
+
+  <h3>Reading that code line by line</h3>
+
+  <table>
+    <tbody>
+      <tr><td><code>cvx_begin sdp</code></td><td>opens a CVX problem in semidefinite mode, so
+        matrix inequalities are understood as definiteness constraints rather than entry-by-entry
+        comparisons. <code>quiet</code> just suppresses the solver log.</td></tr>
+      <tr><td><code>variable P(n,n) symmetric</code></td><td>declares the unknown. Saying
+        <code>symmetric</code> matters: it tells CVX there are three unknowns here, not four, and it
+        keeps the problem well posed.</td></tr>
+      <tr><td><code>minimize(0)</code></td><td>we are not optimizing anything yet. We only want to
+        know whether a feasible <em>P</em> exists, so the objective is a constant.</td></tr>
+      <tr><td><code>== semidefinite(n)</code></td><td>CVX's way of writing &#8220;this expression is
+        positive semidefinite&#8221;. <code>P - eye(n) == semidefinite(n)</code> therefore says
+        <em>P</em> &#8722; <em>I</em> &#10877; 0, that is, <em>P</em> &#10878; <em>I</em>.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note key stack-tight">
+    <h4>Why <em>I</em> and not 0</h4>
+    <p>The mathematics asks for strict inequalities, <em>P</em> &#8827; 0 and
+    <em>A</em>&#8348;<em>P</em> + <em>PA</em> &#8826; 0. Solvers work to a numerical tolerance and
+    cannot honour a strict inequality, so we ask for something slightly stronger that they
+    <em>can</em> honour: <em>P</em> &#10878; <em>I</em> and
+    <em>A</em>&#8348;<em>P</em> + <em>PA</em> &#10877; &#8722;<em>I</em>. Any <em>P</em> meeting those
+    certainly meets the strict versions, with room to spare.</p>
+    <p>Using <em>I</em> costs nothing, because of a small piece of good luck: if <em>P</em> works then
+    so does 10<em>P</em>, since both conditions are homogeneous. Scaling a certificate up never breaks
+    it. So demanding a margin of exactly <em>I</em> rules out no system.</p>
+  </div>
+
+  <h3>What comes back</h3>
+
+  <pre class="out">CVX status        Solved
+P =
+   14.5465    0.6097
+    0.6097    3.7280</pre>
+
+  <p>So the Lyapunov function is</p>
+
+  <div class="eq center">
+    <math display="block" aria-label="V of x equals 14.5465 x sub 1 squared plus 2 times 0.6097 x sub 1 x sub 2 plus 3.7280 x sub 2 squared">
+      <mrow>
+        <mi>V</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mn>14.5465</mn><mo>&#x2062;</mo><msubsup><mi>x</mi><mn>1</mn><mn>2</mn></msubsup>
+        <mo>+</mo><mn>2</mn><mo>(</mo><mn>0.6097</mn><mo>)</mo><mo>&#x2062;</mo><msub><mi>x</mi><mn>1</mn></msub><mo>&#x2062;</mo><msub><mi>x</mi><mn>2</mn></msub>
+        <mo>+</mo><mn>3.7280</mn><mo>&#x2062;</mo><msubsup><mi>x</mi><mn>2</mn><mn>2</mn></msubsup>
+      </mrow>
+    </math>
+  </div>
+
+  <p>Compare that with the energy, which was 2x<sub>1</sub>&#178; + 0.5x<sub>2</sub>&#178;. The
+  solver's answer weights position much more heavily, and it has a nonzero cross term
+  x<sub>1</sub>x<sub>2</sub>, which the energy did not. That cross term is what tilts the ellipses,
+  and the tilt is exactly what removes the flat spot.</p>
+
+  <div class="note aside stack-tight">
+    <h4>Your numbers will probably differ</h4>
+    <p>There are infinitely many valid <em>P</em>, and which one a solver lands on depends on the
+    solver, its tolerances, and its starting point. If you run the script and get different digits,
+    nothing is wrong. Check yours the way section 5 does; if it passes, it is just as good a proof as
+    this one.</p>
+  </div>
+</section>
+
+<!-- ===================================================================== -->
+<section id="check" class="stack">
+  <p class="crumb">5 &#183; Verification</p>
+  <h2>Checking the certificate yourself</h2>
+
+  <p>Never take the solver's word for it. A conic solver returns an approximate answer to a
+  tolerance, and the whole value of a Lyapunov certificate is that the final check is cheap and
+  exact. Two eigenvalue computations:</p>
+
+  <pre>P = (P + P')/2;                 <span class="c">% symmetrise first, always</span>
+<span class="k">eig</span>(P)                          <span class="c">% must be all positive</span>
+S = A'*P + P*A;  S = (S + S')/2;
+<span class="k">eig</span>(S)                          <span class="c">% must be all negative</span></pre>
+
+  <table>
+    <thead><tr><th>Check</th><th class="n">Result</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>eigenvalues of P</td><td class="n">3.6937, 14.5807</td><td class="pass">both positive, so P &#8827; 0</td></tr>
+      <tr><td>eigenvalues of A&#8348;P + PA</td><td class="n">&#8722;4.9922, &#8722;1.6481</td><td class="pass">both negative, so V&#775; &#8826; 0</td></tr>
+      <tr><td>same, for the energy</td><td class="n">&#8722;0.4000, 0.0000</td><td class="fail">a zero, so not strict</td></tr>
+      <tr><td>cond(P)</td><td class="n">3.9474</td><td>ellipses are mildly stretched</td></tr>
+    </tbody>
+  </table>
+
+  <p>Both requirements hold, with margin. <strong>The equilibrium of this system is asymptotically
+  stable, and that is now proved</strong>, not observed.</p>
+
+  <p>Why symmetrise before testing? The matrix CVX returns is symmetric only to within its tolerance,
+  and <code>eig</code> on a very slightly non-symmetric matrix can return complex numbers with tiny
+  imaginary parts, which then confuse every comparison you make afterwards. One line prevents an hour
+  of confusion.</p>
+
+  <h3>Seeing it</h3>
+
+  <p>The laboratory below draws the state plane. The curve spiralling into the origin is the
+  trajectory. The closed curves are level sets of whichever <em>V</em> you select. Watch what happens
+  where the trajectory meets them.</p>
+
+  <div class="lab wide" id="lab">
+    <div class="lab-head">
+      <div><p class="eyebrow">Laboratory</p><h3>The trajectory against the level sets</h3></div>
+      <div class="controls">
+        <label>V =
+          <select id="pick">
+            <option value="cvx">the certificate from CVX</option>
+            <option value="energy">the mechanical energy</option>
+          </select>
+        </label>
+        <button id="play" type="button">play</button>
+        <button id="reset" type="button">reset</button>
+      </div>
+    </div>
+    <div class="lab-body">
+      <p style="font-size:.87rem;color:var(--ink-2)">Drag in the left panel to move the starting
+      point. With the energy selected, look at the moments the trajectory crosses the horizontal axis:
+      the mass is momentarily at rest, and there the path is <em>tangent</em> to a level set instead
+      of cutting across it. That tangency is the zero eigenvalue, drawn. With the CVX certificate
+      selected, no such moment exists anywhere.</p>
+      <canvas id="cv" width="1400" height="560" style="aspect-ratio:1400/560"></canvas>
+      <div class="legend">
+        <span><i class="swatch" style="background:var(--blue)"></i>trajectory</span>
+        <span><i class="swatch" style="background:var(--graphite)"></i>level sets of V</span>
+        <span><i class="swatch" style="background:var(--crimson)"></i>dV/dt along the trajectory</span>
+      </div>
+      <div class="readout">
+        <div class="rd"><span class="k">time</span><span class="v" id="r-t">0.00 s</span></div>
+        <div class="rd"><span class="k">V</span><span class="v" id="r-v">&#8212;</span></div>
+        <div class="rd" id="r-box"><span class="k">dV/dt now</span><span class="v" id="r-vd">&#8212;</span></div>
+        <div class="rd"><span class="k">largest dV/dt on the run</span><span class="v" id="r-max">&#8212;</span></div>
+      </div>
+      <p style="font-size:.87rem;color:var(--ink-2)" id="verdict">&#8212;</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================================== -->
+<section id="rate" class="stack">
+  <p class="crumb">6 &#183; Going further</p>
+  <h2>Getting a speed out of the certificate</h2>
+
+  <p>So far we have proved the system converges. We have not said how fast. A small change to the
+  second constraint answers that too. Ask for</p>
+
+  <div class="eq center">
+    <math display="block" aria-label="A transpose P plus P A is less than or equal to negative 2 alpha P">
+      <mrow>
+        <msup><mi>A</mi><mo>⊤</mo></msup><mi>P</mi><mo>+</mo><mi>P</mi><mi>A</mi><mo>⪯</mo><mo>−</mo><mn>2</mn><mi>α</mi><mi>P</mi>
+      </mrow>
+    </math>
+  </div>
+
+  <p>instead of &#10877; &#8722;<em>I</em>. Written out, this says
+  <em>V&#775;</em> &#8804; &#8722;2&#945;<em>V</em>, and a scalar quantity obeying that inequality
+  satisfies <em>V</em>(t) &#8804; <em>V</em>(0)e<sup>&#8722;2&#945;t</sup>. Since
+  <em>V</em> is a quadratic form pinched between
+  &#955;<sub>min</sub>(P)&#8214;x&#8214;&#178; and &#955;<sub>max</sub>(P)&#8214;x&#8214;&#178;,
+  that turns into a bound on the state itself:</p>
+
+  <div class="eq center">
+    <math display="block" aria-label="the norm of x of t is less than or equal to the square root of cond P times e to the negative alpha t times the norm of x of 0">
+      <mrow>
+        <mo>‖</mo><mi>x</mi><mo>(</mo><mi>t</mi><mo>)</mo><mo>‖</mo><mo>≤</mo>
+        <msqrt><mrow><mi>cond</mi><mo>(</mo><mi>P</mi><mo>)</mo></mrow></msqrt>
+        <mo>&#x22C5;</mo><msup><mi>e</mi><mrow><mo>−</mo><mi>α</mi><mi>t</mi></mrow></msup><mo>&#x22C5;</mo>
+        <mo>‖</mo><mi>x</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>‖</mo>
+      </mrow>
+    </math>
+  </div>
+
+  <p>One wrinkle: with both <em>P</em> and &#945; unknown, the term 2&#945;<em>P</em> is a product of
+  two unknowns, so the problem is no longer linear. The standard fix is to fix &#945;, which makes it
+  an LMI again, and search over &#945; from the outside by bisection. That is what the script does,
+  forty halvings of an interval.</p>
+
+  <pre>lo = 0; hi = 5;
+<span class="k">for</span> iteration = 1:40
+    mid = (lo + hi)/2;
+    <span class="k">if</span> rate_feasible(A, mid)   <span class="c">% one CVX solve at this fixed alpha</span>
+        lo = mid;                <span class="c">% it worked, try faster</span>
+    <span class="k">else</span>
+        hi = mid;                <span class="c">% too fast, back off</span>
+    <span class="k">end</span>
+<span class="k">end</span></pre>
+
+  <pre class="out">best certified alpha   0.200000
+-max(real(eig(A)))     0.200000
+difference             2.73e-08   (they agree, as they must)
+
+so ||x(t)|| &lt;= 2.017 * exp(-0.1998 t) * ||x(0)||</pre>
+
+  <p>The bisection lands on &#945; = 0.2, which is exactly minus the real part of the eigenvalues of
+  <em>A</em>. That agreement is worth pausing on. It is a good sanity check that the machinery is
+  correct, and it also tells you the method is not throwing anything away here: for a single linear
+  system, the best rate a quadratic <em>V</em> can certify is the true decay rate, no worse.</p>
+
+  <p>The factor 2.017 in front is &#8730;(cond&#160;P). It is the price of measuring with tilted
+  ellipses instead of circles, and it is why the bound allows the state to grow briefly before it
+  settles, even though <em>V</em> itself never does.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="close" class="stack">
+  <p class="crumb">7 &#183; Closing</p>
+  <h2>What you proved, and what comes next</h2>
+
+  <h3>The recipe, in five steps</h3>
+  <ol class="stack-tight">
+    <li>Write the dynamics as <em>&#7819;</em> = <em>Ax</em> with the equilibrium at the origin.</li>
+    <li>Decide <em>V</em>(<em>x</em>) = <em>x</em>&#8348;<em>Px</em>, so the unknown is a matrix.</li>
+    <li>Write the two requirements as LMIs: <em>P</em> &#10878; <em>I</em> and
+      <em>A</em>&#8348;<em>P</em> + <em>PA</em> &#10877; &#8722;<em>I</em>.</li>
+    <li>Hand them to CVX.</li>
+    <li>Check the returned <em>P</em> yourself with two <code>eig</code> calls.</li>
+  </ol>
+
+  <h3>The honest boundary</h3>
+  <p>What is proved: the origin of <em>this</em> system is asymptotically stable, and every solution
+  satisfies &#8214;x(t)&#8214; &#8804; 2.017&#160;e<sup>&#8722;0.2t</sup>&#8214;x(0)&#8214;. What is
+  not proved: anything about a different <em>A</em>, anything about the real block once you include
+  friction that is not linear, and anything about how the system behaves when something pushes on it.
+  A Lyapunov certificate is a statement about one specific model, and it is worth saying out loud
+  which one.</p>
+
+  <p>Also worth naming: on this example the eigenvalue test in section 1 would have answered the
+  question in one line, and it would have been right. Nothing here beat it. The reason to learn the
+  long way is what happens when the one-line test stops applying.</p>
+
+  <h3>Where this goes</h3>
+  <ul>
+    <li><strong>Discrete time.</strong> If the model steps rather than flows,
+      x<sub>k+1</sub> = <em>Ax</em><sub>k</sub>, the same derivation gives
+      <em>A</em>&#8348;<em>PA</em> &#8722; <em>P</em> &#8826; 0. Same code, one line changed.</li>
+    <li><strong>Several possible dynamics.</strong> If the system switches between
+      <em>A</em><sub>1</sub> and <em>A</em><sub>2</sub> in a way you do not control, ask for one
+      <em>P</em> that satisfies the decrease condition for <em>both</em>. This is where the method
+      earns its keep, because eigenvalues genuinely cannot answer it: two stable matrices can switch
+      into an unstable system.</li>
+    <li><strong>Design, not just analysis.</strong> With a control input the same machinery, after a
+      change of variables, finds a stabilising gain and its certificate together.</li>
+  </ul>
+
+  <p>The second of those is the subject of the longer study in this folder,
+  <code>lyapunov-convex-optimization.html</code>, which builds a case where every guess you would
+  make by hand provably fails, and then applies the same idea to the switching-time controller in the
+  paper. Read this page first.</p>
+
+  <h3>Run it</h3>
+  <pre>&gt;&gt; <span class="k">cd</span> studies/lyapunov
+&gt;&gt; cvx_example              <span class="c">% confirms CVX is installed and working</span>
+&gt;&gt; damped_oscillator_cvx    <span class="c">% every number on this page</span></pre>
+</section>
+
+<footer>
+  <p><strong>Computing a Lyapunov function with CVX</strong>, in studies/lyapunov. Numbers produced by
+  <code>damped_oscillator_cvx.m</code> using CVX with its bundled solver. The figures are drawn in the
+  browser by integrating the same <em>A</em>.</p>
+</footer>
+</div>
+
+<script>
+"use strict";
+/* The system, and the three P matrices, exactly as damped_oscillator_cvx.m
+   produced them. Everything drawn below is integrated from these. */
+const A = [[0, 1], [-4, -0.4]];
+const P_CVX = [[14.546465, 0.609660], [0.609660, 3.727968]];
+const P_ENERGY = [[2, 0], [0, 0.5]];
+
+const mv = (M, x) => [M[0][0]*x[0] + M[0][1]*x[1], M[1][0]*x[0] + M[1][1]*x[1]];
+const quad = (P, x) => x[0]*(P[0][0]*x[0] + P[0][1]*x[1]) + x[1]*(P[1][0]*x[0] + P[1][1]*x[1]);
+/* Vdot = x'(A'P + PA)x */
+function S(P) {
+  const AtP = [[A[0][0]*P[0][0] + A[1][0]*P[1][0], A[0][0]*P[0][1] + A[1][0]*P[1][1]],
+               [A[0][1]*P[0][0] + A[1][1]*P[1][0], A[0][1]*P[0][1] + A[1][1]*P[1][1]]];
+  const PA = [[P[0][0]*A[0][0] + P[0][1]*A[1][0], P[0][0]*A[0][1] + P[0][1]*A[1][1]],
+              [P[1][0]*A[0][0] + P[1][1]*A[1][0], P[1][0]*A[0][1] + P[1][1]*A[1][1]]];
+  return [[AtP[0][0] + PA[0][0], AtP[0][1] + PA[0][1]],
+          [AtP[1][0] + PA[1][0], AtP[1][1] + PA[1][1]]];
+}
+const S_CVX = S(P_CVX), S_ENERGY = S(P_ENERGY);
+
+function step(x, h) {                       /* classical RK4 on xdot = Ax */
+  const k1 = mv(A, x);
+  const k2 = mv(A, [x[0] + h/2*k1[0], x[1] + h/2*k1[1]]);
+  const k3 = mv(A, [x[0] + h/2*k2[0], x[1] + h/2*k2[1]]);
+  const k4 = mv(A, [x[0] + h*k3[0], x[1] + h*k3[1]]);
+  return [x[0] + h/6*(k1[0] + 2*k2[0] + 2*k3[0] + k4[0]),
+          x[1] + h/6*(k1[1] + 2*k2[1] + 2*k3[1] + k4[1])];
+}
+function trajectory(x0, T, h) {
+  const out = [x0.slice()];
+  let x = x0.slice();
+  for (let t = 0; t < T; t += h) { x = step(x, h); out.push(x); }
+  return out;
+}
+/* {x : x'Px = c} drawn by mapping the unit circle through inv(chol(P)) */
+function levelSet(P, c, n) {
+  const r11 = Math.sqrt(P[0][0]);
+  const r12 = P[0][1] / r11;
+  const r22 = Math.sqrt(Math.max(1e-12, P[1][1] - r12*r12));
+  const s = Math.sqrt(c);
+  const pts = [];
+  for (let i = 0; i <= n; i++) {
+    const t = i / n * 2 * Math.PI;
+    const u = [s*Math.cos(t), s*Math.sin(t)];
+    const y1 = u[1] / r22;
+    const y0 = (u[0] - r12*y1) / r11;
+    pts.push([y0, y1]);
+  }
+  return pts;
+}
+
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || "#888";
+const pal = () => ({ink: css("--ink"), ink2: css("--ink-2"), ink3: css("--ink-3"),
+  rule: css("--rule"), ruleStrong: css("--rule-strong"), surface: css("--surface"),
+  blue: css("--blue"), crimson: css("--crimson"), teal: css("--teal"), graphite: css("--graphite")});
+const F = 'Archivo, "Helvetica Neue", Arial, sans-serif';
+
+function axes(c, x, y, w, h, xlim, ylim) {
+  return {
+    X: v => x + (v - xlim[0]) / (xlim[1] - xlim[0]) * w,
+    Y: v => y + h - (v - ylim[0]) / (ylim[1] - ylim[0]) * h,
+    x, y, w, h,
+    frame(P, xt, yt, xf, yf, xl, yl) {
+      c.save();
+      c.strokeStyle = P.rule; c.lineWidth = 1.4; c.font = `500 18px ${F}`; c.fillStyle = P.ink3;
+      xt.forEach(t => { const px = this.X(t);
+        c.beginPath(); c.moveTo(px, y); c.lineTo(px, y + h); c.stroke();
+        c.textAlign = "center"; c.textBaseline = "top"; c.fillText(xf(t), px, y + h + 8); });
+      yt.forEach(t => { const py = this.Y(t);
+        c.beginPath(); c.moveTo(x, py); c.lineTo(x + w, py); c.stroke();
+        c.textAlign = "right"; c.textBaseline = "middle"; c.fillText(yf(t), x - 9, py); });
+      c.strokeStyle = P.ruleStrong; c.lineWidth = 1.8; c.strokeRect(x, y, w, h);
+      c.fillStyle = P.ink2; c.font = `600 19px ${F}`;
+      if (xl) { c.textAlign = "center"; c.textBaseline = "top"; c.fillText(xl, x + w/2, y + h + 32); }
+      if (yl) { c.textAlign = "left"; c.textBaseline = "bottom"; c.fillText(yl, x, y - 10); }
+      c.restore();
+    },
+    line(pts, col, lw, dash) {
+      c.save(); c.beginPath(); c.strokeStyle = col; c.lineWidth = lw || 2.4;
+      c.setLineDash(dash || []); c.lineJoin = "round";
+      pts.forEach(([px, py], i) => { const X = this.X(px), Y = this.Y(py); i ? c.lineTo(X, Y) : c.moveTo(X, Y); });
+      c.stroke(); c.restore();
+    }
+  };
+}
+
+/* ---- figure 1: the trajectory in time -------------------------------- */
+(function figTraj() {
+  const cv = document.getElementById("fig-traj");
+  if (!cv) return;
+  function draw() {
+    const P = pal(), c = cv.getContext("2d");
+    c.clearRect(0, 0, cv.width, cv.height);
+    const traj = trajectory([1, 0], 25, 0.01);
+    const ax = axes(c, 90, 40, cv.width - 130, cv.height - 100, [0, 25], [-2.2, 2.2]);
+    ax.frame(P, [0, 5, 10, 15, 20, 25], [-2, -1, 0, 1, 2],
+      t => String(t), t => String(t), "time (seconds)", "position (m) and velocity (m/s)");
+    c.save(); c.strokeStyle = P.ruleStrong; c.lineWidth = 1.6;
+    c.beginPath(); c.moveTo(ax.X(0), ax.Y(0)); c.lineTo(ax.X(25), ax.Y(0)); c.stroke(); c.restore();
+    ax.line(traj.map((p, i) => [i * 0.01, p[1]]), P.crimson, 2, [6, 4]);
+    ax.line(traj.map((p, i) => [i * 0.01, p[0]]), P.blue, 2.8);
+  }
+  draw();
+  if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+})();
+
+/* ---- laboratory: phase plane, level sets, Vdot ------------------------ */
+(function lab() {
+  const cv = document.getElementById("cv");
+  if (!cv) return;
+  const T = 25, H = 0.01;
+  let which = "cvx", x0 = [1.4, 0.6], timer = null, k = 0;
+  let traj = trajectory(x0, T, H);
+
+  const Pm = () => which === "cvx" ? P_CVX : P_ENERGY;
+  const Sm = () => which === "cvx" ? S_CVX : S_ENERGY;
+
+  function draw() {
+    const P = pal(), c = cv.getContext("2d");
+    c.clearRect(0, 0, cv.width, cv.height);
+    const Pmat = Pm(), Smat = Sm();
+
+    /* left: state plane */
+    const cx = 330, cy = 280, lim = 3.4, sc = 230 / lim;
+    const px = p => [cx + p[0] * sc, cy - p[1] * sc];
+    c.save();
+    c.fillStyle = P.ink; c.font = `600 21px ${F}`; c.textAlign = "left";
+    c.fillText("state plane", 100, 40);
+    c.strokeStyle = P.rule; c.lineWidth = 1.4; c.setLineDash([5, 5]);
+    c.beginPath(); c.moveTo(cx - 240, cy); c.lineTo(cx + 240, cy);
+    c.moveTo(cx, cy - 240); c.lineTo(cx, cy + 240); c.stroke(); c.setLineDash([]);
+    c.fillStyle = P.ink3; c.font = `500 17px ${F}`;
+    c.fillText("x₁  position", cx + 150, cy + 22);
+    c.fillText("x₂  velocity", cx + 8, cy - 224);
+    /* level sets through a few points of the trajectory */
+    const now = traj[Math.min(k, traj.length - 1)];
+    const vNow = quad(Pmat, now);
+    [0.12, 0.35, 0.7, 1.0].forEach(f => {
+      const pts = levelSet(Pmat, quad(Pmat, traj[0]) * f, 160);
+      c.beginPath(); c.strokeStyle = P.graphite; c.globalAlpha = 0.42; c.lineWidth = 1.6;
+      pts.forEach((p, i) => { const [X, Y] = px(p); i ? c.lineTo(X, Y) : c.moveTo(X, Y); });
+      c.stroke(); c.globalAlpha = 1;
+    });
+    /* the level set the state is on right now */
+    const pts = levelSet(Pmat, vNow, 200);
+    c.beginPath(); c.strokeStyle = P.teal; c.lineWidth = 2.6;
+    pts.forEach((p, i) => { const [X, Y] = px(p); i ? c.lineTo(X, Y) : c.moveTo(X, Y); });
+    c.stroke();
+    /* the trajectory so far */
+    c.beginPath(); c.strokeStyle = P.blue; c.lineWidth = 2.6;
+    traj.slice(0, k + 1).forEach((p, i) => { const [X, Y] = px(p); i ? c.lineTo(X, Y) : c.moveTo(X, Y); });
+    c.stroke();
+    c.beginPath(); c.fillStyle = P.blue; const [hx, hy] = px(now);
+    c.arc(hx, hy, 8, 0, 7); c.fill();
+    c.strokeStyle = P.surface; c.lineWidth = 2.5; c.stroke();
+    c.restore();
+
+    /* right: Vdot along the trajectory */
+    const n = traj.length - 1;
+    const vd = traj.map(p => quad(Smat, p));
+    let lo = Math.min(...vd), hi = Math.max(0.02 * Math.abs(lo), Math.max(...vd));
+    const ax = axes(c, 760, 70, 570, 400, [0, T], [lo * 1.08, hi + Math.abs(lo) * 0.12]);
+    c.save(); c.fillStyle = P.ink; c.font = `600 21px ${F}`; c.textAlign = "left";
+    c.fillText("V̇ along the trajectory", 760, 40); c.restore();
+    const span = ax.Y(0) - ax.y;
+    ax.frame(P, [0, 5, 10, 15, 20, 25], [0],
+      t => String(t), () => "0", "time (seconds)", null);
+    /* shade the forbidden half */
+    c.save(); c.fillStyle = P.crimson; c.globalAlpha = 0.08;
+    c.fillRect(ax.x, ax.y, ax.w, Math.max(0, span)); c.globalAlpha = 1;
+    c.fillStyle = P.crimson; c.font = `600 18px ${F}`; c.textAlign = "left";
+    c.fillText("V̇ > 0 would break the proof", ax.x + 12, ax.y + 22);
+    c.restore();
+    ax.line(vd.map((v, i) => [i * H, v]), P.crimson, 2.6);
+    if (which === "energy") {           /* mark the instants the mass is at rest */
+      c.save(); c.fillStyle = P.crimson;
+      for (let i = 1; i < n; i++) {
+        if (traj[i - 1][1] * traj[i + 1][1] < 0) {
+          c.beginPath(); c.arc(ax.X(i * H), ax.Y(0), 5, 0, 7); c.fill();
+        }
+      }
+      c.restore();
+    }
+    c.save(); c.strokeStyle = P.ruleStrong; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(ax.x, ax.Y(0)); c.lineTo(ax.x + ax.w, ax.Y(0)); c.stroke(); c.restore();
+    c.save(); c.fillStyle = P.blue;
+    c.beginPath(); c.arc(ax.X(k * H), ax.Y(vd[Math.min(k, n)]), 7, 0, 7); c.fill(); c.restore();
+
+    /* readouts */
+    const worst = Math.max(...vd);
+    document.getElementById("r-t").textContent = (k * H).toFixed(2) + " s";
+    document.getElementById("r-v").textContent = vNow.toFixed(4);
+    document.getElementById("r-vd").textContent = vd[Math.min(k, n)].toFixed(4);
+    document.getElementById("r-max").textContent = worst.toExponential(2);
+    const box = document.getElementById("r-box");
+    box.className = "rd " + (vd[Math.min(k, n)] < -1e-9 ? "good" : "bad");
+    const vd2 = document.getElementById("verdict");
+    if (which === "energy") {
+      vd2.innerHTML = "Here V̇ = −0.4·x₂², so it is exactly <b>0</b> at every " +
+        "instant the mass is momentarily at rest, marked by the dots on the axis. The readout shows a " +
+        "tiny negative number rather than 0 only because the sampled time points miss those " +
+        "instants by a fraction of a step. At each dot the trajectory runs tangent to a level set " +
+        "instead of cutting inward, and that is the failed requirement, drawn.";
+    } else {
+      vd2.innerHTML = "V̇ stays strictly below zero for the whole run, so the trajectory cuts " +
+        "inward through every level set it meets. This is what the two eigenvalue checks in §5 " +
+        "guarantee, for <em>every</em> starting point, not just this one.";
+    }
+  }
+
+  let dragging = false;
+  function place(ev) {
+    const r = cv.getBoundingClientRect();
+    const t = ev.touches ? ev.touches[0] : ev;
+    const mx = (t.clientX - r.left) / r.width * cv.width;
+    const my = (t.clientY - r.top) / r.height * cv.height;
+    if (mx > 620) return;
+    const sc = 230 / 3.4;
+    x0 = [(mx - 330) / sc, (280 - my) / sc];
+    traj = trajectory(x0, T, H); k = 0; stop(); draw();
+  }
+  cv.addEventListener("pointerdown", e => { dragging = true; cv.setPointerCapture(e.pointerId); place(e); });
+  cv.addEventListener("pointermove", e => { if (dragging) place(e); });
+  cv.addEventListener("pointerup", () => { dragging = false; });
+  cv.style.cursor = "crosshair"; cv.style.touchAction = "none";
+
+  function stop() { if (timer) { clearInterval(timer); timer = null; } document.getElementById("play").textContent = "play"; }
+  document.getElementById("play").addEventListener("click", () => {
+    if (timer) { stop(); return; }
+    if (k >= traj.length - 1) k = 0;
+    document.getElementById("play").textContent = "pause";
+    timer = setInterval(() => { k += 12; if (k >= traj.length - 1) { k = traj.length - 1; stop(); } draw(); }, 30);
+  });
+  document.getElementById("reset").addEventListener("click", () => { k = 0; stop(); draw(); });
+  document.getElementById("pick").addEventListener("change", e => { which = e.target.value; draw(); });
+  if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+  k = traj.length - 1;
+  draw();
+})();
+</script>
+</body>
+</html>

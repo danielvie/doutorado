@@ -1,13 +1,23 @@
 # studies/lyapunov
 
-Computing Lyapunov functions by convex optimization: an interactive study document
-plus the MATLAB scripts that produce every number in it.
+Lyapunov stability by convex optimization: study documents plus the MATLAB
+scripts that produce every number in them.
 
-Read: **`lyapunov-convex-optimization.html`** — open it directly in a browser, no
-server needed. It is self-contained (no external scripts, stylesheets or fonts)
-and draws all six laboratories in the browser from embedded data.
+## Start here
 
-## What the document covers
+**`computing-v-with-cvx.html`** is the introduction. One system (a damped
+mass-spring oscillator), one method (CVX), one conclusion. It shows why the
+mechanical energy falls just short of being a Lyapunov function, computes one
+that works, verifies it, and extracts a decay rate. About 2,900 words.
+Companion script: `damped_oscillator_cvx.m`.
+
+**`lyapunov-convex-optimization.html`** is the longer study, for afterwards. It
+covers the same ideas on harder ground: switched systems under arbitrary
+switching, a case where every hand guess provably fails, and the stability proof
+of the switching-time controller in this paper. Six interactive laboratories,
+about 7,100 words.
+
+## What the longer study covers
 
 1. **Motivation** — what a Lyapunov certificate proves that simulation cannot.
 2. **Lyapunov theory for discrete-time systems** — the direct method, quadratic
@@ -30,10 +40,13 @@ and draws all six laboratories in the browser from embedded data.
 
 | File | Purpose |
 | --- | --- |
-| `lyapunov-convex-optimization.html` | the study document (generated — do not edit) |
+| `computing-v-with-cvx.html` | the introductory document, hand-written and self-contained |
+| `damped_oscillator_cvx.m` | the introduction's script: energy test, CVX solve, decay rate |
+| `lyapunov-convex-optimization.html` | the longer study (generated — do not edit) |
 | `parts/*.html` | the document source, one region per file |
 | `build.py` | assembles the parts, substitutes `{{data.path\|fmt}}` placeholders, injects the data |
-| `generic_example.m` | the worked example of §3–4, runnable, prints everything |
+| `generic_example.m` | the worked example of §3–4 using YALMIP, runnable, prints everything |
+| `cvx_example.m` | a standalone two-variable convex optimization example using CVX |
 | `paper_certificate.m` | rebuilds the paper's certificate from `results/paper_results.mat` |
 | `export_study_data.m` | writes `study_data.json`, the data the document embeds |
 | `study_data.json` | matrices, scalars and sequences (generated) |
@@ -48,6 +61,7 @@ From this directory, with YALMIP and a conic solver on the MATLAB path
 generic_example        % §3–4, prints to the console
 paper_certificate      % §5, re-solves the SDP and checks it against the stored P
 export_study_data      % writes study_data.json
+cvx_example            % standalone CVX installation test
 ```
 
 then
@@ -55,6 +69,10 @@ then
 ```bash
 python build.py
 ```
+
+For the standalone CVX test, open MATLAB in this directory and run `cvx_example`, or use
+`task test` from a shell with both `task` and `matlab` on `PATH`. It should report
+`CVX status: Solved` and the solution `x = 1.5`, `y = 2.5`.
 
 `build.py` uses the standard library only. It fails loudly if any placeholder in
 `parts/` cannot be resolved, so the prose and the figures cannot drift apart from
