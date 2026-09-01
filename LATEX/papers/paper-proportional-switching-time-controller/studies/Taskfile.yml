@@ -1,0 +1,22 @@
+version: '3'
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+
+  run:
+    desc: Run the CVX MATLAB example
+    cmds:
+      - matlab -batch "run('matlab-test/cvx_example.m')"
+
+  test:
+    desc: Run the CVX MATLAB example as a check
+    cmds:
+      - matlab -batch "run('matlab-test/cvx_example.m')"
+
+  clear:
+    desc: Remove MATLAB-generated temporary files
+    cmds:
+      - find . -type f \( -name '*.asv' -o -name '*.log' \) -delete

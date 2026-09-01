@@ -1,0 +1,1351 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="mado-format-version" content="2" />
+    <title>Common Lyapunov proof for the conditioned controller</title>
+    <style>
+      /* ==================================================================
+         MADO HTML — controlled document template.
+         Owned by Mado HTML. The authoring model never edits this file.
+         Ordinary fragments cannot supply executable content; Laboratories
+         may do so only through inert templates rendered in sandboxed frames.
+         Everything here is document-level structure, presentation and chrome.
+
+         One committed dark theme. Contrast against --mado-bg:
+         ink 16.7:1 · ink-2 10.0:1 · ink-3 6.4:1 · accent 10.0:1
+         positive 10.5:1 · interactive borders 3.2:1
+         ================================================================== */
+      :root {
+        color-scheme: dark;
+
+        --mado-bg: #0e1216;
+        --mado-bg-2: #141a1f;
+        --mado-panel: #192026;
+        --mado-ink: #eef2f5;
+        --mado-ink-2: #b3bfc8;
+        --mado-ink-3: #8b98a2;
+        --mado-line: #252d34;
+        --mado-line-2: #57636c;
+        --mado-accent: #f0b06a;
+        --mado-accent-soft: #2a2118;
+        --mado-accent-on: #161009;
+        --mado-positive: #4fd6c1;
+        --mado-positive-soft: #132220;
+        --mado-danger: #ff8b74;
+        --mado-danger-soft: #251613;
+        --mado-code: #0a0e11;
+        --mado-code-ink: #e4e9ed;
+
+        --level-1: #f0b06a;
+        --level-2: #4fd6c1;
+        --level-3: #a99bf0;
+
+        --mado-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+        --mado-sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+        --mado-measure: 68ch;
+      }
+
+      * { box-sizing: border-box; }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        margin: 0;
+        background: var(--mado-bg);
+        color: var(--mado-ink);
+        font-family: var(--mado-sans);
+        font-size: 22px;
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a { color: var(--mado-accent); }
+
+      h1, h2, h3, h4 { line-height: 1.22; font-weight: 640; margin: 0; }
+
+      p { margin: 0 0 1.05em; }
+
+      code {
+        font-family: var(--mado-mono);
+        font-size: 0.9em;
+        color: var(--mado-accent);
+      }
+
+      ::selection { background: var(--mado-accent); color: var(--mado-accent-on); }
+
+      :focus-visible { outline: 2px solid var(--mado-accent); outline-offset: 2px; }
+
+      .mado-sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      /* ---------------- document shell ---------------- */
+
+      .mado-document {
+        max-width: var(--mado-measure);
+        margin: 0 auto;
+        padding: 72px 24px 22vh;
+      }
+
+      .mado-hero { margin-bottom: 3rem; }
+
+      .mado-hero > :only-child { grid-column: 1 / -1; }
+
+      .mado-title {
+        font-size: 2.15rem;
+        letter-spacing: -0.015em;
+        margin-bottom: 0.45rem;
+      }
+
+      .mado-header {
+        display: block;
+        color: var(--mado-ink-2);
+        font-size: 1.05rem;
+      }
+
+      .mado-header > * + * { margin-top: 0.6rem; }
+
+      .mado-meta {
+        display: block;
+        margin-top: 1.8rem;
+        border: 1px solid var(--mado-line);
+        border-radius: 10px;
+        background: var(--mado-bg-2);
+        padding: 14px 18px;
+      }
+
+      .mado-meta ul { list-style: none; margin: 0; padding: 0; }
+
+      .mado-meta li {
+        font-size: 0.86rem;
+        color: var(--mado-ink-2);
+        padding: 6px 0;
+        border-bottom: 1px solid var(--mado-line);
+      }
+
+      .mado-meta li:last-child { border-bottom: 0; }
+
+      .mado-meta li strong {
+        display: block;
+        color: var(--mado-ink-3);
+        font-family: var(--mado-mono);
+        font-size: 0.66rem;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+
+      /* ---------------- index ---------------- */
+
+      .mado-index { margin: 0 0 4rem; }
+
+      .mado-index h2 {
+        font-family: var(--mado-mono);
+        font-size: 0.68rem;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+        color: var(--mado-ink-3);
+        margin-bottom: 0.9rem;
+      }
+
+      .mado-index-cards { display: grid; gap: 8px; }
+
+      .mado-index-card {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        padding: 10px 14px;
+        border: 1px solid var(--mado-line);
+        border-radius: 9px;
+        background: var(--mado-bg-2);
+        text-decoration: none;
+        color: var(--mado-ink);
+        transition: border-color 0.15s, transform 0.15s;
+      }
+
+      .mado-index-card:hover {
+        border-color: var(--mado-accent);
+        transform: translateX(2px);
+      }
+
+      .mado-index-card strong { font-weight: 620; font-size: 0.94rem; }
+
+      .mado-index-card span {
+        margin-left: auto;
+        font-family: var(--mado-mono);
+        font-size: 0.66rem;
+        color: var(--mado-ink-3);
+        white-space: nowrap;
+      }
+
+      .mado-index-card:focus-visible { border-color: var(--mado-accent); }
+
+      /* ---------------- sessions ---------------- */
+
+      .mado-session {
+        margin-top: 4.4rem;
+        scroll-margin-top: 96px;
+        transition: opacity 0.3s ease, filter 0.3s ease;
+      }
+
+      .mado-session h2 {
+        font-size: 1.45rem;
+        margin-bottom: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--mado-line);
+      }
+
+      .mado-session-number {
+        display: block;
+        font-family: var(--mado-mono);
+        font-size: 0.78rem;
+        margin-bottom: 0.35rem;
+        color: var(--mado-accent);
+      }
+
+      .mado-session:nth-child(3n + 1) h2 .mado-session-number { color: var(--level-1); }
+      .mado-session:nth-child(3n + 2) h2 .mado-session-number { color: var(--level-2); }
+      .mado-session:nth-child(3n) h2 .mado-session-number { color: var(--level-3); }
+
+      .mado-session-content > * + * { margin-top: 1.1rem; }
+
+      .mado-session-content h3 { font-size: 1.05rem; margin-top: 2rem; }
+
+      .mado-session-content h4 { font-size: 0.94rem; margin-top: 1.5rem; color: var(--mado-ink-2); }
+
+      .mado-session-content ul,
+      .mado-session-content ol { padding-left: 1.3rem; color: var(--mado-ink-2); }
+
+      .mado-session-content li { margin: 0.35rem 0; }
+
+      .mado-session-content li strong { color: var(--mado-ink); }
+
+      /* dimmed by the filter; never hidden, so the document keeps its shape */
+      .mado-session.mado-miss { opacity: 0.09; filter: saturate(0.2); }
+
+      @keyframes mado-flash {
+        from { background: var(--mado-accent-soft); }
+        to { background: transparent; }
+      }
+
+      .mado-session.mado-flash > h2 { animation: mado-flash 1.1s ease-out; }
+
+      /* ---------------- prose furniture ---------------- */
+
+      .callout {
+        border-left: 3px solid var(--mado-accent);
+        background: var(--mado-accent-soft);
+        padding: 12px 16px;
+        border-radius: 0 8px 8px 0;
+        color: var(--mado-ink-2);
+      }
+
+      .callout strong { color: var(--mado-ink); }
+
+      table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+
+      th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--mado-line); }
+
+      th {
+        font-family: var(--mado-mono);
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--mado-ink-3);
+      }
+
+      .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+      .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+
+      .card {
+        border: 1px solid var(--mado-line);
+        border-radius: 10px;
+        background: var(--mado-bg-2);
+        padding: 14px 16px;
+      }
+
+      .chart {
+        border: 1px solid var(--mado-line);
+        border-radius: 10px;
+        background: var(--mado-panel);
+        padding: 14px;
+      }
+
+      @media (max-width: 720px) {
+        .twocol { grid-template-columns: 1fr; }
+      }
+
+      /* ---------------- components ---------------- */
+
+      /* Components break out wider than the prose measure: visuals are the
+         payload of a tutorial and must not be squeezed into the text column. */
+      .mado-session-content > [data-mado-component-id],
+      .mado-session-content > .mado-generated-diagram,
+      .mado-session-content > .mado-diff-block,
+      .mado-session-content > .mado-foldable-code {
+        width: min(1020px, 94vw);
+        margin-left: 50%;
+        transform: translateX(-50%);
+      }
+
+      @media (max-width: 1100px) {
+        .mado-session-content > [data-mado-component-id],
+        .mado-session-content > .mado-generated-diagram,
+        .mado-session-content > .mado-diff-block,
+        .mado-session-content > .mado-foldable-code {
+          width: 100%;
+          margin-left: 0;
+          transform: none;
+        }
+      }
+
+      .mado-laboratory-frame {
+        display: block;
+        width: min(1020px, 94vw);
+        min-height: 420px;
+        margin: 1.1rem 50% 0;
+        transform: translateX(-50%);
+        background: var(--mado-panel);
+        border: 1px solid var(--mado-line-2);
+        border-radius: 10px;
+      }
+
+      @media (max-width: 1100px) {
+        .mado-laboratory-frame {
+          width: 100%;
+          margin-left: 0;
+          transform: none;
+        }
+      }
+
+      figure { margin: 0; }
+
+      figure svg,
+      .mado-generated-diagram svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        background: var(--mado-panel);
+        border: 1px solid var(--mado-line);
+        border-radius: 10px;
+      }
+
+      figcaption { font-size: 0.79rem; color: var(--mado-ink-3); margin-top: 0.55rem; }
+
+      /* ---------------- code ---------------- */
+
+      pre {
+        margin: 0;
+        background: var(--mado-code);
+        color: var(--mado-code-ink);
+        border: 1px solid var(--mado-line);
+        border-radius: 10px;
+        padding: 15px 17px;
+        overflow: auto;
+      }
+
+      pre code {
+        font-family: var(--mado-mono);
+        font-size: 13px;
+        line-height: 1.6;
+        color: inherit;
+        background: none;
+      }
+
+      .mado-foldable-code {
+        border: 1px solid var(--mado-line);
+        border-radius: 10px;
+        background: var(--mado-bg-2);
+        overflow: hidden;
+      }
+
+      .mado-foldable-code > pre {
+        border: 0;
+        border-radius: 0;
+        border-top: 1px solid var(--mado-line);
+      }
+
+      .mado-code-summary {
+        cursor: pointer;
+        list-style: none;
+        padding: 9px 14px;
+        font-family: var(--mado-mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.06em;
+        color: var(--mado-ink-3);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .mado-code-summary::-webkit-details-marker { display: none; }
+
+      .mado-code-summary::before {
+        content: "\25B8";
+        color: var(--mado-accent);
+        transition: transform 0.18s;
+      }
+
+      .mado-foldable-code[open] > .mado-code-summary { color: var(--mado-ink-2); }
+
+      .mado-foldable-code[open] > .mado-code-summary::before { transform: rotate(90deg); }
+
+      .mado-code-summary:focus-visible { outline: 2px solid var(--mado-accent); outline-offset: -2px; }
+
+      .mado-code-block > .mado-diff-code { border-radius: 0 0 10px 10px; }
+
+      /* tree-sitter highlight tokens */
+      .ts-comment { color: var(--mado-ink-3); font-style: italic; }
+      .ts-keyword, .ts-tag { color: var(--mado-accent); }
+      .ts-function, .ts-constructor { color: #9ec8f0; }
+      .ts-string { color: var(--mado-positive); }
+      .ts-number, .ts-constant { color: #d6b3f0; }
+      .ts-type, .ts-property, .ts-attribute, .ts-module { color: #8fd0c4; }
+      .ts-variable, .ts-embedded { color: var(--mado-code-ink); }
+      .ts-operator, .ts-punctuation { color: var(--mado-ink-3); }
+      .ts-label { color: #f0c987; }
+      .ts-error { color: var(--mado-danger); text-decoration: underline wavy; }
+
+      /* ---------------- diff blocks ---------------- */
+
+      .mado-diff-block {
+        border: 1px solid var(--mado-line);
+        border-radius: 10px;
+        background: var(--mado-bg-2);
+        overflow: hidden;
+      }
+
+      .mado-foldable-diff > .mado-diff-block {
+        border: 0;
+        border-radius: 0;
+        border-top: 1px solid var(--mado-line);
+      }
+
+      .mado-diff-header {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--mado-line);
+        font-family: var(--mado-mono);
+        font-size: 0.74rem;
+        color: var(--mado-ink-3);
+      }
+
+      .mado-diff-header strong { color: var(--mado-ink); font-size: 0.84rem; }
+
+      .mado-diff-commit { color: var(--mado-accent); }
+
+      .mado-diff-label {
+        font-size: 0.66rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--mado-ink-3);
+        padding: 6px 14px 0;
+        display: block;
+      }
+
+      .mado-diff-panels { display: grid; grid-template-columns: 1fr 1fr; }
+
+      .mado-diff-panel { min-width: 0; }
+
+      .mado-diff-panel + .mado-diff-panel { border-left: 1px solid var(--mado-line); }
+
+      .mado-diff-before .mado-diff-label { color: var(--mado-danger); }
+
+      .mado-diff-after .mado-diff-label { color: var(--mado-positive); }
+
+      .mado-diff-code {
+        margin: 0;
+        padding: 8px 0 12px;
+        background: var(--mado-code);
+        font-family: var(--mado-mono);
+        font-size: 12.5px;
+        line-height: 1.55;
+        overflow-x: auto;
+      }
+
+      .mado-diff-line { display: flex; gap: 10px; padding: 0 10px; white-space: pre; }
+
+      .mado-diff-ln {
+        color: var(--mado-ink-3);
+        text-align: right;
+        min-width: 3ch;
+        user-select: none;
+        flex: none;
+      }
+
+      .mado-diff-content { flex: 1; min-width: 0; }
+
+      .mado-diff-line.added { background: var(--mado-positive-soft); }
+
+      .mado-diff-line.added .mado-diff-content { color: var(--mado-positive); }
+
+      .mado-diff-line.removed { background: var(--mado-danger-soft); }
+
+      .mado-diff-line.removed .mado-diff-content { color: var(--mado-danger); }
+
+      .mado-diff-line.marker { color: var(--mado-ink-3); background: var(--mado-panel); }
+
+      .mado-diff-line mark {
+        background: var(--mado-accent);
+        color: var(--mado-accent-on);
+        border-radius: 2px;
+      }
+
+      template[data-mado-diff-state] { display: none; }
+
+      @media (max-width: 720px) {
+        .mado-diff-panels { grid-template-columns: 1fr; }
+
+        .mado-diff-panel + .mado-diff-panel {
+          border-top: 1px solid var(--mado-line);
+          border-left: 0;
+        }
+      }
+
+      /* ---------------- generated diagrams ---------------- */
+
+      .mado-diagram-focus { --mado-diagram-fill: #16232f; --mado-diagram-stroke: #6fa8e0; --mado-diagram-text: #dbe9f7; }
+      .mado-diagram-person { --mado-diagram-fill: #2a2118; --mado-diagram-stroke: #f0b06a; --mado-diagram-text: #f6e3cd; }
+      .mado-diagram-system { --mado-diagram-fill: #1a2228; --mado-diagram-stroke: #9aa7b0; --mado-diagram-text: #e2e9ee; }
+      .mado-diagram-external { --mado-diagram-fill: #221f2e; --mado-diagram-stroke: #a99bf0; --mado-diagram-text: #e6e1f7; }
+      .mado-diagram-boundary { --mado-diagram-fill: none; --mado-diagram-stroke: #57636c; --mado-diagram-text: #8b98a2; }
+      .mado-diagram-action { --mado-diagram-fill: #132220; --mado-diagram-stroke: #4fd6c1; --mado-diagram-text: #cdeae4; }
+      .mado-diagram-decision { --mado-diagram-fill: #2a2118; --mado-diagram-stroke: #f0b06a; --mado-diagram-text: #f6e3cd; }
+      .mado-diagram-result { --mado-diagram-fill: #221f2e; --mado-diagram-stroke: #a99bf0; --mado-diagram-text: #e6e1f7; }
+      .mado-diagram-provenance-entity { --mado-diagram-fill: #16232f; --mado-diagram-stroke: #6fa8e0; --mado-diagram-text: #dbe9f7; }
+      .mado-diagram-provenance-activity { --mado-diagram-fill: #132220; --mado-diagram-stroke: #4fd6c1; --mado-diagram-text: #cdeae4; }
+      .mado-diagram-provenance-agent { --mado-diagram-fill: #2a2118; --mado-diagram-stroke: #f0b06a; --mado-diagram-text: #f6e3cd; }
+      .mado-diagram-participant { --mado-diagram-fill: #1a2228; --mado-diagram-stroke: #9aa7b0; --mado-diagram-text: #e2e9ee; }
+      .mado-diagram-state { --mado-diagram-fill: #16232f; --mado-diagram-stroke: #6fa8e0; --mado-diagram-text: #dbe9f7; }
+      .mado-diagram-terminal-state { --mado-diagram-fill: #221f2e; --mado-diagram-stroke: #a99bf0; --mado-diagram-text: #e6e1f7; }
+      .mado-diagram-state-marker { --mado-diagram-fill: #9aa7b0; --mado-diagram-stroke: #b3bfc8; --mado-diagram-text: #0e1216; }
+      .mado-diagram-timeline-lane { --mado-diagram-fill: #1a2228; --mado-diagram-stroke: #9aa7b0; --mado-diagram-text: #e2e9ee; }
+      .mado-diagram-timeline-interval { --mado-diagram-fill: #132220; --mado-diagram-stroke: #4fd6c1; --mado-diagram-text: #cdeae4; }
+      .mado-diagram-timeline-critical { --mado-diagram-fill: #251613; --mado-diagram-stroke: #ff8b74; --mado-diagram-text: #f7d8d0; }
+      .mado-diagram-timeline-marker { --mado-diagram-fill: #16232f; --mado-diagram-stroke: #6fa8e0; --mado-diagram-text: #dbe9f7; }
+      .mado-diagram-timeline-deadline { --mado-diagram-fill: #251613; --mado-diagram-stroke: #ff8b74; --mado-diagram-text: #f7d8d0; }
+      .mado-diagram-edge,
+      .mado-diagram-edge-label { --mado-diagram-fill: none; --mado-diagram-stroke: #9aa7b0; --mado-diagram-text: #b3bfc8; }
+      .mado-diagram-title { --mado-diagram-fill: none; --mado-diagram-stroke: none; --mado-diagram-text: #eef2f5; }
+      .mado-diagram-note { --mado-diagram-fill: none; --mado-diagram-stroke: none; --mado-diagram-text: #8b98a2; }
+
+      .mado-diagram-shape-fill { fill: var(--mado-diagram-fill); stroke: none; }
+      .mado-diagram-shape-stroke { fill: none; stroke: var(--mado-diagram-stroke); stroke-linecap: round; }
+      .mado-diagram-text { fill: var(--mado-diagram-text); }
+      .mado-diagram-label-plate { fill: #192026; fill-opacity: 0.86; stroke: none; }
+
+      /* ---------------- footer ---------------- */
+
+      .mado-footer {
+        display: block;
+        margin-top: 6rem;
+        padding-top: 1.4rem;
+        border-top: 1px solid var(--mado-line);
+        color: var(--mado-ink-3);
+        font-size: 0.82rem;
+      }
+
+      .mado-footer > * + * { margin-top: 0.5rem; }
+
+      /* ==================================================================
+         FILTER CHROME
+         Hidden at rest: a 2px top rule that doubles as a reading-progress
+         tick. "/" drops a thin strip carrying a result list of matching
+         Sessions and Components, and every match is highlighted in the
+         page. Progressive: with scripting off the strip never appears and
+         the document reads normally.
+         ================================================================== */
+
+      .mado-edge {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--mado-line);
+        z-index: 39;
+      }
+
+      .mado-edge-tick { height: 2px; width: 0; background: var(--mado-accent); }
+
+      .mado-filter-hint {
+        position: fixed;
+        top: 13px;
+        right: 20px;
+        z-index: 39;
+        font-family: var(--mado-mono);
+        font-size: 0.68rem;
+        color: var(--mado-ink-3);
+        background: var(--mado-bg-2);
+        border: 1px solid var(--mado-line);
+        border-radius: 5px;
+        padding: 3px 9px;
+        cursor: pointer;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s, color 0.15s, border-color 0.15s;
+      }
+
+      .mado-filter-hint.mado-show { opacity: 0.6; pointer-events: auto; }
+
+      .mado-filter-hint:hover { opacity: 1; color: var(--mado-ink-2); border-color: var(--mado-line-2); }
+
+      .mado-filter {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 41;
+        background: var(--mado-bg-2);
+        border-bottom: 1px solid var(--mado-line-2);
+        transform: translateY(-100%);
+        transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .mado-filter.mado-open { transform: translateY(0); box-shadow: 0 16px 44px rgba(0, 0, 0, 0.45); }
+
+      .mado-filter-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 11px 20px;
+        font-family: var(--mado-mono);
+      }
+
+      .mado-filter-sig { color: var(--mado-accent); font-weight: 700; }
+
+      .mado-filter-input {
+        flex: 1;
+        min-width: 0;
+        background: transparent;
+        border: 0;
+        outline: none;
+        color: var(--mado-ink);
+        font: inherit;
+        font-size: 0.92rem;
+      }
+
+      .mado-filter-input::placeholder { color: var(--mado-ink-3); }
+
+      .mado-filter-count { font-size: 0.7rem; color: var(--mado-ink-3); white-space: nowrap; }
+
+      .mado-filter-keys { display: flex; gap: 5px; }
+
+      .mado-filter-keys kbd {
+        font-family: var(--mado-mono);
+        font-size: 0.62rem;
+        border: 1px solid var(--mado-line-2);
+        border-radius: 4px;
+        padding: 1px 5px;
+        color: var(--mado-ink-3);
+      }
+
+      .mado-filter-facets {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 20px 8px;
+      }
+
+      .mado-filter-facets button {
+        font-family: var(--mado-mono);
+        font-size: 0.66rem;
+        padding: 3px 9px;
+        border-radius: 999px;
+        border: 1px solid var(--mado-line);
+        background: transparent;
+        color: var(--mado-ink-3);
+        cursor: pointer;
+      }
+
+      .mado-filter-facets button:hover { border-color: var(--mado-line-2); color: var(--mado-ink-2); }
+
+      .mado-filter-facets button.mado-on {
+        border-color: var(--mado-accent);
+        color: var(--mado-accent);
+        background: var(--mado-accent-soft);
+      }
+
+      .mado-filter-results {
+        max-width: 900px;
+        margin: 0 auto;
+        max-height: 32vh;
+        overflow: auto;
+        padding: 4px 20px 12px;
+        border-top: 1px solid var(--mado-line);
+      }
+
+      .mado-filter-results a {
+        display: grid;
+        grid-template-columns: 68px minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: baseline;
+        padding: 7px 10px;
+        border-radius: 8px;
+        text-decoration: none;
+        color: var(--mado-ink);
+        font-size: 0.9rem;
+      }
+
+      .mado-filter-results a:hover { background: rgba(255, 255, 255, 0.04); }
+
+      .mado-filter-results a.mado-sel { background: var(--mado-accent-soft); }
+
+      .mado-filter-results a.mado-sel .mado-r-label { color: var(--mado-accent); }
+
+      .mado-r-kind {
+        font-family: var(--mado-mono);
+        font-size: 0.6rem;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: var(--mado-ink-3);
+      }
+
+      .mado-r-label { min-width: 0; }
+
+      .mado-r-snippet {
+        display: block;
+        font-size: 0.76rem;
+        color: var(--mado-ink-3);
+        margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .mado-r-snippet mark {
+        background: transparent;
+        color: var(--mado-accent);
+        font-weight: 700;
+        padding: 0;
+      }
+
+      .mado-r-id { font-family: var(--mado-mono); font-size: 0.66rem; color: var(--mado-ink-3); }
+
+      .mado-filter-empty {
+        padding: 12px 10px;
+        font-family: var(--mado-mono);
+        font-size: 0.76rem;
+        color: var(--mado-ink-3);
+      }
+
+      /* in-page match highlighting */
+      mark.mado-hit {
+        background: var(--mado-accent);
+        color: var(--mado-accent-on);
+        border-radius: 2px;
+        padding: 0 1px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      @media print {
+        .mado-edge, .mado-filter, .mado-filter-hint { display: none !important; }
+        .mado-session.mado-miss { opacity: 1; filter: none; }
+        .mado-foldable-code > pre { display: block; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="mado-edge" aria-hidden="true"><div class="mado-edge-tick" id="mado-edge-tick"></div></div>
+    <button class="mado-filter-hint" id="mado-filter-hint" type="button" aria-expanded="false" aria-controls="mado-filter">/ filter</button>
+
+    <div class="mado-filter" id="mado-filter" role="search" aria-label="Filter sessions and components">
+      <div class="mado-filter-row">
+        <span class="mado-filter-sig" aria-hidden="true">/</span>
+        <label class="mado-sr-only" for="mado-filter-input">Filter sessions and components</label>
+        <input class="mado-filter-input" id="mado-filter-input" type="text" autocomplete="off" spellcheck="false" placeholder="filter sessions and components" />
+        <span class="mado-filter-count" id="mado-filter-count" aria-live="polite"></span>
+        <span class="mado-filter-keys" aria-hidden="true"><kbd>&#8593;&#8595;</kbd><kbd>enter</kbd><kbd>esc</kbd></span>
+      </div>
+      <div class="mado-filter-facets" id="mado-filter-facets"></div>
+      <div class="mado-filter-results" id="mado-filter-results"></div>
+    </div>
+
+    <main class="mado-document" data-mado-document="tutorial">
+      <section class="mado-hero">
+        <div>
+          <h1 class="mado-title">Common Lyapunov proof for the conditioned controller</h1>
+          <header class="mado-header"></header>
+        </div>
+        
+
+      </section>
+      <nav class="mado-index" aria-label="Document index">
+        <h2>Document Index</h2>
+        <div class="mado-index-cards">
+          <a class="mado-index-card" href="#session-corrected-model">
+            <strong>1. The corrected mental model</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-convexity">
+            <strong>2. What convexity does and does not prove</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-common-p">
+            <strong>3. The common-P certificate</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-proof-scope">
+            <strong>4. Linearized proof and nonlinear scope</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-compact-proof">
+            <strong>5. The proof in six steps</strong>
+            <span>Open this Session</span>
+          </a></div>
+      </nav>
+      <div class="mado-sessions">
+      <section class="mado-session chapter" id="session-corrected-model" data-mado-session-id="corrected-model">
+        <h2><span class="mado-session-number" aria-hidden="true">1. </span><span class="mado-session-title">The corrected mental model</span></h2>
+        <div class="mado-session-content content"><article>
+  <p>The proof has two distinct jobs: design a feedback law, then certify what happens when the dwell conditioner scales that law. Keeping those jobs separate removes most of the confusion.</p>
+
+  <figure data-mado-component-id="proof-pipeline">
+    <svg aria-label="Pipeline from controller design to a common Lyapunov certificate and stability of every conditioning factor" role="img" viewBox="0 0 920 250">
+      <defs>
+        <marker id="pipeline-arrow" markerHeight="10" markerWidth="10" orient="auto" refX="8" refY="3"><path d="M0,0 L0,6 L9,3 z" fill="currentColor"></path></marker>
+      </defs>
+      <rect fill="none" height="100" rx="12" stroke="currentColor" stroke-width="2" width="180" x="20" y="65"></rect>
+      <text fill="currentColor" font-size="17" text-anchor="middle" x="110" y="96">Design K first</text>
+      <text fill="currentColor" font-size="15" text-anchor="middle" x="110" y="124">for example, LQR</text>
+      <text fill="currentColor" font-size="14" text-anchor="middle" x="110" y="150">not part of the SDP</text>
+
+      <line marker-end="url(#pipeline-arrow)" stroke="currentColor" stroke-width="2" x1="200" x2="245" y1="115" y2="115"></line>
+
+      <rect fill="none" height="150" rx="12" stroke="currentColor" stroke-width="2" width="200" x="250" y="40"></rect>
+      <text fill="currentColor" font-size="17" text-anchor="middle" x="350" y="72">Fix both endpoints</text>
+      <text fill="currentColor" font-size="16" text-anchor="middle" x="350" y="108">A(0) = Φ</text>
+      <text fill="currentColor" font-size="16" text-anchor="middle" x="350" y="139">A(1) = Acl</text>
+      <text fill="currentColor" font-size="14" text-anchor="middle" x="350" y="169">Acl = Φ − ΓτK</text>
+
+      <line marker-end="url(#pipeline-arrow)" stroke="currentColor" stroke-width="2" x1="450" x2="495" y1="115" y2="115"></line>
+
+      <rect fill="none" height="150" rx="12" stroke="seagreen" stroke-width="3" width="180" x="500" y="40"></rect>
+      <text fill="currentColor" font-size="17" text-anchor="middle" x="590" y="72">One common-P SDP</text>
+      <text fill="currentColor" font-size="15" text-anchor="middle" x="590" y="108">same P for Φ</text>
+      <text fill="currentColor" font-size="15" text-anchor="middle" x="590" y="133">and Acl</text>
+      <text fill="seagreen" font-size="14" text-anchor="middle" x="590" y="169">uniform contraction</text>
+
+      <line marker-end="url(#pipeline-arrow)" stroke="currentColor" stroke-width="2" x1="680" x2="725" y1="115" y2="115"></line>
+
+      <rect fill="none" height="100" rx="50" stroke="seagreen" stroke-width="3" width="170" x="730" y="65"></rect>
+      <text fill="currentColor" font-size="17" text-anchor="middle" x="815" y="99">Every β ∈ [0,1]</text>
+      <text fill="currentColor" font-size="15" text-anchor="middle" x="815" y="130">and every sequence βk</text>
+      <text fill="seagreen" font-size="14" text-anchor="middle" x="815" y="153">linearized model</text>
+    </svg>
+    <figcaption>The controller is designed before the certificate is sought. The SDP certifies fixed matrices; it does not synthesize the two endpoints.</figcaption>
+  </figure>
+
+  <h3>Correction to the three bullets</h3>
+  <table>
+    <thead><tr><th>Your mental model</th><th>Precise version</th></tr></thead>
+    <tbody>
+      <tr><td>Find P for β = 1, then find another closed loop for β = 0.</td><td>Fix <code>A(1)=Acl</code> and <code>A(0)=Φ</code>, then solve one SDP for one P that works for both.</td></tr>
+      <tr><td>Prove that both endpoints are stable in the same convex space.</td><td>Prove that both endpoints strictly contract the same P-norm. Individual Schur stability is weaker.</td></tr>
+      <tr><td>The path is stable because the endpoints share a convex space.</td><td>The path is stable because a fixed-norm contraction set is convex, and the complete segment lies in that set.</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>The sentence worth remembering:</strong> the proof finds one measuring stick, P, under which both endpoint matrices shrink every vector. Convexity then says every blend of those matrices also shrinks vectors under that same measuring stick.</p>
+</article></div>
+      </section>
+      <section class="mado-session chapter" id="session-convexity" data-mado-session-id="convexity">
+        <h2><span class="mado-session-number" aria-hidden="true">2. </span><span class="mado-session-title">What convexity does and does not prove</span></h2>
+        <div class="mado-session-content content"><article>
+  <p>“Both endpoints are stable” is not enough. The set of all Schur-stable matrices is not convex, so a segment joining two stable matrices can leave it. The missing ingredient is a common norm.</p>
+
+  <figure data-mado-component-id="two-sets-geometry">
+    <svg aria-label="Comparison between the nonconvex set of stable matrices and the convex contraction set induced by one common P" role="img" viewBox="0 0 900 330">
+      <defs>
+        <marker id="set-arrow" markerHeight="10" markerWidth="10" orient="auto" refX="8" refY="3"><path d="M0,0 L0,6 L9,3 z" fill="currentColor"></path></marker>
+      </defs>
+      <text fill="currentColor" font-size="19" text-anchor="middle" x="220" y="28">All Schur-stable matrices</text>
+      <path d="M50,125 C75,35 180,65 218,107 C268,45 390,63 394,145 C399,218 320,248 251,215 C191,275 72,245 50,168 C44,151 44,139 50,125 Z" fill="none" stroke="darkorange" stroke-width="3"></path>
+      <circle cx="105" cy="150" fill="seagreen" r="7"></circle>
+      <circle cx="340" cy="150" fill="seagreen" r="7"></circle>
+      <line stroke="currentColor" stroke-width="3" x1="112" x2="333" y1="150" y2="150"></line>
+      <circle cx="220" cy="150" fill="crimson" r="9"></circle>
+      <text fill="currentColor" font-size="15" text-anchor="middle" x="105" y="179">A₀ stable</text>
+      <text fill="currentColor" font-size="15" text-anchor="middle" x="340" y="179">A₁ stable</text>
+      <text fill="crimson" font-size="14" text-anchor="middle" x="220" y="130">unstable midpoint possible</text>
+
+      <text fill="currentColor" font-size="19" text-anchor="middle" x="680" y="28">One fixed P-contraction set</text>
+      <ellipse cx="680" cy="154" fill="none" rx="190" ry="105" stroke="seagreen" stroke-width="3"></ellipse>
+      <circle cx="565" cy="185" fill="seagreen" r="7"></circle>
+      <circle cx="790" cy="108" fill="seagreen" r="7"></circle>
+      <line stroke="seagreen" stroke-width="4" x1="572" x2="783" y1="182" y2="111"></line>
+      <text fill="currentColor" font-size="15" text-anchor="middle" x="555" y="214">Φ</text>
+      <text fill="currentColor" font-size="15" text-anchor="middle" x="805" y="101">Acl</text>
+      <text fill="seagreen" font-size="16" text-anchor="middle" x="680" y="285">The entire segment stays inside</text>
+      <text fill="currentColor" font-size="14" text-anchor="middle" x="680" y="309">CP = { A : ‖A‖P &lt; 1 }</text>
+    </svg>
+    <figcaption>Convexity belongs to the contraction set defined after P is fixed. It does not belong to the set of stable matrices in general.</figcaption>
+  </figure>
+
+  <h3>Laboratory: stable endpoints, unstable midpoint</h3>
+  <p>Move β from zero to one. Both endpoints have spectral radius 0.8, yet the midpoint reaches 1.1. This is the exact failure hidden by the phrase “the endpoints are stable, therefore the path is stable.”</p>
+
+  <template data-mado-component-id="unstable-midpoint-laboratory" data-mado-component-kind="laboratory" data-mado-laboratory-source="0d0a202020203c7374796c653e0d0a202020202020626f6479207b20666f6e742d66616d696c793a2073797374656d2d75692c2073616e732d73657269663b206d617267696e3a203172656d3b20636f6c6f723a20233137323132623b206261636b67726f756e643a20236637666166633b207d0d0a2020202020202e636f6e74726f6c73207b20646973706c61793a20677269643b206761703a202e3572656d3b206d61782d77696474683a20343672656d3b207d0d0a202020202020696e707574207b2077696474683a20313030253b207d0d0a202020202020737667207b2077696474683a20313030253b206865696768743a206175746f3b206261636b67726f756e643a2077686974653b20626f726465723a2031707820736f6c696420236338643264633b20626f726465722d7261646975733a202e3572656d3b207d0d0a2020202020206f7574707574207b20646973706c61793a20626c6f636b3b206d617267696e2d746f703a202e373572656d3b2070616464696e673a202e373572656d3b20626f726465722d6c6566743a202e333572656d20736f6c696420233439363537613b206261636b67726f756e643a2077686974653b20666f6e742d76617269616e742d6e756d657269633a20746162756c61722d6e756d733b207d0d0a2020202020202e7761726e696e67207b20636f6c6f723a20236130313832383b20666f6e742d7765696768743a203730303b207d0d0a202020202020636f6465207b20666f6e742d73697a653a203172656d3b207d0d0a202020203c2f7374796c653e0d0a202020203c64697620636c6173733d22636f6e74726f6c73223e0d0a2020202020203c6c6162656c20666f723d22626574612d636f756e7465726578616d706c65223e436f6e646974696f6e696e6720666163746f7220ceb2203d203c7374726f6e672069643d22626574612d636f756e7465726578616d706c652d76616c7565223e302e30303c2f7374726f6e673e3c2f6c6162656c3e0d0a2020202020203c696e7075742069643d22626574612d636f756e7465726578616d706c652220747970653d2272616e676522206d696e3d223022206d61783d22312220737465703d22302e3031222076616c75653d2230223e0d0a202020203c2f6469763e0d0a202020203c703e3c636f64653e41e28280203d205b5b302e382c20302e365d2c205b302c20302e385d5d3c2f636f64653e3c62723e3c636f64653e41e28281203d205b5b302e382c20305d2c205b302e362c20302e385d5d3c2f636f64653e3c2f703e0d0a202020203c7376672076696577426f783d2230203020373030203330302220726f6c653d22696d672220617269612d6c6162656c3d22537065637472616c2072616469757320616c6f6e672074686520636f6e766578207365676d656e74206265747765656e2074776f20737461626c65206d61747269636573223e0d0a2020202020203c6c696e652078313d223730222079313d22323435222078323d22363630222079323d2232343522207374726f6b653d222333333462356622207374726f6b652d77696474683d2232223e3c2f6c696e653e0d0a2020202020203c6c696e652078313d223730222079313d223335222078323d223730222079323d2232343522207374726f6b653d222333333462356622207374726f6b652d77696474683d2232223e3c2f6c696e653e0d0a2020202020203c6c696e652078313d223730222079313d22313035222078323d22363630222079323d2231303522207374726f6b653d222361303138323822207374726f6b652d77696474683d223222207374726f6b652d6461736861727261793d22382036223e3c2f6c696e653e0d0a2020202020203c7465787420783d223635302220793d2239352220746578742d616e63686f723d22656e64222066696c6c3d22236130313832382220666f6e742d73697a653d223135223ecf81203d20312073746162696c69747920626f756e646172793c2f746578743e0d0a2020202020203c7465787420783d2236352220793d223235302220746578742d616e63686f723d22656e64222066696c6c3d22233333346235662220666f6e742d73697a653d223134223e302e373c2f746578743e0d0a2020202020203c7465787420783d2236352220793d223138302220746578742d616e63686f723d22656e64222066696c6c3d22233333346235662220666f6e742d73697a653d223134223e302e393c2f746578743e0d0a2020202020203c7465787420783d2236352220793d223131302220746578742d616e63686f723d22656e64222066696c6c3d22233333346235662220666f6e742d73697a653d223134223e312e303c2f746578743e0d0a2020202020203c7465787420783d2236352220793d2234302220746578742d616e63686f723d22656e64222066696c6c3d22233333346235662220666f6e742d73697a653d223134223e312e323c2f746578743e0d0a2020202020203c7465787420783d2237302220793d223237302220746578742d616e63686f723d226d6964646c65222066696c6c3d22233333346235662220666f6e742d73697a653d223134223e303c2f746578743e0d0a2020202020203c7465787420783d223336352220793d223237302220746578742d616e63686f723d226d6964646c65222066696c6c3d22233333346235662220666f6e742d73697a653d223134223eceb2203d20302e353c2f746578743e0d0a2020202020203c7465787420783d223636302220793d223237302220746578742d616e63686f723d226d6964646c65222066696c6c3d22233333346235662220666f6e742d73697a653d223134223e313c2f746578743e0d0a2020202020203c706174682069643d22636f756e7465726578616d706c652d6375727665222066696c6c3d226e6f6e6522207374726f6b653d222333313566396322207374726f6b652d77696474683d2234223e3c2f706174683e0d0a2020202020203c636972636c652069643d22636f756e7465726578616d706c652d6d61726b65722220723d2238222066696c6c3d222364323837303022207374726f6b653d22776869746522207374726f6b652d77696474683d2232223e3c2f636972636c653e0d0a202020203c2f7376673e0d0a202020203c6f75747075742069643d22636f756e7465726578616d706c652d6f75747075742220617269612d6c6976653d22706f6c697465223e3c2f6f75747075743e0d0a202020203c7363726970743e0d0a202020202020636f6e737420736c69646572203d20646f63756d656e742e717565727953656c6563746f72282223626574612d636f756e7465726578616d706c6522293b0d0a202020202020636f6e73742076616c7565203d20646f63756d656e742e717565727953656c6563746f72282223626574612d636f756e7465726578616d706c652d76616c756522293b0d0a202020202020636f6e7374206d61726b6572203d20646f63756d656e742e717565727953656c6563746f72282223636f756e7465726578616d706c652d6d61726b657222293b0d0a202020202020636f6e7374206375727665203d20646f63756d656e742e717565727953656c6563746f72282223636f756e7465726578616d706c652d637572766522293b0d0a202020202020636f6e7374206f7574707574203d20646f63756d656e742e717565727953656c6563746f72282223636f756e7465726578616d706c652d6f757470757422293b0d0a202020202020636f6e73742072686f203d2062657461203d3e20302e38202b20302e36202a204d6174682e737172742862657461202a202831202d206265746129293b0d0a202020202020636f6e73742078203d2062657461203d3e203730202b20353930202a20626574613b0d0a202020202020636f6e73742079203d20726164697573203d3e20323435202d2028726164697573202d20302e3729202a203335303b0d0a2020202020206c65742070617468203d2022223b0d0a202020202020666f7220286c65742069203d20303b2069203c3d203130303b2069202b3d203129207b0d0a2020202020202020636f6e73742062657461203d2069202f203130303b0d0a202020202020202070617468202b3d2060247b69203d3d3d2030203f20224d22203a20224c227d247b782862657461292e746f46697865642832297d2c247b792872686f286265746129292e746f46697865642832297d20603b0d0a2020202020207d0d0a20202020202063757276652e736574417474726962757465282264222c2070617468293b0d0a20202020202066756e6374696f6e207570646174652829207b0d0a2020202020202020636f6e73742062657461203d204e756d62657228736c696465722e76616c7565293b0d0a2020202020202020636f6e737420726164697573203d2072686f2862657461293b0d0a202020202020202076616c75652e74657874436f6e74656e74203d20626574612e746f46697865642832293b0d0a20202020202020206d61726b65722e73657441747472696275746528226378222c2078286265746129293b0d0a20202020202020206d61726b65722e73657441747472696275746528226379222c20792872616469757329293b0d0a2020202020202020636f6e73742076657264696374203d20726164697573203c2031203f2022737461626c6520666f72207468697320666978656420ceb222203a2022756e737461626c6520666f72207468697320666978656420ceb2223b0d0a20202020202020206f75747075742e696e6e657248544d4c203d2060cf81284128ceb22929203d203c7374726f6e673e247b7261646975732e746f46697865642833297d3c2f7374726f6e673e2e203c7370616e20636c6173733d22247b726164697573203e3d2031203f20227761726e696e6722203a2022227d223e247b766572646963747d3c2f7370616e3e603b0d0a2020202020207d0d0a202020202020736c696465722e6164644576656e744c697374656e65722822696e707574222c20757064617465293b0d0a20202020202075706461746528293b0d0a202020203c2f7363726970743e0d0a2020" data-mado-title="Stable endpoints can have an unstable midpoint"></template>
+
+  <details><summary>Why are the endpoints stable?</summary><p>Both endpoint matrices are triangular with diagonal entries 0.8, so both eigenvalues equal 0.8. At β = 0.5, the matrix has diagonal 0.8 and both off-diagonal entries 0.3, giving eigenvalues 1.1 and 0.5.</p></details>
+</article></div>
+      </section>
+      <section class="mado-session chapter" id="session-common-p" data-mado-session-id="common-p">
+        <h2><span class="mado-session-number" aria-hidden="true">3. </span><span class="mado-session-title">The common-P certificate</span></h2>
+        <div class="mado-session-content content"><article>
+  <p>For fixed Φ and Acl, the paper searches for one positive-definite matrix P that makes both discrete-time Lyapunov decreases strict.</p>
+
+  <pre data-mado-component-id="endpoint-sdp"><code>find P = Pᵀ &gt; 0
+such that
+    Φᵀ P Φ − P &lt; 0
+    Aclᵀ P Acl − P &lt; 0</code></pre>
+
+  <p>This is one convex feasibility problem in P because Φ and Acl are already fixed. The implementation adds <code>trace(P)=1</code> to remove arbitrary scaling and maximizes a common decrease margin <code>t</code>.</p>
+
+  <figure data-mado-component-id="ellipsoid-contraction">
+    <svg aria-label="A common Lyapunov ellipsoid contracted by Phi, Acl, and every matrix between them" role="img" viewBox="0 0 900 390">
+      <defs>
+        <marker id="vector-arrow" markerHeight="10" markerWidth="10" orient="auto" refX="8" refY="3"><path d="M0,0 L0,6 L9,3 z" fill="currentColor"></path></marker>
+      </defs>
+      <text fill="currentColor" font-size="20" text-anchor="middle" x="450" y="30">The same ellipsoid is used at both endpoints</text>
+      <ellipse cx="450" cy="205" fill="none" rx="310" ry="135" stroke="currentColor" stroke-width="3"></ellipse>
+      <ellipse cx="450" cy="205" fill="none" rx="246" ry="101" stroke="seagreen" stroke-dasharray="10 7" stroke-width="3"></ellipse>
+      <line marker-end="url(#vector-arrow)" stroke="currentColor" stroke-width="3" x1="450" x2="690" y1="205" y2="132"></line>
+      <line marker-end="url(#vector-arrow)" stroke="darkorange" stroke-width="4" x1="450" x2="610" y1="205" y2="171"></line>
+      <line marker-end="url(#vector-arrow)" stroke="seagreen" stroke-width="4" x1="450" x2="555" y1="205" y2="244"></line>
+      <text fill="currentColor" font-size="15" x="704" y="121">x</text>
+      <text fill="darkorange" font-size="15" x="619" y="162">Φx</text>
+      <text fill="seagreen" font-size="15" x="565" y="262">Acl x</text>
+      <text fill="currentColor" font-size="15" text-anchor="middle" x="450" y="365">V(x)=xᵀPx. Both images land on a smaller level set.</text>
+    </svg>
+    <figcaption>P defines the geometry. The endpoints may rotate or shear differently, but both must send the unit P-ellipsoid strictly inside itself.</figcaption>
+  </figure>
+
+  <h3>Laboratory: watch one common P bound the segment</h3>
+  <p>This laboratory uses illustrative matrices with <code>P=diag(1,4)</code>. The solid ellipse is <code>xᵀPx=1</code>; the moving curve is its image under <code>A(β)</code>. Change β and compare the actual induced P-norm with the endpoint interpolation bound.</p>
+
+  <template data-mado-component-id="common-p-laboratory" data-mado-component-kind="laboratory" data-mado-laboratory-source="0d0a202020203c7374796c653e0d0a202020202020626f6479207b20666f6e742d66616d696c793a2073797374656d2d75692c2073616e732d73657269663b206d617267696e3a203172656d3b20636f6c6f723a20233137323132623b206261636b67726f756e643a20236637666166633b207d0d0a2020202020202e636f6e74726f6c73207b20646973706c61793a20677269643b206761703a202e3572656d3b207d0d0a202020202020696e707574207b2077696474683a20313030253b207d0d0a202020202020737667207b2077696474683a20313030253b206865696768743a206175746f3b206261636b67726f756e643a2077686974653b20626f726465723a2031707820736f6c696420236338643264633b20626f726465722d7261646975733a202e3572656d3b207d0d0a2020202020206f7574707574207b20646973706c61793a20626c6f636b3b206d617267696e2d746f703a202e373572656d3b2070616464696e673a202e373572656d3b20626f726465722d6c6566743a202e333572656d20736f6c696420233236373334643b206261636b67726f756e643a2077686974653b20666f6e742d76617269616e742d6e756d657269633a20746162756c61722d6e756d733b207d0d0a202020202020636f6465207b20666f6e742d73697a653a202e393572656d3b207d0d0a202020203c2f7374796c653e0d0a202020203c64697620636c6173733d22636f6e74726f6c73223e0d0a2020202020203c6c6162656c20666f723d22626574612d636f6d6d6f6e2d70223e436f6e646974696f6e696e6720666163746f7220ceb2203d203c7374726f6e672069643d22626574612d636f6d6d6f6e2d702d76616c7565223e302e30303c2f7374726f6e673e3c2f6c6162656c3e0d0a2020202020203c696e7075742069643d22626574612d636f6d6d6f6e2d702220747970653d2272616e676522206d696e3d223022206d61783d22312220737465703d22302e3031222076616c75653d2230223e0d0a202020203c2f6469763e0d0a202020203c703e3c636f64653ecea6203d205b5b302e39322c20302e31305d2c205b302c20302e36355d5d3c2f636f64653e3c62723e3c636f64653e41636c203d205b5b302e35302c20e28892302e35305d2c205b302e31302c20302e35355d5d3c2f636f64653e3c62723e3c636f64653e50203d206469616728312c34293c2f636f64653e3c2f703e0d0a202020203c7376672076696577426f783d2230203020373030203336302220726f6c653d22696d672220617269612d6c6162656c3d22502d756e697420656c6c6970736520616e642069747320696d61676520756e646572207468652073656c656374656420636f6e76657820636f6d62696e6174696f6e223e0d0a2020202020203c6c696e652078313d223630222079313d22313830222078323d22363430222079323d2231383022207374726f6b653d2223623863326363223e3c2f6c696e653e0d0a2020202020203c6c696e652078313d22333530222079313d223335222078323d22333530222079323d2233323522207374726f6b653d2223623863326363223e3c2f6c696e653e0d0a2020202020203c706174682069643d22756e69742d656c6c69707365222066696c6c3d226e6f6e6522207374726f6b653d222333333462356622207374726f6b652d77696474683d2233223e3c2f706174683e0d0a2020202020203c706174682069643d22696d6167652d656c6c69707365222066696c6c3d22726762612833382c3131352c37372c2e31322922207374726f6b653d222332363733346422207374726f6b652d77696474683d2234223e3c2f706174683e0d0a2020202020203c7465787420783d223532302220793d223634222066696c6c3d22233333346235662220666f6e742d73697a653d223135223e78e1b5805078203d20313c2f746578743e0d0a2020202020203c7465787420783d223532302220793d223838222066696c6c3d22233236373334642220666f6e742d73697a653d223135223e4128ceb22920696d6167653c2f746578743e0d0a202020203c2f7376673e0d0a202020203c6f75747075742069643d22636f6d6d6f6e2d702d6f75747075742220617269612d6c6976653d22706f6c697465223e3c2f6f75747075743e0d0a202020203c7363726970743e0d0a202020202020636f6e737420736c69646572203d20646f63756d656e742e717565727953656c6563746f72282223626574612d636f6d6d6f6e2d7022293b0d0a202020202020636f6e73742076616c7565203d20646f63756d656e742e717565727953656c6563746f72282223626574612d636f6d6d6f6e2d702d76616c756522293b0d0a202020202020636f6e737420756e697450617468203d20646f63756d656e742e717565727953656c6563746f72282223756e69742d656c6c6970736522293b0d0a202020202020636f6e737420696d61676550617468203d20646f63756d656e742e717565727953656c6563746f72282223696d6167652d656c6c6970736522293b0d0a202020202020636f6e7374206f7574707574203d20646f63756d656e742e717565727953656c6563746f72282223636f6d6d6f6e2d702d6f757470757422293b0d0a202020202020636f6e737420706869203d205b5b302e39322c20302e31305d2c205b302e30302c20302e36355d5d3b0d0a202020202020636f6e73742061636c203d205b5b302e35302c202d302e35305d2c205b302e31302c20302e35355d5d3b0d0a202020202020636f6e73742063656e746572203d205b3335302c203138305d3b0d0a202020202020636f6e7374207363616c65203d203233353b0d0a20202020202066756e6374696f6e20626c656e64286265746129207b0d0a202020202020202072657475726e205b0d0a202020202020202020205b28312d62657461292a7068695b305d5b305d2b626574612a61636c5b305d5b305d2c2028312d62657461292a7068695b305d5b315d2b626574612a61636c5b305d5b315d5d2c0d0a202020202020202020205b28312d62657461292a7068695b315d5b305d2b626574612a61636c5b315d5b305d2c2028312d62657461292a7068695b315d5b315d2b626574612a61636c5b315d5b315d5d0d0a20202020202020205d3b0d0a2020202020207d0d0a20202020202066756e6374696f6e20704e6f726d286129207b0d0a2020202020202020636f6e737420623131203d20615b305d5b305d3b0d0a2020202020202020636f6e737420623132203d20615b305d5b315d202f20323b0d0a2020202020202020636f6e737420623231203d2032202a20615b315d5b305d3b0d0a2020202020202020636f6e737420623232203d20615b315d5b315d3b0d0a2020202020202020636f6e7374206d3131203d206231312a623131202b206232312a6232313b0d0a2020202020202020636f6e7374206d3132203d206231312a623132202b206232312a6232323b0d0a2020202020202020636f6e7374206d3232203d206231322a623132202b206232322a6232323b0d0a2020202020202020636f6e7374206c617267657374203d20286d3131202b206d3232202b204d6174682e7371727428286d31312d6d3232292a286d31312d6d323229202b20342a6d31322a6d31322929202f20323b0d0a202020202020202072657475726e204d6174682e73717274286c617267657374293b0d0a2020202020207d0d0a20202020202066756e6374696f6e20656c6c6970736550617468286129207b0d0a20202020202020206c65742070617468203d2022223b0d0a2020202020202020666f7220286c65742069203d20303b2069203c3d203132303b2069202b3d203129207b0d0a20202020202020202020636f6e7374207468657461203d2032202a204d6174682e5049202a2069202f203132303b0d0a20202020202020202020636f6e7374207831203d204d6174682e636f73287468657461293b0d0a20202020202020202020636f6e7374207832203d20302e35202a204d6174682e73696e287468657461293b0d0a20202020202020202020636f6e7374207931203d2061203f20615b305d5b305d2a7831202b20615b305d5b315d2a7832203a2078313b0d0a20202020202020202020636f6e7374207932203d2061203f20615b315d5b305d2a7831202b20615b315d5b315d2a7832203a2078323b0d0a20202020202020202020636f6e7374207078203d2063656e7465725b305d202b207363616c652a79313b0d0a20202020202020202020636f6e7374207079203d2063656e7465725b315d202d207363616c652a79323b0d0a2020202020202020202070617468202b3d2060247b69203d3d3d2030203f20224d22203a20224c227d247b70782e746f46697865642832297d2c247b70792e746f46697865642832297d20603b0d0a20202020202020207d0d0a202020202020202072657475726e2070617468202b20225a223b0d0a2020202020207d0d0a202020202020636f6e73742071506869203d20704e6f726d28706869293b0d0a202020202020636f6e7374207141636c203d20704e6f726d2861636c293b0d0a202020202020756e6974506174682e736574417474726962757465282264222c20656c6c6970736550617468286e756c6c29293b0d0a20202020202066756e6374696f6e207570646174652829207b0d0a2020202020202020636f6e73742062657461203d204e756d62657228736c696465722e76616c7565293b0d0a2020202020202020636f6e73742061203d20626c656e642862657461293b0d0a2020202020202020636f6e7374207142657461203d20704e6f726d2861293b0d0a2020202020202020636f6e737420626f756e64203d2028312d62657461292a71506869202b20626574612a7141636c3b0d0a202020202020202076616c75652e74657874436f6e74656e74203d20626574612e746f46697865642832293b0d0a2020202020202020696d616765506174682e736574417474726962757465282264222c20656c6c6970736550617468286129293b0d0a20202020202020206f75747075742e696e6e657248544d4c203d2060e280964128ceb229e280963c7375623e503c2f7375623e203d203c7374726f6e673e247b71426574612e746f46697865642834297d3c2f7374726f6e673e3b20747269616e676c6520626f756e64203d203c7374726f6e673e247b626f756e642e746f46697865642834297d3c2f7374726f6e673e3b20656e64706f696e74206d6178696d756d203d203c7374726f6e673e247b4d6174682e6d617828715068692c7141636c292e746f46697865642834297d3c2f7374726f6e673e2e20416c6c2072656d61696e2062656c6f7720312e603b0d0a2020202020207d0d0a202020202020736c696465722e6164644576656e744c697374656e65722822696e707574222c20757064617465293b0d0a20202020202075706461746528293b0d0a202020203c2f7363726970743e0d0a2020" data-mado-title="A common P contracts the complete segment"></template>
+
+  <p>The green image can change shape nonlinearly as β moves, even though the matrix itself changes linearly. The proof does not need the exact green curve. It only needs the straight-line upper bound</p>
+  <p><code>‖A(β)‖P ≤ (1−β)‖Φ‖P + β‖Acl‖P &lt; 1.</code></p>
+</article></div>
+      </section>
+      <section class="mado-session chapter" id="session-proof-scope" data-mado-session-id="proof-scope">
+        <h2><span class="mado-session-number" aria-hidden="true">4. </span><span class="mado-session-title">Linearized proof and nonlinear scope</span></h2>
+        <div class="mado-session-content content"><article>
+  <p>The article makes two stability statements with different scopes. Mixing them would turn a local nonlinear claim into a global one that the proof does not establish.</p>
+
+  <figure data-mado-component-id="proof-scope-map">
+    <svg aria-label="Nested scope map distinguishing the linearized arbitrary-beta certificate, local exact nonlinear proof, and large-error simulation evidence" role="img" viewBox="0 0 900 500">
+      <rect fill="none" height="400" rx="28" stroke="steelblue" stroke-width="3" width="790" x="55" y="45"></rect>
+      <text fill="steelblue" font-size="20" text-anchor="middle" x="450" y="82">Conditioned linearized cycle model</text>
+      <text fill="currentColor" font-size="15" text-anchor="middle" x="450" y="109">Exponential stability for every sequence βk ∈ [0,1]</text>
+      <text fill="currentColor" font-size="14" text-anchor="middle" x="450" y="134">Uses the common-P endpoint certificate</text>
+
+      <rect fill="none" height="205" rx="24" stroke="seagreen" stroke-width="3" width="590" x="155" y="165"></rect>
+      <text fill="seagreen" font-size="20" text-anchor="middle" x="450" y="203">Exact nonlinear cycle map</text>
+      <text fill="currentColor" font-size="15" text-anchor="middle" x="450" y="231">Local exponential stability near the periodic anchor</text>
+      <text fill="currentColor" font-size="14" text-anchor="middle" x="450" y="258">Strict dwell margin makes the conditioner inactive there</text>
+
+      <ellipse cx="450" cy="311" fill="none" rx="180" ry="38" stroke="darkorange" stroke-width="3"></ellipse>
+      <text fill="darkorange" font-size="17" text-anchor="middle" x="450" y="306">β = 1 locally</text>
+      <text fill="currentColor" font-size="14" text-anchor="middle" x="450" y="330">Jacobian is Acl, which is Schur</text>
+
+      <text fill="currentColor" font-size="15" text-anchor="middle" x="450" y="413">Outside the local neighborhood, nonlinear runs are simulation evidence</text>
+    </svg>
+    <figcaption>The boxes are conceptual scopes, not set inclusion between two mathematical state spaces. They show which argument supports each claim.</figcaption>
+  </figure>
+
+  <table data-mado-component-id="scope-table">
+    <thead><tr><th>Claim</th><th>What proves it</th><th>Range</th></tr></thead>
+    <tbody>
+      <tr><td>Conditioned linearized model is exponentially stable.</td><td>Common P and the induced-norm triangle inequality.</td><td>Any state-dependent or time-varying sequence <code>βk ∈ [0,1]</code>.</td></tr>
+      <tr><td>Exact nonlinear periodic trajectory is exponentially stable.</td><td>Local linearization with Schur Jacobian <code>Acl</code>.</td><td>A neighborhood where strict nominal dwell margin implies <code>β=1</code>.</td></tr>
+      <tr><td>Large-error conditioned converter response behaves well.</td><td>Exact nonlinear simulation.</td><td>The simulated benchmark and initial condition. This is evidence, not a global proof.</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>Why does the exact nonlinear proof use β = 1?</summary>
+    <p>The raw timing correction is zero at the periodic anchor. Strict nominal dwell margin then gives an open neighborhood in which the raw correction remains feasible. The conditioner does nothing in that neighborhood, so the exact closed-loop map has Jacobian <code>Acl</code>. Standard discrete-time linearization theory gives local exponential stability because <code>Acl</code> is Schur.</p>
+  </details>
+
+  <details>
+    <summary>Does pointwise stability for every fixed β prove arbitrary switching?</summary>
+    <p>No. Products of individually stable matrices can grow. The common P is what controls every product: each step reduces the same norm by at least the same factor q, regardless of how β changes.</p>
+  </details>
+</article></div>
+      </section>
+      <section class="mado-session chapter" id="session-compact-proof" data-mado-session-id="compact-proof">
+        <h2><span class="mado-session-number" aria-hidden="true">5. </span><span class="mado-session-title">The proof in six steps</span></h2>
+        <div class="mado-session-content content"><article>
+  <p>Here is the complete linearized proof with each assumption visible.</p>
+
+  <ol data-mado-component-id="compact-proof">
+    <li><p>The applied timing action is the raw action scaled by the conditioner:</p><p><code>δτapp,k = βk δτraw,k = −βk K ek</code>, with <code>βk ∈ [0,1]</code>.</p></li>
+    <li><p>Substitution into the linearized one-cycle model gives</p><p><code>ek+1 = A(βk)ek</code>, where <code>A(β) = (1−β)Φ + βAcl</code>.</p></li>
+    <li><p>The offline SDP finds one <code>P=Pᵀ&gt;0</code> and endpoint bounds</p><p><code>‖Φ‖P ≤ q0 &lt; 1</code> and <code>‖Acl‖P ≤ q1 &lt; 1</code>.</p></li>
+    <li><p>Homogeneity and the triangle inequality give, for every β,</p><p><code>‖A(β)‖P ≤ (1−β)q0 + βq1.</code></p></li>
+    <li><p>Set <code>q=max(q0,q1)&lt;1</code>. Then <code>‖A(β)‖P≤q</code> uniformly over the complete interval.</p></li>
+    <li><p>Apply that same bound at every cycle:</p><p><code>‖ek‖P ≤ qk ‖e0‖P.</code></p><p>This proves exponential stability for every sequence <code>{βk}</code>, including the state-dependent sequence returned by the dwell conditioner.</p></li>
+  </ol>
+
+  <aside data-mado-component-id="final-mental-model">
+    <h3>Final mental model</h3>
+    <p>The convex optimization is a certificate search, not a path search. It finds one quadratic geometry P for two already-fixed endpoint matrices. Once both endpoints contract that geometry, norm convexity certifies the line segment. The uniform common norm then certifies every product generated as β changes from cycle to cycle.</p>
+  </aside>
+
+  <h3>Diagnostic questions</h3>
+  <ul>
+    <li>Was K already fixed before solving for P? In the article, yes.</li>
+    <li>Is the β = 0 endpoint another controlled matrix? No. It is the nominal cycle matrix Φ.</li>
+    <li>Would separate Lyapunov matrices for the endpoints be enough? No. The proof needs one common P.</li>
+    <li>Does endpoint Schur stability alone certify the segment? No. The first laboratory gives a counterexample.</li>
+    <li>Does the common-P result prove global stability of the exact nonlinear plant? No. Its arbitrary-β claim applies to the linearized model.</li>
+  </ul>
+</article></div>
+      </section></div>
+      <footer class="mado-footer"></footer>
+    </main>
+    <script>
+      /* ==================================================================
+         Mado HTML document chrome. Template-owned, standalone, no network.
+         The search index is built from the rendered DOM at load, so it is
+         correct for whatever document this template renders.
+         ================================================================== */
+      (function () {
+        "use strict";
+
+        function decodeLaboratorySource(source) {
+          var hex = source.getAttribute("data-mado-laboratory-source") || "";
+          var bytes = new Uint8Array(hex.length / 2);
+          for (var i = 0; i < bytes.length; i += 1) {
+            bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+          }
+          return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+        }
+
+        function initLaboratories() {
+          each(document.querySelectorAll('template[data-mado-component-kind="laboratory"]'), function (source) {
+            var frame = document.createElement("iframe");
+            var title = source.getAttribute("data-mado-title") || "Interactive Laboratory";
+            var policy = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; " +
+              "connect-src 'none'; img-src 'none'; media-src 'none'; font-src 'none'; " +
+              "object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'none'; " +
+              "form-action 'none'; webrtc 'block'";
+            frame.className = "mado-laboratory-frame";
+            frame.title = title;
+            frame.loading = "lazy";
+            frame.setAttribute("sandbox", "allow-scripts");
+            frame.setAttribute("allow", "camera 'none'; microphone 'none'; geolocation 'none'; payment 'none'; usb 'none'; serial 'none'; bluetooth 'none'; clipboard-read 'none'; clipboard-write 'none'");
+            frame.srcdoc = '<!doctype html><html><head><meta charset="utf-8">' +
+              '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+              '<meta http-equiv="Content-Security-Policy" content="' + policy + '">' +
+              '</head><body>' + decodeLaboratorySource(source) + '</body></html>';
+            source.parentNode.insertBefore(frame, source.nextSibling);
+            source.__madoFrame = frame;
+          });
+        }
+
+        function each(list, fn) { Array.prototype.forEach.call(list, fn); }
+        initLaboratories();
+
+        var filter = document.getElementById("mado-filter");
+        var input = document.getElementById("mado-filter-input");
+        var results = document.getElementById("mado-filter-results");
+        var facetBar = document.getElementById("mado-filter-facets");
+        var countEl = document.getElementById("mado-filter-count");
+        var hint = document.getElementById("mado-filter-hint");
+        var tick = document.getElementById("mado-edge-tick");
+        if (!filter || !input || !results || !facetBar || !countEl || !hint) return;
+
+        var MIN_MARK = 2;
+        var entries = [];
+        var rows = [];
+        var cursor = -1;
+        var facet = null;
+
+        function norm(s) { return (s || "").replace(/\s+/g, " ").trim(); }
+
+        function kindOf(el) {
+          var declared = el.getAttribute("data-mado-component-kind");
+          if (declared) return declared === "generated-diagram" ? "diagram" : declared;
+          if (el.hasAttribute("data-mado-diff-block-id")) return "diff";
+          var tag = el.tagName.toLowerCase();
+          if (tag === "svg" || tag === "figure") return "diagram";
+          if (tag === "pre" || tag === "details") return "code";
+          return "component";
+        }
+
+        function labelOf(el, id) {
+          var laboratoryTitle = el.getAttribute("data-mado-title");
+          if (laboratoryTitle) return norm(laboratoryTitle);
+          var cap = el.querySelector("figcaption, summary, .mado-diagram-title, .mado-diff-header strong");
+          return (cap ? norm(cap.textContent) : "") || id;
+        }
+
+        function buildIndex() {
+          var out = [];
+          each(document.querySelectorAll(".mado-session[data-mado-session-id]"), function (sec) {
+            var sid = sec.getAttribute("data-mado-session-id");
+            var titleEl = sec.querySelector(".mado-session-title");
+            var contentEl = sec.querySelector(".mado-session-content");
+            var title = titleEl ? norm(titleEl.textContent) : sid;
+            var body = contentEl ? norm(contentEl.textContent) : "";
+            out.push({
+              kind: "session", id: sid, label: title, el: sec, session: sec,
+              raw: body, text: (title + " " + sid + " " + body).toLowerCase()
+            });
+            if (!contentEl) return;
+            each(contentEl.querySelectorAll("[data-mado-component-id], [data-mado-diff-block-id]"), function (c) {
+              var cid = c.getAttribute("data-mado-component-id") || c.getAttribute("data-mado-diff-block-id");
+              var kind = kindOf(c);
+              var label = labelOf(c, cid);
+              var own = norm(c.textContent);
+              out.push({
+                kind: kind, id: cid, label: label, el: c.__madoFrame || c, session: sec,
+                raw: own, text: (label + " " + cid + " " + kind + " " + own).toLowerCase()
+              });
+            });
+          });
+          return out;
+        }
+
+        function parseQuery(q) {
+          var kind = facet;
+          var words = [];
+          q.toLowerCase().split(/\s+/).forEach(function (w) {
+            var m = /^kind:([a-z-]+)$/.exec(w);
+            if (m) { kind = m[1]; return; }
+            if (w) words.push(w);
+          });
+          return { term: words.join(" "), kind: kind };
+        }
+
+        function esc(t) {
+          return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function snippet(entry, term) {
+          var raw = entry.raw || "";
+          if (!term) return esc(raw.slice(0, 120));
+          var i = raw.toLowerCase().indexOf(term);
+          if (i < 0) return esc(raw.slice(0, 120));
+          var a = Math.max(0, i - 38);
+          var b = Math.min(raw.length, i + term.length + 70);
+          return (a ? "… " : "") + esc(raw.slice(a, i)) +
+            "<mark>" + esc(raw.slice(i, i + term.length)) + "</mark>" +
+            esc(raw.slice(i + term.length, b)) + (b < raw.length ? " …" : "");
+        }
+
+        /* in-page highlighting; never enters an svg, a template or a script */
+        function clearMarks() {
+          each(document.querySelectorAll("mark.mado-hit"), function (m) {
+            var p = m.parentNode;
+            if (!p) return;
+            p.replaceChild(document.createTextNode(m.textContent), m);
+            p.normalize();
+          });
+        }
+
+        function markPage(term) {
+          clearMarks();
+          if (!term || term.length < MIN_MARK) return;
+          var root = document.querySelector(".mado-sessions");
+          if (!root) return;
+          var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+            acceptNode: function (n) {
+              if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+              var p = n.parentElement;
+              if (!p || p.closest("svg, template, script, style, mark")) return NodeFilter.FILTER_REJECT;
+              return n.nodeValue.toLowerCase().indexOf(term) >= 0
+                ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+            }
+          });
+          var nodes = [];
+          while (walker.nextNode()) nodes.push(walker.currentNode);
+          nodes.forEach(function (node) {
+            var txt = node.nodeValue;
+            var low = txt.toLowerCase();
+            var frag = document.createDocumentFragment();
+            var at = 0;
+            var i = low.indexOf(term, at);
+            while (i >= 0) {
+              if (i > at) frag.appendChild(document.createTextNode(txt.slice(at, i)));
+              var m = document.createElement("mark");
+              m.className = "mado-hit";
+              m.textContent = txt.slice(i, i + term.length);
+              frag.appendChild(m);
+              at = i + term.length;
+              i = low.indexOf(term, at);
+            }
+            if (at < txt.length) frag.appendChild(document.createTextNode(txt.slice(at)));
+            if (node.parentNode) node.parentNode.replaceChild(frag, node);
+          });
+        }
+
+        function renderFacets() {
+          var kinds = [];
+          entries.forEach(function (e) { if (kinds.indexOf(e.kind) < 0) kinds.push(e.kind); });
+          facetBar.innerHTML = kinds.map(function (k) {
+            return '<button type="button" data-kind="' + esc(k) + '">kind:' + esc(k) + "</button>";
+          }).join("");
+          each(facetBar.querySelectorAll("button"), function (b) {
+            b.addEventListener("click", function () {
+              var k = b.getAttribute("data-kind");
+              facet = facet === k ? null : k;
+              paint();
+              input.focus();
+            });
+          });
+        }
+
+        function paint() {
+          var parsed = parseQuery(input.value);
+          var term = parsed.term;
+          var idle = !term && !parsed.kind;
+
+          rows = idle ? [] : entries.filter(function (e) {
+            return (!parsed.kind || e.kind === parsed.kind) && (!term || e.text.indexOf(term) >= 0);
+          });
+
+          if (idle) {
+            results.innerHTML = '<div class="mado-filter-empty">type to filter, or pick a kind</div>';
+          } else if (!rows.length) {
+            results.innerHTML = '<div class="mado-filter-empty">no match</div>';
+          } else {
+            results.innerHTML = rows.map(function (e, i) {
+              return '<a href="#" data-i="' + i + '">' +
+                '<span class="mado-r-kind">' + esc(e.kind) + "</span>" +
+                '<span class="mado-r-label">' + esc(e.label) +
+                '<span class="mado-r-snippet">' + snippet(e, term) + "</span></span>" +
+                '<span class="mado-r-id">' + esc(e.id) + "</span></a>";
+            }).join("");
+          }
+
+          var live = [];
+          rows.forEach(function (e) { if (live.indexOf(e.session) < 0) live.push(e.session); });
+          each(document.querySelectorAll(".mado-session"), function (s) {
+            s.classList.toggle("mado-miss", !idle && live.indexOf(s) < 0);
+          });
+
+          markPage(term);
+          cursor = -1;
+          countEl.textContent = idle ? "" :
+            rows.length + (rows.length === 1 ? " result" : " results") + " · " +
+            live.length + (live.length === 1 ? " session" : " sessions");
+
+          each(facetBar.querySelectorAll("button"), function (b) {
+            b.classList.toggle("mado-on", b.getAttribute("data-kind") === facet);
+          });
+          each(results.querySelectorAll("a"), function (a) {
+            a.addEventListener("click", function (ev) {
+              ev.preventDefault();
+              jump(rows[+a.getAttribute("data-i")]);
+            });
+          });
+        }
+
+        function jump(entry) {
+          if (!entry) return;
+          var target = entry.el;
+          var sec = entry.session;
+          close();
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+          if (!sec) return;
+          sec.classList.remove("mado-flash");
+          void sec.offsetWidth;
+          sec.classList.add("mado-flash");
+        }
+
+        function select(delta) {
+          var as = results.querySelectorAll("a");
+          if (!as.length) return;
+          cursor = (cursor + delta + as.length) % as.length;
+          each(as, function (a, i) { a.classList.toggle("mado-sel", i === cursor); });
+          as[cursor].scrollIntoView({ block: "nearest" });
+        }
+
+        function open() {
+          filter.classList.add("mado-open");
+          hint.setAttribute("aria-expanded", "true");
+          paint();
+          input.focus();
+        }
+
+        function close() {
+          filter.classList.remove("mado-open");
+          hint.setAttribute("aria-expanded", "false");
+          input.value = "";
+          facet = null;
+          cursor = -1;
+          each(document.querySelectorAll(".mado-session"), function (s) {
+            s.classList.remove("mado-miss");
+          });
+          clearMarks();
+          input.blur();
+          paint();
+        }
+
+        function isTyping(el) {
+          if (!el) return false;
+          var tag = el.tagName ? el.tagName.toLowerCase() : "";
+          return tag === "input" || tag === "textarea" || tag === "select" || el.isContentEditable === true;
+        }
+
+        entries = buildIndex();
+        renderFacets();
+        paint();
+
+        input.addEventListener("input", paint);
+        hint.addEventListener("click", function () {
+          if (filter.classList.contains("mado-open")) close(); else open();
+        });
+
+        document.addEventListener("keydown", function (e) {
+          var isOpen = filter.classList.contains("mado-open");
+          if (e.key === "/" && !isOpen && !isTyping(e.target)) { e.preventDefault(); open(); return; }
+          if (!isOpen) return;
+          if (e.key === "Escape") { e.preventDefault(); close(); }
+          else if (e.key === "ArrowDown") { e.preventDefault(); select(1); }
+          else if (e.key === "ArrowUp") { e.preventDefault(); select(-1); }
+          else if (e.key === "Enter") { e.preventDefault(); jump(rows[cursor < 0 ? 0 : cursor]); }
+        });
+
+        function onScroll() {
+          var h = document.documentElement;
+          var span = h.scrollHeight - window.innerHeight;
+          if (tick) tick.style.width = (span > 0 ? (h.scrollTop / span) * 100 : 0) + "%";
+          hint.classList.toggle("mado-show", h.scrollTop > 160);
+        }
+        window.addEventListener("scroll", onScroll, { passive: true });
+        onScroll();
+      })();
+    </script>
+  </body>
+</html>

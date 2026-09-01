@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solving cvx_example.m by hand</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1f2937;
+      --muted: #4b5563;
+      --line: #d1d5db;
+      --panel: #f8fafc;
+      --accent: #1d4ed8;
+      --accent-soft: #eff6ff;
+      --answer: #166534;
+      --answer-soft: #f0fdf4;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+      color: var(--ink);
+      background: #eef2f7;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem 3rem;
+    }
+
+    article {
+      background: white;
+      padding: clamp(1.25rem, 4vw, 3rem);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgb(15 23 42 / 8%);
+    }
+
+    h1, h2 { line-height: 1.25; }
+    h1 { margin-top: 0; color: #111827; }
+    h2 {
+      margin-top: 2rem;
+      padding-bottom: .35rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    p { max-width: 75ch; }
+    .subtitle, .note { color: var(--muted); }
+    .equation {
+      margin: 1rem 0;
+      padding: 1rem;
+      overflow-x: auto;
+      text-align: center;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.15rem;
+      background: var(--panel);
+      border-left: 4px solid var(--accent);
+    }
+
+    .step {
+      margin: 1.25rem 0;
+      padding: 1rem 1.25rem;
+      background: var(--panel);
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+    }
+
+    .step h3 { margin-top: 0; color: var(--accent); }
+
+    code, pre {
+      font-family: "Cascadia Code", Consolas, monospace;
+    }
+
+    pre {
+      margin: 1rem 0;
+      padding: 1rem;
+      overflow-x: auto;
+      color: #e5e7eb;
+      background: #111827;
+      border-radius: 8px;
+    }
+
+    .answer {
+      padding: 1.25rem;
+      background: var(--answer-soft);
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+    }
+
+    .answer h2 { margin-top: 0; color: var(--answer); border: 0; }
+    .check { background: var(--accent-soft); border-color: #bfdbfe; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+
+    th, td {
+      padding: .6rem .75rem;
+      text-align: left;
+      border: 1px solid var(--line);
+    }
+
+    th { background: var(--panel); }
+
+    footer {
+      margin-top: 2rem;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <article>
+      <h1>Solving <code>cvx_example.m</code> by hand</h1>
+      <p class="subtitle">
+        The MATLAB file contains a small linear program. CVX solves it numerically,
+        but the exact solution follows directly from substitution.
+      </p>
+
+      <h2>1. Read the optimization problem</h2>
+      <p>The code asks us to minimize the linear objective</p>
+      <div class="equation">
+        minimize &nbsp; <i>x</i><sub>1</sub> + 2<i>x</i><sub>2</sub>
+      </div>
+      <p>subject to</p>
+      <div class="equation">
+        <i>x</i><sub>1</sub> + <i>x</i><sub>2</sub> = 1,
+        &nbsp;&nbsp; <i>x</i><sub>1</sub> &ge; 0,
+        &nbsp;&nbsp; <i>x</i><sub>2</sub> &ge; 0.
+      </div>
+
+      <div class="step">
+        <h3>Step 1: Use the equality constraint</h3>
+        <p>Solve the equality for <i>x</i><sub>2</sub>:</p>
+        <div class="equation">
+          <i>x</i><sub>2</sub> = 1 - <i>x</i><sub>1</sub>.
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Step 2: Find the allowed range</h3>
+        <p>The nonnegative constraints restrict the remaining variable:</p>
+        <div class="equation">
+          0 &le; <i>x</i><sub>1</sub> &le; 1.
+        </div>
+        <p>
+          The first inequality comes from <i>x</i><sub>1</sub> &ge; 0. The second comes
+          from <i>x</i><sub>2</sub> = 1 - <i>x</i><sub>1</sub> &ge; 0.
+        </p>
+      </div>
+
+      <div class="step">
+        <h3>Step 3: Substitute into the objective</h3>
+        <p>Replace <i>x</i><sub>2</sub> with 1 - <i>x</i><sub>1</sub>:</p>
+        <div class="equation">
+          <i>f</i>(<i>x</i><sub>1</sub>)
+          = <i>x</i><sub>1</sub> + 2(1 - <i>x</i><sub>1</sub>)
+          = 2 - <i>x</i><sub>1</sub>.
+        </div>
+        <p>
+          This expression decreases as <i>x</i><sub>1</sub> increases. Therefore,
+          its minimum over 0 &le; <i>x</i><sub>1</sub> &le; 1 occurs at
+          <i>x</i><sub>1</sub> = 1.
+        </p>
+      </div>
+
+      <div class="step">
+        <h3>Step 4: Recover the other variable</h3>
+        <div class="equation">
+          <i>x</i><sub>2</sub> = 1 - 1 = 0.
+        </div>
+      </div>
+
+      <section class="answer">
+        <h2>Solution</h2>
+        <div class="equation">
+          <b><i>x</i><sup>*</sup> = [1, 0]<sup>T</sup></b>
+          &nbsp;&nbsp; and &nbsp;&nbsp;
+          <b><i>f</i><sup>*</sup> = 1.</b>
+        </div>
+        <p>
+          The point [1, 0]<sup>T</sup> satisfies the constraint because 1 + 0 = 1,
+          and both variables are nonnegative.
+        </p>
+      </section>
+
+      <h2>Geometric interpretation</h2>
+      <p>
+        The equality <i>x</i><sub>1</sub> + <i>x</i><sub>2</sub> = 1, together with
+        nonnegativity, produces a line segment from (1, 0) to (0, 1).
+        Since the objective is linear, the minimum occurs at an endpoint.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Feasible point</th>
+            <th>Objective value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>(1, 0)</td>
+            <td>1 + 2(0) = 1</td>
+          </tr>
+          <tr>
+            <td>(0, 1)</td>
+            <td>0 + 2(1) = 2</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        The first endpoint is better because one unit of <i>x</i><sub>1</sub> costs
+        1, while one unit of <i>x</i><sub>2</sub> costs 2.
+      </p>
+
+      <h2>Connection with the MATLAB code</h2>
+      <pre><code>cvx_begin
+    variable x(2)
+    minimize(x(1) + 2*x(2))
+    subject to
+        x(1) + x(2) == 1
+        x &gt;= 0
+cvx_end</code></pre>
+
+      <section class="answer check">
+        <h2>What the checks verify</h2>
+        <p>The file expects</p>
+        <div class="equation">
+          <i>x</i> = [1, 0]<sup>T</sup>,
+          &nbsp;&nbsp; cvx_optval = 1.
+        </div>
+        <p>
+          The assertions compare CVX's numerical result with this hand-derived
+          solution, allowing a small tolerance of 10<sup>-6</sup> for numerical error.
+        </p>
+      </section>
+
+      <footer>
+        Source problem: <code>cvx_example.m</code>
+      </footer>
+    </article>
+  </main>
+</body>
+</html>

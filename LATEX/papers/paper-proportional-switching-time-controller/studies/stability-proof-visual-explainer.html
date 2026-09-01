@@ -1,0 +1,1513 @@
+<title>One Norm, Every Path</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Spectral:ital,wght@0,400;0,600;1,400&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+  :root {
+    --bg: #F6F7F9;
+    --surface: #FFFFFF;
+    --lab: #EEF1F5;
+    --lab-edge: #C9D2DC;
+    --ink: #1C2530;
+    --muted: #6B7684;
+    --rule: #D8DDE3;
+    --phi: #3D6EA8;
+    --acl: #C05B2E;
+    --phi-soft: #E3EBF4;
+    --acl-soft: #F6E8DF;
+    --good: #2E7D5B;
+    --bad: #B0403C;
+    --track: #D2D9E1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141A22;
+      --surface: #1C242F;
+      --lab: #19212B;
+      --lab-edge: #34414F;
+      --ink: #E8EAED;
+      --muted: #9AA5B1;
+      --rule: #303B48;
+      --phi: #6FA0D8;
+      --acl: #E08A5C;
+      --phi-soft: #22354C;
+      --acl-soft: #45301F;
+      --good: #5BB894;
+      --bad: #D9736F;
+      --track: #2C3745;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141A22;
+    --surface: #1C242F;
+    --lab: #19212B;
+    --lab-edge: #34414F;
+    --ink: #E8EAED;
+    --muted: #9AA5B1;
+    --rule: #303B48;
+    --phi: #6FA0D8;
+    --acl: #E08A5C;
+    --phi-soft: #22354C;
+    --acl-soft: #45301F;
+    --good: #5BB894;
+    --bad: #D9736F;
+    --track: #2C3745;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Spectral", Georgia, serif;
+    font-size: 17px;
+    line-height: 1.65;
+    margin: 0;
+    padding: 0 1.25rem 6rem;
+  }
+  main { max-width: 46rem; margin: 0 auto; }
+
+  h1, h2, h3 { font-family: "Familjen Grotesk", "Segoe UI", sans-serif; text-wrap: balance; }
+  h1 { font-size: 2.4rem; font-weight: 700; line-height: 1.12; margin: 0 0 0.6rem; }
+  h2 { font-size: 1.35rem; font-weight: 600; margin: 0; }
+  h3 { font-size: 0.95rem; font-weight: 600; margin: 0 0 0.5rem; letter-spacing: 0.01em; }
+  p { margin: 0 0 1rem; }
+  header { padding: 4rem 0 2rem; }
+  .eyebrow {
+    font-family: "Familjen Grotesk", sans-serif;
+    font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 1rem;
+  }
+  .lede { font-size: 1.15rem; color: var(--muted); max-width: 40rem; }
+
+  .m { font-family: "STIX Two Text", "Times New Roman", serif; font-style: italic; white-space: nowrap; }
+  .m .up { font-style: normal; }
+  .m sub, .m sup { font-size: 0.72em; line-height: 0; }
+  .disp {
+    font-family: "STIX Two Text", serif; font-style: italic;
+    text-align: center; font-size: 1.18rem;
+    margin: 1.4rem 0; overflow-x: auto;
+  }
+  .phi-c { color: var(--phi); font-weight: 600; }
+  .acl-c { color: var(--acl); font-weight: 600; }
+
+  section.step, section.lab {
+    border-radius: 6px;
+    padding: 2rem 2.25rem;
+    margin: 0 0 1.75rem;
+  }
+  section.step { background: var(--surface); border: 1px solid var(--rule); }
+  section.lab  { background: var(--lab); border: 1px solid var(--lab-edge); }
+
+  .step-label { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem; flex-wrap: wrap; }
+  .chip {
+    font-family: "Familjen Grotesk", sans-serif;
+    font-weight: 700; font-size: 0.8rem; letter-spacing: 0.1em;
+    border-radius: 999px; padding: 0.15rem 0.65rem; white-space: nowrap;
+  }
+  .chip.step-num { color: var(--muted); border: 1px solid var(--rule); }
+  .chip.lab-num  { color: var(--bg); background: var(--acl); border: 1px solid var(--acl); }
+  .chip.geo-num  { color: var(--bg); background: var(--phi); border: 1px solid var(--phi); }
+
+  figure { margin: 1.75rem 0; }
+  figure svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+  figcaption {
+    font-family: "Familjen Grotesk", sans-serif;
+    font-size: 0.85rem; color: var(--muted);
+    max-width: 34rem; margin: 0.75rem auto 0;
+    text-align: center; line-height: 1.5;
+  }
+
+  .callout {
+    border-left: 3px solid var(--acl);
+    background: var(--acl-soft);
+    padding: 0.9rem 1.2rem;
+    border-radius: 0 4px 4px 0;
+    margin: 1.25rem 0;
+  }
+  .callout.blue { border-left-color: var(--phi); background: var(--phi-soft); }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ---------- lab furniture ---------- */
+  .lab-intro { font-size: 0.98rem; }
+  .try { font-family: "Familjen Grotesk", sans-serif; font-size: 0.9rem; color: var(--muted); }
+  .try strong { color: var(--ink); font-weight: 600; }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--lab-edge);
+    border-radius: 5px;
+    padding: 1.1rem 1.2rem;
+    margin: 1.25rem 0 0;
+  }
+  .canvas-wrap { overflow-x: auto; }
+  canvas { display: block; max-width: 100%; }
+
+  .ctrl-grid { display: grid; gap: 0.85rem 1.5rem; margin: 0 0 1rem; }
+  @media (min-width: 34rem) { .ctrl-grid.two { grid-template-columns: 1fr 1fr; } }
+
+  .ctrl { display: grid; gap: 0.3rem; }
+  .ctrl > label {
+    font-family: "Familjen Grotesk", sans-serif;
+    font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--muted);
+    display: flex; justify-content: space-between; gap: 1rem; align-items: baseline;
+  }
+  .ctrl > label .val {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.85rem;
+    font-weight: 500; color: var(--ink); text-transform: none; letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 22px; background: transparent; margin: 0; cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 4px; border-radius: 2px; background: var(--track);
+  }
+  input[type="range"]::-moz-range-track {
+    height: 4px; border-radius: 2px; background: var(--track);
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 15px; height: 15px; border-radius: 50%;
+    background: var(--acl); border: 2px solid var(--surface);
+    margin-top: -5.5px;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 15px; height: 15px; border-radius: 50%;
+    background: var(--acl); border: 2px solid var(--surface);
+  }
+  input[type="range"]:focus-visible { outline: 2px solid var(--phi); outline-offset: 3px; }
+
+  .btnrow { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; }
+  button {
+    font-family: "Familjen Grotesk", sans-serif;
+    font-size: 0.82rem; font-weight: 600;
+    color: var(--ink); background: var(--surface);
+    border: 1px solid var(--lab-edge); border-radius: 4px;
+    padding: 0.38rem 0.8rem; cursor: pointer;
+    transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+  }
+  button:hover { border-color: var(--muted); }
+  button:focus-visible { outline: 2px solid var(--phi); outline-offset: 2px; }
+  button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .btnrow .sep { width: 1px; align-self: stretch; background: var(--lab-edge); margin: 0 0.3rem; }
+
+  .readout {
+    display: grid; gap: 0.15rem 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+    font-family: "IBM Plex Mono", monospace;
+    font-variant-numeric: tabular-nums;
+    margin: 1rem 0 0;
+  }
+  .readout div { display: grid; gap: 0.05rem; }
+  .readout .k {
+    font-family: "Familjen Grotesk", sans-serif;
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .readout .v { font-size: 1.02rem; font-weight: 500; }
+  .readout .v.hi { color: var(--acl); }
+  .readout .v.ok { color: var(--good); }
+  .readout .v.no { color: var(--bad); }
+
+  .verdict-bar {
+    font-family: "Familjen Grotesk", sans-serif;
+    font-size: 0.9rem; font-weight: 600;
+    border-radius: 4px; padding: 0.55rem 0.85rem;
+    margin: 1rem 0 0; border: 1px solid transparent;
+  }
+  .verdict-bar.ok { color: var(--good); background: color-mix(in srgb, var(--good) 12%, transparent); border-color: color-mix(in srgb, var(--good) 35%, transparent); }
+  .verdict-bar.no { color: var(--bad);  background: color-mix(in srgb, var(--bad) 12%, transparent);  border-color: color-mix(in srgb, var(--bad) 35%, transparent); }
+
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 0.35rem 1.1rem;
+    font-family: "Familjen Grotesk", sans-serif; font-size: 0.78rem;
+    color: var(--muted); margin: 0.75rem 0 0;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+  .legend i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+
+  .note { font-family: "Familjen Grotesk", sans-serif; font-size: 0.83rem; color: var(--muted); margin: 0.9rem 0 0; }
+
+  .verdict { display: grid; gap: 0.9rem; margin: 1.25rem 0 0; padding: 0; list-style: none; }
+  .verdict li { display: grid; grid-template-columns: 1.6rem 1fr; gap: 0.6rem; align-items: baseline; }
+  .verdict .mark { font-weight: 700; font-family: "Familjen Grotesk", sans-serif; }
+  .verdict li.no .mark { color: var(--bad); }
+  .verdict li.yes .mark { color: var(--good); }
+  .verdict li.half .mark { color: var(--acl); }
+
+  .foot {
+    font-family: "Familjen Grotesk", sans-serif;
+    font-size: 0.8rem; color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 1.25rem; margin-top: 3rem;
+  }
+  a { color: var(--phi); }
+  .sr {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+</style>
+
+<main>
+<header>
+  <div class="eyebrow">Stability proof · Proposition 2 of the paper</div>
+  <h1>One norm, every path</h1>
+  <p class="lede">Why a single Lyapunov matrix <span class="m">P</span> certifies the conditioned closed loop
+  <span class="m">A(β) = (1−β)<span class="phi-c">Φ</span> + β<span class="acl-c">A<sub>cl</sub></span></span>
+  for <em>every</em> conditioning sequence the plant can generate — and why the popular mental model
+  “two optimizations, both stable, same convex space” gets the mechanism wrong in three places.
+  Four steps, each followed by a laboratory you can drive yourself, and a geometric reading of which
+  convex set the argument actually leans on.</p>
+</header>
+
+<!-- ============ STEP 1 ============ -->
+<section class="step">
+  <div class="step-label"><span class="chip step-num">STEP 1</span><h2>Conditioning traces a segment between two matrices</h2></div>
+
+  <p>The conditioner never redirects the raw feedback action <span class="m">δτ<sup>raw</sup> = −Ke<sub>k</sub></span>.
+  It multiplies the whole vector by one scalar <span class="m">β<sub>k</sub> ∈ [0,1]</span> — the largest scalar that keeps
+  every dwell duration above <span class="m">d<sub>min</sub></span>. Direction, mode order, and cycle period are untouched;
+  only magnitude is given up.</p>
+
+  <figure>
+    <svg viewBox="0 0 520 290" role="img" aria-label="A feasible polyhedron in dwell space. The raw offset vector exits the region; the applied vector is the same vector scaled back until it just touches the boundary.">
+      <defs>
+        <marker id="ar-acl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--acl)"/>
+        </marker>
+        <marker id="ar-mut" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/>
+        </marker>
+      </defs>
+      <polygon points="120,60 330,40 420,150 350,250 140,240 80,150"
+               fill="var(--phi-soft)" stroke="var(--phi)" stroke-width="1.5"/>
+      <text x="150" y="95" font-family="Familjen Grotesk, sans-serif" font-size="12" fill="var(--phi)">feasible set 𝒞</text>
+      <text x="150" y="112" font-family="Familjen Grotesk, sans-serif" font-size="11" fill="var(--muted)">every dwell ≥ d_min</text>
+      <circle cx="235" cy="155" r="4" fill="currentColor"/>
+      <text x="228" y="177" font-family="Familjen Grotesk, sans-serif" font-size="11.5" fill="currentColor">nominal schedule</text>
+      <line x1="235" y1="155" x2="455" y2="72" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#ar-mut)"/>
+      <text x="392" y="52" font-family="Familjen Grotesk, sans-serif" font-size="12" fill="var(--muted)">raw −Ke</text>
+      <text x="392" y="67" font-family="Familjen Grotesk, sans-serif" font-size="11" fill="var(--muted)">(infeasible)</text>
+      <line x1="235" y1="155" x2="371" y2="103.7" stroke="var(--acl)" stroke-width="2.6" marker-end="url(#ar-acl)"/>
+      <text x="264" y="118" font-family="Familjen Grotesk, sans-serif" font-size="12.5" font-weight="600" fill="var(--acl)">applied β·(−Ke)</text>
+      <circle cx="371" cy="103.7" r="3.5" fill="none" stroke="var(--acl)" stroke-width="1.6"/>
+      <text x="352" y="132" font-family="Familjen Grotesk, sans-serif" font-size="11" fill="var(--muted)">first dwell out of margin</text>
+    </svg>
+    <figcaption>The conditioner in dwell space: when the raw action leaves the feasible polyhedron, the applied action is the <em>same arrow, shortened</em> — never a different arrow. β is the shrink factor, found in one O(N) scan.</figcaption>
+  </figure>
+
+  <p>In the linearized cycle model this scalar shows up as a convex combination of two fixed matrices:</p>
+  <div class="disp">e<sub>k+1</sub> = A(β<sub>k</sub>)e<sub>k</sub>,&ensp;
+    A(β) = (1−β)<span class="phi-c">Φ</span> + β<span class="acl-c">A<sub>cl</sub></span></div>
+
+  <figure>
+    <svg viewBox="0 0 640 130" role="img" aria-label="A horizontal segment from Phi at beta equals zero to A closed loop at beta equals one, with an intermediate point A of beta k.">
+      <defs>
+        <linearGradient id="seg" gradientUnits="userSpaceOnUse" x1="100" y1="60" x2="540" y2="60">
+          <stop offset="0" stop-color="var(--phi)"/>
+          <stop offset="1" stop-color="var(--acl)"/>
+        </linearGradient>
+      </defs>
+      <line x1="100" y1="60" x2="540" y2="60" stroke="url(#seg)" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="100" cy="60" r="9" fill="var(--phi)"/>
+      <circle cx="540" cy="60" r="9" fill="var(--acl)"/>
+      <text x="100" y="32" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="15" font-weight="700" fill="var(--phi)">Φ</text>
+      <text x="100" y="92" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="11.5" fill="var(--muted)">β = 0 · correction off</text>
+      <text x="100" y="107" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="11.5" fill="var(--muted)">open-loop cycle map</text>
+      <text x="540" y="32" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="15" font-weight="700" fill="var(--acl)">A_cl</text>
+      <text x="540" y="92" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="11.5" fill="var(--muted)">β = 1 · full feedback</text>
+      <text x="540" y="107" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="11.5" fill="var(--muted)">Φ − Γ_τ K</text>
+      <circle cx="386" cy="60" r="6" fill="var(--bg)" stroke="currentColor" stroke-width="2"/>
+      <text x="386" y="38" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="12.5" fill="currentColor">A(β_k)</text>
+      <text x="386" y="92" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="11.5" fill="var(--muted)">this cycle’s matrix</text>
+    </svg>
+    <figcaption>Conditioning cannot produce an arbitrary saturated gain. Every cycle lands somewhere on this one segment — and each cycle may land somewhere <em>different</em>, because β<sub>k</sub> depends on the state.</figcaption>
+  </figure>
+
+  <div class="callout blue">
+    <p><strong>Mental-model correction #1.</strong> The two endpoints are not “found by two optimizations.”
+    <span class="m"><span class="phi-c">Φ</span></span> and <span class="m"><span class="acl-c">A<sub>cl</sub></span></span> come straight from the
+    plant model and the LQR gain. The only thing any optimization ever searches for is <span class="m">P</span> — next step.</p>
+  </div>
+</section>
+
+<!-- ============ LAB 1 ============ -->
+<section class="lab">
+  <div class="step-label"><span class="chip lab-num">LAB 1</span><h2>Watch β get decided</h2></div>
+  <p class="lab-intro">This runs the paper’s actual three-cell converter: the reconciled nine-interval schedule, the
+  real aggressive LQR gain, and <span class="m">d<sub>min</sub> = 3 μs</span>. Scrub through the recorded 100-cycle
+  transient, or scale the cycle-start error to a size the run never visited.</p>
+  <p class="try"><strong>Try this:</strong> at cycle 0, push the error scale up and watch β fall like 1/‖e‖ while the
+  <em>applied</em> dwells barely move — the binding dwell is pinned to exactly 3 μs no matter how hard the law pulls.</p>
+
+  <div class="panel">
+    <div class="ctrl-grid two">
+      <div class="ctrl">
+        <label for="l1-cycle">Recorded cycle <span class="val" id="l1-cycle-v">0</span></label>
+        <input type="range" id="l1-cycle" min="0" max="24" step="1" value="0">
+      </div>
+      <div class="ctrl">
+        <label for="l1-scale">Error scale <span class="val" id="l1-scale-v">1.00×</span></label>
+        <input type="range" id="l1-scale" min="0.1" max="3" step="0.01" value="1">
+      </div>
+    </div>
+    <div class="btnrow">
+      <button type="button" id="l1-reset">Reset to paper’s cycle 0</button>
+      <button type="button" id="l1-worst">Push until β = 0.1</button>
+    </div>
+
+    <div class="canvas-wrap" style="margin-top:1.1rem">
+      <canvas id="l1-time" width="600" height="104" role="img"
+        aria-label="Cycle timeline comparing nominal, raw and applied switching boundaries"></canvas>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="l1-dwell" width="600" height="286" role="img"
+        aria-label="Bar chart of the nine raw and applied dwell durations against the minimum dwell bound"></canvas>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--muted)"></i> nominal</span>
+      <span><i style="background:var(--phi)"></i> raw (requested)</span>
+      <span><i style="background:var(--acl)"></i> applied (conditioned)</span>
+      <span><i style="background:var(--bad)"></i> d<sub>min</sub> = 3 μs</span>
+    </div>
+
+    <div class="readout" aria-live="polite">
+      <div><span class="k">β</span><span class="v hi" id="l1-beta">0.2940</span></div>
+      <div><span class="k">binding dwell</span><span class="v" id="l1-bind">#9</span></div>
+      <div><span class="k">max raw offset</span><span class="v" id="l1-mraw">65.22 μs</span></div>
+      <div><span class="k">max applied</span><span class="v" id="l1-mapp">19.17 μs</span></div>
+      <div><span class="k">min raw dwell</span><span class="v no" id="l1-draw">−43.04 μs</span></div>
+      <div><span class="k">min applied dwell</span><span class="v ok" id="l1-dapp">3.00 μs</span></div>
+    </div>
+    <p class="note" id="l1-note"></p>
+  </div>
+</section>
+
+<!-- ============ STEP 2 ============ -->
+<section class="step">
+  <div class="step-label"><span class="chip step-num">STEP 2</span><h2>One SDP finds one <span class="m">P</span> that contracts both endpoints</h2></div>
+
+  <p>A single offline semidefinite program searches for one matrix <span class="m">P = P<sup>⊤</sup> ≻ 0</span>
+  satisfying <em>both</em> endpoint conditions at once:</p>
+
+  <div class="disp">‖<span class="phi-c">Φ</span>‖<sub>P</sub> ≤ q<sub>0</sub> &lt; 1&ensp;<span class="up">and</span>&ensp;‖<span class="acl-c">A<sub>cl</sub></span>‖<sub>P</sub> ≤ q<sub>1</sub> &lt; 1</div>
+
+  <p>Geometrically, <span class="m">P</span> defines one family of ellipsoidal level sets
+  <span class="m">{e : e<sup>⊤</sup>Pe = c}</span>. The two conditions say: whichever endpoint map you apply,
+  a state on the ellipsoid lands strictly inside a shrunken copy of the <em>same</em> ellipsoid.</p>
+
+  <figure>
+    <svg viewBox="0 0 560 330" role="img" aria-label="One tilted ellipse and a shrunken dashed copy of it. A point e on the outer ellipse is mapped by Phi and by A closed loop; both images land inside the shrunken ellipse.">
+      <defs>
+        <marker id="ar-phi2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--phi)"/>
+        </marker>
+        <marker id="ar-acl2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--acl)"/>
+        </marker>
+      </defs>
+      <g transform="translate(280,165)">
+        <g transform="rotate(-20)">
+          <ellipse cx="0" cy="0" rx="220" ry="120" fill="none" stroke="currentColor" stroke-width="2"/>
+          <ellipse cx="0" cy="0" rx="145" ry="79" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="7 6" opacity="0.75"/>
+        </g>
+        <text x="150" y="-118" font-family="Familjen Grotesk, sans-serif" font-size="12.5" fill="currentColor">‖e‖_P = 1</text>
+        <text x="16" y="-78" font-family="Familjen Grotesk, sans-serif" font-size="12" fill="var(--muted)">‖e‖_P = q</text>
+        <circle cx="0" cy="0" r="3" fill="currentColor"/>
+        <text x="8" y="18" font-family="Familjen Grotesk, sans-serif" font-size="11.5" fill="var(--muted)">0</text>
+        <circle cx="193" cy="3" r="5" fill="currentColor"/>
+        <text x="205" y="8" font-family="STIX Two Text, serif" font-style="italic" font-size="15" fill="currentColor">e</text>
+        <line x1="185" y1="0" x2="60" y2="-52" stroke="var(--phi)" stroke-width="2.2" marker-end="url(#ar-phi2)"/>
+        <circle cx="52" cy="-55" r="4.5" fill="var(--phi)"/>
+        <text x="24" y="-46" text-anchor="end" font-family="Familjen Grotesk, sans-serif" font-size="12.5" font-weight="600" fill="var(--phi)">Φe</text>
+        <line x1="187" y1="8" x2="88" y2="52" stroke="var(--acl)" stroke-width="2.2" marker-end="url(#ar-acl2)"/>
+        <circle cx="81" cy="55" r="4.5" fill="var(--acl)"/>
+        <text x="66" y="78" text-anchor="end" font-family="Familjen Grotesk, sans-serif" font-size="12.5" font-weight="600" fill="var(--acl)">A_cl e</text>
+      </g>
+    </svg>
+    <figcaption>The certificate in one picture: a single ellipsoid family (level sets of <span class="m">P</span>). Both endpoint maps send any state on the unit level set strictly inside the shrunken level set — the <span class="phi-c">blue</span> and <span class="acl-c">orange</span> arrows land in the same dashed ellipse.</figcaption>
+  </figure>
+
+  <div class="callout blue">
+    <p><strong>Mental-model correction #2.</strong> “Both are stable” is necessary but not sufficient.
+    The hypothesis is stronger: both endpoints contract <em>in the same P-norm</em>. Each matrix being Schur on
+    its own would give you two different Lyapunov ellipses — and that, as Step 4 shows, proves nothing about the path.
+    This is also why the certificate demands <span class="m">‖<span class="phi-c">Φ</span>‖<sub>P</sub> &lt; 1</span>:
+    the open-loop cycle must already be stable, or no common <span class="m">P</span> exists.</p>
+  </div>
+</section>
+
+<!-- ============ LAB 2 ============ -->
+<section class="lab">
+  <div class="step-label"><span class="chip lab-num">LAB 2</span><h2>Hunt for a common ellipse</h2></div>
+  <p class="lab-intro">Two-dimensional stand-ins, so the geometry is visible. Rotate and stretch the ellipse
+  <span class="m">‖e‖<sub>P</sub> = 1</span> and try to get <em>both</em> image ellipses to fit inside it.
+  Fitting inside means <span class="m">‖A‖<sub>P</sub> &lt; 1</span>. Because every 2×2 positive-definite
+  <span class="m">P</span> is a rotation and a stretch, and <span class="m">‖A‖<sub>P</sub></span> ignores overall
+  scale, these two sliders really do reach every candidate.</p>
+  <p class="try"><strong>Try this:</strong> succeed on the certifiable pair, then switch to the pathological pair
+  and try again. Both of its endpoints have spectral radius 0.5 — comfortably stable — and yet no ellipse works.
+  The best you can reach is 2.12.</p>
+
+  <div class="panel">
+    <div class="btnrow" style="margin-bottom:1rem">
+      <button type="button" class="pair-btn" data-pair="good" aria-pressed="true">Certifiable pair</button>
+      <button type="button" class="pair-btn" data-pair="bad" aria-pressed="false">Pathological pair</button>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" id="l2-best">Snap to best P</button>
+      <button type="button" id="l2-identity">Reset to P = I</button>
+    </div>
+    <div class="ctrl-grid two">
+      <div class="ctrl">
+        <label for="l2-theta">Ellipse rotation θ <span class="val" id="l2-theta-v">0°</span></label>
+        <input type="range" id="l2-theta" min="0" max="179" step="1" value="0">
+      </div>
+      <div class="ctrl">
+        <label for="l2-aspect">Ellipse stretch <span class="val" id="l2-aspect-v">1.00</span></label>
+        <input type="range" id="l2-aspect" min="-100" max="100" step="1" value="0">
+      </div>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="l2-canvas" width="600" height="360" role="img"
+        aria-label="The unit P-ellipse with the images of that ellipse under the two endpoint matrices"></canvas>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--ink)"></i> unit ball ‖e‖<sub>P</sub> = 1</span>
+      <span><i style="background:var(--phi)"></i> image under Φ</span>
+      <span><i style="background:var(--acl)"></i> image under A<sub>cl</sub></span>
+    </div>
+    <div class="readout" aria-live="polite">
+      <div><span class="k">‖Φ‖<sub>P</sub></span><span class="v" id="l2-qphi">—</span></div>
+      <div><span class="k">‖A<sub>cl</sub>‖<sub>P</sub></span><span class="v" id="l2-qacl">—</span></div>
+      <div><span class="k">bound q = max</span><span class="v" id="l2-q">—</span></div>
+      <div><span class="k">best possible q</span><span class="v" id="l2-qbest">—</span></div>
+    </div>
+    <div class="verdict-bar ok" id="l2-verdict">—</div>
+  </div>
+</section>
+
+<!-- ============ STEP 3 ============ -->
+<section class="step">
+  <div class="step-label"><span class="chip step-num">STEP 3</span><h2>Convexity of the norm carries contraction along the segment</h2></div>
+
+  <p>Here is the actual mechanism behind “the path is stable” — not membership in a shared space, but the
+  triangle inequality of the induced norm. For any <span class="m">β ∈ [0,1]</span>:</p>
+
+  <div class="disp">‖A(β)‖<sub>P</sub> ≤ (1−β)‖<span class="phi-c">Φ</span>‖<sub>P</sub> + β‖<span class="acl-c">A<sub>cl</sub></span>‖<sub>P</sub> ≤ (1−β)q<sub>0</sub> + βq<sub>1</sub> ≤ q ≔ max(q<sub>0</sub>, q<sub>1</sub>) &lt; 1</div>
+
+  <figure>
+    <svg viewBox="0 0 620 330" role="img" aria-label="Chart of the P-norm of A of beta against beta. The dashed instability line sits at one. The chord from q0 to q1 lies below one, and the true norm curve lies below the chord.">
+      <defs>
+        <linearGradient id="seg2" gradientUnits="userSpaceOnUse" x1="100" y1="130" x2="560" y2="180">
+          <stop offset="0" stop-color="var(--phi)"/>
+          <stop offset="1" stop-color="var(--acl)"/>
+        </linearGradient>
+      </defs>
+      <line x1="80" y1="270" x2="580" y2="270" stroke="currentColor" stroke-width="1.5"/>
+      <line x1="80" y1="270" x2="80" y2="40" stroke="currentColor" stroke-width="1.5"/>
+      <text x="330" y="305" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="13" fill="currentColor">β</text>
+      <text x="46" y="150" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="13" fill="currentColor" transform="rotate(-90 46 150)">‖A(β)‖_P</text>
+      <text x="100" y="290" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="12" fill="var(--muted)">0</text>
+      <text x="560" y="290" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="12" fill="var(--muted)">1</text>
+      <line x1="80" y1="70" x2="580" y2="70" stroke="var(--bad)" stroke-width="1.5" stroke-dasharray="8 6"/>
+      <text x="575" y="60" text-anchor="end" font-family="Familjen Grotesk, sans-serif" font-size="12" fill="var(--bad)">‖·‖_P = 1 · instability line</text>
+      <line x1="100" y1="130" x2="560" y2="180" stroke="url(#seg2)" stroke-width="2.5"/>
+      <path d="M100,130 C 250,175 420,215 560,180" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 5"/>
+      <text x="330" y="235" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="11.5" fill="var(--muted)">true ‖A(β)‖_P — at or below the chord</text>
+      <circle cx="100" cy="130" r="7" fill="var(--phi)"/>
+      <text x="118" y="122" font-family="Familjen Grotesk, sans-serif" font-size="12.5" font-weight="600" fill="var(--phi)">q₀ = ‖Φ‖_P</text>
+      <circle cx="560" cy="180" r="7" fill="var(--acl)"/>
+      <text x="545" y="207" text-anchor="end" font-family="Familjen Grotesk, sans-serif" font-size="12.5" font-weight="600" fill="var(--acl)">q₁ = ‖A_cl‖_P</text>
+      <line x1="330" y1="70" x2="330" y2="152" stroke="var(--good)" stroke-width="1.5"/>
+      <line x1="322" y1="70" x2="338" y2="70" stroke="var(--good)" stroke-width="1.5"/>
+      <line x1="322" y1="152" x2="338" y2="152" stroke="var(--good)" stroke-width="1.5"/>
+      <text x="342" y="115" font-family="Familjen Grotesk, sans-serif" font-size="11.5" fill="var(--good)">guaranteed margin</text>
+    </svg>
+    <figcaption>The chord between the endpoint bounds is a straight line; if both ends sit below 1, every point between them does too. The <em>norm</em> is convex in β — that is the load-bearing fact.</figcaption>
+  </figure>
+
+  <div class="callout">
+    <p><strong>Mental-model correction #3.</strong> “Same convex space” is close but hides the trap:
+    stability itself is <em>not</em> a convex property. A segment between two Schur matrices can pass through
+    unstable matrices in the middle. What is convex is <em>contraction in one fixed norm</em>
+    — and that is exactly why the proof needs the common <span class="m">P</span> from Step 2 before
+    convexity is allowed to do any work.</p>
+  </div>
+</section>
+
+<!-- ============ LAB 3 ============ -->
+<section class="lab">
+  <div class="step-label"><span class="chip lab-num">LAB 3</span><h2>Walk the segment</h2></div>
+  <p class="lab-intro">Two quantities along the same segment: the spectral radius
+  <span class="m">ρ(A(β))</span>, which is what “is it stable” asks, and the norm
+  <span class="m">‖A(β)‖<sub>P</sub></span> under the ellipse you shaped in Lab 2. Move β and watch both.</p>
+  <p class="try"><strong>Try this:</strong> switch to the pathological pair. The spectral radius starts at 0.5,
+  ends at 0.5, and <em>bulges to 1.50 in the middle</em> — a segment of unstable matrices strung between two stable
+  ends. That is correction #3 made visible: stability does not travel along a convex combination, and no choice of
+  ellipse can rescue it.</p>
+
+  <div class="panel">
+    <div class="btnrow" style="margin-bottom:1rem">
+      <button type="button" class="pair-btn" data-pair="good" aria-pressed="true">Certifiable pair</button>
+      <button type="button" class="pair-btn" data-pair="bad" aria-pressed="false">Pathological pair</button>
+    </div>
+    <div class="ctrl">
+      <label for="l3-beta">Conditioning factor β <span class="val" id="l3-beta-v">0.50</span></label>
+      <input type="range" id="l3-beta" min="0" max="1" step="0.005" value="0.5">
+    </div>
+    <div class="canvas-wrap" style="margin-top:0.5rem">
+      <canvas id="l3-canvas" width="600" height="300" role="img"
+        aria-label="Spectral radius and P-norm of A of beta plotted across the segment"></canvas>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--acl)"></i> ρ(A(β)) — spectral radius</span>
+      <span><i style="background:var(--phi)"></i> ‖A(β)‖<sub>P</sub> — your ellipse</span>
+      <span><i style="background:var(--muted)"></i> chord between endpoints</span>
+      <span><i style="background:var(--bad)"></i> level 1</span>
+    </div>
+    <div class="readout" aria-live="polite">
+      <div><span class="k">ρ(A(β))</span><span class="v" id="l3-rho">—</span></div>
+      <div><span class="k">‖A(β)‖<sub>P</sub></span><span class="v" id="l3-norm">—</span></div>
+      <div><span class="k">peak ρ on segment</span><span class="v" id="l3-peak">—</span></div>
+      <div><span class="k">at β</span><span class="v" id="l3-peakat">—</span></div>
+    </div>
+    <p class="note" id="l3-note"></p>
+  </div>
+</section>
+
+<!-- ============ GEOMETRY ============ -->
+<section class="step">
+  <div class="step-label"><span class="chip geo-num">GEOMETRY</span><h2>Which convex set is doing the work</h2></div>
+
+  <p>Lab 3 leaves a fair question hanging. If a straight line between two stable matrices can pass through
+  unstable ones, what exactly makes <em>our</em> line safe? The tempting answer is “both endpoints are in the same
+  convex space, so the whole segment is too.” That answer is correct — but only once you name the set, and the
+  set is not the one most people have in mind.</p>
+
+  <p>Fix <span class="m">P</span> and <span class="m">q</span> and collect every matrix that contracts by
+  <span class="m">q</span> in that norm:</p>
+
+  <div class="disp">ℬ = {A : ‖A‖<sub>P</sub> ≤ q}</div>
+
+  <p>This set is convex, for the most ordinary reason available: it is a ball of a norm, and norm balls are always
+  convex. Convexity of <span class="m">ℬ</span> and the triangle inequality of Step 3 are not two facts — they are
+  the same fact, once written geometrically and once written algebraically.</p>
+
+  <p>Now the piece that makes the picture click. For any induced norm,
+  <span class="m">ρ(A) ≤ ‖A‖<sub>P</sub></span>. So if <span class="m">q &lt; 1</span>, every matrix in
+  <span class="m">ℬ</span> is Schur, which means <strong>each choice of P carves out a convex blob sitting
+  inside the stable set</strong>. The stable set itself is an awkward, non-convex region; a P-norm ball is a
+  well-behaved convex body inside it. There are many such blobs, one family per <span class="m">P</span>, and none
+  of them fills the region.</p>
+
+  <p>Read the semidefinite program in those terms and it stops being an algebraic ritual: its only job is to find
+  <em>one blob that holds both endpoints</em>. Once it does, the segment from
+  <span class="m"><span class="phi-c">Φ</span></span> to <span class="m"><span class="acl-c">A<sub>cl</sub></span></span>
+  is trapped inside that blob, and the blob is inside the stable set. Stability of the interior is never argued
+  directly — it is inherited from the containment.</p>
+
+  <figure>
+    <svg viewBox="0 0 680 322" role="img" aria-label="Two panels showing the same non-convex stable set. On the left both endpoints lie inside one convex ball, so the segment between them stays inside. On the right the endpoints sit on opposite horns of the set and the segment between them leaves it.">
+      <!-- Crescent = inside circle (150,95) r128, outside semicircle (150,9.2) r95.
+           The inner arc's endpoints are one diameter apart, so it renders as an exact semicircle. -->
+
+      <!-- ---------- LEFT: one common blob ---------- -->
+      <g transform="translate(20,40)">
+        <path d="M 55,9.2 A 128,128 0 1 0 245,9.2 A 95,95 0 1 1 55,9.2 Z"
+              fill="currentColor" fill-opacity="0.07" stroke="currentColor" stroke-width="1.5" stroke-opacity="0.5"/>
+        <ellipse cx="150" cy="170" rx="86" ry="36" fill="var(--phi-soft)" stroke="var(--phi)" stroke-width="1.6"/>
+        <text x="150" y="174" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="11.5" font-weight="600" fill="var(--phi)">‖A‖_P ≤ q</text>
+        <line x1="95" y1="170" x2="205" y2="170" stroke="currentColor" stroke-width="2.4"/>
+        <circle cx="95" cy="170" r="6" fill="var(--phi)"/>
+        <circle cx="205" cy="170" r="6" fill="var(--acl)"/>
+        <text x="95" y="209" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="13" font-weight="700" fill="var(--phi)">Φ</text>
+        <text x="205" y="209" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="13" font-weight="700" fill="var(--acl)">A_cl</text>
+        <text x="150" y="-16" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="12.5" font-weight="600" fill="var(--good)">a common P exists</text>
+        <text x="150" y="252" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="11.5" fill="var(--muted)">the segment never leaves the blob</text>
+      </g>
+
+      <!-- ---------- RIGHT: no blob holds both ---------- -->
+      <g transform="translate(370,40)">
+        <path d="M 55,9.2 A 128,128 0 1 0 245,9.2 A 95,95 0 1 1 55,9.2 Z"
+              fill="currentColor" fill-opacity="0.07" stroke="currentColor" stroke-width="1.5" stroke-opacity="0.5"/>
+        <ellipse cx="76" cy="104" rx="22" ry="17" fill="none" stroke="var(--muted)" stroke-width="1.3" stroke-dasharray="4 3"/>
+        <ellipse cx="224" cy="104" rx="22" ry="17" fill="none" stroke="var(--muted)" stroke-width="1.3" stroke-dasharray="4 3"/>
+        <!-- chord at y=100 leaves the crescent between x=122.1 and x=177.9 -->
+        <line x1="78" y1="100" x2="122.1" y2="100" stroke="currentColor" stroke-width="2.4"/>
+        <line x1="177.9" y1="100" x2="222" y2="100" stroke="currentColor" stroke-width="2.4"/>
+        <line x1="122.1" y1="100" x2="177.9" y2="100" stroke="var(--bad)" stroke-width="3"/>
+        <circle cx="78" cy="100" r="6" fill="var(--phi)"/>
+        <circle cx="222" cy="100" r="6" fill="var(--acl)"/>
+        <text x="150" y="88" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="11.5" font-weight="600" fill="var(--bad)">ρ(A(β)) &gt; 1</text>
+        <text x="78" y="143" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="13" font-weight="700" fill="var(--phi)">Φ</text>
+        <text x="222" y="143" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="13" font-weight="700" fill="var(--acl)">A_cl</text>
+        <text x="150" y="190" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="11.5" fill="var(--muted)">stable set</text>
+        <text x="150" y="207" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="11.5" fill="var(--muted)">(not convex)</text>
+        <text x="150" y="-16" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="12.5" font-weight="600" fill="var(--bad)">no common P</text>
+        <text x="150" y="252" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="11.5" fill="var(--muted)">each endpoint has its own ball</text>
+      </g>
+    </svg>
+    <figcaption>The stable set is the shaded crescent, and it is not convex — a chord between two of its points can
+    leave it. Left: both endpoints fit in one convex ball, so the segment cannot escape. Right: the situation of the
+    pathological pair from Labs 2–4, its endpoints on opposite horns; each has a ball of its own, no ball holds both,
+    and the segment crosses the gap where <span class="m">ρ &gt; 1</span>. Matrix space is of course not two-dimensional —
+    the crescent is a schematic of a genuinely non-convex region.</figcaption>
+  </figure>
+
+  <p>This is also the sharpest way to see why two separate Lyapunov matrices are worth nothing here. Two matrices
+  give you two blobs, each certifying its own endpoint. Two blobs say nothing whatsoever about the line strung
+  between them, because the region they both live in is not convex. Only when a single blob covers both does the
+  segment come along for free.</p>
+
+  <p>One caveat, so the picture is not stronger than the theorem. The implication runs one way: a common
+  <span class="m">P</span> is <em>sufficient</em> for the segment to be stable, not necessary. There are pairs whose
+  segment happens to stay stable with no common <span class="m">P</span> to be found. What the certificate buys is
+  not the weakest possible hypothesis — it is a hypothesis you can actually verify offline, with a solver, once.</p>
+
+  <h3>Why the path is straight, and why that matters</h3>
+
+  <p>Convexity is exactly the property “closed under straight segments,” so the argument needs the path between the
+  endpoints to be a straight one. It is, and that traces back to a design decision in the conditioner: because
+  <span class="m">β<sub>k</sub></span> multiplies the <em>entire</em> offset vector by one scalar, the reachable
+  matrices form a line.</p>
+
+  <p>It is worth seeing what the alternative would have cost. Had the offsets been clipped one at a time, the applied
+  action would be <span class="m">diag(c<sub>1</sub>,…,c<sub>N−1</sub>)δτ<sup>raw</sup></span> and the closed loop
+  would be <span class="m">Φ − Γ<sub>τ</sub> diag(<b>c</b>)K</span>, which is still affine in
+  <span class="m"><b>c</b></span> — so the reachable family would be a <em>polytope</em> rather than a segment.
+  Convexity would still do its job, and the same argument would still work. But the certificate would have to hold at
+  every vertex of that polytope: <span class="m">2<sup>N−1</sup> = 256</span> linear matrix inequalities for the
+  nine-interval benchmark, instead of two. Scalar conditioning collapses the corner count to a pair of endpoints.
+  That is a second, independent argument for scaling the whole vector, alongside the direction-preservation argument
+  the paper makes.</p>
+
+  <div class="callout blue">
+    <p><strong>Keep two payoffs apart.</strong> Convexity of <span class="m">ℬ</span> is what gets you from the two
+    endpoints to <em>every</em> <span class="m">A(β)</span> on the segment. That alone would still not survive a
+    changing <span class="m">β<sub>k</sub></span> — for that you need it to be the <em>same</em>
+    <span class="m">ℬ</span> every cycle, which is what Step 4 spends. One matrix <span class="m">P</span>, two
+    distinct jobs.</p>
+  </div>
+</section>
+
+<!-- ============ STEP 4 ============ -->
+<section class="step">
+  <div class="step-label"><span class="chip step-num">STEP 4</span><h2>The common norm is what survives arbitrary switching</h2></div>
+
+  <p>The plant does not sit at one fixed <span class="m">β</span>. The conditioner emits a state-dependent
+  sequence <span class="m">β<sub>0</sub>, β<sub>1</sub>, β<sub>2</sub>, …</span> — a different matrix every cycle.
+  For switched systems this is where naïve arguments die: even a family in which <em>every individual matrix is stable</em>
+  can diverge under the wrong switching sequence, because each map’s “shrink” is measured in a different geometry.</p>
+
+  <figure>
+    <svg viewBox="0 0 660 340" role="img" aria-label="Two panels. Left: two differently tilted Lyapunov ellipses; alternating between the two maps makes the state spiral outward even though each step shrinks its own ellipse. Right: one common ellipse; every step shrinks the same norm, so the state spirals inward.">
+      <defs>
+        <marker id="ar-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--phi)"/>
+        </marker>
+        <marker id="ar-o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--acl)"/>
+        </marker>
+      </defs>
+      <g transform="translate(165,175)">
+        <g transform="rotate(-35)"><ellipse rx="130" ry="52" fill="none" stroke="var(--phi)" stroke-width="1.6" opacity="0.65"/></g>
+        <g transform="rotate(35)"><ellipse rx="130" ry="52" fill="none" stroke="var(--acl)" stroke-width="1.6" opacity="0.65"/></g>
+        <circle r="2.5" fill="currentColor"/>
+        <line x1="20" y1="-14" x2="-34" y2="26" stroke="var(--phi)" stroke-width="2" marker-end="url(#ar-b)"/>
+        <line x1="-34" y1="26" x2="62" y2="-46" stroke="var(--acl)" stroke-width="2" marker-end="url(#ar-o)"/>
+        <line x1="62" y1="-46" x2="-88" y2="66" stroke="var(--phi)" stroke-width="2" marker-end="url(#ar-b)"/>
+        <line x1="-88" y1="66" x2="118" y2="-88" stroke="var(--acl)" stroke-width="2" marker-end="url(#ar-o)"/>
+        <circle cx="20" cy="-14" r="4" fill="currentColor"/>
+        <text x="30" y="-18" font-family="STIX Two Text, serif" font-style="italic" font-size="13" fill="currentColor">e₀</text>
+      </g>
+      <text x="165" y="330" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="12.5" font-weight="600" fill="var(--bad)">two separate P’s — can diverge</text>
+      <text x="165" y="30" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="11.5" fill="var(--muted)">each step shrinks its own ellipse…</text>
+      <line x1="330" y1="45" x2="330" y2="315" stroke="var(--rule)" stroke-width="1"/>
+      <g transform="translate(495,175)">
+        <g transform="rotate(-15)">
+          <ellipse rx="135" ry="82" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <ellipse rx="97" ry="59" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="5 5" opacity="0.6"/>
+          <ellipse rx="66" ry="40" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="5 5" opacity="0.45"/>
+          <ellipse rx="42" ry="25" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="5 5" opacity="0.3"/>
+        </g>
+        <circle r="2.5" fill="currentColor"/>
+        <line x1="118" y1="-38" x2="-72" y2="48" stroke="var(--acl)" stroke-width="2" marker-end="url(#ar-o)"/>
+        <line x1="-72" y1="48" x2="48" y2="-34" stroke="var(--phi)" stroke-width="2" marker-end="url(#ar-b)"/>
+        <line x1="48" y1="-34" x2="-30" y2="20" stroke="var(--acl)" stroke-width="2" marker-end="url(#ar-o)"/>
+        <line x1="-30" y1="20" x2="17" y2="-12" stroke="var(--phi)" stroke-width="2" marker-end="url(#ar-b)"/>
+        <circle cx="118" cy="-38" r="4" fill="currentColor"/>
+        <text x="128" y="-42" font-family="STIX Two Text, serif" font-style="italic" font-size="13" fill="currentColor">e₀</text>
+      </g>
+      <text x="495" y="330" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="12.5" font-weight="600" fill="var(--good)">one common P — every sequence contracts</text>
+      <text x="495" y="30" text-anchor="middle" font-family="Familjen Grotesk, sans-serif" font-size="11.5" fill="var(--muted)">…here every step shrinks the same ellipse</text>
+    </svg>
+    <figcaption>Left: with two different Lyapunov geometries, alternating maps can hand energy back and forth and grow — the classic switched-system failure. Right: one shared geometry makes every step, whatever its β<sub>k</sub>, a strict shrink of the same norm.</figcaption>
+  </figure>
+
+  <p>With the common <span class="m">P</span> of Step 2 and the segment bound of Step 3, every cycle multiplies
+  the <span class="m">P</span>-norm of the error by at most <span class="m">q = max(q<sub>0</sub>, q<sub>1</sub>) &lt; 1</span>,
+  <em>regardless of which</em> <span class="m">β<sub>k</sub></span> the conditioner picked:</p>
+
+  <div class="disp">‖e<sub>k</sub>‖<sub>P</sub> ≤ q<sup>k</sup> ‖e<sub>0</sub>‖<sub>P</sub>&ensp;<span class="up">for every sequence</span>&ensp;{β<sub>k</sub>} ⊂ [0,1]</div>
+
+  <p>That single line is the payoff of the whole construction: exponential stability of the conditioned
+  linearized loop under <em>arbitrary, state-dependent</em> conditioning — no need to know, model, or bound
+  which cycles saturate.</p>
+</section>
+
+<!-- ============ LAB 4 ============ -->
+<section class="lab">
+  <div class="step-label"><span class="chip lab-num">LAB 4</span><h2>Choose the adversary’s sequence</h2></div>
+  <p class="lab-intro">Now run sequences. Each policy picks a <span class="m">β<sub>k</sub></span> every cycle; the
+  left panel traces the state, the right panel plots the error on a log axis measured in the
+  <em>P-norm</em> — the norm the theorem actually bounds — against the certified envelope
+  <span class="m">q<sup>k</sup></span>. Nothing here changes the two endpoint matrices; only the order in which
+  they are mixed.</p>
+  <p class="try"><strong>Try this:</strong> on the pathological pair, run <em>β ≡ 1</em> and <em>β ≡ 0</em> — both
+  converge, because each endpoint alone is stable. Then run <em>alternating</em>. Same two matrices, and the error
+  grows by 2.12× per cycle. That is the failure the common <span class="m">P</span> exists to rule out;
+  on the certifiable pair no policy can produce it.</p>
+
+  <div class="panel">
+    <div class="btnrow" style="margin-bottom:0.85rem">
+      <button type="button" class="pair-btn" data-pair="good" aria-pressed="true">Certifiable pair</button>
+      <button type="button" class="pair-btn" data-pair="bad" aria-pressed="false">Pathological pair</button>
+    </div>
+    <div class="btnrow" style="margin-bottom:1rem">
+      <button type="button" class="pol-btn" data-pol="one" aria-pressed="true">β ≡ 1</button>
+      <button type="button" class="pol-btn" data-pol="zero" aria-pressed="false">β ≡ 0</button>
+      <button type="button" class="pol-btn" data-pol="alt" aria-pressed="false">alternating</button>
+      <button type="button" class="pol-btn" data-pol="rand" aria-pressed="false">random</button>
+      <button type="button" class="pol-btn" data-pol="greedy" aria-pressed="false">worst case</button>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" id="l4-run">Run again</button>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="l4-canvas" width="600" height="300" role="img"
+        aria-label="State trajectory under the chosen conditioning policy and the error magnitude over cycles"></canvas>
+    </div>
+    <div class="readout" aria-live="polite">
+      <div><span class="k">rate per cycle</span><span class="v" id="l4-rate">—</span></div>
+      <div><span class="k">‖e‖<sub>P</sub> after 16</span><span class="v" id="l4-final">—</span></div>
+      <div><span class="k">certified bound q</span><span class="v" id="l4-bound">—</span></div>
+    </div>
+    <div class="verdict-bar ok" id="l4-verdict">—</div>
+    <p class="note">The worst-case policy is greedy: because <span class="m">A(β)e</span> is affine in
+    <span class="m">β</span>, the most damaging choice each cycle is always an endpoint,
+    <span class="m">β ∈ {0,1}</span>. An adversary never needs an interior β.</p>
+  </div>
+</section>
+
+<!-- ============ RECAP ============ -->
+<section class="step">
+  <div class="step-label"><span class="chip step-num">RECAP</span><h2>The mental model, corrected</h2></div>
+  <ul class="verdict">
+    <li class="no"><span class="mark">✗</span><span><em>“Two convex optimizations: one finds P for β=1, another finds A<sub>cl</sub> for β=0.”</em>
+      &nbsp;→&nbsp; One SDP, one unknown: a single <span class="m">P</span> constrained by both endpoint inequalities simultaneously.
+      <span class="m"><span class="phi-c">Φ</span></span> and <span class="m"><span class="acl-c">A<sub>cl</sub></span></span> are data, not decision variables.</span></li>
+    <li class="half"><span class="mark">△</span><span><em>“Then there is proof that both are stable, within the space defined by the same P.”</em>
+      &nbsp;→&nbsp; Right instinct, wrong strength: both must <em>contract in the same P-norm</em>, which is strictly stronger
+      than both being stable. It also forces the open loop <span class="m"><span class="phi-c">Φ</span></span> to be stable — a real
+      restriction of the method.</span></li>
+    <li class="half"><span class="mark">△</span><span><em>“The path is stable since they belong to the same convex space.”</em>
+      &nbsp;→&nbsp; Right, once the set is named. It is the norm ball <span class="m">{A : ‖A‖<sub>P</sub> ≤ q}</span>,
+      a convex blob inside the stable set — not the stable set itself, which is not convex, as Lab 3 shows.
+      Both endpoints in one blob traps the segment inside it.</span></li>
+    <li class="yes"><span class="mark">✓</span><span><strong>The piece the model missed:</strong> β<sub>k</sub> changes every cycle.
+      The common norm is what upgrades “each A(β) is fine” to “every <em>sequence</em> of them is fine” —
+      the actual claim the plant needs, and the one Lab 4 breaks when the common norm is absent.</span></li>
+  </ul>
+  <div class="callout blue" style="margin-top:1.5rem">
+    <p><strong>One-line version.</strong> One SDP finds one <span class="m">P</span> making both segment endpoints
+    contractions in <span class="m">‖·‖<sub>P</sub></span>; norm convexity extends the contraction to the whole segment;
+    the shared norm extends it to any time-varying sequence <span class="m">β<sub>k</sub></span>.</p>
+  </div>
+</section>
+
+<p class="foot">Companion note to <em>Dwell-Conditioned Cycle-to-Cycle Switching-Time Feedback for Mode-Dependent
+Switched-Affine Systems</em> — Proposition 2 (Common-Lyapunov contraction), article.tex §3.
+Lab 1 runs the paper’s own benchmark: the reconciled nine-interval schedule, the aggressive LQR gain recovered from
+the published Riccati design (ρ(A<sub>cl</sub>) = 0.568151), and the recorded 100-cycle transient. Labs 2–4 use
+two-dimensional stand-ins chosen so the geometry is drawable; they illustrate the argument rather than the converter.
+For the real plant the paper reports ‖Φ‖<sub>P</sub> = 0.999939 and ‖A<sub>cl</sub>‖<sub>P</sub> = 0.979743, so the
+open-loop endpoint sets the certified bound — exactly as in the certifiable pair here. The certificate covers the
+linearized model; the exact nonlinear guarantee is local to the neighborhood where conditioning never activates (β = 1).</p>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- benchmark payload (generated from results/) ----------
+  var D = {"tbar":[0,63.889,87.557,109.557,132.538,154.538,218.21,240.38,263.828,286],"dmin":3.0,"dbench":22.0,"T":286.0,"xstar":[9.9247,19.2928,0.9823],"Sx":[10.0,20.0,1.0],"Kus":[[-2.4454687,-6.57778073,-20.35081217],[-2.6345304,4.75859145,-27.28677759],[6.96909634,3.7624579,-40.20499032],[-4.88729046,2.89718288,63.61236904],[2.61472491,-5.08399827,29.32988148],[7.03463503,3.68838761,-43.85349208],[-4.68172001,-1.64949522,-57.72464176],[4.96202365,1.76983758,58.85109133]],"traj":[[7.5143,20.8211,0.0314],[7.58129,20.7104,0.408909],[8.06709,20.4922,0.68441],[9.06466,20.0474,0.879816],[9.76488,19.6328,0.957202],[9.9123,19.4634,0.975133],[9.93146,19.3867,0.979892],[9.93074,19.346,0.981342],[9.92846,19.3231,0.981859],[9.92688,19.31,0.982076],[9.92594,19.3026,0.98218],[9.92541,19.2984,0.982233],[9.9251,19.296,0.982263],[9.92493,19.2946,0.982279],[9.92483,19.2938,0.982288],[9.92477,19.2934,0.982293],[9.92474,19.2931,0.982296],[9.92472,19.293,0.982298],[9.92471,19.2929,0.982299],[9.92471,19.2929,0.982299],[9.9247,19.2928,0.9823],[9.9247,19.2928,0.9823],[9.9247,19.2928,0.9823],[9.9247,19.2928,0.9823],[9.9247,19.2928,0.9823]]};
+
+  var dbar = [], i;
+  for (i = 0; i < 9; i++) dbar.push(D.tbar[i + 1] - D.tbar[i]);
+
+  // ---------- theme-aware palette ----------
+  function pal() {
+    var cs = getComputedStyle(document.documentElement);
+    function g(n, f) { var v = cs.getPropertyValue(n); return v ? v.trim() : f; }
+    return {
+      ink: g("--ink", "#1C2530"), muted: g("--muted", "#6B7684"),
+      phi: g("--phi", "#3D6EA8"), acl: g("--acl", "#C05B2E"),
+      good: g("--good", "#2E7D5B"), bad: g("--bad", "#B0403C"),
+      rule: g("--rule", "#D8DDE3"), surface: g("--surface", "#fff"),
+      track: g("--track", "#D2D9E1")
+    };
+  }
+  var drawers = [];
+  function redrawAll() { for (var j = 0; j < drawers.length; j++) drawers[j](); }
+  if (window.matchMedia) {
+    var mq = window.matchMedia("(prefers-color-scheme: dark)");
+    if (mq.addEventListener) mq.addEventListener("change", redrawAll);
+    else if (mq.addListener) mq.addListener(redrawAll);
+  }
+  if (window.MutationObserver) {
+    new MutationObserver(redrawAll).observe(document.documentElement,
+      { attributes: true, attributeFilter: ["data-theme"] });
+  }
+
+  function ctxOf(id) {
+    var c = document.getElementById(id);
+    var dpr = window.devicePixelRatio || 1;
+    var w = c.width, h = c.height;
+    if (c.dataset.scaled !== "1") {
+      c.style.width = w + "px"; c.style.height = h + "px";
+      c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+      c.dataset.scaled = "1"; c.dataset.cw = w; c.dataset.ch = h;
+    }
+    var x = c.getContext("2d");
+    x.setTransform(dpr, 0, 0, dpr, 0, 0);
+    x.clearRect(0, 0, +c.dataset.cw, +c.dataset.ch);
+    return { g: x, w: +c.dataset.cw, h: +c.dataset.ch, el: c };
+  }
+  function font(px, wt) {
+    return (wt || 500) + " " + px + 'px "Familjen Grotesk", system-ui, sans-serif';
+  }
+  function mono(px, wt) {
+    return (wt || 500) + " " + px + 'px "IBM Plex Mono", ui-monospace, monospace';
+  }
+  function fmt(v, n) {
+    if (!isFinite(v)) return "—";
+    var s = Math.abs(v) >= 1e5 || (Math.abs(v) > 0 && Math.abs(v) < 1e-3)
+      ? v.toExponential(2) : v.toFixed(n === undefined ? 2 : n);
+    return s.replace("-", "−");
+  }
+
+  // =========================================================
+  // LAB 1 — the real converter
+  // =========================================================
+  var l1 = {
+    cycle: document.getElementById("l1-cycle"),
+    scale: document.getElementById("l1-scale")
+  };
+
+  function l1state() {
+    var c = +l1.cycle.value, a = +l1.scale.value;
+    var e = [
+      (D.traj[c][0] - D.xstar[0]) * a,
+      (D.traj[c][1] - D.xstar[1]) * a,
+      (D.traj[c][2] - D.xstar[2]) * a
+    ];
+    var dtau = [], k, j, s;
+    for (k = 0; k < 8; k++) {
+      s = 0;
+      for (j = 0; j < 3; j++) s -= D.Kus[k][j] * e[j];
+      dtau.push(s);
+    }
+    var dd = [];
+    for (k = 0; k < 9; k++) {
+      dd.push((k < 8 ? dtau[k] : 0) - (k >= 1 ? dtau[k - 1] : 0));
+    }
+    var beta = 1, bind = -1;
+    for (k = 0; k < 9; k++) {
+      if (dd[k] < -1e-12) {
+        var b = (dbar[k] - D.dmin) / (-dd[k]);
+        if (b < beta) { beta = b; bind = k; }
+      }
+    }
+    if (beta < 0) beta = 0;
+    var raw = [], app = [];
+    for (k = 0; k < 9; k++) { raw.push(dbar[k] + dd[k]); app.push(dbar[k] + beta * dd[k]); }
+    return { e: e, dtau: dtau, dd: dd, beta: beta, bind: bind, raw: raw, app: app, cycle: c, scale: a };
+  }
+
+  function boundaries(dw) {
+    var t = [0], k;
+    for (k = 0; k < 9; k++) t.push(t[k] + dw[k]);
+    return t;
+  }
+
+  function drawL1() {
+    var S = l1state(), P = pal(), k;
+
+    // --- timeline ---
+    var A = ctxOf("l1-time"), g = A.g;
+    var padL = 78, padR = 16;
+    var rawT = boundaries(S.raw), appT = boundaries(S.app);
+    var lo = 0, hi = D.T;
+    for (k = 0; k < 10; k++) { if (rawT[k] < lo) lo = rawT[k]; if (rawT[k] > hi) hi = rawT[k]; }
+    var sx = function (t) { return padL + (t - lo) / (hi - lo) * (A.w - padL - padR); };
+    var rows = [
+      { y: 22, lab: "nominal", t: D.tbar, c: P.muted },
+      { y: 52, lab: "raw", t: rawT, c: P.phi },
+      { y: 82, lab: "applied", t: appT, c: P.acl }
+    ];
+    for (var r = 0; r < 3; r++) {
+      var R = rows[r];
+      g.strokeStyle = P.rule; g.lineWidth = 1;
+      g.beginPath(); g.moveTo(padL, R.y); g.lineTo(A.w - padR, R.y); g.stroke();
+      g.fillStyle = P.muted; g.font = font(11, 600); g.textAlign = "right"; g.textBaseline = "middle";
+      g.fillText(R.lab, padL - 10, R.y);
+      // inversion segments
+      for (k = 0; k < 9; k++) {
+        var x0 = sx(R.t[k]), x1 = sx(R.t[k + 1]);
+        g.strokeStyle = (x1 < x0) ? P.bad : R.c;
+        g.lineWidth = (x1 < x0) ? 3 : 2;
+        g.beginPath(); g.moveTo(x0, R.y); g.lineTo(x1, R.y); g.stroke();
+      }
+      g.fillStyle = R.c;
+      for (k = 0; k < 10; k++) {
+        g.beginPath(); g.arc(sx(R.t[k]), R.y, 2.6, 0, 6.2832); g.fill();
+      }
+    }
+    g.fillStyle = P.muted; g.font = font(10.5, 500); g.textAlign = "center"; g.textBaseline = "top";
+    g.fillText("0", sx(0), 92); g.fillText("286 μs", sx(286), 92);
+
+    // --- dwell bars ---
+    var B = ctxOf("l1-dwell"); g = B.g;
+    var top = 26, rowH = 26, x0p = 92, w = B.w - x0p - 66;
+    var mn = 0, mx = 90;
+    for (k = 0; k < 9; k++) { if (S.raw[k] < mn) mn = S.raw[k]; if (S.raw[k] > mx) mx = S.raw[k]; }
+    mn = Math.min(mn, -10); mx = mx * 1.04;
+    var bx = function (v) { return x0p + (v - mn) / (mx - mn) * w; };
+
+    g.fillStyle = P.muted; g.font = font(11, 600);
+    g.textAlign = "left"; g.textBaseline = "alphabetic";
+    g.fillText("dwell durations (μs)", x0p, 14);
+
+    // zero + dmin guides
+    g.strokeStyle = P.rule; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(bx(0), top - 6); g.lineTo(bx(0), top + 9 * rowH); g.stroke();
+    g.strokeStyle = P.bad; g.lineWidth = 1.5; g.setLineDash([5, 4]);
+    g.beginPath(); g.moveTo(bx(D.dmin), top - 6); g.lineTo(bx(D.dmin), top + 9 * rowH); g.stroke();
+    g.setLineDash([]);
+    g.fillStyle = P.bad; g.font = font(10, 600); g.textAlign = "left";
+    g.fillText("d_min", bx(D.dmin) + 4, top - 10);
+
+    for (k = 0; k < 9; k++) {
+      var y = top + k * rowH + rowH / 2;
+      g.fillStyle = (k === S.bind) ? P.acl : P.muted;
+      g.font = font(11, (k === S.bind) ? 700 : 500);
+      g.textAlign = "right"; g.textBaseline = "middle";
+      g.fillText("dwell " + (k + 1), x0p - 10, y);
+
+      // raw bar (outline)
+      var xr0 = bx(Math.min(0, S.raw[k])), xr1 = bx(Math.max(0, S.raw[k]));
+      g.strokeStyle = P.phi; g.lineWidth = 1.4;
+      g.strokeRect(xr0, y - 8.5, Math.max(1, xr1 - xr0), 17);
+      // applied bar (filled)
+      var xa0 = bx(Math.min(0, S.app[k])), xa1 = bx(Math.max(0, S.app[k]));
+      g.fillStyle = P.acl;
+      g.globalAlpha = (k === S.bind) ? 1 : 0.75;
+      g.fillRect(xa0, y - 6, Math.max(1, xa1 - xa0), 12);
+      g.globalAlpha = 1;
+      // nominal tick
+      g.strokeStyle = P.muted; g.lineWidth = 2;
+      g.beginPath(); g.moveTo(bx(dbar[k]), y - 10); g.lineTo(bx(dbar[k]), y + 10); g.stroke();
+      // value
+      g.fillStyle = S.raw[k] < D.dmin ? P.bad : P.muted;
+      g.font = mono(10.5, 500); g.textAlign = "left"; g.textBaseline = "middle";
+      g.fillText(fmt(S.raw[k], 1), B.w - 60, y);
+    }
+    B.el.setAttribute("aria-label",
+      "Nine dwell durations. Conditioning factor beta is " + S.beta.toFixed(4) +
+      ". Minimum raw dwell " + S.raw.reduce(function (a, b) { return Math.min(a, b); }, 1e9).toFixed(2) +
+      " microseconds, minimum applied dwell " + S.app.reduce(function (a, b) { return Math.min(a, b); }, 1e9).toFixed(2) +
+      " microseconds.");
+
+    // --- readouts ---
+    var mraw = 0, mapp = 0;
+    for (k = 0; k < 8; k++) {
+      mraw = Math.max(mraw, Math.abs(S.dtau[k]));
+      mapp = Math.max(mapp, Math.abs(S.beta * S.dtau[k]));
+    }
+    var minRaw = Math.min.apply(null, S.raw), minApp = Math.min.apply(null, S.app);
+    document.getElementById("l1-beta").textContent = S.beta.toFixed(4);
+    document.getElementById("l1-bind").textContent = S.bind < 0 ? "none" : "#" + (S.bind + 1);
+    document.getElementById("l1-mraw").textContent = fmt(mraw, 2) + " μs";
+    document.getElementById("l1-mapp").textContent = fmt(mapp, 2) + " μs";
+    var dr = document.getElementById("l1-draw"), da = document.getElementById("l1-dapp");
+    dr.textContent = fmt(minRaw, 2) + " μs";
+    dr.className = "v " + (minRaw < D.dmin ? "no" : "ok");
+    da.textContent = fmt(minApp, 2) + " μs";
+    da.className = "v ok";
+    document.getElementById("l1-cycle-v").textContent = S.cycle;
+    document.getElementById("l1-scale-v").textContent = S.scale.toFixed(2) + "×";
+
+    var note = document.getElementById("l1-note");
+    if (S.beta >= 1) {
+      note.textContent = "β = 1: the raw action is already admissible, so the conditioner does nothing and this cycle sits exactly at the A_cl end of the segment.";
+    } else {
+      note.textContent = "Dwell " + (S.bind + 1) + " runs out of margin first, so it alone sets β. "
+        + "The raw schedule would need " + fmt(minRaw, 2) + " μs there; the applied schedule lands on "
+        + fmt(minApp, 2) + " μs — exactly the bound, which is what maximality predicts.";
+    }
+  }
+  drawers.push(drawL1);
+  l1.cycle.addEventListener("input", drawL1);
+  l1.scale.addEventListener("input", drawL1);
+  document.getElementById("l1-reset").addEventListener("click", function () {
+    l1.cycle.value = 0; l1.scale.value = 1; drawL1();
+  });
+  document.getElementById("l1-worst").addEventListener("click", function () {
+    l1.cycle.value = 0;
+    var lo = 0.1, hi = 3, m;
+    for (var it = 0; it < 40; it++) {
+      m = (lo + hi) / 2; l1.scale.value = m;
+      if (l1state().beta > 0.1) lo = m; else hi = m;
+    }
+    l1.scale.value = hi; drawL1();
+  });
+
+  // =========================================================
+  // shared 2x2 algebra for labs 2-4
+  // =========================================================
+  function mul(A, B) {
+    return [[A[0][0] * B[0][0] + A[0][1] * B[1][0], A[0][0] * B[0][1] + A[0][1] * B[1][1]],
+            [A[1][0] * B[0][0] + A[1][1] * B[1][0], A[1][0] * B[0][1] + A[1][1] * B[1][1]]];
+  }
+  function mix(A, B, b) {
+    return [[(1 - b) * A[0][0] + b * B[0][0], (1 - b) * A[0][1] + b * B[0][1]],
+            [(1 - b) * A[1][0] + b * B[1][0], (1 - b) * A[1][1] + b * B[1][1]]];
+  }
+  function app2(A, v) { return [A[0][0] * v[0] + A[0][1] * v[1], A[1][0] * v[0] + A[1][1] * v[1]]; }
+  function rho2(A) {
+    var tr = A[0][0] + A[1][1], det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+    var disc = tr * tr - 4 * det;
+    if (disc >= 0) {
+      var s = Math.sqrt(disc);
+      return Math.max(Math.abs((tr + s) / 2), Math.abs((tr - s) / 2));
+    }
+    return Math.sqrt(Math.abs(det));
+  }
+  function sigmax(M) {
+    var a = M[0][0], b = M[0][1], c = M[1][0], d = M[1][1];
+    var g11 = a * a + c * c, g12 = a * b + c * d, g22 = b * b + d * d;
+    var tr = g11 + g22, det = g11 * g22 - g12 * g12;
+    var disc = Math.max(0, tr * tr - 4 * det);
+    return Math.sqrt(Math.max(0, (tr + Math.sqrt(disc)) / 2));
+  }
+  // P = R diag(s, 1/s) R^T  (det P = 1; ||A||_P is scale-invariant, so this is exhaustive)
+  function Pfac(th, s) {
+    var c = Math.cos(th), sn = Math.sin(th);
+    var r1 = Math.sqrt(s), r2 = Math.sqrt(1 / s);
+    var H = [[c * c * r1 + sn * sn * r2, c * sn * (r1 - r2)],
+             [c * sn * (r1 - r2), sn * sn * r1 + c * c * r2]];
+    var Hi = [[c * c / r1 + sn * sn / r2, c * sn * (1 / r1 - 1 / r2)],
+              [c * sn * (1 / r1 - 1 / r2), sn * sn / r1 + c * c / r2]];
+    return { H: H, Hi: Hi };
+  }
+  function pnorm(A, th, s) { var F = Pfac(th, s); return sigmax(mul(F.H, mul(A, F.Hi))); }
+  // ‖e‖_P = sqrt(e' P e), with P = R diag(s, 1/s) R'
+  function pnormVec(e, th, s) {
+    var c = Math.cos(th), sn = Math.sin(th);
+    var u = c * e[0] + sn * e[1], v = -sn * e[0] + c * e[1];
+    return Math.sqrt(s * u * u + v * v / s);
+  }
+
+  var PAIRS = {
+    good: {
+      name: "certifiable",
+      Phi: [[0.98, 0.15], [-0.05, 0.97]],
+      Acl: [[0.45, 0.10], [-0.10, 0.40]],
+      best: { th: 1.5228, s: 1.7422, q: 0.979110 },
+      e0: [1.6, 0.9]
+    },
+    bad: {
+      name: "pathological",
+      Phi: [[0.5, 2.0], [0.0, 0.5]],
+      Acl: [[0.5, 0.0], [2.0, 0.5]],
+      best: { th: 2.3562, s: 0.9935, q: 2.118074 },
+      e0: [0.55, 0.16]
+    }
+  };
+  var pairKey = "good";
+  var view = { th: 0, s: 1 };
+
+  function setPair(k) {
+    pairKey = k;
+    var btns = document.querySelectorAll(".pair-btn");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute("aria-pressed", btns[i].dataset.pair === k ? "true" : "false");
+    }
+    l4.reset();
+    drawL2(); drawL3(); drawL4();
+  }
+  (function () {
+    var btns = document.querySelectorAll(".pair-btn");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener("click", function () { setPair(this.dataset.pair); });
+    }
+  }());
+
+  // =========================================================
+  // LAB 2 — hunt for a common ellipse
+  // =========================================================
+  var l2t = document.getElementById("l2-theta"), l2a = document.getElementById("l2-aspect");
+  function readView() {
+    view.th = (+l2t.value) * Math.PI / 180;
+    view.s = Math.exp((+l2a.value) / 100 * Math.log(6));
+  }
+  function ellipsePts(A, th, s, n) {
+    var F = Pfac(th, s), pts = [], t, u, v;
+    for (var i = 0; i <= n; i++) {
+      t = i / n * 2 * Math.PI;
+      u = [Math.cos(t), Math.sin(t)];
+      v = app2(F.Hi, u);
+      if (A) v = app2(A, v);
+      pts.push(v);
+    }
+    return pts;
+  }
+  function drawL2() {
+    readView();
+    var P = pal(), C = ctxOf("l2-canvas"), g = C.g, S = PAIRS[pairKey];
+    var cx = C.w / 2, cy = C.h / 2, ext = 4.2;
+    var k = Math.min(C.w, C.h) / (2 * ext);
+    function X(p) { return cx + p[0] * k; }
+    function Y(p) { return cy - p[1] * k; }
+    function poly(pts, col, wd, dash) {
+      g.beginPath();
+      for (var i = 0; i < pts.length; i++) {
+        if (i === 0) g.moveTo(X(pts[i]), Y(pts[i])); else g.lineTo(X(pts[i]), Y(pts[i]));
+      }
+      g.strokeStyle = col; g.lineWidth = wd;
+      g.setLineDash(dash || []); g.stroke(); g.setLineDash([]);
+    }
+    // axes
+    g.strokeStyle = P.rule; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(0, cy); g.lineTo(C.w, cy); g.moveTo(cx, 0); g.lineTo(cx, C.h); g.stroke();
+
+    var qp = pnorm(S.Phi, view.th, view.s), qa = pnorm(S.Acl, view.th, view.s);
+    poly(ellipsePts(S.Phi, view.th, view.s, 180), P.phi, 2);
+    poly(ellipsePts(S.Acl, view.th, view.s, 180), P.acl, 2);
+    poly(ellipsePts(null, view.th, view.s, 180), P.ink, 2.4);
+
+    g.fillStyle = P.muted; g.font = font(11, 500); g.textAlign = "left"; g.textBaseline = "top";
+    g.fillText(S.name + " pair", 10, 10);
+
+    document.getElementById("l2-theta-v").textContent = (+l2t.value) + "°";
+    document.getElementById("l2-aspect-v").textContent = view.s.toFixed(2);
+    var q = Math.max(qp, qa);
+    var eq = document.getElementById("l2-qphi"), ea = document.getElementById("l2-qacl"),
+        eqq = document.getElementById("l2-q");
+    eq.textContent = qp.toFixed(4); eq.className = "v " + (qp < 1 ? "ok" : "no");
+    ea.textContent = qa.toFixed(4); ea.className = "v " + (qa < 1 ? "ok" : "no");
+    eqq.textContent = q.toFixed(4); eqq.className = "v " + (q < 1 ? "ok" : "no");
+    document.getElementById("l2-qbest").textContent = S.best.q.toFixed(4);
+
+    var vb = document.getElementById("l2-verdict");
+    if (q < 1) {
+      vb.className = "verdict-bar ok";
+      vb.textContent = "Certified. Both images sit inside the ellipse, so every A(β) contracts by at most "
+        + q.toFixed(4) + " per cycle.";
+    } else if (S.best.q >= 1) {
+      vb.className = "verdict-bar no";
+      vb.textContent = "No ellipse can work here. The best achievable bound over all P is "
+        + S.best.q.toFixed(3) + " — both endpoints are stable, and still no common Lyapunov function exists.";
+    } else {
+      vb.className = "verdict-bar no";
+      vb.textContent = "Not yet — " + (qp >= 1 ? "Φ" : "A_cl")
+        + " still pokes outside. A certifying ellipse does exist; keep looking, or snap to it.";
+    }
+  }
+  drawers.push(drawL2);
+  l2t.addEventListener("input", function () { drawL2(); drawL3(); });
+  l2a.addEventListener("input", function () { drawL2(); drawL3(); });
+  document.getElementById("l2-best").addEventListener("click", function () {
+    var S = PAIRS[pairKey];
+    l2t.value = Math.round(S.best.th * 180 / Math.PI) % 180;
+    l2a.value = Math.round(Math.log(S.best.s) / Math.log(6) * 100);
+    drawL2(); drawL3();
+  });
+  document.getElementById("l2-identity").addEventListener("click", function () {
+    l2t.value = 0; l2a.value = 0; drawL2(); drawL3();
+  });
+
+  // =========================================================
+  // LAB 3 — walk the segment
+  // =========================================================
+  var l3b = document.getElementById("l3-beta");
+  function drawL3() {
+    readView();
+    var P = pal(), C = ctxOf("l3-canvas"), g = C.g, S = PAIRS[pairKey];
+    var L = 56, R = 18, T = 22, Bm = 40;
+    var w = C.w - L - R, h = C.h - T - Bm;
+    var ymax = 1.75;
+    function X(b) { return L + b * w; }
+    function Y(v) { return T + h - Math.min(v, ymax) / ymax * h; }
+
+    // grid
+    g.strokeStyle = P.rule; g.lineWidth = 1;
+    g.font = font(10.5, 500); g.fillStyle = P.muted;
+    g.textAlign = "right"; g.textBaseline = "middle";
+    for (var v = 0; v <= 1.5; v += 0.5) {
+      g.beginPath(); g.moveTo(L, Y(v)); g.lineTo(L + w, Y(v)); g.stroke();
+      g.fillText(v.toFixed(1), L - 8, Y(v));
+    }
+    // level 1
+    g.strokeStyle = P.bad; g.lineWidth = 1.6; g.setLineDash([6, 5]);
+    g.beginPath(); g.moveTo(L, Y(1)); g.lineTo(L + w, Y(1)); g.stroke(); g.setLineDash([]);
+
+    var n = 200, b, k, pr = [], pn = [], peak = 0, peakAt = 0;
+    for (k = 0; k <= n; k++) {
+      b = k / n;
+      var Ab = mix(S.Phi, S.Acl, b);
+      var r = rho2(Ab); pr.push(r);
+      pn.push(pnorm(Ab, view.th, view.s));
+      if (r > peak) { peak = r; peakAt = b; }
+    }
+    // chord between endpoint norms
+    g.strokeStyle = P.muted; g.lineWidth = 1.4; g.setLineDash([4, 4]);
+    g.beginPath(); g.moveTo(X(0), Y(pn[0])); g.lineTo(X(1), Y(pn[n])); g.stroke(); g.setLineDash([]);
+
+    function curve(arr, col, wd) {
+      g.beginPath();
+      for (var i = 0; i <= n; i++) {
+        var x = X(i / n), y = Y(arr[i]);
+        if (i === 0) g.moveTo(x, y); else g.lineTo(x, y);
+      }
+      g.strokeStyle = col; g.lineWidth = wd; g.stroke();
+    }
+    curve(pn, P.phi, 2.2);
+    curve(pr, P.acl, 2.4);
+
+    // beta marker
+    var bb = +l3b.value;
+    g.strokeStyle = P.ink; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(X(bb), T); g.lineTo(X(bb), T + h); g.stroke();
+    var Ab2 = mix(S.Phi, S.Acl, bb);
+    var rr = rho2(Ab2), nn = pnorm(Ab2, view.th, view.s);
+    g.fillStyle = P.acl; g.beginPath(); g.arc(X(bb), Y(rr), 4.5, 0, 6.2832); g.fill();
+    g.fillStyle = P.phi; g.beginPath(); g.arc(X(bb), Y(nn), 4.5, 0, 6.2832); g.fill();
+
+    // axes labels
+    g.fillStyle = P.muted; g.font = font(11.5, 500);
+    g.textAlign = "center"; g.textBaseline = "top";
+    g.fillText("β", L + w / 2, T + h + 18);
+    g.textAlign = "left"; g.fillText("0", L, T + h + 6);
+    g.textAlign = "right"; g.fillText("1", L + w, T + h + 6);
+
+    document.getElementById("l3-beta-v").textContent = bb.toFixed(2);
+    var er = document.getElementById("l3-rho"), en = document.getElementById("l3-norm");
+    er.textContent = rr.toFixed(4); er.className = "v " + (rr < 1 ? "ok" : "no");
+    en.textContent = nn.toFixed(4); en.className = "v " + (nn < 1 ? "ok" : "no");
+    var ep = document.getElementById("l3-peak");
+    ep.textContent = peak.toFixed(4); ep.className = "v " + (peak < 1 ? "ok" : "no");
+    document.getElementById("l3-peakat").textContent = peakAt.toFixed(2);
+
+    var note = document.getElementById("l3-note");
+    if (peak >= 1) {
+      note.textContent = "Both endpoints are stable (ρ = " + rho2(S.Phi).toFixed(2)
+        + " and " + rho2(S.Acl).toFixed(2) + "), yet ρ peaks at " + peak.toFixed(2)
+        + " near β = " + peakAt.toFixed(2)
+        + ". Stability is not preserved by convex combination — which is why the proof never argues from stability alone.";
+    } else {
+      note.textContent = "ρ stays below 1 across the segment, and the norm curve stays under its own chord. "
+        + "Only the norm curve is guaranteed to — the spectral radius happens to behave here, and cannot be relied on.";
+    }
+  }
+  drawers.push(drawL3);
+  l3b.addEventListener("input", drawL3);
+
+  // =========================================================
+  // LAB 4 — switching sequences
+  // =========================================================
+  var policy = "one", NSTEP = 16;
+  var l4 = {
+    seq: [],
+    reset: function () { l4.seq = []; }
+  };
+  function buildSeq() {
+    var S = PAIRS[pairKey], e = S.e0.slice(), pts = [e.slice()], betas = [], k;
+    for (k = 0; k < NSTEP; k++) {
+      var b;
+      if (policy === "one") b = 1;
+      else if (policy === "zero") b = 0;
+      else if (policy === "alt") b = k % 2;
+      else if (policy === "rand") b = Math.random();
+      else {
+        // A(β)e is affine in β, so the most damaging β is always an endpoint
+        var e0 = app2(S.Phi, e), e1 = app2(S.Acl, e);
+        var n0 = pnormVec(e0, S.best.th, S.best.s), n1 = pnormVec(e1, S.best.th, S.best.s);
+        b = n0 >= n1 ? 0 : 1;
+      }
+      betas.push(b);
+      e = app2(mix(S.Phi, S.Acl, b), e);
+      pts.push(e.slice());
+    }
+    l4.seq = pts; l4.betas = betas;
+  }
+  function drawL4() {
+    if (!l4.seq.length) buildSeq();
+    var P = pal(), C = ctxOf("l4-canvas"), g = C.g, S = PAIRS[pairKey];
+    var pts = l4.seq, k;
+    var split = Math.round(C.w * 0.46);
+
+    // ---- left: state plane ----
+    var cx = split / 2, cy = C.h / 2;
+    var m = 0.6;
+    for (k = 0; k < pts.length; k++) m = Math.max(m, Math.abs(pts[k][0]), Math.abs(pts[k][1]));
+    m = Math.min(m, 12);
+    var sc = (Math.min(split, C.h) / 2 - 22) / m;
+    function X(p) { return cx + p[0] * sc; }
+    function Y(p) { return cy - p[1] * sc; }
+    g.save(); g.beginPath(); g.rect(0, 0, split, C.h); g.clip();
+    g.strokeStyle = P.rule; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(0, cy); g.lineTo(split, cy); g.moveTo(cx, 0); g.lineTo(cx, C.h); g.stroke();
+    // certifying ellipse where one exists
+    if (S.best.q < 1) {
+      var ep = ellipsePts(null, S.best.th, S.best.s, 140);
+      var em = 0;
+      for (k = 0; k < ep.length; k++) em = Math.max(em, Math.hypot(ep[k][0], ep[k][1]));
+      var scl = m * 0.92 / em;
+      g.beginPath();
+      for (k = 0; k < ep.length; k++) {
+        var q = [ep[k][0] * scl, ep[k][1] * scl];
+        if (k === 0) g.moveTo(X(q), Y(q)); else g.lineTo(X(q), Y(q));
+      }
+      g.strokeStyle = P.rule; g.lineWidth = 1.4; g.setLineDash([4, 4]); g.stroke(); g.setLineDash([]);
+    }
+    for (k = 0; k < pts.length - 1; k++) {
+      g.beginPath(); g.moveTo(X(pts[k]), Y(pts[k])); g.lineTo(X(pts[k + 1]), Y(pts[k + 1]));
+      g.strokeStyle = l4.betas[k] > 0.5 ? P.acl : P.phi;
+      g.lineWidth = 1.8; g.stroke();
+    }
+    for (k = 0; k < pts.length; k++) {
+      g.fillStyle = k === 0 ? P.ink : (l4.betas[Math.max(0, k - 1)] > 0.5 ? P.acl : P.phi);
+      g.beginPath(); g.arc(X(pts[k]), Y(pts[k]), k === 0 ? 4 : 2.4, 0, 6.2832); g.fill();
+    }
+    g.fillStyle = P.muted; g.font = font(10.5, 500); g.textAlign = "left"; g.textBaseline = "top";
+    g.fillText("state plane", 8, 8);
+    g.restore();
+
+    g.strokeStyle = P.rule; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(split, 12); g.lineTo(split, C.h - 12); g.stroke();
+
+    // ---- right: error in the P-norm, which is the norm the theorem bounds ----
+    var L = split + 52, R = 14, T = 24, Bm = 34;
+    var w = C.w - L - R, h = C.h - T - Bm;
+    var series = [];
+    for (k = 0; k < pts.length; k++) series.push(pnormVec(pts[k], S.best.th, S.best.s));
+    var lg = [], loE = Infinity, hiE = -Infinity;
+    for (k = 0; k < series.length; k++) {
+      var lv = Math.log(Math.max(series[k], 1e-14)) / Math.LN10;
+      lg.push(lv);
+      if (lv < loE) loE = lv; if (lv > hiE) hiE = lv;
+    }
+    loE = Math.floor(loE - 0.35); hiE = Math.ceil(hiE + 0.35);
+    if (hiE - loE < 2) { hiE = loE + 2; }
+    function EX(i) { return L + i / NSTEP * w; }
+    function EY(v) {
+      var e = Math.log(Math.max(v, 1e-14)) / Math.LN10;
+      return T + h - (Math.max(loE, Math.min(hiE, e)) - loE) / (hiE - loE) * h;
+    }
+    var stepE = Math.max(1, Math.round((hiE - loE) / 4));
+    g.strokeStyle = P.rule; g.lineWidth = 1;
+    g.font = mono(9.5, 500); g.fillStyle = P.muted;
+    g.textAlign = "right"; g.textBaseline = "middle";
+    for (var e2 = loE; e2 <= hiE; e2 += stepE) {
+      g.beginPath(); g.moveTo(L, EY(Math.pow(10, e2))); g.lineTo(L + w, EY(Math.pow(10, e2))); g.stroke();
+      g.fillText("1e" + (e2 < 0 ? "−" + Math.abs(e2) : e2), L - 6, EY(Math.pow(10, e2)));
+    }
+    var n0 = series[0];
+    // starting level: anything above this line is net growth
+    g.strokeStyle = P.bad; g.lineWidth = 1.4; g.setLineDash([5, 4]);
+    g.beginPath(); g.moveTo(L, EY(n0)); g.lineTo(L + w, EY(n0)); g.stroke(); g.setLineDash([]);
+    // certified envelope q^k
+    if (S.best.q < 1) {
+      g.strokeStyle = P.good; g.lineWidth = 1.4; g.setLineDash([3, 4]);
+      g.beginPath();
+      for (k = 0; k <= NSTEP; k++) {
+        var env = n0 * Math.pow(S.best.q, k);
+        if (k === 0) g.moveTo(EX(k), EY(env)); else g.lineTo(EX(k), EY(env));
+      }
+      g.stroke(); g.setLineDash([]);
+    }
+    g.beginPath();
+    for (k = 0; k < series.length; k++) {
+      if (k === 0) g.moveTo(EX(k), EY(series[k])); else g.lineTo(EX(k), EY(series[k]));
+    }
+    g.strokeStyle = P.ink; g.lineWidth = 2.2; g.stroke();
+    for (k = 0; k < series.length; k++) {
+      g.fillStyle = k === 0 ? P.ink : (l4.betas[k - 1] > 0.5 ? P.acl : P.phi);
+      g.beginPath(); g.arc(EX(k), EY(series[k]), 2.6, 0, 6.2832); g.fill();
+    }
+    g.fillStyle = P.muted; g.font = font(10.5, 500);
+    g.textAlign = "left"; g.textBaseline = "top";
+    g.fillText("‖e_k‖_P", L, 6);
+    if (S.best.q < 1) {
+      g.fillStyle = P.good; g.textAlign = "right";
+      g.fillText("certified q^k", L + w, 6);
+    }
+    g.fillStyle = P.muted; g.textAlign = "center";
+    g.fillText("cycle k", L + w / 2, T + h + 14);
+
+    // readouts
+    var nF = series[series.length - 1];
+    var rate = Math.pow(nF / n0, 1 / NSTEP);
+    var er = document.getElementById("l4-rate"), ef = document.getElementById("l4-final");
+    er.textContent = "×" + rate.toFixed(3); er.className = "v " + (rate < 1 ? "ok" : "no");
+    ef.textContent = fmt(nF, 3); ef.className = "v " + (nF < n0 ? "ok" : "no");
+    var eb = document.getElementById("l4-bound");
+    eb.textContent = S.best.q < 1 ? S.best.q.toFixed(4) : "none exists";
+    eb.className = "v " + (S.best.q < 1 ? "ok" : "no");
+
+    var vb = document.getElementById("l4-verdict");
+    if (rate >= 1) {
+      vb.className = "verdict-bar no";
+      vb.textContent = "Diverging at ×" + rate.toFixed(2)
+        + " per cycle — built from two matrices that are each stable on their own. "
+        + "No common P exists for this pair, so nothing forbids it.";
+    } else if (S.best.q < 1) {
+      vb.className = "verdict-bar ok";
+      vb.textContent = "Contracting at ×" + rate.toFixed(4) + " per cycle in the P-norm, under the certified "
+        + S.best.q.toFixed(4) + ". Every step stays below the envelope — that is the theorem, not a coincidence.";
+    } else {
+      vb.className = "verdict-bar no";
+      vb.textContent = "Contracting at ×" + rate.toFixed(3)
+        + " for now — but with no common P this is luck, not a guarantee. Try the alternating policy.";
+    }
+    C.el.setAttribute("aria-label", "Under the " + policy + " policy the error changes by a factor of "
+      + rate.toFixed(3) + " per cycle over " + NSTEP + " cycles.");
+  }
+  drawers.push(drawL4);
+  (function () {
+    var btns = document.querySelectorAll(".pol-btn");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener("click", function () {
+        policy = this.dataset.pol;
+        for (var j = 0; j < btns.length; j++) {
+          btns[j].setAttribute("aria-pressed", btns[j].dataset.pol === policy ? "true" : "false");
+        }
+        buildSeq(); drawL4();
+      });
+    }
+  }());
+  document.getElementById("l4-run").addEventListener("click", function () { buildSeq(); drawL4(); });
+
+  // ---------- go ----------
+  function boot() { drawL1(); drawL2(); drawL3(); buildSeq(); drawL4(); }
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(boot); }
+  boot();
+}());
+</script>
