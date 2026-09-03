@@ -16,7 +16,7 @@ The paper's own scripts then apply a paper-specific schedule, anchor, normalizat
 
 Location: `LATEX/thesis/`
 
-The thesis contains broader development around switched-affine systems, trajectory construction, the Patiño converter application, and linearization. It provides research provenance and explanatory context for material used by the article, but the current article does not include thesis chapter files directly.
+The thesis contains broader development around switched-affine systems, trajectory construction, the Patino converter application, and linearization. It provides research provenance and explanatory context for material used by the article, but the current article does not include thesis chapter files directly.
 
 The thesis may contain earlier formulations or terminology. When it conflicts with the current article, use the current article and `CONTEXT.md` for the paper's present vocabulary.
 

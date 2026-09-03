@@ -10,6 +10,7 @@ Run from the paper project root:
 
 - `task figures` runs `matlab -batch "run('scripts/generate_results.m')"`.
 - `task trajectory-comparison` runs `scripts/generate_trajectory_comparison.m`.
+- `task invariant-region` calls `generate_feasible_regions.m` without input. It requires an existing `results/paper_results.mat` and regenerates only the feasible-region figure and vertex CSV files.
 - `task build` runs `latexmk` into `build/` and copies `build/article.pdf` to root-level `article.pdf`.
 - `task run` depends on `build`.
 - `task verify` regenerates results and then builds the article.
@@ -27,8 +28,11 @@ Run from the paper project root:
 6. Verifies the state and timing Jacobians by central finite differences.
 7. Sweeps a combined normalized perturbation direction to measure residual scaling.
 8. Designs aggressive and conservative normalized discrete LQR gains.
-9. Solves an offline common-quadratic certificate with YALMIP and SeDuMi.
-10. Runs exact cycle simulations and writes metrics, tables, figures, and MAT data.
+9. Runs exact cycle simulations.
+10. Passes the linear model, controller, schedule limits, and nonlinear trajectory to `generate_feasible_regions.m`.
+11. Writes the remaining metrics, tables, figures, and MAT data.
+
+`generate_feasible_regions.m` uses MPT3 to construct the fixed-`β` feasible regions and their maximal invariant subsets. It verifies the raw-action region's vertices and closed-loop images against the dwell constraints, checks the expected `β^{-3}` volume scaling, writes the region vertices, and generates the four-panel region figure.
 
 ## Controller path
 
@@ -56,7 +60,6 @@ The normal numerical verification path requires:
 - MATLAB;
 - the sibling MATLAB simulation project;
 - Control System Toolbox functionality such as `dlqr`;
-- YALMIP;
-- SeDuMi.
+- MPT3.
 
 The LaTeX build requires a TeX installation with `latexmk` and the local Springer class/style files.

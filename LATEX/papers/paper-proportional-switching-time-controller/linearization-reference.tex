@@ -1,0 +1,376 @@
+\documentclass[12pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+\setlength{\abovedisplayskip}{0.9em}
+\setlength{\belowdisplayskip}{0.9em}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\e}{\mathrm{e}}
+\newcommand{\bigO}{\mathcal{O}}
+
+\title{Linearization of the prediction equation}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{equation}
+    \dot{x}(t)=A_{\sigma(t)}x(t)+b_{\sigma(t)},
+    \qquad x(t)\in\R^n.
+    \label{eq:affine-system}
+\end{equation}
+
+\begin{equation}
+    \chi(t)=
+    \begin{bmatrix}
+        x(t)\\
+        1
+    \end{bmatrix}.
+    \label{eq:augmented-state}
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+    \dot{\chi}(t)
+    &=
+    \begin{bmatrix}
+        \dot{x}(t)\\[2pt]
+        \dfrac{\mathrm d}{\mathrm dt}(1)
+    \end{bmatrix}                                                    \\[4pt]
+    &=
+    \begin{bmatrix}
+        A_{\sigma(t)}x(t)+b_{\sigma(t)}\\
+        0
+    \end{bmatrix}                                                    \\[4pt]
+    &=
+    \begin{bmatrix}
+        A_{\sigma(t)} & b_{\sigma(t)}\\
+        0_{1\times n} & 0
+    \end{bmatrix}
+    \begin{bmatrix}
+        x(t)\\
+        1
+    \end{bmatrix}.
+\end{aligned}
+\label{eq:augmented-construction}
+\end{equation}
+
+\begin{equation}
+    \widetilde A_{\sigma(t)}=
+    \begin{bmatrix}
+        A_{\sigma(t)} & b_{\sigma(t)}\\
+        0_{1\times n} & 0
+    \end{bmatrix}.
+    \label{eq:augmented-matrix}
+\end{equation}
+
+\begin{equation}
+    \boxed{
+        \dot{\chi}(t)=\widetilde A_{\sigma(t)}\chi(t)
+    }.
+    \label{eq:augmented-system}
+\end{equation}
+
+\begin{equation}
+    0=t_0<t_1<t_2<\cdots<t_N,
+    \label{eq:boundaries}
+\end{equation}
+
+\begin{equation}
+    \sigma(t)=q_i,
+    \qquad t_{i-1}\leq t<t_i,
+    \qquad i=1,2,\ldots,N.
+    \label{eq:mode-intervals}
+\end{equation}
+
+\begin{equation}
+    F_i=\widetilde A_{q_i},
+    \qquad i=1,2,\ldots,N.
+    \label{eq:Fi}
+\end{equation}
+
+\begin{equation}
+    \Delta t_i=t_i-t_{i-1}.
+    \label{eq:actual-duration}
+\end{equation}
+
+\begin{equation}
+    \chi(t_i)=\e^{F_i\Delta t_i}\chi(t_{i-1}).
+    \label{eq:one-interval-propagation}
+\end{equation}
+
+\begin{equation}
+\boxed{
+    \chi(t_N)
+    =\e^{F_N\Delta t_N}
+     \e^{F_{N-1}\Delta t_{N-1}}
+     \cdots
+     \e^{F_2\Delta t_2}
+     \e^{F_1\Delta t_1}
+     \chi(t_0)
+    }.
+    \label{eq:actual-cycle}
+\end{equation}
+
+\begin{equation}
+    \Delta\bar t_i=\bar t_i-\bar t_{i-1},
+    \qquad i=1,2,\ldots,N.
+    \label{eq:nominal-duration}
+\end{equation}
+
+\begin{equation}
+    \Delta t_i=\Delta\bar t_i+\delta t_i.
+    \label{eq:duration-perturbation}
+\end{equation}
+
+\begin{equation}
+\boxed{
+    \bar\chi(t_N)
+    =\e^{F_N\Delta\bar t_N}
+     \e^{F_{N-1}\Delta\bar t_{N-1}}
+     \cdots
+     \e^{F_2\Delta\bar t_2}
+     \e^{F_1\Delta\bar t_1}
+     \bar\chi(t_0)
+    }.
+    \label{eq:nominal-cycle}
+\end{equation}
+
+\begin{equation}
+    e(t)=\chi(t)-\bar\chi(t).
+    \label{eq:error}
+\end{equation}
+
+\begin{equation}
+    \chi(t_0)=\bar\chi(t_0)+e(t_0).
+    \label{eq:initial-state-decomposition}
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+    e(t_N)
+    ={}&
+    \e^{F_N(\Delta\bar t_N+\delta t_N)}
+    \e^{F_{N-1}(\Delta\bar t_{N-1}+\delta t_{N-1})}
+    \cdots                                                        \\
+    &\quad
+    \e^{F_2(\Delta\bar t_2+\delta t_2)}
+    \e^{F_1(\Delta\bar t_1+\delta t_1)}
+    \left(\bar\chi(t_0)+e(t_0)\right)                            \\
+    &-
+    \e^{F_N\Delta\bar t_N}
+    \e^{F_{N-1}\Delta\bar t_{N-1}}
+    \cdots
+    \e^{F_2\Delta\bar t_2}
+    \e^{F_1\Delta\bar t_1}
+    \bar\chi(t_0).
+\end{aligned}
+\label{eq:exact-error}
+\end{equation}
+
+\begin{equation}
+    \frac{\mathrm d}{\mathrm ds}\e^{F_i s}
+    =F_i\e^{F_i s}.
+    \label{eq:exponential-derivative}
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+    \e^{F_i(\Delta\bar t_i+\delta t_i)}
+    ={}&\e^{F_i\Delta\bar t_i}
+       +F_i\e^{F_i\Delta\bar t_i}\,\delta t_i
+       +\bigO(\delta t_i^2).
+\end{aligned}
+\label{eq:single-exponential-expansion}
+\end{equation}
+
+\begin{equation}
+    \phi_i=\e^{F_i\Delta\bar t_i}.
+    \label{eq:phi}
+\end{equation}
+
+\begin{equation}
+    \e^{F_i(\Delta\bar t_i+\delta t_i)}
+    =\phi_i+F_i\phi_i\,\delta t_i+\bigO(\delta t_i^2).
+    \label{eq:single-exponential-phi}
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+&\e^{F_N(\Delta\bar t_N+\delta t_N)}
+ \e^{F_{N-1}(\Delta\bar t_{N-1}+\delta t_{N-1})}
+ \cdots
+ \e^{F_1(\Delta\bar t_1+\delta t_1)}                              \\
+&\quad\doteq
+ \left(\phi_N+F_N\phi_N\,\delta t_N\right)
+ \left(\phi_{N-1}+F_{N-1}\phi_{N-1}\,\delta t_{N-1}\right)
+ \cdots
+ \left(\phi_1+F_1\phi_1\,\delta t_1\right).
+\end{aligned}
+\label{eq:product-before-expansion}
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+&\left(\phi_N+F_N\phi_N\,\delta t_N\right)
+ \left(\phi_{N-1}+F_{N-1}\phi_{N-1}\,\delta t_{N-1}\right)
+ \cdots
+ \left(\phi_1+F_1\phi_1\,\delta t_1\right)                       \\
+&\quad\doteq
+ \phi_N\phi_{N-1}\cdots\phi_2\phi_1                            \\
+&\qquad
+ +F_N\phi_N\phi_{N-1}\cdots\phi_2\phi_1\,\delta t_N          \\
+&\qquad
+ +\phi_NF_{N-1}\phi_{N-1}\cdots\phi_2\phi_1\,\delta t_{N-1}  \\
+&\qquad
+ +\phi_N\phi_{N-1}F_{N-2}\phi_{N-2}\cdots
+  \phi_2\phi_1\,\delta t_{N-2}                                 \\
+&\qquad
+ +\cdots                                                         \\
+&\qquad
+ +\phi_N\phi_{N-1}\cdots\phi_3F_2\phi_2\phi_1\,\delta t_2   \\
+&\qquad
+ +\phi_N\phi_{N-1}\cdots\phi_3\phi_2F_1\phi_1\,\delta t_1.
+\end{aligned}
+\label{eq:ordered-product-expansion}
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+    e(t_N)
+    \doteq{}&
+    \phi_N\phi_{N-1}\cdots\phi_2\phi_1
+    \left(\bar\chi(t_0)+e(t_0)\right)                            \\
+    &+F_N\phi_N\phi_{N-1}\cdots\phi_2\phi_1
+      \left(\bar\chi(t_0)+e(t_0)\right)\delta t_N                \\
+    &+\phi_NF_{N-1}\phi_{N-1}\cdots\phi_2\phi_1
+      \left(\bar\chi(t_0)+e(t_0)\right)\delta t_{N-1}          \\
+    &+\cdots                                                     \\
+    &+\phi_N\phi_{N-1}\cdots\phi_3\phi_2F_1\phi_1
+      \left(\bar\chi(t_0)+e(t_0)\right)\delta t_1              \\
+    &-\phi_N\phi_{N-1}\cdots\phi_2\phi_1\bar\chi(t_0).
+\end{aligned}
+\label{eq:error-before-cancellation}
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+    e(t_N)
+    \doteq{}&
+    \phi_N\phi_{N-1}\cdots\phi_2\phi_1e(t_0)                   \\
+    &+F_N\phi_N\phi_{N-1}\cdots\phi_2\phi_1
+      \bar\chi(t_0)\,\delta t_N                                 \\
+    &+\phi_NF_{N-1}\phi_{N-1}\cdots\phi_2\phi_1
+      \bar\chi(t_0)\,\delta t_{N-1}                            \\
+    &+\phi_N\phi_{N-1}F_{N-2}\phi_{N-2}\cdots\phi_2\phi_1
+      \bar\chi(t_0)\,\delta t_{N-2}                            \\
+    &+\cdots                                                     \\
+    &+\phi_N\phi_{N-1}\cdots\phi_3F_2\phi_2\phi_1
+      \bar\chi(t_0)\,\delta t_2                                \\
+    &+\phi_N\phi_{N-1}\cdots\phi_3\phi_2F_1\phi_1
+      \bar\chi(t_0)\,\delta t_1.
+\end{aligned}
+\label{eq:error-after-cancellation}
+\end{equation}
+
+\begin{equation}
+    \Phi
+    =\phi_N\phi_{N-1}\cdots\phi_2\phi_1.
+    \label{eq:Phi}
+\end{equation}
+
+\begin{equation}
+    \delta\boldsymbol t=
+    \begin{bmatrix}
+        \delta t_1\\
+        \delta t_2\\
+        \vdots\\
+        \delta t_{N-1}\\
+        \delta t_N
+    \end{bmatrix}.
+    \label{eq:delta-t-vector}
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+    \Gamma=\bigl[\,&
+    \phi_N\phi_{N-1}\cdots\phi_3\phi_2F_1\phi_1\bar\chi(t_0),
+    \\[2pt]&
+    \phi_N\phi_{N-1}\cdots\phi_3F_2\phi_2\phi_1\bar\chi(t_0),
+    \\[2pt]&
+    \phi_N\phi_{N-1}\cdots\phi_4F_3\phi_3\phi_2\phi_1
+      \bar\chi(t_0),
+    \\[2pt]&
+    \ldots,
+    \\[2pt]&
+    \phi_NF_{N-1}\phi_{N-1}\cdots\phi_2\phi_1\bar\chi(t_0),
+    \\[2pt]&
+    F_N\phi_N\phi_{N-1}\cdots\phi_2\phi_1\bar\chi(t_0)
+    \,\bigr].
+\end{aligned}
+\label{eq:Gamma}
+\end{equation}
+
+\begin{equation}
+\boxed{
+    e(t_N)\doteq\Phi e(t_0)+\Gamma\,\delta\boldsymbol t
+    }.
+    \label{eq:final-linearization}
+\end{equation}
+
+\section*{Notes on corrections}
+
+\begin{enumerate}
+    \item The interval matrix is defined as
+    $F_i=\widetilde A_{q_i}$, where $q_i$ is active on
+    $[t_{i-1},t_i)$.  Writing $F_i=\widetilde A_{\sigma(t_i)}$ is ambiguous
+    for a right-continuous switching signal because $\sigma(t_i)$ normally
+    belongs to the following interval.
+
+    \item The derivative in \eqref{eq:single-exponential-expansion} uses the
+    augmented matrix $F_i$.  The physical matrix $A_{\sigma(t)}$ has the
+    wrong dimension for the augmented exponential.
+
+    \item The matrix order in \eqref{eq:ordered-product-expansion},
+    \eqref{eq:error-after-cancellation}, and \eqref{eq:Gamma} has been
+    corrected.  For example, the coefficient of $\delta t_{N-1}$ is
+    \begin{equation*}
+        \phi_NF_{N-1}\phi_{N-1}\cdots\phi_1\bar\chi(t_0),
+    \end{equation*}
+    not
+    \begin{equation*}
+        F_{N-1}\phi_N\phi_{N-1}\cdots\phi_1\bar\chi(t_0).
+    \end{equation*}
+    Matrices belonging to different modes do not generally commute.
+
+    \item The columns of $\Gamma$ are written horizontally and in the same
+    order as the entries of $\delta\boldsymbol t$.  This removes the
+    dimensional ambiguity in the transposed stacked-vector notation.
+
+    \item The symbol $\doteq$ means equality up to first order around
+    \begin{equation*}
+        e(t_0)=0,
+        \qquad
+        \delta\boldsymbol t=0.
+    \end{equation*}
+    Products such as $\delta t_i\delta t_j$ and
+    $\delta t_i e(t_0)$ are omitted.
+
+    \item Each $\delta t_i$ in this document is a change in an interval
+    duration.  It is not yet an independent switching-instant offset.  If
+    the initial and final cycle boundaries are fixed, the duration changes
+    must also satisfy
+    \begin{equation*}
+        \delta t_1+\delta t_2+\cdots+\delta t_N=0.
+    \end{equation*}
+\end{enumerate}
+
+\end{document}

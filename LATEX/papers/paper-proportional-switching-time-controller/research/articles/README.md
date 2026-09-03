@@ -1,6 +1,6 @@
 # Literature archive
 
-This folder contains 26 validated PDFs. Files 01--20 are the recent-literature set reviewed in `../recent-literature-2021-2026.md`; files 21--26 are the additional primary sources verified for the reference-integration pass in `../../handoff/reference-usage-review.md`.
+This folder contains 28 validated PDFs. Files 01--20 are the recent-literature set reviewed in `../recent-literature-2021-2026.md`; files 21--26 are the additional primary sources verified for the reference-integration pass in `../../handoff/reference-usage-review.md`; files 27--28 were added during the introduction-reference review in `../introduction-reference-review-2019-2026.md`.
 
 - `.pdf` means a lawful local copy was downloaded and validated as PDF content.
 - `.url` means automated download was unavailable because the publisher requires a subscription or the open repository rejected non-browser clients. Open the shortcut in a browser with institutional access, then replace it with the downloaded PDF.
@@ -34,5 +34,7 @@ This folder contains 26 validated PDFs. Files 01--20 are the recent-literature s
 | 24 | `albea2021hybridAffinePwm` | PDF, HAL author manuscript of published article | DOI `10.1109/TCSI.2021.3083900`; HAL `hal-03326994` |
 | 25 | `briat2013dwellTimes` | PDF, arXiv author preprint of published article | DOI `10.1109/TAC.2012.2220031`; arXiv `1209.0444` |
 | 26 | `fiore2016contraction` | PDF, arXiv author preprint of published article | DOI `10.1016/j.automatica.2016.06.028`; arXiv `1507.07126` |
+| 27 | `karamanakos2020mpcPowerElectronics` | PDF, open-access IEEE version of record, CC BY 4.0 | DOI `10.1109/OJIA.2020.3020184`; IEEE document `9180048`; direct PDF `https://ieeexplore.ieee.org/ielx7/8782707/8820181/09180048.pdf` |
+| 28 | `nakamuraZimmerer2026directionPreserving` | PDF, public NASA NTRS conference manuscript | DOI `10.2514/6.2026-2353`; NASA NTRS record `20250011126`; direct PDF `https://ntrs.nasa.gov/api/citations/20250011126/downloads/RDPCPpaperv4.pdf` |
 
-Downloaded PDFs: 26. Link-only records: 0.
+Downloaded PDFs: 28. Link-only records: 0.

@@ -44,6 +44,7 @@ The project uses the following distinctions.
 - **Conditioning factor**: the scalar in the interval from zero to one that multiplies the complete raw vector.
 - **Conditioned linearized matrix family**: the family of one-cycle linearized matrices produced by all conditioning factors from zero to one, ranging from the nominal cycle matrix to the raw closed-loop matrix.
 - **Raw-action admissible region**: errors for which the raw action already satisfies all dwell constraints.
-- **Common-Lyapunov certificate**: an offline verification that the nominal and raw closed-loop one-cycle matrices contract in one quadratic norm.
+- **Fixed-conditioning-factor feasible region**: for a specified conditioning factor, errors whose scaled applied action satisfies all dwell constraints in the current cycle. At a factor of one, it equals the Raw-Action Admissible Region.
+- **Maximal invariant Raw-Action Admissible Region**: the largest subset of the Raw-Action Admissible Region that remains inside it under repeated application of the Raw Closed-Loop Matrix.
 
 Use this glossary together with `CONTEXT.md`. Do not replace the defined terms with near-synonyms when the distinction matters.

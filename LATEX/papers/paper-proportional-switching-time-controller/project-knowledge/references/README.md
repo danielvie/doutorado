@@ -10,7 +10,9 @@ The files in this directory summarize what an external source says. They do not 
 
 ## Current summaries
 
-The current article cites 14 distinct records. The first set of summaries covers those records:
+The current article cites 15 distinct records. This directory contains the per-source summaries prepared in earlier passes. The current Introduction source assessment, including Karamanakos et al. (2020), Egidio et al. (2020), Xu and Lazar (2024), and Nakamura-Zimmerer and Miller (2026), is in `../../research/introduction-reference-review-2019-2026.md`.
+
+Available per-source summaries:
 
 | BibTeX key | Main subject | Summary |
 |---|---|---|
@@ -27,9 +29,9 @@ The current article cites 14 distinct records. The first set of summaries covers
 | `augustine2023mpc` | Computationally reduced MPC for switched-affine systems | `augustine-2023.md` |
 | `switchedOptimalDwell2025` | Switched optimal control with dwell constraints | `sakha-2025.md` |
 | `russo2026dwell` | State-dependent switched-affine stabilization with dwell constraints | `russo-2026.md` |
-| `boyd1994lmi` | Linear matrix inequalities in control | `boyd-1994.md` |
+| `gilbert1991maximal` | Maximal output-admissible sets for constrained linear systems | `gilbert-tan-1991.md` |
 
-`references.bib` also contains records that are not currently cited. They can be summarized later when a research question requires them.
+`references.bib` also contains records that are not currently cited. Additional per-source summaries should be created only when a later task needs them.
 
 ## Summary format
 

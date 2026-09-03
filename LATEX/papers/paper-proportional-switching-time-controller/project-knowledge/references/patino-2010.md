@@ -1,4 +1,4 @@
-# Patiño, Riedinger, and Ruiz (2010)
+# Patino, Riedinger, and Ruiz (2010)
 
 Status: descriptive source summary
 BibTeX key: `patino2010`
@@ -7,7 +7,7 @@ Read when: studying the converter benchmark or mode-dependent switching sensitiv
 
 ## Bibliographic identity
 
-D. Patiño, P. Riedinger, and F. Ruiz, “A Predictive Control Approach for DC-DC Power Converters and Cyclic Switched Systems,” 2010 IEEE International Conference on Industrial Technology, pages 1259–1264.
+D. Patino, P. Riedinger, and F. Ruiz, “A Predictive Control Approach for DC-DC Power Converters and Cyclic Switched Systems,” 2010 IEEE International Conference on Industrial Technology, pages 1259–1264.
 
 ## Problem
 

@@ -1,5 +1,7 @@
 # Novelty review: fixed-period switching-instant feedback
 
+> Status: partially superseded by `research/introduction-reference-review-2019-2026.md`. This review describes an earlier manuscript version with a common-Lyapunov certificate. For the current conditioner and invariant raw-action certificate, use the newer review and `article.tex`.
+
 ## Bottom line
 
 The current equation is a **strict dynamic generalization of Marcolino's model**: it permits mode-dependent state matrices and affine vectors, whereas Marcolino keeps one constant plant matrix and switches only actuator levels. However, the **core method is not globally new** within the reviewed primary literature: a fixed-period cycle with only the interior switching instants perturbed, a first-order one-cycle model

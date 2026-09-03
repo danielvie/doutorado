@@ -1,0 +1,1614 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="mado-format-version" content="2" />
+    <title>How beta changes the one-cycle matrix</title>
+    <style>
+      /* ==================================================================
+         MADO HTML — controlled document template.
+         Owned by Mado HTML. The authoring model never edits this file.
+         Ordinary fragments cannot supply executable content; Laboratories
+         may do so through inert templates mounted as trusted direct content.
+         Everything here is document-level structure, presentation and chrome.
+
+         One committed dark theme. Contrast against --mado-bg:
+         ink 16.7:1 · ink-2 10.0:1 · ink-3 6.4:1 · accent 10.0:1
+         positive 10.5:1 · interactive borders 3.2:1
+         ================================================================== */
+      :root {
+        color-scheme: dark;
+
+        --mado-bg: #0e1216;
+        --mado-bg-2: #141a1f;
+        --mado-panel: #192026;
+        --mado-ink: #eef2f5;
+        --mado-ink-2: #b3bfc8;
+        --mado-ink-3: #8b98a2;
+        --mado-line: #252d34;
+        --mado-line-2: #57636c;
+        --mado-accent: #f0b06a;
+        --mado-accent-soft: #2a2118;
+        --mado-accent-on: #161009;
+        --mado-positive: #4fd6c1;
+        --mado-positive-soft: #132220;
+        --mado-danger: #ff8b74;
+        --mado-danger-soft: #251613;
+        --mado-code: #0a0e11;
+        --mado-code-ink: #e4e9ed;
+
+        --level-1: #f0b06a;
+        --level-2: #4fd6c1;
+        --level-3: #a99bf0;
+
+        --mado-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+        --mado-sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+        --mado-measure: 68ch;
+      }
+
+      * { box-sizing: border-box; }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        margin: 0;
+        background: var(--mado-bg);
+        color: var(--mado-ink);
+        font-family: var(--mado-sans);
+        font-size: 16px;
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a { color: var(--mado-accent); }
+
+      h1, h2, h3, h4 { line-height: 1.22; font-weight: 640; margin: 0; }
+
+      p { margin: 0 0 1.05em; }
+
+      code {
+        font-family: var(--mado-mono);
+        font-size: 0.9em;
+        color: var(--mado-accent);
+      }
+
+      ::selection { background: var(--mado-accent); color: var(--mado-accent-on); }
+
+      :focus-visible { outline: 2px solid var(--mado-accent); outline-offset: 2px; }
+
+      .mado-sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      /* ---------------- document shell ---------------- */
+
+      .mado-document {
+        max-width: var(--mado-measure);
+        margin: 0 auto;
+        padding: 72px 24px 22vh;
+      }
+
+      .mado-hero { margin-bottom: 3rem; }
+
+      .mado-hero > :only-child { grid-column: 1 / -1; }
+
+      .mado-title {
+        font-size: 2.15rem;
+        letter-spacing: -0.015em;
+        margin-bottom: 0.45rem;
+      }
+
+      .mado-header {
+        display: block;
+        color: var(--mado-ink-2);
+        font-size: 1.05rem;
+      }
+
+      .mado-header > * + * { margin-top: 0.6rem; }
+
+      .mado-meta {
+        display: block;
+        margin-top: 1.8rem;
+        border: 1px solid var(--mado-line);
+        border-radius: 10px;
+        background: var(--mado-bg-2);
+        padding: 14px 18px;
+      }
+
+      .mado-meta ul { list-style: none; margin: 0; padding: 0; }
+
+      .mado-meta li {
+        font-size: 0.86rem;
+        color: var(--mado-ink-2);
+        padding: 6px 0;
+        border-bottom: 1px solid var(--mado-line);
+      }
+
+      .mado-meta li:last-child { border-bottom: 0; }
+
+      .mado-meta li strong {
+        display: block;
+        color: var(--mado-ink-3);
+        font-family: var(--mado-mono);
+        font-size: 0.66rem;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+
+      /* ---------------- index ---------------- */
+
+      .mado-index { margin: 0 0 4rem; }
+
+      .mado-index h2 {
+        font-family: var(--mado-mono);
+        font-size: 0.68rem;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+        color: var(--mado-ink-3);
+        margin-bottom: 0.9rem;
+      }
+
+      .mado-index-cards { display: grid; gap: 8px; }
+
+      .mado-index-card {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        padding: 10px 14px;
+        border: 1px solid var(--mado-line);
+        border-radius: 9px;
+        background: var(--mado-bg-2);
+        text-decoration: none;
+        color: var(--mado-ink);
+        transition: border-color 0.15s, transform 0.15s;
+      }
+
+      .mado-index-card:hover {
+        border-color: var(--mado-accent);
+        transform: translateX(2px);
+      }
+
+      .mado-index-card strong { font-weight: 620; font-size: 0.94rem; }
+
+      .mado-index-card span {
+        margin-left: auto;
+        font-family: var(--mado-mono);
+        font-size: 0.66rem;
+        color: var(--mado-ink-3);
+        white-space: nowrap;
+      }
+
+      .mado-index-card:focus-visible { border-color: var(--mado-accent); }
+
+      /* ---------------- sessions ---------------- */
+
+      .mado-session {
+        margin-top: 4.4rem;
+        scroll-margin-top: 96px;
+        transition: opacity 0.3s ease, filter 0.3s ease;
+      }
+
+      .mado-session h2 {
+        font-size: 1.45rem;
+        margin-bottom: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--mado-line);
+      }
+
+      .mado-session-number {
+        display: block;
+        font-family: var(--mado-mono);
+        font-size: 0.78rem;
+        margin-bottom: 0.35rem;
+        color: var(--mado-accent);
+      }
+
+      .mado-session:nth-child(3n + 1) h2 .mado-session-number { color: var(--level-1); }
+      .mado-session:nth-child(3n + 2) h2 .mado-session-number { color: var(--level-2); }
+      .mado-session:nth-child(3n) h2 .mado-session-number { color: var(--level-3); }
+
+      .mado-session-content > * + * { margin-top: 1.1rem; }
+
+      .mado-session-content h3 { font-size: 1.05rem; margin-top: 2rem; }
+
+      .mado-session-content h4 { font-size: 0.94rem; margin-top: 1.5rem; color: var(--mado-ink-2); }
+
+      .mado-session-content ul,
+      .mado-session-content ol { padding-left: 1.3rem; color: var(--mado-ink-2); }
+
+      .mado-session-content li { margin: 0.35rem 0; }
+
+      .mado-session-content li strong { color: var(--mado-ink); }
+
+      /* dimmed by the filter; never hidden, so the document keeps its shape */
+      .mado-session.mado-miss { opacity: 0.09; filter: saturate(0.2); }
+
+      @keyframes mado-flash {
+        from { background: var(--mado-accent-soft); }
+        to { background: transparent; }
+      }
+
+      .mado-session.mado-flash > h2 { animation: mado-flash 1.1s ease-out; }
+
+      /* ---------------- prose furniture ---------------- */
+
+      .callout {
+        border-left: 3px solid var(--mado-accent);
+        background: var(--mado-accent-soft);
+        padding: 12px 16px;
+        border-radius: 0 8px 8px 0;
+        color: var(--mado-ink-2);
+      }
+
+      .callout strong { color: var(--mado-ink); }
+
+      table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+
+      th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--mado-line); }
+
+      th {
+        font-family: var(--mado-mono);
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--mado-ink-3);
+      }
+
+      .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+      .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+
+      .card {
+        border: 1px solid var(--mado-line);
+        border-radius: 10px;
+        background: var(--mado-bg-2);
+        padding: 14px 16px;
+      }
+
+      .chart {
+        border: 1px solid var(--mado-line);
+        border-radius: 10px;
+        background: var(--mado-panel);
+        padding: 14px;
+      }
+
+      @media (max-width: 720px) {
+        .twocol { grid-template-columns: 1fr; }
+      }
+
+      /* ---------------- components ---------------- */
+
+      /* Components break out wider than the prose measure: visuals are the
+         payload of a tutorial and must not be squeezed into the text column. */
+      .mado-session-content > [data-mado-component-id],
+      .mado-session-content > .mado-generated-diagram,
+      .mado-session-content > .mado-diff-block,
+      .mado-session-content > .mado-foldable-code {
+        width: min(1020px, 94vw);
+        margin-left: 50%;
+        transform: translateX(-50%);
+      }
+
+      @media (max-width: 1100px) {
+        .mado-session-content > [data-mado-component-id],
+        .mado-session-content > .mado-generated-diagram,
+        .mado-session-content > .mado-diff-block,
+        .mado-session-content > .mado-foldable-code {
+          width: 100%;
+          margin-left: 0;
+          transform: none;
+        }
+      }
+
+      .mado-laboratory {
+        display: block;
+        width: min(1020px, 94vw);
+        margin: 1.1rem 50% 0;
+        transform: translateX(-50%);
+        padding: 24px;
+        color: var(--mado-ink);
+        background: var(--mado-panel);
+        border: 1px solid var(--mado-line-2);
+        border-radius: 10px;
+      }
+
+      .mado-laboratory > :first-child { margin-top: 0; }
+      .mado-laboratory > :last-child { margin-bottom: 0; }
+
+      @media (max-width: 1100px) {
+        .mado-laboratory {
+          width: 100%;
+          margin-left: 0;
+          transform: none;
+        }
+      }
+
+      figure { margin: 0; }
+
+      figure svg,
+      .mado-generated-diagram svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        background: var(--mado-panel);
+        border: 1px solid var(--mado-line);
+        border-radius: 10px;
+      }
+
+      figcaption { font-size: 0.79rem; color: var(--mado-ink-3); margin-top: 0.55rem; }
+
+      /* ---------------- code ---------------- */
+
+      pre {
+        margin: 0;
+        background: var(--mado-code);
+        color: var(--mado-code-ink);
+        border: 1px solid var(--mado-line);
+        border-radius: 10px;
+        padding: 15px 17px;
+        overflow: auto;
+      }
+
+      pre code {
+        font-family: var(--mado-mono);
+        font-size: 13px;
+        line-height: 1.6;
+        color: inherit;
+        background: none;
+      }
+
+      .mado-foldable-code {
+        border: 1px solid var(--mado-line);
+        border-radius: 10px;
+        background: var(--mado-bg-2);
+        overflow: hidden;
+      }
+
+      .mado-foldable-code > pre {
+        border: 0;
+        border-radius: 0;
+        border-top: 1px solid var(--mado-line);
+      }
+
+      .mado-code-summary {
+        cursor: pointer;
+        list-style: none;
+        padding: 9px 14px;
+        font-family: var(--mado-mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.06em;
+        color: var(--mado-ink-3);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .mado-code-summary::-webkit-details-marker { display: none; }
+
+      .mado-code-summary::before {
+        content: "\25B8";
+        color: var(--mado-accent);
+        transition: transform 0.18s;
+      }
+
+      .mado-foldable-code[open] > .mado-code-summary { color: var(--mado-ink-2); }
+
+      .mado-foldable-code[open] > .mado-code-summary::before { transform: rotate(90deg); }
+
+      .mado-code-summary:focus-visible { outline: 2px solid var(--mado-accent); outline-offset: -2px; }
+
+      .mado-code-block > .mado-diff-code { border-radius: 0 0 10px 10px; }
+
+      /* tree-sitter highlight tokens */
+      .ts-comment { color: var(--mado-ink-3); font-style: italic; }
+      .ts-keyword, .ts-tag { color: var(--mado-accent); }
+      .ts-function, .ts-constructor { color: #9ec8f0; }
+      .ts-string { color: var(--mado-positive); }
+      .ts-number, .ts-constant { color: #d6b3f0; }
+      .ts-type, .ts-property, .ts-attribute, .ts-module { color: #8fd0c4; }
+      .ts-variable, .ts-embedded { color: var(--mado-code-ink); }
+      .ts-operator, .ts-punctuation { color: var(--mado-ink-3); }
+      .ts-label { color: #f0c987; }
+      .ts-error { color: var(--mado-danger); text-decoration: underline wavy; }
+
+      /* ---------------- diff blocks ---------------- */
+
+      .mado-diff-block {
+        border: 1px solid var(--mado-line);
+        border-radius: 10px;
+        background: var(--mado-bg-2);
+        overflow: hidden;
+      }
+
+      .mado-foldable-diff > .mado-diff-block {
+        border: 0;
+        border-radius: 0;
+        border-top: 1px solid var(--mado-line);
+      }
+
+      .mado-diff-header {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--mado-line);
+        font-family: var(--mado-mono);
+        font-size: 0.74rem;
+        color: var(--mado-ink-3);
+      }
+
+      .mado-diff-header strong { color: var(--mado-ink); font-size: 0.84rem; }
+
+      .mado-diff-commit { color: var(--mado-accent); }
+
+      .mado-diff-label {
+        font-size: 0.66rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--mado-ink-3);
+        padding: 6px 14px 0;
+        display: block;
+      }
+
+      .mado-diff-panels { display: grid; grid-template-columns: 1fr 1fr; }
+
+      .mado-diff-panel { min-width: 0; }
+
+      .mado-diff-panel + .mado-diff-panel { border-left: 1px solid var(--mado-line); }
+
+      .mado-diff-before .mado-diff-label { color: var(--mado-danger); }
+
+      .mado-diff-after .mado-diff-label { color: var(--mado-positive); }
+
+      .mado-diff-code {
+        margin: 0;
+        padding: 8px 0 12px;
+        background: var(--mado-code);
+        font-family: var(--mado-mono);
+        font-size: 12.5px;
+        line-height: 1.55;
+        overflow-x: auto;
+      }
+
+      .mado-diff-line { display: flex; gap: 10px; padding: 0 10px; white-space: pre; }
+
+      .mado-diff-ln {
+        color: var(--mado-ink-3);
+        text-align: right;
+        min-width: 3ch;
+        user-select: none;
+        flex: none;
+      }
+
+      .mado-diff-content { flex: 1; min-width: 0; }
+
+      .mado-diff-line.added { background: var(--mado-positive-soft); }
+
+      .mado-diff-line.added .mado-diff-content { color: var(--mado-positive); }
+
+      .mado-diff-line.removed { background: var(--mado-danger-soft); }
+
+      .mado-diff-line.removed .mado-diff-content { color: var(--mado-danger); }
+
+      .mado-diff-line.marker { color: var(--mado-ink-3); background: var(--mado-panel); }
+
+      .mado-diff-line mark {
+        background: var(--mado-accent);
+        color: var(--mado-accent-on);
+        border-radius: 2px;
+      }
+
+      template[data-mado-diff-state] { display: none; }
+
+      @media (max-width: 720px) {
+        .mado-diff-panels { grid-template-columns: 1fr; }
+
+        .mado-diff-panel + .mado-diff-panel {
+          border-top: 1px solid var(--mado-line);
+          border-left: 0;
+        }
+      }
+
+      /* ---------------- generated diagrams ---------------- */
+
+      .mado-diagram-focus { --mado-diagram-fill: #16232f; --mado-diagram-stroke: #6fa8e0; --mado-diagram-text: #dbe9f7; }
+      .mado-diagram-person { --mado-diagram-fill: #2a2118; --mado-diagram-stroke: #f0b06a; --mado-diagram-text: #f6e3cd; }
+      .mado-diagram-system { --mado-diagram-fill: #1a2228; --mado-diagram-stroke: #9aa7b0; --mado-diagram-text: #e2e9ee; }
+      .mado-diagram-external { --mado-diagram-fill: #221f2e; --mado-diagram-stroke: #a99bf0; --mado-diagram-text: #e6e1f7; }
+      .mado-diagram-boundary { --mado-diagram-fill: none; --mado-diagram-stroke: #57636c; --mado-diagram-text: #8b98a2; }
+      .mado-diagram-action { --mado-diagram-fill: #132220; --mado-diagram-stroke: #4fd6c1; --mado-diagram-text: #cdeae4; }
+      .mado-diagram-decision { --mado-diagram-fill: #2a2118; --mado-diagram-stroke: #f0b06a; --mado-diagram-text: #f6e3cd; }
+      .mado-diagram-result { --mado-diagram-fill: #221f2e; --mado-diagram-stroke: #a99bf0; --mado-diagram-text: #e6e1f7; }
+      .mado-diagram-provenance-entity { --mado-diagram-fill: #16232f; --mado-diagram-stroke: #6fa8e0; --mado-diagram-text: #dbe9f7; }
+      .mado-diagram-provenance-activity { --mado-diagram-fill: #132220; --mado-diagram-stroke: #4fd6c1; --mado-diagram-text: #cdeae4; }
+      .mado-diagram-provenance-agent { --mado-diagram-fill: #2a2118; --mado-diagram-stroke: #f0b06a; --mado-diagram-text: #f6e3cd; }
+      .mado-diagram-participant { --mado-diagram-fill: #1a2228; --mado-diagram-stroke: #9aa7b0; --mado-diagram-text: #e2e9ee; }
+      .mado-diagram-state { --mado-diagram-fill: #16232f; --mado-diagram-stroke: #6fa8e0; --mado-diagram-text: #dbe9f7; }
+      .mado-diagram-terminal-state { --mado-diagram-fill: #221f2e; --mado-diagram-stroke: #a99bf0; --mado-diagram-text: #e6e1f7; }
+      .mado-diagram-state-marker { --mado-diagram-fill: #9aa7b0; --mado-diagram-stroke: #b3bfc8; --mado-diagram-text: #0e1216; }
+      .mado-diagram-timeline-lane { --mado-diagram-fill: #1a2228; --mado-diagram-stroke: #9aa7b0; --mado-diagram-text: #e2e9ee; }
+      .mado-diagram-timeline-interval { --mado-diagram-fill: #132220; --mado-diagram-stroke: #4fd6c1; --mado-diagram-text: #cdeae4; }
+      .mado-diagram-timeline-critical { --mado-diagram-fill: #251613; --mado-diagram-stroke: #ff8b74; --mado-diagram-text: #f7d8d0; }
+      .mado-diagram-timeline-marker { --mado-diagram-fill: #16232f; --mado-diagram-stroke: #6fa8e0; --mado-diagram-text: #dbe9f7; }
+      .mado-diagram-timeline-deadline { --mado-diagram-fill: #251613; --mado-diagram-stroke: #ff8b74; --mado-diagram-text: #f7d8d0; }
+      .mado-diagram-edge,
+      .mado-diagram-edge-label { --mado-diagram-fill: none; --mado-diagram-stroke: #9aa7b0; --mado-diagram-text: #b3bfc8; }
+      .mado-diagram-title { --mado-diagram-fill: none; --mado-diagram-stroke: none; --mado-diagram-text: #eef2f5; }
+      .mado-diagram-note { --mado-diagram-fill: none; --mado-diagram-stroke: none; --mado-diagram-text: #8b98a2; }
+
+      .mado-diagram-shape-fill { fill: var(--mado-diagram-fill); stroke: none; }
+      .mado-diagram-shape-stroke { fill: none; stroke: var(--mado-diagram-stroke); stroke-linecap: round; }
+      .mado-diagram-text { fill: var(--mado-diagram-text); }
+      .mado-diagram-label-plate { fill: #192026; fill-opacity: 0.86; stroke: none; }
+
+      /* ---------------- footer ---------------- */
+
+      .mado-footer {
+        display: block;
+        margin-top: 6rem;
+        padding-top: 1.4rem;
+        border-top: 1px solid var(--mado-line);
+        color: var(--mado-ink-3);
+        font-size: 0.82rem;
+      }
+
+      .mado-footer > * + * { margin-top: 0.5rem; }
+
+      /* ==================================================================
+         FILTER CHROME
+         Hidden at rest: a 2px top rule that doubles as a reading-progress
+         tick. "/" drops a thin strip carrying a result list of matching
+         Sessions and Components, and every match is highlighted in the
+         page. Progressive: with scripting off the strip never appears and
+         the document reads normally.
+         ================================================================== */
+
+      .mado-edge {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--mado-line);
+        z-index: 39;
+      }
+
+      .mado-edge-tick { height: 2px; width: 0; background: var(--mado-accent); }
+
+      .mado-filter-hint {
+        position: fixed;
+        top: 13px;
+        right: 20px;
+        z-index: 39;
+        font-family: var(--mado-mono);
+        font-size: 0.68rem;
+        color: var(--mado-ink-3);
+        background: var(--mado-bg-2);
+        border: 1px solid var(--mado-line);
+        border-radius: 5px;
+        padding: 3px 9px;
+        cursor: pointer;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s, color 0.15s, border-color 0.15s;
+      }
+
+      .mado-filter-hint.mado-show { opacity: 0.6; pointer-events: auto; }
+
+      .mado-filter-hint:hover { opacity: 1; color: var(--mado-ink-2); border-color: var(--mado-line-2); }
+
+      .mado-filter {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 41;
+        background: var(--mado-bg-2);
+        border-bottom: 1px solid var(--mado-line-2);
+        transform: translateY(-100%);
+        transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .mado-filter.mado-open { transform: translateY(0); box-shadow: 0 16px 44px rgba(0, 0, 0, 0.45); }
+
+      .mado-filter-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 11px 20px;
+        font-family: var(--mado-mono);
+      }
+
+      .mado-filter-sig { color: var(--mado-accent); font-weight: 700; }
+
+      .mado-filter-input {
+        flex: 1;
+        min-width: 0;
+        background: transparent;
+        border: 0;
+        outline: none;
+        color: var(--mado-ink);
+        font: inherit;
+        font-size: 0.92rem;
+      }
+
+      .mado-filter-input::placeholder { color: var(--mado-ink-3); }
+
+      .mado-filter-count { font-size: 0.7rem; color: var(--mado-ink-3); white-space: nowrap; }
+
+      .mado-filter-keys { display: flex; gap: 5px; }
+
+      .mado-filter-keys kbd {
+        font-family: var(--mado-mono);
+        font-size: 0.62rem;
+        border: 1px solid var(--mado-line-2);
+        border-radius: 4px;
+        padding: 1px 5px;
+        color: var(--mado-ink-3);
+      }
+
+      .mado-filter-facets {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 20px 8px;
+      }
+
+      .mado-filter-facets button {
+        font-family: var(--mado-mono);
+        font-size: 0.66rem;
+        padding: 3px 9px;
+        border-radius: 999px;
+        border: 1px solid var(--mado-line);
+        background: transparent;
+        color: var(--mado-ink-3);
+        cursor: pointer;
+      }
+
+      .mado-filter-facets button:hover { border-color: var(--mado-line-2); color: var(--mado-ink-2); }
+
+      .mado-filter-facets button.mado-on {
+        border-color: var(--mado-accent);
+        color: var(--mado-accent);
+        background: var(--mado-accent-soft);
+      }
+
+      .mado-filter-results {
+        max-width: 900px;
+        margin: 0 auto;
+        max-height: 32vh;
+        overflow: auto;
+        padding: 4px 20px 12px;
+        border-top: 1px solid var(--mado-line);
+      }
+
+      .mado-filter-results a {
+        display: grid;
+        grid-template-columns: 68px minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: baseline;
+        padding: 7px 10px;
+        border-radius: 8px;
+        text-decoration: none;
+        color: var(--mado-ink);
+        font-size: 0.9rem;
+      }
+
+      .mado-filter-results a:hover { background: rgba(255, 255, 255, 0.04); }
+
+      .mado-filter-results a.mado-sel { background: var(--mado-accent-soft); }
+
+      .mado-filter-results a.mado-sel .mado-r-label { color: var(--mado-accent); }
+
+      .mado-r-kind {
+        font-family: var(--mado-mono);
+        font-size: 0.6rem;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: var(--mado-ink-3);
+      }
+
+      .mado-r-label { min-width: 0; }
+
+      .mado-r-snippet {
+        display: block;
+        font-size: 0.76rem;
+        color: var(--mado-ink-3);
+        margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .mado-r-snippet mark {
+        background: transparent;
+        color: var(--mado-accent);
+        font-weight: 700;
+        padding: 0;
+      }
+
+      .mado-r-id { font-family: var(--mado-mono); font-size: 0.66rem; color: var(--mado-ink-3); }
+
+      .mado-filter-empty {
+        padding: 12px 10px;
+        font-family: var(--mado-mono);
+        font-size: 0.76rem;
+        color: var(--mado-ink-3);
+      }
+
+      /* in-page match highlighting */
+      mark.mado-hit {
+        background: var(--mado-accent);
+        color: var(--mado-accent-on);
+        border-radius: 2px;
+        padding: 0 1px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      @media print {
+        .mado-edge, .mado-filter, .mado-filter-hint { display: none !important; }
+        .mado-session.mado-miss { opacity: 1; filter: none; }
+        .mado-foldable-code > pre { display: block; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="mado-edge" aria-hidden="true"><div class="mado-edge-tick" id="mado-edge-tick"></div></div>
+    <button class="mado-filter-hint" id="mado-filter-hint" type="button" aria-expanded="false" aria-controls="mado-filter">/ filter</button>
+
+    <div class="mado-filter" id="mado-filter" role="search" aria-label="Filter sessions and components">
+      <div class="mado-filter-row">
+        <span class="mado-filter-sig" aria-hidden="true">/</span>
+        <label class="mado-sr-only" for="mado-filter-input">Filter sessions and components</label>
+        <input class="mado-filter-input" id="mado-filter-input" type="text" autocomplete="off" spellcheck="false" placeholder="filter sessions and components" />
+        <span class="mado-filter-count" id="mado-filter-count" aria-live="polite"></span>
+        <span class="mado-filter-keys" aria-hidden="true"><kbd>&#8593;&#8595;</kbd><kbd>enter</kbd><kbd>esc</kbd></span>
+      </div>
+      <div class="mado-filter-facets" id="mado-filter-facets"></div>
+      <div class="mado-filter-results" id="mado-filter-results"></div>
+    </div>
+
+    <main class="mado-document" data-mado-document="tutorial">
+      <section class="mado-hero">
+        <div>
+          <h1 class="mado-title">How beta changes the one-cycle matrix</h1>
+          <header class="mado-header"></header>
+        </div>
+        
+
+      </section>
+      <nav class="mado-index" aria-label="Document index">
+        <h2>Document Index</h2>
+        <div class="mado-index-cards">
+          <a class="mado-index-card" href="#session-answer">
+            <strong>1. The short answer</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-application">
+            <strong>2. Where beta is applied</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-derivation">
+            <strong>3. From the prediction equation to A(beta)</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-endpoints">
+            <strong>4. The two endpoint matrices</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-lyapunov-certificate">
+            <strong>5. From A(beta) to a common Lyapunov certificate</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-why-endpoints-are-enough">
+            <strong>6. Why the two endpoints are enough</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-laboratory">
+            <strong>7. Explore the interpolation</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-dimensions">
+            <strong>8. Why the original expression fails</strong>
+            <span>Open this Session</span>
+          </a>
+          <a class="mado-index-card" href="#session-state-dependent-beta">
+            <strong>9. When beta changes each cycle</strong>
+            <span>Open this Session</span>
+          </a></div>
+      </nav>
+      <div class="mado-sessions">
+      <section class="mado-session chapter" id="session-answer" data-mado-session-id="answer">
+        <h2><span class="mado-session-number" aria-hidden="true">1. </span><span class="mado-session-title">The short answer</span></h2>
+        <div class="mado-session-content content"><p>Your proposed expression mixes a matrix with a vector:</p>
+<div class="callout">
+  <p><strong>Not valid:</strong></p>
+  <math aria-label="A beta equals A c l minus beta K e k" display="block">
+    <msub><mi>A</mi><mi>β</mi></msub><mo>=</mo><msub><mi>A</mi><mi>cl</mi></msub><mo>−</mo><mi>β</mi><mi>K</mi><msub><mi>e</mi><mi>k</mi></msub>
+  </math>
+  <p><math><msub><mi>A</mi><mi>β</mi></msub></math> and <math><msub><mi>A</mi><mi>cl</mi></msub></math> are matrices, but <math><mi>K</mi><msub><mi>e</mi><mi>k</mi></msub></math> is a vector of switching-instant offsets. They cannot be subtracted.</p>
+</div>
+<p>The conditioning factor scales the switching-instant offset. After that offset enters the one-cycle model through <math><msub><mi>Γ</mi><mi>τ</mi></msub></math>, the state matrix becomes</p>
+<div class="card" data-mado-component-id="correct-matrix-family">
+  <math aria-label="A of beta equals Phi minus beta Gamma tau K" display="block">
+    <mi>A</mi><mo>(</mo><mi>β</mi><mo>)</mo><mo>=</mo><mi>Φ</mi><mo>−</mo><mi>β</mi><msub><mi>Γ</mi><mi>τ</mi></msub><mi>K</mi>
+  </math>
+</div></div>
+      </section>
+      <section class="mado-session chapter" id="session-application" data-mado-session-id="application">
+        <h2><span class="mado-session-number" aria-hidden="true">2. </span><span class="mado-session-title">Where beta is applied</span></h2>
+        <div class="mado-session-content content"><div class="cards">
+  <article class="card">
+    <h3>1. Cycle-start error</h3>
+    <math aria-label="e k equals x k minus x star" display="block">
+      <msub><mi>e</mi><mi>k</mi></msub><mo>=</mo><msub><mi>x</mi><mi>k</mi></msub><mo>−</mo><msup><mi>x</mi><mo>⋆</mo></msup>
+    </math>
+  </article>
+  <article class="card">
+    <h3>2. Raw LQR offset</h3>
+    <math aria-label="delta tau raw k equals minus K e k" display="block">
+      <msubsup><mi>δτ</mi><mi>k</mi><mi>raw</mi></msubsup><mo>=</mo><mo>−</mo><mi>K</mi><msub><mi>e</mi><mi>k</mi></msub>
+    </math>
+  </article>
+  <article class="card">
+    <h3>3. Applied offset</h3>
+    <math aria-label="delta tau applied k equals beta k delta tau raw k" display="block">
+      <msubsup><mi>δτ</mi><mi>k</mi><mi>applied</mi></msubsup><mo>=</mo><msub><mi>β</mi><mi>k</mi></msub><msubsup><mi>δτ</mi><mi>k</mi><mi>raw</mi></msubsup>
+    </math>
+  </article>
+  <article class="card">
+    <h3>4. Next-cycle error</h3>
+    <math aria-label="e k plus 1 equals Phi e k plus Gamma tau delta tau applied k" display="block">
+      <msub><mi>e</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mi>Φ</mi><msub><mi>e</mi><mi>k</mi></msub><mo>+</mo><msub><mi>Γ</mi><mi>τ</mi></msub><msubsup><mi>δτ</mi><mi>k</mi><mi>applied</mi></msubsup>
+    </math>
+  </article>
+</div>
+<div class="callout">
+  <p><strong>Key point:</strong> <math><mi>β</mi></math> multiplies the complete raw switching-instant-offset vector. It does not multiply the state matrix directly and it does not replace the LQR gain.</p>
+</div></div>
+      </section>
+      <section class="mado-session chapter" id="session-derivation" data-mado-session-id="derivation">
+        <h2><span class="mado-session-number" aria-hidden="true">3. </span><span class="mado-session-title">From the prediction equation to A(beta)</span></h2>
+        <div class="mado-session-content content"><p>Start from the linearized prediction equation exactly as written in the note:</p>
+<div class="card">
+  <math aria-label="e at t N is approximately equal to Phi tilde e at t zero plus Gamma delta t" display="block">
+    <mi>e</mi><mo>(</mo><msub><mi>t</mi><mi>N</mi></msub><mo>)</mo><mo>≐</mo>
+    <mover accent="true"><mi>Φ</mi><mo>˜</mo></mover>
+    <mi>e</mi><mo>(</mo><msub><mi>t</mi><mn>0</mn></msub><mo>)</mo><mo>+</mo>
+    <mi>Γ</mi><mi>δt</mi>
+  </math>
+</div>
+
+<p>Define the raw correction using the same input coordinate <math><mi>δt</mi></math> that appears in the prediction equation:</p>
+<div class="card">
+  <math aria-label="delta t raw equals minus K e at t zero" display="block">
+    <msup><mi>δt</mi><mi>raw</mi></msup><mo>=</mo><mo>−</mo><mi>K</mi>
+    <mi>e</mi><mo>(</mo><msub><mi>t</mi><mn>0</mn></msub><mo>)</mo>
+  </math>
+</div>
+
+<p>Apply the conditioning factor to the complete raw correction:</p>
+<div class="card">
+  <math aria-label="delta t applied equals beta delta t raw equals minus beta K e at t zero" display="block">
+    <msup><mi>δt</mi><mi>applied</mi></msup><mo>=</mo><mi>β</mi><msup><mi>δt</mi><mi>raw</mi></msup>
+    <mo>=</mo><mo>−</mo><mi>β</mi><mi>K</mi>
+    <mi>e</mi><mo>(</mo><msub><mi>t</mi><mn>0</mn></msub><mo>)</mo>
+  </math>
+</div>
+
+<p>Replace <math><mi>δt</mi></math> in the prediction equation by the applied correction:</p>
+<div class="card">
+  <math aria-label="e at t N is approximately Phi tilde e at t zero plus Gamma delta t applied" display="block">
+    <mi>e</mi><mo>(</mo><msub><mi>t</mi><mi>N</mi></msub><mo>)</mo><mo>≐</mo>
+    <mover accent="true"><mi>Φ</mi><mo>˜</mo></mover>
+    <mi>e</mi><mo>(</mo><msub><mi>t</mi><mn>0</mn></msub><mo>)</mo><mo>+</mo>
+    <mi>Γ</mi><msup><mi>δt</mi><mi>applied</mi></msup>
+  </math>
+</div>
+
+<p>Substitute <math><msup><mi>δt</mi><mi>applied</mi></msup><mo>=</mo><mo>−</mo><mi>β</mi><mi>K</mi><mi>e</mi><mo>(</mo><msub><mi>t</mi><mn>0</mn></msub><mo>)</mo></math>:</p>
+<div class="card">
+  <math aria-label="e at t N is approximately Phi tilde e at t zero minus beta Gamma K e at t zero" display="block">
+    <mi>e</mi><mo>(</mo><msub><mi>t</mi><mi>N</mi></msub><mo>)</mo><mo>≐</mo>
+    <mover accent="true"><mi>Φ</mi><mo>˜</mo></mover>
+    <mi>e</mi><mo>(</mo><msub><mi>t</mi><mn>0</mn></msub><mo>)</mo><mo>−</mo>
+    <mi>β</mi><mi>Γ</mi><mi>K</mi>
+    <mi>e</mi><mo>(</mo><msub><mi>t</mi><mn>0</mn></msub><mo>)</mo>
+  </math>
+</div>
+
+<p>Factor <math><mi>e</mi><mo>(</mo><msub><mi>t</mi><mn>0</mn></msub><mo>)</mo></math>:</p>
+<div class="card">
+  <math aria-label="e at t N is approximately open bracket Phi tilde minus beta Gamma K close bracket e at t zero" display="block">
+    <mi>e</mi><mo>(</mo><msub><mi>t</mi><mi>N</mi></msub><mo>)</mo><mo>≐</mo>
+    <mo>[</mo><mover accent="true"><mi>Φ</mi><mo>˜</mo></mover><mo>−</mo><mi>β</mi><mi>Γ</mi><mi>K</mi><mo>]</mo>
+    <mi>e</mi><mo>(</mo><msub><mi>t</mi><mn>0</mn></msub><mo>)</mo>
+  </math>
+</div>
+
+<p>The dynamic matrix associated with the chosen value of <math><mi>β</mi></math> is therefore</p>
+<div class="callout" data-mado-component-id="conditioned-cycle-matrix">
+  <math aria-label="A of beta equals Phi tilde minus beta Gamma K" display="block">
+    <mi>A</mi><mo>(</mo><mi>β</mi><mo>)</mo><mo>=</mo>
+    <mover accent="true"><mi>Φ</mi><mo>˜</mo></mover><mo>−</mo><mi>β</mi><mi>Γ</mi><mi>K</mi>
+  </math>
+</div>
+
+<div class="twocol">
+  <article class="card">
+    <h3>β = 0</h3>
+    <math aria-label="A zero equals Phi tilde" display="block">
+      <mi>A</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>=</mo><mover accent="true"><mi>Φ</mi><mo>˜</mo></mover>
+    </math>
+  </article>
+  <article class="card">
+    <h3>β = 1</h3>
+    <math aria-label="A one equals Phi tilde minus Gamma K equals A c l" display="block">
+      <mi>A</mi><mo>(</mo><mn>1</mn><mo>)</mo><mo>=</mo><mover accent="true"><mi>Φ</mi><mo>˜</mo></mover><mo>−</mo><mi>Γ</mi><mi>K</mi><mo>=</mo><msub><mi>A</mi><mi>cl</mi></msub>
+    </math>
+  </article>
+</div>
+
+<div class="callout">
+  <p><strong>Coordinate requirement:</strong> this substitution is direct only when <math><mi>K</mi></math> produces the same <math><mi>δt</mi></math> vector used by <math><mi>Γ</mi></math> in the starting prediction equation.</p>
+</div></div>
+      </section>
+      <section class="mado-session chapter" id="session-endpoints" data-mado-session-id="endpoints">
+        <h2><span class="mado-session-number" aria-hidden="true">4. </span><span class="mado-session-title">The two endpoint matrices</span></h2>
+        <div class="mado-session-content content"><p>Define the full raw-feedback closed-loop matrix:</p>
+<div class="card">
+  <math aria-label="A c l equals Phi minus Gamma tau K" display="block">
+    <msub><mi>A</mi><mi>cl</mi></msub><mo>=</mo><mi>Φ</mi><mo>−</mo><msub><mi>Γ</mi><mi>τ</mi></msub><mi>K</mi>
+  </math>
+</div>
+<p>Because <math><msub><mi>Γ</mi><mi>τ</mi></msub><mi>K</mi><mo>=</mo><mi>Φ</mi><mo>−</mo><msub><mi>A</mi><mi>cl</mi></msub></math>, the conditioned matrix can also be written as</p>
+<div class="card">
+  <math aria-label="A of beta equals one minus beta times Phi plus beta times A c l" display="block">
+    <mi>A</mi><mo>(</mo><mi>β</mi><mo>)</mo><mo>=</mo><mo>(</mo><mn>1</mn><mo>−</mo><mi>β</mi><mo>)</mo><mi>Φ</mi><mo>+</mo><mi>β</mi><msub><mi>A</mi><mi>cl</mi></msub>
+  </math>
+</div>
+<div class="twocol">
+  <article class="card">
+    <h3>At β = 0</h3>
+    <math aria-label="A zero equals Phi" display="block">
+      <msub><mi>A</mi><mn>0</mn></msub><mo>=</mo><mi>A</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>=</mo><mi>Φ</mi>
+    </math>
+    <p>No switching-instant correction is applied. The nominal cycle matrix acts on the error.</p>
+  </article>
+  <article class="card">
+    <h3>At β = 1</h3>
+    <math aria-label="A one equals A c l" display="block">
+      <msub><mi>A</mi><mn>1</mn></msub><mo>=</mo><mi>A</mi><mo>(</mo><mn>1</mn><mo>)</mo><mo>=</mo><msub><mi>A</mi><mi>cl</mi></msub>
+    </math>
+    <p>The complete raw LQR switching-instant offset is applied.</p>
+  </article>
+</div>
+<figure data-mado-component-id="matrix-segment">
+  <svg aria-label="Matrix segment from Phi at beta zero to A c l at beta one, with intermediate A beta matrices between them" role="img" viewBox="0 0 920 250">
+    <title>Conditioned matrix segment</title>
+    <rect fill="#192026" height="248" rx="14" stroke="#57636c" width="918" x="1" y="1"></rect>
+    <line stroke="#8b98a2" stroke-linecap="round" stroke-width="8" x1="150" x2="770" y1="126" y2="126"></line>
+    <circle cx="150" cy="126" fill="#f0b06a" r="20"></circle>
+    <circle cx="460" cy="126" fill="#eef2f5" r="16"></circle>
+    <circle cx="770" cy="126" fill="#4fd6c1" r="20"></circle>
+    <text fill="#f0b06a" font-family="system-ui, sans-serif" font-size="28" text-anchor="middle" x="150" y="65">Φ</text>
+    <text fill="#b3bfc8" font-family="system-ui, sans-serif" font-size="21" text-anchor="middle" x="150" y="185">β = 0</text>
+    <text fill="#eef2f5" font-family="system-ui, sans-serif" font-size="28" text-anchor="middle" x="460" y="65">A(β)</text>
+    <text fill="#b3bfc8" font-family="system-ui, sans-serif" font-size="21" text-anchor="middle" x="460" y="185">0 &lt; β &lt; 1</text>
+    <text fill="#4fd6c1" font-family="system-ui, sans-serif" font-size="28" text-anchor="middle" x="770" y="65">A<tspan baseline-shift="sub" font-size="18">cl</tspan></text>
+    <text fill="#b3bfc8" font-family="system-ui, sans-serif" font-size="21" text-anchor="middle" x="770" y="185">β = 1</text>
+    <text fill="#8b98a2" font-family="system-ui, sans-serif" font-size="17" text-anchor="middle" x="460" y="226">A(β) = (1 − β)Φ + βA<tspan baseline-shift="sub" font-size="12">cl</tspan></text>
+  </svg>
+  <figcaption>As β increases, the matrix moves from the nominal cycle matrix Φ toward the full raw-feedback matrix A<sub>cl</sub>.</figcaption>
+</figure></div>
+      </section>
+      <section class="mado-session chapter" id="session-lyapunov-certificate" data-mado-session-id="lyapunov-certificate">
+        <h2><span class="mado-session-number" aria-hidden="true">5. </span><span class="mado-session-title">From A(beta) to a common Lyapunov certificate</span></h2>
+        <div class="mado-session-content content"><div class="callout">
+  <p><strong>Use the dynamic error matrix.</strong> The strict Lyapunov inequalities below apply to the physical error dynamics. If <math><mover accent="true"><mi>Φ</mi><mo>˜</mo></mover></math> is the complete augmented transition, its constant final coordinate introduces an eigenvalue at one. Project that coordinate out before asking for strict contraction. In this session, <math><msub><mi>A</mi><mn>0</mn></msub></math> and <math><msub><mi>A</mi><mn>1</mn></msub></math> denote the matrices acting on the dynamic error vector.</p>
+</div>
+
+<h3>1. Name the endpoint matrices</h3>
+<p>From the beta-dependent matrix obtained previously, define</p>
+<div class="card">
+  <math aria-label="A zero equals Phi, and A one equals A c l" display="block">
+    <mtable columnalign="right center left" rowspacing="0.5em">
+      <mtr><mtd><msub><mi>A</mi><mn>0</mn></msub></mtd><mtd><mo>=</mo></mtd><mtd><mi>A</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>=</mo><mi>Φ</mi></mtd></mtr>
+      <mtr><mtd><msub><mi>A</mi><mn>1</mn></msub></mtd><mtd><mo>=</mo></mtd><mtd><mi>A</mi><mo>(</mo><mn>1</mn><mo>)</mo><mo>=</mo><msub><mi>A</mi><mi>cl</mi></msub></mtd></mtr>
+    </mtable>
+  </math>
+</div>
+<p>The conditioned matrix is the convex combination</p>
+<div class="card">
+  <math aria-label="A of beta equals one minus beta times A zero plus beta times A one" display="block">
+    <mi>A</mi><mo>(</mo><mi>β</mi><mo>)</mo><mo>=</mo><mo>(</mo><mn>1</mn><mo>−</mo><mi>β</mi><mo>)</mo><msub><mi>A</mi><mn>0</mn></msub><mo>+</mo><mi>β</mi><msub><mi>A</mi><mn>1</mn></msub><mo>,</mo><mspace width="0.6em"></mspace><mn>0</mn><mo>≤</mo><mi>β</mi><mo>≤</mo><mn>1</mn>
+  </math>
+</div>
+
+<h3>2. Choose a quadratic Lyapunov function</h3>
+<div class="card">
+  <math aria-label="V of e equals e transpose P e, with P positive definite" display="block">
+    <mi>V</mi><mo>(</mo><mi>e</mi><mo>)</mo><mo>=</mo><msup><mi>e</mi><mi>T</mi></msup><mi>P</mi><mi>e</mi><mo>,</mo><mspace width="0.8em"></mspace><mi>P</mi><mo>=</mo><msup><mi>P</mi><mi>T</mi></msup><mo>≻</mo><mn>0</mn>
+  </math>
+</div>
+<p>For one cycle with <math><msub><mi>e</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mi>A</mi><mo>(</mo><msub><mi>β</mi><mi>k</mi></msub><mo>)</mo><msub><mi>e</mi><mi>k</mi></msub></math>, the change in the Lyapunov function is</p>
+<div class="card">
+  <math aria-label="Delta V equals e k transpose open bracket A beta transpose P A beta minus P close bracket e k" display="block">
+    <mi>ΔV</mi><mo>=</mo><msubsup><mi>e</mi><mi>k</mi><mi>T</mi></msubsup>
+    <mo>[</mo><msup><mi>A</mi><mi>T</mi></msup><mo>(</mo><msub><mi>β</mi><mi>k</mi></msub><mo>)</mo><mi>P</mi><mi>A</mi><mo>(</mo><msub><mi>β</mi><mi>k</mi></msub><mo>)</mo><mo>−</mo><mi>P</mi><mo>]</mo>
+    <msub><mi>e</mi><mi>k</mi></msub>
+  </math>
+</div>
+<p>We want one matrix <math><mi>P</mi></math> for which</p>
+<div class="card">
+  <math aria-label="A beta transpose P A beta minus P is negative definite for every beta between zero and one" display="block">
+    <msup><mi>A</mi><mi>T</mi></msup><mo>(</mo><mi>β</mi><mo>)</mo><mi>P</mi><mi>A</mi><mo>(</mo><mi>β</mi><mo>)</mo><mo>−</mo><mi>P</mi><mo>≺</mo><mn>0</mn><mo>,</mo><mspace width="0.6em"></mspace><mo>∀</mo><mi>β</mi><mo>∈</mo><mo>[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>]</mo>
+  </math>
+</div>
+
+<h3>3. Solve only the endpoint inequalities</h3>
+<p>With <math><msub><mi>A</mi><mn>0</mn></msub></math> and <math><msub><mi>A</mi><mn>1</mn></msub></math> fixed, the following constraints are linear matrix inequalities in <math><mi>P</mi></math>:</p>
+<div class="card">
+  <math aria-label="A zero transpose P A zero minus P negative definite, and A one transpose P A one minus P negative definite" display="block">
+    <mtable columnalign="right center left" rowspacing="0.55em">
+      <mtr><mtd><msubsup><mi>A</mi><mn>0</mn><mi>T</mi></msubsup><mi>P</mi><msub><mi>A</mi><mn>0</mn></msub><mo>−</mo><mi>P</mi></mtd><mtd><mo>≺</mo></mtd><mtd><mn>0</mn></mtd></mtr>
+      <mtr><mtd><msubsup><mi>A</mi><mn>1</mn><mi>T</mi></msubsup><mi>P</mi><msub><mi>A</mi><mn>1</mn></msub><mo>−</mo><mi>P</mi></mtd><mtd><mo>≺</mo></mtd><mtd><mn>0</mn></mtd></mtr>
+    </mtable>
+  </math>
+</div>
+<p>A numerically closed, normalized semidefinite program is</p>
+<div class="card" data-mado-component-id="lyapunov-sdp">
+  <math aria-label="maximize epsilon subject to trace P equals one, P greater than epsilon I, and both endpoint Lyapunov inequalities have margin epsilon I" display="block">
+    <mtable columnalign="right center left" rowspacing="0.5em">
+      <mtr><mtd><mtext>maximize</mtext></mtd><mtd></mtd><mtd><mi>ε</mi></mtd></mtr>
+      <mtr><mtd><mtext>over</mtext></mtd><mtd></mtd><mtd><mi>P</mi><mo>=</mo><msup><mi>P</mi><mi>T</mi></msup><mo>,</mo><mspace width="0.4em"></mspace><mi>ε</mi><mo>≥</mo><mn>0</mn></mtd></mtr>
+      <mtr><mtd><mtext>subject to</mtext></mtd><mtd></mtd><mtd><mi>tr</mi><mo>(</mo><mi>P</mi><mo>)</mo><mo>=</mo><mn>1</mn></mtd></mtr>
+      <mtr><mtd></mtd><mtd></mtd><mtd><mi>P</mi><mo>−</mo><mi>ε</mi><mi>I</mi><mo>≽</mo><mn>0</mn></mtd></mtr>
+      <mtr><mtd></mtd><mtd></mtd><mtd><mi>P</mi><mo>−</mo><msubsup><mi>A</mi><mn>0</mn><mi>T</mi></msubsup><mi>P</mi><msub><mi>A</mi><mn>0</mn></msub><mo>−</mo><mi>ε</mi><mi>I</mi><mo>≽</mo><mn>0</mn></mtd></mtr>
+      <mtr><mtd></mtd><mtd></mtd><mtd><mi>P</mi><mo>−</mo><msubsup><mi>A</mi><mn>1</mn><mi>T</mi></msubsup><mi>P</mi><msub><mi>A</mi><mn>1</mn></msub><mo>−</mo><mi>ε</mi><mi>I</mi><mo>≽</mo><mn>0</mn></mtd></mtr>
+    </mtable>
+  </math>
+</div>
+<p>If the optimum satisfies <math><mi>ε</mi><mo>&gt;</mo><mn>0</mn></math>, the solver has found a common quadratic Lyapunov function for both endpoint matrices.</p>
+
+<h3>4. Why the endpoints certify every beta</h3>
+<p>For <math><mi>A</mi><mo>(</mo><mi>β</mi><mo>)</mo><mo>=</mo><mo>(</mo><mn>1</mn><mo>−</mo><mi>β</mi><mo>)</mo><msub><mi>A</mi><mn>0</mn></msub><mo>+</mo><mi>β</mi><msub><mi>A</mi><mn>1</mn></msub></math>, direct expansion gives</p>
+<div class="card">
+  <math aria-label="Weighted endpoint quadratic forms minus A beta transpose P A beta equals beta times one minus beta times A zero minus A one transpose P times A zero minus A one, which is positive semidefinite" display="block">
+    <mtable columnalign="center" rowspacing="0.5em">
+      <mtr><mtd><mo>(</mo><mn>1</mn><mo>−</mo><mi>β</mi><mo>)</mo><msubsup><mi>A</mi><mn>0</mn><mi>T</mi></msubsup><mi>P</mi><msub><mi>A</mi><mn>0</mn></msub><mo>+</mo><mi>β</mi><msubsup><mi>A</mi><mn>1</mn><mi>T</mi></msubsup><mi>P</mi><msub><mi>A</mi><mn>1</mn></msub></mtd></mtr>
+      <mtr><mtd><mo>−</mo><msup><mi>A</mi><mi>T</mi></msup><mo>(</mo><mi>β</mi><mo>)</mo><mi>P</mi><mi>A</mi><mo>(</mo><mi>β</mi><mo>)</mo></mtd></mtr>
+      <mtr><mtd><mo>=</mo><mi>β</mi><mo>(</mo><mn>1</mn><mo>−</mo><mi>β</mi><mo>)</mo><msup><mrow><mo>(</mo><msub><mi>A</mi><mn>0</mn></msub><mo>−</mo><msub><mi>A</mi><mn>1</mn></msub><mo>)</mo></mrow><mi>T</mi></msup><mi>P</mi><mo>(</mo><msub><mi>A</mi><mn>0</mn></msub><mo>−</mo><msub><mi>A</mi><mn>1</mn></msub><mo>)</mo><mo>≽</mo><mn>0</mn></mtd></mtr>
+    </mtable>
+  </math>
+</div>
+<p>Therefore</p>
+<div class="card">
+  <math aria-label="A beta transpose P A beta is less than or equal to the weighted endpoint quadratic forms" display="block">
+    <msup><mi>A</mi><mi>T</mi></msup><mo>(</mo><mi>β</mi><mo>)</mo><mi>P</mi><mi>A</mi><mo>(</mo><mi>β</mi><mo>)</mo>
+    <mo>≼</mo><mo>(</mo><mn>1</mn><mo>−</mo><mi>β</mi><mo>)</mo><msubsup><mi>A</mi><mn>0</mn><mi>T</mi></msubsup><mi>P</mi><msub><mi>A</mi><mn>0</mn></msub>
+    <mo>+</mo><mi>β</mi><msubsup><mi>A</mi><mn>1</mn><mi>T</mi></msubsup><mi>P</mi><msub><mi>A</mi><mn>1</mn></msub>
+  </math>
+</div>
+<p>If both endpoint terms contract the same quadratic function, every convex combination does too. The same <math><mi>P</mi></math> then proves decrease for every <math><mi>β</mi><mo>∈</mo><mo>[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>]</mo></math>, including a different state-dependent <math><msub><mi>β</mi><mi>k</mi></msub></math> on each cycle.</p>
+
+<h3>5. YALMIP form of the convex program</h3>
+<pre data-mado-component-id="yalmip-common-lyapunov"><code class="language-matlab">n = size(A0, 1);
+P = sdpvar(n, n, 'symmetric');
+epsilon = sdpvar(1);
+I = eye(n);
+
+constraints = [
+    trace(P) == 1,
+    epsilon &gt;= 0,
+    P - epsilon*I &gt;= 0,
+    P - A0'*P*A0 - epsilon*I &gt;= 0,
+    P - A1'*P*A1 - epsilon*I &gt;= 0
+];
+
+options = sdpsettings('solver', 'sedumi', 'verbose', 0);
+result = optimize(constraints, -epsilon, options);
+
+P_value = value(P);
+epsilon_value = value(epsilon);</code></pre>
+<div class="callout">
+  <p><strong>Offline computation:</strong> the semidefinite program computes <math><mi>P</mi></math> once during analysis or controller design. The online conditioner still computes only <math><msub><mi>β</mi><mi>k</mi></msub></math> and scales the raw switching-instant offset.</p>
+</div></div>
+      </section>
+      <section class="mado-session chapter" id="session-why-endpoints-are-enough" data-mado-session-id="why-endpoints-are-enough">
+        <h2><span class="mado-session-number" aria-hidden="true">6. </span><span class="mado-session-title">Why the two endpoints are enough</span></h2>
+        <div class="mado-session-content content"><p>The endpoint argument is correct only when the optimization finds one positive-definite matrix <math><mi>P</mi></math> that works for both <math><mi>Φ</mi></math> and <math><msub><mi>A</mi><mi>cl</mi></msub></math>.</p>
+
+<h3>1. Fix one quadratic Lyapunov function</h3>
+<p>Define</p>
+<div class="card">
+  <math aria-label="V of e equals e transpose P e, with P symmetric positive definite" display="block">
+    <mi>V</mi><mo>(</mo><mi>e</mi><mo>)</mo><mo>=</mo><msup><mi>e</mi><mi>T</mi></msup><mi>P</mi><mi>e</mi><mo>,</mo><mspace width="0.7em"></mspace><mi>P</mi><mo>=</mo><msup><mi>P</mi><mi>T</mi></msup><mo>≻</mo><mn>0</mn>
+  </math>
+</div>
+<p>For this fixed <math><mi>P</mi></math>, define the contraction set</p>
+<div class="card" data-mado-component-id="fixed-p-contraction-set">
+  <math aria-label="C P is the set of matrices A such that A transpose P A minus P is negative definite" display="block">
+    <msub><mi>𝒞</mi><mi>P</mi></msub><mo>=</mo><mo>{</mo><mi>A</mi><mo>:</mo><msup><mi>A</mi><mi>T</mi></msup><mi>P</mi><mi>A</mi><mo>−</mo><mi>P</mi><mo>≺</mo><mn>0</mn><mo>}</mo>
+  </math>
+</div>
+<p>Every matrix in <math><msub><mi>𝒞</mi><mi>P</mi></msub></math> decreases the same Lyapunov function. This fixed-<math><mi>P</mi></math> set is convex.</p>
+
+<h3>2. Put both endpoints in that same set</h3>
+<p>Use the physical one-cycle error matrices</p>
+<div class="card">
+  <math aria-label="A zero equals Phi and A one equals A c l" display="block">
+    <mtable columnalign="right center left" rowspacing="0.5em">
+      <mtr><mtd><msub><mi>A</mi><mn>0</mn></msub></mtd><mtd><mo>=</mo></mtd><mtd><mi>Φ</mi></mtd></mtr>
+      <mtr><mtd><msub><mi>A</mi><mn>1</mn></msub></mtd><mtd><mo>=</mo></mtd><mtd><msub><mi>A</mi><mi>cl</mi></msub></mtd></mtr>
+    </mtable>
+  </math>
+</div>
+<p>The semidefinite optimization must impose both inequalities on the same decision matrix <math><mi>P</mi></math>:</p>
+<div class="card">
+  <math aria-label="Phi transpose P Phi minus P negative definite and A c l transpose P A c l minus P negative definite" display="block">
+    <mtable columnalign="right center left" rowspacing="0.55em">
+      <mtr><mtd><msup><mi>Φ</mi><mi>T</mi></msup><mi>P</mi><mi>Φ</mi><mo>−</mo><mi>P</mi></mtd><mtd><mo>≺</mo></mtd><mtd><mn>0</mn></mtd></mtr>
+      <mtr><mtd><msubsup><mi>A</mi><mi>cl</mi><mi>T</mi></msubsup><mi>P</mi><msub><mi>A</mi><mi>cl</mi></msub><mo>−</mo><mi>P</mi></mtd><mtd><mo>≺</mo></mtd><mtd><mn>0</mn></mtd></mtr>
+    </mtable>
+  </math>
+</div>
+<p>Because <math><mi>Φ</mi></math> and <math><msub><mi>A</mi><mi>cl</mi></msub></math> are fixed, these are linear matrix inequalities in <math><mi>P</mi></math>. Finding <math><mi>P</mi></math> subject to both is a convex feasibility problem.</p>
+
+<figure data-mado-component-id="common-p-segment-diagram">
+  <svg aria-label="Phi and A c l lie inside the same convex fixed-P contraction set, and the full line segment A beta between them remains inside the set" role="img" viewBox="0 0 920 390">
+    <title>Line segment inside the common-P contraction set</title>
+    <rect fill="#192026" height="388" rx="14" stroke="#57636c" width="918" x="1" y="1"></rect>
+    <ellipse cx="460" cy="205" fill="#132220" rx="350" ry="140" stroke="#4fd6c1" stroke-width="4"></ellipse>
+    <text fill="#4fd6c1" font-family="system-ui, sans-serif" font-size="24" text-anchor="middle" x="460" y="100">𝒞_P: fixed-P contraction set</text>
+    <line stroke="#eef2f5" stroke-linecap="round" stroke-width="7" x1="285" x2="635" y1="220" y2="220"></line>
+    <circle cx="285" cy="220" fill="#f0b06a" r="20"></circle>
+    <circle cx="460" cy="220" fill="#eef2f5" r="15"></circle>
+    <circle cx="635" cy="220" fill="#a99bf0" r="20"></circle>
+    <text fill="#f0b06a" font-family="system-ui, sans-serif" font-size="25" text-anchor="middle" x="285" y="180">Φ</text>
+    <text fill="#eef2f5" font-family="system-ui, sans-serif" font-size="25" text-anchor="middle" x="460" y="180">A(β)</text>
+    <text fill="#a99bf0" font-family="system-ui, sans-serif" font-size="25" text-anchor="middle" x="635" y="180">A<tspan baseline-shift="sub" font-size="16">cl</tspan></text>
+    <text fill="#b3bfc8" font-family="system-ui, sans-serif" font-size="20" text-anchor="middle" x="460" y="285">A(β) = (1 − β)Φ + βA<tspan baseline-shift="sub" font-size="13">cl</tspan></text>
+    <text fill="#8b98a2" font-family="system-ui, sans-serif" font-size="17" text-anchor="middle" x="460" y="340">The complete segment uses the same P.</text>
+  </svg>
+  <figcaption>The convex object is the contraction set defined by one fixed <math><mi>P</mi></math>, not the set of all stable matrices.</figcaption>
+</figure>
+
+<h3>3. Verify an arbitrary point on the segment</h3>
+<p>For</p>
+<div class="card">
+  <math aria-label="A beta equals one minus beta Phi plus beta A c l" display="block">
+    <mi>A</mi><mo>(</mo><mi>β</mi><mo>)</mo><mo>=</mo><mo>(</mo><mn>1</mn><mo>−</mo><mi>β</mi><mo>)</mo><mi>Φ</mi><mo>+</mo><mi>β</mi><msub><mi>A</mi><mi>cl</mi></msub><mo>,</mo><mspace width="0.6em"></mspace><mn>0</mn><mo>≤</mo><mi>β</mi><mo>≤</mo><mn>1</mn>
+  </math>
+</div>
+<p>direct expansion gives</p>
+<div class="card">
+  <math aria-label="The weighted endpoint quadratic terms minus A beta transpose P A beta equals beta one minus beta times Phi minus A c l transpose P times Phi minus A c l, which is positive semidefinite" display="block">
+    <mtable columnalign="center" rowspacing="0.55em">
+      <mtr><mtd><mo>(</mo><mn>1</mn><mo>−</mo><mi>β</mi><mo>)</mo><msup><mi>Φ</mi><mi>T</mi></msup><mi>P</mi><mi>Φ</mi><mo>+</mo><mi>β</mi><msubsup><mi>A</mi><mi>cl</mi><mi>T</mi></msubsup><mi>P</mi><msub><mi>A</mi><mi>cl</mi></msub></mtd></mtr>
+      <mtr><mtd><mo>−</mo><msup><mi>A</mi><mi>T</mi></msup><mo>(</mo><mi>β</mi><mo>)</mo><mi>P</mi><mi>A</mi><mo>(</mo><mi>β</mi><mo>)</mo></mtd></mtr>
+      <mtr><mtd><mo>=</mo><mi>β</mi><mo>(</mo><mn>1</mn><mo>−</mo><mi>β</mi><mo>)</mo><msup><mrow><mo>(</mo><mi>Φ</mi><mo>−</mo><msub><mi>A</mi><mi>cl</mi></msub><mo>)</mo></mrow><mi>T</mi></msup><mi>P</mi><mo>(</mo><mi>Φ</mi><mo>−</mo><msub><mi>A</mi><mi>cl</mi></msub><mo>)</mo><mo>≽</mo><mn>0</mn></mtd></mtr>
+    </mtable>
+  </math>
+</div>
+<p>It follows that</p>
+<div class="card">
+  <math aria-label="A beta transpose P A beta is less than or equal to the weighted endpoint quadratic terms, which are less than P" display="block">
+    <mtable columnalign="center" rowspacing="0.5em">
+      <mtr><mtd><msup><mi>A</mi><mi>T</mi></msup><mo>(</mo><mi>β</mi><mo>)</mo><mi>P</mi><mi>A</mi><mo>(</mo><mi>β</mi><mo>)</mo></mtd></mtr>
+      <mtr><mtd><mo>≼</mo><mo>(</mo><mn>1</mn><mo>−</mo><mi>β</mi><mo>)</mo><msup><mi>Φ</mi><mi>T</mi></msup><mi>P</mi><mi>Φ</mi><mo>+</mo><mi>β</mi><msubsup><mi>A</mi><mi>cl</mi><mi>T</mi></msubsup><mi>P</mi><msub><mi>A</mi><mi>cl</mi></msub></mtd></mtr>
+      <mtr><mtd><mo>≺</mo><mi>P</mi></mtd></mtr>
+    </mtable>
+  </math>
+</div>
+<p>Therefore</p>
+<div class="callout">
+  <math aria-label="A beta transpose P A beta minus P is negative definite for every beta between zero and one" display="block">
+    <msup><mi>A</mi><mi>T</mi></msup><mo>(</mo><mi>β</mi><mo>)</mo><mi>P</mi><mi>A</mi><mo>(</mo><mi>β</mi><mo>)</mo><mo>−</mo><mi>P</mi><mo>≺</mo><mn>0</mn><mo>,</mo><mspace width="0.6em"></mspace><mo>∀</mo><mi>β</mi><mo>∈</mo><mo>[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>]</mo>
+  </math>
+</div>
+
+<h3>4. What the certificate proves</h3>
+<ul>
+  <li>Every matrix on the segment is Schur stable.</li>
+  <li>The same quadratic function <math><mi>V</mi><mo>(</mo><mi>e</mi><mo>)</mo><mo>=</mo><msup><mi>e</mi><mi>T</mi></msup><mi>P</mi><mi>e</mi></math> decreases for every point on the segment.</li>
+  <li>The linearized system remains exponentially stable when <math><msub><mi>β</mi><mi>k</mi></msub></math> changes from cycle to cycle.</li>
+</ul>
+
+<h3>5. What would not be enough</h3>
+<div class="callout">
+  <p><strong>Endpoint stability alone is insufficient.</strong> The set of all Schur-stable matrices is not generally convex. Likewise, finding one matrix <math><msub><mi>P</mi><mn>0</mn></msub></math> for <math><mi>Φ</mi></math> and a different matrix <math><msub><mi>P</mi><mn>1</mn></msub></math> for <math><msub><mi>A</mi><mi>cl</mi></msub></math> does not certify the matrices between them. The shared <math><mi>P</mi></math> is the essential part of the argument.</p>
+</div>
+
+<p>This certificate applies to the physical one-cycle linearized error model. It does not by itself establish global stability of the exact nonlinear switched-affine plant.</p></div>
+      </section>
+      <section class="mado-session chapter" id="session-laboratory" data-mado-session-id="laboratory">
+        <h2><span class="mado-session-number" aria-hidden="true">7. </span><span class="mado-session-title">Explore the interpolation</span></h2>
+        <div class="mado-session-content content"><p>Move the slider to change how much of the raw switching-instant offset reaches the plant.</p>
+<template data-mado-component-id="beta-laboratory" data-mado-component-kind="laboratory" data-mado-laboratory-source="0a20203c7374796c653e0a202020202e6d61646f2d6c61626f7261746f7279202e626574612d6c61625f5f686561646572207b0a202020202020646973706c61793a20666c65783b0a2020202020206a7573746966792d636f6e74656e743a2073706163652d6265747765656e3b0a2020202020206761703a20313670783b0a202020202020616c69676e2d6974656d733a20626173656c696e653b0a2020202020206d617267696e2d626f74746f6d3a20313470783b0a202020207d0a202020202e6d61646f2d6c61626f7261746f7279202e626574612d6c61625f5f76616c7565207b0a202020202020636f6c6f723a20766172282d2d6d61646f2d616363656e74293b0a202020202020666f6e742d66616d696c793a20766172282d2d6d61646f2d6d6f6e6f293b0a202020202020666f6e742d73697a653a20312e333572656d3b0a202020202020666f6e742d7765696768743a203730303b0a202020207d0a202020202e6d61646f2d6c61626f7261746f7279202e626574612d6c61625f5f736c69646572207b0a20202020202077696474683a20313030253b0a202020202020616363656e742d636f6c6f723a20766172282d2d6d61646f2d616363656e74293b0a202020207d0a202020202e6d61646f2d6c61626f7261746f7279202e626574612d6c61625f5f627574746f6e73207b0a202020202020646973706c61793a20666c65783b0a202020202020666c65782d777261703a20777261703b0a2020202020206761703a203870783b0a2020202020206d617267696e3a2031327078203020323070783b0a202020207d0a202020202e6d61646f2d6c61626f7261746f7279202e626574612d6c61625f5f627574746f6e7320627574746f6e207b0a202020202020626f726465723a2031707820736f6c696420766172282d2d6d61646f2d6c696e652d32293b0a202020202020626f726465722d7261646975733a203770783b0a20202020202070616464696e673a2037707820313270783b0a2020202020206261636b67726f756e643a20766172282d2d6d61646f2d62672d32293b0a202020202020636f6c6f723a20766172282d2d6d61646f2d696e6b293b0a202020202020637572736f723a20706f696e7465723b0a202020207d0a202020202e6d61646f2d6c61626f7261746f7279202e626574612d6c61625f5f77656967687473207b0a202020202020646973706c61793a20677269643b0a202020202020677269642d74656d706c6174652d636f6c756d6e733a20316672203166723b0a2020202020206761703a20313270783b0a2020202020206d617267696e2d626f74746f6d3a20313870783b0a202020207d0a202020202e6d61646f2d6c61626f7261746f7279202e626574612d6c61625f5f776569676874207b0a202020202020626f726465723a2031707820736f6c696420766172282d2d6d61646f2d6c696e65293b0a202020202020626f726465722d7261646975733a203970783b0a20202020202070616464696e673a20313470783b0a2020202020206261636b67726f756e643a20766172282d2d6d61646f2d62672d32293b0a202020207d0a202020202e6d61646f2d6c61626f7261746f7279202e626574612d6c61625f5f776569676874207374726f6e67207b0a202020202020646973706c61793a20626c6f636b3b0a2020202020206d617267696e2d746f703a203470783b0a202020202020636f6c6f723a20766172282d2d6d61646f2d706f736974697665293b0a202020202020666f6e742d66616d696c793a20766172282d2d6d61646f2d6d6f6e6f293b0a202020202020666f6e742d73697a653a20312e333572656d3b0a202020207d0a202020202e6d61646f2d6c61626f7261746f7279202e626574612d6c61625f5f6571756174696f6e207b0a2020202020206f766572666c6f772d783a206175746f3b0a202020202020626f726465722d6c6566743a2033707820736f6c696420766172282d2d6d61646f2d616363656e74293b0a202020202020626f726465722d7261646975733a2030203870782038707820303b0a20202020202070616464696e673a20313570783b0a2020202020206261636b67726f756e643a20766172282d2d6d61646f2d616363656e742d736f6674293b0a202020207d0a202020202e6d61646f2d6c61626f7261746f7279202e626574612d6c61625f5f6571756174696f6e206d617468207b0a2020202020206d696e2d77696474683a206d61782d636f6e74656e743b0a202020202020666f6e742d73697a653a20312e333572656d3b0a202020207d0a202020202e6d61646f2d6c61626f7261746f7279202e626574612d6c61625f5f737461747573207b0a202020202020646973706c61793a20626c6f636b3b0a2020202020206d617267696e2d746f703a20313470783b0a202020202020636f6c6f723a20766172282d2d6d61646f2d696e6b2d32293b0a202020207d0a20202020406d6564696120286d61782d77696474683a20353630707829207b0a2020202020202e6d61646f2d6c61626f7261746f7279202e626574612d6c61625f5f77656967687473207b20677269642d74656d706c6174652d636f6c756d6e733a203166723b207d0a202020207d0a20203c2f7374796c653e0a0a20203c64697620636c6173733d22626574612d6c61625f5f686561646572223e0a202020203c7374726f6e673e436f6e646974696f6e696e6720666163746f723c2f7374726f6e673e0a202020203c6f757470757420636c6173733d22626574612d6c61625f5f76616c75652220646174612d726f6c653d22626574612d76616c7565223eceb2203d20302e35303c2f6f75747075743e0a20203c2f6469763e0a0a20203c696e70757420636c6173733d22626574612d6c61625f5f736c696465722220646174612d616374696f6e3d22626574612220747970653d2272616e676522206d696e3d223022206d61783d2231222076616c75653d22302e352220737465703d22302e30312220617269612d6c6162656c3d22436f6e646974696f6e696e6720666163746f722062657461223e0a0a20203c64697620636c6173733d22626574612d6c61625f5f627574746f6e732220617269612d6c6162656c3d2250726573657420626574612076616c756573223e0a202020203c627574746f6e20747970653d22627574746f6e2220646174612d626574613d2230223eceb2203d20303c2f627574746f6e3e0a202020203c627574746f6e20747970653d22627574746f6e2220646174612d626574613d22302e35223eceb2203d20302e353c2f627574746f6e3e0a202020203c627574746f6e20747970653d22627574746f6e2220646174612d626574613d2231223eceb2203d20313c2f627574746f6e3e0a20203c2f6469763e0a0a20203c64697620636c6173733d22626574612d6c61625f5f77656967687473223e0a202020203c64697620636c6173733d22626574612d6c61625f5f776569676874223e0a202020202020576569676874206f6e20cea60a2020202020203c7374726f6e6720646174612d726f6c653d227068692d776569676874223e302e35303c2f7374726f6e673e0a202020203c2f6469763e0a202020203c64697620636c6173733d22626574612d6c61625f5f776569676874223e0a202020202020576569676874206f6e20413c7375623e636c3c2f7375623e0a2020202020203c7374726f6e6720646174612d726f6c653d2261636c2d776569676874223e302e35303c2f7374726f6e673e0a202020203c2f6469763e0a20203c2f6469763e0a0a20203c64697620636c6173733d22626574612d6c61625f5f6571756174696f6e223e0a202020203c6d61746820646973706c61793d22626c6f636b2220617269612d6c6162656c3d2243757272656e74206d617472697820696e746572706f6c6174696f6e223e0a2020202020203c6d693e413c2f6d693e3c6d6f3e283c2f6d6f3e3c6d6e20646174612d726f6c653d22626574612d617267756d656e74223e302e35303c2f6d6e3e3c6d6f3e293c2f6d6f3e3c6d6f3e3d3c2f6d6f3e0a2020202020203c6d6e20646174612d726f6c653d227068692d636f656666696369656e74223e302e35303c2f6d6e3e3c6d693ecea63c2f6d693e3c6d6f3e2b3c2f6d6f3e0a2020202020203c6d6e20646174612d726f6c653d2261636c2d636f656666696369656e74223e302e35303c2f6d6e3e3c6d7375623e3c6d693e413c2f6d693e3c6d693e636c3c2f6d693e3c2f6d7375623e0a202020203c2f6d6174683e0a20203c2f6469763e0a0a20203c6f757470757420636c6173733d22626574612d6c61625f5f7374617475732220646174612d726f6c653d227374617475732220617269612d6c6976653d22706f6c697465223e48616c66206f66207468652072617720737769746368696e672d696e7374616e74206f6666736574206973206170706c6965642e3c2f6f75747075743e0a0a20203c7363726970743e0a20202020636f6e737420736c69646572203d20726f6f742e717565727953656c6563746f7228275b646174612d616374696f6e3d2262657461225d27293b0a20202020636f6e7374206265746156616c7565203d20726f6f742e717565727953656c6563746f7228275b646174612d726f6c653d22626574612d76616c7565225d27293b0a20202020636f6e737420706869576569676874203d20726f6f742e717565727953656c6563746f7228275b646174612d726f6c653d227068692d776569676874225d27293b0a20202020636f6e73742061636c576569676874203d20726f6f742e717565727953656c6563746f7228275b646174612d726f6c653d2261636c2d776569676874225d27293b0a20202020636f6e73742062657461417267756d656e74203d20726f6f742e717565727953656c6563746f7228275b646174612d726f6c653d22626574612d617267756d656e74225d27293b0a20202020636f6e737420706869436f656666696369656e74203d20726f6f742e717565727953656c6563746f7228275b646174612d726f6c653d227068692d636f656666696369656e74225d27293b0a20202020636f6e73742061636c436f656666696369656e74203d20726f6f742e717565727953656c6563746f7228275b646174612d726f6c653d2261636c2d636f656666696369656e74225d27293b0a20202020636f6e737420737461747573203d20726f6f742e717565727953656c6563746f7228275b646174612d726f6c653d22737461747573225d27293b0a0a2020202066756e6374696f6e207570646174652829207b0a202020202020636f6e73742062657461203d204e756d62657228736c696465722e76616c7565293b0a202020202020636f6e737420706869203d2031202d20626574613b0a202020202020636f6e7374206265746154657874203d20626574612e746f46697865642832293b0a202020202020636f6e73742070686954657874203d207068692e746f46697865642832293b0a0a2020202020206265746156616c75652e74657874436f6e74656e74203d2060ceb2203d20247b62657461546578747d603b0a2020202020207068695765696768742e74657874436f6e74656e74203d20706869546578743b0a20202020202061636c5765696768742e74657874436f6e74656e74203d2062657461546578743b0a20202020202062657461417267756d656e742e74657874436f6e74656e74203d2062657461546578743b0a202020202020706869436f656666696369656e742e74657874436f6e74656e74203d20706869546578743b0a20202020202061636c436f656666696369656e742e74657874436f6e74656e74203d2062657461546578743b0a0a2020202020206966202862657461203d3d3d203029207b0a20202020202020207374617475732e74657874436f6e74656e74203d20274e6f20737769746368696e672d696e7374616e7420636f7272656374696f6e206973206170706c6965642e2041283029203d20cea62e273b0a2020202020207d20656c7365206966202862657461203d3d3d203129207b0a20202020202020207374617475732e74657874436f6e74656e74203d202754686520636f6d706c6574652072617720737769746368696e672d696e7374616e7420636f7272656374696f6e206973206170706c6965642e2041283129203d20415f636c2e273b0a2020202020207d20656c7365207b0a20202020202020207374617475732e74657874436f6e74656e74203d2060247b4d6174682e726f756e642862657461202a20313030297d25206f66207468652072617720737769746368696e672d696e7374616e74206f6666736574206973206170706c6965642e603b0a2020202020207d0a202020207d0a0a20202020736c696465722e6164644576656e744c697374656e65722827696e707574272c20757064617465293b0a20202020726f6f742e717565727953656c6563746f72416c6c28275b646174612d626574615d27292e666f72456163682828627574746f6e29203d3e207b0a202020202020627574746f6e2e6164644576656e744c697374656e65722827636c69636b272c202829203d3e207b0a2020202020202020736c696465722e76616c7565203d20627574746f6e2e646174617365742e626574613b0a202020202020202075706461746528293b0a2020202020207d293b0a202020207d293b0a2020202075706461746528293b0a20203c2f7363726970743e0a" data-mado-title="Beta matrix interpolation"></template></div>
+      </section>
+      <section class="mado-session chapter" id="session-dimensions" data-mado-session-id="dimensions">
+        <h2><span class="mado-session-number" aria-hidden="true">8. </span><span class="mado-session-title">Why the original expression fails</span></h2>
+        <div class="mado-session-content content"><p>The dimensions identify the missing operation.</p>
+<table>
+  <thead>
+    <tr><th>Quantity</th><th>Meaning</th><th>Dimension</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><math><msub><mi>e</mi><mi>k</mi></msub></math></td><td>Cycle-start state error</td><td><math><mi>n</mi><mo>×</mo><mn>1</mn></math></td></tr>
+    <tr><td><math><mi>K</mi></math></td><td>LQR gain</td><td><math><mo>(</mo><mi>N</mi><mo>−</mo><mn>1</mn><mo>)</mo><mo>×</mo><mi>n</mi></math></td></tr>
+    <tr><td><math><mi>K</mi><msub><mi>e</mi><mi>k</mi></msub></math></td><td>Raw timing-offset vector, apart from its minus sign</td><td><math><mo>(</mo><mi>N</mi><mo>−</mo><mn>1</mn><mo>)</mo><mo>×</mo><mn>1</mn></math></td></tr>
+    <tr><td><math><msub><mi>Γ</mi><mi>τ</mi></msub></math></td><td>Switching-instant sensitivity</td><td><math><mi>n</mi><mo>×</mo><mo>(</mo><mi>N</mi><mo>−</mo><mn>1</mn><mo>)</mo></math></td></tr>
+    <tr><td><math><msub><mi>Γ</mi><mi>τ</mi></msub><mi>K</mi></math></td><td>Timing-feedback contribution to the cycle matrix</td><td><math><mi>n</mi><mo>×</mo><mi>n</mi></math></td></tr>
+    <tr><td><math><mi>Φ</mi><mo>,</mo><mi>A</mi><mo>(</mo><mi>β</mi><mo>)</mo><mo>,</mo><msub><mi>A</mi><mi>cl</mi></msub></math></td><td>One-cycle state matrices</td><td><math><mi>n</mi><mo>×</mo><mi>n</mi></math></td></tr>
+  </tbody>
+</table>
+<div class="callout">
+  <p><strong>The required matrix term is <math><msub><mi>Γ</mi><mi>τ</mi></msub><mi>K</mi></math>.</strong> The multiplication by <math><msub><mi>Γ</mi><mi>τ</mi></msub></math> converts the timing-offset vector produced by the LQR law into a state-error change.</p>
+</div></div>
+      </section>
+      <section class="mado-session chapter" id="session-state-dependent-beta" data-mado-session-id="state-dependent-beta">
+        <h2><span class="mado-session-number" aria-hidden="true">9. </span><span class="mado-session-title">When beta changes each cycle</span></h2>
+        <div class="mado-session-content content"><p>The dwell-time conditioner normally computes <math><msub><mi>β</mi><mi>k</mi></msub></math> from the current raw offset and the available dwell margins. Its value can therefore depend on the current cycle-start error.</p>
+<div class="card">
+  <math aria-label="e k plus 1 equals A of beta k times e k" display="block">
+    <msub><mi>e</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mi>A</mi><mo>(</mo><msub><mi>β</mi><mi>k</mi></msub><mo>)</mo><msub><mi>e</mi><mi>k</mi></msub>
+  </math>
+</div>
+<p>On every cycle, the selected matrix remains on the segment joining <math><mi>Φ</mi></math> and <math><msub><mi>A</mi><mi>cl</mi></msub></math>. The selected point may move along that segment from one cycle to the next.</p>
+<div class="callout">
+  <p>This matrix-segment statement belongs to the one-cycle linearized model. It is not, by itself, a global statement about the exact nonlinear plant.</p>
+</div></div>
+      </section></div>
+      <footer class="mado-footer"></footer>
+    </main>
+    <script>
+      /* ==================================================================
+         Mado HTML document chrome. Template-owned, standalone, no network.
+         The search index is built from the rendered DOM at load, so it is
+         correct for whatever document this template renders.
+         ================================================================== */
+      (function () {
+        "use strict";
+
+        function decodeLaboratorySource(source) {
+          var hex = source.getAttribute("data-mado-laboratory-source") || "";
+          var bytes = new Uint8Array(hex.length / 2);
+          for (var i = 0; i < bytes.length; i += 1) {
+            bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+          }
+          return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+        }
+
+        function initLaboratories() {
+          each(document.querySelectorAll('template[data-mado-component-kind="laboratory"]'), function (source) {
+            if (source.__madoRendered) return;
+
+            var laboratory = document.createElement("section");
+            var title = source.getAttribute("data-mado-title") || "Interactive Laboratory";
+            var parsed = document.createElement("template");
+            var scripts = [];
+
+            laboratory.className = "mado-laboratory";
+            laboratory.setAttribute("role", "region");
+            laboratory.setAttribute("aria-label", title);
+            parsed.innerHTML = decodeLaboratorySource(source);
+
+            each(parsed.content.querySelectorAll("script"), function (script) {
+              scripts.push(script.textContent || "");
+              script.parentNode.removeChild(script);
+            });
+
+            laboratory.appendChild(parsed.content);
+            source.parentNode.insertBefore(laboratory, source.nextSibling);
+            source.__madoRendered = laboratory;
+
+            each(scripts, function (script) {
+              try {
+                Function("root", script)(laboratory);
+              } catch (error) {
+                console.error("Laboratory failed:", title, error);
+              }
+            });
+          });
+        }
+
+        function each(list, fn) { Array.prototype.forEach.call(list, fn); }
+        initLaboratories();
+
+        var filter = document.getElementById("mado-filter");
+        var input = document.getElementById("mado-filter-input");
+        var results = document.getElementById("mado-filter-results");
+        var facetBar = document.getElementById("mado-filter-facets");
+        var countEl = document.getElementById("mado-filter-count");
+        var hint = document.getElementById("mado-filter-hint");
+        var tick = document.getElementById("mado-edge-tick");
+        if (!filter || !input || !results || !facetBar || !countEl || !hint) return;
+
+        var MIN_MARK = 2;
+        var entries = [];
+        var rows = [];
+        var cursor = -1;
+        var facet = null;
+
+        function norm(s) { return (s || "").replace(/\s+/g, " ").trim(); }
+
+        function kindOf(el) {
+          var declared = el.getAttribute("data-mado-component-kind");
+          if (declared) return declared === "generated-diagram" ? "diagram" : declared;
+          if (el.hasAttribute("data-mado-diff-block-id")) return "diff";
+          var tag = el.tagName.toLowerCase();
+          if (tag === "svg" || tag === "figure") return "diagram";
+          if (tag === "pre" || tag === "details") return "code";
+          return "component";
+        }
+
+        function labelOf(el, id) {
+          var laboratoryTitle = el.getAttribute("data-mado-title");
+          if (laboratoryTitle) return norm(laboratoryTitle);
+          var cap = el.querySelector("figcaption, summary, .mado-diagram-title, .mado-diff-header strong");
+          return (cap ? norm(cap.textContent) : "") || id;
+        }
+
+        function buildIndex() {
+          var out = [];
+          each(document.querySelectorAll(".mado-session[data-mado-session-id]"), function (sec) {
+            var sid = sec.getAttribute("data-mado-session-id");
+            var titleEl = sec.querySelector(".mado-session-title");
+            var contentEl = sec.querySelector(".mado-session-content");
+            var title = titleEl ? norm(titleEl.textContent) : sid;
+            var body = contentEl ? norm(contentEl.textContent) : "";
+            out.push({
+              kind: "session", id: sid, label: title, el: sec, session: sec,
+              raw: body, text: (title + " " + sid + " " + body).toLowerCase()
+            });
+            if (!contentEl) return;
+            each(contentEl.querySelectorAll("[data-mado-component-id], [data-mado-diff-block-id]"), function (c) {
+              var cid = c.getAttribute("data-mado-component-id") || c.getAttribute("data-mado-diff-block-id");
+              var kind = kindOf(c);
+              var label = labelOf(c, cid);
+              var own = norm(c.textContent);
+              out.push({
+                kind: kind, id: cid, label: label, el: c.__madoRendered || c, session: sec,
+                raw: own, text: (label + " " + cid + " " + kind + " " + own).toLowerCase()
+              });
+            });
+          });
+          return out;
+        }
+
+        function parseQuery(q) {
+          var kind = facet;
+          var words = [];
+          q.toLowerCase().split(/\s+/).forEach(function (w) {
+            var m = /^kind:([a-z-]+)$/.exec(w);
+            if (m) { kind = m[1]; return; }
+            if (w) words.push(w);
+          });
+          return { term: words.join(" "), kind: kind };
+        }
+
+        function esc(t) {
+          return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function snippet(entry, term) {
+          var raw = entry.raw || "";
+          if (!term) return esc(raw.slice(0, 120));
+          var i = raw.toLowerCase().indexOf(term);
+          if (i < 0) return esc(raw.slice(0, 120));
+          var a = Math.max(0, i - 38);
+          var b = Math.min(raw.length, i + term.length + 70);
+          return (a ? "… " : "") + esc(raw.slice(a, i)) +
+            "<mark>" + esc(raw.slice(i, i + term.length)) + "</mark>" +
+            esc(raw.slice(i + term.length, b)) + (b < raw.length ? " …" : "");
+        }
+
+        /* in-page highlighting; never enters an svg, a template or a script */
+        function clearMarks() {
+          each(document.querySelectorAll("mark.mado-hit"), function (m) {
+            var p = m.parentNode;
+            if (!p) return;
+            p.replaceChild(document.createTextNode(m.textContent), m);
+            p.normalize();
+          });
+        }
+
+        function markPage(term) {
+          clearMarks();
+          if (!term || term.length < MIN_MARK) return;
+          var root = document.querySelector(".mado-sessions");
+          if (!root) return;
+          var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+            acceptNode: function (n) {
+              if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+              var p = n.parentElement;
+              if (!p || p.closest("svg, template, script, style, mark")) return NodeFilter.FILTER_REJECT;
+              return n.nodeValue.toLowerCase().indexOf(term) >= 0
+                ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+            }
+          });
+          var nodes = [];
+          while (walker.nextNode()) nodes.push(walker.currentNode);
+          nodes.forEach(function (node) {
+            var txt = node.nodeValue;
+            var low = txt.toLowerCase();
+            var frag = document.createDocumentFragment();
+            var at = 0;
+            var i = low.indexOf(term, at);
+            while (i >= 0) {
+              if (i > at) frag.appendChild(document.createTextNode(txt.slice(at, i)));
+              var m = document.createElement("mark");
+              m.className = "mado-hit";
+              m.textContent = txt.slice(i, i + term.length);
+              frag.appendChild(m);
+              at = i + term.length;
+              i = low.indexOf(term, at);
+            }
+            if (at < txt.length) frag.appendChild(document.createTextNode(txt.slice(at)));
+            if (node.parentNode) node.parentNode.replaceChild(frag, node);
+          });
+        }
+
+        function renderFacets() {
+          var kinds = [];
+          entries.forEach(function (e) { if (kinds.indexOf(e.kind) < 0) kinds.push(e.kind); });
+          facetBar.innerHTML = kinds.map(function (k) {
+            return '<button type="button" data-kind="' + esc(k) + '">kind:' + esc(k) + "</button>";
+          }).join("");
+          each(facetBar.querySelectorAll("button"), function (b) {
+            b.addEventListener("click", function () {
+              var k = b.getAttribute("data-kind");
+              facet = facet === k ? null : k;
+              paint();
+              input.focus();
+            });
+          });
+        }
+
+        function paint() {
+          var parsed = parseQuery(input.value);
+          var term = parsed.term;
+          var idle = !term && !parsed.kind;
+
+          rows = idle ? [] : entries.filter(function (e) {
+            return (!parsed.kind || e.kind === parsed.kind) && (!term || e.text.indexOf(term) >= 0);
+          });
+
+          if (idle) {
+            results.innerHTML = '<div class="mado-filter-empty">type to filter, or pick a kind</div>';
+          } else if (!rows.length) {
+            results.innerHTML = '<div class="mado-filter-empty">no match</div>';
+          } else {
+            results.innerHTML = rows.map(function (e, i) {
+              return '<a href="#" data-i="' + i + '">' +
+                '<span class="mado-r-kind">' + esc(e.kind) + "</span>" +
+                '<span class="mado-r-label">' + esc(e.label) +
+                '<span class="mado-r-snippet">' + snippet(e, term) + "</span></span>" +
+                '<span class="mado-r-id">' + esc(e.id) + "</span></a>";
+            }).join("");
+          }
+
+          var live = [];
+          rows.forEach(function (e) { if (live.indexOf(e.session) < 0) live.push(e.session); });
+          each(document.querySelectorAll(".mado-session"), function (s) {
+            s.classList.toggle("mado-miss", !idle && live.indexOf(s) < 0);
+          });
+
+          markPage(term);
+          cursor = -1;
+          countEl.textContent = idle ? "" :
+            rows.length + (rows.length === 1 ? " result" : " results") + " · " +
+            live.length + (live.length === 1 ? " session" : " sessions");
+
+          each(facetBar.querySelectorAll("button"), function (b) {
+            b.classList.toggle("mado-on", b.getAttribute("data-kind") === facet);
+          });
+          each(results.querySelectorAll("a"), function (a) {
+            a.addEventListener("click", function (ev) {
+              ev.preventDefault();
+              jump(rows[+a.getAttribute("data-i")]);
+            });
+          });
+        }
+
+        function jump(entry) {
+          if (!entry) return;
+          var target = entry.el;
+          var sec = entry.session;
+          close();
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+          if (!sec) return;
+          sec.classList.remove("mado-flash");
+          void sec.offsetWidth;
+          sec.classList.add("mado-flash");
+        }
+
+        function select(delta) {
+          var as = results.querySelectorAll("a");
+          if (!as.length) return;
+          cursor = (cursor + delta + as.length) % as.length;
+          each(as, function (a, i) { a.classList.toggle("mado-sel", i === cursor); });
+          as[cursor].scrollIntoView({ block: "nearest" });
+        }
+
+        function open() {
+          filter.classList.add("mado-open");
+          hint.setAttribute("aria-expanded", "true");
+          paint();
+          input.focus();
+        }
+
+        function close() {
+          filter.classList.remove("mado-open");
+          hint.setAttribute("aria-expanded", "false");
+          input.value = "";
+          facet = null;
+          cursor = -1;
+          each(document.querySelectorAll(".mado-session"), function (s) {
+            s.classList.remove("mado-miss");
+          });
+          clearMarks();
+          input.blur();
+          paint();
+        }
+
+        function isTyping(el) {
+          if (!el) return false;
+          var tag = el.tagName ? el.tagName.toLowerCase() : "";
+          return tag === "input" || tag === "textarea" || tag === "select" || el.isContentEditable === true;
+        }
+
+        entries = buildIndex();
+        renderFacets();
+        paint();
+
+        input.addEventListener("input", paint);
+        hint.addEventListener("click", function () {
+          if (filter.classList.contains("mado-open")) close(); else open();
+        });
+
+        document.addEventListener("keydown", function (e) {
+          var isOpen = filter.classList.contains("mado-open");
+          if (e.key === "/" && !isOpen && !isTyping(e.target)) { e.preventDefault(); open(); return; }
+          if (!isOpen) return;
+          if (e.key === "Escape") { e.preventDefault(); close(); }
+          else if (e.key === "ArrowDown") { e.preventDefault(); select(1); }
+          else if (e.key === "ArrowUp") { e.preventDefault(); select(-1); }
+          else if (e.key === "Enter") { e.preventDefault(); jump(rows[cursor < 0 ? 0 : cursor]); }
+        });
+
+        function onScroll() {
+          var h = document.documentElement;
+          var span = h.scrollHeight - window.innerHeight;
+          if (tick) tick.style.width = (span > 0 ? (h.scrollTop / span) * 100 : 0) + "%";
+          hint.classList.toggle("mado-show", h.scrollTop > 160);
+        }
+        window.addEventListener("scroll", onScroll, { passive: true });
+        onScroll();
+      })();
+    </script>
+  </body>
+</html>

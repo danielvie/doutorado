@@ -40,7 +40,8 @@ embedded/esp32_idf/
 
 ### Source scripts
 
-- `scripts/generate_results.m` generates the numerical outputs and four manuscript figures.
+- `scripts/generate_results.m` generates the main numerical outputs, the reference manuscript figure, and two auxiliary simulation figures. It calls the dedicated feasible-region generator during a full run.
+- `scripts/generate_feasible_regions.m` computes the fixed-`β` regions, writes their vertex files, and generates the four-panel feasible-region figure. It can also run independently from `results/paper_results.mat`.
 - `scripts/condition_dwell_times.m` implements the scalar dwell conditioner.
 - `scripts/generate_trajectory_comparison.m` generates additional comparison PDFs.
 - `scripts/design_robust_controllers.m` contains older robust-control work and is not part of the current article pipeline.
@@ -76,6 +77,6 @@ Start from the artifact that owns the fact:
 
 - wording or equations: `article.tex`;
 - terminology or scope: `CONTEXT.md` and `GOAL.md`;
-- generated number: `scripts/generate_results.m` and `results/metrics.csv`;
+- generated number: `scripts/generate_results.m`, `scripts/generate_feasible_regions.m`, and `results/metrics.csv`;
 - build behavior: `Taskfile.yml`;
 - prior-art interpretation: `research/novelty-review.md`.

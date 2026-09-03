@@ -16,7 +16,7 @@ There are no section-level `.tex` files included by the manuscript.
 - Lines 26–37: title, authors, affiliation, abstract, keywords, and title page.
 - Lines 39–48: Introduction.
 - Lines 49–207: fixed-period one-cycle model.
-- Lines 208–278: dwell conditioning and common-Lyapunov certificate.
+- Conditioning section: dwell conditioner and maximal invariant Raw-Action Admissible Region.
 - Lines 280–410: converter case study, tables, figures, and simulation discussion.
 - Lines 411–418: Discussion.
 - Lines 419–421: Conclusion.
@@ -38,9 +38,7 @@ The tables are written directly in `article.tex`.
 The current source references:
 
 - `figures/reference_schedule_orbit.pdf`;
-- `figures/first_cycle_conditioning.pdf`;
-- `figures/conditioned_control_response.pdf`;
-- `figures/conditioned_trajectory.png`.
+- `figures/invariant_raw_action_region.pdf`.
 
 ## Rewrite navigation
 

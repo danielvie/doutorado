@@ -6,9 +6,15 @@ Read when: deciding which script owns a numerical operation
 
 ## `generate_results.m`
 
-Main paper pipeline. It configures the three-cell converter benchmark, reconciles the nominal schedule, computes the exact orbit and one-cycle linearization, performs finite-difference and residual checks, designs the LQR comparison gains, computes the offline common-P certificate, simulates the selected controllers, writes result files, and generates the four manuscript figures.
+Main paper pipeline. It configures the three-cell converter benchmark, reconciles the nominal schedule, computes the exact orbit and one-cycle linearization, performs finite-difference and residual checks, designs the LQR comparison gains, simulates the selected controllers, calls `generate_feasible_regions.m`, writes result files, and generates the reference figure plus two auxiliary simulation figures.
 
-The script contains local helper functions for exact cycle propagation, cycle averages, finite differences, conditioned and raw simulations, long-horizon trajectories, certificate calculation, output writing, and figure generation.
+The script contains local helper functions for exact cycle propagation, cycle averages, finite differences, conditioned and raw simulations, long-horizon trajectories, output writing, and its remaining figure generation.
+
+## `generate_feasible_regions.m`
+
+Owns the fixed-conditioning-factor feasible-region study. It computes the regions for `β = 0.2`, `0.5`, and `1.0`, computes their maximal invariant subsets, checks the raw-action certificate and volume scaling, writes the three vertex CSV files, and generates `figures/invariant_raw_action_region.pdf` with the 3D overlay and coordinate-plane projections.
+
+`generate_results.m` calls the function with the benchmark matrices and nonlinear trajectory. Called without input, the function reconstructs those inputs from `results/paper_results.mat` and regenerates only the region figure and vertex files. The standalone form therefore requires a previous full results run.
 
 ## `condition_dwell_times.m`
 

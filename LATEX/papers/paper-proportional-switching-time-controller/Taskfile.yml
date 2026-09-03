@@ -19,6 +19,11 @@ tasks:
     cmds:
       - matlab -batch "run('scripts/generate_trajectory_comparison.m')"
 
+  invariant-region:
+    desc: Regenerate the fixed-factor feasible-region figure and vertex data
+    cmds:
+      - matlab -batch "addpath('scripts'); generate_feasible_regions;"
+
   build:
     desc: Compile the article PDF and refresh the editor preview
     cmds:

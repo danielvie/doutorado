@@ -1,12 +1,12 @@
 # Generated results map
 
 Status: descriptive output map
-Source of truth: `scripts/generate_results.m`, `results/metrics.csv`, and the generated files themselves
+Source of truth: `scripts/generate_results.m`, `scripts/generate_feasible_regions.m`, `results/metrics.csv`, and the generated files themselves
 Read when: tracing numerical values or choosing evidence for a rewrite
 
 ## Primary outputs
 
-`generate_results.m` writes:
+A full `generate_results.m` run writes these files. It calls `generate_feasible_regions.m`, which owns the three region vertex CSV files and can regenerate those files independently from `results/paper_results.mat`:
 
 - `results/metrics.csv`: one-row numerical summary.
 - `results/metrics.tex`: selected metrics as LaTeX commands consumed by `article.tex`.
@@ -14,7 +14,9 @@ Read when: tracing numerical values or choosing evidence for a rewrite
 - `results/jacobian_checks.csv`: analytical and finite-difference entries for `Phi` and `Gamma` with absolute errors.
 - `results/linearization_residual.csv`: perturbation sizes, exact-versus-linearized residuals, and fitted residual values.
 - `results/conditioned_control_response.csv`: cycle-start errors, conditioning factors, offsets, dwell values, and state trajectories for the selected simulation.
-- `results/paper_results.mat`: structured MATLAB record containing metrics, schedule, linearization, controller, certificate, and response data.
+- `results/invariant_raw_action_region_vertices.csv`: vertices of the certified region in physical cycle-start-error coordinates.
+- `results/fixed_beta_0_2_feasible_region_vertices.csv` and `results/fixed_beta_0_5_feasible_region_vertices.csv`: vertices of the two fixed-factor comparison regions in the same coordinates.
+- `results/paper_results.mat`: structured MATLAB record containing metrics, schedule, linearization, controller, invariant-region, and response data.
 
 ## Main reported values
 
@@ -25,7 +27,11 @@ The current generated metrics record:
 - analytical/finite-difference relative errors of about `8.518e-12` for `Phi` and `8.344e-11` for `Gamma_tau`;
 - residual slope about `2.000`;
 - open-loop, conservative, and aggressive spectral radii of about `0.999850`, `0.941468`, and `0.568151`;
-- common-P endpoint norms of about `0.999939` and `0.979743`, with a segment bound of `0.999939`;
+- a 7-facet, 10-vertex Raw-Action Admissible Region that is already positively invariant under the aggressive raw closed loop;
+- physical-error volume about `4.5410 V²·A`, with ranges `[-2.358, 2.098] V`, `[-3.234, 1.911] V`, and `[-0.496, 0.222] A`;
+- the fixed `β = 0.5` feasible region doubles every radial extent and has volume about `36.3282 V²·A`, eight times the raw-action region;
+- the fixed `β = 0.2` feasible region multiplies every radial extent by five and has volume about `567.6277 V²·A`, 125 times the raw-action region;
+- the large-error trajectory starts inside the `β = 0.2` region, enters the `β = 0.5` region at cycle 2, and enters the raw-action region at cycle 3;
 - minimum raw and applied dwells of about `-43.045` and `3.000` microseconds;
 - minimum conditioning factor about `0.293978`;
 - conditioning active on 3 of 100 cycles;

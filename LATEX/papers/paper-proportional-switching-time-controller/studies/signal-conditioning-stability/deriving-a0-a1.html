@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deriving A0 and A1 from the converter model</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']]
+  },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #edf1f5;
+  --paper: #ffffff;
+  --paper-2: #f5f7fa;
+  --ink: #17212b;
+  --muted: #556474;
+  --rule: #ccd5df;
+  --blue: #205f98;
+  --blue-soft: #dceaf6;
+  --teal: #167a70;
+  --teal-soft: #d9eee9;
+  --amber: #966710;
+  --amber-soft: #f5ead0;
+  --red: #a64038;
+  --red-soft: #f5dfdc;
+  --shadow: 0 12px 35px -25px rgba(23, 33, 43, .55);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f151c;
+    --paper: #17202a;
+    --paper-2: #202b36;
+    --ink: #e8edf3;
+    --muted: #aab7c5;
+    --rule: #34414e;
+    --blue: #74b5e8;
+    --blue-soft: #17334b;
+    --teal: #57c8b7;
+    --teal-soft: #15352f;
+    --amber: #e0b45d;
+    --amber-soft: #382d17;
+    --red: #ef8b81;
+    --red-soft: #402623;
+    --shadow: 0 12px 35px -25px rgba(0, 0, 0, .9);
+  }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 17px/1.67 Georgia, "Times New Roman", serif;
+}
+a { color: var(--blue); }
+code, pre, .number { font-family: "Cascadia Code", "IBM Plex Mono", Consolas, monospace; }
+header, main, footer { width: min(1100px, calc(100% - 2rem)); margin-inline: auto; }
+header { padding: 4.5rem 0 2rem; }
+.eyebrow {
+  margin: 0 0 .55rem;
+  color: var(--blue);
+  font: 700 .75rem/1.2 Arial, sans-serif;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+h1, h2, h3, h4 { font-family: Arial, Helvetica, sans-serif; line-height: 1.15; letter-spacing: -.02em; }
+h1 { max-width: 820px; margin: 0; font-size: clamp(2.25rem, 6vw, 4.4rem); }
+h2 { margin: 0 0 1rem; font-size: clamp(1.45rem, 3vw, 2rem); }
+h3 { margin: 1.7rem 0 .7rem; font-size: 1.12rem; }
+h4 { margin: 0 0 .35rem; font-size: .94rem; }
+p { margin: .75rem 0; }
+.lede { max-width: 800px; color: var(--muted); font-size: 1.2rem; }
+main { display: grid; grid-template-columns: 225px minmax(0, 1fr); gap: 2rem; align-items: start; }
+nav {
+  position: sticky;
+  top: 1rem;
+  padding: 1rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  font: .85rem/1.45 Arial, sans-serif;
+}
+nav strong { display: block; margin-bottom: .5rem; }
+nav ol { margin: 0; padding-left: 1.2rem; }
+nav li + li { margin-top: .35rem; }
+nav a { color: var(--ink); text-decoration: none; }
+nav a:hover { color: var(--blue); }
+article { min-width: 0; }
+section {
+  margin-bottom: 1.2rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+.callout {
+  margin: 1rem 0;
+  padding: .9rem 1rem;
+  border-left: 4px solid var(--blue);
+  background: var(--blue-soft);
+  border-radius: 0 8px 8px 0;
+}
+.callout.teal { border-color: var(--teal); background: var(--teal-soft); }
+.callout.amber { border-color: var(--amber); background: var(--amber-soft); }
+.callout.red { border-color: var(--red); background: var(--red-soft); }
+.callout p { margin: .35rem 0; }
+.math-block {
+  margin: 1rem 0;
+  padding: .85rem 1rem;
+  overflow-x: auto;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 7px 7px 0;
+}
+.math-block mjx-container[display="true"] { margin: .35rem 0 !important; }
+pre {
+  margin: 1rem 0;
+  padding: 1rem;
+  overflow: auto;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 7px 7px 0;
+  font-size: .77rem;
+  line-height: 1.55;
+  tab-size: 4;
+}
+code { font-size: .88em; }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+th, td { padding: .5rem .58rem; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+th { color: var(--muted); font: 700 .73rem/1.3 Arial, sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+td.number { text-align: right; white-space: nowrap; font-size: .82rem; }
+.result { padding: .9rem; background: var(--teal-soft); border: 1px solid var(--teal); border-radius: 8px; }
+.two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+footer { padding: 1rem 0 4rem; color: var(--muted); font-size: .85rem; }
+@media (max-width: 850px) {
+  main { grid-template-columns: 1fr; }
+  nav { position: static; }
+}
+@media (max-width: 570px) {
+  header { padding-top: 2.5rem; }
+  section { padding: 1rem; }
+  .two-col { grid-template-columns: 1fr; }
+}
+@media print {
+  body { background: white; }
+  header, main, footer { width: 100%; }
+  main { display: block; }
+  nav { display: none; }
+  section { break-inside: avoid; box-shadow: none; }
+}
+</style>
+</head>
+<body>
+<header>
+  <p class="eyebrow">Converter cycle model</p>
+  <h1>Deriving \(A_0\) and \(A_1\) from the switched-affine plant</h1>
+  <p class="lede">A step-by-step calculation from the converter mode equation to the two endpoint matrices used by the signal-conditioning stability proof.</p>
+</header>
+
+<main>
+<nav aria-label="Contents">
+  <strong>Contents</strong>
+  <ol>
+    <li><a href="#result">The result first</a></li>
+    <li><a href="#plant">Plant and data</a></li>
+    <li><a href="#modes">Mode matrices</a></li>
+    <li><a href="#phi">Construct \(\Phi\)</a></li>
+    <li><a href="#a0">Normalize to \(A_0\)</a></li>
+    <li><a href="#gamma">Construct \(\Gamma_\tau\)</a></li>
+    <li><a href="#a1">Compute \(A_1\)</a></li>
+    <li><a href="#code">Complete MATLAB code</a></li>
+    <li><a href="#checks">Checks</a></li>
+  </ol>
+</nav>
+
+<article>
+<section id="result">
+  <h2>The result first</h2>
+  <p>The three matrices have different meanings. Keeping them separate avoids most of the confusion:</p>
+  <table>
+    <thead><tr><th>Symbol</th><th>Meaning</th><th>Dimension</th></tr></thead>
+    <tbody>
+      <tr><td>\(\Phi\)</td><td>Physical state-transition matrix for one nominal cycle</td><td class="number">3 × 3</td></tr>
+      <tr><td>\(A_0\)</td><td>Normalized version of \(\Phi\), with timing correction off</td><td class="number">3 × 3</td></tr>
+      <tr><td>\(A_1\)</td><td>Normalized closed-loop matrix, with the raw correction applied in full</td><td class="number">3 × 3</td></tr>
+    </tbody>
+  </table>
+
+  <div class="math-block">
+  \[
+  \Phi =
+  \begin{bmatrix}
+  0.999528056772 &amp; -0.001874805700 &amp; 0.112287480533\\
+  0.001756231660 &amp; 0.999919471340 &amp; 0.072744632851\\
+  0.000556049938 &amp; -0.000013830104 &amp; 0.751736931125
+  \end{bmatrix}
+  \]
+  \[
+  A_0=S_x^{-1}\Phi S_x,
+  \qquad S_x=\operatorname{diag}(10,20,1),
+  \qquad
+  A_0=
+  \begin{bmatrix}
+  0.999528056772 &amp; -0.003749611399 &amp; 0.011228748053\\
+  0.000878115830 &amp; 0.999919471340 &amp; 0.003637231643\\
+  0.005560499383 &amp; -0.000276602072 &amp; 0.751736931125
+  \end{bmatrix}.
+  \]
+  \[
+  A_1=A_0-BK=
+  \begin{bmatrix}
+  0.189357323 &amp; 0.090979279 &amp; -0.021282550\\
+  0.091998671 &amp; 0.538853592 &amp; -0.025611841\\
+  -0.037173447 &amp; -0.058593575 &amp; 0.277454698
+  \end{bmatrix}.
+  \]
+  </div>
+
+  <div class="callout amber">
+    <h4>Important</h4>
+    <p>The Lyapunov scripts do not create these matrices. They start after \(A_0\) and \(A_1\) have been calculated, then optimize a matrix \(P\) that proves their stability.</p>
+  </div>
+</section>
+
+<section id="plant">
+  <h2>1. Plant and data</h2>
+  <p>For each binary switch command \(\mathbf u=(u_1,u_2,u_3)\), the converter state is \(x=[v_{C_1},v_{C_2},i_L]^\mathsf T\) and the dynamics are</p>
+  <div class="math-block">
+  \[
+  \dot{x}=A_{\mathbf u}x+b_{\mathbf u},
+  \qquad
+  A_{\mathbf u}=
+  \begin{bmatrix}
+  0 &amp; 0 &amp; (u_2-u_1)/C_1\\
+  0 &amp; 0 &amp; (u_3-u_2)/C_2\\
+  (u_1-u_2)/L &amp; (u_2-u_3)/L &amp; -R/L
+  \end{bmatrix},
+  \qquad
+  b_{\mathbf u}=
+  \begin{bmatrix}0\\0\\Eu_3/L\end{bmatrix}.
+  \]
+  </div>
+  <p>The benchmark values are</p>
+  <div class="math-block">
+  \[
+  E=30\,\mathrm V,
+  \quad C_1=C_2=40\,\mu\mathrm F,
+  \quad L=10\,\mathrm{mH},
+  \quad R=10\,\Omega.
+  \]
+  \[
+  \frac{1}{C_1}=\frac{1}{C_2}=25000,
+  \quad \frac{1}{L}=100,
+  \quad \frac{R}{L}=1000,
+  \quad \frac{E}{L}=3000.
+  \]
+  </div>
+  <p>The calculation uses seconds for time. The prescribed mode sequence and dwell durations are</p>
+  <div class="math-block">
+  \[
+  \boldsymbol\Omega=(000,001,011,111,010,000,100,111,100),
+  \]
+  \[
+  \bar{d}=\begin{bmatrix}
+  63.889183506119 &amp; 23.667599375879 &amp; 22 &amp; 22.981276969501 &amp; 22 &amp; 63.672008257925 &amp; 22.170089330625 &amp; 23.447427391152 &amp; 22.172415168799
+  \end{bmatrix}\,\mu\mathrm s.
+  \]
+  </div>
+  <p>The dwell vector sums to \(286\,\mu\mathrm s\). In MATLAB, use <code>diff(boundary_us) * 1e-6</code> before calling <code>expm</code>.</p>
+</section>
+
+<section id="modes">
+  <h2>2. Build the mode matrices</h2>
+  <p>Take decimal mode 1 as an example. Its three-bit representation is \(001\), so \(u_1=0\), \(u_2=0\), and \(u_3=1\). Substituting into the plant equation gives</p>
+  <div class="math-block">
+  \[
+  A_{001}=
+  \begin{bmatrix}
+  0 &amp; 0 &amp; 0\\
+  0 &amp; 0 &amp; 25000\\
+  0 &amp; -100 &amp; -1000
+  \end{bmatrix},
+  \qquad
+  b_{001}=
+  \begin{bmatrix}0\\0\\3000\end{bmatrix}.
+  \]
+  </div>
+  <p>The cycle uses the following mode matrices. The table lists only their nonzero entries because all omitted entries are zero.</p>
+  <table>
+    <thead><tr><th>Decimal</th><th>\(\mathbf u\)</th><th>Nonzero entries of \(A_{\mathbf u}\)</th><th>\(b_{\mathbf u,3}\)</th></tr></thead>
+    <tbody>
+      <tr><td class="number">0</td><td class="number">000</td><td>\(A_{33}=-1000\)</td><td class="number">0</td></tr>
+      <tr><td class="number">1</td><td class="number">001</td><td>\(A_{23}=25000,\ A_{32}=-100,\ A_{33}=-1000\)</td><td class="number">3000</td></tr>
+      <tr><td class="number">3</td><td class="number">011</td><td>\(A_{13}=25000,\ A_{31}=-100,\ A_{33}=-1000\)</td><td class="number">3000</td></tr>
+      <tr><td class="number">7</td><td class="number">111</td><td>\(A_{33}=-1000\)</td><td class="number">3000</td></tr>
+      <tr><td class="number">2</td><td class="number">010</td><td>\(A_{13}=25000,\ A_{23}=-25000,\ A_{31}=-100,\ A_{32}=100,\ A_{33}=-1000\)</td><td class="number">0</td></tr>
+      <tr><td class="number">4</td><td class="number">100</td><td>\(A_{13}=-25000,\ A_{31}=100,\ A_{33}=-1000\)</td><td class="number">0</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">
+    <h4>Why \(b_{\mathbf u}\) is not needed for \(\Phi\)</h4>
+    <p>The vector \(b_{\mathbf u}\) changes the particular trajectory. The derivative of the flow with respect to its incoming state depends only on \(A_{\mathbf u}\). It reappears when we calculate the switching-time matrix \(\Gamma_\tau\).</p>
+  </div>
+</section>
+
+<section id="phi">
+  <h2>3. Construct \(\Phi\)</h2>
+  <p>First define \(\Phi\). Let \(\mathcal P(x,\delta\tau)\) be the exact one-cycle map. With the nominal schedule, the physical state-transition matrix is the derivative. This is the first object in equation (15) of the article, not the normalized matrix \(A_0\).</p>
+  <div class="math-block">
+  \[
+  \Phi:=\left.\frac{\partial\mathcal P(x,\delta\tau)}{\partial x}\right|_{x=x^\star,\;\delta\tau=0}\in\mathbb R^{3\times3}.
+  \]
+  \[
+  e_{k+1}=\Phi e_k
+  \quad\text{when the schedule is fixed.}
+  \]
+  </div>
+  <p>So \(\Phi\) is not a gain and it is not yet a numerical matrix. It is the name of the derivative we are about to calculate.</p>
+
+  <h3>Step 1: calculate one interval</h3>
+  <p>For interval \(i\), write \(A_i:=A_{\omega_i}\) and \(b_i:=b_{\omega_i}\). The exact affine flow over the dwell \(\bar d_i\) is</p>
+  <div class="math-block">
+  \[
+  x_{i+1}=e^{A_i\bar d_i}x_i+
+  \int_0^{\bar d_i}e^{A_i(\bar d_i-s)}b_i\,\mathrm ds.
+  \]
+  \[
+  T_i:=\frac{\partial x_{i+1}}{\partial x_i}=e^{A_i\bar d_i}.
+  \]
+  </div>
+  <p>The integral changes the nominal state, but its derivative with respect to \(x_i\) is zero. Therefore \(T_i\) contains only \(A_i\).</p>
+
+  <h3>Step 2: form the nine-interval product</h3>
+  <p>Use the mode order \((000,001,011,111,010,000,100,111,100)\). In the article's notation, equation (15) writes the physical propagation and the dwell-sensitivity matrix together:</p>
+  <div class="math-block">
+  \[
+  \Phi=e^{A_{\omega_9}\bar d_9}\cdots e^{A_{\omega_1}\bar d_1},
+  \qquad
+  G_d=\Pi\begin{bmatrix}\widetilde g_1&amp;\cdots&amp;\widetilde g_9\end{bmatrix}.
+  \]
+  </div>
+  <p>For the present calculation, only the first expression is needed. The shorthand \(A_i=A_{\omega_i}\) turns it into:</p>
+  <div class="math-block">
+  \[
+  \begin{aligned}
+  \Phi
+  & =T_9T_8T_7T_6T_5T_4T_3T_2T_1\\
+  & =e^{A_{100}\bar d_9}e^{A_{111}\bar d_8}e^{A_{100}\bar d_7}e^{A_{000}\bar d_6}
+  e^{A_{010}\bar d_5}e^{A_{111}\bar d_4}e^{A_{011}\bar d_3}e^{A_{001}\bar d_2}e^{A_{000}\bar d_1}.
+  \end{aligned}
+  \]
+  </div>
+  <p>The first interval is the rightmost factor because it acts first. In MATLAB, left-multiply each new transition:</p>
+<pre>Phi = eye(3);
+for i = 1:9
+    T_i = expm(A{i} * dwell(i));
+    Phi = T_i * Phi;
+end</pre>
+
+  <h3>Step 3: evaluate the product</h3>
+  <p>Now that \(\Phi\) has been defined and its product has been constructed, evaluate the nine exponentials. The result is</p>
+  <div class="math-block">
+  \[
+  \boxed{
+  \Phi=
+  \begin{bmatrix}
+  0.999528056772 &amp; -0.001874805700 &amp; 0.112287480533\\
+  0.001756231660 &amp; 0.999919471340 &amp; 0.072744632851\\
+  0.000556049938 &amp; -0.000013830104 &amp; 0.751736931125
+  \end{bmatrix}}
+  \]
+  </div>
+
+  <div class="callout">
+    <h4>\(\Phi\) is not the entire augmented matrix</h4>
+    <p>The article uses augmented maps to propagate affine dynamics:</p>
+    <div class="math-block">
+    \[
+    F_i=\begin{bmatrix}A_i&amp;b_i\\0&amp;0\end{bmatrix},
+    \qquad
+    E_i=e^{F_i\bar d_i},
+    \qquad
+    \widetilde\Phi=E_NE_{N-1}\cdots E_1.
+    \]
+    \[
+    \widetilde\Phi=
+    \begin{bmatrix}
+    \Phi &amp; h\\
+    0 &amp; 1
+    \end{bmatrix}.
+    \]
+    </div>
+    <p>Here \(\widetilde\Phi\) is the full \(4\times4\) augmented propagation matrix. The \(\Phi\) used above is its upper-left \(3\times3\) block, and it is the physical matrix in equation (15) of the article.</p>
+  </div>
+
+  <p>Evaluating the nine exponentials in seconds reproduces this matrix. The maximum absolute difference from the generated project matrix is approximately \(5.6\times10^{-17}\).</p>
+</section>
+
+<section id="a0">
+  <h2>4. Normalize \(\Phi\) to obtain \(A_0\)</h2>
+  <p>The controller compares voltage and current errors in normalized coordinates:</p>
+  <div class="math-block">
+  \[
+  z=S_x^{-1}e,
+  \qquad
+  S_x=\operatorname{diag}(10,20,1).
+  \]
+  </div>
+  <p>The physical open-loop error map is \(e_{k+1}=\Phi e_k\). Substitute \(e_k=S_xz_k\):</p>
+  <div class="math-block">
+  \[
+  z_{k+1}=S_x^{-1}e_{k+1}=S_x^{-1}\Phi S_xz_k.
+  \]
+  \[
+  \boxed{A_0=S_x^{-1}\Phi S_x}
+  \]
+  </div>
+  <p>Using the \(\Phi\) shown above gives</p>
+  <div class="math-block result">
+  \[
+  A_0=
+  \begin{bmatrix}
+  0.999528056772 &amp; -0.003749611399 &amp; 0.011228748053\\
+  0.000878115830 &amp; 0.999919471340 &amp; 0.003637231643\\
+  0.005560499383 &amp; -0.000276602072 &amp; 0.751736931125
+  \end{bmatrix}.
+  \]
+  </div>
+  <p>Because \(S_x\) is diagonal, the entries satisfy \((A_0)_{ij}=(s_j/s_i)\Phi_{ij}\). For example,</p>
+  <div class="math-block">
+  \[
+  (A_0)_{12}=\frac{20}{10}(-0.001874805700)=-0.003749611399.
+  \]
+  </div>
+</section>
+
+<section id="gamma">
+  <h2>5. Construct \(\Gamma_\tau\)</h2>
+  <p>To obtain \(A_1\), we need the effect of moving each of the eight interior switching instants. This effect depends on the affine dynamics, so first propagate the nominal orbit.</p>
+
+  <h3>Nominal boundary states</h3>
+  <p>Append a constant state coordinate:</p>
+  <div class="math-block">
+  \[
+  X=\begin{bmatrix}x\\1\end{bmatrix},
+  \qquad
+  F_i=\begin{bmatrix}A_i&amp;b_i\\0&amp;0\end{bmatrix},
+  \qquad
+  X_{i+1}=e^{F_i\bar d_i}X_i.
+  \]
+  </div>
+  <p>Starting at \(x^\star=[9.9247,19.2928,0.9823]^\mathsf T\), the boundary states are</p>
+  <table>
+    <thead><tr><th>Boundary</th><th>Time (μs)</th><th>\(v_{C_1}\) (V)</th><th>\(v_{C_2}\) (V)</th><th>\(i_L\) (A)</th></tr></thead>
+    <tbody>
+      <tr><td class="number">0</td><td class="number">0</td><td class="number">9.924700</td><td class="number">19.292800</td><td class="number">0.982300</td></tr>
+      <tr><td class="number">1</td><td class="number">63.889184</td><td class="number">9.924700</td><td class="number">19.292800</td><td class="number">0.921504</td></tr>
+      <tr><td class="number">2</td><td class="number">87.556783</td><td class="number">9.924700</td><td class="number">19.838955</td><td class="number">0.924354</td></tr>
+      <tr><td class="number">3</td><td class="number">109.556783</td><td class="number">10.439497</td><td class="number">19.838955</td><td class="number">0.947363</td></tr>
+      <tr><td class="number">4</td><td class="number">132.538060</td><td class="number">10.439497</td><td class="number">19.838955</td><td class="number">0.993998</td></tr>
+      <tr><td class="number">5</td><td class="number">154.538060</td><td class="number">10.985652</td><td class="number">19.292800</td><td class="number">0.991628</td></tr>
+      <tr><td class="number">6</td><td class="number">218.210068</td><td class="number">10.985652</td><td class="number">19.292800</td><td class="number">0.930457</td></tr>
+      <tr><td class="number">7</td><td class="number">240.380157</td><td class="number">10.469024</td><td class="number">19.292800</td><td class="number">0.933575</td></tr>
+      <tr><td class="number">8</td><td class="number">263.827585</td><td class="number">10.469024</td><td class="number">19.292800</td><td class="number">0.981464</td></tr>
+      <tr><td class="number">9</td><td class="number">286</td><td class="number">9.924700</td><td class="number">19.292800</td><td class="number">0.982300</td></tr>
+    </tbody>
+  </table>
+  <p>The final row returns to \(x^\star\), so the schedule and affine terms generate the desired periodic orbit.</p>
+
+  <h3>Move one boundary</h3>
+  <p>Moving boundary \(i\) later gives mode \(i\) extra time and mode \(i+1\) less time. The first-order change is the vector-field jump at that boundary:</p>
+  <div class="math-block">
+  \[
+  \Delta f_i
+  =f_i(\bar x_i)-f_{i+1}(\bar x_i)
+  =(A_i-A_{i+1})\bar x_i+b_i-b_{i+1}.
+  \]
+  \[
+  \boxed{\Gamma_{\tau,i}=T_NT_{N-1}\cdots T_{i+1}\,\Delta f_i,
+  \qquad i=1,\ldots,8.}
+  \]
+  </div>
+  <p>Thus \(b_i\) enters \(\Gamma_\tau\) through the vector-field jump and through the nominal boundary states. It did not enter \(\Phi\).</p>
+
+  <p>The controller normalizes timing with \(t_s=10\,\mu\mathrm s\):</p>
+  <div class="math-block">
+  \[
+  B=S_x^{-1}\Gamma_\tau t_s.
+  \]
+  \[
+  B=\begin{bmatrix}
+  -0.000084969 &amp; -0.023257145 &amp; 0.024113314 &amp; -0.025774595 &amp; 0.023896539 &amp; 0.024382377 &amp; -0.022279465 &amp; 0.023451144\\
+  -0.011559392 &amp; 0.011784571 &amp; 0.000284499 &amp; 0.011849947 &amp; -0.012395354 &amp; 0 &amp; 0 &amp; 0\\
+  -0.008576838 &amp; -0.007817609 &amp; -0.008178416 &amp; 0.017533827 &amp; 0.008327507 &amp; -0.009243155 &amp; -0.019160134 &amp; 0.019628806
+  \end{bmatrix}.
+  \]
+  </div>
+</section>
+
+<section id="a1">
+  <h2>6. Compute \(A_1\)</h2>
+  <p>In normalized coordinates, the linearized timing-input model is</p>
+  <div class="math-block">
+  \[
+  z_{k+1}=A_0z_k+Bv_k.
+  \]
+  </div>
+  <p>The aggressive feedback gain comes from discrete LQR:</p>
+  <div class="math-block">
+  \[
+  Q=I_3,
+  \qquad R_n=0.001I_8,
+  \qquad K=\operatorname{dlqr}(A_0,B,Q,R_n),
+  \qquad v_k=-Kz_k.
+  \]
+  </div>
+<pre>K = dlqr(A0, B, eye(3), 0.001 * eye(8));
+v = -K * z;</pre>
+  <p>The gain returned for this benchmark is approximately</p>
+  <div class="math-block">
+  \[
+  K=\begin{bmatrix}
+  -2.445469 &amp; -13.155561 &amp; -2.035081\\
+  -2.634530 &amp; 9.517183 &amp; -2.728678\\
+  6.969096 &amp; 7.524916 &amp; -4.020499\\
+  -4.887290 &amp; 5.794366 &amp; 6.361237\\
+  2.614725 &amp; -10.167997 &amp; 2.932988\\
+  7.034635 &amp; 7.376775 &amp; -4.385349\\
+  -4.681720 &amp; -3.298990 &amp; -5.772464\\
+  4.962024 &amp; 3.539675 &amp; 5.885109
+  \end{bmatrix}.
+  \]
+  </div>
+  <p>Substitute \(v_k=-Kz_k\) into the plant:</p>
+  <div class="math-block">
+  \[
+  z_{k+1}=(A_0-BK)z_k,
+  \qquad
+  \boxed{A_1=A_0-BK}.
+  \]
+  \[
+  A_1=\begin{bmatrix}
+  0.189357323 &amp; 0.090979279 &amp; -0.021282550\\
+  0.091998671 &amp; 0.538853592 &amp; -0.025611841\\
+  -0.037173447 &amp; -0.058593575 &amp; 0.277454698
+  \end{bmatrix}.
+  \]
+  </div>
+  <p>Signal conditioning applies only a scalar \(\beta\) to the raw input:</p>
+  <div class="math-block">
+  \[
+  v_k^{\mathrm{app}}=-\beta_kKz_k,
+  \qquad
+  A(\beta_k)=A_0-\beta_kBK=(1-\beta_k)A_0+\beta_kA_1.
+  \]
+  </div>
+
+  <div class="callout red">
+    <h4>There are two unrelated matrices called P in the broader workflow</h4>
+    <p><code>dlqr</code> internally computes a Riccati solution to design \(K\). The stability scripts later compute a Lyapunov matrix \(P\) with an SDP. The Riccati solution and the Lyapunov certificate are different matrices.</p>
+  </div>
+</section>
+
+<section id="code">
+  <h2>7. Complete MATLAB calculation</h2>
+  <p>This listing starts from the converter equation and reconstructs \(A_0\) and \(A_1\). It does not load a saved result. It requires Control System Toolbox for <code>dlqr</code>.</p>
+<pre>%% Physical parameters
+E  = 30;
+C1 = 40e-6;
+C2 = 40e-6;
+L  = 10e-3;
+R  = 10;
+
+%% Nominal schedule
+modes = [0, 1, 3, 7, 2, 0, 4, 7, 4];
+boundary_us = [0, 63.889183506119, 87.556782881998, ...
+    109.556782881998, 132.538059851499, 154.538059851499, ...
+    218.210068109424, 240.380157440049, 263.827584831201, 286];
+dwell = diff(boundary_us) * 1e-6;
+x_star = [9.9247; 19.2928; 0.9823];
+N = numel(modes);
+
+%% Build A_i, b_i, interval transitions, and nominal boundary states
+A = cell(1, N);
+b = cell(1, N);
+T = cell(1, N);
+x_bar = zeros(3, N + 1);
+x_bar(:, 1) = x_star;
+
+for i = 1:N
+    bits = dec2bin(modes(i), 3) - '0';
+    u1 = bits(1);
+    u2 = bits(2);
+    u3 = bits(3);
+
+    A{i} = [
+        0,          0,          (u2-u1)/C1;
+        0,          0,          (u3-u2)/C2;
+        (u1-u2)/L,  (u2-u3)/L,  -R/L];
+    b{i} = [0; 0; E*u3/L];
+
+    F = [A{i}, b{i}; zeros(1, 4)];
+    interval_map = expm(F * dwell(i));
+    T{i} = interval_map(1:3, 1:3);
+
+    next = interval_map * [x_bar(:, i); 1];
+    x_bar(:, i + 1) = next(1:3);
+end
+
+%% Phi and A0
+Phi = eye(3);
+for i = 1:N
+    Phi = T{i} * Phi;
+end
+Sx = diag([10, 20, 1]);
+A0 = Sx \ Phi * Sx;
+
+%% Gamma_tau and normalized timing matrix B
+Gamma_tau = zeros(3, N - 1);
+for i = 1:(N - 1)
+    post_transition = eye(3);
+    for j = (i + 1):N
+        post_transition = T{j} * post_transition;
+    end
+
+    field_jump = (A{i} - A{i + 1}) * x_bar(:, i + 1) ...
+        + b{i} - b{i + 1};
+    Gamma_tau(:, i) = post_transition * field_jump;
+end
+
+timing_scale = 10e-6;
+B = Sx \ Gamma_tau * timing_scale;
+
+%% LQR and A1
+K = dlqr(A0, B, eye(3), 0.001 * eye(8));
+A1 = A0 - B * K;
+
+%% Checks
+assert(abs(sum(dwell) - 286e-6) &lt; 1e-15);
+assert(norm(x_bar(:, end) - x_star, inf) &lt; 1e-10);
+assert(max(abs(eig(A0))) &lt; 1);
+assert(max(abs(eig(A1))) &lt; 1);
+
+disp(Phi)
+disp(A0)
+disp(A1)</pre>
+</section>
+
+<section id="checks">
+  <h2>8. Checks and interpretation</h2>
+  <table>
+    <thead><tr><th>Check</th><th>Expected result</th><th>What it catches</th></tr></thead>
+    <tbody>
+      <tr><td>\(\sum_i\bar d_i\)</td><td class="number">286 μs</td><td>Missing or duplicated interval</td></tr>
+      <tr><td>\(\|\bar x(T)-x^\star\|_\infty\)</td><td class="number">near machine precision</td><td>Wrong schedule, affine term, or time units</td></tr>
+      <tr><td>Product order</td><td>\(T_9\cdots T_1\)</td><td>Multiplying transitions on the wrong side</td></tr>
+      <tr><td>\(\rho(A_0)\)</td><td class="number">0.999850032944</td><td>Wrong physical propagation or state normalization</td></tr>
+      <tr><td>\(\rho(A_1)\)</td><td class="number">0.568151349704</td><td>Wrong \(\Gamma_\tau\), timing scale, gain sign, or LQR weights</td></tr>
+    </tbody>
+  </table>
+  <div class="callout teal">
+    <h4>Calculation chain</h4>
+    <div class="math-block">
+    \[
+    (A_{\mathbf u},b_{\mathbf u})
+    \longrightarrow
+    T_i=e^{A_i\bar d_i}
+    \longrightarrow
+    \Phi=T_9\cdots T_1
+    \longrightarrow
+    A_0=S_x^{-1}\Phi S_x
+    \longrightarrow
+    \Gamma_\tau,B,K
+    \longrightarrow
+    A_1=A_0-BK.
+    \]
+    </div>
+    <p>The stability scripts begin at the \(A_0\) and \(A_1\) steps. Their SDP finds a Lyapunov certificate for the matrices that this chain produces.</p>
+  </div>
+</section>
+</article>
+</main>
+
+<footer>
+  <p>Companion to <code>article.tex</code>, <code>scripts/generate_results.m</code>, and the MATLAB stability scripts in this directory.</p>
+</footer>
+</body>
+</html>

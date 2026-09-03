@@ -37,8 +37,8 @@ The average physical-state objective used to select a reference periodic traject
 _Avoid_: Desired average operating point, cycle anchor, controller target
 
 **Three-Cell Converter Benchmark**:
-The case-study configuration of the three-cell multilevel DC–DC converter, including its parameters, fixed nine-interval mode sequence, reference schedule, and cycle anchor. State its provenance from Patiño et al. when first introduced; afterward, shorten it to converter benchmark or three-cell converter as appropriate.
-_Avoid_: Patiño benchmark, Patiño 2010 benchmark, converter model when referring to the complete case-study configuration
+The case-study configuration of the three-cell multilevel DC–DC converter, including its parameters, fixed nine-interval mode sequence, reference schedule, and cycle anchor. State its provenance from Patino et al. when first introduced; afterward, shorten it to converter benchmark or three-cell converter as appropriate.
+_Avoid_: Patino benchmark, Patino 2010 benchmark, converter model when referring to the complete case-study configuration
 
 **Cycle Anchor**:
 The point on the reference periodic trajectory selected as the start of each switching cycle; equivalently, a fixed point of the nominal one-cycle map. After its first definition, it may be shortened to anchor.
@@ -132,6 +132,10 @@ _Avoid_: Conditioned nonlinear model, arbitrary gain schedule, global stability 
 The set of cycle-start errors for which the Raw Switching-Instant Offset already satisfies every Minimum Dwell Duration, so the Conditioning Factor equals one.
 _Avoid_: MPC feasible region, global region of attraction, invariant region unless invariance is proved
 
-**Common-Lyapunov Certificate**:
-An offline verification that the nominal and raw closed-loop one-cycle matrices contract in one quadratic norm, which certifies the full conditioned linear matrix segment for arbitrary Conditioning Factors.
-_Avoid_: Online SDP, global nonlinear stability proof
+**Fixed-Conditioning-Factor Feasible Region**:
+For a specified Conditioning Factor, the set of cycle-start errors whose scaled Applied Switching-Instant Offset satisfies every Minimum Dwell Duration in the current cycle. At a factor of one, this is the Raw-Action Admissible Region.
+_Avoid_: Conditioned-controller feasible region, MPC feasible region, invariant region unless invariance is proved
+
+**Maximal Invariant Raw-Action Admissible Region**:
+The largest subset of the Raw-Action Admissible Region that remains inside that region under repeated application of the Raw Closed-Loop Matrix. For a Schur Raw Closed-Loop Matrix, every linearized trajectory starting in this set remains raw-action feasible and converges to the Cycle Anchor.
+_Avoid_: MPC feasible region, conditioned-action feasible set, global region of attraction, nonlinear invariant region

@@ -42,18 +42,16 @@ Scaling the complete vector by one nonnegative scalar:
 
 The conditioner changes magnitude, not direction. It cannot choose a different feasible timing direction when the requested direction is poorly aligned with the constraints.
 
-## Conditioned linear family
+## Invariant raw-action region
 
-Applying the conditioned action to the linearized model produces:
+The Raw-Action Admissible Region contains errors for which beta equals one in the current cycle. It need not be invariant. For a specified beta below one, the Fixed-Conditioning-Factor Feasible Region contains errors whose scaled action satisfies the current dwell constraints. This comparison set describes a deliberately fixed factor, not the state-dependent factor selected by the conditioner.
 
-`A(beta) = (1 - beta) Phi + beta Acl`.
+Offline preimage intersection computes its maximal positively invariant subset under `Acl`. Within that subset, the raw action remains feasible at every future cycle, beta remains one, and a Schur `Acl` gives convergence for the linearized raw closed loop.
 
-The factor beta is selected from the current state through the dwell inequalities, but every possible value remains on this matrix segment.
-
-A common quadratic norm that contracts both endpoint matrices therefore contracts every matrix on the segment. This is the reason the scalar conditioner has a simple stability analysis.
+Outside the invariant subset, the conditioner still makes the current schedule feasible. The set argument does not prove convergence while conditioning is active.
 
 ## Online and offline work
 
-Online work consists of the raw feedback multiplication, the dwell-change calculation, and the scalar scan. LQR synthesis and the common-quadratic certificate are offline operations.
+Online work consists of the raw feedback multiplication, the dwell-change calculation, and the scalar scan. LQR synthesis and invariant-region computation are offline operations.
 
-The certificate is not an online optimization procedure. The conditioner is solver-free, but the overall controller still uses the chosen feedback gain and any state/model information needed to evaluate it.
+The region computation is not an online optimization procedure. The conditioner is solver-free, but the overall controller still uses the chosen feedback gain and any state/model information needed to evaluate it.
