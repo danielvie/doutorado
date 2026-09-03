@@ -2,6 +2,7 @@ version: '3'
 
 vars:
   DOCUMENT: article
+  SOURCE: latex/article.tex
 
 tasks:
   default:
@@ -27,7 +28,7 @@ tasks:
   build:
     desc: Compile the article PDF and refresh the editor preview
     cmds:
-      - latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build {{.DOCUMENT}}.tex
+      - latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build {{.SOURCE}}
       - cp -f build/{{.DOCUMENT}}.pdf {{.DOCUMENT}}.pdf
 
   run:
@@ -37,7 +38,7 @@ tasks:
   clean:
     desc: Remove generated LaTeX build files
     cmds:
-      - latexmk -C -outdir=build {{.DOCUMENT}}.tex
+      - latexmk -C -outdir=build {{.SOURCE}}
       - rm -rf build
 
   verify:

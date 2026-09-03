@@ -1,7 +1,7 @@
 # Manuscript description
 
 Status: descriptive summary
-Source of truth: `article.tex`, `CONTEXT.md`, `GOAL.md`
+Source of truth: `latex/article.tex`, `CONTEXT.md`, `GOAL.md`
 Read when: understanding what the article currently contains
 
 ## Topic

@@ -43,4 +43,4 @@ The control setting uses a cyclic schedule and timing variables. The sensitivity
 
 ## Source pointers
 
-See `research/novelty-review.md`, `research/marcolino-propagation-comparison.md`, and `article.tex` for the way the present manuscript describes this source. The local PDF is under the repository's `research-material/literature/` archive.
+See `research/novelty-review.md`, `research/marcolino-propagation-comparison.md`, and `latex/article.tex` for the way the present manuscript describes this source. The local PDF is under the repository's `research-material/literature/` archive.

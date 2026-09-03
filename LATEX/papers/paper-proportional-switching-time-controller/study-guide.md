@@ -1,6 +1,6 @@
 # Study guide: dwell-conditioned cycle-to-cycle switching-time feedback
 
-A section-by-section companion to `article.tex`. Each entry gives the job of the section, the
+A section-by-section companion to `latex/article.tex`. Each entry gives the job of the section, the
 result it produces, the equations worth memorizing, and the questions a reader or reviewer will
 ask. Symbols follow `CONTEXT.md`.
 
@@ -348,7 +348,7 @@ Work through these without the paper open.
 
 | Where to look | File |
 |---|---|
-| Paper source | `article.tex` |
+| Paper source | `latex/article.tex` |
 | Terminology, one name per concept | `CONTEXT.md` |
 | Goal, success criteria, accepted limitations | `GOAL.md` |
 | Prior-art boundary and defensible claims | `research/novelty-review.md` |

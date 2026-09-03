@@ -2,7 +2,7 @@
 
 ## Scope
 
-This note reconstructs the stability argument in `article.tex`, Section 3, and ties each step to a runnable MATLAB check. The plant-to-matrix derivation is worked out separately in [`deriving-a0-a1.html`](deriving-a0-a1.html). It covers three cases:
+This note reconstructs the stability argument in `latex/article.tex`, Section 3, and ties each step to a runnable MATLAB check. The plant-to-matrix derivation is worked out separately in [`deriving-a0-a1.html`](deriving-a0-a1.html). It covers three cases:
 
 1. `beta = 0`, the nominal schedule with no timing correction;
 2. `beta = 1`, the raw closed-loop timing correction;

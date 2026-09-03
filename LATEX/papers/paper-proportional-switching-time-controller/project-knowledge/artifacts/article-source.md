@@ -1,12 +1,12 @@
 # Article source map
 
 Status: descriptive source map
-Source of truth: `article.tex`
+Source of truth: `latex/article.tex`
 Read when: navigating or rewriting the manuscript
 
 ## Entry point
 
-`article.tex` is a single-file Springer Nature manuscript. It loads the local class and bibliography style, includes the generated `results/metrics.tex` file, defines a few vector and timing macros, and contains the complete article.
+`latex/article.tex` is a single-file Springer Nature manuscript. It loads the local class and bibliography style, includes the generated `results/metrics.tex` file, defines a few vector and timing macros, and contains the complete article.
 
 There are no section-level `.tex` files included by the manuscript.
 
@@ -31,7 +31,7 @@ The manuscript directly includes:
 - four figure files from `figures/`;
 - bibliography records from `references.bib`.
 
-The tables are written directly in `article.tex`.
+The tables are written directly in `latex/article.tex`.
 
 ## Current figures
 

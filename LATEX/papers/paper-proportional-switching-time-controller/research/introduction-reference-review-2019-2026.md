@@ -324,4 +324,4 @@ The certificate must stay narrow. Inside the maximal invariant Raw-Action Admiss
 - Added `research/articles/28-nakamura-zimmerer-2026-direction-preserving-control-allocation.pdf`.
 - Updated `research/articles/README.md` with lawful provenance.
 - Created this report.
-- Did not edit `article.tex` or `references.bib`.
+- Did not edit `latex/article.tex` or `references.bib`.

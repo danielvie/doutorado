@@ -22,7 +22,7 @@ Small standalone implementation of uniform radial conditioning. It receives nomi
 
 ## `generate_trajectory_comparison.m`
 
-Generates a separate trajectory comparison under `comparison/`. It uses the benchmark and aggressive LQR design to produce continuous-time state plots, switching-boundary trajectories, long-horizon open-loop plots, and open-loop convergence plots. These outputs are not included by the current `article.tex`.
+Generates a separate trajectory comparison under `comparison/`. It uses the benchmark and aggressive LQR design to produce continuous-time state plots, switching-boundary trajectories, long-horizon open-loop plots, and open-loop convergence plots. These outputs are not included by the current `latex/article.tex`.
 
 ## `design_robust_controllers.m`
 

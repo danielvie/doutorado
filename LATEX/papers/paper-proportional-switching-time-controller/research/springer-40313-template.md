@@ -2,7 +2,7 @@
 
 **Journal:** Journal of Control, Automation and Electrical Systems (ISSN 2195-3899)  
 **Checked:** 2026-08-19  
-**Scope:** Official Springer/Springer Nature sources only. The official package is stored under `springer-template/`; the manuscript conversion is recorded in `article.tex`.
+**Scope:** Official Springer/Springer Nature sources only. The official package is stored under `springer-template/`; the manuscript conversion is recorded in `latex/article.tex`.
 
 ## Bottom line
 

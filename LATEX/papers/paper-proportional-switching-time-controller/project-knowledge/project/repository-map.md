@@ -10,7 +10,9 @@ The paper is part of a larger repository rooted at `doutorado.git`. The project 
 
 ```text
 LATEX/papers/paper-proportional-switching-time-controller/
-    article.tex
+    latex/
+        article.tex
+        linearization-reference.tex
     references.bib
     Taskfile.yml
     scripts/
@@ -32,7 +34,7 @@ embedded/esp32_idf/
 
 ### Manuscript and formatting
 
-- `article.tex` is the complete manuscript and the LaTeX entry point.
+- `latex/article.tex` is the complete manuscript and the LaTeX entry point.
 - `references.bib` contains the bibliography records.
 - `sn-jnl.cls` and `sn-mathphys-ay.bst` are local Springer formatting files.
 - `article.pdf` is the root-level PDF copied by the build task.
@@ -49,14 +51,14 @@ embedded/esp32_idf/
 ### Generated evidence
 
 - `results/metrics.csv` contains the numerical metrics.
-- `results/metrics.tex` converts selected metrics into LaTeX commands consumed by `article.tex`.
+- `results/metrics.tex` converts selected metrics into LaTeX commands consumed by `latex/article.tex`.
 - Several CSV and MAT files contain schedules, Jacobian checks, residual sweeps, controller data, and simulation responses.
 - Some result files are legacy outputs from earlier robust-control, invariant-region, or comparison studies.
 
 ### Visual outputs
 
 - `figures/` contains the figures used by the current article and older unused figures.
-- `comparison/` contains separate trajectory-comparison outputs that are not included by `article.tex`.
+- `comparison/` contains separate trajectory-comparison outputs that are not included by `latex/article.tex`.
 
 ### Knowledge and process notes
 
@@ -75,7 +77,7 @@ The paper-specific MATLAB scripts add `simulations/matlab-sim/` to the MATLAB pa
 
 Start from the artifact that owns the fact:
 
-- wording or equations: `article.tex`;
+- wording or equations: `latex/article.tex`;
 - terminology or scope: `CONTEXT.md` and `GOAL.md`;
 - generated number: `scripts/generate_results.m`, `scripts/generate_feasible_regions.m`, and `results/metrics.csv`;
 - build behavior: `Taskfile.yml`;

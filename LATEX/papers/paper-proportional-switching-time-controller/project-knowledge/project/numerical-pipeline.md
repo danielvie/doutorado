@@ -49,7 +49,7 @@ The simulation uses exact interval propagation. It does not propagate the linear
 
 ## LaTeX data path
 
-`generate_results.m` writes `results/metrics.tex`. `article.tex` includes that file near the preamble and uses its generated commands for numerical values in the abstract, tables, captions, and text.
+`generate_results.m` writes `results/metrics.tex`. `latex/article.tex` includes that file near the preamble and uses its generated commands for numerical values in the abstract, tables, captions, and text.
 
 The underlying CSV and MAT files remain the detailed numerical record. A manually edited value in `metrics.tex` would be overwritten by the next figures or verification task.
 

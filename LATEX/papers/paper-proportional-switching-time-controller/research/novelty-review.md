@@ -1,6 +1,6 @@
 # Novelty review: fixed-period switching-instant feedback
 
-> Status: partially superseded by `research/introduction-reference-review-2019-2026.md`. This review describes an earlier manuscript version with a common-Lyapunov certificate. For the current conditioner and invariant raw-action certificate, use the newer review and `article.tex`.
+> Status: partially superseded by `research/introduction-reference-review-2019-2026.md`. This review describes an earlier manuscript version with a common-Lyapunov certificate. For the current conditioner and invariant raw-action certificate, use the newer review and `latex/article.tex`.
 
 ## Bottom line
 

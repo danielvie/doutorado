@@ -1,7 +1,7 @@
 # System and one-cycle model
 
 Status: explanatory summary
-Source of truth: `article.tex`, Section 2; `study-guide.md`; `research-material/working-notes/linearization/linearization_v2_augmented.tex`
+Source of truth: `latex/article.tex`, Section 2; `study-guide.md`; `research-material/working-notes/linearization/linearization_v2_augmented.tex`
 Read when: understanding the derivation behind the controller
 
 ## Plant and schedule

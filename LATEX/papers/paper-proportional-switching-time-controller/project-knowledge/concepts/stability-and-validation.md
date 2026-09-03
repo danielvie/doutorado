@@ -1,7 +1,7 @@
 # Stability and validation
 
 Status: explanatory summary
-Source of truth: `article.tex`, Sections 3 and 4; `GOAL.md`; `results/metrics.csv`
+Source of truth: `latex/article.tex`, Sections 3 and 4; `GOAL.md`; `results/metrics.csv`
 Read when: distinguishing proof, numerical verification, and simulation evidence
 
 ## Analytical statements

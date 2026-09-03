@@ -42,7 +42,7 @@ A conclusion about how a reference relates to this paper should not be treated a
 
 | Topic | Authoritative source |
 |---|---|
-| Article text | `article.tex` |
+| Article text | `latex/article.tex` |
 | Domain terminology | `CONTEXT.md` |
 | Scientific goal and boundaries | `GOAL.md` |
 | Build commands | `Taskfile.yml` |
