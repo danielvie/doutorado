@@ -2,7 +2,7 @@
 
 Status: descriptive source summary
 BibTeX key: `switchedOptimalDwell2025`
-Source record: `references.bib`; arXiv: `2501.05548`
+Source record: `latex/references.bib`; arXiv: `2501.05548`
 Read when: studying recent switched optimal control with dwell constraints
 
 ## Bibliographic identity

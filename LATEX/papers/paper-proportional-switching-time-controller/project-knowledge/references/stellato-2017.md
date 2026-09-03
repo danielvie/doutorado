@@ -2,7 +2,7 @@
 
 Status: descriptive source summary
 BibTeX key: `stellato2017fcsMpc`
-Source record: `references.bib`; publication DOI: `10.1109/TPEL.2016.2584678`
+Source record: `latex/references.bib`; publication DOI: `10.1109/TPEL.2016.2584678`
 Read when: studying deterministic online computation in power-electronics MPC
 
 ## Bibliographic identity

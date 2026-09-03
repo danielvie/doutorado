@@ -2,7 +2,7 @@
 
 Status: descriptive source summary
 BibTeX key: `augustine2023mpc`
-Source record: `references.bib`; publication DOI: `10.1109/LCSYS.2022.3210368`
+Source record: `latex/references.bib`; publication DOI: `10.1109/LCSYS.2022.3210368`
 Read when: studying ways to reduce online switched-affine MPC cost
 
 ## Bibliographic identity

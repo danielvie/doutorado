@@ -2,7 +2,7 @@
 
 Status: descriptive source summary
 BibTeX key: `briat2013dwellTimes`
-Source record: `references.bib`; publication DOI: `10.1109/TAC.2012.2220031`
+Source record: `latex/references.bib`; publication DOI: `10.1109/TAC.2012.2220031`
 Read when: studying general dwell-time stability conditions
 
 ## Bibliographic identity

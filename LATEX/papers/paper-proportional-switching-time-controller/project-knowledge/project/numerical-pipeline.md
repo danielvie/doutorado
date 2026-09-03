@@ -49,9 +49,9 @@ The simulation uses exact interval propagation. It does not propagate the linear
 
 ## LaTeX data path
 
-`generate_results.m` writes `results/metrics.tex`. `latex/article.tex` includes that file near the preamble and uses its generated commands for numerical values in the abstract, tables, captions, and text.
+`generate_results.m` writes `latex/metrics.tex`. `latex/main.tex` includes that file near the preamble and uses its generated commands for numerical values in the abstract, tables, captions, and text.
 
-The underlying CSV and MAT files remain the detailed numerical record. A manually edited value in `metrics.tex` would be overwritten by the next figures or verification task.
+The underlying CSV and MAT files remain the detailed numerical record. A manually edited value in `latex/metrics.tex` would be overwritten by the next figures or verification task.
 
 ## Dependencies
 
@@ -62,4 +62,4 @@ The normal numerical verification path requires:
 - Control System Toolbox functionality such as `dlqr`;
 - MPT3.
 
-The LaTeX build requires a TeX installation with `latexmk` and the local Springer class/style files.
+The LaTeX build requires a TeX installation with `latexmk`; every project-local compile input is under `latex/`.

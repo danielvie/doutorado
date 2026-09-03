@@ -42,12 +42,12 @@ A conclusion about how a reference relates to this paper should not be treated a
 
 | Topic | Authoritative source |
 |---|---|
-| Article text | `latex/article.tex` |
+| Article text | `latex/main.tex` |
 | Domain terminology | `CONTEXT.md` |
 | Scientific goal and boundaries | `GOAL.md` |
 | Build commands | `Taskfile.yml` |
 | Numerical generation | `scripts/generate_results.m` and related scripts |
-| Generated numerical values | `results/metrics.csv` and `results/metrics.tex` |
+| Generated numerical values | `results/metrics.csv` and `latex/metrics.tex` |
 | Literature and novelty analysis | `research/novelty-review.md` and related research notes |
 | Historical work process | `handoff/` |
 

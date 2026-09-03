@@ -2,7 +2,7 @@
 
 Status: descriptive source summary
 BibTeX key: `gilbert1991maximal`
-Source record: `references.bib`; DOI: `10.1109/9.83532`
+Source record: `latex/references.bib`; DOI: `10.1109/9.83532`
 Read when: reviewing maximal admissible sets for constrained linear systems
 
 ## Problem

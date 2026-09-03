@@ -1,6 +1,6 @@
 # Novelty review: fixed-period switching-instant feedback
 
-> Status: partially superseded by `research/introduction-reference-review-2019-2026.md`. This review describes an earlier manuscript version with a common-Lyapunov certificate. For the current conditioner and invariant raw-action certificate, use the newer review and `latex/article.tex`.
+> Status: partially superseded by `research/introduction-reference-review-2019-2026.md`. This review describes an earlier manuscript version with a common-Lyapunov certificate. For the current conditioner and invariant raw-action certificate, use the newer review and `latex/main.tex`.
 
 ## Bottom line
 
@@ -22,7 +22,7 @@ No reviewed source discloses that complete conditioner-plus-certificate construc
 
 ## Scope and confidence
 
-This is a defensibility review, not a proof of worldwide priority. It covers the original works cited in `references.bib`, relevant published primary literature available as repository PDFs, and one unpublished qualification manuscript used only as internal background. It does not include a systematic database, patent, or forward-citation search. Accordingly:
+This is a defensibility review, not a proof of worldwide priority. It covers the original works cited in `latex/references.bib`, relevant published primary literature available as repository PDFs, and one unpublished qualification manuscript used only as internal background. It does not include a systematic database, patent, or forward-citation search. Accordingly:
 
 - confidence that the **core architecture is prior art**: high;
 - confidence that the **specific uniform conditioner and its stability certificate are absent from the reviewed corpus**: high;

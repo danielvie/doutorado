@@ -3,7 +3,7 @@
 
     python build.py
 
-Reads study_data.json (written by export_study_data.m) and results/metrics.tex,
+Reads study_data.json (written by export_study_data.m) and latex/metrics.tex,
 substitutes every {{path.to.value|format}} placeholder in the parts, injects the
 data object into the script, and writes the finished document.
 
@@ -44,8 +44,8 @@ def load_data():
 
 
 def load_metrics():
-    """results/metrics.tex holds the numbers the manuscript itself quotes."""
-    path = os.path.join(ROOT, "results", "metrics.tex")
+    """latex/metrics.tex holds the numbers the manuscript itself quotes."""
+    path = os.path.join(ROOT, "latex", "metrics.tex")
     macros = {}
     pattern = re.compile(r"\\newcommand\{\\(\w+)\}\{([^}]*)\}")
     with open(path, "r", encoding="utf-8") as fh:

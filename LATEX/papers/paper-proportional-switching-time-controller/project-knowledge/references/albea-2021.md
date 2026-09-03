@@ -2,7 +2,7 @@
 
 Status: descriptive source summary
 BibTeX key: `albea2021hybridAffinePwm`
-Source record: `references.bib`; publication DOI: `10.1109/TCSI.2021.3083900`
+Source record: `latex/references.bib`; publication DOI: `10.1109/TCSI.2021.3083900`
 Read when: studying hybrid-affine converter modeling with PWM inputs
 
 ## Bibliographic identity

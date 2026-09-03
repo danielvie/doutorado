@@ -12,7 +12,7 @@ The script contains local helper functions for exact cycle propagation, cycle av
 
 ## `generate_feasible_regions.m`
 
-Owns the fixed-conditioning-factor feasible-region study. It computes the regions for `β = 0.2`, `0.5`, and `1.0`, computes their maximal invariant subsets, checks the raw-action certificate and volume scaling, writes the three vertex CSV files, and generates `figures/invariant_raw_action_region.pdf` with the 3D overlay and coordinate-plane projections.
+Owns the fixed-conditioning-factor feasible-region study. It computes the regions for `β = 0.2`, `0.5`, and `1.0`, computes their maximal invariant subsets, checks the raw-action certificate and volume scaling, writes the three vertex CSV files, and generates `latex/figures/invariant_raw_action_region.pdf` with the 3D overlay and coordinate-plane projections.
 
 `generate_results.m` calls the function with the benchmark matrices and nonlinear trajectory. Called without input, the function reconstructs those inputs from `results/paper_results.mat` and regenerates only the region figure and vertex files. The standalone form therefore requires a previous full results run.
 
@@ -22,7 +22,7 @@ Small standalone implementation of uniform radial conditioning. It receives nomi
 
 ## `generate_trajectory_comparison.m`
 
-Generates a separate trajectory comparison under `comparison/`. It uses the benchmark and aggressive LQR design to produce continuous-time state plots, switching-boundary trajectories, long-horizon open-loop plots, and open-loop convergence plots. These outputs are not included by the current `latex/article.tex`.
+Generates a separate trajectory comparison under `comparison/`. It uses the benchmark and aggressive LQR design to produce continuous-time state plots, switching-boundary trajectories, long-horizon open-loop plots, and open-loop convergence plots. These outputs are not included by the current `latex/main.tex`.
 
 ## `design_robust_controllers.m`
 

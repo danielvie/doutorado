@@ -2,7 +2,7 @@
 
 Status: descriptive source summary
 BibTeX key: `patino2010`
-Source record: `references.bib`; local literature PDF recorded in `research/novelty-review.md`
+Source record: `latex/references.bib`; local literature PDF recorded in `research/novelty-review.md`
 Read when: studying the converter benchmark or mode-dependent switching sensitivity
 
 ## Bibliographic identity
@@ -43,4 +43,4 @@ The control setting uses a cyclic schedule and timing variables. The sensitivity
 
 ## Source pointers
 
-See `research/novelty-review.md`, `research/marcolino-propagation-comparison.md`, and `latex/article.tex` for the way the present manuscript describes this source. The local PDF is under the repository's `research-material/literature/` archive.
+See `research/novelty-review.md`, `research/marcolino-propagation-comparison.md`, and `latex/main.tex` for the way the present manuscript describes this source. The local PDF is under the repository's `research-material/literature/` archive.

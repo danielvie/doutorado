@@ -620,7 +620,7 @@ Matrix-measure conditions are applied to regularized vector fields, and the resu
 The paper is theoretical with numerical illustrations. It does not use the discrete-time cycle-map segment, endpoint induced norms, or radial dwell conditioning of our article.
 
 ### Relation to our article
-This is general contraction background, not a direct foundation for the common-Lyapunov paragraph. It was verified and archived but intentionally omitted from `latex/article.tex` and `references.bib` because adding it would invite a Filippov or incremental-stability comparison that the article does not need.
+This is general contraction background, not a direct foundation for the common-Lyapunov paragraph. It was verified and archived but intentionally omitted from `latex/main.tex` and `latex/references.bib` because adding it would invite a Filippov or incremental-stability comparison that the article does not need.
 
 ### Safe citation use
 Use it only if the manuscript later introduces general contraction or Filippov-system context. Do not cite it as support for the endpoint-norm bound or the scalar conditioner.

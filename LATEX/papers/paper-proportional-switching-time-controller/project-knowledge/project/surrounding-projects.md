@@ -24,7 +24,7 @@ The thesis may contain earlier formulations or terminology. When it conflicts wi
 
 Location: `research-material/working-notes/linearization/linearization_v2_augmented.tex`
 
-These notes document the augmented-state linearization procedure in more detail. They are background for understanding the derivation in `latex/article.tex`, not an active article input.
+These notes document the augmented-state linearization procedure in more detail. They are background for understanding the derivation in `latex/main.tex`, not an active article input.
 
 ## Embedded ESP project
 

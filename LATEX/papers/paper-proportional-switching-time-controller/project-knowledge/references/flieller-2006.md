@@ -2,7 +2,7 @@
 
 Status: descriptive source summary
 BibTeX key: `flieller2006limitCycles`
-Source record: `references.bib`; publication DOI: `10.1016/j.na.2005.06.054`
+Source record: `latex/references.bib`; publication DOI: `10.1016/j.na.2005.06.054`
 Read when: studying earlier hybrid limit-cycle and switching-sensitivity work
 
 ## Bibliographic identity

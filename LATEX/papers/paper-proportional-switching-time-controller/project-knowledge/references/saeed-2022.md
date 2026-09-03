@@ -2,7 +2,7 @@
 
 Status: descriptive source summary
 BibTeX key: `saeed2022laguerre`
-Source record: `references.bib`; publication DOI: `10.1109/TCST.2021.3069148`
+Source record: `latex/references.bib`; publication DOI: `10.1109/TCST.2021.3069148`
 Read when: studying reduced-dimension MPC for a converter
 
 ## Bibliographic identity

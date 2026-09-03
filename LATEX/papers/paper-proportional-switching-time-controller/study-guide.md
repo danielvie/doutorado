@@ -1,6 +1,6 @@
 # Study guide: dwell-conditioned cycle-to-cycle switching-time feedback
 
-A section-by-section companion to `latex/article.tex`. Each entry gives the job of the section, the
+A section-by-section companion to `latex/main.tex`. Each entry gives the job of the section, the
 result it produces, the equations worth memorizing, and the questions a reader or reviewer will
 ask. Symbols follow `CONTEXT.md`.
 
@@ -348,12 +348,12 @@ Work through these without the paper open.
 
 | Where to look | File |
 |---|---|
-| Paper source | `latex/article.tex` |
+| Paper source | `latex/main.tex` |
 | Terminology, one name per concept | `CONTEXT.md` |
 | Goal, success criteria, accepted limitations | `GOAL.md` |
 | Prior-art boundary and defensible claims | `research/novelty-review.md` |
 | Reviewed literature 2021 to 2026 | `research/recent-literature-2021-2026.md` |
 | Comparison against Marcolino's propagation | `research/marcolino-propagation-comparison.md` |
-| Generated numbers used in the text | `results/metrics.tex` |
+| Generated numbers used in the text | `latex/metrics.tex` |
 | Introduction funnel and citation strategy | `handoff/handoff-3-specialization-funnel-and-citation-integration.md` |
 | Writing strategy for the prose pass | `handoff/handoff-4-scientific-writing-and-readability.md` |

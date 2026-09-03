@@ -2,7 +2,7 @@
 
 Status: descriptive source summary
 BibTeX key: `marcolino2021`
-Source record: `references.bib`; local PDF recorded in `research/novelty-review.md`
+Source record: `latex/references.bib`; local PDF recorded in `research/novelty-review.md`
 Read when: studying the closest fixed-period timing-control predecessor
 
 ## Bibliographic identity

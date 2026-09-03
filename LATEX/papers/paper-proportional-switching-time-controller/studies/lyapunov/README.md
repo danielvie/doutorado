@@ -95,4 +95,4 @@ unstable members. `paper_certificate.m`, section 4, computes this.
   stability argument.
 - `docs/dwell-time-conditioning.html`, `docs/computing-beta.html` — the
   conditioner in detail.
-- `latex/article.tex` §3 — the propositions as published.
+- `latex/main.tex` §3 — the propositions as published.

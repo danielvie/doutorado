@@ -2,7 +2,7 @@
 
 Status: descriptive source summary
 BibTeX key: `egidio2022rank`
-Source record: `references.bib`; publication DOI: `10.1016/j.automatica.2022.110426`
+Source record: `latex/references.bib`; publication DOI: `10.1016/j.automatica.2022.110426`
 Read when: studying state-dependent mode-selection control for switched-affine systems
 
 ## Bibliographic identity

@@ -53,7 +53,7 @@ Additional title and DOI lookups covered:
 - `10.1080/00207721.2024.2302883`
 - `10.1016/j.ejcon.2024.101094`
 - `10.2514/6.2026-2353`
-- all DOIs of the recommended papers already in `references.bib`.
+- all DOIs of the recommended papers already in `latex/references.bib`.
 
 The NASA NTRS queries were `Robust Direction-Preserving Control Allocation` and `Nakamura-Zimmerer Miller direction preserving control allocation`.
 
@@ -92,7 +92,7 @@ The NASA NTRS queries were `Robust Direction-Preserving Control Allocation` and 
 - **Exact claim supported:** converter control regulates electrical variables through switch or modulation decisions, commonly under explicit constraints and tight computation budgets; switching frequency and application time are control concerns.
 - **Relevance:** best single broad introduction anchor.
 - **Distinction:** a survey of predictive control, not a source for the proposed conditioner or invariant raw-action certificate.
-- **Repository status before this review:** absent from `references.bib` and the PDF archive.
+- **Repository status before this review:** absent from `latex/references.bib` and the PDF archive.
 
 ### Yang et al. (2022)
 
@@ -103,7 +103,7 @@ The NASA NTRS queries were `Robust Direction-Preserving Control Allocation` and 
 - **Evidence:** abstract and Secs. II–IV formulate a constrained QP over switching sequences and switching instants at fixed switching frequency. The abstract reports few-microsecond solution and 3 kW drive experiments. Sec. VII reports computation and laboratory validation.
 - **Claim supported:** continuous switching-instant optimization can enforce fixed-frequency converter operation, but fitting the online QP into the switching budget requires a custom solver and pruning.
 - **Distinction:** online timing optimization, not static cycle-to-cycle feedback followed by analytic conditioning.
-- **Repository status:** already in `references.bib` and the archive.
+- **Repository status:** already in `latex/references.bib` and the archive.
 
 ### Saeed et al. (2022)
 
@@ -138,7 +138,7 @@ The NASA NTRS queries were `Robust Direction-Preserving Control Allocation` and 
 - **Not verified:** equations, exact timing structure, dwell constraints, and implementation details.
 - **Relevance:** strong recent converter-specific bridge from switched-affine modeling to periodic control.
 - **Distinction:** the abstract describes a state switching law, not fixed-order interior-instant offsets.
-- **Repository status:** absent from `references.bib` and the local archive.
+- **Repository status:** absent from `latex/references.bib` and the local archive.
 
 ### Xu and Lazar (2024)
 
@@ -226,7 +226,7 @@ For a short introduction, do not cite every row independently. Karamanakos, Yang
 
 ## Ready-to-add BibTeX
 
-These entries are not in `references.bib`. Metadata was checked against primary records. The bibliography file was not edited.
+These entries are not in `latex/references.bib`. Metadata was checked against primary records. The bibliography file was not edited.
 
 ```bibtex
 @article{karamanakos2020mpcPowerElectronics,
@@ -324,4 +324,4 @@ The certificate must stay narrow. Inside the maximal invariant Raw-Action Admiss
 - Added `research/articles/28-nakamura-zimmerer-2026-direction-preserving-control-allocation.pdf`.
 - Updated `research/articles/README.md` with lawful provenance.
 - Created this report.
-- Did not edit `latex/article.tex` or `references.bib`.
+- Did not edit `latex/main.tex` or `latex/references.bib`.

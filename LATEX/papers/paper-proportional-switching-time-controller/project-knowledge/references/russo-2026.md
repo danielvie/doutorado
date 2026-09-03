@@ -2,7 +2,7 @@
 
 Status: descriptive source summary
 BibTeX key: `russo2026dwell`
-Source record: `references.bib`; publication DOI: `10.1109/TAC.2025.3634172`
+Source record: `latex/references.bib`; publication DOI: `10.1109/TAC.2025.3634172`
 Read when: studying recent state-dependent dwell-time stabilization
 
 ## Bibliographic identity

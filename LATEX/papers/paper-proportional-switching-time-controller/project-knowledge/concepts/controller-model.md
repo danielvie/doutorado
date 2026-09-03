@@ -1,7 +1,7 @@
 # Controller and dwell conditioning
 
 Status: explanatory summary
-Source of truth: `latex/article.tex`, Section 3; `scripts/condition_dwell_times.m`; `GOAL.md`
+Source of truth: `latex/main.tex`, Section 3; `scripts/condition_dwell_times.m`; `GOAL.md`
 Read when: understanding what the proposed control layer does
 
 ## Raw action

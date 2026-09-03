@@ -9,7 +9,7 @@ Read when: tracing numerical values or choosing evidence for a rewrite
 A full `generate_results.m` run writes these files. It calls `generate_feasible_regions.m`, which owns the three region vertex CSV files and can regenerate those files independently from `results/paper_results.mat`:
 
 - `results/metrics.csv`: one-row numerical summary.
-- `results/metrics.tex`: selected metrics as LaTeX commands consumed by `latex/article.tex`.
+- `latex/metrics.tex`: selected metrics as LaTeX commands consumed by `latex/main.tex`.
 - `results/reference_schedule_orbit.csv`: interval metadata, corrected and published boundaries, dwell durations, mode identifiers, and orbit states.
 - `results/jacobian_checks.csv`: analytical and finite-difference entries for `Phi` and `Gamma` with absolute errors.
 - `results/linearization_residual.csv`: perturbation sizes, exact-versus-linearized residuals, and fitted residual values.
@@ -42,4 +42,4 @@ Use `metrics.csv` for full precision. The values in this file are a readable sum
 
 ## Legacy outputs
 
-The same directory also contains robust-controller gains, invariant-region vertices, older local responses, and other comparison data. Their presence does not mean that the current manuscript uses them. Check `latex/article.tex` and `Taskfile.yml` before treating an output as active evidence.
+The same directory also contains robust-controller gains, invariant-region vertices, older local responses, and other comparison data. Their presence does not mean that the current manuscript uses them. Check `latex/main.tex` and `Taskfile.yml` before treating an output as active evidence.

@@ -2,7 +2,7 @@
 
 Status: descriptive source summary
 BibTeX key: `repecho2017switchingFrequency`
-Source record: `references.bib`; publication DOI: `10.1109/TPEL.2016.2546382`
+Source record: `latex/references.bib`; publication DOI: `10.1109/TPEL.2016.2546382`
 Read when: comparing different ways of feeding back switching timing
 
 ## Bibliographic identity

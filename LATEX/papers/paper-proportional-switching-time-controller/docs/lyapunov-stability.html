@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <!--
-  A tutorial on the stability analysis of latex/article.tex: what a Lyapunov function is,
+  A tutorial on the stability analysis of latex/main.tex: what a Lyapunov function is,
   how the paper builds a common quadratic one for the two endpoint matrices, and why
   the state-dependent conditioning factor beta cannot break it.
 
   Numbers and matrices are generated data: scripts/generate_results.m,
-  results/paper_results.mat, results/conditioned_control_response.csv, results/metrics.tex.
+  results/paper_results.mat, results/conditioned_control_response.csv, latex/metrics.tex.
   Two-dimensional trajectory illustrations use a made-up matrix and say so.
   Self-contained; open directly.
 -->
@@ -1904,7 +1904,7 @@ constraints = [ P_variable &gt;= 1e-8 * eye(state_count) , ...   <i>% P is posit
 </section>
 
 <footer>
-  <p>Companion to <b>latex/article.tex</b> — section 3, equations (23)–(24), Proposition 2 — and to
+  <p>Companion to <b>latex/main.tex</b> — section 3, equations (23)–(24), Proposition 2 — and to
   <a href="computing-beta.html">computing-beta.html</a>, which covers how <code>β</code> itself is
   computed, and <a href="dwell-time-conditioning.html">dwell-time-conditioning.html</a>, which
   covers why the conditioner is built the way it is.</p>
@@ -1912,7 +1912,7 @@ constraints = [ P_variable &gt;= 1e-8 * eye(state_count) , ...   <i>% P is posit
   <code>scripts/generate_results.m</code> (the SDP and the simulation),
   <code>results/paper_results.mat</code> (Φ, A<sub>cl</sub>, P),
   <code>results/conditioned_control_response.csv</code> (the 100-cycle run),
-  <code>results/metrics.tex</code> (the figures quoted in the paper). Two-dimensional trajectory
+  <code>latex/metrics.tex</code> (the figures quoted in the paper). Two-dimensional trajectory
   illustrations in sections 02 and 05 use a made-up matrix, and are labelled as such.</p>
 </footer>
 

@@ -11,9 +11,13 @@ The paper is part of a larger repository rooted at `doutorado.git`. The project 
 ```text
 LATEX/papers/paper-proportional-switching-time-controller/
     latex/
-        article.tex
+        main.tex
         linearization-reference.tex
-    references.bib
+        references.bib
+        sn-jnl.cls
+        sn-mathphys-ay.bst
+        metrics.tex
+        figures/
     Taskfile.yml
     scripts/
     results/
@@ -34,11 +38,11 @@ embedded/esp32_idf/
 
 ### Manuscript and formatting
 
-- `latex/article.tex` is the complete manuscript and the LaTeX entry point.
-- `references.bib` contains the bibliography records.
-- `sn-jnl.cls` and `sn-mathphys-ay.bst` are local Springer formatting files.
+- `latex/main.tex` is the complete manuscript and the LaTeX entry point.
+- `latex/references.bib` contains the bibliography records.
+- `latex/sn-jnl.cls` and `latex/sn-mathphys-ay.bst` are local Springer formatting files.
 - `article.pdf` is the root-level PDF copied by the build task.
-- Root-level `.aux`, `.bbl`, `.blg`, `.log`, `.fls`, `.fdb_latexmk`, `.out`, and `.synctex.gz` files are build products.
+- LaTeX auxiliary files are generated under `build/` and removed by `task clean`.
 
 ### Source scripts
 
@@ -51,14 +55,15 @@ embedded/esp32_idf/
 ### Generated evidence
 
 - `results/metrics.csv` contains the numerical metrics.
-- `results/metrics.tex` converts selected metrics into LaTeX commands consumed by `latex/article.tex`.
+- `latex/metrics.tex` converts selected metrics into LaTeX commands consumed by `latex/main.tex`.
 - Several CSV and MAT files contain schedules, Jacobian checks, residual sweeps, controller data, and simulation responses.
 - Some result files are legacy outputs from earlier robust-control, invariant-region, or comparison studies.
 
 ### Visual outputs
 
-- `figures/` contains the figures used by the current article and older unused figures.
-- `comparison/` contains separate trajectory-comparison outputs that are not included by `latex/article.tex`.
+- `latex/figures/` contains the figures used by the current article.
+- `figures/` contains auxiliary and older unused figures.
+- `comparison/` contains separate trajectory-comparison outputs that are not included by `latex/main.tex`.
 
 ### Knowledge and process notes
 
@@ -77,7 +82,7 @@ The paper-specific MATLAB scripts add `simulations/matlab-sim/` to the MATLAB pa
 
 Start from the artifact that owns the fact:
 
-- wording or equations: `latex/article.tex`;
+- wording or equations: `latex/main.tex`;
 - terminology or scope: `CONTEXT.md` and `GOAL.md`;
 - generated number: `scripts/generate_results.m`, `scripts/generate_feasible_regions.m`, and `results/metrics.csv`;
 - build behavior: `Taskfile.yml`;

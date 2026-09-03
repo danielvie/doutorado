@@ -1,7 +1,7 @@
 # Reference summaries
 
 Status: descriptive reference index
-Source of truth: `references.bib`, the cited papers, and the project's research notes
+Source of truth: `latex/references.bib`, the cited papers, and the project's research notes
 Read when: studying prior work or preparing a literature synthesis
 
 ## Purpose
@@ -31,7 +31,7 @@ Available per-source summaries:
 | `russo2026dwell` | State-dependent switched-affine stabilization with dwell constraints | `russo-2026.md` |
 | `gilbert1991maximal` | Maximal output-admissible sets for constrained linear systems | `gilbert-tan-1991.md` |
 
-`references.bib` also contains records that are not currently cited. Additional per-source summaries should be created only when a later task needs them.
+`latex/references.bib` also contains records that are not currently cited. Additional per-source summaries should be created only when a later task needs them.
 
 ## Summary format
 
