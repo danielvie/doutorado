@@ -10,7 +10,7 @@ The files in this directory summarize what an external source says. They do not 
 
 ## Current summaries
 
-The current article cites 15 distinct records. This directory contains the per-source summaries prepared in earlier passes. The current Introduction source assessment, including Karamanakos et al. (2020), Egidio et al. (2020), Xu and Lazar (2024), and Nakamura-Zimmerer and Miller (2026), is in `../../research/introduction-reference-review-2019-2026.md`.
+The current article cites 15 distinct records. This directory contains the per-source summaries prepared in earlier passes. The current Introduction source assessment, including Karamanakos et al. (2020), Egidio et al. (2020), Xu and Lazar (2024), and Nakamura-Zimmerer and Miller (2026), is in `../../research/reviews/introduction-reference-review-2019-2026.md`.
 
 Available per-source summaries:
 

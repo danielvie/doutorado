@@ -10,7 +10,9 @@ Read this file first. Then choose the smallest path that matches the task.
 
 | Need | Read next |
 |---|---|
-| Navigate the repository | `project/repository-map.md` |
+| Navigate the repository | `project/repository-map.md`, paper-root `README.md` |
+| Run the latest Lyapunov analysis | `../studies/lyapunov/README.md`, then `../studies/lyapunov/analysis.jl` |
+| Understand the article generator | `../scripts/README.md` |
 | Understand the article | `project/manuscript-description.md` |
 | Understand the mathematics | `concepts/terminology.md`, then the relevant file in `concepts/` |
 | Understand the controller | `concepts/controller-model.md` |
@@ -46,10 +48,11 @@ A conclusion about how a reference relates to this paper should not be treated a
 | Domain terminology | `CONTEXT.md` |
 | Scientific goal and boundaries | `GOAL.md` |
 | Build commands | `Taskfile.yml` |
-| Numerical generation | `scripts/generate_results.m` and related scripts |
+| Numerical generation | `scripts/+paper/run_pipeline.m`, `scripts/README.md`, and related functions |
+| Latest Lyapunov study | `studies/lyapunov/analysis.jl` and `studies/lyapunov/README.md` |
 | Generated numerical values | `results/metrics.csv` and `latex/metrics.tex` |
-| Literature and novelty analysis | `research/novelty-review.md` and related research notes |
-| Historical work process | `handoff/` |
+| Literature and novelty analysis | `research/reviews/` and related research notes |
+| Historical work process | `archive/handoffs/` |
 
 The files in this directory summarize these sources. If a summary conflicts with a source file, inspect the source file and update the summary when appropriate.
 

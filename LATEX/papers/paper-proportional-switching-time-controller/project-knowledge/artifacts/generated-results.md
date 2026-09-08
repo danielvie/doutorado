@@ -17,6 +17,10 @@ A full `generate_results.m` run writes these files. It calls `generate_feasible_
 - `results/invariant_raw_action_region_vertices.csv`: vertices of the certified region in physical cycle-start-error coordinates.
 - `results/fixed_beta_0_2_feasible_region_vertices.csv` and `results/fixed_beta_0_5_feasible_region_vertices.csv`: vertices of the two fixed-factor comparison regions in the same coordinates.
 - `results/paper_results.mat`: structured MATLAB record containing metrics, schedule, linearization, controller, invariant-region, and response data.
+- `results/lyapunov_certificate.json` and `latex/lyapunov_metrics.tex`: adopted Julia common-P matrix, directly checked margins, and rate bound, verified against the article model and aggressive gain.
+- `results/continuous_trajectories.csv`: dense controlled/open-loop physical states with separate sample times.
+- `results/open_loop_convergence.csv`: selected long-horizon open-loop cycle starts, states, times, and error norms.
+- `results/publication_trajectories.mat`: full dense paths, reference/final within-cycle trajectories, and all long-horizon open-loop cycle starts and errors.
 
 ## Main reported values
 
@@ -36,10 +40,13 @@ The current generated metrics record:
 - minimum conditioning factor about `0.293978`;
 - conditioning active on 3 of 100 cycles;
 - normalized-error threshold crossings at cycles 6 and 20 for the conditioned aggressive and conservative comparisons;
-- open-loop threshold crossing at the long-horizon cycle recorded in `metrics.csv`.
+- persistent open-loop threshold crossing at cycle 22009;
+- common-P verified minimum decrease about `2.911904317e-4`, minimum eigenvalue of P about `4.987946970e-3`, and worst-case per-cycle rate bound about `0.999938954110`.
 
 Use `metrics.csv` for full precision. The values in this file are a readable summary and may become stale after regeneration.
 
 ## Legacy outputs
 
-The same directory also contains robust-controller gains, invariant-region vertices, older local responses, and other comparison data. Their presence does not mean that the current manuscript uses them. Check `latex/main.tex` and `Taskfile.yml` before treating an output as active evidence.
+Earlier robust-controller gains, invariant-region vertices, local responses, and comparison data are preserved under `archive/legacy-experiments/results/`. They are no longer mixed with current paper outputs. The current aggressive gain is in `results.controller.K_aggressive_physical` within `results/paper_results.mat`.
+
+The study retains its source common-P certificates under `studies/lyapunov/results/`. The article now adopts the Julia certificate through `paper.export_lyapunov`, which checks model/gain agreement before writing publication inputs. See `results/README.md` and `studies/lyapunov/README.md` for producers and commands.

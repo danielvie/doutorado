@@ -1,0 +1,22 @@
+version: '3'
+
+# Compatibility with previous study commands. Prefer the paper-root Taskfile.
+tasks:
+  default:
+    cmds:
+      - task --taskfile "{{.TASKFILE_DIR}}/../Taskfile.yml" --list
+
+  lyapunov-tutorial:
+    desc: Compatibility alias for task lyapunov:python at the paper root
+    cmds:
+      - task --taskfile "{{.TASKFILE_DIR}}/../Taskfile.yml" lyapunov:python
+
+  lyapunov-julia-setup:
+    desc: Compatibility alias for task lyapunov:setup at the paper root
+    cmds:
+      - task --taskfile "{{.TASKFILE_DIR}}/../Taskfile.yml" lyapunov:setup
+
+  lyapunov-julia:
+    desc: Compatibility alias for task lyapunov at the paper root
+    cmds:
+      - task --taskfile "{{.TASKFILE_DIR}}/../Taskfile.yml" lyapunov

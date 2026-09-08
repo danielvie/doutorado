@@ -1,33 +1,39 @@
 # MATLAB script map
 
 Status: descriptive script map
-Source of truth: `scripts/`
-Read when: deciding which script owns a numerical operation
+Source of truth: `scripts/README.md` and the named source files
+Read when: deciding which function owns a numerical operation
 
-## `generate_results.m`
+## Article generation
 
-Main paper pipeline. It configures the three-cell converter benchmark, reconciles the nominal schedule, computes the exact orbit and one-cycle linearization, performs finite-difference and residual checks, designs the LQR comparison gains, simulates the selected controllers, calls `generate_feasible_regions.m`, writes result files, and generates the reference figure plus two auxiliary simulation figures.
+`scripts/generate_results.m` only calls `paper.run_pipeline`. The package directory `scripts/+paper/` contains:
 
-The script contains local helper functions for exact cycle propagation, cycle averages, finite differences, conditioned and raw simulations, long-horizon trajectories, output writing, and its remaining figure generation.
+- `benchmark.m`: benchmark data and experiment settings.
+- `validate_model.m`: cycle closure, analytical and finite-difference Jacobians, residual scaling.
+- `design_feedback.m`: normalized LQR and physical gain conversion.
+- `simulate_responses.m`: exact nonlinear comparisons and long-horizon convergence check.
+- `collect_metrics.m`: publication metric names and units.
+- `write_outputs.m`: stable CSV, MAT, and LaTeX macro schemas.
+- `export_figures.m`: reference and response figures, plus the first-cycle diagnostic.
+- `export_lyapunov.m`: checks the Julia certificate against the article model/gain and writes publication certificate data and macros.
+- `verify_common_lyapunov.m`: solver-independent endpoint eigenvalue and normalization checks.
+- `export_trajectories.m`: dense trajectory and long-horizon CSV/MAT evidence, then calls the plotter.
+- `plot_trajectories.m`: shared-axis 3D comparison, logarithmic-time cycle-start state histories, and the long-run 3D cycle-start view. Can replot saved data without resimulating.
+- `exact_cycle.m`, `cycle_boundaries.m`, and `sample_cycle.m`: shared exact propagation at cycle ends, switching boundaries, and dense within-interval times.
+- `paths.m`, `write_provenance.m`, and `print_summary.m`: paths and run reporting.
 
-## `generate_feasible_regions.m`
+See `scripts/README.md` for inputs and return values. Functions do not communicate through a shared script workspace.
 
-Owns the fixed-conditioning-factor feasible-region study. It computes the regions for `β = 0.2`, `0.5`, and `1.0`, computes their maximal invariant subsets, checks the raw-action certificate and volume scaling, writes the three vertex CSV files, and generates `latex/figures/invariant_raw_action_region.pdf` with the 3D overlay and coordinate-plane projections.
+## Standalone functions
 
-`generate_results.m` calls the function with the benchmark matrices and nonlinear trajectory. Called without input, the function reconstructs those inputs from `results/paper_results.mat` and regenerates only the region figure and vertex files. The standalone form therefore requires a previous full results run.
+`scripts/generate_feasible_regions.m` computes fixed-factor feasible regions and their invariant subsets, checks the certificate and volume scaling, and exports three vertex CSVs and the region figure. Without input, it reconstructs its inputs from `results/paper_results.mat`.
 
-## `condition_dwell_times.m`
+`scripts/condition_dwell_times.m` implements the online scalar conditioner. It preserves its existing interface and numerical implementation.
 
-Small standalone implementation of uniform radial conditioning. It receives nominal boundaries, a raw vector of interior offsets, and an applied dwell bound. It computes the raw dwell changes, evaluates bounds only for shortened intervals, scales the complete offset vector, and asserts that the result is feasible.
+## Studies and historical work
 
-## `generate_trajectory_comparison.m`
+- `studies/lyapunov/analysis.jl` is the latest Lyapunov entry point. Its independent MATLAB comparison is `studies/lyapunov/matlab/compare_certificate.m`.
+- `studies/trajectory-comparison/generate_comparison.m` generates separate continuous-time and long-horizon plots in that study's `results/` folder.
+- `archive/legacy-experiments/design_robust_controllers.m` preserves earlier robust-control synthesis. The current article does not call it.
 
-Generates a separate trajectory comparison under `comparison/`. It uses the benchmark and aggressive LQR design to produce continuous-time state plots, switching-boundary trajectories, long-horizon open-loop plots, and open-loop convergence plots. These outputs are not included by the current `latex/main.tex`.
-
-## `design_robust_controllers.m`
-
-Contains robust-control experiments and generated outputs from an earlier or broader study. The current article does not call this script through `Taskfile.yml` and does not reference its results.
-
-## Ownership rule
-
-If a manuscript number changes, first identify whether it is generated by `generate_results.m`, another script, or a manually written article value. Generated values should be changed at the source and regenerated rather than edited in the output file.
+Change generated article numbers at their owning numerical stage and regenerate. Do not edit output values directly.

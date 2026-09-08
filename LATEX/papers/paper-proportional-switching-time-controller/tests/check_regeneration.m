@@ -1,0 +1,61 @@
+function check_regeneration(baseline_root)
+%CHECK_REGENERATION Full numerical run in a temporary directory, compared to a baseline.
+% Baseline layout: results/*.csv, results/paper_results.mat, latex/metrics.tex.
+% PDF byte hashes are not compared because exports contain creation metadata.
+root = fileparts(fileparts(mfilename('fullpath')));
+if nargin == 0, baseline_root = root; end
+original_path = path;
+cleanup_path = onCleanup(@() path(original_path));
+addpath(fullfile(root, 'scripts'));
+output = tempname;
+mkdir(output);
+cleanup_output = onCleanup(@() rmdir(output, 's'));
+actual = paper.run_pipeline(output);
+saved = load(fullfile(baseline_root, 'results', 'paper_results.mat'), 'results');
+expected = saved.results;
+
+for name = {'metrics', 'schedule', 'linearization', 'controller', 'response'}
+    assert(isequaln(actual.(name{1}), expected.(name{1})), ...
+        'Regression in paper_results.mat: %s', name{1});
+end
+region = actual.invariant_raw_action_region;
+baseline_region = expected.invariant_raw_action_region;
+for name = {'vertices_normalized', 'vertices_physical', 'metrics', ...
+        'iterations', 'regions_coincide', 'comparison_betas', ...
+        'comparison_invariant_iterations', 'comparison_regions_are_invariant'}
+    assert(isequaln(region.(name{1}), baseline_region.(name{1})), ...
+        'Regression in invariant region: %s', name{1});
+end
+for name = {'raw_admissible', 'maximal_invariant'}
+    assert(region.(name{1}) == baseline_region.(name{1}), ...
+        'Regression in polyhedron: %s', name{1});
+end
+csv_files = dir(fullfile(output, 'results', '*.csv'));
+assert(numel(csv_files) == 10, 'Unexpected number of publication CSV files.');
+for file = csv_files'
+    relative = fullfile('results', file.name);
+    assert(strcmp(fileread(fullfile(output, relative)), ...
+        fileread(fullfile(baseline_root, relative))), 'CSV regression: %s', file.name);
+end
+for relative = {fullfile('latex', 'metrics.tex'), ...
+        fullfile('latex', 'lyapunov_metrics.tex'), ...
+        fullfile('results', 'lyapunov_certificate.json')}
+    assert(strcmp(fileread(fullfile(output, relative{1})), ...
+        fileread(fullfile(baseline_root, relative{1}))), ...
+        'Generated certificate or macros changed: %s', relative{1});
+end
+actual_trajectories = load(fullfile(output, 'results', 'publication_trajectories.mat'));
+expected_trajectories = load(fullfile(baseline_root, 'results', 'publication_trajectories.mat'));
+assert(isequaln(actual_trajectories, expected_trajectories), ...
+    'Dense or long-horizon trajectories changed.');
+for relative = {fullfile('latex', 'figures', 'reference_schedule_orbit.pdf'), ...
+        fullfile('latex', 'figures', 'invariant_raw_action_region.pdf'), ...
+        fullfile('latex', 'figures', 'trajectory_comparison.pdf'), ...
+        fullfile('latex', 'figures', 'open_loop_convergence.pdf'), ...
+        fullfile('latex', 'figures', 'conditioned_control_response.pdf'), ...
+        fullfile('results', 'figures', 'first_cycle_conditioning.pdf'), ...
+        fullfile('results', 'figures', 'conditioned_control_response.pdf')}
+    assert(isfile(fullfile(output, relative{1})), 'Missing figure: %s', relative{1});
+end
+fprintf('PASS: ten CSVs, certificate, LaTeX macros, MAT arrays, trajectories, and invariant regions match the baseline.\n');
+end

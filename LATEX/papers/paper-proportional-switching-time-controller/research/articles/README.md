@@ -1,6 +1,6 @@
 # Literature archive
 
-This folder contains 28 validated PDFs. Files 01--20 are the recent-literature set reviewed in `../recent-literature-2021-2026.md`; files 21--26 are the additional primary sources verified for the reference-integration pass in `../../handoff/reference-usage-review.md`; files 27--28 were added during the introduction-reference review in `../introduction-reference-review-2019-2026.md`.
+This folder contains 28 validated PDFs. Files 01--20 are the recent-literature set reviewed in `../reviews/recent-literature-2021-2026.md`; files 21--26 are the additional primary sources verified for the reference-integration pass in `../../archive/handoffs/reference-usage-review.md`; files 27--28 were added during the introduction-reference review in `../reviews/introduction-reference-review-2019-2026.md`.
 
 - `.pdf` means a lawful local copy was downloaded and validated as PDF content.
 - `.url` means automated download was unavailable because the publisher requires a subscription or the open repository rejected non-browser clients. Open the shortcut in a browser with institutional access, then replace it with the downloaded PDF.

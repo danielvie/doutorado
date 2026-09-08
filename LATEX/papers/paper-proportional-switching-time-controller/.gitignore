@@ -1,0 +1,13 @@
+# Compilation and editor output. Publication inputs/PDF preview remain tracked.
+/build/
+/latex/main.pdf
+
+# Local caches and runtime state. Existing tracked history is preserved.
+__pycache__/
+*.pyc
+.venv/
+.ruff_cache/
+/.mado-html/locks/
+
+# Per-run environment includes machine-specific paths and timestamps.
+/results/provenance.json

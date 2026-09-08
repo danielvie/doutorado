@@ -4,21 +4,47 @@ vars:
   DOCUMENT: main
   OUTPUT: article
 
+includes:
+  lyapunov:
+    taskfile: ./studies/lyapunov/Taskfile.yml
+    dir: ./studies/lyapunov
+
 tasks:
   default:
     desc: List available tasks
     cmds:
       - task --list
 
-  figures:
-    desc: Regenerate simulation figures and metrics with MATLAB
+  results:
+    desc: Solve the Julia certificate and regenerate article evidence
     cmds:
+      - task: lyapunov:default
       - matlab -batch "run('scripts/generate_results.m')"
 
-  trajectory-comparison:
-    desc: Regenerate comparison/trajectory_comparison.pdf with MATLAB
+  figures:
+    desc: Alias for results, regenerates all article evidence
     cmds:
-      - matlab -batch "run('scripts/generate_trajectory_comparison.m')"
+      - task: results
+
+  test:
+    desc: Check the conditioner, model, and pipeline data contracts without exporting
+    cmds:
+      - matlab -batch "suite = runtests('tests'); assertSuccess(suite);"
+
+  test-regeneration:
+    desc: Regenerate in a temporary directory and compare with stored article evidence
+    cmds:
+      - matlab -batch "addpath('tests'); check_regeneration;"
+
+  check-links:
+    desc: Check local Markdown and HTML links outside historical archives
+    cmds:
+      - python scripts/check_links.py
+
+  trajectory-comparison:
+    desc: Regenerate the standalone trajectory-comparison study
+    cmds:
+      - matlab -batch "run('studies/trajectory-comparison/generate_comparison.m')"
 
   invariant-region:
     desc: Regenerate the fixed-factor feasible-region figure and vertex data
@@ -47,5 +73,7 @@ tasks:
   verify:
     desc: Regenerate results and compile the article
     cmds:
-      - task: figures
+      - task: test
+      - task: check-links
+      - task: results
       - task: build

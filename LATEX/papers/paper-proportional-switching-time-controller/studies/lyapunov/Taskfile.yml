@@ -1,0 +1,41 @@
+version: '3'
+
+# Every command resolves from this Taskfile, including when called from the paper root.
+tasks:
+  default:
+    desc: Run the latest Julia common-P analysis
+    cmds:
+      - task: julia
+
+  setup:
+    desc: Instantiate the pinned Julia environment
+    cmds:
+      - julia --project="{{.TASKFILE_DIR}}" -e "using Pkg; Pkg.instantiate()"
+
+  julia:
+    desc: Solve analysis.jl and compare with the saved Python certificate
+    deps: [setup]
+    preconditions:
+      - sh: test -f "{{.TASKFILE_DIR}}/results/certificate.json"
+        msg: Run task lyapunov:python from the paper root first.
+    cmds:
+      - julia --project="{{.TASKFILE_DIR}}" "{{.TASKFILE_DIR}}/analysis.jl"
+
+  python:
+    desc: Reconstruct the physical model, solve the SDP, and rebuild the tutorial
+    cmds:
+      - uv run --no-project --with-requirements "{{.TASKFILE_DIR}}/python/requirements.txt" python "{{.TASKFILE_DIR}}/python/build_tutorial.py"
+
+  matlab:
+    desc: Independently reconstruct and solve with MATLAB CVX/SDPT3
+    preconditions:
+      - sh: test -f "{{.TASKFILE_DIR}}/results/certificate.json"
+        msg: Run task lyapunov:python from the paper root first.
+    cmds:
+      - matlab -batch "addpath('{{.TASKFILE_DIR}}/matlab'); compare_certificate;"
+
+  reproduce:
+    desc: Rebuild Python evidence, then run the Julia comparison in order
+    cmds:
+      - task: python
+      - task: julia

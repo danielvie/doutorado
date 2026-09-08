@@ -1,98 +1,76 @@
-# studies/lyapunov
+# Latest Lyapunov analysis
 
-Lyapunov stability by convex optimization: study documents plus the MATLAB
-scripts that produce every number in them.
+**Start with [analysis.jl](analysis.jl).** This is the current Julia common-P SDP for the paper's aggressive controller.
 
-## Start here
+From the paper root:
 
-**`computing-v-with-cvx.html`** is the introduction. One system (a damped
-mass-spring oscillator), one method (CVX), one conclusion. It shows why the
-mechanical energy falls just short of being a Lyapunov function, computes one
-that works, verifies it, and extracts a decay rate. About 2,900 words.
-Companion script: `damped_oscillator_cvx.m`.
+```sh
+task lyapunov
+```
 
-**`lyapunov-convex-optimization.html`** is the longer study, for afterwards. It
-covers the same ideas on harder ground: switched systems under arbitrary
-switching, a case where every hand guess provably fails, and the stability proof
-of the switching-time controller in this paper. Six interactive laboratories,
-about 7,100 words.
+Or from this directory:
 
-## What the longer study covers
+```sh
+julia --project=. -e 'using Pkg; Pkg.instantiate()'
+julia --project=. analysis.jl
+```
 
-1. **Motivation** — what a Lyapunov certificate proves that simulation cannot.
-2. **Lyapunov theory for discrete-time systems** — the direct method, quadratic
-   `V(x) = x'Px`, why `P > 0` and `A'PA - P < 0` are linear matrix inequalities,
-   the *P*-norm and contraction factor, and the common-*P* condition.
-3. **Worked example: a two-mode switched system** — a pair for which `P = I`,
-   either mode's own Lyapunov matrix, and every diagonal *P* provably fail, while
-   an SDP returns a common *P* with `q = 0.914931`. Also a pair for which no
-   common quadratic *V* exists at all.
-4. **Solving the LMI in MATLAB** — YALMIP + SeDuMi, the Robust Control Toolbox
-   LMI Lab, CVX, and how to re-verify a returned certificate without trusting the
-   solver.
-5. **Stability proof of the switching-time controller** — the one-cycle model, the
-   dwell conditioner, why `A(β) = (1-β)Φ + βA_cl` is a segment, Proposition 2,
-   the certificate computed for the converter benchmark, and a quantitative
-   comparison against per-component clipping.
-6. **Scope of the result** — what is proved, what is not, how to reproduce it.
+The saved Python certificate is included, so the Julia solve can run without MATLAB or Python. `Project.toml` and `Manifest.toml` preserve the Julia environment. The tested runtime is Julia 1.12.7 with Convex.jl 0.16.7 and Clarabel 0.11.1.
 
-## Files
+## What the Julia file does
 
-| File | Purpose |
+1. Load the normalized endpoint matrices `A0` and `A1` from [results/certificate.json](results/certificate.json).
+2. Maximize the shared decrease margin `eta` subject to `trace(P) = 3`, positive definiteness, and the two endpoint Lyapunov inequalities.
+3. Recompute eigenvalues and verify positive definiteness, endpoint decrease, and trace normalization.
+4. Compare the objective with Python, without requiring identical optimizer entries.
+5. Write [results/lyapunov_analysis_julia_certificate.json](results/lyapunov_analysis_julia_certificate.json).
+
+Julia does not independently reconstruct the converter. It isolates the optimization formulation by solving with the matrices produced by Python's physical reconstruction.
+
+The reproduced Julia result is `OPTIMAL`, with `eta = 0.000291190431493879`, minimum endpoint decrease `0.0002911904317037103`, and relative objective difference from Python about `3.17e-9`.
+
+## Evidence and supporting implementations
+
+| File | Role |
 | --- | --- |
-| `computing-v-with-cvx.html` | the introductory document, hand-written and self-contained |
-| `damped_oscillator_cvx.m` | the introduction's script: energy test, CVX solve, decay rate |
-| `lyapunov-convex-optimization.html` | the longer study (generated — do not edit) |
-| `parts/*.html` | the document source, one region per file |
-| `build.py` | assembles the parts, substitutes `{{data.path\|fmt}}` placeholders, injects the data |
-| `generic_example.m` | the worked example of §3–4 using YALMIP, runnable, prints everything |
-| `cvx_example.m` | a standalone two-variable convex optimization example using CVX |
-| `paper_certificate.m` | rebuilds the paper's certificate from `results/paper_results.mat` |
-| `export_study_data.m` | writes `study_data.json`, the data the document embeds |
-| `study_data.json` | matrices, scalars and sequences (generated) |
+| [analysis.jl](analysis.jl) | Main Julia analysis and certificate checks |
+| [python/build_tutorial.py](python/build_tutorial.py) | Reconstruct circuit modes, exact cycle model, physical projection, timing map, and aggressive LQR; validate against paper data |
+| [python/optimization.py](python/optimization.py) | Standalone CVXPY/CLARABEL SDP |
+| [python/requirements.txt](python/requirements.txt) | Recorded Python package versions |
+| [matlab/compare_certificate.m](matlab/compare_certificate.m) | Independent physical reconstruction and CVX/SDPT3 solve |
+| [results/certificate.json](results/certificate.json) | Full-precision Python model, certificate, validation, and laboratory data |
+| [results/lyapunov_analysis_matlab_comparison.json](results/lyapunov_analysis_matlab_comparison.json) | Saved MATLAB comparison |
+| [lyapunov_analysis_solver_comparison.md](lyapunov_analysis_solver_comparison.md) | Solver-comparison notes |
+| [tutorial/index.html](tutorial/index.html) | Generated offline tutorial with five interactive laboratories |
+| [tutorial/template.html](tutorial/template.html) | Editable tutorial source; generated index must not be edited directly |
+| [tutorial/mado.html](tutorial/mado.html) | Preserved alternate presentation, not the template builder's output |
 
-## Rebuilding
+The tutorial covers circuit equations, augmented propagation, dwell derivatives, physical-error projection, LQR, the SDP, endpoint proof, and nonlinear limitations. It uses native MathML and embedded SVG, with no network dependencies.
 
-From this directory, with YALMIP and a conic solver on the MATLAB path
-(SeDuMi ships with the MPT bundle already on the repository's path), and after
-`scripts/generate_results.m` has been run at least once:
+The Python builder checks `Phi`, `Gamma`, and the aggressive physical gain against `../../results/paper_results.mat`. It constructs them from physical parameters first; the MAT file is a validation reference, not the source of its model. Older `gain_matrix.csv` data are archived and must not be substituted for the current aggressive gain.
 
-```matlab
-generic_example        % §3–4, prints to the console
-paper_certificate      % §5, re-solves the SDP and checks it against the stored P
-export_study_data      % writes study_data.json
-cvx_example            % standalone CVX installation test
+## Reproduce or compare
+
+```sh
+# Commands from the paper root
+task lyapunov:python       # Reconstruct, solve, check, regenerate tutorial
+task lyapunov             # Solve in Julia using the saved Python matrices
+task lyapunov:reproduce   # Python then Julia, sequentially
+task lyapunov:matlab      # Optional independent MATLAB CVX/SDPT3 check
 ```
 
-then
+Python uses `uv` and the recorded requirements. MATLAB needs Control System Toolbox and CVX with SDPT3 on its path. The MATLAB task writes its own comparison JSON and does not overwrite the Python or Julia certificates.
 
-```bash
-python build.py
-```
+## Adopted article result and scope
 
-For the standalone CVX test, open MATLAB in this directory and run `cvx_example`, or use
-`task test` from a shell with both `task` and `matlab` on `PATH`. It should report
-`CVX status: Solved` and the solution `x = 1.5`, `y = 2.5`.
+[The current article](../../latex/main.tex) adopts the common-P endpoint-to-interval proof as its main stability result. [GOAL.md](../../GOAL.md) records the scope. The invariant raw-action analysis is supporting appendix material; exact nonlinear stability remains local.
 
-`build.py` uses the standard library only. It fails loudly if any placeholder in
-`parts/` cannot be resolved, so the prose and the figures cannot drift apart from
-the generated data.
+The article proves endpoint-to-interval decrease by applying the Schur complement to the inverse-free block matrix `[P-eta*I, A(beta)'*P; P*A(beta), P]` and using its affine dependence on `beta`. The Julia script retains the equivalent smaller endpoint inequalities `P-Ai'*P*Ai >= eta*I`; the solver formulation and reported certificate are unchanged.
 
-## One result worth flagging
+The common-P argument concerns the conditioned **linearized** matrix family for all `beta` in `[0, 1]`. The solver checks are floating-point checks, not interval-arithmetic certification. The large-error exact nonlinear trajectories remain simulation evidence; the common-P result does not prove global nonlinear stability.
 
-§5.7 is not in the manuscript. Enumerating the 2⁸ = 256 vertices of the polytope
-that *per-component* clipping would reach shows that 4 of them have spectral
-radius ≥ 1 (worst 1.000422) and that no common quadratic Lyapunov function exists
-for that set. Uniform scaling by a single β is therefore not merely convenient for
-the proof — it is the difference between a certifiable family and one containing
-unstable members. `paper_certificate.m`, section 4, computes this.
+`task results` first reruns Julia, then the MATLAB article pipeline. [`paper.export_lyapunov`](../../scripts/+paper/export_lyapunov.m) compares the saved study endpoints against the article's independently reconstructed model and aggressive gain. It recomputes the inequalities on that model, rejects mismatches or nonpositive margins, and writes `results/lyapunov_certificate.json` and `latex/lyapunov_metrics.tex` at the paper root. The full-precision certificate controls all reported values; the displayed rounded matrix is checked separately.
 
-## Related documents
+The study still owns model reconstruction, the SDP implementation, and cross-checks. The article owns its publication exports. If model or gain settings change, reconstruct and solve the study again before refreshing article evidence. Do not copy rounded tutorial values into the manuscript.
 
-- `docs/choosing-lyapunov-functions.html` — physics, the Lyapunov equation, and
-  optimization compared as three routes to a *V*.
-- `docs/lyapunov-stability.html` — a longer conceptual treatment of the paper's
-  stability argument.
-- `docs/dwell-time-conditioning.html`, `docs/computing-beta.html` — the
-  conditioner in detail.
-- `latex/main.tex` §3 — the propositions as published.
+Earlier teaching work is indexed in [../README.md](../README.md); it is not the entry point for this analysis.

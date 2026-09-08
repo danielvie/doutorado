@@ -11,10 +11,12 @@
 \usepackage{siunitx}
 \usepackage[nameinlink,noabbrev]{cleveref}
 \newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
 \raggedbottom
 
 \graphicspath{{figures/}}
 \input{metrics.tex}
+\input{lyapunov_metrics.tex}
 
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\vect}[1]{\bm{#1}}
@@ -30,9 +32,9 @@
 
 \affil*[1]{\orgdiv{Systems and Control}, \orgname{Instituto Tecnol\'ogico de Aeron\'autica}, \orgaddress{\city{S\~ao Jos\'e dos Campos}, \state{S\~ao Paulo}, \country{Brazil}}}
 
-\abstract{For a switched-affine plant following a prescribed fixed-period mode sequence, static cycle-to-cycle feedback can locally stabilize a reference periodic trajectory by shifting its $N-1$ interior switching instants, but its raw switching-instant offsets may produce inadmissibly short or negative dwell durations. With strict nominal dwell margin, we multiply the complete raw vector by the largest conditioning factor in $[0,1]$ that keeps every dwell duration admissible; the applied offsets preserve the requested direction, mode order, and cycle period. One scan of the $N$ dwell changes computes the factor in $O(N)$ time, with no online solver. For the linearized raw closed loop, an offline polyhedral iteration finds the maximal subset of the Raw-Action Admissible Region that remains dwell-feasible at every future cycle; Schur stability then gives convergence inside this set. We derive the one-cycle linearization from exact augmented matrix-exponential propagation for mode-dependent affine dynamics. In a nine-interval DC--DC converter benchmark, the computed set has \InvariantRegionFacets{} facets and \InvariantRegionVertices{} vertices and equals the complete Raw-Action Admissible Region. An exact nonlinear \SimulationCycles{}-cycle simulation starts outside this set: the aggressive raw action produces a \MinimumRawDwell{}~\si{\micro\second} dwell, while conditioning enforces the assumed \AppliedScheduleDwellBound{}~\si{\micro\second} bound and the trajectory enters the set at cycle \FirstInvariantRegionCycle{}. The invariant-set guarantee applies to the linearized raw closed loop. The exact nonlinear guarantee is local where conditioning is inactive, and the large-error result is simulation evidence.}
+\abstract{Static cycle-to-cycle feedback regulates a reference periodic trajectory by shifting the interior switching instants of a fixed-period mode sequence. Its raw timing action can nevertheless produce inadmissibly short or negative dwell durations. We derive the one-cycle model for mode-dependent switched-affine dynamics and condition the complete raw action by its largest dwell-feasible scalar factor. The conditioner preserves the action direction, mode order, and cycle period and requires an $O(N)$ scan without an online solver. Uniform scaling places the conditioned linearized matrices on a segment between the nominal cycle matrix and the raw closed-loop matrix. An offline semidefinite program seeks a common quadratic Lyapunov function at these two endpoints. We prove that strict endpoint decrease implies uniform exponential stability for every sequence of conditioning factors in $[0,1]$. A three-cell DC--DC converter benchmark admits this certificate. Exact switched-affine simulations compare the controlled and open-loop three-dimensional trajectories and show eventual open-loop convergence to the same reference trajectory. Conditioned feedback reaches a normalized error below $0.01$ at cycle \ConditionedSettlingCycle{}, compared with persistent open-loop crossing at cycle \OpenLoopConvergenceCycle{}, while enforcing the assumed \AppliedScheduleDwellBound{}~\si{\micro\second} dwell bound. The common Lyapunov result concerns the linearized family; exact nonlinear stability remains local, and the large-error response is simulation evidence.}
 
-\keywords{switched-affine systems, periodic trajectories, switching-time control, dwell-time conditioning, one-cycle map, DC--DC converter}
+\keywords{switched-affine systems, periodic trajectories, switching-time control, dwell-time conditioning, common quadratic Lyapunov function, semidefinite programming}
 
 \maketitle
 
@@ -46,314 +48,331 @@ Patino et al. studied mode-dependent cyclic systems and how each switching insta
 
 We adapt direction-preserving scaling to fixed-period switching schedules. Each dwell constraint gives an upper bound on the scale, and the smallest bound is the largest feasible factor in $[0,1]$. Checking all $N$ bounds takes $O(N)$ time and requires no online solver. Scaling the complete raw offset vector preserves its direction, the mode order, and the cycle period. For the linearized raw closed loop, an offline polyhedral iteration finds the maximal invariant subset of the Raw-Action Admissible Region. Outside this set, the conditioner guarantees current-cycle dwell feasibility but not convergence; the nonlinear guarantee remains local. \Cref{sec:model} derives the cycle model, \cref{sec:conditioning} develops the conditioner and invariant region, and \cref{sec:case-study} presents the converter study.
 
-\section{Fixed-period one-cycle model}
+\section{Problem formulation and one-cycle model}
 \label{sec:model}
 
-The conditioner of \cref{sec:conditioning} needs two things from the plant: how a switching-instant offset changes the next cycle-start error, and what dwell durations that offset produces. This section derives both, in four steps. We fix the timing coordinates, propagate one cycle exactly in an augmented state, expand that product to first order in the dwell changes, and rewrite the result in the independent switching-instant offsets.
+The control objective is to approach a prescribed periodic trajectory without changing its mode sequence or cycle period. We first express this objective at cycle starts, then derive how shifts of the interior switching instants change the next cycle-start state.
 
-\subsection{Switched-affine cycle and timing coordinates}
+\subsection{Plant, reference trajectory, and timing coordinates}
 
-Consider
+Consider the switched-affine plant
 \begin{equation}
     \dot{\vect{x}}(t)=A_{\sigma(t)}\vect{x}(t)+\vect{b}_{\sigma(t)},
-    \qquad \vect{x}(t)\in\R^n,
+    \qquad \vect{x}(t)\in\R^n.
     \label{eq:plant}
 \end{equation}
-where each cycle follows the fixed mode sequence $(q_1,\ldots,q_N)$ with nominal boundaries
+Every cycle visits the fixed sequence $(q_1,\ldots,q_N)$. Its nominal cycle-relative boundaries and dwell durations are
 \begin{equation}
-    0=\bar t_0<\bar t_1<\cdots<\bar t_N=T,
-    \qquad \bar d_i=\bar t_i-\bar t_{i-1}.
+\begin{aligned}
+    0&=\bar t_0<\bar t_1<\cdots<\bar t_N=T,\\
+    \bar d_i&=\bar t_i-\bar t_{i-1}.
+\end{aligned}
 \end{equation}
-The nominal schedule generates a reference periodic trajectory $\bar{\vect{x}}(t)$. Its cycle anchor $\vect{x}^{\star}=\bar{\vect{x}}(0)=\bar{\vect{x}}(T)$ is a fixed point of the nominal cycle, and we measure the cycle-start error against it as $\vect{e}_k=\vect{x}_k-\vect{x}^{\star}$.
+Repeating this schedule generates the reference periodic trajectory $\bar{\vect{x}}(t)$. Its cycle anchor is $\vect{x}^{\star}=\bar{\vect{x}}(0)=\bar{\vect{x}}(T)$. With $\vect{x}_k=\vect{x}(kT)$, the cycle-start error is $\vect{e}_k=\vect{x}_k-\vect{x}^{\star}$. The target is this phase-aligned trajectory, not a constant average operating point.
 
-Only the interior switching instants move:
+The controller moves only the $N-1$ interior instants:
 \begin{equation}
 \begin{aligned}
     t_{k,i}&=\bar t_i+\delta\tau_{k,i},\quad i=1,\ldots,N-1,\\
     \delta\tau_{k,0}&=\delta\tau_{k,N}=0.
 \end{aligned}
 \end{equation}
-The vector $\dtau_k$ contains the $N-1$ independent offsets. The corresponding $N$ dwell changes satisfy
+During interval $i$ of cycle $k$, the plant uses mode $q_i$ between the absolute times $kT+t_{k,i-1}$ and $kT+t_{k,i}$. The applied dwell vector satisfies
 \begin{equation}
-    \ddwell_k=D\dtau_k,
-    \qquad
-    D_{ij}=\begin{cases}
+\begin{aligned}
+    \vect{d}_k&=\bar{\vect{d}}+\ddwell_k,\qquad \ddwell_k=D\dtau_k,\\
+    D_{ij}&=\begin{cases}
         1,&i=j,\\
         -1,&i=j+1,\\
         0,&\text{otherwise},
     \end{cases}
-    \label{eq:incidence-map}
+\end{aligned}
+\label{eq:incidence-map}
 \end{equation}
-for $i=1,\ldots,N$ and $j=1,\ldots,N-1$, so $\delta d_{k,i}=\delta\tau_{k,i}-\delta\tau_{k,i-1}$. Moving one instant later lengthens the interval before it and shortens the interval after it by the same amount. Since $\vect{1}^{\mathsf T}D=0$, the dwell changes sum to zero and every offset vector preserves the cycle period $T$. We write the exact one-cycle map as $\vect{x}_{k+1}=\mathcal P(\vect{x}_k,\dtau_k)$.
+where $D\in\R^{N\times(N-1)}$. Thus delaying one instant lengthens the preceding interval and shortens the following one by the same amount. Since $\vect{1}^{\mathsf T}D=0$, every offset vector preserves $T$. The remaining requirement is $\vect{d}_k\ge d_{\min}\vect{1}$ for a specified $d_{\min}>0$.
 
-\subsection{Exact augmented propagation and prediction}
+\subsection{Exact one-cycle map}
 
-We suppress the cycle index while deriving the propagation equation. Define the augmented state and matrix
-\begin{equation}
-    \chi(t)=\begin{bmatrix}\vect{x}(t)\\1\end{bmatrix},
-    \qquad
-    \widetilde A_{\sigma(t)}=
-    \begin{bmatrix}
-        A_{\sigma(t)}&\vect{b}_{\sigma(t)}\\
-        \vect{0}^{\mathsf T}&0
-    \end{bmatrix}.
-\end{equation}
-Then
-\begin{equation}
-    \boxed{\dot\chi(t)=\widetilde A_{\sigma(t)}\chi(t)}.
-\end{equation}
-For one cycle, let
+Introduce the augmented state, interval generator, and nominal transition matrix
 \begin{equation}
 \begin{aligned}
-    0&=t_0<t_1<\cdots<t_N=T,\\
-    \sigma(t)&=q_i,\qquad t_{i-1}\le t<t_i.
+    \chi&=\begin{bmatrix}\vect{x}\\1\end{bmatrix},\qquad
+    F_i=\begin{bmatrix}A_{q_i}&\vect{b}_{q_i}\\\vect{0}^{\mathsf T}&0\end{bmatrix},\\
+    E_i&=e^{F_i\bar d_i}.
 \end{aligned}
+\label{eq:augmented-generator}
 \end{equation}
-and set
+On interval $i$, $\dot\chi=F_i\chi$, so the exact cycle propagation is
 \begin{equation}
-    F_i=\widetilde A_{q_i},
-    \qquad
-    \Delta t_i=t_i-t_{i-1}.
-    \label{eq:augmented-generator}
+    \chi_{k+1}=e^{F_Nd_{k,N}}\cdots e^{F_1d_{k,1}}\chi_k.
+    \label{eq:exact-augmented-cycle}
 \end{equation}
-Propagation through interval $i$ gives
+The rightmost factor acts first; matrices belonging to different modes cannot generally be interchanged. Define
 \begin{equation}
-    \chi(t_i)=e^{F_i\Delta t_i}\chi(t_{i-1}).
-\end{equation}
-Applying this relation from interval $1$ to interval $N$ yields the exact cycle propagation
-\begin{equation}
-\boxed{\begin{aligned}
-    \chi(t_N)={}&e^{F_N\Delta t_N}
-    e^{F_{N-1}\Delta t_{N-1}}\cdots\\
-    &e^{F_2\Delta t_2}e^{F_1\Delta t_1}\chi(t_0)
-\end{aligned}}.
-\label{eq:exact-augmented-cycle}
-\end{equation}
-The rightmost factor acts first. The matrix order follows the order in which the trajectory visits the modes.
-
-The nominal interval duration and its perturbation are
-\begin{equation}
-    \Delta\bar t_i=\bar t_i-\bar t_{i-1}=\bar d_i,
-    \qquad
-    \Delta t_i=\Delta\bar t_i+\delta t_i.
-    \label{eq:prediction-duration-perturbation}
-\end{equation}
-The corresponding nominal cycle is
-\begin{equation}
-\boxed{\begin{aligned}
-    \bar\chi(t_N)={}&e^{F_N\Delta\bar t_N}
-    e^{F_{N-1}\Delta\bar t_{N-1}}\cdots\\
-    &e^{F_2\Delta\bar t_2}e^{F_1\Delta\bar t_1}\bar\chi(t_0)
-\end{aligned}}.
-\end{equation}
-Define the augmented error by
-\begin{equation}
-    e(t)=\chi(t)-\bar\chi(t),
-    \qquad
-    \chi(t_0)=\bar\chi(t_0)+e(t_0).
-    \label{eq:augmented-state-error}
-\end{equation}
-Subtracting the nominal propagation from the actual propagation gives
-\begin{equation}
-\begin{split}
-    e(t_N)={}&
-    e^{F_N(\Delta\bar t_N+\delta t_N)}\cdots\\
-    &e^{F_1(\Delta\bar t_1+\delta t_1)}
-    \left(\bar\chi(t_0)+e(t_0)\right)\\
-    &-e^{F_N\Delta\bar t_N}\cdots
-    e^{F_1\Delta\bar t_1}\bar\chi(t_0).
-\end{split}
-\label{eq:exact-augmented-error}
-\end{equation}
-
-\subsection{First-order prediction in interval durations}
-
-Since $F_i$ is constant on interval $i$,
-\begin{equation}
-    \frac{\mathrm d}{\mathrm ds}e^{F_i s}=F_i e^{F_i s}.
-\end{equation}
-Therefore,
-\begin{equation}
-    e^{F_i(\Delta\bar t_i+\delta t_i)}
-    =e^{F_i\Delta\bar t_i}
-    +F_i e^{F_i\Delta\bar t_i}\,\delta t_i
-    +\mathcal O(\delta t_i^2).
-    \label{eq:interval-first-order}
-\end{equation}
-Using
-\begin{equation}
-    \phi_i=e^{F_i\Delta\bar t_i},
-\end{equation}
-the ordered product becomes, to first order,
-\begin{equation}
-\begin{split}
-    &e^{F_N(\Delta\bar t_N+\delta t_N)}\cdots
-     e^{F_1(\Delta\bar t_1+\delta t_1)}\\
-    &\quad\doteq \widetilde\Phi+
-    \sum_{i=1}^{N}\phi_N\cdots\phi_{i+1}F_i\\
-    &\hspace{7em}{}\times\phi_i\cdots\phi_1\,\delta t_i,\\
-    &\qquad \widetilde\Phi=\phi_N\phi_{N-1}\cdots\phi_1.
-\end{split}
-\label{eq:ordered-product-first-order}
-\end{equation}
-An empty product is the identity. In particular, the coefficient of $\delta t_1$ begins with $\phi_N\cdots\phi_2F_1\phi_1$, whereas the coefficient of $\delta t_N$ begins with $F_N\phi_N\cdots\phi_1$. Matrices from different modes are not interchanged.
-
-Terms $\delta t_i e(t_0)$ and $\delta t_i\delta t_j$ are second order. After cancelling the nominal propagation in \eqref{eq:exact-augmented-error}, define
-\begin{equation}
-\begin{aligned}
-    \delta\boldsymbol{t}
-    &=\begin{bmatrix}\delta t_1&\delta t_2&\cdots&\delta t_N\end{bmatrix}^{\mathsf T},\\
-    \gamma_i
-    &=\phi_N\cdots\phi_{i+1}F_i\phi_i\cdots\phi_1\bar\chi(t_0),\\
-    \Gamma&=\begin{bmatrix}\gamma_1&\gamma_2&\cdots&\gamma_N\end{bmatrix}.
-\end{aligned}
-\label{eq:augmented-dwell-sensitivity}
-\end{equation}
-Thus the columns of $\Gamma$ follow the same order as the entries of $\delta\boldsymbol{t}$, and the augmented prediction equation is
-\begin{equation}
-    \boxed{e(t_N)\doteq\widetilde\Phi e(t_0)+\Gamma\,\delta\boldsymbol{t}}.
-    \label{eq:augmented-prediction}
-\end{equation}
-Here $\doteq$ denotes equality to first order about $e(t_0)=0$ and $\delta\boldsymbol{t}=0$.
-
-To recover the physical-state equation, define
-\begin{equation}
-    \Pi=\begin{bmatrix}I_n&\vect{0}\end{bmatrix},
-    \qquad
+    \Pi=\begin{bmatrix}I_n&\vect{0}\end{bmatrix},\qquad
     \iota=\begin{bmatrix}I_n\\\vect{0}^{\mathsf T}\end{bmatrix}.
 \end{equation}
-At the cycle boundaries, $e(t_0)=\iota\vect{e}_k$ and $\Pi e(t_N)=\vect{e}_{k+1}$. Restoring the cycle index on the duration perturbation gives
+The physical one-cycle map is
 \begin{equation}
-    \vect{e}_{k+1}\doteq\Phi\vect{e}_k+G_d\delta\boldsymbol{t}_k,
-    \label{eq:dwell-linearization}
+\begin{split}
+    \mathcal P(\vect{x},\dtau)={}&\Pi e^{F_N[\bar d_N+(D\dtau)_N]}\cdots\\
+    &\quad e^{F_1[\bar d_1+(D\dtau)_1]}
+    \begin{bmatrix}\vect{x}\\1\end{bmatrix}.
+\end{split}
+\label{eq:exact-cycle-map}
 \end{equation}
-where
-\begin{equation}
-\begin{aligned}
-    \Phi&=\Pi\widetilde\Phi\iota
-    =e^{A_{q_N}\Delta\bar t_N}\cdots
-      e^{A_{q_1}\Delta\bar t_1},\\
-    G_d&=\Pi\Gamma.
-\end{aligned}
-\label{eq:physical-prediction-matrices}
-\end{equation}
-Because every $\phi_i$ is block upper triangular,
-\begin{equation}
-    \widetilde\Phi=\phi_N\cdots\phi_1
-    =\begin{bmatrix}\Phi&\vect{h}\\
-    \vect{0}^{\mathsf T}&1\end{bmatrix}.
-    \label{eq:augmented-cycle-block-form}
-\end{equation}
-Thus $\widetilde\Phi$ is the augmented propagation matrix, $\Phi$ is its physical $n\times n$ state-propagation block, and $G_d$ maps the ordered interval-duration perturbations to the terminal physical-state perturbation.
+The reference schedule and anchor satisfy $\mathcal P(\vect{x}^{\star},\vect{0})=\vect{x}^{\star}$. They are given design data, not optimization variables of the timing controller.
 
-\subsection{Switching-instant offsets}
+\subsection{Linearization in the independent switching instants}
 
-The duration-perturbation vector in cycle $k$ is $\delta\boldsymbol{t}_k=\ddwell_k$. Substituting $\delta\boldsymbol{t}_k=D\dtau_k$ into \eqref{eq:dwell-linearization} gives the model in the independent timing coordinates
+For a dwell change $\delta d_i$, the single-interval expansion is
+\begin{equation}
+    e^{F_i(\bar d_i+\delta d_i)}=E_i+F_iE_i\delta d_i
+    +\mathcal O(\delta d_i^2).
+    \label{eq:interval-first-order}
+\end{equation}
+Expanding the ordered product, while retaining only terms containing one dwell change, gives
+\begin{equation}
+\begin{gathered}
+    e^{F_N(\bar d_N+\delta d_N)}\cdots e^{F_1(\bar d_1+\delta d_1)}\\
+    =\widetilde\Phi+\sum_{i=1}^N J_i\delta d_i+\mathcal O(\|\ddwell\|^2),\\
+    \widetilde\Phi=E_N\cdots E_1,\\
+    J_i=E_N\cdots E_{i+1}F_iE_i\cdots E_1.
+\end{gathered}
+\label{eq:ordered-product-first-order}
+\end{equation}
+An empty product is the identity. In particular, $J_1=E_N\cdots E_2F_1E_1$ and $J_N=F_NE_N\cdots E_1$. Write $\chi_k=\chi^{\star}+\iota\vect{e}_k$, with $\chi^{\star}=[(\vect{x}^{\star})^{\mathsf T}\ 1]^{\mathsf T}$. Since $\widetilde\Phi\chi^{\star}=\chi^{\star}$, subtracting the nominal propagation cancels the zeroth-order term. The products $\delta d_i\vect{e}_k$ and $\delta d_i\delta d_j$ are second order, leaving
+\begin{equation}
+\begin{split}
+    \chi_{k+1}-\chi^{\star}={}&\widetilde\Phi\iota\vect{e}_k
+    +\sum_{i=1}^N J_i\chi^{\star}\delta d_{k,i}\\
+    &+\mathcal O\bigl((\|\vect{e}_k\|+\|\ddwell_k\|)^2\bigr).
+\end{split}
+\end{equation}
+Projecting onto the physical state and using $\ddwell_k=D\dtau_k$ yields
 \begin{equation}
 \begin{aligned}
     \vect{e}_{k+1}&=\Phi\vect{e}_k+\Gamma_\tau\dtau_k
-    +\mathcal O\!\left(\left\|[\vect{e}_k^{\mathsf T}\ \dtau_k^{\mathsf T}]\right\|^2\right),\\
+    +\mathcal O\bigl((\|\vect{e}_k\|+\|\dtau_k\|)^2\bigr),\\
+    \Phi&=\Pi\widetilde\Phi\iota
+    =e^{A_{q_N}\bar d_N}\cdots e^{A_{q_1}\bar d_1},\\
+    G_d&=\begin{bmatrix}\Pi J_1\chi^{\star}&\cdots&\Pi J_N\chi^{\star}\end{bmatrix},\\
     \Gamma_\tau&=G_dD.
 \end{aligned}
 \label{eq:cycle-model}
 \end{equation}
-Column $i$ of $D$ increases dwell $i$ and decreases dwell $i+1$. Therefore $\Gamma_{\tau,i}=\Pi(\gamma_i-\gamma_{i+1})$. Since $F_{i+1}$ commutes with $\phi_{i+1}=e^{F_{i+1}\bar d_{i+1}}$, factoring the adjacent terms yields
+The remainder is understood in fixed state and timing units. The augmented product has the block form
+\begin{equation}
+    \widetilde\Phi=\begin{bmatrix}\Phi&\vect{h}\\\vect{0}^{\mathsf T}&1\end{bmatrix}.
+    \label{eq:augmented-cycle-block-form}
+\end{equation}
+Its unit eigenvalue belongs to the auxiliary constant coordinate. Stability is tested on the physical error dynamics, not on this augmented matrix.
+
+Each column of $D$ subtracts two adjacent dwell sensitivities. Factoring them gives
 \begin{equation}
 \begin{split}
-    \Gamma_{\tau,i}={}&e^{A_{q_N}\bar d_N}\cdots
-    e^{A_{q_{i+1}}\bar d_{i+1}}\\
-    &\times\left[(A_{q_i}-A_{q_{i+1}})\bar{\vect{x}}(\bar t_i)
-    +\vect{b}_{q_i}-\vect{b}_{q_{i+1}}\right].
+    \Gamma_{\tau,i}={}&e^{A_{q_N}\bar d_N}\cdots e^{A_{q_{i+1}}\bar d_{i+1}}\\
+    &\times\bigl[(A_{q_i}-A_{q_{i+1}})\bar{\vect{x}}(\bar t_i)
+    +\vect{b}_{q_i}-\vect{b}_{q_{i+1}}\bigr].
 \end{split}
 \label{eq:timing-jacobian}
 \end{equation}
-The bracket is the jump in the affine vector field at the switching state, from mode $q_i$ to mode $q_{i+1}$. That is what displacing instant $i$ does. It trades time between two adjacent modes without changing the state at that instant to first order, and the remaining nominal transitions carry the resulting jump to the end of the cycle. \cite{flieller2006limitCycles} also used switching-time sensitivities to compute hybrid limit cycles and test their sampled-time local stability. Equation~\eqref{eq:timing-jacobian} therefore has the switching-sensitivity structure reported in \cite{patino2010}, obtained here from dwell perturbations in independent fixed-period timing coordinates.
+The bracket is the change in the affine vector field caused by trading time between adjacent modes. The remaining transitions carry this effect to the cycle end. This recovers the switching-sensitivity structure in \cite{patino2010}; switching-time sensitivities also appear in the hybrid limit-cycle analysis of \cite{flieller2006limitCycles}.
 
-If every interval instead shares $A_{q_i}=A_c$ and $\vect{b}_{q_i}=B_c\vect{u}_{i-1}$, then
+For the special case $A_{q_i}=A_c$ and $\vect{b}_{q_i}=B_c\vect{u}_{i-1}$,
 \begin{equation}
-    \Phi=e^{A_cT},\qquad
+    \Phi=e^{A_cT},\quad
     \Gamma_{\tau,i}=e^{A_c(T-\bar t_i)}B_c(\vect{u}_{i-1}-\vect{u}_i),
     \label{eq:marcolino-specialization}
 \end{equation}
-which matches Marcolino's switched-actuator timing model, apart from the sign convention for the input jump \cite{marcolino2021}. When $A_{q_i}$ depends on the mode, the jump also depends on the switching state, so this reduction does not apply in general.
+which is the fixed-period switched-actuator model of \cite{marcolino2021}, with the corresponding input-jump sign convention. Mode-dependent state matrices require the full expression in \eqref{eq:timing-jacobian}.
+
+\subsection{Raw proportional timing feedback}
+
+A fixed gain $K\in\R^{(N-1)\times n}$ requests
+\begin{equation}
+    \dtau_k^{\mathrm{raw}}=-K\vect{e}_k,\qquad
+    A_{\mathrm{cl}}=\Phi-\Gamma_\tau K.
+    \label{eq:raw-law}
+\end{equation}
+The gain can be designed from \eqref{eq:cycle-model}, for example by discrete LQR. Here the gain is fixed before conditioning and certification. Although a Schur $A_{\mathrm{cl}}$ gives a locally stabilizing raw law, it does not make every requested schedule admissible. The next section enforces the dwell constraints; \cref{sec:stability} examines the resulting conditioned dynamics.
 
 \section{Solver-free dwell-time conditioning}
 \label{sec:conditioning}
 
-\cite{briat2013dwellTimes} give stability tests for uncertain linear switched systems under minimum and mode-dependent dwell-time conditions. Here, \cref{sec:model} says what an offset does, not whether it can be applied. A static law knows nothing about the minimum dwell duration, and \eqref{eq:incidence-map} ties each dwell to two adjacent offsets, so clipping the offsets one at a time would change the direction of the correction. We keep the direction and give up magnitude instead, then certify the closed loop that results.
+Minimum dwell durations couple adjacent offsets through $D$. Independent clipping need not preserve the direction of the feedback action. Instead, we apply one scalar factor to the complete raw vector.
 
-Let a static feedback law produce the raw switching-instant offset
-\begin{equation}
-    \dtau_k^{\mathrm{raw}}=-K\vect{e}_k,
-    \qquad A_{\mathrm{cl}}=\Phi-\Gamma_\tau K.
-    \label{eq:raw-law}
-\end{equation}
-Let $d_{\min}$ be the required minimum dwell duration and assume that the nominal schedule keeps a strict margin above it,
+Assume that every nominal interval has strict margin,
 \begin{equation}
     \vect{m}=\bar{\vect{d}}-d_{\min}\vect{1}>\vect{0}.
     \label{eq:strict-margin}
 \end{equation}
-Each $m_i$ is how much dwell $i$ can be shortened before it becomes inadmissible. The raw action is feasible for exactly those errors in the polyhedron
+The Raw-Action Admissible Region is
 \begin{equation}
-    \mathcal C=\{\vect{e}:\bar{\vect{d}}-DK\vect{e}
-    \ge d_{\min}\vect{1}\}.
+    \mathcal C=\{\vect{e}:DK\vect{e}\le\vect{m}\}.
     \label{eq:admissible-region}
 \end{equation}
-For $\vect{e}_k\in\mathcal C$ the raw action needs no modification. Outside $\mathcal C$ at least one dwell would fall below $d_{\min}$. Collect the requested dwell changes in $\vect{q}_k=D\dtau_k^{\mathrm{raw}}$ and set
+Inside $\mathcal C$, the raw action already satisfies all dwell constraints. Outside it, at least one requested interval is too short. With $\vect{q}_k=D\dtau_k^{\mathrm{raw}}$, define
 \begin{equation}
 \begin{aligned}
-    \beta_k&=\min\left\{1,\ \min_{i:q_{k,i}<0}
-    \frac{m_i}{-q_{k,i}}\right\},\\
-    \dtau_k^{\mathrm{app}}&=\beta_k\dtau_k^{\mathrm{raw}}.
+    \beta_k&=\min\left\{1,\ \min_{i:q_{k,i}<0}\frac{m_i}{-q_{k,i}}\right\},\\
+    \dtau_k^{\mathrm{app}}&=\beta_k\dtau_k^{\mathrm{raw}},
 \end{aligned}
 \label{eq:conditioner}
 \end{equation}
-where a minimum over an empty set is $+\infty$. We call $\beta_k$ the conditioning factor. It equals one whenever the raw action is already feasible, and otherwise the dwell that runs out of margin first decides it.
+where a minimum over an empty set is $+\infty$. Only intervals that the raw action would shorten impose upper bounds on $\beta_k$.
 
 \begin{proposition}[Feasibility and maximality]
 \label{prop:conditioner}
-Under \eqref{eq:strict-margin}, \eqref{eq:conditioner} returns the largest $\beta\in[0,1]$ such that every applied dwell duration satisfies $\bar{\vect{d}}+D(\beta\dtau_k^{\mathrm{raw}})\ge d_{\min}\vect{1}$. The conditioned action preserves the cycle period and the direction of the raw action. Computing it takes $O(N)$ time and requires no online solver.
+Under \eqref{eq:strict-margin}, \eqref{eq:conditioner} returns the largest $\beta\in[0,1]$ for which every applied dwell satisfies $\bar{\vect{d}}+\beta D\dtau_k^{\mathrm{raw}}\ge d_{\min}\vect{1}$. For a finite raw action, $\beta>0$. The conditioner preserves the direction of a nonzero raw action, mode order, and cycle period. Computing the factor takes $O(N)$ time without an online solver.
 \end{proposition}
 
 \begin{proof}
-A dwell with $q_{k,i}\ge0$ cannot be shortened by scaling. A dwell with $q_{k,i}<0$ requires $\beta\le m_i/(-q_{k,i})$. Intersecting these bounds with $[0,1]$ gives exactly \eqref{eq:conditioner}, which is therefore both feasible and maximal. The identity $\vect{1}^{\mathsf T}D=0$ preserves $T$, and multiplying the full action by one nonnegative scalar leaves its direction unchanged. A single pass over the $N$ dwell changes evaluates every bound.
+For $q_{k,i}\ge0$, $m_i+\beta q_{k,i}>0$ for all $\beta\in[0,1]$. For $q_{k,i}<0$, feasibility is equivalent to $\beta\le m_i/(-q_{k,i})$. Intersecting these bounds with $[0,1]$ gives \eqref{eq:conditioner}, proving feasibility and maximality. Every finite bound is positive. Uniform positive scaling preserves direction, and $\vect{1}^{\mathsf T}D=0$ preserves $T$. Since $d_{\min}>0$, the boundaries remain ordered. Adjacent differences compute $\vect{q}_k$, and one scan evaluates the $N$ bounds.
 \end{proof}
 
-The Raw-Action Admissible Region only guarantees the next schedule. To identify the errors for which the raw law remains feasible at every future cycle, set $\mathcal C_0=\mathcal C$ and iterate
+At each cycle start, the controller therefore measures $\vect{x}_k$, computes the raw action, scans the dwell changes, and applies the scaled offsets. If $\beta_k<1$, at least one dwell reaches its minimum. No set-membership test or optimization is required online. The polyhedron $\mathcal C$ explains where conditioning is inactive; its maximal invariant subset is treated separately in \cref{app:invariant-region}.
+
+\section{Lyapunov stability and convex optimization}
+\label{sec:stability}
+
+Feasibility alone does not imply convergence. This section gives a sufficient stability condition for the complete conditioned linearized family, including cycles in which $\beta_k<1$.
+
+\subsection{Conditioned matrix family}
+
+Let $S_x$ be a fixed positive diagonal state-scale matrix and set $\vect{z}_k=S_x^{-1}\vect{e}_k$. Define the normalized endpoints
 \begin{equation}
-    \mathcal C_{j+1}=\mathcal C_j\cap
-    \{\vect{e}:A_{\mathrm{cl}}\vect{e}\in\mathcal C_j\},
-    \qquad
-    \mathcal C_\infty=\bigcap_{j=0}^{\infty}\mathcal C_j.
-    \label{eq:invariant-region}
+    A_0=S_x^{-1}\Phi S_x,\qquad
+    A_1=S_x^{-1}A_{\mathrm{cl}}S_x.
+    \label{eq:endpoints}
 \end{equation}
-This preimage intersection is the standard maximal-admissible-set construction \cite{gilbert1991maximal}. For polyhedral $\mathcal C$, every iterate is polyhedral and redundant inequalities can be removed offline.
-
-\begin{proposition}[Invariant raw-action feasibility and convergence]
-\label{prop:invariant-region}
-The set $\mathcal C_\infty$ in \eqref{eq:invariant-region} is the maximal positively invariant subset of $\mathcal C$ under $A_{\mathrm{cl}}$. If $A_{\mathrm{cl}}$ is Schur, then every linearized trajectory starting in $\mathcal C_\infty$ remains raw-action feasible, has $\beta_k=1$ for all $k$, and converges to the cycle anchor.
-\end{proposition}
-
-\begin{proof}
-Membership in $\mathcal C_\infty$ means $A_{\mathrm{cl}}^j\vect{e}_0\in\mathcal C$ for every $j\ge0$. Thus the raw action satisfies the dwell constraints at every cycle, the conditioner returns one, and $\vect{e}_k=A_{\mathrm{cl}}^k\vect{e}_0$ remains in $\mathcal C_\infty$. No larger subset of $\mathcal C$ has this property by the definition in \eqref{eq:invariant-region}. Since $A_{\mathrm{cl}}$ is Schur, $A_{\mathrm{cl}}^k\vect{e}_0\to\vect{0}$.
-\end{proof}
-
-The set computation is offline and does not alter the controller. Outside $\mathcal C_\infty$, \cref{prop:conditioner} still guarantees that the applied schedule satisfies the current cycle's dwell constraints. The conditioned linearized matrix is $(1-\beta_k)\Phi+\beta_k A_{\mathrm{cl}}$, but this set argument makes no convergence claim for trajectories while $\beta_k<1$.
-
-The nonlinear statement is also local. Suppose $\mathcal P$ is continuously differentiable while the mode order is preserved, and that $A_{\mathrm{cl}}$ is Schur. The strict nominal margin and $\dtau^{\mathrm{raw}}(\vect{0})=\vect{0}$ put a neighborhood of the anchor inside $\mathcal C$. Inside that neighborhood the conditioner never acts, $\beta=1$, and the Jacobian of the exact closed-loop map is $A_{\mathrm{cl}}$, so the exact map exponentially stabilizes the cycle anchor and the phase-locked reference periodic trajectory through it. This does not extend the polyhedral certificate to the exact nonlinear map over all of $\mathcal C_\infty$.
-
-\section{Converter case study}
-\label{sec:case-study}
-
-The case study asks three questions. Does the derived one-cycle model reproduce the exact plant? What invariant raw-feasible region does the aggressive controller admit? And does conditioning deliver anything that an already-feasible controller cannot?
-
-\subsection{Three-cell converter benchmark and implementation}
-
-The hybrid-affine converter analysis of \cite{albea2021hybridAffinePwm} embeds PWM and sample-and-hold variables and uses exact two-subinterval matrix-exponential propagation in a Lyapunov analysis. The present case study uses a prescribed nine-interval mode sequence. We use the three-cell multilevel DC--DC converter studied by Patino et al. \cite{patino2010}, with state $\vect{x}=[v_{C_1},v_{C_2},i_L]^{\mathsf T}$. For binary switch commands $u_1,u_2,u_3\in\{0,1\}$,
+Substituting \eqref{eq:conditioner} into the first-order model gives
 \begin{equation}
 \begin{aligned}
-A_{\vect{u}}&=
-\begin{bmatrix}
+    \vect{z}_{k+1}&=A(\beta_k)\vect{z}_k,\\
+    A(\beta)&=(1-\beta)A_0+\beta A_1.
+\end{aligned}
+\label{eq:conditioned-family}
+\end{equation}
+Equation~\eqref{eq:conditioned-family} omits the nonlinear remainder in \eqref{eq:cycle-model}. Although the implemented conditioner returns $\beta>0$ for finite errors, certifying the closed interval $[0,1]$ includes its limiting zero-feedback endpoint. Similarity by $S_x$ changes neither endpoint's eigenvalues.
+
+Schur stability of $A_0$ and $A_1$ separately is insufficient to establish stability of every matrix in the segment or of their time-varying products. We seek one quadratic function that decreases for both endpoints.
+
+\subsection{Common quadratic Lyapunov certificate}
+
+\begin{theorem}[Uniform stability under conditioning]
+\label{thm:common-p}
+Suppose there exist $P=P^{\mathsf T}\succ0$ and $\eta>0$ such that
+\begin{equation}
+    P-A_i^{\mathsf T}PA_i\succeq\eta I_n,\qquad i\in\{0,1\}.
+    \label{eq:endpoint-lmis}
+\end{equation}
+Then $V(\vect{z})=\vect{z}^{\mathsf T}P\vect{z}$ decreases for every nonzero state of \eqref{eq:conditioned-family}, uniformly over $\beta\in[0,1]$. For any sequence $\{\beta_k\}\subset[0,1]$,
+\begin{equation}
+\begin{aligned}
+    \|\vect{z}_k\|_2&\le
+    \sqrt{\frac{\lambda_{\max}(P)}{\lambda_{\min}(P)}}\,r^k\|\vect{z}_0\|_2,\\
+    r&=\sqrt{1-\frac{\eta}{\lambda_{\max}(P)}}<1.
+\end{aligned}
+\label{eq:uniform-bound}
+\end{equation}
+In particular, the result holds for the state-dependent factor in \eqref{eq:conditioner}.
+\end{theorem}
+
+\begin{proof}
+For the same $P\succ0$ and $\eta>0$ at both endpoints, define
+\begin{equation}
+    \mathcal S_\eta(\beta)=
+    \begin{bmatrix}
+        P-\eta I_n&A(\beta)^{\mathsf T}P\\
+        PA(\beta)&P
+    \end{bmatrix}.
+    \label{eq:schur-block}
+\end{equation}
+Since $P\succ0$, the Schur complement of its lower-right block gives the equivalence
+\[
+    \mathcal S_\eta(\beta)\succeq0
+    \Longleftrightarrow
+    P-A(\beta)^{\mathsf T}PA(\beta)\succeq\eta I_n.
+\]
+The endpoint conditions therefore give $\mathcal S_\eta(0),\mathcal S_\eta(1)\succeq0$. The affine dependence on $\beta$ yields
+\begin{equation}
+\begin{aligned}
+    \mathcal S_\eta(\beta)
+    &=(1-\beta)\mathcal S_\eta(0)\\
+    &\quad+\beta\mathcal S_\eta(1)\succeq0
+\end{aligned}
+\label{eq:schur-convex-combination}
+\end{equation}
+for every $\beta\in[0,1]$, by convexity of the positive semidefinite cone. The Schur complement then gives, for $\vect{z}_{k+1}=A(\beta_k)\vect{z}_k$,
+\begin{equation}
+\begin{split}
+    V(\vect{z}_{k+1})-V(\vect{z}_k)
+    &\le-\eta\|\vect{z}_k\|_2^2\\
+    &\le-\frac{\eta}{\lambda_{\max}(P)}V(\vect{z}_k).
+\end{split}
+\end{equation}
+The same bound holds independently at every cycle, without any assumption on how $\beta_k$ is selected. Iteration and the inequalities $\lambda_{\min}(P)\|\vect{z}\|_2^2\le V(\vect{z})\le\lambda_{\max}(P)\|\vect{z}\|_2^2$ give \eqref{eq:uniform-bound}.
+\end{proof}
+
+The Schur-complement argument proves decrease on the entire matrix segment, not only at sampled values of $\beta$. It certifies the linearized conditioned model for all initial errors in that model, including those outside $\mathcal C$. It does not make the linear approximation valid at arbitrary physical errors.
+
+\subsection{Offline semidefinite program}
+
+For a fixed gain and fixed endpoint matrices, the certificate can be found by
+\begin{equation}
+\begin{aligned}
+    \underset{P=P^{\mathsf T},\,\eta}{\operatorname{maximize}}\quad&\eta\\
+    \text{subject to}\quad
+    &\operatorname{tr}(P)=n,\\
+    &P\succeq\varepsilon_P I_n,\\
+    &P-A_0^{\mathsf T}PA_0\succeq\eta I_n,\\
+    &P-A_1^{\mathsf T}PA_1\succeq\eta I_n,
+\end{aligned}
+\label{eq:common-p-sdp}
+\end{equation}
+with $\varepsilon_P=10^{-7}$. The trace constraint removes the arbitrary positive scale of $P$. For fixed $A_0,A_1$, both these inequalities and their equivalent inverse-free block form $\mathcal S_\eta(0),\mathcal S_\eta(1)\succeq0$ are affine in $P,\eta$. The Julia implementation uses the smaller inequalities in \eqref{eq:common-p-sdp}. The gain $K$ is fixed, not jointly optimized. A stability certificate requires a positive verified decrease margin, not merely successful solver termination.
+
+After solving, we symmetrize the returned $P$ and recompute
+\begin{equation}
+\begin{aligned}
+    Q_i&=P-A_i^{\mathsf T}PA_i,\qquad i\in\{0,1\},\\
+    \mu&=\min\{\lambda_{\min}(Q_0),\lambda_{\min}(Q_1)\}.
+\end{aligned}
+\label{eq:verified-margin}
+\end{equation}
+Positive definiteness, trace normalization, and $\mu>0$ are checked directly. The verified margin $\mu$ can replace $\eta$ in \eqref{eq:uniform-bound}. Maximizing $\eta$ under trace normalization does not directly minimize the resulting rate bound, which also depends on $\lambda_{\max}(P)$.
+
+The certificate is sufficient, not necessary. In particular, including $\beta=0$ requires $A_0$ to be Schur. An unstable open-loop endpoint cannot satisfy this full-interval test, even if a more restricted state-dependent controller might stabilize it. Failure to obtain a positive common margin does not by itself establish instability.
+
+\subsection{What follows for the exact plant}
+
+The exact conditioned cycle map retains a state-dependent timing remainder. Since $\|\dtau^{\mathrm{app}}\|\le\|K\|\|\vect{e}\|$, its normalized local form is
+\begin{equation}
+    \vect{z}_{k+1}=A(\beta_k)\vect{z}_k+\mathcal O(\|\vect{z}_k\|^2).
+\end{equation}
+The common-$P$ proof does not bound that remainder over a large-error region.
+
+There is nevertheless a local exact result. Strict nominal dwell margin places a neighborhood of $\vect{e}=\vect{0}$ inside $\mathcal C$. There the conditioner is inactive, and the exact closed-loop map is smooth with Jacobian $A_{\mathrm{cl}}$. The endpoint inequalities imply that this Jacobian is Schur. The discrete-time linearization theorem therefore gives local exponential stability of the cycle anchor, in a sufficiently small invariant neighborhood. Smooth interval flows and switching offsets tending to zero extend convergence to the phase-aligned reference periodic trajectory between cycle starts. This argument does not claim nonlinear invariance of the entire polyhedron $\mathcal C$.
+
+Open loop is a distinct case. With fixed nominal durations, \eqref{eq:augmented-cycle-block-form} gives $\mathcal P(\vect{x},\vect{0})=\Phi\vect{x}+\vect{h}$ exactly. Subtracting its fixed point yields
+\begin{equation}
+    \vect{e}_{k+1}=\Phi\vect{e}_k
+    \label{eq:exact-open-loop}
+\end{equation}
+without a linearization remainder. Thus a Schur $\Phi$ proves convergence under the prescribed open-loop schedule throughout this ideal affine model. This fact does not extend to the nonlinear timing-feedback map.
+
+\section{Application to a three-cell converter}
+\label{sec:case-study}
+
+The application checks the cycle model, evaluates the common-$P$ certificate, and compares exact controlled and open-loop trajectories. Since the benchmark is already open-loop stable, the practical question is how much feedback accelerates convergence while preserving dwell feasibility.
+
+\subsection{Benchmark and controller parameters}
+
+We use the three-cell multilevel DC--DC converter benchmark of Patino et al. \cite{patino2010}, with $\vect{x}=[v_{C_1},v_{C_2},i_L]^{\mathsf T}$. For binary switch commands $u_1,u_2,u_3\in\{0,1\}$,
+\begin{equation}
+\begin{aligned}
+A_{\vect{u}}&=\begin{bmatrix}
 0&0&(u_2-u_1)/C_1\\
 0&0&(u_3-u_2)/C_2\\
 (u_1-u_2)/L&(u_2-u_3)/L&-R/L
@@ -362,9 +381,9 @@ A_{\vect{u}}&=
 \end{aligned}
 \label{eq:converter}
 \end{equation}
-Both $A_{\vect{u}}$ and $\vect{b}_{\vect{u}}$ depend on the switch state. The plant therefore does not satisfy the common-state-matrix assumption in \eqref{eq:marcolino-specialization}. \Cref{tab:parameters} collects the converter, schedule, and feedback parameters used in this section.
+Both matrices depend on the switch state, so the common-state-matrix reduction in \eqref{eq:marcolino-specialization} does not apply. The fixed nine-interval physical mode sequence is $(0,1,3,7,2,0,4,7,4)$, where the physical mode ID is $4u_1+2u_2+u_3$.
 
-The reported physical mode sequence is $(0,1,3,7,2,0,4,7,4)$, the rounded cycle boundaries are $(0,66,88,110,132,154,220,242,264,286)$~\si{\micro\second}, and the reported cycle anchor is $\vect{x}^{\star}=(9.9247,19.2928,0.9823)^{\mathsf T}$. Because those values are rounded, exact propagation through them does not return to the anchor. We therefore adjust the dwell vector once by least squares, holding the published \SI{\NominalPeriodMicroseconds}{\micro\second} period, the reported anchor, and the \SI{\BenchmarkDwellBound}{\micro\second} nominal-design bound. The resulting schedule is
+The published cycle boundaries are $(0,66,88,110,132,154,220,242,264,286)$~\si{\micro\second}, with anchor $\vect{x}^{\star}=(9.9247,19.2928,0.9823)^{\mathsf T}$. These rounded data do not close exactly. A one-time least-squares dwell reconciliation preserves the reported anchor, \SI{\NominalPeriodMicroseconds}{\micro\second} period, and \SI{\BenchmarkDwellBound}{\micro\second} nominal-design bound. It gives
 \begin{equation}
 \begin{split}
     \bar{\vect{t}}={}&(0,63.889,87.557,109.557,132.538,154.538,\\
@@ -372,112 +391,182 @@ The reported physical mode sequence is $(0,1,3,7,2,0,4,7,4)$, the rounded cycle 
 \end{split}
 \label{eq:benchmark-schedule}
 \end{equation}
-The largest boundary correction is \MaximumBoundaryCorrection{}~\si{\micro\second}, and the closure error in the infinity norm is \NominalClosureError{}. The adjustment prepares the benchmark data. It is not a trajectory-design method.
+Computations use the full-precision schedule, with closure error \NominalClosureError{} in the infinity norm and maximum boundary correction \MaximumBoundaryCorrection{}~\si{\micro\second}. This reconciliation prepares the benchmark; it is not a proposed reference-trajectory design method.
 
-\begin{table*}[t]
+\begin{table}[t]
     \centering
-    \caption{Converter, schedule, and feedback parameters. The applied bound of \SI{\AppliedScheduleDwellBound}{\micro\second} is a simulation assumption, not the nominal benchmark-design bound.}
+    \caption{Converter and timing-feedback parameters. The applied dwell bound is a simulation assumption, not a hardware-calibrated limit.}
     \label{tab:parameters}
-    \begin{tabular}{lll}
-        \toprule
-        Quantity & Symbol & Value \\
-        \midrule
-        Source; capacitances & $E$; $C_1,C_2$ & \SI{30}{\volt}; \SI{40}{\micro\farad} \\
-        Inductance; resistance & $L$; $R$ & \SI{10}{\milli\henry}; \SI{10}{\ohm} \\
-        Intervals; period & $N$; $T$ & \NominalIntervalCount{}; \SI{\NominalPeriodMicroseconds}{\micro\second} \\
-        Nominal-design dwell bound & $d_{\mathrm{bench}}$ & \SI{\BenchmarkDwellBound}{\micro\second} \\
-        Applied-schedule dwell bound & $d_{\min}$ & \SI{\AppliedScheduleDwellBound}{\micro\second} \\
-        State; timing scale & $S_x$; $t_s$ & $\operatorname{diag}(10,20,1)$; \SI{\TimingScaleMicroseconds}{\micro\second} \\
-        Aggressive LQR weights & $Q_n$; $R_n$ & $I_3$; $\AggressiveInputWeight I_8$ \\
-        Conservative LQR weights & $Q_n$; $R_n$ & $I_3$; $\ConservativeInputWeight I_8$ \\
-        \bottomrule
-    \end{tabular}
-\end{table*}
-
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.78\linewidth]{reference_schedule_orbit.pdf}
-    \caption{Reconciled reference schedule and exact periodic trajectory for the three-cell converter. Dashed horizontal lines show cycle averages. Dotted vertical lines mark the eight movable interior switching instants.}
-    \label{fig:reference}
-\end{figure}
-
-The cycle averages in \cref{fig:reference} are \SI{\CycleAverageVCOne}{\volt}, \SI{\CycleAverageVCTwo}{\volt}, and \SI{\CycleAverageIL}{\ampere}. We design in the normalized coordinates $\vect{z}=S_x^{-1}\vect{e}$ and $\vect{v}=\dtau/t_s$, which bring the three states and the eight offsets to comparable scale. The aggressive raw law is a standard discrete LQR with $Q_n=I_3$ and $R_n=\AggressiveInputWeight I_8$. The conservative comparison law changes only $R_n$, to $\ConservativeInputWeight I_8$. Only the aggressive law is conditioned.
-
-\subsection{Linearization and invariant-region checks}
-
-We check the analytical Jacobians against central differences of the exact one-cycle map. The state steps are $10^{-4}$ times the diagonal entries of $S_x$, and the timing step is $10^{-3}t_s=\SI{0.01}{\micro\second}$. A second check applies simultaneous state and timing perturbations with normalized amplitude $\epsilon$ and evaluates
-\begin{equation}
-\begin{aligned}
-    r(\epsilon)=\biggl\|S_x^{-1}\bigl[&\mathcal P(\vect{x}^{\star}+\Delta\vect{x},\dtau)
-    -\vect{x}^{\star}\\
-    &-\Phi\Delta\vect{x}-\Gamma_\tau\dtau\bigr]\biggr\|_2.
-\end{aligned}
-\end{equation}
-The Jacobian errors and residual slope in \cref{tab:results} confirm the implemented first-order model. The relative errors sit at the level of numerical noise, and the residual decays with slope \LinearizationResidualSlope{}, the second-order decay a correct first-order model must show. The generated data include the full analytical and finite-difference matrices and the residual sweep.
-
-For the aggressive normalized closed loop, the Raw-Action Admissible Region has \InvariantRegionFacets{} facets and \InvariantRegionVertices{} vertices. One preimage intersection establishes that it is already positively invariant, so $\mathcal C_\infty=\mathcal C$. Its volume in physical cycle-start-error coordinates is \InvariantRegionVolume{}~\si{\volt\squared\ampere}. Its coordinate ranges are $[\InvariantRegionVCOneMin{},\InvariantRegionVCOneMax{}]$~V, $[\InvariantRegionVCTwoMin{},\InvariantRegionVCTwoMax{}]$~V, and $[\InvariantRegionILMin{},\InvariantRegionILMax{}]$~A. Every vertex satisfies the raw dwell constraints, and every vertex image lies strictly inside them with at least \InvariantRegionImageDwellMargin{}~\si{\micro\second} margin. Together with $\rho(A_{\mathrm{cl}})=\AggressiveSpectralRadius{}<1$, these checks establish \cref{prop:invariant-region} for this linearized design.
-
-To isolate the effect of action scaling, \cref{fig:invariant-region} also shows the one-cycle feasible regions obtained by fixing $\beta=\MiddleComparisonConditioningFactor{}$ and $\beta=\LowerComparisonConditioningFactor{}$. The dwell constraints depend on the product of $\beta$ and the cycle-start error. Relative to $\beta=1$, these factors multiply every radial extent by $2$ and $5$, and increase the three-dimensional volume by factors of \MiddleComparisonRegionVolumeRatio{} and \LowerComparisonRegionVolumeRatio{}. The corresponding volumes are \MiddleComparisonRegionVolume{} and \LowerComparisonRegionVolume{}~\si{\volt\squared\ampere}. These outer regions describe feasibility for deliberately fixed factors; the actual conditioner still selects the largest feasible $\beta_k$ from the current error.
-
-\begin{figure*}[t]
-    \centering
-    \includegraphics[width=0.92\textwidth]{invariant_raw_action_region.pdf}
-    \caption{Fixed-factor dwell-feasible regions in physical cycle-start-error coordinates. (a) Three-dimensional overlay. (b)--(d) Orthogonal projections onto the coordinate planes. The blue, orange, and green regions use $\beta=1$, $\beta=\MiddleComparisonConditioningFactor{}$, and $\beta=\LowerComparisonConditioningFactor{}$, respectively. The blue region equals the invariant Raw-Action Admissible Region. Marker colors identify the smallest region containing each trajectory sample: green at $\beta=\LowerComparisonConditioningFactor{}$, orange at $\beta=\MiddleComparisonConditioningFactor{}$, and blue for the raw action. The exact nonlinear conditioned trajectory first enters the raw-action region at cycle \FirstInvariantRegionCycle{}. Only membership in the full three-dimensional polyhedron certifies feasibility; the trajectory is simulation evidence.}
-    \label{fig:invariant-region}
-\end{figure*}
-
-\subsection{Large-error simulation}
-
-We simulate the exact nonlinear map for \SimulationCycles{} cycles from
-\begin{equation}
-    \vect{x}_0=[7.5143\quad20.8211\quad0.0314]^{\mathsf T}.
-\end{equation}
-From this state we run the conditioned aggressive law, the unconditioned conservative law, and the open-loop schedule. Exact matrix exponentials propagate every interval, so the simulation never uses the linearized model. The initial normalized error is \InitialNormalizedError{}, far outside the perturbation range used to check the local linearization.
-
-\begin{table*}[t]
-    \centering
-    \caption{Linearization checks, invariant raw-action region, and exact nonlinear simulation results. Settling denotes the first cycle for which $\|S_x^{-1}e_k\|_2<0.01$.}
-    \label{tab:results}
-    \begin{tabular}{lc}
+    \begin{tabular}{ll}
         \toprule
         Quantity & Value \\
         \midrule
-        Relative errors: $\Phi$; $\Gamma_\tau$ & \PhiJacobianRelativeError{}; \GammaJacobianRelativeError{} \\
-        Linearization residual slope & \LinearizationResidualSlope{} \\
-        Spectral radii: open; conservative; aggressive & \OpenLoopSpectralRadius{}; \ConservativeSpectralRadius{}; \AggressiveSpectralRadius{} \\
-        Invariant region: facets; vertices; volume (\si{\volt\squared\ampere}) & \InvariantRegionFacets{}; \InvariantRegionVertices{}; \InvariantRegionVolume{} \\
-        Initial state in region; first entry cycle & no; \FirstInvariantRegionCycle{} \\
-        Minimum conditioning factor; active cycles & \MinimumConditioningBeta{}; \ConditionedCycleCount{} \\
-        Maximum raw; applied offset (\si{\micro\second}) & \MaximumRawOffset{}; \MaximumAppliedOffset{} \\
-        Minimum raw; applied dwell (\si{\micro\second}) & \MinimumRawDwell{}; \MinimumAppliedDwell{} \\
-        Minimum conservative dwell (\si{\micro\second}) & \MinimumConservativeDwell{} \\
-        Settling cycle: conditioned; conservative & \ConditionedSettlingCycle{}; \ConservativeSettlingCycle{} \\
-        Final errors: conditioned; conservative; open & \ConditionedFinalError{}; \ConservativeFinalError{}; \OpenLoopFinalError{} \\
+        Source $E$ & \SI{30}{\volt} \\
+        Capacitances $C_1,C_2$ & \SI{40}{\micro\farad} \\
+        Inductance $L$; resistance $R$ & \SI{10}{\milli\henry}; \SI{10}{\ohm} \\
+        Intervals $N$; period $T$ & \NominalIntervalCount{}; \SI{\NominalPeriodMicroseconds}{\micro\second} \\
+        Nominal-design dwell bound & \SI{\BenchmarkDwellBound}{\micro\second} \\
+        Applied dwell bound $d_{\min}$ & \SI{\AppliedScheduleDwellBound}{\micro\second} \\
+        State scale $S_x$ & $\operatorname{diag}(10,20,1)$ \\
+        Timing scale $t_s$ & \SI{\TimingScaleMicroseconds}{\micro\second} \\
+        LQR state weight $Q_n$ & $I_3$ \\
+        Aggressive input weight $R_n$ & $\AggressiveInputWeight I_8$ \\
+        Conservative input weight $R_n$ & $\ConservativeInputWeight I_8$ \\
         \bottomrule
     \end{tabular}
-\end{table*}
+\end{table}
 
-Without conditioning, the aggressive law requests a minimum dwell of \MinimumRawDwell{}~\si{\micro\second}, which would invert an interval and put two cycle boundaries out of order. Across the transient, the conditioner acts on \ConditionedCycleCount{} of the \SimulationCycles{} cycles and drops to $\beta_{\min}=\MinimumConditioningBeta{}$, cutting the largest offset from \MaximumRawOffset{} to \MaximumAppliedOffset{}~\si{\micro\second}. The minimum applied dwell is \MinimumAppliedDwell{}~\si{\micro\second}, exactly the assumed bound, which is what maximality predicts. The conservative law needs no conditioning and holds a minimum dwell of \MinimumConservativeDwell{}~\si{\micro\second}, but it reaches the $0.01$ error threshold only at cycle \ConservativeSettlingCycle{}, against cycle \ConditionedSettlingCycle{} for the conditioned aggressive law.
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{reference_schedule_orbit.pdf}
+    \caption{Reconciled reference schedule and periodic state trajectory. Dotted vertical lines mark the eight movable interior switching instants; dashed horizontal lines show cycle averages. The feedback target is the phase-aligned trajectory, not these averages.}
+    \label{fig:reference}
+\end{figure}
 
-The large-error initial condition lies outside $\mathcal C_\infty$, as its infeasible raw schedule implies. The conditioner is active for the first \ConditionedCycleCount{} cycles, and the exact nonlinear trajectory first enters the linearized invariant region at cycle \FirstInvariantRegionCycle{}. This entry is simulation evidence, not a claim that the nonlinear map must reach or preserve $\mathcal C_\infty$. \Cref{fig:invariant-region} shows the region and the first ten conditioned cycle-start errors. Under the fixed nominal schedule, the open-loop cycle map has spectral radius $\rho(\Phi)=\OpenLoopSpectralRadius{}<1$, so its cycle-start error also converges, but it remains above $0.01$ until cycle \OpenLoopConvergenceCycle{}.
+\Cref{fig:reference} shows the reference trajectory. Its cycle averages are \SI{\CycleAverageVCOne}{\volt}, \SI{\CycleAverageVCTwo}{\volt}, and \SI{\CycleAverageIL}{\ampere}. With $\vect{v}=\dtau/t_s$, the normalized timing-input matrix is $B_n=S_x^{-1}\Gamma_\tau t_s$. Discrete LQR on $(A_0,B_n)$ yields $\vect{v}^{\mathrm{raw}}=-K_n\vect{z}$, or $K=t_sK_nS_x^{-1}$ in physical coordinates. \Cref{tab:parameters} lists the weights. Only the aggressive law is conditioned; the conservative law is an unconditioned comparison that remains dwell-feasible for this experiment.
 
+\subsection{Model checks and numerical Lyapunov certificate}
 
+Central finite differences of the exact map check both Jacobians. State steps are $10^{-4}$ times the diagonal entries of $S_x$, and the timing step is $10^{-3}t_s=\SI{0.01}{\micro\second}$. The relative errors for $\Phi$ and $\Gamma_\tau$ are \PhiJacobianRelativeError{} and \GammaJacobianRelativeError{}, respectively. For simultaneous normalized state and timing perturbations of amplitude $\epsilon$, we also evaluate
+\begin{equation}
+\begin{split}
+    r_{\mathrm{lin}}(\epsilon)=\bigl\|S_x^{-1}\bigl[&\mathcal P(\vect{x}^{\star}+\Delta\vect{x},\dtau)-\vect{x}^{\star}\\
+    &-\Phi\Delta\vect{x}-\Gamma_\tau\dtau\bigr]\bigr\|_2.
+\end{split}
+\end{equation}
+The fitted log--log slope is \LinearizationResidualSlope{}, consistent with the second-order remainder.
 
+For the aggressive gain, the Julia implementation solves \eqref{eq:common-p-sdp} using Convex.jl and Clarabel with $\operatorname{tr}(P)=3$. It returns optimal status and $\eta=\num{\LyapunovEta}$. The common matrix, displayed to six decimal places, is
+\begin{equation}
+    P\approx\LyapunovMatrix.
+    \label{eq:numerical-p}
+\end{equation}
+Full-precision eigenvalue checks give
+\begin{equation}
+\begin{aligned}
+    \lambda_{\min}(P)&=\num{\LyapunovMinEigenvalue},\\
+    \lambda_{\min}(Q_0)&=\num{\LyapunovEndpointZeroDecrease},\\
+    \lambda_{\min}(Q_1)&=\num{\LyapunovEndpointOneDecrease}.
+\end{aligned}
+\label{eq:numerical-margins}
+\end{equation}
+Using the verified $\mu=\num{\LyapunovDecrease}$ in \eqref{eq:uniform-bound} gives $r=\LyapunovRateBound$. This worst-case bound accommodates arbitrarily weak correction and is correspondingly slow. It is not a prediction of the aggressive controller's observed settling time.
+
+The Julia solve uses endpoint matrices from a Python reconstruction of the physical model, rather than independently reconstructing the converter. The article pipeline compares those endpoints against its MATLAB model and aggressive gain, then recomputes the inequalities using that model and the returned $P$. The machine-readable certificate retains full precision; the displayed rounded matrix is checked separately. These are floating-point numerical checks, not interval-arithmetic certification.
+
+\subsection{Controlled and open-loop trajectories}
+
+All comparison runs start from
+\begin{equation}
+    \vect{x}_0=[7.5143\quad20.8211\quad0.0314]^{\mathsf T},
+\end{equation}
+with normalized error \InitialNormalizedError{}. Exact matrix exponentials propagate each actual interval. The simulations do not replace the plant by its linearization. For the continuous-time plots, each interval is sampled at 30 equally spaced local times, including its end, rather than drawing straight lines only between switching states.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.78\textwidth]{trajectory_comparison.pdf}
+    \caption{Continuous-time physical-state trajectories over the same \SimulationCycles{} cycles, starting from the same initial state and overlaid on one set of axes. Blue shows conditioned aggressive feedback and dashed red shows the fixed nominal open-loop schedule. The black curve is the reference periodic trajectory; the black dot is the initial state and the star marks the cycle anchor. The visible open-loop displacement over this short horizon does not imply instability.}
+    \label{fig:trajectories}
+\end{figure*}
+
+\Cref{fig:trajectories} compares the physical trajectories over \SimulationCycles{} cycles. The controlled trajectory rapidly approaches the reference. Open loop remains visibly displaced over this horizon, despite having a Schur cycle matrix. The cycle-start errors in \cref{fig:response} quantify the difference without relying on perspective or overlap in the 3D plot.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.88\textwidth]{conditioned_control_response.pdf}
+    \caption{First 25 cycles of the exact comparison. (a) Normalized cycle-start errors for conditioned aggressive LQR, conservative LQR, and open loop. (b) Conditioning factor. (c) Maximum absolute raw and applied switching-instant offsets. (d) Minimum raw and applied dwell durations. Raw actions are candidate commands only; the plant uses the conditioned schedule.}
+    \label{fig:response}
+\end{figure*}
+
+\begin{table}[t]
+    \centering
+    \caption{Exact simulation results. Threshold cycles for the two feedback laws denote the first sample with $\|S_x^{-1}\vect{e}_k\|_2<0.01$. The open-loop value denotes the crossing after which every remaining simulated sample stays below $0.01$.}
+    \label{tab:results}
+    \begin{tabular}{ll}
+        \toprule
+        Quantity & Value \\
+        \midrule
+        $\rho(\Phi)$, open loop & \OpenLoopSpectralRadius{} \\
+        $\rho(A_{\mathrm{cl}})$, aggressive & \AggressiveSpectralRadius{} \\
+        Spectral radius, conservative & \ConservativeSpectralRadius{} \\
+        Minimum $\beta$; conditioned cycles & \MinimumConditioningBeta{}; \ConditionedCycleCount{} \\
+        Maximum raw offset & \MaximumRawOffset{}~\si{\micro\second} \\
+        Maximum applied offset & \MaximumAppliedOffset{}~\si{\micro\second} \\
+        Minimum raw dwell & \MinimumRawDwell{}~\si{\micro\second} \\
+        Minimum applied dwell & \MinimumAppliedDwell{}~\si{\micro\second} \\
+        Minimum conservative dwell & \MinimumConservativeDwell{}~\si{\micro\second} \\
+        Threshold cycle, conditioned & \ConditionedSettlingCycle{} \\
+        Threshold cycle, conservative & \ConservativeSettlingCycle{} \\
+        Persistent crossing, open loop & \OpenLoopConvergenceCycle{} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The aggressive raw law requests a minimum dwell of \MinimumRawDwell{}~\si{\micro\second}, which would invert an interval. Conditioning acts during \ConditionedCycleCount{} cycles, with minimum factor \MinimumConditioningBeta{}. It reduces the largest absolute offset from \MaximumRawOffset{} to \MaximumAppliedOffset{}~\si{\micro\second} and keeps every applied dwell at or above \AppliedScheduleDwellBound{}~\si{\micro\second}. The active constraint reaches this bound, as the maximal-scaling formula predicts.
+
+The conservative law remains feasible without conditioning but crosses the error threshold at cycle \ConservativeSettlingCycle{}, compared with cycle \ConditionedSettlingCycle{} for the conditioned aggressive law. \Cref{tab:results} reports the comparison. These large-error nonlinear trajectories support the controller's performance in this benchmark; the common-$P$ theorem alone does not certify their entire transient.
+
+\subsection{Eventual open-loop convergence}
+
+For the same nominal schedule, $\rho(\Phi)=\OpenLoopSpectralRadius{}<1$. Equation~\eqref{eq:exact-open-loop} therefore predicts eventual open-loop convergence, not merely local convergence of a linear approximation. A separate \LongSimulationCycles{}-cycle exact simulation tests the long time scale hidden by the short comparison.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{open_loop_convergence.pdf}
+    \caption{Open-loop convergence over \LongSimulationCycles{} cycles. (a)--(c) Physical states sampled at cycle starts, plotted against $kT$ on a logarithmic axis; $k=0$ is omitted. Dashed horizontal lines mark the corresponding components of the reference anchor. The vertical lines mark the persistent normalized-error crossing at cycle \OpenLoopConvergenceCycle{}. (d) Dense continuous-time motion for the first \SimulationCycles{} cycles, followed by selected cycle-start samples that fade with increasing cycle number. Later cycles are represented by their actual start states, not by their full within-cycle paths. The reference trajectory is drawn once, together with the final cycle. The star marks the reference anchor, the black dot the initial state, and the diamond the threshold crossing.}
+    \label{fig:open-loop}
+\end{figure*}
+
+\Cref{fig:open-loop} shows the long-run physical states sampled at the same phase of every cycle. Their damped oscillations approach the components of $\vect{x}^{\star}$. In the 3D view, selected cycle-start states replace the later within-cycle paths to avoid drawing thousands of overlapping loops. Their approach to the anchor, together with the final cycle overlaid on the reference, shows convergence to periodic motion rather than to a constant physical state.
+
+The normalized cycle-start error remains below $0.01$ from cycle \OpenLoopConvergenceCycle{} through the end of the run. Since $T=\SI{\NominalPeriodMicroseconds}{\micro\second}$, the open-loop transient spans seconds, whereas the controlled threshold crossing occurs within a few milliseconds. The state histories are phase-aligned samples, not continuous-time waveforms or cycle averages.
 
 \FloatBarrier
 \section{Discussion}
 
-The conditioner keeps the largest feasible scalar multiple of a static timing action and changes neither its direction nor the cycle boundaries. That is also its limit. It cannot look ahead, and it cannot choose a different direction when the requested one is nearly blocked, so it does not replace constrained optimization for controllers that must do either. The invariant region is also computed offline and adds no online work.
+Uniform conditioning connects two properties that must be distinguished. The dwell inequalities give a closed-form maximal feasible scale for any finite raw action. The common quadratic Lyapunov inequalities then give a sufficient convergence certificate for the associated linearized matrix segment. Both the SDP and the supporting invariant-region computation are offline. Online execution remains a static gain multiplication followed by adjacent differences and a minimum scan.
 
-The cycle model joins two earlier formulations. Patino et al. derived the mode-dependent switching sensitivity \cite{patino2010}, and Marcolino et al. formulated fixed-period timing coordinates, dwell inequalities, and LQR for switched actuators \cite{marcolino2021}. Our derivation connects the two and checks the result numerically. Generic direction-preserving command scaling is established in control allocation \cite{nakamuraZimmerer2026directionPreserving}. Our control contribution is its closed-form specialization to the coupled dwell inequalities, together with the invariant raw-action feasibility certificate; neither the generic scaling idea nor the LQR design is new here. The certificate is deliberately narrower than arbitrary conditioned stability: outside $\mathcal C_\infty$, feasibility is guaranteed for the applied schedule but convergence is supported only by simulation.
+The one-cycle sensitivity follows Patino et al. \cite{patino2010}, and the common-state-matrix reduction recovers Marcolino et al.'s fixed-period timing model \cite{marcolino2021}. Direction-preserving scaling is also established in control allocation \cite{nakamuraZimmerer2026directionPreserving}. The contribution here is the closed-form specialization to coupled dwell inequalities and its connection to a common-$P$ certificate for conditioned timing feedback, not a new LQR or a new general Lyapunov theorem.
 
-The \SI{\AppliedScheduleDwellBound}{\micro\second} minimum dwell is a simulation assumption rather than a hardware figure. The study leaves out timer quantization, delays, dead time, implementation margin, state estimation, model uncertainty, and experiments, and it fixes the mode order, phase, and period. The exact nonlinear guarantee holds only in a neighborhood where conditioning never acts, so the large-error simulation is evidence for this benchmark and not a global nonlinear result.
+The full-interval certificate is conservative. It must include the slow open-loop endpoint and use the same quadratic function everywhere. It neither proves that every stabilizing timing gain admits such a certificate nor bounds the nonlinear remainder at arbitrary errors. For the benchmark, open loop already approaches the reference, so the benefit of feedback is faster convergence with feasible schedules. Claims of global nonlinear stabilization by the conditioned controller would go beyond these results.
+
+The assumed \SI{\AppliedScheduleDwellBound}{\micro\second} bound has not been calibrated to hardware. Timer quantization, delays, dead time, implementation margin, state estimation, parameter uncertainty, and experiments remain outside the study. The mode sequence, period, and reference phase are fixed throughout.
 
 \section{Conclusion}
 
-The conditioner enforces every minimum-dwell constraint in $O(N)$ time and keeps both the direction of the raw action and the cycle period. Offline preimage iteration identifies the maximal part of the Raw-Action Admissible Region that stays feasible under the linearized raw closed loop; for the converter design, the complete region is invariant and Schur stability gives convergence inside it. The augmented derivation covers mode-dependent switched-affine dynamics and reduces to the switched-actuator model when the state matrix is common, and finite differences confirm its Jacobians. In the exact nonlinear benchmark simulation, conditioning turns an infeasible aggressive action into an admissible one and the trajectory enters the computed region after three cycles. That entry and the behavior outside the region are simulation evidence. The nonlinear guarantee remains local, and hardware tests are still needed to account for timer quantization, delays, and implementation margin.
+The proposed conditioner applies the largest dwell-feasible scalar multiple of a proportional timing action in $O(N)$ time, preserving its direction and the fixed cycle period. A common quadratic Lyapunov function found through an offline endpoint SDP certifies uniform exponential stability of the conditioned linearized model for every conditioning-factor sequence in $[0,1]$. Strict nominal dwell margin also yields a local exact nonlinear stability result. In the converter application, exact 3D trajectories and error histories show that conditioning makes the aggressive action feasible and accelerates convergence relative to an already stable open-loop schedule. The long-horizon simulation confirms convergence to periodic motion. Extending the feedback guarantee beyond a local nonlinear neighborhood requires an explicit remainder or nonlinear Lyapunov analysis.
 
 \backmatter
+\begin{appendices}
+\section{Raw-action invariance}
+\label{app:invariant-region}
+
+The common-$P$ theorem covers active conditioning in the linearized model. A separate polyhedral calculation answers the narrower question of where the raw action remains feasible forever. Starting from \eqref{eq:admissible-region}, define
+\begin{equation}
+\begin{aligned}
+    \mathcal C_0&=\mathcal C,\\
+    \mathcal C_{j+1}&=\mathcal C_j\cap
+    \{\vect{e}:A_{\mathrm{cl}}\vect{e}\in\mathcal C_j\},\\
+    \mathcal C_\infty&=\bigcap_{j=0}^{\infty}\mathcal C_j.
+\end{aligned}
+\label{eq:invariant-region}
+\end{equation}
+This is the standard maximal-admissible-set construction \cite{gilbert1991maximal}. Each finite iterate is polyhedral, and redundant inequalities can be removed offline.
+
+\begin{proposition}[Invariant raw-action feasibility]
+\label{prop:invariant-region}
+The set $\mathcal C_\infty$ is the maximal positively invariant subset of $\mathcal C$ under $A_{\mathrm{cl}}$. If $A_{\mathrm{cl}}$ is Schur, every linearized trajectory starting in this set remains raw-action feasible, has $\beta_k=1$ for all $k$, and converges to the cycle anchor.
+\end{proposition}
+
+\begin{proof}
+Membership in $\mathcal C_\infty$ is equivalent to $A_{\mathrm{cl}}^j\vect{e}_0\in\mathcal C$ for every $j\ge0$. The conditioner therefore remains inactive, and no larger subset of $\mathcal C$ can have this property. Schur stability gives $A_{\mathrm{cl}}^k\vect{e}_0\to\vect{0}$.
+\end{proof}
+
+For the aggressive converter gain, one preimage intersection establishes $\mathcal C_\infty=\mathcal C$. The computed set has \InvariantRegionFacets{} facets, \InvariantRegionVertices{} vertices, and physical-error volume \InvariantRegionVolume{}~\si{\volt\squared\ampere}. Every vertex satisfies the raw dwell inequalities within numerical tolerance. Every vertex image has at least \InvariantRegionImageDwellMargin{}~\si{\micro\second} dwell margin. Convexity extends these checks to the polyhedron.
+
+The exact nonlinear simulated trajectory begins outside this set and first enters it at cycle \FirstInvariantRegionCycle{}. This observed entry is not a proof that the nonlinear map reaches or preserves the complete polyhedron. Region vertices and the auxiliary region visualization remain available with the numerical evidence; the common-$P$ theorem does not depend on this calculation.
+\end{appendices}
+
 \section*{Declarations}
 \textbf{Funding.} TODO: name the funding sources and grant numbers, or state that no funding was received.
 

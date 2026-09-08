@@ -4,57 +4,28 @@ Status: descriptive summary
 Source of truth: `latex/main.tex`, `CONTEXT.md`, `GOAL.md`
 Read when: understanding what the article currently contains
 
-## Topic
+## Topic and scope
 
-The manuscript studies cycle-to-cycle switching-time feedback for a switched-affine plant that follows a prescribed, fixed-period sequence of modes. The controller moves only the interior switching instants. The mode order, number of intervals, cycle boundaries, and period remain fixed.
+The paper studies cycle-to-cycle switching-time feedback for a switched-affine plant with a prescribed mode sequence and period. The controller moves only interior switching instants. A scalar conditioner applies the largest feasible multiple of the raw action while respecting every minimum dwell duration.
 
-The target is a reference periodic trajectory and its selected cycle anchor, not a static equilibrium.
+The main stability result is a common quadratic Lyapunov certificate for the conditioned linearized matrix segment. The invariant raw-action region is supporting appendix material. Exact nonlinear stability remains local; large-error nonlinear trajectories are simulation evidence.
 
-## Current article organization
+## Current organization
 
-### Introduction
-
-The Introduction uses four paragraphs to narrow from power-converter constraints and switched-affine periodic operation to fixed-period switching-time control and minimum-dwell feasibility. It distinguishes state-dependent mode selection, online timing optimization, and static cycle-to-cycle timing feedback before presenting Patino and Marcolino as the closest foundations. The closed-form specialization of direction-preserving scaling to the adjacent dwell inequalities and the maximal invariant Raw-Action Admissible Region are the central results. The one-cycle derivation, numerical checks, and converter simulation support those results; the LQR laws are comparison controllers rather than a new synthesis contribution.
-
-### Fixed-period one-cycle model
-
-This section defines the switched-affine plant, fixed mode sequence, nominal schedule, cycle anchor, cycle-start error, and independent interior switching-instant offsets. It maps offsets to dwell changes with a difference matrix. It then derives exact affine propagation with an augmented constant state, expands the ordered product to first order, projects back to physical state, and obtains the one-cycle state and timing Jacobians.
-
-The final timing Jacobian contains the propagated jump between adjacent affine vector fields. The section also shows the common-state-matrix switched-actuator model as a special case.
-
-### Solver-free dwell-time conditioning
-
-A static feedback law produces a raw switching-instant offset. The conditioner scales the complete vector by the largest scalar in the interval from zero to one that satisfies every minimum dwell constraint. The section proves feasibility, maximality, fixed-period preservation, direction preservation, and the linear scan cost.
-
-For the linearized model, offline preimage iteration constructs the maximal subset of the Raw-Action Admissible Region that is positively invariant under the raw closed-loop matrix. If that matrix is Schur, trajectories starting in the set remain raw-action feasible and converge. The nonlinear statement is limited to a local neighborhood where conditioning is inactive.
-
-### Converter case study
-
-The case study uses a three-cell multilevel DC-DC converter benchmark associated with Patino et al. It gives the mode-dependent affine equations, schedule, cycle anchor, normalization, and LQR parameters. Rounded published schedule data are reconciled once so exact propagation closes at the reported anchor.
-
-The study checks the analytical Jacobians against central finite differences, checks second-order residual scaling, computes and validates the invariant raw-action region, and simulates conditioned aggressive LQR, unconditioned conservative LQR, and open loop with exact interval propagation.
-
-### Discussion and conclusion
-
-The final sections state what the conditioner can and cannot do, distinguish the present result from the prior cycle model and LQR, and list the simulation, hardware, timing, uncertainty, and nonlinear-stability limitations.
-
-## Main mathematical objects
-
-- `Phi`: nominal cycle state matrix.
-- `Gamma_tau`: sensitivity of the next cycle-start state to the independent switching-instant offsets.
-- `K`: static feedback gain.
-- `Acl`: full raw-feedback one-cycle matrix.
-- `beta`: dwell-conditioning factor.
-- `C`: Raw-Action Admissible Region.
-- `C_infinity`: maximal positively invariant subset of `C` under `Acl`.
+1. **Introduction.** Preserved verbatim at the author's request. Its old contribution summary and roadmap still describe invariant-region-centered stability and await revision. Do not use them to override the rewritten theorem or `GOAL.md`.
+2. **Problem formulation and one-cycle model.** Defines the reference periodic trajectory, cycle anchor, error, and independent timing coordinates. Derives exact augmented propagation, first-order dwell sensitivities, physical projection, and the switching-instant Jacobian. Introduces the fixed raw feedback gain.
+3. **Solver-free dwell-time conditioning.** Defines the Raw-Action Admissible Region and maximal factor. Proves feasibility, maximality, direction and period preservation, and linear scan cost. Gives the cycle-start execution sequence.
+4. **Lyapunov stability and convex optimization.** Defines normalized endpoints `A0`, `A1`, and the matrix segment. Uses the Schur complement and convex interpolation of inverse-free block matrices to prove the endpoint-to-interval result and uniform exponential bound for arbitrary conditioning sequences. Presents the fixed-gain SDP, direct numerical checks, conservatism, and the local nonlinear boundary. Separately explains why the fixed-schedule open-loop error map is exact.
+5. **Application to a three-cell converter.** Describes the benchmark and LQR parameters, verifies the linearization, reports the Julia certificate, and overlays dense controlled/open-loop paths in one 3D plot. Error and dwell histories quantify the transient. The long-horizon figure shows physical states at cycle starts against logarithmic time. Its 3D view retains the dense early transient but uses faded cycle-start points for later cycles, with the reference and final within-cycle trajectory drawn once.
+6. **Discussion and conclusion.** Distinguish prior foundations from the conditioner/certificate contribution, and state numerical and implementation limitations.
+7. **Appendix A.** Retains maximal invariant raw-action feasibility, its proof, and converter region metrics without treating it as the primary stability result.
 
 ## Evidence categories
 
-The manuscript contains four kinds of statements:
+- Analytical derivations and conditional stability theorem.
+- Floating-point model and certificate checks, not interval-arithmetic certification.
+- Exact switched-affine simulations with state-dependent timing feedback.
+- Local nonlinear stability near the anchor, where conditioning is inactive.
+- Exact open-loop convergence under the fixed nominal schedule because its cycle error map is linear.
 
-1. analytical derivations and propositions;
-2. numerical verification against exact propagation and finite differences;
-3. exact switched-affine simulations with state-dependent timing feedback;
-4. explicit limitations and unverified implementation questions.
-
-These categories should remain distinct during rewriting.
+The benchmark is already open-loop stable. Feedback accelerates convergence while maintaining feasible dwell durations; it does not rescue an unstable open-loop benchmark.

@@ -1,65 +1,42 @@
 # Numerical pipeline
 
 Status: descriptive summary
-Source of truth: `Taskfile.yml`, `scripts/`, `results/metrics.csv`, and the sibling MATLAB project
+Source of truth: `Taskfile.yml`, `scripts/README.md`, and `scripts/+paper/`
 Read when: regenerating or tracing numerical evidence
 
-## Build tasks
+## Article tasks
 
-Run from the paper project root:
+Run from the paper root:
 
-- `task figures` runs `matlab -batch "run('scripts/generate_results.m')"`.
-- `task trajectory-comparison` runs `scripts/generate_trajectory_comparison.m`.
-- `task invariant-region` calls `generate_feasible_regions.m` without input. It requires an existing `results/paper_results.mat` and regenerates only the feasible-region figure and vertex CSV files.
-- `task build` runs `latexmk` into `build/` and copies `build/article.pdf` to root-level `article.pdf`.
-- `task run` depends on `build`.
-- `task verify` regenerates results and then builds the article.
-- `task clean` removes the LaTeX build directory.
+- `task results` runs the Julia certificate, then `scripts/generate_results.m`; `task figures` is a compatibility alias.
+- `task test` checks the conditioner, model, and gains without exporting.
+- `task test-regeneration` regenerates in a temporary directory and compares with current stored evidence.
+- `task invariant-region` reconstructs region inputs from `results/paper_results.mat` and refreshes the figure and vertex CSVs.
+- `task build` compiles `latex/main.tex` into `build/main.pdf` and copies it to `article.pdf`.
+- `task verify` runs tests, local-link checks, numerical generation, and the LaTeX build.
+- `task clean` removes LaTeX compilation intermediates.
 
-## Numerical inputs
+## Stage flow
 
-`scripts/generate_results.m`:
+`scripts/generate_results.m` delegates to `paper.run_pipeline`. It no longer owns local numerical, plotting, or serialization helpers.
 
-1. Adds the sibling `simulations/matlab-sim/` directory to the MATLAB path.
-2. Instantiates `Simulation(Enums.SimName.PATINO_2)`.
-3. Replaces the model schedule with the paper's nine-interval dynamics-index sequence and corrected boundaries.
-4. Uses the reported cycle anchor as both the orbit anchor and the initial reference state.
-5. Computes exact cycle propagation and the analytical one-cycle linearization.
-6. Verifies the state and timing Jacobians by central finite differences.
-7. Sweeps a combined normalized perturbation direction to measure residual scaling.
-8. Designs aggressive and conservative normalized discrete LQR gains.
-9. Runs exact cycle simulations.
-10. Passes the linear model, controller, schedule limits, and nonlinear trajectory to `generate_feasible_regions.m`.
-11. Writes the remaining metrics, tables, figures, and MAT data.
+1. `paper.benchmark` loads the sibling converter model and sets the reconciled schedule, normalization, gains' weights, initial state, and cycle counts.
+2. `paper.validate_model` obtains `Dynamics.linearize_cycle`, checks exact closure and central differences, and computes residual scaling and cycle averages.
+3. `paper.design_feedback` designs the aggressive and conservative LQR gains and checks Schur stability.
+4. `paper.simulate_responses` runs the exact nonlinear 100-cycle comparison and separate 100000-cycle convergence check. It returns response arrays, summary values, and the long-horizon open-loop states/errors.
+5. `generate_feasible_regions` computes and verifies the raw-action certificate and fixed-beta regions, then exports its vertices and figure.
+6. `paper.collect_metrics`, `paper.write_outputs`, and `paper.export_figures` produce the established metrics and figures. `paper.export_lyapunov` verifies the Julia certificate against the article model/gain and exports it. `paper.export_trajectories` samples exact continuous-time paths and exports long-horizon evidence. `paper.write_provenance` records per-run environment information separately.
 
-`generate_feasible_regions.m` uses MPT3 to construct the fixed-`β` feasible regions and their maximal invariant subsets. It verifies the raw-action region's vertices and closed-loop images against the dwell constraints, checks the expected `β^{-3}` volume scaling, writes the region vertices, and generates the four-panel region figure.
+Each stage consumes explicit structs. `scripts/README.md` documents the contracts and shows how to run stages without exporting. `paper.paths` owns source and output paths, including optional isolated output roots.
 
-## Controller path
+## Runtime controller
 
-For each conditioned cycle:
+Each conditioned cycle computes raw timing offsets, calls `condition_dwell_times`, propagates every interval with an augmented matrix exponential, and records the applied action. The large-error study does not use the linearized model for plant propagation.
 
-1. Compute the raw timing offset from the cycle-start error.
-2. Convert the offset to dwell changes.
-3. Scan the dwell changes and compute the largest feasible conditioning factor.
-4. Scale the complete raw offset vector.
-5. Propagate every interval with an augmented matrix exponential.
-6. Store cycle-start states, boundary states, offsets, dwells, and the factor.
+The online conditioner remains a separate 30-line implementation. The offline MPT3 region calculation adds no online computation.
 
-The simulation uses exact interval propagation. It does not propagate the linearized model for the large-error response.
+## Dependencies and exports
 
-## LaTeX data path
+Article generation requires Julia, MATLAB, the sibling simulation project, Control System Toolbox, and MPT3. The established CSV/MAT schema and LaTeX macro names are preserved; certificate and trajectory records are additive. `results/README.md` maps all outputs.
 
-`generate_results.m` writes `latex/metrics.tex`. `latex/main.tex` includes that file near the preamble and uses its generated commands for numerical values in the abstract, tables, captions, and text.
-
-The underlying CSV and MAT files remain the detailed numerical record. A manually edited value in `latex/metrics.tex` would be overwritten by the next figures or verification task.
-
-## Dependencies
-
-The normal numerical verification path requires:
-
-- MATLAB;
-- the sibling MATLAB simulation project;
-- Control System Toolbox functionality such as `dlqr`;
-- MPT3.
-
-The LaTeX build requires a TeX installation with `latexmk`; every project-local compile input is under `latex/`.
+`task lyapunov` runs `studies/lyapunov/analysis.jl` independently. `task lyapunov:reproduce` rebuilds Python evidence before Julia. Root `task results` adopts the saved certificate only after checking agreement with the active MATLAB model. The standalone `trajectory-comparison` task still writes only its study outputs; the manuscript uses the new article-owned dense sampler.

@@ -6,40 +6,26 @@ Read when: navigating or rewriting the manuscript
 
 ## Entry point
 
-`latex/main.tex` is a single-file Springer Nature manuscript. It loads the local class and bibliography style, includes the generated `latex/metrics.tex` file, defines a few vector and timing macros, and contains the complete article.
+`latex/main.tex` is a single-file Springer Nature manuscript. It contains the complete main text, four figures, two tables, and a supporting invariant-region appendix. Section labels are more stable navigation targets than line numbers.
 
-There are no section-level `.tex` files included by the manuscript.
-
-## Source regions
-
-- Lines 1–24: document class, packages, generated metrics, macros, and document start.
-- Lines 26–37: title, authors, affiliation, abstract, keywords, and title page.
-- Lines 39–48: Introduction.
-- Lines 49–207: fixed-period one-cycle model.
-- Conditioning section: dwell conditioner and maximal invariant Raw-Action Admissible Region.
-- Lines 280–410: converter case study, tables, figures, and simulation discussion.
-- Lines 411–418: Discussion.
-- Lines 419–421: Conclusion.
-- Lines 423–437: declarations, currently containing author-dependent TODOs.
-- Lines 439–441: bibliography and document end.
+| Label | Content |
+| --- | --- |
+| Introduction, no label | Author-owned text preserved during the common-P rewrite; its old summary and roadmap await revision |
+| `sec:model` | Problem, exact cycle propagation, linearization, and raw feedback |
+| `sec:conditioning` | Closed-form dwell conditioner and feasibility proof |
+| `sec:stability` | Common-P theorem, endpoint SDP, post-solve checks, and nonlinear boundary |
+| `sec:case-study` | Converter model, certificate, 3D comparison, dwell histories, and eventual open-loop convergence |
+| `app:invariant-region` | Supporting raw-action invariant-set calculation |
 
 ## External inputs
 
-The manuscript directly includes:
+- `latex/metrics.tex`, generated benchmark and simulation values.
+- `latex/lyapunov_metrics.tex`, generated certificate matrix, margins, and rate bound.
+- Four main-text PDFs from `latex/figures/`, listed in `figures-and-tables.md`.
+- Bibliography records from `latex/references.bib`.
 
-- `latex/metrics.tex` for generated numerical macros;
-- two figure files from `latex/figures/`;
-- bibliography records from `latex/references.bib`.
-
-The tables are written directly in `latex/main.tex`.
-
-## Current figures
-
-The current source references:
-
-- `latex/figures/reference_schedule_orbit.pdf`;
-- `latex/figures/invariant_raw_action_region.pdf`.
+The article builds from saved publication inputs without running numerical solvers. `task results` refreshes them through Julia and MATLAB. Do not edit generated numbers by hand.
 
 ## Rewrite navigation
 
-For prose and narrative, inspect the Introduction, section openings, Discussion, and Conclusion first. For factual numerical changes, trace the metric macro to `results/metrics.csv` and then to `scripts/generate_results.m`. For derivation changes, inspect Section 2 and the linearization notes before editing equations.
+Trace existing metrics to `scripts/+paper/collect_metrics.m` and `write_outputs.m`. Trace Lyapunov values to `scripts/+paper/export_lyapunov.m` and `studies/lyapunov/analysis.jl`. Trace continuous-time and long-horizon plots to `scripts/+paper/export_trajectories.m` and `sample_cycle.m`.

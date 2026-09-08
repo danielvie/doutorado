@@ -2,7 +2,7 @@
 
 Status: descriptive source summary
 BibTeX key: `marcolino2021`
-Source record: `latex/references.bib`; local PDF recorded in `research/novelty-review.md`
+Source record: `latex/references.bib`; local PDF recorded in `research/reviews/novelty-review.md`
 Read when: studying the closest fixed-period timing-control predecessor
 
 ## Bibliographic identity
@@ -46,4 +46,4 @@ The state matrix is common across actuator modes. The timing model and dwell ine
 
 ## Source pointers
 
-The project comparison is in `research/marcolino-propagation-comparison.md` and `research/novelty-review.md`. The manuscript discusses this source in the Introduction and the common-state-matrix specialization in Section 2.
+The project comparison is in `research/reviews/marcolino-propagation-comparison.md` and `research/reviews/novelty-review.md`. The manuscript discusses this source in the Introduction and the common-state-matrix specialization in Section 2.

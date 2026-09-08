@@ -1,0 +1,5050 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>A common Lyapunov function for conditioned switching times</title>
+<style>
+:root{--ink:#172d3a;--muted:#526775;--paper:#f5f3ec;--card:#fffefa;--line:#d4ddd9;--teal:#087f78;--orange:#c46926;--blue:#375ab7}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.65 system-ui,sans-serif}header{background:#142d38;color:#f8f5ec;padding:68px max(6vw,24px) 48px}header p{max-width:780px;color:#c7dbdc}h1{font-size:clamp(32px,5vw,62px);line-height:1.08;letter-spacing:-2px;max-width:1000px;margin:18px 0 24px}h2{font-size:32px;line-height:1.2;letter-spacing:-.8px;margin-top:0}h3{font-size:21px;margin-bottom:10px}.eyebrow{font:700 12px/1.5 system-ui;letter-spacing:2px;text-transform:uppercase;color:var(--teal)}header .eyebrow{color:#77d9cb}nav{padding:16px max(6vw,24px);background:var(--card);border-bottom:1px solid var(--line);display:flex;gap:20px;flex-wrap:wrap}a{color:var(--teal);text-underline-offset:4px}main{max-width:1160px;margin:auto;padding:44px 24px}section{margin:0 0 68px;scroll-margin-top:20px}p{max-width:900px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}.card,.lab{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;min-width:0}.lab{border-top:4px solid var(--teal);margin:24px 0}.note{border-left:4px solid var(--orange);padding:12px 20px;background:#fff0df}.success{border-left-color:var(--teal);background:#e6f3ed}.eq{font-size:20px;background:#edf2ee;padding:16px 20px;border-radius:8px;margin:16px 0;overflow-x:auto;white-space:normal}.eq small{font:14px system-ui}.matrix{font-size:17px;white-space:normal;overflow-x:auto;margin:8px 0 20px;padding:14px;background:#edf1f2;border-radius:8px}.matrix-title{font-size:14px;font-weight:650;margin-top:16px}.small,figcaption{font-size:14px;color:var(--muted)}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0}.stat{border:1px solid var(--line);padding:18px;border-radius:10px;background:var(--card)}.stat strong{display:block;font:700 25px ui-monospace,monospace;color:var(--teal)}label{display:block;font-size:14px;font-weight:650;margin:12px 0 5px}input[type=range]{width:100%;accent-color:var(--teal)}select,button{font:inherit;border:1px solid #a7bab7;border-radius:6px;background:white;padding:8px 12px;color:var(--ink)}button{cursor:pointer}button:hover{background:#e1f0e9}svg{width:100%;height:auto;display:block}svg text{font-family:system-ui,sans-serif}figure{margin:24px 0}table{border-collapse:collapse;width:100%;font-size:14px}td,th{text-align:left;padding:8px;border-bottom:1px solid var(--line)}.scroll{overflow:auto}details{margin:16px 0}summary{cursor:pointer;color:var(--teal);font-weight:650}code{font-size:.9em}pre.code{background:#172d3a;color:#d8f3e9;padding:20px;overflow:auto;font:13px/1.7 ui-monospace,monospace;border-radius:10px}.legend{display:flex;gap:20px;flex-wrap:wrap;font-size:14px}.teal{color:var(--teal)}.orange{color:var(--orange)}.blue{color:var(--blue)}footer{border-top:1px solid var(--line);padding-top:24px}.pill{display:inline-block;padding:4px 10px;background:#d5f2e8;color:#185347;border-radius:20px;font-size:13px}output{font-variant-numeric:tabular-nums}li{margin:8px 0}@media(max-width:760px){.grid,.stats{grid-template-columns:1fr}header{padding-top:38px}.card,.lab{padding:16px}h1{letter-spacing:-1px}.eq{font-size:17px}}@media print{body{background:white}header{background:white;color:black}header p{color:black}nav,.controls{display:none}.lab,.card{break-inside:avoid}section{margin-bottom:28px}details{display:block}}
+
+math{font-family:"Cambria Math","STIX Two Math","Latin Modern Math",math;font-weight:normal;line-height:normal}
+math[display="block"]{display:block;width:max-content;min-width:0;max-width:none;margin:14px auto}
+.eq math:first-child,.matrix math:first-child{margin-top:5px}
+.eq math:last-child,.matrix math:last-child{margin-bottom:5px}
+p math,.note math{font-size:1.08em}
+.matrix math{font-size:1em}
+.matrix mtd,mtd[columnalign="right"]{text-align:right}
+mtd[columnalign="left"]{text-align:left}
+mtd[columnalign="center"]{text-align:center}
+@media(max-width:760px){.matrix{font-size:15px}.eq{padding:14px 12px}}
+</style></head><body>
+<header><div class="eyebrow">Converter notebook · physical construction → numerical certificate</div><h1>One energy function.<br>Every conditioning factor.</h1><p>Build the three-cell converter cycle from its circuit equations, remove the artificial homogeneous coordinate, and test whether one quadratic energy decreases at both ends of the feedback segment.</p><span class="pill">Offline document · embedded SVG · reproducible SDP</span></header>
+<nav aria-label="Chapters"><a href="#physical">1 Physical system</a><a href="#augmented">2 Augmented cycle</a><a href="#mapping">3 Physical error</a><a href="#gain">4 Feedback</a><a href="#certificate">5 Solve for P</a><a href="#proof">6 Proof</a><a href="#laboratory">7 Experiments</a></nav>
+<main>
+<section><div class="eyebrow">The claim, precisely</div><h2>Certify the conditioned linearized model.</h2><p>The applied timing action is <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>&#x003B4;</mi><mi>&#x003C4;</mi><mo>&#x0003D;</mo><mo>&#x02212;</mo><mi>&#x003B2;</mi><mi>K</mi><mi>e</mi></mrow></math>. Thus the physical, linearized cycle matrix lies on the segment between the open-loop cycle matrix and the raw closed-loop matrix. If the same positive-definite P gives strict Lyapunov decrease at both endpoints, it gives uniform decrease throughout that segment, even when β changes with the state.</p><div class="eq">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>A</mi><mo stretchy="false">&#x00028;</mo><mi>&#x003B2;</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><mo stretchy="false">&#x00028;</mo><mn>1</mn><mo>&#x02212;</mo><mi>&#x003B2;</mi><mo stretchy="false">&#x00029;</mo><msub><mi>A</mi><mn>0</mn></msub><mo>&#x0002B;</mo><mi>&#x003B2;</mi><msub><mi>A</mi><mn>1</mn></msub><mo>&#x0002C;</mo><mspace width="2em" /><mn>0</mn><mo>&#x02264;</mo><mi>&#x003B2;</mi><mo>&#x02264;</mo><mn>1</mn></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>V</mi><mo stretchy="false">&#x00028;</mo><mi>z</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><msup><mi>z</mi><mrow><mi mathvariant="sans-serif">T</mi></mrow></msup><mi>P</mi><mi>z</mi><mo>&#x0002C;</mo><mspace width="2em" /><msubsup><mi>A</mi><mi>i</mi><mrow><mi mathvariant="sans-serif">T</mi></mrow></msubsup><mi>P</mi><msub><mi>A</mi><mi>i</mi></msub><mo>&#x02212;</mo><mi>P</mi><mo>&#x0227A;</mo><mn>0</mn><mo>&#x0002C;</mo><mspace width="2em" /><mi>i</mi><mo>&#x02208;</mo><mo stretchy="false">&#x0007B;</mo><mn>0</mn><mo>&#x0002C;</mo><mn>1</mn><mo stretchy="false">&#x0007D;</mo></mrow></math>
+</div><div class="note">Scope: global exponential stability of this conditioned <strong>linearized</strong> model. The exact nonlinear switching-time map retains only a local guarantee unless its remainder is bounded on a certified region.</div><div class="stats" id="headline"></div></section>
+<section id="physical"><div class="eyebrow">01 / Circuit first</div><h2>Construct every mode from the physical parameters.</h2><p>The states are <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>x</mi><mo>&#x0003D;</mo><msup><mo>&#x0005B;</mo><mtable><mtr><mtd><msub><mi>v</mi><mrow><msub><mi>C</mi><mn>1</mn></msub></mrow></msub></mtd><mtd><msub><mi>v</mi><mrow><msub><mi>C</mi><mn>2</mn></msub></mrow></msub></mtd><mtd><msub><mi>i</mi><mi>L</mi></msub></mtd></mtr></mtable><mo>&#x0005D;</mo><mrow><mi mathvariant="sans-serif">T</mi></mrow></msup></mrow></math>. Binary commands u₁, u₂, u₃ determine the capacitor-current paths and the inductor voltage. The mode number uses u₁ as its most significant bit.</p><div class="grid"><div class="card"><h3>Parameters used by the simulation</h3><table><tr><td>Source E</td><td>30 V</td></tr><tr><td>C₁ = C₂</td><td>40 μF</td></tr><tr><td>L</td><td>10 mH</td></tr><tr><td>R</td><td>10 Ω</td></tr><tr><td>Reference cycle anchor x*</td><td>[9.9247, 19.2928, 0.9823]ᵀ</td></tr><tr><td>Period T</td><td>286 μs</td></tr><tr><td>Applied minimum dwell</td><td>3 μs</td></tr></table></div><div class="card"><h3>Three coupled differential equations</h3><div class="eq">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mfrac><mrow><mi mathvariant="normal">d</mi><msub><mi>v</mi><mrow><msub><mi>C</mi><mn>1</mn></msub></mrow></msub></mrow><mrow><mi mathvariant="normal">d</mi><mi>t</mi></mrow></mfrac><mo>&#x0003D;</mo><mfrac><mrow><msub><mi>u</mi><mn>2</mn></msub><mo>&#x02212;</mo><msub><mi>u</mi><mn>1</mn></msub></mrow><mrow><msub><mi>C</mi><mn>1</mn></msub></mrow></mfrac><msub><mi>i</mi><mi>L</mi></msub></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mfrac><mrow><mi mathvariant="normal">d</mi><msub><mi>v</mi><mrow><msub><mi>C</mi><mn>2</mn></msub></mrow></msub></mrow><mrow><mi mathvariant="normal">d</mi><mi>t</mi></mrow></mfrac><mo>&#x0003D;</mo><mfrac><mrow><msub><mi>u</mi><mn>3</mn></msub><mo>&#x02212;</mo><msub><mi>u</mi><mn>2</mn></msub></mrow><mrow><msub><mi>C</mi><mn>2</mn></msub></mrow></mfrac><msub><mi>i</mi><mi>L</mi></msub></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mtable><mtr><mtd columnalign="right"><mfrac><mrow><mi mathvariant="normal">d</mi><msub><mi>i</mi><mi>L</mi></msub></mrow><mrow><mi mathvariant="normal">d</mi><mi>t</mi></mrow></mfrac></mtd><mtd columnalign="left"><mo>&#x0003D;</mo><mfrac><mrow><mn>1</mn></mrow><mrow><mi>L</mi></mrow></mfrac><mo stretchy="true" fence="true" minsize="1.2em" maxsize="1.2em">[</mo><mo stretchy="false">&#x00028;</mo><msub><mi>u</mi><mn>1</mn></msub><mo>&#x02212;</mo><msub><mi>u</mi><mn>2</mn></msub><mo stretchy="false">&#x00029;</mo><msub><mi>v</mi><mrow><msub><mi>C</mi><mn>1</mn></msub></mrow></msub></mtd></mtr><mtr><mtd columnalign="right" /><mtd columnalign="left"><mspace width="1em" /><mo>&#x0002B;</mo><mo stretchy="false">&#x00028;</mo><msub><mi>u</mi><mn>2</mn></msub><mo>&#x02212;</mo><msub><mi>u</mi><mn>3</mn></msub><mo stretchy="false">&#x00029;</mo><msub><mi>v</mi><mrow><msub><mi>C</mi><mn>2</mn></msub></mrow></msub><mo>&#x02212;</mo><mi>R</mi><msub><mi>i</mi><mi>L</mi></msub><mo>&#x0002B;</mo><mi>E</mi><msub><mi>u</mi><mn>3</mn></msub><mo stretchy="true" fence="true" minsize="1.2em" maxsize="1.2em">]</mo></mtd></mtr></mtable></mrow></math>
+</div><p class="small">The affine source term is essential. Omitting it changes the nominal orbit and the switching-time sensitivities.</p></div></div>
+<div class="eq">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mrow><mi>x</mi></mrow><mo>&#x002D9;</mo></mover><mo>&#x0003D;</mo><msub><mi>A</mi><mi>u</mi></msub><mi>x</mi><mo>&#x0002B;</mo><msub><mi>b</mi><mi>u</mi></msub></mrow></math>
+</div><div class="eq"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>A</mi><mi>u</mi></msub><mo>&#x0003D;</mo><mo>&#x0005B;</mo><mtable><mtr><mtd><mn>0</mn></mtd><mtd><mn>0</mn></mtd><mtd><mstyle displaystyle="true" scriptlevel="0"><mfrac><mrow><msub><mi>u</mi><mn>2</mn></msub><mo>&#x02212;</mo><msub><mi>u</mi><mn>1</mn></msub></mrow><mrow><msub><mi>C</mi><mn>1</mn></msub></mrow></mfrac></mstyle></mtd></mtr><mtr><mtd><mn>0</mn></mtd><mtd><mn>0</mn></mtd><mtd><mstyle displaystyle="true" scriptlevel="0"><mfrac><mrow><msub><mi>u</mi><mn>3</mn></msub><mo>&#x02212;</mo><msub><mi>u</mi><mn>2</mn></msub></mrow><mrow><msub><mi>C</mi><mn>2</mn></msub></mrow></mfrac></mstyle></mtd></mtr><mtr><mtd><mstyle displaystyle="true" scriptlevel="0"><mfrac><mrow><msub><mi>u</mi><mn>1</mn></msub><mo>&#x02212;</mo><msub><mi>u</mi><mn>2</mn></msub></mrow><mrow><mi>L</mi></mrow></mfrac></mstyle></mtd><mtd><mstyle displaystyle="true" scriptlevel="0"><mfrac><mrow><msub><mi>u</mi><mn>2</mn></msub><mo>&#x02212;</mo><msub><mi>u</mi><mn>3</mn></msub></mrow><mrow><mi>L</mi></mrow></mfrac></mstyle></mtd><mtd><mo>&#x02212;</mo><mstyle displaystyle="true" scriptlevel="0"><mfrac><mrow><mi>R</mi></mrow><mrow><mi>L</mi></mrow></mfrac></mstyle></mtd></mtr></mtable><mo>&#x0005D;</mo><mo>&#x0002C;</mo><mspace width="2em" /><msub><mi>b</mi><mi>u</mi></msub><mo>&#x0003D;</mo><mo>&#x0005B;</mo><mtable><mtr><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mstyle displaystyle="true" scriptlevel="0"><mfrac><mrow><mi>E</mi><msub><mi>u</mi><mn>3</mn></msub></mrow><mrow><mi>L</mi></mrow></mfrac></mstyle></mtd></mtr></mtable><mo>&#x0005D;</mo></mrow></math></div>
+<figure><svg viewBox="0 0 960 200" role="img" aria-label="Physical dependency diagram: switch bits and circuit parameters determine the vector field, which propagates capacitor voltages and inductor current"><defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="#087f78"/></marker></defs><rect x="10" y="35" width="250" height="120" rx="14" fill="#e0eee8"/><text x="135" y="77" text-anchor="middle" font-size="19">u₁, u₂, u₃</text><text x="135" y="111" text-anchor="middle" font-size="16">E, C₁, C₂, L, R</text><path d="M270 95H340" stroke="#087f78" stroke-width="3" marker-end="url(#arrow)"/><rect x="355" y="35" width="250" height="120" rx="14" fill="#142d38"/><text x="480" y="87" text-anchor="middle" fill="white" font-size="21">Aᵤ x + bᵤ</text><text x="480" y="120" text-anchor="middle" fill="#b9d8d1" font-size="15">instantaneous vector field</text><path d="M615 95H685" stroke="#087f78" stroke-width="3" marker-end="url(#arrow)"/><rect x="700" y="35" width="250" height="120" rx="14" fill="#e0eee8"/><text x="825" y="84" text-anchor="middle" font-size="19">vC₁, vC₂, iL</text><text x="825" y="117" text-anchor="middle" font-size="15">propagate for dwell dᵢ</text></svg><figcaption>A dependency diagram, not a circuit schematic. Each interval has a fixed vector field and its own exact propagation.</figcaption></figure>
+<p>The paper overrides the default <code>Data.patino_2</code> schedule with the reconciled schedule in <code>scripts/+paper/benchmark.m</code>. This tutorial uses that same paper schedule, not the different default schedule.</p><div class="scroll"><table id="schedule"><thead><tr><th>Interval</th><th>Mode / bits</th><th>Start, μs</th><th>End, μs</th><th>Dwell, μs</th></tr></thead><tbody></tbody></table></div></section>
+<section id="augmented"><div class="eyebrow">02 / Exact propagation</div><h2>Augment to propagate affine dynamics.</h2><div class="eq">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>&#x003C7;</mi><mo>&#x0003D;</mo><mo>&#x0005B;</mo><mtable><mtr><mtd><mi>x</mi></mtd></mtr><mtr><mtd><mn>1</mn></mtd></mtr></mtable><mo>&#x0005D;</mo><mo>&#x0002C;</mo><mspace width="2em" /><msub><mi>F</mi><mi>i</mi></msub><mo>&#x0003D;</mo><mo>&#x0005B;</mo><mtable><mtr><mtd><msub><mi>A</mi><mrow><msub><mi>q</mi><mi>i</mi></msub></mrow></msub></mtd><mtd><msub><mi>b</mi><mrow><msub><mi>q</mi><mi>i</mi></msub></mrow></msub></mtd></mtr><mtr><mtd><msup><mn>0</mn><mrow><mi mathvariant="sans-serif">T</mi></mrow></msup></mtd><mtd><mn>0</mn></mtd></mtr></mtable><mo>&#x0005D;</mo></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>&#x003C7;</mi><mo>&#x002D9;</mo></mover><mo>&#x0003D;</mo><msub><mi>F</mi><mi>i</mi></msub><mi>&#x003C7;</mi><mo>&#x0002C;</mo><mspace width="2em" /><msub><mi>&#x003D5;</mi><mi>i</mi></msub><mo>&#x0003D;</mo><mi>exp</mi><mo stretchy="false">&#x00028;</mo><msub><mi>F</mi><mi>i</mi></msub><msub><mover><mi>d</mi><mo stretchy="true">&#x000AF;</mo></mover><mi>i</mi></msub><mo stretchy="false">&#x00029;</mo><mo>&#x0002C;</mo><mspace width="2em" /><msub><mover><mi>&#x003C7;</mi><mo stretchy="true">&#x000AF;</mo></mover><mi>i</mi></msub><mo>&#x0003D;</mo><msub><mi>&#x003D5;</mi><mi>i</mi></msub><msub><mover><mi>&#x003C7;</mi><mo stretchy="true">&#x000AF;</mo></mover><mrow><mi>i</mi><mo>&#x02212;</mo><mn>1</mn></mrow></msub></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>&#x003A6;</mi><mo>&#x0007E;</mo></mover><mo>&#x0003D;</mo><msub><mi>&#x003D5;</mi><mn>9</mn></msub><msub><mi>&#x003D5;</mi><mn>8</mn></msub><mo>&#x022EF;</mo><msub><mi>&#x003D5;</mi><mn>1</mn></msub><mo>&#x0002C;</mo><mspace width="2em" /><mi>&#x003C7;</mi><mo stretchy="false">&#x00028;</mo><mi>T</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><mover><mi>&#x003A6;</mi><mo>&#x0007E;</mo></mover><mi>&#x003C7;</mi><mo stretchy="false">&#x00028;</mo><mn>0</mn><mo stretchy="false">&#x00029;</mo></mrow></math>
+</div><p>Each Fᵢ is 4 × 4. Its last row is zero; each φᵢ has last row [0, 0, 0, 1]. Multiplication proceeds chronologically by adding the next factor on the <em>left</em>. Different modes generally do not commute.</p>
+<div class="lab"><div class="eyebrow">Lab 1 / Build the ordered product</div><h3>Inspect one interval at a time</h3><label for="interval">Interval <output id="intervalValue"></output></label><input id="interval" type="range" min="0" max="8" step="1" value="1"><svg id="timeline" viewBox="0 0 960 95" role="img" aria-label="Nine-interval nominal schedule, selected interval highlighted"></svg><p id="modeExplain"></p><div class="grid"><div><div class="matrix-title">Physical Aᵤ and bᵤ, SI units</div><div id="modeMatrix" class="matrix"></div><div class="matrix-title">Augmented generator Fᵢ</div><div id="generator" class="matrix"></div></div><div><div class="matrix-title">φᵢ = exp(Fᵢd̄ᵢ)</div><div id="exponential" class="matrix"></div><div class="matrix-title">Partial product φᵢ⋯φ₁</div><div id="partial" class="matrix"></div></div></div><p id="orbitState" class="small"></p></div>
+<div class="matrix-title">Complete augmented cycle Φ̃</div><div id="Phi_aug" class="matrix"></div><p id="closure"></p><p>The upper-right column h accounts for the source over the whole cycle. At the nominal anchor, <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>&#x003A6;</mi><msup><mi>x</mi><mo>&#x022C6;</mo></msup><mo>&#x0002B;</mo><mi>h</mi><mo>&#x0003D;</mo><msup><mi>x</mi><mo>&#x022C6;</mo></msup></mrow></math>. It cannot be discarded when constructing the orbit.</p>
+<h3>Differentiate dwell durations before imposing fixed period.</h3><div class="eq">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>&#x003D5;</mi><mi>i</mi></msub><mo stretchy="false">&#x00028;</mo><msub><mover><mi>d</mi><mo stretchy="true">&#x000AF;</mo></mover><mi>i</mi></msub><mo>&#x0002B;</mo><mi>&#x003B4;</mi><msub><mi>d</mi><mi>i</mi></msub><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><msub><mi>&#x003D5;</mi><mi>i</mi></msub><mo>&#x0002B;</mo><msub><mi>F</mi><mi>i</mi></msub><msub><mi>&#x003D5;</mi><mi>i</mi></msub><mspace width="0.167em" /><mi>&#x003B4;</mi><msub><mi>d</mi><mi>i</mi></msub><mo>&#x0002B;</mo><mi mathvariant="script">O</mi><mo stretchy="false">&#x00028;</mo><mi>&#x003B4;</mi><msubsup><mi>d</mi><mi>i</mi><mn>2</mn></msubsup><mo stretchy="false">&#x00029;</mo></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mtable><mtr><mtd columnalign="right"><msub><mi>&#x003B3;</mi><mi>i</mi></msub></mtd><mtd columnalign="left"><mo>&#x0003D;</mo><msub><mi>&#x003D5;</mi><mn>9</mn></msub><mo>&#x022EF;</mo><msub><mi>&#x003D5;</mi><mrow><mi>i</mi><mo>&#x0002B;</mo><mn>1</mn></mrow></msub><msub><mi>F</mi><mi>i</mi></msub><msub><mi>&#x003D5;</mi><mi>i</mi></msub><mo>&#x022EF;</mo><msub><mi>&#x003D5;</mi><mn>1</mn></msub><msub><mover><mi>&#x003C7;</mi><mo stretchy="true">&#x000AF;</mo></mover><mn>0</mn></msub></mtd></mtr><mtr><mtd columnalign="right" /><mtd columnalign="left"><mo>&#x0003D;</mo><msub><mi>&#x003D5;</mi><mn>9</mn></msub><mo>&#x022EF;</mo><msub><mi>&#x003D5;</mi><mrow><mi>i</mi><mo>&#x0002B;</mo><mn>1</mn></mrow></msub><msub><mi>F</mi><mi>i</mi></msub><msub><mover><mi>&#x003C7;</mi><mo stretchy="true">&#x000AF;</mo></mover><mi>i</mi></msub></mtd></mtr></mtable></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mover><mi>&#x00393;</mi><mo>&#x0007E;</mo></mover><mi>d</mi></msub><mo>&#x0003D;</mo><mo>&#x0005B;</mo><mtable><mtr><mtd><msub><mi>&#x003B3;</mi><mn>1</mn></msub></mtd><mtd><mo>&#x022EF;</mo></mtd><mtd><msub><mi>&#x003B3;</mi><mn>9</mn></msub></mtd></mtr></mtable><mo>&#x0005D;</mo><mo>&#x02208;</mo><msup><mi mathvariant="double-struck">R</mi><mrow><mn>4</mn><mo>&#x000D7;</mo><mn>9</mn></mrow></msup></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>&#x003B5;</mi><mrow><mi>k</mi><mo>&#x0002B;</mo><mn>1</mn></mrow></msub><mo>&#x02248;</mo><mover><mi>&#x003A6;</mi><mo>&#x0007E;</mo></mover><msub><mi>&#x003B5;</mi><mi>k</mi></msub><mo>&#x0002B;</mo><msub><mover><mi>&#x00393;</mi><mo>&#x0007E;</mo></mover><mi>d</mi></msub><mspace width="0.167em" /><mi>&#x003B4;</mi><msub><mi>d</mi><mi>k</mi></msub></mrow></math>
+</div><p>Here <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>&#x003B5;</mi><mo>&#x0003D;</mo><mi>&#x003C7;</mi><mo>&#x02212;</mo><mover><mi>&#x003C7;</mi><mo stretchy="true">&#x000AF;</mo></mover></mrow></math>. Terms δdᵢε and δdᵢδdⱼ are second order and do not enter the first-order model. The nominal switching state χ̄ᵢ carries the source term into γᵢ.</p><details><summary>Inspect the complete augmented dwell sensitivity Γ̃d</summary><div id="Gamma_aug" class="matrix"></div><p class="small">Timing perturbations are in seconds. The last row is zero.</p></details></section>
+<section id="mapping"><div class="eyebrow">03 / Restrict the error coordinates</div><h2>Augmented state ≠ augmented error.</h2><div class="note"><strong>The fourth state is 1; the fourth error is 0.</strong><br><math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>&#x003C7;</mi><mo>&#x0003D;</mo><mo>&#x0005B;</mo><mtable><mtr><mtd><mi>x</mi></mtd></mtr><mtr><mtd><mn>1</mn></mtd></mtr></mtable><mo>&#x0005D;</mo><mo>&#x0002C;</mo><mspace width="1em" /><mover><mi>&#x003C7;</mi><mo stretchy="true">&#x000AF;</mo></mover><mo>&#x0003D;</mo><mo>&#x0005B;</mo><mtable><mtr><mtd><mover><mi>x</mi><mo stretchy="true">&#x000AF;</mo></mover></mtd></mtr><mtr><mtd><mn>1</mn></mtd></mtr></mtable><mo>&#x0005D;</mo><mo>&#x0002C;</mo><mspace width="1em" /><mi>&#x003B5;</mi><mo>&#x0003D;</mo><mi>&#x003C7;</mi><mo>&#x02212;</mo><mover><mi>&#x003C7;</mi><mo stretchy="true">&#x000AF;</mo></mover><mo>&#x0003D;</mo><mo>&#x0005B;</mo><mtable><mtr><mtd><mi>e</mi></mtd></mtr><mtr><mtd><mn>0</mn></mtd></mtr></mtable><mo>&#x0005D;</mo></mrow></math>. A strict Lyapunov test over all of ℝ⁴ asks an artificial, invariant coordinate to decay. That problem is infeasible, not merely poorly conditioned.</div>
+<figure><svg viewBox="0 0 960 260" role="img" aria-label="State augmentation and physical error projection: subtract two states with last coordinate one, then project the error with last coordinate zero"><rect x="10" y="20" width="235" height="95" rx="12" fill="#e1eee8"/><text x="128" y="58" text-anchor="middle" font-size="20">χ = [x; 1]</text><text x="128" y="88" text-anchor="middle" font-size="15">homogeneous state</text><rect x="10" y="140" width="235" height="95" rx="12" fill="#e1eee8"/><text x="128" y="179" text-anchor="middle" font-size="20">χ̄ = [x̄; 1]</text><text x="128" y="208" text-anchor="middle" font-size="15">reference state</text><path d="M260 70L320 125M260 185L320 125M320 125H380" fill="none" stroke="#087f78" stroke-width="3" marker-end="url(#arrow)"/><text x="310" y="105" font-size="17">subtract</text><rect x="395" y="75" width="235" height="100" rx="12" fill="#142d38"/><text x="512" y="116" text-anchor="middle" fill="white" font-size="22">ε = [e; 0]</text><text x="512" y="148" text-anchor="middle" fill="#c3e1d7" font-size="15">3-dimensional subspace</text><path d="M643 125H710" stroke="#087f78" stroke-width="3" marker-end="url(#arrow)"/><text x="670" y="105" text-anchor="middle" font-size="18">Π</text><rect x="725" y="75" width="225" height="100" rx="12" fill="#e1eee8"/><text x="838" y="117" text-anchor="middle" font-size="22">e ∈ ℝ³</text><text x="838" y="148" text-anchor="middle" font-size="15">Lyapunov analysis here</text></svg><figcaption>Projection removes no physical error component. It restricts the analysis to the invariant subspace where actual augmented errors live.</figcaption></figure>
+<div class="eq">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>&#x003A0;</mi><mo>&#x0003D;</mo><mo>&#x0005B;</mo><mtable><mtr><mtd><msub><mi>I</mi><mn>3</mn></msub></mtd><mtd><mn>0</mn></mtd></mtr></mtable><mo>&#x0005D;</mo><mo>&#x02208;</mo><msup><mi mathvariant="double-struck">R</mi><mrow><mn>3</mn><mo>&#x000D7;</mo><mn>4</mn></mrow></msup><mo>&#x0002C;</mo><mspace width="2em" /><mi>&#x003B9;</mi><mo>&#x0003D;</mo><mo>&#x0005B;</mo><mtable><mtr><mtd><msub><mi>I</mi><mn>3</mn></msub></mtd></mtr><mtr><mtd><msup><mn>0</mn><mrow><mi mathvariant="sans-serif">T</mi></mrow></msup></mtd></mtr></mtable><mo>&#x0005D;</mo><mo>&#x02208;</mo><msup><mi mathvariant="double-struck">R</mi><mrow><mn>4</mn><mo>&#x000D7;</mo><mn>3</mn></mrow></msup></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>&#x003B5;</mi><mo>&#x0003D;</mo><mi>&#x003B9;</mi><mi>e</mi><mo>&#x0002C;</mo><mspace width="2em" /><mi>e</mi><mo>&#x0003D;</mo><mi>&#x003A0;</mi><mi>&#x003B5;</mi><mo>&#x0002C;</mo><mspace width="2em" /><mi>&#x003A0;</mi><mi>&#x003B9;</mi><mo>&#x0003D;</mo><msub><mi>I</mi><mn>3</mn></msub></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>&#x003A6;</mi><mo>&#x0003D;</mo><mi>&#x003A0;</mi><mover><mi>&#x003A6;</mi><mo>&#x0007E;</mo></mover><mi>&#x003B9;</mi><mo>&#x0002C;</mo><mspace width="2em" /><msub><mi>G</mi><mi>d</mi></msub><mo>&#x0003D;</mo><mi>&#x003A0;</mi><msub><mover><mi>&#x00393;</mi><mo>&#x0007E;</mo></mover><mi>d</mi></msub></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>e</mi><mrow><mi>k</mi><mo>&#x0002B;</mo><mn>1</mn></mrow></msub><mo>&#x02248;</mo><mi>&#x003A6;</mi><msub><mi>e</mi><mi>k</mi></msub><mo>&#x0002B;</mo><msub><mi>G</mi><mi>d</mi></msub><mspace width="0.167em" /><mi>&#x003B4;</mi><msub><mi>d</mi><mi>k</mi></msub></mrow></math>
+</div>
+<p>Because <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mover><mi>&#x003A6;</mi><mo>&#x0007E;</mo></mover><mo>&#x0003D;</mo><mo>&#x0005B;</mo><mtable><mtr><mtd><mi>&#x003A6;</mi></mtd><mtd><mi>h</mi></mtd></mtr><mtr><mtd><msup><mn>0</mn><mrow><mi mathvariant="sans-serif">T</mi></mrow></msup></mtd><mtd><mn>1</mn></mtd></mtr></mtable><mo>&#x0005D;</mo></mrow></math>, its spectrum contains 1. Any hypothetical strict 4-dimensional certificate would have to decrease along an eigenvector with eigenvalue 1, which is impossible. On <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>&#x003B5;</mi><mo>&#x0003D;</mo><mi>&#x003B9;</mi><mi>e</mi></mrow></math>, however, <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mover><mi>&#x003A6;</mi><mo>&#x0007E;</mo></mover><mi>&#x003B9;</mi><mo>&#x0003D;</mo><mi>&#x003B9;</mi><mi>&#x003A6;</mi></mrow></math> and Γ̃<sub>d</sub> has zero last row. The reduced model exactly represents the first-order physical error dynamics.</p>
+<h3>Map independent switching offsets into coupled dwell changes.</h3><div class="eq">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>&#x003B4;</mi><mi>d</mi><mo>&#x0003D;</mo><mi>D</mi><mi>&#x003B4;</mi><mi>&#x003C4;</mi><mo>&#x0002C;</mo><mspace width="2em" /><mi>D</mi><mo>&#x02208;</mo><msup><mi mathvariant="double-struck">R</mi><mrow><mn>9</mn><mo>&#x000D7;</mo><mn>8</mn></mrow></msup></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>D</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>&#x0003D;</mo><mrow><mo stretchy="true" fence="true" form="prefix">&#x0007B;</mo><mtable><mtr><mtd columnalign="left"><mn>1</mn><mo>&#x0002C;</mo></mtd><mtd columnalign="left"><mi>i</mi><mo>&#x0003D;</mo><mi>j</mi><mo>&#x0002C;</mo></mtd></mtr><mtr><mtd columnalign="left"><mo>&#x02212;</mo><mn>1</mn><mo>&#x0002C;</mo></mtd><mtd columnalign="left"><mi>i</mi><mo>&#x0003D;</mo><mi>j</mi><mo>&#x0002B;</mo><mn>1</mn><mo>&#x0002C;</mo></mtd></mtr><mtr><mtd columnalign="left"><mn>0</mn><mo>&#x0002C;</mo></mtd><mtd columnalign="left"><mtext>otherwise</mtext></mtd></mtr></mtable></mrow></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>&#x00393;</mi><mi>&#x003C4;</mi></msub><mo>&#x0003D;</mo><mi>&#x003A0;</mi><msub><mover><mi>&#x00393;</mi><mo>&#x0007E;</mo></mover><mi>d</mi></msub><mi>D</mi><mo>&#x02208;</mo><msup><mi mathvariant="double-struck">R</mi><mrow><mn>3</mn><mo>&#x000D7;</mo><mn>8</mn></mrow></msup></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>e</mi><mrow><mi>k</mi><mo>&#x0002B;</mo><mn>1</mn></mrow></msub><mo>&#x0003D;</mo><mi>&#x003A6;</mi><msub><mi>e</mi><mi>k</mi></msub><mo>&#x0002B;</mo><msub><mi>&#x00393;</mi><mi>&#x003C4;</mi></msub><mi>&#x003B4;</mi><msub><mi>&#x003C4;</mi><mi>k</mi></msub><mo>&#x0002B;</mo><mi mathvariant="script">O</mi><mspace width="negativethinmathspace" /><mrow><mo stretchy="true" fence="true" form="prefix">&#x00028;</mo><msup><mrow><mo stretchy="true" fence="true" form="prefix">&#x02016;</mo><mo>&#x0005B;</mo><mtable><mtr><mtd><msub><mi>e</mi><mi>k</mi></msub></mtd></mtr><mtr><mtd><mi>&#x003B4;</mi><msub><mi>&#x003C4;</mi><mi>k</mi></msub></mtd></mtr></mtable><mo>&#x0005D;</mo><mo stretchy="true" fence="true" form="postfix">&#x02016;</mo></mrow><mn>2</mn></msup><mo stretchy="true" fence="true" form="postfix">&#x00029;</mo></mrow></mrow></math>
+</div><p>Delaying switching instant j lengthens dwell j and shortens dwell j+1. Therefore column j of Γ<sub>τ</sub> is Π(γⱼ − γⱼ₊₁). Every column of D sums to zero, preserving the period.</p>
+<div class="lab"><div class="eyebrow">Lab 2 / One instant, two dwells</div><label for="switch">Interior instant</label><select id="switch"></select><label for="shift">Offset δτⱼ: <output id="shiftValue"></output> μs</label><input type="range" id="shift" min="-10" max="10" step="0.25" value="5"><svg id="dwellBars" viewBox="0 0 960 210" role="img" aria-label="Nominal and shifted dwell durations"></svg><p id="shiftResult"></p><div class="matrix-title">Selected timing sensitivity column, Γτ[:,j] = Π(γⱼ − γⱼ₊₁)</div><div id="sensitivityColumn" class="matrix"></div><p class="small">This laboratory changes one offset only, without feedback or conditioning. The displayed terminal state change is a first-order prediction, not exact propagation.</p></div>
+<div class="matrix-title">Physical cycle Φ, 3 × 3</div><div id="Phi" class="matrix"></div><div class="matrix-title">Physical timing sensitivity Γτ, 3 × 8, offsets in seconds</div><div id="Gtau" class="matrix"></div><details><summary>Inspect D and the physical dwell sensitivity Gd</summary><div id="D" class="matrix"></div><div id="Gd" class="matrix"></div></details></section>
+<section id="gain"><div class="eyebrow">04 / Same gain as the paper</div><h2>Normalize, then form the two endpoints.</h2><p>A volt of capacitor error and an ampere of current error have different scales. The paper uses <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>z</mi><mo>&#x0003D;</mo><msubsup><mi>S</mi><mi>x</mi><mrow><mo>&#x02212;</mo><mn>1</mn></mrow></msubsup><mi>e</mi></mrow></math> and <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>v</mi><mo>&#x0003D;</mo><mi>&#x003B4;</mi><mi>&#x003C4;</mi><mo>&#x0002F;</mo><msub><mi>t</mi><mi>s</mi></msub></mrow></math>, with <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msub><mi>S</mi><mi>x</mi></msub><mo>&#x0003D;</mo><mo>diag</mo><mo stretchy="false">&#x00028;</mo><mn>10</mn><mo>&#x0002C;</mo><mn>20</mn><mo>&#x0002C;</mo><mn>1</mn><mo stretchy="false">&#x00029;</mo></mrow></math> and t<sub>s</sub> = 10 μs.</p><div class="eq">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>A</mi><mn>0</mn></msub><mo>&#x0003D;</mo><msubsup><mi>S</mi><mi>x</mi><mrow><mo>&#x02212;</mo><mn>1</mn></mrow></msubsup><mi>&#x003A6;</mi><msub><mi>S</mi><mi>x</mi></msub><mo>&#x0002C;</mo><mspace width="2em" /><mi>B</mi><mo>&#x0003D;</mo><msubsup><mi>S</mi><mi>x</mi><mrow><mo>&#x02212;</mo><mn>1</mn></mrow></msubsup><msub><mi>&#x00393;</mi><mi>&#x003C4;</mi></msub><msub><mi>t</mi><mi>s</mi></msub></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msup><mi>v</mi><mrow><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">w</mi></mrow></mrow></msup><mo>&#x0003D;</mo><mo>&#x02212;</mo><msub><mi>K</mi><mi>n</mi></msub><mi>z</mi><mo>&#x0002C;</mo><mspace width="2em" /><msub><mi>A</mi><mn>1</mn></msub><mo>&#x0003D;</mo><msub><mi>A</mi><mn>0</mn></msub><mo>&#x02212;</mo><mi>B</mi><msub><mi>K</mi><mi>n</mi></msub></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>K</mi><mrow><mrow><mi mathvariant="normal">p</mi><mi mathvariant="normal">h</mi><mi mathvariant="normal">y</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">l</mi></mrow></mrow></msub><mo>&#x0003D;</mo><msub><mi>t</mi><mi>s</mi></msub><msub><mi>K</mi><mi>n</mi></msub><msubsup><mi>S</mi><mi>x</mi><mrow><mo>&#x02212;</mo><mn>1</mn></mrow></msubsup></mrow></math>
+</div><p>The numerical builder solves the discrete Riccati equation with <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>Q</mi><mo>&#x0003D;</mo><msub><mi>I</mi><mn>3</mn></msub></mrow></math> and <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>R</mi><mo>&#x0003D;</mo><mn>0.001</mn><msub><mi>I</mi><mn>8</mn></msub></mrow></math> to reproduce the existing aggressive LQR. It does <strong>not</strong> redesign the gain to make the certificate feasible. From this point onward A₀, B, K<sub>n</sub>, and A₁ are fixed.</p><div class="grid"><div><div class="matrix-title">A₀, normalized open-loop cycle</div><div id="A0" class="matrix"></div></div><div><div class="matrix-title">A₁, normalized raw closed loop</div><div id="A1" class="matrix"></div></div></div><details><summary>Inspect B and both feedback-gain coordinate systems</summary><div class="matrix-title">B</div><div id="B" class="matrix"></div><div class="matrix-title">Kn, normalized timing per normalized error</div><div id="K" class="matrix"></div><div class="matrix-title">Kphysical, seconds per physical state unit</div><div id="Kphysical" class="matrix"></div></details><p id="gainCheck"></p><div class="eq">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>m</mi><mi>i</mi></msub><mo>&#x0003D;</mo><msub><mover><mi>d</mi><mo stretchy="true">&#x000AF;</mo></mover><mi>i</mi></msub><mo>&#x02212;</mo><msub><mi>d</mi><mrow><mo>min</mo></mrow></msub><mo>&#x0003E;</mo><mn>0</mn><mo>&#x0002C;</mo><mspace width="2em" /><mi>q</mi><mo>&#x0003D;</mo><mo>&#x02212;</mo><mi>D</mi><msub><mi>t</mi><mi>s</mi></msub><msub><mi>K</mi><mi>n</mi></msub><mi>z</mi></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>&#x003B2;</mi><mo stretchy="false">&#x00028;</mo><mi>z</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><mo>min</mo><mrow><mo stretchy="true" fence="true" form="prefix">&#x0007B;</mo><mn>1</mn><mo>&#x0002C;</mo><mspace width="0.278em" /><msub><mo>min</mo><mrow><mi>i</mi><mi>:</mi><msub><mi>q</mi><mi>i</mi></msub><mo>&#x0003C;</mo><mn>0</mn></mrow></msub><mfrac><mrow><msub><mi>m</mi><mi>i</mi></msub></mrow><mrow><mo>&#x02212;</mo><msub><mi>q</mi><mi>i</mi></msub></mrow></mfrac><mo stretchy="true" fence="true" form="postfix">&#x0007D;</mo></mrow></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>z</mi><mrow><mi>k</mi><mo>&#x0002B;</mo><mn>1</mn></mrow></msub><mo>&#x0003D;</mo><mo stretchy="true" fence="true" minsize="1.2em" maxsize="1.2em">[</mo><msub><mi>A</mi><mn>0</mn></msub><mo>&#x02212;</mo><mi>&#x003B2;</mi><mo stretchy="false">&#x00028;</mo><msub><mi>z</mi><mi>k</mi></msub><mo stretchy="false">&#x00029;</mo><mi>B</mi><msub><mi>K</mi><mi>n</mi></msub><mo stretchy="true" fence="true" minsize="1.2em" maxsize="1.2em">]</mo><msub><mi>z</mi><mi>k</mi></msub><mo>&#x0003D;</mo><mi>A</mi><mo stretchy="false">&#x00028;</mo><msub><mi>&#x003B2;</mi><mi>k</mi></msub><mo stretchy="false">&#x00029;</mo><msub><mi>z</mi><mi>k</mi></msub></mrow></math>
+</div><p>For strict nominal margins, β is positive at every finite state, but it need not have a positive global lower bound. Including β = 0 gives a closed interval and a stronger robustness test.</p></section>
+<section id="certificate"><div class="eyebrow">05 / Offline convex optimization</div><h2>One P, two inequalities.</h2><p>Let P be a symmetric 3 × 3 decision variable. Maximize a shared Euclidean decrease margin η while fixing the arbitrary scale of P.</p><div class="eq">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mtable><mtr><mtd columnalign="right"><munder><mrow><mtext>maximize</mtext></mrow><mrow><mi>P</mi><mo>&#x0003D;</mo><msup><mi>P</mi><mrow><mi mathvariant="sans-serif">T</mi></mrow></msup><mo>&#x0002C;</mo><mspace width="0.167em" /><mi>&#x003B7;</mi></mrow></munder><mspace width="1em" /></mtd><mtd columnalign="left"><mi>&#x003B7;</mi></mtd></mtr><mtr><mtd columnalign="right"><mtext>subject&#x000A0;to</mtext><mspace width="1em" /></mtd><mtd columnalign="left"><mo>tr</mo><mo stretchy="false">&#x00028;</mo><mi>P</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><mn>3</mn><mo>&#x0002C;</mo></mtd></mtr><mtr><mtd columnalign="right" /><mtd columnalign="left"><mi>P</mi><mi>&#x02AB0;</mi><msup><mn>10</mn><mrow><mo>&#x02212;</mo><mn>7</mn></mrow></msup><msub><mi>I</mi><mn>3</mn></msub><mo>&#x0002C;</mo></mtd></mtr><mtr><mtd columnalign="right" /><mtd columnalign="left"><mi>P</mi><mo>&#x02212;</mo><msubsup><mi>A</mi><mn>0</mn><mrow><mi mathvariant="sans-serif">T</mi></mrow></msubsup><mi>P</mi><msub><mi>A</mi><mn>0</mn></msub><mi>&#x02AB0;</mi><mi>&#x003B7;</mi><msub><mi>I</mi><mn>3</mn></msub><mo>&#x0002C;</mo></mtd></mtr><mtr><mtd columnalign="right" /><mtd columnalign="left"><mi>P</mi><mo>&#x02212;</mo><msubsup><mi>A</mi><mn>1</mn><mrow><mi mathvariant="sans-serif">T</mi></mrow></msubsup><mi>P</mi><msub><mi>A</mi><mn>1</mn></msub><mi>&#x02AB0;</mi><mi>&#x003B7;</mi><msub><mi>I</mi><mn>3</mn></msub></mtd></mtr></mtable></mrow></math>
+</div><p>These constraints are affine in P because both endpoint matrices are fixed. A positive optimum with independently positive eigenvalues certifies strict decrease. The trace constraint prevents unbounded rescaling; maximizing η is not the same as optimizing the sharpest exponential rate.</p><div class="note success" id="solverSummary"></div><div class="grid"><div><div class="matrix-title">Computed common P in normalized coordinates</div><div id="P" class="matrix"></div><div class="matrix-title">Eigenvalues of P</div><div id="eigP" class="matrix"></div></div><div><div class="matrix-title">Q₀ = P − A₀ᵀPA₀</div><div id="Q0" class="matrix"></div><div class="matrix-title">Q₁ = P − A₁ᵀPA₁</div><div id="Q1" class="matrix"></div></div></div><div id="certificateChecks"></div><p class="small">Displayed matrices are rounded. Validation and laboratories use the full-precision embedded data. This is a floating-point certificate with recomputed residual eigenvalues, not an interval-arithmetic proof.</p><details><summary>Use the certificate in physical coordinates</summary><div class="eq">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>V</mi><mo stretchy="false">&#x00028;</mo><mi>e</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><msup><mi>e</mi><mrow><mi mathvariant="sans-serif">T</mi></mrow></msup><msub><mi>P</mi><mi>e</mi></msub><mi>e</mi><mo>&#x0002C;</mo><mspace width="2em" /><msub><mi>P</mi><mi>e</mi></msub><mo>&#x0003D;</mo><msubsup><mi>S</mi><mi>x</mi><mrow><mo>&#x02212;</mo><mi mathvariant="sans-serif">T</mi></mrow></msubsup><mi>P</mi><msubsup><mi>S</mi><mi>x</mi><mrow><mo>&#x02212;</mo><mn>1</mn></mrow></msubsup></mrow></math>
+</div><div id="Pphysical" class="matrix"></div><p>Transform P along with the state coordinates. The normalized P must not be applied directly to the physical Φ and physical closed-loop matrix.</p></details>
+<h3>Equivalent MATLAB CVX formulation</h3><p>The numbers above were computed with Python CVXPY and CLARABEL, not MATLAB CVX. After constructing the same normalized A₀ and A₁, the equivalent CVX model is:</p><pre class="code">cvx_begin sdp
+    variable P(3,3) symmetric
+    variable eta
+    maximize(eta)
+    subject to
+        trace(P) == 3;
+        P &gt;= 1e-7*eye(3);
+        P - A0'*P*A0 &gt;= eta*eye(3);
+        P - A1'*P*A1 &gt;= eta*eye(3);
+cvx_end
+% Independently inspect the returned matrices, not just cvx_status.
+P = (P + P')/2;
+Q0 = P - A0'*P*A0;
+Q1 = P - A1'*P*A1;
+[eig(P), eig((Q0+Q0')/2), eig((Q1+Q1')/2)]</pre><p>If infeasible, do not conclude that the actual conditioned controller is unstable. A common quadratic certificate for arbitrary β sequences is a sufficient, potentially conservative test. If A₀ is not Schur, this strict full-interval test cannot succeed.</p></section>
+<section id="proof"><div class="eyebrow">06 / Stability, step by step</div><h2>From two endpoint tests to every cycle.</h2><div class="card"><h3>1. Apply the Schur complement.</h3><div class="eq">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msup><mi>A</mi><mrow><mi mathvariant="sans-serif">T</mi></mrow></msup><mi>P</mi><mi>A</mi><mo>&#x02212;</mo><mi>P</mi><mo>&#x0227A;</mo><mn>0</mn></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>&#x027FA;</mi><mspace width="1em" /><mi>M</mi><mo stretchy="false">&#x00028;</mo><mi>A</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><mo>&#x0005B;</mo><mtable><mtr><mtd><mo>&#x02212;</mo><mi>P</mi></mtd><mtd><msup><mi>A</mi><mrow><mi mathvariant="sans-serif">T</mi></mrow></msup></mtd></mtr><mtr><mtd><mi>A</mi></mtd><mtd><mo>&#x02212;</mo><msup><mi>P</mi><mrow><mo>&#x02212;</mo><mn>1</mn></mrow></msup></mtd></mtr></mtable><mo>&#x0005D;</mo><mo>&#x0227A;</mo><mn>0</mn><mo>&#x0002C;</mo><mspace width="2em" /><mi>P</mi><mo>&#x0227B;</mo><mn>0</mn></mrow></math>
+</div><p>The lower-right block is negative definite. Its Schur complement is <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mo>&#x02212;</mo><mi>P</mi><mo>&#x02212;</mo><msup><mi>A</mi><mrow><mi mathvariant="sans-serif">T</mi></mrow></msup><mo stretchy="false">&#x00028;</mo><mo>&#x02212;</mo><mi>P</mi><mo stretchy="false">&#x00029;</mo><mi>A</mi><mo>&#x0003D;</mo><msup><mi>A</mi><mrow><mi mathvariant="sans-serif">T</mi></mrow></msup><mi>P</mi><mi>A</mi><mo>&#x02212;</mo><mi>P</mi></mrow></math>. The inverse form is valid for this proof, but is not an LMI in the unknown P.</p><p>For numerical work an inverse-free equivalent is <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mo>&#x0005B;</mo><mtable><mtr><mtd><mi>P</mi></mtd><mtd><msup><mi>A</mi><mrow><mi mathvariant="sans-serif">T</mi></mrow></msup><mi>P</mi></mtd></mtr><mtr><mtd><mi>P</mi><mi>A</mi></mtd><mtd><mi>P</mi></mtd></mtr></mtable><mo>&#x0005D;</mo><mo>&#x0227B;</mo><mn>0</mn></mrow></math>. The direct inequalities used above are already LMIs.</p><h3>2. Use the same P at both endpoints.</h3><div class="eq">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>M</mi><mo stretchy="false">&#x00028;</mo><mi>A</mi><mo stretchy="false">&#x00028;</mo><mi>&#x003B2;</mi><mo stretchy="false">&#x00029;</mo><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><mo stretchy="false">&#x00028;</mo><mn>1</mn><mo>&#x02212;</mo><mi>&#x003B2;</mi><mo stretchy="false">&#x00029;</mo><mi>M</mi><mo stretchy="false">&#x00028;</mo><msub><mi>A</mi><mn>0</mn></msub><mo stretchy="false">&#x00029;</mo><mo>&#x0002B;</mo><mi>&#x003B2;</mi><mi>M</mi><mo stretchy="false">&#x00028;</mo><msub><mi>A</mi><mn>1</mn></msub><mo stretchy="false">&#x00029;</mo><mo>&#x0227A;</mo><mn>0</mn></mrow></math>
+</div><p>A convex combination of the negative-definite endpoint block matrices remains negative definite for every β ∈ [0,1]. Different endpoint matrices P₀ and P₁ would not give this identity.</p><h3>3. Obtain a uniform, not merely pointwise, decrease.</h3><div class="eq">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mtable><mtr><mtd columnalign="right"><mi>Q</mi><mo stretchy="false">&#x00028;</mo><mi>&#x003B2;</mi><mo stretchy="false">&#x00029;</mo></mtd><mtd columnalign="left"><mo>&#x0003D;</mo><mi>P</mi><mo>&#x02212;</mo><mi>A</mi><mo stretchy="false">&#x00028;</mo><mi>&#x003B2;</mi><msup><mo stretchy="false">&#x00029;</mo><mrow><mi mathvariant="sans-serif">T</mi></mrow></msup><mi>P</mi><mi>A</mi><mo stretchy="false">&#x00028;</mo><mi>&#x003B2;</mi><mo stretchy="false">&#x00029;</mo></mtd></mtr><mtr><mtd columnalign="right" /><mtd columnalign="left"><mo>&#x0003D;</mo><mo stretchy="false">&#x00028;</mo><mn>1</mn><mo>&#x02212;</mo><mi>&#x003B2;</mi><mo stretchy="false">&#x00029;</mo><msub><mi>Q</mi><mn>0</mn></msub><mo>&#x0002B;</mo><mi>&#x003B2;</mi><msub><mi>Q</mi><mn>1</mn></msub></mtd></mtr><mtr><mtd columnalign="right" /><mtd columnalign="left"><mspace width="1em" /><mo>&#x0002B;</mo><mi>&#x003B2;</mi><mo stretchy="false">&#x00028;</mo><mn>1</mn><mo>&#x02212;</mo><mi>&#x003B2;</mi><mo stretchy="false">&#x00029;</mo><mo stretchy="false">&#x00028;</mo><msub><mi>A</mi><mn>1</mn></msub><mo>&#x02212;</mo><msub><mi>A</mi><mn>0</mn></msub><msup><mo stretchy="false">&#x00029;</mo><mrow><mi mathvariant="sans-serif">T</mi></mrow></msup><mi>P</mi><mo stretchy="false">&#x00028;</mo><msub><mi>A</mi><mn>1</mn></msub><mo>&#x02212;</mo><msub><mi>A</mi><mn>0</mn></msub><mo stretchy="false">&#x00029;</mo></mtd></mtr><mtr><mtd columnalign="right" /><mtd columnalign="left"><mi>&#x02AB0;</mi><msub><mi>q</mi><mo>&#x0002A;</mo></msub><msub><mi>I</mi><mn>3</mn></msub></mtd></mtr></mtable></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>q</mi><mo>&#x0002A;</mo></msub><mo>&#x0003D;</mo><mo>min</mo><mo stretchy="false">&#x0007B;</mo><msub><mi>&#x003BB;</mi><mrow><mo>min</mo></mrow></msub><mo stretchy="false">&#x00028;</mo><msub><mi>Q</mi><mn>0</mn></msub><mo stretchy="false">&#x00029;</mo><mo>&#x0002C;</mo><msub><mi>&#x003BB;</mi><mrow><mo>min</mo></mrow></msub><mo stretchy="false">&#x00028;</mo><msub><mi>Q</mi><mn>1</mn></msub><mo stretchy="false">&#x00029;</mo><mo stretchy="false">&#x0007D;</mo><mo>&#x0003E;</mo><mn>0</mn></mrow></math>
+</div><p>The extra quadratic term is positive semidefinite. This identity also proves the endpoint result directly, without a block matrix.</p><h3>4. Convert decrease into exponential convergence.</h3><div class="eq">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>V</mi><mo stretchy="false">&#x00028;</mo><msub><mi>z</mi><mrow><mi>k</mi><mo>&#x0002B;</mo><mn>1</mn></mrow></msub><mo stretchy="false">&#x00029;</mo><mo>&#x02212;</mo><mi>V</mi><mo stretchy="false">&#x00028;</mo><msub><mi>z</mi><mi>k</mi></msub><mo stretchy="false">&#x00029;</mo><mo>&#x02264;</mo><mo>&#x02212;</mo><msub><mi>q</mi><mo>&#x0002A;</mo></msub><mo fence="false" stretchy="false">&#x02016;</mo><msub><mi>z</mi><mi>k</mi></msub><msup><mo fence="false" stretchy="false">&#x02016;</mo><mn>2</mn></msup></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>V</mi><mo stretchy="false">&#x00028;</mo><msub><mi>z</mi><mrow><mi>k</mi><mo>&#x0002B;</mo><mn>1</mn></mrow></msub><mo stretchy="false">&#x00029;</mo><mo>&#x02264;</mo><mrow><mo stretchy="true" fence="true" form="prefix">[</mo><mn>1</mn><mo>&#x02212;</mo><mfrac><mrow><msub><mi>q</mi><mo>&#x0002A;</mo></msub></mrow><mrow><msub><mi>&#x003BB;</mi><mrow><mo>max</mo></mrow></msub><mo stretchy="false">&#x00028;</mo><mi>P</mi><mo stretchy="false">&#x00029;</mo></mrow></mfrac><mo stretchy="true" fence="true" form="postfix">]</mo></mrow><mi>V</mi><mo stretchy="false">&#x00028;</mo><msub><mi>z</mi><mi>k</mi></msub><mo stretchy="false">&#x00029;</mo></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mo fence="false" stretchy="false">&#x02016;</mo><msub><mi>z</mi><mi>k</mi></msub><mo fence="false" stretchy="false">&#x02016;</mo><mo>&#x02264;</mo><msqrt><mrow><msub><mi>&#x003BA;</mi><mn>2</mn></msub><mo stretchy="false">&#x00028;</mo><mi>P</mi><mo stretchy="false">&#x00029;</mo></mrow></msqrt><mspace width="0.167em" /><msup><mi>r</mi><mi>k</mi></msup><mo fence="false" stretchy="false">&#x02016;</mo><msub><mi>z</mi><mn>0</mn></msub><mo fence="false" stretchy="false">&#x02016;</mo></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>r</mi><mo>&#x0003D;</mo><msqrt><mrow><mn>1</mn><mo>&#x02212;</mo><mfrac><mrow><msub><mi>q</mi><mo>&#x0002A;</mo></msub></mrow><mrow><msub><mi>&#x003BB;</mi><mrow><mo>max</mo></mrow></msub><mo stretchy="false">&#x00028;</mo><mi>P</mi><mo stretchy="false">&#x00029;</mo></mrow></mfrac></mrow></msqrt><mo>&#x0003C;</mo><mn>1</mn></mrow></math>
+</div><p id="rate"></p><p>The inequality holds at each step for whichever β is selected. It requires neither constant β nor a derivative of the conditioner. It therefore covers state-dependent conditioning and arbitrary time variation.</p><h3>5. Combine stability with dwell feasibility.</h3><p>The conditioner guarantees <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mover><mi>d</mi><mo stretchy="true">&#x000AF;</mo></mover><mo>&#x0002B;</mo><mi>D</mi><mi>&#x003B4;</mi><msup><mi>&#x003C4;</mi><mrow><mrow><mi mathvariant="normal">a</mi><mi mathvariant="normal">p</mi><mi mathvariant="normal">p</mi></mrow></mrow></msup><mo>&#x02265;</mo><msub><mi>d</mi><mrow><mo>min</mo></mrow></msub><mn mathvariant="bold">1</mn></mrow></math> at each cycle. The common-P theorem guarantees convergence of the conditioned linearized model even outside the raw-action invariant region. Since strict nominal margins put a neighborhood of z = 0 inside the raw-feasible region, convergence implies that β eventually stays at 1.</p><h3>6. Keep the nonlinear claim separate.</h3><p>The exact map is <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msup><mi>z</mi><mo>&#x0002B;</mo></msup><mo>&#x0003D;</mo><mi>A</mi><mo stretchy="false">&#x00028;</mo><mi>&#x003B2;</mi><mo stretchy="false">&#x00028;</mo><mi>z</mi><mo stretchy="false">&#x00029;</mo><mo stretchy="false">&#x00029;</mo><mi>z</mi><mo>&#x0002B;</mo><mi>r</mi><mo stretchy="false">&#x00028;</mo><mi>z</mi><mo stretchy="false">&#x00029;</mo></mrow></math>, with <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>r</mi><mo stretchy="false">&#x00028;</mo><mi>z</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><mi mathvariant="script">O</mi><mo stretchy="false">&#x00028;</mo><mo fence="false" stretchy="false">&#x02016;</mo><mi>z</mi><msup><mo fence="false" stretchy="false">&#x02016;</mo><mn>2</mn></msup><mo stretchy="false">&#x00029;</mo></mrow></math> near the anchor. Its Lyapunov increment has the additional terms <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mn>2</mn><msup><mi>z</mi><mrow><mi mathvariant="sans-serif">T</mi></mrow></msup><msup><mi>A</mi><mrow><mi mathvariant="sans-serif">T</mi></mrow></msup><mi>P</mi><mi>r</mi><mo>&#x0002B;</mo><msup><mi>r</mi><mrow><mi mathvariant="sans-serif">T</mi></mrow></msup><mi>P</mi><mi>r</mi></mrow></math>. They are locally dominated by the strict quadratic decrease, but no global bound is established here. Near the anchor the conditioner is inactive and the original local nonlinear argument also applies.</p></div></section>
+<section id="laboratory"><div class="eyebrow">07 / Test the intuition</div><h2>Watch contraction survive conditioning.</h2><div class="lab"><h3>Lab 3 / Sweep the whole matrix segment</h3><p>Move β from the nominal open-loop schedule to full feedback. The lower eigenvalue of Q(β) must stay positive. Spectral radius alone would not prove stability under changing β.</p><label for="beta">β = <output id="betaValue"></output></label><input id="beta" type="range" min="0" max="1" step="0.005" value="0.5"><div class="grid"><div><div class="matrix-title">A(β)</div><div id="Abeta" class="matrix"></div><p id="betaMetrics"></p></div><div><svg id="marginPlot" viewBox="0 0 500 250" role="img" aria-label="Minimum eigenvalue of Lyapunov decrease across the beta interval"></svg><p class="small">Curve: 201 precomputed eigenvalue tests. The vertical marker follows β; the endpoint theorem covers the entire interval, not just this grid.</p></div></div></div>
+<div class="lab"><h3>Lab 4 / State-dependent and adversarial β sequences</h3><p>Choose an initial normalized error and a policy. The plot follows V(z), not Euclidean distance. A state can rotate or increase in one component while its common quadratic energy decreases.</p><div class="grid"><div class="controls"><label for="policy">Policy</label><select id="policy"><option value="conditioner">Actual dwell conditioner</option><option value="fixed">Fixed β from Lab 3</option><option value="alternate">Alternate β = 0 and β = 1</option><option value="random">Deterministic pseudorandom β ∈ [0,1]</option></select><label for="z1">z₁ = <output id="z1Value"></output></label><input id="z1" type="range" min="-2" max="2" step="0.01" value="-0.24"><label for="z2">z₂ = <output id="z2Value"></output></label><input id="z2" type="range" min="-2" max="2" step="0.01" value="0.08"><label for="z3">z₃ = <output id="z3Value"></output></label><input id="z3" type="range" min="-2" max="2" step="0.01" value="-0.95"><button id="benchmark">Use paper initial state</button><p class="small">50 cycles of the linearized model. Fixed, alternating, and random policies illustrate the stability theorem but need not satisfy dwell constraints.</p></div><div><svg id="energyPlot" viewBox="0 0 500 285" role="img" aria-label="Logarithmic quadratic energy versus cycle"></svg><svg id="betaPlot" viewBox="0 0 500 150" role="img" aria-label="Conditioning factor versus cycle"></svg></div></div><p id="trajectoryMetrics" aria-live="polite"></p><div class="grid"><div><svg id="phasePlot" viewBox="0 0 500 270" role="img" aria-label="Initial Lyapunov ellipsoid projection and trajectory in normalized capacitor-error coordinates"></svg></div><div><h3>Read the ellipse correctly.</h3><p>The ellipse is the projection of the initial 3D sublevel set <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mo stretchy="false">&#x0007B;</mo><mi>z</mi><mi>:</mi><msup><mi>z</mi><mrow><mi mathvariant="sans-serif">T</mi></mrow></msup><mi>P</mi><mi>z</mi><mo>&#x02264;</mo><mi>V</mi><mo stretchy="false">&#x00028;</mo><msub><mi>z</mi><mn>0</mn></msub><mo stretchy="false">&#x00029;</mo><mo stretchy="false">&#x0007D;</mo></mrow></math> onto the z₁–z₂ plane. Every projected trajectory point remains inside it. This is not a claim that the projected 2D model is autonomous.</p><p class="small">Ellipse shape uses the upper-left block of P⁻¹, not the upper-left block of P. Other levels are nested scaled copies.</p></div></div></div>
+<div class="lab"><h3>Lab 5 / Linear certificate versus exact simulation</h3><p>These two precomputed trajectories start at the paper's physical state [7.5143, 20.8211, 0.0314]ᵀ and use the actual conditioner. The exact trajectory propagates the freshly constructed 4 × 4 mode exponentials at the <em>applied</em> dwell durations.</p><label for="exactCycle">Cycle <output id="exactCycleValue"></output></label><input id="exactCycle" type="range" min="0" max="100" step="1" value="3"><svg id="exactPlot" viewBox="0 0 950 280" role="img" aria-label="Linear and exact nonlinear quadratic energies for the paper benchmark"></svg><div class="legend"><span class="teal">● Linearized</span><span class="orange">● Exact nonlinear</span></div><p id="exactMetrics"></p><div class="note">Agreement or monotone energy along this one exact trajectory is simulation evidence. It does not certify every nonlinear initial condition.</div></div></section>
+<section id="reproduce"><div class="eyebrow">08 / Reproduce and extend</div><h2>Trace every number back to a construction.</h2><ol><li>Read physical parameters and the binary mode convention from <code>simulations/matlab-sim/+Data/patino_2.m</code> and <code>+Utils/compute_buckboost.m</code>.</li><li>Use the paper-specific schedule, anchor, normalization, and LQR weights from <code>scripts/+paper/benchmark.m</code>.</li><li>Construct each Aᵤ and bᵤ, augment each Fᵢ, compute each φᵢ, propagate χ̄, differentiate the ordered product, and apply Π, ι, and D.</li><li>Recompute the aggressive LQR from the physical model. Compare the resulting physical gain against <code>results/paper_results.mat → controller.K_aggressive_physical</code> only after construction. Cross-check Φ and Γτ against that same paper output.</li><li>Solve the fixed-gain SDP, symmetrize P, and independently calculate the eigenvalues of P and both residuals. Also check nominal closure and finite-difference Jacobians.</li></ol><pre class="code">python -m pip install numpy scipy cvxpy
+task lyapunov:reproduce
+# Outputs:
+# studies/lyapunov/results/certificate.json
+# studies/lyapunov/tutorial/index.html</pre><p id="validation"></p><p><a href="../results/certificate.json">Full-precision numerical data</a> · <a href="../python/build_tutorial.py">Reproducible builder</a> · <a href="../analysis.jl">Latest Julia analysis</a> · <a href="../README.md">Study guide</a>. The generated HTML embeds all numerical data, native MathML equations, styles, scripts, and SVG; it needs no server or external library. Edit <code>template.html</code> and rerun the builder to update the document.</p><footer class="small">Suggested manuscript change: add a common-quadratic conditioned-stability proposition alongside the existing raw-action invariant-set proposition. The two statements answer different questions: convergence while conditioning acts, and persistent feasibility without conditioning. No manuscript source was changed by this notebook.</footer></section>
+</main>
+<script id="certificate-data" type="application/json">{
+  "parameters": {
+    "E": 30.0,
+    "C1": 4e-05,
+    "C2": 4e-05,
+    "L": 0.01,
+    "R": 10.0
+  },
+  "modes": [
+    {
+      "mode": 0,
+      "bits": [
+        0,
+        0,
+        0
+      ],
+      "A": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          -1000.0
+        ]
+      ],
+      "b": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "F": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          -1000.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "dwell_us": 63.88918350611899
+    },
+    {
+      "mode": 1,
+      "bits": [
+        0,
+        0,
+        1
+      ],
+      "A": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          24999.999999999996
+        ],
+        [
+          0.0,
+          -100.0,
+          -1000.0
+        ]
+      ],
+      "b": [
+        0.0,
+        0.0,
+        3000.0
+      ],
+      "F": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          24999.999999999996,
+          0.0
+        ],
+        [
+          0.0,
+          -100.0,
+          -1000.0,
+          3000.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "dwell_us": 23.66759937587901
+    },
+    {
+      "mode": 3,
+      "bits": [
+        0,
+        1,
+        1
+      ],
+      "A": [
+        [
+          0.0,
+          0.0,
+          24999.999999999996
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          -100.0,
+          0.0,
+          -1000.0
+        ]
+      ],
+      "b": [
+        0.0,
+        0.0,
+        3000.0
+      ],
+      "F": [
+        [
+          0.0,
+          0.0,
+          24999.999999999996,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          -100.0,
+          0.0,
+          -1000.0,
+          3000.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "dwell_us": 22.000000000000007
+    },
+    {
+      "mode": 7,
+      "bits": [
+        1,
+        1,
+        1
+      ],
+      "A": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          -1000.0
+        ]
+      ],
+      "b": [
+        0.0,
+        0.0,
+        3000.0
+      ],
+      "F": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          -1000.0,
+          3000.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "dwell_us": 22.981276969500993
+    },
+    {
+      "mode": 2,
+      "bits": [
+        0,
+        1,
+        0
+      ],
+      "A": [
+        [
+          0.0,
+          0.0,
+          24999.999999999996
+        ],
+        [
+          0.0,
+          0.0,
+          -24999.999999999996
+        ],
+        [
+          -100.0,
+          100.0,
+          -1000.0
+        ]
+      ],
+      "b": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "F": [
+        [
+          0.0,
+          0.0,
+          24999.999999999996,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          -24999.999999999996,
+          0.0
+        ],
+        [
+          -100.0,
+          100.0,
+          -1000.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "dwell_us": 22.00000000000002
+    },
+    {
+      "mode": 0,
+      "bits": [
+        0,
+        0,
+        0
+      ],
+      "A": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          -1000.0
+        ]
+      ],
+      "b": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "F": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          -1000.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "dwell_us": 63.672008257924965
+    },
+    {
+      "mode": 4,
+      "bits": [
+        1,
+        0,
+        0
+      ],
+      "A": [
+        [
+          0.0,
+          0.0,
+          -24999.999999999996
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          100.0,
+          0.0,
+          -1000.0
+        ]
+      ],
+      "b": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "F": [
+        [
+          0.0,
+          0.0,
+          -24999.999999999996,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          100.0,
+          0.0,
+          -1000.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "dwell_us": 22.170089330624997
+    },
+    {
+      "mode": 7,
+      "bits": [
+        1,
+        1,
+        1
+      ],
+      "A": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          -1000.0
+        ]
+      ],
+      "b": [
+        0.0,
+        0.0,
+        3000.0
+      ],
+      "F": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          -1000.0,
+          3000.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "dwell_us": 23.44742739115202
+    },
+    {
+      "mode": 4,
+      "bits": [
+        1,
+        0,
+        0
+      ],
+      "A": [
+        [
+          0.0,
+          0.0,
+          -24999.999999999996
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          100.0,
+          0.0,
+          -1000.0
+        ]
+      ],
+      "b": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "F": [
+        [
+          0.0,
+          0.0,
+          -24999.999999999996,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          100.0,
+          0.0,
+          -1000.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "dwell_us": 22.172415168799017
+    }
+  ],
+  "boundaries_us": [
+    0.0,
+    63.88918350611899,
+    87.556782881998,
+    109.556782881998,
+    132.53805985149899,
+    154.538059851499,
+    218.210068109424,
+    240.38015744004898,
+    263.827584831201,
+    286.0
+  ],
+  "dwell_us": [
+    63.88918350611899,
+    23.66759937587901,
+    22.000000000000007,
+    22.981276969500993,
+    22.00000000000002,
+    63.672008257924965,
+    22.170089330624997,
+    23.44742739115202,
+    22.172415168799017
+  ],
+  "xstar": [
+    9.9247,
+    19.2928,
+    0.9823
+  ],
+  "phis": [
+    [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.9381089517157223,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.9993053783041722,
+        0.5846064910252087,
+        0.0208386508748331
+      ],
+      [
+        0.0,
+        -0.0023384259641008346,
+        0.9759211186631639,
+        0.07015277892302504
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        0.9993994728398078,
+        0.0,
+        0.5438844257599934,
+        0.018015814805766566
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        -0.002175537703039974,
+        0.0,
+        0.977644095809408,
+        0.06526613109119922
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.977280781259858,
+        0.06815765622042612
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        0.9993995333027661,
+        0.0006004666972338681,
+        0.5437747410733013,
+        0.0
+      ],
+      [
+        0.000600466697233868,
+        0.9993995333027661,
+        -0.5437747410733013,
+        0.0
+      ],
+      [
+        -0.002175098964293205,
+        0.002175098964293206,
+        0.9770480769626002,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.9383127078847416,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        0.9993901865936129,
+        0.0,
+        -0.5480412232635135,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.002192164893054054,
+        0.0,
+        0.9774685376630724,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.9768253275748132,
+        0.06952401727556021
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        0.9993900591214836,
+        0.0,
+        -0.548098059034682,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0021923922361387284,
+        0.0,
+        0.9774661367600963,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  ],
+  "products": [
+    [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.9381089517157223,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.9993053783041722,
+        0.5484245824618653,
+        0.0208386508748331
+      ],
+      [
+        0.0,
+        -0.0023384259641008346,
+        0.9155203375863357,
+        0.07015277892302504
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        0.9993994728398078,
+        -0.0012718334626672413,
+        0.49793725307973946,
+        0.056170818685783816
+      ],
+      [
+        0.0,
+        0.9993053783041722,
+        0.5484245824618653,
+        0.0208386508748331
+      ],
+      [
+        -0.002175537703039974,
+        -0.002286148337290604,
+        0.8950530526347171,
+        0.13385058120991733
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        0.9993994728398078,
+        -0.0012718334626672413,
+        0.49793725307973946,
+        0.056170818685783816
+      ],
+      [
+        0.0,
+        0.9993053783041722,
+        0.5484245824618653,
+        0.0208386508748331
+      ],
+      [
+        -0.0021261111860871825,
+        -0.0022342088331432867,
+        0.8747181465478772,
+        0.19896725679734018
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        0.9976432411794268,
+        -0.001885926498736308,
+        0.9736172026908556,
+        0.16434297144271096
+      ],
+      [
+        0.0017562316603809951,
+        0.9999194713402413,
+        0.07274463285074911,
+        -0.08733350188209404
+      ],
+      [
+        -0.004251105604064195,
+        -6.5749869460671e-06,
+        0.8547514979067423,
+        0.19432372467075323
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        0.9976432411794268,
+        -0.001885926498736308,
+        0.9736172026908556,
+        0.16434297144271096
+      ],
+      [
+        0.0017562316603809951,
+        0.9999194713402413,
+        0.07274463285074911,
+        -0.08733350188209404
+      ],
+      [
+        -0.003988866410853475,
+        -6.169393805671048e-06,
+        0.8020241925694145,
+        0.18233642030206343
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        0.999220928183403,
+        -0.0018813953533458635,
+        0.533481158285292,
+        0.06431487806764674
+      ],
+      [
+        0.0017562316603809951,
+        0.9999194713402413,
+        0.07274463285074911,
+        -0.08733350188209404
+      ],
+      [
+        -0.0017119929284440968,
+        -1.016465020290698e-05,
+        0.7860877441322444,
+        0.17858838100779417
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        0.999220928183403,
+        -0.0018813953533458635,
+        0.533481158285292,
+        0.06431487806764674
+      ],
+      [
+        0.0017562316603809951,
+        0.9999194713402413,
+        0.07274463285074911,
+        -0.08733350188209404
+      ],
+      [
+        -0.0016723180531331688,
+        -9.929087764138002e-06,
+        0.7678704181645255,
+        0.2439736710545543
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        0.9995280567716458,
+        -0.001874805699679698,
+        0.1122874805328094,
+        -0.06944584576615072
+      ],
+      [
+        0.0017562316603809951,
+        0.9999194713402413,
+        0.07274463285074911,
+        -0.08733350188209404
+      ],
+      [
+        0.000556049938306383,
+        -1.3830103624146866e-05,
+        0.7517369311251894,
+        0.23861700515621745
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  ],
+  "orbit": [
+    [
+      9.9247,
+      19.2928,
+      0.9823,
+      1.0
+    ],
+    [
+      9.9247,
+      19.2928,
+      0.921504423270354,
+      1.0
+    ],
+    [
+      9.9247,
+      19.83895492077386,
+      0.9243536220938781,
+      1.0
+    ],
+    [
+      10.439497301850706,
+      19.83895492077386,
+      0.9473634331299592,
+      1.0
+    ],
+    [
+      10.439497301850706,
+      19.83895492077386,
+      0.9939977322866939,
+      1.0
+    ],
+    [
+      10.985652222624575,
+      19.292799999999986,
+      0.9916283233677374,
+      1.0
+    ],
+    [
+      10.985652222624575,
+      19.292799999999986,
+      0.9304574573143879,
+      1.0
+    ],
+    [
+      10.469023981520076,
+      19.292799999999986,
+      0.9335752512885341,
+      1.0
+    ],
+    [
+      10.469023981520076,
+      19.292799999999986,
+      0.9814639679312211,
+      1.0
+    ],
+    [
+      9.9247,
+      19.292799999999986,
+      0.9823000000000006,
+      1.0
+    ]
+  ],
+  "Phi_aug": [
+    [
+      0.9995280567716458,
+      -0.001874805699679698,
+      0.1122874805328094,
+      -0.06944584576615072
+    ],
+    [
+      0.0017562316603809951,
+      0.9999194713402413,
+      0.07274463285074911,
+      -0.08733350188209404
+    ],
+    [
+      0.000556049938306383,
+      -1.3830103624146866e-05,
+      0.7517369311251894,
+      0.23861700515621745
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "Gamma_aug": [
+    [
+      -110.2999921273788,
+      -25.33060093767898,
+      23231.814442036954,
+      -881.499106041716,
+      24893.095783172557,
+      996.5569320329664,
+      -23385.82054809852,
+      -1106.3556812684662,
+      -24557.50000000001
+    ],
+    [
+      -71.45705284929087,
+      23047.326152586847,
+      -521.8154629873138,
+      -1090.8133637182582,
+      -24790.708084193433,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      -738.4311874442733,
+      119.25263717483176,
+      901.0135434042868,
+      1718.8551247325877,
+      -34.52754555156457,
+      -867.2782882145779,
+      57.037231734395164,
+      1973.050617177323,
+      10.169999999999277
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "Pi": [
+    [
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  ],
+  "iota": [
+    [
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "D": [
+    [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      -1.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      -1.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      -1.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      -1.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -1.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -1.0,
+      1.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -1.0,
+      1.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -1.0
+    ]
+  ],
+  "Phi": [
+    [
+      0.9995280567716458,
+      -0.001874805699679698,
+      0.1122874805328094
+    ],
+    [
+      0.0017562316603809951,
+      0.9999194713402413,
+      0.07274463285074911
+    ],
+    [
+      0.000556049938306383,
+      -1.3830103624146866e-05,
+      0.7517369311251894
+    ]
+  ],
+  "Gd": [
+    [
+      -110.2999921273788,
+      -25.33060093767898,
+      23231.814442036954,
+      -881.499106041716,
+      24893.095783172557,
+      996.5569320329664,
+      -23385.82054809852,
+      -1106.3556812684662,
+      -24557.50000000001
+    ],
+    [
+      -71.45705284929087,
+      23047.326152586847,
+      -521.8154629873138,
+      -1090.8133637182582,
+      -24790.708084193433,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      -738.4311874442733,
+      119.25263717483176,
+      901.0135434042868,
+      1718.8551247325877,
+      -34.52754555156457,
+      -867.2782882145779,
+      57.037231734395164,
+      1973.050617177323,
+      10.169999999999277
+    ]
+  ],
+  "Gtau": [
+    [
+      -84.96939118969982,
+      -23257.145042974633,
+      24113.31354807867,
+      -25774.594889214273,
+      23896.53885113959,
+      24382.377480131487,
+      -22279.464866830054,
+      23451.144318731545
+    ],
+    [
+      -23118.78320543614,
+      23569.14161557416,
+      568.9979007309444,
+      23699.894720475175,
+      -24790.708084193433,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      -857.683824619105,
+      -781.760906229455,
+      -817.8415813283009,
+      1753.3826702841523,
+      832.7507426630133,
+      -924.315519948973,
+      -1916.0133854429278,
+      1962.8806171773235
+    ]
+  ],
+  "S": [
+    [
+      10.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      20.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "ts": 1e-05,
+  "A0": [
+    [
+      0.9995280567716458,
+      -0.003749611399359396,
+      0.01122874805328094
+    ],
+    [
+      0.0008781158301904976,
+      0.9999194713402414,
+      0.003637231642537456
+    ],
+    [
+      0.00556049938306383,
+      -0.00027660207248293733,
+      0.7517369311251894
+    ]
+  ],
+  "B": [
+    [
+      -8.496939118969982e-05,
+      -0.023257145042974638,
+      0.024113313548078674,
+      -0.02577459488921428,
+      0.02389653885113959,
+      0.024382377480131487,
+      -0.022279464866830054,
+      0.023451144318731545
+    ],
+    [
+      -0.01155939160271807,
+      0.011784570807787081,
+      0.0002844989503654722,
+      0.01184994736023759,
+      -0.012395354042096718,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      -0.008576838246191052,
+      -0.007817609062294551,
+      -0.00817841581328301,
+      0.017533826702841523,
+      0.008327507426630134,
+      -0.009243155199489731,
+      -0.01916013385442928,
+      0.019628806171773237
+    ]
+  ],
+  "K": [
+    [
+      -2.4454687008358156,
+      -13.155561464154612,
+      -2.0350812168427375
+    ],
+    [
+      -2.634530401359692,
+      9.517182891223051,
+      -2.7286777589584443
+    ],
+    [
+      6.969096343461792,
+      7.524915801445752,
+      -4.020499031987042
+    ],
+    [
+      -4.88729045874749,
+      5.79436576557966,
+      6.3612369038526495
+    ],
+    [
+      2.6147249119629348,
+      -10.167996535604,
+      2.9329881482988913
+    ],
+    [
+      7.034635026780875,
+      7.376775228548648,
+      -4.385349208178645
+    ],
+    [
+      -4.681720011083578,
+      -3.298990430216497,
+      -5.7724641755408035
+    ],
+    [
+      4.962023648115797,
+      3.5396751622201466,
+      5.88510913320889
+    ]
+  ],
+  "Kphysical": [
+    [
+      -2.4454687008358158e-06,
+      -6.577780732077307e-06,
+      -2.0350812168427377e-05
+    ],
+    [
+      -2.6345304013596925e-06,
+      4.758591445611526e-06,
+      -2.7286777589584447e-05
+    ],
+    [
+      6.969096343461793e-06,
+      3.7624579007228767e-06,
+      -4.020499031987043e-05
+    ],
+    [
+      -4.88729045874749e-06,
+      2.8971828827898306e-06,
+      6.36123690385265e-05
+    ],
+    [
+      2.614724911962935e-06,
+      -5.083998267802001e-06,
+      2.9329881482988917e-05
+    ],
+    [
+      7.034635026780876e-06,
+      3.688387614274324e-06,
+      -4.385349208178645e-05
+    ],
+    [
+      -4.681720011083579e-06,
+      -1.6494952151082489e-06,
+      -5.7724641755408036e-05
+    ],
+    [
+      4.962023648115798e-06,
+      1.7698375811100735e-06,
+      5.885109133208891e-05
+    ]
+  ],
+  "A1": [
+    [
+      0.1893573228737272,
+      0.09097927914464476,
+      -0.02128254987331142
+    ],
+    [
+      0.0919986706072393,
+      0.5388535920373672,
+      -0.0256118410268747
+    ],
+    [
+      -0.03717344743950344,
+      -0.05859357529707596,
+      0.2774546977145069
+    ]
+  ],
+  "P": [
+    [
+      0.6087698925180142,
+      -0.013731103754144625,
+      0.027354204688472057
+    ],
+    [
+      -0.013731103754144625,
+      2.384502299003312,
+      0.033888822561884246
+    ],
+    [
+      0.027354204688472057,
+      0.033888822561884246,
+      0.006727808478673805
+    ]
+  ],
+  "Pphysical": [
+    [
+      0.0060876989251801425,
+      -6.865551877072313e-05,
+      0.002735420468847206
+    ],
+    [
+      -6.865551877072313e-05,
+      0.00596125574750828,
+      0.0016944411280942124
+    ],
+    [
+      0.002735420468847206,
+      0.0016944411280942124,
+      0.006727808478673805
+    ]
+  ],
+  "Qs": [
+    [
+      [
+        0.0002921375548814442,
+        -3.012736625972179e-08,
+        -4.2201288234879064e-05
+      ],
+      [
+        -3.012736625625234e-08,
+        0.0002911913907883701,
+        1.342396353860853e-06
+      ],
+      [
+        -4.2201288234875595e-05,
+        1.342396353853914e-06,
+        0.0021715689603619
+      ]
+    ],
+    [
+      [
+        0.5678458770323425,
+        -0.13966875930403622,
+        0.03304588861185914
+      ],
+      [
+        -0.1396687593040362,
+        1.6908464991346186,
+        0.06205397637946531
+      ],
+      [
+        0.03304588861185914,
+        0.06205397637946532,
+        0.005189656242978592
+      ]
+    ]
+  ],
+  "eigP": [
+    0.004987943287080897,
+    0.6099266612214849,
+    2.3850853954914357
+  ],
+  "eigQs": [
+    [
+      0.0002911904324258494,
+      0.00029119043245588505,
+      0.002172517041149979
+    ],
+    [
+      0.00029119044110592504,
+      0.5536881214092231,
+      1.7099027205596096
+    ]
+  ],
+  "q": 0.0002911904324258494,
+  "eta": 0.0002911904324165227,
+  "rho_bound": 0.999938954110147,
+  "radii": [
+    0.9998500329444814,
+    0.5681513497042825
+  ],
+  "closure": 1.4210854715202004e-14,
+  "gain_error": 2.682399168863343e-15,
+  "fd_errors": [
+    1.350685003964886e-10,
+    8.117842917821109e-11
+  ],
+  "sweep": [
+    [
+      0.0,
+      0.9998500329444814,
+      0.0002911904324258494
+    ],
+    [
+      0.005,
+      0.996664219044843,
+      0.0021592462008936486
+    ],
+    [
+      0.01,
+      0.9934776941319123,
+      0.0021627783475563814
+    ],
+    [
+      0.015,
+      0.9916291772119277,
+      0.0021640507069630626
+    ],
+    [
+      0.02,
+      0.9898434818348729,
+      0.0021648565593563075
+    ],
+    [
+      0.025,
+      0.9878137255715229,
+      0.002165438692495983
+    ],
+    [
+      0.03,
+      0.9857131959322046,
+      0.0021658674130427455
+    ],
+    [
+      0.035,
+      0.9835804542526307,
+      0.002166170572646123
+    ],
+    [
+      0.04,
+      0.9814301195483442,
+      0.0021663613689200875
+    ],
+    [
+      0.045,
+      0.9792691276855352,
+      0.0021664468282464443
+    ],
+    [
+      0.05,
+      0.9771012352364036,
+      0.002166431006866642
+    ],
+    [
+      0.055,
+      0.9749286671819405,
+      0.0021663163864457137
+    ],
+    [
+      0.06,
+      0.9727528301353987,
+      0.0021661045501821
+    ],
+    [
+      0.065,
+      0.9705746588850922,
+      0.0021657965379584666
+    ],
+    [
+      0.07,
+      0.9683947997734456,
+      0.0021653930452640805
+    ],
+    [
+      0.075,
+      0.9662137143643722,
+      0.0021648945405916132
+    ],
+    [
+      0.08,
+      0.9640317412338876,
+      0.002164301337797164
+    ],
+    [
+      0.085,
+      0.9618491344371455,
+      0.002163613642369166
+    ],
+    [
+      0.09,
+      0.9596660883445544,
+      0.002162831581959347
+    ],
+    [
+      0.095,
+      0.9574827541826046,
+      0.0021619552270855827
+    ],
+    [
+      0.1,
+      0.9552992513490502,
+      0.00216098460550948
+    ],
+    [
+      0.105,
+      0.9531156753363645,
+      0.002159919712433647
+    ],
+    [
+      0.11,
+      0.9509321033955032,
+      0.0021587605178706917
+    ],
+    [
+      0.115,
+      0.9487485986591118,
+      0.002157506972058475
+    ],
+    [
+      0.12,
+      0.9465652131926515,
+      0.0021561590095000153
+    ],
+    [
+      0.125,
+      0.9443819902856917,
+      0.0021547165520187455
+    ],
+    [
+      0.13,
+      0.9421989661956379,
+      0.0021531795110978206
+    ],
+    [
+      0.135,
+      0.9400161714909143,
+      0.002151547789691767
+    ],
+    [
+      0.14,
+      0.9378336320971533,
+      0.0021498212836438754
+    ],
+    [
+      0.145,
+      0.9356513701203335,
+      0.0021479998828058395
+    ],
+    [
+      0.15,
+      0.9334694045005415,
+      0.0021460834719297718
+    ],
+    [
+      0.155,
+      0.9312877515356973,
+      0.002144071931384902
+    ],
+    [
+      0.16,
+      0.9291064253044861,
+      0.0021419651377373146
+    ],
+    [
+      0.165,
+      0.9269254380104442,
+      0.0021397629642224
+    ],
+    [
+      0.17,
+      0.9247448002638541,
+      0.0021374652811322727
+    ],
+    [
+      0.17500000000000002,
+      0.9225645213141809,
+      0.002135071956135197
+    ],
+    [
+      0.18,
+      0.9203846092429131,
+      0.002132582854540533
+    ],
+    [
+      0.185,
+      0.9182050711244397,
+      0.0021299978395194997
+    ],
+    [
+      0.19,
+      0.9160259131610152,
+      0.0021273167722900195
+    ],
+    [
+      0.195,
+      0.9138471407965348,
+      0.0021245395122721227
+    ],
+    [
+      0.2,
+      0.911668758812918,
+      0.0021216659172190486
+    ],
+    [
+      0.20500000000000002,
+      0.9094907714121234,
+      0.0021186958433283515
+    ],
+    [
+      0.21,
+      0.9073131822862384,
+      0.002115629145336206
+    ],
+    [
+      0.215,
+      0.9051359946776182,
+      0.002112465676597866
+    ],
+    [
+      0.22,
+      0.9029592114306869,
+      0.002109205289156183
+    ],
+    [
+      0.225,
+      0.9007828350367268,
+      0.002105847833800453
+    ],
+    [
+      0.23,
+      0.898606867672721,
+      0.0021023931601166904
+    ],
+    [
+      0.23500000000000001,
+      0.8964313112351836,
+      0.0020988411165308147
+    ],
+    [
+      0.24,
+      0.8942561673696791,
+      0.0020951915503458146
+    ],
+    [
+      0.245,
+      0.8920814374966942,
+      0.002091444307773542
+    ],
+    [
+      0.25,
+      0.8899071228343554,
+      0.0020875992339621694
+    ],
+    [
+      0.255,
+      0.8877332244184417,
+      0.0020836561730195984
+    ],
+    [
+      0.26,
+      0.8855597431200628,
+      0.0020796149680336125
+    ],
+    [
+      0.265,
+      0.883386679661311,
+      0.002075475461089244
+    ],
+    [
+      0.27,
+      0.881214034629153,
+      0.002071237493283143
+    ],
+    [
+      0.275,
+      0.8790418084877945,
+      0.0020669009047362915
+    ],
+    [
+      0.28,
+      0.8768700015897088,
+      0.0020624655346043203
+    ],
+    [
+      0.28500000000000003,
+      0.8746986141854857,
+      0.0020579312210864363
+    ],
+    [
+      0.29,
+      0.8725276464326617,
+      0.0020532978014324997
+    ],
+    [
+      0.295,
+      0.8703570984036441,
+      0.0020485651119490416
+    ],
+    [
+      0.3,
+      0.8681869700928303,
+      0.0020437329880039928
+    ],
+    [
+      0.305,
+      0.8660172614230295,
+      0.0020388012640303443
+    ],
+    [
+      0.31,
+      0.8638479722512629,
+      0.0020337697735288616
+    ],
+    [
+      0.315,
+      0.8616791023739944,
+      0.002028638349069962
+    ],
+    [
+      0.32,
+      0.8595106515318867,
+      0.0020234068222948114
+    ],
+    [
+      0.325,
+      0.857342619414103,
+      0.0020180750239158943
+    ],
+    [
+      0.33,
+      0.8551750056622269,
+      0.0020126427837166374
+    ],
+    [
+      0.335,
+      0.8530078098738231,
+      0.0020071099305508477
+    ],
+    [
+      0.34,
+      0.8508410316056927,
+      0.002001476292341415
+    ],
+    [
+      0.34500000000000003,
+      0.8486746703768345,
+      0.0019957416960785725
+    ],
+    [
+      0.35000000000000003,
+      0.8465087256711652,
+      0.0019899059678179197
+    ],
+    [
+      0.355,
+      0.8443431969400018,
+      0.001983968932677779
+    ],
+    [
+      0.36,
+      0.8421780836043402,
+      0.001977930414836413
+    ],
+    [
+      0.365,
+      0.840013385056949,
+      0.0019717902375288457
+    ],
+    [
+      0.37,
+      0.8378491006642974,
+      0.0019655482230433756
+    ],
+    [
+      0.375,
+      0.8356852297683214,
+      0.0019592041927178824
+    ],
+    [
+      0.38,
+      0.8335217716880627,
+      0.0019527579669357037
+    ],
+    [
+      0.385,
+      0.8313587257211756,
+      0.0019462093651215248
+    ],
+    [
+      0.39,
+      0.8291960911453156,
+      0.0019395582057367782
+    ],
+    [
+      0.395,
+      0.8270338672194351,
+      0.0019328043062750446
+    ],
+    [
+      0.4,
+      0.8248720531849756,
+      0.0019259474832571837
+    ],
+    [
+      0.405,
+      0.8227106482669732,
+      0.001918987552226123
+    ],
+    [
+      0.41000000000000003,
+      0.8205496516750885,
+      0.001911924327741814
+    ],
+    [
+      0.41500000000000004,
+      0.8183890626045628,
+      0.0019047576233756681
+    ],
+    [
+      0.42,
+      0.8162288802371049,
+      0.001897487251705019
+    ],
+    [
+      0.425,
+      0.8140691037417214,
+      0.0018901130243074748
+    ],
+    [
+      0.43,
+      0.8119097322754845,
+      0.0018826347517548732
+    ],
+    [
+      0.435,
+      0.8097507649842604,
+      0.0018750522436073976
+    ],
+    [
+      0.44,
+      0.807592201003374,
+      0.0018673653084074209
+    ],
+    [
+      0.445,
+      0.8054340394582407,
+      0.0018595737536732046
+    ],
+    [
+      0.45,
+      0.803276279464961,
+      0.001851677385892361
+    ],
+    [
+      0.455,
+      0.8011189201308626,
+      0.0018436760105155646
+    ],
+    [
+      0.46,
+      0.7989619605550269,
+      0.0018355694319496818
+    ],
+    [
+      0.465,
+      0.7968053998287674,
+      0.0018273574535510307
+    ],
+    [
+      0.47000000000000003,
+      0.7946492370360925,
+      0.0018190398776186342
+    ],
+    [
+      0.47500000000000003,
+      0.7924934712541312,
+      0.0018106165053870303
+    ],
+    [
+      0.48,
+      0.7903381015535367,
+      0.001802087137019315
+    ],
+    [
+      0.485,
+      0.788183126998868,
+      0.001793451571599709
+    ],
+    [
+      0.49,
+      0.786028546648948,
+      0.001784709607126476
+    ],
+    [
+      0.495,
+      0.7838743595572026,
+      0.0017758610405043018
+    ],
+    [
+      0.5,
+      0.7817205647719788,
+      0.0017669056675368097
+    ],
+    [
+      0.505,
+      0.7795671613368493,
+      0.001757843282918861
+    ],
+    [
+      0.51,
+      0.7774141482908941,
+      0.001748673680228898
+    ],
+    [
+      0.515,
+      0.7752615246689758,
+      0.001739396651920883
+    ],
+    [
+      0.52,
+      0.7731092895019906,
+      0.0017300119893166894
+    ],
+    [
+      0.525,
+      0.7709574418171157,
+      0.0017205194825974982
+    ],
+    [
+      0.53,
+      0.768805980638039,
+      0.001710918920796126
+    ],
+    [
+      0.535,
+      0.7666549049851734,
+      0.0017012100917884775
+    ],
+    [
+      0.54,
+      0.7645042138758713,
+      0.0016913927822852408
+    ],
+    [
+      0.545,
+      0.7623539063246167,
+      0.0016814667778233046
+    ],
+    [
+      0.55,
+      0.7602039813432173,
+      0.0016714318627572716
+    ],
+    [
+      0.555,
+      0.7580544379409815,
+      0.0016612878202507514
+    ],
+    [
+      0.56,
+      0.755905275124889,
+      0.0016510344322674783
+    ],
+    [
+      0.5650000000000001,
+      0.7537564918997568,
+      0.0016406714795624557
+    ],
+    [
+      0.5700000000000001,
+      0.7516080872683895,
+      0.0016301987416728655
+    ],
+    [
+      0.5750000000000001,
+      0.7494600602317315,
+      0.0016196159969091167
+    ],
+    [
+      0.58,
+      0.7473124097890074,
+      0.001608923022345412
+    ],
+    [
+      0.585,
+      0.7451651349378557,
+      0.0015981195938103026
+    ],
+    [
+      0.59,
+      0.7430182346744645,
+      0.001587205485877756
+    ],
+    [
+      0.595,
+      0.7408717079936875,
+      0.0015761804718570274
+    ],
+    [
+      0.6,
+      0.7387255538891689,
+      0.0015650443237830967
+    ],
+    [
+      0.605,
+      0.7365797713534551,
+      0.0015537968124070389
+    ],
+    [
+      0.61,
+      0.7344343593781038,
+      0.00154243770718607
+    ],
+    [
+      0.615,
+      0.7322893169537891,
+      0.00153096677627346
+    ],
+    [
+      0.62,
+      0.7301446430704058,
+      0.0015193837865083827
+    ],
+    [
+      0.625,
+      0.7280003367171567,
+      0.0015076885034055658
+    ],
+    [
+      0.63,
+      0.7258563968826584,
+      0.001495880691145165
+    ],
+    [
+      0.635,
+      0.7237128225550191,
+      0.0014839601125619213
+    ],
+    [
+      0.64,
+      0.7215696127219341,
+      0.0014719265291349174
+    ],
+    [
+      0.645,
+      0.7194267663707599,
+      0.0014597797009763506
+    ],
+    [
+      0.65,
+      0.7172842824886018,
+      0.0014475193868210602
+    ],
+    [
+      0.655,
+      0.7151421600623886,
+      0.0014351453440152777
+    ],
+    [
+      0.66,
+      0.7130003980789406,
+      0.0014226573285054593
+    ],
+    [
+      0.665,
+      0.7108589955250516,
+      0.0014100550948273826
+    ],
+    [
+      0.67,
+      0.708717951387551,
+      0.0013973383960940889
+    ],
+    [
+      0.675,
+      0.7065772646533717,
+      0.0013845069839848946
+    ],
+    [
+      0.68,
+      0.7044369343096148,
+      0.0013715606087334317
+    ],
+    [
+      0.685,
+      0.7022969593436147,
+      0.0013584990191159063
+    ],
+    [
+      0.6900000000000001,
+      0.7001573387429953,
+      0.0013453219624390824
+    ],
+    [
+      0.6950000000000001,
+      0.6980180714957286,
+      0.0013320291845282215
+    ],
+    [
+      0.7000000000000001,
+      0.6958791565901963,
+      0.001318620429714771
+    ],
+    [
+      0.705,
+      0.6937405930152364,
+      0.0013050954408239293
+    ],
+    [
+      0.71,
+      0.6916023797602013,
+      0.001291453959162138
+    ],
+    [
+      0.715,
+      0.6894645158150101,
+      0.001277695724504395
+    ],
+    [
+      0.72,
+      0.6873270001701923,
+      0.0012638204750812464
+    ],
+    [
+      0.725,
+      0.6851898318169413,
+      0.0012498279475659578
+    ],
+    [
+      0.73,
+      0.6830530097471618,
+      0.0012357178770610198
+    ],
+    [
+      0.735,
+      0.6809165329535074,
+      0.001221489997085192
+    ],
+    [
+      0.74,
+      0.6787804004294349,
+      0.0012071440395595627
+    ],
+    [
+      0.745,
+      0.6766446111692376,
+      0.0011926797347942303
+    ],
+    [
+      0.75,
+      0.6745091641680927,
+      0.0011780968114740967
+    ],
+    [
+      0.755,
+      0.672374058422103,
+      0.0011633949966450747
+    ],
+    [
+      0.76,
+      0.6702392929283258,
+      0.0011485740156997276
+    ],
+    [
+      0.765,
+      0.6681048666848239,
+      0.0011336335923630163
+    ],
+    [
+      0.77,
+      0.6659707786906924,
+      0.0011185734486775462
+    ],
+    [
+      0.775,
+      0.6638370279461023,
+      0.001103393304988814
+    ],
+    [
+      0.78,
+      0.661703613452327,
+      0.0010880928799304385
+    ],
+    [
+      0.785,
+      0.6595705342117875,
+      0.001072671890408793
+    ],
+    [
+      0.79,
+      0.6574377892280734,
+      0.0010571300515876372
+    ],
+    [
+      0.795,
+      0.655305377505984,
+      0.0010414670768727752
+    ],
+    [
+      0.8,
+      0.6531732980515524,
+      0.0010256826778960871
+    ],
+    [
+      0.805,
+      0.6510415498720861,
+      0.0010097765644996848
+    ],
+    [
+      0.81,
+      0.6489101319761841,
+      0.0009937484447195657
+    ],
+    [
+      0.8150000000000001,
+      0.646779043373777,
+      0.0009775980247695294
+    ],
+    [
+      0.8200000000000001,
+      0.6446482830761471,
+      0.0009613250090241217
+    ],
+    [
+      0.8250000000000001,
+      0.6425178500959616,
+      0.0009449291000022822
+    ],
+    [
+      0.8300000000000001,
+      0.6403877434472964,
+      0.0009284099983497585
+    ],
+    [
+      0.835,
+      0.6382579621456627,
+      0.0009117674028223068
+    ],
+    [
+      0.84,
+      0.6361285052080293,
+      0.0008950010102678653
+    ],
+    [
+      0.845,
+      0.6339993716528567,
+      0.0008781105156086832
+    ],
+    [
+      0.85,
+      0.6318705605001098,
+      0.0008610956118235729
+    ],
+    [
+      0.855,
+      0.6297420707712892,
+      0.0008439559899295496
+    ],
+    [
+      0.86,
+      0.6276139014894512,
+      0.0008266913389630939
+    ],
+    [
+      0.865,
+      0.6254860516792298,
+      0.0008093013459616891
+    ],
+    [
+      0.87,
+      0.6233585203668628,
+      0.0007917856959444835
+    ],
+    [
+      0.875,
+      0.6212313065802049,
+      0.0007741440718930178
+    ],
+    [
+      0.88,
+      0.6191044093487563,
+      0.0007563761547319237
+    ],
+    [
+      0.885,
+      0.6169778277036805,
+      0.0007384816233084669
+    ],
+    [
+      0.89,
+      0.6148515606778218,
+      0.0007204601543729907
+    ],
+    [
+      0.895,
+      0.6127256073057282,
+      0.000702311422558051
+    ],
+    [
+      0.9,
+      0.6105999666236674,
+      0.0006840351003577163
+    ],
+    [
+      0.905,
+      0.608474637669648,
+      0.0006656308581066968
+    ],
+    [
+      0.91,
+      0.6063496194834329,
+      0.0006470983639586944
+    ],
+    [
+      0.915,
+      0.6042249111065594,
+      0.0006284372838649985
+    ],
+    [
+      0.92,
+      0.6021005115823612,
+      0.0006096472815522049
+    ],
+    [
+      0.925,
+      0.5999764199559747,
+      0.0005907280184998606
+    ],
+    [
+      0.93,
+      0.5978526352743658,
+      0.0005716791539182596
+    ],
+    [
+      0.935,
+      0.5957291565863352,
+      0.0005525003447246919
+    ],
+    [
+      0.9400000000000001,
+      0.5936059829425471,
+      0.0005331912455207461
+    ],
+    [
+      0.9450000000000001,
+      0.591483113395528,
+      0.0005137515085679128
+    ],
+    [
+      0.9500000000000001,
+      0.5893605469996964,
+      0.0004941807837640591
+    ],
+    [
+      0.9550000000000001,
+      0.5872382828113696,
+      0.0004744787186187186
+    ],
+    [
+      0.96,
+      0.5851163198887759,
+      0.000454644958228211
+    ],
+    [
+      0.965,
+      0.5829946572920753,
+      0.0004346791452503538
+    ],
+    [
+      0.97,
+      0.5808732940833664,
+      0.0004145809198788501
+    ],
+    [
+      0.975,
+      0.5787522293267032,
+      0.0003943499198174774
+    ],
+    [
+      0.98,
+      0.576631462088105,
+      0.0003739857802530354
+    ],
+    [
+      0.985,
+      0.574510991435571,
+      0.0003534881338291767
+    ],
+    [
+      0.99,
+      0.5723908164390918,
+      0.0003328566106184833
+    ],
+    [
+      0.995,
+      0.5702709361706597,
+      0.00031209083809505023
+    ],
+    [
+      1.0,
+      0.5681513497042825,
+      0.00029119044110592504
+    ]
+  ],
+  "trajectories": {
+    "linear": [
+      {
+        "k": 0,
+        "z": [
+          -0.24103999999999992,
+          0.07641500000000008,
+          -0.9509
+        ],
+        "beta": 0.29397824754165186,
+        "V": 0.06349710690978802,
+        "min_dwell_us": 2.9999999999999982
+      },
+      {
+        "k": 1,
+        "z": [
+          -0.1832647107273392,
+          0.06410054822884395,
+          -0.5818872777165901
+        ],
+        "beta": 0.4668298190803603,
+        "V": 0.03615036228624556,
+        "min_dwell_us": 2.9999999999999982
+      },
+      {
+        "k": 2,
+        "z": [
+          -0.10897343477237109,
+          0.048170652800768064,
+          -0.30771684194525795
+        ],
+        "beta": 0.8789978404213975,
+        "V": 0.014373381351411182,
+        "min_dwell_us": 2.9999999999999982
+      },
+      {
+        "k": 3,
+        "z": [
+          -0.02214900589164918,
+          0.02661259793594771,
+          -0.10203224690661791
+        ],
+        "beta": 1.0,
+        "V": 0.002013250790907261,
+        "min_dwell_us": 16.010666696273457
+      },
+      {
+        "k": 4,
+        "z": [
+          0.00039862489989780437,
+          0.014915848581315136,
+          -0.029045298577267894
+        ],
+        "beta": 1.0,
+        "V": 0.0005061222608468375,
+        "min_dwell_us": 20.08506361903755
+      },
+      {
+        "k": 5,
+        "z": [
+          0.0020506737111901045,
+          0.008818035116927764,
+          -0.008947545695516961
+        ],
+        "beta": 1.0,
+        "V": 0.00018166411924418663,
+        "min_dwell_us": 21.610125987692793
+      },
+      {
+        "k": 6,
+        "z": [
+          0.001380995149957313,
+          0.005169452270681151,
+          -0.00307544940225086
+        ],
+        "beta": 1.0,
+        "V": 6.344030356240887e-05,
+        "min_dwell_us": 21.930634367125037
+      },
+      {
+        "k": 7,
+        "z": [
+          0.000797267990942986,
+          0.0029913955640100257,
+          -0.001207530925725717
+        ],
+        "beta": 1.0,
+        "V": 2.137136807378737e-05,
+        "min_dwell_us": 21.96743080596381
+      },
+      {
+        "k": 8,
+        "z": [
+          0.0004488228815783225,
+          0.0017161989302606293,
+          -0.0005399488889578256
+        ],
+        "beta": 1.0,
+        "V": 7.0505421109061806e-06,
+        "min_dwell_us": 21.984112817579526
+      },
+      {
+        "k": 9,
+        "z": [
+          0.00025261793000234956,
+          0.0009799001517715687,
+          -0.000267053880810063
+        ],
+        "beta": 1.0,
+        "V": 2.300713093865915e-06,
+        "min_dwell_us": 21.991811886305758
+      },
+      {
+        "k": 10,
+        "z": [
+          0.00014266925191425438,
+          0.0005581029718927571,
+          -0.00014090188644330407
+        ],
+        "beta": 1.0,
+        "V": 7.466306984597136e-07,
+        "min_dwell_us": 21.995597278859446
+      },
+      {
+        "k": 11,
+        "z": [
+          8.079002509564085e-05,
+          0.0003174699293597553,
+          -7.709864675491865e-05
+        ],
+        "beta": 1.0,
+        "V": 2.4163656571087237e-07,
+        "min_dwell_us": 21.99757009974535
+      },
+      {
+        "k": 12,
+        "z": [
+          4.5822223984989996e-05,
+          0.00018047702499055193,
+          -4.2996323691610685e-05
+        ],
+        "beta": 1.0,
+        "V": 7.809772388250047e-08,
+        "min_dwell_us": 21.99863955335974
+      },
+      {
+        "k": 13,
+        "z": [
+          2.6011514701064195e-05,
+          0.0001025674918943924,
+          -2.420769618073428e-05
+        ],
+        "beta": 1.0,
+        "V": 2.5225012559474516e-08,
+        "min_dwell_us": 21.99923264943429
+      },
+      {
+        "k": 14,
+        "z": [
+          1.4772188765194577e-05,
+          5.82818898727433e-05,
+          -1.3693272760098444e-05
+        ],
+        "beta": 1.0,
+        "V": 8.144931066756848e-09,
+        "min_dwell_us": 21.999565572429702
+      },
+      {
+        "k": 15,
+        "z": [
+          8.391094205818005e-06,
+          3.3115137362080346e-05,
+          -7.763340339719264e-06
+        ],
+        "beta": 1.0,
+        "V": 2.629524450601591e-09,
+        "min_dwell_us": 21.999753604134067
+      },
+      {
+        "k": 16,
+        "z": [
+          4.7669301387364705e-06,
+          1.8815013668861597e-05,
+          -4.406235441129612e-06
+        ],
+        "beta": 1.0,
+        "V": 8.488580075832394e-10,
+        "min_dwell_us": 21.99986012646079
+      },
+      {
+        "k": 17,
+        "z": [
+          2.708205435616282e-06,
+          1.0689940736984763e-05,
+          -2.5021728694596243e-06
+        ],
+        "beta": 1.0,
+        "V": 2.740169775605518e-10,
+        "min_dwell_us": 21.99992056262829
+      },
+      {
+        "k": 18,
+        "z": [
+          1.538634252316143e-06,
+          6.073549518353175e-06,
+          -1.4212747970354164e-06
+        ],
+        "beta": 1.0,
+        "V": 8.845297896789414e-11,
+        "min_dwell_us": 21.999954876307505
+      },
+      {
+        "k": 19,
+        "z": [
+          8.741671716810669e-07,
+          3.4507077443024534e-06,
+          -8.074066897119487e-07
+        ],
+        "beta": 1.0,
+        "V": 2.855248264915847e-11,
+        "min_dwell_us": 21.99997436531109
+      },
+      {
+        "k": 20,
+        "z": [
+          4.966565316309448e-07,
+          1.960527652552624e-06,
+          -4.587038904805139e-07
+        ],
+        "beta": 1.0,
+        "V": 9.216659944626965e-12,
+        "min_dwell_us": 21.999985436273278
+      },
+      {
+        "k": 21,
+        "z": [
+          2.8217533221600014e-07,
+          1.1138773596464138e-06,
+          -2.6060630937965e-07
+        ],
+        "beta": 1.0,
+        "V": 2.975105846486284e-12,
+        "min_dwell_us": 21.99999172577865
+      },
+      {
+        "k": 22,
+        "z": [
+          1.6031809150226934e-07,
+          6.328511791430287e-07,
+          -1.4806193161643027e-07
+        ],
+        "beta": 1.0,
+        "V": 9.603529583491668e-13,
+        "min_dwell_us": 21.99999529903913
+      },
+      {
+        "k": 23,
+        "z": [
+          9.108488414333165e-08,
+          3.595553210534949e-07,
+          -8.412106784468413e-08
+        ],
+        "beta": 1.0,
+        "V": 3.099981792274124e-13,
+        "min_dwell_us": 21.999997329156194
+      },
+      {
+        "k": 24,
+        "z": [
+          5.174998455951387e-08,
+          2.0428185995607443e-07,
+          -4.779335638111604e-08
+        ],
+        "beta": 1.0,
+        "V": 1.0006617853859991e-13,
+        "min_dwell_us": 21.99999848256017
+      },
+      {
+        "k": 25,
+        "z": [
+          2.940181938687124e-08,
+          1.1606301965459945e-07,
+          -2.715382112166543e-08
+        ],
+        "beta": 1.0,
+        "V": 3.230096086966162e-14,
+        "min_dwell_us": 21.999999137865522
+      },
+      {
+        "k": 26,
+        "z": [
+          1.6704682222513806e-08,
+          6.594136269045104e-08,
+          -1.5427469500046887e-08
+        ],
+        "beta": 1.0,
+        "V": 1.042662002919545e-14,
+        "min_dwell_us": 21.99999951017741
+      },
+      {
+        "k": 27,
+        "z": [
+          9.490787437558105e-09,
+          3.746467460325818e-08,
+          -8.765134713222248e-09
+        ],
+        "beta": 1.0,
+        "V": 3.365670856578147e-15,
+        "min_dwell_us": 21.999999721706715
+      },
+      {
+        "k": 28,
+        "z": [
+          5.39220360661316e-09,
+          2.1285605548602216e-08,
+          -4.979922322600033e-09
+        ],
+        "beta": 1.0,
+        "V": 1.0864249539060794e-15,
+        "min_dwell_us": 21.999999841887316
+      },
+      {
+        "k": 29,
+        "z": [
+          3.0635877335033566e-09,
+          1.2093445550859406e-08,
+          -2.8293493714681346e-09
+        ],
+        "beta": 1.0,
+        "V": 3.5069358360732236e-16,
+        "min_dwell_us": 21.99999991016807
+      },
+      {
+        "k": 30,
+        "z": [
+          1.7405814993044783e-09,
+          6.87090742027139e-09,
+          -1.6074986046624848e-09
+        ],
+        "beta": 1.0,
+        "V": 1.1320247092383586e-16,
+        "min_dwell_us": 21.99999994896187
+      },
+      {
+        "k": 31,
+        "z": [
+          9.88913726342724e-10,
+          3.903715326702544e-09,
+          -9.133024856005982e-10
+        ],
+        "beta": 1.0,
+        "V": 3.65412998863378e-17,
+        "min_dwell_us": 21.999999971002623
+      },
+      {
+        "k": 32,
+        "z": [
+          5.618526678818528e-10,
+          2.217901132324424e-09,
+          -5.188940354261216e-10
+        ],
+        "beta": 1.0,
+        "V": 1.1795383843309204e-17,
+        "min_dwell_us": 21.999999983525104
+      },
+      {
+        "k": 33,
+        "z": [
+          3.1921735146045674e-10,
+          1.2601035220041486e-09,
+          -2.9481034536158724e-10
+        ],
+        "beta": 1.0,
+        "V": 3.807502207155774e-18,
+        "min_dwell_us": 21.99999999063977
+      },
+      {
+        "k": 34,
+        "z": [
+          1.8136376904528535e-10,
+          7.159295168384779e-10,
+          -1.6749689529036207e-10
+        ],
+        "beta": 1.0,
+        "V": 1.229046315744997e-18,
+        "min_dwell_us": 21.999999994681975
+      },
+      {
+        "k": 35,
+        "z": [
+          1.0304207016068467e-10,
+          4.0675632129714705e-10,
+          -9.516358703921555e-11
+        ],
+        "beta": 1.0,
+        "V": 3.967311806945549e-19,
+        "min_dwell_us": 21.99999999697856
+      },
+      {
+        "k": 36,
+        "z": [
+          5.85434912354213e-11,
+          2.310991529490695e-10,
+          -5.406732039405557e-11
+        ],
+        "beta": 1.0,
+        "V": 1.2806322081902516e-19,
+        "min_dwell_us": 21.999999998283368
+      },
+      {
+        "k": 37,
+        "z": [
+          3.3261563561068035e-11,
+          1.31299295664446e-10,
+          -3.0718421049942824e-11
+        ],
+        "beta": 1.0,
+        "V": 4.133828981520438e-20,
+        "min_dwell_us": 21.999999999024695
+      },
+      {
+        "k": 38,
+        "z": [
+          1.8897602230293825e-11,
+          7.459787204722724e-11,
+          -1.7452712378439654e-11
+        ],
+        "beta": 1.0,
+        "V": 1.3343832787460091e-20,
+        "min_dwell_us": 21.99999999944588
+      },
+      {
+        "k": 39,
+        "z": [
+          1.0736698213260896e-11,
+          4.23828816887681e-11,
+          -9.915782093299525e-12
+        ],
+        "beta": 1.0,
+        "V": 4.3073352636262925e-21,
+        "min_dwell_us": 21.99999999968518
+      },
+      {
+        "k": 40,
+        "z": [
+          6.1000695812166355e-12,
+          2.4079891435849288e-11,
+          -5.633664979541701e-12
+        ],
+        "beta": 1.0,
+        "V": 1.3903904049727575e-21,
+        "min_dwell_us": 21.999999999821135
+      },
+      {
+        "k": 41,
+        "z": [
+          3.4657627658541378e-12,
+          1.3681022820015506e-11,
+          -3.200774361870067e-12
+        ],
+        "beta": 1.0,
+        "V": 4.488124002242439e-22,
+        "min_dwell_us": 21.99999999989838
+      },
+      {
+        "k": 42,
+        "z": [
+          1.969077793173746e-12,
+          7.772891580528309e-12,
+          -1.818524273784863e-12
+        ],
+        "beta": 1.0,
+        "V": 1.4487482787175168e-22,
+        "min_dwell_us": 21.99999999994227
+      },
+      {
+        "k": 43,
+        "z": [
+          1.118734205864085e-12,
+          4.416178842582599e-12,
+          -1.0331970206180032e-12
+        ],
+        "beta": 1.0,
+        "V": 4.676500858795059e-23,
+        "min_dwell_us": 21.9999999999672
+      },
+      {
+        "k": 44,
+        "z": [
+          6.356103490219442e-13,
+          2.5090579699489067e-12,
+          -5.870122817737777e-13
+        ],
+        "beta": 1.0,
+        "V": 1.5095555662484456e-23,
+        "min_dwell_us": 21.99999999998137
+      },
+      {
+        "k": 45,
+        "z": [
+          3.6112287768280474e-13,
+          1.425524672112788e-12,
+          -3.33511820182548e-13
+        ],
+        "beta": 1.0,
+        "V": 4.8727843240013875e-24,
+        "min_dwell_us": 21.99999999998942
+      },
+      {
+        "k": 46,
+        "z": [
+          2.0517245036457385e-13,
+          8.099137664976436e-13,
+          -1.8948519077898795e-13
+        ],
+        "beta": 1.0,
+        "V": 1.5729150750801378e-24,
+        "min_dwell_us": 21.99999999999399
+      },
+      {
+        "k": 47,
+        "z": [
+          1.1656900459676588e-13,
+          4.601535995797177e-13,
+          -1.0765626689003947e-13
+        ],
+        "beta": 1.0,
+        "V": 5.07730625635961e-25,
+        "min_dwell_us": 21.999999999996586
+      },
+      {
+        "k": 48,
+        "z": [
+          6.62288372953368e-14,
+          2.614368886725013e-13,
+          -6.116505333769602e-14
+        ],
+        "beta": 1.0,
+        "V": 1.6389339277935846e-25,
+        "min_dwell_us": 21.999999999998064
+      },
+      {
+        "k": 49,
+        "z": [
+          3.762800329869082e-14,
+          1.4853572116177015e-13,
+          -3.475100760854524e-14
+        ],
+        "beta": 1.0,
+        "V": 5.290412443228936e-26,
+        "min_dwell_us": 21.999999999998902
+      },
+      {
+        "k": 50,
+        "z": [
+          2.1378400860828364e-14,
+          8.439077045735875e-14,
+          -1.9743831876378454e-14
+        ],
+        "beta": 1.0,
+        "V": 1.707723743149975e-26,
+        "min_dwell_us": 21.99999999999938
+      },
+      {
+        "k": 51,
+        "z": [
+          1.2146167303598826e-14,
+          4.794673013793271e-14,
+          -1.1217484728898772e-14
+        ],
+        "beta": 1.0,
+        "V": 5.512463185456713e-27,
+        "min_dwell_us": 21.999999999999652
+      },
+      {
+        "k": 52,
+        "z": [
+          6.900861347273701e-15,
+          2.7240999441773485e-14,
+          -6.373229089010995e-15
+        ],
+        "beta": 1.0,
+        "V": 1.7794008248058248e-27,
+        "min_dwell_us": 21.999999999999805
+      },
+      {
+        "k": 53,
+        "z": [
+          3.9207336885756685e-15,
+          1.5477010600137223e-14,
+          -3.620958708896186e-15
+        ],
+        "beta": 1.0,
+        "V": 5.743833906543036e-28,
+        "min_dwell_us": 21.99999999999989
+      },
+      {
+        "k": 54,
+        "z": [
+          2.227570136995317e-15,
+          8.793284461855458e-15,
+          -2.0572525776828437e-15
+        ],
+        "beta": 1.0,
+        "V": 1.8540863579488114e-28,
+        "min_dwell_us": 21.999999999999943
+      },
+      {
+        "k": 55,
+        "z": [
+          1.2655969798948435e-15,
+          4.995916435336877e-15,
+          -1.1688308286931225e-15
+        ],
+        "beta": 1.0,
+        "V": 5.984915787373196e-29,
+        "min_dwell_us": 21.999999999999968
+      },
+      {
+        "k": 56,
+        "z": [
+          7.190506323089196e-16,
+          2.838436665746456e-15,
+          -6.640728128979728e-16
+        ],
+        "beta": 1.0,
+        "V": 1.931906614186837e-29,
+        "min_dwell_us": 21.999999999999986
+      },
+      {
+        "k": 57,
+        "z": [
+          4.0852958725203068e-16,
+          1.6126616226939734e-15,
+          -3.772938649499029e-16
+        ],
+        "beta": 1.0,
+        "V": 6.236116427591295e-30,
+        "min_dwell_us": 21.999999999999993
+      },
+      {
+        "k": 58,
+        "z": [
+          2.3210663639137477e-16,
+          9.1623587754988e-16,
+          -2.1436001860643273e-16
+        ],
+        "beta": 1.0,
+        "V": 2.0129931650367556e-30,
+        "min_dwell_us": 22.0
+      },
+      {
+        "k": 59,
+        "z": [
+          1.3187169874108082e-16,
+          5.205606504774523e-16,
+          -1.2178893389387994e-16
+        ],
+        "beta": 1.0,
+        "V": 6.497860534733211e-31,
+        "min_dwell_us": 22.000000000000004
+      },
+      {
+        "k": 60,
+        "z": [
+          7.492308362754165e-17,
+          2.9575723617170393e-16,
+          -6.919454717085357e-17
+        ],
+        "beta": 1.0,
+        "V": 2.097483104373701e-31,
+        "min_dwell_us": 22.000000000000004
+      },
+      {
+        "k": 61,
+        "z": [
+          4.256765108699464e-17,
+          1.6803487291576194e-16,
+          -3.9312975367297124e-17
+        ],
+        "beta": 1.0,
+        "V": 6.770590642284031e-32,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 62,
+        "z": [
+          2.418486841881699e-17,
+          9.546923984447779e-17,
+          -2.2335720015821086e-17
+        ],
+        "beta": 1.0,
+        "V": 2.185519280217133e-32,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 63,
+        "z": [
+          1.3740665634571355e-17,
+          5.4240977472881955e-17,
+          -1.2690069473605714e-17
+        ],
+        "beta": 1.0,
+        "V": 7.054767857874044e-33,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 64,
+        "z": [
+          7.806777726116973e-18,
+          3.081708456049749e-17,
+          -7.209880099270205e-18
+        ],
+        "beta": 1.0,
+        "V": 2.2772505362454672e-33,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 65,
+        "z": [
+          4.43543130193469e-18,
+          1.7508768186997666e-17,
+          -4.096303109606416e-18
+        ],
+        "beta": 1.0,
+        "V": 7.35087264287819e-34,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 66,
+        "z": [
+          2.5199962807148193e-18,
+          9.947630277102132e-18,
+          -2.3273201405207366e-18
+        ],
+        "beta": 1.0,
+        "V": 2.3728319634476275e-34,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 67,
+        "z": [
+          1.4317392881378974e-18,
+          5.6517595682947654e-18,
+          -1.3222700790308177e-18
+        ],
+        "beta": 1.0,
+        "V": 7.659405624737097e-35,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 68,
+        "z": [
+          8.134446089801954e-19,
+          3.211054826930766e-18,
+          -7.512495300749478e-19
+        ],
+        "beta": 1.0,
+        "V": 2.472425162337002e-35,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 69,
+        "z": [
+          4.621596525017706e-19,
+          1.824365133895167e-18,
+          -4.268234344767898e-19
+        ],
+        "beta": 1.0,
+        "V": 7.980888443373137e-36,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 70,
+        "z": [
+          2.625766303477433e-19,
+          1.0365155131759739e-18,
+          -2.4250031038340564e-19
+        ],
+        "beta": 1.0,
+        "V": 2.5761985161711058e-36,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 71,
+        "z": [
+          1.4918326693287293e-19,
+          5.888976878003569e-19,
+          -1.3777687864803944e-19
+        ],
+        "beta": 1.0,
+        "V": 8.31586463313244e-37,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 72,
+        "z": [
+          8.475867446120606e-20,
+          3.3458301616150416e-19,
+          -7.827811956192679e-20
+        ],
+        "beta": 1.0,
+        "V": 2.6843274756389107e-37,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 73,
+        "z": [
+          4.815575529428015e-20,
+          1.9009379222028848e-19,
+          -4.4473819281421933e-20
+        ],
+        "beta": 1.0,
+        "V": 8.664900541744075e-38,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 74,
+        "z": [
+          2.7359757366474434e-20,
+          1.080020446203624e-19,
+          -2.526786045124423e-20
+        ],
+        "beta": 1.0,
+        "V": 2.796994855497147e-38,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 75,
+        "z": [
+          1.5544483075344146e-20,
+          6.136150742188108e-20,
+          -1.4355969019513878e-20
+        ],
+        "beta": 1.0,
+        "V": 9.028586287850054e-39,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 76,
+        "z": [
+          8.831619039712156e-21,
+          3.48626232616311e-20,
+          -8.15636317474968e-21
+        ],
+        "beta": 1.0,
+        "V": 2.9143911436571164e-39,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 77,
+        "z": [
+          5.017696277486504e-21,
+          1.9807246460327635e-20,
+          -4.6340487464123396e-21
+        ],
+        "beta": 1.0,
+        "V": 9.407536758725049e-40,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 78,
+        "z": [
+          2.8508109124601124e-21,
+          1.1253513810360526e-20,
+          -2.6328410498696108e-21
+        ],
+        "beta": 1.0,
+        "V": 3.0367148232445855e-40,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 79,
+        "z": [
+          1.6196920676659112e-21,
+          6.39369906027212e-21,
+          -1.4958521960402605e-21
+        ],
+        "beta": 1.0,
+        "V": 9.80239264987273e-41,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 80,
+        "z": [
+          9.202302343497081e-22,
+          3.63258875069661e-21,
+          -8.498704441383895e-22
+        ],
+        "beta": 1.0,
+        "V": 3.1641727081772723e-41,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 81,
+        "z": [
+          5.228300496844751e-22,
+          2.0638602016288736e-21,
+          -4.828550399110043e-22
+        ],
+        "beta": 1.0,
+        "V": 1.0213821548256271e-41,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 82,
+        "z": [
+          2.9704659839419185e-22,
+          1.172584959156398e-21,
+          -2.743347426369525e-22
+        ],
+        "beta": 1.0,
+        "V": 3.296980292827287e-42,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 83,
+        "z": [
+          1.6876742580272616e-22,
+          6.662057271876489e-22,
+          -1.5586365429996162e-22
+        ],
+        "beta": 1.0,
+        "V": 1.0642519060994628e-42,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 84,
+        "z": [
+          9.588544075593628e-23,
+          3.7850568308238597e-22,
+          -8.855414556036495e-23
+        ],
+        "beta": 1.0,
+        "V": 3.4353621163597075e-43,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 85,
+        "z": [
+          5.447744258247525e-23,
+          2.1504851471399914e-22,
+          -5.031215732203087e-23
+        ],
+        "beta": 1.0,
+        "V": 1.108920999143269e-43,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 86,
+        "z": [
+          3.0951432531670887e-23,
+          1.2218010388665992e-22,
+          -2.858492008904606e-23
+        ],
+        "beta": 1.0,
+        "V": 3.579552142363285e-44,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 87,
+        "z": [
+          1.7585098168149861e-23,
+          6.941679093021532e-23,
+          -1.6240560929780586e-23
+        ],
+        "beta": 1.0,
+        "V": 1.1554649564573857e-44,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 88,
+        "z": [
+          9.990997258916656e-24,
+          3.943924345914186e-23,
+          -9.227096612209483e-24
+        ],
+        "beta": 1.0,
+        "V": 3.7297941544151173e-45,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 89,
+        "z": [
+          5.676398577545288e-24,
+          2.2407459402627254e-23,
+          -5.2423873940786335e-24
+        ],
+        "beta": 1.0,
+        "V": 1.2039624703946818e-45,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 90,
+        "z": [
+          3.2250535132918265e-24,
+          1.2730828303046597e-23,
+          -2.9784694736184934e-24
+        ],
+        "beta": 1.0,
+        "V": 3.886342168248076e-46,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 91,
+        "z": [
+          1.8323185064452907e-24,
+          7.233037283229409e-24,
+          -1.6922214514893516e-24
+        ],
+        "beta": 1.0,
+        "V": 1.2544955362065312e-46,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 92,
+        "z": [
+          1.0410342325250274e-24,
+          4.1094598949281876e-24,
+          -9.614379016622157e-25
+        ],
+        "beta": 1.0,
+        "V": 4.049460861217855e-47,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 93,
+        "z": [
+          5.914650042974566e-25,
+          2.33479518585907e-24,
+          -5.462422414862415e-25
+        ],
+        "beta": 1.0,
+        "V": 1.3071495906730417e-47,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 94,
+        "z": [
+          3.3604164049444937e-25,
+          1.3265170361288926e-24,
+          -3.103482667659009e-25
+        ],
+        "beta": 1.0,
+        "V": 4.219426019795722e-48,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 95,
+        "z": [
+          1.9092251160376277e-25,
+          7.536624444823552e-25,
+          -1.7632478664143143e-25
+        ],
+        "beta": 1.0,
+        "V": 1.3620136565519059e-48,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 96,
+        "z": [
+          1.0847288265660943e-25,
+          4.281943350540793e-25,
+          -1.0017916551664897e-25
+        ],
+        "beta": 1.0,
+        "V": 4.3965250058435775e-49,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 97,
+        "z": [
+          6.162901468766695e-26,
+          2.4327918939670305e-25,
+          -5.691692810053286e-26
+        ],
+        "beta": 1.0,
+        "V": 1.4191804930901021e-49,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 98,
+        "z": [
+          3.5014607875743046e-26,
+          1.382193998107007e-25,
+          -3.233742952133937e-26
+        ],
+        "beta": 1.0,
+        "V": 4.581057242459645e-50,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 99,
+        "z": [
+          1.9893596723969626e-26,
+          7.852953855776551e-26,
+          -1.8372554228516085e-26
+        ],
+        "beta": 1.0,
+        "V": 1.4787467528529223e-50,
+        "min_dwell_us": 22.000000000000007
+      },
+      {
+        "k": 100,
+        "z": [
+          1.1302573829196043e-26,
+          4.461666332324899e-26,
+          -1.0438391482446542e-26
+        ],
+        "beta": 1.0,
+        "V": 4.7733347202162206e-51,
+        "min_dwell_us": 22.000000000000007
+      }
+    ],
+    "exact": [
+      {
+        "k": 0,
+        "z": [
+          -0.24103999999999992,
+          0.07641500000000008,
+          -0.9509
+        ],
+        "beta": 0.29397824754165186,
+        "V": 0.06349710690978802,
+        "min_dwell_us": 2.9999999999999982
+      },
+      {
+        "k": 1,
+        "z": [
+          -0.23434104511325496,
+          0.07087952995579609,
+          -0.5733914261168134
+        ],
+        "beta": 0.4472862060074931,
+        "V": 0.052675182800040965,
+        "min_dwell_us": 2.9999999999999982
+      },
+      {
+        "k": 2,
+        "z": [
+          -0.18576126079570585,
+          0.05996772194297293,
+          -0.29789023640112877
+        ],
+        "beta": 0.7785429667654408,
+        "V": 0.03230148741581254,
+        "min_dwell_us": 2.9999999999999982
+      },
+      {
+        "k": 3,
+        "z": [
+          -0.08600420202662366,
+          0.03773101112823092,
+          -0.10248379336069635
+        ],
+        "beta": 1.0,
+        "V": 0.008277444653539637,
+        "min_dwell_us": 13.209138472095905
+      },
+      {
+        "k": 4,
+        "z": [
+          -0.01598201101644161,
+          0.016999937017827628,
+          -0.02509833095796299
+        ],
+        "beta": 1.0,
+        "V": 0.0008493362731614802,
+        "min_dwell_us": 19.608950097792953
+      },
+      {
+        "k": 5,
+        "z": [
+          -0.0012400582852555076,
+          0.008530817142869828,
+          -0.0071666758828301536
+        ],
+        "beta": 1.0,
+        "V": 0.0001714464081259479,
+        "min_dwell_us": 21.68137672226186
+      },
+      {
+        "k": 6,
+        "z": [
+          0.0006763547092733191,
+          0.004693817899328501,
+          -0.0024079096611894224
+        ],
+        "beta": 1.0,
+        "V": 5.191034798693958e-05,
+        "min_dwell_us": 21.997452918274213
+      },
+      {
+        "k": 7,
+        "z": [
+          0.0006043408023449715,
+          0.0026585634759097587,
+          -0.0009582418897219336
+        ],
+        "beta": 1.0,
+        "V": 1.6833612077163902e-05,
+        "min_dwell_us": 21.982548277689023
+      },
+      {
+        "k": 8,
+        "z": [
+          0.00037622491586173366,
+          0.0015140393292062625,
+          -0.00044086935055864807
+        ],
+        "beta": 1.0,
+        "V": 5.483548296454632e-06,
+        "min_dwell_us": 21.988337226584907
+      },
+      {
+        "k": 9,
+        "z": [
+          0.00021822273399241254,
+          0.0008621199008294056,
+          -0.00022396272759839242
+        ],
+        "beta": 1.0,
+        "V": 1.7806837729599784e-06,
+        "min_dwell_us": 21.993325236054904
+      },
+      {
+        "k": 10,
+        "z": [
+          0.00012447615466708583,
+          0.000490480490911338,
+          -0.00012042251390487202
+        ],
+        "beta": 1.0,
+        "V": 5.766724073550246e-07,
+        "min_dwell_us": 21.996261812469537
+      },
+      {
+        "k": 11,
+        "z": [
+          7.074154617896511e-05,
+          0.0002788680153024359,
+          -6.666658024578886e-05
+        ],
+        "beta": 1.0,
+        "V": 1.8645304276331298e-07,
+        "min_dwell_us": 21.997900828578633
+      },
+      {
+        "k": 12,
+        "z": [
+          4.018049419300951e-05,
+          0.00015849573636952385,
+          -3.743049490079198e-05
+        ],
+        "beta": 1.0,
+        "V": 6.02338407107804e-08,
+        "min_dwell_us": 21.998815338612147
+      },
+      {
+        "k": 13,
+        "z": [
+          2.2823304336050398e-05,
+          9.006478001118978e-05,
+          -2.1154100155351685e-05
+        ],
+        "beta": 1.0,
+        "V": 1.945040688498004e-08,
+        "min_dwell_us": 21.999329192846456
+      },
+      {
+        "k": 14,
+        "z": [
+          1.2965481409565883e-05,
+          5.11743875550863e-05,
+          -1.1991181870230072e-05
+        ],
+        "beta": 1.0,
+        "V": 6.279563305883195e-09,
+        "min_dwell_us": 21.99961946940313
+      },
+      {
+        "k": 15,
+        "z": [
+          7.365952636462225e-06,
+          2.9075796043365186e-05,
+          -6.806257435876262e-06
+        ],
+        "beta": 1.0,
+        "V": 2.027167257324333e-09,
+        "min_dwell_us": 21.999783944236807
+      },
+      {
+        "k": 16,
+        "z": [
+          4.184892301850596e-06,
+          1.651969520928276e-05,
+          -3.865508798051032e-06
+        ],
+        "beta": 1.0,
+        "V": 6.543819446022316e-10,
+        "min_dwell_us": 21.999877279549686
+      },
+      {
+        "k": 17,
+        "z": [
+          2.377640336348463e-06,
+          9.385742973577749e-06,
+          -2.1958919131925825e-06
+        ],
+        "beta": 1.0,
+        "V": 2.1123452582779546e-10,
+        "min_dwell_us": 21.999930282366293
+      },
+      {
+        "k": 18,
+        "z": [
+          1.3508602650702527e-06,
+          5.332534341029316e-06,
+          -1.2475490051011562e-06
+        ],
+        "beta": 1.0,
+        "V": 6.818597136080951e-11,
+        "min_dwell_us": 21.99996039064559
+      },
+      {
+        "k": 19,
+        "z": [
+          7.674946131075444e-07,
+          3.0296886752267936e-06,
+          -7.087935316452132e-07
+        ],
+        "beta": 1.0,
+        "V": 2.2010187890168734e-11,
+        "min_dwell_us": 21.999977495826855
+      },
+      {
+        "k": 20,
+        "z": [
+          4.3605396182755385e-07,
+          1.7213219125622459e-06,
+          -4.027045507060123e-07
+        ],
+        "beta": 1.0,
+        "V": 7.104801353560381e-12,
+        "min_dwell_us": 21.999987214112025
+      },
+      {
+        "k": 21,
+        "z": [
+          2.4774502715985136e-07,
+          9.779713032287419e-07,
+          -2.287989291360759e-07
+        ],
+        "beta": 1.0,
+        "V": 2.293400808076818e-12,
+        "min_dwell_us": 21.999992735619504
+      },
+      {
+        "k": 22,
+        "z": [
+          1.4075682255310085e-07,
+          5.556356590830091e-07,
+          -1.2999326570728442e-07
+        ],
+        "beta": 1.0,
+        "V": 7.40300342520663e-13,
+        "min_dwell_us": 21.999995872705863
+      },
+      {
+        "k": 23,
+        "z": [
+          7.997123496750191e-08,
+          3.156851208885314e-07,
+          -7.385619460453796e-08
+        ],
+        "beta": 1.0,
+        "V": 2.389659100294866e-13,
+        "min_dwell_us": 21.999997655061836
+      },
+      {
+        "k": 24,
+        "z": [
+          4.5435785445135936e-08,
+          1.7935691527526386e-07,
+          -4.1961627839093296e-08
+        ],
+        "beta": 1.0,
+        "V": 7.713721813399371e-14,
+        "min_dwell_us": 21.999998667716323
+      },
+      {
+        "k": 25,
+        "z": [
+          2.5814410165025947e-08,
+          1.0190186863212603e-07,
+          -2.384060326932058e-08
+        ],
+        "beta": 1.0,
+        "V": 2.4899579551692537e-14,
+        "min_dwell_us": 21.999999243059815
+      },
+      {
+        "k": 26,
+        "z": [
+          1.4666494152493215e-08,
+          5.7895681671027434e-08,
+          -1.3545087607091943e-08
+        ],
+        "beta": 1.0,
+        "V": 8.037482852488156e-15,
+        "min_dwell_us": 21.99999956994294
+      },
+      {
+        "k": 27,
+        "z": [
+          8.332789391829466e-09,
+          3.289350836155336e-08,
+          -7.695665327211998e-09
+        ],
+        "beta": 1.0,
+        "V": 2.5944667502725352e-15,
+        "min_dwell_us": 21.999999755662316
+      },
+      {
+        "k": 28,
+        "z": [
+          4.734286029872692e-09,
+          1.8688490399654258e-08,
+          -4.3723040743515185e-09
+        ],
+        "beta": 1.0,
+        "V": 8.374833072460452e-16,
+        "min_dwell_us": 21.999999861179138
+      },
+      {
+        "k": 29,
+        "z": [
+          2.6897909677359166e-09,
+          1.0617890566777533e-08,
+          -2.4841313450707503e-09
+        ],
+        "beta": 1.0,
+        "V": 2.7033620004289014e-16,
+        "min_dwell_us": 21.999999921128722
+      },
+      {
+        "k": 30,
+        "z": [
+          1.5282086707202325e-09,
+          6.032568045100106e-09,
+          -1.4113623603151382e-09
+        ],
+        "beta": 1.0,
+        "V": 8.726340953879192e-17,
+        "min_dwell_us": 21.99999995518914
+      },
+      {
+        "k": 31,
+        "z": [
+          8.682539132109923e-10,
+          3.4274110660703626e-09,
+          -8.018671282528089e-10
+        ],
+        "beta": 1.0,
+        "V": 2.816826595045096e-17,
+        "min_dwell_us": 21.999999974540636
+      },
+      {
+        "k": 32,
+        "z": [
+          4.932994457362839e-10,
+          1.947287486814275e-09,
+          -4.55581461444865e-10
+        ],
+        "beta": 1.0,
+        "V": 9.092595503578514e-18,
+        "min_dwell_us": 21.999999985535236
+      },
+      {
+        "k": 33,
+        "z": [
+          2.8026843068573727e-10,
+          1.106353408886207e-09,
+          -2.5883906129564593e-10
+        ],
+        "beta": 1.0,
+        "V": 2.935049803218093e-18,
+        "min_dwell_us": 21.99999999178185
+      },
+      {
+        "k": 34,
+        "z": [
+          1.5923493634772968e-10,
+          6.285752363055508e-10,
+          -1.4705947570803346e-10
+        ],
+        "beta": 1.0,
+        "V": 9.474194072082764e-19,
+        "min_dwell_us": 21.99999999533083
+      },
+      {
+        "k": 35,
+        "z": [
+          9.046932092360293e-11,
+          3.5712535151333216e-10,
+          -8.355149905270309e-11
+        ],
+        "beta": 1.0,
+        "V": 3.0582227027222835e-19,
+        "min_dwell_us": 21.999999997347224
+      },
+      {
+        "k": 36,
+        "z": [
+          5.1400839140569585e-11,
+          2.0290045199544693e-10,
+          -4.7469250752385506e-11
+        ],
+        "beta": 1.0,
+        "V": 9.871746464375294e-20,
+        "min_dwell_us": 21.99999999849276
+      },
+      {
+        "k": 37,
+        "z": [
+          2.9202951168372236e-11,
+          1.1527774290698289e-10,
+          -2.6969759758799228e-11
+        ],
+        "beta": 1.0,
+        "V": 3.1865351110090326e-20,
+        "min_dwell_us": 21.999999999143704
+      },
+      {
+        "k": 38,
+        "z": [
+          1.6591705787050158e-11,
+          6.549463194005511e-11,
+          -1.532241000745671e-11
+        ],
+        "beta": 1.0,
+        "V": 1.028583099078672e-20,
+        "min_dwell_us": 21.99999999951349
+      },
+      {
+        "k": 39,
+        "z": [
+          9.426592839645309e-12,
+          3.7210412529020684e-11,
+          -8.705369758388315e-12
+        ],
+        "beta": 1.0,
+        "V": 3.3201451545149058e-21,
+        "min_dwell_us": 21.999999999723585
+      },
+      {
+        "k": 40,
+        "z": [
+          5.355715870791755e-12,
+          2.114042274570238e-11,
+          -4.94548846319276e-12
+        ],
+        "beta": 1.0,
+        "V": 1.0716575562693263e-21,
+        "min_dwell_us": 21.99999999984295
+      },
+      {
+        "k": 41,
+        "z": [
+          3.042721630208689e-12,
+          1.2010303862552973e-11,
+          -2.809086296906571e-12
+        ],
+        "beta": 1.0,
+        "V": 3.4588956163897703e-22,
+        "min_dwell_us": 21.999999999910784
+      },
+      {
+        "k": 42,
+        "z": [
+          1.7287504761043238e-12,
+          6.822986620136362e-12,
+          -1.5958345755962e-12
+        ],
+        "beta": 1.0,
+        "V": 1.1162973454926622e-22,
+        "min_dwell_us": 21.9999999999493
+      },
+      {
+        "k": 43,
+        "z": [
+          9.821476965043984e-13,
+          3.875832987887407e-12,
+          -9.062750550015153e-13
+        ],
+        "beta": 1.0,
+        "V": 3.602163305874069e-23,
+        "min_dwell_us": 21.999999999971195
+      },
+      {
+        "k": 44,
+        "z": [
+          5.577760475716786e-13,
+          2.2012613953847905e-12,
+          -5.142553050063725e-13
+        ],
+        "beta": 1.0,
+        "V": 1.1619269462887073e-23,
+        "min_dwell_us": 21.99999999998365
+      },
+      {
+        "k": 45,
+        "z": [
+          3.169020601490047e-13,
+          1.2498446722020163e-12,
+          -2.9198865547641617e-13
+        ],
+        "beta": 1.0,
+        "V": 3.745895169796316e-24,
+        "min_dwell_us": 21.9999999999907
+      },
+      {
+        "k": 46,
+        "z": [
+          1.801225835151854e-13,
+          7.0947692165646e-13,
+          -1.6553425297161084e-13
+        ],
+        "beta": 1.0,
+        "V": 1.2070918173554688e-24,
+        "min_dwell_us": 21.999999999994703
+      },
+      {
+        "k": 47,
+        "z": [
+          1.021405182655144e-13,
+          4.0234482412415673e-13,
+          -9.381384558082573e-14
+        ],
+        "beta": 1.0,
+        "V": 3.882056779771407e-25,
+        "min_dwell_us": 21.999999999997
+      },
+      {
+        "k": 48,
+        "z": [
+          5.80868686483882e-14,
+          2.2790658249505215e-13,
+          -5.284661597215745e-14
+        ],
+        "beta": 1.0,
+        "V": 1.2457942910901849e-25,
+        "min_dwell_us": 21.999999999998284
+      },
+      {
+        "k": 49,
+        "z": [
+          3.304023721284466e-14,
+          1.2914114222439821e-13,
+          -2.9531932455029164e-14
+        ],
+        "beta": 1.0,
+        "V": 4.000876876053238e-26,
+        "min_dwell_us": 21.999999999999023
+      },
+      {
+        "k": 50,
+        "z": [
+          1.8474111129762605e-14,
+          7.283063041541027e-14,
+          -1.6542323066914832e-14
+        ],
+        "beta": 1.0,
+        "V": 1.2722400390255518e-26,
+        "min_dwell_us": 21.99999999999947
+      },
+      {
+        "k": 51,
+        "z": [
+          1.0658141036401503e-14,
+          4.085620730620576e-14,
+          -9.2148511043888e-15
+        ],
+        "beta": 1.0,
+        "V": 4.007158358274158e-27,
+        "min_dwell_us": 21.999999999999677
+      },
+      {
+        "k": 52,
+        "z": [
+          6.0396132539608514e-15,
+          2.2737367544323207e-14,
+          -4.884981308350689e-15
+        ],
+        "beta": 1.0,
+        "V": 1.2422118952972112e-27,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 53,
+        "z": [
+          3.197442310920451e-15,
+          1.2612133559741778e-14,
+          -2.6645352591003757e-15
+        ],
+        "beta": 1.0,
+        "V": 3.8171338775517774e-28,
+        "min_dwell_us": 21.999999999999915
+      },
+      {
+        "k": 54,
+        "z": [
+          1.7763568394002505e-15,
+          6.7501559897209515e-15,
+          -8.881784197001252e-16
+        ],
+        "beta": 1.0,
+        "V": 1.0975319829305692e-28,
+        "min_dwell_us": 21.999999999999957
+      },
+      {
+        "k": 55,
+        "z": [
+          1.0658141036401502e-15,
+          3.197442310920451e-15,
+          -4.440892098500626e-16
+        ],
+        "beta": 1.0,
+        "V": 2.4855428493838153e-29,
+        "min_dwell_us": 21.99999999999996
+      },
+      {
+        "k": 56,
+        "z": [
+          5.329070518200751e-16,
+          1.4210854715202005e-15,
+          2.220446049250313e-16
+        ],
+        "beta": 1.0,
+        "V": 4.9957434121774545e-30,
+        "min_dwell_us": 21.999999999999986
+      },
+      {
+        "k": 57,
+        "z": [
+          0.0,
+          0.0,
+          2.220446049250313e-16
+        ],
+        "beta": 1.0,
+        "V": 3.317065679150135e-34,
+        "min_dwell_us": 22.00000000000001
+      },
+      {
+        "k": 58,
+        "z": [
+          0.0,
+          -7.105427357601002e-16,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 1.1705024222564351e-30,
+        "min_dwell_us": 21.999999999999932
+      },
+      {
+        "k": 59,
+        "z": [
+          -1.7763568394002506e-16,
+          -1.0658141036401502e-15,
+          8.881784197001252e-16
+        ],
+        "beta": 1.0,
+        "V": 2.6552238671383604e-30,
+        "min_dwell_us": 21.999999999999893
+      },
+      {
+        "k": 60,
+        "z": [
+          -1.7763568394002506e-16,
+          -1.4210854715202005e-15,
+          8.881784197001252e-16
+        ],
+        "beta": 1.0,
+        "V": 4.738869423538515e-30,
+        "min_dwell_us": 21.999999999999837
+      },
+      {
+        "k": 61,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          6.661338147750939e-16
+        ],
+        "beta": 1.0,
+        "V": 6.073668792741895e-30,
+        "min_dwell_us": 21.99999999999981
+      },
+      {
+        "k": 62,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 63,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 64,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 65,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 66,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 67,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 68,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 69,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 70,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 71,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 72,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 73,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 74,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 75,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 76,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 77,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 78,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 79,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 80,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 81,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 82,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 83,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 84,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 85,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 86,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 87,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 88,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 89,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 90,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 91,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 92,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 93,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 94,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 95,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 96,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 97,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 98,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 99,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      },
+      {
+        "k": 100,
+        "z": [
+          -3.552713678800501e-16,
+          -1.5987211554602255e-15,
+          7.771561172376096e-16
+        ],
+        "beta": 1.0,
+        "V": 6.060558867561035e-30,
+        "min_dwell_us": 21.999999999999815
+      }
+    ]
+  },
+  "solver": {
+    "interface": "CVXPY",
+    "solver": "CLARABEL",
+    "status": "optimal",
+    "cvxpy": "1.9.2",
+    "numpy": "2.5.2",
+    "scipy": "1.18.1"
+  }
+}</script>
+<script>
+'use strict';
+const C=JSON.parse(document.getElementById('certificate-data').textContent),$=id=>document.getElementById(id);
+const fmt=(x,n=7)=>Math.abs(x)<1e-14?'0':(Math.abs(x)>=1e5||Math.abs(x)<1e-4?x.toExponential(5):x.toFixed(n));
+const mathNS='http://www.w3.org/1998/Math/MathML';
+function mathNumber(x,n=7){
+    const value=fmt(x,n),[mantissa,exponent]=value.split('e');
+    const token=v=>v.startsWith('-')?'<mrow><mo>−</mo><mn>'+v.slice(1)+'</mn></mrow>':'<mn>'+v+'</mn>';
+    return exponent===undefined?token(mantissa):'<mrow>'+token(mantissa)+'<mo>×</mo><msup><mn>10</mn>'+token(String(Number(exponent)))+'</msup></mrow>';
+}
+function mat(a,n=7,label=''){
+    if(!Array.isArray(a[0]))a=[a];
+    return '<math xmlns="'+mathNS+'" display="block"><mrow>'+(label?'<mi>'+label+'</mi><mo>=</mo>':'')+'<mo stretchy="true">[</mo><mtable columnalign="right" columnspacing="1.1em" rowspacing="0.45em">'+a.map(row=>'<mtr>'+row.map(v=>'<mtd>'+mathNumber(v,n)+'</mtd>').join('')+'</mtr>').join('')+'</mtable><mo stretchy="true">]</mo></mrow></math>';
+}
+const mv=(a,x)=>a.map(row=>row.reduce((s,v,j)=>s+v*x[j],0));
+const dot=(a,b)=>a.reduce((s,v,j)=>s+v*b[j],0),energy=z=>dot(z,mv(C.P,z));
+const norm=z=>Math.sqrt(dot(z,z));
+const mix=b=>C.A0.map((row,i)=>row.map((x,j)=>(1-b)*x+b*C.A1[i][j]));
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs={},text=''){const e=document.createElementNS(NS,tag);for(const [k,v]of Object.entries(attrs))e.setAttribute(k,v);if(text)e.textContent=text;return e}
+function add(svg,tag,attrs,text){svg.appendChild(el(tag,attrs,text))}
+function text(svg,x,y,s,attrs={}){add(svg,'text',{x,y,fill:'#526775','font-size':12,...attrs},s)}
+function chart(svg,series,{xmin=0,xmax=50,ymin=0,ymax=1,title='',ylabel='',marker=null}={}){svg.replaceChildren();const vb=svg.viewBox.baseVal,w=vb.width,h=vb.height,l=65,r=20,t=30,b=35;const xx=x=>l+(x-xmin)/(xmax-xmin)*(w-l-r),yy=y=>h-b-(y-ymin)/(ymax-ymin)*(h-t-b);text(svg,l,17,title,{'font-size':14,fill:'#172d3a'});for(let i=0;i<=4;i++){let y=ymin+(ymax-ymin)*i/4;add(svg,'line',{x1:l,y1:yy(y),x2:w-r,y2:yy(y),stroke:'#d9e2de'});text(svg,l-8,yy(y)+4,Math.abs(y)<1e-10?'0':y.toPrecision(3),{'text-anchor':'end'});let x=xmin+(xmax-xmin)*i/4;text(svg,xx(x),h-12,Number(x.toFixed(2)).toString(),{'text-anchor':'middle'});}for(const s of series)add(svg,'polyline',{points:s.data.map(p=>[xx(p[0]),yy(p[1])].join(',')).join(' '),fill:'none',stroke:s.color,'stroke-width':2.3});if(marker!==null)add(svg,'line',{x1:xx(marker),x2:xx(marker),y1:t,y2:h-b,stroke:'#c46926','stroke-dasharray':'4 4'});if(ylabel)text(svg,w-r,h-1,ylabel,{'text-anchor':'end'});}
+for(const key of ['Phi_aug','Gamma_aug','Phi','Gtau','Gd','D','A0','A1','B','K','Kphysical','P','Pphysical','eigP'])$(key).innerHTML=mat(C[key]);
+$('Q0').innerHTML=mat(C.Qs[0]);$('Q1').innerHTML=mat(C.Qs[1]);
+$('headline').innerHTML=`<div class="stat"><span>Common-P test</span><strong>Feasible</strong><span class="small">independent residual checks passed</span></div><div class="stat"><span>Worst endpoint decrease q*</span><strong>${C.q.toExponential(3)}</strong><span class="small">normalized coordinates, trace(P) = 3</span></div><div class="stat"><span>Certified norm rate r</span><strong>${C.rho_bound.toFixed(8)}</strong><span class="small">uniform, conservative per-cycle bound</span></div>`;
+$('schedule').tBodies[0].innerHTML=C.modes.map((m,i)=>`<tr><td>${i+1}</td><td>${m.mode} / ${m.bits.join('')}</td><td>${C.boundaries_us[i].toFixed(6)}</td><td>${C.boundaries_us[i+1].toFixed(6)}</td><td>${m.dwell_us.toFixed(6)}</td></tr>`).join('');
+$('closure').textContent=`Reconstructed nominal closure error: ${C.closure.toExponential(3)} in the physical infinity norm, consistent with the paper's numerical periodic anchor.`;
+$('gainCheck').textContent=`Relative difference from the saved physical gain: ${C.gain_error.toExponential(3)}. Endpoint spectral radii: ρ(A₀) = ${C.radii[0].toFixed(9)}, ρ(A₁) = ${C.radii[1].toFixed(9)}.`;
+$('solverSummary').textContent=`Computed with CVXPY ${C.solver.cvxpy} / ${C.solver.solver}. Status: ${C.solver.status}. Optimal reported η = ${C.eta.toExponential(8)}. Both residual matrices are independently positive definite.`;
+$('certificateChecks').innerHTML=`<p>eig(Q₀) = <code>${C.eigQs[0].map(x=>x.toExponential(7)).join(', ')}</code><br>eig(Q₁) = <code>${C.eigQs[1].map(x=>x.toExponential(7)).join(', ')}</code></p>`;
+$('rate').textContent=`For this certificate, q* = ${C.q.toExponential(8)}, r = ${C.rho_bound.toFixed(10)}, and √κ₂(P) = ${Math.sqrt(C.eigP[2]/C.eigP[0]).toFixed(6)}. The uniform bound includes β = 0, so it can be much slower than the actual conditioned transient.`;
+$('validation').textContent=`Independent checks: relative finite-difference errors ${C.fd_errors[0].toExponential(3)} for Φ and ${C.fd_errors[1].toExponential(3)} for Γτ. NumPy ${C.solver.numpy}, SciPy ${C.solver.scipy}.`;
+function intervalLab(){const i=+$('interval').value,m=C.modes[i];$('intervalValue').value=`${i+1} of 9`;$('modeExplain').textContent=`Mode ${m.mode}: (u₁,u₂,u₃) = (${m.bits.join(', ')}). 1/C = 25,000; 1/L = 100; −R/L = −1,000; E/L = 3,000. Dwell = ${m.dwell_us.toFixed(9)} μs.`;$('modeMatrix').innerHTML=mat(m.A,1,'A')+mat(m.b.map(x=>[x]),1,'b');$('generator').innerHTML=mat(m.F,1);$('exponential').innerHTML=mat(C.phis[i]);$('partial').innerHTML=mat(C.products[i]);$('orbitState').textContent=`Nominal boundary state after interval ${i+1}: [${C.orbit[i+1].slice(0,3).map(x=>x.toFixed(8)).join(', ')}]ᵀ; homogeneous coordinate = ${C.orbit[i+1][3]}.`;const s=$('timeline');s.replaceChildren();C.modes.forEach((m,j)=>{const x=10+C.boundaries_us[j]/286*940,w=m.dwell_us/286*940;add(s,'rect',{x,y:20,width:w-2,height:45,rx:3,fill:i===j?'#c46926':'#087f78'});text(s,x+w/2,48,String(m.mode),{'text-anchor':'middle',fill:'white','font-size':17});text(s,x,85,C.boundaries_us[j].toFixed(1));});}
+$('interval').addEventListener('input',intervalLab);intervalLab();
+for(let i=0;i<8;i++)$('switch').add(new Option(`${i+1}: mode ${C.modes[i].mode} → ${C.modes[i+1].mode}`,i));
+function dwellLab(){const j=+$('switch').value,dt=+$('shift').value;$('shiftValue').value=dt.toFixed(2);const ds=C.dwell_us.map((d,i)=>d+C.D[i][j]*dt),s=$('dwellBars');s.replaceChildren();for(let i=0;i<9;i++){const x=45+i*100;add(s,'rect',{x,y:170-C.dwell_us[i]*1.8,width:29,height:C.dwell_us[i]*1.8,fill:'#bdd8cd'});add(s,'rect',{x:x+31,y:170-ds[i]*1.8,width:29,height:ds[i]*1.8,fill:i===j||i===j+1?'#c46926':'#087f78'});text(s,x+30,192,`d${i+1}`,{'text-anchor':'middle'});}text(s,20,18,'Dwell durations, μs. Pale: nominal; dark: shifted.');$('shiftResult').textContent=`Dwell ${j+1}: ${ds[j].toFixed(3)} μs. Dwell ${j+2}: ${ds[j+1].toFixed(3)} μs. Total: ${ds.reduce((a,b)=>a+b,0).toFixed(6)} μs. Predicted terminal Δx: [${C.Gtau.map(row=>fmt(row[j]*dt*1e-6,6)).join(', ')}]ᵀ in V, V, A.`;$('sensitivityColumn').innerHTML=mat(C.Gtau.map(row=>[row[j]]),5);}
+$('switch').addEventListener('change',dwellLab);$('shift').addEventListener('input',dwellLab);dwellLab();
+function betaLab(){let b=+$('beta').value;$('betaValue').value=b.toFixed(3);$('Abeta').innerHTML=mat(mix(b));let row=C.sweep[Math.round(b*200)];$('betaMetrics').textContent=`ρ(A(β)) = ${row[1].toFixed(8)}; λmin(Q(β)) = ${row[2].toExponential(5)} > 0.`;chart($('marginPlot'),[{data:C.sweep.map(r=>[r[0],r[2]]),color:'#087f78'}],{xmax:1,ymax:Math.max(...C.sweep.map(r=>r[2]))*1.08,title:'λmin(P − A(β)ᵀPA(β))',ylabel:'β',marker:b});trajectoryLab();}
+function policyBeta(z,k){const type=$('policy').value;if(type==='fixed')return +$('beta').value;if(type==='alternate')return k%2;if(type==='random')return seeded(k);const q=mv(C.D,mv(C.K,z).map(x=>-C.ts*x));return Math.min(1,...q.map((x,i)=>x<0?(C.dwell_us[i]*1e-6-3e-6)/(-x):Infinity));}
+function seeded(k){let a=(k+113)*374761393;a=(a^(a>>>13))*1274126177;return ((a^(a>>>16))>>>0)/4294967295;}
+function inv3(a){const [r,s,t]=a;const co=[[s[1]*t[2]-s[2]*t[1],r[2]*t[1]-r[1]*t[2],r[1]*s[2]-r[2]*s[1]],[s[2]*t[0]-s[0]*t[2],r[0]*t[2]-r[2]*t[0],r[2]*s[0]-r[0]*s[2]],[s[0]*t[1]-s[1]*t[0],r[1]*t[0]-r[0]*t[1],r[0]*s[1]-r[1]*s[0]]];const det=r[0]*co[0][0]+r[1]*co[1][0]+r[2]*co[2][0];return co.map(row=>row.map(x=>x/det));}
+function phase(rows,V0){let ip=inv3(C.P),a=Math.sqrt(Math.max(0,V0*ip[0][0])),b=a>0?V0*ip[1][0]/a:0,c=Math.sqrt(Math.max(0,V0*ip[1][1]-b*b));let ellipse=Array.from({length:101},(_,i)=>{let t=i/100*2*Math.PI;return[a*Math.cos(t),b*Math.cos(t)+c*Math.sin(t)]});let ex=Math.max(a,.01)*1.1,ey=Math.max(Math.sqrt(Math.max(0,V0*ip[1][1])),.01)*1.1;chart($('phasePlot'),[{data:ellipse,color:'#a9c5b8'},{data:rows.map(r=>r.z.slice(0,2)),color:'#087f78'}],{xmin:-ex,xmax:ex,ymin:-ey,ymax:ey,title:'Projected initial sublevel set and trajectory',ylabel:'z₁; vertical axis z₂'});}
+function trajectoryLab(){let z=['z1','z2','z3'].map(id=>+$(id).value);['z1','z2','z3'].forEach((id,i)=>$(id+'Value').value=z[i].toFixed(2));let rows=[],minD=Infinity,maxIncrease=-Infinity;for(let k=0;k<=50;k++){let b=policyBeta(z,k),v=energy(z),q=mv(C.D,mv(C.K,z).map(x=>-C.ts*x));if(k<50)minD=Math.min(minD,...q.map((x,i)=>C.dwell_us[i]+b*x*1e6));rows.push({k,z:[...z],V:v,b});if(k>0)maxIncrease=Math.max(maxIncrease,v-rows[k-1].V);z=mv(mix(b),z);}let values=rows.map(r=>Math.log10(Math.max(r.V,1e-24))),top=Math.ceil(Math.max(...values)),bottom=Math.floor(Math.min(...values));if(top===bottom)top++;chart($('energyPlot'),[{data:rows.map((r,i)=>[r.k,values[i]]),color:'#087f78'}],{ymin:bottom,ymax:top,title:'log₁₀ V(zₖ), display floor −24',ylabel:'cycle k'});chart($('betaPlot'),[{data:rows.slice(0,50).map(r=>[r.k,r.b]),color:'#c46926'}],{title:'Applied βₖ',ylabel:'cycle k'});$('trajectoryMetrics').textContent=`V₀ = ${rows[0].V.toExponential(4)} → V₅₀ = ${rows[50].V.toExponential(4)}. Largest ΔV = ${maxIncrease.toExponential(3)}. Minimum scheduled dwell = ${minD.toFixed(4)} μs: ${minD>=3-1e-8?'feasible for this trajectory':'infeasible; this policy is not the dwell conditioner'}.`;phase(rows,rows[0].V);}
+['z1','z2','z3'].forEach(id=>$(id).addEventListener('input',trajectoryLab));$('policy').addEventListener('change',trajectoryLab);$('benchmark').addEventListener('click',()=>{const initial=C.trajectories.linear[0].z;['z1','z2','z3'].forEach((id,i)=>{$(id).step='any';$(id).value=initial[i]});trajectoryLab()});$('beta').addEventListener('input',betaLab);betaLab();
+function exactLab(){const k=+$('exactCycle').value;$('exactCycleValue').value=k;chart($('exactPlot'),['linear','exact'].map((type,i)=>({data:C.trajectories[type].map(r=>[r.k,Math.log10(Math.max(r.V,1e-24))]),color:i?'#c46926':'#087f78'})),{xmax:100,ymin:-24,ymax:2,title:'log₁₀ V(zₖ), display floor −24',ylabel:'cycle k',marker:k});const a=C.trajectories.linear[k],b=C.trajectories.exact[k];$('exactMetrics').textContent=`At cycle ${k}: linear V = ${a.V.toExponential(5)}, β = ${a.beta.toFixed(6)}; exact V = ${b.V.toExponential(5)}, β = ${b.beta.toFixed(6)}. Next-schedule minimum dwells: linear ${a.min_dwell_us.toFixed(6)} μs; exact ${b.min_dwell_us.toFixed(6)} μs.`;}
+$('exactCycle').addEventListener('input',exactLab);exactLab();
+</script></body></html>
