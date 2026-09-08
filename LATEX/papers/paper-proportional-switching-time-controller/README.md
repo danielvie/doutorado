@@ -19,6 +19,7 @@ Run these from the paper directory. `task --list` lists paper and study tasks to
 | `task build` | Compile existing manuscript inputs without MATLAB |
 | `task results` | Solve the Julia certificate, then run the article numerical pipeline |
 | `task figures` | Compatibility alias for `task results` |
+| `task replot` | Redraw main-text numerical figures from saved data, without simulation or solvers |
 | `task test` | Check the conditioner, linearization, and controller without writing outputs |
 | `task test-regeneration` | Regenerate into a temporary directory and compare with stored evidence |
 | `task invariant-region` | Regenerate region figures and vertices from `results/paper_results.mat` |

@@ -6,6 +6,7 @@
 \usepackage{amsmath,amssymb,amsthm,bm}
 \usepackage{booktabs}
 \usepackage{graphicx}
+\usepackage{tikz}
 \usepackage{placeins}
 \usepackage{microtype}
 \usepackage{siunitx}
@@ -90,6 +91,17 @@ During interval $i$ of cycle $k$, the plant uses mode $q_i$ between the absolute
 \label{eq:incidence-map}
 \end{equation}
 where $D\in\R^{N\times(N-1)}$. Thus delaying one instant lengthens the preceding interval and shortens the following one by the same amount. Since $\vect{1}^{\mathsf T}D=0$, every offset vector preserves $T$. The remaining requirement is $\vect{d}_k\ge d_{\min}\vect{1}$ for a specified $d_{\min}>0$.
+
+\Cref{fig:timing-mechanism}(a)--(b) illustrates the timing coordinates using the converter schedule introduced in \cref{sec:case-study}. In panel (b), delaying instant 8 by \SI{12}{\micro\second} lengthens dwell 8 and shortens dwell 9 by the same amount, with all other offsets zero. The shortened dwell remains above the assumed \AppliedScheduleDwellBound{}~\si{\micro\second} bound. This isolated offset illustrates the dwell coupling; panel (c) instead shows the aggressive controller's first-cycle raw request.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{timing_coordinates.pdf}\par\smallskip
+    \includegraphics[width=\textwidth]{dwell_coupling.pdf}\par\smallskip
+    \includegraphics[width=\textwidth]{inadmissible_request.pdf}
+    \caption{Switching-instant adjustments in the nine-interval schedule. (a) Nominal schedule with eight adjustable interior switching instants. (b) Illustrative $+12$~\si{\micro\second} offset of instant 8. (c) Inadmissible first-cycle raw request from the aggressive controller. Hatching denotes a negative candidate dwell.}
+    \label{fig:timing-mechanism}
+\end{figure*}
 
 \subsection{Exact one-cycle map}
 
@@ -195,7 +207,7 @@ A fixed gain $K\in\R^{(N-1)\times n}$ requests
     A_{\mathrm{cl}}=\Phi-\Gamma_\tau K.
     \label{eq:raw-law}
 \end{equation}
-The gain can be designed from \eqref{eq:cycle-model}, for example by discrete LQR. Here the gain is fixed before conditioning and certification. Although a Schur $A_{\mathrm{cl}}$ gives a locally stabilizing raw law, it does not make every requested schedule admissible. The next section enforces the dwell constraints; \cref{sec:stability} examines the resulting conditioned dynamics.
+The gain can be designed from \eqref{eq:cycle-model}, for example by discrete LQR. Here the gain is fixed before conditioning and certification. Although a Schur $A_{\mathrm{cl}}$ gives a locally stabilizing raw law, it does not make every requested schedule admissible. In \cref{fig:timing-mechanism}(c), the raw request moves the last interior instant beyond $T$, making $d_N=T-t_{k,N-1}<0$. A minimum dwell constraint is stricter still: it requires $t_{k,N-1}\le T-d_{\min}$ even before the boundaries cross. The next section enforces all such adjacent-dwell constraints; \cref{sec:stability} examines the resulting conditioned dynamics.
 
 \section{Solver-free dwell-time conditioning}
 \label{sec:conditioning}
@@ -260,6 +272,13 @@ Schur stability of $A_0$ and $A_1$ separately is insufficient to establish stabi
 
 \subsection{Common quadratic Lyapunov certificate}
 
+\begin{figure}[t]
+    \centering
+    \resizebox{0.96\linewidth}{!}{\input{figures/common_p_geometry.tex}}
+    \caption{Schematic common-$P$ geometry in normalized error coordinates. The ellipse is the unit level set of $V$; the segment joins the endpoint images $A_0\vect{z}$ and $A_1\vect{z}$, with an intermediate image $A(\beta)\vect{z}$ marked.}
+    \label{fig:common-p}
+\end{figure}
+
 \begin{theorem}[Uniform stability under conditioning]
 \label{thm:common-p}
 Suppose there exist $P=P^{\mathsf T}\succ0$ and $\eta>0$ such that
@@ -314,6 +333,8 @@ for every $\beta\in[0,1]$, by convexity of the positive semidefinite cone. The S
 \end{equation}
 The same bound holds independently at every cycle, without any assumption on how $\beta_k$ is selected. Iteration and the inequalities $\lambda_{\min}(P)\|\vect{z}\|_2^2\le V(\vect{z})\le\lambda_{\max}(P)\|\vect{z}\|_2^2$ give \eqref{eq:uniform-bound}.
 \end{proof}
+
+\Cref{fig:common-p} illustrates why the same $P$ matters. For every $\vect{z}$ with $V(\vect{z})=1$, both endpoint images lie strictly inside the same ellipsoid. Their convex combination $A(\beta)\vect{z}$ lies on the segment joining them, which remains inside that convex sublevel set. Using one $V$ at every cycle makes the decrease comparable even when $\beta_k$ changes. The drawing is a two-dimensional schematic, not a converter trajectory or a nonlinear region of attraction.
 
 The Schur-complement argument proves decrease on the entire matrix segment, not only at sampled values of $\beta$. It certifies the linearized conditioned model for all initial errors in that model, including those outside $\mathcal C$. It does not make the linear approximation valid at arbitrary physical errors.
 
@@ -416,14 +437,9 @@ Computations use the full-precision schedule, with closure error \NominalClosure
     \end{tabular}
 \end{table}
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\linewidth]{reference_schedule_orbit.pdf}
-    \caption{Reconciled reference schedule and periodic state trajectory. Dotted vertical lines mark the eight movable interior switching instants; dashed horizontal lines show cycle averages. The feedback target is the phase-aligned trajectory, not these averages.}
-    \label{fig:reference}
-\end{figure}
+\Cref{fig:timing-mechanism}(a) shows the reconciled schedule. The corresponding reference periodic trajectory and cycle anchor are overlaid in \cref{fig:trajectories,fig:states}. Its cycle averages are \SI{\CycleAverageVCOne}{\volt}, \SI{\CycleAverageVCTwo}{\volt}, and \SI{\CycleAverageIL}{\ampere}; these averages are not the feedback target.
 
-\Cref{fig:reference} shows the reference trajectory. Its cycle averages are \SI{\CycleAverageVCOne}{\volt}, \SI{\CycleAverageVCTwo}{\volt}, and \SI{\CycleAverageIL}{\ampere}. With $\vect{v}=\dtau/t_s$, the normalized timing-input matrix is $B_n=S_x^{-1}\Gamma_\tau t_s$. Discrete LQR on $(A_0,B_n)$ yields $\vect{v}^{\mathrm{raw}}=-K_n\vect{z}$, or $K=t_sK_nS_x^{-1}$ in physical coordinates. \Cref{tab:parameters} lists the weights. Only the aggressive law is conditioned; the conservative law is an unconditioned comparison that remains dwell-feasible for this experiment.
+With $\vect{v}=\dtau/t_s$, the normalized timing-input matrix is $B_n=S_x^{-1}\Gamma_\tau t_s$. Discrete LQR on $(A_0,B_n)$ yields $\vect{v}^{\mathrm{raw}}=-K_n\vect{z}$, or $K=t_sK_nS_x^{-1}$ in physical coordinates. \Cref{tab:parameters} lists the weights. Only the aggressive law is conditioned; the conservative law is an unconditioned comparison that remains dwell-feasible for this experiment.
 
 \subsection{Model checks and numerical Lyapunov certificate}
 
@@ -464,17 +480,28 @@ with normalized error \InitialNormalizedError{}. Exact matrix exponentials propa
 
 \begin{figure*}[t]
     \centering
-    \includegraphics[width=0.78\textwidth]{trajectory_comparison.pdf}
-    \caption{Continuous-time physical-state trajectories over the same \SimulationCycles{} cycles, starting from the same initial state and overlaid on one set of axes. Blue shows conditioned aggressive feedback and dashed red shows the fixed nominal open-loop schedule. The black curve is the reference periodic trajectory; the black dot is the initial state and the star marks the cycle anchor. The visible open-loop displacement over this short horizon does not imply instability.}
+    \includegraphics[width=\textwidth]{trajectory_comparison.pdf}
+    \caption{Early transient and eventual convergence. (a) Continuous-time state trajectories over \SimulationCycles{} cycles. (b) Normalized cycle-start error on logarithmic axes. Shading marks the horizon in (a); dots mark the saved threshold-crossing samples.}
     \label{fig:trajectories}
 \end{figure*}
 
-\Cref{fig:trajectories} compares the physical trajectories over \SimulationCycles{} cycles. The controlled trajectory rapidly approaches the reference. Open loop remains visibly displaced over this horizon, despite having a Schur cycle matrix. The cycle-start errors in \cref{fig:response} quantify the difference without relying on perspective or overlap in the 3D plot.
+\Cref{fig:trajectories}(a) compares the physical trajectories over \SimulationCycles{} cycles. The controlled trajectory rapidly approaches the reference. Open loop remains visibly displaced over this short horizon, but the longer error history in panel (b) shows its eventual approach. Both runs target the same periodic trajectory; feedback accelerates convergence rather than stabilizing an otherwise unstable open-loop benchmark. The dot and star in panel (a) mark the initial state and reference cycle anchor, respectively.
+
+We report the dimensionless normalized cycle-start error
+\begin{equation}
+    E_k=\bigl\|S_x^{-1}\bigl(\vect{x}(kT)-\vect{x}^{\star}\bigr)\bigr\|_2,
+    \label{eq:reported-cycle-error}
+\end{equation}
+where $\vect{x}^{\star}$ is the cycle anchor and $S_x=\operatorname{diag}(10,20,1)$ uses voltage scales of \SI{10}{\volt} and \SI{20}{\volt} and a current scale of \SI{1}{\ampere}. Sampling at the same phase distinguishes tracking error from the reference's switching ripple. Under the fixed nominal schedule, convergence of these samples to the anchor also implies convergence of the within-cycle motion to the reference periodic trajectory, not to a constant physical state.
+
+In \cref{fig:trajectories}(b), cycle zero is omitted because the horizontal axis is logarithmic. Feedback data extend to cycle \SimulationCycles{}, open-loop data to cycle \LongSimulationCycles{}, and errors below $10^{-8}$ lie outside the displayed range. The marked crossings are actual samples, not interpolated intersections: the first feedback sample below $0.01$ and the open-loop sample after which every remaining simulated error stays below it.
+
+The value $E_k=0.01$ is a selected reporting threshold for comparing convergence times, not a stability boundary or a hardware accuracy requirement. It is relative to the chosen state scales, not to the initial error or each reference component. The condition $E_k<0.01$ implies cycle-start component errors below \SI{0.10}{\volt}, \SI{0.20}{\volt}, and \SI{0.01}{\ampere}, respectively; the joint Euclidean-norm condition is stricter than these individual bounds alone. Crossing the threshold does not mean that the error is zero. The continued error decay in \cref{fig:trajectories}(b), together with the exact open-loop error map, establishes the distinction between a reported threshold time and eventual convergence. \Cref{fig:response} details the early error and conditioning histories.
 
 \begin{figure*}[t]
     \centering
-    \includegraphics[width=0.88\textwidth]{conditioned_control_response.pdf}
-    \caption{First 25 cycles of the exact comparison. (a) Normalized cycle-start errors for conditioned aggressive LQR, conservative LQR, and open loop. (b) Conditioning factor. (c) Maximum absolute raw and applied switching-instant offsets. (d) Minimum raw and applied dwell durations. Raw actions are candidate commands only; the plant uses the conditioned schedule.}
+    \includegraphics[width=\textwidth]{conditioned_control_response.pdf}
+    \caption{First 25 cycles of the exact simulation. (a) Cycle-start error. (b) Applied fraction of the timing request. Shading in (a)--(b) marks active scaling. (c) Requested and applied minimum dwell, with the forbidden range shaded.}
     \label{fig:response}
 \end{figure*}
 
@@ -502,26 +529,25 @@ with normalized error \InitialNormalizedError{}. Exact matrix exponentials propa
     \end{tabular}
 \end{table}
 
-The aggressive raw law requests a minimum dwell of \MinimumRawDwell{}~\si{\micro\second}, which would invert an interval. Conditioning acts during \ConditionedCycleCount{} cycles, with minimum factor \MinimumConditioningBeta{}. It reduces the largest absolute offset from \MaximumRawOffset{} to \MaximumAppliedOffset{}~\si{\micro\second} and keeps every applied dwell at or above \AppliedScheduleDwellBound{}~\si{\micro\second}. The active constraint reaches this bound, as the maximal-scaling formula predicts.
+\Cref{fig:response} aligns the error with the fraction of each timing request that is applied. In this simulation, the first three requests require factors of approximately $0.294$, $0.447$, and $0.779$, respectively. From cycle $3$ onward, the complete request is feasible and $\beta_k=1$. Feedback remains active, but its commands no longer require scaling. The cycle-start error continues to decrease and first falls below the selected $0.01$ threshold at cycle \ConditionedSettlingCycle{}. Scaling is transient in this run; this observation does not establish that it becomes permanently inactive for other initial conditions or after disturbances.
+
+The raw actions in \cref{fig:response}(c) are candidate commands only; the plant uses the conditioned schedule. The aggressive raw law requests a minimum dwell of \MinimumRawDwell{}~\si{\micro\second}, which would invert an interval. Conditioning acts during \ConditionedCycleCount{} cycles, with minimum factor \MinimumConditioningBeta{}. It reduces the largest absolute offset from \MaximumRawOffset{} to \MaximumAppliedOffset{}~\si{\micro\second} and keeps every applied dwell at or above \AppliedScheduleDwellBound{}~\si{\micro\second}. The active constraint reaches this bound, as the maximal-scaling formula predicts.
 
 The conservative law remains feasible without conditioning but crosses the error threshold at cycle \ConservativeSettlingCycle{}, compared with cycle \ConditionedSettlingCycle{} for the conditioned aggressive law. \Cref{tab:results} reports the comparison. These large-error nonlinear trajectories support the controller's performance in this benchmark; the common-$P$ theorem alone does not certify their entire transient.
 
-\subsection{Eventual open-loop convergence}
-
-For the same nominal schedule, $\rho(\Phi)=\OpenLoopSpectralRadius{}<1$. Equation~\eqref{eq:exact-open-loop} therefore predicts eventual open-loop convergence, not merely local convergence of a linear approximation. A separate \LongSimulationCycles{}-cycle exact simulation tests the long time scale hidden by the short comparison.
+\subsection{Physical states and long-horizon comparison}
 
 \begin{figure*}[t]
     \centering
-    \includegraphics[width=\textwidth]{open_loop_convergence.pdf}
-    \caption{Open-loop convergence over \LongSimulationCycles{} cycles. (a)--(c) Physical states sampled at cycle starts, plotted against $kT$ on a logarithmic axis; $k=0$ is omitted. Dashed horizontal lines mark the corresponding components of the reference anchor. The vertical lines mark the persistent normalized-error crossing at cycle \OpenLoopConvergenceCycle{}. (d) Dense continuous-time motion for the first \SimulationCycles{} cycles, followed by selected cycle-start samples that fade with increasing cycle number. Later cycles are represented by their actual start states, not by their full within-cycle paths. The reference trajectory is drawn once, together with the final cycle. The star marks the reference anchor, the black dot the initial state, and the diamond the threshold crossing.}
-    \label{fig:open-loop}
+    \includegraphics[width=\textwidth]{state_time_comparison.pdf}
+    \caption{Continuous-time state responses over the first 12 cycles. (a) $v_{C_1}(t)$. (b) $v_{C_2}(t)$. (c) $i_L(t)$. Each panel compares closed loop, open loop, and the reference periodic waveform.}
+    \label{fig:states}
 \end{figure*}
 
-\Cref{fig:open-loop} shows the long-run physical states sampled at the same phase of every cycle. Their damped oscillations approach the components of $\vect{x}^{\star}$. In the 3D view, selected cycle-start states replace the later within-cycle paths to avoid drawing thousands of overlapping loops. Their approach to the anchor, together with the final cycle overlaid on the reference, shows convergence to periodic motion rather than to a constant physical state.
+\Cref{fig:states} separates the physical states along a common time axis, making the individual voltage and current transients visible. Both responses start from the same initial state. The reference repeats the nominal within-cycle waveform, not its average or a constant anchor value. The closed-loop states approach this periodic waveform while open loop remains displaced over the displayed window. The continuing switching ripple is part of the reference motion, not residual cycle-start tracking error. These curves use the exact within-interval samples, rather than only the states at cycle starts.
 
-The normalized cycle-start error remains below $0.01$ from cycle \OpenLoopConvergenceCycle{} through the end of the run. Since $T=\SI{\NominalPeriodMicroseconds}{\micro\second}$, the open-loop transient spans seconds, whereas the controlled threshold crossing occurs within a few milliseconds. The state histories are phase-aligned samples, not continuous-time waveforms or cycle averages.
+For the same nominal schedule, $\rho(\Phi)=\OpenLoopSpectralRadius{}<1$. Equation~\eqref{eq:exact-open-loop} therefore predicts eventual open-loop convergence, not merely local convergence of a linear approximation. The separate \LongSimulationCycles{}-cycle exact simulation in \cref{fig:trajectories}(b) tests the long time scale hidden by the short comparison. Its normalized cycle-start error remains below $0.01$ from cycle \OpenLoopConvergenceCycle{} through the end of the run. Since $T=\SI{\NominalPeriodMicroseconds}{\micro\second}$, the open-loop transient spans seconds, whereas the controlled threshold crossing occurs within a few milliseconds.
 
-\FloatBarrier
 \section{Discussion}
 
 Uniform conditioning connects two properties that must be distinguished. The dwell inequalities give a closed-form maximal feasible scale for any finite raw action. The common quadratic Lyapunov inequalities then give a sufficient convergence certificate for the associated linearized matrix segment. Both the SDP and the supporting invariant-region computation are offline. Online execution remains a static gain multiplication followed by adjacent differences and a minimum scan.
@@ -536,6 +562,9 @@ The assumed \SI{\AppliedScheduleDwellBound}{\micro\second} bound has not been ca
 
 The proposed conditioner applies the largest dwell-feasible scalar multiple of a proportional timing action in $O(N)$ time, preserving its direction and the fixed cycle period. A common quadratic Lyapunov function found through an offline endpoint SDP certifies uniform exponential stability of the conditioned linearized model for every conditioning-factor sequence in $[0,1]$. Strict nominal dwell margin also yields a local exact nonlinear stability result. In the converter application, exact 3D trajectories and error histories show that conditioning makes the aggressive action feasible and accelerates convergence relative to an already stable open-loop schedule. The long-horizon simulation confirms convergence to periodic motion. Extending the feedback guarantee beyond a local nonlinear neighborhood requires an explicit remainder or nonlinear Lyapunov analysis.
 
+% Allow the comparison figures to share pages with the discussion,
+% but keep all main-text figures before the appendix.
+\FloatBarrier
 \backmatter
 \begin{appendices}
 \section{Raw-action invariance}

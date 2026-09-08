@@ -10,9 +10,7 @@ figure_reference(paths.article_figures, benchmark.config, orbit_time, orbit_stat
 figure_first_cycle_conditioning(paths.diagnostic_figures, benchmark.config.Ts(:), ...
     response.raw_offsets(:, 1), response.applied_offsets(:, 1), response.raw_dwell(:, 1), ...
     response.applied_dwell(:, 1), response.conditioning_beta(1), benchmark.applied_schedule_dwell_bound);
-figure_conditioned_response(paths.diagnostic_figures, response.conditioned_error, response.conservative_error, ...
-    response.open_loop_error, response.conditioning_beta, response.raw_offsets, response.applied_offsets, ...
-    response.raw_dwell, response.applied_dwell, benchmark.applied_schedule_dwell_bound);
+paper.plot_conditioned_response(paths.diagnostic_figures, response, benchmark);
 copyfile(fullfile(paths.diagnostic_figures, 'conditioned_control_response.pdf'), ...
     fullfile(paths.article_figures, 'conditioned_control_response.pdf'));
 end
@@ -132,67 +130,5 @@ function figure_first_cycle_conditioning(figures_dir, nominal_boundaries, ...
         'Interpreter', 'none', 'FontWeight', 'normal');
     exportgraphics(fig, fullfile(figures_dir, ...
         'first_cycle_conditioning.pdf'), 'ContentType', 'vector');
-    close(fig);
-end
-
-function figure_conditioned_response(figures_dir, conditioned_error, ...
-        conservative_error, open_error, beta, raw_offsets, applied_offsets, ...
-        raw_dwell, applied_dwell, dwell_bound)
-    cycles = 0:(numel(conditioned_error) - 1);
-    action_cycles = 0:(numel(beta) - 1);
-    shown_cycle = min(25, cycles(end));
-    colors = [0.00, 0.35, 0.70; 0.75, 0.20, 0.15; 0.25, 0.55, 0.30];
-    fig = figure('Visible', 'off', 'Position', [100, 100, 780, 540]);
-    layout = tiledlayout(2, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
-
-    nexttile;
-    semilogy(cycles, conditioned_error, 'Color', colors(1, :)); hold on;
-    semilogy(cycles, conservative_error, '-.', 'Color', colors(3, :));
-    semilogy(cycles, open_error, '--', 'Color', colors(2, :));
-    yline(0.01, ':k', '0.01');
-    xlim([0, shown_cycle]);
-    ylabel('$\|S_x^{-1}e_k\|_2$', 'Interpreter', 'latex');
-    title('(a) Exact cycle-start error', 'FontWeight', 'normal');
-    legend('Conditioned aggressive', 'Conservative', 'Open loop', ...
-        'Location', 'best');
-    grid on;
-
-    nexttile;
-    stairs(action_cycles, beta, 'Color', colors(1, :));
-    xlim([0, shown_cycle]);
-    ylim([0, 1.05]);
-    ylabel('$\beta_k$', 'Interpreter', 'latex');
-    title('(b) Uniform conditioning factor', 'FontWeight', 'normal');
-    grid on;
-
-    nexttile;
-    plot(action_cycles, max(abs(raw_offsets), [], 1) * 1e6, '--', ...
-        'Color', colors(2, :)); hold on;
-    plot(action_cycles, max(abs(applied_offsets), [], 1) * 1e6, ...
-        'Color', colors(1, :));
-    xlim([0, shown_cycle]);
-    ylabel('Maximum absolute offset ($\mu$s)', 'Interpreter', 'latex');
-    title('(c) Candidate and applied action', 'FontWeight', 'normal');
-    legend('Raw', 'Applied', 'Location', 'best');
-    grid on;
-
-    nexttile;
-    plot(action_cycles, min(raw_dwell, [], 1) * 1e6, '--', ...
-        'Color', colors(2, :)); hold on;
-    plot(action_cycles, min(applied_dwell, [], 1) * 1e6, ...
-        'Color', colors(1, :));
-    yline(dwell_bound * 1e6, ':k', '3 $\mu$s bound', ...
-        'Interpreter', 'latex');
-    xlim([0, shown_cycle]);
-    ylabel('Minimum dwell ($\mu$s)', 'Interpreter', 'latex');
-    title('(d) Candidate and applied dwell', 'FontWeight', 'normal');
-    legend('Raw', 'Applied', 'Location', 'best');
-    grid on;
-
-    title(layout, 'Three-cell converter: conditioned large-error response', ...
-        'Interpreter', 'none', 'FontWeight', 'normal');
-    xlabel(layout, 'Cycle');
-    exportgraphics(fig, fullfile(figures_dir, ...
-        'conditioned_control_response.pdf'), 'ContentType', 'vector');
     close(fig);
 end

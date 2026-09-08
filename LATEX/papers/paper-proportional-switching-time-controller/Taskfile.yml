@@ -26,6 +26,11 @@ tasks:
     cmds:
       - task: results
 
+  replot:
+    desc: Redraw main-text numerical figures from saved data without rerunning simulations
+    cmds:
+      - matlab -batch "addpath('scripts'); paper.replot_figures;"
+
   test:
     desc: Check the conditioner, model, and pipeline data contracts without exporting
     cmds:

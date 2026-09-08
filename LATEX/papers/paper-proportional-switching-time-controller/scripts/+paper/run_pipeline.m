@@ -45,6 +45,7 @@ fprintf('[6/6] Export metrics, data, and figures\n');
 metrics = paper.collect_metrics(benchmark, model, controller, summary, region);
 results = paper.write_outputs(paths, benchmark, model, controller, region, response, metrics);
 paper.export_figures(paths, benchmark, model, response);
+paper.export_timing_diagrams(paths, benchmark, response);
 paper.export_lyapunov(paths, benchmark, model, controller);
 paper.export_trajectories(paths, benchmark, model, response, long_response);
 paper.write_provenance(paths);

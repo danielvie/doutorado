@@ -25,10 +25,15 @@ The Maximal Invariant Raw-Action Admissible Region is supporting evidence about 
 - Validate the analytical one-cycle Jacobians and second-order residual decay against exact propagation.
 - Compare conditioned aggressive LQR, conservative LQR, and open loop from `[7.5143, 20.8211, 0.0314]^T` without changing the established benchmark or gains.
 - Overlay densely sampled continuous-time 3D physical-state trajectories for conditioned feedback and open loop on the same axes over the same horizon, together with the reference periodic trajectory.
-- Show long-run open-loop physical states at cycle starts against logarithmic time. In the long-horizon 3D view, retain the dense early transient and represent later cycles by selected actual cycle-start states, with the reference trajectory drawn once and the final cycle overlaid. Clearly distinguish these phase-aligned samples from continuous-time waveforms, averages, and the reference anchor.
+- Show the three continuous-time physical states against time, comparing conditioned feedback, open loop, and the repeated reference periodic waveform over the same early window. Preserve switching ripple and the distinct sampling times of the two responses; do not replace the reference by its mean or anchor.
+- Keep eventual open-loop convergence visible in the long-horizon cycle-start error panel beside the 3D comparison. Retain the saved long-horizon state data and older detailed plot as supporting evidence.
+- Align the early closed-loop/open-loop error, conditioning factor, and requested/applied minimum dwell histories. Mark the cycles requiring scaling. Treat its eventual inactivity as an observation of this simulation, not a general guarantee. Keep the conservative tuning comparison in the table and text.
 - Report error-threshold crossings, conditioning factors, and raw/applied dwell durations alongside the numerical Lyapunov certificate.
+- Export figures at their final manuscript width, with approximately 9–10 pt labels/legends and at least 8 pt tick labels. Keep captions short and explain mechanisms in the body.
 - Keep detailed invariant-region analysis in an appendix, retain its reproducible evidence, and give it no global nonlinear interpretation.
-- Aim for 8–10 pages, with at most four main-text figures and two tables.
+- Include a paper-style explanatory figure showing the adjustable interior instants, the coupled effect on adjacent dwells, and a non-executable raw request. Use current benchmark data and distinguish an illustrative isolated offset from the simulated feedback action.
+- Explain the common-P argument with a compact schematic showing both endpoint images and their interpolating segment inside one quadratic sublevel set. Clearly distinguish this illustration from converter data and a nonlinear region of attraction.
+- Aim for 8–10 pages, with five main-text figures and two tables. The timing-mechanism figure groups three explanatory panels. Use it for the reference schedule and the trajectory comparisons for the reference periodic trajectory, leaving the standalone reference figure as supporting material and using its main-text slot for the common-P schematic.
 
 ## Boundaries
 

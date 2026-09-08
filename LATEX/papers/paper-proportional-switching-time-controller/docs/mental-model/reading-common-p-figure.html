@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reading the common-P figure</title>
+<style>
+:root{color-scheme:light;--ink:#202b35;--muted:#526171;--blue:#23557d;--orange:#994800;--line:#d6dfe5}
+*{box-sizing:border-box}body{margin:0;background:#f5f7f8;color:var(--ink);font:17px/1.6 system-ui,sans-serif}main{max-width:1000px;margin:auto;padding:2rem 1.25rem 4rem}h1,h2,h3{line-height:1.2}h1{font-size:2.25rem;margin-bottom:.6rem}h2{margin-top:0;font-size:1.5rem}h3{font-size:1.12rem;margin-top:1.5rem}section,aside{background:white;border:1px solid var(--line);border-radius:8px;padding:1.4rem;margin:1.5rem 0}p{max-width:78ch}a{color:#195582}a:focus-visible,button:focus-visible,select:focus-visible{outline:3px solid #a65a13;outline-offset:3px}blockquote{border-left:3px solid #a3b5c2;margin:1rem 0;padding:.2rem 1rem;color:#3b4c58}code{font-size:.91em;overflow-wrap:anywhere}.equation{font:1.25rem/1.65 Georgia,serif;padding:.6rem 1rem;background:#f4f7fa;border-left:3px solid var(--blue)}.small,.evidence{font-size:.87rem;color:var(--muted)}.note{border-left:4px solid var(--orange);padding:.6rem 1rem;background:#fff8ef}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.9rem}th,td{text-align:left;vertical-align:top;padding:.65rem;border:1px solid var(--line)}th{background:#edf2f5}svg{display:block;width:100%;height:auto}figure{margin:1rem 0}figcaption{font-size:.92rem;color:var(--muted)}nav a{margin-right:1rem}summary{cursor:pointer;font-weight:600}button,select{font:inherit}button{border:1px solid var(--blue);border-radius:5px;padding:.5rem .9rem;background:white;color:var(--blue);cursor:pointer}button.primary{background:var(--blue);color:white}#prep-lab .controls{display:flex;flex-wrap:wrap;gap:1rem;align-items:end}#prep-lab label{display:block;font-weight:600}#prep-lab select{display:block;max-width:100%;padding:.4rem;background:white;color:var(--ink);border:1px solid #7a8d9b;border-radius:4px}#prep-lab .prediction{margin:1rem 0}#prep-lab .result{border-left:4px solid var(--blue);padding:.7rem 1rem;margin-top:1rem;background:#f0f5f9}#prep-lab [hidden]{display:none}#prep-lab output{display:block}footer{font-size:.85rem;color:var(--muted)}@media(max-width:600px){main{padding:1rem .7rem}section,aside{padding:1rem}h1{font-size:1.85rem}th,td{min-width:145px}.equation{font-size:1.08rem}}@media print{body{background:white}button,select{display:none}section{break-inside:avoid}a{color:inherit}}
+#round-01 .r1-lab{border:1px solid var(--line);padding:1rem;margin:1.4rem 0;border-radius:6px}#round-01 .r1-lab label{display:block;margin:.8rem 0;font-weight:600}#round-01 .r1-lab select{display:block;max-width:100%;padding:.4rem;margin-top:.3rem;background:white;border:1px solid #7a8d9b;border-radius:4px;color:var(--ink)}#round-01 .r1-result{background:#f1f6f9;padding:1rem;margin-top:1rem;border-left:4px solid var(--blue)}#round-01 [hidden]{display:none}#round-01 output{display:block}#round-01 .r1-result p{margin-bottom:0}
+</style>
+</head>
+<body>
+<main>
+<header>
+<p class="small">Learning history: preparation and first review</p>
+<h1>Reading the common-P figure</h1>
+<p>Start with the points and arrows. This guide answers your questions about the drawing, not the whole stability proof.</p>
+<nav aria-label="Guide sections"><a href="#round-01">Latest review</a><a href="#prep-questions">Your questions</a><a href="#prep-reading">Read the drawing</a><a href="#prep-lab">Try one case</a><a href="#vocabulary">Vocabulary</a><a href="#prep-next">Your turn</a></nav>
+</header>
+<section id="prep-questions">
+<h2>What you have said so far</h2>
+<blockquote>"i dont now how to start my mental model of this. answer these question so i can state something"</blockquote>
+<ul>
+<li>"why is there <code>A1 z</code> and <code>A0 z</code>? is this a multiplication or symbolic?"</li>
+<li>"is <code>z</code> in the border of the convex region V(z) = 1? does this mean this is where it starts?"</li>
+<li>You marked the gray arrow from <strong>0 to z</strong> in your first screenshot, and the blue arrow from <strong>0 to A₁z</strong> in your second.</li>
+</ul>
+<p>You have asked questions, not committed to an explanation. There is no model to grade yet, and these questions are not evidence of a misconception. Your observation that the drawn z is on the boundary is correct; your intended meaning of "starts" remains open.</p>
+<p>Proposed goal: distinguish the current error, alternative next errors, and the arrows representing them. We will test your explanation after this preparation.</p>
+</section>
+<section id="prep-reading">
+<h2>1. A₀z and A₁z are matrix multiplications</h2>
+<p>The article uses a three-component vector <strong>z</strong> for the scaled error at a cycle start. A₀ and A₁ are 3 × 3 matrices. Multiplying either matrix by z gives another three-component vector.</p>
+<ul>
+<li><strong>A₀z:</strong> the next cycle-start error predicted with no timing correction, β = 0.</li>
+<li><strong>A₁z:</strong> the next cycle-start error predicted with the full raw timing correction, β = 1.</li>
+</ul>
+<p>Both calculations use <strong>the same current z</strong>. They are alternatives. The drawing does not say to visit A₀z and then A₁z.</p>
+<p class="equation">z<sub>k+1</sub> = A(β<sub>k</sub>) z<sub>k</sub><br>A(β)z = (1 − β) A₀z + β A₁z</p>
+<p>These are predictions of the article's <strong>linearized cycle model</strong>. The full raw correction can violate dwell constraints. The actual controller selects a feasible β; the drawing does not claim every depicted choice is an executable schedule.</p>
+<p class="evidence">Source: <a href="../../latex/main.tex">latex/main.tex</a>, labels <code>eq:endpoints</code>, <code>eq:conditioned-family</code>, and <code>eq:conditioner</code>. The definition is z = Sₓ⁻¹(x − x★), not z = x.</p>
+<h2>2. The boundary is a chosen error level</h2>
+<p>Yes, z is on the ellipse in this drawing. The ellipse is the <strong>boundary</strong> V(z) = 1. Its interior has V &lt; 1; the filled convex region has V ≤ 1.</p>
+<p>The illustrator chose a current error on that level to make the comparison easy to see. It is <strong>not a required initial condition</strong>. A real initial error can have V = 0.2, V = 1, V = 4, or another nonnegative value.</p>
+<p>The level set surrounds <strong>zero error</strong>, not zero physical voltages and current. Also, V measures error using P; it is not necessarily ordinary distance to the center.</p>
+<p class="evidence">Source: <a href="../../latex/main.tex">latex/main.tex</a>, theorem <code>thm:common-p</code> and the paragraph referring to <code>fig:common-p</code>. <a href="../../latex/figures/common_p_geometry.tex">common_p_geometry.tex</a> places the illustrative z exactly on the chosen ellipse.</p>
+<h2>3. Your two marked arrows represent vectors</h2>
+<figure>
+<svg viewBox="0 0 720 410" role="img" aria-labelledby="prep-svg-title prep-svg-desc">
+<title id="prep-svg-title">Current error and two alternative next errors, all drawn from the same origin</title>
+<desc id="prep-svg-desc">An ellipse represents V equal to one. The gray arrow runs from zero error to z on the boundary. Two blue arrows run from that same origin to A zero z and A one z inside. A thick segment joins the two endpoint images, with A beta z marked between them. None of these strokes is a continuous-time plant trajectory.</desc>
+<defs><marker id="prep-gray-head" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#666"/></marker><marker id="prep-blue-head" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#23557d"/></marker></defs>
+<ellipse cx="350" cy="210" rx="290" ry="145" fill="#f4f7fa" stroke="#46545f" stroke-width="2"/>
+<text x="160" y="53" font-size="22" font-family="Georgia,serif">V(z) = 1</text>
+<text x="155" y="285" font-size="21" fill="#526171" font-family="Georgia,serif">V &lt; 1</text>
+<line x1="350" y1="210" x2="524" y2="94" stroke="#666" stroke-width="2.5" marker-end="url(#prep-gray-head)"/>
+<line x1="350" y1="210" x2="471" y2="195.5" stroke="#23557d" stroke-width="2.5" marker-end="url(#prep-blue-head)"/>
+<line x1="350" y1="210" x2="272.7" y2="142.3" stroke="#23557d" stroke-width="2.5" marker-end="url(#prep-blue-head)"/>
+<line x1="471" y1="195.5" x2="272.7" y2="142.3" stroke="#23557d" stroke-width="5"/>
+<line x1="350" y1="210" x2="371.85" y2="168.9" stroke="#994800" stroke-width="2" stroke-dasharray="5 4"/>
+<circle cx="350" cy="210" r="4" fill="#202b35"/><circle cx="524" cy="94" r="5" fill="#202b35"/>
+<circle cx="471" cy="195.5" r="5" fill="#23557d"/><circle cx="272.7" cy="142.3" r="5" fill="#23557d"/>
+<circle cx="371.85" cy="168.9" r="7" fill="#994800" stroke="white" stroke-width="2"/>
+<g font-family="Georgia,serif" font-size="23"><text x="340" y="243">0</text><text x="535" y="87">z</text><text x="485" y="202">A₀z</text><text x="218" y="126">A₁z</text><text x="348" y="137" fill="#994800">A(β)z</text></g>
+<text x="350" y="392" text-anchor="middle" font-size="18" fill="#526171">A 2D schematic of a 3D error model. Not a physical trajectory.</text>
+</svg>
+<figcaption>All three main arrows share the origin. Their arrowheads identify vectors, not stops along one journey.</figcaption>
+</figure>
+<h3>First screenshot: the gray arrow 0 → z</h3>
+<p>This is how we draw the vector z: its tail is at the origin and its tip locates the current error. It does <strong>not</strong> show the system moving from zero error to z. The current error is already z in this snapshot.</p>
+<h3>Second screenshot: the blue arrow 0 → A₁z</h3>
+<p>This represents the vector obtained by multiplying A₁ by z. Its tip is a predicted next error. Its tail is at the origin because we are drawing a vector, <strong>not because the system starts at zero</strong>.</p>
+<p>If we wanted to draw the cycle-to-cycle update explicitly, we would connect <strong>z → A₁z</strong>. Even that connection would represent a discrete update, not the actual continuous path taken during the switching cycle.</p>
+<h3>The thick blue segment is different</h3>
+<p>It joins A₀z and A₁z. For this fixed current z, A(β)z sits somewhere on that segment. Changing β changes the predicted next error along it. It is not a path traveled over time.</p>
+<p class="note">The useful first distinction is <strong>an arrow representing a vector</strong> versus <strong>an arrow representing an update</strong>. The original figure leaves this convention implicit, which makes your question understandable.</p>
+<p class="evidence">Source: <a href="../../latex/figures/common_p_geometry.tex">common_p_geometry.tex</a>, coordinates <code>O</code>, <code>z</code>, <code>a0</code>, <code>a1</code>, <code>ab</code> and the corresponding drawing commands. This interpretation is checked against the manuscript's cycle equation, not inferred from arrow color.</p>
+</section>
+<section id="prep-lab" aria-labelledby="prep-lab-title">
+<h2 id="prep-lab-title">Laboratory: must the current error be on V = 1?</h2>
+<p>This tests the difference between "the drawing chose a unit level" and "every run must start on that level." Neither statement is attributed to you as a belief.</p>
+<p>Use the same illustrative ellipse as the figure. The starting example is z̄ = [1.8, 1.2]ᵀ, with V(z) = z₁²/9 + z₂²/2.25. Now change the size of that error, keeping its direction.</p>
+<form>
+<div class="controls"><div><label for="prep-scale">Error scale s</label><select id="prep-scale"><option value="0.5">Half the error: s = 0.5</option><option value="1" selected>Original error: s = 1</option><option value="2">Twice the error: s = 2</option></select></div></div>
+<div class="prediction"><label for="prep-prediction">Predict V(sz̄) before revealing</label><select id="prep-prediction" required><option value="">Choose your prediction</option><option value="0.25">0.25</option><option value="1">1</option><option value="4">4</option><option value="unsure">I am not sure yet</option></select></div>
+<button type="submit" class="primary">Reveal this case</button> <button type="reset">Reset</button>
+</form>
+<p class="small">Nothing evolves in time here. Each reveal draws a different chosen current error. Changing a control hides the old result until you predict again.</p>
+<div class="result" hidden>
+<output aria-live="polite"></output>
+<svg viewBox="0 0 600 330" role="img" aria-labelledby="prep-lab-svg-title prep-lab-svg-desc">
+<title id="prep-lab-svg-title">A chosen current error relative to a fixed V equals one ellipse</title>
+<desc id="prep-lab-svg-desc">The ellipse stays fixed. The point and its arrow move when the size of the chosen error changes. Numerical coordinates and the value of V appear above the drawing.</desc>
+<defs><marker id="prep-lab-arrowhead" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#23557d"/></marker></defs>
+<ellipse cx="250" cy="200" rx="140" ry="70" fill="white" stroke="#526171" stroke-width="2"/>
+<text x="166" y="116" font-family="Georgia,serif" font-size="20">V = 1</text>
+<circle cx="250" cy="200" r="4" fill="#202b35"/><text x="237" y="229" font-size="20">0</text>
+<line data-role="vector" x1="250" y1="200" x2="334" y2="144" stroke="#23557d" stroke-width="3" marker-end="url(#prep-lab-arrowhead)"/>
+<circle data-role="point" cx="334" cy="144" r="5" fill="#23557d"/>
+<text data-role="label" x="343" y="135" font-size="20">sz̄</text>
+</svg>
+<p data-role="explanation"></p>
+</div>
+<p class="small">Assumptions: dimensionless 2D illustrative error; P = diag(1/9, 1/2.25); no plant dynamics, feedback, or simulation of convergence. This is arithmetic from a quadratic function, not independent evidence about the converter. The chosen P is the drawing's geometry, not the article's computed 3 × 3 certificate.</p>
+<p class="evidence">Rules: <code>V(z) = zᵀPz</code> in <a href="../../latex/main.tex">the manuscript</a>; illustrative coordinates and ellipse in <a href="../../latex/figures/common_p_geometry.tex">the figure source</a>.</p>
+</section>
+<section id="prep-vocabulary">
+<h2>Vocabulary proposed during preparation</h2>
+<p class="small">Historical snapshot preserved below. See the <a href="#vocabulary">current vocabulary after round 1</a>.</p>
+<p>These definitions are <strong>proposed</strong>, not yet confirmed by you. They apply to reading this figure. Later reviews will record any changes without rewriting your earlier explanation.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Term</th><th>Your intended meaning</th><th>Proposed definition and scope</th><th>Example / non-example</th></tr></thead>
+<tbody>
+<tr><td>z</td><td>You ask whether it is a starting point.</td><td>Scaled cycle-start error, z = Sₓ⁻¹(x − x★). Dimensionless and three-dimensional in the article.</td><td>Error from the reference anchor / not the physical state x itself.</td></tr>
+<tr><td>A₀z, A₁z</td><td>You ask whether these are multiplication or symbolic labels.</td><td>Actual matrix-vector products; alternative next errors from the same current z, in the linearized model.</td><td>A₁ × z / not A₁ applied after A₀z.</td></tr>
+<tr><td>Origin 0</td><td>Not stated.</td><td>Zero error in this coordinate system.</td><td>x = x★ / not x = [0,0,0]ᵀ.</td></tr>
+<tr><td>Vector arrow</td><td>You ask about the two marked arrows.</td><td>An arrow from the coordinate origin to the tip representing that vector.</td><td>0 → z / not a time history moving away from the target.</td></tr>
+<tr><td>Cycle update</td><td>Not stated.</td><td>A relation between current and next cycle-start errors.</td><td>z → A₁z for the β = 1 linearized model / not the actual within-cycle waveform.</td></tr>
+<tr><td>V and P</td><td>Not stated.</td><td>V is a scalar quadratic error measure; positive-definite P supplies its weights and cross terms.</td><td>V = zᵀPz / not necessarily Euclidean distance or physical energy.</td></tr>
+<tr><td>Boundary and region</td><td>You identify z on the border.</td><td>V = 1 is the boundary; V ≤ 1 includes the interior.</td><td>A chosen level for illustration / not a mandatory initial condition or a nonlinear region of attraction.</td></tr>
+<tr><td>β and the segment</td><td>Not stated.</td><td>β weights the endpoint matrices. For a fixed z, their weighted images lie on the connecting segment.</td><td>A(β)z between A₀z and A₁z / not elapsed time along a trajectory.</td></tr>
+</tbody></table></div>
+<p class="evidence">Definitions follow <a href="../../CONTEXT.md">CONTEXT.md</a> and <a href="../../latex/main.tex">latex/main.tex</a>, especially <code>eq:endpoints</code>, <code>eq:conditioned-family</code>, and <code>thm:common-p</code>. User meanings remain unresolved until demonstrated or confirmed.</p>
+</section>
+<section id="prep-next">
+<h2>Your first explanation</h2>
+<p>In your own words, what do z, A₁z, and the origin mean? What does the blue arrow you marked represent? A short explanation, including guesses, is enough.</p>
+<p><strong>New case, left unanswered:</strong> if we wanted to add an arrow for the <em>change in error</em> during the β = 1 cycle, where would its tail and tip go, and what vector would it represent? Explain your reasoning using the vocabulary above.</p>
+<p>We have not yet tested your understanding of the proof or agreed on the vocabulary. Once you reply, a first review can focus on your actual explanation rather than guessing what you believe.</p>
+</section>
+<section id="round-01" aria-labelledby="r1-title">
+<h2 id="r1-title">Round 1: zero error is not zero physical state</h2>
+<p>You now describe A₁z as a matrix multiplication that gives another point. That is progress from asking whether it was only a symbolic label. The next distinction is between the physical state, its error, and the value of V.</p>
+<h3>Your explanation, preserved</h3>
+<blockquote><ul>
+<li>z means the normalized value of the state compared to the origin</li>
+<li>A1z means the computation of where in the space the result is projected by multiplying the matrix dinamics and the normalized state</li>
+<li>origin mean where we define our 0, if the system is state, this is the minimum value the system can have and will be move closer to it each ietaration</li>
+</ul></blockquote>
+<p><strong>Scope of this review:</strong> reading Figure 2 in normalized error coordinates, at cycle starts. This does not review the whole stability proof or infer what you mean by the word "state" in every context.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Your claim</th><th>Assessment</th><th>Smallest correction or open question</th></tr></thead>
+<tbody>
+<tr><td>z is normalized and compared with the origin.</td><td>Partly supported.</td><td>Subtract the reference anchor first, then scale. If you meant "state" as shorthand for that error, this is mostly a naming issue. If you meant the physical state x divided by scales, the missing subtraction changes the result. See <a href="#r1-origin-lab">Laboratory 1</a>.</td></tr>
+<tr><td>A₁z is computed by multiplying a dynamics matrix and a vector.</td><td>Supported within the linearized model.</td><td>The vector is the current normalized error. A₁ already includes the full raw feedback effect and describes one cycle, not one physical mode.</td></tr>
+<tr><td>The result is "projected."</td><td>Meaning unresolved.</td><td>If you mean "mapped to a new point," the idea is right. In mathematics a projection has a narrower meaning, which is not assumed here. Use "mapped" for now; there is no evidence yet that you meant the narrower operation.</td></tr>
+<tr><td>The origin is where zero is defined and is the system's minimum value.</td><td>First part supported; minimum-state interpretation contradicted.</td><td>Here zero is fixed by x = x★. Physical voltage/current need not be zero; error components can be negative. V has its minimum at zero error. The physical state vector does not have a minimum established by this figure.</td></tr>
+<tr><td>The system moves closer every iteration.</td><td>Depends on what "closer" means.</td><td>The certified linearized model decreases V at every nonzero step. It need not decrease ordinary distance or every coordinate at every step. This is not a global claim about the exact nonlinear plant. See <a href="#r1-distance-lab">Laboratory 2</a>.</td></tr>
+</tbody></table></div>
+<p class="evidence">Evidence: <a href="../../latex/main.tex">latex/main.tex</a>, cycle-start error definition in <code>sec:model</code>, <code>eq:endpoints</code>, <code>eq:conditioned-family</code>, and the decrease inequality in the proof of <code>thm:common-p</code>. The exact-plant limits are in subsection "What follows for the exact plant." These are source-defined claims, not conclusions drawn from a simulation.</p>
+<h3>The coordinate change has two steps</h3>
+<p class="equation">physical state x → subtract reference x★ → error e → divide by scales Sₓ → normalized error z</p>
+<p>So the origin of this drawing means <strong>x = x★</strong>. The reference is a chosen point on the periodic trajectory, sampled at the start of a cycle. It is not the smallest voltage or current the converter can have. Between cycle starts the desired physical state still moves along the periodic trajectory.</p>
+<figure>
+<svg viewBox="0 0 820 235" role="img" aria-labelledby="r1-coordinates-title r1-coordinates-desc">
+<title id="r1-coordinates-title">A positive reference voltage becomes zero error</title>
+<desc id="r1-coordinates-desc">Two aligned number lines show capacitor voltage and normalized voltage error. At 9.9247 volts the normalized error is zero. One volt below the reference gives minus 0.1; one volt above gives plus 0.1. The zero-error point is not a lower boundary.</desc>
+<text x="30" y="28" font-size="19">Physical capacitor voltage, V</text>
+<line x1="95" y1="76" x2="730" y2="76" stroke="#526171" stroke-width="2"/>
+<g font-size="18" text-anchor="middle"><text x="150" y="62">8.9247</text><text x="410" y="62">9.9247 = reference</text><text x="670" y="62">10.9247</text></g>
+<g stroke="#23557d" stroke-width="2"><line x1="150" y1="70" x2="150" y2="82"/><line x1="410" y1="70" x2="410" y2="82"/><line x1="670" y1="70" x2="670" y2="82"/></g>
+<text x="410" y="117" text-anchor="middle" font-size="18" fill="#526171">Subtract 9.9247 V, then divide by 10 V</text>
+<line x1="95" y1="154" x2="730" y2="154" stroke="#526171" stroke-width="2"/>
+<g stroke="#23557d" stroke-width="2"><line x1="150" y1="148" x2="150" y2="160"/><line x1="410" y1="148" x2="410" y2="160"/><line x1="670" y1="148" x2="670" y2="160"/></g>
+<g font-size="20" text-anchor="middle"><text x="150" y="185">−0.1</text><text x="410" y="185">0</text><text x="670" y="185">+0.1</text></g>
+<text x="30" y="224" font-size="18">Normalized error z₁, dimensionless</text>
+</svg>
+<figcaption>The two labels at the center describe the same physical condition in different coordinates. Negative error means below the reference, not necessarily negative voltage.</figcaption>
+</figure>
+<p class="evidence">Benchmark values: <a href="../../latex/main.tex">latex/main.tex</a>, anchor x★ = [9.9247 V, 19.2928 V, 0.9823 A]ᵀ and <code>tab:parameters</code>, Sₓ = diag(10 V, 20 V, 1 A). The ±1 V cases above are chosen examples, not recorded trajectories.</p>
+<div id="r1-origin-lab" class="r1-lab" aria-labelledby="r1-origin-title">
+<h3 id="r1-origin-title">Laboratory 1: which voltage puts us at zero error?</h3>
+<p>This distinguishes subtracting the reference before scaling from merely scaling the physical state. Only v<sub>C1</sub> changes; v<sub>C2</sub> and i<sub>L</sub> stay at their reference values.</p>
+<form>
+<label for="r1-voltage">Physical capacitor voltage<select id="r1-voltage"><option value="9.9247">At the reference: 9.9247 V</option><option value="8.9247">Below the reference: 8.9247 V</option><option value="10.9247">Above the reference: 10.9247 V</option><option value="0">Zero physical voltage: 0 V</option></select></label>
+<label for="r1-origin-prediction">Predict the normalized error z₁<select id="r1-origin-prediction" required><option value="">Choose before revealing</option><option value="zero">Zero</option><option value="negative">Negative</option><option value="positive">Positive</option><option value="unsure">Not sure yet</option></select></label>
+<button type="submit" class="primary">Reveal error</button> <button type="reset">Reset</button>
+</form>
+<div class="r1-result" hidden><output aria-live="polite"></output><p data-role="explanation"></p></div>
+<p class="small">This laboratory only converts coordinates. It does not simulate the converter or assert that a chosen state is reached in an experiment. All numbers use volts before division; the result is dimensionless.</p>
+</div>
+<h3>Keep the multiplication idea; use "maps" instead of "projects"</h3>
+<p>Your second statement already captures the calculation. More precisely, A₁ maps the current normalized error to the <strong>predicted next normalized error</strong> for the full raw correction. A₀ does the corresponding calculation for no timing correction. These are alternatives from the same z, not successive operations.</p>
+<p>A general matrix can rotate, stretch, or mix the components. It need not project a vector onto a line, a plane, or the ellipse boundary. Also, this picture alone does not say the full raw schedule is feasible.</p>
+<h3>What actually gets smaller?</h3>
+<p>The quantity guaranteed to decrease by this certificate is <strong>V(z) = zᵀPz</strong>, for the conditioned linearized model. V is a scalar with minimum zero at z = 0. Neither the physical state x nor its error coordinates have to decrease numerically at every cycle.</p>
+<p>If a voltage is below its positive reference, getting closer may require that voltage to <em>increase</em>. Even ordinary distance in the normalized error plot can increase for one step while V decreases. The next laboratory separates those two measures.</p>
+<div id="r1-distance-lab" class="r1-lab" aria-labelledby="r1-distance-title">
+<h3 id="r1-distance-title">Laboratory 2: can distance grow while V falls?</h3>
+<p>This is an illustrative 2D discrete-time system, <strong>not the converter and not a new article result</strong>. Let A = [[0, 2], [0.1, 0]] and V(z) = z₁² + 9z₂². Here Az = [2z₂, 0.1z₁]ᵀ. Compare ordinary distance √(z₁² + z₂²) with V.</p>
+<form>
+<label for="r1-start">Current error<select id="r1-start"><option value="horizontal">Along the first coordinate: z = [1, 0]</option><option value="vertical">Along the second coordinate: z = [0, 1]</option></select></label>
+<label for="r1-distance-prediction">Predict what one multiplication does<select id="r1-distance-prediction" required><option value="">Choose before revealing</option><option value="both">Both distance and V decrease</option><option value="different">Distance increases but V decreases</option><option value="neither">Neither decreases</option><option value="unsure">Not sure yet</option></select></label>
+<button type="submit" class="primary">Compute one step</button> <button type="reset">Reset</button>
+</form>
+<div class="r1-result" hidden><output aria-live="polite"></output><div class="table-wrap"><table><thead><tr><th>Quantity</th><th>Current</th><th>Next</th></tr></thead><tbody><tr><td>Error vector</td><td data-role="z"></td><td data-role="next"></td></tr><tr><td>Ordinary distance</td><td data-role="distance0"></td><td data-role="distance1"></td></tr><tr><td>V</td><td data-role="v0"></td><td data-role="v1"></td></tr></tbody></table></div><p data-role="explanation"></p></div>
+<details><summary>Why this example really has a decreasing V</summary><p>With P = diag(1, 9), direct multiplication gives P − AᵀPA = diag(0.91, 5). Thus V(Az) − V(z) = −0.91z₁² − 5z₂² &lt; 0 for every nonzero z. This algebra establishes decrease for this example; running two cases alone would not prove it. The example uses the same discrete-time inequality as <a href="../../latex/main.tex">the article</a>, but different matrices.</p></details>
+<p class="small">No continuous trajectory is drawn. One step means one multiplication by this illustrative A. The numbers are dimensionless. No conclusion about global nonlinear converter behavior follows from this demonstration.</p>
+</div>
+<div id="vocabulary">
+<h3>Current vocabulary after round 1</h3>
+<p>The multiplication part is demonstrated by your explanation. The more specific meanings below remain proposed until you confirm or use them. Earlier wording remains in the <a href="#prep-vocabulary">preparation snapshot</a>.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Term</th><th>Your usage in this round</th><th>Current definition and scope</th><th>Example / non-example</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Physical state x</td><td>"state" may refer to x or to an error.</td><td>The converter's voltages and current.</td><td>9.9247 V / not normalized error zero.</td><td>Distinction proposed.</td></tr>
+<tr><td>Cycle anchor x★</td><td>Not named.</td><td>Reference physical state at the chosen cycle-start phase.</td><td>Positive benchmark voltage/current values / not an average or the smallest state.</td><td>Proposed.</td></tr>
+<tr><td>Normalized error z</td><td>"normalized value of the state compared to the origin"</td><td>z = Sₓ⁻¹(x − x★), evaluated at a cycle start.</td><td>−0.1 for a voltage 1 V below its reference with a 10 V scale / not x divided by Sₓ alone.</td><td>Scaling recognized; subtraction to be confirmed.</td></tr>
+<tr><td>A₁z</td><td>Matrix multiplication locating a result.</td><td>Predicted next normalized error with full raw correction in the linearized cycle model.</td><td>One matrix-vector multiplication / not two sequential endpoint updates or a projection onto the boundary.</td><td>Multiplication demonstrated; time/model scope proposed.</td></tr>
+<tr><td>Origin</td><td>Chosen zero and "minimum value the system can have"</td><td>Zero error, hence x = x★ at the sampled phase.</td><td>Target voltage may be positive / not minimum physical voltage.</td><td>Minimum-state meaning corrected; confirmation pending.</td></tr>
+<tr><td>Projection</td><td>"result is projected"</td><td>For now say "mapped." A mathematical projection is a more specific operation, not assumed for A₁.</td><td>Az is a linear map / not necessarily a perpendicular projection onto a plane.</td><td>Your intended meaning unresolved.</td></tr>
+<tr><td>Closer</td><td>"move closer ... each ietaration"</td><td>Distinguish decreasing V from decreasing ordinary distance, and from eventual convergence.</td><td>V can fall while ordinary distance rises / not every coordinate decreasing each step.</td><td>Meaning to be tested.</td></tr>
+<tr><td>V</td><td>Not named in your explanation.</td><td>Positive quadratic scalar measure of error, with minimum zero at the error origin.</td><td>zᵀPz / not a physical state coordinate.</td><td>Proposed, not assumed missing knowledge.</td></tr>
+</tbody></table></div>
+<p class="evidence">Definitions follow <a href="../../CONTEXT.md">CONTEXT.md</a> and the manuscript equations cited above. This round clarifies error versus state and separates two meanings of "closer"; it does not change the article's terminology or results.</p>
+</div>
+<h3>Your next explanation</h3>
+<p>Try the two laboratories, then explain z, A₁z, and the origin again in a few sentences. In particular, say what must get smaller under the certificate, and what need not get smaller at every step.</p>
+<p><strong>Transfer question, left unanswered:</strong> keep the reference voltage at 9.9247 V and its scale at 10 V. If the actual voltage moves from 7.9247 V to 8.9247 V while the other two states stay at their reference values, what are the two z vectors? Does moving toward zero error require the physical voltage to decrease in this case? Explain why. These are chosen samples, not a claimed simulated trajectory.</p>
+<p><strong>Still unresolved:</strong> what you intended by "projected" and whether "closer" meant ordinary distance, each coordinate, or V. The experiments help distinguish those meanings; they do not establish that you already share the proposed definitions.</p>
+<p id="r1-validation" class="small">Round-1 validation: Node checks of the actual laboratory functions passed for reference, below-reference, above-reference, and zero-voltage inputs, plus both update directions and the zero fixed point. Independent exact-fraction multiplication verified P − AᵀPA = diag(0.91, 5). Local links and unique IDs passed. Chrome checks covered all six selectable cases, displayed values, required predictions, stale-result hiding, and resets; Enter/Tab activation and reset were tested in Laboratory 2. The coordinate SVG was visually checked. Chrome logged one local-file origin warning, but the interaction checks passed and no external resources loaded. No converter simulation was run. The earlier guide is preserved; this round changes no manuscript or numerical-study files.</p>
+</section>
+<footer>
+<p id="validation-note">Validation: a Node check of the actual laboratory calculation passed at s = 0.5, 1, and 2 against independently calculated values 0.25, 1, and 4. Local links and unique element IDs passed checks. Chrome checks passed for all three displayed cases, point positions, prediction-before-reveal, stale-result hiding, reset, and keyboard activation. The main SVG was visually checked. One local-file origin warning occurred during the first automation pass; a fresh reload and reveal/reset check produced no console warnings or errors and loaded no external resources. No plant simulation was run. The manuscript and original figure have not been changed by this guide.</p>
+<p>Evidence boundary: source-defined mathematical model and illustrative figure geometry, not new numerical measurements. No external assets, fonts, scripts, or network calls are required.</p>
+</footer>
+</main>
+<script>
+(() => {
+  'use strict';
+  const lab = document.getElementById('prep-lab');
+  const form = lab.querySelector('form');
+  const scale = lab.querySelector('#prep-scale');
+  const prediction = lab.querySelector('#prep-prediction');
+  const result = lab.querySelector('.result');
+  const output = lab.querySelector('output');
+  const explanation = lab.querySelector('[data-role="explanation"]');
+  const vector = lab.querySelector('[data-role="vector"]');
+  const point = lab.querySelector('[data-role="point"]');
+  const label = lab.querySelector('[data-role="label"]');
+  const stateFor = s => {
+    const z1 = 1.8 * s;
+    const z2 = 1.2 * s;
+    const v = z1 * z1 / 9 + z2 * z2 / 2.25;
+    return { z1, z2, v, x: 250 + 84 * s, y: 200 - 56 * s };
+  };
+  const hide = () => {
+    result.hidden = true;
+    output.textContent = '';
+    explanation.textContent = '';
+  };
+  scale.addEventListener('change', () => { prediction.value = ''; hide(); });
+  prediction.addEventListener('change', hide);
+  form.addEventListener('reset', hide);
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+    const s = Number(scale.value);
+    const a = stateFor(s);
+    const position = Math.abs(a.v - 1) < 1e-10 ? 'on the boundary' : a.v < 1 ? 'inside the ellipse' : 'outside the ellipse';
+    const expected = prediction.value === 'unsure' ? 'You chose to explore without a numerical prediction.' : 'Your prediction was V = ' + prediction.value + '.';
+    output.textContent = expected + ' The chosen error is [' + a.z1.toFixed(2) + ', ' + a.z2.toFixed(2) + '] and V = ' + a.v.toFixed(2) + ', ' + position + '.';
+    explanation.textContent = 'Calculation: ' + a.z1.toFixed(2) + '²/9 + ' + a.z2.toFixed(2) + '²/2.25 = ' + a.v.toFixed(2) + '. Scaling the error by s scales V by s². The reference ellipse stays at V = 1; it does not force the current error onto that boundary. This arrow shows the chosen error, not motion from the origin.';
+    vector.setAttribute('x2', String(a.x)); vector.setAttribute('y2', String(a.y));
+    point.setAttribute('cx', String(a.x)); point.setAttribute('cy', String(a.y));
+    label.setAttribute('x', String(a.x + 10)); label.setAttribute('y', String(a.y - 9));
+    result.hidden = false;
+  });
+})();
+
+(() => {
+  'use strict';
+  const lab = document.getElementById('r1-origin-lab');
+  const form = lab.querySelector('form');
+  const voltage = lab.querySelector('#r1-voltage');
+  const prediction = lab.querySelector('#r1-origin-prediction');
+  const result = lab.querySelector('.r1-result');
+  const normalizedError = v => ({ physical: v, error: v - 9.9247, z1: (v - 9.9247) / 10 });
+  const hide = () => { result.hidden = true; lab.querySelector('output').textContent = ''; };
+  voltage.addEventListener('change', () => { prediction.value = ''; hide(); });
+  prediction.addEventListener('change', hide);
+  form.addEventListener('reset', hide);
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+    const a = normalizedError(Number(voltage.value));
+    const sign = Math.abs(a.z1) < 1e-12 ? 'zero' : a.z1 < 0 ? 'negative' : 'positive';
+    lab.querySelector('output').textContent = 'Prediction: ' + prediction.selectedOptions[0].textContent + '. Result: z = [' + a.z1.toFixed(5) + ', 0, 0], so z₁ is ' + sign + '.';
+    lab.querySelector('[data-role="explanation"]').textContent = a.physical.toFixed(4) + ' V − 9.9247 V = ' + a.error.toFixed(4) + ' V. Divide by 10 V to get ' + a.z1.toFixed(5) + '. Zero error occurs at the reference voltage, not at zero physical voltage. A negative error is allowed; it means below the reference.';
+    result.hidden = false;
+  });
+})();
+
+(() => {
+  'use strict';
+  const lab = document.getElementById('r1-distance-lab');
+  const form = lab.querySelector('form');
+  const start = lab.querySelector('#r1-start');
+  const prediction = lab.querySelector('#r1-distance-prediction');
+  const result = lab.querySelector('.r1-result');
+  const oneStep = z => {
+    const next = [2 * z[1], 0.1 * z[0]];
+    return { z, next, distance0: Math.hypot(...z), distance1: Math.hypot(...next), v0: z[0] ** 2 + 9 * z[1] ** 2, v1: next[0] ** 2 + 9 * next[1] ** 2 };
+  };
+  const hide = () => { result.hidden = true; lab.querySelector('output').textContent = ''; };
+  start.addEventListener('change', () => { prediction.value = ''; hide(); });
+  prediction.addEventListener('change', hide);
+  form.addEventListener('reset', hide);
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+    const a = oneStep(start.value === 'horizontal' ? [1, 0] : [0, 1]);
+    const distanceGrows = a.distance1 > a.distance0;
+    lab.querySelector('output').textContent = 'Prediction: ' + prediction.selectedOptions[0].textContent + '. Result: ' + (distanceGrows ? 'ordinary distance increases, but V decreases.' : 'both ordinary distance and V decrease.');
+    for (const key of ['z', 'next', 'distance0', 'distance1', 'v0', 'v1']) {
+      const value = a[key];
+      lab.querySelector('[data-role="' + key + '"]').textContent = Array.isArray(value) ? '[' + value.map(x => x.toFixed(2)).join(', ') + ']' : value.toFixed(2);
+    }
+    lab.querySelector('[data-role="explanation"]').textContent = distanceGrows ? 'The second error component carries weight 9 in V. Moving error into the first component can reduce V even while ordinary distance grows from 1 to 2. This is a counterexample to requiring ordinary distance to shrink at every step, not a failure of the Lyapunov inequality.' : 'For this starting direction both measures fall. This case alone cannot establish that ordinary distance always decreases: try the other direction. The positive matrix P − AᵀPA, not this single run, guarantees that V falls for every nonzero input.';
+    result.hidden = false;
+  });
+})();
+</script>
+</body>
+</html>

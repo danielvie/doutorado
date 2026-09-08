@@ -15,10 +15,15 @@ Read when: deciding which function owns a numerical operation
 - `collect_metrics.m`: publication metric names and units.
 - `write_outputs.m`: stable CSV, MAT, and LaTeX macro schemas.
 - `export_figures.m`: reference and response figures, plus the first-cycle diagnostic.
+- `timing_diagram_data.m` and `export_timing_diagrams.m`: checked numerical labels and paper-style vector schematics of timing coordinates, adjacent-dwell coupling, and raw boundary-order inversion.
 - `export_lyapunov.m`: checks the Julia certificate against the article model/gain and writes publication certificate data and macros.
 - `verify_common_lyapunov.m`: solver-independent endpoint eigenvalue and normalization checks.
 - `export_trajectories.m`: dense trajectory and long-horizon CSV/MAT evidence, then calls the plotter.
-- `plot_trajectories.m`: shared-axis 3D comparison, logarithmic-time cycle-start state histories, and the long-run 3D cycle-start view. Can replot saved data without resimulating.
+- `plot_trajectories.m`: shared-axis 3D comparison with long-horizon cycle-start error, plus three continuous-time physical-state comparisons. Can replot saved data without resimulating.
+- `state_history_data.m`: selects complete saved cycles and repeats the nominal waveform without resampling either response.
+- `plot_conditioned_response.m`: aligned error, applied-fraction, and requested/applied minimum-dwell panels.
+- `replot_figures.m`: refreshes all main-text numerical graphics from saved evidence, without running solvers or simulations.
+- `publication_figure.m` and `export_publication_figure.m`: final-width figures, printed font sizes, and exact-size vector PDF export.
 - `exact_cycle.m`, `cycle_boundaries.m`, and `sample_cycle.m`: shared exact propagation at cycle ends, switching boundaries, and dense within-interval times.
 - `paths.m`, `write_provenance.m`, and `print_summary.m`: paths and run reporting.
 
