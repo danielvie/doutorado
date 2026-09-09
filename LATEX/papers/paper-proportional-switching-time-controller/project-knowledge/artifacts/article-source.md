@@ -6,7 +6,7 @@ Read when: navigating or rewriting the manuscript
 
 ## Entry point
 
-`latex/main.tex` is the main Springer Nature manuscript source. It contains the complete main text, five figures, two tables, and a supporting invariant-region appendix. Section labels are more stable navigation targets than line numbers.
+`latex/main.tex` is the main Springer Nature manuscript source. It contains the complete main text, five main-text figures, two tables, and a supporting invariant-region appendix with a four-panel figure. Section labels are more stable navigation targets than line numbers.
 
 | Label | Content |
 | --- | --- |
@@ -15,13 +15,14 @@ Read when: navigating or rewriting the manuscript
 | `sec:conditioning` | Closed-form dwell conditioner and feasibility proof |
 | `sec:stability` | Common-P theorem, endpoint SDP, post-solve checks, and nonlinear boundary |
 | `sec:case-study` | Converter model, certificate, 3D and state-time comparisons, conditioning/dwell histories, and eventual open-loop convergence |
-| `app:invariant-region` | Supporting raw-action invariant-set calculation |
+| `app:invariant-region` | Fixed-factor feasible-region expansion and supporting linear invariance |
 
 ## External inputs
 
 - `latex/metrics.tex`, generated benchmark and simulation values.
 - `latex/lyapunov_metrics.tex`, generated certificate matrix, margins, and rate bound.
 - Six PDFs and `latex/figures/common_p_geometry.tex`, forming five main-text figures, listed in `figures-and-tables.md`. Three timing panels form one explanatory figure; the common-P schematic is rendered directly by TikZ during the LaTeX build.
+- `latex/figures/appendix_raw_action_region.pdf`, comparing fixed-factor feasible regions for beta 0.25, 0.5, and 1 with the state-dependent simulation in Appendix A.
 - Bibliography records from `latex/references.bib`.
 
 The article builds from saved publication inputs without running numerical solvers. `task results` refreshes them through Julia and MATLAB; `task replot` redraws the numerical figures from saved MAT data only. Do not edit generated numbers by hand.

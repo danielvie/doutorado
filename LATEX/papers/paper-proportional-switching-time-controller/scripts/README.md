@@ -84,7 +84,9 @@ This plotting call does not rewrite numerical evidence. `task results` still reg
 
 ## Replot and printed typography
 
-Run `task replot` to redraw all main-text numerical figures from `paper_results.mat` and `publication_trajectories.mat`, without simulation, solver calls, or numerical output writes. `paper.replot_figures(output_root)` also supports an isolated output directory. It checks the saved schedule and state scales against the benchmark.
+Run `task replot` to redraw all main-text numerical figures and the Appendix A region figure from `paper_results.mat` and `publication_trajectories.mat`, without simulation, solver calls, or numerical output writes. `paper.replot_figures(output_root)` also supports an isolated output directory. It checks the saved schedule and state scales against the benchmark.
+
+`paper.invariant_region_figure_data` constructs the fixed-factor feasible regions for beta 0.25, 0.5, and 1 by scaling the saved raw-region vertices by `1/beta`, and computes their coordinate-plane projections. `paper.plot_invariant_region` draws `appendix_raw_action_region.pdf` in one 3D view and three projections, with the saved state-dependent simulation overlaid. These are not zero-error slices; membership and entry remain full-dimensional quantities. The plot no longer shows the one-cycle image of the raw region. Both `paper.replot_figures` and `generate_feasible_regions` call this plotter. The latter independently computes each fixed-factor region and its invariant subset with MPT3 and exports the comparison data. It also retains the auxiliary fixed-factor plot. A stale saved factor list is rejected rather than silently relabeled.
 
 `paper.plot_conditioned_response` draws aligned error, applied-fraction, and minimum-dwell panels from the saved response. The first two panels shade the actual cycles with beta below one; the third shades forbidden dwell values. Conservative tuning stays in the table and text rather than this figure.
 

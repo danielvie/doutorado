@@ -10,7 +10,7 @@ Uniform scaling puts the Conditioned Linearized Matrix Family on the segment joi
 
 The three-cell multilevel DC–DC converter benchmark uses Patino et al.'s nominal nine-interval sequence and cycle anchor. Reconciliation of the rounded schedule preserves the `286 µs` period, reported anchor, and `22 µs` nominal-design dwell bound. This benchmark already converges in open loop. Feedback accelerates convergence while the conditioner enforces a separate assumed `3 µs` applied-schedule bound.
 
-The Maximal Invariant Raw-Action Admissible Region is supporting evidence about where conditioning stays inactive in the linearized model, not the main stability result.
+The supporting appendix should show how reducing a fixed conditioning factor enlarges the dwell-feasible region. Compare factors 0.25, 0.5, and 1 in one 3D view and three coordinate-plane projections. Distinguish feasibility from stability: the saved benchmark checks establish invariance for these fixed-factor regions under their respective linearized maps, while the common-P theorem supplies linearized convergence. This is not a growing nonlinear region of attraction. Raw-action invariance at factor one remains supporting evidence, not the appendix figure's main message or the paper's main stability result.
 
 ## Success criteria
 
@@ -30,7 +30,7 @@ The Maximal Invariant Raw-Action Admissible Region is supporting evidence about 
 - Align the early closed-loop/open-loop error, conditioning factor, and requested/applied minimum dwell histories. Mark the cycles requiring scaling. Treat its eventual inactivity as an observation of this simulation, not a general guarantee. Keep the conservative tuning comparison in the table and text.
 - Report error-threshold crossings, conditioning factors, and raw/applied dwell durations alongside the numerical Lyapunov certificate.
 - Export figures at their final manuscript width, with approximately 9–10 pt labels/legends and at least 8 pt tick labels. Keep captions short and explain mechanisms in the body.
-- Keep detailed invariant-region analysis in an appendix, retain its reproducible evidence, and give it no global nonlinear interpretation.
+- Keep detailed feasible/invariant-region analysis in an appendix, retain its reproducible evidence, and give it no global nonlinear interpretation. Make the figure's main comparison the nested feasible regions for fixed factors 0.25, 0.5, and 1, rather than a region and its one-cycle image. Explain separately which fixed-factor regions have verified linear invariance.
 - Include a paper-style explanatory figure showing the adjustable interior instants, the coupled effect on adjacent dwells, and a non-executable raw request. Use current benchmark data and distinguish an illustrative isolated offset from the simulated feedback action.
 - Explain the common-P argument with a compact schematic showing both endpoint images and their interpolating segment inside one quadratic sublevel set. Clearly distinguish this illustration from converter data and a nonlinear region of attraction.
 - Aim for 8–10 pages, with five main-text figures and two tables. The timing-mechanism figure groups three explanatory panels. Use it for the reference schedule and the trajectory comparisons for the reference periodic trajectory, leaving the standalone reference figure as supporting material and using its main-text slot for the common-P schematic.

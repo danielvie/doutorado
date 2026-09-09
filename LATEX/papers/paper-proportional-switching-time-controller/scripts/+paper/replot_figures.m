@@ -1,5 +1,5 @@
 function replot_figures(output_root)
-%REPLOT_FIGURES Refresh main-text numerical graphics from saved evidence only.
+%REPLOT_FIGURES Refresh manuscript numerical graphics from saved evidence only.
 % TikZ common-P geometry is compiled by task build. No solvers or propagation.
 if nargin == 0, output_root = []; end
 source = paper.paths(); paths = paper.paths(output_root);
@@ -21,5 +21,8 @@ paper.plot_conditioned_response(paths.diagnostic_figures,r.response,b);
 copyfile(fullfile(paths.diagnostic_figures,'conditioned_control_response.pdf'), ...
     fullfile(paths.article_figures,'conditioned_control_response.pdf'));
 paper.plot_trajectories(paths.article_figures,saved.trajectories,b);
-fprintf('Replotted main-text figures from saved data; numerical evidence unchanged.\n');
+region_data = paper.invariant_region_figure_data(r.invariant_raw_action_region, ...
+    b.state_scale,r.response.conditioned_states,r.schedule.orbit_anchor);
+paper.plot_invariant_region(paths.article_figures,region_data);
+fprintf('Replotted manuscript figures from saved data; numerical evidence unchanged.\n');
 end

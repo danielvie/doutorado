@@ -243,7 +243,7 @@ Under \eqref{eq:strict-margin}, \eqref{eq:conditioner} returns the largest $\bet
 For $q_{k,i}\ge0$, $m_i+\beta q_{k,i}>0$ for all $\beta\in[0,1]$. For $q_{k,i}<0$, feasibility is equivalent to $\beta\le m_i/(-q_{k,i})$. Intersecting these bounds with $[0,1]$ gives \eqref{eq:conditioner}, proving feasibility and maximality. Every finite bound is positive. Uniform positive scaling preserves direction, and $\vect{1}^{\mathsf T}D=0$ preserves $T$. Since $d_{\min}>0$, the boundaries remain ordered. Adjacent differences compute $\vect{q}_k$, and one scan evaluates the $N$ bounds.
 \end{proof}
 
-At each cycle start, the controller therefore measures $\vect{x}_k$, computes the raw action, scans the dwell changes, and applies the scaled offsets. If $\beta_k<1$, at least one dwell reaches its minimum. No set-membership test or optimization is required online. The polyhedron $\mathcal C$ explains where conditioning is inactive; its maximal invariant subset is treated separately in \cref{app:invariant-region}.
+At each cycle start, the controller therefore measures $\vect{x}_k$, computes the raw action, scans the dwell changes, and applies the scaled offsets. If $\beta_k<1$, at least one dwell reaches its minimum. No set-membership test or optimization is required online. The polyhedron $\mathcal C$ explains where conditioning is inactive. \Cref{app:invariant-region} compares the feasible regions for smaller fixed factors and checks their invariance under the corresponding linearized dynamics.
 
 \section{Lyapunov stability and convex optimization}
 \label{sec:stability}
@@ -567,33 +567,50 @@ The proposed conditioner applies the largest dwell-feasible scalar multiple of a
 \FloatBarrier
 \backmatter
 \begin{appendices}
-\section{Raw-action invariance}
+\section{Feasible-region expansion under timing-action scaling}
 \label{app:invariant-region}
 
-The common-$P$ theorem covers active conditioning in the linearized model. A separate polyhedral calculation answers the narrower question of where the raw action remains feasible forever. Starting from \eqref{eq:admissible-region}, define
+\subsection{Expansion of the dwell-feasible region}
+
+Reducing the fraction of a timing command makes that command feasible for larger cycle-start errors. For a fixed factor $\beta\in(0,1]$, the action $\dtau=-\beta K\vect{e}$ satisfies the dwell bounds on
 \begin{equation}
 \begin{aligned}
-    \mathcal C_0&=\mathcal C,\\
-    \mathcal C_{j+1}&=\mathcal C_j\cap
-    \{\vect{e}:A_{\mathrm{cl}}\vect{e}\in\mathcal C_j\},\\
-    \mathcal C_\infty&=\bigcap_{j=0}^{\infty}\mathcal C_j.
+    \mathcal F_\beta&=\{\vect{e}:\beta DK\vect{e}\le\vect{m}\}
+    =\frac{1}{\beta}\mathcal C,\\
+    \mathcal F_1&=\mathcal C.
 \end{aligned}
-\label{eq:invariant-region}
+\label{eq:fixed-beta-feasible}
 \end{equation}
-This is the standard maximal-admissible-set construction \cite{gilbert1991maximal}. Each finite iterate is polyhedral, and redundant inequalities can be removed offline.
+Thus every radial extent grows by $1/\beta$ relative to the raw-action admissible region. For $0<\beta_a<\beta_b\le1$, $\mathcal F_{\beta_b}\subseteq\mathcal F_{\beta_a}$. In the three-state benchmark, the volume grows by $\beta^{-3}$. The factors $\LowerComparisonConditioningFactor{}$, $\MiddleComparisonConditioningFactor{}$, and $1$ therefore give volume ratios $\LowerComparisonRegionVolumeRatio{}$, $\MiddleComparisonRegionVolumeRatio{}$, and $1$, respectively. This scaling follows from the dwell inequalities; by itself it is a current-cycle feasibility result, not a stability claim.
 
-\begin{proposition}[Invariant raw-action feasibility]
-\label{prop:invariant-region}
-The set $\mathcal C_\infty$ is the maximal positively invariant subset of $\mathcal C$ under $A_{\mathrm{cl}}$. If $A_{\mathrm{cl}}$ is Schur, every linearized trajectory starting in this set remains raw-action feasible, has $\beta_k=1$ for all $k$, and converges to the cycle anchor.
-\end{proposition}
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{appendix_raw_action_region.pdf}
+    \caption{Dwell-feasible regions for fixed factors $\beta=\LowerComparisonConditioningFactor{},\MiddleComparisonConditioningFactor{},1$, with early cycle-start errors from the conditioned simulation. (a) Three-dimensional view. (b)--(d) Coordinate-plane projections. Smaller factors admit larger errors.}
+    \label{fig:appendix-region}
+\end{figure*}
 
-\begin{proof}
-Membership in $\mathcal C_\infty$ is equivalent to $A_{\mathrm{cl}}^j\vect{e}_0\in\mathcal C$ for every $j\ge0$. The conditioner therefore remains inactive, and no larger subset of $\mathcal C$ can have this property. Schur stability gives $A_{\mathrm{cl}}^k\vect{e}_0\to\vect{0}$.
-\end{proof}
+\Cref{fig:appendix-region} compares these nested regions. The trajectory uses the maximal state-dependent factor, not one of the fixed comparison factors throughout. Its initial error lies inside $\mathcal F_{\LowerComparisonConditioningFactor{}}$ but outside $\mathcal F_{\MiddleComparisonConditioningFactor{}}$, consistent with the first applied factor of approximately $0.294$. The raw action becomes feasible at cycle \FirstInvariantRegionCycle{}. Lines join cycle-start samples, not within-cycle trajectories. The planar views are projections, not zero-error slices; membership and entry are evaluated using the full three-dimensional inequalities.
 
-For the aggressive converter gain, one preimage intersection establishes $\mathcal C_\infty=\mathcal C$. The computed set has \InvariantRegionFacets{} facets, \InvariantRegionVertices{} vertices, and physical-error volume \InvariantRegionVolume{}~\si{\volt\squared\ampere}. Every vertex satisfies the raw dwell inequalities within numerical tolerance. Every vertex image has at least \InvariantRegionImageDwellMargin{}~\si{\micro\second} dwell margin. Convexity extends these checks to the polyhedron.
+\subsection{Feasibility over successive cycles}
 
-The exact nonlinear simulated trajectory begins outside this set and first enters it at cycle \FirstInvariantRegionCycle{}. This observed entry is not a proof that the nonlinear map reaches or preserves the complete polyhedron. Region vertices and the auxiliary region visualization remain available with the numerical evidence; the common-$P$ theorem does not depend on this calculation.
+Current-cycle feasibility does not alone guarantee that the next error remains in the same feasible region. Holding a comparison factor $\beta$ fixed gives the linearized physical-error dynamics
+\begin{equation}
+    \vect{e}_{k+1}=M_\beta\vect{e}_k,\qquad
+    M_\beta=\Phi-\beta\Gamma_\tau K.
+    \label{eq:fixed-beta-dynamics}
+\end{equation}
+For each of the three plotted factors, we checked the positive-invariance condition
+\begin{equation}
+    M_\beta\mathcal F_\beta\subseteq\mathcal F_\beta.
+    \label{eq:fixed-beta-invariance}
+\end{equation}
+The offline polyhedral calculation uses MPT3 \cite{herceg2013mpt3} and the preimage-containment approach of \cite{gilbert1991maximal}. All three regions pass for this benchmark. Equivalently, each vertex $\vect{v}$ satisfies $\beta DK M_\beta\vect{v}\le\vect{m}$ within numerical tolerance. Linearity and convexity extend the vertex checks to every point in the polyhedron, so repeated application of the same fixed-factor controller keeps its linearized trajectory dwell-feasible.
+
+Since $S_x^{-1}M_\beta S_x=A(\beta)$, \cref{thm:common-p} also guarantees convergence of each fixed-factor linearized model. Thus every initial error in a plotted region remains feasible and converges under its corresponding fixed factor. The case $\beta=1$ is simply the raw controller on $\mathcal F_1=\mathcal C$; the smaller factors admit larger regions of feasible linearized operation.
+
+These region checks concern fixed factors, whereas the simulated controller selects $\beta_k$ from the current error. They do not establish nonlinear invariance of the plotted polyhedra or an enlarged region of attraction for the exact plant. Exact nonlinear stability remains local, and the displayed large-error trajectory is simulation evidence. The common-$P$ theorem covers the conditioned linearized family independently of these polyhedral checks.
+\FloatBarrier
 \end{appendices}
 
 \section*{Declarations}

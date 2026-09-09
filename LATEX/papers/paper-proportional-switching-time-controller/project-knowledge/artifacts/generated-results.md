@@ -15,7 +15,7 @@ A full `generate_results.m` run writes these files. It calls `generate_feasible_
 - `results/linearization_residual.csv`: perturbation sizes, exact-versus-linearized residuals, and fitted residual values.
 - `results/conditioned_control_response.csv`: cycle-start errors, conditioning factors, offsets, dwell values, and state trajectories for the selected simulation.
 - `results/invariant_raw_action_region_vertices.csv`: vertices of the certified region in physical cycle-start-error coordinates.
-- `results/fixed_beta_0_2_feasible_region_vertices.csv` and `results/fixed_beta_0_5_feasible_region_vertices.csv`: vertices of the two fixed-factor comparison regions in the same coordinates.
+- `results/fixed_beta_0_25_feasible_region_vertices.csv` and `results/fixed_beta_0_5_feasible_region_vertices.csv`: vertices of the two fixed-factor comparison regions in the same coordinates.
 - `results/paper_results.mat`: structured MATLAB record containing metrics, schedule, linearization, controller, invariant-region, and response data.
 - `results/lyapunov_certificate.json` and `latex/lyapunov_metrics.tex`: adopted Julia common-P matrix, directly checked margins, and rate bound, verified against the article model and aggressive gain.
 - `results/continuous_trajectories.csv`: dense controlled/open-loop physical states with separate sample times.
@@ -34,8 +34,8 @@ The current generated metrics record:
 - a 7-facet, 10-vertex Raw-Action Admissible Region that is already positively invariant under the aggressive raw closed loop;
 - physical-error volume about `4.5410 V²·A`, with ranges `[-2.358, 2.098] V`, `[-3.234, 1.911] V`, and `[-0.496, 0.222] A`;
 - the fixed `β = 0.5` feasible region doubles every radial extent and has volume about `36.3282 V²·A`, eight times the raw-action region;
-- the fixed `β = 0.2` feasible region multiplies every radial extent by five and has volume about `567.6277 V²·A`, 125 times the raw-action region;
-- the large-error trajectory starts inside the `β = 0.2` region, enters the `β = 0.5` region at cycle 2, and enters the raw-action region at cycle 3;
+- the fixed `β = 0.25` feasible region multiplies every radial extent by four and has volume about `290.6254 V²·A`, 64 times the raw-action region;
+- the large-error trajectory starts inside the `β = 0.25` region, enters the `β = 0.5` region at cycle 2, and enters the raw-action region at cycle 3;
 - minimum raw and applied dwells of about `-43.045` and `3.000` microseconds;
 - minimum conditioning factor about `0.293978`;
 - conditioning active on 3 of 100 cycles;
