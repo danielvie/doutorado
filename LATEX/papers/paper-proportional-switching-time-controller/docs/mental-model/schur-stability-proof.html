@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What the Schur stability proof needs</title>
+<style>
+body{max-width:850px;margin:40px auto;padding:0 20px;font:18px/1.6 system-ui,sans-serif;color:#17212b;background:#fafafa}h1,h2{line-height:1.2}h2{margin-top:32px}blockquote{border-left:4px solid #365c85;padding-left:18px;margin-left:0}.equation{padding:14px;background:#edf2f7;text-align:center;overflow-x:auto}svg{width:100%;height:auto}table{border-collapse:collapse;width:100%;font-size:15px}th,td{padding:10px;border:1px solid #cbd5df;text-align:left;vertical-align:top}a{color:#204e85}.scope{font-size:15px;color:#425364}
+</style>
+</head>
+<body>
+<h1>What the Schur stability proof needs</h1>
+<section id="round-01">
+<h2>Your explanation</h2>
+<blockquote>“To prove the stability we need to have a P where V is positive definite and that in the Schur complement the matrices are negative definite.”</blockquote>
+<p><strong>This is correct for the paper's linearized family, provided the same P works at both endpoints.</strong> The remaining step is to connect the matrix inequality to the change in V along a trajectory. The extra symbols in the circled passage quantify this decrease; they are not additional design requirements.</p>
+<p class="scope">Scope: the conditioned linearized model z<sub>k+1</sub> = A(β<sub>k</sub>)z<sub>k</sub>, with A(β) = (1−β)A<sub>0</sub> + βA<sub>1</sub> and β in [0,1]. This does not give a global stability guarantee for the exact nonlinear plant.</p>
+<h2>The complete chain</h2>
+<svg viewBox="0 0 800 180" role="img" aria-labelledby="r01-title r01-desc">
+<title id="r01-title">From a common P to stability</title>
+<desc id="r01-desc">One positive definite P and two negative definite endpoint blocks imply negative definite blocks for all factors by convexity. The Schur complement then gives strict Lyapunov decrease.</desc>
+<g fill="#edf2f7" stroke="#365c85" stroke-width="2"><rect x="5" y="35" width="235" height="100" rx="8"/><rect x="280" y="35" width="235" height="100" rx="8"/><rect x="555" y="35" width="235" height="100" rx="8"/></g>
+<g fill="#17212b" font-family="system-ui,sans-serif" font-size="17" text-anchor="middle"><text x="122" y="70">One P ≻ 0</text><text x="122" y="105">Both endpoint blocks ≺ 0</text><text x="397" y="70">Convex combination</text><text x="397" y="105">Every block S(β) ≺ 0</text><text x="672" y="70">Schur complement</text><text x="672" y="105">V decreases each cycle</text><text x="260" y="92">→</text><text x="535" y="92">→</text></g>
+</svg>
+<p>For P ≻ 0, the block with diagonal entries −P and −P<sup>−1</sup> is negative definite exactly when A(β)<sup>T</sup>PA(β) − P ≺ 0. Substituting the dynamics into V gives the missing connection:</p>
+<div class="equation">V(z<sub>k+1</sub>) − V(z<sub>k</sub>)<br>= z<sub>k</sub><sup>T</sup>[A(β<sub>k</sub>)<sup>T</sup>PA(β<sub>k</sub>) − P]z<sub>k</sub> &lt; 0<br>for z<sub>k</sub> ≠ 0.</div>
+<p>The same V works at every cycle, even when β changes. Because the matrix family is continuous on the closed interval [0,1], its strict decrease has a common positive margin. More precisely, the quadratic decrease has a positive minimum over β in [0,1] and error directions on the unit sphere. Together with P ≻ 0, this establishes uniform exponential stability.</p>
+<h2>What the circled notation adds</h2>
+<p>η names a guaranteed decrease margin. λ<sub>max</sub>(P) converts between V and the ordinary squared error magnitude. Their ratio makes an explicit contraction argument possible. The strict common matrix inequalities already imply the existence of such a contraction; the main proof need not display its formula.</p>
+<p>Editorial recommendation: retain the displayed identity connecting the dynamics to V, then state that continuity on [0,1] makes the decrease uniform. Omit the explicit eigenvalue-based contraction formula. The numerical SDP can retain a margin to check strict inequalities in floating-point arithmetic.</p>
+<h2>Claim review and evidence</h2>
+<ul>
+<li><strong>Supported:</strong> P ≻ 0 makes V positive definite, and negative definite Schur blocks establish strict decrease.</li>
+<li><strong>Necessary qualification:</strong> both endpoint tests use the same P. Separate endpoint Lyapunov matrices do not supply this proof.</li>
+<li><strong>Missing connection, not a misconception:</strong> the identity above explains why the matrix inequality means V decreases along the actual linearized trajectory.</li>
+</ul>
+<p>Evidence: <a href="../../latex/main.tex">latex/main.tex</a>, theorem <code>thm:common-p</code>, block definition <code>eq:schur-block</code>, and interpolation <code>eq:schur-convex-combination</code>. The explanation uses the Schur-complement equivalence and continuity on a compact set. No simulation is needed here: a numerical laboratory would only illustrate selected matrices, not establish the matrix implication being discussed.</p>
+<h2 id="vocabulary">Vocabulary proposed for this explanation</h2>
+<table><thead><tr><th>Term</th><th>Your usage and proposed meaning</th><th>Example / non-example</th></tr></thead><tbody>
+<tr><td>Positive definite</td><td>Your usage agrees with P ≻ 0, so V(z) &gt; 0 for every nonzero z.</td><td>P = I / P = 0.</td></tr>
+<tr><td>Common P</td><td>Proposed explicit qualification: one matrix used at both endpoints and every cycle.</td><td>One P for A₀ and A₁ / separate P₀ and P₁.</td></tr>
+<tr><td>Strict decrease</td><td>Your negative definiteness condition means V decreases for every nonzero error.</td><td>AᵀPA − P ≺ 0 / merely AᵀPA − P ≼ 0.</td></tr>
+<tr><td>Uniform stability</td><td>Proposed clarification: the stability guarantee is independent of the selected conditioning sequence.</td><td>The common-P certificate on [0,1] / checking only one fixed β.</td></tr>
+</tbody></table>
+<h2>One check of understanding</h2>
+<p>If A₀ passes with P₀ and A₁ passes only with a different P₁, can the same convex-combination proof still be used? Explain which step would need reconsideration.</p>
+<p class="scope">This note reviews the reasoning only. It does not change the manuscript.</p>
+</section>
+<section id="round-02">
+<h2>Round 2: separate certificates versus a common certificate</h2>
+<blockquote>“if A0 passes with P0 and A1 passes with a different P1, then we cannot say the system is stable. Since we cannot garantee they belong to the same convex set. They each have a convex set that could be inside a non convex set”</blockquote>
+<p><strong>The conclusion is supported, with a correction to the reason.</strong> Separate certificates establish stability of the two fixed endpoint systems. They do not establish stability of every intermediate matrix or every sequence. They also do not prove instability, or prove that a common P cannot exist.</p>
+<p>The Schur blocks both belong to the same convex cone of symmetric negative-definite matrices. Their convex combination remains negative definite. The problem is its structure: with different P matrices, its diagonal blocks become −[(1−β)P₀+βP₁] and −[(1−β)P₀⁻¹+βP₁⁻¹]. Generally, the second is not the negative inverse of the matrix in the first. It is therefore not the block used in our proof for one common P and A(β).</p>
+<p>Geometrically, one common P means one family of ellipsoidal level sets that both endpoint maps contract. Separate P matrices give separate measures of error. Decrease according to V₀ and decrease according to V₁ cannot simply be joined into decrease of one function. Whether the union of their ellipsoids is convex is not the test.</p>
+<svg viewBox="0 0 800 160" role="img" aria-labelledby="r02-title r02-desc"><title id="r02-title">Two endpoint tests are not one shared test</title><desc id="r02-desc">A zero decreases V zero, and A one decreases V one. Neither statement shows that both decrease a common V.</desc><g fill="#edf2f7" stroke="#365c85" stroke-width="2"><rect x="10" y="20" width="350" height="50" rx="8"/><rect x="10" y="90" width="350" height="50" rx="8"/><rect x="450" y="40" width="340" height="90" rx="8"/></g><g fill="#17212b" font-size="18" font-family="system-ui,sans-serif" text-anchor="middle"><text x="185" y="52">A₀ decreases V₀</text><text x="185" y="122">A₁ decreases V₁</text><text x="405" y="90">≠</text><text x="620" y="76">Both decrease one common V</text><text x="620" y="106">This still needs a certificate.</text></g></svg>
+<h3>An exact counterexample</h3>
+<div class="equation">A₀ = [[0.5, 2], [0, 0.5]], &nbsp; A₁ = [[0.5, 0], [2, 0.5]]<br>Both endpoints have eigenvalues 0.5 and 0.5.<br>The midpoint is [[0.5, 1], [1, 0.5]], with eigenvalues 1.5 and −0.5.</div>
+<p>Each endpoint is Schur stable, but the midpoint is unstable. This example concerns illustrative matrices, not the converter benchmark. Explicit endpoint certificates are P₀ = [[4/3, 16/9], [16/9, 356/27]] and P₁ with its diagonal entries exchanged. Both are positive definite and satisfy Pᵢ − AᵢᵀPᵢAᵢ = I. These identities can be checked with rational arithmetic.</p>
+<section id="r02-lab" aria-labelledby="r02-lab-title">
+<h3 id="r02-lab-title">Laboratory: do stable endpoints guarantee a stable midpoint?</h3>
+<p>Use A₀ = [[0.5, b], [0, 0.5]] and A₁ = A₀ᵀ. Both endpoint eigenvalues remain 0.5. Predict the midpoint's stability before revealing its eigenvalues.</p>
+<form>
+<p><label>Coupling b <select name="coupling"><option value="0">0</option><option value="2" selected>2</option></select></label></p>
+<fieldset><legend>My prediction for the midpoint</legend><label><input type="radio" name="prediction" value="stable" required> Stable</label> <label><input type="radio" name="prediction" value="unstable" required> Unstable</label></fieldset>
+<p><button type="submit">Reveal</button> <button type="reset">Reset</button></p>
+</form>
+<div class="result" role="status" aria-live="polite">Choose a prediction, then reveal.</div>
+<p class="scope">This is an exact two-dimensional example in dimensionless coordinates, not an experiment on the plant. For this symmetric midpoint, the eigenvalues are 0.5 + b/2 and 0.5 − b/2. Discrete-time stability requires both magnitudes to be strictly less than one.</p>
+</section>
+<script>
+(()=>{const lab=document.getElementById('r02-lab');const form=lab.querySelector('form');const result=lab.querySelector('.result');form.addEventListener('submit',event=>{event.preventDefault();const b=Number(form.elements.coupling.value);const eigenvalues=[0.5+b/2,0.5-b/2];const stable=eigenvalues.every(value=>Math.abs(value)<1);result.textContent='Midpoint = [[0.5, '+b/2+'], ['+b/2+', 0.5]]. Eigenvalues: '+eigenvalues.join(', ')+'. '+(stable?'Stable in this case.':'Unstable, despite both endpoints being stable.')+' Endpoint stability alone is not a guarantee; the conclusion depends on the matrices.';});form.addEventListener('reset',()=>{result.textContent='Choose a prediction, then reveal.';});})();
+</script>
+<h3>Review and vocabulary update</h3>
+<ul><li>Supported: you identified that separate endpoint certificates are insufficient for the family.</li><li>Correction: negative-definite blocks do share a convex cone. A mixture with different P matrices does not have the common-P structure needed by the proof.</li><li>Still to distinguish: failure to exhibit one common P is not proof that none exists.</li></ul>
+<p>The <a href="#vocabulary">round-1 vocabulary</a> remains as a record of the first explanation. The following entries refine the current working meanings.</p>
+<table><thead><tr><th>Term</th><th>Your usage / current proposed meaning</th><th>Example and non-example</th><th>Status</th></tr></thead><tbody><tr><td>Common P</td><td>You recognize that separate endpoint certificates do not suffice. One P must serve both endpoint tests in this proof.</td><td>The same P for both / separately selected P₀ and P₁.</td><td>Core distinction demonstrated; existence versus discovery still to test.</td></tr><tr><td>Convex set</td><td>Your explanation invokes separate convex sets. The relevant convex set in the block proof is the shared negative-definite cone; ellipsoidal level sets are different objects.</td><td>Convex combinations of negative-definite blocks remain negative definite / this does not make the set of Schur-stable system matrices convex.</td><td>Proposed correction.</td></tr><tr><td>Cannot conclude stability</td><td>The available certificates do not establish the family-wide guarantee.</td><td>An inconclusive certificate test / a proof of instability.</td><td>Proposed precise reading of your conclusion.</td></tr></tbody></table>
+<p>Evidence: the fixed diagonal blocks in <a href="../../latex/main.tex">latex/main.tex</a>, <code>eq:schur-block</code> and <code>eq:schur-convex-combination</code>; the explicit matrices and rational certificate identities above. The laboratory illustrates these algebraic rules and is not independent evidence about the converter.</p>
+<p class="scope">Validation: both endpoint certificate identities were checked with exact rational arithmetic, and the midpoint cases b = 0 and b = 2 matched their analytical eigenvalues. The HTML was parsed. Browser interaction and console checks were blocked because chrome-devtools reported that its browser profile was already in use. Controls and reset behavior have not been browser-verified.</p>
+<h3>Next check</h3>
+<p>Suppose separate calculations return P₀ and P₁. You then test P₀ against A₁, and it passes too. Can you now use the common-P proof? Explain why.</p>
+<p class="scope">The manuscript is unchanged by this review.</p>
+</section>
+</body>
+</html>

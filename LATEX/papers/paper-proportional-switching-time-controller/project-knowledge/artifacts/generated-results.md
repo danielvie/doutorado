@@ -11,7 +11,7 @@ A full `generate_results.m` run writes these files. It calls `generate_feasible_
 - `results/metrics.csv`: one-row numerical summary.
 - `latex/metrics.tex`: selected metrics as LaTeX commands consumed by `latex/main.tex`.
 - `results/reference_schedule_orbit.csv`: interval metadata, corrected and published boundaries, dwell durations, mode identifiers, and orbit states.
-- `results/jacobian_checks.csv`: analytical and finite-difference entries for `Phi` and `Gamma` with absolute errors.
+- `results/jacobian_checks.csv`: analytical and finite-difference entries for the physical matrices stored as `Phi` and `Gamma`, with absolute errors. The manuscript denotes these matrices by `Phi_x` and `Gamma_tau`; saved names are unchanged.
 - `results/linearization_residual.csv`: perturbation sizes, exact-versus-linearized residuals, and fitted residual values.
 - `results/conditioned_control_response.csv`: cycle-start errors, conditioning factors, offsets, dwell values, and state trajectories for the selected simulation.
 - `results/invariant_raw_action_region_vertices.csv`: vertices of the certified region in physical cycle-start-error coordinates.
@@ -28,7 +28,7 @@ The current generated metrics record:
 
 - 9 intervals and a 286 microsecond period;
 - nominal closure error about `1.421e-14`;
-- analytical/finite-difference relative errors of about `8.518e-12` for `Phi` and `8.344e-11` for `Gamma_tau`;
+- analytical/finite-difference relative errors of about `8.518e-12` for `Phi_x` and `8.344e-11` for `Gamma_tau`;
 - residual slope about `2.000`;
 - open-loop, conservative, and aggressive spectral radii of about `0.999850`, `0.941468`, and `0.568151`;
 - a 7-facet, 10-vertex Raw-Action Admissible Region that is already positively invariant under the aggressive raw closed loop;

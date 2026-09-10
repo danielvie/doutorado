@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Section 4.4 explained: the exact plant and the local guarantee</title>
+<style>
+:root{color-scheme:light;--ink:#152c3b;--muted:#486171;--blue:#14617b;--orange:#a54d13;--paper:#fbfcfd;--line:#cbd9e2;--soft:#edf4f8;--warm:#fff5e9}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:18px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}main{max-width:1080px;margin:auto;padding:36px 28px 70px}h1,h2,h3{line-height:1.2;letter-spacing:-.02em}h1{font-size:clamp(2rem,5vw,3.2rem);max-width:920px;margin:14px 0 22px}h2{font-size:1.8rem;margin:0 0 18px}h3{font-size:1.22rem;margin:24px 0 12px}p{margin:12px 0}a{color:#07516d;text-underline-offset:3px}a:hover{text-decoration-thickness:3px}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--orange);outline-offset:4px}header{padding-bottom:28px;border-bottom:2px solid var(--ink)}.eyebrow{font-size:.8rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:700}.lead{font-size:1.25rem;max-width:840px}.section{padding:38px 0;border-bottom:1px solid var(--line);scroll-margin-top:18px}.section-number{color:var(--blue);font-size:.85rem;font-weight:750;letter-spacing:.05em}.note,.takeaway{padding:18px 22px;border-left:4px solid var(--blue);background:var(--soft);margin:20px 0}.caution{border-color:var(--orange);background:var(--warm)}.takeaway{font-size:1.15rem}blockquote{margin:18px 0;padding:4px 20px;border-left:3px solid var(--line)}.small,.source,figcaption{font-size:.87rem;color:var(--muted)}.source{margin-top:18px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.card{padding:18px 22px;background:white;border:1px solid var(--line);border-radius:8px}.card h3{margin-top:0}.equation{font-family:"Cambria Math",Cambria,Georgia,serif;font-size:1.15rem;text-align:center;padding:16px;background:white;border:1px solid var(--line);border-radius:6px;overflow-x:auto;line-height:1.9}.equation .muted{color:var(--muted)}nav ol{display:flex;flex-wrap:wrap;gap:8px 24px;padding-left:22px;font-size:.92rem}figure{margin:22px 0;overflow-x:auto}.section>figure>svg{min-width:700px}.lab .plot,.lab .timing{min-width:640px}svg{display:block;width:100%;height:auto}svg text{font-family:system-ui,sans-serif;fill:var(--ink)}table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}thead{background:var(--soft)}.scroll{overflow-x:auto}.scroll table{min-width:520px}.claims li{margin:10px 0}details{border:1px solid var(--line);background:white;border-radius:6px;padding:12px 18px;margin:18px 0}summary{cursor:pointer;font-weight:650}code{font-size:.88em;background:#eaf0f4;padding:2px 4px;border-radius:3px}button,input,select,textarea{font:inherit}button{border:1px solid var(--blue);border-radius:6px;background:var(--blue);color:white;padding:9px 16px;cursor:pointer}button[type=reset]{background:white;color:var(--blue)}input[type=number],select{max-width:100%;padding:7px 10px;border:1px solid #8da5b6;border-radius:4px;background:white;color:var(--ink)}input[type=number]{width:140px}fieldset{border:1px solid var(--line);border-radius:5px;margin:18px 0;padding:12px 16px}legend{font-weight:650;padding:0 6px}fieldset label{display:block;padding:3px 0}input[type=radio]{width:18px;height:18px;vertical-align:middle;margin-right:8px;accent-color:var(--blue)}.lab{margin:28px 0;padding:24px;background:white;border:2px solid var(--line);border-radius:10px}.lab h3{margin-top:0}.lab .controls{display:flex;flex-wrap:wrap;gap:18px 30px;align-items:end}.lab .control{display:grid;gap:5px}.lab .actions{display:flex;gap:10px;flex-wrap:wrap}.lab .result{margin-top:22px;border-top:1px solid var(--line);padding-top:18px}.lab .result[hidden]{display:none}.lab .metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}.lab .metric{padding:12px;background:var(--soft);border-radius:5px}.lab .metric dt{font-size:.78rem;color:var(--muted)}.lab .metric dd{font-weight:700;font-variant-numeric:tabular-nums;margin:4px 0 0}.lab .plot{border:1px solid var(--line);background:#fff;border-radius:5px}.lab .legend{font-size:.85rem;margin:8px 0;color:var(--muted)}.lab .status{font-size:.92rem;color:var(--muted)}.lab table{font-size:.86rem}.flow-label{font-size:17px}.flow-small{font-size:14px}.vocab{font-size:.85rem}.test-state{font-size:.85rem;padding:14px;background:var(--soft)}textarea{width:100%;min-height:130px;padding:12px;border:1px solid #8da5b6;border-radius:5px}.footer{font-size:.85rem;color:var(--muted);margin-top:30px}noscript{display:block;padding:18px;background:var(--warm)}@media(max-width:680px){main{padding:22px 16px 45px}.grid{grid-template-columns:1fr}.lab{padding:16px}.lab .metrics{grid-template-columns:1fr}h2{font-size:1.5rem}.equation{font-size:1rem}nav ol{display:block}nav li{margin:5px 0}th,td{padding:8px}}
+@media print{body{font-size:11pt}main{max-width:none;padding:0}nav,.lab form,textarea{display:none}.section,.lab{break-inside:auto}a{color:inherit}.result[hidden]{display:none}details{display:block}}
+</style>
+</head>
+<body>
+<main>
+<header>
+<div class="eyebrow">Mental model · Section 4.4 · Review round 1</div>
+<h1>The exact plant is not the linear approximation</h1>
+<p class="lead">The proof may describe the approximation everywhere, while describing the original plant only near the reference. That is the distinction Section 4.4 makes.</p>
+<div class="takeaway"><strong>“Exact” describes the model. “Local” describes the reach of the guarantee.</strong><br>An exact model can have a stability guarantee that is only local.</div>
+<p class="small">Latest clarification: <a href="#r03-scope">the current proof does not certify the example's full nonlinear transient</a>. Earlier: <a href="#r02-phase">the anchor and cycle-start sampling</a>.</p>
+<nav aria-label="Reading path"><ol><li><a href="#r01-two-descriptions">One plant, two descriptions</a></li><li><a href="#r01-timing">Why timing feedback is nonlinear</a></li><li><a href="#r01-local">What local stability means</a></li><li><a href="#r01-anchor">An anchor is not a constant waveform</a></li><li><a href="#r01-paper">Read the paragraph again</a></li><li><a href="#r01-revision">Check your revised model</a></li></ol></nav>
+</header>
+<noscript>The explanations and equations remain readable without JavaScript. The three laboratories need JavaScript to reveal their computed results.</noscript>
+<section id="round-01">
+<section class="section" id="r01-start">
+<div class="section-number">Starting point</div>
+<h2>What you already said, and what is still unclear</h2>
+<blockquote>“To prove the stability we need to have a P where V is positive definite and that in the Schur complement the matrices are negative definite.”</blockquote>
+<p>That earlier explanation is sound for the linearized family when <strong>one common P</strong> works for the two endpoints. Your latest message was “I dont get it” about Section 4.4. You have not yet described how you connect that proof to the exact plant, so this document does not assume a specific misconception there.</p>
+<p>The question to resolve is narrow: <strong>which equation has the common-P proof actually certified, and when does that certificate also tell us about the original model?</strong></p>
+<p class="small">The examples below are deliberately small. They are not the converter, do not reproduce its reported numbers, and are not additional evidence for its stability. They isolate the reasoning behind the manuscript.</p>
+</section>
+<section class="section" id="r01-two-descriptions">
+<div class="section-number">01 · Separate the objects</div>
+<h2>There is one ideal plant, described at two levels</h2>
+<div class="grid"><article class="card"><h3>The exact one-cycle map</h3><p>Start from the current state, apply the controller's actual dwell durations, and propagate each mode through the whole cycle.</p><p>This keeps the timing dependence. It gives the original model's next cycle-start state without a Taylor approximation.</p></article><article class="card"><h3>The linearized one-cycle model</h3><p>Approximate how the next error changes when the current error and switching offsets are small.</p><p>This is the simpler matrix model used in the common-P proof. It drops higher-order terms.</p></article></div>
+<figure>
+<svg viewBox="0 0 960 245" role="img" aria-labelledby="r01-flow-title r01-flow-desc"><title id="r01-flow-title">The exact cycle map and its local linear approximation</title><desc id="r01-flow-desc">A cycle-start error determines the switching offsets. The exact mode propagation gives the next error. Linearizing that same propagation near the reference gives the matrix prediction plus an omitted remainder.</desc><defs><marker id="r01-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#14617b"/></marker></defs><g fill="#edf4f8" stroke="#8ba5b6" stroke-width="1.5"><rect x="10" y="28" width="185" height="75" rx="8"/><rect x="240" y="28" width="225" height="75" rx="8"/><rect x="510" y="28" width="255" height="75" rx="8"/><rect x="805" y="28" width="145" height="75" rx="8"/><rect x="510" y="155" width="440" height="66" rx="8"/></g><g text-anchor="middle" class="flow-label"><text x="102" y="60">Current error</text><text x="102" y="84">eₖ</text><text x="352" y="60">Controller chooses</text><text x="352" y="84">switching times</text><text x="637" y="60">Exact propagation</text><text x="637" y="84">through every mode</text><text x="877" y="60">Next error</text><text x="877" y="84">eₖ₊₁</text><text x="730" y="182">Linearized prediction + remainder</text><text x="730" y="205" class="flow-small">Two parts of a description, not two physical plants.</text></g><g fill="none" stroke="#14617b" stroke-width="2" marker-end="url(#r01-arrow)"><path d="M195,65 H236"/><path d="M465,65 H505"/><path d="M765,65 H800"/><path d="M637,103 V151"/></g><text x="652" y="135" class="flow-small">expand near the anchor</text></svg>
+<figcaption>The nonlinear remainder is not noise and is not an extra disturbance added to the experiment. It is the part omitted by the approximation.</figcaption>
+</figure>
+<div class="equation">Exact next error = linearized prediction + omitted higher-order terms</div>
+<p>The common-P argument acts on the <strong>linearized prediction</strong>. For the exact feedback map, we must also account for the omitted terms. A certificate for one equation does not automatically certify another equation.</p>
+<div class="note caution"><strong>“Exact” does not mean hardware-perfect.</strong> It means exact propagation of the paper's ideal switched-affine equations. Quantization, delays, estimation errors, and parameter uncertainty are still outside those equations.</div>
+<p class="source">Paper evidence: <a href="../../latex/main.tex">latex/main.tex</a>, <code>eq:exact-cycle-map</code>, <code>eq:cycle-model</code>, <code>eq:conditioned-family</code>, and subsection “What follows for the exact plant”. Scope limits also appear in <a href="../../GOAL.md">GOAL.md</a>.</p>
+</section>
+<section class="section" id="r01-timing">
+<div class="section-number">02 · Where the nonlinear terms come from</div>
+<h2>Linear mode equations do not make timing feedback linear</h2>
+<p>Within each mode, we know how to propagate the state. But the result depends on <strong>how long the mode lasts</strong>. When feedback makes that duration depend on the error, the error enters the timing-dependent propagation too.</p>
+<div class="grid"><article class="card"><h3>Fixed switching times</h3><p>The same propagation matrices act every cycle. The one-cycle state map is affine. Subtract the reference anchor, and its constant term cancels.</p><div class="equation">eₖ₊₁ = Φeₖ <span class="muted">exactly</span></div></article><article class="card"><h3>Error-dependent switching times</h3><p>The error changes the durations used inside the propagation. Matrix exponentials now depend on the error.</p><div class="equation">eₖ₊₁ = A(βₖ)eₖ + remainder</div></article></div>
+<h3>A one-state example you can inspect</h3>
+<p>Use a one-second cycle. In the first mode, <em>dx/dt = −x + 1</em>. In the second, <em>dx/dt = −x − 1</em>. Normally, each mode lasts half a second. The state is dimensionless, and time is measured in seconds.</p>
+<p>With feedback, request a switching offset of <em>δτ = −0.2e</em> seconds. Both dwell durations must stay above 0.15 seconds. The same maximal-scaling rule as in the paper enforces this bound. This is a teaching model, not a converter parameter choice.</p>
+<div class="lab" id="r01-timing-lab">
+<h3>Laboratory 1 · Does exact equal linearized?</h3>
+<p>First try the fixed schedule. Then use timing feedback with the same error. Predict whether the two next-error calculations will coincide.</p>
+<form>
+<div class="controls"><label class="control">Schedule<select name="mode"><option value="fixed">Fixed switching times</option><option value="feedback">Timing feedback</option></select></label><label class="control">Current error e<input name="error" type="number" min="-3" max="3" step="0.05" value="0.50" required></label></div>
+<fieldset><legend>Before revealing the result, I predict</legend><label><input type="radio" name="prediction" value="same" required>The exact and linearized next errors are equal.</label><label><input type="radio" name="prediction" value="different" required>They are different.</label><label><input type="radio" name="prediction" value="unsure" required>I am not sure yet.</label></fieldset>
+<div class="actions"><button type="submit">Compute one cycle</button><button type="reset">Reset</button></div>
+</form>
+<p class="status" role="status" aria-live="polite">Choose a prediction, then compute.</p>
+<div class="result" hidden>
+<dl class="metrics"><div class="metric"><dt>Exact next error</dt><dd data-value="exact"></dd></div><div class="metric"><dt>Linearized next error</dt><dd data-value="linear"></dd></div><div class="metric"><dt>Remainder = exact − linearized</dt><dd data-value="remainder"></dd></div></dl>
+<p data-value="explanation"></p>
+<figure><svg class="timing" viewBox="0 0 850 115" role="img" aria-label="Applied durations of the two modes"></svg><figcaption data-value="schedule"></figcaption></figure>
+<figure><svg class="plot" viewBox="0 0 850 300" role="img" aria-label="Exact and linearized next errors as functions of the current error"></svg><div class="legend">Solid blue: exact map. Dashed orange: conditioned linearized prediction. Circles mark your chosen error.</div></figure>
+<p data-value="halving"></p>
+</div>
+<p class="small">Suggested comparisons: e = 0.50, then 0.05, with timing feedback. At e = 0, both return zero. At e = 2, dwell conditioning activates. The curves use the same applied factor at each input error, so their difference is not caused by comparing different controllers.</p>
+</div>
+<details><summary>The exact equations behind Laboratory 1</summary>
+<p>A mode with constant command u propagates as x(t+d) = u + [x(t)−u] exp(−d). Compose the two modes, with the switch at τ, to obtain</p>
+<div class="equation">F(x,τ) = exp(−1)x + 2 exp(τ−1) − 1 − exp(−1).</div>
+<p>The nominal anchor solves F(x*,0.5) = x*, giving x* = −tanh(0.25), about −0.244919. Set e = x−x* and τ = 0.5+δτ. The exact error map is</p>
+<div class="equation">eₖ₊₁ = exp(−1)eₖ + 2 exp(−0.5)[exp(δτₖ)−1].</div>
+<p>The local approximation replaces exp(δτ)−1 by δτ. With δτ = −0.2βe, the conditioned linearized prediction is [exp(−1)−0.4 exp(−0.5)β]e. The remainder is 2 exp(−0.5)[exp(δτ)−1−δτ].</p>
+<p>The prediction is linear for a fixed β. Because the controller selects β from the error, the dashed curve can bend where conditioning activates. That state dependence is retained in both calculations; the propagation remainder is what distinguishes them.</p>
+<p>Near zero error, β = 1 and halving the error reduces this remainder by roughly a factor of four. That is what “second order” means here. The nonlinear terms have not been removed from the exact model.</p>
+<p>The available timing margin is 0.35 seconds. For a nonzero raw offset, β = min(1, 0.35/|δτ<sup>raw</sup>|). At zero offset we take β = 1. Thus both dwells remain at least 0.15 seconds.</p>
+</details>
+<div class="takeaway">The fixed schedule gives an exact linear error relation. Timing feedback generally does not, even when each mode has simple affine dynamics.</div>
+<p class="source">Paper connection: <a href="../../latex/main.tex">latex/main.tex</a>, <code>eq:exact-augmented-cycle</code>, <code>eq:conditioner</code>, and <code>eq:exact-open-loop</code>. The scalar example above is derived from the stated mode equations; it is not fitted to the paper's simulations.</p>
+</section>
+<section class="section" id="r01-local">
+<div class="section-number">03 · What the proof can transfer to the exact map</div>
+<h2>Near the anchor, the omitted terms are small enough</h2>
+<p>There are two reasons the paper can make a local statement about the exact feedback map.</p>
+<ol><li><strong>Conditioning is inactive sufficiently close to the anchor.</strong> The nominal dwells have strict positive margins. Small errors produce small raw offsets, which fit inside those margins. Therefore β = 1 there.</li><li><strong>The stable linear part dominates the small nonlinear remainder.</strong> In that neighborhood, the exact map is smooth and its Jacobian is A<sub>cl</sub>. The endpoint certificate proves that this Jacobian is Schur stable. The discrete-time linearization theorem gives local exponential stability of the exact map.</li></ol>
+<div class="grid"><article class="card"><h3>Jacobian, in this paragraph</h3><p>The derivative of the exact next-error map at e = 0. It tells us the first-order effect of a small current error.</p><p>In one dimension it is a slope. With several states it is a matrix of slopes.</p></article><article class="card"><h3>Schur stable, in this paragraph</h3><p>Every eigenvalue of that discrete-time matrix has magnitude below one. The corresponding linear system converges to zero.</p><p>This is different from the Schur complement, which is a matrix manipulation used in the proof.</p></article></div>
+<p><strong>Local</strong> means that a sufficiently small neighborhood exists from which trajectories stay nearby and converge. This section does not calculate its size. It does not say that every point in the dwell-feasible region C lies in it.</p>
+<div class="note caution">Feasibility and convergence answer different questions. C says “the raw schedule is allowed now.” A region of attraction says “the trajectory will approach the reference.” They are not interchangeable.</div>
+<div class="lab" id="r01-local-lab">
+<h3>Laboratory 2 · A stable Jacobian does not settle large-error behavior</h3>
+<p>This separate mathematical example has the exact map <strong>eₖ₊₁ = 0.5eₖ + eₖ²</strong>. Its linear approximation at zero is <strong>eₖ₊₁ = 0.5eₖ</strong>. Both use the same Jacobian, 0.5. No dwell constraint or converter model is involved.</p>
+<form>
+<div class="controls"><label class="control">Initial error e₀<input name="error" type="number" min="0" max="0.9" step="0.01" value="0.10" required></label></div>
+<fieldset><legend>For this initial error, I predict that the exact trajectory</legend><label><input type="radio" name="prediction" value="zero" required>Converges to zero.</label><label><input type="radio" name="prediction" value="notzero" required>Does not converge to zero.</label><label><input type="radio" name="prediction" value="unsure" required>I am not sure yet.</label></fieldset>
+<div class="actions"><button type="submit">Compare trajectories</button><button type="reset">Reset</button></div>
+</form>
+<p class="status" role="status" aria-live="polite">Try 0.10 first. Then reset and try 0.60.</p>
+<div class="result" hidden>
+<p data-value="explanation"></p>
+<figure><svg class="plot" viewBox="0 0 850 300" role="img" aria-label="Exact polynomial trajectory and its linear approximation"></svg><div class="legend">Solid blue circles: exact map. Dashed orange squares: linear approximation. Horizontal axis: cycle number. Vertical axis: dimensionless error.</div><figcaption data-value="stop"></figcaption></figure>
+<div class="scroll"><table><caption>Cycle-by-cycle calculations</caption><thead><tr><th scope="col">Cycle k</th><th scope="col">Exact error</th><th scope="col">Linearized error</th><th scope="col">Omitted term at exact error, eₖ²</th></tr></thead><tbody></tbody></table></div>
+</div>
+<p class="small">This example disproves the general inference “stable Jacobian means global nonlinear stability.” It does not show that the paper's converter diverges from any particular initial state.</p>
+</div>
+<details><summary>Why the polynomial example is locally stable</summary><p>For |e| ≤ 0.25, |0.5e+e²| ≤ 0.75|e|. So this interval is invariant and every trajectory starting there decays. But e = 0.5 is another fixed point. For e &gt; 0.5, the next error exceeds the current one, and repeated application grows without bound. The behavior away from zero cannot be read from the derivative at zero alone.</p><p>The common-P proof in the paper covers the entire <em>linearized</em> family. This polynomial example has only one linearized matrix, 0.5, but that is enough to illustrate the missing logical step. The linear stability certificate does not certify the omitted nonlinear term at arbitrary errors.</p></details>
+<p class="source">Paper connection: <a href="../../latex/main.tex">latex/main.tex</a>, <code>eq:strict-margin</code>, <code>eq:admissible-region</code>, <code>thm:common-p</code>, and the local Jacobian argument in Section 4.4. The polynomial counterexample and its invariant interval are verified directly above.</p>
+</section>
+<section class="section" id="r01-anchor">
+<div class="section-number">04 · What “converges to the anchor” means</div>
+<h2>The samples become constant. The waveform does not.</h2>
+<p>The anchor is one point on the reference waveform, always sampled at the same phase: the beginning of a cycle. It is not a physical equilibrium at which the plant stops moving.</p>
+<div class="equation">Cycle-start tracking: x(kT) → x*<br>Between samples: the plant approaches the reference periodic waveform.</div>
+<div class="lab" id="r01-wave-lab">
+<h3>Laboratory 3 · Zero cycle-start error, nonconstant state</h3>
+<p>Return to Laboratory 1's two-mode plant, now with the fixed half-second schedule. Start exactly at its anchor, e₀ = 0. Predict what the physical state does during each cycle.</p>
+<form>
+<div class="controls"><label class="control">Initial cycle-start error e₀<input name="error" type="number" min="0" max="0.8" step="0.1" value="0" required></label><label class="control">Display<select name="view"><option value="continuous">Within-cycle waveform and cycle samples</option><option value="samples">Cycle-start samples only</option></select></label></div>
+<fieldset><legend>When e₀ = 0, I predict that the physical state</legend><label><input type="radio" name="prediction" value="constant" required>Remains constant throughout the cycle.</label><label><input type="radio" name="prediction" value="periodic" required>Moves during the cycle and returns to the anchor.</label><label><input type="radio" name="prediction" value="unsure" required>I am not sure yet.</label></fieldset>
+<div class="actions"><button type="submit">Show four cycles</button><button type="reset">Reset</button></div>
+</form>
+<p class="status" role="status" aria-live="polite">Predict, then reveal. Compare the two display options.</p>
+<div class="result" hidden>
+<p data-value="explanation"></p>
+<figure><svg class="plot" viewBox="0 0 850 300" role="img" aria-label="Physical state, periodic reference, and cycle-start samples"></svg><div class="legend">Solid blue: physical state. Dashed orange: reference waveform. Blue circles: physical cycle samples. Orange squares: reference anchors. When the curves coincide, the dashed reference remains visible on top.</div></figure>
+<div class="scroll"><table><caption>Samples at matching cycle phases</caption><thead><tr><th scope="col">Time kT, seconds</th><th scope="col">Physical state x(kT)</th><th scope="col">Reference anchor x*</th><th scope="col">Error eₖ</th></tr></thead><tbody></tbody></table></div>
+</div>
+<p class="small">For a nonzero e₀, the exact fixed-schedule error is eₖ = exp(−k)e₀. For e₀ = 0, the waveform still rises and falls while every cycle-start error is zero. The four-cycle run illustrates this identity; it is not the proof of asymptotic convergence.</p>
+</div>
+<p>Under feedback near the anchor, the same interpretation applies. As the cycle-start error vanishes, the timing corrections vanish too. Smooth mode flows then make the state between cycle starts approach the reference at matching phases.</p>
+<p class="source">Paper evidence: the reference and cycle-anchor definitions near <code>eq:plant</code>, the exact fixed-schedule error relation <code>eq:exact-open-loop</code>, and the phase-aligned convergence paragraph in Section 4.4 of <a href="../../latex/main.tex">latex/main.tex</a>.</p>
+</section>
+<section class="section" id="r01-paper">
+<div class="section-number">05 · Read Section 4.4 again</div>
+<h2>The subsection makes four claims, not one</h2>
+<div class="scroll"><table><thead><tr><th scope="col">Part of the paragraph</th><th scope="col">Plain meaning</th><th scope="col">What it does not say</th></tr></thead><tbody>
+<tr><td>“The common-P proof controls the linear term.”</td><td>The matrix proof certifies the linearized model.</td><td>That the omitted nonlinear terms are harmless at every error.</td></tr>
+<tr><td>“Conditioning is inactive near the anchor.”</td><td>Small raw requests fit within the nominal dwell margins. The exact map is smooth there, with Jacobian A<sub>cl</sub>.</td><td>That conditioning is always inactive, or always becomes permanently inactive from every initial state.</td></tr>
+<tr><td>“Local exponential stability.”</td><td>The stable Jacobian guarantees convergence of the exact map from a sufficiently small invariant neighborhood.</td><td>That the whole admissible region C is a nonlinear region of attraction.</td></tr>
+<tr><td>“The exact open-loop error relation.”</td><td>With fixed nominal durations, the error obeys the linear relation eₖ₊₁ = Φeₖ exactly. If Φ is Schur, convergence holds throughout that ideal model.</td><td>A guarantee for hardware with unmodeled effects, or the same global conclusion for timing feedback.</td></tr>
+</tbody></table></div>
+<h3>Two independent distinctions</h3>
+<div class="grid"><article class="card"><h3>Exact versus linearized</h3><p><strong>Which equations are we using?</strong> Exact propagation retains the full timing dependence. Linearization keeps the first-order terms near the reference.</p></article><article class="card"><h3>Local versus global</h3><p><strong>Which initial states does the guarantee cover?</strong> Local means a neighborhood. Global means all states in the stated mathematical model.</p></article></div>
+<p>There is no contradiction in a stronger scope statement for open loop and a faster response with feedback. In this benchmark, open loop already converges. The feedback simulations show faster convergence while the conditioner keeps the requested dwell durations feasible. The nonlinear guarantee for that feedback remains local.</p>
+<div class="takeaway">Your common-P reasoning remains useful. The missing question is: <strong>“Does the equation I certified equal the exact cycle map, or only approximate it?”</strong></div>
+</section>
+<section class="section" id="r01-vocabulary">
+<div class="section-number">06 · Proposed vocabulary</div>
+<h2>Use these words for different things</h2>
+<p>These definitions are proposed for your next explanation, not recorded as already understood. Your use of positive definiteness in the earlier discussion was supported. Your meanings for the terms below have not yet been established.</p>
+<div class="scroll"><table class="vocab"><thead><tr><th scope="col">Term</th><th scope="col">Working definition and scope</th><th scope="col">Example / contrasting non-example</th><th scope="col">Your usage / status</th></tr></thead><tbody>
+<tr><td>Exact plant model</td><td>The paper's ideal switched-affine equations propagated without linearizing timing dependence.</td><td>Exact mode exponentials / a model containing every hardware effect.</td><td>Not yet specified; proposed.</td></tr>
+<tr><td>One-cycle map</td><td>The rule taking a cycle-start state and its applied schedule to the next cycle-start state.</td><td>Compose all interval flows / one instantaneous mode derivative.</td><td>Not yet specified; proposed.</td></tr>
+<tr><td>Linearization</td><td>A first-order approximation near the reference state and nominal schedule.</td><td>Replace exp(δτ)−1 by δτ near zero / assert that replacement is exact for every offset.</td><td>Not yet specified; proposed.</td></tr>
+<tr><td>Nonlinear remainder</td><td>The exact difference between the map and its first-order expression, locally second order here.</td><td>exp(δτ)−1−δτ / measurement noise.</td><td>Not yet specified; proposed.</td></tr>
+<tr><td>Jacobian</td><td>The derivative matrix of the exact cycle map at the anchor, with the feedback law included.</td><td>A<sub>cl</sub> near inactive conditioning / the full nonlinear cycle map itself.</td><td>You requested a definition; proposed.</td></tr>
+<tr><td>Schur stable</td><td>Every eigenvalue of a discrete-time matrix has magnitude less than one.</td><td>Scalar multiplier 0.5 / multiplier 1.2. Not the Schur-complement operation.</td><td>You requested a definition; proposed.</td></tr>
+<tr><td>Local stability guarantee</td><td>The stated convergence holds for sufficiently nearby initial errors, which stay nearby.</td><td>The small invariant interval in Laboratory 2 / every possible initial state.</td><td>Not yet specified; proposed.</td></tr>
+<tr><td>Cycle anchor</td><td>The point on the periodic reference at the selected cycle-start phase.</td><td>The repeated sampled value in Laboratory 3 / a constant physical equilibrium.</td><td>Not yet specified; proposed.</td></tr>
+<tr><td>Raw-action admissible region C</td><td>Errors whose raw timing requests satisfy the current cycle's dwell constraints.</td><td>A schedule-feasibility test / a global nonlinear convergence certificate.</td><td>Not yet specified; proposed.</td></tr>
+</tbody></table></div>
+</section>
+<section class="section" id="r01-review">
+<div class="section-number">07 · What this review establishes</div>
+<h2>Evidence, interpretation, and remaining questions</h2>
+<ul class="claims"><li><strong>Supported:</strong> your earlier common-P explanation applies to the conditioned linearized family.</li><li><strong>Established by the manuscript's equations:</strong> state-dependent timing generally leaves a nonlinear remainder; fixed nominal timing gives an exact linear error map after subtracting the anchor.</li><li><strong>Established mathematical implication:</strong> a smooth exact map with a Schur Jacobian at its fixed point is locally exponentially stable. Strict nominal dwell margins let the paper apply this result where β = 1.</li><li><strong>Illustrated, not measured in the converter:</strong> all three laboratories. Laboratory 2 supplies a counterexample to a general inference, not a prediction about the converter's large-error behavior.</li><li><strong>Unresolved:</strong> which distinction caused your confusion. Your next explanation will identify whether the missing link was exact versus approximate, local versus global, or anchor versus waveform.</li></ul>
+<p>The new concept relative to your earlier model is <strong>the scope of the certified equation</strong>. There is no need to relearn the Schur proof to understand this section.</p>
+<div class="test-state" id="r01-validation"><strong>Validation.</strong> The embedded JavaScript matched an independent Runge–Kutta integration for 18 fixed-timing and feedback cases, including active dwell limits. Checks also covered the local derivative, second-order remainder, polynomial counterexample, and periodic reference. Twenty-two browser assertions passed for prediction requirements, form submissions, displayed results, reset behavior, view changes, and page overflow. The browser reported no console errors or warnings during those checks. Screenshot capture timed out, so no screenshot-based visual review is claimed. Diagrams and tables can scroll horizontally on narrow screens.</div>
+</section>
+<section class="section" id="r01-revision">
+<div class="section-number">Your turn</div>
+<h2>Explain the link back in your own words</h2>
+<p>After trying the laboratories, write two or three sentences answering:</p>
+<ol><li>What changes when the switching times depend on the error?</li><li>Why can the common-P proof support a local guarantee for the exact feedback map without proving global nonlinear stability?</li><li>If cycle-start error is zero, what can the physical state still do between cycle starts?</li></ol>
+<label for="r01-notes">Draft your explanation here, then copy it into the chat.</label>
+<textarea id="r01-notes" placeholder="The matrix proof applies to… The exact feedback map also contains… Near the anchor…"></textarea>
+<p class="small">This text stays in this page only. It is not sent or saved, and reloading clears it.</p>
+<h3>One new case to predict</h3>
+<p>Suppose the nominal schedule has a dwell duration exactly equal to its minimum, with no spare margin. Can we still use the same argument that conditioning is inactive in a whole neighborhood of the anchor? Explain which step you would check.</p>
+<p>Use the <a href="#r01-vocabulary">working vocabulary</a>, and say which part still feels uncertain. The transfer question is intentionally left unanswered.</p>
+</section>
+</section>
+<section class="section" id="round-02">
+<div class="section-number">Review round 2 · The missing timing convention</div>
+<h2 id="r02-phase">“Near the anchor” refers to the cycle-start state</h2>
+<blockquote>“i dont get the part where near the anchor, the error is small. is the anchor the starting point of the limit cycle? if not, then i was under the impression that the error might not be small”</blockquote>
+<p><strong>Yes: the anchor is the chosen start-of-cycle point on the reference periodic trajectory.</strong> A closed cycle has no intrinsic starting point, so we select a phase and call its reference state x*. That is not necessarily where the actual transient starts.</p>
+<p>Your question identifies a timing convention that the first explanation did not emphasize enough. The controller's error is evaluated only at the start of a cycle:</p>
+<div class="equation">eₖ = x(kT) − x*.</div>
+<p>Thus “near the anchor” means <strong>if the actual state at a cycle start is near the reference state for that same phase</strong>. It is a condition, not an assertion that the state stays near this one point throughout the cycle, or that every initial error is small.</p>
+<figure><svg viewBox="0 0 960 245" role="img" aria-labelledby="r02-phase-title r02-phase-desc"><title id="r02-phase-title">Compare the same reference phase, not the whole waveform with one fixed point</title><desc id="r02-phase-desc">A reference waveform starts at the anchor at time zero, moves away during the cycle, and returns at time T. Both cycle-start errors are zero despite nonconstant motion between samples.</desc><path d="M90,140 Q160,45 480,45 Q730,120 870,140" fill="none" stroke="#14617b" stroke-width="3"/><path d="M65,140 H895" fill="none" stroke="#a54d13" stroke-width="1.5" stroke-dasharray="6 5"/><g fill="#14617b"><circle cx="90" cy="140" r="6"/><circle cx="480" cy="45" r="6"/><circle cx="870" cy="140" r="6"/></g><g text-anchor="middle" font-size="17"><text x="90" y="179">t = 0</text><text x="90" y="205">Sample: e₀ = 0</text><text x="480" y="23">State away from the anchor</text><text x="480" y="179">Inside the cycle</text><text x="480" y="205">Not a cycle-start measurement</text><text x="870" y="179">t = T</text><text x="870" y="205">Sample: e₁ = 0</text></g><text x="92" y="126" font-size="15">Anchor x*</text></svg><figcaption>Schematic of perfect periodic tracking, not converter data. Departure from the anchor between samples is part of the reference motion, not a cycle-start tracking error.</figcaption></figure>
+<h3>Three different situations</h3>
+<ul><li><strong>At a cycle start, the actual state is close to x*.</strong> The sampled error is small, so sufficiently small timing corrections fit within the dwell margins.</li><li><strong>Inside a perfectly tracked cycle, the state is far from x*.</strong> This is allowed. It should be compared with the moving reference at that phase, not with the fixed anchor.</li><li><strong>The transient starts far from x*.</strong> Then e₀ can be large and conditioning may activate. The local argument does not claim otherwise.</li></ul>
+<p>The controller computes the timing action at the cycle start and applies the scheduled offsets during that cycle. It does not continuously recompute the error as x(t) − x* while the reference moves.</p>
+<h3>Try the existing waveform experiment with this distinction in mind</h3>
+<p>In <a href="#r01-wave-lab">Laboratory 3</a>, choose e₀ = 0 and predict before revealing the waveform. Compare the full waveform with the cycle-start-only view. The state at half a cycle differs from x* by about 0.489837 in this teaching model, but every sampled error is zero. These numbers and the display controls were checked in round 1; no new simulation is needed for this clarification.</p>
+<h3>Claim and vocabulary review</h3>
+<table class="vocab"><thead><tr><th scope="col">Your phrase</th><th scope="col">Assessment and proposed meaning</th><th scope="col">Example / non-example</th></tr></thead><tbody><tr><td>“Starting point of the limit cycle”</td><td>Supported if it means the selected reference cycle-start phase. Your question leaves the distinction from the actual transient's initial state open.</td><td>Reference anchor x* / arbitrary actual initial state x₀.</td></tr><tr><td>“Near the anchor”</td><td>Proposed clarification: the actual cycle-start state is close to x*. This is a hypothesis of the local argument.</td><td>x(kT) close to x* / requiring x(t) to remain close to x* throughout the cycle.</td></tr><tr><td>“The error might not be small”</td><td>Supported for arbitrary initial states. Distance from the fixed anchor between samples is not the controller's cycle-start error.</td><td>A large initial e₀ / interpreting reference ripple as sampled tracking error.</td></tr></tbody></table>
+<p class="source">Evidence: <a href="../../latex/main.tex">latex/main.tex</a>, the definitions xₖ = x(kT), eₖ = xₖ − x*, and x* = x̄(0) = x̄(T) in Section 2; cycle-start execution in Section 3; the local-neighborhood argument in Section 4.4. See also the <a href="#r01-vocabulary">round-1 vocabulary</a>. This round clarifies phase and sampling; it does not establish that you have already adopted these definitions.</p>
+<h3>Next check</h3>
+<p>Suppose the plant follows the reference perfectly, but halfway through the cycle it is far from the anchor. What error will the controller use at the next cycle start, and will this within-cycle distance alone activate conditioning? Explain using the sampling times.</p>
+</section>
+<section class="section" id="round-03">
+<div class="section-number">Review round 3 · What is actually certified?</div>
+<h2 id="r03-scope">The example converges, but the local proof does not certify its whole transient</h2>
+<blockquote>“how are we proving that the exact one-cycle map is stable if the system can start far from the reference anchor. actually, the example itself activates the conditioning on the first 3 cycles. … if your exact one-cycle map only proves the stability close to the reference and cannot prove it on the start of the system … then whats the point?”</blockquote>
+<div class="takeaway"><strong>This objection identifies a real difference between the theorem's scope and the experiment's scope.</strong> The current analysis does not prove nonlinear convergence from the example's initial state. The exact simulation demonstrates that this trajectory converges.</div>
+<p>The earlier explanations described why local stability holds but did not make this limitation prominent enough. Knowing that a sufficiently small stable neighborhood exists does not prove that a distant trajectory reaches it. “The example is stable” is supported as observed convergence of the simulated trajectory; it is not, by itself, a proof covering other initial states or disturbances.</p>
+<div class="scroll"><table><thead><tr><th scope="col">Result</th><th scope="col">What it covers</th><th scope="col">What remains outside it</th></tr></thead><tbody>
+<tr><td>Conditioner feasibility proof</td><td>Every applied dwell satisfies its bound for each finite raw request under the strict-margin assumption. This includes the first three simulated cycles.</td><td>Whether the error decreases or the trajectory converges.</td></tr>
+<tr><td>Common-P theorem</td><td>The conditioned linearized family for every factor sequence, including factors below one.</td><td>The full nonlinear remainder during the exact plant's large-error transient.</td></tr>
+<tr><td>Local exact stability</td><td>The exact feedback map from a sufficiently small invariant neighborhood around the anchor, where conditioning is inactive.</td><td>A proof that the example's initial state lies in that neighborhood or reaches it.</td></tr>
+<tr><td>Exact numerical simulation</td><td>Observed convergence with three initially conditioned requests, for the saved model, gain, and initial state.</td><td>A general nonlinear stability certificate.</td></tr>
+</tbody></table></div>
+<h3>Stopping the conditioning does not close this gap</h3>
+<p>At cycle 3 the simulation reports β = 1. That means the raw request is dwell-feasible at that state. It does not identify entry into a certified nonlinear invariant neighborhood. C is a raw-action feasibility region, not automatically a nonlinear region of attraction. The paper has not computed the local neighborhood's size or certified the trajectory's entry into it.</p>
+<p>Nor can the exact open-loop result be substituted for a feedback proof. The nominal schedule is already stable in the ideal model, but adding state-dependent timing changes the cycle map. The open-loop guarantee does not automatically transfer to that map.</p>
+<h3>What the current contribution is, and is not</h3>
+<p>The present results support <strong>solver-free dwell feasibility, a common quadratic certificate for the conditioned linearized family, local exact stability, and simulated convergence acceleration</strong>. They do not support a claim that the nonlinear conditioned controller is proved stable throughout the demonstrated large-error transient.</p>
+<p>The local exact result needs a Schur A<sub>cl</sub> and strict nominal dwell margins. It does not need the entire common-P interval theorem. The value of the common-P theorem is its stronger treatment of changing conditioning factors in the linearized family, rather than only testing the raw endpoint. That remains a linearized result.</p>
+<h3>If the goal is to certify this initial condition</h3>
+<p>One possible route is to certify a nonlinear invariant neighborhood around the anchor, then rigorously verify that the exact transient from the chosen initial state reaches that neighborhood while respecting the dwell constraints. This would cover that initial state without claiming global nonlinear stability. A broader route is a nonlinear Lyapunov or remainder-bound analysis covering a region that contains the initial state.</p>
+<p>Neither route has been completed in the current manuscript. A finite floating-point trajectory that appears to enter the neighborhood, without a certified set and verified membership, is not that missing proof.</p>
+<h3>Vocabulary and claim update</h3>
+<table class="vocab"><thead><tr><th scope="col">Term</th><th scope="col">Current distinction</th><th scope="col">Status</th></tr></thead><tbody><tr><td>Stable example</td><td>Observed convergence of the saved simulation, distinct from certified nonlinear stability for its initial state.</td><td>Your observation is supported; a stronger interpretation is not established.</td></tr><tr><td>Conditioning inactive</td><td>The current raw request is feasible. This is not a certified local-region entry test.</td><td>Proposed clarification.</td></tr><tr><td>Local guarantee</td><td>Convergence from a sufficiently small invariant neighborhood; no claim of reaching it from every distant state.</td><td>Your objection correctly identifies this boundary.</td></tr><tr><td>Common-P guarantee</td><td>Uniform stability across conditioning sequences in the linearized family.</td><td>Supported within that model; not a global exact-plant certificate.</td></tr></tbody></table>
+<p class="source">Evidence: <a href="../../latex/main.tex">latex/main.tex</a>, <code>prop:conditioner</code>, <code>thm:common-p</code>, Section 4.4, the first-three-requests paragraph in the application, and the conclusion's nonlinear limitation. <a href="../../GOAL.md">GOAL.md</a> explicitly separates local exact stability from large-error simulation evidence. This review does not infer that a stronger certificate is impossible; it states that one has not been supplied here.</p>
+<p>The existing <a href="#r01-local-lab">local-versus-global laboratory</a> already illustrates the logical limitation. No additional simulation can replace the missing proof, so this round adds a scope comparison rather than another laboratory.</p>
+<h3>Next decision</h3>
+<p>Should the paper's central claim remain feasible timing feedback with a linearized stability certificate and simulation evidence, or must it certify nonlinear convergence from the demonstrated initial state? The second goal requires additional analysis, not just clearer wording.</p>
+<p class="small">The manuscript and numerical evidence are unchanged by this review.</p>
+</section>
+<footer class="footer">Standalone teaching document. No external libraries, fonts, assets, or network requests. The manuscript, numerical pipeline, and saved converter results are unchanged.</footer>
+</main>
+<script id="exact-plant-lesson-script">
+(()=>{
+'use strict';
+const T=1, nominal=0.5, dmin=0.15, gain=0.2;
+const a=Math.exp(-T), c=2*Math.exp(-0.5);
+const anchor=(2*Math.exp(-0.5)-1-a)/(1-a);
+function interval(x,u,d){return u+(x-u)*Math.exp(-d);}
+function cycle(x,tau){return interval(interval(x,1,tau),-1,T-tau);}
+function step(error,mode){
+ const raw=mode==='feedback'?-gain*error:0;
+ const beta=raw===0?1:Math.min(1,(nominal-dmin)/Math.abs(raw));
+ const delta=beta*raw, tau=nominal+delta;
+ const exact=a*error+c*Math.expm1(delta);
+ const linear=a*error+c*delta;
+ return {raw,beta,delta,tau,exact,linear,remainder:exact-linear};
+}
+function polynomialTrace(e0,cycles=12){
+ const rows=[];let exact=e0,linear=e0;
+ for(let k=0;k<=cycles;k++){
+  rows.push({k,exact,linear,remainder:exact*exact});
+  if(exact>2||k===cycles)break;
+  exact=0.5*exact+exact*exact;linear=0.5*linear;
+ }
+ return rows;
+}
+function wavePoint(t,e0){
+ const k=Math.floor(t),phase=t-k;
+ const start=anchor+Math.exp(-k)*e0;
+ return phase<=nominal?interval(start,1,phase):interval(interval(start,1,nominal),-1,phase-nominal);
+}
+function waveData(e0){
+ const physical=[],reference=[],samples=[],anchors=[];
+ for(let j=0;j<=320;j++){const t=j/80;physical.push([t,wavePoint(t,e0)]);reference.push([t,wavePoint(t,0)]);}
+ for(let k=0;k<=4;k++){samples.push([k,anchor+Math.exp(-k)*e0]);anchors.push([k,anchor]);}
+ return {physical,reference,samples,anchors};
+}
+window.ExactPlantLesson=Object.freeze({interval,cycle,step,polynomialTrace,wavePoint,waveData,anchor,a,c,gain,dmin});
+if(typeof document==='undefined')return;
+const ns='http://www.w3.org/2000/svg';
+function node(tag,attributes={},text){const n=document.createElementNS(ns,tag);for(const [key,value] of Object.entries(attributes))n.setAttribute(key,String(value));if(text!==undefined)n.textContent=text;return n;}
+function fmt(value){if(Math.abs(value)<1e-12)return '0';if(Math.abs(value)<1e-4)return value.toExponential(3);return value.toFixed(6);}
+function plot(svg,series,options){
+ svg.replaceChildren();svg.append(node('title',{},options.title));
+ const left=72,right=822,top=28,bottom=246;
+ const px=x=>left+(x-options.xmin)/(options.xmax-options.xmin)*(right-left);
+ const py=y=>bottom-(y-options.ymin)/(options.ymax-options.ymin)*(bottom-top);
+ const ticks=options.xticks||[0,0.25,0.5,0.75,1].map(q=>options.xmin+q*(options.xmax-options.xmin));
+ for(const x of ticks){const xp=px(x);svg.append(node('line',{x1:xp,x2:xp,y1:top,y2:bottom,stroke:'#e1e9ee'}));svg.append(node('text',{x:xp,y:bottom+23,'text-anchor':'middle','font-size':13},Number.isInteger(x)?x:x.toFixed(1)));}
+ for(let j=0;j<=4;j++){const y=options.ymin+j*(options.ymax-options.ymin)/4,yp=py(y);svg.append(node('line',{x1:left,x2:right,y1:yp,y2:yp,stroke:'#e1e9ee'}));svg.append(node('text',{x:left-10,y:yp+4,'text-anchor':'end','font-size':13},y.toFixed(2)));}
+ if(options.ymin<0&&options.ymax>0)svg.append(node('line',{x1:left,x2:right,y1:py(0),y2:py(0),stroke:'#9cb0bc'}));
+ svg.append(node('line',{x1:left,x2:left,y1:top,y2:bottom,stroke:'#687e8d'}));svg.append(node('line',{x1:left,x2:right,y1:bottom,y2:bottom,stroke:'#687e8d'}));
+ for(const s of series){
+  if(s.line!==false){const attrs={points:s.points.map(p=>px(p[0])+','+py(p[1])).join(' '),fill:'none',stroke:s.color,'stroke-width':2.6};if(s.dash)attrs['stroke-dasharray']=s.dash;svg.append(node('polyline',attrs));}
+  if(s.markers)for(const p of s.points){const attrs=s.markers==='square'?{x:px(p[0])-4,y:py(p[1])-4,width:8,height:8}:{cx:px(p[0]),cy:py(p[1]),r:4.5};svg.append(node(s.markers==='square'?'rect':'circle',{...attrs,fill:s.color,stroke:'white','stroke-width':1}));}
+ }
+ svg.append(node('text',{x:(left+right)/2,y:290,'text-anchor':'middle','font-size':14},options.xlabel));
+ svg.append(node('text',{x:left,y:17,'font-size':14},options.ylabel));
+}
+function fillTable(body,rows){body.replaceChildren();for(const values of rows){const tr=document.createElement('tr');for(const value of values){const td=document.createElement('td');td.textContent=value;tr.append(td);}body.append(tr);}}
+function bindReset(lab,initial){const form=lab.querySelector('form');const hide=message=>{lab.querySelector('.result').hidden=true;lab.querySelector('.status').textContent=message;};form.addEventListener('reset',()=>hide(initial));form.addEventListener('input',()=>hide('Controls changed. Choose a prediction and run again.'));form.addEventListener('change',()=>hide('Controls changed. Choose a prediction and run again.'));}
+{
+ const lab=document.getElementById('r01-timing-lab'),form=lab.querySelector('form'),result=lab.querySelector('.result'),status=lab.querySelector('.status');
+ const set=(key,value)=>{lab.querySelector('[data-value="'+key+'"]').textContent=value;};
+ form.addEventListener('submit',event=>{
+  event.preventDefault();if(!form.reportValidity())return;
+  const error=Number(form.elements.error.value),mode=form.elements.mode.value;
+  if(!Number.isFinite(error)||error < -3||error > 3)return;
+  const s=step(error,mode);result.hidden=false;
+  set('exact',fmt(s.exact));set('linear',fmt(s.linear));set('remainder',fmt(s.remainder));
+  set('explanation',mode==='fixed'?'With fixed switching times, the exact and linearized errors agree. Here the remainder is identically zero for every input error.':error===0?'At the anchor, the error and timing correction are both zero. Equality at this single point does not make the feedback map linear elsewhere.':'With timing feedback, the exact map retains an exponential of the applied offset. The linearized model replaces it by its first-order term. The displayed difference is that omitted remainder.');
+  set('schedule','Raw offset = '+fmt(s.raw)+' s; applied fraction β = '+fmt(s.beta)+'; switch at '+fmt(s.tau)+' s. Dwells: '+fmt(s.tau)+' s and '+fmt(1-s.tau)+' s. Both are at least 0.15 s.');
+  const bar=lab.querySelector('.timing');bar.replaceChildren();bar.append(node('title',{},'Applied mode durations within one second'));
+  const x=45,w=760,split=x+w*s.tau;
+  bar.append(node('rect',{x,y:25,width:w*s.tau,height:38,fill:'#14617b'}));bar.append(node('rect',{x:split,y:25,width:w*(1-s.tau),height:38,fill:'#a54d13'}));
+  const l1=node('text',{x:x+w*s.tau/2,y:50,'text-anchor':'middle','font-size':14},'Mode 1');l1.style.fill='white';bar.append(l1);
+  const l2=node('text',{x:split+w*(1-s.tau)/2,y:50,'text-anchor':'middle','font-size':14},'Mode 2');l2.style.fill='white';bar.append(l2);
+  bar.append(node('line',{x1:x+w/2,x2:x+w/2,y1:16,y2:78,stroke:'#152c3b','stroke-dasharray':'4 3'}));bar.append(node('text',{x:x+w/2,y:103,'text-anchor':'middle','font-size':13},'Nominal switch: 0.5 s'));
+  bar.append(node('text',{x,y:82,'font-size':13},'0 s'));bar.append(node('text',{x:x+w,y:82,'text-anchor':'end','font-size':13},'1 s'));
+  const exact=[],linear=[];for(let j=0;j<=160;j++){const e=-3+6*j/160,p=step(e,mode);exact.push([e,p.exact]);linear.push([e,p.linear]);}
+  plot(lab.querySelector('.plot'),[{points:exact,color:'#14617b'},{points:linear,color:'#a54d13',dash:'7 5'},{points:[[error,s.exact]],color:'#14617b',line:false,markers:'circle'},{points:[[error,s.linear]],color:'#a54d13',line:false,markers:'circle'}],{title:'Exact and linearized error maps for the selected schedule',xmin:-3,xmax:3,ymin:-1.3,ymax:1.3,xlabel:'Current error e',ylabel:'Next-cycle error',xticks:[-3,-2,-1,0,1,2,3]});
+  const half=step(error/2,mode);
+  set('halving',mode==='fixed'?'Halving the error also halves the exact next error, because this error map is linear.':error===0?'Try a small nonzero error to see the remainder.':s.beta<1?'Conditioning is active at this input. For a clean second-order comparison, try e = 0.50 and then 0.25, where both requests are unconditioned.':'At half your error, the remainder is '+fmt(half.remainder)+'. The full-error remainder divided by the half-error remainder is '+(s.remainder/half.remainder).toFixed(3)+', approaching four near zero.');
+  status.textContent='Results shown for '+(mode==='fixed'?'fixed timing':'timing feedback')+' at e = '+error+'. Change the controls and compute again to update.';
+ });
+ bindReset(lab,'Choose a prediction, then compute.');
+}
+{
+ const lab=document.getElementById('r01-local-lab'),form=lab.querySelector('form'),result=lab.querySelector('.result'),status=lab.querySelector('.status');
+ form.addEventListener('submit',event=>{
+  event.preventDefault();if(!form.reportValidity())return;
+  const error=Number(form.elements.error.value);if(!Number.isFinite(error)||error<0||error>0.9)return;
+  const rows=polynomialTrace(error),last=rows[rows.length-1];result.hidden=false;
+  lab.querySelector('[data-value="explanation"]').textContent=error===0?'At zero, both trajectories stay at zero. Try a positive initial error.':error<0.5?'For this initial error, both maps converge to zero, but their trajectories differ. The exact map satisfies 0 < 0.5e + e² < e for 0 < e < 0.5. The small-error Jacobian is consistent with this local behavior.':error===0.5?'The exact error stays at 0.5, which is another fixed point. The linear approximation still predicts convergence to zero. The Jacobian at zero says nothing about this second fixed point.':'The exact error grows even though the Jacobian at zero is 0.5. For e > 0.5, the nonlinear term makes the next error larger. The stable linear approximation is not a global certificate for this nonlinear map.';
+  const ymax=Math.max(0.3,...rows.map(r=>r.exact))*1.08;
+  plot(lab.querySelector('.plot'),[{points:rows.map(r=>[r.k,r.exact]),color:'#14617b',markers:'circle'},{points:rows.map(r=>[r.k,r.linear]),color:'#a54d13',dash:'7 5',markers:'square'}],{title:'Exact polynomial map versus its stable linearization',xmin:0,xmax:Math.max(1,last.k),ymin:0,ymax,xlabel:'Cycle k',ylabel:'Error eₖ',xticks:rows.map(r=>r.k).filter(k=>last.k<=6||k%2===0)});
+  lab.querySelector('[data-value="stop"]').textContent=last.exact>2?'Stopped after the exact error exceeded 2, to keep the growth visible. The mathematical recurrence continues growing.':'Twelve cycles are shown. The convergence statements come from the recurrence, not from a finite plot alone.';
+  fillTable(lab.querySelector('tbody'),rows.map(r=>[r.k,fmt(r.exact),fmt(r.linear),fmt(r.remainder)]));status.textContent='Results shown for initial error '+error+'.';
+ });
+ bindReset(lab,'Try 0.10 first. Then reset and try 0.60.');
+}
+{
+ const lab=document.getElementById('r01-wave-lab'),form=lab.querySelector('form'),result=lab.querySelector('.result'),status=lab.querySelector('.status');
+ form.addEventListener('submit',event=>{
+  event.preventDefault();if(!form.reportValidity())return;
+  const error=Number(form.elements.error.value);if(!Number.isFinite(error)||error<0||error>0.8)return;
+  const view=form.elements.view.value,data=waveData(error);result.hidden=false;
+  lab.querySelector('[data-value="explanation"]').textContent=error===0?'Every cycle-start error is zero, but the physical state moves from about −0.244919 to +0.244919 and back during each cycle. The anchor is a repeated phase sample, not an equilibrium.':'The cycle-start samples approach the anchor while the full state approaches a periodic waveform. The exact error at cycle k is exp(−k) times the initial error. The reference ripple does not disappear.';
+  const series=[];
+  if(view==='continuous'){series.push({points:data.physical,color:'#14617b'});series.push({points:data.reference,color:'#a54d13',dash:'7 5'});}
+  series.push({points:data.anchors,color:'#a54d13',line:false,markers:'square'});series.push({points:data.samples,color:'#14617b',line:false,markers:'circle'});
+  plot(lab.querySelector('.plot'),series,{title:'Periodic physical motion and samples at the reference phase',xmin:0,xmax:4,ymin:-0.35,ymax:Math.max(0.35,...data.physical.map(p=>p[1]))+0.08,xlabel:'Time, seconds; one cycle per second',ylabel:'Physical state x',xticks:[0,1,2,3,4]});
+  fillTable(lab.querySelector('tbody'),data.samples.map(p=>[p[0],fmt(p[1]),fmt(anchor),fmt(p[1]-anchor)]));
+  status.textContent='Results shown for e₀ = '+error+'; '+(view==='samples'?'cycle-start samples only. Switch to the waveform view to see the motion between them.':'within-cycle waveform and samples.');
+ });
+ bindReset(lab,'Predict, then reveal. Compare the two display options.');
+}
+})();
+</script>
+</body>
+</html>

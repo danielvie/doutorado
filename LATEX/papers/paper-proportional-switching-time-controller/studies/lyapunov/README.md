@@ -47,7 +47,7 @@ The reproduced Julia result is `OPTIMAL`, with `eta = 0.000291190431493879`, min
 
 The tutorial covers circuit equations, augmented propagation, dwell derivatives, physical-error projection, LQR, the SDP, endpoint proof, and nonlinear limitations. It uses native MathML and embedded SVG, with no network dependencies.
 
-The Python builder checks `Phi`, `Gamma`, and the aggressive physical gain against `../../results/paper_results.mat`. It constructs them from physical parameters first; the MAT file is a validation reference, not the source of its model. Older `gain_matrix.csv` data are archived and must not be substituted for the current aggressive gain.
+The Python builder checks `Phi`, `Gamma`, and the aggressive physical gain against `../../results/paper_results.mat`. These numerical field names denote the physical matrices called `Phi_x` and `Gamma_tau` in the manuscript, not its unadorned augmented matrices `Phi` and `Gamma`. It constructs them from physical parameters first; the MAT file is a validation reference, not the source of its model. Older `gain_matrix.csv` data are archived and must not be substituted for the current aggressive gain.
 
 ## Reproduce or compare
 
@@ -63,9 +63,11 @@ Python uses `uv` and the recorded requirements. MATLAB needs Control System Tool
 
 ## Adopted article result and scope
 
-[The current article](../../latex/main.tex) adopts the common-P endpoint-to-interval proof as its main stability result. [GOAL.md](../../GOAL.md) records the scope. The invariant raw-action analysis is supporting appendix material; exact nonlinear stability remains local.
+[The current article](../../latex/main.tex) adopts the common-P endpoint-to-interval proof as its main stability result. [GOAL.md](../../GOAL.md) records the scope. The invariant raw-action analysis is supporting appendix material. The article separates the linearized guarantee from nonlinear simulation evidence without presenting a separate local nonlinear stability result.
 
-The article proves endpoint-to-interval decrease by applying the Schur complement to the inverse-free block matrix `[P-eta*I, A(beta)'*P; P*A(beta), P]` and using its affine dependence on `beta`. The Julia script retains the equivalent smaller endpoint inequalities `P-Ai'*P*Ai >= eta*I`; the solver formulation and reported certificate are unchanged.
+The article states the proof in physical error coordinates, with `A0 = Phi_x`, `A1 = Acl`, and `V(e) = e'Pe`. It applies the Schur complement to the negative-definite block matrix `[-P, A(beta)'; A(beta), -inv(P)]` and uses its affine dependence on `beta` for a fixed `P`. The proof concludes with the common quadratic Lyapunov criterion, without an explicit rate calculation.
+
+The Julia script still solves the inverse-free endpoint inequalities `P-Ai'*P*Ai >= eta*I` in normalized coordinates. In the application text, hatted endpoint matrices and `P_n` denote these normalized quantities. The physical-coordinate certificate is `P = inv(Sx)' * P_n * inv(Sx)`. This congruence preserves positive definiteness and endpoint decrease, but the numerical trace and margins are coordinate-dependent. Saved JSON fields `A0`, `A1`, and `P` retain their normalized meaning; neither the solver formulation nor the reported numerical values changed.
 
 The common-P argument concerns the conditioned **linearized** matrix family for all `beta` in `[0, 1]`. The solver checks are floating-point checks, not interval-arithmetic certification. The large-error exact nonlinear trajectories remain simulation evidence; the common-P result does not prove global nonlinear stability.
 

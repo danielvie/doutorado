@@ -12,7 +12,9 @@ The static feedback law maps the cycle-start error to a complete vector of inter
 
 The corresponding raw linearized cycle matrix is:
 
-`Acl = Phi - Gamma_tau K`.
+`Acl = Phi_x - Gamma_tau K`.
+
+Here `Phi_x` is the physical nominal cycle matrix. The manuscript reserves unadorned `Phi` for the augmented transition.
 
 The feedback law itself is a standard static state-feedback or LQR law. The conditioning layer operates after this raw action has been computed.
 

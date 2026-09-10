@@ -10,7 +10,7 @@ The plant has mode-dependent affine dynamics:
 
 `dx/dt = A_sigma x + b_sigma`.
 
-One cycle follows a fixed sequence of N modes between nominal boundaries from zero to the cycle period. The nominal dwell vector contains the elapsed time in each interval. The nominal trajectory returns to its cycle anchor after one complete cycle.
+One cycle follows a fixed sequence of N modes between nominal boundaries from zero to the cycle period. The nominal dwell vector contains the elapsed time in each interval. The nominal trajectory returns to its cycle anchor after one complete cycle. The manuscript denotes the anchor by `bar x(0)`, not a starred state.
 
 Only the N minus 1 interior switching instants are free. The first and last cycle boundaries remain fixed.
 
@@ -32,21 +32,25 @@ Affine interval dynamics become linear after appending a constant state coordina
 
 Each interval has an augmented generator containing its state matrix and affine vector. The exact transition is the matrix exponential of that generator multiplied by the interval duration. One exact cycle is the ordered product of the N interval exponentials.
 
-No approximation is used in this propagation step.
+No approximation is used in this propagation step. Section 2 uses the working note's calligraphic `X(t)` and nominal state `bar X(t)`. For a representative cycle, `Delta t_i = d_{k,i}`, `Delta bar t_i = bar d_i`, and `delta t_i = delta d_{k,i}`. The last quantity is a duration change, not a switching-instant offset. The cycle endpoints stay fixed so actual and nominal terminal states are compared at the same time.
 
 ## First-order model
 
-The interval durations are expanded around their nominal values. The ordered product is expanded while retaining terms with at most one dwell perturbation. Terms that multiply a state error by a dwell change are second order and are discarded.
+The derivation follows `linearization_v2_augmented.tex`. It first subtracts the nominal propagation to form the exact terminal error. It then expands one exponential, shows the product of expanded factors, and expands that ordered product explicitly. Substitution into the error equation cancels the nominal term. The expansion is joint in the initial error and duration changes, so products of two duration changes and products of an initial error with a duration change are second order.
 
-After subtracting the nominal periodic cycle and projecting back to the physical state, the local cycle model is:
+The explicit terminal-error sum appears before its coefficients are collected into `Gamma`. Only then is the complete nominal product named `Phi`, giving the compact augmented model. The augmented quantities use no tildes: `e(t)` has `n+1` components, `Phi` is `(n+1) x (n+1)`, and `Gamma` is `(n+1) x N`. After projection, `e_k`, or `e` without the cycle index, denotes the physical error with `n` components.
 
-`e_next = Phi e + G_d delta_d + higher-order terms`.
+A separate subsection projects back to the physical state, giving:
+
+`e_next = Phi_x e + G_d delta_d + higher-order terms`.
 
 Substitution of the difference-matrix relation gives the controller coordinates:
 
-`e_next = Phi e + Gamma_tau delta_tau + higher-order terms`.
+`e_next = Phi_x e + Gamma_tau delta_tau + higher-order terms`.
 
-Here `Phi` is the nominal cycle matrix and `Gamma_tau` is the switching-instant sensitivity matrix.
+Here `Phi_x = Pi Phi iota` is the physical nominal cycle matrix, `G_d = Pi Gamma` contains physical dwell sensitivities, and `Gamma_tau = G_d D` is the switching-instant sensitivity matrix. The full augmented nominal product `Phi` has an auxiliary unit eigenvalue; stability is tested on the physical error dynamics using `Phi_x`.
+
+Numerical code and saved results retain the field names `Phi` and `Gamma` for the physical matrices denoted `Phi_x` and `Gamma_tau` in the manuscript. This publication notation change does not rename numerical fields or alter their values.
 
 ## Timing sensitivity
 
