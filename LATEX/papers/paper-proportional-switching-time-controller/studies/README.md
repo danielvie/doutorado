@@ -7,6 +7,7 @@
 | [lyapunov](lyapunov/README.md) | Adopted common-P analysis, Julia solve with Python and MATLAB cross-checks |
 | [signal-conditioning-stability](signal-conditioning-stability/tutorial.md) | Supporting endpoint and interval derivations; MATLAB scripts for beta 0, 1, and the interval |
 | [trajectory-comparison](trajectory-comparison/README.md) | Separate continuous-time and long-horizon comparison, `task trajectory-comparison` |
+| [beta-timing](beta-timing/README.md) | Host MATLAB/C++ conditioner timing, individual-call p95 and batched cross-checks, `task beta-timing`; not ESP32 timing |
 | [lyapunov-background](lyapunov-background/README.md) | Earlier general convex-optimization tutorial; not the current certificate entry point |
 | [lyapunov_focus](lyapunov_focus/computing-v-with-cvx.html) | Focused introductory oscillator/CVX example |
 | [lyapunot_focus_fable](lyapunot_focus_fable/README.md) | Earlier two-example tutorial and laboratories; existing name retained to preserve its bundle |

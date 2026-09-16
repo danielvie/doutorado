@@ -1,0 +1,12 @@
+{
+  "matlab_version": "25.2.0.3177638 (R2025b) Update 5",
+  "release": "2025b",
+  "computer": "PCWIN64",
+  "production_function": "C:\\Users\\daniel\\Documents\\doutorado.git\\LATEX\\papers\\paper-proportional-switching-time-controller\\scripts\\condition_dwell_times.m",
+  "single_count": 10000,
+  "batch_count": 500,
+  "batch_size": 200,
+  "warmup_count": 5000,
+  "verified_article_inputs": 100,
+  "checksum": 558142.52760609961
+}

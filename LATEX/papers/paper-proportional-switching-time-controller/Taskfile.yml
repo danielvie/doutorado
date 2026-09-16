@@ -51,6 +51,12 @@ tasks:
     cmds:
       - matlab -batch "run('studies/trajectory-comparison/generate_comparison.m')"
 
+  beta-timing:
+    desc: Benchmark host MATLAB/C++ beta computation and export article timings
+    cmds:
+      - python studies/beta-timing/run.py
+      - python studies/beta-timing/export_latex.py
+
   invariant-region:
     desc: Regenerate the fixed-factor feasible-region figure and vertex data
     cmds:

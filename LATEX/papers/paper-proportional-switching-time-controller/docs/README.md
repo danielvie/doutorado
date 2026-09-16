@@ -5,6 +5,7 @@
 - [Latest generated common-P tutorial](../studies/lyapunov/tutorial/index.html)
 - [Dwell-time conditioning](tutorials/dwell-time-conditioning.html)
 - [Computing beta](tutorials/computing-beta.html)
+- [When beta is computed: visual timing guide](tutorials/conditioning-execution-timing.html)
 - [Matrix transition with beta](tutorials/beta-matrix-transition.html)
 - [Choosing Lyapunov functions](tutorials/choosing-lyapunov-functions.html)
 - [Earlier Lyapunov stability explanation](tutorials/lyapunov-stability.html)

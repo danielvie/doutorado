@@ -1,0 +1,52 @@
+{
+  "started_utc": "2026-09-16T03:39:47.476749+00:00",
+  "completed_utc": "2026-09-16T03:40:00.307732+00:00",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]",
+  "cpu": {
+    "Name": "AMD Ryzen 7 7800X3D 8-Core Processor           ",
+    "NumberOfCores": 8,
+    "NumberOfLogicalProcessors": 16,
+    "MaxClockSpeed": 4201
+  },
+  "git_head": "5e63fa6f7adc121b5139a93ea26e323ab0a48146",
+  "compiler_version": "g++.EXE (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r8) 13.2.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+  "compile_command": [
+    "C:\\Strawberry\\c\\bin\\g++.EXE",
+    "-O3",
+    "-std=c++17",
+    "-fno-lto",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "conditioner.cpp",
+    "benchmark.cpp",
+    "-o",
+    "C:\\Users\\daniel\\Documents\\doutorado.git\\LATEX\\papers\\paper-proportional-switching-time-controller\\studies\\beta-timing\\build\\beta_benchmark.exe"
+  ],
+  "matlab_command": [
+    "C:\\Program Files\\MATLAB\\R2025b\\bin\\matlab.EXE",
+    "-batch",
+    "benchmark_matlab('C:/Users/daniel/Documents/doutorado.git/LATEX/papers/paper-proportional-switching-time-controller/studies/beta-timing/results')"
+  ],
+  "percentile": "nearest rank: sorted one-based index ceil(p*N)",
+  "affinity": "not pinned",
+  "frequency": "not locked",
+  "warmup_calls": 5000,
+  "individual_samples_per_scenario": 10000,
+  "batch_samples_per_scenario": 500,
+  "calls_per_batch": 200,
+  "runs": 1,
+  "source_sha256": {
+    "scripts\\condition_dwell_times.m": "d1d4aad13ce3586daa6dd43c886a28203b82d5a0fc57d80e8e35499a473fcafd",
+    "results\\conditioned_control_response.csv": "4c249d6600fa99dfc375b0c7e8bf3384dc9ce0a303a06585d092b84732d6f3f2",
+    "results\\reference_schedule_orbit.csv": "34aef26468673b8c409f91480246b0ad5173cfddfe00651c0cb02bc53db30086",
+    "studies\\beta-timing\\benchmark_matlab.m": "2d88cbed3482a0bf8035346d8e27674f82f05763007eb71f77a64e2009f9f900",
+    "studies\\beta-timing\\conditioner.hpp": "66718392798c7c6e06e0780d85096a6075ea3752da73640d93a987f5952f8974",
+    "studies\\beta-timing\\conditioner.cpp": "cdd9f9e7fce3762387ea0feeb591489027a4c9ef86f6251cab79a130e8a0e59d",
+    "studies\\beta-timing\\benchmark.cpp": "674ab0b95abe6651a11817a37f2397bccebf31c2da3563fb7eb88e404d11e9ad",
+    "studies\\beta-timing\\run.py": "3e360d6ae1f502527109042777d9907d5562851b2f5b1d4a2cd4bae90d74b5e2"
+  },
+  "binary_sha256": "171564777e0411b6fa754f5af3a504c6169002cc6e09adb6a6e4e72e150ddad5",
+  "input_sha256": "9e7db7d0a1afca384ef8b3c7260642b2df0370baa9aea9f17583978b7705f256"
+}

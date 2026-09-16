@@ -27,6 +27,7 @@ Run these from the paper directory. `task --list` lists paper and study tasks to
 | `task lyapunov:reproduce` | Reconstruct Python evidence and tutorial, then run Julia |
 | `task lyapunov:matlab` | Independent MATLAB CVX/SDPT3 reconstruction and solve |
 | `task trajectory-comparison` | Regenerate the separate continuous-time comparison study |
+| `task beta-timing` | Benchmark host MATLAB/C++ beta computation and record p95 timings |
 | `task check-links` | Check maintained local Markdown and HTML links |
 | `task verify` | Run unit checks, link checks, article results, and LaTeX build |
 | `task clean` | Remove LaTeX compilation intermediates |

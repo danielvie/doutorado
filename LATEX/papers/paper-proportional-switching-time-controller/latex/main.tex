@@ -18,6 +18,7 @@
 \graphicspath{{figures/}}
 \input{metrics.tex}
 \input{lyapunov_metrics.tex}
+\input{beta_timing_metrics.tex}
 
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\vect}[1]{\bm{#1}}
@@ -333,30 +334,24 @@ The gain can be designed from \eqref{eq:cycle-model}, for example by discrete LQ
 \section{Solver-free dwell-time conditioning}
 \label{sec:conditioning}
 
-The raw feedback law may request a dwell duration below $d_{\min}$. Because each switching instant affects two adjacent dwell durations, these constraints must be considered together. Clipping offsets independently can change the direction of the requested action. We instead multiply the complete raw vector by a single factor $\beta_k\in[0,1]$. The aim is to keep this factor as large as possible while satisfying every dwell constraint.
+The conditioner determines how much of the raw timing action can be applied without making any dwell duration shorter than $d_{\min}$. It uses one factor $\beta_k\in[0,1]$ for all switching-instant offsets. A factor of one keeps the complete request; a smaller factor moves each requested instant back toward its nominal position. Because moving one instant changes two adjacent dwell durations, the factor must respect all intervals.
 
 \subsection{Computing the conditioning factor}
 
-First, define the available margin in each nominal dwell duration. We assume that all margins are strictly positive:
+First, calculate how much each nominal interval can be shortened. This available margin is
 \begin{equation}
     \vect{m}=\bar{\vect{d}}-d_{\min}\vect{1}>\vect{0}.
     \label{eq:strict-margin}
 \end{equation}
-Thus $m_i$ is the amount by which interval $i$ can be shortened before reaching its minimum duration.
+We assume strictly positive margins, so the nominal schedule satisfies every dwell constraint before control is applied.
 
-Next, compute the dwell changes requested by the raw action,
+Next, take adjacent differences of the raw switching-instant offsets to obtain the requested dwell changes,
 \[
     \vect{q}_k=D\dtau_k^{\mathrm{raw}}.
 \]
-A positive $q_{k,i}$ lengthens interval $i$; a negative value shortens it. Scaling the raw offsets by $\beta$ also scales these dwell changes by $\beta$. The constraint for interval $i$ is therefore
-\[
-    \bar d_i+\beta q_{k,i}\ge d_{\min}
-    \quad\Longleftrightarrow\quad
-    m_i+\beta q_{k,i}\ge0.
-\]
-If $q_{k,i}\ge0$, this constraint holds for every $\beta\in[0,1]$. If $q_{k,i}<0$, it requires $\beta\le m_i/(-q_{k,i})$. Only intervals that would be shortened therefore limit the factor.
+If $q_{k,i}\ge0$, interval $i$ stays unchanged or becomes longer and imposes no restriction. If $q_{k,i}<0$, the request shortens that interval by $-q_{k,i}$. After scaling, the shortening is $\beta(-q_{k,i})$ and must not exceed $m_i$. Thus this interval allows at most the fraction $m_i/(-q_{k,i})$ of the raw action. For example, a requested shortening of twice the available margin limits the factor to one half.
 
-Taking the smallest of these bounds, capped at one, gives the conditioner:
+The largest factor allowed by all intervals is
 \begin{equation}
 \begin{aligned}
     \beta_k&=\min\left\{1,\ \min_{i:q_{k,i}<0}\frac{m_i}{-q_{k,i}}\right\},\\
@@ -364,7 +359,21 @@ Taking the smallest of these bounds, capped at one, gives the conditioner:
 \end{aligned}
 \label{eq:conditioner}
 \end{equation}
-The minimum over an empty set is taken as $+\infty$, so $\beta_k=1$ when no interval is shortened. More generally, $\beta_k=1$ whenever the raw action is already feasible. If $\beta_k<1$, the action is reduced until at least one dwell duration reaches $d_{\min}$.
+The following scan evaluates this factor without trial schedules or an optimization solver:
+\begin{quote}
+\begin{tabbing}
+\hspace{1em}\=\hspace{1em}\=\kill
+$\beta_k\gets1$ \\
+\textbf{for} $i=1,\ldots,N$ \textbf{do} \\
+\>\textbf{if} $q_{k,i}<0$ \textbf{then} \\
+\>\>$\mathit{limit}\gets m_i/(-q_{k,i})$ \\
+\>\>$\beta_k\gets\min\{\beta_k,\mathit{limit}\}$ \\
+\>\textbf{end if} \\
+\textbf{end for} \\
+$\dtau_k^{\mathrm{app}}\gets\beta_k\dtau_k^{\mathrm{raw}}$
+\end{tabbing}
+\end{quote}
+A feasible raw request leaves $\beta_k=1$. Otherwise, the smallest ratio reduces the complete action until at least one dwell reaches $d_{\min}$. The empty minimum in \eqref{eq:conditioner} is taken as $+\infty$, consistent with leaving the factor at one when no interval is shortened.
 
 \subsection{Feasibility and maximality}
 
@@ -385,16 +394,16 @@ Every ratio $m_i/(-q_{k,i})$ used in \eqref{eq:conditioner} is positive for a fi
 Finally, $\vect{q}_k$ is computed by adjacent differences of the raw offsets. A single scan through the $N$ dwell changes finds the smallest bound. Both operations take $O(N)$ time.
 \end{proof}
 
-\subsection{Admissible region and online implementation}
+\subsection{Online execution and admissible region}
 
-The errors for which conditioning is inactive form the Raw-Action Admissible Region. Substituting $\dtau_k^{\mathrm{raw}}=-K\vect{e}_k$ into the dwell constraints gives
+In the cycle model used here, the controller reads the cycle-start state, computes the error and raw offsets, then runs the scan above. It calculates one $\beta_k$ for the complete schedule, not a new factor at each switching instant. Only the conditioned schedule is applied to the plant. The model assigns no computation delay to these steps.
+
+The errors for which no reduction is needed form the Raw-Action Admissible Region. Substituting $\dtau_k^{\mathrm{raw}}=-K\vect{e}_k$ into the dwell constraints gives
 \begin{equation}
     \mathcal C=\{\vect{e}:DK\vect{e}\le\vect{m}\}.
     \label{eq:admissible-region}
 \end{equation}
-Inside $\mathcal C$, the raw action satisfies every minimum dwell duration and $\beta_k=1$. Outside $\mathcal C$, at least one requested dwell is too short and $\beta_k<1$. This region describes when conditioning is needed; the controller does not need to test membership in it separately.
-
-At each cycle start, the controller measures $\vect{x}_k$ and computes the error and raw offsets. It then forms $\vect{q}_k$, evaluates \eqref{eq:conditioner}, and applies the scaled offsets. These steps require no online optimization. \Cref{app:invariant-region} compares the feasible regions for smaller fixed factors and checks their invariance under the corresponding linearized dynamics.
+Inside $\mathcal C$, the raw action is feasible and $\beta_k=1$. Outside it, at least one requested dwell is too short and $\beta_k<1$. The scan already handles both cases, so no separate region-membership test is needed. \Cref{app:invariant-region} compares the feasible regions for smaller fixed factors and checks their invariance under the corresponding linearized dynamics.
 
 \section{Lyapunov stability and convex optimization}
 \label{sec:stability}
@@ -734,6 +743,19 @@ The short window hides the eventual open-loop convergence. With fixed nominal du
 without a linearization remainder. For this schedule, $\rho(\Phi_x)=\OpenLoopSpectralRadius{}<1$, so open loop converges throughout the ideal affine model. This conclusion relies on fixed durations and does not certify the nonlinear timing-feedback map.
 
 The separate \LongSimulationCycles{}-cycle simulation in \cref{fig:trajectories}(b) checks this longer time scale. Its error stays below $0.01$ from cycle \OpenLoopConvergenceCycle{} through the end of the run. With $T=\SI{\NominalPeriodMicroseconds}{\micro\second}$, the open-loop transient spans seconds. The controlled threshold crossing occurs within a few milliseconds.
+
+\subsection{Host computational cost}
+\label{sec:computational-cost}
+
+We measured the 95th-percentile execution time, denoted p95, for computing the conditioning factor $\beta$. After warm-up, we timed \num{\BetaTimingIndividualSamples} calls using the saved simulation actions as inputs.
+
+The measurements ran on a desktop computer with an \BetaTimingCpu{}, using MATLAB R\BetaTimingMatlabRelease{} and a double-precision C++ implementation compiled with GCC \BetaTimingGccVersion{} and \texttt{-O3} optimization.
+
+In MATLAB, computing $\beta$ alone took \SI{\BetaTimingMatlabBetaPninetyfiveUs}{\micro\second} at p95. Including offset scaling, dwell reconstruction, and feasibility checks increased the full-conditioner p95 to \SI{\BetaTimingMatlabFullPninetyfiveUs}{\micro\second}.
+
+In C++, the individual-call p95 reached the timer baseline of \SI{\BetaTimingCppTimerFloorUs}{\micro\second}, so individual execution times could not be resolved reliably. We therefore also timed batches of \BetaTimingBatchSize{} calls. The p95 of the batch-average cost was \SI{\BetaTimingCppBetaBatchPninetyfiveNs}{\nano\second} per call for $\beta$ alone and \SI{\BetaTimingCppFullBatchPninetyfiveNs}{\nano\second} for full conditioning. These batch statistics are not individual-call latency percentiles.
+
+All reported timings were measured on a desktop-class computer, not an embedded system. They exclude acquisition and waveform generation and do not establish execution times or deadline guarantees for embedded hardware.
 
 \section{Discussion}
 

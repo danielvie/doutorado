@@ -1,0 +1,18 @@
+Validated 100 cases. max_double_beta_error=4.9960036108132044e-16 max_float_beta_error=3.8631531151800402e-07 max_double_time_error_s=8.1315162936412833e-20 max_float_time_error_us=2.6480083349156303e-05
+steady_clock is_steady=1 nominal_tick_seconds=1.0000000000000001e-09
+Measured cpp_double_conditioner / mixed_100
+Measured cpp_double_conditioner / conditioned_3
+Measured cpp_double_conditioner / unconditioned_97
+Checksum cpp_double_conditioner: 279118.90224284527
+Measured cpp_double_beta_only / mixed_100
+Measured cpp_double_beta_only / conditioned_3
+Measured cpp_double_beta_only / unconditioned_97
+Checksum cpp_double_beta_only: 279023.62536313187
+Measured cpp_float_us_conditioner / mixed_100
+Measured cpp_float_us_conditioner / conditioned_3
+Measured cpp_float_us_conditioner / unconditioned_97
+Checksum cpp_float_us_conditioner: 95555903.219958559
+Measured cpp_float_us_beta_only / mixed_100
+Measured cpp_float_us_beta_only / conditioned_3
+Measured cpp_float_us_beta_only / unconditioned_97
+Checksum cpp_float_us_beta_only: 279023.65157967806
