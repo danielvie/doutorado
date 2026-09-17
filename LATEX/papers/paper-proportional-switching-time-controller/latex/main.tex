@@ -35,7 +35,9 @@
 
 \affil*[1]{\orgdiv{Systems and Control}, \orgname{Instituto Tecnol\'ogico de Aeron\'autica}, \orgaddress{\city{S\~ao Jos\'e dos Campos}, \state{S\~ao Paulo}, \country{Brazil}}}
 
-\abstract{Static cycle-to-cycle feedback regulates a reference periodic trajectory by shifting the interior switching instants of a fixed-period mode sequence. Its raw timing action can nevertheless produce inadmissibly short or negative dwell durations. We derive the one-cycle model for mode-dependent switched-affine dynamics and condition the complete raw action by its largest dwell-feasible scalar factor. The conditioner preserves the action direction, mode order, and cycle period and requires an $O(N)$ scan without an online solver. Uniform scaling places the conditioned linearized matrices on a segment between the nominal cycle matrix and the raw closed-loop matrix. An offline semidefinite program seeks a common quadratic Lyapunov function at these two endpoints. We prove that strict endpoint decrease implies uniform exponential stability for every sequence of conditioning factors in $[0,1]$. A three-cell DC--DC converter benchmark admits this certificate. Exact switched-affine simulations compare the controlled and open-loop three-dimensional trajectories and show eventual open-loop convergence to the same reference trajectory. Conditioned feedback reaches a normalized error below $0.01$ at cycle \ConditionedSettlingCycle{}, compared with persistent open-loop crossing at cycle \OpenLoopConvergenceCycle{}, while enforcing the assumed \AppliedScheduleDwellBound{}~\si{\micro\second} dwell bound. The stability guarantee concerns the linearized family; the large-error nonlinear response is simulation evidence.}
+\abstract{
+This paper adresses the problem of controlling a switching-time affine system under dwell-time constraints. The goal is to steer the system to a target periodic trajectory rather than a constant average operating point. We propose a proportional controller and a signal conditioner to comply with the minimum dwell-time constraints. The method combines a solver-free enforcement of the minimum dwell-time constraints with a common quadratic Lyapunov function approach. The controller acts by generating the delta time to be applyed on the switching instants, then conditioning the signal by reducing the requested adjustiments when the schedule is not feasible. The example used here is a three-cell DC-DC converter, we verify the stability of the linearized model using this approach. The simulations show faster convergence of this method compared to a conservative feedback and open-loop opearation while respecting the dwell-time contraints. The analysis guarantees exponential stability of the lineared model even when the conditioning factor changes from cyclo to other.
+}
 
 \keywords{switched-affine systems, periodic trajectories, switching-time control, dwell-time conditioning, common quadratic Lyapunov function, semidefinite programming}
 
@@ -434,6 +436,8 @@ Even if both endpoints are Schur, the matrices between them need not all be stab
 
 \subsection{Common quadratic Lyapunov certificate}
 
+Using one quadratic function for a family of discrete-time systems is the common quadratic Lyapunov function approach \cite{mason2004commonQuadratic}.
+
 Consider $V(\vect{e})=\vect{e}^{\mathsf T}P\vect{e}$ with $P\succ0$. The endpoint inequalities below require this function to decrease by at least $\eta\|\vect{e}\|_2^2$ in one cycle. The same $P$ and the same positive margin $\eta$ must work at both endpoints.
 
 \begin{figure}[t]
@@ -496,6 +500,8 @@ Taking the Schur complement shows that $V(\vect{e})=\vect{e}^{\mathsf T}P\vect{e
 The proof covers the entire interval, not just sampled factors. It applies to all initial errors of the linearized model, including errors outside $\mathcal C$. This does not make the linear approximation valid for arbitrarily large physical errors.
 
 \subsection{Offline semidefinite program}
+
+Related common-matrix vertex-LMI formulations appear in discrete-time robust stability \cite{deOliveira1999lmiDiscrete} and in robust polytopic PWM converter control based on continuous-time averaged models \cite{olalla2009robustLqrPwm}.
 
 The Lyapunov matrix can be computed offline, after the feedback gain $K$ has been chosen. With $A_0=\Phi_x$ and $A_1=A_{\mathrm{cl}}$ fixed, an endpoint SDP is
 \begin{equation}
