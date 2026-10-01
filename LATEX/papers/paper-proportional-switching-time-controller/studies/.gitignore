@@ -1,0 +1,40 @@
+# Build output and local runtime state, at any study depth.
+build/
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+**/.mado-html/locks/
+
+# LaTeX compilation intermediates and run logs.
+*.aux
+*.bbl
+*.blg
+*.brf
+*.dvi
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.out
+*.synctex.gz
+*.toc
+*.log
+
+# MATLAB generated code, caches, and autosaves.
+slprj/
+codegen/
+*.asv
+*.slxc
+*.slx.autosave
+
+# Temporary and editor files.
+temp_*/
+*.tmp
+*.bak
+*~
+.DS_Store
+Thumbs.db
+
+# Keep scientific CSV/MAT/JSON data, figures, reports, and reference PDFs.

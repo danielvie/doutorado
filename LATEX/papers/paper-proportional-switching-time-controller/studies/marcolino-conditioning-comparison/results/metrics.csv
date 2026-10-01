@@ -1,0 +1,3 @@
+method,final_phase_reset_error,final_global_phase_error,first_anchor_cycle_below_001,sustained_anchor_cycle_below_001,sustained_global_cycle_below_001,time_to_anchor_001_ms,cycle_sampled_squared_error_sum,minimum_dwell_us,conditioned_cycle_count,extended_cycle_count,maximum_cycle_duration_us,final_cycle_duration_us,elapsed_time_ms
+Daniel,1.74626470981492e-15,1.74626470981492e-15,6,6,6,1.716,1.50437348105114,3.00000000000002,3,0,286,286,28.6000000000001
+Marcolino,1.71305649860773e-15,0.0505444342890614,4,4,NaN,1.19682624894408,1.12327159135987,2.99999999999999,2,2,332.044706605092,286,28.6528262489441

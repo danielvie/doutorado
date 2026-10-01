@@ -1,0 +1,31 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=23mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\newcommand{\evidence}{../results/relaxed-last-switch/error-scale-3x}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+\section*{Relaxed final-boundary comparison}
+
+All three methods use the same gain and threefold initial error. The panels compare anchor and fixed-clock errors, individual cycle durations, and first-cycle dwells. Blue denotes \texttt{daniel}, green \texttt{daniel-relaxed}, and orange \texttt{marcolino}.
+
+\begin{center}
+\includegraphics[width=\linewidth,height=.78\textheight,keepaspectratio]{\evidence/comparison.pdf}
+\end{center}
+
+\clearpage
+The first 25 cycles show error convergence, conditioning activity, and requested versus applied minimum dwells. The two Daniel policies share a beta axis; Marcolino uses a separate delayed-switch count. All applied dwells meet the $3\,\mu\mathrm{s}$ bound.
+
+\begin{center}
+\includegraphics[width=\linewidth,height=.86\textheight,keepaspectratio]{\evidence/article_response_with_marcolino.pdf}
+\end{center}
+
+\clearpage
+Exact state trajectories over the same $3.432$ ms window compare all three methods with the dashed fixed-clock reference. The panels show the state-space paths, both capacitor voltages, and inductor current; each method retains its own sampling times.
+
+\begin{center}
+\includegraphics[width=\linewidth,height=.86\textheight,keepaspectratio]{\evidence/state_trajectories.pdf}
+\end{center}
+\end{document}

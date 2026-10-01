@@ -7,11 +7,14 @@
 | [lyapunov](lyapunov/README.md) | Adopted common-P analysis, Julia solve with Python and MATLAB cross-checks |
 | [signal-conditioning-stability](signal-conditioning-stability/tutorial.md) | Supporting endpoint and interval derivations; MATLAB scripts for beta 0, 1, and the interval |
 | [trajectory-comparison](trajectory-comparison/README.md) | Separate continuous-time and long-horizon comparison, `task trajectory-comparison` |
+| [marcolino-conditioning-comparison](marcolino-conditioning-comparison/README.md) | Three policies with the same converter and LQR: `daniel`, `daniel-relaxed`, and `marcolino`; fresh 1x/2x/3x report, `task conditioning-comparison:run`; separates anchor and fixed-clock errors |
 | [beta-timing](beta-timing/README.md) | Host MATLAB/C++ conditioner timing, individual-call p95 and batched cross-checks, `task beta-timing`; not ESP32 timing |
 | [lyapunov-background](lyapunov-background/README.md) | Earlier general convex-optimization tutorial; not the current certificate entry point |
 | [lyapunov_focus](lyapunov_focus/computing-v-with-cvx.html) | Focused introductory oscillator/CVX example |
 | [lyapunot_focus_fable](lyapunot_focus_fable/README.md) | Earlier two-example tutorial and laboratories; existing name retained to preserve its bundle |
 | [matlab-test](matlab-test/cvx_example_explanation.html) | CVX installation examples, not article validation |
+
+Saved comparison PDFs are indexed in [report/README.md](report/README.md). Sources and numerical evidence remain with their studies.
 
 `cvx_paper.m` is an earlier MATLAB-only certificate exercise. The latest independent MATLAB comparison is `lyapunov/matlab/compare_certificate.m`.
 

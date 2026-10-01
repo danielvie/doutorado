@@ -1,0 +1,31 @@
+version: '3'
+
+tasks:
+  default:
+    desc: List comparison-study tasks
+    cmds:
+      - task --list
+
+  run:
+    desc: Regenerate three-policy evidence at 1x, 2x, and 3x and build the new report
+    cmds:
+      - task: test
+      - matlab -batch "addpath(pwd); run_relaxed_comparison;"
+      - task: build
+
+  test:
+    desc: Check relaxed dwell feasibility, maximal scaling, and minimal extension
+    cmds:
+      - matlab -batch "addpath(pwd); test_relaxed_dwell_condition;"
+
+  build:
+    desc: Compile the relaxed-last-switch report from saved study evidence
+    dir: report
+    cmds:
+      - latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build relaxed-last-switch-results.tex
+      - cp -f build/relaxed-last-switch-results.pdf relaxed-last-switch-results.pdf
+
+  clean:
+    desc: Remove report compilation intermediates, preserving evidence and the PDF
+    cmds:
+      - rm -rf report/build
