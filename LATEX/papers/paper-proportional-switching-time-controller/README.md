@@ -27,7 +27,10 @@ Run these from the paper directory. `task --list` lists paper and study tasks to
 | `task lyapunov:reproduce` | Reconstruct Python evidence and tutorial, then run Julia |
 | `task lyapunov:matlab` | Independent MATLAB CVX/SDPT3 reconstruction and solve |
 | `task trajectory-comparison` | Regenerate the separate continuous-time comparison study |
+| `task conditioning-comparison:run` | Compare Daniel, relaxed-terminal Daniel, and Marcolino at 1x/2x/3x and build the study report |
+| `task mpc-comparison:run` | Compare fixed-period feedback with five-cycle MPC at 1x/2x/3x and build the study documents |
 | `task beta-timing` | Benchmark host MATLAB/C++ beta computation and record p95 timings |
+| `task check-introduction` | Verify the protected Introduction is unchanged |
 | `task check-links` | Check maintained local Markdown and HTML links |
 | `task verify` | Run unit checks, link checks, article results, and LaTeX build |
 | `task clean` | Remove LaTeX compilation intermediates |
@@ -55,10 +58,10 @@ Keep [GOAL.md](GOAL.md) authoritative for scientific scope and [CONTEXT.md](CONT
 ## Dependencies and evidence policy
 
 - Article numerics require MATLAB, Control System Toolbox, MPT3, and the sibling `simulations/matlab-sim/` project. Configure MPT3 on the MATLAB path before running the tasks.
-- LaTeX requires `latexmk` and a TeX installation. Project-local compile inputs remain under `latex/`.
+- LaTeX requires `latexmk` and a TeX installation; the protected-Introduction check uses Python through `uv`. Project-local compile inputs remain under `latex/`.
 - The Lyapunov study records its Julia environment and Python versions alongside its code. MATLAB CVX is needed only for its optional MATLAB comparison.
 - Shell tasks use Go Task and POSIX commands, as in the existing Windows/Git Bash workflow. Link checks require Python 3.
 
 Track publication CSV/MAT data, LaTeX metrics, and figures so the article builds without running MATLAB. Do not manually edit generated numbers. `results/provenance.json` records the latest run's environment and source revision and is ignored because it includes machine-specific paths. Caches and compilation intermediates are ignored too.
 
-Earlier output locations are recorded in [archive/README.md](archive/README.md). The current rewrite leaves the Introduction unchanged for the author to revise later; its old contribution summary and roadmap do not yet describe the new stability section.
+Earlier output locations are recorded in [archive/README.md](archive/README.md). The Introduction remains unchanged and is protected by `task check-introduction`. The manuscript targets 15 total pages; MPC-5 is a compact supporting reference in the converter application, not a replacement for the conditioner/certificate contribution.

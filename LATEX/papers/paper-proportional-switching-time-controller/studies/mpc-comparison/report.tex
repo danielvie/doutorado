@@ -1,0 +1,49 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=23mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{graphicx,booktabs}
+\newcommand{\evidence}{results/error-scale-3x}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+\section*{Daniel versus MPC}
+
+The threefold initial-error trial uses the same converter, LQR weights,
+$286\,\mu\mathrm{s}$ period, and $3\,\mu\mathrm{s}$ dwell bound.
+Blue denotes \texttt{daniel} and dashed orange denotes \texttt{mpc-5};
+the MPC suffix is its prediction horizon in cycles.
+The panels show cycle-start error, minimum applied dwell, and first-cycle dwells.
+
+\begin{center}
+\includegraphics[width=\linewidth,height=.78\textheight,keepaspectratio]{\evidence/comparison.pdf}
+\end{center}
+
+\clearpage
+Exact state trajectories over the first twelve nominal periods compare
+Daniel and five-cycle MPC with the dashed reference. MPC-5 settles earlier
+than Daniel but produces negative capacitor voltage. This trial also starts
+with negative current; it tests the mathematical model, not validated
+hardware operation. No nonlinear stability guarantee follows from these plots.
+
+\begin{center}
+\includegraphics[width=\linewidth,height=.86\textheight,keepaspectratio]{\evidence/state_trajectories.pdf}
+\end{center}
+
+\clearpage
+\section*{Computation time}
+
+Recorded MATLAB times per successful cycle include Daniel's LQR command
+and dwell conditioning, or MPC's QP solve. The table covers all three
+initial-error scales; each completed run supplies 100 calls. First-call
+overhead is included. Offline design, state normalization, plant propagation,
+and plotting are excluded. These are desktop timings, not ESP32 deadline measurements.
+
+\begin{center}
+\input{results/computation-time.tex}
+\end{center}
+
+The 95th percentile describes the slower tail of the recorded calls, not
+a worst-case execution bound. Missing entries mean no successful MPC calls;
+the failed solve is reported separately below the table.
+\end{document}

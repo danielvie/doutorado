@@ -1,0 +1,2 @@
+method,count,median_us,p95_us,p99_us,max_us
+timer-only,5760,0.1,0.2,0.3,17.3

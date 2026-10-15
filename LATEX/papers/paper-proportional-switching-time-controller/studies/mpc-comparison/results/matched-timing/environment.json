@@ -1,0 +1,75 @@
+{
+  "timestamp": "14-Oct-2026 23:57:47",
+  "matlab_version": "25.2.0.3177638 (R2025b) Update 5",
+  "matlab_release": "2025b",
+  "computer": "PCWIN64",
+  "hostname": "DANIEL-PC",
+  "processor": "AMD64 Family 25 Model 97 Stepping 2, AuthenticAMD",
+  "logical_processors": "16",
+  "max_computation_threads": 8,
+  "os": "Windows 10",
+  "os_version": "10.0",
+  "toolboxes": [
+    {
+      "Name": "MATLAB",
+      "Version": "25.2",
+      "Release": "(R2025b)",
+      "Date": "28-Jul-2025"
+    },
+    {
+      "Name": "Optimization Toolbox",
+      "Version": "25.2",
+      "Release": "(R2025b)",
+      "Date": "28-Jul-2025"
+    },
+    {
+      "Name": "Control System Toolbox",
+      "Version": "25.2",
+      "Release": "(R2025b)",
+      "Date": "28-Jul-2025"
+    }
+  ],
+  "solver": "quadprog",
+  "solver_options": {
+    "Algorithm": "active-set",
+    "Display": "off",
+    "ConstraintTolerance": 1E-8,
+    "OptimalityTolerance": 1E-8,
+    "StepTolerance": 1E-8,
+    "MaxIterations": "10*(numberOfVariables + numberOfConstraints)",
+    "ObjectiveLimit": -1.0E+20,
+    "UseCodegenSolver": false
+  },
+  "warm_start_policy": "Native Mpc.solve: zeros(plan_size,1) on EVERY call; no reused plan.",
+  "workload": "First 12 cycle-start physical states from each saved 1x response, 24 states including duplicates; identical pool for both controllers; no propagation.",
+  "order": "For each block and state, alternate [1,2]/[2,1] by parity of block+state.",
+  "warmup_calls_per_controller": 1008,
+  "measured_calls_per_controller": 5760,
+  "included": "Function dispatch, physical error x-anchor, Daniel physical gain and condition_dwell_times OR MPC state normalization, native QP solve, first-action extraction and physical schedule conversion; common finite-offset/dwell, minimum-dwell and period checks.",
+  "excluded": "MAT loading, offline design/build, state selection, output checksum and reference-action comparison, plant propagation, plotting, file export.",
+  "timer_policy": "Individual tic/toc calls; timer overhead retained, not subtracted.",
+  "cold_policy": "One first call per controller on the shared initial state, Daniel first, before validation/warmup; shared helpers may already be loaded by Daniel before MPC.",
+  "label_policy": "dwell_active: min dwell within 1e-12 s of bound; conditioned: Daniel beta<1-1e-12; action_differs_from_lqr: offset infinity error >1e-10 s, not a claim about the full QP active set.",
+  "source_hashes": [
+    {
+      "path": "C:\\Users\\daniel\\Documents\\doutorado.git\\LATEX\\papers\\paper-proportional-switching-time-controller\\studies\\mpc-comparison\\benchmark_matched_timing.m",
+      "sha256": "4ac3664e34bc551ee0edbac94deb3aee273dd79f6c68f1ee877bb41bf19e9f1a"
+    },
+    {
+      "path": "C:\\Users\\daniel\\Documents\\doutorado.git\\LATEX\\papers\\paper-proportional-switching-time-controller\\scripts\\condition_dwell_times.m",
+      "sha256": "d1d4aad13ce3586daa6dd43c886a28203b82d5a0fc57d80e8e35499a473fcafd"
+    },
+    {
+      "path": "C:\\Users\\daniel\\Documents\\doutorado.git\\simulations\\matlab-sim\\+Mpc\\solve.m",
+      "sha256": "0fda75ab47b62b0f2cb303f75b83048c5da8794c66af51a0e77d06c540c2f3cc"
+    },
+    {
+      "path": "C:\\Program Files\\MATLAB\\R2025b\\toolbox\\optim\\optim\\quadprog.m",
+      "sha256": "cd5301b2adee2d5c01c3528f0271dce5994dfe8706fc67ab59006c62ec28dd2a"
+    },
+    {
+      "path": "C:\\Users\\daniel\\Documents\\doutorado.git\\LATEX\\papers\\paper-proportional-switching-time-controller\\studies\\mpc-comparison\\results\\error-scale-1x\\study.mat",
+      "sha256": "f1c7166d26fd35a568693e07efd8e2bb9c3f4251ce4266f9ca84e4f2033cd68f"
+    }
+  ]
+}

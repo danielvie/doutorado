@@ -1,5 +1,6 @@
 # Explanations and tutorials
 
+- [15-page rewrite change map](diagrams/article-15-page-rewrite.excalidraw), an editable two-frame overview with section-by-section condensation and layout changes
 - [Current article study guide](study-guide.md)
 - [Latest Lyapunov analysis and rebuild instructions](../studies/lyapunov/README.md)
 - [Latest generated common-P tutorial](../studies/lyapunov/tutorial/index.html)

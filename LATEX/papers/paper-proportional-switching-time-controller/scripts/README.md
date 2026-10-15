@@ -55,7 +55,7 @@ results = paper.run_pipeline(fullfile(tempdir, 'paper-check'));
 
 An alternate output root receives its own `results/` and `latex/` folders. Source inputs still come from this repository. This permits full validation without overwriting publication evidence.
 
-`task test-regeneration` uses this path to compare ten CSV files, the publication certificate, both LaTeX macro files, both MAT records, and invariant regions against the stored outputs. It checks that figures were generated but does not compare PDF bytes, which contain creation metadata. For deliberate scientific changes, review and refresh the stored baseline rather than weakening the comparison.
+`task test-regeneration` uses this path to compare eleven CSV files, the publication certificate, three pipeline-generated LaTeX macro files, the original MAT records plus the MPC comparison record, and invariant regions against the stored outputs. It checks that figures were generated but does not compare PDF bytes, which contain creation metadata. For deliberate scientific changes, review and refresh the stored baseline rather than weakening the comparison.
 
 ## Explanatory timing panels
 
@@ -88,7 +88,17 @@ Run `task replot` to redraw all main-text numerical figures and the Appendix A r
 
 `paper.invariant_region_figure_data` constructs the fixed-factor feasible regions for beta 0.25, 0.5, and 1 by scaling the saved raw-region vertices by `1/beta`, and computes their coordinate-plane projections. `paper.plot_invariant_region` draws `appendix_raw_action_region.pdf` in one 3D view and three projections, with the saved state-dependent simulation overlaid. These are not zero-error slices; membership and entry remain full-dimensional quantities. The plot no longer shows the one-cycle image of the raw region. Both `paper.replot_figures` and `generate_feasible_regions` call this plotter. The latter independently computes each fixed-factor region and its invariant subset with MPT3 and exports the comparison data. It also retains the auxiliary fixed-factor plot. A stale saved factor list is rejected rather than silently relabeled.
 
-`paper.plot_conditioned_response` draws aligned error, applied-fraction, and minimum-dwell panels from the saved response. The first two panels shade the actual cycles with beta below one; the third shades forbidden dwell values. Conservative tuning stays in the table and text rather than this figure.
+`paper.plot_conditioned_response` draws aligned error, applied-fraction, and minimum-dwell panels over the first 12 cycles against elapsed time. It adds the checked MPC-5 error and applied minimum dwell to the existing conditioned/open-loop comparison. Only the proposed controller has a beta history. The first two panels shade actual scaling cycles; the third shades forbidden dwell values. Conservative tuning stays in the table and text.
+
+## Checked MPC reference
+
+`paper.export_mpc_comparison` imports the saved original-1x case from `studies/mpc-comparison/`, without solving a QP or rerunning timings. `paper.mpc_comparison_data` verifies plant matrices, schedule, model, gain, normalization, weights, horizon/terminal ingredients, completed trajectories, dwells, evaluation costs, and threshold definitions against the article. Matched timing summaries are rechecked against raw samples and measured project-source hashes. A changed study/controller requires regenerating the study or matched benchmark, not silently reusing stale data.
+
+The exporter writes `results/mpc_comparison.csv`, `results/mpc_comparison.mat`, and `latex/mpc_metrics.tex`. These separate inputs preserve the existing `paper_results.mat` schema and certificate. The pipeline passes the checked comparison to the response plot; `task replot` reads its publication MAT record and verifies its model/gain against the article record. `task build` reads cached figures/macros only.
+
+`task mpc-comparison:matched-timing` measures both complete physical-state-to-validated-schedule paths on an identical 24-state early-transient pool. It uses 1008 warmups and 5760 interleaved calls per method, with cold observations and raw/per-state summaries retained separately. The QP still starts from a zero plan. This MATLAB comparison is distinct from the C++/MATLAB conditioner microbenchmark and supplies no embedded deadline guarantee.
+
+`task check-introduction`, also called by `task test` and `task build`, protects the Introduction's byte interval. Changing that baseline requires explicit author approval.
 
 `paper.publication_figure` and `paper.export_publication_figure` set the final 160 mm manuscript width and export exact-size vector PDF pages. Labels are about 10 pt, legends and ticks 9 pt; timing labels use an 8–10 pt hierarchy. Include these PDFs at `\textwidth`, not a reduced width, to preserve those sizes. The common-P schematic is TikZ and is rebuilt by `task build`.
 

@@ -1,6 +1,6 @@
 function plot_invariant_region(output, data)
 %PLOT_INVARIANT_REGION Feasible sets for beta 0.25, 0.5, and 1 in four views.
-fig = paper.publication_figure(14.5);
+fig = paper.publication_figure(13);
 cleanup = onCleanup(@() close(fig));
 colors = [0.25,0.60,0.30; 0.85,0.40,0.05; 0,0.35,0.70];
 fills = [0.94,0.98,0.94; 0.99,0.94,0.87; 0.86,0.93,0.99];

@@ -1,4 +1,4 @@
-function export_figures(paths, benchmark, model, response)
+function export_figures(paths, benchmark, model, response, comparison)
 %EXPORT_FIGURES Reference and response figures plus a first-cycle diagnostic.
 set(groot, 'defaultAxesFontName', 'Times New Roman');
 set(groot, 'defaultAxesFontSize', 9);
@@ -10,7 +10,7 @@ figure_reference(paths.article_figures, benchmark.config, orbit_time, orbit_stat
 figure_first_cycle_conditioning(paths.diagnostic_figures, benchmark.config.Ts(:), ...
     response.raw_offsets(:, 1), response.applied_offsets(:, 1), response.raw_dwell(:, 1), ...
     response.applied_dwell(:, 1), response.conditioning_beta(1), benchmark.applied_schedule_dwell_bound);
-paper.plot_conditioned_response(paths.diagnostic_figures, response, benchmark);
+paper.plot_conditioned_response(paths.diagnostic_figures, response, benchmark, comparison);
 copyfile(fullfile(paths.diagnostic_figures, 'conditioned_control_response.pdf'), ...
     fullfile(paths.article_figures, 'conditioned_control_response.pdf'));
 end

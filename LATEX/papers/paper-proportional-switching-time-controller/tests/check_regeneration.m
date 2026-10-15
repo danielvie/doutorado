@@ -31,7 +31,7 @@ for name = {'raw_admissible', 'maximal_invariant'}
         'Regression in polyhedron: %s', name{1});
 end
 csv_files = dir(fullfile(output, 'results', '*.csv'));
-assert(numel(csv_files) == 10, 'Unexpected number of publication CSV files.');
+assert(numel(csv_files) == 11, 'Unexpected number of publication CSV files.');
 for file = csv_files'
     relative = fullfile('results', file.name);
     assert(strcmp(fileread(fullfile(output, relative)), ...
@@ -39,6 +39,7 @@ for file = csv_files'
 end
 for relative = {fullfile('latex', 'metrics.tex'), ...
         fullfile('latex', 'lyapunov_metrics.tex'), ...
+        fullfile('latex', 'mpc_metrics.tex'), ...
         fullfile('results', 'lyapunov_certificate.json')}
     assert(strcmp(fileread(fullfile(output, relative{1})), ...
         fileread(fullfile(baseline_root, relative{1}))), ...
@@ -48,6 +49,9 @@ actual_trajectories = load(fullfile(output, 'results', 'publication_trajectories
 expected_trajectories = load(fullfile(baseline_root, 'results', 'publication_trajectories.mat'));
 assert(isequaln(actual_trajectories, expected_trajectories), ...
     'Dense or long-horizon trajectories changed.');
+actual_mpc = load(fullfile(output,'results','mpc_comparison.mat'));
+expected_mpc = load(fullfile(baseline_root,'results','mpc_comparison.mat'));
+assert(isequaln(actual_mpc,expected_mpc), 'Checked MPC comparison changed.');
 for relative = {fullfile('latex', 'figures', 'reference_schedule_orbit.pdf'), ...
         fullfile('latex', 'figures', 'invariant_raw_action_region.pdf'), ...
         fullfile('latex', 'figures', 'appendix_raw_action_region.pdf'), ...
@@ -61,5 +65,5 @@ for relative = {fullfile('latex', 'figures', 'reference_schedule_orbit.pdf'), ..
         fullfile('results', 'figures', 'conditioned_control_response.pdf')}
     assert(isfile(fullfile(output, relative{1})), 'Missing figure: %s', relative{1});
 end
-fprintf('PASS: ten CSVs, certificate, LaTeX macros, MAT arrays, trajectories, and invariant regions match the baseline.\n');
+fprintf('PASS: eleven CSVs, certificate, LaTeX macros, MPC comparison, MAT arrays, trajectories, and invariant regions match the baseline.\n');
 end

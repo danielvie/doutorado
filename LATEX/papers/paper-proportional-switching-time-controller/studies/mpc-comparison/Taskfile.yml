@@ -1,0 +1,48 @@
+version: '3'
+
+tasks:
+  default:
+    desc: List MPC-comparison tasks
+    cmds:
+      - task --list
+
+  run:
+    desc: Check MPC-5, simulate 1x/2x/3x, and build both comparison documents
+    cmds:
+      - task: test
+      - matlab -batch "addpath(pwd); run_comparison;"
+      - task: build
+      - task: draft-figures
+      - task: draft
+
+  test:
+    desc: Check cost equivalence, dwell signs, LQR recovery, and initial QP feasibility
+    cmds:
+      - matlab -batch "addpath(pwd); test_comparison;"
+
+  matched-timing:
+    desc: Benchmark matched 1x physical-state to validated-schedule MATLAB calls without simulation
+    cmds:
+      - matlab -batch "addpath(pwd); benchmark_matched_timing;"
+
+  build:
+    desc: Export saved computation timings and build the short comparison PDF
+    cmds:
+      - matlab -batch "addpath(pwd); export_timing;"
+      - latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build report.tex
+      - cp -f build/report.pdf results/comparison-report.pdf
+
+  draft-figures:
+    desc: Check saved evidence and redraw Daniel/MPC-5 histories without simulation or solvers
+    cmds:
+      - matlab -batch "addpath(pwd); plot_article_figures;"
+
+  draft:
+    desc: Build the separate comparison-section draft from saved figures without MATLAB
+    cmds:
+      - latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build article-section.tex
+
+  clean:
+    desc: Remove report intermediates without deleting study evidence
+    cmds:
+      - rm -rf build

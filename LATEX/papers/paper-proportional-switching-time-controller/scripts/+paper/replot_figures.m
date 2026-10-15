@@ -17,7 +17,14 @@ for directory = {paths.article_figures,paths.diagnostic_figures}
     if ~isfolder(directory{1}), mkdir(directory{1}); end
 end
 paper.export_timing_diagrams(paths,b,r.response);
-paper.plot_conditioned_response(paths.diagnostic_figures,r.response,b);
+mpc = load(fullfile(source.results,'mpc_comparison.mat'),'comparison');
+c = mpc.comparison;
+assert(norm(c.Phi-r.linearization.Phi,'fro') < 1e-12 && ...
+    norm(c.Gamma-r.linearization.Gamma,'fro') < 1e-12 && ...
+    norm(c.K-r.controller.K_aggressive_physical,'fro') < 1e-12, ...
+    'Saved MPC comparison differs from the article model/gain.');
+assert(isequal(c.nominal_dwell,b.nominal_dwell) && isequal(c.state_scale,b.state_scale));
+paper.plot_conditioned_response(paths.diagnostic_figures,r.response,b,c);
 copyfile(fullfile(paths.diagnostic_figures,'conditioned_control_response.pdf'), ...
     fullfile(paths.article_figures,'conditioned_control_response.pdf'));
 paper.plot_trajectories(paths.article_figures,saved.trajectories,b);

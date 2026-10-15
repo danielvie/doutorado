@@ -1,0 +1,16 @@
+\begin{tabular}{llrrr}
+\toprule
+Scale & Method & Calls & Median ($\mu$s) & 95th percentile ($\mu$s) \\ \midrule
+1x & daniel & 100 & 13.25 & 131.20 \\ 
+1x & mpc-2 & 100 & 282.35 & 1830.45 \\ 
+1x & mpc-5 & 100 & 257.75 & 321.80 \\ 
+2x & daniel & 100 & 11.15 & 16.65 \\ 
+2x & mpc-2 & 100 & 189.70 & 306.50 \\ 
+2x & mpc-5 & 100 & 303.35 & 478.20 \\ 
+3x & daniel & 100 & 11.20 & 16.65 \\ 
+3x & mpc-2 & 0 & -- & -- \\ 
+3x & mpc-5 & 100 & 316.85 & 532.80 \\ 
+\bottomrule
+\end{tabular}
+
+\par\medskip At 3x, the single infeasible MPC solve took 1525.10 $\mu$s; it is excluded from the successful-call summaries.
