@@ -57,7 +57,7 @@ To make fixed-period switching-time feedback dwell-feasible, we scale every requ
 \section{Problem formulation and one-cycle model}
 \label{sec:model}
 
-We derive the effect of interior switching-instant shifts on cycle-start tracking of a prescribed periodic trajectory.
+To compute the timing action that the conditioner will scale, we first need a model of how switching-time adjustments affect tracking. With the mode sequence and cycle period fixed, we derive a linearized relation between the tracking error at the start of a cycle, the timing offsets applied during that cycle, and the error at the start of the next cycle. We then use this model to define the raw proportional feedback law.
 
 \subsection{Plant, reference trajectory, and timing coordinates}
 
@@ -67,59 +67,47 @@ Consider the switched-affine plant
     \qquad \vect{x}(t)\in\R^n.
     \label{eq:plant}
 \end{equation}
-Every cycle visits the fixed sequence $(q_1,\ldots,q_N)$. Its nominal cycle-relative boundaries and dwell durations are
+Every cycle executes the sequence $(q_1,\ldots,q_N)$. Its nominal cycle boundaries and dwell durations are
 \begin{equation}
 \begin{aligned}
     0&=\bar t_0<\bar t_1<\cdots<\bar t_N=T,\\
     \bar d_i&=\bar t_i-\bar t_{i-1}.
 \end{aligned}
 \end{equation}
-The given reference schedule generates $\bar{\vect{x}}(t)$ with anchor $\bar{\vect{x}}(0)=\bar{\vect{x}}(T)$. Define $\vect{x}_k=\vect{x}(kT)$ and $\vect{e}_k=\vect{x}_k-\bar{\vect{x}}(0)$. The target is phase-aligned periodic motion, not a constant average operating point.
+The given reference schedule generates $\bar{\vect{x}}(t)$ with anchor $\bar{\vect{x}}(0)=\bar{\vect{x}}(T)$. Define $\vect{x}_k=\vect{x}(kT)$ and $\vect{e}_k=\vect{x}_k-\bar{\vect{x}}(0)$. The target is periodic motion, not a constant average operating point.
 
-The controller moves only the $N-1$ interior instants:
+The controller moves only the $N-1$ interior switching instants, keeping the cycle endpoints fixed, as illustrated in \cref{fig:timing-mechanism}(a):
 \begin{equation}
 \begin{aligned}
     t_{k,i}&=\bar t_i+\delta\tau_{k,i},\quad i=1,\ldots,N-1,\\
     \delta\tau_{k,0}&=\delta\tau_{k,N}=0.
 \end{aligned}
 \end{equation}
-During interval $i$ of cycle $k$, the plant uses mode $q_i$ between the absolute times $kT+t_{k,i-1}$ and $kT+t_{k,i}$. The applied dwell vector satisfies
-\begin{equation}
-\begin{aligned}
-    \vect{d}_k&=\bar{\vect{d}}+\ddwell_k,\qquad \ddwell_k=D\dtau_k,\\
-    D_{ij}&=\begin{cases}
-        1,&i=j,\\
-        -1,&i=j+1,\\
-        0,&\text{otherwise},
-    \end{cases}
-\end{aligned}
-\label{eq:incidence-map}
-\end{equation}
-where $D\in\R^{N\times(N-1)}$. Thus delaying one instant lengthens the preceding interval and shortens the following one by the same amount. Since $\vect{1}^{\mathsf T}D=0$, every offset vector preserves $T$. The remaining requirement is $\vect{d}_k\ge d_{\min}\vect{1}$ for a specified $d_{\min}>0$.
+During cycle $k$, mode $q_i$ is active from $kT+t_{k,i-1}$ to $kT+t_{k,i}$, so its dwell duration is $d_{k,i}=t_{k,i}-t_{k,i-1}$. Moving a boundary transfers time between its neighboring intervals. In \cref{fig:timing-mechanism}(b), delaying instant 8 by \SI{12}{\micro\second} lengthens dwell 8 by \SI{12}{\micro\second} and shortens dwell 9 by the same amount; the other dwells remain unchanged.
 
-\Cref{fig:timing-mechanism} uses the converter schedule of \cref{sec:case-study}. The illustrative \SI{12}{\micro\second} delay in (b) trades time between dwells 8 and 9 while retaining feasibility. Panel (c) instead shows an inadmissible aggressive-feedback request.
+These transfers preserve the total period $T$, but a sufficiently large shift can reverse the boundary order, as \cref{fig:timing-mechanism}(c) illustrates. We therefore require every applied dwell to satisfy $d_{k,i}\ge d_{\min}$, where $d_{\min}>0$ is the minimum allowed dwell duration.
 
 \begin{figure*}[t]
     \centering
     \includegraphics[width=\textwidth]{timing_coordinates.pdf}\par\smallskip
     \includegraphics[width=\textwidth]{dwell_coupling.pdf}\par\smallskip
     \includegraphics[width=\textwidth]{inadmissible_request.pdf}
-    \caption{Switching-instant adjustments in the nine-interval schedule. (a) Nominal schedule with eight adjustable interior switching instants. (b) Illustrative $+12$~\si{\micro\second} offset of instant 8. (c) Inadmissible first-cycle raw request from the aggressive controller. Hatching denotes a negative candidate dwell.}
+    \caption{Switching-instant adjustments in the converter schedule of \cref{sec:case-study}. (a) Eight interior switching instants can move while the cycle endpoints remain fixed. (b) Delaying instant 8 transfers \SI{12}{\micro\second} from dwell 9 to dwell 8. (c) An inadmissible first-cycle raw request moves instant 8 beyond the cycle end. Hatching denotes the resulting negative candidate dwell.}
     \label{fig:timing-mechanism}
 \end{figure*}
 
 \subsection{Exact augmented propagation and terminal error}
 
-Introduce the augmented state and matrix
+The augmented state and system matrix are
 \begin{equation}
     \X(t)=\begin{bmatrix}\vect{x}(t)\\1\end{bmatrix},\qquad
     \widetilde A_q=
     \begin{bmatrix}A_q&\vect{b}_q\\\vect{0}^{\mathsf T}&0\end{bmatrix}.
     \label{eq:augmented-generator}
 \end{equation}
-Then $\dot\X(t)=\widetilde A_{\sigma(t)}\X(t)$. For one cycle, write $t_i=t_{k,i}$ and suppress $kT$ in the state argument. The fixed endpoints are $t_0=\bar t_0=0$ and $t_N=\bar t_N=T$, with mode $q_i$ on $[t_{i-1},t_i)$.
+Then $\dot\X(t)=\widetilde A_{\sigma(t)}\X(t)$. Within one cycle, $t_i$ denotes $t_{k,i}$, and state arguments are relative to the cycle start. The fixed endpoints are $t_0=\bar t_0=0$ and $t_N=\bar t_N=T$, with mode $q_i$ on $[t_{i-1},t_i)$.
 
-For each interval, define
+The interval durations satisfy
 \begin{equation}
 \begin{aligned}
     \Delta t_i&=t_i-t_{i-1},\\
@@ -138,9 +126,7 @@ Therefore, the exact cycle propagation is
     \cdots e^{F_1\Delta t_1}\X(t_0).
     \label{eq:exact-augmented-cycle}
 \end{equation}
-The first interval is rightmost; different-mode matrices need not commute.
-
-Define the nominal transition matrix for interval $i$ by
+At the nominal duration, the interval transition matrix is
 \begin{equation}
     \phi_i=e^{F_i\Delta\bar t_i}.
     \label{eq:nominal-interval-transition}
@@ -150,14 +136,14 @@ The nominal augmented trajectory is $\bar\X(t)=[\bar{\vect{x}}(t)^{\mathsf T}\ 1
     \bar\X(t_N)=\phi_N\phi_{N-1}\cdots\phi_1\bar\X(t_0).
     \label{eq:nominal-augmented-cycle}
 \end{equation}
-At the common terminal time $T$, let
+The augmented error and initial state satisfy
 \begin{equation}
 \begin{aligned}
     \vect{e}(t)&=\X(t)-\bar\X(t),\\
     \X(t_0)&=\bar\X(t_0)+\vect{e}(t_0).
 \end{aligned}
 \end{equation}
-The augmented error $\vect{e}(t)\in\R^{n+1}$ has last component zero; its first $n$ components at the cycle start form $\vect{e}_k$. Subtracting the nominal propagation gives
+The augmented error $\vect{e}(t)\in\R^{n+1}$ has last component zero; its first $n$ components at the cycle start form $\vect{e}_k$. At $t_N=T$, subtracting the nominal propagation gives
 \begin{equation}
 \begin{aligned}
     \vect{e}(t_N)={}&
@@ -256,7 +242,7 @@ To project the zero-last-coordinate error back to physical cycle coordinates, de
     \Pi=\begin{bmatrix}I_n&\vect{0}\end{bmatrix},\qquad
     \iota=\begin{bmatrix}I_n\\\vect{0}^{\mathsf T}\end{bmatrix}.
 \end{equation}
-Periodicity gives $\bar{\vect{x}}(t_N)=\bar{\vect{x}}(t_0)=\bar{\vect{x}}(0)$, so $\vect{e}(t_0)=\iota\vect{e}_k$ and $\Pi\vect{e}(t_N)=\vect{e}_{k+1}$. With $\delta\vect{t}=\ddwell_k$, projection of \eqref{eq:augmented-error-linearization} gives
+Periodicity gives $\bar{\vect{x}}(t_N)=\bar{\vect{x}}(t_0)=\bar{\vect{x}}(0)$, so $\vect{e}(t_0)=\iota\vect{e}_k$ and $\Pi\vect{e}(t_N)=\vect{e}_{k+1}$. With the dwell-change vector $\delta\vect{t}=\ddwell_k:=\vect{d}_k-\bar{\vect{d}}$, projection of \eqref{eq:augmented-error-linearization} gives
 \begin{equation}
 \begin{aligned}
     \vect{e}_{k+1}&\doteq\Phi_x\vect{e}_k+G_d\ddwell_k,\\
@@ -268,7 +254,27 @@ Periodicity gives $\bar{\vect{x}}(t_N)=\bar{\vect{x}}(t_0)=\bar{\vect{x}}(0)$, s
 \end{equation}
 Here $\Phi_x\in\R^{n\times n}$ and $G_d\in\R^{n\times N}$ are physical matrices; $\Phi$ remains augmented. Subsequently $\vect{e}_k$, or $\vect{e}$, denotes physical error in $\R^n$.
 
-Substituting the zero-sum changes $\ddwell_k=D\dtau_k$ gives the model in $N-1$ independent offsets, including its remainder:
+To express this model in the controller's switching-time offsets, use $d_{k,i}=t_{k,i}-t_{k,i-1}$:
+\[
+    \delta d_{k,i}=d_{k,i}-\bar d_i
+    =\delta\tau_{k,i}-\delta\tau_{k,i-1}.
+\]
+With the endpoint offsets fixed at zero, stacking these differences gives
+\begin{equation}
+\begin{aligned}
+    \ddwell_k&=D\dtau_k,\\
+    D&=\begin{bmatrix}
+         1 & 0 & \cdots & 0\\
+        -1 & 1 & \ddots & \vdots\\
+         0 & -1 & \ddots & 0\\
+         \vdots & \ddots & \ddots & 1\\
+         0 & \cdots & 0 & -1
+    \end{bmatrix}
+    \in\R^{N\times(N-1)}.
+\end{aligned}
+\label{eq:incidence-map}
+\end{equation}
+Each column represents the transfer between adjacent dwells illustrated in \cref{fig:timing-mechanism}(b), so $\vect{1}^{\mathsf T}D=0$. Substitution into \eqref{eq:physical-dwell-model} gives the model in $N-1$ independent offsets, including its remainder:
 \begin{equation}
 \begin{aligned}
     \vect{e}_{k+1}={}&\Phi_x\vect{e}_k+\Gamma_\tau\dtau_k\\
