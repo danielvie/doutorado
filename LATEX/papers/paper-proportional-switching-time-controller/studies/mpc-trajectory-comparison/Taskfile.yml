@@ -1,0 +1,30 @@
+version: '3'
+
+tasks:
+  default:
+    desc: List isolated Figure 3 study tasks
+    cmds:
+      - task --list
+  run:
+    desc: Simulate fresh 100-cycle proposed/MPC-5 responses, check, plot, and compile
+    cmds:
+      - matlab -logfile simulation.log -batch "addpath(pwd); run_study;"
+      - task: plot
+      - task: build
+  test:
+    desc: Validate saved simulation evidence without QP solves
+    cmds:
+      - matlab -batch "addpath(pwd); check_study;"
+  plot:
+    desc: Check saved evidence and redraw the isolated comparison
+    cmds:
+      - matlab -batch "addpath(pwd); plot_comparison;"
+  build:
+    desc: Compile the standalone one-page landscape LaTeX PDF
+    cmds:
+      - latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build figure3-mpc5-comparison.tex
+      - cp build/figure3-mpc5-comparison.pdf figure3-mpc5-comparison.pdf
+  clean:
+    desc: Remove only local LaTeX intermediates, preserving simulation evidence
+    cmds:
+      - latexmk -c -outdir=build figure3-mpc5-comparison.tex

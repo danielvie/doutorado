@@ -37,7 +37,7 @@
 \affil*[1]{\orgdiv{Systems and Control}, \orgname{Instituto Tecnol\'ogico de Aeron\'autica}, \orgaddress{\city{S\~ao Jos\'e dos Campos}, \state{S\~ao Paulo}, \country{Brazil}}}
 
 \abstract{
-This paper adresses the problem of controlling a switching-time affine system under dwell-time constraints. The goal is to steer the system to a target periodic trajectory rather than a constant average operating point. We propose a proportional controller and a signal conditioner to comply with the minimum dwell-time constraints. The method combines a solver-free enforcement of the minimum dwell-time constraints with a common quadratic Lyapunov function approach. The controller acts by generating the delta time to be applyed on the switching instants, then conditioning the signal by reducing the requested adjustiments when the schedule is not feasible. The example used here is a three-cell DC-DC converter, we verify the stability of the linearized model using this approach. The simulations show faster convergence of this method compared to a conservative feedback and open-loop opearation while respecting the dwell-time contraints. The analysis guarantees exponential stability of the lineared model even when the conditioning factor changes from cyclo to other.
+We propose proportional switching-time feedback for switched-affine systems to track a prescribed periodic trajectory rather than a constant average operating point. The controller requests offsets for the interior switching instants, and a solver-free conditioner uniformly scales these offsets whenever the requested schedule violates the minimum dwell durations. This enforces the dwell constraints while preserving the action direction, mode order, and cycle period. An offline common quadratic Lyapunov certificate establishes uniform exponential stability of the conditioned linearized model even when the conditioning factor changes between cycles. The certificate is verified for a three-cell DC--DC converter, where simulations of the exact plant show faster convergence than conservative feedback and open-loop operation while respecting the dwell constraints.
 }
 
 \keywords{switched-affine systems, periodic trajectories, switching-time control, dwell-time conditioning, common quadratic Lyapunov function, semidefinite programming}
@@ -352,11 +352,11 @@ The scan returns $\beta_k=1$ inside $\mathcal C$ and $\beta_k<1$ outside, so it 
 \section{Lyapunov stability and convex optimization}
 \label{sec:stability}
 
-Feasibility alone does not imply convergence. We seek an offline common quadratic certificate for the conditioned linearized family.
+The conditioner enforces the dwell constraints, while convergence requires a separate test. This test searches offline for one quadratic Lyapunov function that decreases for every conditioning factor in the linearized model.
 
 \subsection{Conditioned matrix family}
 
-We work directly with the physical cycle-start error $\vect{e}_k$. The two endpoint matrices are the nominal cycle matrix and the raw closed-loop matrix:
+The stability analysis uses the physical error $\vect{e}_k$ at the start of each cycle. The nominal schedule and the full raw feedback give the two endpoint matrices
 \begin{equation}
 \begin{aligned}
     A_0&=\Phi_x,\\
@@ -364,7 +364,7 @@ We work directly with the physical cycle-start error $\vect{e}_k$. The two endpo
 \end{aligned}
     \label{eq:endpoints}
 \end{equation}
-The conditioner applies a fraction $\beta_k$ of the raw action. Substituting this action into the first-order model gives
+The conditioner applies a fraction $\beta_k$ of the raw action, so substitution into the linearized model gives
 \begin{equation}
 \begin{aligned}
     \vect{e}_{k+1}&=A(\beta_k)\vect{e}_k,\\
@@ -373,13 +373,19 @@ The conditioner applies a fraction $\beta_k$ of the raw action. Substituting thi
 \end{aligned}
 \label{eq:conditioned-family}
 \end{equation}
-The segment joins no feedback at $\beta=0$ to the full raw action at $\beta=1$. This model omits the remainder in \eqref{eq:cycle-model}; zero includes arbitrarily weak feedback although finite requests give positive factors. Schur endpoints need not give stable intermediate matrices, and pointwise stability does not imply stability under changing factors. A common quadratic function addresses both issues.
+This segment joins the nominal schedule at $\beta=0$ to the full raw action at $\beta=1$. It describes the linearized model, with the remainder in \eqref{eq:cycle-model} omitted. Finite raw requests give $\beta_k>0$, but the analysis also includes the limiting case $\beta=0$.
+
+Stability of the endpoint matrices alone does not ensure that every matrix on the segment is stable. Even if each matrix is stable for a fixed $\beta$, changing $\beta$ between cycles can still cause instability. A common quadratic Lyapunov function provides a test that covers both cases.
 
 \subsection{Common quadratic Lyapunov certificate}
 
-Using one quadratic function for a family of discrete-time systems is the common quadratic Lyapunov function approach \cite{mason2004commonQuadratic}. Hu et al. use a common quadratic function to certify contractive ellipsoids for discrete-time actuator saturation by checking decrease at the vertices of a convex family \cite{hu2002actuatorSaturation}. Here, scaling the complete switching-time action produces a two-endpoint family of linearized one-cycle matrices.
+One quadratic Lyapunov function can establish stability for a family of discrete-time systems \cite{mason2004commonQuadratic}. Hu et al. use this approach for discrete-time actuator saturation, checking decrease at the vertices of a convex family to certify contractive ellipsoids \cite{hu2002actuatorSaturation}. Here, the conditioning factor produces a segment of linearized cycle matrices, so the test uses its two endpoints.
 
-Consider $V(\vect{e})=\vect{e}^{\mathsf T}P\vect{e}$ with $P\succ0$. The endpoint inequalities below require this function to decrease by at least $\eta\|\vect{e}\|_2^2$ in one cycle. The same $P$ and the same positive margin $\eta$ must work at both endpoints.
+The candidate Lyapunov function is
+\[
+    V(\vect{e})=\vect{e}^{\mathsf T}P\vect{e},\qquad P\succ0.
+\]
+The endpoint inequalities below require a decrease of at least $\eta\|\vect{e}\|_2^2$ in one cycle. Both endpoints must satisfy these inequalities with the same matrix $P$ and the same positive margin $\eta$.
 
 \begin{figure}[t]
     \centering
@@ -399,7 +405,7 @@ Then $V(\vect{e})=\vect{e}^{\mathsf T}P\vect{e}$ decreases for every nonzero sta
 \end{theorem}
 
 \begin{proof}
-First, express the desired decrease $A(\beta)^{\mathsf T}PA(\beta)-P\prec0$ as a block-matrix inequality. For the same $P\succ0$ at both endpoints, define
+For a fixed $P\succ0$, the Lyapunov decrease condition can be expressed through the block matrix
 \begin{equation}
     \mathcal S(\beta)=
     \begin{bmatrix}
@@ -408,15 +414,15 @@ First, express the desired decrease $A(\beta)^{\mathsf T}PA(\beta)-P\prec0$ as a
     \end{bmatrix}.
     \label{eq:schur-block}
 \end{equation}
-The lower-right block is negative definite. Its Schur complement is $-P+A(\beta)^{\mathsf T}PA(\beta)$, so
+The block $-P^{-1}$ is negative definite, and its Schur complement is $-P+A(\beta)^{\mathsf T}PA(\beta)$. Hence
 \[
     \mathcal S(\beta)\prec0
     \Longleftrightarrow
     A(\beta)^{\mathsf T}PA(\beta)-P\prec0.
 \]
-The endpoint assumptions therefore make both $\mathcal S(0)$ and $\mathcal S(1)$ negative definite.
+The inequalities in \eqref{eq:endpoint-lmis} therefore make both $\mathcal S(0)$ and $\mathcal S(1)$ negative definite.
 
-Next, use $A(\beta)=(1-\beta)A_0+\beta A_1$. Since the same $P$ is used throughout, the diagonal blocks do not change with $\beta$. Hence
+Because the same $P$ is used throughout the interval, the diagonal blocks stay fixed. The relation $A(\beta)=(1-\beta)A_0+\beta A_1$ then gives
 \begin{equation}
 \begin{aligned}
     \mathcal S(\beta)
@@ -433,16 +439,16 @@ Next, use $A(\beta)=(1-\beta)A_0+\beta A_1$. Since the same $P$ is used througho
 \end{equation}
 Both endpoint blocks are negative definite, and their weights are nonnegative and sum to one. Their convex combination is therefore negative definite for every $\beta\in[0,1]$.
 
-Taking the Schur complement shows that $V(\vect{e})=\vect{e}^{\mathsf T}P\vect{e}$ decreases strictly for every nonzero error and every $\beta\in[0,1]$. The same $P$ applies throughout the interval. Since the matrix family depends continuously on $\beta$ over this compact interval, the decrease has a uniform positive margin. The quadratic Lyapunov criterion therefore establishes uniform exponential stability for any conditioning-factor sequence.
+The Schur complement then gives a strict decrease in $V$ for every nonzero error and every $\beta\in[0,1]$. Since the matrix family varies continuously with $\beta$ over this compact interval, the decrease has a uniform positive margin. The same quadratic function therefore establishes uniform exponential stability for any sequence of conditioning factors.
 \end{proof}
 
-In the schematic of \cref{fig:common-p}, both endpoint images and their joining segment lie inside one Lyapunov ellipsoid. The same function covers the complete factor interval and all errors of the linearized model, including those outside $\mathcal C$. This does not validate that approximation at arbitrary physical errors or define a nonlinear region of attraction.
+\Cref{fig:common-p} shows both endpoint images and their joining segment inside one Lyapunov ellipsoid. The certificate covers the full factor interval and all errors of the linearized model, including those outside $\mathcal C$. It does not establish that the approximation is valid at arbitrary physical errors or give a region of attraction for the nonlinear plant.
 
 \subsection{Offline semidefinite program}
 
-Related common-matrix vertex-LMI formulations appear in discrete-time robust stability \cite{deOliveira1999lmiDiscrete} and in robust polytopic PWM converter control based on continuous-time averaged models \cite{olalla2009robustLqrPwm}.
+Related formulations use a common Lyapunov matrix and inequalities at the vertices of a matrix family. They appear in discrete-time robust stability \cite{deOliveira1999lmiDiscrete} and in robust control of PWM converters described by polytopic, continuous-time averaged models \cite{olalla2009robustLqrPwm}.
 
-The Lyapunov matrix can be computed offline, after the feedback gain $K$ has been chosen. With $A_0=\Phi_x$ and $A_1=A_{\mathrm{cl}}$ fixed, an endpoint SDP is
+After the gain $K$ is chosen, the endpoint matrices $A_0=\Phi_x$ and $A_1=A_{\mathrm{cl}}$ are fixed. The Lyapunov matrix $P$ and the margin $\eta$ are then computed offline by the semidefinite program
 \begin{equation}
 \begin{aligned}
     \underset{P=P^{\mathsf T},\,\eta}{\operatorname{maximize}}\quad&\eta\\
@@ -454,11 +460,11 @@ The Lyapunov matrix can be computed offline, after the feedback gain $K$ has bee
 \end{aligned}
 \label{eq:common-p-sdp}
 \end{equation}
-with $\varepsilon_P=10^{-7}$. The constraint $P\succeq\varepsilon_P I_n$ imposes a positive-definiteness floor. The trace constraint fixes the otherwise arbitrary positive scale of $P$.
+Here $\varepsilon_P=10^{-7}$ sets a positive lower bound on the eigenvalues of $P$. The trace constraint fixes the scale of $P$, which would otherwise be arbitrary.
 
-For fixed endpoints, \eqref{eq:common-p-sdp} is affine in $P,\eta$ and certifies, rather than redesigns, $K$. In contrast, the proof's block form is affine in $\beta$ for fixed $P$, not in $P$ because of $P^{-1}$. Numerical solution uses the inverse-free form in scaled coordinates.
+For fixed endpoints, \eqref{eq:common-p-sdp} is affine in $P$ and $\eta$ and tests the chosen gain rather than changing it. The proof's block matrix is affine in $\beta$ when $P$ is fixed, but contains $P^{-1}$ and is therefore nonlinear in $P$. The numerical solve uses \eqref{eq:common-p-sdp} in scaled coordinates, avoiding the matrix inverse.
 
-Successful solver termination is not enough to establish a certificate. We first symmetrize the returned $P$, then recompute the endpoint decrease matrices and their smallest eigenvalues:
+We verify the certificate directly, since successful solver termination alone does not establish it. The returned $P$ is first symmetrized, then used to recompute the endpoint decrease matrices and their smallest eigenvalues:
 \begin{equation}
 \begin{aligned}
     Q_i&=P-A_i^{\mathsf T}PA_i,\qquad i\in\{0,1\},\\
@@ -466,16 +472,16 @@ Successful solver termination is not enough to establish a certificate. We first
 \end{aligned}
 \label{eq:verified-margin}
 \end{equation}
-We check that $P$ is positive definite, that its trace has the required value, and that $\mu>0$. A positive verified margin supplies the common decrease required by \cref{thm:common-p}.
+The certificate is accepted only when $P$ is positive definite, its trace has the required value, and $\mu>0$. This positive margin verifies the common decrease required by \cref{thm:common-p}.
 
-The test is sufficient, not necessary. Including zero requires $A_0$ to be Schur and excludes unstable open-loop endpoints even if restricted factors could stabilize them. Failure to find a positive common margin does not establish instability.
+This is a sufficient test, so failure to find a positive common margin leaves stability unresolved. Including $\beta=0$ requires $A_0$ to be Schur, which excludes an unstable nominal endpoint even if a restricted range of conditioning factors could stabilize the system.
 
-The stability theorem applies to the conditioned linearized model. The large-error response of the exact nonlinear system, including the initially conditioned cycles, is evaluated by simulation.
+The stability guarantee applies to the linearized model with conditioning. Simulations show how the exact nonlinear system responds to large errors, including the first cycles when the raw offsets are reduced.
 
 \section{Application to a three-cell converter}
 \label{sec:case-study}
 
-The converter benchmark tests convergence acceleration and dwell feasibility on an already open-loop-stable plant. MPC-5 supplies a limited performance and computation reference.
+The study tests faster convergence and dwell feasibility on a converter that is stable without feedback. MPC-5 is a model predictive controller that optimizes the switching-time offsets over a prediction horizon of $N_p=5$ switching cycles. It provides a limited performance and computation reference.
 
 \subsection{Benchmark and controller parameters}
 
@@ -491,9 +497,9 @@ A_{\vect{u}}&=\begin{bmatrix}
 \end{aligned}
 \label{eq:converter}
 \end{equation}
-Both $A_{\vect{u}}$ and $\vect{b}_{\vect{u}}$ depend on the switch state. We retain the fixed nine-interval sequence $(0,1,3,7,2,0,4,7,4)$. Each physical mode ID is encoded as $4u_1+2u_2+u_3$.
+Both $A_{\vect{u}}$ and $\vect{b}_{\vect{u}}$ depend on the switch state. The fixed mode sequence is $(0,1,3,7,2,0,4,7,4)$, with each mode identified by $4u_1+2u_2+u_3$.
 
-The published boundaries $(0,66,88,110,132,154,220,242,264,286)$~\si{\micro\second} do not close exactly at the reported anchor $\bar{\vect{x}}(0)=(9.9247,19.2928,0.9823)^{\mathsf T}$. A one-time least-squares reconciliation preserves this anchor, the \SI{\NominalPeriodMicroseconds}{\micro\second} period, and the \SI{\BenchmarkDwellBound}{\micro\second} nominal-design bound, giving
+The published switching times $(0,66,88,110,132,154,220,242,264,286)$~\si{\micro\second} do not return the state exactly to the reported anchor $\bar{\vect{x}}(0)=(9.9247,19.2928,0.9823)^{\mathsf T}$ after one cycle. A single least-squares adjustment preserves this anchor, the \SI{\NominalPeriodMicroseconds}{\micro\second} period, and the \SI{\BenchmarkDwellBound}{\micro\second} minimum dwell used in the nominal design, giving
 \begin{equation}
 \begin{split}
     \bar{\vect{t}}={}&(0,63.889,87.557,109.557,132.538,154.538,\\
@@ -501,7 +507,7 @@ The published boundaries $(0,66,88,110,132,154,220,242,264,286)$~\si{\micro\seco
 \end{split}
 \label{eq:benchmark-schedule}
 \end{equation}
-The full-precision schedule has closure error \NominalClosureError{} in the infinity norm and maximum boundary correction \MaximumBoundaryCorrection{}~\si{\micro\second}. This reconciles published data; reference-trajectory design is not a contribution.
+At full precision, the schedule has closure error \NominalClosureError{} in the infinity norm and maximum timing correction \MaximumBoundaryCorrection{}~\si{\micro\second}. This reconciles the published data rather than contributing to reference trajectory design.
 
 \begin{table}[t]
     \centering
@@ -526,52 +532,32 @@ The full-precision schedule has closure error \NominalClosureError{} in the infi
     \end{tabular}
 \end{table}
 
-The schedule appears in \cref{fig:timing-mechanism}(a), and its periodic trajectory in \cref{fig:trajectories,fig:states}. The cycle averages, \SI{\CycleAverageVCOne}{\volt}, \SI{\CycleAverageVCTwo}{\volt}, and \SI{\CycleAverageIL}{\ampere}, are not feedback targets.
+The schedule appears in \cref{fig:timing-mechanism}(a), and its periodic trajectory in \cref{fig:trajectories,fig:states}. Feedback targets this trajectory rather than the cycle averages of \SI{\CycleAverageVCOne}{\volt}, \SI{\CycleAverageVCTwo}{\volt}, and \SI{\CycleAverageIL}{\ampere}.
 
 \subsection{Numerical scaling and feedback gains}
 
-Using the scales in \cref{tab:parameters}, define
+The numerical scales in \cref{tab:parameters} give
 \begin{equation}
     \vect{z}=S_x^{-1}\vect{e},\qquad
     \widehat A_i=S_x^{-1}A_iS_x,\quad i\in\{0,1\}.
     \label{eq:normalized-endpoints}
 \end{equation}
-This change of coordinates leaves the endpoint eigenvalues unchanged. It is a numerical choice, not a requirement of the stability proof.
+This numerical scaling preserves the endpoint eigenvalues and is optional for the stability proof.
 
-Setting $\vect{v}=\dtau/t_s$ gives the normalized timing-input matrix $B_n=S_x^{-1}\Gamma_\tau t_s$. Discrete LQR on $(\widehat A_0,B_n)$ then gives $\vect{v}^{\mathrm{raw}}=-K_n\vect{z}$. The corresponding physical-coordinate gain is $K=t_sK_nS_x^{-1}$.
+With $\vect{v}=\dtau/t_s$, the normalized input matrix is $B_n=S_x^{-1}\Gamma_\tau t_s$. Discrete LQR on $(\widehat A_0,B_n)$ gives $\vect{v}^{\mathrm{raw}}=-K_n\vect{z}$, corresponding to $K=t_sK_nS_x^{-1}$ in physical coordinates.
 
-The aggressive tuning uses conditioning. The conservative tuning remains dwell-feasible without it in this experiment. The nominal-design bound and smaller applied bound in \cref{tab:parameters} have distinct roles; the latter is not hardware-calibrated.
+The aggressive tuning uses conditioning, while the conservative tuning satisfies the dwell constraints directly in this experiment. The bound for nominal design in \cref{tab:parameters} is larger than the applied bound, which is assumed rather than calibrated on hardware.
 
-\subsection{Checking the one-cycle model}
-
-The linear model is checked against the exact cycle map from \eqref{eq:exact-augmented-cycle}:
-\begin{equation}
-\begin{split}
-    \mathcal P(\vect{x},\dtau)={}&\Pi e^{F_N[\bar d_N+(D\dtau)_N]}\cdots\\
-    &\quad e^{F_1[\bar d_1+(D\dtau)_1]}
-    \begin{bmatrix}\vect{x}\\1\end{bmatrix}.
-\end{split}
-\label{eq:exact-cycle-map}
-\end{equation}
-The nominal schedule satisfies $\mathcal P(\bar{\vect{x}}(0),\vect{0})=\bar{\vect{x}}(0)$.
-
-Central finite differences of the exact map, with state steps $10^{-4}(S_x)_{ii}$ and timing step $10^{-3}t_s=\SI{0.01}{\micro\second}$, give relative Jacobian errors \PhiJacobianRelativeError{} for $\Phi_x$ and \GammaJacobianRelativeError{} for $\Gamma_\tau$. For simultaneous normalized state and timing perturbations of amplitude $\epsilon$, the residual is
-\begin{equation}
-\begin{split}
-    r_{\mathrm{lin}}(\epsilon)=\bigl\|S_x^{-1}\bigl[&\mathcal P(\bar{\vect{x}}(0)+\Delta\vect{x},\dtau)-\bar{\vect{x}}(0)\\
-    &-\Phi_x\Delta\vect{x}-\Gamma_\tau\dtau\bigr]\bigr\|_2.
-\end{split}
-\end{equation}
-The log--log fitted slope \LinearizationResidualSlope{} agrees with the expected second-order decay.
+Finite-difference checks agree with the derived state and timing sensitivities. The measured prediction residual shows the quadratic decay expected from the linearization.
 
 \subsection{Numerical Lyapunov certificate}
 
-For the aggressive gain, we apply \eqref{eq:common-p-sdp} to the normalized endpoints $\widehat A_0$ and $\widehat A_1$. Denote the resulting Lyapunov matrix by $P_n$ and the solver margin by $\eta_n$. Julia solves this problem using Convex.jl and Clarabel, with $\operatorname{tr}(P_n)=3$. The solver returns optimal status and $\eta_n=\num{\LyapunovEta}$. The normalized-coordinate matrix, shown to six decimal places, is
+For the aggressive gain, Julia solves \eqref{eq:common-p-sdp} with normalized endpoints $\widehat A_0$ and $\widehat A_1$ and trace constraint $\operatorname{tr}(P_n)=3$, using Convex.jl and Clarabel. It returns Lyapunov matrix $P_n$ and optimal status with solver margin $\eta_n=\num{\LyapunovEta}$. To six decimal places, the matrix is
 \begin{equation}
     P_n\approx\LyapunovMatrix.
     \label{eq:numerical-p}
 \end{equation}
-We then check the returned matrix rather than relying on solver status alone. Define the normalized endpoint decrease matrices
+The normalized endpoint decrease matrices provide a direct check beyond solver status:
 \[
     Q_{i,n}=P_n-\widehat A_i^{\mathsf T}P_n\widehat A_i,\qquad i\in\{0,1\}.
 \]
@@ -584,18 +570,16 @@ Using full precision, their smallest eigenvalues and that of $P_n$ are
 \end{aligned}
 \label{eq:numerical-margins}
 \end{equation}
-Both endpoint decrease margins are positive. Their minimum is $\mu_n=\num{\LyapunovDecrease}$. The reported trace and margins refer to normalized coordinates.
+Both endpoint margins are positive, with minimum $\mu_n=\num{\LyapunovDecrease}$. These margins and the reported trace refer to normalized coordinates.
 
-To connect these checks to the physical-coordinate theorem, use
+The certificate is expressed in physical coordinates through
 \[
 \begin{aligned}
     P&=S_x^{-\mathsf T}P_nS_x^{-1},\\
     P-A_i^{\mathsf T}PA_i&=S_x^{-\mathsf T}Q_{i,n}S_x^{-1}.
 \end{aligned}
 \]
-These transformations preserve positive definiteness. Thus the numerical checks provide the physical-coordinate certificate required by \cref{thm:common-p}, without changing the feedback gain or the plant trajectories.
-
-Python reconstructs the endpoints and Julia solves the SDP. The article pipeline independently checks them against its MATLAB model/gain and recomputes the inequalities. Full-precision and displayed rounded matrices are checked separately, using floating-point rather than interval arithmetic.
+These transformations preserve positive definiteness, so the checks provide the certificate in physical coordinates required by \cref{thm:common-p}. The feedback gain and plant trajectories remain unchanged. The matrix is checked both before and after rounding for display, using floating-point rather than interval arithmetic.
 
 \subsection{Exact responses and dwell feasibility}
 
@@ -603,34 +587,36 @@ All comparison runs start from
 \begin{equation}
     \vect{x}_0=[7.5143\quad20.8211\quad0.0314]^{\mathsf T},
 \end{equation}
-with normalized error \InitialNormalizedError{}. Exact matrix exponentials propagate the plant through its actual dwells; the linearized model is not substituted for the plant. Continuous-time curves retain 30 local samples per interval, including its end.
+with normalized error \InitialNormalizedError{}. Plant propagation uses exact matrix exponentials over the actual dwells, rather than the linearized model. The continuous-time curves retain 30 samples per interval, including the endpoint.
 
 \begin{figure*}[t]
     \centering
     \includegraphics[width=\textwidth]{trajectory_comparison.pdf}
-    \caption{Early transient and eventual convergence. (a) Continuous-time state trajectories over \SimulationCycles{} cycles. (b) Normalized cycle-start error on logarithmic axes. Shading marks the horizon in (a); dots mark the saved threshold-crossing samples.}
+    \caption{Early transient and eventual convergence. (a) State trajectories of the proposed controller, MPC-5, and open loop over \SimulationCycles{} cycles, with the periodic reference. (b) Normalized cycle-start error on logarithmic axes. Shading marks the horizon in (a); markers identify the saved threshold-crossing samples.}
     \label{fig:trajectories}
 \end{figure*}
 
-In \cref{fig:trajectories}(a), feedback approaches the reference while open loop remains displaced over the same \SimulationCycles{} cycles. The dot and star mark the initial state and anchor. Panel (b) shows the much slower eventual open-loop convergence. To separate tracking error from switching ripple, report
+In \cref{fig:trajectories}(a), the proposed controller and MPC-5 approach the reference while open loop remains displaced over the same \SimulationCycles{} cycles. The black dot and star mark the initial state and anchor, and panel (b) shows the slower eventual convergence of open loop. Tracking error is measured at each cycle start to separate it from switching ripple:
 \begin{equation}
     E_k=\bigl\|S_x^{-1}\bigl(\vect{x}(kT)-\bar{\vect{x}}(0)\bigr)\bigr\|_2,
     \label{eq:reported-cycle-error}
 \end{equation}
-using $S_x=\operatorname{diag}(10,20,1)$. The reporting threshold $E_k<0.01$ implies component errors below \SI{0.10}{\volt}, \SI{0.20}{\volt}, and \SI{0.01}{\ampere}; their joint norm condition is stricter than separate component bounds. It is neither a stability boundary nor a hardware accuracy requirement.
+using $S_x=\operatorname{diag}(10,20,1)$. The reporting threshold $E_k<0.01$ implies component errors below \SI{0.10}{\volt}, \SI{0.20}{\volt}, and \SI{0.01}{\ampere}. Because it constrains their combined norm, it is stricter than the three separate component bounds. This threshold is neither a stability boundary nor a hardware accuracy requirement.
 
-In \cref{fig:trajectories}(b), logarithmic axes omit cycle zero and errors below $10^{-8}$. Feedback extends to cycle \SimulationCycles{}, and open loop to \LongSimulationCycles{}. Markers are actual samples: the first threshold crossing for feedback and the persistent crossing through the remaining run for open loop. Neither indicates zero error.
+\Cref{fig:trajectories}(b) uses logarithmic axes and omits cycle zero and errors below $10^{-8}$. Both feedback controllers are shown to cycle \SimulationCycles{}, while open loop extends to cycle \LongSimulationCycles{}. Markers show the first threshold crossings for the proposed controller and MPC-5, at cycles \ConditionedSettlingCycle{} and \MpcSettlingCycle{}, respectively. The open-loop marker identifies the crossing after which the error stays below the threshold for the rest of the run. All markers use actual samples and indicate threshold crossings, not zero error.
 
 \subsection{Conditioning and predictive-control reference}
 
-For a computationally constrained alternative to online optimization, feasibility and a stability certificate matter alongside performance. We compare the proposed law with MPC-5 using the same initial state, cycle linearization, normalization, weights, mode sequence, period, and dwell bound. MPC optimizes eight offsets over \MpcHorizon{} cycles, applies the first action, and uses an LQR terminal cost and invariant terminal set, following the constrained predictive formulation of \cite{marcolino2021}. Its online QP has 40 variables.
+In \cref{fig:response}, conditioning raises the minimum dwell from the infeasible raw value of \MinimumRawDwell{}~\si{\micro\second} to the applied bound of \MinimumAppliedDwell{}~\si{\micro\second}. The first three factors are approximately $0.294$, $0.447$, and $0.779$. From cycle $3$, $\beta_k=1$ and feedback continues unscaled in this run, although other initial conditions or disturbances may require further conditioning.
 
-\Cref{fig:response} retains the proposed controller's conditioning diagnostics while adding MPC error and applied dwell. Evaluate performance over 100 cycles using
+For comparison, MPC-5 uses the same initial state, cycle linearization, normalization, weights, mode sequence, period, and dwell bound as the proposed controller. It optimizes eight offsets per cycle over \MpcHorizon{} cycles, with an LQR terminal cost and invariant terminal set following \cite{marcolino2021}. Each update solves a quadratic program with 40 variables and applies the first action.
+
+We compare performance over 100 cycles using the actual states and applied offsets:
 \[
     J_{100}=\sum_{k=0}^{99}\bigl(\|S_x^{-1}\vect{e}_k\|_2^2
     +\AggressiveInputWeight\|\dtau_k^{\mathrm{app}}/t_s\|_2^2\bigr).
 \]
-This uses actual states and applied offsets, without the MPC terminal penalty. It is not the optimized prediction cost.
+This cost excludes the MPC terminal penalty and therefore differs from the optimized prediction cost.
 
 \begin{figure*}[t]
     \centering
@@ -641,24 +627,15 @@ This uses actual states and applied offsets, without the MPC terminal penalty. I
 
 \begin{table}[!htb]
     \centering
-    \caption{Exact responses and matched MATLAB controller timings. Feedback thresholds are first crossings; open loop uses the persistent crossing. Costs cover 100 cycles.}
+    \caption{Exact responses over 100 cycles and matched MATLAB controller timings. Threshold cycles are first crossings of $E_k<0.01$.}
     \label{tab:results}
-    \begin{tabular}{ll}
+    \begin{tabular}{lrr}
         \toprule
-        Quantity & Value \\
+        Controller & \shortstack{Minimum applied\\dwell ($\mu$s)} & \shortstack{Threshold\\cycle} \\
         \midrule
-        $\rho(\Phi_x)$, open loop & \OpenLoopSpectralRadius{} \\
-        $\rho(A_{\mathrm{cl}})$, aggressive & \AggressiveSpectralRadius{} \\
-        Spectral radius, conservative & \ConservativeSpectralRadius{} \\
-        Minimum $\beta$; conditioned cycles & \MinimumConditioningBeta{}; \ConditionedCycleCount{} \\
-        Maximum raw offset & \MaximumRawOffset{}~\si{\micro\second} \\
-        Maximum applied offset & \MaximumAppliedOffset{}~\si{\micro\second} \\
-        Minimum raw dwell & \MinimumRawDwell{}~\si{\micro\second} \\
-        Minimum applied dwell & \MinimumAppliedDwell{}~\si{\micro\second} \\
-        Minimum conservative dwell & \MinimumConservativeDwell{}~\si{\micro\second} \\
-        Threshold cycle, conditioned & \ConditionedSettlingCycle{} \\
-        Threshold cycle, conservative & \ConservativeSettlingCycle{} \\
-        Persistent crossing, open loop & \OpenLoopConvergenceCycle{} \\
+        Proposed & \MinimumAppliedDwell{} & \ConditionedSettlingCycle{} \\
+        Conservative & \MinimumConservativeDwell{} & \ConservativeSettlingCycle{} \\
+        MPC-5 & \MinimumMpcDwell{} & \MpcSettlingCycle{} \\
         \bottomrule
     \end{tabular}
     \par\smallskip
@@ -666,54 +643,60 @@ This uses actual states and applied offsets, without the MPC terminal penalty. I
         \toprule
         Controller & $J_{100}$ & Median ($\mu$s) & p95 ($\mu$s) \\
         \midrule
-        Conditioned & \ProposedEvaluationCost{} & \ProposedMatchedMedianUs{} & \ProposedMatchedPninetyfiveUs{} \\
+        Proposed & \ProposedEvaluationCost{} & \ProposedMatchedMedianUs{} & \ProposedMatchedPninetyfiveUs{} \\
         MPC-5 & \MpcEvaluationCost{} & \MpcMatchedMedianUs{} & \MpcMatchedPninetyfiveUs{} \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-The first three factors are approximately $0.294$, $0.447$, and $0.779$. From cycle $3$, $\beta_k=1$ in this run, although feedback remains active. The raw minimum dwell, \MinimumRawDwell{}~\si{\micro\second}, is not executable. Conditioning keeps every applied dwell above the bound, attaining it whenever scaling acts, and reduces the maximum offset as reported in \cref{tab:results}. Its eventual inactivity is an observation, not a guarantee after other initial conditions or disturbances.
-
-The conditioned and conservative laws cross the threshold at cycles \ConditionedSettlingCycle{} and \ConservativeSettlingCycle{}, respectively. MPC-5 crosses at cycle \MpcSettlingCycle{}, or \MpcSettlingMilliseconds{}~ms, and reduces $J_{100}$ by \MpcCostReduction{}\% relative to conditioned feedback. These exact-plant observations do not extend the common-$P$ guarantee beyond its linearized model.
+The proposed controller first crosses the error threshold at cycle \ConditionedSettlingCycle{}, compared with cycle \ConservativeSettlingCycle{} for conservative tuning. MPC-5 crosses at cycle \MpcSettlingCycle{}, or \MpcSettlingMilliseconds{}~ms, and reduces $J_{100}$ by \MpcCostReduction{}\% relative to the proposed controller. These gains come with higher median and p95 execution times in the matched MATLAB measurements of \cref{tab:results}. The response comparison uses exact-plant simulations, while the common-$P$ guarantee remains limited to the linearized model.
 
 \subsection{Periodic waveform and open-loop convergence}
 
 \begin{figure*}[t]
     \centering
     \includegraphics[width=\textwidth]{state_time_comparison.pdf}
-    \caption{Continuous-time state responses over the first 12 cycles. (a) $v_{C_1}(t)$. (b) $v_{C_2}(t)$. (c) $i_L(t)$. Each panel compares closed loop, open loop, and the reference periodic waveform.}
+    \caption{Continuous-time state responses over the first 12 cycles. (a) $v_{C_1}(t)$. (b) $v_{C_2}(t)$. (c) $i_L(t)$. Each panel compares the proposed controller, open loop, and the reference periodic waveform.}
     \label{fig:states}
 \end{figure*}
 
-In \cref{fig:states}, both responses start from the same state. Feedback approaches the repeated reference waveform while open loop remains displaced. Switching ripple belongs to the target motion, not residual tracking error; each response retains its own within-interval sample times.
+In \cref{fig:states}, the proposed controller and open loop start from the same state. Feedback approaches the repeated reference waveform, while open loop remains displaced over the plotted interval. Switching ripple belongs to the reference trajectory rather than tracking error. Each curve retains its own interval sample times.
 
-For fixed nominal durations, \eqref{eq:exact-cycle-map} is affine in the state: $\mathcal P(\vect{x},\vect{0})=\Phi_x\vect{x}+\vect{h}$, where $\vect{h}$ is constant. Subtracting the fixed anchor cancels the affine term, yielding
+With nominal durations fixed, \eqref{eq:exact-augmented-cycle} gives $\vect{x}_{k+1}=\Phi_x\vect{x}_k+\vect{h}$, where $\vect{h}$ is constant. Subtracting the corresponding relation for the reference anchor cancels this constant term and gives
 \begin{equation}
     \vect{e}_{k+1}=\Phi_x\vect{e}_k
     \label{eq:exact-open-loop}
 \end{equation}
-without a remainder. Since $\rho(\Phi_x)=\OpenLoopSpectralRadius{}<1$, this fixed-schedule ideal affine model converges globally; the conclusion does not apply to nonlinear timing feedback. The \LongSimulationCycles{}-cycle open-loop simulation stays below $0.01$ from cycle \OpenLoopConvergenceCycle{} onward, over a seconds-long transient rather than the controlled response's milliseconds.
+without a remainder. Since $\rho(\Phi_x)=\OpenLoopSpectralRadius{}<1$, the ideal affine plant converges from any initial state under this fixed schedule, a conclusion that does not apply to nonlinear timing feedback. The open-loop simulation of \LongSimulationCycles{} cycles stays below $0.01$ from cycle \OpenLoopConvergenceCycle{} onward, over a transient lasting seconds rather than milliseconds under feedback.
 
 \subsection{Host computational cost}
 \label{sec:computational-cost}
 
-The matched full-controller timings in \cref{tab:results} use MATLAB R\MatchedTimingMatlabRelease{} on the same desktop and identical \MatchedTimingStates{} states: the first 12 cycle-start states of each response. After \MatchedTimingWarmup{} warm-up calls per controller, we interleave \MatchedTimingSamples{} timed calls each. The boundary includes physical error calculation, required normalization, control, schedule conversion, and feasibility checks. Offline design, plant propagation, and acquisition are excluded. First calls are recorded separately; every MPC solve starts from a zero plan, without plan reuse. The p95 is an observed percentile, not a worst-case bound.
+The matched MATLAB measurements in \cref{tab:results} give median execution times of \SI{\ProposedMatchedMedianUs}{\micro\second} for the proposed controller and \SI{\MpcMatchedMedianUs}{\micro\second} for MPC-5. Their p95 times are \SI{\ProposedMatchedPninetyfiveUs}{\micro\second} and \SI{\MpcMatchedPninetyfiveUs}{\micro\second}, respectively. Both controllers run on the same 64-bit Windows desktop using MATLAB R\MatchedTimingMatlabRelease{}. The recorded processor is an AMD Family 25 Model 97 with 16 logical processors, and MATLAB allows up to 8 computation threads.
 
-A separate \num{\BetaTimingIndividualSamples}-call microbenchmark on an \BetaTimingCpu{} isolates conditioning. MATLAB p95 is \SI{\BetaTimingMatlabBetaPninetyfiveUs}{\micro\second} for $\beta$ alone and \SI{\BetaTimingMatlabFullPninetyfiveUs}{\micro\second} for full conditioning. Double-precision C++ with GCC \BetaTimingGccVersion{} and \texttt{-O3} reaches the \SI{\BetaTimingCppTimerFloorUs}{\micro\second} individual timer floor. Across batches of \BetaTimingBatchSize{} calls, p95 batch-average costs are \SI{\BetaTimingCppBetaBatchPninetyfiveNs}{\nano\second} for $\beta$ and \SI{\BetaTimingCppFullBatchPninetyfiveNs}{\nano\second} for conditioning, not individual latency percentiles. These desktop results neither compare C++ with MATLAB MPC nor establish embedded deadlines.
+Both controllers process the same \MatchedTimingStates{} physical states from the first 12 cycle starts of each response. We interleave \MatchedTimingSamples{} timed calls per controller after \MatchedTimingWarmup{} warm-up calls each. Timing covers physical error calculation, required normalization, control, schedule conversion, and feasibility checks, excluding offline design, plant propagation, and acquisition. First calls are recorded separately, and every MPC solve starts from a zero plan without reuse.
+
+A separate microbenchmark isolates conditioning from the rest of the controller. It uses \num{\BetaTimingIndividualSamples} individual calls on an \BetaTimingCpu{}. MATLAB p95 is \SI{\BetaTimingMatlabBetaPninetyfiveUs}{\micro\second} for $\beta$ alone and \SI{\BetaTimingMatlabFullPninetyfiveUs}{\micro\second} for full conditioning.
+
+For double-precision C++ compiled with GCC \BetaTimingGccVersion{} and \texttt{-O3}, the individual-call p95 reaches the timer floor of \SI{\BetaTimingCppTimerFloorUs}{\micro\second}. For batches of \BetaTimingBatchSize{} calls, the p95 of the mean time per call is \SI{\BetaTimingCppBetaBatchPninetyfiveNs}{\nano\second} for $\beta$ and \SI{\BetaTimingCppFullBatchPninetyfiveNs}{\nano\second} for full conditioning. These percentiles describe batch averages, not individual latencies.
+
+The p95 is the observed 95th percentile, not a worst-case bound. The C++ results concern conditioning alone, not a comparison with MATLAB MPC. None of these desktop measurements guarantees embedded deadlines.
 
 \section{Discussion}
 
-Dwell feasibility and convergence are separate. The conditioner computes the largest feasible scale for any finite request; the offline common-$P$ test certifies the associated linearized family. Online execution needs only a fixed-gain multiplication, adjacent differences, and a minimum scan. The MPC reference illustrates this low-computation alternative with an explicit performance cost, not a general performance ranking.
+MPC can include constraints directly in its optimization problem. Here, MPC-5 lowers the evaluation cost and crosses the threshold earlier, but takes longer in the matched MATLAB measurements. This trade-off matters when online optimization cannot meet the deadlines of fast control loops. The benchmark does not establish a general performance ranking.
 
-The sensitivity builds on Patino et al. \cite{patino2010} and recovers Marcolino et al.'s common-state-matrix model \cite{marcolino2021}. Direction-preserving scaling also appears in control allocation \cite{nakamuraZimmerer2026directionPreserving}. The contribution is its closed form for coupled dwell inequalities and its connection to the certificate, not new LQR synthesis or a general Lyapunov theorem.
+The proposed LQR-based controller instead applies the largest dwell-feasible scale for any finite request using a fixed-gain multiplication, adjacent differences, and a minimum scan. Feasibility follows from this scaling, whereas the offline common-$P$ test certifies stability of the conditioned linearized family.
 
-The certificate is sufficient, requires a common matrix and a Schur zero-feedback endpoint, and may fail for otherwise stable controllers. Here, feedback accelerates an already convergent open loop. Nonlinear trajectories do not certify a region of attraction. Hardware calibration of the \SI{\AppliedScheduleDwellBound}{\micro\second} bound, quantization, delays, dead time, estimation, uncertainty, and experiments remain outside scope. Desktop timings do not establish embedded feasibility.
+The sensitivity builds on \cite{patino2010} and recovers the model with a common state matrix in \cite{marcolino2021}. Direction-preserving scaling also appears in control allocation, as discussed by \cite{nakamuraZimmerer2026directionPreserving}. The contribution is the closed-form treatment of coupled dwell inequalities and its connection to stability certification, not new LQR synthesis or a general Lyapunov theorem.
+
+The common-$P$ certificate is sufficient rather than necessary and can fail for otherwise stable controllers. It requires a common matrix and a Schur zero-feedback endpoint, so this study concerns accelerated convergence of an already stable open loop. The nonlinear trajectories do not certify a region of attraction.
+
+Hardware calibration of the \SI{\AppliedScheduleDwellBound}{\micro\second} bound, quantization, delays, dead time, estimation, uncertainty, and experimental validation remain outside scope. The desktop timings do not establish embedded feasibility.
 
 \section{Conclusion}
 
-An $O(N)$ scan finds the largest dwell-feasible multiple of a proportional timing action while preserving direction, mode order, and cycle period without an online solver. An offline endpoint SDP supplies a common quadratic certificate of uniform exponential stability for the conditioned linearized model under every factor sequence in $[0,1]$.
-
-Converter simulations show feasible aggressive feedback and faster convergence than conservative feedback and the already stable open-loop schedule. Certifying the full nonlinear transient requires further analysis.
+The proposed controller is a candidate for applications where the computational cost of MPC is a limiting factor. It combines LQR feedback with closed-form dwell conditioning to enforce the dwell constraints without online optimization. In the converter benchmark, it achieves shorter measured execution times than MPC-5 at some loss of performance. Its offline certificate guarantees stability of the conditioned linearized model. Certification of the full nonlinear transient and validation on target hardware remain necessary before deployment in critical systems.
 
 % Allow the comparison figures to share pages with the discussion,
 % but keep all main-text figures before the appendix.
@@ -725,7 +708,7 @@ Converter simulations show feasible aggressive feedback and faster convergence t
 
 \subsection{Expansion of the dwell-feasible region}
 
-A smaller fixed factor allows larger errors while keeping the timing action feasible. To see this, hold $\beta\in(0,1]$ fixed and apply $\dtau=-\beta K\vect{e}$. Substitution into the dwell inequalities gives the feasible region
+A smaller fixed conditioning factor allows larger state errors while satisfying the dwell constraints. With $\beta\in(0,1]$ fixed, the timing action is $\dtau=-\beta K\vect{e}$, so the feasible region is
 \begin{equation}
 \begin{aligned}
     \mathcal F_\beta&=\{\vect{e}:\beta DK\vect{e}\le\vect{m}\}
@@ -734,7 +717,7 @@ A smaller fixed factor allows larger errors while keeping the timing action feas
 \end{aligned}
 \label{eq:fixed-beta-feasible}
 \end{equation}
-Thus $0<\beta_a<\beta_b\le1$ gives $\mathcal F_{\beta_b}\subseteq\mathcal F_{\beta_a}$. The three-state volumes scale as $\beta^{-3}$: factors $\LowerComparisonConditioningFactor{}$, $\MiddleComparisonConditioningFactor{}$, and $1$ give volume ratios $\LowerComparisonRegionVolumeRatio{}$, $\MiddleComparisonRegionVolumeRatio{}$, and $1$. This is current-cycle feasibility, not successive-cycle stability.
+The raw-action region $\mathcal C$ expands by $1/\beta$, giving $\mathcal F_{\beta_b}\subseteq\mathcal F_{\beta_a}$ whenever $0<\beta_a<\beta_b\le1$. In the three-state converter, volumes scale as $\beta^{-3}$, so factors $\LowerComparisonConditioningFactor{}$, $\MiddleComparisonConditioningFactor{}$, and $1$ give volume ratios $\LowerComparisonRegionVolumeRatio{}$, $\MiddleComparisonRegionVolumeRatio{}$, and $1$. This expansion concerns current-cycle feasibility, not stability over successive cycles.
 
 \begin{figure*}[t]
     \centering
@@ -743,24 +726,24 @@ Thus $0<\beta_a<\beta_b\le1$ gives $\mathcal F_{\beta_b}\subseteq\mathcal F_{\be
     \label{fig:appendix-region}
 \end{figure*}
 
-The overlaid simulation in \cref{fig:appendix-region} uses state-dependent, not fixed, factors. Its initial error is inside $\mathcal F_{\LowerComparisonConditioningFactor{}}$ and outside $\mathcal F_{\MiddleComparisonConditioningFactor{}}$, consistent with $\beta_0\approx0.294$; raw feasibility starts at cycle \FirstInvariantRegionCycle{}. Lines join cycle-start samples. The planar views are projections, not slices; membership uses full three-dimensional inequalities.
+In \cref{fig:appendix-region}, lines connect cycle-start errors from the simulation with state-dependent conditioning. The initial error lies inside $\mathcal F_{\LowerComparisonConditioningFactor{}}$ and outside $\mathcal F_{\MiddleComparisonConditioningFactor{}}$, consistent with $\beta_0\approx0.294$. The raw action becomes feasible at cycle \FirstInvariantRegionCycle{}. The planar views are projections rather than slices, so membership is determined from the full three-dimensional inequalities.
 
 \subsection{Feasibility over successive cycles}
 
-For each fixed comparison factor, the linearized dynamics are
+With the factor fixed, continued dwell feasibility requires the error to remain in $\mathcal F_\beta$. The linearized dynamics are
 \begin{equation}
     \vect{e}_{k+1}=M_\beta\vect{e}_k,\qquad
     M_\beta=\Phi_x-\beta\Gamma_\tau K.
     \label{eq:fixed-beta-dynamics}
 \end{equation}
-For all three plotted factors, offline calculations verify positive invariance,
+Offline calculations with MPT3 \citep{herceg2013mpt3} and preimage containment \citep{gilbert1991maximal} verify positive invariance for all three plotted factors:
 \begin{equation}
     M_\beta\mathcal F_\beta\subseteq\mathcal F_\beta.
     \label{eq:fixed-beta-invariance}
 \end{equation}
-using MPT3 \cite{herceg2013mpt3} and preimage containment \cite{gilbert1991maximal}. Every vertex satisfies $\beta DK M_\beta\vect{v}\le\vect{m}$ within numerical tolerance; boundedness, convexity, and linearity extend this check to the complete polyhedron. Invariance supplies continued dwell feasibility, while \cref{thm:common-p} supplies convergence because $M_\beta=A(\beta)$.
+Each vertex $\vect{v}$ of $\mathcal F_\beta$ satisfies $\beta DK M_\beta\vect{v}\le\vect{m}$ within numerical tolerance. Every point of this bounded, convex polyhedron is a convex combination of vertices, so linearity extends the check to the whole region. Invariance therefore preserves dwell feasibility over subsequent cycles, while \cref{thm:common-p} supplies convergence because $M_\beta=A(\beta)$.
 
-These fixed-factor linearized checks prove neither nonlinear invariance nor an enlarged nonlinear region of attraction for state-dependent conditioning. The common-$P$ theorem does not depend on them.
+These linearized checks with fixed factors establish neither nonlinear invariance nor an enlarged nonlinear region of attraction for state-dependent conditioning. The common-$P$ theorem holds independently of these feasibility checks.
 \FloatBarrier
 \end{appendices}
 

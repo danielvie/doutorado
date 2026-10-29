@@ -1,0 +1,5 @@
+sha256sum --check --quiet studies/mpc-trajectory-comparison/input-sha256.txt
+Executed from paper root after simulation, plotting, compilation and visual inspection.
+Exit code: 0. All 425 pre-existing tracked paper files match their starting hashes.
+Pre-existing modified paths preserved: GOAL.md, article.pdf, latex/main.tex.
+Only new studies/mpc-trajectory-comparison/ files were created by this study.

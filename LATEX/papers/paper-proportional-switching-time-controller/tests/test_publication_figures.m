@@ -13,6 +13,8 @@ s = load(fullfile(p.results,'publication_trajectories.mat'),'trajectories');
 testCase.TestData.data = s.trajectories;
 s = load(fullfile(p.results,'paper_results.mat'),'results');
 testCase.TestData.results = s.results;
+s = load(fullfile(p.results,'mpc_comparison.mat'),'comparison');
+testCase.TestData.mpc = s.comparison;
 end
 
 function teardownOnce(testCase)
@@ -37,6 +39,27 @@ for k = 0:11
 end
 verifyEqual(testCase,v.reference_state(end,:),d.reference_state(end,:));
 verifyGreaterThan(testCase,range(v.reference_state),[0,0,0]);
+end
+
+function testMpcTrajectorySamples(testCase)
+b = testCase.TestData.benchmark; d = testCase.TestData.data;
+c = testCase.TestData.mpc;
+n = size(d.reference_state,1)-1;
+verifyEqual(testCase,size(d.state_mpc),size(d.state_on));
+verifyEqual(testCase,d.state_mpc(1:n:end,:)',c.mpc_states,'AbsTol',1e-11);
+verifyEqual(testCase,d.time_mpc([1,end]),[0;b.cycle_count*b.period],'AbsTol',1e-12);
+verifyGreaterThan(testCase,min(diff(d.time_mpc)),0);
+verifyGreaterThan(testCase,max(abs(d.time_mpc-d.time_on)),1e-9);
+error = vecnorm(b.state_scale\(d.state_mpc(1:n:end,:)'-b.orbit_anchor),2,1)';
+verifyEqual(testCase,error,c.error(:,2),'AbsTol',1e-12);
+verifyEqual(testCase,find(error<0.01,1)-1,c.threshold_cycle(2));
+for cycle = 1:b.cycle_count
+    rows = (cycle-1)*n+(1:b.trajectory_samples_per_interval:(n+1));
+    times = (cycle-1)*b.period+b.config.Ts(:)+[0;c.mpc_offsets(:,cycle);0];
+    states = paper.cycle_boundaries(b.config,c.mpc_states(:,cycle),c.mpc_offsets(:,cycle));
+    verifyEqual(testCase,d.time_mpc(rows),times,'AbsTol',1e-12);
+    verifyEqual(testCase,d.state_mpc(rows,:)',states,'AbsTol',1e-11);
+end
 end
 
 function testRejectInvalidOrStaleWaveforms(testCase)

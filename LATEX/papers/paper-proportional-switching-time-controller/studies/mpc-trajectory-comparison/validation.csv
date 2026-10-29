@@ -1,0 +1,3 @@
+method,minimum_dwell_us,period_residual_s,dense_endpoint_residual,saved_state_residual,saved_offset_residual_s,first_cycle_below_001
+Proposed controller,3.00000000000002,0,3.5527136788005e-15,3.5527136788005e-15,3.3881317890172e-20,6
+MPC-5,2.99999999999996,0,3.5527136788005e-15,1.38777878078145e-17,0,5

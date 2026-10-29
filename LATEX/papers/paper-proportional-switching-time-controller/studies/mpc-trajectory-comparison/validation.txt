@@ -1,0 +1,9 @@
+           <strong>method</strong>            <strong>minimum_dwell_us</strong>    <strong>period_residual_s</strong>    <strong>dense_endpoint_residual</strong>    <strong>saved_state_residual</strong>    <strong>saved_offset_residual_s</strong>    <strong>first_cycle_below_001</strong>
+    <strong>_____________________</strong>    <strong>________________</strong>    <strong>_________________</strong>    <strong>_______________________</strong>    <strong>____________________</strong>    <strong>_______________________</strong>    <strong>_____________________</strong>
+
+    "Proposed controller"           3                    0                  3.5527e-15                3.5527e-15               3.3881e-20                     6          
+    "MPC-5"                         3                    0                  3.5527e-15                1.3878e-17                        0                     5          
+
+
+All checks passed. 100/100 MPC QPs successful.
+Persistent open-loop crossing: k=22009.

@@ -52,6 +52,7 @@ macro(fid,'MpcEvaluationCost',comparison.cost(2),'%.5f');
 macro(fid,'MpcCostReduction',100*(1-comparison.cost(2)/comparison.cost(1)),'%.1f');
 macro(fid,'MpcSettlingCycle',comparison.threshold_cycle(2),'%d');
 macro(fid,'MpcSettlingMilliseconds',comparison.threshold_cycle(2)*b.period*1e3,'%.3f');
+macro(fid,'MinimumMpcDwell',min(comparison.mpc_dwell,[],'all')*1e6,'%.3f');
 macro(fid,'ProposedMatchedMedianUs',comparison.timing_median_us(1),'%.2f');
 macro(fid,'MpcMatchedMedianUs',comparison.timing_median_us(2),'%.2f');
 macro(fid,'ProposedMatchedPninetyfiveUs',comparison.timing_p95_us(1),'%.2f');

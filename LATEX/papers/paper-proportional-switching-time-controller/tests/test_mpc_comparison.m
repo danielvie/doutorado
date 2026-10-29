@@ -77,7 +77,9 @@ verifyEqual(testCase,rows.mpc_error,c.error(:,2),'RelTol',1e-14);
 verifyEqual(testCase,c.timing_samples,5760);
 verifyEqual(testCase,c.timing_states,24);
 verifyGreaterThan(testCase,c.timing_median_us(2),c.timing_median_us(1));
-verifyTrue(testCase,isfile(fullfile(output,'latex','mpc_metrics.tex')));
+macros = fileread(fullfile(output,'latex','mpc_metrics.tex'));
+expected = sprintf('\\newcommand{\\MinimumMpcDwell}{%.3f}',min(c.mpc_dwell,[],'all')*1e6);
+verifyTrue(testCase,contains(macros,expected));
 end
 
 function c = adopt(d,study)

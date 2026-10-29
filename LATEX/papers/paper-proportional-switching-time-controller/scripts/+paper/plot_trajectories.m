@@ -8,27 +8,34 @@ end
 function figure_comparison(output, data, benchmark)
 fig = paper.publication_figure(10);
 cleanup = onCleanup(@() close(fig));
-blue = [0.00, 0.35, 0.70]; red = [0.75, 0.20, 0.15];
+blue = [0.00, 0.35, 0.70]; green = [0.00, 0.50, 0.30]; red = [0.75, 0.20, 0.15];
 ax = axes(fig, 'Position', [0.09, 0.25, 0.36, 0.65]);
 x = data.state_off;
 open = plot3(ax, x(:,1), x(:,2), x(:,3), '--', 'Color', red, 'LineWidth', 0.6);
 hold(ax, 'on');
 x = data.state_on;
 controlled = plot3(ax, x(:,1), x(:,2), x(:,3), '-', 'Color', blue);
+x = data.state_mpc;
+mpc = plot3(ax, x(:,1), x(:,2), x(:,3), '-.', 'Color', green);
 r = data.reference_state;
 target = plot3(ax, r(:,1), r(:,2), r(:,3), '-k', 'LineWidth', 1.5);
 x = data.state_on(1,:);
 start = plot3(ax, x(1), x(2), x(3), 'ko', 'MarkerFaceColor', 'k', 'MarkerSize', 4);
 a = benchmark.orbit_anchor;
 anchor = plot3(ax, a(1), a(2), a(3), 'kp', 'MarkerFaceColor', [1,0.8,0], 'MarkerSize', 7);
+all_states = [data.state_on;data.state_mpc;data.state_off;r];
+lo = min(all_states,[],1); hi = max(all_states,[],1); pad = 0.06*(hi-lo);
+xlim(ax,[lo(1)-pad(1),hi(1)+pad(1)]);
+ylim(ax,[lo(2)-pad(2),hi(2)+pad(2)]);
+zlim(ax,[lo(3)-pad(3),hi(3)+pad(3)]);
 xlabel(ax, '$v_{C_1}$ (V)', 'Interpreter', 'latex');
 ylabel(ax, '$v_{C_2}$ (V)', 'Interpreter', 'latex');
 zlabel(ax, '$i_L$ (A)', 'Interpreter', 'latex');
 set(ax, 'SortMethod', 'childorder', 'GridAlpha', 0.12);
 grid(ax, 'on'); view(ax, 42, 24);
 title(ax, sprintf('(a) First %d cycles', benchmark.cycle_count));
-leg = legend(ax, [controlled,open,target,start,anchor], ...
-    {'Closed loop','Open loop','Reference','Initial state','Cycle anchor'}, ...
+leg = legend(ax, [controlled,mpc,open,target,start,anchor], ...
+    {'Proposed controller','MPC-5','Open loop','Reference','Initial state','Cycle anchor'}, ...
     'NumColumns', 3, 'Box', 'off');
 set(leg, 'Units', 'normalized', 'Position', [0.08,0.015,0.84,0.10]);
 
@@ -36,16 +43,21 @@ set(leg, 'Units', 'normalized', 'Position', [0.08,0.015,0.84,0.10]);
 % or clamp small errors to the lower plotting boundary.
 n = size(data.reference_state,1)-1;
 assert(size(data.state_on,1) == benchmark.cycle_count*n+1, 'Unexpected dense sample count.');
+assert(isequal(size(data.state_mpc),size(data.state_on)), 'Unexpected dense MPC sample count.');
 cycle_states = data.state_on(1:n:end,:)';
 feedback_error = vecnorm(benchmark.state_scale \ (cycle_states-benchmark.orbit_anchor),2,1)';
+mpc_states = data.state_mpc(1:n:end,:)';
+mpc_error = vecnorm(benchmark.state_scale \ (mpc_states-benchmark.orbit_anchor),2,1)';
 open_error = data.long_open_loop_error(:);
 last = numel(open_error)-1;
 assert(last == benchmark.long_simulation_cycles, 'Long-run horizon mismatch.');
 threshold = 0.01;
 feedback_cross = find(feedback_error < threshold,1)-1;
+mpc_cross = find(mpc_error < threshold,1)-1;
 last_outside = find(open_error >= threshold,1,'last');
 if isempty(last_outside), open_cross = 0; else, open_cross = last_outside; end
 assert(~isempty(feedback_cross) && feedback_cross >= 1, 'Expected a feedback threshold crossing.');
+assert(~isempty(mpc_cross) && mpc_cross >= 1, 'Expected an MPC threshold crossing.');
 assert(open_cross == data.convergence_cycle && open_cross >= 1 && open_cross <= last, ...
     'Persistent open-loop crossing differs from saved evidence.');
 ax = axes(fig, 'Position', [0.62,0.25,0.35,0.65], 'XScale', 'log', 'YScale', 'log');
@@ -55,15 +67,20 @@ patch(ax, [1,benchmark.cycle_count,benchmark.cycle_count,1], ...
     [ybounds(1),ybounds(1),ybounds(2),ybounds(2)], [0.92,0.94,0.97], 'EdgeColor', 'none');
 plot(ax, (1:last)',open_error(2:end),'--','Color',red);
 plot(ax, (1:benchmark.cycle_count)',feedback_error(2:end),'-','Color',blue);
+plot(ax, (1:benchmark.cycle_count)',mpc_error(2:end),'-.','Color',green);
 yline(ax, threshold, ':k');
 plot(ax,feedback_cross,feedback_error(feedback_cross+1),'o','Color',blue, ...
     'MarkerFaceColor',blue,'MarkerSize',4);
+plot(ax,mpc_cross,mpc_error(mpc_cross+1),'d','Color',green, ...
+    'MarkerFaceColor',green,'MarkerSize',4);
 plot(ax,open_cross,open_error(open_cross+1),'o','Color',red, ...
     'MarkerFaceColor',red,'MarkerSize',4);
 text(ax,2,1.4,'Panel (a)','FontSize',9);
 text(ax,150,threshold*1.8,'$E_k=0.01$','FontSize',9,'Interpreter','latex');
-text(ax,15,7e-4,sprintf('Closed loop\nk = %d',feedback_cross), ...
+text(ax,15,7e-4,sprintf('Proposed\nk = %d',feedback_cross), ...
     'Color',blue,'VerticalAlignment','top');
+text(ax,1.5,8e-6,sprintf('MPC-5\nk = %d',mpc_cross), ...
+    'Color',green,'VerticalAlignment','top');
 plot(ax,[open_cross,open_cross],[1.5e-3,open_error(open_cross+1)],':','Color',red);
 text(ax,open_cross/1.3,1.2e-3,sprintf('Open loop\nk = %d',open_cross), ...
     'Color',red,'HorizontalAlignment','right','VerticalAlignment','top');

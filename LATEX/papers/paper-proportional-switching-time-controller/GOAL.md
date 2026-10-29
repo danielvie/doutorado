@@ -63,3 +63,12 @@ The supporting appendix should show how reducing a fixed conditioning factor enl
 - The computed Lyapunov inequalities are floating-point checks, not interval-arithmetic certification.
 - The invariant-region certificate describes the linearized raw closed loop, not nonlinear invariance of the complete polyhedron.
 - The `3 µs` bound is not hardware-calibrated; timer quantization, delays, dead time, implementation margin, uncertainty, and experiments are absent.
+
+
+
+Conclusao
+
+MPC sao melhores mas teem um custo computacional inerente da sua arquitetura
+MPC's tend to perform better and can incorporate the constraint of the problem in the modelling 
+Esse custo computacional pode inviabilizar o controlador em aplicacoes criticas com tempos de dinamica muito rapidas
+Podemos implementar essa proposta de controlador com LQR e condionamento de sinal com garantia de estabilidade para tratar esses casos. Dessa maneira temos desempenho potencialmente degradado porem ainda com garatia de estabilidade que eh muito importante para sistemas criticos. 

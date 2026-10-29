@@ -48,7 +48,7 @@ comparison = paper.export_mpc_comparison(paths, benchmark, model, controller, re
 paper.export_figures(paths, benchmark, model, response, comparison);
 paper.export_timing_diagrams(paths, benchmark, response);
 paper.export_lyapunov(paths, benchmark, model, controller);
-paper.export_trajectories(paths, benchmark, model, response, long_response);
+paper.export_trajectories(paths, benchmark, model, response, long_response, comparison);
 paper.write_provenance(paths);
 paper.print_summary(paths, benchmark, model, summary, region, metrics);
 end
