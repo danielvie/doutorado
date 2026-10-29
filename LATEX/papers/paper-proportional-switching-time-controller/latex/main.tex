@@ -120,7 +120,7 @@ Within one cycle, the index $k$ is omitted and time runs from $t_0=\bar t_0=0$ t
 \end{aligned}
 \label{eq:duration-coordinates}
 \end{equation}
-Here $\Delta t_i=d_{k,i}$, $\Delta\bar t_i=\bar d_i$, and $\delta t_i=\delta d_{k,i}$ is a duration change, not a switching-instant offset. Interval propagation gives
+Here $\Delta t_i=d_{k,i}$, $\Delta\bar t_i=\bar d_i$, and $\delta t_i=\delta d_{k,i}$ is a duration change. The interval propagation gives
 \begin{equation}
     \X(t_i)=e^{F_i\Delta t_i}\X(t_{i-1}).
 \end{equation}
@@ -130,12 +130,12 @@ Over the full cycle,
     \cdots e^{F_1\Delta t_1}\X(t_0).
     \label{eq:exact-augmented-cycle}
 \end{equation}
-The first interval is the rightmost factor. The nominal interval transition is
+We can rewrite the terms
 \begin{equation}
     \phi_i=e^{F_i\Delta\bar t_i}.
     \label{eq:nominal-interval-transition}
 \end{equation}
-The nominal state $\bar\X(t)=[\bar{\vect{x}}(t)^{\mathsf T}\ 1]^{\mathsf T}$ satisfies
+So \eqref{eq:exact-augmented-cycle} becomes
 \begin{equation}
     \bar\X(t_N)=\phi_N\phi_{N-1}\cdots\phi_1\bar\X(t_0).
     \label{eq:nominal-augmented-cycle}
@@ -200,7 +200,7 @@ The first-order product expansion in the duration changes is
 \end{aligned}
 \label{eq:ordered-product-first-order}
 \end{equation}
-After cancellation of the nominal terms and omission of the products $\delta t_i\vect{e}(t_0)$, which are second order jointly in initial error and duration changes,
+After cancellation of the nominal terms and omission of the products $\delta t_i\vect{e}(t_0)$ \eqref{eq:ordered-product-first-order} becomes
 \begin{equation}
 \begin{aligned}
     \vect{e}(t_N)\doteq{}&
@@ -213,22 +213,18 @@ After cancellation of the nominal terms and omission of the products $\delta t_i
 \label{eq:expanded-terminal-error}
 \end{equation}
 
-For $\delta\vect{t}=[\delta t_1\ \delta t_2\ \cdots\ \delta t_N]^{\mathsf T}$, the coefficient matrix is
+Define the duration-change vector, coefficient matrix, and complete nominal transition as
 \begin{equation}
 \begin{aligned}
-    \Gamma=\Bigl[\,&
-    \phi_N\cdots\phi_2F_1\phi_1\bar\X(t_0),\\
-    &\phi_N\cdots\phi_3F_2\phi_2\phi_1\bar\X(t_0),\ \ldots,\\
-    &F_N\phi_N\phi_{N-1}\cdots\phi_1\bar\X(t_0)\,\Bigr].
+    \delta\vect{t}&=[\delta t_1\ \delta t_2\ \cdots\ \delta t_N]^{\mathsf T},\\
+    \Gamma&=\Bigl[\,\phi_N\cdots\phi_2F_1\phi_1\bar\X(t_0),\\
+    &\qquad\phi_N\cdots\phi_3F_2\phi_2\phi_1\bar\X(t_0),\ \ldots,\\
+    &\qquad F_N\phi_N\phi_{N-1}\cdots\phi_1\bar\X(t_0)\,\Bigr],\\
+    \Phi&=\phi_N\phi_{N-1}\cdots\phi_1.
 \end{aligned}
 \label{eq:augmented-dwell-sensitivity}
 \end{equation}
-Thus $\Gamma\in\R^{(n+1)\times N}$. The complete nominal transition is
-\begin{equation}
-    \Phi=\phi_N\phi_{N-1}\cdots\phi_1.
-    \label{eq:augmented-nominal-matrix}
-\end{equation}
-With $\Phi\in\R^{(n+1)\times(n+1)}$, \eqref{eq:expanded-terminal-error} becomes the linear equation
+With $\Gamma\in\R^{(n+1)\times N}$ and $\Phi\in\R^{(n+1)\times(n+1)}$, \eqref{eq:expanded-terminal-error} becomes the linear equation
 \begin{equation}
     \vect{e}(t_N)\doteq\Phi\vect{e}(t_0)+\Gamma\delta\vect{t}.
     \label{eq:augmented-error-linearization}
