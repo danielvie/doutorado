@@ -96,18 +96,22 @@ These transfers preserve the total period $T$, but a sufficiently large shift ca
     \label{fig:timing-mechanism}
 \end{figure*}
 
-\subsection{Exact augmented propagation and terminal error}
+\subsection{Linear Equation}
 
-The augmented state and system matrix are
+With a constant auxiliary coordinate, the augmented state and matrix are
 \begin{equation}
     \X(t)=\begin{bmatrix}\vect{x}(t)\\1\end{bmatrix},\qquad
     \widetilde A_q=
     \begin{bmatrix}A_q&\vect{b}_q\\\vect{0}^{\mathsf T}&0\end{bmatrix}.
     \label{eq:augmented-generator}
 \end{equation}
-Then $\dot\X(t)=\widetilde A_{\sigma(t)}\X(t)$. Within one cycle, $t_i$ denotes $t_{k,i}$, and state arguments are relative to the cycle start. The fixed endpoints are $t_0=\bar t_0=0$ and $t_N=\bar t_N=T$, with mode $q_i$ on $[t_{i-1},t_i)$.
-
-The interval durations satisfy
+Then
+\[
+    \dot\X(t)=
+    \begin{bmatrix}A_{\sigma(t)}\vect{x}(t)+\vect{b}_{\sigma(t)}\\0\end{bmatrix}
+    =\widetilde A_{\sigma(t)}\X(t).
+\]
+Within one cycle, the index $k$ is omitted and time runs from $t_0=\bar t_0=0$ to $t_N=\bar t_N=T$. The interval quantities are
 \begin{equation}
 \begin{aligned}
     \Delta t_i&=t_i-t_{i-1},\\
@@ -116,38 +120,38 @@ The interval durations satisfy
 \end{aligned}
 \label{eq:duration-coordinates}
 \end{equation}
-Thus $\Delta t_i=d_{k,i}$, $\Delta\bar t_i=\bar d_i$, and $\delta t_i=\delta d_{k,i}$ is a duration change, not an instant offset. Interval propagation is
+Here $\Delta t_i=d_{k,i}$, $\Delta\bar t_i=\bar d_i$, and $\delta t_i=\delta d_{k,i}$ is a duration change, not a switching-instant offset. Interval propagation gives
 \begin{equation}
     \X(t_i)=e^{F_i\Delta t_i}\X(t_{i-1}).
 \end{equation}
-Therefore, the exact cycle propagation is
+Over the full cycle,
 \begin{equation}
     \X(t_N)=e^{F_N\Delta t_N}e^{F_{N-1}\Delta t_{N-1}}
     \cdots e^{F_1\Delta t_1}\X(t_0).
     \label{eq:exact-augmented-cycle}
 \end{equation}
-At the nominal duration, the interval transition matrix is
+The first interval is the rightmost factor. The nominal interval transition is
 \begin{equation}
     \phi_i=e^{F_i\Delta\bar t_i}.
     \label{eq:nominal-interval-transition}
 \end{equation}
-The nominal augmented trajectory is $\bar\X(t)=[\bar{\vect{x}}(t)^{\mathsf T}\ 1]^{\mathsf T}$, so its terminal state satisfies
+The nominal state $\bar\X(t)=[\bar{\vect{x}}(t)^{\mathsf T}\ 1]^{\mathsf T}$ satisfies
 \begin{equation}
     \bar\X(t_N)=\phi_N\phi_{N-1}\cdots\phi_1\bar\X(t_0).
     \label{eq:nominal-augmented-cycle}
 \end{equation}
-The augmented error and initial state satisfy
+The augmented error satisfies
 \begin{equation}
 \begin{aligned}
     \vect{e}(t)&=\X(t)-\bar\X(t),\\
     \X(t_0)&=\bar\X(t_0)+\vect{e}(t_0).
 \end{aligned}
 \end{equation}
-The augmented error $\vect{e}(t)\in\R^{n+1}$ has last component zero; its first $n$ components at the cycle start form $\vect{e}_k$. At $t_N=T$, subtracting the nominal propagation gives
+With $\vect{e}(t_0)=[\vect{e}_k^{\mathsf T}\ 0]^{\mathsf T}\in\R^{n+1}$, the terminal error is
 \begin{equation}
 \begin{aligned}
-    \vect{e}(t_N)={}&
-    e^{F_N(\Delta\bar t_N+\delta t_N)}
+    \vect{e}(t_N)={}&\X(t_N)-\bar\X(t_N)\\
+    ={}&e^{F_N(\Delta\bar t_N+\delta t_N)}
     e^{F_{N-1}(\Delta\bar t_{N-1}+\delta t_{N-1})}\cdots\\
     &\quad e^{F_1(\Delta\bar t_1+\delta t_1)}
     \bigl(\bar\X(t_0)+\vect{e}(t_0)\bigr)\\
@@ -156,9 +160,7 @@ The augmented error $\vect{e}(t)\in\R^{n+1}$ has last component zero; its first 
 \label{eq:exact-augmented-error}
 \end{equation}
 
-\subsection{Linearization in the interval durations}
-
-For a constant matrix $F_i$, expand $e^{F_i s}$ around $s=\Delta\bar t_i$:
+The first-order expansion about the nominal duration gives
 \begin{equation}
 \begin{aligned}
     \frac{\mathrm d}{\mathrm ds}e^{F_i s}&=F_i e^{F_i s},\\
@@ -171,37 +173,34 @@ For a constant matrix $F_i$, expand $e^{F_i s}$ around $s=\Delta\bar t_i$:
 \end{aligned}
 \label{eq:interval-first-order}
 \end{equation}
-Here $\doteq$ is first order jointly in initial error and duration changes. Products of two duration changes or of a duration change and initial error are second order.
-
-Substituting the first-order approximation into every transition gives
+Here $\doteq$ denotes equality up to first order. Substitution into \eqref{eq:exact-augmented-error} gives
 \begin{equation}
 \begin{aligned}
-    &e^{F_N(\Delta\bar t_N+\delta t_N)}
-    e^{F_{N-1}(\Delta\bar t_{N-1}+\delta t_{N-1})}\cdots\\
-    &\qquad e^{F_1(\Delta\bar t_1+\delta t_1)}\\
-    &\doteq
-    (\phi_N+F_N\phi_N\,\delta t_N)
-    (\phi_{N-1}+F_{N-1}\phi_{N-1}\,\delta t_{N-1})\\
-    &\qquad\quad\cdots(\phi_1+F_1\phi_1\,\delta t_1).
+    \vect{e}(t_N)\doteq{}&
+    (\phi_N+F_N\phi_N\,\delta t_N)\\
+    &\times(\phi_{N-1}+F_{N-1}\phi_{N-1}\,\delta t_{N-1})\cdots\\
+    &\times(\phi_1+F_1\phi_1\,\delta t_1)
+    \bigl(\bar\X(t_0)+\vect{e}(t_0)\bigr)\\
+    &-\phi_N\phi_{N-1}\cdots\phi_1\bar\X(t_0).
 \end{aligned}
 \label{eq:product-before-expansion}
 \end{equation}
-Multiplying these factors while keeping at most one duration change per term yields
+The first-order product expansion in the duration changes is
 \begin{equation}
 \begin{aligned}
-    &(\phi_N+F_N\phi_N\,\delta t_N)\cdots
-    (\phi_1+F_1\phi_1\,\delta t_1)\\
-    &\quad\doteq\phi_N\phi_{N-1}\cdots\phi_1\\
-    &\qquad{}+F_N\phi_N\phi_{N-1}\cdots\phi_1\,\delta t_N\\
+    \vect{e}(t_N)\doteq{}&
+    \phi_N\phi_{N-1}\cdots\phi_1\bar\X(t_0)\\
+    &+\phi_N\phi_{N-1}\cdots\phi_1\vect{e}(t_0)\\
+    &+\Bigl[F_N\phi_N\phi_{N-1}\cdots\phi_1\,\delta t_N\\
     &\qquad{}+\phi_NF_{N-1}\phi_{N-1}\cdots\phi_1\,\delta t_{N-1}\\
     &\qquad{}+\cdots\\
-    &\qquad{}+\phi_N\phi_{N-1}\cdots\phi_2F_1\phi_1\,\delta t_1.
+    &\qquad{}+\phi_N\cdots\phi_2F_1\phi_1\,\delta t_1\Bigr]\\
+    &\quad\times\bigl(\bar\X(t_0)+\vect{e}(t_0)\bigr)\\
+    &-\phi_N\phi_{N-1}\cdots\phi_1\bar\X(t_0).
 \end{aligned}
 \label{eq:ordered-product-first-order}
 \end{equation}
-Each $F_i$ remains next to $\phi_i$ in the original order.
-
-Substitute \eqref{eq:ordered-product-first-order} into \eqref{eq:exact-augmented-error}. The nominal term $\phi_N\cdots\phi_1\bar\X(t_0)$ cancels. Discarding the products $\delta t_i\vect{e}(t_0)$ then gives
+After cancellation of the nominal terms and omission of the products $\delta t_i\vect{e}(t_0)$, which are second order jointly in initial error and duration changes,
 \begin{equation}
 \begin{aligned}
     \vect{e}(t_N)\doteq{}&
@@ -214,7 +213,7 @@ Substitute \eqref{eq:ordered-product-first-order} into \eqref{eq:exact-augmented
 \label{eq:expanded-terminal-error}
 \end{equation}
 
-With $\delta\vect{t}=[\delta t_1\ \delta t_2\ \cdots\ \delta t_N]^{\mathsf T}$, collect the sensitivity columns:
+For $\delta\vect{t}=[\delta t_1\ \delta t_2\ \cdots\ \delta t_N]^{\mathsf T}$, the coefficient matrix is
 \begin{equation}
 \begin{aligned}
     \Gamma=\Bigl[\,&
@@ -224,12 +223,12 @@ With $\delta\vect{t}=[\delta t_1\ \delta t_2\ \cdots\ \delta t_N]^{\mathsf T}$, 
 \end{aligned}
 \label{eq:augmented-dwell-sensitivity}
 \end{equation}
-The ordered columns give $\Gamma\in\R^{(n+1)\times N}$. Define $\Phi\in\R^{(n+1)\times(n+1)}$ by
+Thus $\Gamma\in\R^{(n+1)\times N}$. The complete nominal transition is
 \begin{equation}
     \Phi=\phi_N\phi_{N-1}\cdots\phi_1.
     \label{eq:augmented-nominal-matrix}
 \end{equation}
-Equation~\eqref{eq:expanded-terminal-error} is thus
+With $\Phi\in\R^{(n+1)\times(n+1)}$, \eqref{eq:expanded-terminal-error} becomes the linear equation
 \begin{equation}
     \vect{e}(t_N)\doteq\Phi\vect{e}(t_0)+\Gamma\delta\vect{t}.
     \label{eq:augmented-error-linearization}

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(task build 2>&1)",
+      "PowerShell(bun remove @types/react-grid-layout 2>&1)",
+      "PowerShell(task web:build)",
+      "Bash(grep -o 'handle:.\\\\{-0,60\\\\}' web/node_modules/react-grid-layout/dist/chunk-WGL5FSZH.mjs)",
+      "Bash(awk 'NR<=5{print substr\\($0,1,200\\)}' web/node_modules/react-grid-layout/dist/chunk-WGL5FSZH.mjs)",
+      "PowerShell(task proto:gen 2>&1)",
+      "PowerShell(task web:build 2>&1)"
+    ]
+  }
+}
