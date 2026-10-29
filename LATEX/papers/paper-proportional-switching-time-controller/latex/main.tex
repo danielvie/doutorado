@@ -331,7 +331,11 @@ It is the largest factor in $[0,1]$ that satisfies all dwell constraints. For a 
 \end{proposition}
 
 \begin{proof}
-The minimum in \eqref{eq:conditioner} satisfies every interval bound. Increasing the factor either violates a limiting dwell constraint or exceeds one, so it is maximal in $[0,1]$. Strictly positive margins and finite requests make all relevant ratios positive, which gives $\beta_k>0$ and preserves the direction of a nonzero raw action. Since $\vect{1}^{\mathsf T}D=0$, the scaled dwell changes sum to zero and preserve $T$, while applied dwells of at least $d_{\min}>0$ preserve the boundary order. Computing the adjacent differences and scanning the interval bounds each require $O(N)$ operations.
+The factor in \eqref{eq:conditioner} is no larger than any of the dwell bounds, so every applied interval lasts at least $d_{\min}$. A larger factor would either exceed one or make at least one interval too short.
+
+For a finite raw request, the positive margins make every ratio used in the minimum positive, so $\beta_k>0$. Multiplying all offsets by this positive factor preserves the direction of a nonzero raw action. Since $\vect{1}^{\mathsf T}D=0$, the changes in interval duration sum to zero and leave the period $T$ unchanged. Every applied duration is at least $d_{\min}>0$, so the switching instants keep their original order.
+
+Computing the adjacent differences and scanning the interval bounds each take $O(N)$ operations.
 \end{proof}
 
 \subsection{Online execution and admissible region}
