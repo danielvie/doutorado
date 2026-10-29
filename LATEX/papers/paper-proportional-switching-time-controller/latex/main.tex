@@ -230,31 +230,11 @@ With $\Gamma\in\R^{(n+1)\times N}$ and $\Phi\in\R^{(n+1)\times(n+1)}$, \eqref{eq
     \label{eq:augmented-error-linearization}
 \end{equation}
 
-\subsection{Physical model and independent switching instants}
+\subsection{Switching-time model}
 
-To project the zero-last-coordinate error back to physical cycle coordinates, define
-\begin{equation}
-    \Pi=\begin{bmatrix}I_n&\vect{0}\end{bmatrix},\qquad
-    \iota=\begin{bmatrix}I_n\\\vect{0}^{\mathsf T}\end{bmatrix}.
-\end{equation}
-Periodicity gives $\bar{\vect{x}}(t_N)=\bar{\vect{x}}(t_0)=\bar{\vect{x}}(0)$, so $\vect{e}(t_0)=\iota\vect{e}_k$ and $\Pi\vect{e}(t_N)=\vect{e}_{k+1}$. With the dwell-change vector $\delta\vect{t}=\ddwell_k:=\vect{d}_k-\bar{\vect{d}}$, projection of \eqref{eq:augmented-error-linearization} gives
-\begin{equation}
-\begin{aligned}
-    \vect{e}_{k+1}&\doteq\Phi_x\vect{e}_k+G_d\ddwell_k,\\
-    \Phi_x&=\Pi\Phi\iota
-    =e^{A_{q_N}\bar d_N}\cdots e^{A_{q_1}\bar d_1},\\
-    G_d&=\Pi\Gamma.
-\end{aligned}
-\label{eq:physical-dwell-model}
-\end{equation}
-Here $\Phi_x\in\R^{n\times n}$ and $G_d\in\R^{n\times N}$ are physical matrices; $\Phi$ remains augmented. Subsequently $\vect{e}_k$, or $\vect{e}$, denotes physical error in $\R^n$.
+The controller moves switching instants, whereas \eqref{eq:augmented-error-linearization} uses interval durations. The model therefore needs to relate these offsets to the physical error at the next cycle.
 
-To express this model in the controller's switching-time offsets, use $d_{k,i}=t_{k,i}-t_{k,i-1}$:
-\[
-    \delta d_{k,i}=d_{k,i}-\bar d_i
-    =\delta\tau_{k,i}-\delta\tau_{k,i-1}.
-\]
-With the endpoint offsets fixed at zero, stacking these differences gives
+Each offset transfers time between adjacent intervals, as in \cref{fig:timing-mechanism}(b). Since $\delta d_{k,i}=\delta\tau_{k,i}-\delta\tau_{k,i-1}$ and the endpoint offsets are zero,
 \begin{equation}
 \begin{aligned}
     \ddwell_k&=D\dtau_k,\\
@@ -269,73 +249,53 @@ With the endpoint offsets fixed at zero, stacking these differences gives
 \end{aligned}
 \label{eq:incidence-map}
 \end{equation}
-Each column represents the transfer between adjacent dwells illustrated in \cref{fig:timing-mechanism}(b), so $\vect{1}^{\mathsf T}D=0$. Substitution into \eqref{eq:physical-dwell-model} gives the model in $N-1$ independent offsets, including its remainder:
+The relation $\vect{1}^{\mathsf T}D=0$ ensures that the total period is unchanged.
+
+The matrix $\Pi$ removes the auxiliary coordinate, while its transpose appends a zero:
+\begin{equation}
+    \Pi=\begin{bmatrix}I_n&\vect{0}\end{bmatrix},\qquad
+    \Pi^{\mathsf T}=\begin{bmatrix}I_n\\\vect{0}^{\mathsf T}\end{bmatrix}.
+\end{equation}
+Since the reference repeats every cycle, $\vect{e}(t_0)=\Pi^{\mathsf T}\vect{e}_k$ and $\Pi\vect{e}(t_N)=\vect{e}_{k+1}$. With $\delta\vect{t}=\ddwell_k$, \eqref{eq:augmented-error-linearization} becomes
 \begin{equation}
 \begin{aligned}
     \vect{e}_{k+1}={}&\Phi_x\vect{e}_k+\Gamma_\tau\dtau_k\\
     &+\mathcal O\bigl((\|\vect{e}_k\|+\|\dtau_k\|)^2\bigr),\\
-    \Gamma_\tau={}&G_dD.
+    \Phi_x={}&\Pi\Phi\Pi^{\mathsf T},\\
+    \Gamma_\tau={}&\Pi\Gamma D.
 \end{aligned}
 \label{eq:cycle-model}
 \end{equation}
-Here $\Gamma_\tau\in\R^{n\times(N-1)}$, with the remainder in fixed state/timing units. The underlying exact one-cycle map is
-\begin{equation}
-\begin{split}
-    \mathcal P(\vect{x},\dtau)={}&\Pi e^{F_N[\bar d_N+(D\dtau)_N]}\cdots\\
-    &\quad e^{F_1[\bar d_1+(D\dtau)_1]}
-    \begin{bmatrix}\vect{x}\\1\end{bmatrix}.
-\end{split}
-\label{eq:exact-cycle-map}
-\end{equation}
-The nominal schedule satisfies $\mathcal P(\bar{\vect{x}}(0),\vect{0})=\bar{\vect{x}}(0)$. The augmented nominal product has the block form
-\begin{equation}
-    \Phi=\begin{bmatrix}\Phi_x&\vect{h}\\\vect{0}^{\mathsf T}&1\end{bmatrix}.
-    \label{eq:augmented-cycle-block-form}
-\end{equation}
-The auxiliary coordinate contributes a unit eigenvalue; stability concerns only physical error.
+Here $\Phi_x\in\R^{n\times n}$ propagates the initial error, and $\Gamma_\tau\in\R^{n\times(N-1)}$ gives the effect of the switching offsets. Below, $\vect{e}_k$ and $\vect{e}$ denote the physical error in $\R^n$. The remainder uses fixed state and timing units.
 
-Each column of $D$ subtracts two adjacent dwell-sensitivity columns. Factoring this difference gives
-\begin{equation}
-\begin{split}
-    \Gamma_{\tau,i}={}&e^{A_{q_N}\bar d_N}\cdots e^{A_{q_{i+1}}\bar d_{i+1}}\\
-    &\times\bigl[(A_{q_i}-A_{q_{i+1}})\bar{\vect{x}}(\bar t_i)
-    +\vect{b}_{q_i}-\vect{b}_{q_{i+1}}\bigr].
-\end{split}
-\label{eq:timing-jacobian}
-\end{equation}
-The bracket exchanges time between adjacent vector fields; the remaining transitions carry its effect to the cycle end. This recovers \cite{patino2010}'s switching sensitivity, also used in hybrid limit-cycle analysis \cite{flieller2006limitCycles}.
-
-For the special case $A_{q_i}=A_c$ and $\vect{b}_{q_i}=B_c\vect{u}_{i-1}$,
-\begin{equation}
-    \Phi_x=e^{A_cT},\quad
-    \Gamma_{\tau,i}=e^{A_c(T-\bar t_i)}B_c(\vect{u}_{i-1}-\vect{u}_i),
-    \label{eq:marcolino-specialization}
-\end{equation}
-which is the fixed-period switched-actuator model of \cite{marcolino2021}, with the corresponding input-jump sign convention. Mode-dependent state matrices require the full expression in \eqref{eq:timing-jacobian}.
+Each column of $\Gamma_\tau$ describes how a small shift in one switching instant changes the state at the end of the cycle, as studied by \cite{patino2010} and \cite{flieller2006limitCycles}.
 
 \subsection{Raw proportional timing feedback}
 
-A fixed gain $K\in\R^{(N-1)\times n}$ requests
+The controller converts the error at the start of each cycle into switching offsets using a fixed gain $K\in\R^{(N-1)\times n}$. This gain is chosen offline, for example by discrete LQR, and gives the raw proportional action
 \begin{equation}
-    \dtau_k^{\mathrm{raw}}=-K\vect{e}_k,\qquad
-    A_{\mathrm{cl}}=\Phi_x-\Gamma_\tau K.
+    \dtau_k^{\mathrm{raw}}=-K\vect{e}_k.
     \label{eq:raw-law}
 \end{equation}
-Choose $K$ offline, for example by discrete LQR. A Schur $A_{\mathrm{cl}}$ does not ensure admissible schedules: the raw request in \cref{fig:timing-mechanism}(c) places the last interior instant beyond $T$. Dwell feasibility instead requires $t_{k,N-1}\le T-d_{\min}$. We enforce it before certifying the conditioned dynamics.
+The raw law can request offsets that violate the dwell constraints. For example, the request in \cref{fig:timing-mechanism}(c) places the last interior switching instant beyond $T$, although the final interval requires $t_{k,N-1}\le T-d_{\min}$. The following section conditions the offsets to satisfy these constraints.
 
 \section{Solver-free dwell-time conditioning}
 \label{sec:conditioning}
 
-One factor $\beta_k\in[0,1]$ scales the complete raw action toward the nominal schedule while enforcing all coupled dwell constraints. At one the request is unchanged.
+The conditioner enforces the dwell constraints by multiplying every raw offset by the same factor $\beta_k\in[0,1]$. A value of 1 leaves the request unchanged, while smaller values move the switching instants toward the nominal schedule.
 
 \subsection{Computing the conditioning factor}
 
-Assume the nominal schedule has strictly positive dwell margins,
+The conditioner assumes a nominal schedule with strictly positive margins above the minimum dwell duration,
 \begin{equation}
     \vect{m}=\bar{\vect{d}}-d_{\min}\vect{1}>\vect{0}.
     \label{eq:strict-margin}
 \end{equation}
-Set $\vect{q}_k=D\dtau_k^{\mathrm{raw}}$. An interval with $q_{k,i}\ge0$ imposes no restriction. For $q_{k,i}<0$, feasibility requires $\beta(-q_{k,i})\le m_i$. The largest common factor is
+The dwell changes requested by the raw offsets are
+\[
+    \vect{q}_k=D\dtau_k^{\mathrm{raw}}.
+\]
+An interval with $q_{k,i}\ge0$ stays unchanged or becomes longer, so it imposes no additional restriction on the factor. For $q_{k,i}<0$, the interval becomes shorter and remains feasible when $\beta(-q_{k,i})\le m_i$. The smallest of these bounds, capped at one, gives the largest common factor:
 \begin{equation}
 \begin{aligned}
     \beta_k&=\min\left\{1,\ \min_{i:q_{k,i}<0}\frac{m_i}{-q_{k,i}}\right\},\\
@@ -343,7 +303,7 @@ Set $\vect{q}_k=D\dtau_k^{\mathrm{raw}}$. An interval with $q_{k,i}\ge0$ imposes
 \end{aligned}
 \label{eq:conditioner}
 \end{equation}
-A solver-free scan evaluates it:
+A single scan through the intervals evaluates this factor without an optimization solver:
 \begin{quote}
 \begin{tabbing}
 \hspace{1em}\=\hspace{1em}\=\kill
@@ -357,7 +317,7 @@ $\beta_k\gets1$ \\
 $\dtau_k^{\mathrm{app}}\gets\beta_k\dtau_k^{\mathrm{raw}}$
 \end{tabbing}
 \end{quote}
-Take an empty minimum as $+\infty$. Feasible raw requests give $\beta_k=1$; otherwise at least one applied dwell attains $d_{\min}$.
+A feasible raw request is applied unchanged, with $\beta_k=1$. Otherwise, all offsets are scaled by the largest factor that keeps every dwell at or above $d_{\min}$, with at least one dwell reaching this limit. If no interval is shortened, then the formula returns $\beta_k=1$.
 
 \subsection{Feasibility and maximality}
 
@@ -371,19 +331,19 @@ It is the largest factor in $[0,1]$ that satisfies all dwell constraints. For a 
 \end{proposition}
 
 \begin{proof}
-The minimum, capped at one, satisfies every interval bound; a larger factor violates one. Positive margins and finite requests make all relevant ratios positive, so $\beta_k>0$ and direction is preserved. Since $\vect{1}^{\mathsf T}D=0$, scaled dwell changes sum to zero and preserve $T$. Applied dwells at least $d_{\min}>0$ preserve boundary order. Adjacent differences and the minimum scan each cost $O(N)$.
+The minimum in \eqref{eq:conditioner} satisfies every interval bound. Increasing the factor either violates a limiting dwell constraint or exceeds one, so it is maximal in $[0,1]$. Strictly positive margins and finite requests make all relevant ratios positive, which gives $\beta_k>0$ and preserves the direction of a nonzero raw action. Since $\vect{1}^{\mathsf T}D=0$, the scaled dwell changes sum to zero and preserve $T$, while applied dwells of at least $d_{\min}>0$ preserve the boundary order. Computing the adjacent differences and scanning the interval bounds each require $O(N)$ operations.
 \end{proof}
 
 \subsection{Online execution and admissible region}
 
-At each cycle start, compute the error, raw offsets, and one factor for the complete applied schedule. No computation delay is modeled.
+At the start of each cycle, the controller uses the state error to compute the raw offsets and then the common conditioning factor. The resulting schedule is applied during that cycle, with no computation delay included in the model.
 
-The errors for which no reduction is needed form the Raw-Action Admissible Region. Substituting $\dtau_k^{\mathrm{raw}}=-K\vect{e}_k$ into the dwell constraints gives
+The Raw-Action Admissible Region contains the errors for which the raw request already satisfies the dwell constraints. Substituting $\dtau_k^{\mathrm{raw}}=-K\vect{e}_k$ into those constraints gives
 \begin{equation}
     \mathcal C=\{\vect{e}:DK\vect{e}\le\vect{m}\}.
     \label{eq:admissible-region}
 \end{equation}
-Inside $\mathcal C$, $\beta_k=1$; outside, $\beta_k<1$. The scan requires no separate membership test. \Cref{app:invariant-region} examines smaller fixed factors and their linearized invariance.
+The scan returns $\beta_k=1$ inside $\mathcal C$ and $\beta_k<1$ outside, so it determines whether a reduction is needed without a separate membership test. \Cref{app:invariant-region} examines smaller fixed factors and their linearized invariance.
 
 \section{Lyapunov stability and convex optimization}
 \label{sec:stability}
@@ -394,7 +354,10 @@ Feasibility alone does not imply convergence. We seek an offline common quadrati
 
 We work directly with the physical cycle-start error $\vect{e}_k$. The two endpoint matrices are the nominal cycle matrix and the raw closed-loop matrix:
 \begin{equation}
-    A_0=\Phi_x,\qquad A_1=A_{\mathrm{cl}}.
+\begin{aligned}
+    A_0&=\Phi_x,\\
+    A_1&=A_{\mathrm{cl}}=\Phi_x-\Gamma_\tau K.
+\end{aligned}
     \label{eq:endpoints}
 \end{equation}
 The conditioner applies a fraction $\beta_k$ of the raw action. Substituting this action into the first-order model gives
@@ -524,7 +487,7 @@ A_{\vect{u}}&=\begin{bmatrix}
 \end{aligned}
 \label{eq:converter}
 \end{equation}
-Both $A_{\vect{u}}$ and $\vect{b}_{\vect{u}}$ depend on the switch state. The common-state-matrix reduction in \eqref{eq:marcolino-specialization} therefore does not apply. We retain the fixed nine-interval sequence $(0,1,3,7,2,0,4,7,4)$. Each physical mode ID is encoded as $4u_1+2u_2+u_3$.
+Both $A_{\vect{u}}$ and $\vect{b}_{\vect{u}}$ depend on the switch state. We retain the fixed nine-interval sequence $(0,1,3,7,2,0,4,7,4)$. Each physical mode ID is encoded as $4u_1+2u_2+u_3$.
 
 The published boundaries $(0,66,88,110,132,154,220,242,264,286)$~\si{\micro\second} do not close exactly at the reported anchor $\bar{\vect{x}}(0)=(9.9247,19.2928,0.9823)^{\mathsf T}$. A one-time least-squares reconciliation preserves this anchor, the \SI{\NominalPeriodMicroseconds}{\micro\second} period, and the \SI{\BenchmarkDwellBound}{\micro\second} nominal-design bound, giving
 \begin{equation}
@@ -576,6 +539,17 @@ Setting $\vect{v}=\dtau/t_s$ gives the normalized timing-input matrix $B_n=S_x^{
 The aggressive tuning uses conditioning. The conservative tuning remains dwell-feasible without it in this experiment. The nominal-design bound and smaller applied bound in \cref{tab:parameters} have distinct roles; the latter is not hardware-calibrated.
 
 \subsection{Checking the one-cycle model}
+
+The linear model is checked against the exact cycle map from \eqref{eq:exact-augmented-cycle}:
+\begin{equation}
+\begin{split}
+    \mathcal P(\vect{x},\dtau)={}&\Pi e^{F_N[\bar d_N+(D\dtau)_N]}\cdots\\
+    &\quad e^{F_1[\bar d_1+(D\dtau)_1]}
+    \begin{bmatrix}\vect{x}\\1\end{bmatrix}.
+\end{split}
+\label{eq:exact-cycle-map}
+\end{equation}
+The nominal schedule satisfies $\mathcal P(\bar{\vect{x}}(0),\vect{0})=\bar{\vect{x}}(0)$.
 
 Central finite differences of the exact map, with state steps $10^{-4}(S_x)_{ii}$ and timing step $10^{-3}t_s=\SI{0.01}{\micro\second}$, give relative Jacobian errors \PhiJacobianRelativeError{} for $\Phi_x$ and \GammaJacobianRelativeError{} for $\Gamma_\tau$. For simultaneous normalized state and timing perturbations of amplitude $\epsilon$, the residual is
 \begin{equation}
@@ -709,7 +683,7 @@ The conditioned and conservative laws cross the threshold at cycles \Conditioned
 
 In \cref{fig:states}, both responses start from the same state. Feedback approaches the repeated reference waveform while open loop remains displaced. Switching ripple belongs to the target motion, not residual tracking error; each response retains its own within-interval sample times.
 
-For fixed nominal durations, \eqref{eq:augmented-cycle-block-form} gives $\mathcal P(\vect{x},\vect{0})=\Phi_x\vect{x}+\vect{h}$. Subtracting the fixed anchor cancels the affine term, yielding
+For fixed nominal durations, \eqref{eq:exact-cycle-map} is affine in the state: $\mathcal P(\vect{x},\vect{0})=\Phi_x\vect{x}+\vect{h}$, where $\vect{h}$ is constant. Subtracting the fixed anchor cancels the affine term, yielding
 \begin{equation}
     \vect{e}_{k+1}=\Phi_x\vect{e}_k
     \label{eq:exact-open-loop}
