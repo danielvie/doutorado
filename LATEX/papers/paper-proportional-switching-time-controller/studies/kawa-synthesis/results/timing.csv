@@ -1,0 +1,5 @@
+method,samples,warmup_calls,median_us,p95_us,cold_us
+current,960,96,6.9,9.3,1477.5
+mpc5,960,96,292.7,841.25,7671.4
+kawa_decay,960,96,9.2,13.4,191
+kawa_cost,960,96,7.3,12.15,167.4

@@ -9,6 +9,7 @@
 | [trajectory-comparison](trajectory-comparison/README.md) | Separate continuous-time and long-horizon comparison, `task trajectory-comparison` |
 | [marcolino-conditioning-comparison](marcolino-conditioning-comparison/README.md) | Three policies with the same converter and LQR: `daniel`, `daniel-relaxed`, and `marcolino`; fresh 1x/2x/3x report, `task conditioning-comparison:run`; separates anchor and fixed-clock errors |
 | [mpc-comparison](mpc-comparison/README.md) | Article feedback versus the native constrained switching-time QP, matched weights, five-cycle horizon, 1x/2x/3x evidence; `task mpc-comparison:run` |
+| [kawa-synthesis](kawa-synthesis/README.md) | Common-P gain synthesis following Kawakami's suggestion versus unchanged current LQR and MPC-5; separate 1x/2x/3x report, `task kawa-synthesis:run` |
 | [beta-timing](beta-timing/README.md) | Host MATLAB/C++ conditioner timing, individual-call p95 and batched cross-checks, `task beta-timing`; not ESP32 timing |
 | [lyapunov-background](lyapunov-background/README.md) | Earlier general convex-optimization tutorial; not the current certificate entry point |
 | [lyapunov_focus](lyapunov_focus/computing-v-with-cvx.html) | Focused introductory oscillator/CVX example |

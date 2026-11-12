@@ -29,6 +29,7 @@ Run these from the paper directory. `task --list` lists paper and study tasks to
 | `task trajectory-comparison` | Regenerate the separate continuous-time comparison study |
 | `task conditioning-comparison:run` | Compare Daniel, relaxed-terminal Daniel, and Marcolino at 1x/2x/3x and build the study report |
 | `task mpc-comparison:run` | Compare fixed-period feedback with five-cycle MPC at 1x/2x/3x and build the study documents |
+| `task kawa-synthesis:run` | Compare feedback from Common-P gain synthesis with current LQR and MPC-5, then build the separate report |
 | `task beta-timing` | Benchmark host MATLAB/C++ beta computation and record p95 timings |
 | `task check-introduction` | Verify the protected Introduction is unchanged |
 | `task check-links` | Check maintained local Markdown and HTML links |

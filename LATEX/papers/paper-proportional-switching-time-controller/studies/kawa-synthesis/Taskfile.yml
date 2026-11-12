@@ -1,0 +1,64 @@
+version: '3'
+
+vars:
+  PYTHON: uv run --no-project --with-requirements requirements.txt python
+  JULIA_PROJECT: '{{.TASKFILE_DIR}}/../lyapunov'
+
+tasks:
+  default:
+    desc: List Kawa-synthesis study tasks
+    cmds:
+      - task --list
+
+  run:
+    desc: Run Common-P gain synthesis, compare three controllers, check evidence, and build PDF
+    cmds:
+      - task: results
+      - '{{.PYTHON}} verify_results.py --write-validation'
+      - task: build
+
+  setup:
+    desc: Instantiate the shared pinned Lyapunov Julia environment
+    cmds:
+      - julia --project="{{.JULIA_PROJECT}}" -e "using Pkg; Pkg.instantiate()"
+
+  synthesize:
+    desc: Run Common-P gain synthesis in Julia
+    deps: [setup]
+    cmds:
+      - julia --project="{{.JULIA_PROJECT}}" "{{.TASKFILE_DIR}}/analysis.jl"
+
+  results:
+    desc: Regenerate isolated 1x/2x/3x simulations, matched timings, and report inputs
+    cmds:
+      - task: synthesize
+      - matlab -batch "addpath(pwd); simulate_comparison;"
+      - task: replot
+
+  replot:
+    desc: Render figures and LaTeX inputs from saved evidence without solving or simulation
+    cmds:
+      - '{{.PYTHON}} export_report.py'
+
+  test:
+    desc: Read-only checks of certificates, exact trajectories, costs, dwells, and matched timings
+    cmds:
+      - '{{.PYTHON}} verify_results.py'
+
+  test-synthesis:
+    desc: Check Julia helpers, then solve into temporary output and independently check exports
+    deps: [setup]
+    cmds:
+      - julia --project="{{.JULIA_PROJECT}}" "{{.TASKFILE_DIR}}/test_analysis.jl"
+      - '{{.PYTHON}} test_synthesis.py'
+
+  build:
+    desc: Compile the standalone report from saved inputs without MATLAB or optimization
+    cmds:
+      - latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build report.tex
+      - cp -f build/report.pdf report.pdf
+
+  clean:
+    desc: Remove LaTeX intermediates and Python caches while retaining evidence and report PDF
+    cmds:
+      - rm -rf build __pycache__

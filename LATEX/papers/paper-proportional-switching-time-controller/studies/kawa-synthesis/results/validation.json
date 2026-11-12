@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "controllers": 4,
+  "scenarios": 3,
+  "completed_exact_cycles": 1200,
+  "maximum_independent_python_one_cycle_state_error": 7.105427357601002e-15,
+  "checks": [
+    "model and gain provenance",
+    "gain recovery and common-P endpoint inequalities",
+    "original rate residuals and cost candidate raw-policy bound",
+    "independent Python exact propagation of all 1200 saved cycles",
+    "conditioner arithmetic, dwell and fixed-period feasibility",
+    "CSV/MAT history and cost/threshold consistency",
+    "matched timing counts, medians and p95 from raw observations"
+  ],
+  "source_sha256": {
+    "synthesize.py": "af65e95ca1859f1f9df46feb26d43de042da1e17cabe4879f61455c995bc691b",
+    "simulate_comparison.m": "eb8887b39e6a12cb58fd89d17df73a216b8173309ec36f4b50d4a7aa0b5944b8",
+    "benchmark_timing.m": "9ff95e3a9d0adb6d202280530ea43f71433c6fded05409b705f3538760c1a3e1",
+    "verify_results.py": "e2299195449b5a5cf3dd175e2832e4a9486d765943ec75a7d4fda0c1edad0174"
+  }
+}
