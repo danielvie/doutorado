@@ -27,6 +27,9 @@
 \newcommand{\ddwell}{\delta\vect{d}}
 \newcommand{\X}{\mathcal{X}}
 
+\usepackage{color}
+\newcommand{\red}[1]{{\color{red}#1}}
+
 \begin{document}
 
 \title[Dwell-conditioned switching-time feedback]{Dwell-Conditioned Cycle-to-Cycle Switching-Time Feedback for Mode-Dependent Switched-Affine Systems}
@@ -46,11 +49,15 @@ We propose proportional switching-time feedback for switched-affine systems to t
 
 \section{Introduction}
 
-Power converters control voltage and current by moving through a sequence of switch configurations. The switching pattern must respect electrical limits, switching frequency, a minimum dwell duration for transition, and a short computation time \cite{karamanakos2020mpcPowerElectronics}. Keeping the individual configurations explicit gives a hybrid-affine or switched-affine model \cite{albea2021hybridAffinePwm}. When repeating the pattern, then it produces a periodic trajectory rather than a constant state, and controlling such trajectories is an established problem for switched-affine systems \cite{egidio2020,xu2024fcsLimitCycle}.
+\red{O que é o mode-dependent do título ? Vamos abrir a Introdução já com conversores de potência?}
+
+Power converters control voltage and current by moving through a sequence of switch configurations. The switching pattern must respect electrical limits, switching frequency, a minimum dwell duration for transition, and a short computation time \cite{karamanakos2020mpcPowerElectronics}. Keeping the individual configurations explicit gives a hybrid-affine or switched-affine model \cite{albea2021hybridAffinePwm}. When repeating the pattern, then it produces a periodic trajectory rather than a constant state, and controlling such trajectories is an established problem for switched-affine systems \cite{egidio2020,xu2024fcsLimitCycle}.\red{Qual seria a limitação desses trabalhos que motivaria o uso da abordagem do Patino, antes mesmo de falar de controle preditivo?}
 
 Predictive control tackles the problem by solving a constrained optimization problem online. Recent work reduces the online burden through Laguerre parameterization, dedicated fixed-frequency solvers, and candidate pruning \cite{saeed2022laguerre,yang2022fixed,augustine2023mpc}. Controllers also differ in what they may change. State-dependent switching laws choose the active subsystem \cite{egidio2022rank}, where switching-time control keeps an ordered sequence and moves its transition instants. We take this same approach by changing the transition instants while keeping all other parameters fixed. At each cycle start, the error is computed and the offsets applied during that cycle, with no online solver.
 
-Fixed-period switching-time control shifts only the interior switching instants without changing the mode sequence or cycle period. It targets a reference periodic trajectory rather than an equilibrium point. Patino et al. studied how individual switching instants affect mode-dependent cyclic systems and used predictive control to track an optimal periodic trajectory \cite{patino2010}. Marcolino et al. regulated the cycle-start state toward a target point on the periodic trajectory, referred to in this paper as the cycle anchor. For a fixed-period linear model with switched actuator levels, they used a one-cycle model to compute switching-instant corrections through discrete LQR and dwell-constrained predictive control \cite{marcolino2021}. Shifting a switching instant makes the preceding dwell duration larger and the following one shorter, coupling their minimum-dwell constraints. Marcolino et al. enforce these constraints through online optimization in their predictive controller. Their LQR method instead clips each adjustment separately to meet the dwell limits. This can change the direction of the requested adjustments and may shift the final switching instant \cite{marcolino2021}. Preserving the direction of the control action through control allocation still requires online optimization and does not address fixed-period dwell constraints \cite{nakamuraZimmerer2026directionPreserving}. The remaining problem is to compute the largest feasible scale without an online solver. The scale must preserve the action direction and mode order without changing the cycle period.
+Fixed-period switching-time control shifts only the interior switching instants without changing the mode sequence or cycle period. It targets a reference periodic trajectory rather than an equilibrium point. Patino et al. studied how individual switching instants affect mode-dependent cyclic systems and used predictive control to track an optimal periodic trajectory \cite{patino2010}. Marcolino et al. regulated the cycle-start state toward a target point on the periodic trajectory, referred to in this paper as the cycle anchor. \red{Ressaltar a contribuição de Marcolino: Desenvolvimento de um modelo linearizado em torno da trajetória desejada. } For a fixed-period linear model with switched actuator levels, they used a one-cycle model to compute switching-instant corrections through discrete LQR and dwell-constrained predictive control \cite{marcolino2021}. Shifting a switching instant makes the preceding dwell duration larger and the following one shorter, coupling their minimum-dwell constraints. Marcolino et al. enforce these constraints through online optimization in their predictive controller. Their LQR method instead clips each adjustment separately to meet the dwell limits. \red{Falar do LQR e seu condicionamento. Comentar que não havia garantias. Mencionar, então, o controle preditivo. Aqui, seria um bom ponto para mencionar o problema da carga computacional.} This can change the direction of the requested adjustments and may shift the final switching instant \cite{marcolino2021}. \red{Que lei de controle está sendo agora considerada neste artigo?} Preserving the direction of the control action through control allocation still requires online optimization and does not address fixed-period dwell constraints \cite{nakamuraZimmerer2026directionPreserving}. The remaining problem is to compute the largest feasible scale without an online solver. The scale must preserve the action direction and mode order without changing the cycle period.
+
+\red{Elencar as contribuições com respeito ao trabalho de Marcolino. Começar notando que o trabalho de Marcolino não considerava modelos chaveados afins, mas apenas modelos chaveados lineares.}
 
 To make fixed-period switching-time feedback dwell-feasible, we scale every requested offset by the same factor, taking the smallest of $1$ and the bounds imposed by the $N$ dwell constraints. We find this largest feasible factor in $O(N)$ time without an online solver, while scaling the full raw offset vector preserves its direction, the mode order, and the cycle period. We assess convergence separately with an offline common quadratic Lyapunov certificate, which establishes uniform exponential stability of the conditioned linearized model even when the factor changes between cycles. The conditioner makes each finite timing request dwell-feasible, but the certificate does not guarantee convergence of the exact nonlinear plant from arbitrary errors. \Cref{sec:model} derives the cycle model, \cref{sec:conditioning} develops the conditioner, \cref{sec:stability} presents the stability analysis, and \cref{sec:case-study} presents the converter study.
 
@@ -67,6 +74,9 @@ Consider the switched-affine plant
     \qquad \vect{x}(t)\in\R^n.
     \label{eq:plant}
 \end{equation}
+
+\red{Definir $\sigma(t), A_{\sigma(t)}, \vect{b}_{\sigma(t)}$ e sua relação com $(q_1,\ldots,q_N)$}.
+
 Every cycle executes the sequence $(q_1,\ldots,q_N)$. Its nominal cycle boundaries and dwell durations are
 \begin{equation}
 \begin{aligned}
@@ -74,6 +84,9 @@ Every cycle executes the sequence $(q_1,\ldots,q_N)$. Its nominal cycle boundari
     \bar d_i&=\bar t_i-\bar t_{i-1}.
 \end{aligned}
 \end{equation}
+
+\red{Começar com $\bar t_0 = 0$ mesmo?}
+
 The given reference schedule generates $\bar{\vect{x}}(t)$ with anchor $\bar{\vect{x}}(0)=\bar{\vect{x}}(T)$. Define $\vect{x}_k=\vect{x}(kT)$ and $\vect{e}_k=\vect{x}_k-\bar{\vect{x}}(0)$. The target is periodic motion, not a constant average operating point.
 
 The controller moves only the $N-1$ interior switching instants, keeping the cycle endpoints fixed, as illustrated in \cref{fig:timing-mechanism}(a):
@@ -98,7 +111,7 @@ These transfers preserve the total period $T$, but a sufficiently large shift ca
 
 \subsection{Linear Equation}
 
-With a constant auxiliary coordinate, the augmented state and matrix are
+With a constant auxiliary coordinate\red{Como em Patino. Citar.}, the augmented state and matrix are
 \begin{equation}
     \X(t)=\begin{bmatrix}\vect{x}(t)\\1\end{bmatrix},\qquad
     \widetilde A_q=
@@ -291,6 +304,7 @@ The conditioner assumes a nominal schedule with strictly positive margins above 
     \vect{m}=\bar{\vect{d}}-d_{\min}\vect{1}>\vect{0}.
     \label{eq:strict-margin}
 \end{equation}
+
 The dwell changes requested by the raw offsets are
 \[
     \vect{q}_k=D\dtau_k^{\mathrm{raw}}.
@@ -318,6 +332,8 @@ $\dtau_k^{\mathrm{app}}\gets\beta_k\dtau_k^{\mathrm{raw}}$
 \end{tabbing}
 \end{quote}
 A feasible raw request is applied unchanged, with $\beta_k=1$. Otherwise, all offsets are scaled by the largest factor that keeps every dwell at or above $d_{\min}$, with at least one dwell reaching this limit. If no interval is shortened, then the formula returns $\beta_k=1$.
+
+\red{Não altera a soma zero de qk,i sobre i, certo ?}
 
 \subsection{Feasibility and maximality}
 
@@ -365,6 +381,7 @@ The stability analysis uses the physical error $\vect{e}_k$ at the start of each
     \label{eq:endpoints}
 \end{equation}
 The conditioner applies a fraction $\beta_k$ of the raw action, so substitution into the linearized model gives
+\red{fica $\beta_k K$ em lugar de $K$, certo?}
 \begin{equation}
 \begin{aligned}
     \vect{e}_{k+1}&=A(\beta_k)\vect{e}_k,\\
@@ -447,6 +464,8 @@ The Schur complement then gives a strict decrease in $V$ for every nonzero error
 \subsection{Offline semidefinite program}
 
 Related formulations use a common Lyapunov matrix and inequalities at the vertices of a matrix family. They appear in discrete-time robust stability \cite{deOliveira1999lmiDiscrete} and in robust control of PWM converters described by polytopic, continuous-time averaged models \cite{olalla2009robustLqrPwm}.
+
+\red{Não daria para escolher $K$ juntamente com $P$? Talvez seja possível maximizar a taxa de decaimento sob essa restrição.}
 
 After the gain $K$ is chosen, the endpoint matrices $A_0=\Phi_x$ and $A_1=A_{\mathrm{cl}}$ are fixed. The Lyapunov matrix $P$ and the margin $\eta$ are then computed offline by the semidefinite program
 \begin{equation}

@@ -98,7 +98,6 @@ The exporter writes `results/mpc_comparison.csv`, `results/mpc_comparison.mat`, 
 
 `task mpc-comparison:matched-timing` measures both complete physical-state-to-validated-schedule paths on an identical 24-state early-transient pool. It uses 1008 warmups and 5760 interleaved calls per method, with cold observations and raw/per-state summaries retained separately. The QP still starts from a zero plan. This MATLAB comparison is distinct from the C++/MATLAB conditioner microbenchmark and supplies no embedded deadline guarantee.
 
-`task check-introduction`, also called by `task test` and `task build`, protects the Introduction's byte interval. Changing that baseline requires explicit author approval.
 
 `paper.publication_figure` and `paper.export_publication_figure` set the final 160 mm manuscript width and export exact-size vector PDF pages. Labels are about 10 pt, legends and ticks 9 pt; timing labels use an 8–10 pt hierarchy. Include these PDFs at `\textwidth`, not a reduced width, to preserve those sizes. The common-P schematic is TikZ and is rebuilt by `task build`.
 

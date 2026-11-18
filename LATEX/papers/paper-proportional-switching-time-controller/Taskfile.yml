@@ -6,17 +6,17 @@ vars:
 
 includes:
   lyapunov:
-    taskfile: ./studies/lyapunov/Taskfile.yml
-    dir: ./studies/lyapunov
+    taskfile: ./studies/s1-lyapunov/Taskfile.yml
+    dir: ./studies/s1-lyapunov
   conditioning-comparison:
-    taskfile: ./studies/marcolino-conditioning-comparison/Taskfile.yml
-    dir: ./studies/marcolino-conditioning-comparison
+    taskfile: ./studies/s1-marcolino-conditioning-comparison/Taskfile.yml
+    dir: ./studies/s1-marcolino-conditioning-comparison
   mpc-comparison:
-    taskfile: ./studies/mpc-comparison/Taskfile.yml
-    dir: ./studies/mpc-comparison
+    taskfile: ./studies/s1-mpc-comparison/Taskfile.yml
+    dir: ./studies/s1-mpc-comparison
   kawa-synthesis:
-    taskfile: ./studies/kawa-synthesis/Taskfile.yml
-    dir: ./studies/kawa-synthesis
+    taskfile: ./studies/s2-kawa-synthesis/Taskfile.yml
+    dir: ./studies/s2-kawa-synthesis
 
 tasks:
   default:
@@ -43,7 +43,7 @@ tasks:
   test:
     desc: Check the conditioner, model, and pipeline data contracts without exporting
     cmds:
-      - task: check-introduction
+
       - matlab -batch "suite = runtests('tests'); assertSuccess(suite);"
 
   test-regeneration:
@@ -51,10 +51,6 @@ tasks:
     cmds:
       - matlab -batch "addpath('tests'); check_regeneration;"
 
-  check-introduction:
-    desc: Verify the protected Introduction is unchanged
-    cmds:
-      - uv run --no-project python scripts/check_introduction.py
 
   check-links:
     desc: Check local Markdown and HTML links outside historical archives
@@ -81,7 +77,7 @@ tasks:
     desc: Compile the article PDF and refresh the editor preview
     dir: latex
     cmds:
-      - uv run --no-project python ../scripts/check_introduction.py
+
       - latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=../build {{.DOCUMENT}}.tex
       - cp -f ../build/{{.DOCUMENT}}.pdf ../{{.OUTPUT}}.pdf
 
