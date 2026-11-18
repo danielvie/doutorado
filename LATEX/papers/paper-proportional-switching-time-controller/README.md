@@ -4,9 +4,8 @@ This workspace contains the paper, its reproducible numerical evidence, and supp
 
 ## Start here
 
-- **Latest Lyapunov analysis:** [studies/lyapunov/analysis.jl](studies/lyapunov/analysis.jl). Run `task lyapunov` from this directory.
-- [Lyapunov study guide](studies/lyapunov/README.md) explains the Python model reconstruction, Julia solve, MATLAB comparison, and limits of the certificate.
-- [Article numerical pipeline](scripts/README.md) explains the six stages behind `scripts/generate_results.m`.
+- [Common-P gain synthesis](studies/s2-kawa-synthesis/README.md) is the source of the manuscript's gain, certificate, and controller comparison.
+- [Fixed-gain Lyapunov analysis](studies/s1-lyapunov/README.md) and the [baseline numerical pipeline](scripts/README.md) document the earlier LQR design and supporting evidence.
 - [Manuscript](latex/main.tex), [current PDF](article.pdf), and [current section map](project-knowledge/project/manuscript-description.md). The older [teaching guide](docs/study-guide.md) is background reading.
 - [Project knowledge](project-knowledge/README.md) provides the wider research map.
 
@@ -17,9 +16,10 @@ Run these from the paper directory. `task --list` lists paper and study tasks to
 | Command | What it does |
 | --- | --- |
 | `task build` | Compile existing manuscript inputs without MATLAB |
-| `task results` | Solve the Julia certificate, then run the article numerical pipeline |
-| `task figures` | Compatibility alias for `task results` |
-| `task replot` | Redraw main-text numerical figures from saved data, without simulation or solvers |
+| `task results` | Export manuscript tables and certificate values from the saved Common-P study |
+| `task figures` | Alias for `task replot` |
+| `task replot` | Redraw Common-P comparison figures and export values from saved data |
+| `task baseline-results` | Run the legacy LQR numerical pipeline for supporting evidence |
 | `task test` | Check the conditioner, linearization, and controller without writing outputs |
 | `task test-regeneration` | Regenerate into a temporary directory and compare with stored evidence |
 | `task invariant-region` | Regenerate region figures and vertices from `results/paper_results.mat` |
@@ -29,14 +29,14 @@ Run these from the paper directory. `task --list` lists paper and study tasks to
 | `task trajectory-comparison` | Regenerate the separate continuous-time comparison study |
 | `task conditioning-comparison:run` | Compare Daniel, relaxed-terminal Daniel, and Marcolino at 1x/2x/3x and build the study report |
 | `task mpc-comparison:run` | Compare fixed-period feedback with five-cycle MPC at 1x/2x/3x and build the study documents |
-| `task kawa-synthesis:run` | Compare feedback from Common-P gain synthesis with current LQR and MPC-5, then build the separate report |
+| `task kawa-synthesis:test` | Verify the saved gain, certificate, exact trajectories, dwells, costs, and timing samples |
 | `task beta-timing` | Benchmark host MATLAB/C++ beta computation and record p95 timings |
 | `task check-introduction` | Verify the protected Introduction is unchanged |
 | `task check-links` | Check maintained local Markdown and HTML links |
 | `task verify` | Run unit checks, link checks, article results, and LaTeX build |
 | `task clean` | Remove LaTeX compilation intermediates |
 
-`task results` and `task verify` rerun the Julia certificate before article generation. The article pipeline checks the certificate against its MATLAB model and exports the reported values. `task build` uses the saved publication inputs without MATLAB or Julia.
+`task build` checks the manuscript export against the saved Common-P results and compiles the PDF without MATLAB or Julia. The published comparison uses the saved CVXPY/Clarabel gain and its matching MATLAB trajectories and timings. The Julia port was checked separately and can return a different gain. Do not mix a new gain with the original comparison.
 
 ## Folder ownership
 
@@ -65,4 +65,4 @@ Keep [GOAL.md](GOAL.md) authoritative for scientific scope and [CONTEXT.md](CONT
 
 Track publication CSV/MAT data, LaTeX metrics, and figures so the article builds without running MATLAB. Do not manually edit generated numbers. `results/provenance.json` records the latest run's environment and source revision and is ignored because it includes machine-specific paths. Caches and compilation intermediates are ignored too.
 
-Earlier output locations are recorded in [archive/README.md](archive/README.md). The Introduction remains unchanged and is protected by `task check-introduction`. The manuscript targets 15 total pages; MPC-5 is a compact supporting reference in the converter application, not a replacement for the conditioner/certificate contribution.
+Earlier output locations are recorded in [archive/README.md](archive/README.md). The Introduction remains unchanged and is protected by `task check-introduction`. Conditioned LQR and MPC-5 are comparison baselines; the appendix retains the original LQR region example.

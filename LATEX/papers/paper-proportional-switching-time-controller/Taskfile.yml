@@ -6,17 +6,17 @@ vars:
 
 includes:
   lyapunov:
-    taskfile: ./studies/lyapunov/Taskfile.yml
-    dir: ./studies/lyapunov
+    taskfile: ./studies/s1-lyapunov/Taskfile.yml
+    dir: ./studies/s1-lyapunov
   conditioning-comparison:
-    taskfile: ./studies/marcolino-conditioning-comparison/Taskfile.yml
-    dir: ./studies/marcolino-conditioning-comparison
+    taskfile: ./studies/s1-marcolino-conditioning-comparison/Taskfile.yml
+    dir: ./studies/s1-marcolino-conditioning-comparison
   mpc-comparison:
-    taskfile: ./studies/mpc-comparison/Taskfile.yml
-    dir: ./studies/mpc-comparison
+    taskfile: ./studies/s1-mpc-comparison/Taskfile.yml
+    dir: ./studies/s1-mpc-comparison
   kawa-synthesis:
-    taskfile: ./studies/kawa-synthesis/Taskfile.yml
-    dir: ./studies/kawa-synthesis
+    taskfile: ./studies/s2-kawa-synthesis/Taskfile.yml
+    dir: ./studies/s2-kawa-synthesis
 
 tasks:
   default:
@@ -25,20 +25,26 @@ tasks:
       - task --list
 
   results:
-    desc: Solve the Julia certificate and regenerate article evidence
+    desc: Export manuscript values from the saved Common-P comparison
+    cmds:
+      - python scripts/export_common_p_study.py
+
+  baseline-results:
+    desc: Regenerate the legacy fixed-gain LQR evidence and supporting figures
     cmds:
       - task: lyapunov:default
       - matlab -batch "run('scripts/generate_results.m')"
 
   figures:
-    desc: Alias for results, regenerates all article evidence
+    desc: Redraw Common-P comparison figures from saved data
     cmds:
-      - task: results
+      - task: replot
 
   replot:
-    desc: Redraw main-text numerical figures from saved data without rerunning simulations
+    desc: Redraw Common-P comparison figures and export manuscript values without simulation
     cmds:
-      - matlab -batch "addpath('scripts'); paper.replot_figures;"
+      - task: kawa-synthesis:replot
+      - task: results
 
   test:
     desc: Check the conditioner, model, and pipeline data contracts without exporting
@@ -82,6 +88,7 @@ tasks:
     dir: latex
     cmds:
       - uv run --no-project python ../scripts/check_introduction.py
+      - python ../scripts/export_common_p_study.py --check
       - latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=../build {{.DOCUMENT}}.tex
       - cp -f ../build/{{.DOCUMENT}}.pdf ../{{.OUTPUT}}.pdf
 
@@ -98,9 +105,10 @@ tasks:
       - rm -rf ../build
 
   verify:
-    desc: Regenerate results and compile the article
+    desc: Check the project, export saved Common-P results, and compile the article
     cmds:
       - task: test
       - task: check-links
+      - task: kawa-synthesis:test
       - task: results
       - task: build

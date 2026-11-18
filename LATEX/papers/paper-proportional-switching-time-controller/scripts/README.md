@@ -1,11 +1,13 @@
-# Article numerical pipeline
+# Baseline numerical pipeline
+
+The manuscript's main comparison uses saved results from [Common-P gain synthesis](../studies/s2-kawa-synthesis/README.md). [`export_common_p_study.py`](export_common_p_study.py) exports its tables and certificate values. The MATLAB pipeline below documents the original LQR comparison and produces the benchmark data, timing diagrams, and LQR appendix example still used in the article.
 
 [`generate_results.m`](generate_results.m) is the entry script. It adds the script directory to the MATLAB path and calls [`paper.run_pipeline`](+paper/run_pipeline.m). All computation receives explicit inputs and returns named structs; stages do not share a script workspace.
 
 From the paper root:
 
 ```sh
-task results
+task baseline-results
 ```
 
 ## Follow the computation
@@ -21,7 +23,7 @@ task results
 
 [`paper.print_summary`](+paper/print_summary.m) reports the results. [`paper.write_provenance`](+paper/write_provenance.m) records the environment separately from the scientific metrics.
 
-The main runner prints each stage as it starts. The expensive long-horizon simulation is explicit in stage 4; it is not needed for the fast unit tests. `task results` first reruns the Julia SDP. A direct `paper.run_pipeline` call uses the saved study certificate but still checks it against the current MATLAB model and gain before exporting it.
+The main runner prints each stage as it starts. The expensive long-horizon simulation is explicit in stage 4; it is not needed for the fast unit tests. `task baseline-results` first reruns the fixed-gain Julia SDP. A direct `paper.run_pipeline` call uses the saved study certificate but still checks it against the current MATLAB model and gain before exporting it.
 
 ## Shared numerical functions
 
@@ -80,11 +82,11 @@ saved = load(fullfile(paths.results, 'publication_trajectories.mat'));
 paper.plot_trajectories(paths.article_figures, saved.trajectories, benchmark);
 ```
 
-This plotting call does not rewrite numerical evidence. `task results` still regenerates the data and calls the same plotter.
+This plotting call does not rewrite numerical evidence. `task baseline-results` still regenerates the data and calls the same plotter.
 
 ## Replot and printed typography
 
-Run `task replot` to redraw all main-text numerical figures and the Appendix A region figure from `paper_results.mat` and `publication_trajectories.mat`, without simulation, solver calls, or numerical output writes. `paper.replot_figures(output_root)` also supports an isolated output directory. It checks the saved schedule and state scales against the benchmark.
+Call `paper.replot_figures` to redraw the legacy LQR numerical figures and the Appendix A region figure from `paper_results.mat` and `publication_trajectories.mat`, without simulation, solver calls, or numerical output writes. `paper.replot_figures(output_root)` also supports an isolated output directory. It checks the saved schedule and state scales against the benchmark.
 
 `paper.invariant_region_figure_data` constructs the fixed-factor feasible regions for beta 0.25, 0.5, and 1 by scaling the saved raw-region vertices by `1/beta`, and computes their coordinate-plane projections. `paper.plot_invariant_region` draws `appendix_raw_action_region.pdf` in one 3D view and three projections, with the saved state-dependent simulation overlaid. These are not zero-error slices; membership and entry remain full-dimensional quantities. The plot no longer shows the one-cycle image of the raw region. Both `paper.replot_figures` and `generate_feasible_regions` call this plotter. The latter independently computes each fixed-factor region and its invariant subset with MPT3 and exports the comparison data. It also retains the auxiliary fixed-factor plot. A stale saved factor list is rejected rather than silently relabeled.
 
@@ -94,7 +96,7 @@ Run `task replot` to redraw all main-text numerical figures and the Appendix A r
 
 `paper.export_mpc_comparison` imports the saved original-1x case from `studies/mpc-comparison/`, without solving a QP or rerunning timings. `paper.mpc_comparison_data` verifies plant matrices, schedule, model, gain, normalization, weights, horizon/terminal ingredients, completed trajectories, dwells, evaluation costs, and threshold definitions against the article. Matched timing summaries are rechecked against raw samples and measured project-source hashes. A changed study/controller requires regenerating the study or matched benchmark, not silently reusing stale data.
 
-The exporter writes `results/mpc_comparison.csv`, `results/mpc_comparison.mat`, and `latex/mpc_metrics.tex`. These separate inputs preserve the existing `paper_results.mat` schema and certificate. The pipeline passes the checked comparison to the response plot and trajectory exporter. `task replot` reads the cached MPC samples without propagation or QP solves, verifies the comparison's model/gain against the article record, and checks its cycle states against the dense trajectory. `task build` reads cached figures/macros only.
+The exporter writes `results/mpc_comparison.csv`, `results/mpc_comparison.mat`, and `latex/mpc_metrics.tex`. These separate inputs preserve the existing `paper_results.mat` schema and certificate. The pipeline passes the checked comparison to the response plot and trajectory exporter. `paper.replot_figures` reads the cached MPC samples without propagation or QP solves, verifies the comparison's model/gain against the article record, and checks its cycle states against the dense trajectory. `task build` reads cached figures/macros only.
 
 `task mpc-comparison:matched-timing` measures both complete physical-state-to-validated-schedule paths on an identical 24-state early-transient pool. It uses 1008 warmups and 5760 interleaved calls per method, with cold observations and raw/per-state summaries retained separately. The QP still starts from a zero plan. This MATLAB comparison is distinct from the C++/MATLAB conditioner microbenchmark and supplies no embedded deadline guarantee.
 

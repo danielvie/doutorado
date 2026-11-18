@@ -1,0 +1,2597 @@
+{
+    "proposal_count": 45,
+    "candidate_count": 46,
+    "certified_evaluated_settings": 45,
+    "P": [
+        [
+            0.6084579634917049,
+            -0.013724060525533547,
+            0.027305322706757184
+        ],
+        [
+            -0.013724060525533547,
+            2.3832774069237774,
+            0.033872107787310854
+        ],
+        [
+            0.027305322706757184,
+            0.033872107787310854,
+            0.008264629584518035
+        ]
+    ],
+    "certificate_rejections": 0,
+    "Kphysical": [
+        [
+            -2.1984504831608764e-6,
+            -5.932196851210739e-6,
+            -2.1113081925108085e-5
+        ],
+        [
+            -2.8159481818524173e-6,
+            4.2812113837909484e-6,
+            -2.6730123370484462e-5
+        ],
+        [
+            6.837860405103937e-6,
+            3.428330602339613e-6,
+            -3.979099915977596e-5
+        ],
+        [
+            -5.006803871202471e-6,
+            2.5753873789938755e-6,
+            6.397156497282819e-5
+        ],
+        [
+            2.8082937603563392e-6,
+            -4.574881231229749e-6,
+            2.8735704452231993e-5
+        ],
+        [
+            6.906509750070462e-6,
+            3.362653737628901e-6,
+            -4.3448828140318644e-5
+        ],
+        [
+            -4.6214144438122295e-6,
+            -1.4942570788045273e-6,
+            -5.791301954789586e-5
+        ],
+        [
+            4.897438283046862e-6,
+            1.603655300075945e-6,
+            5.905291716122051e-5
+        ]
+    ],
+    "training_score": {
+        "gain_norm": 28.02162801376452,
+        "settling": [
+            6,
+            7,
+            7,
+            7,
+            5,
+            6
+        ],
+        "worst_ratio": 1.0015296162951963,
+        "mean_ratio": 0.9987492902359928,
+        "costs": [
+            1.547650357246377,
+            1.728440882530737,
+            0.3199256846590027,
+            0.3528546274881698,
+            0.1071414555686128,
+            0.11866797080626006
+        ]
+    },
+    "source_sha256": {
+        "studies/s3-gain-strategies/strategy-1.jl": "4ca2af7e0ef19d9ecbe7aaebca99f38f697151a8f64abc2544e0cd3f8510704c",
+        "studies/s3-gain-strategies/common.jl": "c85be785eed8bc96e15214733200105d94009b7ee9d77adefbe9d215a0395896",
+        "studies/s2-kawa-synthesis/results/synthesis.json": "a86fe6aeb9f2b52e48f287be531d6b551c660acfb67f4d0d7b4a22937c18f3da",
+        "studies/s3-gain-strategies/SPEC.md": "81163674f3c2691f975dbe97b628383348f25ec5f34935ad82d2b162b2608fe7"
+    },
+    "seed_training_score": {
+        "gain_norm": 29.78769520883577,
+        "settling": [
+            6,
+            7,
+            6,
+            6,
+            5,
+            6
+        ],
+        "worst_ratio": 1,
+        "mean_ratio": 1,
+        "costs": [
+            1.545648230764091,
+            1.7258010690931849,
+            0.32162877882856017,
+            0.3528154870961306,
+            0.10743943714993616,
+            0.11895005399067975
+        ]
+    },
+    "candidate_settings_count": 45,
+    "certificate": {
+        "raw_radius": 0.6090787659793436,
+        "min_eigenvalue_P": 0.006525285397202015,
+        "endpoint_decreases": [
+            0.0002910408370668053,
+            0.00029132116932415657
+        ],
+        "condition_number_P": 365.3266324919076,
+        "trace_P": 3.0000000000000004
+    },
+    "limitations": "Training selection only; endpoint common-P checks cover the conditioned linearized family, not nonlinear stability or heldout performance.",
+    "name": "strategy-1",
+    "objective_evaluations": 46,
+    "parameters": {
+        "refinement_centers": [
+            {
+                "step": 0.5,
+                "center": [
+                    0,
+                    0,
+                    0
+                ],
+                "incumbent_candidate_id": 0
+            },
+            {
+                "step": 0.25,
+                "center": [
+                    0,
+                    0,
+                    0
+                ],
+                "incumbent_candidate_id": 0
+            },
+            {
+                "step": 0.125,
+                "center": [
+                    0,
+                    0,
+                    0
+                ],
+                "incumbent_candidate_id": 0
+            }
+        ],
+        "Q": "diag(10^a,10^b,1)",
+        "coarse_values": [
+            -1,
+            0,
+            1
+        ],
+        "selected_setting": [
+            0,
+            -0.125,
+            0
+        ],
+        "candidate_setting_budget": 45,
+        "refinement_steps": [
+            0.5,
+            0.25,
+            0.125
+        ],
+        "selection": "shared better(): mean ratio, worst ratio, gain norm, earlier candidate",
+        "evaluation_Q": "I3",
+        "evaluation_R": "0.001 I8",
+        "R": "0.001*10^c I8",
+        "bounds": [
+            -1,
+            1
+        ]
+    },
+    "selected_candidate_id": 42,
+    "status": "improved_training_score",
+    "lqr_calls": 45,
+    "training_trajectory_evaluations_requested": 276,
+    "termination_reason": "Completed 27-point coarse grid and six clipped coordinate proposals at each of 0.5, 0.25, 0.125; duplicates reused from cache.",
+    "solver_calls": 45,
+    "description": "Diagonal LQR-weight search with a checked common-P certificate for every evaluated gain.",
+    "elapsed_seconds": 11.6840216,
+    "training_case_names": [
+        "article-1x",
+        "train-2",
+        "train-3",
+        "train-4",
+        "train-5",
+        "train-6"
+    ],
+    "baseline_trajectory_evaluations": 6,
+    "baseline_denominators": [
+        1.545648230764091,
+        1.7258010690931849,
+        0.32162877882856017,
+        0.3528154870961306,
+        0.10743943714993616,
+        0.11895005399067975
+    ],
+    "cache_hits": 0,
+    "exception_rejections": 0,
+    "candidate_log": [
+        {
+            "score": {
+                "gain_norm": 29.78769520883577,
+                "settling": [
+                    6,
+                    7,
+                    6,
+                    6,
+                    5,
+                    6
+                ],
+                "worst_ratio": 1,
+                "mean_ratio": 1,
+                "costs": [
+                    1.545648230764091,
+                    1.7258010690931849,
+                    0.32162877882856017,
+                    0.3528154870961306,
+                    0.10743943714993616,
+                    0.11895005399067975
+                ]
+            },
+            "status": "accepted_seed",
+            "candidate_id": 0,
+            "source": "current LQR",
+            "phase": "seed",
+            "setting": [
+                0,
+                0,
+                0
+            ],
+            "incumbent_updated": true,
+            "certificate": {
+                "raw_radius": 0.5681513497042836,
+                "min_eigenvalue_P": 0.004987946970265129,
+                "endpoint_decreases": [
+                    0.00029119043170370597,
+                    0.00029119560959527395
+                ],
+                "condition_number_P": 478.16975753948446,
+                "trace_P": 2.9999999999999996
+            }
+        },
+        {
+            "R_scalar": 0.0001,
+            "Q_diagonal": [
+                0.1,
+                0.1,
+                1.0
+            ],
+            "setting": [
+                -1,
+                -1,
+                -1
+            ],
+            "certificate": {
+                "raw_radius": 0.5666536538486792,
+                "min_eigenvalue_P": 0.013110823029988606,
+                "endpoint_decreases": [
+                    0.00029040005568597776,
+                    0.00029040446700530234
+                ],
+                "condition_number_P": 181.4236632768551,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 1,
+            "incumbent_updated": false,
+            "elapsed_seconds": 8.4335597,
+            "solver_status": "OPTIMAL",
+            "eta": 0.00029040005177705574,
+            "score": {
+                "gain_norm": 32.99769797585792,
+                "settling": [
+                    5,
+                    7,
+                    6,
+                    7,
+                    5,
+                    6
+                ],
+                "worst_ratio": 1.0163525828818338,
+                "mean_ratio": 1.0043953909036853,
+                "costs": [
+                    1.5523697082159695,
+                    1.745295575797924,
+                    0.3170776105804453,
+                    0.35858493159086463,
+                    0.10918509257120454,
+                    0.11803149386625018
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                0.1,
+                0.1,
+                1.0
+            ],
+            "setting": [
+                -1,
+                -1,
+                0
+            ],
+            "certificate": {
+                "raw_radius": 0.833418594795905,
+                "min_eigenvalue_P": 0.027811246083345217,
+                "endpoint_decreases": [
+                    0.0002889695454335003,
+                    0.0002889765870931169
+                ],
+                "condition_number_P": 85.10588903186306,
+                "trace_P": 2.9999999999999996
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 2,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0088281,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002889695400021247,
+            "score": {
+                "gain_norm": 17.260287597609363,
+                "settling": [
+                    10,
+                    13,
+                    15,
+                    15,
+                    13,
+                    14
+                ],
+                "worst_ratio": 1.163574026230316,
+                "mean_ratio": 1.0638246660109687,
+                "costs": [
+                    1.5693100706345828,
+                    1.7604146786622492,
+                    0.33299134540911673,
+                    0.3713834965695588,
+                    0.1250137384604702,
+                    0.1303754963313024
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.01,
+            "Q_diagonal": [
+                0.1,
+                0.1,
+                1.0
+            ],
+            "setting": [
+                -1,
+                -1,
+                1
+            ],
+            "certificate": {
+                "raw_radius": 0.9430596248160749,
+                "min_eigenvalue_P": 0.014181365756024765,
+                "endpoint_decreases": [
+                    0.0002902958566840492,
+                    0.00029031192574219364
+                ],
+                "condition_number_P": 167.66795450913537,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 3,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0076562,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002902958529752297,
+            "score": {
+                "gain_norm": 5.808174867983119,
+                "settling": [
+                    21,
+                    31,
+                    46,
+                    43,
+                    41,
+                    43
+                ],
+                "worst_ratio": 2.1796622404161234,
+                "mean_ratio": 1.5604497819271288,
+                "costs": [
+                    1.7129747085264264,
+                    1.7885886992882356,
+                    0.5179647695560231,
+                    0.4604763083135665,
+                    0.23418168428727712,
+                    0.25250808978903366
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.0001,
+            "Q_diagonal": [
+                0.1,
+                1.0,
+                1.0
+            ],
+            "setting": [
+                -1,
+                0,
+                -1
+            ],
+            "certificate": {
+                "raw_radius": 0.28834373586727785,
+                "min_eigenvalue_P": 0.003727552509788893,
+                "endpoint_decreases": [
+                    0.00029131306463363923,
+                    0.0002914566284244283
+                ],
+                "condition_number_P": 640.1223301160555,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 4,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0069781,
+            "solver_status": "OPTIMAL",
+            "eta": 0.00029131306040204753,
+            "score": {
+                "gain_norm": 47.63947701624753,
+                "settling": [
+                    5,
+                    6,
+                    5,
+                    5,
+                    3,
+                    4
+                ],
+                "worst_ratio": 1.0383040784366013,
+                "mean_ratio": 1.0150528306426183,
+                "costs": [
+                    1.5382408932550284,
+                    1.7252767403821054,
+                    0.3250530437295488,
+                    0.3624064872733525,
+                    0.11155480577771161,
+                    0.12124320727268949
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                0.1,
+                1.0,
+                1.0
+            ],
+            "setting": [
+                -1,
+                0,
+                0
+            ],
+            "certificate": {
+                "raw_radius": 0.6587378046097608,
+                "min_eigenvalue_P": 0.012692040728350042,
+                "endpoint_decreases": [
+                    0.00029044080730172167,
+                    0.0002904956764022765
+                ],
+                "condition_number_P": 187.43614736369332,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 5,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0072302,
+            "solver_status": "OPTIMAL",
+            "eta": 0.00029044080222887674,
+            "score": {
+                "gain_norm": 26.92182503078895,
+                "settling": [
+                    6,
+                    7,
+                    9,
+                    9,
+                    6,
+                    8
+                ],
+                "worst_ratio": 1.0566524069660879,
+                "mean_ratio": 1.0176530801280765,
+                "costs": [
+                    1.5485500729964412,
+                    1.7294431303013051,
+                    0.3317484698653125,
+                    0.3728033336550391,
+                    0.1081621249130228,
+                    0.1197931642273476
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.01,
+            "Q_diagonal": [
+                0.1,
+                1.0,
+                1.0
+            ],
+            "setting": [
+                -1,
+                0,
+                1
+            ],
+            "certificate": {
+                "raw_radius": 0.8730291657775684,
+                "min_eigenvalue_P": 0.007602491715711871,
+                "endpoint_decreases": [
+                    0.0002909360308836948,
+                    0.00029094222226676893
+                ],
+                "condition_number_P": 313.45016564658823,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 6,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0077633,
+            "solver_status": "OPTIMAL",
+            "eta": 0.00029093602874406956,
+            "score": {
+                "gain_norm": 10.1882059677553,
+                "settling": [
+                    15,
+                    12,
+                    25,
+                    23,
+                    18,
+                    20
+                ],
+                "worst_ratio": 1.5068007133491392,
+                "mean_ratio": 1.2301630729996467,
+                "costs": [
+                    1.6763777819548278,
+                    1.7478807158212144,
+                    0.484630473372487,
+                    0.43734912960872774,
+                    0.13944692186089735,
+                    0.1474142747933995
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.0001,
+            "Q_diagonal": [
+                0.1,
+                10.0,
+                1.0
+            ],
+            "setting": [
+                -1,
+                1,
+                -1
+            ],
+            "certificate": {
+                "raw_radius": 0.24329918784196422,
+                "min_eigenvalue_P": 0.003871301706568333,
+                "endpoint_decreases": [
+                    0.00029129907828499846,
+                    0.0002914222226116577
+                ],
+                "condition_number_P": 616.3237196760713,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 7,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.1737043,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002912990740614493,
+            "score": {
+                "gain_norm": 53.744920151476876,
+                "settling": [
+                    5,
+                    6,
+                    5,
+                    5,
+                    3,
+                    4
+                ],
+                "worst_ratio": 1.0659003179424016,
+                "mean_ratio": 1.0248664598468298,
+                "costs": [
+                    1.5335556444842975,
+                    1.718925229047671,
+                    0.3316918605540756,
+                    0.3649439148244508,
+                    0.11451973021766962,
+                    0.12245220783683158
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                0.1,
+                10.0,
+                1.0
+            ],
+            "setting": [
+                -1,
+                1,
+                0
+            ],
+            "certificate": {
+                "raw_radius": 0.6175872538511942,
+                "min_eigenvalue_P": 0.01820828490681317,
+                "endpoint_decreases": [
+                    0.0002899040361983098,
+                    0.0002901285452866631
+                ],
+                "condition_number_P": 130.41053269881655,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 8,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.008527,
+            "solver_status": "OPTIMAL",
+            "eta": 0.000289904014986612,
+            "score": {
+                "gain_norm": 40.66768104057473,
+                "settling": [
+                    6,
+                    7,
+                    9,
+                    8,
+                    6,
+                    7
+                ],
+                "worst_ratio": 1.1360137908173287,
+                "mean_ratio": 1.0596174189375605,
+                "costs": [
+                    1.5346201506283224,
+                    1.70997723526112,
+                    0.3653747282729808,
+                    0.39075002356388844,
+                    0.11600308809566398,
+                    0.12498895477623835
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.01,
+            "Q_diagonal": [
+                0.1,
+                10.0,
+                1.0
+            ],
+            "setting": [
+                -1,
+                1,
+                1
+            ],
+            "certificate": {
+                "raw_radius": 0.8548349806092372,
+                "min_eigenvalue_P": 0.01423080445830599,
+                "endpoint_decreases": [
+                    0.000290291054077093,
+                    0.00029032244400855353
+                ],
+                "condition_number_P": 167.08269854115352,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 9,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0080355,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002902910484280853,
+            "score": {
+                "gain_norm": 22.54151303786182,
+                "settling": [
+                    15,
+                    11,
+                    23,
+                    21,
+                    16,
+                    18
+                ],
+                "worst_ratio": 1.7763284419163252,
+                "mean_ratio": 1.2837128204812005,
+                "costs": [
+                    1.6357789954027524,
+                    1.7225070996548832,
+                    0.5713183475719866,
+                    0.498440894322982,
+                    0.13464096246266347,
+                    0.14316973066443298
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.0001,
+            "Q_diagonal": [
+                1,
+                0.1,
+                1
+            ],
+            "setting": [
+                0,
+                -1,
+                -1
+            ],
+            "certificate": {
+                "raw_radius": 0.5585789556845308,
+                "min_eigenvalue_P": 0.015097594442718472,
+                "endpoint_decreases": [
+                    0.0002902067338131544,
+                    0.0002902109047176371
+                ],
+                "condition_number_P": 157.4443259695369,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 10,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0076242,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002902067303437573,
+            "score": {
+                "gain_norm": 34.40466743718484,
+                "settling": [
+                    5,
+                    7,
+                    6,
+                    7,
+                    5,
+                    6
+                ],
+                "worst_ratio": 1.0188713136293344,
+                "mean_ratio": 1.0029223325703478,
+                "costs": [
+                    1.550966782307919,
+                    1.7442179130167845,
+                    0.3165303868424192,
+                    0.355955242258391,
+                    0.10946696046455177,
+                    0.11793931992399703
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                1,
+                0.1,
+                1
+            ],
+            "setting": [
+                0,
+                -1,
+                0
+            ],
+            "certificate": {
+                "raw_radius": 0.8295186993803869,
+                "min_eigenvalue_P": 0.03950346609659589,
+                "endpoint_decreases": [
+                    0.00028783151332156733,
+                    0.0002878465498801523
+                ],
+                "condition_number_P": 59.68045083000525,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 11,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0076532,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002878314947950488,
+            "score": {
+                "gain_norm": 20.49997766228699,
+                "settling": [
+                    10,
+                    13,
+                    15,
+                    15,
+                    13,
+                    14
+                ],
+                "worst_ratio": 1.16098510950482,
+                "mean_ratio": 1.055391393297201,
+                "costs": [
+                    1.5609805964658123,
+                    1.7487617050726914,
+                    0.3295383356065279,
+                    0.3658330313100657,
+                    0.12473558670465487,
+                    0.12925717632697414
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.01,
+            "Q_diagonal": [
+                1,
+                0.1,
+                1
+            ],
+            "setting": [
+                0,
+                -1,
+                1
+            ],
+            "certificate": {
+                "raw_radius": 0.9416948717833937,
+                "min_eigenvalue_P": 0.022423593208412286,
+                "endpoint_decreases": [
+                    0.0002894936767363623,
+                    0.0002894985654781087
+                ],
+                "condition_number_P": 105.74547528937471,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 12,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0076539,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002894936732595537,
+            "score": {
+                "gain_norm": 8.889751459092775,
+                "settling": [
+                    22,
+                    31,
+                    44,
+                    42,
+                    41,
+                    42
+                ],
+                "worst_ratio": 1.9877903686962348,
+                "mean_ratio": 1.4482759479612806,
+                "costs": [
+                    1.6263401563241797,
+                    1.767403728669116,
+                    0.46237720744649596,
+                    0.4431271544298864,
+                    0.21356707838478756,
+                    0.22980763951203778
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.0001,
+            "Q_diagonal": [
+                1,
+                1,
+                1
+            ],
+            "setting": [
+                0,
+                0,
+                -1
+            ],
+            "certificate": {
+                "raw_radius": 0.19744172154599648,
+                "min_eigenvalue_P": 0.0013123386168635868,
+                "endpoint_decreases": [
+                    0.00029154804877320236,
+                    0.00029219667382599684
+                ],
+                "condition_number_P": 1819.6628907803538,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 13,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0076,
+            "solver_status": "OPTIMAL",
+            "eta": 0.00029154802161341167,
+            "score": {
+                "gain_norm": 50.37779085578456,
+                "settling": [
+                    4,
+                    6,
+                    4,
+                    4,
+                    3,
+                    4
+                ],
+                "worst_ratio": 1.0442716368948153,
+                "mean_ratio": 1.0158609664326288,
+                "costs": [
+                    1.5363993970143295,
+                    1.726238263431325,
+                    0.32831083674032835,
+                    0.35714415044401304,
+                    0.11219595689962146,
+                    0.12175489905180432
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                1,
+                1,
+                1
+            ],
+            "setting": [
+                0,
+                0,
+                0
+            ],
+            "certificate": {
+                "raw_radius": 0.5681513497043968,
+                "min_eigenvalue_P": 0.004988231952757832,
+                "endpoint_decreases": [
+                    0.00029119039680383505,
+                    0.00029146412256533024
+                ],
+                "condition_number_P": 478.14239434897314,
+                "trace_P": 3.0000000000000004
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 14,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0069669,
+            "solver_status": "OPTIMAL",
+            "eta": 0.00029119039017055476,
+            "score": {
+                "gain_norm": 29.7876952088308,
+                "settling": [
+                    6,
+                    7,
+                    6,
+                    6,
+                    5,
+                    6
+                ],
+                "worst_ratio": 1.0000000000000047,
+                "mean_ratio": 0.9999999999999932,
+                "costs": [
+                    1.5456482307640984,
+                    1.725801069093193,
+                    0.3216287788285544,
+                    0.35281548709613125,
+                    0.10743943714993338,
+                    0.11895005399067884
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.01,
+            "Q_diagonal": [
+                1,
+                1,
+                1
+            ],
+            "setting": [
+                0,
+                0,
+                1
+            ],
+            "certificate": {
+                "raw_radius": 0.831470549716813,
+                "min_eigenvalue_P": 0.003174618888652699,
+                "endpoint_decreases": [
+                    0.0002913668649441409,
+                    0.0002914776203067158
+                ],
+                "condition_number_P": 751.7532730394337,
+                "trace_P": 3.0000000000000004
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 15,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0079575,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002913668613118638,
+            "score": {
+                "gain_norm": 12.273749839310115,
+                "settling": [
+                    10,
+                    12,
+                    15,
+                    14,
+                    13,
+                    14
+                ],
+                "worst_ratio": 1.2386538496764987,
+                "mean_ratio": 1.102731899764092,
+                "costs": [
+                    1.6159301862706599,
+                    1.7433457761233675,
+                    0.36112118678854316,
+                    0.36350019345463674,
+                    0.13308027243284465,
+                    0.1390559029139161
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.0001,
+            "Q_diagonal": [
+                1,
+                10,
+                1
+            ],
+            "setting": [
+                0,
+                1,
+                -1
+            ],
+            "certificate": {
+                "raw_radius": 0.06520205231319379,
+                "min_eigenvalue_P": 0.0006701817754548399,
+                "endpoint_decreases": [
+                    0.0002916105386241814,
+                    0.0006043366497386605
+                ],
+                "condition_number_P": 3563.9965101962084,
+                "trace_P": 2.9999999999999996
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 16,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0076458,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002916105296119889,
+            "score": {
+                "gain_norm": 57.85098245621644,
+                "settling": [
+                    4,
+                    6,
+                    4,
+                    4,
+                    3,
+                    4
+                ],
+                "worst_ratio": 1.07987386743336,
+                "mean_ratio": 1.0275843073169875,
+                "costs": [
+                    1.530918056248517,
+                    1.7201365287670691,
+                    0.3358403447849308,
+                    0.35868124272049007,
+                    0.11602104050996495,
+                    0.12342644648074744
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                1,
+                10,
+                1
+            ],
+            "setting": [
+                0,
+                1,
+                0
+            ],
+            "certificate": {
+                "raw_radius": 0.32723817876346495,
+                "min_eigenvalue_P": 0.001043451124381688,
+                "endpoint_decreases": [
+                    0.0002915742045607801,
+                    0.00029229845680185917
+                ],
+                "condition_number_P": 2288.778129993401,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 17,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0076109,
+            "solver_status": "OPTIMAL",
+            "eta": 0.00029157417177636517,
+            "score": {
+                "gain_norm": 45.120189486234146,
+                "settling": [
+                    5,
+                    6,
+                    5,
+                    5,
+                    4,
+                    4
+                ],
+                "worst_ratio": 1.0760656049821091,
+                "mean_ratio": 1.026864599402563,
+                "costs": [
+                    1.5326361754860356,
+                    1.7097970002530305,
+                    0.33913210783912373,
+                    0.3581063899423804,
+                    0.11561188293568335,
+                    0.12292260276915558
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.01,
+            "Q_diagonal": [
+                1,
+                10,
+                1
+            ],
+            "setting": [
+                0,
+                1,
+                1
+            ],
+            "certificate": {
+                "raw_radius": 0.6651763697697722,
+                "min_eigenvalue_P": 0.0010517758516514829,
+                "endpoint_decreases": [
+                    0.00029157341683933626,
+                    0.0002915772245224679
+                ],
+                "condition_number_P": 2270.6563151267137,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 18,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0069639,
+            "solver_status": "OPTIMAL",
+            "eta": 0.00029157341098951233,
+            "score": {
+                "gain_norm": 23.968731907274442,
+                "settling": [
+                    9,
+                    10,
+                    9,
+                    8,
+                    7,
+                    8
+                ],
+                "worst_ratio": 1.1287729295722657,
+                "mean_ratio": 1.0639082254578807,
+                "costs": [
+                    1.6047035432130994,
+                    1.728578935394375,
+                    0.3630458589130642,
+                    0.3656067197133896,
+                    0.12078596491840309,
+                    0.1254186617360829
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.0001,
+            "Q_diagonal": [
+                10,
+                0.1,
+                1
+            ],
+            "setting": [
+                1,
+                -1,
+                -1
+            ],
+            "certificate": {
+                "raw_radius": 0.5578141357118059,
+                "min_eigenvalue_P": 0.01576503256735514,
+                "endpoint_decreases": [
+                    0.00029014178882474733,
+                    0.0002901459392972526
+                ],
+                "condition_number_P": 150.74493427077314,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 19,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0074244,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002901417855994962,
+            "score": {
+                "gain_norm": 34.62317310583394,
+                "settling": [
+                    5,
+                    7,
+                    6,
+                    7,
+                    5,
+                    6
+                ],
+                "worst_ratio": 1.0193816559494702,
+                "mean_ratio": 1.0028405156287332,
+                "costs": [
+                    1.5508114826062078,
+                    1.744045543855411,
+                    0.31653159917389534,
+                    0.35568352115510765,
+                    0.10952179135618095,
+                    0.11793521503197389
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                10,
+                0.1,
+                1
+            ],
+            "setting": [
+                1,
+                -1,
+                0
+            ],
+            "certificate": {
+                "raw_radius": 0.8291471122570016,
+                "min_eigenvalue_P": 0.05644391291133711,
+                "endpoint_decreases": [
+                    0.0002861822285877533,
+                    0.0002862324705517819
+                ],
+                "condition_number_P": 41.52948070382682,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 20,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0085151,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002861822068074402,
+            "score": {
+                "gain_norm": 22.13175361796231,
+                "settling": [
+                    11,
+                    13,
+                    15,
+                    15,
+                    13,
+                    14
+                ],
+                "worst_ratio": 1.1681227894980433,
+                "mean_ratio": 1.0577930817550036,
+                "costs": [
+                    1.5607601444158465,
+                    1.7454055740348595,
+                    0.331170285974168,
+                    0.3657033342959134,
+                    0.12550245502568314,
+                    0.1298106920553983
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.01,
+            "Q_diagonal": [
+                10,
+                0.1,
+                1
+            ],
+            "setting": [
+                1,
+                -1,
+                1
+            ],
+            "certificate": {
+                "raw_radius": 0.941564914430373,
+                "min_eigenvalue_P": 0.27291453902117746,
+                "endpoint_decreases": [
+                    0.00021396912192967523,
+                    0.0002139834773704163
+                ],
+                "condition_number_P": 7.931523839833725,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 21,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0098354,
+            "solver_status": "OPTIMAL",
+            "eta": 0.00021396908957529428,
+            "score": {
+                "gain_norm": 14.038601963390514,
+                "settling": [
+                    22,
+                    30,
+                    45,
+                    42,
+                    41,
+                    42
+                ],
+                "worst_ratio": 1.944662137575556,
+                "mean_ratio": 1.439400438325415,
+                "costs": [
+                    1.6361364478684677,
+                    1.769574836531451,
+                    0.46811141303631326,
+                    0.45245222413770686,
+                    0.20893340550790945,
+                    0.22243512380272754
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.0001,
+            "Q_diagonal": [
+                10,
+                1,
+                1
+            ],
+            "setting": [
+                1,
+                0,
+                -1
+            ],
+            "certificate": {
+                "raw_radius": 0.19071829097111412,
+                "min_eigenvalue_P": 0.0013480013394013323,
+                "endpoint_decreases": [
+                    0.00029154457982465636,
+                    0.0002921549957874389
+                ],
+                "condition_number_P": 1771.5008121761614,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 22,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0088802,
+            "solver_status": "OPTIMAL",
+            "eta": 0.00029154455383153047,
+            "score": {
+                "gain_norm": 50.83343017178199,
+                "settling": [
+                    4,
+                    6,
+                    4,
+                    4,
+                    3,
+                    4
+                ],
+                "worst_ratio": 1.0452143723700162,
+                "mean_ratio": 1.0162295420122662,
+                "costs": [
+                    1.5361398408099756,
+                    1.7263780651040592,
+                    0.32901139351864683,
+                    0.35658057750667616,
+                    0.11229724386845832,
+                    0.12184706676651413
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                10,
+                1,
+                1
+            ],
+            "setting": [
+                1,
+                0,
+                0
+            ],
+            "certificate": {
+                "raw_radius": 0.5601251279587526,
+                "min_eigenvalue_P": 0.006174928648821113,
+                "endpoint_decreases": [
+                    0.0002910749280714466,
+                    0.00029136186393115905
+                ],
+                "condition_number_P": 386.0999568303874,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 23,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0085468,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002910749198096035,
+            "score": {
+                "gain_norm": 31.254003364327605,
+                "settling": [
+                    6,
+                    7,
+                    6,
+                    6,
+                    5,
+                    6
+                ],
+                "worst_ratio": 1.0134312012266824,
+                "mean_ratio": 1.0011507098081431,
+                "costs": [
+                    1.5461725489155032,
+                    1.724164611698114,
+                    0.3259486396772987,
+                    0.3509602576357553,
+                    0.1073217314453586,
+                    0.11900191337455775
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.01,
+            "Q_diagonal": [
+                10,
+                1,
+                1
+            ],
+            "setting": [
+                1,
+                0,
+                1
+            ],
+            "certificate": {
+                "raw_radius": 0.8276761013103936,
+                "min_eigenvalue_P": 0.006327049541964622,
+                "endpoint_decreases": [
+                    0.0002910601296812708,
+                    0.00029109510435603304
+                ],
+                "condition_number_P": 376.7978217967576,
+                "trace_P": 3.0000000000000004
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 24,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0100861,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002910601258236035,
+            "score": {
+                "gain_norm": 16.459921179116193,
+                "settling": [
+                    10,
+                    12,
+                    15,
+                    14,
+                    13,
+                    14
+                ],
+                "worst_ratio": 1.2215861904559802,
+                "mean_ratio": 1.1057624283404548,
+                "costs": [
+                    1.6239965071211426,
+                    1.7501344630539535,
+                    0.3692001382074248,
+                    0.3668610122938177,
+                    0.1312465327327252,
+                    0.1380393408307003
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.0001,
+            "Q_diagonal": [
+                10,
+                10,
+                1
+            ],
+            "setting": [
+                1,
+                1,
+                -1
+            ],
+            "certificate": {
+                "raw_radius": 0.05558072762813041,
+                "min_eigenvalue_P": 0.0006701695597835445,
+                "endpoint_decreases": [
+                    0.0002916105399449715,
+                    0.0006552248633440106
+                ],
+                "condition_number_P": 3564.0614882875307,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 25,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0086605,
+            "solver_status": "OPTIMAL",
+            "eta": 0.00029161053110022736,
+            "score": {
+                "gain_norm": 58.58863832204533,
+                "settling": [
+                    4,
+                    6,
+                    4,
+                    4,
+                    3,
+                    4
+                ],
+                "worst_ratio": 1.0824633335487341,
+                "mean_ratio": 1.0284468094884804,
+                "costs": [
+                    1.5304999548798075,
+                    1.7203452646202564,
+                    0.3368034524293193,
+                    0.35798649964592066,
+                    0.11629925129191959,
+                    0.1236298236305582
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                10,
+                10,
+                1
+            ],
+            "setting": [
+                1,
+                1,
+                0
+            ],
+            "certificate": {
+                "raw_radius": 0.2959600990028413,
+                "min_eigenvalue_P": 0.0006702663072590522,
+                "endpoint_decreases": [
+                    0.00029161052835338555,
+                    0.00040299274746824205
+                ],
+                "condition_number_P": 3563.5469302455795,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 26,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0090103,
+            "solver_status": "OPTIMAL",
+            "eta": 0.00029161051732609297,
+            "score": {
+                "gain_norm": 47.764331801214986,
+                "settling": [
+                    5,
+                    6,
+                    4,
+                    5,
+                    4,
+                    4
+                ],
+                "worst_ratio": 1.0832083369728345,
+                "mean_ratio": 1.028525476374726,
+                "costs": [
+                    1.5330768343425853,
+                    1.7096556803112855,
+                    0.34280763694151845,
+                    0.3535099829362443,
+                    0.11637929404047972,
+                    0.12342448292734569
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.01,
+            "Q_diagonal": [
+                10,
+                10,
+                1
+            ],
+            "setting": [
+                1,
+                1,
+                1
+            ],
+            "certificate": {
+                "raw_radius": 0.6184849192656868,
+                "min_eigenvalue_P": 0.000954625221579561,
+                "endpoint_decreases": [
+                    0.000291582865000385,
+                    0.0002917259911354126
+                ],
+                "condition_number_P": 2501.818335259178,
+                "trace_P": 3.0000000000000004
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 27,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0239343,
+            "solver_status": "OPTIMAL",
+            "eta": 0.00029158285205444244,
+            "score": {
+                "gain_norm": 27.056097798176015,
+                "settling": [
+                    10,
+                    10,
+                    6,
+                    7,
+                    6,
+                    6
+                ],
+                "worst_ratio": 1.115047933351391,
+                "mean_ratio": 1.0542112125861223,
+                "costs": [
+                    1.6087359465362865,
+                    1.7400321126279867,
+                    0.3586315051391176,
+                    0.353566699592157,
+                    0.1196424641791451,
+                    0.12435600454726127
+                ]
+            },
+            "phase": "coarse_grid"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                0.31622776601683794,
+                1.0,
+                1.0
+            ],
+            "setting": [
+                -0.5,
+                0.0,
+                0.0
+            ],
+            "certificate": {
+                "raw_radius": 0.5899013961164521,
+                "min_eigenvalue_P": 0.005994650550832238,
+                "endpoint_decreases": [
+                    0.0002910924691116206,
+                    0.0002914266938893686
+                ],
+                "condition_number_P": 397.73516373301584,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 28,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0087095,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002910924598592997,
+            "score": {
+                "gain_norm": 28.30762277531499,
+                "settling": [
+                    6,
+                    7,
+                    7,
+                    7,
+                    5,
+                    6
+                ],
+                "worst_ratio": 1.0142533016510553,
+                "mean_ratio": 1.0016369168776815,
+                "costs": [
+                    1.5461530953932652,
+                    1.7276487142504091,
+                    0.3188356192928267,
+                    0.35784427266087576,
+                    0.10765958497688333,
+                    0.11904596832621878
+                ]
+            },
+            "phase": "coordinate_step_0.5"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                3.1622776601683795,
+                1.0,
+                1.0
+            ],
+            "setting": [
+                0.5,
+                0.0,
+                0.0
+            ],
+            "certificate": {
+                "raw_radius": 0.5619859768882228,
+                "min_eigenvalue_P": 0.005625294537697565,
+                "endpoint_decreases": [
+                    0.00029112840896529114,
+                    0.00029141024939084
+                ],
+                "condition_number_P": 423.9027099135148,
+                "trace_P": 2.9999999999999996
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 29,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0081452,
+            "solver_status": "OPTIMAL",
+            "eta": 0.00029112840157027853,
+            "score": {
+                "gain_norm": 30.79186274282135,
+                "settling": [
+                    6,
+                    7,
+                    6,
+                    6,
+                    5,
+                    6
+                ],
+                "worst_ratio": 1.0091972648239829,
+                "mean_ratio": 1.0006647026852775,
+                "costs": [
+                    1.5459289074067706,
+                    1.724657456067159,
+                    0.32458688388246065,
+                    0.3513641724029451,
+                    0.10734946808237347,
+                    0.11897657183802593
+                ]
+            },
+            "phase": "coordinate_step_0.5"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                1,
+                0.31622776601683794,
+                1
+            ],
+            "setting": [
+                0,
+                -0.5,
+                0
+            ],
+            "certificate": {
+                "raw_radius": 0.7196967352497426,
+                "min_eigenvalue_P": 0.014234019181995346,
+                "endpoint_decreases": [
+                    0.0002902907616951085,
+                    0.00029030817203320374
+                ],
+                "condition_number_P": 167.04478246930623,
+                "trace_P": 2.9999999999999996
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 30,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0093801,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002902907592895135,
+            "score": {
+                "gain_norm": 23.76641497884155,
+                "settling": [
+                    7,
+                    9,
+                    9,
+                    9,
+                    8,
+                    9
+                ],
+                "worst_ratio": 1.0425753093772954,
+                "mean_ratio": 1.0088452366850686,
+                "costs": [
+                    1.5535638138254797,
+                    1.736707992585884,
+                    0.3178369066902536,
+                    0.3551883513202779,
+                    0.11201370442591717,
+                    0.11944001725442845
+                ]
+            },
+            "phase": "coordinate_step_0.5"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                1,
+                3.1622776601683795,
+                1
+            ],
+            "setting": [
+                0,
+                0.5,
+                0
+            ],
+            "certificate": {
+                "raw_radius": 0.4090641307264838,
+                "min_eigenvalue_P": 0.0017697332755752062,
+                "endpoint_decreases": [
+                    0.00029150355829648687,
+                    0.00029161675496753496
+                ],
+                "condition_number_P": 1349.1578044568137,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 31,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0090589,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002915035500836654,
+            "score": {
+                "gain_norm": 37.84125056266522,
+                "settling": [
+                    5,
+                    6,
+                    5,
+                    5,
+                    4,
+                    5
+                ],
+                "worst_ratio": 1.042128122696804,
+                "mean_ratio": 1.0143418516529887,
+                "costs": [
+                    1.538115780120022,
+                    1.7163367308373458,
+                    0.3306363258065505,
+                    0.35490095111615666,
+                    0.11196565894066424,
+                    0.12137227987240573
+                ]
+            },
+            "phase": "coordinate_step_0.5"
+        },
+        {
+            "R_scalar": 0.00031622776601683794,
+            "Q_diagonal": [
+                1,
+                1,
+                1
+            ],
+            "setting": [
+                0,
+                0,
+                -0.5
+            ],
+            "certificate": {
+                "raw_radius": 0.3763918461701803,
+                "min_eigenvalue_P": 0.0032718321595415793,
+                "endpoint_decreases": [
+                    0.00029135740694176393,
+                    0.00029147635206781597
+                ],
+                "condition_number_P": 729.3933703688407,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 32,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0079691,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002913574035798808,
+            "score": {
+                "gain_norm": 40.75808035143067,
+                "settling": [
+                    5,
+                    6,
+                    5,
+                    5,
+                    4,
+                    4
+                ],
+                "worst_ratio": 1.0169067160006413,
+                "mean_ratio": 1.0065033965337224,
+                "costs": [
+                    1.5409039145276546,
+                    1.7275911869577922,
+                    0.32342464682078786,
+                    0.3551255747521445,
+                    0.10925588520109887,
+                    0.1203791931347814
+                ]
+            },
+            "phase": "coordinate_step_0.5"
+        },
+        {
+            "R_scalar": 0.0031622776601683794,
+            "Q_diagonal": [
+                1,
+                1,
+                1
+            ],
+            "setting": [
+                0,
+                0,
+                0.5
+            ],
+            "certificate": {
+                "raw_radius": 0.7240977131059809,
+                "min_eigenvalue_P": 0.004760558665740686,
+                "endpoint_decreases": [
+                    0.0002912125496345162,
+                    0.00029140521417792844
+                ],
+                "condition_number_P": 501.04761497872954,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 33,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0079018,
+            "solver_status": "OPTIMAL",
+            "eta": 0.00029121254324404296,
+            "score": {
+                "gain_norm": 19.848563539359784,
+                "settling": [
+                    7,
+                    9,
+                    9,
+                    9,
+                    7,
+                    9
+                ],
+                "worst_ratio": 1.0223246761961768,
+                "mean_ratio": 1.0107833688910701,
+                "costs": [
+                    1.5568640000455858,
+                    1.7241622084892534,
+                    0.327870451403676,
+                    0.3522019802206355,
+                    0.10983798779500799,
+                    0.12113888327745953
+                ]
+            },
+            "phase": "coordinate_step_0.5"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                0.5623413251903491,
+                1.0,
+                1.0
+            ],
+            "setting": [
+                -0.25,
+                0.0,
+                0.0
+            ],
+            "certificate": {
+                "raw_radius": 0.5756414584869067,
+                "min_eigenvalue_P": 0.005093625776808915,
+                "endpoint_decreases": [
+                    0.0002911801416485789,
+                    0.0002914671602248593
+                ],
+                "condition_number_P": 468.2325130926475,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 34,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0079446,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002911801345815129,
+            "score": {
+                "gain_norm": 29.077919977764555,
+                "settling": [
+                    6,
+                    7,
+                    6,
+                    6,
+                    5,
+                    6
+                ],
+                "worst_ratio": 1.005060866042023,
+                "mean_ratio": 1.0001394480683825,
+                "costs": [
+                    1.5457189444304096,
+                    1.7266663369538093,
+                    0.3197820203648753,
+                    0.35460103901387524,
+                    0.10752928528815583,
+                    0.11896603219978788
+                ]
+            },
+            "phase": "coordinate_step_0.25"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                1.7782794100389228,
+                1.0,
+                1.0
+            ],
+            "setting": [
+                0.25,
+                0.0,
+                0.0
+            ],
+            "certificate": {
+                "raw_radius": 0.564156919511315,
+                "min_eigenvalue_P": 0.005258724294543401,
+                "endpoint_decreases": [
+                    0.0002911640772303387,
+                    0.00029144272441094154
+                ],
+                "condition_number_P": 453.507262388761,
+                "trace_P": 3.0000000000000004
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 35,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0073651,
+            "solver_status": "OPTIMAL",
+            "eta": 0.00029116407032595394,
+            "score": {
+                "gain_norm": 30.367515311304242,
+                "settling": [
+                    6,
+                    7,
+                    6,
+                    6,
+                    5,
+                    6
+                ],
+                "worst_ratio": 1.0053029585271824,
+                "mean_ratio": 1.0003074741682951,
+                "costs": [
+                    1.5457643720668042,
+                    1.7251286857874812,
+                    0.3233343629038364,
+                    0.3518639602696946,
+                    0.10738247287423658,
+                    0.11895998681902605
+                ]
+            },
+            "phase": "coordinate_step_0.25"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                1,
+                0.5623413251903491,
+                1
+            ],
+            "setting": [
+                0,
+                -0.25,
+                0
+            ],
+            "certificate": {
+                "raw_radius": 0.6483182859464607,
+                "min_eigenvalue_P": 0.00850031517724087,
+                "endpoint_decreases": [
+                    0.00029084865235075866,
+                    0.00029117404406354193
+                ],
+                "condition_number_P": 280.2586614269886,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 36,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0079374,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002908486307170345,
+            "score": {
+                "gain_norm": 26.42137405895057,
+                "settling": [
+                    6,
+                    7,
+                    8,
+                    7,
+                    6,
+                    7
+                ],
+                "worst_ratio": 1.0090352175060164,
+                "mean_ratio": 1.000639493596158,
+                "costs": [
+                    1.549647720141115,
+                    1.7311444021357474,
+                    0.31865000242731073,
+                    0.3532257249207305,
+                    0.10841017583330981,
+                    0.1186189919599024
+                ]
+            },
+            "phase": "coordinate_step_0.25"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                1,
+                1.7782794100389228,
+                1
+            ],
+            "setting": [
+                0,
+                0.25,
+                0
+            ],
+            "certificate": {
+                "raw_radius": 0.48487104602647957,
+                "min_eigenvalue_P": 0.0029089044238547208,
+                "endpoint_decreases": [
+                    0.0002913927203341231,
+                    0.0002914776063883142
+                ],
+                "condition_number_P": 820.4951059300122,
+                "trace_P": 2.9999999999999996
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 37,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0075949,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002913927174390544,
+            "score": {
+                "gain_norm": 33.703563460343744,
+                "settling": [
+                    5,
+                    7,
+                    6,
+                    5,
+                    4,
+                    5
+                ],
+                "worst_ratio": 1.0210243134910135,
+                "mean_ratio": 1.006629564471947,
+                "costs": [
+                    1.5417278702387145,
+                    1.7207953151959976,
+                    0.32587907415935224,
+                    0.35351743257743423,
+                    0.10969827755787445,
+                    0.12001888383260573
+                ]
+            },
+            "phase": "coordinate_step_0.25"
+        },
+        {
+            "R_scalar": 0.0005623413251903491,
+            "Q_diagonal": [
+                1,
+                1,
+                1
+            ],
+            "setting": [
+                0,
+                0,
+                -0.25
+            ],
+            "certificate": {
+                "raw_radius": 0.4744934615351923,
+                "min_eigenvalue_P": 0.0043121789435759915,
+                "endpoint_decreases": [
+                    0.0002912561786296376,
+                    0.0002914812853071132
+                ],
+                "condition_number_P": 553.2293155078976,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 38,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0081844,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002912561732707379,
+            "score": {
+                "gain_norm": 35.27163834082974,
+                "settling": [
+                    5,
+                    6,
+                    6,
+                    5,
+                    4,
+                    5
+                ],
+                "worst_ratio": 1.0063397584622154,
+                "mean_ratio": 1.0022075150464602,
+                "costs": [
+                    1.543209371383944,
+                    1.7269656399639666,
+                    0.32190122912363645,
+                    0.35391773845018415,
+                    0.10812057723078312,
+                    0.11940648506720841
+                ]
+            },
+            "phase": "coordinate_step_0.25"
+        },
+        {
+            "R_scalar": 0.0017782794100389228,
+            "Q_diagonal": [
+                1,
+                1,
+                1
+            ],
+            "setting": [
+                0,
+                0,
+                0.25
+            ],
+            "certificate": {
+                "raw_radius": 0.6521857419226975,
+                "min_eigenvalue_P": 0.005129178472920576,
+                "endpoint_decreases": [
+                    0.0002911766821340006,
+                    0.0002914256153374685
+                ],
+                "condition_number_P": 464.9814555930538,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 39,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0078526,
+            "solver_status": "OPTIMAL",
+            "eta": 0.00029117667514407626,
+            "score": {
+                "gain_norm": 24.579304522041973,
+                "settling": [
+                    6,
+                    8,
+                    8,
+                    7,
+                    6,
+                    7
+                ],
+                "worst_ratio": 1.0053806172758566,
+                "mean_ratio": 1.0017687959677863,
+                "costs": [
+                    1.5487013037198953,
+                    1.7246424675856091,
+                    0.32335934019233775,
+                    0.3520574373263694,
+                    0.10777929127983508,
+                    0.11929662526924227
+                ]
+            },
+            "phase": "coordinate_step_0.25"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                0.7498942093324559,
+                1.0,
+                1.0
+            ],
+            "setting": [
+                -0.125,
+                0.0,
+                0.0
+            ],
+            "certificate": {
+                "raw_radius": 0.5713039751181489,
+                "min_eigenvalue_P": 0.004970895904474118,
+                "endpoint_decreases": [
+                    0.00029119208362689996,
+                    0.000291468209085331
+                ],
+                "condition_number_P": 479.8126992565373,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 40,
+            "incumbent_updated": true,
+            "elapsed_seconds": 0.0098846,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002911920769158599,
+            "score": {
+                "gain_norm": 29.445569556195082,
+                "settling": [
+                    6,
+                    7,
+                    6,
+                    6,
+                    5,
+                    6
+                ],
+                "worst_ratio": 1.0021429372885773,
+                "mean_ratio": 0.999978185613041,
+                "costs": [
+                    1.5456493228223087,
+                    1.7262126560997937,
+                    0.3206917233298822,
+                    0.3535715485594164,
+                    0.10747978514348273,
+                    0.11895301665186346
+                ]
+            },
+            "phase": "coordinate_step_0.125"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                1.333521432163324,
+                1.0,
+                1.0
+            ],
+            "setting": [
+                0.125,
+                0.0,
+                0.0
+            ],
+            "certificate": {
+                "raw_radius": 0.5658481447028008,
+                "min_eigenvalue_P": 0.005097353130221955,
+                "endpoint_decreases": [
+                    0.0002911797790523912,
+                    0.00029145535567595097
+                ],
+                "condition_number_P": 467.8895434125672,
+                "trace_P": 3.0000000000000004
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 41,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0098735,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002911797723325308,
+            "score": {
+                "gain_norm": 30.096578347775132,
+                "settling": [
+                    6,
+                    7,
+                    6,
+                    6,
+                    5,
+                    6
+                ],
+                "worst_ratio": 1.0027829900398313,
+                "mean_ratio": 1.000128027941426,
+                "costs": [
+                    1.545693138415804,
+                    1.725438837408438,
+                    0.3225238685165632,
+                    0.35226414541036993,
+                    0.10740735760400053,
+                    0.1189533000360145
+                ]
+            },
+            "phase": "coordinate_step_0.125"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                1,
+                0.7498942093324559,
+                1
+            ],
+            "setting": [
+                0,
+                -0.125,
+                0
+            ],
+            "certificate": {
+                "raw_radius": 0.6090787659793436,
+                "min_eigenvalue_P": 0.006525285397202039,
+                "endpoint_decreases": [
+                    0.00029104083706680563,
+                    0.0002913211693241181
+                ],
+                "condition_number_P": 365.3266324919073,
+                "trace_P": 2.9999999999999996
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 42,
+            "incumbent_updated": true,
+            "elapsed_seconds": 0.0103374,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002910408276600972,
+            "score": {
+                "gain_norm": 28.02162801376452,
+                "settling": [
+                    6,
+                    7,
+                    7,
+                    7,
+                    5,
+                    6
+                ],
+                "worst_ratio": 1.0015296162951963,
+                "mean_ratio": 0.9987492902359928,
+                "costs": [
+                    1.547650357246377,
+                    1.728440882530737,
+                    0.3199256846590027,
+                    0.3528546274881698,
+                    0.1071414555686128,
+                    0.11866797080626006
+                ]
+            },
+            "phase": "coordinate_step_0.125"
+        },
+        {
+            "R_scalar": 0.001,
+            "Q_diagonal": [
+                1,
+                1.333521432163324,
+                1
+            ],
+            "setting": [
+                0,
+                0.125,
+                0
+            ],
+            "certificate": {
+                "raw_radius": 0.5263665871276222,
+                "min_eigenvalue_P": 0.003804994886790124,
+                "endpoint_decreases": [
+                    0.00029130552859643795,
+                    0.00029148607693586006
+                ],
+                "condition_number_P": 627.0778195906827,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 43,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0196065,
+            "solver_status": "OPTIMAL",
+            "eta": 0.0002913055239197711,
+            "score": {
+                "gain_norm": 31.693898308072658,
+                "settling": [
+                    5,
+                    7,
+                    6,
+                    6,
+                    4,
+                    5
+                ],
+                "worst_ratio": 1.0104565887074268,
+                "mean_ratio": 1.0030985954515994,
+                "costs": [
+                    1.543664759248608,
+                    1.7232441159073209,
+                    0.3236580824483322,
+                    0.35305432758397165,
+                    0.10856288715517047,
+                    0.11941555726064765
+                ]
+            },
+            "phase": "coordinate_step_0.125"
+        },
+        {
+            "R_scalar": 0.0007498942093324559,
+            "Q_diagonal": [
+                1,
+                1,
+                1
+            ],
+            "setting": [
+                0,
+                0,
+                -0.125
+            ],
+            "certificate": {
+                "raw_radius": 0.5222666360537445,
+                "min_eigenvalue_P": 0.004711177367484755,
+                "endpoint_decreases": [
+                    0.00029121735502306853,
+                    0.00029147643584202484
+                ],
+                "condition_number_P": 506.3078128557725,
+                "trace_P": 3
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 44,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0076633,
+            "solver_status": "OPTIMAL",
+            "eta": 0.000291217348915324,
+            "score": {
+                "gain_norm": 32.51058618440496,
+                "settling": [
+                    5,
+                    6,
+                    6,
+                    6,
+                    4,
+                    5
+                ],
+                "worst_ratio": 1.002759085141663,
+                "mean_ratio": 1.0008133802177526,
+                "costs": [
+                    1.5443894846197461,
+                    1.726423226493973,
+                    0.3215987342443189,
+                    0.35333850178582277,
+                    0.10773587170460519,
+                    0.11909113878765669
+                ]
+            },
+            "phase": "coordinate_step_0.125"
+        },
+        {
+            "R_scalar": 0.001333521432163324,
+            "Q_diagonal": [
+                1,
+                1,
+                1
+            ],
+            "setting": [
+                0,
+                0,
+                0.125
+            ],
+            "certificate": {
+                "raw_radius": 0.6115865911721041,
+                "min_eigenvalue_P": 0.005128181750790816,
+                "endpoint_decreases": [
+                    0.0002911767792171406,
+                    0.00029144570668563117
+                ],
+                "condition_number_P": 465.07198501907175,
+                "trace_P": 2.9999999999999996
+            },
+            "status": "certified_evaluated",
+            "candidate_id": 45,
+            "incumbent_updated": false,
+            "elapsed_seconds": 0.0077343,
+            "solver_status": "OPTIMAL",
+            "eta": 0.000291176772280419,
+            "score": {
+                "gain_norm": 27.134802085695295,
+                "settling": [
+                    6,
+                    7,
+                    7,
+                    7,
+                    5,
+                    6
+                ],
+                "worst_ratio": 1.0017068057776561,
+                "mean_ratio": 1.0002188108765495,
+                "costs": [
+                    1.5470565186611713,
+                    1.725178428606488,
+                    0.3221777366865252,
+                    0.35237918602043583,
+                    0.10741650800991549,
+                    0.11901021337897819
+                ]
+            },
+            "phase": "coordinate_step_0.125"
+        }
+    ],
+    "runtime": {
+        "julia": "1.12.7",
+        "Convex": "0.16.7",
+        "Clarabel": "0.11.1"
+    },
+    "K": [
+        [
+            -2.1984504831608764,
+            -11.864393702421475,
+            -2.1113081925108084
+        ],
+        [
+            -2.8159481818524172,
+            8.562422767581896,
+            -2.673012337048446
+        ],
+        [
+            6.837860405103937,
+            6.856661204679225,
+            -3.979099915977596
+        ],
+        [
+            -5.006803871202471,
+            5.150774757987751,
+            6.397156497282819
+        ],
+        [
+            2.808293760356339,
+            -9.149762462459497,
+            2.873570445223199
+        ],
+        [
+            6.9065097500704615,
+            6.725307475257801,
+            -4.344882814031864
+        ],
+        [
+            -4.621414443812229,
+            -2.988514157609054,
+            -5.791301954789586
+        ],
+        [
+            4.897438283046862,
+            3.2073106001518896,
+            5.905291716122051
+        ]
+    ]
+}

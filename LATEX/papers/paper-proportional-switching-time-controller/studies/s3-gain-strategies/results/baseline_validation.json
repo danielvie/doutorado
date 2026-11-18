@@ -1,0 +1,47 @@
+{
+    "checks": [
+        {
+            "cost": 1.545648230764091,
+            "method": "current",
+            "maximum_state_error": 5.684341886080802e-14,
+            "scale": 1
+        },
+        {
+            "cost": 7.807121114040944,
+            "method": "current",
+            "maximum_state_error": 4.973799150320701e-14,
+            "scale": 2
+        },
+        {
+            "cost": 21.074109726646242,
+            "method": "current",
+            "maximum_state_error": 5.3290705182007514e-14,
+            "scale": 3
+        },
+        {
+            "cost": 1.5096089213056032,
+            "method": "kawa_decay",
+            "maximum_state_error": 5.3290705182007514e-14,
+            "scale": 1
+        },
+        {
+            "cost": 7.546506257600366,
+            "method": "kawa_decay",
+            "maximum_state_error": 4.618527782440651e-14,
+            "scale": 2
+        },
+        {
+            "cost": 20.1221187809089,
+            "method": "kawa_decay",
+            "maximum_state_error": 4.973799150320701e-14,
+            "scale": 3
+        }
+    ],
+    "maximum_state_error": 5.684341886080802e-14,
+    "status": "passed",
+    "source_sha256": {
+        "studies/s3-gain-strategies/test_common.jl": "8853fc06b9c5ddd3c428a91d1a5b83c32f5b11e6ab1ed1a9e03dded0dccdeac0",
+        "studies/s3-gain-strategies/common.jl": "c85be785eed8bc96e15214733200105d94009b7ee9d77adefbe9d215a0395896",
+        "studies/s2-kawa-synthesis/results/history.csv": "70f2f7675cf32e13a041b9be8855e56ac1cd6f8c27810882deaf9b20695b11bd"
+    }
+}

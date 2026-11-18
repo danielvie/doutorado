@@ -1,0 +1,135 @@
+{
+    "P": null,
+    "Kphysical": [
+        [
+            -2.4454687008358158e-6,
+            -6.577780732077306e-6,
+            -2.0350812168427377e-5
+        ],
+        [
+            -2.634530401359692e-6,
+            4.758591445611526e-6,
+            -2.7286777589584447e-5
+        ],
+        [
+            6.969096343461792e-6,
+            3.7624579007228763e-6,
+            -4.020499031987043e-5
+        ],
+        [
+            -4.88729045874749e-6,
+            2.89718288278983e-6,
+            6.36123690385265e-5
+        ],
+        [
+            2.614724911962935e-6,
+            -5.083998267802001e-6,
+            2.9329881482988917e-5
+        ],
+        [
+            7.034635026780876e-6,
+            3.688387614274324e-6,
+            -4.385349208178645e-5
+        ],
+        [
+            -4.681720011083578e-6,
+            -1.6494952151082489e-6,
+            -5.7724641755408036e-5
+        ],
+        [
+            4.962023648115797e-6,
+            1.7698375811100735e-6,
+            5.885109133208891e-5
+        ]
+    ],
+    "training_score": {
+        "gain_norm": 29.78769520883577,
+        "settling": [
+            4,
+            6,
+            6,
+            5,
+            5,
+            5
+        ],
+        "worst_ratio": 0.9931231217220837,
+        "mean_ratio": 0.926205837860738,
+        "costs": [
+            1.2659292189150597,
+            1.5774383238418652,
+            0.3024094471263988,
+            0.3305655078225866,
+            0.1067005892184082,
+            0.11346308646873349
+        ]
+    },
+    "source_sha256": {
+        "studies/s3-gain-strategies/strategy-marcolino.jl": "553a6d5cf0a83f0d42cb5754ee811d1fbe89337b7d3e2e3d581e0d146cfbadda",
+        "studies/s3-gain-strategies/comparison_timing.jl": "050023d0345011bdc3a342ab31cbcd8f6d61c4a1d60c58783c2f097ea711a737",
+        "studies/s3-gain-strategies/MARCOLINO.md": "8674d11f8619e78f9ee95a6f736246f4b3d54eb8764a3139c75c4a7407f85074",
+        "studies/s3-gain-strategies/common.jl": "c85be785eed8bc96e15214733200105d94009b7ee9d77adefbe9d215a0395896",
+        "studies/s1-marcolino-conditioning-comparison/sequential_dwell_condition.m": "f3f5b160cf27c5017b851ee1562aebf1b5be524d78af706ac130b16cbf635661",
+        "studies/s1-marcolino-conditioning-comparison/results/cycle_history.csv": "6b8b8b01066fde800b3c428ea55786162a8a61a4e77bc441c1c7bdf1a4bd8b25",
+        "studies/s1-marcolino-conditioning-comparison/results/error-scale-2x/cycle_history.csv": "6bccc309c191f117e1ee19ecd2418bc452cc64fd4046b0c7692886533b524bac",
+        "studies/s2-kawa-synthesis/results/synthesis.json": "a86fe6aeb9f2b52e48f287be531d6b551c660acfb67f4d0d7b4a22937c18f3da",
+        "studies/s1-marcolino-conditioning-comparison/results/error-scale-3x/cycle_history.csv": "323333df008add23ad38d4979cb96353d557f4282e09069720002d7bc2262b52"
+    },
+    "objective_evaluations": 0,
+    "certificate": null,
+    "name": "strategy-marcolino",
+    "parameters": {
+        "minimum_dwell_us": 3,
+        "gain": "unchanged current LQR"
+    },
+    "status": "reference-policy-no-gain-redesign",
+    "solver_calls": 0,
+    "description": "Current LQR with Marcolino sequential-delay conditioning",
+    "elapsed_seconds": 1.6019999980926514,
+    "policy": "marcolino",
+    "scope": "No common-P coverage. Anchor-sampled cost uses different physical times; common-clock tracking is reported separately.",
+    "candidate_log": [
+    ],
+    "certificate_status": "not-covered-variable-period",
+    "K": [
+        [
+            -2.4454687008358156,
+            -13.155561464154612,
+            -2.0350812168427375
+        ],
+        [
+            -2.634530401359692,
+            9.517182891223051,
+            -2.7286777589584443
+        ],
+        [
+            6.969096343461792,
+            7.524915801445752,
+            -4.020499031987042
+        ],
+        [
+            -4.88729045874749,
+            5.79436576557966,
+            6.3612369038526495
+        ],
+        [
+            2.6147249119629348,
+            -10.167996535604,
+            2.9329881482988913
+        ],
+        [
+            7.034635026780875,
+            7.376775228548648,
+            -4.385349208178645
+        ],
+        [
+            -4.681720011083578,
+            -3.298990430216497,
+            -5.7724641755408035
+        ],
+        [
+            4.962023648115797,
+            3.5396751622201466,
+            5.88510913320889
+        ]
+    ]
+}

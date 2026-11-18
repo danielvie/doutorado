@@ -1,0 +1,116 @@
+version: '3'
+
+vars:
+  JULIA: julia --startup-file=no --project=../s1-lyapunov
+  PYTHON: uv run --offline --no-project --with-requirements ../s2-kawa-synthesis/requirements.txt python
+
+tasks:
+  default:
+    desc: List gain-strategy study commands
+    cmds:
+      - task --list
+
+  setup:
+    desc: Check the existing pinned Julia environment without changing dependencies
+    cmds:
+      - '{{.JULIA}} -e "using Convex, Clarabel, JSON3; println(VERSION)"'
+
+  check-common:
+    desc: Check Julia model, certificate contracts and saved MATLAB baseline reproduction
+    cmds:
+      - '{{.JULIA}} test_common.jl'
+
+  check-marcolino:
+    desc: Check sequential timing and reproduce the three saved MATLAB Marcolino trials
+    cmds:
+      - '{{.JULIA}} test_marcolino.jl'
+
+  strategy-marcolino:
+    desc: Evaluate unchanged LQR with sequential-delay conditioning, without common-P coverage
+    cmds:
+      - '{{.JULIA}} strategy-marcolino.jl'
+
+  optimize:
+    desc: Run all five Julia gain searches concurrently
+    deps: [strategy-1, strategy-2, strategy-3, strategy-4, strategy-5]
+
+  strategy-1:
+    desc: Tune LQR weights with common-P checks
+    cmds:
+      - '{{.JULIA}} strategy-1.jl'
+
+  strategy-2:
+    desc: Jointly synthesize gain and full-feedback cost certificate
+    cmds:
+      - '{{.JULIA}} strategy-2.jl'
+
+  strategy-3:
+    desc: Optimize timing effort with separate endpoint contraction targets
+    cmds:
+      - '{{.JULIA}} strategy-3.jl'
+
+  strategy-4:
+    desc: Tune timing redistribution while preserving the certified matrix family
+    cmds:
+      - '{{.JULIA}} strategy-4.jl'
+
+  strategy-5:
+    desc: Directly tune the gain inside fixed-P stability constraints
+    cmds:
+      - '{{.JULIA}} strategy-5.jl'
+
+  evaluate:
+    desc: Add the Marcolino reference and evaluate all frozen policies on the declared cases
+    cmds:
+      - task: strategy-marcolino
+      - '{{.JULIA}} evaluate.jl'
+
+  validate:
+    desc: Independently check saved evidence and write the validation record
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    cmds:
+      - '{{.PYTHON}} verify_results.py --write-validation'
+      - '{{.PYTHON}} test_verifier.py'
+
+  test:
+    desc: Check Marcolino timing, saved evidence and rejection tests without gain optimization
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    cmds:
+      - task: check-marcolino
+      - '{{.PYTHON}} verify_results.py'
+      - '{{.PYTHON}} test_verifier.py'
+
+  report:
+    desc: Rebuild figures, Markdown and PDF from saved validated evidence only
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    cmds:
+      - '{{.PYTHON}} export_report.py'
+      - latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build report.tex
+      - cp -f build/report.pdf report.pdf
+
+  five-method-report:
+    desc: Build the separate LQR, joint Common-P, Marcolino and MPC-5 document
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    cmds:
+      - '{{.PYTHON}} export_five_method_report.py'
+      - latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build five-method-comparison.tex
+      - cp -f build/five-method-comparison.pdf five-method-comparison.pdf
+
+  run:
+    desc: Check models, run five gain searches in parallel, add Marcolino, validate and report
+    cmds:
+      - task: check-common
+      - task: check-marcolino
+      - task: optimize
+      - task: evaluate
+      - task: validate
+      - task: report
+
+  clean:
+    desc: Remove compilation and Python cache files, retaining results and report
+    cmds:
+      - rm -rf build __pycache__

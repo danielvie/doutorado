@@ -1,0 +1,15 @@
+{
+  "selected_methods": [
+    "current-lqr",
+    "saved-common-p",
+    "strategy-marcolino",
+    "mpc5"
+  ],
+  "source_sha256": {
+    "studies/s3-gain-strategies/results/comparison.json": "fea8e8c0692d80c678cf0fe9411eda1ca3b17af01245f007365a363815c25bb7",
+    "studies/s3-gain-strategies/results/validation.json": "1072946a0bb1fa80dcac944fab5225eec5505bb79cf01f546c4cce85345d7146",
+    "studies/s3-gain-strategies/export_five_method_report.py": "cdca02f3a8358cb8a05577abf898cc60799634c331bdc481c6efc4f56ba9fbb7",
+    "studies/s3-gain-strategies/export_report.py": "4b17c7491b4260a8410db0f7b4ecc1f890e01ad84549a803103d5b46eb0165a2",
+    "studies/s2-kawa-synthesis/results/history.csv": "70f2f7675cf32e13a041b9be8855e56ac1cd6f8c27810882deaf9b20695b11bd"
+  }
+}

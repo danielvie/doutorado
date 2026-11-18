@@ -1,6 +1,6 @@
 # Common-P gain synthesis under dwell conditioning
 
-This separate study compares the unchanged current conditioned LQR and native MPC-5 with one offline gain design, **Common-P gain synthesis**, following Kawakami's suggestion in `_study_kawa/`. The report source is [report.tex](report.tex), and the compiled result is [report.pdf](report.pdf). Nothing here changes the manuscript, article gains, MPC ingredients, or publication evidence.
+This separate study compares the unchanged current conditioned LQR and native MPC-5 with one offline gain design, **Common-P gain synthesis**, following Kawakami's suggestion in `_study_kawa/`. The report source is [report.tex](report.tex), and the compiled result is [report.pdf](report.pdf). The manuscript uses this study's saved Common-P gain, certificate, and comparison. The LQR gain and MPC ingredients remain unchanged as baselines.
 
 The active optimization is [analysis.jl](analysis.jl), structured like [the Lyapunov study](../lyapunov/analysis.jl). Convex.jl and Clarabel jointly compute the gain and common-P certificate offline. MATLAB applies the exported gain and simulates the exact plant; Python checks and plots saved evidence. The editable [proposal helper](kawakami-implementation.excalidraw) shows only the added joint synthesis, rate search and evaluation of the new gain. The established model, conditioner and plant simulator appear only as reused components.
 

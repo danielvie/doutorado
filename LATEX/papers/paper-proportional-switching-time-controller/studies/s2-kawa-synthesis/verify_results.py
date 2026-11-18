@@ -79,10 +79,16 @@ def verify_certificates(s):
             lqr_cost = solve_discrete_are(A, B, I, 0.001 * np.eye(B.shape[1]))
             assert eigvalsh(P - policy_cost)[0] > -1e-7
             assert eigvalsh(policy_cost - lqr_cost)[0] > -1e-7
+    study_prefix = (ROOT / "studies").relative_to(ROOT.parents[2]).as_posix() + "/"
     for relative, digest in s["source_sha256"].items():
         paths = [ROOT.parents[2] / relative]
-        synthesis_source = (HERE / "synthesize.py").relative_to(ROOT.parents[2]).as_posix()
-        if relative == synthesis_source:
+        # The historical manifest predates the study directory renames.
+        for old, new in (("lyapunov", "s1-lyapunov"), ("mpc-comparison", "s1-mpc-comparison")):
+            prefix = study_prefix + old + "/"
+            if relative.startswith(prefix):
+                paths.append(ROOT / "studies" / new / relative[len(prefix):])
+        if relative in (study_prefix + "kawa-synthesis/synthesize.py",
+                        study_prefix + "s2-kawa-synthesis/synthesize.py"):
             # Retained evidence must match an exact historical producer, not the Julia port.
             paths += [HERE / "archive/synthesize-four-controller.py",
                       HERE / "archive/synthesize-decay.py"]
@@ -93,7 +99,7 @@ def verify_certificates(s):
 
 def verify_simulations(s, candidates):
     # The existing independent Python reconstruction is imported read-only.
-    sys.path.insert(0, str(ROOT / "studies/lyapunov/python"))
+    sys.path.insert(0, str(ROOT / "studies/s1-lyapunov/python"))
     from build_tutorial import build_cycle_model, propagate_exact_cycle
     model = build_cycle_model()
     S, ts = np.array(s["state_scale"]), s["timing_scale"]
@@ -220,8 +226,8 @@ def main():
     timing_samples, timing_states = verify_timing(methods)
     trajectories = 3 * len(methods)
     cycles = trajectories * 100
-    sources = [HERE / "analysis.jl", ROOT / "studies/lyapunov/Project.toml",
-               ROOT / "studies/lyapunov/Manifest.toml"]
+    sources = [HERE / "analysis.jl", ROOT / "studies/s1-lyapunov/Project.toml",
+               ROOT / "studies/s1-lyapunov/Manifest.toml"]
     sources += [HERE / name for name in ("simulate_comparison.m", "benchmark_timing.m", "verify_results.py")]
     result = dict(status="passed", controllers=len(methods), scenarios=3,
                   trajectories=trajectories, completed_exact_cycles=cycles,
